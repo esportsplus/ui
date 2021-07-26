@@ -1,0 +1,101 @@
+@use 'ui/tokens';
+
+.--flex {
+    display: flex;
+
+    &-center {
+        align-content: center;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    &-column {
+        display: flex;
+        flex-flow: column;
+    }
+
+    &-end {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    &-fill {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    &-fixed {
+        flex: 0 0 auto;
+    }
+
+    &-horizontal {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        &-space-between {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+    }
+
+    &-row {
+        display: flex;
+        flex-flow: row;
+    }
+
+    &-start {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    &-vertical {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+
+        &-space-between {
+            align-items: space-between;
+            display: flex;
+            flex-wrap: wrap;
+        }
+    }
+
+    /**
+     *--------------------------------------------------------------------------
+     *
+     *  Breakpoints
+     *
+     */
+
+    &-center {
+        @include tokens.breakpoints() {
+            align-content: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+
+    &-column {
+        &-reverse {
+            @include tokens.breakpoints() {
+                display: flex;
+                flex-flow: column-reverse;
+            }
+        }
+    }
+
+    &-row {
+        &-reverse {
+            @include tokens.breakpoints() {
+                display: flex;
+                flex-flow: row-reverse;
+            }
+        }
+    }
+}

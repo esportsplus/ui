@@ -1,0 +1,16 @@
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin: 0 auto;
+    max-width: var(--max-width);
+    position: relative;
+    width: calc(100% - (var(--spacer) * 2));
+
+    &--offset {
+        &-horizontal {
+            max-width: calc(var(--max-width) + (var(--spacer) * 2));
+            width: 100%;
+        }
+    }
+}

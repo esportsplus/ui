@@ -1,0 +1,48 @@
+.drawers {
+    --transition-duration: var(--transition-duration-400);
+
+
+    &--black {
+        &::after {
+            --background: var(--color-black-500);
+            --opacity: 0.88;
+        }
+
+        .drawers-close {
+            --color: var(--color-white-400);
+        }
+    }
+
+    &--grey {
+        &::after {
+            --background: var(--color-grey-400);
+            --opacity: 0.98;
+        }
+
+        .drawers-close {
+            --color: var(--color-black-500);
+        }
+    }
+
+    &--transparent {
+        &::after {
+            --opacity: 0;
+        }
+
+        .drawers-close {
+            --color: var(--color-black-500);
+        }
+    }
+
+
+    &-close {
+        --spacer: var(--spacer-dynamic);
+    }
+}
+
+
+.drawer {
+    --size: calc(100% - (var(--spacer-dynamic) * 2));
+    --max-size: 400px;
+    --shift: 80px;
+}

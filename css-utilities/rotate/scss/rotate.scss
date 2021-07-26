@@ -1,0 +1,7 @@
+.--rotate {
+    @each $step in 45 90 135 180 225 270 315 360 {
+        &-#{$step} {
+            transform: rotate(#{$step}deg);
+        }
+    }
+}

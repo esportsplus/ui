@@ -1,0 +1,31 @@
+@use 'ui/lib';
+
+.bubble {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    height: var(--height);
+    width: var(--width);
+
+
+    @each $direction in 'top' 'bottom' {
+        &--#{$direction} {
+            &-left,
+            &-right {
+                #{$direction}: calc(var(--size) / -2);
+                position: absolute;
+            }
+
+            &-left {
+                left: calc(var(--size) / -2);
+            }
+
+            &-right {
+                right: calc(var(--size) / -2);
+            }
+        }
+    }
+
+    &--border {
+        border: var(--border-width) var(--border-style) var(--border-color);
+    }
+}

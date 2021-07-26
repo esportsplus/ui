@@ -1,0 +1,22 @@
+@use 'ui/lib';
+
+.icon {
+    color: var(--color, inherit);
+    display: flex;
+    flex: 0 0 auto;
+    height: var(--height);
+    width: var(--width);
+
+
+    &:not([data-click]) {
+        pointer-events: none;
+    }
+
+
+    svg {
+        color: currentColor;
+        fill: currentColor;
+        height: 100%;
+        width: 100%;
+    }
+}

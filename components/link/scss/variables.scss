@@ -1,0 +1,59 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.link {
+    --background: transparent;
+    --border-radius: var(--border-radius-400);
+    --color: var(--color-text-400);
+    --transition-duration: var(--transition-duration-400);
+
+    &,
+    &-title {
+        --font-size: var(--font-size-400);
+        --font-weight: var(--font-weight-500);
+        --line-height: var(--line-height-size);
+
+        &,
+        &--button {
+            --padding-horizontal: var(--size-400);
+            --padding-vertical: var(--size-400);
+        }
+    }
+
+
+    &--border {
+        @include lib.modifiers('bottom' 'left' 'right' 'top', '&-{r}') {
+            --border-color: inherit;
+            --border-style: solid;
+            --border-width: var(--border-width-500);
+            --translate: var(--border-width);
+        }
+    }
+
+    &--icon {
+        .icon {
+            --color: var(--border-color);
+        }
+
+        &-active {
+            @include tokens.state(active) {
+                .icon {
+                    --color: var(--border-color);
+                }
+            }
+        }
+
+        &-inactive {
+            @include tokens.state(not-active) {
+                .icon {
+                    --color: var(--border-color);
+                }
+            }
+        }
+    }
+
+
+    &-title {
+        --color: var(--color-text-500);
+    }
+}

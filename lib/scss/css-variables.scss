@@ -1,0 +1,13 @@
+@mixin css-variables($prefix, $tokens) {
+    @each $key, $value in $tokens {
+        @if type-of($value) == 'map' {
+            @each $subkey, $subvalue in $value {
+                --#{$prefix}-#{$key}-#{$subkey}: #{$subvalue};
+            }
+        }
+        @else {
+            --#{$prefix}-#{$key}: #{$value};
+        }
+    }
+}
+ 

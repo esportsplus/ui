@@ -1,0 +1,14 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Wrapper To Keep 'not-allowed' Cursor On Disabled Elements
+ *
+ */
+
+.--not-allowed {
+    cursor: not-allowed;
+
+    * {
+        pointer-events: none;
+    }
+}

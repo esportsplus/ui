@@ -1,0 +1,29 @@
+@use 'ui/tokens';
+
+.card {
+    --background: transparent;
+    --border-radius: var(--border-radius-400);
+    --box-shadow: var(--box-shadow-300);
+    --opacity: 0.48;
+    --transition-duration: var(--transition-duration-400);
+    --width: auto;
+
+    @include tokens.state(active) {
+        &::before {
+            --opacity: 1;
+        }
+    }
+
+    @include tokens.state(hover) {
+        &::before {
+            --box-shadow: var(--box-shadow-500);
+            --opacity: 1;
+        }
+    }
+
+
+    &-overlay {
+        --background: var(--color-black-400);
+        --opacity: 0.8;
+    }
+}

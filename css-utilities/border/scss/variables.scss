@@ -1,0 +1,72 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--border {
+    @include lib.modifiers('bottom' 'left' 'right' 'top', '&' '&-{r}') {
+        --border-color: var(--color-border-400);
+        --border-style: solid;
+        --border-width: var(--border-width-400);
+    }
+
+    &-dashed {
+        --border-style: dashed;
+    }
+
+    &-dotted {
+        --border-style: dotted;
+    }
+
+    &-radius {
+        @each $key in lib.map-keys(tokens.$border-radius) {
+            @include lib.modifiers($key, if($key == 400, '&', '') '&-{r}') {
+                --border-radius: var(--border-radius-#{$key});
+            }
+        }
+    }
+
+    &-state {
+        --border-color: var(--border-color-400);
+
+        @include tokens.state(highlight) {
+            --border-color: var(--border-color-300);
+        }
+
+        @include tokens.state(pressed) {
+            --border-color: var(--border-color-500);
+        }
+
+        &-inactive {
+            @include tokens.state(default) {
+                --border-color: var(--border-color-400);
+            }
+
+            @include tokens.state(hover) {
+                --border-color: var(--border-color-300);
+            }
+
+            @include tokens.state(pressed) {
+                --border-color: var(--border-color-500);
+            }
+        }
+    }
+
+    &-width {
+        @each $key in lib.map-keys(tokens.$border-width) {
+            @include lib.modifiers($key, if($key == 400, '&', '') '&-{r}') {
+                --border-width: var(--border-width-#{$key});
+            }
+        }
+    }
+
+    @each $color in lib.map-get(tokens.$color, modifiers) {
+        &-#{$color} {
+            @each $key in lib.map-keys(lib.map-get(tokens.$color, $color)) {
+                --border-color-#{$key}: var(--color-#{$color}-#{$key});
+
+                &-#{$key} {
+                    --border-color: var(--color-#{$color}-#{$key});
+                }
+            }
+        }
+    }
+}

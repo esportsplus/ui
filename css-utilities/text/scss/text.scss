@@ -1,0 +1,106 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--text {
+    &-bold {
+        font-weight: var(--font-weight-500);
+
+        @each $key in lib.map-keys(tokens.$font-weight) {
+            @if $key > 500 {
+                &-#{$key} {
+                    font-weight: var(--font-weight-#{$key});
+                }
+            }
+        }
+    }
+
+    &-center {
+        text-align: center;
+    }
+
+    &-crop {
+        &-both::after,
+        &-both::before,
+        &-bottom::after,
+        &-top::before {
+            content: '';
+            display: block;
+            height: 0;
+            width: 0;
+        }
+
+        &-both::after,
+        &-bottom::after {
+            margin-bottom: calc((1 - var(--line-height)) * 0.8em);
+        }
+
+        &-both::before,
+        &-top::before {
+            margin-top: calc((1 - var(--line-height)) * 0.8em);
+        }
+    }
+
+    &-italic {
+        font-style: italic;
+    }
+
+    &-linethrough {
+        opacity: 0.8;
+        text-decoration: line-through;
+    }
+
+    &-outline {
+        color: var(--color);
+
+        @supports (-webkit-text-stroke-width: 1px) {
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            -webkit-text-stroke-color: var(--color);
+            -webkit-text-stroke-width: 1px;
+        }
+    }
+
+    &-truncate {
+        line-height: var(--size);
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-underline {
+        text-decoration: underline;
+
+        &-dotted {
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+    }
+
+    &-uppercase {
+        text-transform: uppercase;
+    }
+
+    @include lib.modifiers(lib.map-keys(tokens.$font-size), '&-{r}') {
+        font-size: var(--font-size);
+    }
+
+    @each $multiplier in 1.25 1.5 2 3 4 {
+        &-#{lib.string-replace('.', '\\.', '#{$multiplier}')}x {
+            font-size: calc(var(--font-size) * #{$multiplier});
+        }
+    }
+
+    /**
+     *--------------------------------------------------------------------------
+     *
+     *  Breakpoints
+     *
+     */
+
+    &-center {
+        @include tokens.breakpoints() {
+            text-align: center;
+        }
+    }
+}

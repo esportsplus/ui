@@ -1,0 +1,67 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+@mixin datepicker() {
+    &-datepicker {
+        &-days,
+        &-header {
+            margin: var(--border-width) 0 0 var(--border-width);
+            width: calc(100% - var(--border-width));
+        }
+
+        &-day,
+        &-header {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        &-break {
+            flex-basis: 100%;
+            height: 0;
+        }
+
+        &-day {
+            @include lib.transition(background border-color color, var(--transition-duration));
+            border: var(--border-width) solid var(--border-color);
+            border-radius: var(--border-radius);
+            color: var(--color);
+            flex: 1 1 0px;
+            margin: calc(var(--border-width) * -1) 0 0 calc(var(--border-width) * -1);
+            position: relative;
+            text-align: center;
+            z-index: 0;
+
+            @include tokens.state(active) {
+                z-index: 2;
+            }
+
+            @include tokens.state(hover) {
+                z-index: 1;
+            }
+
+            &--adj-month {
+                cursor: default;
+                opacity: var(--opacity);
+            }
+
+            &--square {
+                &::before {
+                    content: "";
+                    display: block;
+                    padding-bottom: 100%;
+                }
+            }
+
+            &-number {
+                @include lib.position(absolute, center);
+                pointer-events: none;
+                text-align: center;
+            }
+        }
+
+        &-header {
+            padding: var(--padding-vertical) var(--padding-horizontal);
+        }
+    }
+}

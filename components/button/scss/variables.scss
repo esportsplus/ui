@@ -1,0 +1,37 @@
+@use 'ui/tokens';
+
+.button {
+    --border-color: var(--background);
+    --border-radius: var(--border-radius-400);
+    --border-width: 0px;
+    --box-shadow: none;
+    --font-size: var(--font-size-400);
+    --line-height: var(--line-height-size);
+    --min-width: auto;
+    --padding-horizontal: var(--size-400);
+    --padding-vertical: var(--size-400);
+    --transition-duration: var(--transition-duration-400);
+    --width: auto;
+
+    @include tokens.state(active hover) {
+        --box-shadow: var(--box-shadow-500);
+    }
+
+
+    &--circle {
+        --border-radius: var(--border-radius-900);
+    }
+
+    &--curved {
+        --border-radius: var(--border-radius-800);
+    }
+
+    &--processing {
+        --border-color: var(--color);
+        --size: var(--size-400);
+
+        &::after {
+            --border-width: 3px;
+        }
+    }
+}

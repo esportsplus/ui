@@ -1,0 +1,31 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.frame {
+    @include lib.transition(opacity transform, 0s);
+    backface-visibility: hidden;
+    position: relative;
+    width: 100%;
+
+    @include tokens.state(not-active) {
+        display: none;
+    }
+
+
+    &--animate,
+    &--reverse {
+        transition-duration: var(--transition-duration);
+    }
+
+    &--animate {
+        @include tokens.state(not-active) {
+            transform: translateX(var(--transform));
+        }
+    }
+
+    &--reverse {
+        @include tokens.state(not-active) {
+            transform: translateX(calc(var(--transform) * -1));
+        }
+    }
+}

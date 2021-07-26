@@ -1,0 +1,23 @@
+@use 'ui/tokens';
+
+.--width {
+    width: var(--width);
+
+    &-full {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    /**
+     *--------------------------------------------------------------------------
+     *
+     *  Breakpoints
+     *
+     */
+    &-full {
+        @include tokens.breakpoints() {
+            margin-left: 0;
+            margin-right: 0;
+        }
+    }
+}

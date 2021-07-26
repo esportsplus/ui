@@ -1,0 +1,12 @@
+@each $property in max min {
+    .--#{$property} {
+        &-height {
+            #{$property}-height: var(--#{$property}-height);
+        }
+
+        &-width {
+            #{$property}-width: var(--#{$property}-width);
+        }
+    }
+}
+ 

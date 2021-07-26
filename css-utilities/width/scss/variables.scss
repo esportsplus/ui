@@ -1,0 +1,60 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--width {
+    &,
+    &-auto {
+        --width: auto;
+    }
+
+    &-full {
+        --width: 100%;
+    }
+
+    &-half {
+        --width: calc(50% - (var(--margin, var(--spacer, 0px)) * 0.5));
+    }
+
+    &-viewport {
+        --width: 100vw;
+    }
+
+    @each $key in lib.list-unique(lib.list-join(tokens.$breakpoints, tokens.$width)) {
+        &-#{$key} {
+            --width: #{$key};
+        }
+    }
+
+    /**
+     *--------------------------------------------------------------------------
+     *
+     *  Breakpoints
+     *
+     */
+
+    &-full {
+        @include tokens.breakpoints() {
+            --width: 100%;
+        }
+    }
+
+    &-half {
+        @include tokens.breakpoints() {
+            --width: calc(50% - (var(--margin, var(--spacer, 0px)) * 0.5));
+        }
+    }
+
+    &-viewport {
+        @include tokens.breakpoints() {
+            --width: 100vw;
+        }
+    }
+
+    @each $key in lib.list-unique(lib.list-join(tokens.$breakpoints, tokens.$width)) {
+        &-#{$key} {
+            @include tokens.breakpoints() {
+                --width: #{$key};
+            }
+        }
+    }
+}

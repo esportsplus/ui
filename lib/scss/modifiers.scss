@@ -1,0 +1,24 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Generate Dynamic Classes With Same CSS Contents
+ *
+ */
+
+@use 'list';
+@use 'string';
+
+@mixin modifiers($classes, $targets: '&--{r}') {
+    $selector: ();
+    $targets: list.unique(list.to-list($targets));
+
+    @each $target in $targets {
+        @each $class in list.to-list($classes) {
+            $selector: list.append($selector, string.replace('{r}', $class, $target));
+        }
+    }
+
+    #{list.implode(',', list.unique($selector))} {
+        @content;
+    }
+}

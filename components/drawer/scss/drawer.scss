@@ -1,0 +1,80 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.drawer {
+    @include lib.transition(transform, var(--transition-duration));
+    cursor: default;
+    z-index: 1;
+
+
+    @include tokens.state(not-active) {
+        pointer-events: none;
+
+        input[type='password'] {
+            display: none;
+        }
+    }
+
+
+    &--n,
+    &--s {
+        left: 0;
+        max-height: var(--max-size);
+        min-width: 100%;
+        position: absolute;
+        right: 0;
+
+        &.drawer--fixed {
+            height: var(--size);
+        }
+    }
+
+    &--e,
+    &--w {
+        bottom: 0;
+        min-height: 100%;
+        max-width: var(--max-size);
+        position: absolute;
+        top: 0;
+
+        &.drawer--fixed {
+            width: var(--size);
+        }
+    }
+
+    &--n {
+        top: 0;
+
+        @include tokens.state(not-active) {
+            position: fixed;
+            transform: translateY(calc(#{var(--max-size)} * -1));
+        }
+    }
+
+    &--e {
+        right: 0;
+
+        @include tokens.state(not-active) {
+            position: fixed;
+            transform: translateX(#{var(--max-size)});
+        }
+    }
+
+    &--s {
+        bottom: 0;
+
+        @include tokens.state(not-active) {
+            position: fixed;
+            transform: translateY(#{var(--max-size)});
+        }
+    }
+
+    &--w {
+        left: 0;
+
+        @include tokens.state(not-active) {
+            position: fixed;
+            transform: translateX(calc(#{var(--max-size)} * -1));
+        }
+    }
+}

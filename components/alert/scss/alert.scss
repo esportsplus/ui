@@ -1,0 +1,22 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Alert Notifications
+ *
+ *  Anchors Module Provides Positioning
+ *
+ */
+
+@use 'ui/tokens';
+
+.alert {
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    max-width: calc(100% - (var(--margin) * 2));
+    overflow: hidden;
+    width: var(--width);
+
+    @include tokens.state(not-active) {
+        transform: translateY(-50%);
+    }
+}

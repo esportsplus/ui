@@ -1,0 +1,11 @@
+@use 'list';
+
+@mixin transition($properties, $duration) {
+    $value: ();
+
+    @each $property in list.to-list($properties) {
+        $value: list.append($value, '#{$property} #{$duration}');
+    }
+
+    transition: #{list.implode(',', list.unique($value))};
+}

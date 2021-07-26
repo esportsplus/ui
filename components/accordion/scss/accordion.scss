@@ -1,0 +1,34 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.accordion {
+    @include lib.transition(max-height opacity, 0s);
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+
+    @include tokens.state(hover active) {
+        overflow: visible;
+    }
+
+    @include tokens.state(not-active) {
+        max-height: 0;
+        opacity: 0;
+    }
+
+
+    &--animate {
+        transition-duration: var(--transition-duration);
+    }
+
+
+    &-arrow {
+        transform: rotate(90deg);
+
+        // Rotate Arrow Only If Parent Accordion Is Active
+        #{tokens.state(active, '[data-accordion]')} > &,
+        #{tokens.state(active, '[data-accordion]')} :not([data-accordion]) > & {
+            transform: rotate(-90deg);
+        }
+    }
+}

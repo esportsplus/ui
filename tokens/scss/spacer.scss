@@ -1,0 +1,14 @@
+$spacer: (
+    dynamic: (
+        400: var(--size-700),
+        500: var(--size-800)
+    ),
+    100: calc(var(--size-900) / 3),
+    200: calc(var(--size-900) / 2),
+    300: calc(var(--size-900) / 1.5),
+    400: var(--size-900),
+    500: calc(var(--size-900) * 1.5),
+    600: calc(var(--size-900) * 2),
+    700: calc(var(--size-900) * 3),
+    800: calc(var(--size-900) * 4)
+);

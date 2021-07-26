@@ -1,0 +1,68 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Bulletpoint/Numbered Lists
+ *
+ */
+
+@use 'ui/lib';
+
+.list {
+    flex-flow: column wrap;
+
+    &,
+    &-item {
+        display: flex;
+        margin-top: var(--margin);
+        position: relative;
+        width: 100%;
+
+        & #{&},
+        &--nested {
+            margin-top: calc(var(--margin) / 2);
+        }
+    }
+
+    &-item {
+        flex-flow: row wrap;
+
+        &::before {
+            @include lib.position(absolute, 0 null null 0);
+        }
+
+        &--bulletpoint {
+            padding-left: var(--padding);
+
+            &::before {
+                background: var(--background);
+                border-radius: var(--border-radius);
+                content: '';
+                height: var(--size);
+                top: 0.618em;
+                width: var(--size);
+            }
+
+            // Nested Lists
+            & #{&}::before {
+                background: transparent;
+                border: var(--border-width) solid var(--background);
+            }
+        }
+
+        &--numbered {
+            counter-increment: list;
+            padding-left: var(--padding);
+
+            &::before {
+                color: var(--color);
+                content: counter(list);
+                display: flex;
+                font-weight: var(--font-weight);
+                justify-content: center;
+                text-align: center;
+                white-space: nowrap;
+                width: calc(var(--padding) / 2);
+            }
+        }
+    }
+}

@@ -1,0 +1,23 @@
+@use 'ui/lib';
+
+.loading {
+    @include lib.position(absolute, center);
+    animation: loading 0.64s infinite linear;
+    border: var(--border-width) solid var(--border-color);
+    border-radius: 100%;
+    border-right-color: transparent;
+    border-top-color: transparent;
+    content: '';
+    height: var(--size);
+    width: var(--size);
+    z-index: 0;
+
+    @keyframes loading {
+        0% {
+            transform: translate(50%, 50%) rotate(0deg);
+        }
+        100% {
+            transform: translate(50%, 50%) rotate(359deg);
+        }
+    }
+}

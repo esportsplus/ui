@@ -1,0 +1,32 @@
+@each $property in margin padding {
+    .--#{$property} {
+        #{$property}: var(--#{$property}-vertical, var(--#{$property})) var(--#{$property}-horizontal, var(--#{$property}));
+
+        &-bottom {
+            #{$property}-bottom: var(--#{$property}-vertical, var(--#{$property}));
+        }
+
+        &-horizontal {
+            #{$property}-left: var(--#{$property}-horizontal, var(--#{$property}));
+            #{$property}-right: var(--#{$property}-horizontal, var(--#{$property}));
+        }
+
+        &-left {
+            #{$property}-left: var(--#{$property}-horizontal, var(--#{$property}));
+        }
+
+        &-right {
+            #{$property}-right: var(--#{$property}-horizontal, var(--#{$property}));
+        }
+
+        &-top {
+            #{$property}-top: var(--#{$property}-vertical, var(--#{$property}));
+        }
+
+        &-vertical {
+            #{$property}-bottom: var(--#{$property}-vertical, var(--#{$property}));
+            #{$property}-top: var(--#{$property}-vertical, var(--#{$property}));
+        }
+    }
+
+}

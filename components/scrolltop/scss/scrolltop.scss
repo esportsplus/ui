@@ -1,0 +1,11 @@
+@use 'ui/tokens';
+
+.drawers,
+.modals {
+    @include tokens.state(active) {
+        ~ .anchors .scrolltop {
+            opacity: 0;
+        }
+    }
+}
+ 

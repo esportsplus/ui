@@ -1,0 +1,49 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--hidden {
+    display: none;
+
+    &-active {
+        @include tokens.state(active) {
+            display: none;
+        }
+    }
+
+    &-first-child {
+        &:first-child {
+            display: none;
+        }
+    }
+
+    &-last-child {
+        &:last-child {
+            display: none;
+        }
+    }
+
+    &-not-active {
+        @include tokens.state(not-active) {
+            display: none;
+        }
+    }
+
+    &-off-canvas {
+        @include lib.position(fixed, 200% null null 200%);
+        opacity: 0;
+        z-index: -1;
+    }
+
+    /**
+     *--------------------------------------------------------------------------
+     *
+     *  Breakpoints
+     *
+     */
+
+    & {
+        @include tokens.breakpoints() {
+            display: none;
+        }
+    }
+}

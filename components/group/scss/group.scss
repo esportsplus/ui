@@ -1,0 +1,227 @@
+@use 'ui/lib';
+
+.group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin: 0 calc(var(--margin) / -2);
+    position: relative;
+    width: calc(100% + var(--margin));
+
+
+    &--border {
+        @include lib.modifiers('bottom' 'left' 'right' 'top', '&-{r}') {
+            &::before {
+                @include lib.transition(border-color opacity transform, var(--transition-duration));
+                border-color: var(--border-color);
+                border-style: var(--border-style);
+                content: '';
+                z-index: 0;
+            }
+
+            .group-item {
+                z-index: 1;
+            }
+        }
+
+        &-bottom {
+            &::before {
+                @include lib.position(absolute, bottom);
+                border-radius: var(--border-radius) var(--border-radius) 0 0;
+                border-width: var(--border-width) 0 0 0;
+            }
+        }
+
+        &-left {
+            &::before {
+                @include lib.position(absolute, left);
+                border-radius: 0 var(--border-radius) var(--border-radius) 0;
+                border-width: 0 var(--border-width) 0 0;
+            }
+        }
+
+        &-right {
+            &::before {
+                @include lib.position(absolute, right);
+                border-radius: var(--border-radius) 0 0 var(--border-radius);
+                border-width: 0 0 0 var(--border-width);
+            }
+        }
+
+        &-top {
+            &::before {
+                @include lib.position(absolute, top);
+                border-radius: 0 0 var(--border-radius) var(--border-radius);
+                border-width: 0 0 var(--border-width) 0;
+            }
+        }
+    }
+
+    &--column {
+        padding: var(--padding-vertical) var(--padding-horizontal);
+        width: 100%;
+
+        &,
+        > .group-item {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        > .group-item {
+            max-width: 100%;
+            min-width: 100%;
+            width: max-content;
+        }
+    }
+
+    &--grid {
+        --count: 1;
+
+        &[data-grid='5'] {
+            > .group-item {
+                @include lib.breakpoint(min-width, 1400px) {
+                    --count: 5;
+                }
+
+                @include lib.breakpoint(between-width, 1000px 1400px) {
+                    --count: 4;
+                }
+
+                @include lib.breakpoint(between-width, 800px 1000px) {
+                    --count: 3;
+                }
+
+                @include lib.breakpoint(between-width, 600px 800px) {
+                    --count: 2;
+                }
+            }
+        }
+
+        &[data-grid='4'] {
+            > .group-item {
+                @include lib.breakpoint(min-width, 1400px) {
+                    --count: 4;
+                }
+
+                @include lib.breakpoint(between-width, 1000px 1400px) {
+                    --count: 3;
+                }
+
+                @include lib.breakpoint(between-width, 600px 1000px) {
+                    --count: 2;
+                }
+            }
+        }
+
+        &[data-grid='3'] {
+            > .group-item {
+                @include lib.breakpoint(min-width, 600px) {
+                    --count: 3;
+                }
+
+                @include lib.breakpoint(between-width, 400px 600px) {
+                    --count: 2;
+                }
+            }
+        }
+
+        &[data-grid='2'] {
+            > .group-item {
+                @include lib.breakpoint(min-width, 900px) {
+                    --count: 2;
+                }
+            }
+        }
+
+        > .group-item {
+            width: calc((100% / var(--count)) - (var(--margin) * var(--count) / var(--count)));
+        }
+    }
+
+    &--offset {
+        @each $direction in 'bottom' 'top' {
+            &-#{$direction} {
+                margin-#{$direction}: calc(var(--margin) * -1);
+
+                &[class*='--background-'] {
+                    margin-#{$direction}: calc((var(--margin) + (var(--line-height) / 2)) * -1);
+                }
+            }
+        }
+
+        &-spacer {
+            margin: var(--margin) 0 0 0;
+
+            &[class*='--background-'] {
+                margin: calc(var(--margin) + (var(--line-height) / 2)) 0 0 0;
+            }
+        }
+    }
+
+    &--scroller {
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
+
+        &[class*='--background-'] {
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .group-item {
+            margin-top: 0;
+
+            &:first-child {
+                margin-left: 0;
+            }
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+    }
+
+
+    &-bulletpoint,
+    &-caret {
+        display: flex;
+        margin: var(--margin) calc(var(--size) / -2) 0;
+        pointer-events: none;
+        position: relative;
+        width: var(--size);
+
+        &:first-child,
+        &:last-child {
+            opacity: 0;
+        }
+    }
+
+    &-bulletpoint {
+        &::after {
+            @include lib.position(absolute, center);
+            background: var(--background);
+            border-radius: var(--border-radius);
+            content: '';
+            height: var(--size);
+            width: var(--size);
+        }
+    }
+
+    &-item {
+        display: flex;
+        margin: var(--margin) calc(var(--margin) / 2) 0;
+        position: relative;
+        min-width: var(--min-width);
+        width: var(--width);
+
+        &[class*='--width-full'] {
+            margin-left: calc(var(--margin) / 2);
+            margin-right: calc(var(--margin) / 2);
+            width: calc(var(--width) - var(--margin));
+        }
+
+        &[class*='--width-half'] {
+            width: calc(var(--width) - (var(--margin) * 0.5));
+        }
+    }
+}

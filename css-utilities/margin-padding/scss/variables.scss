@@ -1,0 +1,43 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+@each $property in margin padding {
+    .--#{$property} {
+        &-border {
+            &-width {
+                @each $key in lib.map-keys(tokens.$border-width) {
+                    @include lib.modifiers($key, if($key == 400, '&', '') '&-{r}') {
+                        --#{$property}: var(--border-width-#{$key});
+                    }
+
+                    @each $direction in 'horizontal' 'vertical' {
+                        @include lib.modifiers($key, if($key == 400, '&', '') '&-{r}' '&-#{$direction}-#{$key}') {
+                            --#{$property}-#{$direction}: var(--border-width-#{$key});
+                        }
+                    }
+                }
+            }
+        }
+
+        @each $key in lib.map-keys(tokens.$size) {
+            &-#{$key} {
+                --#{$property}: var(--size-#{$key});
+            }
+
+            @each $direction in 'horizontal' 'vertical' {
+                &-#{$key},
+                &-#{$direction}-#{$key} {
+                    --#{$property}-#{$direction}: var(--size-#{$key});
+                }
+            }
+        }
+    }
+}
+
+.--margin {
+    &-auto {
+        --margin: auto;
+        --margin-horizontal: auto;
+        --margin-vertical: auto;
+    }
+}

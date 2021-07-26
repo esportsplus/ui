@@ -1,0 +1,152 @@
+@use 'ui/lib';
+
+@mixin text() {
+    &-mask {
+        &--input,
+        &--select,
+        &--textarea {
+            align-items: center;
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-wrap: wrap;
+            font-size: var(--font-size);
+            line-height: var(--line-height);
+            position: relative;
+            width: 100%;
+
+            &:invalid,
+            &:required {
+                box-shadow: none;
+            }
+
+            &,
+            .field-tag {
+                color: var(--color);
+            }
+
+            .field--background .field-title ~ &,
+            .field--border .field-title ~ & {
+                margin: var(--margin) 0 0;
+            }
+
+            .field--background & {
+                background: var(--background);
+            }
+
+            .field--border & {
+                border: var(--border-width) var(--border-style) var(--border-color);
+            }
+
+            .field--border-bottom & {
+                border-radius: var(--border-radius) var(--border-radius) 0 0;
+                overflow: hidden;
+
+                // On Active Grow Effect
+                &::before {
+                    @include lib.position(absolute, bottom);
+                    @include lib.transition(border-color max-height transform, var(--transition-duration));
+                    border-color: var(--border-color);
+                    border-radius: var(--border-radius) var(--border-radius) 0 0;
+                    border-style: var(--border-style);
+                    border-width: var(--border-width) 0 0;
+                    content: '';
+                    height: var(--border-width);
+                    overflow: hidden;
+                    pointer-events: none;
+                    transform: translateY(var(--translate));
+                    transform-origin: bottom center;
+                }
+            }
+        }
+
+        &--select,
+        &--input .field-tag,
+        &--textarea .field-tag {
+            padding: var(--padding-vertical) 0;
+        }
+
+        .field--background &--select,
+        .field--background &--input .field-tag,
+        .field--background &--textarea .field-tag{
+            padding: var(--padding-vertical) var(--padding-horizontal);
+        }
+
+        .field--border &--select,
+        .field--border &--input .field-tag,
+        .field--border &--textarea .field-tag{
+            padding: calc(var(--padding-vertical) - var(--border-width)) var(--padding-horizontal);
+        }
+
+        // Truncate Overflowing Text
+        &--select,
+        &--input .field-tag {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        &--input,
+        &--textarea {
+            cursor: text;
+
+            .field-tag {
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+        }
+
+        &--input {
+            // Necessary To Maintain Height Of Hidden Password Fields In Floating Modals
+            // - Password Managers Cause Problems When Fields Are Not Using 'display:hidden' On Password Fields
+            min-height: calc((var(--padding-vertical) * 2) + var(--size));
+
+            .field-tag[type='number'] {
+                appearance: textfield;
+                -moz-appearance: textfield;
+                -webkit-appearance: textfield;
+            }
+        }
+
+        &--select {
+            cursor: pointer;
+            padding-right: calc((var(--padding-horizontal) / 1.5) + var(--arrow-size));
+            pointer-events: none;
+
+            // Down Arrow
+            &::after {
+                @include lib.position(absolute, null var(--arrow-spacer) calc(50% + var(--arrow-spacer)) null);
+                border-color: var(--border-color);
+                border-style: var(--border-style);
+                border-width: 0 var(--border-width) var(--border-width) 0;
+                content: '';
+                height: var(--arrow-size);
+                transform: translateY(50%) rotate(45deg);
+                width: var(--arrow-size);
+            }
+
+            .field--background &,
+            .field--border & {
+                padding-right: calc((var(--padding-horizontal) * 1.5) + var(--arrow-size));
+
+                &::after {
+                    right: calc(var(--padding-horizontal) - (var(--arrow-size) / 2));
+                }
+            }
+        }
+
+        &--textarea {
+
+            // JS Autoresizes Height Of Element
+            .field-tag {
+                height: var(--height);
+                resize: vertical;
+
+                &--autoresize {
+                    @include lib.transition(border-color box-shadow height, var(--transition-duration));
+                    overflow: hidden;
+                    resize: none;
+                }
+            }
+        }
+    }
+}

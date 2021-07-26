@@ -1,0 +1,121 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.link {
+    @include lib.transition(background border-color color opacity, var(--transition-duration));
+    background: var(--background);
+    cursor: pointer;
+
+    &,
+    &-title {
+        align-content: center;
+        color: var(--color);
+        display: flex;
+        font-size: var(--font-size);
+        line-height: var(--line-height);
+        padding: var(--padding-vertical) 0;
+        position: relative;
+
+        &--button {
+            padding: var(--padding-vertical) var(--padding-horizontal);
+        }
+    }
+
+
+    // Rounded Psuedo Element Border
+    // - ::after Used By Tooltip
+    &--border {
+        &-bottom,
+        &-left,
+        &-right,
+        &-top {
+            &::before {
+                @include lib.transition(border-color opacity transform, var(--transition-duration));
+                border-color: var(--border-color);
+                border-style: var(--border-style);
+                content: '';
+            }
+
+            @include tokens.state(default) {
+                &::before {
+                    opacity: 0;
+                }
+            }
+        }
+
+        &-bottom {
+            &::before {
+                @include lib.position(absolute, bottom);
+                border-radius: var(--border-radius) var(--border-radius) 0 0;
+                border-width: var(--border-width) 0 0 0;
+            }
+
+            @include tokens.state(default) {
+                &::before {
+                    transform: translateY(var(--translate));
+                }
+            }
+        }
+
+        &-left {
+            &::before {
+                @include lib.position(absolute, left);
+                border-radius: 0 var(--border-radius) var(--border-radius) 0;
+                border-width: 0 var(--border-width) 0 0;
+            }
+
+            @include tokens.state(default) {
+                &::before {
+                    transform: translateX(calc(var(--translate) * -1));
+                }
+            }
+        }
+
+        &-right {
+            &::before {
+                @include lib.position(absolute, right);
+                border-radius: var(--border-radius) 0 0 var(--border-radius);
+                border-width: 0 0 0 var(--border-width);
+            }
+
+            @include tokens.state(default) {
+                &::before {
+                    transform: translateX(var(--translate));
+                }
+            }
+        }
+
+        &-top {
+            &::before {
+                @include lib.position(absolute, top);
+                border-radius: 0 0 var(--border-radius) var(--border-radius);
+                border-width: 0 0 var(--border-width) 0;
+            }
+
+            @include tokens.state(default) {
+                &::before {
+                    transform: translateY(calc(var(--translate) * -1));
+                }
+            }
+        }
+    }
+
+    &--underline {
+        @include tokens.state(active hover) {
+            text-decoration: underline;
+        }
+    }
+
+
+    &-title {
+        font-weight: var(--font-weight);
+        cursor: default;
+        width: 100%;
+        z-index: 0;
+
+        &:empty,
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+}

@@ -1,0 +1,10 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--spacer {
+    @each $key in lib.map-keys(tokens.$spacer) {
+        &-#{$key} {
+            --spacer: var(--spacer-#{$key});
+        }
+    }
+}

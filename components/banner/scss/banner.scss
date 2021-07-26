@@ -1,0 +1,18 @@
+@use 'ui/lib';
+
+.banner {
+    @include lib.position(absolute, full);
+    background: var(--background);
+    background-position: center;
+    background-size: cover;
+    z-index: -1;
+
+
+    &--right {
+        left: unset;
+    }
+
+    &--left {
+        right: unset;
+    }
+}

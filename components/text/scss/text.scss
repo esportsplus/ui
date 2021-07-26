@@ -1,0 +1,83 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Text Elements
+ *
+ */
+
+@use 'ui/lib';
+
+.text {
+    @include lib.transition(color, var(--transition-duration));
+    align-items: center;
+    color: var(--color);
+    display: flex;
+    flex-flow: wrap;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    max-width: 100%;
+    position: relative;
+
+    /**
+     *--------------------------------------------------------------------------
+     *
+     *  Text List
+     *
+     */
+
+    &-list {
+        display: flex;
+        flex-direction: column;
+        max-width: 100%;
+        position: relative;
+
+        > .text {
+            &,
+            &-group,
+            &-list {
+                flex: 1 1 auto;
+                margin-top: var(--margin);
+                max-width: 100%;
+
+                &::after {
+                    display: none;
+                }
+
+                &:first-child {
+                    margin-top: 0;
+                }
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+    }
+
+    /**
+     *--------------------------------------------------------------------------
+     *
+     *  Vertical Set Of Text Lists ( icon - text )
+     *
+     */
+
+    &-lists {
+        display: flex;
+        flex-direction: column;
+        max-width: 100%;
+        position: relative;
+
+        > .text {
+            &,
+            &-list,
+            &-group {
+                margin-top: var(--margin);
+                width: 100%;
+
+                &:first-child {
+                    margin-top: 0;
+                }
+            }
+        }
+    }
+}

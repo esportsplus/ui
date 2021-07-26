@@ -1,0 +1,72 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Buttons, Links, And Other Modules Display CSS Properties Based On Module
+ *  'State' ( :hover, :active, etc. )
+ *
+ *  Desired Result:
+ *  - Default Colors Assigned To Element;
+ *  - On 'highlight' Or ':hover' Display A Slightly Brighter Version Of
+ *    The Default Color;
+ *  - On 'pressed' Or ':active' Display Slightly Darker Version Of The
+ *    Default Color;
+ *
+ *  End Product Gives Off The Illusion Of A Static -> Hovering -> Pressed
+ *  Button Without Dealing With Transforms To Shift Elements.
+ *
+ *  Mixin Also Handles Removing Duplicate List Keys
+ *
+ */
+
+@use 'ui/lib';
+
+$state: (
+    default: '&:not(.--active):not(:hover)',
+    highlight: '&.--active' '&:hover',
+
+    active: '&.--active',
+    not-active: '&:not(.--active)',
+
+    disabled: '&.--disabled',
+    not-disabled: '&:not(.--disabled)',
+
+    hover: '&:not(.--active):hover',
+    hover-override: '&:hover',
+
+    pressed: '&:not(.--active):active',
+    pressed-override: '&:active'
+);
+
+
+@function state($key, $replace: null) {
+    $selector: lib.map-get($state, $key);
+
+    // To Avoid Overcomplicating The Responsibility Of This Function Limit
+    // Replace Parameter To String Values Only
+    @if $replace {
+        @if type-of($replace) != 'string' or type-of($selector) != 'string' {
+            @error "'lib.string-replace' Cannot Be Used On A List!";
+        }
+
+        $selector: lib.string-replace('&', $replace, $selector);
+    }
+
+    @return $selector;
+}
+
+
+@mixin state($states) {
+    $selector: ();
+
+    @each $s in lib.list-to-list($states) {
+        $section: state($s);
+
+        @if $section {
+            $selector: lib.list-append($selector, $section);
+        }
+    }
+
+    #{lib.list-implode(',', lib.list-unique($selector))} {
+        @content;
+    }
+}

@@ -1,0 +1,48 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Anchored Elements
+ *
+ */
+
+@use 'ui/lib';
+@use 'ui/tokens';
+
+$size: calc(100% - (var(--spacer) * 2));
+
+.anchor {
+    @include lib.transition(opacity transform, var(--transition-duration));
+    max-height: $size;
+    max-width: $size;
+    pointer-events: auto;
+    position: absolute;
+
+    @include tokens.state(not-active) {
+        opacity: 0;
+
+        &, * {
+            pointer-events: none;
+        }
+    }
+
+
+    &--ne,
+    &--nw {
+        top: var(--spacer);
+    }
+
+    &--se,
+    &--sw {
+        bottom: var(--spacer);
+    }
+
+    &--ne,
+    &--se {
+        right: var(--spacer);
+    }
+
+    &--nw,
+    &--sw {
+        left: var(--spacer);
+    }
+}

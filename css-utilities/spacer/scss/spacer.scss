@@ -1,0 +1,30 @@
+.--spacer {
+    margin: var(--spacer);
+
+    &-horizontal {
+        margin-left: var(--spacer);
+        margin-right: var(--spacer);
+    }
+
+    &-vertical {
+        margin-bottom: var(--spacer);
+        margin-top: var(--spacer);
+    }
+
+    @each $direction in 'bottom' 'left' 'right' 'top' {
+        &-#{$direction} {
+            margin-#{$direction}: var(--spacer);
+
+            @if $direction == 'top' {
+                &.--border-#{$direction} {
+                    padding-#{$direction}: var(--spacer);
+
+                    &:first-child {
+                        border-#{$direction}: unset;
+                        padding-#{$direction}: 0;
+                    }
+                }
+            }
+        }
+    }
+}

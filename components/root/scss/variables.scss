@@ -1,0 +1,60 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+body {
+    @include lib.css-variables(border-radius, tokens.$border-radius);
+    @include lib.css-variables(border-width, tokens.$border-width);
+    @include lib.css-variables(box-shadow, tokens.$box-shadow);
+
+    @each $color in lib.map-get(tokens.$color, modifiers) {
+        @each $key, $value in lib.map-get(tokens.$color, $color) {
+            --color-#{$color}-#{$key}: #{$value};
+        }
+    }
+
+    @include lib.css-variables(font-size, tokens.$font-size);
+    @include lib.css-variables(font-weight, tokens.$font-weight);
+    @include lib.css-variables(line-height, tokens.$line-height);
+    @include lib.css-variables(size, tokens.$size);
+    @include lib.css-variables(spacer, tokens.$spacer);
+
+    --spacer-dynamic: #{lib.map-get(tokens.$spacer, dynamic, 400)};
+
+    @include lib.breakpoint(min-width, 800px) {
+        --spacer-dynamic: #{lib.map-get(tokens.$spacer, dynamic, 500)};
+    }
+
+    @include lib.css-variables(transition-duration, tokens.$transition-duration);
+}
+
+section {
+    --width: 100%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    --color: var(--color-text-500);
+    --font-weight: var(--font-weight-600);
+    --line-height: var(--line-height-300);
+}
+
+// Loop Through Font Size Keys To Set Header Font Size + Line Height
+$keys: lib.map-keys(tokens.$font-size);
+$i: nth($keys, lib.list-length($keys));
+
+@each $h in h1 h2 h3 h4 h5 h6 {
+    #{$h} {
+        --font-size: var(--font-size-#{$i});
+    }
+
+    $i: $i - 100;
+}
+
+b,
+strong {
+    --color: var(--color-text-500);
+    --font-weight: var(--font-weight-500);
+}
+
+p {
+    --margin: var(--spacer-dynamic);
+}

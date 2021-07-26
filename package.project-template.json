@@ -1,0 +1,39 @@
+{
+    "atomWatch": [
+        {
+            "files": "**/*.scss",
+            "command": "npm run css:build"
+        },
+        {
+            "files": "**/*.js",
+            "command": "npm run js:build"
+        },
+        {
+            "files": "**/svg/uncompressed/**/*.svg",
+            "command": "npm run svg:compress"
+        }
+    ],
+    "author": "ICJR",
+    "devDependencies": {
+        "copyfiles": "^2.4.1",
+        "cpx": "^1.5.0",
+        "npm-run-all": "^4.1.3",
+        "svgo": "^1.0.5",
+        "ui": "git+https://github.com/esportsplus/ui.git",
+        "webpack": "^5.22.0",
+        "webpack-cli": "^4.5.0"
+    },
+    "scripts": {
+        "build": "run-p css:build js:build",
+        "-": "-",
+        "css:build": "webpack --config node_modules/ui/webpack.sass.config.js --env=output=../public/css",
+        "--": "--",
+        "js:build": "run-s js:webpack js:sw",
+        "js:sw": "cpx \"../public/js/sw.js\" \"../public/\"",
+        "js:webpack": "webpack --config node_modules/ui/webpack.javascript.config.js --env=output=../public/js",
+        "---": "---",
+        "svg:compress": "run-for-every-file --src \"**/svg/uncompressed/\" --dest \"../public/svg/\" --file \"**/*.svg\" --run \"svgo --disable=removeViewBox --enable=removeXMLNS -i {{src-file}} -o {{dest-file}}\"",
+        "svg:pull": "copyfiles -u 3 \"node_modules/ui/storage/svg/**/*.svg\" \"./svg/\""
+    },
+    "version": "0.0.1"
+}

@@ -1,0 +1,14 @@
+.text {
+    --color: inherit;
+    --font-size: var(--font-size-400);
+    --line-height: var(--line-height-400);
+    --padding: var(--size-400);
+    --transition-duration: var(--transition-duration-400);
+
+
+    &,
+    &-list,
+    &-lists {
+        --margin: var(--border-width-400);
+    }
+}

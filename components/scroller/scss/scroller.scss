@@ -1,0 +1,36 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Horizontal Scroll Wrapper
+ *
+ */
+
+.scroller {
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    z-index: 1;
+
+
+    &-content {
+        margin-bottom: calc(var(--scrollbar-width) * -1);
+        min-height: calc(100% + var(--scrollbar-width));
+        overflow-x: scroll;
+        overflow-y: hidden;
+        position: relative;
+        width: 100%;
+        z-index: 1;
+
+        &,
+        &-wrapper {
+            align-items: flex-start;
+            display: flex;
+            flex-flow: row nowrap;
+        }
+
+        &-wrapper {
+            flex: 0 0 auto;
+        }
+    }
+}

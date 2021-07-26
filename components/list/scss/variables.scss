@@ -1,0 +1,26 @@
+.list {
+    &,
+    &-item {
+        --margin: var(--size-400);
+    }
+
+    &-item {
+        --background: var(--color-border-400);
+
+        &--bulletpoint {
+            --border-radius: var(--border-radius-900);
+            --border-width: var(--border-width-300);
+            --padding: var(--size-400);
+            --size: 6px;
+        }
+
+        &--numbered {
+            --font-weight: var(--font-weight-600);
+            --padding: var(--size-600);
+
+            &::before {
+                --color: var(--background);
+            }
+        }
+    }
+}

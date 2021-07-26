@@ -1,0 +1,167 @@
+@use 'ui/tokens';
+
+.field {
+    --background: transparent;
+    --border-radius: var(--border-radius-400);
+    --border-style: solid;
+    --border-width: var(--border-width-300);
+    --box-shadow: none;
+    --margin: var(--size-200);
+    --padding: var(--size-400);
+    --padding-horizontal: var(--padding);
+    --padding-vertical: var(--padding);
+    --transition-duration: var(--transition-duration-400);
+    --width: 100%;
+
+    @include tokens.state(active hover) {
+        --box-shadow: var(--box-shadow-500);
+    }
+
+
+    &--basic {
+        @include tokens.state(default active hover) {
+            --box-shadow: none;
+        }
+    }
+
+    &--curved {
+        --border-radius: var(--border-radius-800);
+    }
+
+
+    &-datepicker {
+        &-days,
+        &-header {
+            --background: transparent;
+            --border-color: transparent;
+            --border-radius: var(--border-radius-300);
+            --border-width: 0;
+        }
+
+        &-day {
+            &--adj-month {
+                --background: transparent;
+                --border-color: transparent;
+                --opacity: 0.32;
+            }
+        }
+
+        &-header {
+            --padding-horizontal: 0;
+            --padding-vertical: 0;
+        }
+    }
+
+    &-mask {
+        &--checkmark,
+        &--radio,
+        &--switch {
+            --check-default: var(--size-600);
+            --check-switch: 38px;
+
+            --background: var(--color-grey-400);
+            --border-color: var(--background);
+            --height: var(--check-default);
+
+            &::after {
+                --background: var(--color-white-400);
+                --border-color: var(--background);
+                --transition-timing-function: cubic-bezier(.18,1.14,.5,1.18);
+            }
+
+            #{tokens.state(default, '.field')} & {
+                --border-color: var(--color-border-300);
+            }
+
+            #{tokens.state(active, '.field')} & {
+                --background: var(--color-300);
+            }
+
+            #{tokens.state(hover, '.field')} & {
+                --background: var(--color-border-300);
+            }
+
+            #{tokens.state(pressed, '.field')} & {
+                --background: var(--color-border-500);
+            }
+        }
+
+        &--input,
+        &--select,
+        &--textarea {
+            --font-size: var(--font-size-400);
+            --line-height: var(--line-height-size);
+
+            // On Active Grow Effect
+            .field--border-bottom &::before {
+                --border-width: var(--border-width-500);
+                --translate: calc(var(--border-width) - var(--border-width-300));
+            }
+
+            #{tokens.state(active, '.field--border-bottom')} &::before {
+                --translate: 0;
+            }
+        }
+
+        &--checkmark {
+            --width: var(--height);
+
+            &::after {
+                --border-width: 4px;
+                --box-shadow: 2px 2px 0 rgba(0,0,0, 0.12);
+                --height: 110%;
+                --translate: calc(50% + var(--border-width)), calc(50% - var(--border-width) * 1.5);
+                --width: 50%;
+            }
+        }
+
+        &--radio {
+            --border-radius: var(--border-radius-900);
+            --width: var(--height);
+
+            &::after {
+                --box-shadow: 0 1px 0 rgba(0,0,0, 0.12);
+                --half: calc(var(--size) / 2);
+                --size: calc((var(--height) / 2) - (var(--border-width) * 2));
+            }
+        }
+
+        &--select {
+            --arrow-spacer: 1px;
+            --arrow-size: 6px;
+
+            &::after {
+                --border-width: var(--border-width-400);
+            }
+        }
+
+        &--switch {
+            --border-radius: var(--border-radius-800);
+            --width: var(--check-switch);
+
+            &::after {
+                --box-shadow: 0 1px 0 rgba(0,0,0, 0.12);
+                --size: calc(var(--height) - (var(--border-width) * 2));
+                --translate: calc(var(--width) - var(--size) - (var(--border-width) * 2))
+            }
+        }
+
+        &--textarea {
+            --height: var(--spacer-900);
+        }
+    }
+
+    &-description {
+        --font-size: var(--font-size-300);
+    }
+
+    &-required {
+        --border-radius: var(--border-radius-800);
+        --size: 6px;
+    }
+
+    &-title {
+        --font-size: var(--font-size-400);
+        --font-weight: var(--font-weight-500);
+    }
+}

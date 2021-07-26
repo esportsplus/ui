@@ -1,0 +1,45 @@
+@use 'ui/lib';
+
+.--absolute {
+    &-center {
+        @include lib.position(absolute, center);
+    }
+
+    &-full {
+        @include lib.position(absolute, full);
+    }
+
+    &-horizontal {
+        &,
+        &-bottom,
+        &-top {
+            @include lib.position(absolute, horizontal);
+        }
+
+        @each $direction in 'bottom' 'top' {
+            &-#{$direction} {
+                #{$direction}: 0;
+            }
+        }
+    }
+
+    &-vertical {
+        &,
+        &-left,
+        &-right {
+            @include lib.position(absolute, vertical);
+        }
+
+        @each $direction in 'left' 'right' {
+            &-#{$direction} {
+                #{$direction}: 0;
+            }
+        }
+    }
+
+    @each $direction in 'bottom' 'left' 'right' 'top' {
+        &-#{$direction} {
+            @include lib.position(absolute, $direction);
+        }
+    }
+}

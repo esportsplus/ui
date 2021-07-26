@@ -1,0 +1,9 @@
+@use 'ui/lib';
+
+.image {
+    background: var(--background);
+    border-radius: var(--border-radius-400);
+    height: var(--height);
+    position: relative;
+    width: var(--width);
+}

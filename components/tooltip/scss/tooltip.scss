@@ -1,0 +1,102 @@
+@use 'center' as *;
+@use 'east' as *;
+@use 'north' as *;
+@use 'south' as *;
+@use 'west' as *;
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.tooltip {
+    cursor: pointer;
+    position: relative;
+    z-index: 8;
+
+    @include tokens.state(active) {
+        z-index: 9;
+
+        // Add Invisible Box To Increase Activation/Hover Area
+        // - Doesn't Need To Be Managed Through A Token
+
+        $size: calc(100% + var(--spacer) * 2);
+
+        &::after {
+            @include lib.position(absolute, center);
+            content: '';
+            height: $size;
+            width: $size;
+            z-index: -1;
+        }
+
+        // Rotate Arrow Only If Parent Tooltip Is Active
+        :not(.tooltip) .tooltip-arrow,
+        > .tooltip-arrow {
+            transform: rotate(-90deg);
+        }
+    }
+
+
+    &-arrow {
+        margin: 0 -1px;
+        transform: rotate(90deg);
+    }
+
+
+    /**
+     *--------------------------------------------------------------------------
+     *
+     *  Tooltip Content Wrapper
+     *
+     *  Wrapper Is Used To Simplify Animation, Positioning And
+     *  Visibility Of Tooltip Content
+     *
+     *  Tooltips Are Activated By JS To Simplify CSS Selectors:
+     *  - On 'hover' By Default
+     *  - On 'click' When Using "data-trigger='toggle'"
+     *
+     */
+
+    &-content,
+    &-message {
+        @include lib.transition(transform opacity, var(--transition-duration));
+        background: var(--background);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        max-width: var(--max-width);
+        opacity: 0;
+        min-width: var(--min-width);
+        z-index: 9;
+
+
+        // Shared With Positioning CSS
+        $active: '#{tokens.state(active, '.tooltip')} > &, #{tokens.state(active, '.tooltip')} :not(.tooltip) > &';
+        $not-active: '#{tokens.state(not-active, '.tooltip')} > &, #{tokens.state(not-active, '.tooltip')} :not(.tooltip) > &';
+
+        #{$active} {
+            opacity: 1;
+        }
+
+        #{$not-active} {
+            &, * {
+                pointer-events: none;
+            }
+        }
+
+
+        @include center($active);
+        @include east($active);
+        @include north($active);
+        @include south($active);
+        @include west($active);
+    }
+
+    &-message {
+        background: var(--background);
+        color: var(--color);
+        cursor: auto;
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
+        line-height: normal;
+        padding: var(--padding);
+        white-space: nowrap;
+    }
+}

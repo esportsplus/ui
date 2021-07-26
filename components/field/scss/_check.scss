@@ -1,0 +1,101 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+@mixin check() {
+    &-mask {
+        &--checkmark,
+        &--radio,
+        &--switch {
+            @include lib.transition(background border-color box-shadow transform, var(--transition-duration));
+            background: var(--background);
+            border-color: var(--border-color);
+            border-radius: var(--border-radius);
+            border-style: var(--border-style);
+            border-width: var(--border-width);
+            height: var(--height);
+            position: relative;
+            width: var(--width);
+
+            &:invalid,
+            &:required {
+                box-shadow: none;
+            }
+
+            &:first-child {
+                margin-left: 0;
+            }
+
+            &:last-child {
+                margin-right: 0;
+            }
+
+            &::after {
+                box-shadow: var(--box-shadow);
+                content: '';
+                transition-timing-function: var(--transition-timing-function);
+            }
+
+            // Hide HTML Field Element
+            .field-tag {
+                @include lib.position(absolute, 0 null null 0);
+                height: 0px;
+                opacity: 0;
+                pointer-events: none;
+                width: 0px;
+                z-index: 0;
+            }
+        }
+
+        &--checkmark,
+        &--radio {
+            margin: 0 calc(var(--margin) + (var(--check-switch) - var(--width)));
+        }
+
+        &--checkmark {
+            &::after {
+                @include lib.position(absolute, center);
+                border-bottom: var(--border-width) solid var(--border-color);
+                border-right: var(--border-width) solid var(--border-color);
+                height: var(--height);
+                transform: translate(50%, 100%) rotate(45deg) scale(0);
+                width: var(--width);
+
+                #{tokens.state(active, '.field')} & {
+                    transform: translate(var(--translate)) rotate(45deg) scale(1);
+                }
+            }
+        }
+
+        &--radio {
+            &::after {
+                @include lib.position(absolute, center);
+                background: var(--background);
+                border-radius: var(--border-radius);
+                height: var(--size);
+                transform: translate(var(--half), var(--half)) scale(0);
+                width: var(--size);
+
+                #{tokens.state(active, '.field')} & {
+                    transform: translate(var(--half), var(--half)) scale(1);
+                }
+            }
+        }
+
+        &--switch {
+            margin: 0 var(--margin);
+
+            &::after {
+                @include lib.position(absolute, 0 null null 0);
+                background: var(--background);
+                border-radius: var(--border-radius);
+                height: var(--size);
+                width: var(--size);
+
+                #{tokens.state(active, '.field')} & {
+                    transform: translateX(var(--translate));
+                }
+            }
+        }
+    }
+
+}

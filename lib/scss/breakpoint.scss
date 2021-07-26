@@ -1,0 +1,41 @@
+@mixin breakpoint($function, $param: null) {
+    @if $function == min-width or $function == min-height {
+        @media only screen and ($function: $param + 1px) {
+            @content;
+        }
+    }
+    @else if $function == max-width or $function == max-height {
+        @media only screen and ($function: $param) {
+            @content;
+        }
+    }
+    @else if $function == between-width {
+        @media only screen and (min-width: nth($param, 1) + 1px) and (max-width: nth($param, 2)) {
+            @content;
+        }
+    }
+    @else if $function == orientation {
+        @if $param == landscape {
+            @media only screen and (min-aspect-ratio: 13/9) {
+                @content;
+            }
+        } 
+        @else if $param == portrait {
+            @media only screen and (max-aspect-ratio: 13/9) {
+                @content;
+            }
+        }
+    }
+    @else if $function == retina {
+        @media
+            only screen and (-webkit-min-device-pixel-ratio: 1.25),
+            only screen and ( min--moz-device-pixel-ratio: 1.25),
+            only screen and ( -o-min-device-pixel-ratio: 1.25/1),
+            only screen and ( min-device-pixel-ratio: 1.25),
+            only screen and ( min-resolution: 200dpi),
+            only screen and ( min-resolution: 1.25dppx)
+        {
+            @content;
+        }
+    }
+}

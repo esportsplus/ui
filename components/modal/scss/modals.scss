@@ -1,0 +1,44 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.modals {
+    @include lib.position(absolute, full);
+    @include lib.transition(opacity, var(--transition-duration));
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    pointer-events: auto;
+    z-index: 8;
+
+    @include tokens.state(not-active) {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+
+    &::after {
+        @include lib.position(absolute, full);
+        background: var(--background);
+        content: '';
+        opacity: var(--opacity);
+        z-index: 0;
+    }
+
+
+    $horizontal: 2px;
+
+    &-close {
+        @include lib.position(fixed, var(--spacer) calc(var(--spacer) - #{$horizontal}) null null);
+        pointer-events: none;
+        z-index: 3;
+
+        @include lib.breakpoint(max-width, 1000px) {
+            margin: calc(var(--spacer) / -2) calc(var(--spacer) - #{$horizontal} / -2);
+        }
+
+        @include lib.breakpoint(max-width, 600px) {
+            display: none;
+        }
+    }
+}

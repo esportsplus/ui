@@ -1,0 +1,103 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+@each $property in max min {
+    .--#{$property} {
+        &-height {
+            --#{$property}-height: auto;
+
+            &-full {
+                --#{$property}-height: 100%;
+            }
+
+            &-viewport {
+                --#{$property}-height: 100vh;
+            }
+
+            @each $key in tokens.$height {
+                &-#{$key} {
+                    --#{$property}-height: #{$key};
+                }
+            }
+        }
+
+        &-width {
+            --#{$property}-width: auto;
+
+            &-full {
+                --#{$property}-width: 100%;
+            }
+
+            &-half {
+                --#{$property}-width: 50%;
+            }
+
+            &-viewport {
+                --#{$property}-width: 100vw;
+            }
+
+            @each $width in lib.list-unique(lib.list-join(tokens.$breakpoints, tokens.$width)) {
+                &-#{$width} {
+                    --#{$property}-width: #{$width};
+                }
+            }
+        }
+
+        /**
+         *----------------------------------------------------------------------
+         *
+         *  Breakpoints
+         *
+         */
+
+        &-height {
+            &-full {
+                @include tokens.breakpoints() {
+                    --#{$property}-height: 100%;
+                }
+            }
+
+            &-viewport {
+                @include tokens.breakpoints() {
+                    --#{$property}-height: 100vh;
+                }
+            }
+
+            @each $key in tokens.$height {
+                &-#{$key} {
+                    @include tokens.breakpoints() {
+                        --#{$property}-height: #{$key};
+                    }
+                }
+            }
+        }
+
+        &-width {
+            &-full {
+                @include tokens.breakpoints() {
+                    --#{$property}-width: 100%;
+                }
+            }
+
+            &-half {
+                @include tokens.breakpoints() {
+                    --#{$property}-width: 50%;
+                }
+            }
+
+            &-viewport {
+                @include tokens.breakpoints() {
+                    --#{$property}-width: 100vw;
+                }
+            }
+
+            @each $width in lib.list-unique(lib.list-join(tokens.$breakpoints, tokens.$width)) {
+                &-#{$width} {
+                    @include tokens.breakpoints() {
+                        --#{$property}-width: #{$width};
+                    }
+                }
+            }
+        }
+    }
+}

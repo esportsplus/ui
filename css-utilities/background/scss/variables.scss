@@ -1,0 +1,46 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--background {
+    &-state {
+        --background: var(--background-400);
+
+        @include tokens.state(highlight) {
+            --background: var(--background-300);
+        }
+
+        @include tokens.state(pressed) {
+            --background: var(--background-500);
+        }
+
+        &-inactive {
+            @include tokens.state(default) {
+                --background: var(--background-400);
+            }
+
+            @include tokens.state(hover) {
+                --background: var(--background-300);
+            }
+
+            @include tokens.state(pressed) {
+                --background: var(--background-500);
+            }
+        }
+    }
+
+    &-transparent {
+        --background: transparent;
+    }
+
+    @each $color in lib.map-get(tokens.$color, modifiers) {
+        &-#{$color} {
+            @each $key in lib.map-keys(lib.map-get(tokens.$color, $color)) {
+                --background-#{$key}: var(--color-#{$color}-#{$key});
+
+                &-#{$key} {
+                    --background: var(--color-#{$color}-#{$key});
+                }
+            }
+        }
+    }
+}

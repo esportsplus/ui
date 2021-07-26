@@ -1,0 +1,115 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.button {
+    @include lib.transition(background border-color box-shadow color opacity transform, var(--transition-duration));
+    align-content: center;
+    align-items: center;
+    background: var(--background);
+    border-radius: var(--border-radius);
+    color: var(--color);
+    cursor: pointer;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--font-size);
+    justify-content: center;
+    line-height: var(--line-height);
+    min-width: var(--min-width);
+    position: relative;
+    width: var(--width);
+
+
+    // Pseudo Element Box Shadow
+    &::before {
+        @include lib.position(absolute, full);
+        border-radius: inherit;
+        box-shadow: var(--box-shadow);
+        content: '';
+        opacity: 0;
+        transition: inherit;
+        z-index: 0;
+    }
+
+    @include tokens.state(active hover) {
+        &::before {
+            opacity: 1;
+        }
+    }
+
+    @include tokens.state(pressed) {
+        &::before {
+            opacity: 0;
+        }
+    }
+
+
+    & {
+        padding: var(--padding-vertical) var(--padding-horizontal);
+    }
+
+    &.--border {
+        padding: calc(var(--padding-vertical) - var(--border-width)) var(--padding-horizontal);
+    }
+
+
+    &--basic,
+    &--more {
+        &::before {
+            display: none;
+        }
+    }
+
+    &--circle.--border {
+        padding: calc(var(--padding-vertical) - var(--border-width)) calc(var(--padding-horizontal) - var(--border-width));
+    }
+
+    // 'More' Button: Primarily Used By Tables, Links, etc.
+    &--more {
+        border-radius: 0;
+        height: 100%;
+        min-width: 100%;
+    }
+
+    &--processing {
+        color: transparent;
+        pointer-events: none;
+
+        &::after {
+            @include lib.position(absolute, center);
+            animation: loading 0.64s infinite linear;
+            border: var(--border-width) solid var(--border-color);
+            border-radius: 100%;
+            border-right-color: transparent;
+            border-top-color: transparent;
+            content: '';
+            height: var(--size);
+            width: var(--size);
+        }
+
+        * {
+            opacity: 0;
+        }
+
+        @keyframes loading {
+            0% {
+                transform: translate(50%, 50%) rotate(0deg);
+            }
+            100% {
+                transform: translate(50%, 50%) rotate(359deg);
+            }
+        }
+    }
+
+    &--top {
+        $horizontal: calc((#{var(--padding-horizontal)} + #{var(--line-height) / 2}) * -1);
+        $vertical: calc((#{var(--padding-vertical)} + #{var(--line-height) / 2}) * -1);
+
+        &-left {
+            @include lib.position(absolute, $vertical null null $horizontal);
+        }
+
+        &-right {
+            @include lib.position(absolute, $vertical $horizontal null null);
+        }
+    }
+}

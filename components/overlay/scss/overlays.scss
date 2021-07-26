@@ -1,0 +1,16 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Nesting Overlays Within This Element To Prevent Mobile Chrome Issues
+ *  - Address Bar Shifts And Produces Large White Space Of Nothingness!!!!
+ *
+ */
+
+@use 'ui/lib';
+
+.overlays {
+    @include lib.position(fixed, full);
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+}

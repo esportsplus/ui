@@ -1,0 +1,41 @@
+.table {
+    --padding-horizontal: var(--size-400);
+    --padding-vertical: var(--size-400);
+
+    &,
+    &-scroller {
+        --border-radius: var(--border-radius-400);
+    }
+
+    &-header {
+        --font-size: var(--font-size-300);
+    }
+
+    &-item {
+        --color: inherit;
+        --max-width: auto;
+        --min-width: auto;
+        --width: auto;
+
+        &--message {
+            --height: var(--size-800);
+        }
+    }
+
+    &-rows {
+        --margin: 0;
+    }
+
+    &-row {
+        --border-color: inherit;
+        --border-style: solid;
+        --border-width: var(--border-width-500);
+        --font-size: var(--font-size-400);
+        --transition-duration: var(--transition-duration-400);
+    }
+
+    &-scroller {
+        --spacer: var(--border-width-400);
+        --transition-duration: var(--transition-duration-400);
+    }
+}

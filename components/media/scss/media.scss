@@ -1,0 +1,87 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Video Grid/List
+ *
+ */
+
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.media {
+    width: 100%;
+
+    &,
+    &-footer {
+        align-items: flex-start;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    &-footer {
+        margin-top: 2px;
+        padding-right: var(--padding);
+        width: 100%;
+    }
+
+    &-thumbnail {
+        border-radius: var(--border-radius);
+        flex: 0 0 auto;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+
+        // Pseudo Element Box Shadow
+        &::before {
+            @include lib.position(absolute, full);
+            @include lib.transition(box-shadow opacity, var(--transition-duration));
+            border-radius: inherit;
+            box-shadow: var(--box-shadow);
+            content: '';
+            opacity: var(--opacity);
+            z-index: 0;
+        }
+
+        &-duration {
+            @include lib.position(absolute, null 0 0 null);
+            background: var(--background);
+            border-radius: var(--border-radius) 0 var(--border-radius) 0;
+            color: var(--color);
+            font-size: var(--font-size);
+            padding: var(--padding);
+            pointer-events: none;
+            opacity: 0.9;
+            z-index: 1;
+        }
+
+        &-image {
+            background: var(--background);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            height: 0px;
+            padding-top: 56.25%; // 16:9
+            z-index: 0;
+            width: 100%;
+        }
+
+        &-play {
+            @include lib.position(absolute, center);
+            @include lib.transition(background-color opacity transform, var(--transition-duration));
+            z-index: 1;
+        }
+
+        @include tokens.state(default) {
+            .media-thumbnail-play {
+                opacity: 0;
+                transform: translate(50%, 50%) scale(0.64);
+            }
+        }
+    }
+
+    &-title {
+        margin: var(--margin) 0;
+    }
+}

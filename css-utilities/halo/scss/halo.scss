@@ -1,0 +1,19 @@
+@use 'ui/lib';
+
+$size: calc(100% + (var(--border-width) * 4));
+
+.--halo {
+    position: relative;
+
+    &::after {
+        @include lib.position(absolute, calc(var(--border-width) * -2) calc(var(--border-width) * -2) null null);
+        @include lib.transition(border-color border, var(--transition-duration));
+        border-color: var(--border-color, inherit);
+        border-radius: var(--border-radius, inherit);
+        border-style: solid;
+        border-width: var(--border-width);
+        content: '';
+        height: $size;
+        width: $size;
+    }
+}

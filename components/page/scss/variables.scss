@@ -1,0 +1,8 @@
+.page {
+    &-subtitle,
+    &-suptitle,
+    &-title {
+        --color: inherit;
+        --margin-vertical: var(--size-300);
+    }
+}

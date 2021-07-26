@@ -1,0 +1,125 @@
+@use 'ui/lib';
+
+$color: (
+    'black': (
+        300: #0d1523,
+        400: #030b1a,
+        500: #000713
+    ),
+
+    'border': (
+        300: #b6cde8,
+        400: #a0bbdb,
+        500: #92accb
+    ),
+
+    'green': (
+        300: #21f663,
+        400: #01eb4a,
+        500: #00de45
+    ),
+
+    'grey': (
+        300: #f3f9ff,
+        400: #e4effa,
+        500: #dbe6f0
+    ),
+
+    misc: (
+        // Crypto
+        etherscan: #21325b,
+        dash: #008deb,
+
+        // esports
+        activision: #030b1a,
+        cod: #181b1e,
+        cross-play: #4d24ff,
+        playstation: #004ea6,
+        xbox: #289128,
+
+        // 3rd Party
+        discord: #7289DA,
+        facebook: #3b5998,
+        github: #171515,
+        instagram: #000000,
+        linkedin: #0077b5,
+        medium: #1F1F1F,
+        pdf: #FD001E,
+        reddit: #ff4500,
+        snapchat: #fffc00,
+        soundcloud: #FF5510,
+        spotify: #1db954,
+        tradingview: #3BB3E4,
+        trello: #0079bf,
+        twitch: #6441a5,
+        twitter: #1DA1F3,
+        youtube: #ff0000
+    ),
+
+    primary: (
+        300: #ff3237,
+        400: #ff2a2f,
+        500: #f22529
+    ),
+
+    'purple': (
+        300: #542dff,
+        400: #4d24ff,
+        500: #461ff3
+    ),
+
+    secondary: (
+        300: #1e5cff,
+        400: #1555ff,
+        500: #114ff3
+    ),
+
+    text: (
+        300: #393e49,
+        400: #181e2a,
+        500: #000714
+    ),
+
+    // Redundant But Necessary To Use In Various Color Modifiers Loops
+    'white': (
+        300: rgba(255,255,255, 0.96),
+        400: #fff,
+        500: #fff
+    ),
+
+    'yellow': (
+        300: #ffeb58,
+        400: #ffe939,
+        500: #f2dc33
+    )
+);
+
+$color: lib.map-set($color, 'blue', lib.map-get($color, secondary));
+$color: lib.map-set($color, 'red', lib.map-get($color, primary));
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Convert Misc Hex Codes To Weights For Interactive Component Themes
+ *
+ */
+
+@each $name, $hex in lib.map-get($color, misc) {
+    $color: lib.map-set($color, $name, (
+        300: lib.color-adjust($hex, $lightness: 3.2%),
+        400: $hex,
+        500: lib.color-adjust($hex, $lightness: -3.2%)
+    ));
+}
+
+$modifiers: lib.map-keys($color);
+$modifiers: lib.list-remove(misc, $modifiers);
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Color Keys
+ *
+ */
+
+$color: lib.map-set($color, modifiers, lib.list-unique($modifiers));

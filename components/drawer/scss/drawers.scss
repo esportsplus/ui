@@ -1,0 +1,42 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.drawers {
+    @include lib.position(absolute, full);
+    @include lib.transition(opacity, var(--transition-duration));
+    pointer-events: auto;
+    z-index: 7;
+
+    @include tokens.state(not-active) {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+
+    &::after {
+        @include lib.position(absolute, full);
+        background: var(--background);
+        content: '';
+        opacity: var(--opacity);
+        z-index: 0;
+    }
+
+
+    $horizontal: 2px;
+
+    &-close {
+        @include lib.position(fixed, var(--spacer) calc(var(--spacer) - #{$horizontal}) null null);
+        color: var(--color);
+        pointer-events: none;
+        z-index: 3;
+
+        @include lib.breakpoint(max-width, 600px) {
+            display: none;
+        }
+
+        .drawer--e ~ & {
+            left: calc(var(--spacer) - #{$horizontal});
+            right: unset;
+        }
+    }
+}

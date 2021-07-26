@@ -1,0 +1,11 @@
+body {
+    --scrollbar-width: 17px;
+}
+
+.scrollbar {
+    --background: var(--color-black-500);
+    --border-radius: 1px 0 0 1px;
+    --height: 0;
+    --transition-duration: var(--transition-duration-400);
+    --width: var(--size-100);
+}

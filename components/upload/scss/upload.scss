@@ -1,0 +1,17 @@
+@use 'ui/lib';
+
+.upload {
+    &-overlay {
+        @include lib.position(absolute, full);
+        @include lib.transition(opacity, var(--transition-duration));
+        align-content: center;
+        background: var(--background);
+        border-radius: inherit;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        cursor: pointer;
+        opacity: var(--opacity);
+        pointer-events: none;
+    }
+}

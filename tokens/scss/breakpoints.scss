@@ -1,0 +1,13 @@
+@use 'ui/lib';
+
+$breakpoints: 400px 600px 800px 1000px 1200px 1600px;
+
+@mixin breakpoints() {
+    @each $key in $breakpoints {
+        @include lib.breakpoint(max-width, $key) {
+            &\:#{$key} {
+                @content;
+            }
+        }
+    }
+}

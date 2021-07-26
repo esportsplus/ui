@@ -1,0 +1,35 @@
+@use 'ui/tokens';
+
+.media {
+    &-footer {
+        --padding: var(--size-200);
+    }
+
+    &-thumbnail {
+        --background: var(--color-black-500);
+        --border-radius: var(--border-radius-400);
+        --box-shadow: var(--box-shadow-400);
+        --opacity: 0;
+        --transition-duration: var(--transition-duration-400);
+
+        @include tokens.state(active) {
+            --opacity: 1;
+        }
+
+        @include tokens.state(hover) {
+            --box-shadow: var(--box-shadow-500);
+            --opacity: 1;
+        }
+
+        &-duration {
+            --border-radius: var(--border-radius-300);
+            --color: var(--color-white-400);
+            --font-size: var(--font-size-200);
+            --padding: var(--size-100) var(--size-200);
+        }
+    }
+
+    &-title {
+        --margin: var(--size-300);
+    }
+}

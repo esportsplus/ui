@@ -1,0 +1,109 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Form Fields
+ *
+ *  Fields Were Originally Placed Within A '.form' Selector BUT Fields Are Not
+ *  Always Used Within A Form Tag So Here We Are.
+ *
+ */
+
+@use 'check' as *;
+@use 'datepicker' as *;
+@use 'normalize' as *;
+@use 'text' as *;
+@use 'ui/lib';
+@use 'ui/tokens';
+
+@include normalize();
+
+.field {
+    @include lib.transition(background border-color box-shadow color, var(--transition-duration));
+    display: flex;
+    position: relative;
+    z-index: 1;
+    width: var(--width);
+
+    @include tokens.state(hover) {
+        z-index: 8;
+    }
+
+
+    &-description,
+    &-title {
+        color: var(--color);
+        font-size: var(--font-size);
+        position: relative;
+        width: 100%;
+        word-wrap: break-word;
+    }
+
+    &-description {
+        margin: var(--margin) 0 0;
+        order: 1;
+
+        &:empty {
+            margin-top: 0;
+        }
+    }
+
+    &-icon {
+        margin: 0 var(--padding-horizontal);
+        z-index: 1;
+
+        .field:not(.field--background):not(.field--border) & {
+            &:first-child {
+                margin-left: 0;
+            }
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+
+        .field--background &,
+        .field--border & {
+            &:first-child {
+                margin-right: 0;
+            }
+
+            &:last-child {
+                margin-left: 0;
+            }
+        }
+    }
+
+
+    &-mask {
+        box-shadow: var(--box-shadow);
+    }
+
+    &-required {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        height: var(--size);
+        width: var(--size);
+    }
+
+    &-tag {
+        &--hidden {
+            @include lib.position(absolute, 0 null null 0);
+            appearance: none;
+            height: 0px;
+            opacity: 0;
+            pointer-events: none;
+            width: 0px;
+            z-index: -1;
+        }
+    }
+
+    &-title {
+        font-weight: var(--font-weight);
+        z-index: 1;
+    }
+
+
+    @include check();
+    @include datepicker();
+    @include text();
+}

@@ -1,0 +1,13 @@
+@use 'ui/tokens';
+
+.upload {
+    &-overlay {
+        --background: var(--color-black-500);
+        --transition-duration: var(--transition-duration-400);
+        --opacity: 0.16;
+
+        @include tokens.state(hover-override) {
+            --opacity: 0.64;
+        }
+    }
+}

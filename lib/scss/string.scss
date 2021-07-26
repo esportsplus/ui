@@ -1,0 +1,79 @@
+@use 'list';
+@use 'sass:string';
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Wrap Native FN
+ *
+ */
+
+@forward 'sass:string';
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Simplify Searching For Value(s) Within String
+ *
+ */
+
+@function contains($needles, $haystack) {
+    $haystack: string.quote($haystack);
+    $needles: list.to-list($needles);
+
+    @each $needle in $needles {
+        $needle: string.quote($needle);
+
+        @if string.index($haystack, $needle) != null {
+            @return true;
+        }
+    }
+
+    @return false;
+}
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Split String by A String
+ *
+ */
+
+@function explode($string, $seperator: ' ') {
+    @if type-of($string) != string {
+        @error "#{$string} Is Not A Valid String";
+    }
+
+    $index: string.index($string, string.quote($seperator));
+    $output: ();
+
+    @if $index {
+        $output: list.append(string.slice($string, 1, $index - 1), explode(string.slice($string, $index + 1)));
+    }
+    @else {
+        $output: list.append($output, $string);
+    }
+
+    @return $output;
+}
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Find And Replace A Value In String
+ *
+ */
+
+@function replace($find, $replace, $haystack) {
+    @if type-of($haystack) != string {
+        @error "#{$haystack} Is Not A Valid String";
+    }
+
+    $index: string.index($haystack, string.quote($find));
+
+    @if $index {
+        $haystack: string.slice($haystack, 1, $index - 1) + $replace + replace($find, $replace, string.slice($haystack, $index + string.length($find)));
+    }
+
+    @return $haystack;
+}

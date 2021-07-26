@@ -1,0 +1,13 @@
+.--background {
+    background-color: var(--background);
+
+    &-cover {
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    &-gradient {
+        background: linear-gradient(to left top, var(--background-500), var(--background-300));
+    }
+}

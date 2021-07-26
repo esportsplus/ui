@@ -1,0 +1,10 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--line-height {
+    @each $key in lib.map-keys(tokens.$line-height) {
+        &-#{$key} {
+            --line-height: var(--line-height-#{$key});
+        }
+    }
+}

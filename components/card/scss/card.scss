@@ -1,0 +1,133 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Individual Card Shell
+ *
+ */
+
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.card {
+    @include lib.transition(background border-color max-height, var(--transition-duration));
+    background: var(--background);
+    border-radius: var(--border-radius);
+    max-height: 100%;
+    max-width: 100%;
+    position: relative;
+    width: var(--width);
+
+    // Pseudo Element Box Shadow
+    &::before {
+        @include lib.position(absolute, full);
+        @include lib.transition(box-shadow opacity, var(--transition-duration));
+        border-radius: inherit;
+        box-shadow: var(--box-shadow);
+        content: '';
+        opacity: var(--opacity);
+        z-index: 0;
+    }
+
+
+    &--basic {
+        &::before {
+            display: none;
+        }
+    }
+
+
+    &--hover,
+    &--rotate {
+        &::after {
+            @include lib.position(absolute, full);
+            border-radius: inherit;
+            box-shadow: var(--box-shadow);
+            content: '';
+            z-index: -1;
+        }
+    }
+
+    &--hover {
+        @include lib.transition(transform, var(--transition-duration));
+        backface-visibility: hidden;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        position: relative;
+        transform: perspective(400px);
+        transform-style: preserve-3d;
+
+        .card {
+            &-3d {
+                transform: translateZ(80px) scale(0.8);
+            }
+        }
+    }
+
+    &--rotate {
+        animation: rotate 6.4s infinite;
+        transform: perspective(1400px);
+        transform-style: preserve-3d;
+        transition-timing-function: linear;
+
+        @keyframes rotate {
+            0% {
+                transform: perspective(1400px);
+            }
+            100% {
+                transform: perspective(1400px) rotateY(360deg);
+            }
+        }
+
+        .card {
+            &-3d {
+                transform: translateZ(32px) scale(0.97);
+            }
+        }
+    }
+
+
+    &-back,
+    &-front {
+        backface-visibility: hidden;
+        border-radius: inherit;
+        transform-style: preserve-3d;
+    }
+
+    &-3d {
+        transform-style: preserve-3d;
+    }
+
+    &-back {
+        transform: rotateY(180deg);
+        z-index: 0;
+    }
+
+    &-front {
+        z-index: 1;
+    }
+
+    &-overlay {
+        @include lib.position(absolute, full);
+        @include lib.transition(opacity transform, var(--transition-duration));
+        border-radius: inherit;
+        z-index: 2;
+
+        &::after {
+            @include lib.position(absolute, full);
+            background: var(--background);
+            border-radius: inherit;
+            content: '';
+            opacity: var(--opacity);
+            z-index: -1;
+        }
+    }
+
+    @include tokens.state(default) {
+        .card-overlay {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10%);
+        }
+    }
+}

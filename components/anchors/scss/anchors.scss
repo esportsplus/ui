@@ -1,0 +1,15 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.anchors {
+    &-controls {
+        @include lib.position(absolute, null 0 var(--spacer) 0);
+        @include lib.transition(opacity transform, var(--transition-duration-400));
+        pointer-events: none;
+
+        @include tokens.state(not-active) {
+            opacity: 0;
+            transform: translateY(50%);
+        }
+    }
+}

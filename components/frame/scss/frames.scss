@@ -1,0 +1,9 @@
+.frames {
+    position: relative;
+    width: 100%;
+
+
+    &--overflow {
+        overflow: hidden;
+    }
+}

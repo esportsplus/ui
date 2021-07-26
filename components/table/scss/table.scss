@@ -1,0 +1,111 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.table {
+    align-items: flex-start;
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    position: relative;
+
+    @include tokens.state(hover) {
+        z-index: 8;
+    }
+
+
+    &-header,
+    &-row {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        display: flex;
+        font-size: var(--font-size);
+        padding: var(--padding-vertical) var(--padding-horizontal);
+        position: relative;
+        width: 100%;
+    }
+
+
+    &-item {
+        color: var(--color);
+        flex: 0 0 auto;
+        max-width: var(--max-width);
+        min-width: var(--min-width);
+        position: relative;
+        width: var(--width);
+
+        &--message {
+            height: var(--height);
+        }
+
+        &--more {
+            margin: calc(var(--padding) * -1);
+            margin-left: 0;
+        }
+    }
+
+    &-rows {
+        align-content: flex-start;
+        display: flex;
+        flex-flow: column;
+        position: relative;
+        width: 100%;
+    }
+
+    &-row {
+        @include lib.transition(background border-color box-shadow max-width transform, var(--transition-duration));
+        margin: var(--margin) 0 0;
+        z-index: 1;
+
+        @include tokens.state(hover) {
+            z-index: 2;
+        }
+
+        &--border {
+            border-left: var(--border-width) var(--border-style) var(--border-color);
+            border-bottom-left-radius: 0;
+            border-top-left-radius: 0;
+        }
+    }
+
+
+    /**
+     *--------------------------------------------------------------------------
+     *
+     *  Horizontal Scrolling Table
+     *
+     */
+
+    &-scroller {
+        @include lib.transition(transform width, var(--transition-duration));
+        border-radius: var(--border-radius);
+        flex: 0 0 auto;
+
+        .table {
+            flex: 0 0 auto;
+
+            &,
+            &-header,
+            &-rows,
+            &-row {
+                min-width: 100%;
+                width: auto;
+            }
+        }
+
+        /**
+         *----------------------------------------------------------------------
+         *
+         *  Breakpoints
+         *
+         */
+
+        &--hover {
+            @include tokens.breakpoints() {
+                @include tokens.state(hover) {
+                    transform: translateX(calc((var(--spacer-dynamic) - var(--spacer)) * -1));
+                    width: calc(100vw - (var(--spacer) * 2));
+                }
+            }
+        }
+    }
+}

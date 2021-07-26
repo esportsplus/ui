@@ -1,0 +1,45 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.modal {
+    @include lib.transition(opacity transform, var(--transition-duration));
+    cursor: default;
+    height: auto;
+    max-height: 100%;
+    max-width: var(--max-size);
+    transform: scale(1);
+    width: var(--width);
+    z-index: 1;
+
+    @include tokens.state(not-active) {
+        opacity: 0;
+        pointer-events: none;
+
+        // Prevent Scroll Overlap
+        position: fixed;
+
+        // Scale Used To Fix Scrollbar Flickr On Activation
+        transform: scale(var(--scale));
+
+        input[type='password'] {
+            display: none;
+        }
+    }
+
+
+    &-content {
+        margin: var(--margin);
+        position: relative;
+        width: 100%;
+    }
+
+    &-section {
+        padding: var(--padding);
+        position: relative;
+        width: 100%;
+
+        &-nav {
+            padding: 0 var(--padding);
+        }
+    }
+}
