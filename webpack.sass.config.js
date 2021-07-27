@@ -70,7 +70,7 @@ const sass = ({ filename, input, output, production, theme }) => {
                 chunkFilename: '[id].css',
             }),
             new CleanWebpackPlugin({
-                cleanAfterEveryBuildPatterns: [`${paths.output}/**/*.*`, `!${paths.output}/**/*.css`],
+                cleanAfterEveryBuildPatterns: [`${paths.output}/**/*.js`],
                 cleanOnceBeforeBuildPatterns: [],
                 dangerouslyAllowCleanPatternsOutsideProject: true,
                 dry: false,
