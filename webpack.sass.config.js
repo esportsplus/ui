@@ -17,7 +17,7 @@ function scss(bundle, paths, production, scss = {}) {
 }
 
 
-const sass = ({ filename, input, output, production }) => {
+const sass = ({ filename, input, output, production, theme }) => {
     let paths = {
             current: path.resolve(__dirname),
             input: path.resolve(process.cwd() + `/${input || ''}`),
@@ -27,7 +27,7 @@ const sass = ({ filename, input, output, production }) => {
     return {
         entry: {
             [filename || 'app']: scss('!([_]|variables).scss', paths, { prepend: ['modern-normalize/modern-normalize.css'] }),
-            [`themes/${filename || 'app'}`]: scss('variables.scss', paths)
+            [`themes/${theme || 'default'}`]: scss('variables.scss', paths)
         },
         mode: (production == false ? 'development' : 'production'),
         module: {
