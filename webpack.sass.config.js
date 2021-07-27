@@ -8,7 +8,7 @@ const glob = require('glob');
 const path = require('path');
 
 
-function scss(bundle, paths, production, scss = {}) {
+function scss(bundle, paths, scss = {}) {
     return [
         scss.prepend || [],
         glob.sync(`{${paths.current}/components,${paths.input}/components,${paths.input}/pages,${paths.current}/css-utilities}/**/${bundle}`, { nosort: true }),
