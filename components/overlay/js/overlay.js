@@ -77,7 +77,7 @@ const overlay = (container, directives) => {
     };
 
     const trigger = function() {
-        let target = this.refs.drawer || false;
+        let target = this.refs[directives.trigger] || false;
 
         if (target && !state.active(target)) {
             activate(target);
