@@ -38,7 +38,7 @@ function activate(key, values, seconds = 0) {
 
 function deactivate(key) {
     dom.update(() => {
-        state.deactivate( dom.element(ref.alert(key), { properties: false }) );
+        state.deactivate( dom.element(ref.alert(key)) );
     });
 }
 
