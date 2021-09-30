@@ -2,6 +2,9 @@ import { alert } from 'ui/components';
 import { directive, dom, node } from 'ui/lib';
 
 
+let id = 0;
+
+
 function handle(refs, tag) {
     if (!tag) {
         return;
@@ -23,7 +26,7 @@ function handle(refs, tag) {
 
         dom.update(() => {
             node.html(container, {
-                append: template.replace(new RegExp('{value}', 'g'), value)
+                append: template.replace(new RegExp('{value}', 'g'), value).replace(new RegExp('{id}', 'g'), id++)
             });
 
             tag.value = '';
