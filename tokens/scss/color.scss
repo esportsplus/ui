@@ -7,6 +7,12 @@ $color: (
         500: #000713
     ),
 
+    'blue': (
+        300: #1e5cff,
+        400: #1555ff,
+        500: #114ff3
+    ),
+
     'border': (
         300: #b6cde8,
         400: #a0bbdb,
@@ -56,22 +62,16 @@ $color: (
         youtube: #ff0000
     ),
 
-    primary: (
-        300: #ff3237,
-        400: #ff2a2f,
-        500: #f22529
-    ),
-
     'purple': (
         300: #542dff,
         400: #4d24ff,
         500: #461ff3
     ),
 
-    secondary: (
-        300: #1e5cff,
-        400: #1555ff,
-        500: #114ff3
+    'red': (
+        300: #ff3237,
+        400: #ff2a2f,
+        500: #f22529
     ),
 
     text: (
@@ -93,9 +93,6 @@ $color: (
         500: #f2dc33
     )
 );
-
-$color: lib.map-set($color, 'blue', lib.map-get($color, secondary));
-$color: lib.map-set($color, 'red', lib.map-get($color, primary));
 
 /**
  *------------------------------------------------------------------------------
