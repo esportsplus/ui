@@ -58,9 +58,9 @@
         }
     }
 
-    @each $color in lib.map-get(tokens.$color, modifiers) {
+    @each $color in lib.list-join(primary secondary, lib.map-get(tokens.$color, modifiers)) {
         &-#{$color} {
-            @each $key in lib.map-keys(lib.map-get(tokens.$color, $color)) {
+            @each $key in tokens.$weights {
                 --border-color-#{$key}: var(--color-#{$color}-#{$key});
 
                 &-#{$key} {
