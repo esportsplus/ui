@@ -120,3 +120,12 @@ $modifiers: lib.list-remove(misc, $modifiers);
  */
 
 $color: lib.map-set($color, modifiers, lib.list-unique($modifiers));
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Color Weights
+ *
+ */
+
+$weights: 300 400 500;
