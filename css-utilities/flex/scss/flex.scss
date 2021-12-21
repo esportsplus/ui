@@ -82,6 +82,11 @@
     }
 
     &-column {
+        @include tokens.breakpoints() {
+            display: flex;
+            flex-flow: column;
+        }
+
         &-reverse {
             @include tokens.breakpoints() {
                 display: flex;
@@ -91,6 +96,11 @@
     }
 
     &-row {
+        @include tokens.breakpoints() {
+            display: flex;
+            flex-flow: row;
+        }
+
         &-reverse {
             @include tokens.breakpoints() {
                 display: flex;

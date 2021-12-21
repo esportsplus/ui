@@ -1,0 +1,43 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--visible {
+    display: block;
+
+    &-active {
+        @include tokens.state(active) {
+            display: block;
+        }
+    }
+
+    &-first-child {
+        &:first-child {
+            display: block;
+        }
+    }
+
+    &-last-child {
+        &:last-child {
+            display: block;
+        }
+    }
+
+    &-not-active {
+        @include tokens.state(not-active) {
+            display: block;
+        }
+    }
+
+    /**
+     *--------------------------------------------------------------------------
+     *
+     *  Breakpoints
+     *
+     */
+
+    & {
+        @include tokens.breakpoints() {
+            display: block;
+        }
+    }
+}
