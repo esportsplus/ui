@@ -24,7 +24,8 @@ function activate(target, trigger) {
 
     dom.update(() => {
         state.deactivate(triggers.concat(targets));
-        state.activate([trigger, target]);
+        // state.activate([trigger, target]);
+        state.activate(target);
 
         node.style(targets, { maxHeight: '0px' });
         node.style(target,  { maxHeight: `${target.scrollHeight}px` });
