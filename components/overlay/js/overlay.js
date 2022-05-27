@@ -69,7 +69,7 @@ const overlay = (container, directives) => {
 
 
     const close = (e) => {
-        if (!state.active(container.element) || (e && e.target !== container.element)) {
+        if (!state.active(container.element)) {
             return;
         }
 
