@@ -7,8 +7,12 @@ let classname = 'accordion';
 
 function activate(target, trigger) {
     // Deactivate Siblings + Activate Accordion/Trigger
-    let targets  = node.siblings(target, state.active),
-        triggers = node.siblings(trigger, state.active);
+    let targets = node.siblings(target, (element) => {
+			return state.active(element) && element.classList.contains(classname);
+		}),
+        triggers = node.siblings(trigger, (element) => {
+			return state.active(element) && !element.classList.contains(classname);
+		});
 
     // Deal With Nested Accordions
     let element = target.parentNode,
@@ -24,8 +28,8 @@ function activate(target, trigger) {
 
     dom.update(() => {
         state.deactivate(triggers.concat(targets));
-        // state.activate([trigger, target]);
-        state.activate(target);
+        state.activate([trigger, target]);
+        // state.activate(target);
 
         node.style(targets, { maxHeight: '0px' });
         node.style(target,  { maxHeight: `${target.scrollHeight}px` });
@@ -39,7 +43,10 @@ function activate(target, trigger) {
 function deactivate(target, trigger) {
     dom.update(() => {
         state.deactivate([trigger, target]);
-        node.style(target, { maxHeight: '0px' });
+        
+		if (target.classList.contains(classname)) {
+			node.style(target, { maxHeight: '0px' });
+		}
     });
 }
 
