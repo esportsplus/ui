@@ -8,7 +8,7 @@
 @use 'ui/lib';
 
 .anchors {
-    @include lib.position(absolute, full);
+    @include lib.position(fixed, full);
     pointer-events: none;
     z-index: 9;
 }
