@@ -85,7 +85,7 @@
         font-size: var(--font-size);
     }
 
-    @each $multiplier in 1.25 1.5 2 3 4 {
+    @each $multiplier in 1.5 2 2.5 3 {
         &-#{lib.string-replace('.', '\\.', '#{$multiplier}')}x {
             font-size: calc(var(--font-size) * #{$multiplier});
         }
