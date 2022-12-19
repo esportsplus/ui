@@ -1,0 +1,35 @@
+@mixin south($active) {
+    &--se,
+    &--sw {
+        position: absolute;
+        top: calc(100% - var(--spacer));
+        transform: scale(var(--scaleX), var(--scaleY));
+
+        #{$active} {
+            transform: translateY(calc(var(--spacer) * 2));
+        }
+    }
+
+    &--s {
+        position: absolute;
+        right: 50%;
+        top: calc(100% - var(--spacer));
+        transform: translateX(50%) scaleY(var(--scaleY));
+        transform-origin: center top;
+
+        #{$active} {
+            transform: translate(50%, calc(var(--spacer) * 2)) scale(1);
+        }
+    }
+
+    &--se {
+        right: 0;
+        transform-origin: top right;
+    }
+
+    &--sw {
+        left: 0;
+        transform-origin: top left;
+    }
+
+}

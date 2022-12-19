@@ -1,0 +1,29 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.link {
+    align-content: center;
+    background: var(--background);
+    color: var(--color);
+    cursor: pointer;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--font-size);
+    justify-content: flex-start;
+    line-height: var(--line-height);
+    padding: calc(var(--padding-vertical) - var(--border-width)) calc(var(--padding-horizontal) - var(--border-width));
+    position: relative;
+    transition:
+        background var(--transition-duration) ease-in-out,
+        border-color var(--transition-duration) ease-in-out,
+        color var(--transition-duration) ease-in-out,
+        opacity var(--transition-duration) ease-in-out;
+    width: var(--width);
+
+
+    &--underline {
+        @include tokens.state(active hover) {
+            text-decoration: underline;
+        }
+    }
+}

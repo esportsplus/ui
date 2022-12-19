@@ -1,0 +1,16 @@
+@use 'ui/tokens';
+
+.accordion {
+    max-height: var(--max-height);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        max-height var(--transition-duration) ease-in-out,
+        opacity var(--transition-duration) ease-in-out;
+
+
+    @include tokens.state(active) {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}

@@ -1,0 +1,93 @@
+body,
+html {
+    height: 100%;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--color);
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    font-weight: var(--font-weight);
+    line-height: var(--line-height);
+    min-width: var(--min-width);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::after,
+*::before {
+    box-sizing: border-box;
+    transition: inherit;
+}
+
+section {
+    align-content: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    position: relative;
+    width: var(--width);
+}
+
+h1, h2, h3, h4, h5 {
+    color: var(--color);
+    font-size: var(--font-size);
+    font-weight: var(--font-weight);
+    line-height: var(--line-height);
+    margin: 0;
+    padding: 0;
+    position: relative;
+    width: 100%;
+    word-wrap: break-word;
+
+    sub,
+    sup {
+        font-size: 0.64em;
+    }
+}
+
+a {
+    color: var(--color, inherit);
+    cursor: pointer;
+    outline: none;
+    text-decoration: none;
+}
+
+b,
+strong {
+    color: var(--color, inherit);
+    font-weight: var(--font-weight);
+}
+
+p {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    word-wrap: break-word;
+}
+
+pre {
+    margin: 0;
+    overflow-wrap: break-word;
+    padding: 0;
+    white-space: break-spaces;
+    width: 100%;
+}
+
+sub,
+sup {
+    font-size: 0.8em;
+}
+
+sub {
+    bottom: -0.48em;
+}
+
+sup {
+    top: -0.48em;
+}

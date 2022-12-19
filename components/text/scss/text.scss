@@ -1,0 +1,12 @@
+.text {
+    align-items: center;
+    color: var(--color);
+    display: flex;
+    flex-flow: wrap;
+    font-size: var(--font-size);
+    font-weight: var(--font-weight);
+    line-height: var(--line-height);
+    position: relative;
+    transition: color var(--transition-duration) ease-in-out;
+    width: var(--width);
+}

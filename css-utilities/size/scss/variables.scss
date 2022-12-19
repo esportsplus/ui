@@ -1,0 +1,12 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--size {
+    --size: var(--size-400);
+
+    @each $key in lib.map-keys(tokens.$size) {
+        &-#{$key} {
+            --size: var(--size-#{$key});
+        }
+    }
+}

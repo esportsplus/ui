@@ -1,0 +1,22 @@
+.page {
+    min-height: var(--min-height);
+    position: relative;
+    width: var(--width);
+
+
+    &-subtitle,
+    &-suptitle,
+    &-title {
+        color: var(--color);
+        display: block;
+        line-height: var(--line-height);
+        position: relative;
+        width: 100%;
+        z-index: 1;
+    }
+
+    &-subtitle,
+    &-suptitle {
+        font-size: var(--font-size);
+    }
+}

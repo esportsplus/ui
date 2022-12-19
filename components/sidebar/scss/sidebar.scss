@@ -1,0 +1,50 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.sidebar {
+    @include lib.position(absolute, var(--position-vertical) null var(--position-vertical) null);
+    cursor: default;
+    max-width: var(--width);
+    overflow: hidden;
+    pointer-events: auto;
+    transition:
+        max-width var(--transition-duration) ease-in-out,
+        opacity var(--transition-duration) ease-in-out,
+        transform var(--transition-duration) ease-in-out;
+    width: calc(100% - (var(--position-horizontal) * 2));
+    z-index: 1;
+
+
+    @include tokens.state(inactive) {
+        input[type='password'] {
+            display: none;
+        }
+    }
+
+
+    &--e {
+        right: var(--position-horizontal);
+
+        &.sidebar--offscreen {
+            @include tokens.state(inactive) {
+                transform: translateX(var(--width));
+            }
+        }
+    }
+
+    &--w {
+        left: var(--position-horizontal);
+
+        &.sidebar--offscreen {
+            @include tokens.state(inactive) {
+                transform: translateX(calc(var(--width) * -1));
+            }
+        }
+    }
+
+
+    &-content {
+        flex: 0 0 var(--width-default);
+        width: var(--width-default);
+    }
+}

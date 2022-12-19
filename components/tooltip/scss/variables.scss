@@ -1,0 +1,25 @@
+.tooltip {
+    &-content,
+    &-message {
+        --background: var(--background-default);
+        --background-default: transparent;
+        --border-radius: var(--border-radius-300);
+        --box-shadow: var(--box-shadow-400);
+        --max-width: calc(90vw - (var(--size-700) * 2));
+        --min-width: auto;
+        --scaleX: 0.64;
+        --scaleY: 0.64;
+        --spacer: var(--size-300);
+        --transition-duration: var(--transition-duration-300);
+        --width: auto;
+    }
+
+    &-message {
+        --background-default: var(--color-black-400);
+        --color: var(--color-white-400);
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-400);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-300);
+    }
+}

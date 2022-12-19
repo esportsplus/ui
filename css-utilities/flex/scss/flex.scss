@@ -1,0 +1,67 @@
+@use 'ui/tokens';
+
+.--flex {
+    &-center {
+        align-content: center;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    &-column {
+        display: flex;
+        flex-flow: column;
+    }
+
+    &-end {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    &-fill {
+        display: flex;
+        flex: 1;
+        min-width: 0;
+    }
+
+    &-fixed {
+        display: flex;
+        flex: 0 0 var(--width);
+    }
+
+    &-horizontal {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        &-space-between {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+    }
+
+    &-row {
+        display: flex;
+        flex-flow: row;
+    }
+
+    &-start {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    &-vertical {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+
+        &-space-between {
+            align-items: space-between;
+            display: flex;
+            flex-wrap: wrap;
+        }
+    }
+}

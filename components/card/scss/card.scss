@@ -1,0 +1,36 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.card {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    padding: var(--padding-vertical) var(--padding-horizontal);
+    position: relative;
+    transition:
+        background var(--transition-duration) ease-in-out,
+        border-color var(--transition-duration) ease-in-out,
+        box-shadow var(--transition-duration) ease-in-out,
+        max-height var(--transition-duration) ease-in-out;
+    width: var(--width);
+
+
+    // Pseudo Element Box Shadow
+    &::after {
+        @include lib.position(absolute, full);
+        border-radius: inherit;
+        box-shadow: var(--box-shadow);
+        content: '';
+        pointer-events: none;
+        transition:
+            box-shadow var(--transition-duration) ease-in-out,
+            opacity var(--transition-duration) ease-in-out;
+        z-index: 0;
+    }
+
+
+    &--flat {
+        &::after {
+            display: none;
+        }
+    }
+}

@@ -1,0 +1,11 @@
+@each $prefix in max min {
+    .--#{$prefix} {
+        &-height {
+            #{$prefix}-height: var(--#{$prefix}-height);
+        }
+
+        &-width {
+            #{$prefix}-width: var(--#{$prefix}-width);
+        }
+    }
+}

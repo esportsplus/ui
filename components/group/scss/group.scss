@@ -1,0 +1,41 @@
+.group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin: 0 calc(var(--margin-horizontal) / -2);
+    position: relative;
+    width: calc(100% + var(--margin-horizontal));
+
+
+    &--offset {
+        @each $direction in 'bottom' 'top' {
+            &-#{$direction} {
+                margin-#{$direction}: calc(var(--margin-vertical) * -1);
+            }
+        }
+    }
+
+    &--scroller {
+        .group-item {
+            &:first-child {
+                margin-left: 0;
+            }
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+    }
+
+
+    &-item {
+        display: flex;
+        margin: var(--margin-vertical) calc(var(--margin-horizontal) / 2) 0;
+        position: relative;
+        width: var(--width);
+
+        &[class*='--width'] {
+            width: calc(var(--width) - var(--margin-horizontal));
+        }
+    }
+}

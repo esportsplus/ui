@@ -1,0 +1,28 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--background {
+    &-state {
+        --background: var(--background-default);
+        --background-active: var(--background-default);
+        --background-default: transparent;
+        --background-hover: var(--background-default);
+        --background-pressed: var(--background-default);
+
+        @include tokens.state(active) {
+            --background: var(--background-active);
+        }
+
+        @include tokens.state(hover) {
+            --background: var(--background-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --background: var(--background-pressed);
+        }
+    }
+}
+
+@mixin css-variables($colors) {
+    @include tokens.state-utility('.--background', 'background', $colors);
+}

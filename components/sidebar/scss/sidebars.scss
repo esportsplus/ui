@@ -1,0 +1,13 @@
+@use 'ui/lib';
+
+.sidebars {
+    @include lib.position(absolute, full);
+    pointer-events: none;
+    transition: opacity var(--transition-duration) ease-in-out;
+    z-index: 7;
+
+
+    &--fixed {
+        position: fixed;
+    }
+}

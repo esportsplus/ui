@@ -1,0 +1,19 @@
+.page {
+    --min-height: 100vh;
+    --width: 100vw;
+
+
+    &-subtitle,
+    &-suptitle {
+        --color: var(--color-default);
+        --color-default: var(--color-text-400);
+        --font-size: var(--font-size-400);
+        --line-height: var(--line-height-400);
+    }
+
+    &-title {
+        --color: var(--color-default);
+        --color-default: var(--color-text-500);
+        --line-height: var(--line-height-400);
+    }
+}

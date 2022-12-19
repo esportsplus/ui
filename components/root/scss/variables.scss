@@ -1,0 +1,54 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+body {
+    @include lib.css-variables(border-radius, tokens.$border-radius);
+    @include lib.css-variables(box-shadow, tokens.$box-shadow);
+    @include lib.css-variables(border-width, tokens.$border-width);
+    @include lib.css-variables(color, tokens.$color);
+    @include lib.css-variables(font-size, tokens.$font-size);
+    @include lib.css-variables(font-weight, tokens.$font-weight);
+    @include lib.css-variables(line-height, tokens.$line-height);
+    @include lib.css-variables(size, tokens.$size);
+    @include lib.css-variables(transition-duration, tokens.$transition-duration);
+
+    --background: var(--color-grey-400);
+    --color: var(--color-text-400);
+    --font-family: 'Montserrat', sans-serif;
+    --font-size: var(--font-size-400);
+    --font-weight: var(--font-weight-400);
+    --line-height: var(--line-height-400);
+    --min-width: 320px;
+
+    // Used by components requiring scrollbar width
+    // - Should be updated using JS on load
+    --scrollbar-width: 17px;
+}
+
+section {
+    --width: 100%;
+}
+
+h1, h2, h3, h4, h5 {
+    --color: var(--color-text-400);
+    --font-weight: var(--font-weight-600);
+    --line-height: var(--line-height-300);
+}
+
+// Loop Through Font Size Keys To Set Header Font Size + Line Height
+$keys: lib.map-keys(tokens.$font-size);
+$i: nth($keys, lib.list-length($keys));
+
+@each $h in h1 h2 h3 h4 h5 {
+    #{$h} {
+        --font-size: var(--font-size-#{$i});
+    }
+
+    $i: $i - 100;
+}
+
+b,
+strong {
+    --color: var(--color-text-400);
+    --font-weight: var(--font-weight-500);
+}

@@ -1,0 +1,10 @@
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin: 0 auto;
+    max-width: var(--max-width);
+    padding: var(--padding-vertical) var(--padding-horizontal);
+    position: relative;
+    width: 100%;
+}

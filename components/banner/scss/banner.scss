@@ -1,0 +1,13 @@
+@use 'ui/lib';
+
+.banner {
+    @include lib.position(absolute, full);
+    background-position: center;
+    background-size: cover;
+    z-index: -1;
+
+
+    &--fixed {
+        position: fixed;
+    }
+}

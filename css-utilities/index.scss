@@ -1,0 +1,14 @@
+@use 'background/scss/variables' as background;
+@use 'border/scss/variables' as border;
+@use 'color/scss/variables' as color;
+@use 'ui/lib';
+@use 'ui/tokens';
+
+
+@mixin css-variables($colors) {
+    @include background.css-variables($colors);
+    @include border.css-variables($colors);
+    @include color.css-variables($colors);
+}
+
+@include css-variables(lib.list-join(primary secondary, lib.map-keys(tokens.$color)));

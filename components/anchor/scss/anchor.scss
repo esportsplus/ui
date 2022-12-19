@@ -1,0 +1,41 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.anchor {
+    max-height: calc(100% - (var(--margin-vertical) * 2));
+    max-width: calc(100% - (var(--margin-horizontal) * 2));
+    pointer-events: auto;
+    position: absolute;
+    transition:
+        opacity var(--transition-duration) ease-in-out,
+        transform var(--transition-duration) ease-in-out;
+
+    @include tokens.state(inactive) {
+        opacity: 0;
+
+        &, * {
+            pointer-events: none;
+        }
+    }
+
+
+    &--ne,
+    &--nw {
+        top: var(--margin-vertical);
+    }
+
+    &--se,
+    &--sw {
+        bottom: var(--margin-vertical);
+    }
+
+    &--ne,
+    &--se {
+        right: var(--margin-horizontal);
+    }
+
+    &--nw,
+    &--sw {
+        left: var(--margin-horizontal);
+    }
+}

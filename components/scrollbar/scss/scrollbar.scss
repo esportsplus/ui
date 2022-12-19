@@ -1,0 +1,51 @@
+// Hide Chrome Mobile Scrollbar
+::-webkit-scrollbar,
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb:window-inactive {
+    background: transparent;
+    box-shadow: unset;
+}
+
+// Scrollable container
+.--scrollbar {
+    height: 100%;
+    margin-right: calc(var(--scrollbar-width) * -1);
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    width: calc(100% + var(--scrollbar-width));
+}
+
+.scrollbar {
+    height: 100%;
+    z-index: 9;
+
+
+    &,
+    &::before {
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: opacity var(--transition-duration) ease-in-out;
+        width: var(--width);
+    }
+
+    &::before {
+        background: var(--background-default);
+        border-radius: var(--border-radius);
+        content: '';
+        height: var(--height);
+        transform: var(--translate);
+        transform-origin: top center;
+    }
+
+
+    &--fixed {
+        position: fixed;
+    }
+
+    &--hidden {
+        opacity: 0;
+    }
+}

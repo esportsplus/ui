@@ -1,0 +1,21 @@
+.--border {
+    border: var(--border-width) var(--border-style) var(--border-color);
+
+    @each $key in 'bottom' 'left' 'right' 'top' {
+        &-#{$key} {
+            border-#{$key}: var(--border-width) var(--border-style) var(--border-color);
+        }
+    }
+
+    &-offset {
+        @each $key in 'bottom' 'left' 'right' 'top' {
+            &-#{$key} {
+                margin-#{$key}: calc(var(--border-width) * -1);
+            }
+        }
+    }
+
+    &-radius {
+        border-radius: var(--border-radius);
+    }
+}

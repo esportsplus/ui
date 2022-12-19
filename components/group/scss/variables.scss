@@ -1,0 +1,25 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.group {
+    --margin-horizontal: var(--size-400);
+    --width: auto;
+
+
+    &--column {
+        --margin-horizontal: 0px;
+
+        > .group-item {
+            --margin-horizontal: 0px;
+            --width: 100%;
+        }
+    }
+
+    &--scroller {
+        --margin-horizontal: 0px;
+
+        .group-item {
+            --margin-vertical: 0px;
+        }
+    }
+}

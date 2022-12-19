@@ -1,0 +1,20 @@
+.--slide {
+    &-in {
+        animation-duration: var(--transition-duration);
+        animation-name: --slide-in;
+        animation-timing-function: ease-in-out;
+        transform-origin: top center;
+
+        @keyframes --slide-in {
+            from {
+                opacity: 0;
+                transform: translateY(var(--translateY));
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    }
+}

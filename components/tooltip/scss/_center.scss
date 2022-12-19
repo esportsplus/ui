@@ -1,0 +1,13 @@
+@mixin center($active) {
+    &--c {
+        bottom: 50%;
+        position: absolute;
+        right: 50%;
+        transform: translate(50%, 50%) scale(var(--scaleX), var(--scaleY));
+        transform-origin: center center;
+
+        #{$active} {
+            transform: translate(50%, 50%) scale(1);
+        }
+    }
+}

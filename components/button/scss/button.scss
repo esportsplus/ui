@@ -1,0 +1,93 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.button {
+    align-content: center;
+    align-items: center;
+    background: var(--background);
+    border-radius: var(--border-radius);
+    color: var(--color);
+    cursor: pointer;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--font-size);
+    font-weight: var(--font-weight);
+    justify-content: center;
+    line-height: var(--line-height);
+    min-width: var(--min-width);
+    padding: calc(var(--padding-vertical) - var(--border-width)) calc(var(--padding-horizontal) - var(--border-width));
+    position: relative;
+    transition: all var(--transition-duration) ease-in-out;
+    width: var(--width);
+
+
+    // Pseudo Element Box Shadow
+    &::after {
+        @include lib.position(absolute, full);
+        border-radius: inherit;
+        box-shadow: var(--box-shadow);
+        content: '';
+        pointer-events: none;
+        transition:
+            box-shadow var(--transition-duration) ease-in-out,
+            opacity var(--transition-duration) ease-in-out;
+        z-index: 0;
+    }
+
+
+    &--flat {
+        &::after {
+            display: none;
+        }
+    }
+
+    &--processing {
+        color: transparent;
+        pointer-events: none;
+
+        &::before {
+            @include lib.position(absolute, center);
+            animation: button--processing var(--animation-duration) infinite linear;
+            border: var(--border-width) solid var(--border-color);
+            border-radius: 100%;
+            border-right-color: transparent;
+            border-top-color: transparent;
+            content: '';
+            height: var(--size);
+            width: var(--size);
+        }
+
+        * {
+            opacity: 0;
+        }
+
+        @keyframes button--processing {
+            0% {
+                transform: translate(50%, 50%) rotate(0deg);
+            }
+            100% {
+                transform: translate(50%, 50%) rotate(359deg);
+            }
+        }
+    }
+
+    &--top {
+        &-left,
+        &-right {
+            position: absolute;
+            top: calc((#{var(--padding-vertical)} + #{var(--line-height) / 2}) * -1);
+        }
+
+        @each $direction in 'left' 'right' {
+            &-#{$direction} {
+                #{$direction}: calc((#{var(--padding-horizontal)} + #{var(--line-height) / 2}) * -1);
+            }
+        }
+    }
+
+    &--underline {
+        @include tokens.state(active hover) {
+            text-decoration: underline;
+        }
+    }
+}

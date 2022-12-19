@@ -1,0 +1,93 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Buttons, Links, And Other Modules Display CSS Properties Based On Module
+ *  'State' ( :hover, :active, etc. )
+ *
+ *  Desired Result:
+ *  - Default Colors Assigned To Element;
+ *  - On 'highlight' Or ':hover' Display A Slightly Brighter Version Of
+ *    The Default Color;
+ *  - On 'pressed' Or ':active' Display Slightly Darker Version Of The
+ *    Default Color;
+ *
+ *  End Product Gives Off The Illusion Of A Static -> Hovering -> Pressed
+ *  Button Without Dealing With Transforms To Shift Elements.
+ *
+ *  Mixin Also Handles Removing Duplicate List Keys
+ *
+ */
+
+@use 'ui/lib';
+
+$state: (
+    active: '&.--active',
+    inactive: '&:not(.--active)',
+
+    disabled: '&.--disabled',
+    enabled: '&:not(.--disabled)',
+
+    default: '&:not(.--active):not(:hover)',
+    hover: '&:not(.--active):hover',
+    pressed: '&:not(.--active):active'
+);
+
+
+@function state($key, $replace: null) {
+    $selector: lib.map-get($state, $key);
+
+    // To Avoid Overcomplicating The Responsibility Of This Function Limit
+    // Replace Parameter To String Values Only
+    @if $replace {
+        @if type-of($replace) != 'string' or type-of($selector) != 'string' {
+            @error "'lib.string-replace' Cannot Be Used On A List!";
+        }
+
+        $selector: lib.string-replace('&', $replace, $selector);
+    }
+
+    @return $selector;
+}
+
+
+@mixin state($states) {
+    $selector: ();
+
+    @each $s in lib.list-to-list($states) {
+        $section: state($s);
+
+        @if $section {
+            $selector: lib.list-append($selector, $section);
+        }
+    }
+
+    #{lib.list-implode(',', lib.list-unique($selector))} {
+        @content;
+    }
+}
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Generate State Based CSS Utility For List Of Colors
+ *
+ */
+
+@mixin state-utility($class, $property, $values) {
+    $keys: $values;
+
+    @if type-of($keys) == 'map' {
+        $keys: lib.map-keys($keys);
+    }
+
+    #{$class} {
+        @each $key in $keys {
+            &-#{$key} {
+                --#{$property}-active: var(--color-#{$key}-300);
+                --#{$property}-default: var(--color-#{$key}-400);
+                --#{$property}-hover: var(--color-#{$key}-300);
+                --#{$property}-pressed: var(--color-#{$key}-500);
+            }
+        }
+    }
+}

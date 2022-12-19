@@ -1,0 +1,8 @@
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    min-height: var(--min-height);
+    position: relative;
+    width: 100%;
+}

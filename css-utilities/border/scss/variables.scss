@@ -1,0 +1,66 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--border {
+    &,
+    &-bottom,
+    &-left,
+    &-right,
+    &-top {
+        --border-color: var(--border-color-default);
+        --border-style: solid;
+        --border-width: var(--border-width-400);
+    }
+
+    &-dashed {
+        --border-style: dashed;
+    }
+
+    &-dotted {
+        --border-style: dotted;
+    }
+
+    &-radius {
+        --border-radius: var(--border-radius-400);
+
+        @each $key in lib.map-keys(tokens.$border-radius) {
+            &-#{$key} {
+                --border-radius: var(--border-radius-#{$key});
+            }
+        }
+    }
+
+    &-state {
+        --border-color: var(--border-color-default);
+        --border-color-active: var(--border-color-default);
+        --border-color-default: transparent;
+        --border-color-hover: var(--border-color-default);
+        --border-color-pressed: var(--border-color-default);
+
+        @include tokens.state(active) {
+            --border-color: var(--border-color-active);
+        }
+
+        @include tokens.state(hover) {
+            --border-color: var(--border-color-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --border-color: var(--border-color-pressed);
+        }
+    }
+
+    &-width {
+        --border-width: var(--border-width-400);
+
+        @each $key in lib.map-keys(tokens.$border-width) {
+            &-#{$key} {
+                --border-width: var(--border-width-#{$key});
+            }
+        }
+    }
+}
+
+@mixin css-variables($colors) {
+    @include tokens.state-utility('.--border', 'border-color', $colors);
+}

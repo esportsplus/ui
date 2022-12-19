@@ -1,0 +1,25 @@
+@use 'ui/tokens';
+
+.sidebar {
+    --position-horizontal: 0px;
+    --position-vertical: 0px;
+    --transition-duration: var(--transition-duration-400);
+    --width: var(--width-default);
+    --width-closed: var(--width-default);
+    --width-default: 400px;
+
+
+    @include tokens.state(default) {
+        --width: var(--width-closed);
+    }
+
+
+    &--floating {
+        --position-horizontal: var(--size-100);
+        --position-vertical: var(--size-100);
+    }
+}
+
+.sidebars {
+    --transition-duration: var(--transition-duration-400);
+}

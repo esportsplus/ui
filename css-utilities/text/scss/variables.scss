@@ -1,0 +1,31 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--text {
+    @each $key in lib.map-keys(tokens.$font-size) {
+        &-#{$key} {
+            --font-size: var(--font-size-#{$key});
+        }
+    }
+
+    &-outline {
+        --color: inherit;
+        --stroke-width: var(--border-width-400);
+
+        @each $key in lib.map-keys(tokens.$border-width) {
+            &-#{$key} {
+                --stroke-width: var(--border-width-#{$key});
+            }
+        }
+    }
+
+    &-strike-through {
+        --line-width: var(--border-width-400);
+
+        @each $key in lib.map-keys(tokens.$border-width) {
+            &-#{$key} {
+                --line-width: var(--border-width-#{$key});
+            }
+        }
+    }
+}

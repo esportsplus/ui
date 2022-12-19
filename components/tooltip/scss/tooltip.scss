@@ -1,0 +1,107 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+@use 'center' as *;
+@use 'east' as *;
+@use 'north' as *;
+@use 'south' as *;
+@use 'west' as *;
+
+.tooltip {
+    cursor: pointer;
+    position: relative;
+    z-index: 8;
+
+    @include tokens.state(active) {
+        z-index: 9;
+
+        // Add invisible box to increase activation/hover area
+        &.tooltip--box {
+            $size: calc(100% + var(--spacer) * 2.5);
+
+            &::before {
+                @include lib.position(absolute, center);
+                content: '';
+                height: $size;
+                width: $size;
+                z-index: -1;
+            }
+        }
+
+        // Rotate arrow only if parent tooltip is active
+        :not(.tooltip) .tooltip-arrow,
+        > .tooltip-arrow {
+            transform: rotate(-90deg);
+        }
+    }
+
+
+    &-arrow {
+        margin: 0 -1px;
+        transform: rotate(90deg);
+    }
+
+
+    /**
+     *--------------------------------------------------------------------------
+     *
+     *  Tooltip Content Wrapper
+     *
+     *  Wrapper Is Used To Simplify Animation, Positioning And
+     *  Visibility Of Tooltip Content
+     *
+     *  Tooltips Are Activated By JS To Simplify CSS Selectors:
+     *  - On 'hover' By Default
+     *  - On 'click' When Using "data-trigger='toggle'"
+     *
+     */
+
+    &-content,
+    &-message {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        max-width: var(--max-width);
+        min-width: var(--min-width);
+        opacity: 0;
+        overflow: hidden;
+        transition:
+            opacity var(--transition-duration) ease-in-out,
+            transform var(--transition-duration) ease-in-out;
+        width: var(--width);
+        z-index: 9;
+
+
+        // Shared With Positioning CSS
+        $active: '#{tokens.state(active, '.tooltip')} > &, #{tokens.state(active, '.tooltip')} :not(.tooltip) > &';
+        $not-active: '#{tokens.state(inactive, '.tooltip')} > &, #{tokens.state(inactive, '.tooltip')} :not(.tooltip) > &';
+
+        #{$active} {
+            opacity: 1;
+        }
+
+        #{$not-active} {
+            &, * {
+                pointer-events: none;
+            }
+        }
+
+
+        @include center($active);
+        @include east($active);
+        @include north($active);
+        @include south($active);
+        @include west($active);
+    }
+
+    &-message {
+        background: var(--background);
+        color: var(--color);
+        cursor: auto;
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
+        line-height: normal;
+        padding: var(--padding-vertical) var(--padding-horizontal);
+        pointer-events: none;
+        white-space: nowrap;
+    }
+}

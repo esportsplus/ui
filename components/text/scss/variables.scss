@@ -1,0 +1,9 @@
+.text {
+    --color: var(--color-default);
+    --color-default: inherit;
+    --font-size: var(--font-size-400);
+    --font-weight: var(--font-weight-400);
+    --line-height: var(--line-height-400);
+    --transition-duration: var(--transition-duration-400);
+    --width: auto;
+}

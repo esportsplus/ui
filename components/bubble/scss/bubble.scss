@@ -1,0 +1,30 @@
+.bubble {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    height: var(--height);
+    width: var(--width);
+
+
+    &--bottom,
+    &--top {
+        &-left,
+        &-right {
+            position: absolute;
+        }
+
+        @each $direction in 'left' 'right' {
+            &-#{$direction} {
+                #{$direction}: var(--position-horizontal);
+            }
+        }
+    }
+
+    @each $direction in 'bottom' 'top' {
+        &--#{$direction} {
+            &-left,
+            &-right {
+                #{$direction}: var(--position-vertical);
+            }
+        }
+    }
+}

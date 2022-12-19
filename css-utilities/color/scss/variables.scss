@@ -1,0 +1,32 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--color {
+    &-inherit {
+        --color: inherit;
+    }
+
+    &-state {
+        --color: var(--color-default);
+        --color-active: var(--color-default);
+        --color-default: var(--color-text-400);
+        --color-hover: var(--color-default);
+        --color-pressed: var(--color-default);
+
+        @include tokens.state(active) {
+            --color: var(--color-active);
+        }
+
+        @include tokens.state(hover) {
+            --color: var(--color-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --color: var(--color-pressed);
+        }
+    }
+}
+
+@mixin css-variables($colors) {
+    @include tokens.state-utility('.--color', 'color', $colors);
+}

@@ -1,0 +1,23 @@
+@each $prefix in max min {
+    .--#{$prefix} {
+        &-height {
+            &-full {
+                --#{$prefix}-height: 100%;
+            }
+
+            &-viewport {
+                --#{$prefix}-height: 100vh;
+            }
+        }
+
+        &-width {
+            &-full {
+                --#{$prefix}-width: 100%;
+            }
+
+            &-viewport {
+                --#{$prefix}-width: 100vw;
+            }
+        }
+    }
+}

@@ -1,0 +1,104 @@
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Alert Notifications
+ *
+ *  Anchors Module Provides Positioning
+ *
+ */
+
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.alert {
+    max-width: calc(100% - (var(--margin-horizontal) * 2));
+    width: var(--width);
+
+
+    &--deactivating {
+        opacity: 0;
+        transform: translateY(-50%);
+    }
+
+    &--activating {
+        @include tokens.state(inactive) {
+            transform: translateY(50%);
+        }
+    }
+
+
+    &-message,
+    &-processing {
+        opacity: 0;
+        transition:
+            opacity var(--transition-duration) ease-in-out,
+            transform var(--transition-duration) ease-in-out;
+
+        @include tokens.state(inactive) {
+            pointer-events: none;
+            position: absolute;
+            transform: translateX(calc(25% * #{var(--multiplier)}));
+            left: 0;
+            top: 0;
+        }
+
+        @include tokens.state(active) {
+            opacity: 1;
+        }
+    }
+
+    &-close {
+        @include lib.position(absolute, 0 100% 0 null);
+        animation: alert-close var(--transition-duration) ease-in-out;
+        transition: transform var(--transition-duration) ease-in-out;
+        z-index: 0;
+    }
+
+    &-message {
+        --multiplier: -1;
+    }
+
+    &-processing {
+        --multiplier: 1;
+    }
+
+    &-timer {
+        height: var(--height);
+        transition: opacity var(--transition-duration) ease-in-out;
+        width: var(--width);
+
+        &-bg,
+        &-meter {
+            fill: none;
+            stroke-width: var(--border-width);
+            stroke: var(--border-color);
+        }
+
+        &-meter {
+            stroke-linecap: round;
+            stroke-dasharray: 360;
+            stroke-dashoffset: 0;
+            animation: alert-timer var(--animation-duration) ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    }
+}
+
+@keyframes alert-close {
+    from {
+        transform: translateX(150%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes alert-timer {
+    from {
+        stroke-dashoffset: 360;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}

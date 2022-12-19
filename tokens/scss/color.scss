@@ -1,0 +1,71 @@
+@use 'ui/lib';
+
+$color: (
+    'black': (
+        300: #0f1325,
+        400: #04081a,
+        500: #000313
+    ),
+    'blue': (
+        300: #3453ff,
+        400: #2a4bff,
+        500: #2343f8
+    ),
+    'border': (
+        300: #c4c9df,
+        400: #b4b9d2,
+        500: #a5a9c3
+    ),
+    'green': (
+        300: #5fff81,
+        400: #2aff57,
+        500: #23f850
+    ),
+    'grey': (
+        300: #f2f9ff,
+        400: #e7f1fa,
+        500: #dde8f0
+    ),
+    'purple': (
+        300: #6634ff,
+        400: #5e2aff,
+        500: #5723f8
+    ),
+    'red': (
+        300: #ff3446,
+        400: #ff2a3d,
+        500: #f82336
+    ),
+    'text': (
+        300: #676c84,
+        400: #393d57,
+        500: #1f2542
+    ),
+    'white': (
+        300: #fff,
+        400: #fff,
+        500: #fff
+    ),
+    'yellow': (
+        300: #fff95f,
+        400: #fff92a,
+        500: #f8f123
+    )
+);
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Retrieve Color as RGBA Value
+ *
+ */
+
+@function color($keys, $opacity) {
+    $c: $color;
+
+    @each $key in $keys {
+        $c: lib.map-get($c, $key);
+    }
+
+    @return lib.color-change($c, $alpha: $opacity);
+}

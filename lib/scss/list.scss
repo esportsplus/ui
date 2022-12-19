@@ -1,0 +1,112 @@
+@use 'sass:list';
+@use 'sass:string';
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Wrap Native FN
+ *
+ */
+
+@forward 'sass:list';
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Simplify Searching For Value(s) Within List
+ *
+ */
+
+@function contains($needles, $haystack) {
+    $haystack: to-list($haystack);
+    $needles: to-list($needles);
+
+    @each $needle in $needles {
+        @if list.index($haystack, $needle) {
+            @return true;
+        }
+    }
+
+    @return false;
+}
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Join List Elements With A String
+ *
+ */
+
+@function implode($glue, $list) {
+    $list: unique($list);
+    $output: null;
+
+    @if type-of($list) != list {
+        @error "#{$list} Is Not A Valid List";
+    }
+
+    @for $i from 1 through list.length($list) {
+        $m: nth($list, $i);
+
+        // If $k Is A List Flatten By Running Through Function Again
+        @if type-of($m) == list {
+            $output: string.unquote("#{$output}#{$glue}#{implode($glue, $m)}");
+        }
+        // Piece Together String
+        @else {
+            $output: string.unquote("#{$output}#{$glue}#{$m}");
+        }
+    }
+
+    @if $output != null {
+        $output: string.slice($output, string.length($glue) + 1, -1);
+    }
+
+    @return $output;
+}
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Convert Input To List
+ *
+ */
+
+@function to-list($input) {
+    $output: $input;
+
+    @if type-of($input) != list {
+        $output: ($input,);
+    }
+
+    @return $output;
+}
+
+
+/**
+ *------------------------------------------------------------------------------
+ *
+ *  Remove Duplicate Values From List
+ *
+ */
+
+@function unique($list, $recursive: false) {
+    $result: ();
+
+    @if type-of($list) != list {
+        @error "#{$list} Is Not A Valid List";
+    }
+
+    @each $item in $list {
+        @if not list.index($result, $item) and $item != '' {
+            @if list.length($item) > 1 and $recursive {
+                $result: list.append($result, unique($item, $recursive));
+            }
+            @else {
+                $result: list.append($result, $item);
+            }
+        }
+    }
+
+    @return $result;
+}

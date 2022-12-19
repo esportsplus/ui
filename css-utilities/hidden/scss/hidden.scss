@@ -1,0 +1,28 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+.--hidden {
+    display: none;
+
+    &-active {
+        @include tokens.state(active) {
+            display: none;
+        }
+    }
+
+    &-inactive {
+        @include tokens.state(inactive) {
+            display: none;
+        }
+    }
+
+    &-visibility {
+        @include lib.position(absolute, 0 null null 0);
+        appearance: none;
+        height: 0px;
+        opacity: 0;
+        pointer-events: none;
+        width: 0px;
+        z-index: -1;
+    }
+}

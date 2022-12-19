@@ -1,0 +1,9 @@
+@use 'ui/lib';
+
+.anchors {
+    @include lib.position(fixed, full);
+    height: 100vh;
+    pointer-events: none;
+    width: 100vw;
+    z-index: 9;
+}

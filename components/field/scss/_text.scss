@@ -1,0 +1,103 @@
+@use 'ui/lib';
+@use 'ui/tokens';
+
+@mixin css() {
+    &-mask {
+        &--input,
+        &--select {
+            align-items: center;
+            background: var(--background);
+            border: var(--border-width) var(--border-style) var(--border-color);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-wrap: wrap;
+            font-size: var(--font-size);
+            line-height: var(--line-height);
+            position: relative;
+            width: 100%;
+
+            &:invalid,
+            &:required {
+                box-shadow: none;
+            }
+
+            &,
+            .field-tag {
+                color: var(--color);
+            }
+        }
+
+        // Truncate Overflowing Text
+        &--input .field-tag,
+        &--select .field-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        &--input {
+            cursor: text;
+            // Necessary To Maintain Height Of Hidden Password Fields In Floating Modals
+            // - Password Managers Cause Problems When Fields Are Not Using 'display:hidden' On Password Fields
+            min-height: calc((var(--padding-vertical) * 2) + var(--size));
+
+            .field-tag {
+                flex: 1 1 auto;
+                padding: var(--padding-vertical) var(--padding-horizontal);
+                min-width: 0;
+
+                &[type='number'] {
+                    appearance: textfield;
+                }
+            }
+        }
+
+        &--select {
+            cursor: pointer;
+            padding: var(--padding-vertical) calc((var(--padding-horizontal) / 1.5) + var(--arrow-size)) var(--padding-vertical) var(--padding-horizontal);
+
+            &.--padding {
+                padding-right: calc((var(--padding-horizontal) * 1.5) + var(--arrow-size));
+            }
+        }
+
+        // Down Arrow
+        &-arrow {
+            @include lib.position(absolute, null calc(var(--padding-horizontal) + var(--arrow-spacer)) calc(50% + var(--arrow-spacer)) null);
+            border-color: var(--border-color);
+            border-style: var(--border-style);
+            border-width: 0 var(--border-width) var(--border-width) 0;
+            content: '';
+            height: var(--arrow-size);
+            transform: translateY(50%) rotate(45deg);
+            width: var(--arrow-size);
+        }
+    }
+
+    &-text {
+        padding-right: var(--padding-horizontal);
+    }
+}
+
+@mixin variables() {
+    &-mask {
+        &--input,
+        &--select {
+            --font-size: var(--font-size-400);
+            --line-height: var(--line-height-400);
+        }
+
+        &--input {
+            --size: var(--size-400);
+        }
+
+        &--select {
+            --arrow-spacer: 1px;
+            --arrow-size: 6px;
+        }
+
+        &-arrow {
+            --border-width: var(--border-width-500);
+        }
+    }
+}

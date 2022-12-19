@@ -1,0 +1,41 @@
+@each $property in margin padding {
+    .--#{$property} {
+        &,
+        &-horizontal {
+            #{$property}-left: var(--#{$property}-horizontal);
+            #{$property}-right: var(--#{$property}-horizontal);
+
+            @if ($property == padding) {
+                &.--border {
+                    padding-left: calc(var(--padding-horizontal) - var(--border-width));
+                    padding-right: calc(var(--padding-horizontal) - var(--border-width));
+                }
+            }
+        }
+
+        &,
+        &-vertical {
+            #{$property}-bottom: var(--#{$property}-vertical);
+            #{$property}-top: var(--#{$property}-vertical);
+
+            @if ($property == padding) {
+                &.--border {
+                    padding-bottom: calc(var(--padding-vertical) - var(--border-width));
+                    padding-top: calc(var(--padding-vertical) - var(--border-width));
+                }
+            }
+        }
+
+        @each $direction in 'bottom' 'top' {
+            &-#{$direction} {
+                #{$property}-#{$direction}: var(--#{$property}-vertical);
+            }
+        }
+
+        @each $direction in 'left' 'right' {
+            &-#{$direction} {
+                #{$property}-#{$direction}: var(--#{$property}-horizontal);
+            }
+        }
+    }
+}

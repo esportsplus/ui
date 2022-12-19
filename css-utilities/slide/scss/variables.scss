@@ -1,0 +1,6 @@
+.--slide {
+    &-in {
+        --transition-duration: var(--transition-duration-400);
+        --translateY: var(--size-400);
+    }
+}
