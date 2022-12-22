@@ -1,5 +1,5 @@
-@use 'ui/lib';
-@use 'ui/tokens';
+@use '~@esportsplus/ui/lib';
+@use '~@esportsplus/ui/tokens';
 
 .--size {
     --size: var(--size-400);

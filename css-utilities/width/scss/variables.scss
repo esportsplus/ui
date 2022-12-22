@@ -1,11 +1,11 @@
-@use 'ui/lib';
-@use 'ui/tokens';
+@use '~@esportsplus/ui/lib';
+@use '~@esportsplus/ui/tokens';
 
 .--width {
     &-full {
         --width: 100%;
     }
-    
+
     &-half {
         --width: 50%;
     }
