@@ -1,3 +1,7 @@
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
 const glob = require('glob');
@@ -31,6 +35,7 @@ module.exports = ({ filename, input, output, production, theme }) => {
                 {
                     test: /\.(c|sc|sa)ss$/,
                     use: [
+                        MiniCssExtractPlugin.loader,
                         {
                             loader: 'css-loader',
                             options: {
@@ -52,8 +57,25 @@ module.exports = ({ filename, input, output, production, theme }) => {
                 },
             ],
         },
+        optimization: {
+            minimize: true,
+            minimizer: [new CssMinimizerPlugin()]
+        },
         output: {
             path: paths.output
-        }
+        },
+        plugins: [
+            new MiniCssExtractPlugin({
+                filename: '[name].css',
+                chunkFilename: '[id].css',
+            }),
+            new CleanWebpackPlugin({
+                cleanAfterEveryBuildPatterns: [`${paths.output}/**/*.js`],
+                cleanOnceBeforeBuildPatterns: [],
+                dangerouslyAllowCleanPatternsOutsideProject: true,
+                dry: false,
+                verbose: false
+            })
+        ]
     };
 };
