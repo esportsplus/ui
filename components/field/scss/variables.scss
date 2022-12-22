@@ -17,8 +17,13 @@
     }
 
 
-    &-description {
+    &-description,
+    &-error {
         --font-size: var(--font-size-300);
+    }
+
+    &-error {
+        --color: var(--color-red-400);
     }
 
     &-mask {
