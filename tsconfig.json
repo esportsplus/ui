@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "alwaysStrict": true,
+        "baseUrl": "src",
+        "declaration": true,
+        "declarationDir": "./build",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "module": "esnext",
+        "moduleResolution": "nodenext",
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "outDir": "./build",
+        "paths": {
+            "~/*": ["*"]
+        },
+        "removeComments": true,
+        "resolveJsonModule": true,
+        "strict": true,
+        "target": "esnext"
+    },
+    "exclude": ["node_modules"],
+    "include": ["src"]
+}

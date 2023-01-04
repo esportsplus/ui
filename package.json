@@ -1,6 +1,9 @@
 {
     "author": "ICJR",
     "dependencies": {
+        "@esportsplus/action": "^0.0.30",
+        "@esportsplus/reactivity": "^0.0.18",
+        "@esportsplus/template": "^0.0.11",
         "autoprefixer": "^10.4.8",
         "clean-webpack-plugin": "^4.0.0",
         "css-loader": "^6.7.1",
@@ -19,7 +22,18 @@
         "webpack-cli": "^4.10.0"
     },
     "description": "UI",
+    "devDependencies": {
+        "tsc-alias": "^1.8.2",
+        "typescript": "^4.9.4"
+    },
+    "main": "./build/index.js",
     "name": "@esportsplus/ui",
     "private": false,
+    "scripts": {
+        "build": "tsc && tsc-alias",
+        "-": "-",
+        "prepare": "npm run build",
+        "prepublishOnly": "npm run build"
+    },
     "version": "0.0.5"
 }
