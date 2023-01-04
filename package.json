@@ -35,5 +35,5 @@
         "prepare": "npm run build",
         "prepublishOnly": "npm run build"
     },
-    "version": "0.0.5"
+    "version": "0.0.6"
 }
