@@ -1,4 +1,5 @@
 import action from './action';
+import layout from './layout';
 
 
-export default { action };
+export default { action, layout };
