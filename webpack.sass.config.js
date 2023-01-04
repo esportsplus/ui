@@ -19,7 +19,7 @@ function scss(bundle, paths, scss = {}) {
 
 module.exports = ({ filename, input, output, production, theme }) => {
     let paths = {
-            current: path.resolve(process.cwd()).replace('\\', '/') + `/node_modules/@esportsplus/ui`,
+            current: path.resolve(process.cwd()).replace('\\', '/') + `/node_modules/@esportsplus/ui/src`,
             input: path.resolve(process.cwd()).replace('\\', '/') + `/${input || ''}`,
             output: path.resolve(process.cwd()).replace('\\', '/') + `/${output || ''}`
         };
