@@ -1,5 +1,5 @@
 import { html } from '@esportsplus/template';
-import { layout } from '~/components/page';
+import { header } from '~/components/page';
 
 
 type Data = {
@@ -9,24 +9,21 @@ type Data = {
         content?: any;
         style?: string;
     };
+    class?: string;
     content?: any;
-    width?: string;
 };
 
 
-export default (data: Data & Parameters<typeof layout>[0]) => {
-    data.content = html`
-        <form class='--margin-top --margin-800' ${data?.action || ''}>
-            ${data?.content || ''}
+export default (data: Data & Parameters<typeof header>[0]) => html`
+    ${header(data)}
 
-            ${data?.button ? html`
-                <button class="button ${data?.button?.class || ''}" style='${data?.button?.style || ''}'>
-                    ${data?.button?.content || ''}
-                </button>
-            ` : ''}
-        </form>
-    `;
-    data.width = data?.width || '480px';
+    <form class='${data?.class}' ${data?.action || ''}>
+        ${data?.content || ''}
 
-    return layout(data);
-};
+        ${data?.button ? html`
+            <button class="button ${data?.button?.class || ''}" style='${data?.button?.style || ''}'>
+                ${data?.button?.content || ''}
+            </button>
+        ` : ''}
+    </form>
+`;

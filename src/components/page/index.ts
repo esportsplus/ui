@@ -1,5 +1,5 @@
-import layout from './layout';
+import header from './header';
 
 
-export default { layout };
-export { layout };
+export default { header };
+export { header };
