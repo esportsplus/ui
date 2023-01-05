@@ -4,7 +4,7 @@ import alert from '~/components/alert';
 
 type Action = (data: Payload) => Promise<Errors> | Errors;
 
-type Errors = { errors?: Response<unknown>['errors'] };
+type Errors = { errors: Response<unknown>['errors'] };
 
 type Payload = {
     alert: typeof alert;
@@ -16,9 +16,5 @@ type Payload = {
     }
 };
 
-type Reactive = {
-    errors?: Record<string, string>;
-};
 
-
-export { Action, Errors, Payload, Reactive };
+export { Action, Errors, Payload };

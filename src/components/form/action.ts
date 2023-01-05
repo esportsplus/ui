@@ -1,7 +1,8 @@
 import { response } from '@esportsplus/action';
 import { html } from '@esportsplus/template';
+import { Action } from './types';
 import alert from '~/components/alert';
-import { Action, Reactive } from './types';
+import input from './input';
 
 
 function parse(input: Record<string, any>) {
@@ -22,7 +23,7 @@ function parse(input: Record<string, any>) {
 };
 
 
-export default function(action: Action, reactive: Reactive = {}) {
+export default function(action: Action) {
     return html({
         onclick: function(this: HTMLFormElement, event: Event) {
             let trigger = event.target as HTMLButtonElement;
@@ -60,16 +61,15 @@ export default function(action: Action, reactive: Reactive = {}) {
                     response
                 });
 
-            if (errors && 'errors' in reactive) {
-                let messages: Record<string, string> = {};
+            for (let i = 0, n = errors.length; i < n; i++) {
+                let { message, path } = errors[i],
+                    state = input.get( this[path] );
 
-                for (let i = 0, n = errors.length; i < n; i++) {
-                    let { message, path } = errors[i];
-
-                    messages[path] = `${message[0].toUpperCase()}${message.substring(1)}`;
+                if (!state) {
+                    continue;
                 }
 
-                reactive.errors = messages;
+                state.error = `${message[0].toUpperCase()}${message.substring(1)}`;
             }
         }
     });
