@@ -1,29 +1,10 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import events from '@esportsplus/delegated-events';
+import { root } from '~/components';
 import menu from './menu';
 
 
-let initialized = false,
-    root: { active: boolean }[] = [];
-
-
 const onclick = ({ active, toggle }: { active?: boolean, toggle?: boolean }) => {
-    if (!initialized) {
-        events.register(document.body, 'click', () => {
-            if (!root.length) {
-                return;
-            }
-
-            let deactivate = root.splice(0);
-
-            for (let i = 0, n = deactivate.length; i < n; i++) {
-                deactivate[i].active = false;
-            }
-        });
-        initialized = true;
-    }
-
     let state = reactive({
             active: active || false
         });
@@ -42,7 +23,7 @@ const onclick = ({ active, toggle }: { active?: boolean, toggle?: boolean }) => 
             state.active = active;
 
             if (active) {
-                root.push(state);
+                root.queue.onclick(() => state.active = false);
             }
         }
     });
