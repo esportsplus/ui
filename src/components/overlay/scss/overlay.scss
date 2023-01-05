@@ -1,6 +1,6 @@
 @use '~@esportsplus/ui/lib';
 
-.anchors {
+.overlay {
     @include lib.position(fixed, full);
     height: 100vh;
     pointer-events: none;
