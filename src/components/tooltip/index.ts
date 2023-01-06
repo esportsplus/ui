@@ -29,22 +29,6 @@ const onclick = ({ active, toggle }: { active?: boolean, toggle?: boolean }) => 
     });
 };
 
-const onfocus = (active: boolean = false) => {
-    let state = reactive({ active });
-
-    return html({
-        class: () => {
-            return `tooltip ${state.active ? '--active' : ''}`;
-        },
-        onfocusin: () => {
-            state.active = true;
-        },
-        onfocusout: () => {
-            state.active = false;
-        }
-    });
-};
-
 const onhover = (active: boolean = false) => {
     let state = reactive({ active });
 
@@ -62,4 +46,4 @@ const onhover = (active: boolean = false) => {
 };
 
 
-export default { onclick, onfocus, onhover, menu };
+export default { onclick, onhover, menu };

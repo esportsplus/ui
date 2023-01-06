@@ -11,10 +11,10 @@ type Data = {
     };
     class?: string;
     content?: any;
-};
+} & Parameters<typeof header>[0];
 
 
-export default (data: Data & Parameters<typeof header>[0]) => html`
+export default (data: Data) => html`
     ${header(data)}
 
     <form class='${data?.class}' ${data?.action || ''}>

@@ -1,6 +1,5 @@
-import layout from './layout';
 import queue from './queue';
 
 
-export default { layout, queue };
-export { layout, queue };
+export default { queue };
+export { queue };
