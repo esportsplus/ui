@@ -48,13 +48,57 @@ function options(keys: (number | string)[], selected: number | string) {
     return options;
 }
 
-
-export default (data: Data) => {
+function template(data: Data, state: { active: boolean, options: Record<number | string, boolean>, selected: number | string }) {
     let { attributes: a, html: h } = scrollbar({
             fixed: true,
             style: data?.scrollbar?.style || '--background-default: var(--color-black-400);'
-        }),
-        state = reactive({
+        });
+
+    return html`
+        <div class='tooltip-content tooltip-content--${data?.tooltip?.direction || 's'} ${data?.tooltip?.class || ''} --flex-column --width-full'>
+            <div
+                class='row --flex-column'
+                onclick='${(e: Event) => {
+                    let key = (e?.target as HTMLElement)?.dataset?.key;
+
+                    if (key === undefined) {
+                        return;
+                    }
+
+                    // Swap active
+                    state.options[key] = true;
+                    state.options[state.selected] = false;
+
+                    state.active = false;
+                    state.selected = key;
+
+                    if (data.effect) {
+                        data.effect(key);
+                    }
+                }}'
+                style='${data?.tooltip?.style || ''}'
+                ${a}
+            >
+                ${Object.keys( state.options ).map((key: number | string) => html`
+                    <div
+                        class='link ${data?.option?.class || ''} ${() => state.options[key] ? '--active' : ''} --flex-vertical' data-key='${key}'
+                        style='${data?.option?.style || ''}'
+                    >
+                        <span class="--text-truncate">
+                            ${data.options[key]}
+                        </span>
+                    </div>
+                `)}
+            </div>
+
+            ${h}
+        </div>
+    `;
+}
+
+
+export default (data: Data) => {
+    let state = reactive({
             active: false,
             error: '',
             options: options(Object.keys( data.options || {} ), data.selected),
@@ -92,52 +136,7 @@ export default (data: Data) => {
 
                 <div class='field-mask-arrow'></div>
 
-                ${() => {
-                    if (!state.render) {
-                        return '';
-                    }
-
-                    return html`
-                        <div class='tooltip-content tooltip-content--${data?.tooltip?.direction || 's'} ${data?.tooltip?.class || ''} --flex-column --width-full'>
-                            <div
-                                class='row --flex-column'
-                                onclick='${(e: Event) => {
-                                    let key = (e?.target as HTMLElement)?.dataset?.key;
-
-                                    if (key === undefined) {
-                                        return;
-                                    }
-
-                                    // Swap active
-                                    state.options[key] = true;
-                                    state.options[state.selected] = false;
-
-                                    state.active = false;
-                                    state.selected = key;
-
-                                    if (data.effect) {
-                                        data.effect(key);
-                                    }
-                                }}'
-                                style='${data?.tooltip?.style || ''}'
-                                ${a}
-                            >
-                                ${Object.keys( state.options ).map((key: number | string) => html`
-                                    <div
-                                        class='link ${data?.option?.class || ''} ${() => state.options[key] ? '--active' : ''} --flex-vertical' data-key='${key}'
-                                        style='${data?.option?.style || ''}'
-                                    >
-                                        <span class="--text-truncate">
-                                            ${data.options[key]}
-                                        </span>
-                                    </div>
-                                `)}
-                            </div>
-
-                            ${h}
-                        </div>
-                    `;
-                }}
+                ${() => state.render ? template(data, state) : ''}
             </label>
 
             ${description(data)}
