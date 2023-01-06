@@ -7,7 +7,6 @@ import title from './title';
 
 
 type Data = {
-    active?: boolean;
     class?: string;
     mask?: {
         class?: string;
@@ -24,13 +23,13 @@ type Data = {
 
 export default (data: Data) => {
     let state = reactive({
-            active: (data?.active || false),
+            active: false,
             error: ''
         });
 
     return html`
         <div
-            class="field --flex-column ${data?.class || ''} ${() => state.active ? '--active' : ''}"
+            class="field ${data?.class || ''} ${() => state.active ? '--active' : ''} --flex-column"
             onfocusin='${() => {
                 state.active = true;
             }}'

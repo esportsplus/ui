@@ -55,7 +55,10 @@ function template(data: Data, state: { active: boolean, options: Record<number |
         });
 
     return html`
-        <div class='tooltip-content tooltip-content--${data?.tooltip?.direction || 's'} ${data?.tooltip?.class || ''} --flex-column --width-full'>
+        <div
+            class='tooltip-content tooltip-content--${data?.tooltip?.direction || 's'} ${data?.tooltip?.class || ''} --flex-column --width-full'
+            style='${data?.tooltip?.style || ''}'
+        >
             <div
                 class='row --flex-column'
                 onclick='${(e: Event) => {
@@ -76,10 +79,9 @@ function template(data: Data, state: { active: boolean, options: Record<number |
                         data.effect(key);
                     }
                 }}'
-                style='${data?.tooltip?.style || ''}'
                 ${a}
             >
-                ${Object.keys( state.options ).map((key: number | string) => html`
+                ${Object.keys( data.options || {} ).map((key: number | string) => html`
                     <div
                         class='link ${data?.option?.class || ''} ${() => state.options[key] ? '--active' : ''} --flex-vertical' data-key='${key}'
                         style='${data?.option?.style || ''}'
