@@ -128,8 +128,8 @@ export default (data: Data) => {
                     class='field-tag field-tag--hidden'
                     name='${data.name}'
                     onclick='${() => { /* Prevent double click events from firing */ }}'
+                    onrender='${form.input.attributes(state)}'
                     value='${() => state.selected}'
-                    ${form.input.attributes(state)}
                 >
 
                 <div class="field-text ${data?.text?.class || ''}" style='pointer-events: none'>

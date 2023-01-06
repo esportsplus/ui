@@ -48,9 +48,9 @@ export default (data: Data) => {
                     class='field-tag --padding-400'
                     name='${data?.name || ''}'
                     placeholder='${data?.placeholder || ''}'
+                    onrender='${form.input.attributes(state)}'
                     type='${data?.type || 'string'}'
                     ${data?.value !== undefined ? `value='${data.value}'` : ''}
-                    ${form.input.attributes(state)}
                 >
 
                 ${data?.mask?.content || ''}
