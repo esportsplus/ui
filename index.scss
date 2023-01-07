@@ -1,2 +1,5 @@
+@forward './build/scss/components';
+@forward './build/scss/css-utilities';
+
 @forward './src/lib';
 @forward './src/tokens';

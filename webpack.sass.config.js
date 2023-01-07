@@ -1,41 +1,39 @@
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-
 const autoprefixer = require('autoprefixer');
-const cssnano = require('cssnano');
 const glob = require('glob');
+const cssnano = require('cssnano');
 const path = require('path');
+const sass = require('sass');
 
 
-function scss(bundle, paths, scss = {}) {
-    return [
-        scss.prepend || [],
-        glob.sync(`{${paths.current}/components,${paths.input}/components,${paths.input}/pages,${paths.current}/css-utilities}/**/${bundle}`, { nosort: true }),
-        scss.append  || []
-    ].flat();
-}
+module.exports = ({ directory, entry, filename, output, production }) => {
+    directory = path.resolve(directory).replace(/\\/g, '/');
+    filename = filename || 'app';
+    output = path.resolve(output).replace(/\\/g, '/');
+    production = production !== 'false' ? true : false;
 
-
-module.exports = ({ filename, input, output, production, theme }) => {
-    let paths = {
-            current: path.resolve(process.cwd()).replace('\\', '/') + `/node_modules/@esportsplus/ui/src`,
-            input: path.resolve(process.cwd()).replace('\\', '/') + `/${input || ''}`,
-            output: path.resolve(process.cwd()).replace('\\', '/') + `/${output || ''}`
-        };
+    if (directory) {
+        entry = glob.sync(`${directory}/**/scss/${entry}.scss`, { nosort: true });
+    }
 
     return {
+        cache: false,
         entry: {
-            [filename || 'app']: scss('!(variables).scss', paths, { prepend: ['modern-normalize/modern-normalize.css'] }),
-            [`themes/${theme || 'default'}`]: scss('variables.scss', paths, { append: [`${paths.current}/storage/fonts/Montserrat/montserrat.css`] })
+            [filename]: entry
         },
-        mode: (production == false ? 'development' : 'production'),
+        mode: (production ? 'production' : 'development'),
         module: {
             rules: [
                 {
                     test: /\.(c|sc|sa)ss$/,
                     use: [
-                        MiniCssExtractPlugin.loader,
+                        {
+                            loader: MiniCssExtractPlugin.loader,
+                            options: {
+                                esModule: false,
+                            },
+                        },
                         {
                             loader: 'css-loader',
                             options: {
@@ -48,34 +46,48 @@ module.exports = ({ filename, input, output, production, theme }) => {
                             loader: 'postcss-loader',
                             options: {
                                 postcssOptions: {
-                                    plugins: [autoprefixer(), cssnano()]
+                                    plugins: [
+                                        autoprefixer(),
+                                        cssnano({
+                                            preset: 'default',
+                                        })
+                                    ]
                                 }
                             }
                         },
-                        { loader: 'sass-loader' },
+                        {
+                            loader: 'sass-loader',
+                            options: {
+                                // Use `dart-sass`
+                                implementation: sass,
+                            },
+                        },
                     ],
                 },
             ],
         },
         optimization: {
-            minimize: true,
-            minimizer: [new CssMinimizerPlugin()]
+            minimize: production
         },
         output: {
-            path: paths.output
+            path: output,
         },
         plugins: [
-            new MiniCssExtractPlugin({
-                filename: '[name].css',
-                chunkFilename: '[id].css',
-            }),
+            new MiniCssExtractPlugin(),
             new CleanWebpackPlugin({
-                cleanAfterEveryBuildPatterns: [`${paths.output}/**/*.js`],
+                cleanAfterEveryBuildPatterns: [`${output}/**/*.js`],
                 cleanOnceBeforeBuildPatterns: [],
                 dangerouslyAllowCleanPatternsOutsideProject: true,
                 dry: false,
                 verbose: false
             })
-        ]
+        ],
+        resolve: {
+            alias: {
+                '/lib': path.resolve('./src/lib').replace(/\\/g, '/'),
+                '/tokens': path.resolve('./src/tokens').replace(/\\/g, '/')
+            }
+        },
+        watch: !production
     };
 };

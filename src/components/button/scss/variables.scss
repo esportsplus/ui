@@ -1,4 +1,5 @@
-@use '~@esportsplus/ui';
+@use '~/lib';
+@use '~/tokens';
 
 .button {
     --background: var(--background-default);

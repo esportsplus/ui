@@ -1,4 +1,5 @@
-@use '~@esportsplus/ui';
+@use '~/lib';
+@use '~/tokens';
 
 .sidebar {
     @include lib.position(absolute, var(--position-vertical) null var(--position-vertical) null);

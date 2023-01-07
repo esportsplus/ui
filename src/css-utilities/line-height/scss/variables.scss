@@ -1,4 +1,5 @@
-@use '~@esportsplus/ui';
+@use '~/lib';
+@use '~/tokens';
 
 .--line-height {
     @each $key in lib.map-keys(tokens.$line-height) {

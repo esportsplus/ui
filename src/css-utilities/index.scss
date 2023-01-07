@@ -1,4 +1,5 @@
-@use '~@esportsplus/ui';
+@use '~/lib';
+@use '~/tokens';
 @use 'background/scss/variables' as background;
 @use 'border/scss/variables' as border;
 @use 'color/scss/variables' as color;
