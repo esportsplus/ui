@@ -1,8 +1,7 @@
+@use '~@esportsplus/ui';
 @use 'background/scss/variables' as background;
 @use 'border/scss/variables' as border;
 @use 'color/scss/variables' as color;
-@use '~@esportsplus/ui/lib';
-@use '~@esportsplus/ui/tokens';
 
 
 @mixin css-variables($colors) {

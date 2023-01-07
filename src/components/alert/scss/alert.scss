@@ -7,8 +7,7 @@
  *
  */
 
-@use '~@esportsplus/ui/lib';
-@use '~@esportsplus/ui/tokens';
+@use '~@esportsplus/ui';
 
 .alert {
     max-width: calc(100% - (var(--margin-horizontal) * 2));
@@ -27,26 +26,6 @@
     }
 
 
-    &-message,
-    &-processing {
-        opacity: 0;
-        transition:
-            opacity var(--transition-duration) ease-in-out,
-            transform var(--transition-duration) ease-in-out;
-
-        @include tokens.state(inactive) {
-            pointer-events: none;
-            position: absolute;
-            transform: translateX(calc(25% * #{var(--multiplier)}));
-            left: 0;
-            top: 0;
-        }
-
-        @include tokens.state(active) {
-            opacity: 1;
-        }
-    }
-
     &-close {
         @include lib.position(absolute, 0 100% 0 null);
         animation: alert-close var(--transition-duration) ease-in-out;
@@ -55,11 +34,22 @@
     }
 
     &-message {
-        --multiplier: -1;
-    }
+        opacity: 0;
+        transition:
+            opacity var(--transition-duration) ease-in-out,
+            transform var(--transition-duration) ease-in-out;
 
-    &-processing {
-        --multiplier: 1;
+        @include tokens.state(inactive) {
+            pointer-events: none;
+            position: absolute;
+            transform: translateX(calc(25% * -1));
+            left: 0;
+            top: 0;
+        }
+
+        @include tokens.state(active) {
+            opacity: 1;
+        }
     }
 
     &-timer {

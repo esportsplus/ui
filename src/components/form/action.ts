@@ -51,10 +51,10 @@ export default function(action: Action) {
                                 alert.deactivate();
                             }
 
+                            // TODO: replace with signal
                             event?.submitter?.classList.remove('button--processing');
                         },
                         start: () => {
-                            alert.processing();
                             event?.submitter?.classList.add('button--processing');
                         }
                     },

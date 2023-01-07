@@ -1,5 +1,4 @@
-@use '~@esportsplus/ui/lib';
-@use '~@esportsplus/ui/tokens';
+@use '~@esportsplus/ui';
 @use 'center' as *;
 @use 'east' as *;
 @use 'north' as *;
@@ -72,8 +71,8 @@
 
 
         // Shared With Positioning CSS
-        $active: '#{tokens.state(active, '.tooltip')} > &, #{tokens.state(active, '.tooltip')} :not(.tooltip) > &';
-        $not-active: '#{tokens.state(inactive, '.tooltip')} > &, #{tokens.state(inactive, '.tooltip')} :not(.tooltip) > &';
+        $active: '#{tokens.state(active, ".tooltip")} > &, #{tokens.state(active, ".tooltip")} :not(.tooltip) > &';
+        $not-active: '#{tokens.state(inactive, ".tooltip")} > &, #{tokens.state(inactive, ".tooltip")} :not(.tooltip) > &';
 
         #{$active} {
             opacity: 1;

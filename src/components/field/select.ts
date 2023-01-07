@@ -36,7 +36,7 @@ type Data = {
 } & Parameters<typeof description>[0] & Parameters<typeof title>[0];
 
 
-function options(keys: (number | string)[], selected: number | string) {
+function parse(keys: (number | string)[], selected: number | string) {
     let options: Record<string, boolean> = {};
 
     for (let key of keys) {
@@ -45,7 +45,10 @@ function options(keys: (number | string)[], selected: number | string) {
 
     options[selected] = true;
 
-    return options;
+    return {
+        options,
+        selected: selected || keys[0]
+    };
 }
 
 function template(data: Data, state: { active: boolean, options: Record<number | string, boolean>, selected: number | string }) {
@@ -100,13 +103,11 @@ function template(data: Data, state: { active: boolean, options: Record<number |
 
 
 export default (data: Data) => {
-    let state = reactive({
+    let state = reactive(Object.assign({
             active: false,
             error: '',
-            options: options(Object.keys( data.options || {} ), data.selected),
             render: false,
-            selected: data.selected
-        });
+        }, parse(Object.keys( data.options || {} ), data.selected)));
 
     return html`
         <div class="field tooltip ${data?.class || ''} ${() => state.active ? '--active' : ''} --flex-column" style='${data?.style || ''}'>

@@ -2,8 +2,7 @@
     --width: 480px;
 
     &-close,
-    &-message,
-    &-processing {
+    &-message {
         --transition-duration: var(--transition-duration-400);
     }
 

@@ -1,5 +1,4 @@
-@use '~@esportsplus/ui/lib';
-@use '~@esportsplus/ui/tokens';
+@use '~@esportsplus/ui';
 
 .--text {
     @each $key in lib.map-keys(tokens.$font-size) {
