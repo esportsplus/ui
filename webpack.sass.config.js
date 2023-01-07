@@ -7,14 +7,17 @@ const path = require('path');
 const sass = require('sass');
 
 
-module.exports = ({ directory, entry, filename, output, production }) => {
-    directory = path.resolve(directory).replace(/\\/g, '/');
+module.exports = ({ directory, entry, filename, normalizer, output, production }) => {
     filename = filename || 'app';
     output = path.resolve(output).replace(/\\/g, '/');
     production = production !== 'false' ? true : false;
 
     if (directory) {
-        entry = glob.sync(`${directory}/**/scss/${entry}.scss`, { nosort: true });
+        entry = glob.sync(`${path.resolve(directory).replace(/\\/g, '/')}/**/scss/${entry}.scss`, { nosort: true });
+
+        if (normalizer == 'true') {
+            entry.unshift('modern-normalize/modern-normalize.css');
+        }
     }
 
     return {

@@ -30,10 +30,10 @@
     "scripts": {
         "build": "run-p build:css build:ts",
         "build:css": "run-p build:css:components build:css:css-utilities",
-        "build:css:components": "webpack --config webpack.sass.config.js --env=directory=./src/components --env=entry=index --env=filename=components --env=output=./build/css",
+        "build:css:components": "webpack --config webpack.sass.config.js --env=directory=./src/components --env=entry=index --env=filename=components --env=normalizer=true --env=output=./build/css",
         "build:css:css-utilities": "webpack --config webpack.sass.config.js --env=directory=./src/css-utilities --env=entry=variables --env=filename=css-utilities --env=output=./build/css",
         "build:ts": "tsc && tsc-alias",
-        "--": "--",
+        "-": "-",
         "prepare": "npm run build",
         "prepublishOnly": "npm run build"
     },
