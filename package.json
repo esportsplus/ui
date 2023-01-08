@@ -2,10 +2,10 @@
     "author": "ICJR",
     "dependencies": {
         "@esportsplus/action": "^0.0.31",
-        "@esportsplus/app": "^0.0.0",
         "@esportsplus/delegated-events": "^0.0.16",
         "@esportsplus/reactivity": "^0.0.18",
-        "@esportsplus/template": "^0.0.14"
+        "@esportsplus/template": "^0.0.14",
+        "@esportsplus/webpack": "^0.0.8"
     },
     "description": "UI",
     "main": "./build/index.js",

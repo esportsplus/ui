@@ -1,4 +1,4 @@
-const { config, entry: e } = require('@esportsplus/app/webpack.sass.config.js');
+const { config, entry: e } = require('@esportsplus/webpack/webpack.sass.config.js');
 
 
 let entry = {
