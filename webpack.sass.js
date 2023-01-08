@@ -6,9 +6,7 @@ let entry = {
         'components.variables': scss(`./src/components/**/variables.scss`),
 
         'css-utilities': scss(`./src/css-utilities/**/index.scss`),
-        'css-utilities.variables': scss(`./src/css-utilities/**/variables.scss`),
-
-        'fonts/montserrat': scss(`./storage/fonts/Montserrat/index.css`)
+        'css-utilities.variables': scss(`./src/css-utilities/**/variables.scss`)
     },
     output = './build/css';
 
