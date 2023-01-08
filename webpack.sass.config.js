@@ -1,7 +1,7 @@
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const autoprefixer = require('autoprefixer');
-const cssnano = require('cssnano');
 const glob = require('glob');
 const path = require('path');
 const sass = require('sass');
@@ -39,9 +39,9 @@ const config = (entry, output, production) => {
                                 postcssOptions: {
                                     plugins: [
                                         autoprefixer(),
-                                        cssnano({
-                                            preset: 'default',
-                                        })
+                                        // cssnano({
+                                        //     preset: 'default',
+                                        // })
                                     ]
                                 }
                             }
@@ -58,7 +58,11 @@ const config = (entry, output, production) => {
             ],
         },
         optimization: {
-            minimize: production
+            minimize: production,
+            minimizer: [
+                `...`,
+                new CssMinimizerPlugin()
+            ]
         },
         output: {
             path: output,
