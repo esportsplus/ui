@@ -5,7 +5,7 @@
         "@esportsplus/delegated-events": "^0.0.16",
         "@esportsplus/reactivity": "^0.0.18",
         "@esportsplus/template": "^0.0.14",
-        "@esportsplus/webpack": "^0.0.8"
+        "@esportsplus/webpack": "^0.0.9"
     },
     "description": "UI",
     "main": "./build/index.js",

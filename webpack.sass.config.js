@@ -1,14 +1,14 @@
-const { config, entry: e } = require('@esportsplus/webpack/webpack.sass.config.js');
+const { config, entry } = require('@esportsplus/webpack/webpack.sass.config.js');
 
 
-let entry = {
-        'components': e('./src/components/**/index.scss'),
-        'components.variables': e('./src/components/**/variables.scss'),
+module.exports = ({ production }) => config({
+    entry: {
+        'components': entry('./src/components/**/index.scss'),
+        'components.variables': entry('./src/components/**/variables.scss'),
 
-        'css-utilities': e('./src/css-utilities/**/index.scss'),
-        'css-utilities.variables': e('./src/css-utilities/**/variables.scss')
+        'css-utilities': entry('./src/css-utilities/**/index.scss'),
+        'css-utilities.variables': entry('./src/css-utilities/**/variables.scss')
     },
-    output = './build/css';
-
-
-module.exports = ({ production }) => config(entry, output, production);
+    output: './build/css',
+    production
+});
