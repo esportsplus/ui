@@ -1,4 +1,4 @@
-import config, { scss } from './webpack.sass.config.js';
+const { config, scss } = require('./webpack.sass.config.js');
 
 
 let entry = {
@@ -13,4 +13,4 @@ let entry = {
     output = './build/css';
 
 
-export default config(entry, output);
+module.exports = config(entry, output);

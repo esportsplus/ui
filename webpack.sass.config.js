@@ -1,31 +1,13 @@
-import { CleanWebpackPlugin } from 'clean-webpack-plugin';
-import { default as MiniCssExtractPlugin } from 'mini-css-extract-plugin';
-import autoprefixer from 'autoprefixer';
-import cssnano from 'cssnano';
-import glob from 'glob';
-import path from 'path';
-import sass from 'sass';
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const autoprefixer = require('autoprefixer');
+const cssnano = require('cssnano');
+const glob = require('glob');
+const path = require('path');
+const sass = require('sass');
 
 
-const scss = (pattern, { normalizer, ui } = {}) => {
-    let scss = glob.sync(path.resolve(pattern).replace(/\\/g, '/'), { nosort: true });
-
-    if (ui) {
-        let str = typeof ui === 'string';
-
-        scss.push(`@esportsplus/ui/build/css/css-utilities${str ? `.${str}` : ''}.scss`);
-        scss.unshift(`@esportsplus/ui/build/css/components${str ? `.${str}` : ''}.scss`);
-    }
-
-    if (normalizer) {
-        scss.unshift('modern-normalize/modern-normalize.css');
-    }
-
-    return scss.flat();
-};
-
-
-export default (entry, output, production) => {
+const config = (entry, output, production) => {
     output = path.resolve(output).replace(/\\/g, '/');
     production = production !== 'false' ? true : false;
 
@@ -94,4 +76,25 @@ export default (entry, output, production) => {
         watch: !production
     };
 };
-export { scss };
+
+const scss = (pattern, { normalizer, ui } = {}) => {
+    let scss = glob.sync(path.resolve(pattern).replace(/\\/g, '/'), { nosort: true });
+
+    if (ui) {
+        if (typeof ui === 'string') {
+            throw new Error('`ui` must be a string');
+        }
+
+        scss.push(`@esportsplus/ui/build/css/css-utilities${str ? `.${str}` : ''}.scss`);
+        scss.unshift(`@esportsplus/ui/build/css/components${str ? `.${str}` : ''}.scss`);
+    }
+
+    if (normalizer) {
+        scss.unshift('modern-normalize/modern-normalize.css');
+    }
+
+    return scss.flat();
+};
+
+
+module.exports = { config, scss };
