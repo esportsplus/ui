@@ -81,8 +81,8 @@ const config = (entry, output, production) => {
 const scss = (pattern, { normalizer, ui } = {}) => {
     let scss = glob.sync(path.resolve(pattern).replace(/\\/g, '/'), { nosort: true });
 
-    if (ui) {
-        if (typeof ui === 'string') {
+    if (ui !== undefined) {
+        if (typeof ui !== 'string') {
             throw new Error('`ui` must be a string');
         }
 
