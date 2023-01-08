@@ -2,34 +2,18 @@
     "author": "ICJR",
     "dependencies": {
         "@esportsplus/action": "^0.0.31",
+        "@esportsplus/app": "^0.0.0",
         "@esportsplus/delegated-events": "^0.0.16",
         "@esportsplus/reactivity": "^0.0.18",
-        "@esportsplus/template": "^0.0.14",
-        "autoprefixer": "^10.4.13",
-        "clean-webpack-plugin": "^4.0.0",
-        "css-loader": "^6.7.3",
-        "css-minimizer-webpack-plugin": "^4.2.2",
-        "glob": "^8.0.3",
-        "mini-css-extract-plugin": "^2.7.2",
-        "modern-normalize": "^1.1.0",
-        "postcss-loader": "^7.0.2",
-        "sass": "^1.57.1",
-        "sass-loader": "^13.2.0"
+        "@esportsplus/template": "^0.0.14"
     },
     "description": "UI",
-    "devDependencies": {
-        "npm-run-all": "^4.1.5",
-        "tsc-alias": "^1.8.2",
-        "typescript": "^4.9.4",
-        "webpack": "^5.75.0",
-        "webpack-cli": "^5.0.1"
-    },
     "main": "./build/index.js",
     "name": "@esportsplus/ui",
     "private": false,
     "scripts": {
         "build": "run-p build:css build:ts",
-        "build:css": "webpack --config webpack.sass.js",
+        "build:css": "webpack --config webpack.sass.config.js --env=production=true",
         "build:ts": "tsc && tsc-alias",
         "-": "-",
         "prepare": "npm run build",
