@@ -7,8 +7,8 @@
  *
  */
 
-@use '~/lib';
-@use '~/tokens';
+@use '/lib';
+@use '/tokens';
 
 .alert {
     max-width: calc(100% - (var(--margin-horizontal) * 2));

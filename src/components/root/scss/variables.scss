@@ -1,5 +1,5 @@
-@use '~/lib';
-@use '~/tokens';
+@use '/lib';
+@use '/tokens';
 
 body {
     @include lib.css-variables(border-radius, tokens.$border-radius);

@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
         "allowJs": true,
+        "allowSyntheticDefaultImports": true,
         "alwaysStrict": true,
-        "baseUrl": "src",
+        "baseUrl": "./",
         "declaration": true,
         "declarationDir": "./build",
         "lib": ["dom", "dom.iterable", "esnext"],
@@ -12,7 +13,8 @@
         "noUnusedParameters": true,
         "outDir": "./build",
         "paths": {
-            "~/*": ["*"]
+            "~/*": ["./src/*"],
+            "~/storage/*": ["./storage/*"],
         },
         "removeComments": true,
         "resolveJsonModule": true,

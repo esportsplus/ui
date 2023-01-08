@@ -8,8 +8,8 @@
  *
  */
 
-@use '~/lib';
-@use '~/tokens';
+@use '/lib';
+@use '/tokens';
 @use 'check' as check;
 @use 'normalize' as *;
 @use 'text' as text;
