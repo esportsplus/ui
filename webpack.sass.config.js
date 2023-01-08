@@ -38,10 +38,7 @@ const config = (entry, output, production) => {
                             options: {
                                 postcssOptions: {
                                     plugins: [
-                                        autoprefixer(),
-                                        // cssnano({
-                                        //     preset: 'default',
-                                        // })
+                                        autoprefixer()
                                     ]
                                 }
                             }
