@@ -4,10 +4,12 @@
         "@esportsplus/action": "^0.0.31",
         "@esportsplus/delegated-events": "^0.0.16",
         "@esportsplus/reactivity": "^0.0.18",
-        "@esportsplus/template": "^0.0.14",
-        "@esportsplus/webpack": "^0.0.9"
+        "@esportsplus/template": "^0.0.14"
     },
     "description": "UI",
+    "devDependencies": {
+        "@esportsplus/webpack": "^0.0.11"
+    },
     "main": "./build/index.js",
     "name": "@esportsplus/ui",
     "private": false,
