@@ -8,13 +8,17 @@
     },
     "description": "UI",
     "devDependencies": {
-        "@esportsplus/webpack": "^0.0.39"
+        "@esportsplus/webpack": "^0.0.42",
+        "modern-normalize": "^1.1.0"
     },
     "main": "build/index.js",
     "name": "@esportsplus/ui",
     "private": false,
     "scripts": {
-        "build": "tsc && tsc-alias",
+        "build": "run-p build:ts build:web",
+        "build:ts": "tsc && tsc-alias",
+        "build:web": "webpack",
+        "-": "-",
         "prepublishOnly": "npm run build"
     },
     "types": "build/index.d.ts",
