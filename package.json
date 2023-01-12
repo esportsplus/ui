@@ -8,15 +8,15 @@
     },
     "description": "UI",
     "devDependencies": {
-        "@esportsplus/webpack": "^0.0.38"
+        "@esportsplus/webpack": "^0.0.39"
     },
-    "main": "./build/index.js",
+    "main": "build/index.js",
     "name": "@esportsplus/ui",
     "private": false,
     "scripts": {
         "build": "tsc && tsc-alias",
         "prepublishOnly": "npm run build"
     },
-    "types": "./build/index.d.ts",
+    "types": "build/index.d.ts",
     "version": "0.0.46"
 }
