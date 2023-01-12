@@ -4,20 +4,17 @@
         "@esportsplus/action": "^0.0.31",
         "@esportsplus/delegated-events": "^0.0.16",
         "@esportsplus/reactivity": "^0.0.18",
-        "@esportsplus/template": "^0.0.14"
+        "@esportsplus/template": "^0.0.15"
     },
     "description": "UI",
     "devDependencies": {
-        "@esportsplus/webpack": "^0.0.14"
+        "@esportsplus/webpack": "^0.0.36"
     },
     "main": "./build/index.js",
     "name": "@esportsplus/ui",
     "private": false,
     "scripts": {
-        "build": "run-p build:css build:ts",
-        "build:css": "webpack --config webpack.sass.config.js --env=production=true",
-        "build:ts": "tsc && tsc-alias",
-        "-": "-",
+        "build": "tsc && tsc-alias",
         "prepublishOnly": "npm run build"
     },
     "types": "./build/index.d.ts",
