@@ -8,7 +8,7 @@
     },
     "description": "UI",
     "devDependencies": {
-        "@esportsplus/webpack": "^0.0.37"
+        "@esportsplus/webpack": "^0.0.38"
     },
     "main": "./build/index.js",
     "name": "@esportsplus/ui",
