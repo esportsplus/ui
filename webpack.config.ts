@@ -19,6 +19,7 @@ export default ({ production }: { production?: string }) => {
                     }
                 }
             },
+            // Temprorary root output until we can route to build through package.json or similar
             output: {
                 path: '.'
             }
