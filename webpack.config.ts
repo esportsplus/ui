@@ -19,7 +19,8 @@ export default ({ production }: { production?: string }) => config.web({
         }
     },
     mode: mode(production),
-    // Temporary root output until we can route to build through package.json or similar
+    // Temporary output until we can css root directory can be set
+    // through package.json or similar ( like 'main' key )
     output: {
         path: '.'
     }
