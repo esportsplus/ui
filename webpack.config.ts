@@ -12,7 +12,7 @@ export default ({ production }: { production?: string }) => {
                     fonts: {
                         montserrat: entry.css('storage/fonts/montserrat/index.css')
                     },
-                    normalizer: entry.css('modern-normalize/modern-normalize.css', { local: false }),
+                    normalizer: entry.css('modern-normalize/modern-normalize.css'),
                     utilities: {
                         styles: entry.css('src/css-utilities/**/index.scss'),
                         variables: entry.css('src/css-utilities/**/variables.scss')
