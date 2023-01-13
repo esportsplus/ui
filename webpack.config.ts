@@ -1,29 +1,26 @@
-import { config, entry } from '@esportsplus/webpack';
+import { config, entry, mode } from '@esportsplus/webpack';
 
 
-export default ({ production }: { production?: string }) => {
-    let webpack = {
-            entry: {
-                css: {
-                    components: {
-                        styles: entry.css('src/components/**/index.scss'),
-                        variables: entry.css('src/components/**/variables.scss')
-                    },
-                    fonts: {
-                        montserrat: entry.css('storage/fonts/montserrat/index.css')
-                    },
-                    normalizer: entry.css('modern-normalize/modern-normalize.css'),
-                    utilities: {
-                        styles: entry.css('src/css-utilities/**/index.scss'),
-                        variables: entry.css('src/css-utilities/**/variables.scss')
-                    }
-                }
+export default ({ production }: { production?: string }) => config.web({
+    entry: {
+        css: {
+            components: {
+                styles: entry.css('src/components/**/index.scss'),
+                variables: entry.css('src/components/**/variables.scss')
             },
-            // Temprorary root output until we can route to build through package.json or similar
-            output: {
-                path: '.'
+            fonts: {
+                montserrat: entry.css('storage/fonts/montserrat/index.css')
+            },
+            normalizer: entry.css('modern-normalize/modern-normalize.css'),
+            utilities: {
+                styles: entry.css('src/css-utilities/**/index.scss'),
+                variables: entry.css('src/css-utilities/**/variables.scss')
             }
-        };
-
-    return config(webpack, { production });
-};
+        }
+    },
+    mode: mode(production),
+    // Temporary root output until we can route to build through package.json or similar
+    output: {
+        path: '.'
+    }
+});
