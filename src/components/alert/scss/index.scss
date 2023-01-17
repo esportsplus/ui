@@ -52,28 +52,6 @@
             opacity: 1;
         }
     }
-
-    &-timer {
-        height: var(--height);
-        transition: opacity var(--transition-duration) ease-in-out;
-        width: var(--width);
-
-        &-bg,
-        &-meter {
-            fill: none;
-            stroke-width: var(--border-width);
-            stroke: var(--border-color);
-        }
-
-        &-meter {
-            stroke-linecap: round;
-            stroke-dasharray: 360;
-            stroke-dashoffset: 0;
-            animation: alert-timer var(--animation-duration) ease-in-out;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
-    }
 }
 
 @keyframes alert-close {
@@ -82,14 +60,5 @@
     }
     to {
         transform: translateX(0);
-    }
-}
-
-@keyframes alert-timer {
-    from {
-        stroke-dashoffset: 360;
-    }
-    to {
-        stroke-dashoffset: 0;
     }
 }

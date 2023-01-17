@@ -5,20 +5,4 @@
     &-message {
         --transition-duration: var(--transition-duration-400);
     }
-
-    &-timer {
-        --animation-duration: 5s;
-        --background: var(--color-black-400);
-        --border-width: var(--border-width-700);
-        --height: var(--size-600);
-        --width: var(--size-600);
-
-        &-bg {
-            --border-color: var(--color-grey-500);
-        }
-
-        &-meter {
-            --border-color: var(--color-black-300);
-        }
-    }
 }
