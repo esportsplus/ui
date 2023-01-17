@@ -41,23 +41,11 @@ export default function(action: Action) {
         },
         onsubmit: async function(this: HTMLFormElement, event: SubmitEvent) {
             event.preventDefault();
+            event?.submitter?.classList.add('button--processing');
 
             let { errors } = await action({
                     alert,
                     input: parse( Object.fromEntries( new FormData( this )?.entries() ) ),
-                    processing: {
-                        end: (deactivate?: boolean) => {
-                            if (deactivate) {
-                                alert.deactivate();
-                            }
-
-                            // TODO: replace with signal
-                            event?.submitter?.classList.remove('button--processing');
-                        },
-                        start: () => {
-                            event?.submitter?.classList.add('button--processing');
-                        }
-                    },
                     response
                 });
 
@@ -71,6 +59,9 @@ export default function(action: Action) {
 
                 state.error = `${message[0].toUpperCase()}${message.substring(1)}`;
             }
+
+            // TODO: replace with signal
+            event?.submitter?.classList.remove('button--processing');
         }
     });
 };
