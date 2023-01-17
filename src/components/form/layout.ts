@@ -5,7 +5,7 @@ import { header } from '~/components/page';
 type Data = {
     action?: any;
     button?: {
-        class?: any;
+        class?: string;
         content?: any;
         style?: string;
     };
