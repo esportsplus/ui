@@ -4,6 +4,7 @@
 .sidebar {
     @include lib.position(absolute, var(--position-vertical) null var(--position-vertical) null);
     cursor: default;
+    height: calc(100% - (var(--position-vertical) * 2));
     max-width: var(--width);
     overflow: hidden;
     pointer-events: auto;

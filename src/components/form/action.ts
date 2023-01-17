@@ -46,7 +46,7 @@ export default function(action: Action) {
                     alert,
                     input: parse( Object.fromEntries( new FormData( this )?.entries() ) ),
                     processing: {
-                        end: (deactivate: boolean = true) => {
+                        end: (deactivate?: boolean) => {
                             if (deactivate) {
                                 alert.deactivate();
                             }
