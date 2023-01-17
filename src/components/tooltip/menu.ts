@@ -17,7 +17,7 @@ type Data = {
         text: string;
         url?: string;
     }[];
-    state: { active: boolean };
+    state?: { active?: boolean };
     style?: string;
 };
 
@@ -63,7 +63,7 @@ export default (data: Data) => {
         });
 
     effect(() => {
-        if (!data.state.active || state.render) {
+        if (!data?.state?.active || state.render) {
             return;
         }
 

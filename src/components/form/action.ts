@@ -39,6 +39,8 @@ export default function(action: Action) {
                 new SubmitEvent('submit', { cancelable: true, bubbles:true, submitter: trigger })
             );
         },
+        // TODO: Figure out processing
+        // - Could pass reactive value above and tie it to form layout handler
         onsubmit: async function(this: HTMLFormElement, event: SubmitEvent) {
             event.preventDefault();
             event?.submitter?.classList.add('button--processing');

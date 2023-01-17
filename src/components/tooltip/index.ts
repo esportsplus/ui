@@ -4,7 +4,7 @@ import { root } from '~/components';
 import menu from './menu';
 
 
-const onclick = ({ active, toggle }: { active?: boolean, toggle?: boolean }) => {
+const onclick = ({ active, toggle }: { active?: boolean, toggle?: boolean } = {}) => {
     let state = reactive({
             active: active || false
         });
