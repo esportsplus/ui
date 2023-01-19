@@ -20,7 +20,7 @@ export default (data: Data) => html`
     <form class='${data?.class}' ${data?.action || ''}>
         ${data?.content || ''}
 
-        ${data?.button ? html`
+        ${data?.button?.content ? html`
             <button class="button ${data?.button?.class || ''}" style='${data?.button?.style || ''}'>
                 ${data?.button?.content || ''}
             </button>

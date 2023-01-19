@@ -4,46 +4,62 @@ import { root } from '~/components';
 import menu from './menu';
 
 
-const onclick = ({ active, toggle }: { active?: boolean, toggle?: boolean } = {}) => {
-    let state = reactive({
-            active: active || false
+const onclick = (data: { active?: boolean, menu?: Parameters<typeof menu>[0], toggle?: boolean } = {}) => {
+    let content,
+        state = reactive({
+            active: data.active || false,
+            render: undefined as boolean | undefined
         });
 
-    return html({
-        class: () => {
-            return `tooltip ${state.active ? '--active' : ''}`;
-        },
-        onclick: function(this: HTMLElement, e: Event) {
-            let active = true;
+    if (data.menu) {
+        content = menu(data.menu, state);
+    }
 
-            if (toggle && e.target && this.isSameNode(e.target as Node)) {
-                active = !state.active;
+    return {
+        attributes: html({
+            class: () => {
+                return `tooltip ${state.active ? '--active' : ''}`;
+            },
+            onclick: function(this: HTMLElement, e: Event) {
+                let active = true;
+
+                if (data.toggle && e.target && this.isSameNode(e.target as Node)) {
+                    active = !state.active;
+                }
+
+                state.active = active;
+
+                if (active) {
+                    root.queue.onclick(() => state.active = false);
+                }
             }
-
-            state.active = active;
-
-            if (active) {
-                root.queue.onclick(() => state.active = false);
-            }
-        }
-    });
+        }),
+        content,
+        state
+    };
 };
 
 const onhover = (active: boolean = false) => {
-    let state = reactive({ active });
+    let state = reactive({
+            active,
+            render: undefined as boolean | undefined
+        });
 
-    return html({
-        class: () => {
-            return `tooltip ${state.active ? '--active' : ''}`;
-        },
-        onmouseover: () => {
-            state.active = true;
-        },
-        onmouseout: () => {
-            state.active = false;
-        }
-    });
+    return {
+        attributes: html({
+            class: () => {
+                return `tooltip ${state.active ? '--active' : ''}`;
+            },
+            onmouseover: () => {
+                state.active = true;
+            },
+            onmouseout: () => {
+                state.active = false;
+            }
+        }),
+        state
+    };
 };
 
 
-export default { onclick, onhover, menu };
+export default { onclick, onhover };

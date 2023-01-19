@@ -1,4 +1,4 @@
-import { effect, reactive } from '@esportsplus/reactivity';
+import { effect } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 
 
@@ -57,13 +57,10 @@ function template(data: Data) {
 }
 
 
-export default (data: Data) => {
-    let state = reactive({
-            render: false
-        });
-
+// TODO: There's nothing binding activate to tooltip menu ( this is never called outside initial effect run )
+export default (data: Data, state: { active?: boolean, render?: boolean }) => {
     effect(() => {
-        if (!data?.state?.active || state.render) {
+        if (!state.active || state.render) {
             return;
         }
 
