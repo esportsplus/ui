@@ -43,7 +43,7 @@ export default (data: Data) => {
 
             <label
                 class='field-mask field-mask--input --flex-row ${data?.mask?.class || ''} ${(data?.title || (data?.class || '').indexOf('field--optional') !== -1) && '--margin-top'} --margin-300'
-                style='${data?.mask?.style || ''}'
+                style='${data?.mask?.style || ''} cursor:pointer;'
             >
                 <input
                     ${data?.accept ? `accept='${data.accept}'` : ''}
