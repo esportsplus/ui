@@ -1,14 +1,14 @@
 {
     "author": "ICJR",
     "dependencies": {
-        "@esportsplus/action": "^0.0.31",
+        "@esportsplus/action": "^0.0.36",
         "@esportsplus/delegated-events": "^0.0.16",
-        "@esportsplus/reactivity": "^0.0.18",
-        "@esportsplus/template": "^0.0.15"
+        "@esportsplus/reactivity": "^0.0.22",
+        "@esportsplus/template": "^0.0.16"
     },
     "description": "UI",
     "devDependencies": {
-        "@esportsplus/webpack": "^0.0.64",
+        "@esportsplus/webpack": "^0.0.96",
         "modern-normalize": "^1.1.0"
     },
     "main": "build/index.js",
