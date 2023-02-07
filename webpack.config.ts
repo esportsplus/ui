@@ -1,7 +1,7 @@
-import { config, entry, mode } from '@esportsplus/webpack';
+import { config, entry } from '@esportsplus/webpack';
 
 
-export default ({ production }: { production?: string }) => config.web({
+export default () => config.web({
     entry: {
         css: {
             components: {
@@ -18,7 +18,6 @@ export default ({ production }: { production?: string }) => config.web({
             }
         }
     },
-    mode: mode(production),
     // Temporary output until css root directory can be set
     // through package.json or similar ( like 'main' key )
     output: {
