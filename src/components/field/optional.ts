@@ -5,8 +5,8 @@ import tex from './text';
 
 const select = (data: Parameters<typeof s>[0] & { field: Parameters<typeof sel>[0] }) => {
     return s(Object.assign(data, {
-        class: `field--optional ${data?.class || ''}`,
         field: {
+            class: `field--optional ${data?.class || ''}`,
             content: sel( data.field )
         }
     }));
@@ -14,8 +14,8 @@ const select = (data: Parameters<typeof s>[0] & { field: Parameters<typeof sel>[
 
 const text = (data: Parameters<typeof s>[0] & { field: Parameters<typeof tex>[0] }) => {
     return s(Object.assign(data, {
-        class: `field--optional ${data?.class || ''}`,
         field: {
+            class: `field--optional ${data?.class || ''}`,
             content: tex( data.field )
         }
     }));
