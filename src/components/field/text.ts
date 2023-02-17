@@ -16,6 +16,9 @@ type Data = {
     name?: string;
     placeholder?: string;
     style?: string;
+    tag?: {
+        class?: string;
+    };
     type?: string;
     value?: unknown;
 } & Parameters<typeof description>[0] & Parameters<typeof title>[0];
@@ -41,11 +44,11 @@ export default (data: Data) => {
             ${title(data)}
 
             <label
-                class='field-mask field-mask--input --flex-row ${data?.mask?.class || ''} ${(data?.title || (data?.class || '').indexOf('field--optional') !== -1) && '--margin-top'} --margin-300'
+                class='field-mask field-mask--input --flex-row ${data?.mask?.class || ''} ${(data?.title || (data?.class || '').indexOf('field--optional') !== -1) ? '--margin-top' : ''} --margin-300'
                 style='${data?.mask?.style || ''}'
             >
                 <input
-                    class='field-tag --padding-400'
+                    class='field-tag --padding-400 ${data?.tag?.class || ''}'
                     name='${data?.name || ''}'
                     placeholder='${data?.placeholder || ''}'
                     onrender='${form.input.attributes(state)}'
