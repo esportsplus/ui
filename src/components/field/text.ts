@@ -28,7 +28,12 @@ export default (data: Data) => {
     let state = reactive({
             active: false,
             error: ''
-        });
+        }),
+        type = data?.type || 'string';
+
+    if (type === 'textarea') {
+        type = 'string';
+    }
 
     return html`
         <div
@@ -47,12 +52,12 @@ export default (data: Data) => {
                 class='field-mask field-mask--input --flex-row ${data?.mask?.class || ''} ${(data?.title || (data?.class || '').indexOf('field--optional') !== -1) ? '--margin-top' : ''} --margin-300'
                 style='${data?.mask?.style || ''}'
             >
-                <input
+                <${data?.type === 'textarea' ? 'textarea' : 'input'}
                     class='field-tag --padding-400 ${data?.tag?.class || ''}'
                     name='${data?.name || ''}'
                     placeholder='${data?.placeholder || ''}'
                     onrender='${form.input.attributes(state)}'
-                    type='${data?.type || 'string'}'
+                    type='${type}'
                     ${data?.value !== undefined ? `value='${data.value}'` : ''}
                 >
 
