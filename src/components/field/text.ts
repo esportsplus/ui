@@ -29,8 +29,7 @@ export default (data: Data) => {
     let state = reactive({
             active: false,
             error: ''
-        }),
-        value = data?.value !== undefined ? `value='${data.value}'` : '';
+        });
 
     return html`
         <div
@@ -55,9 +54,9 @@ export default (data: Data) => {
                     placeholder='${data?.placeholder || ''}'
                     onrender='${form.input.attributes(state)}'
                     type='${data?.type || 'string'}'
-                    ${!data?.textarea && value}
+                    ${!data?.textarea && data?.value !== undefined ? `value='${data.value}'` : ''}
                 >
-                ${data?.textarea ? html`${value}</textarea>` : ''}
+                ${data?.textarea ? html`${data?.value || ''}</textarea>` : ''}
 
                 ${data?.mask?.content || ''}
             </label>
