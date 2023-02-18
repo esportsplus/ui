@@ -4,6 +4,28 @@ import { root } from '~/components';
 import menu from './menu';
 
 
+let queue: VoidFunction[] = [],
+    running = false,
+    scheduled = false;
+
+
+async function frame() {
+    if (running) {
+        return;
+    }
+
+    running = true;
+
+    let items = queue.splice(0);
+
+    for (let i = 0, n = items.length; i < n; i++) {
+        await items[i]();
+    }
+
+    running = false;
+}
+
+
 const onclick = (data: { active?: boolean, menu?: Parameters<typeof menu>[0], toggle?: boolean } = {}) => {
     let content,
         state = reactive({
@@ -21,16 +43,26 @@ const onclick = (data: { active?: boolean, menu?: Parameters<typeof menu>[0], to
                 return `tooltip ${state.active ? '--active' : ''}`;
             },
             onclick: function(this: HTMLElement, e: Event) {
-                let active = true;
+                let active = true,
+                    node = e.target as Node | null;
 
-                if (data.toggle && e.target && this.isSameNode(e.target as Node)) {
+                if (data.toggle && ( this.contains(node) || this.isSameNode(node) )) {
                     active = !state.active;
                 }
 
+                frame();
                 state.active = active;
 
                 if (active) {
-                    root.queue.onclick(() => state.active = false);
+                    queue.push(() => state.active = false);
+                }
+
+                if (!scheduled) {
+                    scheduled = true;
+                    root.queue.onclick(() => {
+                        frame();
+                        scheduled = false;
+                    });
                 }
             }
         }),
