@@ -19,6 +19,7 @@ type Data = {
     tag?: {
         class?: string;
     };
+    textarea?: boolean;
     type?: string;
     value?: unknown;
 } & Parameters<typeof description>[0] & Parameters<typeof title>[0];
@@ -29,11 +30,7 @@ export default (data: Data) => {
             active: false,
             error: ''
         }),
-        type = data?.type || 'string';
-
-    if (type === 'textarea') {
-        type = 'string';
-    }
+        value = data?.value !== undefined ? `value='${data.value}'` : '';
 
     return html`
         <div
@@ -52,14 +49,15 @@ export default (data: Data) => {
                 class='field-mask field-mask--input --flex-row ${data?.mask?.class || ''} ${(data?.title || (data?.class || '').indexOf('field--optional') !== -1) ? '--margin-top' : ''} --margin-300'
                 style='${data?.mask?.style || ''}'
             >
-                <${data?.type === 'textarea' ? 'textarea' : 'input'}
+                <${data?.textarea ? 'textarea' : 'input'}
                     class='field-tag --padding-400 ${data?.tag?.class || ''}'
                     name='${data?.name || ''}'
                     placeholder='${data?.placeholder || ''}'
                     onrender='${form.input.attributes(state)}'
-                    type='${type}'
-                    ${data?.value !== undefined ? `value='${data.value}'` : ''}
+                    type='${data?.type || 'string'}'
+                    ${!data?.textarea && value}
                 >
+                ${data?.textarea ? html`${value}</textarea>` : ''}
 
                 ${data?.mask?.content || ''}
             </label>
