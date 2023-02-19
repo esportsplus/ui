@@ -54,7 +54,7 @@ export default (data: Data) => {
                     placeholder='${data?.placeholder || ''}'
                     onrender='${form.input.attributes(state)}'
                     type='${data?.type || 'string'}'
-                    ${!data?.textarea && data?.value !== undefined ? `value='${data.value}'` : ''}
+                    ${!data?.textarea && data?.value !== undefined ? html`value='${data.value}'` : ''}
                 >
                 ${data?.textarea ? html`${data?.value || ''}</textarea>` : ''}
 
