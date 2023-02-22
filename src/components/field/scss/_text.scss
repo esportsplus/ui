@@ -49,6 +49,10 @@
                     appearance: textfield;
                 }
             }
+
+            textarea.field-tag {
+                white-space: normal;
+            }
         }
 
         &--select {
