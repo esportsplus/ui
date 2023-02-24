@@ -29,7 +29,9 @@ function activate(key: Type, messages: string | string[], seconds: number = 0) {
         return;
     }
 
-    state.messages.clear();
+    if (state.type !== key) {
+        state.messages.clear();
+    }
 
     for (let message of messages) {
         state.messages.add(message);
