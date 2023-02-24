@@ -32,6 +32,10 @@ function activate(key: Type, messages: string | string[], seconds: number = 0) {
     if (state.type !== key) {
         state.messages.clear();
     }
+    else {
+        // @ts-ignore
+        state.type = '';
+    }
 
     for (let message of messages) {
         state.messages.add(message);
