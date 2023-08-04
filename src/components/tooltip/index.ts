@@ -38,11 +38,11 @@ const onclick = (data: { active?: boolean, menu?: Parameters<typeof menu>[0], to
     }
 
     return {
-        attributes: html({
-            class: () => {
+        attributes: html`
+            class='${() => {
                 return `tooltip ${state.active ? '--active' : ''}`;
-            },
-            onclick: function(this: HTMLElement, e: Event) {
+            }}'
+            onclick='${function(this: HTMLElement, e: Event) {
                 let active = true,
                     node = e.target as Node | null;
 
@@ -64,8 +64,8 @@ const onclick = (data: { active?: boolean, menu?: Parameters<typeof menu>[0], to
                         scheduled = false;
                     });
                 }
-            }
-        }),
+            }}'
+        `,
         content,
         state
     };
@@ -78,17 +78,17 @@ const onhover = (active: boolean = false) => {
         });
 
     return {
-        attributes: html({
-            class: () => {
+        attributes: html`
+            class='${() => {
                 return `tooltip ${state.active ? '--active' : ''}`;
-            },
-            onmouseover: () => {
+            }}'
+            onmouseover='${() => {
                 state.active = true;
-            },
-            onmouseout: () => {
+            }}'
+            onmouseout='${() => {
                 state.active = false;
-            }
-        }),
+            }}'
+        `,
         state
     };
 };

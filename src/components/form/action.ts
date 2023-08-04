@@ -24,8 +24,8 @@ function parse(input: Record<string, any>) {
 
 
 export default function(action: Action) {
-    return html({
-        onclick: function(this: HTMLFormElement, event: Event) {
+    return html`
+        onclick='${function(this: HTMLFormElement, event: Event) {
             let trigger = event.target as HTMLButtonElement;
 
             if (trigger?.type !== 'submit') {
@@ -38,10 +38,10 @@ export default function(action: Action) {
             this.dispatchEvent(
                 new SubmitEvent('submit', { cancelable: true, bubbles:true, submitter: trigger })
             );
-        },
-        // TODO: Figure out processing
-        // - Could pass reactive value above and tie it to form layout handler
-        onsubmit: async function(this: HTMLFormElement, event: SubmitEvent) {
+        }}'
+        onsubmit='${async function(this: HTMLFormElement, event: SubmitEvent) {
+            // TODO: Figure out processing
+             // - Could pass reactive value above and tie it to form layout handler
             event.preventDefault();
             event?.submitter?.classList.add('button--processing');
 
@@ -64,6 +64,6 @@ export default function(action: Action) {
 
             // TODO: replace with signal
             event?.submitter?.classList.remove('button--processing');
-        }
-    });
+        }}'
+    `;
 };

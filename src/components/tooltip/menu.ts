@@ -37,7 +37,7 @@ function template(data: Data) {
                 ` : ''}
 
                 <${item?.url ? 'a' : 'div'}
-                    class='link --flex-vertical ${item?.class}' ${item?.onclick ? html({ onclick: item.onclick }) : ''}
+                    class='link --flex-vertical ${item?.class}' ${item?.onclick ? html`onclick='${item.onclick}'` : ''}
                     style='${item?.style || ''}'
                     ${item?.url ? `href='${item.url}' target='${item.target || '_blank'}'` : ''}
                 >

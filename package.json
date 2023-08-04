@@ -15,7 +15,7 @@
     "name": "@esportsplus/ui",
     "private": false,
     "scripts": {
-        "build": "run-p build:ts build:web",
+        "build": "npm run build:ts && npm run build:web",
         "build:ts": "tsc && tsc-alias",
         "build:web": "webpack",
         "-": "-",
