@@ -2,6 +2,7 @@ import { config, entry } from '@esportsplus/webpack';
 
 
 export default () => config.web({
+    contenthash: false,
     entry: {
         css: {
             components: {
