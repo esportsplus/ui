@@ -3,12 +3,12 @@
     "dependencies": {
         "@esportsplus/action": "^0.0.38",
         "@esportsplus/delegated-events": "^0.0.19",
-        "@esportsplus/reactivity": "^0.1.13",
+        "@esportsplus/reactivity": "^0.1.17",
         "@esportsplus/template": "^0.1.8"
     },
     "description": "UI",
     "devDependencies": {
-        "@esportsplus/webpack": "^0.1.16",
+        "@esportsplus/webpack": "^0.1.20",
         "modern-normalize": "^2.0.0"
     },
     "main": "build/index.js",
