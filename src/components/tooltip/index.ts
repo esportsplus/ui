@@ -1,5 +1,4 @@
 import { reactive } from '@esportsplus/reactivity';
-import { html } from '@esportsplus/template';
 import { root } from '~/components';
 import menu from './menu';
 
