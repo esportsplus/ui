@@ -18,7 +18,7 @@ export default (data: Data) => {
         });
 
     return html`
-        <section class='site ${data?.class || ''}' ${a}>
+        <section class='site ${data?.class || ''}' ...${a}>
             ${data?.content || ''}
             ${h}
         </section>

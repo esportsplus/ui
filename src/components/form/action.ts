@@ -1,5 +1,4 @@
 import { response } from '@esportsplus/action';
-import { html } from '@esportsplus/template';
 import { Action } from './types';
 import alert from '~/components/alert';
 import input from './input';
@@ -24,8 +23,8 @@ function parse(input: Record<string, any>) {
 
 
 export default function(action: Action) {
-    return html`
-        onclick='${function(this: HTMLFormElement, event: Event) {
+    return {
+        onclick: function(this: HTMLFormElement, event: Event) {
             let trigger = event.target as HTMLButtonElement;
 
             if (trigger?.type !== 'submit') {
@@ -38,8 +37,8 @@ export default function(action: Action) {
             this.dispatchEvent(
                 new SubmitEvent('submit', { cancelable: true, bubbles:true, submitter: trigger })
             );
-        }}'
-        onsubmit='${async function(this: HTMLFormElement, event: SubmitEvent) {
+        },
+        onsubmit: async function(this: HTMLFormElement, event: SubmitEvent) {
             // TODO: Figure out processing
              // - Could pass reactive value above and tie it to form layout handler
             event.preventDefault();
@@ -64,6 +63,6 @@ export default function(action: Action) {
 
             // TODO: replace with signal
             event?.submitter?.classList.remove('button--processing');
-        }}'
-    `;
+        }
+    };
 };

@@ -1,10 +1,11 @@
 {
     "compilerOptions": {
         "baseUrl": ".",
+        "declaration": true,
         "declarationDir": "build",
         "outDir": "build"
     },
     "exclude": ["node_modules"],
-    "extends": "@esportsplus/webpack/tsconfig.base.json",
+    "extends": "@esportsplus/typescript/tsconfig.base.json",
     "include": ["src"]
 }

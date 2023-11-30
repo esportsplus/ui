@@ -13,11 +13,11 @@ export default ({ fixed, style }: { fixed?: boolean, style?: string } = {}) => {
         });
 
     return {
-        attributes: html`
-            class='${() => {
+        attributes: {
+            class: () => {
                 return '--scrollbar';
-            }}'
-            onscroll='${function(this: HTMLElement) {
+            },
+            onscroll: function(this: HTMLElement) {
                 if (width === undefined) {
                     width = this.offsetWidth - this.clientWidth;
 
@@ -28,8 +28,8 @@ export default ({ fixed, style }: { fixed?: boolean, style?: string } = {}) => {
 
                 state.height = (this.clientHeight / this.scrollHeight) * 100;
                 state.translate = (this.scrollTop / this.clientHeight) * 100;
-            }}'
-        `,
+            }
+        },
         html: html`
             <div
                 class='scrollbar ${fixed ? 'scrollbar--fixed' : ''} ${() => state.height >= 100 ? 'scrollbar--hidden' : ''}'
