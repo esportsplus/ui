@@ -6,6 +6,6 @@
         "outDir": "build"
     },
     "exclude": ["node_modules"],
-    "extends": "@esportsplus/typescript/tsconfig.base.json",
+    "extends": "./node_modules/@esportsplus/typescript/tsconfig.base.json",
     "include": ["src"]
 }

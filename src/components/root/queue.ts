@@ -1,4 +1,4 @@
-import events from '@esportsplus/delegated-events';
+// import events from '@esportsplus/delegated-events';
 
 
 let initialized = false,
@@ -7,17 +7,17 @@ let initialized = false,
 
 const onclick = (fn: VoidFunction) => {
     if (!initialized) {
-        events.register(document.body, 'click', async () => {
-            if (!queue.length) {
-                return;
-            }
+        // events.register(document.body, 'click', async () => {
+        //     if (!queue.length) {
+        //         return;
+        //     }
 
-            let items = queue.splice(0);
+        //     let items = queue.splice(0);
 
-            for (let i = 0, n = items.length; i < n; i++) {
-                await items[i]();
-            }
-        });
+        //     for (let i = 0, n = items.length; i < n; i++) {
+        //         await items[i]();
+        //     }
+        // });
         initialized = true;
     }
 
