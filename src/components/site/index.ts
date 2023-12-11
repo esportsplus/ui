@@ -19,7 +19,7 @@ export default (data: Data) => {
         });
 
     return html`
-        <section class='site ${data?.class || ''}' ${a} onclick='${onclick}'>
+        <section class='site ${data?.class || ''}' onclick='${onclick}' ${a}>
             ${data?.content || ''}
             ${h}
         </section>
