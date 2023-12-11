@@ -120,7 +120,7 @@ export default (data: Data) => {
                     state.active = !state.active;
 
                     if (state.active) {
-                        root.queue.onclick(() => state.active = false);
+                        root.onclick.add(() => state.active = false);
                     }
                 }}'
                 style='${data?.mask?.style || ''}'
