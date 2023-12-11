@@ -1,5 +1,5 @@
-import queue from './queue';
+import onclick from './onclick';
 
 
-export default { queue };
-export { queue };
+export default { onclick };
+export { onclick };

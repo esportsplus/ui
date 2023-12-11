@@ -1,5 +1,6 @@
 import { html } from '@esportsplus/template';
 import { scrollbar } from '~/components';
+import { onclick } from '~/components/root';
 
 
 type Data = {
@@ -18,7 +19,7 @@ export default (data: Data) => {
         });
 
     return html`
-        <section class='site ${data?.class || ''}' ${a}>
+        <section class='site ${data?.class || ''}' ${a} onclick='${onclick}'>
             ${data?.content || ''}
             ${h}
         </section>

@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
-import { root } from '~/components';
 import menu from './menu';
+import root from '~/components/root';
 
 
 let queue: VoidFunction[] = [],
@@ -15,10 +15,10 @@ async function frame() {
 
     running = true;
 
-    let items = queue.splice(0);
+    let item;
 
-    for (let i = 0, n = items.length; i < n; i++) {
-        await items[i]();
+    while (item = queue.pop()) {
+        await item();
     }
 
     running = false;
@@ -57,11 +57,11 @@ const onclick = (data: { active?: boolean, menu?: Parameters<typeof menu>[0], to
                 }
 
                 if (!scheduled) {
-                    scheduled = true;
-                    root.queue.onclick(() => {
+                    root.onclick.add(() => {
                         frame();
                         scheduled = false;
                     });
+                    scheduled = true;
                 }
             }
         },
@@ -78,9 +78,7 @@ const onhover = (active: boolean = false) => {
 
     return {
         attributes: {
-            class: () => {
-                return `tooltip ${state.active ? '--active' : ''}`;
-            },
+            class: () => `tooltip ${state.active ? '--active' : ''}`,
             onmouseover: () => {
                 state.active = true;
             },
