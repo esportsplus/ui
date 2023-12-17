@@ -6,7 +6,7 @@
     --transition-duration: var(--transition-duration-400);
     --width: var(--width-default);
     --width-closed: var(--width-default);
-    --width-default: 400px;
+    --width-default: 320px;
 
 
     @include tokens.state(default) {

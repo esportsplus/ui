@@ -16,8 +16,6 @@
 
 
     @include tokens.state(inactive) {
-        pointer-events: none;
-
         input[type='password'] {
             display: none;
         }
