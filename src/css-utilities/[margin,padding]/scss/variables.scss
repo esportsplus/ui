@@ -19,6 +19,19 @@
                 }
             }
 
+            &-spacer {
+                --#{$property}-#{$direction}: var(--spacer-400);
+
+                @each $key in lib.map-keys(tokens.$border-width) {
+                    &,
+                    &-#{$direction} {
+                        &-#{$key} {
+                            --#{$property}-#{$direction}: var(--spacer-#{$key});
+                        }
+                    }
+                }
+            }
+
             @each $key in lib.map-keys(tokens.$size) {
                 &,
                 &-#{$direction} {
