@@ -1,17 +1,4 @@
-/**
- *------------------------------------------------------------------------------
- *
- *  Disabled State
- *
- *  When Using The '.disabled' Class
- *  - Form Elements Have The 'disabled' Attribute Added
- *  - Links Have The 'href' Attribute Removed
- *
- *  ^ Reasons For Using A Single Class Vs '--disabled' Modifier On Each Module.
- *
- */
-
 .--disabled {
-    opacity: var(--opacity);
+    opacity: 0.64;
     pointer-events: none;
 }

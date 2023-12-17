@@ -3,7 +3,6 @@
 .anchor {
     max-height: calc(100% - (var(--margin-vertical) * 2));
     max-width: calc(100% - (var(--margin-horizontal) * 2));
-    pointer-events: auto;
     position: absolute;
     transition:
         opacity var(--transition-duration) ease-in-out,

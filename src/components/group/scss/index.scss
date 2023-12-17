@@ -16,15 +16,10 @@
     }
 
     &--scroller {
-        .group-item {
-            &:first-child {
-                margin-left: 0;
-            }
-
-            &:last-child {
-                margin-right: 0;
-            }
-        }
+        flex-flow: row;
+        margin-bottom: calc(var(--scrollbar-width) * -1);
+        overflow-y: hidden;
+        padding-bottom: var(--scrollbar-width);
     }
 
 

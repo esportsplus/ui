@@ -41,20 +41,6 @@
     }
 
 
-    /**
-     *--------------------------------------------------------------------------
-     *
-     *  Tooltip Content Wrapper
-     *
-     *  Wrapper Is Used To Simplify Animation, Positioning And
-     *  Visibility Of Tooltip Content
-     *
-     *  Tooltips Are Activated By JS To Simplify CSS Selectors:
-     *  - On 'hover' By Default
-     *  - On 'click' When Using "data-trigger='toggle'"
-     *
-     */
-
     &-content,
     &-message {
         background: var(--background);

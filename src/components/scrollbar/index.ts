@@ -15,7 +15,7 @@ export default ({ fixed, style }: { fixed?: boolean, style?: string } = {}) => {
     return {
         attributes: {
             class: () => {
-                return '--scrollbar';
+                return '--scrollbar-content';
             },
             onscroll: function(this: HTMLElement) {
                 if (width === undefined) {

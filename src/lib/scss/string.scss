@@ -1,21 +1,7 @@
 @use 'list';
 @use 'sass:string';
 
-/**
- *------------------------------------------------------------------------------
- *
- *  Wrap Native FN
- *
- */
-
 @forward 'sass:string';
-
-/**
- *------------------------------------------------------------------------------
- *
- *  Simplify Searching For Value(s) Within String
- *
- */
 
 @function contains($needles, $haystack) {
     $haystack: string.quote($haystack);
@@ -31,13 +17,6 @@
 
     @return false;
 }
-
-/**
- *------------------------------------------------------------------------------
- *
- *  Find And Replace A Value In String
- *
- */
 
 @function replace($find, $replace, $haystack) {
     @if type-of($haystack) != string {

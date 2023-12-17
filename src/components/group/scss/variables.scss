@@ -3,18 +3,13 @@
     --width: auto;
 
 
-    &--column {
-        --margin-horizontal: 0px;
-
-        > .group-item {
-            --margin-horizontal: 0px;
+    &.--flex-column {
+        .group-item {
             --width: 100%;
         }
     }
 
     &--scroller {
-        --margin-horizontal: 0px;
-
         .group-item {
             --margin-vertical: 0px;
         }

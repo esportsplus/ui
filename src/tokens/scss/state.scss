@@ -18,7 +18,7 @@
  *
  */
 
-@use '../../lib';
+@use '/lib';
 
 $state: (
     active: '&.--active',
@@ -65,13 +65,6 @@ $state: (
         @content;
     }
 }
-
-/**
- *------------------------------------------------------------------------------
- *
- *  Generate State Based CSS Utility For List Of Colors
- *
- */
 
 @mixin state-utility($class, $property, $values) {
     $keys: $values;

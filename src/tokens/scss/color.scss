@@ -1,4 +1,4 @@
-@use '../../lib';
+@use '/lib';
 
 $color: (
     'black': (
@@ -52,13 +52,6 @@ $color: (
         500: #f8f123
     )
 );
-
-/**
- *------------------------------------------------------------------------------
- *
- *  Retrieve Color as RGBA Value
- *
- */
 
 @function color($keys, $opacity) {
     $c: $color;

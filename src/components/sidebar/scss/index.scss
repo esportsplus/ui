@@ -7,7 +7,6 @@
     height: calc(100% - (var(--position-vertical) * 2));
     max-width: var(--width);
     overflow: hidden;
-    pointer-events: auto;
     transition:
         max-width var(--transition-duration) ease-in-out,
         opacity var(--transition-duration) ease-in-out,
@@ -17,6 +16,8 @@
 
 
     @include tokens.state(inactive) {
+        pointer-events: none;
+
         input[type='password'] {
             display: none;
         }

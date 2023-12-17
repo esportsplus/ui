@@ -1,8 +1,6 @@
 .scrollbar {
     --background-default: transparent;
-    --border-radius: 1px 0 0 1px;
     --height: 0;
     --transition-duration: var(--transition-duration-400);
     --translate: translate3d(0, 0, 0);
-    --width: var(--size-100);
 }

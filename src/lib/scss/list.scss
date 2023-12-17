@@ -1,21 +1,7 @@
 @use 'sass:list';
 @use 'sass:string';
 
-/**
- *------------------------------------------------------------------------------
- *
- *  Wrap Native FN
- *
- */
-
 @forward 'sass:list';
-
-/**
- *------------------------------------------------------------------------------
- *
- *  Simplify Searching For Value(s) Within List
- *
- */
 
 @function contains($needles, $haystack) {
     $haystack: to-list($haystack);
@@ -29,13 +15,6 @@
 
     @return false;
 }
-
-/**
- *------------------------------------------------------------------------------
- *
- *  Join List Elements With A String
- *
- */
 
 @function implode($glue, $list) {
     $list: unique($list);
@@ -65,13 +44,6 @@
     @return $output;
 }
 
-/**
- *------------------------------------------------------------------------------
- *
- *  Convert Input To List
- *
- */
-
 @function to-list($input) {
     $output: $input;
 
@@ -81,14 +53,6 @@
 
     @return $output;
 }
-
-
-/**
- *------------------------------------------------------------------------------
- *
- *  Remove Duplicate Values From List
- *
- */
 
 @function unique($list, $recursive: false) {
     $result: ();

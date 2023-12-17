@@ -7,14 +7,22 @@
     box-shadow: unset;
 }
 
-// Scrollable container
 .--scrollbar {
-    height: 100%;
-    margin-right: calc(var(--scrollbar-width) * -1);
-    overflow-x: hidden;
-    overflow-y: scroll;
-    scroll-behavior: smooth;
-    width: calc(100% + var(--scrollbar-width));
+    &-container {
+        display: flex;
+        flex-flow: column;
+        overflow: hidden;
+        position: relative;
+    }
+
+    &-content {
+        height: 100%;
+        margin-right: calc(var(--scrollbar-width) * -1);
+        overflow-x: hidden;
+        overflow-y: scroll;
+        scroll-behavior: smooth;
+        width: calc(100% + var(--scrollbar-width));
+    }
 }
 
 .scrollbar {
@@ -28,12 +36,12 @@
         right: 0;
         top: 0;
         transition: opacity var(--transition-duration) ease-in-out;
-        width: var(--width);
+        width: 4px;
     }
 
     &::before {
         background: var(--background-default);
-        border-radius: var(--border-radius);
+        border-radius: 1px 0 0 1px;
         content: '';
         height: var(--height);
         transform: var(--translate);

@@ -10,6 +10,7 @@ body {
     @include lib.css-variables(font-weight, tokens.$font-weight);
     @include lib.css-variables(line-height, tokens.$line-height);
     @include lib.css-variables(size, tokens.$size);
+    @include lib.css-variables(spacer, tokens.$spacer);
     @include lib.css-variables(transition-duration, tokens.$transition-duration);
 
     --background: var(--color-grey-400);

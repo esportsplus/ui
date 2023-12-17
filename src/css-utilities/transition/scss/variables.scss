@@ -1,0 +1,14 @@
+@use '/lib';
+@use '/tokens';
+
+.--transition {
+    &-duration {
+        --transition-duration: var(--transition-duration-400);
+
+        @each $key in lib.map-keys(tokens.$transition-duration) {
+            &-#{$key} {
+                --transition-duration: var(--transition-duration-#{$key});
+            }
+        }
+    }
+}

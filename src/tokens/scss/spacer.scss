@@ -1,0 +1,8 @@
+@use '/lib';
+@use 'size';
+
+$spacer: (
+    300: lib.map-get(size.$size, 900) * 2,
+    400: lib.map-get(size.$size, 900) * 3,
+    500: lib.map-get(size.$size, 900) * 4
+);

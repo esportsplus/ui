@@ -7,7 +7,34 @@
     z-index: -1;
 
 
+    &--backdrop {
+        background-position: bottom;
+        height: 80svh;
+    }
+
+    &--blur {
+        filter: blur(24px);
+        left: -4svh;
+        right: -4svh;
+        top: -4svh;
+
+        &.banner--backdrop {
+            height: 84svh;
+        }
+    }
+
     &--fixed {
         position: fixed;
+    }
+
+    &--gradient {
+        &::before {
+            @include lib.position(absolute, full);
+            background:
+                radial-gradient(circle at top, transparent 64%, var(--to) 88%),
+                linear-gradient(to bottom, var(--from) 0%, var(--to) 100%);
+            content: '';
+            z-index: 0;
+        }
     }
 }

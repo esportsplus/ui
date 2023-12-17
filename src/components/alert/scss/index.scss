@@ -1,18 +1,9 @@
-/**
- *------------------------------------------------------------------------------
- *
- *  Alert Notifications
- *
- *  Anchors Module Provides Positioning
- *
- */
-
 @use '/lib';
 @use '/tokens';
 
 .alert {
-    max-width: calc(100% - (var(--margin-horizontal) * 2));
-    width: var(--width);
+    max-width: var(--max-width);
+    width: calc(100% - (var(--margin-horizontal) * 2));
 
 
     &--deactivating {
