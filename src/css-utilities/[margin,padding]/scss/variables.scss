@@ -22,7 +22,7 @@
             &-spacer {
                 --#{$property}-#{$direction}: var(--spacer-400);
 
-                @each $key in lib.map-keys(tokens.$border-width) {
+                @each $key in lib.map-keys(tokens.$spacer) {
                     &,
                     &-#{$direction} {
                         &-#{$key} {
