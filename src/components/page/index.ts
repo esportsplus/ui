@@ -3,11 +3,11 @@ const subtitle = {
 };
 
 const suptitle = {
-    class: 'page-suptitle --text-bold --text-crop --text-uppercase --text-200'
+    class: 'page-suptitle --text-bold-600 --text-crop --text-uppercase --text-300'
 };
 
 const title = {
-    class: (subtitle?: boolean, suptitle?: boolean) => `page-title --line-height-200 --margin-200 ${!subtitle && '--text-crop-bottom'} ${suptitle ? '--margin-top' : '--text-crop-top'}`
+    class: (subtitle?: boolean, suptitle?: boolean) => `page-title --line-height-200 --margin-300 ${!subtitle && '--text-crop-bottom'} ${suptitle ? '--margin-top' : '--text-crop-top'}`
 };
 
 
