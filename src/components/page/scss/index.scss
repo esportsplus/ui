@@ -24,23 +24,4 @@
     &-title + &-subtitle {
         margin-top: var(--margin-vertical);
     }
-
-    &-suptitle + &-title {
-        &::before {
-            display: block;
-        }
-    }
-
-    &-title:has(+ .page-subtitle) {
-        &::after {
-            display: block;
-        }
-    }
-
-    &-title {
-        &::after,
-        &::before {
-            display: none;
-        }
-    }
 }

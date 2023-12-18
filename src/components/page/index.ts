@@ -7,7 +7,7 @@ const suptitle = {
 };
 
 const title = {
-    class: 'page-title --line-height-200 --margin-400 --text-crop'
+    class: (subtitle?: boolean, suptitle?: boolean) => `page-title --line-height-200 --margin-400 ${!subtitle && '--text-crop-bottom'} ${suptitle && '--text-crop-top'}`
 };
 
 
