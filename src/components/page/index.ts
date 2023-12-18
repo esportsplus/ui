@@ -1,20 +1,13 @@
-const subtitle = () => {
-    return {
-        class: 'page-subtitle --margin-top --margin-200 --text-crop-bottom'
-    };
+const subtitle = {
+    class: 'page-subtitle --margin-top --margin-200 --text-crop-bottom'
 };
 
-const suptitle = () => {
-    return {
-        class: 'page-suptitle --text-bold --text-crop --text-uppercase --text-200',
-        style: '--color-default: var(--color-primary-400);letter-spacing: 0.24px;'
-    }
+const suptitle = {
+    class: 'page-suptitle --text-bold --text-crop --text-uppercase --text-200'
 };
 
-const title = (subtitle: unknown, suptitle: unknown) => {
-    return {
-        class: `page-title --line-height-200 --margin-200 ${!subtitle && '--text-crop-bottom'} ${suptitle ? '--margin-top' : '--text-crop-top'}`
-    };
+const title = {
+    class: (subtitle?: boolean, suptitle?: boolean) => `page-title --line-height-200 --margin-200 ${!subtitle && '--text-crop-bottom'} ${suptitle ? '--margin-top' : '--text-crop-top'}`
 };
 
 
