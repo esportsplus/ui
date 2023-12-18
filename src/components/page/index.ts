@@ -1,5 +1,5 @@
 const subtitle = {
-    class: 'page-subtitle --margin-top --margin-200 --text-crop-bottom'
+    class: 'page-subtitle --margin-200 --text-crop-bottom'
 };
 
 const suptitle = {
@@ -7,7 +7,7 @@ const suptitle = {
 };
 
 const title = {
-    class: (subtitle?: boolean, suptitle?: boolean) => `page-title --line-height-200 --margin-300 ${!subtitle && '--text-crop-bottom'} ${suptitle ? '--margin-top' : '--text-crop-top'}`
+    class: 'page-title --line-height-200 --margin-400 --text-crop'
 };
 
 
