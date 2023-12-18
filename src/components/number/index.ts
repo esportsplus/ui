@@ -1,4 +1,5 @@
-let formatter: null | Intl.NumberFormat = null;
+let formatter: null | Intl.NumberFormat = null,
+    suffixes = ['th', 'st', 'nd', 'rd'];
 
 
 const abbreviate = (number: number) => {
@@ -12,5 +13,12 @@ const abbreviate = (number: number) => {
     return formatter.format(number);
 };
 
+const ordinal = (number: number) => {
+    let value = number % 100;
 
-export default { abbreviate };
+    return suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0];
+};
+
+
+export default { abbreviate, ordinal };
+export { abbreviate, ordinal };
