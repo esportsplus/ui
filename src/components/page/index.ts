@@ -1,6 +1,6 @@
 const subtitle = () => {
     return {
-        class: 'page-subtitle --margin-top --margin-300 --text-crop-bottom'
+        class: 'page-subtitle --margin-top --margin-200 --text-crop-bottom'
     };
 };
 
@@ -13,7 +13,7 @@ const suptitle = () => {
 
 const title = (subtitle: unknown, suptitle: unknown) => {
     return {
-        class: `page-title --line-height-200 --margin-300 ${!subtitle && '--text-crop-bottom'} ${suptitle ? '--margin-top' : '--text-crop-top'}`
+        class: `page-title --line-height-200 --margin-200 ${!subtitle && '--text-crop-bottom'} ${suptitle ? '--margin-top' : '--text-crop-top'}`
     };
 };
 
