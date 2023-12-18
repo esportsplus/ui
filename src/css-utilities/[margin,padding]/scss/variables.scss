@@ -4,45 +4,34 @@
 @each $property in margin padding {
     .--#{$property} {
         @each $direction in 'horizontal' 'vertical' {
-            &-border {
-                &-width {
-                    --#{$property}-#{$direction}: var(--border-width-400);
+            &,
+            &-#{$direction} {
+                @each $key in lib.map-keys(tokens.$border-width) {
+                    &-border-width {
+                        --#{$property}-#{$direction}: var(--border-width-400);
 
-                    @each $key in lib.map-keys(tokens.$border-width) {
-                        &,
-                        &-#{$direction} {
-                            &-#{$key} {
-                                --#{$property}-#{$direction}: var(--border-width-#{$key});
-                            }
+                        &-#{$key} {
+                            --#{$property}-#{$direction}: var(--border-width-#{$key});
                         }
                     }
                 }
-            }
-
-            &-spacer {
-                --#{$property}-#{$direction}: var(--spacer-400);
 
                 @each $key in lib.map-keys(tokens.$spacer) {
-                    &,
-                    &-#{$direction} {
+                    &-spacer {
+                        --#{$property}-#{$direction}: var(--spacer-400);
+
                         &-#{$key} {
                             --#{$property}-#{$direction}: var(--spacer-#{$key});
                         }
                     }
                 }
-            }
 
-            @each $key in lib.map-keys(tokens.$size) {
-                &,
-                &-#{$direction} {
+                @each $key in lib.map-keys(tokens.$size) {
                     &-#{$key} {
                         --#{$property}-#{$direction}: var(--size-#{$key});
                     }
                 }
-            }
 
-            &,
-            &-#{$direction} {
                 &-inherit {
                     --#{$property}-#{$direction}: inherit;
                 }

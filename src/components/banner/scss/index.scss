@@ -14,12 +14,12 @@
 
     &--blur {
         filter: blur(24px);
-        left: -4svh;
-        right: -4svh;
-        top: -4svh;
+        left: -2svh;
+        right: -2svh;
+        top: -2svh;
 
         &.banner--backdrop {
-            height: 84svh;
+            height: 90svh;
         }
     }
 
