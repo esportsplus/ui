@@ -1,8 +1,8 @@
 @use '/tokens';
 
 .anchor {
-    max-height: calc(100% - (var(--margin-vertical) * 2));
-    max-width: calc(100% - (var(--margin-horizontal) * 2));
+    max-height: calc(var(--max-height, 100%) - (var(--margin-vertical) * 2));
+    max-width: calc(var(--max-width, 100%) - (var(--margin-horizontal) * 2));
     position: absolute;
     transition:
         opacity var(--transition-duration) ease-in-out,
