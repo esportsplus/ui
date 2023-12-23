@@ -1,6 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import close from '~/storage/svg/close.svg';
 
 
 type Type = 'error' | 'info' | 'success';
@@ -118,12 +117,18 @@ const success = (messages: string | string[], seconds: number = 0) => activate('
 
 
 const h = () => {
+    // TODO: Fix importing close svg
     return () => state.active ? html`
         <div class='alert anchor anchor--ne ${() => state.active && '--active'} ${() => `alert--${state.state}`}'>
             <div class="alert-close --flex-start --margin-right --margin-100" onclick='${deactivate}'>
                 <div class='button --background-state ${() => `--background-${modifiers[state.type] || 'black'}`} --color-state --color-white --flex-center --padding-300'>
                     <div class="icon --size-300">
-                        ${html.inline`${close}`}
+                        ${html.inline`
+                            <svg width="16" height="16" viewBox="0 0 16 16">
+                                <path d="M3.527 14.948a.176.176 0 01-.248 0L1.051 12.72a.176.176 0 010-.248l11.42-11.419a.176.176 0 01.248 0l2.229 2.228a.174.174 0 010 .248L3.527 14.948z"/>
+                                <path d="M12.472 14.948c.068.068.18.068.248 0l2.229-2.229a.176.176 0 000-.248L3.528 1.052a.176.176 0 00-.248 0L1.052 3.28a.176.176 0 000 .248l11.42 11.42z"/>
+                            </svg>
+                        `}
                     </div>
                 </div>
             </div>
