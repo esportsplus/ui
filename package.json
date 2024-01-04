@@ -7,9 +7,13 @@
     },
     "description": "UI",
     "devDependencies": {
-        "@esportsplus/webpack": "^0.1.31",
+        "@esportsplus/webpack": "^0.1.32",
         "modern-normalize": "^2.0.0"
     },
+    "files": [
+        "/build/**/*",
+        "/src/components/**/*.ts"
+    ],
     "main": "build/index.js",
     "name": "@esportsplus/ui",
     "private": false,
