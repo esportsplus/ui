@@ -16,10 +16,6 @@
         },
         "./*.css": "./build/*.css"
     },
-    "files": [
-        "/lib.scss",
-        "/tokens.scss"
-    ],
     "name": "@esportsplus/ui",
     "private": false,
     "scripts": {
