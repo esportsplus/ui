@@ -12,18 +12,19 @@
     },
     "files": [
         "/build/**/*",
-        "/src/components/**/*.ts"
+        "/lib.scss",
+        "/tokens.scss"
     ],
     "main": "build/index.js",
     "name": "@esportsplus/ui",
     "private": false,
     "scripts": {
-        "build": "npm run build:ts && npm run build:web",
+        "build": "npm run build:ts && npm run build:assets",
         "build:ts": "tsc && tsc-alias",
-        "build:web": "webpack build --env=production=true",
+        "build:assets": "webpack build --env=production=true",
         "-": "-",
         "prepublishOnly": "npm run build"
     },
     "types": "build/index.d.ts",
-    "version": "0.0.117"
+    "version": "0.0.115"
 }

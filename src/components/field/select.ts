@@ -1,6 +1,8 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { form, scrollbar, root } from '~/components';
+import form from '~/components/form';
+import scrollbar from '~/components/scrollbar';
+import root from '~/components/root';
 import description from './description';
 import error from './error';
 import title from './title';

@@ -1,3 +1,2 @@
-// Necessary to expose lib for 3rd party use
-// - Dart sass doesn't support changing root directory for the package to 'src'
+// Dart sass doesn't support changing root directory for the package to 'src'
 @forward './src/tokens';

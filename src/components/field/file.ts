@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { form } from '~/components';
+import form from '~/components/form';
 import description from './description';
 import error from './error';
 import title from './title';
