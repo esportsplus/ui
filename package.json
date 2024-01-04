@@ -9,13 +9,6 @@
         "@esportsplus/webpack": "^0.1.32",
         "modern-normalize": "^2.0.0"
     },
-    "exports": {
-        "./*": {
-            "default": "./build/components/*/index.js",
-            "types": "./build/components/*/index.d.ts"
-        },
-        "./*.css": "./build/*.css"
-    },
     "name": "@esportsplus/ui",
     "private": false,
     "scripts": {
