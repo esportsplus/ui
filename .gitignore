@@ -2,7 +2,4 @@
 .vscode
 .idea
 build
-/assets
-/components
-/css
 node_modules
