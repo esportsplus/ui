@@ -2,6 +2,7 @@
 .vscode
 .idea
 build
+/assets
+/components
 /css
-/fonts
 node_modules

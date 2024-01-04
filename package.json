@@ -10,12 +10,6 @@
         "@esportsplus/webpack": "^0.1.32",
         "modern-normalize": "^2.0.0"
     },
-    "files": [
-        "/build/**/*",
-        "/lib.scss",
-        "/tokens.scss"
-    ],
-    "main": "build/index.js",
     "name": "@esportsplus/ui",
     "private": false,
     "scripts": {
@@ -25,5 +19,5 @@
         "-": "-",
         "prepublishOnly": "npm run build"
     },
-    "version": "0.0.119"
+    "version": "0.0.118"
 }

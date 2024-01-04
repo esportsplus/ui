@@ -2,8 +2,8 @@
     "compilerOptions": {
         "baseUrl": ".",
         "declaration": true,
-        "declarationDir": "build",
-        "outDir": "build"
+        "declarationDir": "components",
+        "outDir": "components"
     },
     "exclude": ["node_modules"],
     "extends": "./node_modules/@esportsplus/typescript/tsconfig.base.json",
