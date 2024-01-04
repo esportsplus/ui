@@ -1,11 +1,8 @@
 import { config, entry } from '@esportsplus/webpack';
 
 
-export default (env: { production?: boolean | string }) => {
-    let production = env.production !== 'false';
-
+export default ({ production }: { production?: string }) => {
     return config.web({
-        cache: false,
         contenthash: false,
         entry: {
             css: {
@@ -23,7 +20,7 @@ export default (env: { production?: boolean | string }) => {
                 }
             }
         },
-        mode: production ? 'production': 'development',
+        mode: production !== 'false' ? 'production': 'development',
         // Temporary output until css root directory can be set through
         // package.json or similar ( like 'main' key )
         output: {
