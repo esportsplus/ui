@@ -10,13 +10,13 @@
         "modern-normalize": "^2.0.0"
     },
     "exports": {
-        "./components/*.css": "./build/components/*.css",
-        "./components/*": {
+        "./lib": "./lib.scss",
+        "./tokens": "./tokens.scss",
+        "./*.css": "./build/*.css",
+        "./*": {
             "types": "./build/components/*/index.d.ts",
             "default": "./build/components/*/index.js"
-        },
-        "./*.css": "./build/*.css",
-        "./*": "./*"
+        }
     },
     "name": "@esportsplus/ui",
     "private": false,
