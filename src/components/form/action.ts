@@ -1,6 +1,6 @@
 import { response } from '@esportsplus/action';
 import { Action } from './types';
-import alert from '~/alert';
+import alert from '~/components/alert';
 import input from './input';
 
 

@@ -1,19 +1,31 @@
 {
     "author": "ICJR",
+    "dependencies": {
+        "@esportsplus/action": "^0.0.38",
+        "@esportsplus/reactivity": "^0.1.19",
+        "@esportsplus/template": "^0.1.31"
+    },
     "devDependencies": {
-        "@esportsplus/webpack": "^0.1.33",
+        "@esportsplus/webpack": "^0.1.32",
         "modern-normalize": "^2.0.0"
+    },
+    "exports": {
+        "./components/*.css": "./build/components/*.css",
+        "./components/*": {
+            "types": "./build/components/*/index.d.ts",
+            "default": "./build/components/*/index.js"
+        },
+        "./*.css": "./build/*.css",
+        "./*": "./*"
     },
     "name": "@esportsplus/ui",
     "private": false,
     "scripts": {
-        "build": "npm run build --workspaces --if-present && npm run build:resources",
-        "build:resources": "webpack build",
+        "build": "npm run build:ts && npm run build:assets",
+        "build:ts": "tsc && tsc-alias",
+        "build:assets": "webpack build --env=production=true",
         "-": "-",
         "prepublishOnly": "npm run build"
     },
-    "version": "0.1.2",
-    "workspaces": [
-        "packages/*"
-    ]
+    "version": "0.1.3"
 }

@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import menu from './menu';
-import root from '~/root';
+import root from '~/components/root';
 
 
 let queue: VoidFunction[] = [],
