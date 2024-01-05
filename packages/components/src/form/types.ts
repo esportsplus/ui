@@ -1,5 +1,5 @@
 import { response, Response } from '@esportsplus/action';
-import alert from '~/components/alert';
+import alert from '~/alert';
 
 
 type Action = (data: Payload) => Promise<Errors> | Errors;

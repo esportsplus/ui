@@ -1,0 +1,6 @@
+{
+    "name": "css-utilities",
+    "scripts": {
+        "build": "webpack build"
+    }
+}

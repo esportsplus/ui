@@ -1,0 +1,19 @@
+{
+    "dependencies": {
+        "@esportsplus/action": "^0.0.38",
+        "@esportsplus/reactivity": "^0.1.19",
+        "@esportsplus/template": "^0.1.31"
+    },
+    "exports": {
+        "./*": {
+            "default": "./build/*/index.js",
+            "types": "./build/*/index.d.ts"
+        }
+    },
+    "name": "components",
+    "scripts": {
+        "build": "npm run build:ts && npm run build:assets",
+        "build:ts": "tsc && tsc-alias",
+        "build:assets": "webpack build --env=production=true"
+    }
+}

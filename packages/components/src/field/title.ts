@@ -1,5 +1,5 @@
 import { html } from '@esportsplus/template';
-import tooltip from '~/components/tooltip';
+import tooltip from '~/tooltip';
 
 
 export default (data: { required?: boolean, title?: string }) => {
