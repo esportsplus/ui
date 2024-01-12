@@ -1,5 +1,10 @@
 .DS_Store
 .vscode
 .idea
+assets
 build
+components
+fonts
 node_modules
+normalize.css
+utilities
