@@ -1,5 +1,6 @@
 .--slide {
-    &-in {
+    &-in,
+    &-in-reverse {
         animation-duration: var(--transition-duration);
         animation-name: --slide-in;
         animation-timing-function: ease-in-out;
