@@ -1,4 +1,4 @@
-import { response, Response } from '@esportsplus/action';
+import response, { Response } from '@esportsplus/action';
 import alert from '~/components/alert';
 
 
