@@ -1,4 +1,4 @@
-import { response } from '@esportsplus/action';
+import response from '@esportsplus/action';
 import { Action } from './types';
 import alert from '~/components/alert';
 import input from './input';
@@ -52,7 +52,7 @@ export default function(action: Action) {
 
             for (let i = 0, n = errors.length; i < n; i++) {
                 let { message, path } = errors[i],
-                    state = input.get( this[path] );
+                    state = input.get( this[path!] );
 
                 if (!state) {
                     continue;
