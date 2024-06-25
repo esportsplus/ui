@@ -1,9 +1,9 @@
 {
     "author": "ICJR",
     "dependencies": {
-        "@esportsplus/action": "^0.0.47",
-        "@esportsplus/reactivity": "^0.1.21",
-        "@esportsplus/template": "^0.2.4"
+        "@esportsplus/action": "^0.0.48",
+        "@esportsplus/reactivity": "^0.1.24",
+        "@esportsplus/template": "^0.2.7"
     },
     "devDependencies": {
         "@esportsplus/webpack": "^0.2.3",
