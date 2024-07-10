@@ -6,7 +6,7 @@
         "@esportsplus/template": "^0.2.9"
     },
     "devDependencies": {
-        "@esportsplus/webpack": "^0.4.3",
+        "@esportsplus/webpack": "^0.4.9",
         "modern-normalize": "^2.0.0"
     },
     "main": "build/index.js",
