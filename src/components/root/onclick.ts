@@ -1,4 +1,4 @@
-let queue: VoidFunction[] = [];
+let queue: (VoidFunction | (() => Promise<void>))[] = [];
 
 
 const onclick = async () => {

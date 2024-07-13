@@ -44,8 +44,9 @@
         font-style: italic;
     }
 
-    &-linethrough {
+    &-line-through {
         text-decoration: line-through;
+        text-decoration-thickness: var(--line-width);
     }
 
     &-multiplier {
@@ -63,11 +64,6 @@
             -webkit-text-stroke-color: var(--color);
             -webkit-text-stroke-width: var(--stroke-width);
         }
-    }
-
-    &-strike-through {
-        text-decoration: line-through;
-        text-decoration-thickness: var(--line-width);
     }
 
     &-truncate {

@@ -6,7 +6,7 @@ let root = document.body,
     width: number | undefined;
 
 
-export default ({ fixed, style }: { fixed?: boolean, style?: string } = {}) => {
+export default ({ class: c, fixed, style }: { class?: string | (() => string), fixed?: boolean, style?: string } = {}) => {
     let state = reactive({
             height: 100,
             translate: 0
@@ -14,9 +14,7 @@ export default ({ fixed, style }: { fixed?: boolean, style?: string } = {}) => {
 
     return {
         attributes: {
-            class: () => {
-                return '--scrollbar-content';
-            },
+            class: '--scrollbar-content',
             onscroll: function(this: HTMLElement) {
                 if (width === undefined) {
                     width = this.offsetWidth - this.clientWidth;
@@ -32,7 +30,7 @@ export default ({ fixed, style }: { fixed?: boolean, style?: string } = {}) => {
         },
         html: html`
             <div
-                class='scrollbar ${fixed ? 'scrollbar--fixed' : ''} ${() => state.height >= 100 ? 'scrollbar--hidden' : ''}'
+                class='scrollbar ${fixed ? 'scrollbar--fixed' : ''} ${c} ${() => state.height >= 100 ? 'scrollbar--hidden' : ''}'
                 style='${() => `
                     ${style || ''}
                     --translate: translate3d(0, ${state.translate}%, 0);

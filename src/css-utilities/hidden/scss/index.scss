@@ -16,7 +16,7 @@
         }
     }
 
-    &-visibility {
+    &-offcanvas {
         @include lib.position(absolute, 0 null null 0);
         appearance: none;
         height: 0px;

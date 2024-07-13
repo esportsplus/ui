@@ -2,9 +2,4 @@
     --max-height: calc(100svh - (var(--margin) * 2));
     --max-width: 320px;
     --width: calc(100svw - (var(--margin) * 2));
-
-    &,
-    &-frame {
-        --transition-duration: var(--transition-duration-300);
-    }
 }

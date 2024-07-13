@@ -7,21 +7,9 @@
         --line-height: var(--line-height-400);
     }
 
-    &-suptitle + &-title {
-        &::before {
-            --line-height: 1;
-        }
-    }
-
     &-title {
         --color: var(--color-default);
         --color-default: var(--color-text-500);
         --line-height: var(--line-height-400);
-    }
-
-    &-title:has(+ .page-subtitle) {
-        &::after {
-            --line-height: 1;
-        }
     }
 }

@@ -8,6 +8,16 @@
         }
     }
 
+    &-line-through {
+        --line-width: var(--border-width-400);
+
+        @each $key in lib.map-keys(tokens.$border-width) {
+            &-#{$key} {
+                --line-width: var(--border-width-#{$key});
+            }
+        }
+    }
+
     &-outline {
         --color: inherit;
         --stroke-width: var(--border-width-400);
@@ -15,16 +25,6 @@
         @each $key in lib.map-keys(tokens.$border-width) {
             &-#{$key} {
                 --stroke-width: var(--border-width-#{$key});
-            }
-        }
-    }
-
-    &-strike-through {
-        --line-width: var(--border-width-400);
-
-        @each $key in lib.map-keys(tokens.$border-width) {
-            &-#{$key} {
-                --line-width: var(--border-width-#{$key});
             }
         }
     }

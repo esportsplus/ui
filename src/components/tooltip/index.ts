@@ -1,9 +1,8 @@
 import { reactive } from '@esportsplus/reactivity';
-import menu from './menu';
 import root from '~/components/root';
 
 
-let queue: VoidFunction[] = [],
+let queue: (VoidFunction | (() => Promise<void>))[] = [],
     running = false,
     scheduled = false;
 
@@ -25,16 +24,11 @@ async function frame() {
 }
 
 
-const onclick = (data: { active?: boolean, menu?: Parameters<typeof menu>[0], toggle?: boolean } = {}) => {
-    let content,
-        state = reactive({
+const onclick = (data: { active?: boolean, toggle?: boolean } = {}) => {
+    let state = reactive({
             active: data.active || false,
             render: undefined as boolean | undefined
         });
-
-    if (data.menu) {
-        content = menu(data.menu, state);
-    }
 
     return {
         attributes: {
@@ -65,7 +59,6 @@ const onclick = (data: { active?: boolean, menu?: Parameters<typeof menu>[0], to
                 }
             }
         },
-        content,
         state
     };
 };

@@ -3,75 +3,51 @@
 @mixin position($position, $value: null) {
     position: $position;
 
-    @if list.contains($value, center vertical) {
+    @if $value == bottom {
+        inset: auto 0 0 0;
+    }
+    @else if $value == center {
         bottom: 50%;
-    }
-    @if list.contains($value, center horizontal) {
         right: 50%;
-    }
-
-
-    @if $value == center {
         transform: translate(50%, 50%);
     }
+    @else if $value == full {
+        inset: 0 0 0 0;
+    }
     @else if $value == horizontal {
+        right: 50%;
         transform: translateX(50%);
     }
-    @else if $value == vertical {
-        transform: translateY(50%);
-    }
-
-
-    @if $value == full {
-        $value: 0 0 0 0;
-    }
-    @else if $value == top {
-        $value: 0 0 null 0;
+    @else if $value == left {
+        inset: 0 auto 0 0;
     }
     @else if $value == right {
-        $value: 0 0 0 null;
+        inset: 0 0 0 auto;
     }
-    @else if $value == bottom {
-        $value: null 0 0 0;
+    @else if $value == top {
+        inset: 0 0 auto 0;
     }
-    @else if $value == left {
-        $value: 0 null 0 0;
+    @else if $value == vertical {
+        bottom: 50%;
+        transform: translateY(50%);
     }
-
-
-    @if $value and type-of($value) == list {
+    @else if $value and type-of($value) == list {
         $length: list.length($value);
 
-        @if $length > 0 {
-            $v: nth($value, 1);
-
-            @if $v != null {
-                top: $v;
-            }
+        @if $length > 0 and nth($value, 1) != null {
+            top: nth($value, 1);
         }
 
-        @if $length > 1 {
-            $v: nth($value, 2);
-
-            @if $v != null {
-                right: $v;
-            }
+        @if $length > 1 and nth($value, 2) != null {
+            right: nth($value, 2);
         }
 
-        @if $length > 2 {
-            $v: nth($value, 3);
-
-            @if $v != null {
-                bottom: $v;
-            }
+        @if $length > 2 and nth($value, 3) != null {
+            bottom: nth($value, 3);
         }
 
-        @if $length > 3 {
-            $v: nth($value, 4);
-
-            @if $v != null {
-                left: $v;
-            }
+        @if $length > 3 and nth($value, 4) != null {
+            left: nth($value, 4);
         }
     }
 }

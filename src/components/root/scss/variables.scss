@@ -3,15 +3,14 @@
 
 body {
     @include lib.css-variables(border-radius, tokens.$border-radius);
-    @include lib.css-variables(box-shadow, tokens.$box-shadow);
     @include lib.css-variables(border-width, tokens.$border-width);
+    @include lib.css-variables(box-shadow, tokens.$box-shadow);
     @include lib.css-variables(color, tokens.$color);
     @include lib.css-variables(font-size, tokens.$font-size);
     @include lib.css-variables(font-weight, tokens.$font-weight);
     @include lib.css-variables(line-height, tokens.$line-height);
     @include lib.css-variables(size, tokens.$size);
     @include lib.css-variables(spacer, tokens.$spacer);
-    @include lib.css-variables(transition-duration, tokens.$transition-duration);
 
     --background: var(--color-grey-400);
     --color: var(--color-text-400);
@@ -20,10 +19,8 @@ body {
     --font-weight: var(--font-weight-400);
     --line-height: var(--line-height-400);
     --min-width: 320px;
-
-    // Used by components requiring scrollbar width
-    // - Should be updated using JS on load
     --scrollbar-width: 17px;
+    --transition-duration: tokens.$transition-duration;
 }
 
 section {

@@ -6,20 +6,19 @@ import scrollbar from '~/components/scrollbar';
 type Data = {
     class?: string;
     content?: any;
-    scrollbar?: {
-        style?: string;
-    };
+    scrollbar?: Parameters<typeof scrollbar>[0];
 };
 
 
 export default (data: Data) => {
-    let { attributes: a, html: h } = scrollbar({
-            fixed: true,
-            style: data?.scrollbar?.style || '--background-default: var(--color-black-400);'
-        });
+    data.scrollbar ??= {};
+    data.scrollbar.fixed ??= true;
+    data.scrollbar.style ??= '--background-default: var(--color-black-400);';
+
+    let { attributes: a, html: h } = scrollbar(data.scrollbar || {});
 
     return html`
-        <section class='site ${data?.class || ''}' onclick='${onclick}' ${a}>
+        <section class='site ${data?.class || ''}' ${{ onclick }} ${a}>
             ${data?.content || ''}
             ${h}
         </section>

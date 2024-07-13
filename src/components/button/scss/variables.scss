@@ -29,7 +29,6 @@
     --line-height: var(--line-height-400);
     --padding-horizontal: var(--size-400);
     --padding-vertical: var(--size-400);
-    --transition-duration: var(--transition-duration-400);
     --width: auto;
 
     @include tokens.state(active) {

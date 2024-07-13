@@ -1,9 +1,9 @@
 import '@esportsplus/webpack/global.d.ts';
 
-export { default as alert }from './components/alert';
-export { default as export }from './components/export';
+export { default as clipboard }from './components/clipboard';
 export { default as field }from './components/field';
 export { default as form }from './components/form';
+export { default as json }from './components/json';
 export { default as number }from './components/number';
 export { default as page }from './components/page';
 export { default as root }from './components/root';

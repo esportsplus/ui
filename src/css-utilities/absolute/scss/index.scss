@@ -1,26 +1,15 @@
 @use '/lib';
 
 .--absolute {
-    &-bottom,
-    &-top {
-        left: 0;
-        position: absolute;
-        right: 0;
-    }
+    &-horizontal,
+    &-vertical {
+        &-bottom {
+            bottom: 0;
+        }
 
-    &-left,
-    &-right {
-        bottom: 0;
-        position: absolute;
-        top: 0;
-    }
-
-    &-center {
-        @include lib.position(absolute, center);
-    }
-
-    &-full {
-        @include lib.position(absolute, full);
+        &-top {
+            top: 0;
+        }
     }
 
     &-horizontal {
@@ -39,21 +28,9 @@
         }
     }
 
-    @each $direction in 'bottom' 'top' {
-        &,
-        &-horizontal {
-            &-#{$direction} {
-                #{$direction}: 0;
-            }
-        }
-    }
-
-    @each $direction in 'left' 'right' {
-        &,
-        &-vertical {
-            &-#{$direction} {
-                #{$direction}: 0;
-            }
+    @each $direction in 'bottom' 'center' 'full' 'left' 'right' 'top' {
+        &-#{$direction} {
+            @include lib.position(absolute, $direction);
         }
     }
 }

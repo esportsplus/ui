@@ -3,7 +3,6 @@
 .idea
 assets
 build
-components
 fonts
 node_modules
 normalize.css

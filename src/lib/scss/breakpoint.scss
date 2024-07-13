@@ -1,6 +1,6 @@
 @mixin breakpoint($function, $param: null) {
     @if $function == min-width or $function == min-height {
-        @media only screen and ($function: $param + 1px) {
+        @media only screen and ($function: #{$param + 1px}) {
             @content;
         }
     }
@@ -10,7 +10,7 @@
         }
     }
     @else if $function == between-width {
-        @media only screen and (min-width: nth($param, 1) + 1px) and (max-width: nth($param, 2)) {
+        @media only screen and (min-width: #{nth($param, 1) + 1px}) and (max-width: nth($param, 2)) {
             @content;
         }
     }
@@ -19,7 +19,7 @@
             @media only screen and (min-aspect-ratio: 13/9) {
                 @content;
             }
-        } 
+        }
         @else if $param == portrait {
             @media only screen and (max-aspect-ratio: 13/9) {
                 @content;

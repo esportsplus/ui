@@ -18,55 +18,31 @@
     0% {
         opacity: 1;
     }
-    65% {
-        opacity: 1;
-    }
     66% {
-        opacity: 0;
-    }
-    100% {
         opacity: 0;
     }
 }
 
 @keyframes ellipsis-dot-two {
-    0% {
-        opacity: 0;
-    }
-    21% {
+    0%, 100% {
         opacity: 0;
     }
     22% {
         opacity: 1;
     }
-    65% {
-        opacity: 1;
-    }
     66% {
-        opacity: 0;
-    }
-    100% {
         opacity: 0;
     }
 }
 
 @keyframes ellipsis-dot-three {
-    0% {
-        opacity: 0;
-    }
-    43% {
+    0%, 100% {
         opacity: 0;
     }
     44% {
         opacity: 1;
     }
-    65% {
-        opacity: 1;
-    }
     66% {
-        opacity: 0;
-    }
-    100% {
         opacity: 0;
     }
 }

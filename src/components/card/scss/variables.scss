@@ -19,7 +19,6 @@
     --box-shadow-pressed: none;
     --padding-horizontal: 0px;
     --padding-vertical: 0px;
-    --transition-duration: var(--transition-duration-400);
     --width: auto;
 
     @include tokens.state(active) {
