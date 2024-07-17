@@ -55,8 +55,10 @@ function parse(keys: (number | string)[], selected: number | string) {
 
 function template(data: Data, state: { active: boolean, options: Record<number | string, boolean>, selected: number | string }) {
     let { attributes: a, html: h } = scrollbar({
-            fixed: true,
-            style: data?.scrollbar?.style || '--background-default: var(--color-black-400);'
+            attributes: {
+                style: data?.scrollbar?.style || '--background-default: var(--color-black-400);'
+            },
+            fixed: true
         });
 
     return html`

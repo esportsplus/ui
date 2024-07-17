@@ -1,6 +1,6 @@
 import response from '@esportsplus/action';
 import { Action } from './types';
-import alert from '~/components/alert';
+// import alert from '~/components/alert';
 import input from './input';
 
 
@@ -45,7 +45,7 @@ export default function(action: Action) {
             event?.submitter?.classList.add('button--processing');
 
             let { errors } = await action({
-                    alert,
+                    alert: null,
                     input: parse( Object.fromEntries( new FormData( this )?.entries() ) ),
                     response
                 });
