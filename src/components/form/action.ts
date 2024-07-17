@@ -45,6 +45,7 @@ export default function(action: Action) {
             event?.submitter?.classList.add('button--processing');
 
             let { errors } = await action({
+                    // @ts-ignore
                     alert: null,
                     input: parse( Object.fromEntries( new FormData( this )?.entries() ) ),
                     response
