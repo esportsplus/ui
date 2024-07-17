@@ -62,9 +62,9 @@
     }
 
     &-error {
-        animation: field-error 0.32s 1 linear;
+        animation: FieldError 0.32s 1 linear;
 
-        @keyframes field-error {
+        @keyframes FieldError {
             0% {
                 transform: translate(8px);
             }

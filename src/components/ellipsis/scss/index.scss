@@ -1,48 +1,28 @@
 .ellipsis {
-    &-dot {
-        &:nth-child(1) {
-            animation: ellipsis-dot-one var(--animation-duration) linear infinite;
+    span {
+        animation: Ellipsis var(--animation-duration) infinite linear;
+        background-color: var(--color);
+        border-radius: 100%;
+        display: inline-block;
+        height: var(--size);
+        margin: 0 var(--margin-horizontal);
+        width: var(--size);
+
+        :nth-child(2) {
+            animation-delay: 0.24s;
         }
 
-        &:nth-child(2) {
-            animation: ellipsis-dot-two var(--animation-duration) linear infinite;
-        }
-
-        &:nth-child(3) {
-            animation: ellipsis-dot-three var(--animation-duration) linear infinite;
+        :nth-child(3) {
+            animation-delay: 0.48s;
         }
     }
-}
 
-@keyframes ellipsis-dot-one {
-    0% {
-        opacity: 1;
-    }
-    66% {
-        opacity: 0;
-    }
-}
-
-@keyframes ellipsis-dot-two {
-    0%, 100% {
-        opacity: 0;
-    }
-    22% {
-        opacity: 1;
-    }
-    66% {
-        opacity: 0;
-    }
-}
-
-@keyframes ellipsis-dot-three {
-    0%, 100% {
-        opacity: 0;
-    }
-    44% {
-        opacity: 1;
-    }
-    66% {
-        opacity: 0;
+    @keyframes Ellipsis {
+        0%, 100% {
+            opacity: 0.16;
+        }
+        20% {
+            opacity: 1;
+        }
     }
 }

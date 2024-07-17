@@ -1,1 +1,4 @@
-export { default as download } from './download';
+import download from './download';
+
+
+export default { download };

@@ -1,0 +1,6 @@
+.grid {
+    display: grid;
+    grid-gap: var(--margin-horizontal) var(--margin-vertical);
+    grid-template-columns: repeat(auto-fit, minmax(var(--min-width), var(--max-width)));
+    position: relative;
+}

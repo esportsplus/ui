@@ -2,16 +2,15 @@
 @use '/tokens';
 
 .sidebar {
-    @include lib.position(absolute, var(--position-vertical) null var(--position-vertical) null);
+    @include lib.position(absolute, var(--margin-vertical) null var(--margin-vertical) null);
     cursor: default;
-    height: calc(100% - (var(--position-vertical) * 2));
-    max-width: var(--width);
+    height: calc(100% - (var(--margin-vertical) * 2));
     overflow: hidden;
     transition:
         max-width var(--transition-duration) ease-in-out,
         opacity var(--transition-duration) ease-in-out,
         transform var(--transition-duration) ease-in-out;
-    width: calc(100% - (var(--position-horizontal) * 2));
+    width: min(var(--width), calc(100% - (var(--margin-horizontal) * 2)));
     z-index: 1;
 
 
@@ -23,7 +22,7 @@
 
 
     &--e {
-        right: var(--position-horizontal);
+        right: var(--margin-horizontal);
 
         &.sidebar--offscreen {
             @include tokens.state(inactive) {
@@ -33,7 +32,7 @@
     }
 
     &--w {
-        left: var(--position-horizontal);
+        left: var(--margin-horizontal);
 
         &.sidebar--offscreen {
             @include tokens.state(inactive) {

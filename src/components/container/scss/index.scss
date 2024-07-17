@@ -2,9 +2,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    margin: 0 auto;
-    max-width: var(--max-width);
-    padding: var(--padding-vertical) var(--padding-horizontal);
+    margin: var(--margin-vertical) auto;
     position: relative;
-    width: 100%;
+    width: min(var(--max-width), calc(100% - var(--margin-horizontal) * 2));
 }

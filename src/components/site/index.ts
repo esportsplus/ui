@@ -11,11 +11,13 @@ type Data = {
 
 
 export default (data: Data) => {
-    data.scrollbar ??= {};
-    data.scrollbar.fixed ??= true;
-    data.scrollbar.style ??= '--background-default: var(--color-black-400);';
+    let sb = data.scrollbar ??= {};
 
-    let { attributes: a, html: h } = scrollbar(data.scrollbar || {});
+    sb.attributes ??= {};
+    sb.attributes.style ??= '--background-default: var(--color-black-400);';
+    sb.fixed ??= true;
+
+    let { attributes: a, html: h } = scrollbar(sb);
 
     return html`
         <section class='site ${data?.class || ''}' ${{ onclick }} ${a}>

@@ -4,13 +4,12 @@
 .modal {
     @include lib.position(fixed, center);
     max-height: var(--max-height);
-    max-width: var(--max-width);
     overflow: hidden;
     transition:
         opacity var(--transition-duration) ease-in-out,
         transform var(--transition-duration) ease-in-out;
     transform-origin: center;
-    width: var(--width);
+    width: min(var(--max-width), calc(100svw - (var(--margin-horizontal) * 2)));
     z-index: 2;
 
     @include tokens.state(inactive) {

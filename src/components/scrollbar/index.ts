@@ -6,7 +6,7 @@ let root = document.body,
     width: number | undefined;
 
 
-export default ({ class: c, fixed, style }: { class?: string | (() => string), fixed?: boolean, style?: string } = {}) => {
+export default ({ attributes, fixed }: { attributes?: Record<string, unknown>, fixed?: boolean } = {}) => {
     let state = reactive({
             height: 100,
             translate: 0
@@ -30,12 +30,12 @@ export default ({ class: c, fixed, style }: { class?: string | (() => string), f
         },
         html: html`
             <div
-                class='scrollbar ${fixed ? 'scrollbar--fixed' : ''} ${c} ${() => state.height >= 100 ? 'scrollbar--hidden' : ''}'
+                class='scrollbar ${fixed ? 'scrollbar--fixed' : ''} ${() => state.height >= 100 ? 'scrollbar--hidden' : ''}'
                 style='${() => `
-                    ${style || ''}
                     --translate: translate3d(0, ${state.translate}%, 0);
                     --height: ${state.height}%;
                 `}'
+                ${attributes}
             ></div>
         `
     };

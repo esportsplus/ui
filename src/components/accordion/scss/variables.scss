@@ -1,3 +1,9 @@
+@use '/tokens';
+
 .accordion {
     --max-height: 0;
+
+    @include tokens.state(inactive) {
+        --max-height: 0;
+    }
 }

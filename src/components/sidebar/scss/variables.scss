@@ -1,8 +1,8 @@
 @use '/tokens';
 
 .sidebar {
-    --position-horizontal: 0px;
-    --position-vertical: 0px;
+    --margin-horizontal: 0px;
+    --margin-vertical: 0px;
     --width: var(--width-default);
     --width-closed: var(--width-default);
     --width-default: 320px;
@@ -14,7 +14,7 @@
 
 
     &--floating {
-        --position-horizontal: var(--size-100);
-        --position-vertical: var(--size-100);
+        --margin-horizontal: var(--size-100);
+        --margin-vertical: var(--size-100);
     }
 }

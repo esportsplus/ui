@@ -13,7 +13,7 @@
     }
 
     &--blur {
-        filter: blur(24px);
+        filter: blur(var(--blur));
         left: -2svh;
         right: -2svh;
         top: -2svh;

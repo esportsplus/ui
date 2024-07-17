@@ -2,9 +2,9 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
-    margin: 0 calc(var(--margin-horizontal) / -2);
+    margin: 0 calc(var(--margin-horizontal) * -1);
     position: relative;
-    width: calc(100% + var(--margin-horizontal));
+    width: calc(100% + var(--margin-horizontal) * 2);
 
 
     &--offset {
@@ -25,12 +25,12 @@
 
     &-item {
         display: flex;
-        margin: var(--margin-vertical) calc(var(--margin-horizontal) / 2) 0;
+        margin: var(--margin-vertical) var(--margin-horizontal) 0;
         position: relative;
         width: var(--width);
 
         &[class*='--width'] {
-            width: calc(var(--width) - var(--margin-horizontal));
+            width: calc(var(--width) - var(--margin-horizontal) * 2);
         }
     }
 }

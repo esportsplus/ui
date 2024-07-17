@@ -58,11 +58,9 @@
         --border-color: var(--color);
         --border-width: var(--border-width-400);
         --size: var(--size-400);
+    }
 
-        @each $key in lib.map-keys(tokens.$border-width) {
-            &-#{$key} {
-                --border-width: var(--border-width-#{$key});
-            }
-        }
+    &--skeleton {
+        --animation-duration: 6.4s;
     }
 }

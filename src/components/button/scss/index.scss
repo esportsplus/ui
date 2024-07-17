@@ -46,8 +46,9 @@
 
         &::before {
             @include lib.position(absolute, center);
-            animation: button--processing var(--animation-duration) infinite linear;
-            border: var(--border-width) solid var(--border-color);
+            animation: ButtonProcessing var(--animation-duration) infinite linear;
+            border: var(--border-width) solid color-mix(in srgb, var(--border-color), transparent 90%);
+            border-left-color: var(--border-color);
             border-radius: 100%;
             border-right-color: transparent;
             border-top-color: transparent;
@@ -60,12 +61,33 @@
             opacity: 0;
         }
 
-        @keyframes button--processing {
+        @keyframes ButtonProcessing {
             0% {
                 transform: translate(50%, 50%) rotate(0deg);
             }
             100% {
                 transform: translate(50%, 50%) rotate(359deg);
+            }
+        }
+    }
+
+    &--skeleton {
+        animation: var(--animation-duration) ease-in-out infinite ButtonSkeleton;
+        background-image: linear-gradient(270deg, var(--background-pressed), var(--background-default), var(--background-default), var(--background-pressed));
+        background-size: 400% 100%;
+        color: transparent;
+        pointer-events: none;
+
+        * {
+            opacity: 0;
+        }
+
+        @keyframes ButtonSkeleton {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
             }
         }
     }

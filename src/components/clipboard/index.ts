@@ -1,1 +1,4 @@
-export { default as write } from './write';
+import write from './write';
+
+
+export default { write };

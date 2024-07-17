@@ -1,5 +1,6 @@
 .modal {
-    --max-height: calc(100svh - (var(--margin) * 2));
+    --margin-horizontal: 0px;
+    --margin-vertical: 0px;
+    --max-height: calc(100svh - (var(--margin-vertical) * 2));
     --max-width: 320px;
-    --width: calc(100svw - (var(--margin) * 2));
 }
