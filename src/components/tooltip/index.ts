@@ -25,7 +25,9 @@ async function frame() {
 
 
 const onclick = (data: { active?: boolean, toggle?: boolean } = {}) => {
-    let state = reactive({ active: data.active || false });
+    let state = reactive({
+            active: data.active || false
+        });
 
     return {
         attributes: {
@@ -73,7 +75,9 @@ const onhover = (active: boolean = false) => {
                 state.active = false;
             }
         },
-        state
+        toggle: () => {
+            state.active = !state.active;
+        }
     };
 };
 

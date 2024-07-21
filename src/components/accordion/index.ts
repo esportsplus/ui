@@ -1,6 +1,9 @@
 import { reactive } from '@esportsplus/reactivity';
 
 
+type Accordion = HTMLElement & { [key: symbol]: { active: boolean | number } };
+
+
 let key = Symbol();
 
 
@@ -14,21 +17,19 @@ export default () => {
             class: () => {
                 return state.active && '--active';
             },
-            onrender: (element: HTMLElement & Record<PropertyKey, unknown>) => {
+            onrender: (element: Accordion) => {
                 element[key] = state;
             },
-            style: (element: HTMLElement) => {
-                if (state.active) {
-                    let parent = element.closest('accordion') as (HTMLElement & { [k: typeof key]: typeof state }) | null;
+            style: (element: Accordion) => {
+                let parent = element.closest('accordion') as Accordion | null;
 
-                    if (parent && key in parent) {
-                        parent[key].active = (+parent[key].active) + 1;
-                    }
+                if (parent && key in parent) {
+                    parent[key].active = (+parent[key].active) + 1;
                 }
 
                 return state.active && `--max-height: ${element.scrollHeight}`;
             }
         },
-        state
+        state: state as ReturnType<typeof reactive<{ active: boolean }>>
     };
 }
