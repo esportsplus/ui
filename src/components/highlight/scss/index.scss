@@ -1,0 +1,5 @@
+.highlight {
+    background: linear-gradient(90deg, var(--background) 50%, transparent 50%) 110% 0 / 200% 100% no-repeat;
+    background-position: calc((1 - var(--highlight)) * 110%) 0;
+    transition: background-position 0.32s;
+}

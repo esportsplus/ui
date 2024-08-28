@@ -14,5 +14,9 @@
 $box-shadow: (
     300: box-shadow(2),
     400: box-shadow(4),
-    500: box-shadow(6)
+    500: box-shadow(6),
+
+    glow: #{0px 0px 128px 32px var(--box-shadow-color, #fff),
+        0px 0px 32px 8px var(--box-shadow-color, #fff),
+        0px 0px 8px 0px var(--box-shadow-color, #fff)}
 );

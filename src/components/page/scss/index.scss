@@ -24,4 +24,8 @@
     &-title + &-subtitle {
         margin-top: var(--margin-vertical);
     }
+
+    &-title {
+        text-wrap: balance;
+    }
 }

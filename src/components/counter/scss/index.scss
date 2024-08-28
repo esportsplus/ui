@@ -1,0 +1,62 @@
+.counter {
+    display: flex;
+    gap: 2px;
+    place-items: center;
+    transition: transform 0.5s 2s;
+    transform-style: flat;
+
+    &-character,
+    &-character-track span {
+        background: linear-gradient(hsl(0 0% 98%) 50%, hsl(0 0% 45%));
+        background-attachment: fixed;
+        background-clip: text;
+        color: transparent;
+        transform-style: flat;
+    }
+
+    &-character {
+        display: grid;
+        font-size: var(--font-size);
+        font-variant: tabular-nums;
+        font-weight: var(--font-weight);
+        height: 1lh;
+        line-height: var(--line-height);
+        mask: linear-gradient(transparent, white calc(1lh * var(--mask-size)) calc(100% - (1lh * var(--mask-size))), transparent);
+        overflow: hidden;
+        transform-style: flat;
+
+        &--fraction {
+            font-size: calc(var(--font-size) * var(--scale));
+            font-weight: var(--font-weight-300);
+            opacity: var(--opacity);
+            overflow: visible;
+            height: var(--line-height);
+
+            .counter-character-track {
+                span {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: end;
+                    padding: calc((var(--line-height) - var(--font-size)) * 0.2) 0;
+                }
+            }
+        }
+
+        &--symbol {
+            font-size: calc(var(--font-size) * var(--scale));
+            margin-right: 0.1ch;
+            opacity: var(--opacity);
+        }
+
+        &-track {
+            display: grid;
+            translate: 0 calc((var(--value) + 1) * (var(--line-height) * -1));
+            transition: translate var(--transition-duration) var(--timing-function);
+
+            span {
+                height: 1lh;
+                transform-style: flat;
+            }
+        }
+    }
+}

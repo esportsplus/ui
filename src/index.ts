@@ -4,7 +4,6 @@ export { default as accordion }from './components/accordion';
 export { default as aurora }from './components/aurora';
 export { default as clipboard }from './components/clipboard';
 export { default as ellipsis }from './components/ellipsis';
-export { default as field }from './components/field';
 export { default as form }from './components/form';
 export { default as json }from './components/json';
 export { default as number }from './components/number';

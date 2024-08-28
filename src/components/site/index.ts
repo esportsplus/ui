@@ -4,24 +4,23 @@ import scrollbar from '~/components/scrollbar';
 
 
 type Data = {
-    class?: string;
+    attributes?: Record<string, unknown>;
     content?: any;
     scrollbar?: Parameters<typeof scrollbar>[0];
 };
 
 
-export default (data: Data) => {
-    let sb = data.scrollbar ??= {};
-
+export default ({ attributes, content, scrollbar: sb }: Data) => {
+    sb ??= {};
     sb.attributes ??= {};
     sb.attributes.style ??= '--background-default: var(--color-black-400);';
     sb.fixed ??= true;
 
-    let { attributes: a, html: h } = scrollbar(sb);
+    let { html: h, parent } = scrollbar(sb);
 
     return html`
-        <section class='site ${data?.class || ''}' ${{ onclick }} ${a}>
-            ${data?.content || ''}
+        <section class='site' ${attributes} ${{ onclick }} ${parent.attributes}>
+            ${content || ''}
             ${h}
         </section>
     `;

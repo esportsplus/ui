@@ -1,0 +1,16 @@
+@use '/lib';
+
+.magnet {
+    @include lib.position(absolute, 0 null null 0);
+    background: var(--background);
+    border-radius: var(--border-radius);
+    height: 0;
+    opacity: 0;
+    transition:
+        height var(--transition-duration) var(--timing-function),
+        opacity var(--transition-duration) var(--timing-function),
+        transform var(--transition-duration) var(--timing-function),
+        width var(--transition-duration) var(--timing-function);
+    width: 0;
+    z-index: -1;
+}
