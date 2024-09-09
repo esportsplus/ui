@@ -3,7 +3,7 @@
     "dependencies": {
         "@esportsplus/action": "^0.0.50",
         "@esportsplus/reactivity": "^0.2.6",
-        "@esportsplus/template": "^0.6.2"
+        "@esportsplus/template": "^0.6.4"
     },
     "devDependencies": {
         "@esportsplus/webpack": "^0.4.11",
