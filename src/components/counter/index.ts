@@ -5,7 +5,7 @@ import { html } from '@esportsplus/template';
 let formatters: Record<string, Intl.NumberFormat> = {};
 
 
-export default ({ currency, delay, max, value }: { currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD', delay?: number, max?: number, value: number }) => {
+export default ({ currency, delay, max, suffix, value }: { currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD', delay?: number, max?: number, suffix?: string, value: number }) => {
     let api = reactive({ value: -1 }),
         formatter = currency === 'IGNORE' ? undefined : formatters[currency || 'USD'] ??= new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -28,8 +28,15 @@ export default ({ currency, delay, max, value }: { currency?: 'IGNORE' | 'EUR' |
         if (formatter) {
             values = formatter.format(values);
         }
+        else {
+            values = values.toLocaleString();
+        }
 
         values = values.split('');
+
+        if (suffix) {
+            values.push(' ', ...suffix.split(''));
+        }
 
         state.length = values.length;
 
