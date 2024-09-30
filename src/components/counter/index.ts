@@ -5,9 +5,9 @@ import { html } from '@esportsplus/template';
 let formatters: Record<string, Intl.NumberFormat> = {};
 
 
-export default ({ currency, delay, max, value }: { currency?: 'EUR' | 'GBP' | 'USD', delay?: number, max?: number, value: number }) => {
+export default ({ currency, delay, max, value }: { currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD', delay?: number, max?: number, value: number }) => {
     let api = reactive({ value: -1 }),
-        formatter = formatters[currency || 'USD'] ??= new Intl.NumberFormat('en-US', {
+        formatter = currency === 'IGNORE' ? undefined : formatters[currency || 'USD'] ??= new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: currency || 'USD'
         }),
@@ -23,9 +23,13 @@ export default ({ currency, delay, max, value }: { currency?: 'EUR' | 'GBP' | 'U
         }
 
         let padding = (max || value).toFixed(2).toString().length - value.toString().length,
-            values = formatter.format(
-                value.toString().padStart( value.toString().length + padding, '1') as any
-            ).split('');
+            values = value.toString().padStart( value.toString().length + padding, '1') as any;
+
+        if (formatter) {
+            values = formatter.format(values);
+        }
+
+        values = values.split('');
 
         state.length = values.length;
 
