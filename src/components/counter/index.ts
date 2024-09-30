@@ -29,7 +29,7 @@ export default ({ currency, delay, max, suffix, value }: { currency?: 'IGNORE' |
             values = formatter.format(values);
         }
         else {
-            values = values.toLocaleString();
+            values = Number(values).toLocaleString();
         }
 
         values = values.split('');
