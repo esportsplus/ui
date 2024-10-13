@@ -22,7 +22,7 @@ export default ({ currency, delay, max, suffix, value }: { currency?: 'IGNORE' |
             value = api.value;
         }
 
-        let padding = (max || value).toFixed(2).toString().length - value.toString().length,
+        let padding = (max || value).toFixed(2).length - value.toFixed(2).length,
             values = value.toString().padStart( value.toString().length + padding, '1') as any;
 
         if (formatter) {
