@@ -14,3 +14,4 @@ export { default as root }from './components/root';
 export { default as scrollbar }from './components/scrollbar';
 export { default as site }from './components/site';
 export { default as tooltip }from './components/tooltip';
+export { default as truncate }from './components/truncate';
