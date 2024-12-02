@@ -2,12 +2,12 @@
     "author": "ICJR",
     "dependencies": {
         "@esportsplus/action": "^0.0.50",
-        "@esportsplus/reactivity": "^0.2.6",
-        "@esportsplus/template": "^0.6.2"
+        "@esportsplus/reactivity": "^0.2.7",
+        "@esportsplus/template": "^0.6.5"
     },
     "devDependencies": {
-        "@esportsplus/webpack": "^0.4.11",
-        "modern-normalize": "^3.0.0"
+        "@esportsplus/webpack": "^0.4.13",
+        "modern-normalize": "^3.0.1"
     },
     "main": "build/index.js",
     "name": "@esportsplus/ui",

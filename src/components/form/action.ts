@@ -4,18 +4,28 @@ import { Action } from './types';
 import input from './input';
 
 
-function parse(input: Record<string, any>) {
+function parse(input: ReturnType<FormData['entries']>) {
     let data: Record<string, any> = {};
 
-    for (let path in input) {
+    for (let [path, value] of input) {
         let bucket = data,
             keys = path.indexOf('.') !== -1 ? path.split('.') : [path];
 
         for (let i = 0; i < keys.length - 1; i++) {
-            bucket = bucket[keys[i]] = bucket[keys[i]] || {};
+            bucket = bucket[ keys[i] ] = bucket[ keys[i] ] || {};
         }
 
-        bucket[ keys[keys.length - 1] ] = input[path];
+        if (path.endsWith('[]')) {
+            if (typeof value === 'string' && value.trim() === '') {
+                continue;
+            }
+
+            bucket = bucket[ keys.at(-1)! ] ??= [];
+            bucket.push(value);
+        }
+        else {
+            bucket[keys[keys.length - 1]] = value;
+        }
     }
 
     return data;
@@ -39,7 +49,7 @@ export default function(action: Action) {
             );
         },
         onsubmit: async function(this: HTMLFormElement, event: SubmitEvent) {
-            // TODO: Figure out processing
+            // TODO: Figure out button--processing
              // - Could pass reactive value above and tie it to form layout handler
             event.preventDefault();
             event?.submitter?.classList.add('button--processing');
@@ -47,7 +57,7 @@ export default function(action: Action) {
             let { errors } = await action({
                     // @ts-ignore
                     alert: null,
-                    input: parse( Object.fromEntries( new FormData( this )?.entries() ) ),
+                    input: parse( new FormData( this ).entries() ),
                     response
                 });
 
