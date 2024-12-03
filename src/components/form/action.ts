@@ -9,22 +9,24 @@ function parse(input: ReturnType<FormData['entries']>) {
 
     for (let [path, value] of input) {
         let bucket = data,
-            keys = path.indexOf('.') !== -1 ? path.split('.') : [path];
+            segments = path.indexOf('.') !== -1 ? path.split('.') : [path];
 
-        for (let i = 0; i < keys.length - 1; i++) {
-            bucket = bucket[ keys[i] ] = bucket[ keys[i] ] || {};
+        for (let i = 0; i < segments.length - 1; i++) {
+            bucket = bucket[ segments[i] ] = bucket[ segments[i] ] || {};
         }
+
+        let key = segments.at(-1)!;
 
         if (path.endsWith('[]')) {
             if (typeof value === 'string' && value.trim() === '') {
                 continue;
             }
 
-            bucket = bucket[ keys.at(-1)! ] ??= [];
+            bucket = bucket[ key.substring(0, key.length - 2) ] ??= [];
             bucket.push(value);
         }
         else {
-            bucket[keys[keys.length - 1]] = value;
+            bucket[key] = value;
         }
     }
 
