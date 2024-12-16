@@ -3,10 +3,10 @@
     "dependencies": {
         "@esportsplus/action": "^0.0.50",
         "@esportsplus/reactivity": "^0.2.7",
-        "@esportsplus/template": "^0.6.5"
+        "@esportsplus/template": "^0.6.6"
     },
     "devDependencies": {
-        "@esportsplus/webpack": "^0.4.13",
+        "@esportsplus/webpack": "^0.5.0",
         "modern-normalize": "^3.0.1"
     },
     "main": "build/index.js",
