@@ -2,7 +2,7 @@ import { html } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 
 
-export default ({ attributes, content }: { attributes: Record<PropertyKey, unknown>, content: any }) => {
+export default ({ attributes, content }: { attributes?: Record<PropertyKey, unknown>, content: any }) => {
     let state = reactive({
             load: false,
             scale: false
