@@ -6,6 +6,7 @@ export { default as counter }from './components/counter';
 export { default as ellipsis }from './components/ellipsis';
 export { default as form }from './components/form';
 export { default as json }from './components/json';
+export { default as link }from './components/link';
 export { default as loader }from './components/loader';
 export { default as loading }from './components/loading';
 export { default as magnet }from './components/magnet';

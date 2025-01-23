@@ -20,9 +20,45 @@
     width: var(--width);
 
 
+    &--hover {
+        &.tooltip,
+        &:not(.--active) {
+            &:hover {
+                .link-hover {
+                    &--one {
+                        opacity: 0;
+                        transform: translateY(-75%);
+                    }
+
+                    &--two {
+                        opacity: 1;
+                        transform: translate(50%, 50%);
+                    }
+                }
+            }
+        }
+    }
+
     &--underline {
         @include tokens.state(active hover) {
             text-decoration: underline;
+        }
+    }
+
+
+    &-hover {
+        transition: opacity 0.3s ease-in-out, 0.3s cubic-bezier(0.23, 0.65, 0.74, 1.09);
+
+        &--one {
+            transform: translateY(0);
+        }
+
+        &--two {
+            @include lib.position(absolute, center);
+            opacity: 0;
+            padding: 0 var(--padding-horizontal);
+            transform: translate(50%, 125%);
+            white-space: nowrap;
         }
     }
 }
