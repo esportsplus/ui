@@ -1,0 +1,12 @@
+.frame {
+    display: none;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    position: relative;
+    width: 100%;
+
+
+    &.--active {
+        display: flex;
+    }
+}
