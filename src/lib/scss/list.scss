@@ -1,4 +1,5 @@
 @use 'sass:list';
+@use 'sass:meta';
 @use 'sass:string';
 
 @forward 'sass:list';
@@ -20,15 +21,15 @@
     $list: unique($list);
     $output: null;
 
-    @if type-of($list) != list {
+    @if meta.type-of($list) != list {
         @error "#{$list} Is Not A Valid List";
     }
 
     @for $i from 1 through list.length($list) {
-        $m: nth($list, $i);
+        $m: list.nth($list, $i);
 
         // If $k Is A List Flatten By Running Through Function Again
-        @if type-of($m) == list {
+        @if meta.type-of($m) == list {
             $output: string.unquote("#{$output}#{$glue}#{implode($glue, $m)}");
         }
         // Piece Together String
@@ -47,7 +48,7 @@
 @function to-list($input) {
     $output: $input;
 
-    @if type-of($input) != list {
+    @if meta.type-of($input) != list {
         $output: ($input,);
     }
 
@@ -57,7 +58,7 @@
 @function unique($list, $recursive: false) {
     $result: ();
 
-    @if type-of($list) != list {
+    @if meta.type-of($list) != list {
         @error "#{$list} Is Not A Valid List";
     }
 

@@ -18,6 +18,7 @@
  *
  */
 
+@use 'sass:meta';
 @use '../../lib';
 
 $state: (
@@ -39,7 +40,7 @@ $state: (
     // To Avoid Overcomplicating The Responsibility Of This Function Limit
     // Replace Parameter To String Values Only
     @if $replace {
-        @if type-of($replace) != 'string' or type-of($selector) != 'string' {
+        @if meta.type-of($replace) != 'string' or meta.type-of($selector) != 'string' {
             @error "'lib.string-replace' Cannot Be Used On A List!";
         }
 
@@ -69,7 +70,7 @@ $state: (
 @mixin state-utility($class, $property, $values) {
     $keys: $values;
 
-    @if type-of($keys) == 'map' {
+    @if meta.type-of($keys) == 'map' {
         $keys: lib.map-keys($keys);
     }
 

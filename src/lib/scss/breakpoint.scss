@@ -10,7 +10,7 @@
         }
     }
     @else if $function == between-width {
-        @media only screen and (min-width: #{nth($param, 1) + 1px}) and (max-width: nth($param, 2)) {
+        @media only screen and (min-width: #{list.nth($param, 1) + 1px}) and (max-width: list.nth($param, 2)) {
             @content;
         }
     }

@@ -1,4 +1,5 @@
 @use 'list';
+@use 'sass:meta';
 @use 'sass:string';
 
 @forward 'sass:string';
@@ -19,7 +20,7 @@
 }
 
 @function replace($find, $replace, $haystack) {
-    @if type-of($haystack) != string {
+    @if meta.type-of($haystack) != string {
         @error "#{$haystack} Is Not A Valid String";
     }
 

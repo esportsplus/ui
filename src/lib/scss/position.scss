@@ -1,4 +1,6 @@
 @use 'list';
+@use 'sass:meta';
+
 
 @mixin position($position, $value: null) {
     position: $position;
@@ -31,23 +33,23 @@
         bottom: 50%;
         transform: translateY(50%);
     }
-    @else if $value and type-of($value) == list {
+    @else if $value and meta.type-of($value) == list {
         $length: list.length($value);
 
-        @if $length > 0 and nth($value, 1) != null {
-            top: nth($value, 1);
+        @if $length > 0 and list.nth($value, 1) != null {
+            top: list.nth($value, 1);
         }
 
-        @if $length > 1 and nth($value, 2) != null {
-            right: nth($value, 2);
+        @if $length > 1 and list.nth($value, 2) != null {
+            right: list.nth($value, 2);
         }
 
-        @if $length > 2 and nth($value, 3) != null {
-            bottom: nth($value, 3);
+        @if $length > 2 and list.nth($value, 3) != null {
+            bottom: list.nth($value, 3);
         }
 
-        @if $length > 3 and nth($value, 4) != null {
-            left: nth($value, 4);
+        @if $length > 3 and list.nth($value, 4) != null {
+            left: list.nth($value, 4);
         }
     }
 }
