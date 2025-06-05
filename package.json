@@ -17,9 +17,10 @@
         "build:ts": "tsc && tsc-alias",
         "build:assets": "webpack build --env=production=true",
         "-": "-",
-        "prepublishOnly": "npm run build"
+        "prepublishOnly": "pnpm build"
     },
     "sideEffects": false,
+    "type": "module",
     "types": "build/index.d.ts",
     "version": "0.7.6"
 }
