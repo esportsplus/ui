@@ -20,22 +20,22 @@ importers:
       '@esportsplus/typescript':
         specifier: ^0.8.14
         version: 0.8.14
+    devDependencies:
+      '@esportsplus/webpack':
+        specifier: ^0.5.8
+        version: 0.5.8(@types/node@22.15.30)(favicons@7.2.0)(postcss@8.5.4)(typescript@5.8.3)
       css-loader:
         specifier: ^7.1.2
         version: 7.1.2(webpack@5.99.9)
+      modern-normalize:
+        specifier: ^3.0.1
+        version: 3.0.1
       postcss-loader:
         specifier: ^8.1.1
         version: 8.1.1(postcss@8.5.4)(typescript@5.8.3)(webpack@5.99.9)
       sass-loader:
         specifier: ^16.0.5
         version: 16.0.5(sass@1.89.2)(webpack@5.99.9)
-    devDependencies:
-      '@esportsplus/webpack':
-        specifier: ^0.5.8
-        version: 0.5.8(@types/node@22.15.30)(favicons@7.2.0)(postcss@8.5.4)(typescript@5.8.3)
-      modern-normalize:
-        specifier: ^3.0.1
-        version: 3.0.1
 
 packages:
 
