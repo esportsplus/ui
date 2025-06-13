@@ -2,12 +2,16 @@
     "author": "ICJR",
     "dependencies": {
         "@esportsplus/action": "^0.0.54",
-        "@esportsplus/reactivity": "^0.4.0",
-        "@esportsplus/template": "^0.9.6"
+        "@esportsplus/reactivity": "^0.4.2",
+        "@esportsplus/template": "^0.9.8",
+        "@esportsplus/typescript": "^0.8.14"
     },
     "devDependencies": {
-        "@esportsplus/webpack": "^0.5.2",
-        "modern-normalize": "^3.0.1"
+        "@esportsplus/webpack": "^0.5.8",
+        "modern-normalize": "^3.0.1",
+        "css-loader": "^7.1.2",
+        "postcss-loader": "^8.1.1",
+        "sass-loader": "^16.0.5"
     },
     "main": "build/index.js",
     "name": "@esportsplus/ui",

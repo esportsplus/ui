@@ -15,7 +15,7 @@ type Data = {
     };
     social?: {
         attributes?: Record<string, unknown>;
-        links: { icon: { symbol: string }, url: string }[]
+        links: { icon: string, url: string }[]
     };
 };
 
@@ -55,7 +55,7 @@ export default ({ copyright, footer, nav, social }: Data) => {
 
                     <div class='footer-break'></div>
 
-                    ${social?.links && social.links.map(({ icon, url }: { icon: { symbol: string }, url: string }) => html`
+                    ${social?.links && social.links.map(({ icon, url }) => html`
                         <div class='group-item'>
                             <a
                                 class='link --color-white --padding-0px'

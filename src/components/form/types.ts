@@ -13,4 +13,4 @@ type Payload = {
 };
 
 
-export { Action, Errors, Payload };
+export type { Action, Errors, Payload };

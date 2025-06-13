@@ -12,15 +12,27 @@ importers:
         specifier: ^0.0.54
         version: 0.0.54
       '@esportsplus/reactivity':
-        specifier: ^0.4.0
-        version: 0.4.0
+        specifier: ^0.4.2
+        version: 0.4.2
       '@esportsplus/template':
-        specifier: ^0.9.6
-        version: 0.9.6
+        specifier: ^0.9.8
+        version: 0.9.8
+      '@esportsplus/typescript':
+        specifier: ^0.8.14
+        version: 0.8.14
+      css-loader:
+        specifier: ^7.1.2
+        version: 7.1.2(webpack@5.99.9)
+      postcss-loader:
+        specifier: ^8.1.1
+        version: 8.1.1(postcss@8.5.4)(typescript@5.8.3)(webpack@5.99.9)
+      sass-loader:
+        specifier: ^16.0.5
+        version: 16.0.5(sass@1.89.2)(webpack@5.99.9)
     devDependencies:
       '@esportsplus/webpack':
-        specifier: ^0.5.2
-        version: 0.5.2(@types/node@22.15.30)(favicons@7.2.0)(postcss@8.5.4)(typescript@5.8.3)
+        specifier: ^0.5.8
+        version: 0.5.8(@types/node@22.15.30)(favicons@7.2.0)(postcss@8.5.4)(typescript@5.8.3)
       modern-normalize:
         specifier: ^3.0.1
         version: 3.0.1
@@ -199,34 +211,34 @@ packages:
   '@esportsplus/action@0.0.54':
     resolution: {integrity: sha512-cvNbkVDVo5inCaFjiOeagbwZ3VYkmZQS/zP7V+XqmtPYHVZal03+AmSFMM1nq6JdehF01Fh0l7XZAmm/T8xzFw==}
 
-  '@esportsplus/cli-passthrough@0.0.6':
-    resolution: {integrity: sha512-G1/5WZjsN6S/k02M+G9yxB//gBqfjxeZeZj16O5Hn2iDUyKpIw9Y2wXrZXQWDizCS5MF/z7BURrNskCzVsaQRw==}
+  '@esportsplus/cli-passthrough@0.0.10':
+    resolution: {integrity: sha512-/DcLjDxIB9NponyFtMQ3ICCXUA/hH1hp4FaL6AOepG1TwvY8g9y1MVLM71Coq7e0NpxUZt1pg73z6KSrh3Xd0w==}
 
   '@esportsplus/custom-function@0.0.11':
     resolution: {integrity: sha512-M+3qcHFUWmD9O8AYLkwTnsnCf7jJyiQ9LtEIvZ7dAM9Z73Ix9qzhSd+de4XMz4IkNpmDVCmDR8ABZI5vnr47Zg==}
 
-  '@esportsplus/reactivity@0.4.0':
-    resolution: {integrity: sha512-5kPZkki62mgz5p8hsN0XqHaXSc6kpaeClaTKbyKMF9nfbC7T3lpY/KZJFgEbqktftx1xOe44ZcuqzUNVOjt+ww==}
+  '@esportsplus/reactivity@0.4.2':
+    resolution: {integrity: sha512-AlHl2SMJDaEjHdmeU0d9ulZqnpXxfbmGKQZ92j4F9mdV7Z4+HYSBVxgwE9L2jKBot7pe53+2STX4GPFifHP3Lw==}
 
   '@esportsplus/tasks@0.1.9':
     resolution: {integrity: sha512-eXInBH3Vc41pmVP5G3ysmiWbmzRfWVu0n3l0wyDwQ3Qt0LpRSrUd0RDyEiaoc+U1krODhK672UMgvP+KMkrw5w==}
 
-  '@esportsplus/template@0.9.6':
-    resolution: {integrity: sha512-W9hIpw4iRUcag63tEuKVIEEzVJ+zxOrQSnzsyqHK8m+eZQmRe1yGsG+4ZrQTy+qC/ClBdFAAjkbvMz7PT1PavQ==}
+  '@esportsplus/template@0.9.8':
+    resolution: {integrity: sha512-To19Hy3XGISynWUorlf94LYGD7Tqh+/wZPGRVGd7pGHjHH81U4QzFXKabh2nrUTPBlUrsGBgHmgN05vuJGr5cA==}
 
   '@esportsplus/tsconfig-paths-webpack-plugin@4.2.0':
     resolution: {integrity: sha512-b6jTyPps4ArmD7iBXjk2jC4LWKqn2J/+ShxXkTdtmL2W0F7HoYcNPWza/4P37hXCxr17fXWG4UaLSQqVNvmDPg==}
     engines: {node: '>=10.13.0'}
 
-  '@esportsplus/typescript@0.8.11':
-    resolution: {integrity: sha512-fCcqjMyQRmXDyWDX3bUzRgpU/OEQjCdpCcUHVvRKoCquwWbIc1Y8hvdSwoDdCovObOJ7ejyY+B5ByJg8KIaKww==}
+  '@esportsplus/typescript@0.8.14':
+    resolution: {integrity: sha512-BnoclJMbwhIN7/vCn+w7vBGJVrWD7MBHhh9XvUiaoPc+XiJA9ZW9uRmjbmBgUAi4z4k4Qa6oil4h6E2H1jBDEQ==}
     hasBin: true
 
   '@esportsplus/utilities@0.0.9':
     resolution: {integrity: sha512-dVRD5sg3wApeqW65QxrB2SkuWSnNYDxsbAcFIZs/eTKreh2XhbJ45AV5k9+/83HcTlTKHSBSIRgbN75dMkeoQw==}
 
-  '@esportsplus/webpack@0.5.2':
-    resolution: {integrity: sha512-TqfyH/dMZyU2pbh+xP7OXpNH1UT7kooA8U8DmyWOJh6+fAjegxpl81P0mg9EnRqUOfz8Mtle3Nxq0Jsv14hMHw==}
+  '@esportsplus/webpack@0.5.8':
+    resolution: {integrity: sha512-ZUASyspP4UO1bcBFLiMrFqsBPNMQXDo0MxxX+OJ6/dUGBtQkmRKmpF/oANHciXnqiZhHAIl++1pLm4yzh0Kp1A==}
 
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
@@ -2742,8 +2754,8 @@ packages:
       webpack:
         optional: true
 
-  sass@1.89.1:
-    resolution: {integrity: sha512-eMLLkl+qz7tx/0cJ9wI+w09GQ2zodTkcE/aVfywwdlRcI3EO19xGnbmJwg/JMIm+5MxVJ6outddLZ4Von4E++Q==}
+  sass@1.89.2:
+    resolution: {integrity: sha512-xCmtksBKd/jdJ9Bt9p7nPKiuqrlBMBuuGkQlkhZjjQk3Ty48lv93k5Dq6OPkKt4XwxDJ7tvlfrTa1MPA9bf+QA==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -3388,20 +3400,20 @@ snapshots:
 
   '@esportsplus/action@0.0.54': {}
 
-  '@esportsplus/cli-passthrough@0.0.6': {}
+  '@esportsplus/cli-passthrough@0.0.10': {}
 
   '@esportsplus/custom-function@0.0.11': {}
 
-  '@esportsplus/reactivity@0.4.0':
+  '@esportsplus/reactivity@0.4.2':
     dependencies:
       '@esportsplus/custom-function': 0.0.11
       '@esportsplus/utilities': 0.0.9
 
   '@esportsplus/tasks@0.1.9': {}
 
-  '@esportsplus/template@0.9.6':
+  '@esportsplus/template@0.9.8':
     dependencies:
-      '@esportsplus/reactivity': 0.4.0
+      '@esportsplus/reactivity': 0.4.2
       '@esportsplus/tasks': 0.1.9
       '@esportsplus/utilities': 0.0.9
 
@@ -3411,18 +3423,18 @@ snapshots:
       enhanced-resolve: 5.18.1
       tsconfig-paths: 4.2.0
 
-  '@esportsplus/typescript@0.8.11':
+  '@esportsplus/typescript@0.8.14':
     dependencies:
-      '@esportsplus/cli-passthrough': 0.0.6
+      '@esportsplus/cli-passthrough': 0.0.10
       tsc-alias: 1.8.16
       typescript: 5.8.3
 
   '@esportsplus/utilities@0.0.9': {}
 
-  '@esportsplus/webpack@0.5.2(@types/node@22.15.30)(favicons@7.2.0)(postcss@8.5.4)(typescript@5.8.3)':
+  '@esportsplus/webpack@0.5.8(@types/node@22.15.30)(favicons@7.2.0)(postcss@8.5.4)(typescript@5.8.3)':
     dependencies:
       '@esportsplus/tsconfig-paths-webpack-plugin': 4.2.0
-      '@esportsplus/typescript': 0.8.11
+      '@esportsplus/typescript': 0.8.14
       '@types/webpack-node-externals': 3.0.4(esbuild@0.25.5)(webpack-cli@6.0.1)
       autoprefixer: 10.4.21(postcss@8.5.4)
       css-loader: 7.1.2(webpack@5.99.9)
@@ -3439,8 +3451,8 @@ snapshots:
       node-polyfill-webpack-plugin: 4.1.0(webpack@5.99.9)
       postcss-loader: 8.1.1(postcss@8.5.4)(typescript@5.8.3)(webpack@5.99.9)
       purgecss: 7.0.2
-      sass: 1.89.1
-      sass-loader: 16.0.5(sass@1.89.1)(webpack@5.99.9)
+      sass: 1.89.2
+      sass-loader: 16.0.5(sass@1.89.2)(webpack@5.99.9)
       sharp: 0.34.2
       svgo: 3.3.2
       ts-node: 10.9.2(@types/node@22.15.30)(typescript@5.8.3)
@@ -6137,14 +6149,14 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sass-loader@16.0.5(sass@1.89.1)(webpack@5.99.9):
+  sass-loader@16.0.5(sass@1.89.2)(webpack@5.99.9):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
-      sass: 1.89.1
+      sass: 1.89.2
       webpack: 5.99.9(esbuild@0.25.5)(webpack-cli@6.0.1)
 
-  sass@1.89.1:
+  sass@1.89.2:
     dependencies:
       chokidar: 4.0.3
       immutable: 5.1.2
