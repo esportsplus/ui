@@ -15,11 +15,11 @@ importers:
         specifier: ^0.4.3
         version: 0.4.3
       '@esportsplus/template':
-        specifier: ^0.9.8
-        version: 0.9.8
+        specifier: ^0.9.9
+        version: 0.9.9
       '@esportsplus/typescript':
-        specifier: ^0.8.14
-        version: 0.8.14
+        specifier: ^0.8.15
+        version: 0.8.15
     devDependencies:
       '@esportsplus/webpack':
         specifier: ^0.5.8
@@ -223,15 +223,15 @@ packages:
   '@esportsplus/tasks@0.1.9':
     resolution: {integrity: sha512-eXInBH3Vc41pmVP5G3ysmiWbmzRfWVu0n3l0wyDwQ3Qt0LpRSrUd0RDyEiaoc+U1krODhK672UMgvP+KMkrw5w==}
 
-  '@esportsplus/template@0.9.8':
-    resolution: {integrity: sha512-To19Hy3XGISynWUorlf94LYGD7Tqh+/wZPGRVGd7pGHjHH81U4QzFXKabh2nrUTPBlUrsGBgHmgN05vuJGr5cA==}
+  '@esportsplus/template@0.9.9':
+    resolution: {integrity: sha512-bCgF8yMdvoGIvWT8pxgjGig8f91DtMuV/2a710VNhUhRPdpgAkbm7tcLxBSpTaQuMDARB5SNnUwL+/SIwOPxNw==}
 
   '@esportsplus/tsconfig-paths-webpack-plugin@4.2.0':
     resolution: {integrity: sha512-b6jTyPps4ArmD7iBXjk2jC4LWKqn2J/+ShxXkTdtmL2W0F7HoYcNPWza/4P37hXCxr17fXWG4UaLSQqVNvmDPg==}
     engines: {node: '>=10.13.0'}
 
-  '@esportsplus/typescript@0.8.14':
-    resolution: {integrity: sha512-BnoclJMbwhIN7/vCn+w7vBGJVrWD7MBHhh9XvUiaoPc+XiJA9ZW9uRmjbmBgUAi4z4k4Qa6oil4h6E2H1jBDEQ==}
+  '@esportsplus/typescript@0.8.15':
+    resolution: {integrity: sha512-cMDuESTK2W2Qm0MdYxZTO29WzikUumVgmZNcfzhnblG5c8S0CQOAEPe8dUsnUOiu9s28sKlnem1PHCQ57uWTXQ==}
     hasBin: true
 
   '@esportsplus/utilities@0.0.9':
@@ -3411,7 +3411,7 @@ snapshots:
 
   '@esportsplus/tasks@0.1.9': {}
 
-  '@esportsplus/template@0.9.8':
+  '@esportsplus/template@0.9.9':
     dependencies:
       '@esportsplus/reactivity': 0.4.3
       '@esportsplus/tasks': 0.1.9
@@ -3423,7 +3423,7 @@ snapshots:
       enhanced-resolve: 5.18.1
       tsconfig-paths: 4.2.0
 
-  '@esportsplus/typescript@0.8.14':
+  '@esportsplus/typescript@0.8.15':
     dependencies:
       '@esportsplus/cli-passthrough': 0.0.10
       tsc-alias: 1.8.16
@@ -3434,7 +3434,7 @@ snapshots:
   '@esportsplus/webpack@0.5.8(@types/node@22.15.30)(favicons@7.2.0)(postcss@8.5.4)(typescript@5.8.3)':
     dependencies:
       '@esportsplus/tsconfig-paths-webpack-plugin': 4.2.0
-      '@esportsplus/typescript': 0.8.14
+      '@esportsplus/typescript': 0.8.15
       '@types/webpack-node-externals': 3.0.4(esbuild@0.25.5)(webpack-cli@6.0.1)
       autoprefixer: 10.4.21(postcss@8.5.4)
       css-loader: 7.1.2(webpack@5.99.9)
