@@ -68,7 +68,7 @@ export default ({ currency, delay, max, suffix, value }: { currency?: 'IGNORE' |
                     }
 
                     return html.reactive(state.render, function (value, i) {
-                        if (isNaN(parseInt(value, 10))) {
+                        if (isNaN(parseInt(value as string, 10))) {
                             return html`
                                 <span class='counter-character counter-character--symbol'>
                                     ${value}
