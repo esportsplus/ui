@@ -1,20 +1,24 @@
-@function box-shadow($alpha) {
-    $base: hsl(228, 100%, 1%);
-    $shade: hsl(from $base calc(h + 8) 25 calc(l - 5));
+// @function box-shadow($alpha) {
+//     $base: hsla(228, 80%, 16%, $alpha);
+//     $h: hue($base);
+//     $l: lightness($base);
+//     $shade: hsl($h + 8, 25%, $l - 5%);
 
-    @return 0 0 0 1px $base,
-        0 1px 1px -0.5px $shade,
-        0 3px 3px -1.5px $shade,
-        0 6px 6px -3px $shade,
-        0 12px 12px -6px $base,
-        0 24px 24px -12px $base;
-}
+//     @return 0 0 0 1px $base,
+//         0 1px 1px -0.5px $shade,
+//         0 3px 3px -1.5px $shade,
+//         0 6px 6px -3px $base,
+//         0 12px 12px -6px $base;
+// }
 
 
 $box-shadow: (
-    300: box-shadow(2),
-    400: box-shadow(4),
-    500: box-shadow(6),
+    100: 0 1px 2px 0 var(--color-black-300),
+    200: 0 1px 3px 0 var(--color-black-300), 0 1px 2px -1px var(--color-black-300),
+    300: 0 4px 6px -1px var(--color-black-300), 0 2px 4px -2px var(--color-black-300),
+    400: 0 10px 15px -3px var(--color-black-300), 0 4px 6px -4px var(--color-black-300),
+    500: 0 20px 25px -5px var(--color-black-300), 0 8px 10px -6px var(--color-black-300),
+    600: 0 25px 50px -12px var(--color-black-500),
 
     glow: #{0px 0px 128px 32px var(--box-shadow-color, #fff),
         0px 0px 32px 8px var(--box-shadow-color, #fff),

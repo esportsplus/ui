@@ -2,7 +2,9 @@
 @use 'size';
 
 $spacer: (
-    300: lib.map-get(size.$size, 900) * 1,
-    400: lib.map-get(size.$size, 900) * 2,
-    500: lib.map-get(size.$size, 900) * 3
+    200: 60px,
+    300: 80px,
+    400: 120px,
+    500: 160px,
+    600: 180px,
 );
