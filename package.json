@@ -8,10 +8,11 @@
     },
     "devDependencies": {
         "@esportsplus/webpack": "^0.5.8",
-        "modern-normalize": "^3.0.1",
         "css-loader": "^7.1.2",
+        "modern-normalize": "^3.0.1",
         "postcss-loader": "^8.1.1",
-        "sass-loader": "^16.0.5"
+        "sass-loader": "^16.0.5",
+        "webpack": "^5.100.1"
     },
     "main": "build/index.js",
     "name": "@esportsplus/ui",

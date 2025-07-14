@@ -1,5 +1,5 @@
 @function box-shadow($alpha) {
-    $base: hsl(214 80% 27% / 4%);
+    $base: hsl(228, 100%, 1%);
     $shade: hsl(from $base calc(h + 8) 25 calc(l - 5));
 
     @return 0 0 0 1px $base,
