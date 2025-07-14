@@ -31,5 +31,5 @@
     "sideEffects": false,
     "type": "module",
     "types": "build/index.d.ts",
-    "version": "0.7.14"
+    "version": "0.7.15"
 }
