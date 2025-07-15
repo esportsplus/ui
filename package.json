@@ -19,7 +19,8 @@
         "webpack": "^5.100.1"
     },
     "exports": {
-        "./components/*": "./src/components/*"
+        "./components/*": "./src/components/*",
+        ".": "./src/index.ts"
     },
     "main": "build/index.js",
     "name": "@esportsplus/ui",
