@@ -1,6 +1,6 @@
 import { html } from '@esportsplus/template';
-import { onclick } from '~/components/root';
-import scrollbar from '~/components/scrollbar';
+import { onclick } from '../root';
+import scrollbar from '../scrollbar';
 
 
 type Data = {

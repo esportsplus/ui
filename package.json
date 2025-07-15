@@ -19,10 +19,11 @@
         "webpack": "^5.100.1"
     },
     "exports": {
-        "./components/*": "./src/components/*",
+        "./components": "./src/components/index.ts",
+        "./lib": "./lib.scss",
+        "./tokens": "./tokens.scss",
         ".": "./src/index.ts"
     },
-    "main": "build/index.js",
     "name": "@esportsplus/ui",
     "private": false,
     "scripts": {
@@ -30,10 +31,9 @@
         "build:ts": "tsc && tsc-alias",
         "build:assets": "webpack build --env=production=true",
         "-": "-",
-        "prepublishOnly": "pnpm build"
+        "prepublishOnly2": "pnpm build"
     },
     "sideEffects": false,
     "type": "module",
-    "types": "build/index.d.ts",
     "version": "0.8.3"
 }

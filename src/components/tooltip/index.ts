@@ -1,5 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
-import root from '~/components/root';
+import root from '../root';
 
 
 let queue: (VoidFunction | (() => Promise<void>))[] = [],
