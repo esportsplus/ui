@@ -1,0 +1,2 @@
+.ellipsis{--animation-duration:1.24s;--marign-horizontal:var(--size-100);--size:var(--size-200)}.ellipsis span{animation:ellipsis var(--animation-duration)infinite linear;background-color:var(--color);height:var(--size);margin:0 var(--margin-horizontal);width:var(--size);border-radius:100%;display:inline-block}.ellipsis span :nth-child(2){animation-delay:.24s}.ellipsis span :nth-child(3){animation-delay:.48s}@keyframes ellipsis{0%,to{opacity:.16}20%{opacity:1}}
+/*$vite$:1*/
