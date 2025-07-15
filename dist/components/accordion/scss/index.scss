@@ -1,2 +1,0 @@
-.accordion,.accordion:not(.--active){--max-height:0}.accordion{max-height:var(--max-height);opacity:0;pointer-events:none;transition:max-height var(--transition-duration)ease-in-out,opacity var(--transition-duration)ease-in-out}.accordion.--active{opacity:1;pointer-events:auto}
-/*$vite$:1*/

@@ -1,2 +1,0 @@
-.loading{--animation-duration:.64s;--border-color:var(--color);--border-width:var(--border-width-400);--size:var(--size-400);animation:loading var(--animation-duration)linear infinite;border:var(--border-width)solid color-mix(in srgb,var(--border-color),transparent 90%);border-left-color:var(--border-color);height:var(--size);width:var(--size);border-radius:100%}@keyframes loading{0%{transform:rotate(0)}to{transform:rotate(360deg)}}
-/*$vite$:1*/
