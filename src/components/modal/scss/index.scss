@@ -1,5 +1,6 @@
 @use '/lib';
 @use '/tokens';
+@use './variables.scss';
 
 .modal {
     @include lib.position(fixed, center);

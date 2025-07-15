@@ -1,3 +1,5 @@
+@use './variables';
+
 @each $property in margin padding {
     .--#{$property} {
         &,

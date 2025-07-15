@@ -1,3 +1,5 @@
+@use './variables.scss';
+
 .thumbnail {
     background: var(--background);
     border-radius: var(--border-radius);

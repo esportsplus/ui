@@ -55,8 +55,8 @@
 
     &--processing {
         --animation-duration: 0.64s;
-        --border-color: var(--color);
         --border-width: var(--border-width-400);
+        --processing-color: var(--color);
         --size: var(--size-400);
     }
 

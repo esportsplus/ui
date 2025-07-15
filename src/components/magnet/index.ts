@@ -1,5 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
+import './scss/index.scss';
 
 
 export default ({ attributes, hide }: { attributes?: Record<string, unknown>, hide?: boolean }) => {

@@ -1,0 +1,139 @@
+@use '/tokens';
+@use 'check' as check;
+@use 'text' as text;
+
+.field {
+    --margin-horizontal: 0px;
+    --margin-vertical: var(--size-300);
+    --width: 100%;
+
+
+    &--optional {
+        --max-height: 0;
+        --max-height-active: 0;
+
+        #{tokens.state(active, '.field')} & {
+            --max-height: var(--max-height-active);
+        }
+    }
+
+
+    &-description,
+    &-error {
+        --font-size: var(--font-size-300);
+    }
+
+    &-error {
+        --color: var(--color-red-400);
+    }
+
+    &-mask {
+        --background: var(--background-default);
+        --background-active: var(--background-default);
+        --background-default: transparent;
+        --background-hover: var(--background-default);
+        --background-pressed: var(--background-default);
+        --border-color: var(--border-color-default);
+        --border-color-default: var(--background);
+        --border-radius: var(--border-radius-400);
+        --border-style: solid;
+        --border-width: 0px;
+        --box-shadow: var(--box-shadow-default);
+        --box-shadow-active: var(--box-shadow-400);
+        --box-shadow-default: var(--box-shadow-300);
+        --box-shadow-hover: var(--box-shadow-400);
+        --box-shadow-pressed: none;
+        --color: var(--color-default);
+        --color-active: var(--color-default);
+        --color-default: var(--color-text-400);
+        --color-hover: var(--color-default);
+        --color-pressed: var(--color-default);
+        --outline-opacity: var(--outline-opacity-default);
+        --outline-opacity-active: 0.32;
+        --outline-opacity-default: 0;
+        --outline-opacity-hover: 0;
+        --outline-opacity-pressed: 0;
+        --outline-spacing: 0px;
+        --outline-width: var(--outline-width-default);
+        --outline-width-active: 4px;
+        --outline-width-default: 0px;
+        --outline-width-hover: 0px;
+        --outline-width-pressed: 0px;
+        --padding-horizontal: 0px;
+        --padding-vertical: var(--size-400);
+
+
+        #{tokens.state(active, '.field')} > &,
+        #{tokens.state(active, '.field')} *:not(.field) & {
+            --background: var(--background-active);
+            --border-color: var(--border-color-active);
+            --box-shadow: var(--box-shadow-active);
+            --color: var(--color-active);
+            --outline-opacity: var(--outline-opacity-active);
+            --outline-width: var(--outline-width-active);
+        }
+
+        $inactive: tokens.state(inactive, '.field');
+
+        #{tokens.state(hover, 'label#{$inactive}')} > &,
+        #{tokens.state(hover, '#{$inactive}:not(label) &')} {
+            --background: var(--background-hover);
+            --border-color: var(--border-color-hover);
+            --box-shadow: var(--box-shadow-hover);
+            --color: var(--color-hover);
+            --outline-opacity: var(--outline-opacity-hover);
+            --outline-width: var(--outline-width-hover);
+        }
+
+        #{tokens.state(pressed, 'label#{$inactive}')} > &,
+        #{tokens.state(pressed, '#{$inactive}:not(label) &')} {
+            --background: var(--background-pressed);
+            --border-color: var(--border-color-pressed);
+            --box-shadow: var(--box-shadow-pressed);
+            --color: var(--color-pressed);
+            --outline-opacity: var(--outline-opacity-pressed);
+            --outline-width: var(--outline-width-pressed);
+        }
+
+        &--outline {
+            @include tokens.state(pressed) {
+                --border-color: var(--border-color-default);
+
+                &::before {
+                    --outline-width: 0px;
+                }
+            }
+        }
+    }
+
+    &-required {
+        --border-radius: var(--border-radius-circle);
+        --size: 6px;
+    }
+
+    &-title {
+        --color: var(--color-default);
+        --color-active: var(--color-default);
+        --color-default: var(--color-text-400);
+        --color-hover: var(--color-default);
+        --color-pressed: var(--color-default);
+        --font-size: var(--font-size-400);
+        --font-weight: var(--font-weight-500);
+
+        #{tokens.state(active, '.field')} & {
+            --color: var(--color-active);
+        }
+
+        #{tokens.state(hover, '.field')} & {
+            --color: var(--color-hover);
+        }
+
+        #{tokens.state(pressed, '.field')} & {
+            --color: var(--color-pressed);
+        }
+    }
+
+
+    @include check.variables();
+    @include text.variables();
+}

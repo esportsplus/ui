@@ -1,5 +1,6 @@
 import { html } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import './scss/index.scss';
 
 
 // Prevents parent node from collapsing

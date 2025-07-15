@@ -1,5 +1,7 @@
+@use './variables.scss';
+
 .loading {
-    animation: Loading var(--animation-duration) linear infinite;
+    animation: loading var(--animation-duration) linear infinite;
     border: var(--border-width) solid color-mix(in srgb, var(--border-color), transparent 90%);
     border-left-color: var(--border-color);
     border-radius: 100%;
@@ -7,7 +9,7 @@
     width: var(--size);
 }
 
-@keyframes Loading {
+@keyframes loading {
     0% {
         transform: rotate(0deg)
     }

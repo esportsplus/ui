@@ -1,6 +1,8 @@
+@use './variables.scss';
+
 .ellipsis {
     span {
-        animation: Ellipsis var(--animation-duration) infinite linear;
+        animation: ellipsis var(--animation-duration) infinite linear;
         background-color: var(--color);
         border-radius: 100%;
         display: inline-block;
@@ -17,7 +19,7 @@
         }
     }
 
-    @keyframes Ellipsis {
+    @keyframes ellipsis {
         0%, 100% {
             opacity: 0.16;
         }

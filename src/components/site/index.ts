@@ -1,6 +1,7 @@
 import { html } from '@esportsplus/template';
 import { onclick } from '../root';
 import scrollbar from '../scrollbar';
+import './scss/index.scss';
 
 
 type Data = {

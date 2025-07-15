@@ -1,4 +1,5 @@
 @use '/tokens';
+@use './variables.scss';
 
 .accordion {
     max-height: var(--max-height);

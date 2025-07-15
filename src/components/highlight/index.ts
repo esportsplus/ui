@@ -1,4 +1,5 @@
 import { reactive } from '@esportsplus/reactivity'
+import './scss/index.scss';
 
 
 let key = Symbol(),
@@ -42,7 +43,10 @@ export default (background: string) => {
                 element[key] = state;
                 observer!.observe(element);
             },
-            style: [ `--background: ${background}`, () => `--highlight: ${state.highlight}` ]
+            style: [
+                () => `--highlight: ${state.highlight}`,
+                `--background: ${background}`,
+            ]
         }
     };
 }

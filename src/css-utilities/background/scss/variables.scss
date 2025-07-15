@@ -1,6 +1,8 @@
 @use '/tokens';
 
 .--background {
+    @include tokens.state-utility('background', tokens.$colors);
+
     &-state {
         --background: var(--background-default);
         --background-active: var(--background-default);
@@ -22,6 +24,3 @@
     }
 }
 
-@mixin css-variables($colors) {
-    @include tokens.state-utility('.--background', 'background', $colors);
-}

@@ -4,35 +4,21 @@
         "@esportsplus/action": "^0.0.56",
         "@esportsplus/reactivity": "^0.4.3",
         "@esportsplus/template": "^0.9.9",
-        "@esportsplus/typescript": "^0.9.1"
+        "@esportsplus/utilities": "^0.13.0",
+        "modern-normalize": "^3.0.1"
     },
     "devDependencies": {
-        "@esportsplus/webpack": "^0.5.8",
-        "css-loader": "^7.1.2",
-        "esbuild": "^0.25.6",
-        "esbuild-loader": "^4.3.0",
-        "modern-normalize": "^3.0.1",
-        "postcss-loader": "^8.1.1",
-        "sass-loader": "^16.0.5",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.8.3",
-        "webpack": "^5.100.1"
+        "@esportsplus/typescript": "^0.9.1"
     },
     "exports": {
-        "./components": "./src/components/index.ts",
-        "./lib": "./lib.scss",
-        "./tokens": "./tokens.scss",
-        ".": "./src/index.ts"
+        "./css-utilities": "./src/css-utilities/index.ts",
+        "./fonts": "./src/fonts/index.ts",
+        "./lib": "./src/lib/index.scss",
+        "./tokens": "./src/tokens/index.scss",
+        ".": "./src/components/index.ts"
     },
     "name": "@esportsplus/ui",
     "private": false,
-    "scripts": {
-        "build": "pnpm build:ts && pnpm build:assets",
-        "build:ts": "tsc && tsc-alias",
-        "build:assets": "webpack build --env=production=true",
-        "-": "-",
-        "prepublishOnly2": "pnpm build"
-    },
     "sideEffects": false,
     "type": "module",
     "version": "0.8.4"

@@ -6,7 +6,7 @@ export default ({ attributes, content }: { attributes?: Record<string, any>, con
         attributes: {
             class: 'link--hover'
         },
-        content: html`
+        html: html`
             <span class='link-hover link-hover--one' ${attributes}>
                 ${content}
             </span>

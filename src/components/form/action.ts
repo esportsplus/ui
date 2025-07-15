@@ -1,6 +1,5 @@
 import response from '@esportsplus/action';
 import { Action } from './types';
-// import alert from '~/components/alert';
 import input from './input';
 
 
@@ -34,7 +33,7 @@ function parse(input: ReturnType<FormData['entries']>) {
 };
 
 
-export default function(action: Action) {
+export default function(action: Action, s?: { processing: boolean }) {
     return {
         onclick: function(this: HTMLFormElement, event: Event) {
             let trigger = event.target as HTMLButtonElement;
@@ -51,31 +50,31 @@ export default function(action: Action) {
             );
         },
         onsubmit: async function(this: HTMLFormElement, event: SubmitEvent) {
-            // TODO: Figure out button--processing
-             // - Could pass reactive value above and tie it to form layout handler
             event.preventDefault();
-            event?.submitter?.classList.add('button--processing');
+
+            if (s) {
+                s.processing = true;
+            }
 
             let { errors } = await action({
-                    // @ts-ignore
-                    alert: null,
                     input: parse( new FormData( this ).entries() ),
                     response
                 });
 
             for (let i = 0, n = errors.length; i < n; i++) {
                 let { message, path } = errors[i],
-                    state = input.get( this[path!] );
+                    reactive = input.get( this[path!] );
 
-                if (!state) {
+                if (!reactive) {
                     continue;
                 }
 
-                state.error = `${message[0].toUpperCase()}${message.substring(1)}`;
+                reactive.error = `${message[0].toUpperCase()}${message.substring(1)}`;
             }
 
-            // TODO: replace with signal
-            event?.submitter?.classList.remove('button--processing');
+            if (s) {
+                s.processing = false;
+            }
         }
     };
 };

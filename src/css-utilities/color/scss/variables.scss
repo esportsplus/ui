@@ -1,6 +1,8 @@
 @use '/tokens';
 
 .--color {
+    @include tokens.state-utility('color', tokens.$colors);
+
     &-inherit {
         --color: inherit;
     }
@@ -24,8 +26,4 @@
             --color: var(--color-pressed);
         }
     }
-}
-
-@mixin css-variables($colors) {
-    @include tokens.state-utility('.--color', 'color', $colors);
 }

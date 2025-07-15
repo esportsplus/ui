@@ -13,7 +13,7 @@ const onclick = async () => {
     }
 };
 
-onclick.add = (fn: VoidFunction) => {
+onclick.push = (fn: VoidFunction) => {
     queue.push(fn);
 };
 

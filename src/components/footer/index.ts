@@ -1,4 +1,5 @@
 import { html, svg } from '@esportsplus/template';
+import './scss/index.scss';
 
 
 type Data = {
@@ -23,7 +24,11 @@ type Data = {
 function copy({ attributes, brand }: Data['copyright']) {
     return html`
         <div class='footer-copyright group-item --flex-center'>
-            <div class='text --padding-vertical --padding-300 --text-300' style='--color-default: var(--color-grey-500);' ${attributes}>
+            <div
+                class='text --padding-vertical --padding-300 --text-300'
+                style='--color-default: var(--color-grey-500);'
+                ${attributes}
+            >
                 &copy; ${`${new Date().getFullYear()} ${brand}, All rights reserved`}
             </div>
         </div>

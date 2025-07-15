@@ -1,3 +1,5 @@
+@use './variables';
+
 .--glass {
     backdrop-filter: blur(var(--blur));
 }

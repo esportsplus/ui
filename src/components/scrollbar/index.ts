@@ -1,5 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
+import './scss/index.scss';
 
 
 let root = document.body,
@@ -15,13 +16,18 @@ export default ({ attributes, fixed }: { attributes?: Record<string, unknown>, f
     return {
         html: html`
             <div
-                class='scrollbar ${fixed ? 'scrollbar--fixed' : ''} ${() => state.height >= 100 ? 'scrollbar--hidden' : ''}'
+                class='
+                    ${fixed && 'scrollbar--fixed'}
+                    ${() => state.height >= 100 && 'scrollbar--hidden'}
+                    scrollbar
+                '
                 style='${() => `
                     --translate: translate3d(0, ${state.translate}%, 0);
                     --height: ${state.height}%;
                 `}'
                 ${attributes}
-            ></div>
+            >
+            </div>
         `,
         parent: {
             attributes: {

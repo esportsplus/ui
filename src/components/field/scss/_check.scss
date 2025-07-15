@@ -1,0 +1,225 @@
+@use '/lib';
+@use '/tokens';
+
+@mixin css() {
+    &-mask {
+        &--checkbox,
+        &--radio,
+        &--switch {
+            background: var(--background);
+            border-color: var(--border-color);
+            border-radius: var(--border-radius);
+            border-style: var(--border-style);
+            border-width: var(--border-width);
+            flex: 0 0 var(--width);
+            height: var(--height);
+            position: relative;
+            transition:
+                background var(--transition-duration) ease-in-out,
+                border-color var(--transition-duration) ease-in-out,
+                box-shadow var(--transition-duration) ease-in-out,
+                opacity var(--transition-duration) ease-in-out,
+                transform var(--transition-duration) ease-in-out;
+            width: var(--width);
+
+            &:invalid,
+            &:required {
+                box-shadow: none;
+            }
+
+            &::before {
+                box-shadow: var(--box-shadow);
+                content: '';
+                height: var(--height);
+                opacity: var(--opacity);
+                transform: translate(var(--translateX), var(--translateY)) rotate(var(--rotate)) scale(var(--scale));
+                width: var(--width);
+            }
+
+            // Hide HTML Field Element
+            .field-tag {
+                @include lib.position(absolute, 0 null null 0);
+                height: 0px;
+                opacity: 0;
+                pointer-events: none;
+                width: 0px;
+                z-index: 0;
+            }
+        }
+
+        &--checkbox,
+        &--radio {
+            &::before {
+                position: absolute;
+                bottom: 50%;
+                right: 50%;
+            }
+        }
+
+        &--radio,
+        &--switch {
+            &::before {
+                background: var(--accent);
+                border-radius: inherit;
+                transform-origin: center;
+            }
+        }
+
+        &--checkbox {
+            &::before {
+                border-bottom: var(--border-width) solid var(--accent);
+                border-right: var(--border-width) solid var(--accent);
+                transform-origin: center left;
+            }
+        }
+
+        &--switch {
+            &::before {
+                @include lib.position(absolute, var(--padding-vertical) null null var(--padding-horizontal));
+            }
+        }
+    }
+}
+
+@mixin variables() {
+    label#{&},
+    #{tokens.state(inactive, '.field:not(label)')} &-mask {
+        @include tokens.state(hover) {
+            --background: var(--background-hover);
+            --border-color: var(--border-color-hover);
+            --box-shadow: var(--box-shadow-hover);
+            --color: var(--color-hover);
+            --outline-opacity: var(--outline-opacity-hover);
+            --outline-width: var(--outline-width-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --background: var(--background-pressed);
+            --border-color: var(--border-color-pressed);
+            --box-shadow: var(--box-shadow-pressed);
+            --color: var(--color-pressed);
+            --outline-opacity: var(--outline-opacity-pressed);
+            --outline-width: var(--outline-width-pressed);
+        }
+    }
+
+    &-mask {
+        &--checkbox,
+        &--radio,
+        &--switch {
+            --accent: var(--accent-default);
+            --accent-active: var(--accent-default);
+            --accent-default: var(--color-white-400);
+            --accent-hover: var(--accent-default);
+            --accent-pressed: var(--accent-default);
+            --height: var(--size);
+            --opacity: var(--opacity-default);
+            --opacity-active: var(--opacity-default);
+            --opacity-default: 1;
+            --opacity-hover: var(--opacity-default);
+            --opacity-pressed: var(--opacity-default);
+            --rotate: 0deg;
+            --scale: var(--scale-default);
+            --scale-active: var(--scale-default);
+            --scale-default: 1;
+            --scale-hover: var(--scale-default);
+            --scale-pressed: var(--scale-default);
+            --size: var(--size-600);
+            --width-switch: 40px;
+
+            &::before {
+                --translateX: 0px;
+                --translateY: 0px;
+            }
+
+            #{tokens.state(inactive, 'label.field')},
+            #{tokens.state(inactive, '.field:not(label)')} & {
+                @include tokens.state(hover) {
+                    --accent: var(--accent-hover);
+                    --opacity: var(--opacity-hover);
+                    --scale: var(--scale-hover);
+                }
+
+                @include tokens.state(pressed) {
+                    --accent: var(--accent-pressed);
+                    --opacity: var(--opacity-pressed);
+                    --scale: var(--scale-pressed);
+                }
+            }
+
+            #{tokens.state(active, '.field')} & {
+                --accent: var(--accent-active);
+                --opacity: var(--opacity-active);
+                --scale: var(--scale-active);
+            }
+        }
+
+        &--checkbox,
+        &--radio {
+            --margin-horizontal: calc(var(--width-switch) - var(--width));
+            --width: var(--height);
+        }
+
+        &--radio,
+        &--switch {
+            &::before {
+                --box-shadow: 0 1px 0 rgba(0,0,0, 0.16);
+            }
+        }
+
+        &--checkbox {
+            --border-radius: var(--border-radius-300);
+            --rotate: 45deg;
+            --scale-active: 1;
+            --scale-default: 0;
+            --scale-hover: 1.08;
+            --scale-pressed: 0.98;
+
+            &::before {
+                --box-shadow: 1px 1px 0 rgba(0,0,0, 0.16);
+                --border-width: 5px;
+                --height: 110%;
+                --translateX: 108%;
+                --translateY: 8%;
+                --width: 50%;
+
+                #{tokens.state(default, '.field')} & {
+                    --translateY: 100%;
+                }
+            }
+        }
+
+        &--radio {
+            --border-radius: var(--border-radius-circle);
+            --opacity-active: 1;
+            --opacity-default: 0.4;
+            --scale-active: 0.9;
+            --scale-default: 0;
+            --scale-hover: 0.8;
+            --scale-pressed: 0.7;
+
+            &::before {
+                --height: calc((var(--size) / 2) - (var(--border-width) * 2));
+                --translateX: 50%;
+                --translateY: 50%;
+                --width: var(--height);
+            }
+        }
+
+        &--switch {
+            --border-radius: var(--border-radius-curved);
+            --padding-horizontal: var(--border-width-400);
+            --padding-vertical: var(--border-width-400);
+            --width: var(--width-switch);
+
+            &::before {
+                --height: calc(var(--size) - (var(--border-width) * 2) - (var(--padding-vertical) * 2));
+                --width: var(--height);
+
+                #{tokens.state(active, '.field')} & {
+                    --translateX: calc(var(--width-switch) - (var(--border-width) * 2) - var(--height) - (var(--padding-horizontal) * 2));
+                }
+            }
+        }
+    }
+}

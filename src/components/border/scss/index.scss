@@ -1,0 +1,12 @@
+@use './variables.scss';
+
+.border {
+    border-top: var(--border-width) var(--border-style) var(--border-color);
+    position: relative;
+    width: 100%;
+
+
+    & + & {
+        display: none;
+    }
+}

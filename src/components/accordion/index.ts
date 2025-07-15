@@ -1,4 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
+import './scss/index.scss';
 
 
 type Accordion = HTMLElement & { [key: symbol]: { active: boolean | number } };

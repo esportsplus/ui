@@ -5,6 +5,7 @@
 @use 'north' as *;
 @use 'south' as *;
 @use 'west' as *;
+@use './variables.scss';
 
 .tooltip {
     cursor: pointer;

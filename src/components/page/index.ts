@@ -1,3 +1,6 @@
+import './scss/index.scss';
+
+
 const subtitle = {
     class: 'page-subtitle --margin-200 --text-crop-bottom'
 };
@@ -12,4 +15,3 @@ const title = {
 
 
 export default { subtitle, suptitle, title };
-export { subtitle, suptitle, title };

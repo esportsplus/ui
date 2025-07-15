@@ -1,5 +1,6 @@
 @use '../../lib';
 
+
 $color: (
     'black': (
         300: #151726,
@@ -52,6 +53,9 @@ $color: (
         500: #e3eb00
     )
 );
+
+$colors: lib.list-join(primary secondary, lib.map-keys($color));
+
 
 @function color($keys, $opacity) {
     $c: $color;

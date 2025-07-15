@@ -1,5 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import root from '../root';
+import './scss/index.scss';
 
 
 let queue: (VoidFunction | (() => Promise<void>))[] = [],
@@ -50,7 +51,7 @@ const onclick = (data: { active?: boolean, toggle?: boolean } = {}) => {
                 }
 
                 if (!scheduled) {
-                    root.onclick.add(() => {
+                    root.onclick.push(() => {
                         frame();
                         scheduled = false;
                     });

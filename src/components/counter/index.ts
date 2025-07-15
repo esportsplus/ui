@@ -1,5 +1,6 @@
 import { effect, reactive } from '@esportsplus/reactivity'
 import { html } from '@esportsplus/template';
+import './scss/index.scss';
 
 
 let formatters: Record<string, Intl.NumberFormat> = {};
@@ -77,7 +78,12 @@ export default ({ currency, delay, max, suffix, value }: { currency?: 'IGNORE' |
                         }
 
                         return html`
-                            <div class='counter-character ${i > n - 3 ? 'counter-character--fraction' : ''}'>
+                            <div
+                                class='
+                                    ${i > n - 3 && 'counter-character--fraction'}
+                                    counter-character
+                                '
+                            >
                                 <div class='counter-character-track' style='${() => `--value: ${this[i]}`}'>
                                     <span>9</span>
                                     ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span>${value}</span>`)}

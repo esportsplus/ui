@@ -2,6 +2,8 @@
 @use '/tokens';
 
 .--border {
+    @include tokens.state-utility('border-color', tokens.$colors);
+
     &,
     &-bottom,
     &-left,
@@ -59,8 +61,4 @@
             }
         }
     }
-}
-
-@mixin css-variables($colors) {
-    @include tokens.state-utility('.--border', 'border-color', $colors);
 }

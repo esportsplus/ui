@@ -1,4 +1,5 @@
 @use '/lib';
+@use './variables.scss';
 
 .magnet {
     @include lib.position(absolute, 0 null null 0);

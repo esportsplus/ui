@@ -67,21 +67,19 @@ $state: (
     }
 }
 
-@mixin state-utility($class, $property, $values) {
+@mixin state-utility($property, $values) {
     $keys: $values;
 
     @if meta.type-of($keys) == 'map' {
         $keys: lib.map-keys($keys);
     }
 
-    #{$class} {
-        @each $key in $keys {
-            &-#{$key} {
-                --#{$property}-active: var(--color-#{$key}-300);
-                --#{$property}-default: var(--color-#{$key}-400);
-                --#{$property}-hover: var(--color-#{$key}-300);
-                --#{$property}-pressed: var(--color-#{$key}-500);
-            }
+    @each $key in $keys {
+        &-#{$key} {
+            --#{$property}-active: var(--color-#{$key}-300);
+            --#{$property}-default: var(--color-#{$key}-400);
+            --#{$property}-hover: var(--color-#{$key}-300);
+            --#{$property}-pressed: var(--color-#{$key}-500);
         }
     }
 }
