@@ -1,5 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
-import root from '../root';
+import root from '~/components/root';
 import './scss/index.scss';
 
 

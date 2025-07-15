@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { omit, pick } from '@esportsplus/utilities';
-import form from '../form';
+import form from '~/components/form';
 import description from './description';
 import error from './error';
 import title from './title';

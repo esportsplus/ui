@@ -1,6 +1,3 @@
 {
-    "compilerOptions": {
-        "paths": null
-    },
     "extends": "@esportsplus/typescript/tsconfig.package.json"
 }
