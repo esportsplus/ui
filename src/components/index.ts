@@ -23,7 +23,6 @@ export * as loader from './loader';
 export { default as loading } from './loading';
 export { default as magnet } from './magnet';
 export * as modal from './modal';
-export * as normalize from './normalize';
 export { default as number } from './number';
 export { default as page } from './page';
 export { default as root } from './root';

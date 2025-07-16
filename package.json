@@ -27,7 +27,12 @@
             "types": "./build/fonts/index.d.ts",
             "default": "./build/fonts/index.js"
         },
+        "./layer": "./layer.scss",
         "./lib": "./lib.scss",
+        "./normalize": {
+            "types": "./build/normalize/index.d.ts",
+            "default": "./build/normalize/index.js"
+        },
         "./tokens": "./tokens.scss",
         "./*": {
             "types": "./build/components/*/index.d.ts",
