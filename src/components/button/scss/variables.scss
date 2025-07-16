@@ -3,6 +3,7 @@
 
 .button {
     --background: var(--background-default);
+    --background-default: transparent;
     --border-color: var(--border-color-default);
     --border-radius: var(--border-radius-400);
     --border-width: 0px;
@@ -12,6 +13,7 @@
     --box-shadow-hover: var(--box-shadow-400);
     --box-shadow-pressed: none;
     --color: var(--color-default);
+    --color-default: transparent;
     --font-size: var(--font-size-400);
     --font-weight: var(--font-weight-400);
     --line-height: var(--line-height-400);
