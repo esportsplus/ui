@@ -126,7 +126,7 @@
                 transition:
                     box-shadow var(--transition-duration) ease-in-out,
                     opacity var(--transition-duration) ease-in-out;
-                z-index: 0;
+                z-index: 1;
             }
         }
     }
