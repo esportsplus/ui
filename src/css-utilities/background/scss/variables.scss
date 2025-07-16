@@ -3,6 +3,13 @@
 .--background {
     @include tokens.state-utility('background', tokens.$colors);
 
+    &-default {
+        --background: var(--background-default);
+        --background-active: var(--background-default);
+        --background-hover: var(--background-default);
+        --background-pressed: var(--background-default);
+    }
+
     &-state {
         --background: var(--background-default);
         --background-active: var(--background-default);

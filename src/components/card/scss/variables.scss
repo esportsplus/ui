@@ -2,15 +2,7 @@
 
 .card {
     --background: var(--background-default);
-    --background-active: var(--background-default);
-    --background-default: transparent;
-    --background-hover: var(--background-default);
-    --background-pressed: var(--background-default);
     --border-color: var(--border-color-default);
-    --border-color-active: var(--border-color-default);
-    --border-color-default: var(--background);
-    --border-color-hover: var(--border-color-default);
-    --border-color-pressed: var(--border-color-default);
     --border-radius: var(--border-radius-400);
     --box-shadow: var(--box-shadow-default);
     --box-shadow-active: var(--box-shadow-300);

@@ -3,15 +3,7 @@
 
 .button {
     --background: var(--background-default);
-    --background-active: var(--background-default);
-    --background-default: transparent;
-    --background-hover: var(--background-default);
-    --background-pressed: var(--background-default);
     --border-color: var(--border-color-default);
-    --border-color-active: var(--border-color-default);
-    --border-color-default: var(--background);
-    --border-color-hover: var(--border-color-default);
-    --border-color-pressed: var(--border-color-default);
     --border-radius: var(--border-radius-400);
     --border-width: 0px;
     --box-shadow: var(--box-shadow-default);
@@ -20,10 +12,6 @@
     --box-shadow-hover: var(--box-shadow-400);
     --box-shadow-pressed: none;
     --color: var(--color-default);
-    --color-active: var(--color-default);
-    --color-default: var(--color-text-400);
-    --color-hover: var(--color-default);
-    --color-pressed: var(--color-default);
     --font-size: var(--font-size-400);
     --font-weight: var(--font-weight-400);
     --line-height: var(--line-height-400);

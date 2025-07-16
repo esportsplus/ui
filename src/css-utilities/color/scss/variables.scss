@@ -3,6 +3,13 @@
 .--color {
     @include tokens.state-utility('color', tokens.$colors);
 
+    &-default {
+        --color: var(--color-default);
+        --color-active: var(--color-default);
+        --color-hover: var(--color-default);
+        --color-pressed: var(--color-default);
+    }
+
     &-inherit {
         --color: inherit;
     }

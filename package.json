@@ -22,12 +22,17 @@
             "types": "./build/css-utilities/index.d.ts",
             "default": "./build/css-utilities/index.js"
         },
+        "./css-utilities/*": "./build/css-utilities/*/scss/index.scss",
         "./fonts": {
             "types": "./build/fonts/index.d.ts",
             "default": "./build/fonts/index.js"
         },
         "./lib": "./lib.scss",
         "./tokens": "./tokens.scss",
+        "./*": {
+            "types": "./build/components/*/index.d.ts",
+            "default": "./build/components/*/index.js"
+        },
         ".": {
             "types": "./build/components/index.d.ts",
             "default": "./build/components/index.js"

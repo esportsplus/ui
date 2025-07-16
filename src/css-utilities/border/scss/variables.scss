@@ -32,6 +32,13 @@
         }
     }
 
+    &-default {
+        --border-color: var(--border-color-default);
+        --border-color-active: var(--border-color-default);
+        --border-color-hover: var(--border-color-default);
+        --border-color-pressed: var(--border-color-default);
+    }
+
     &-state {
         --border-color: var(--border-color-default);
         --border-color-active: var(--border-color-default);
