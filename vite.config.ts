@@ -6,10 +6,9 @@ import autoprefixer from 'autoprefixer';
 export default defineConfig({
     build: {
         cssMinify: 'lightningcss',
+        outDir: 'build',
         rollupOptions: {
-            input: Object.fromEntries(
-                glob.sync('./src/{components,css-utilities,fonts}/*/scss/index.scss').map(file => [file, file])
-            ),
+            input: glob.sync('./src/{components,css-utilities,fonts}/*/scss/index.scss'),
             output: {
                 assetFileNames: ({ originalFileNames: [filename] }) => {
                     if (filename) {
@@ -19,14 +18,14 @@ export default defineConfig({
                     return '[name].[ext]';
                 }
             }
-        },
-        outDir: 'build',
+        }
     },
     css: {
         postcss: {
             plugins: [
                 autoprefixer()
             ]
-        }
+        },
+        transformer: 'lightningcss'
     },
 });

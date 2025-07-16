@@ -9,16 +9,9 @@
     --box-shadow-default: none;
     --box-shadow-hover: var(--box-shadow-300);
     --box-shadow-pressed: none;
-
-
-    &:not([class*=" --padding-"]) {
-        --padding-horizontal: 0px;
-        --padding-vertical: 0px;
-    }
-
-    &:not([class*=" --width-"]) {
-        --width: auto;
-    }
+    --padding-horizontal: 0px;
+    --padding-vertical: 0px;
+    --width: auto;
 
 
     @include tokens.state(active) {
