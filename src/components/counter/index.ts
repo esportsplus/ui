@@ -6,6 +6,7 @@ import './scss/index.scss';
 let formatters: Record<string, Intl.NumberFormat> = {};
 
 
+// TODO: Prevent rounding
 export default ({ currency, delay, max, suffix, value }: { currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD', delay?: number, max?: number, suffix?: string, value: number }) => {
     let api = reactive({ value: -1 }),
         formatter = currency === 'IGNORE' ? undefined : formatters[currency || 'USD'] ??= new Intl.NumberFormat('en-US', {
