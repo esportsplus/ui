@@ -1,8 +1,6 @@
 @use '/tokens';
 
 .--color {
-    @include tokens.state-utility('color', tokens.$colors);
-
     &-default {
         --color: var(--color-default);
         --color-active: var(--color-default);
@@ -33,4 +31,6 @@
             --color: var(--color-pressed);
         }
     }
+
+    @include tokens.state-utility('color', tokens.$colors);
 }

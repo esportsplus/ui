@@ -2,8 +2,6 @@
 @use '/tokens';
 
 .--border {
-    @include tokens.state-utility('border-color', tokens.$colors);
-
     &,
     &-bottom,
     &-left,
@@ -68,4 +66,6 @@
             }
         }
     }
+
+    @include tokens.state-utility('border-color', tokens.$colors);
 }
