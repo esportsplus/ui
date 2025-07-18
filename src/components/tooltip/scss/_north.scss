@@ -3,7 +3,6 @@
     &--nw {
         bottom: calc(100% - var(--spacer));
         position: absolute;
-        transform: scale(var(--scaleX), var(--scaleY));
 
         #{$active} {
             transform: translateY(calc(var(--spacer) * -2));
@@ -14,7 +13,7 @@
         bottom: calc(100% - var(--spacer));
         position: absolute;
         right: 50%;
-        transform: translateX(50%) scaleY(var(--scaleY));
+        transform: translateX(50%);
         transform-origin: center bottom;
 
         #{$active} {

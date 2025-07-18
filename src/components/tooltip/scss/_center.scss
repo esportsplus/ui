@@ -3,11 +3,11 @@
         bottom: 50%;
         position: absolute;
         right: 50%;
-        transform: translate(50%, 50%) scale(var(--scaleX), var(--scaleY));
+        transform: translate(50%, 50%);
         transform-origin: center center;
 
         #{$active} {
-            transform: translate(50%, 50%) scale(1);
+            transform: translate(50%, 50%);
         }
     }
 }

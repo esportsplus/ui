@@ -7,6 +7,8 @@ let root = document.body,
     width: number | undefined;
 
 
+// Convert to wrapper object/container instead of manually placing attributes and html
+// Look into scrollbar customization options
 export default ({ attributes, fixed }: { attributes?: Record<string, unknown>, fixed?: boolean } = {}) => {
     let state = reactive({
             height: 100,

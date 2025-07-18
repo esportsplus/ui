@@ -3,7 +3,6 @@
     &--es {
         left: calc(100% - var(--spacer));
         position: absolute;
-        transform: scale(var(--scaleX), var(--scaleY));
 
         #{$active} {
             transform: translateX(calc(var(--spacer) * 2));
@@ -14,11 +13,11 @@
         bottom: 50%;
         left: calc(100% - var(--spacer));
         position: absolute;
-        transform: translateY(50%) scaleX(var(--scaleX));
+        transform: translateY(50%);
         transform-origin: center left;
 
         #{$active} {
-            transform: translate(calc(var(--spacer) * 2), 50%) scale(1);
+            transform: translate(calc(var(--spacer) * 2), 50%);
         }
     }
 

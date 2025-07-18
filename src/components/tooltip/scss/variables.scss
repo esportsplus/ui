@@ -7,10 +7,13 @@
         --box-shadow: var(--box-shadow-400);
         --max-width: calc(90vw - (var(--size-700) * 2));
         --min-width: auto;
-        --scaleX: 0.64;
-        --scaleY: 0.64;
         --spacer: var(--size-300);
         --width: auto;
+    }
+
+    &-arrow {
+        --rotate-from: 0deg;
+        --rotate-to: 90deg;
     }
 
     &-message {
