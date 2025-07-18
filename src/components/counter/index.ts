@@ -3,11 +3,21 @@ import { html } from '@esportsplus/template';
 import './scss/index.scss';
 
 
+type Options = {
+    attributes?: Record<string, unknown>;
+    currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD';
+    decimals?: number;
+    delay?: number;
+    max?: number;
+    suffix?: string;
+    value: number;
+};
+
+
 let formatters: Record<string, Intl.NumberFormat> = {};
 
 
-// TODO: Prevent rounding
-export default ({ currency, decimals, delay, max, suffix, value }: { currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD', decimals?: number, delay?: number, max?: number, suffix?: string, value: number }) => {
+export default ({ attributes, currency, decimals, delay, max, suffix, value }: Options) => {
     let api = reactive({ value: -1 }),
         formatter = currency === 'IGNORE'
             ? undefined
@@ -68,7 +78,7 @@ export default ({ currency, decimals, delay, max, suffix, value }: { currency?: 
 
     return {
         html: html`
-            <div class='counter'>
+            <div class='counter' ${attributes}>
                 ${() => {
                     let n = state.length;
 

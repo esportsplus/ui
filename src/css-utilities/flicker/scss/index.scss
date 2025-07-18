@@ -1,0 +1,15 @@
+@use './variables';
+
+.--flicker {
+    animation: flicker var(--transition-duration) ease-in-out infinite;
+}
+
+@keyframes flicker {
+    0%,
+    100% {
+        opacity: var(--from);
+    }
+    50% {
+        opacity: var(--to);
+    }
+}
