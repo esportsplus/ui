@@ -14,24 +14,25 @@
 // }
 
 $box-shadow: (
-    100: 0 1px 2px 0 color(black 300, 0.64),
+    100: 0 1px 2px 0 color.color('black' 300, 0.64),
     200: #{
-        0 1px 3px 0 color(black 300, 0.64),
-        0 1px 2px -1px color(black 300, 0.64)
+        0 1px 3px 0 color.color('black' 300, 0.64),
+        0 1px 2px -1px color.color('black' 300, 0.64)
     },
     300: #{
-        0 4px 6px -1px color(black 300, 0.64),
-        0 2px 4px -2px color(black 300, 0.64)
+        0 4px 6px -1px color.color('black' 300, 0.64),
+        0 2px 4px -2px color.color('black' 300, 0.64)
     },
     400: #{
-        0 10px 15px -3px color(black 300, 0.64),
-        0 4px 6px -4px color(black 300, 0.64)
+        0 10px 15px -3px color.color('black' 300, 0.64),
+        0 10px 15px -3px color.color('black' 300, 0.64),
+        0 4px 6px -4px color.color('black' 300, 0.64)
     },
     500: #{
-        0 20px 25px -5px color(black 300, 0.64),
-        0 8px 10px -6px color(black 300, 0.64)
+        0 20px 25px -5px color.color('black' 300, 0.64),
+        0 8px 10px -6px color.color('black' 300, 0.64)
     },
-    600: 0 25px 50px -12px color(black 500, 0.64),
+    600: 0 25px 50px -12px color.color('black' 500, 0.64),
 
     glow: #{
         0px 0px 128px 32px var(--box-shadow-color, #fff),
