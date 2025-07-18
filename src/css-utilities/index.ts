@@ -5,6 +5,7 @@ import './border/scss/index.scss';
 import './color/scss/index.scss';
 import './disabled/scss/index.scss';
 import './flex/scss/index.scss';
+import './flicker/scss/index.scss';
 import './glass/scss/index.scss';
 import './hidden/scss/index.scss';
 import './inline/scss/index.scss';
