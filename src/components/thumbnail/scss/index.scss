@@ -2,6 +2,8 @@
 
 .thumbnail {
     background: var(--background);
+    background-size: cover;
+    background-position: center;
     border-radius: var(--border-radius);
     height: var(--height);
     position: relative;
