@@ -8,10 +8,7 @@
     --border-radius: var(--border-radius-400);
     --border-width: 0px;
     --box-shadow: var(--box-shadow-default);
-    --box-shadow-active: var(--box-shadow-300);
     --box-shadow-default: none;
-    --box-shadow-hover: var(--box-shadow-400);
-    --box-shadow-pressed: none;
     --color: var(--color-default);
     --color-default: transparent;
     --font-size: var(--font-size-400);
@@ -24,21 +21,18 @@
     @include tokens.state(active) {
         --background: var(--background-active);
         --border-color: var(--border-color-active);
-        --box-shadow: var(--box-shadow-active);
         --color: var(--color-active);
     }
 
     @include tokens.state(hover) {
         --background: var(--background-hover);
         --border-color: var(--border-color-hover);
-        --box-shadow: var(--box-shadow-hover);
         --color: var(--color-hover);
     }
 
     @include tokens.state(pressed) {
         --background: var(--background-pressed);
         --border-color: var(--border-color-pressed);
-        --box-shadow: var(--box-shadow-pressed);
         --color: var(--color-pressed);
     }
 
