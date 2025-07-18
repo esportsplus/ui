@@ -7,31 +7,38 @@ let formatters: Record<string, Intl.NumberFormat> = {};
 
 
 // TODO: Prevent rounding
-export default ({ currency, delay, max, suffix, value }: { currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD', delay?: number, max?: number, suffix?: string, value: number }) => {
+export default ({ currency, decimals, delay, max, suffix, value }: { currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD', decimals?: number, delay?: number, max?: number, suffix?: string, value: number }) => {
     let api = reactive({ value: -1 }),
-        formatter = currency === 'IGNORE' ? undefined : formatters[currency || 'USD'] ??= new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: currency || 'USD'
-        }),
+        formatter = currency === 'IGNORE'
+            ? undefined
+            : formatters[currency || 'USD'] ??= new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: currency || 'USD'
+            }),
         rendering = true,
         state = reactive({
             length: 0,
             render: [] as string[]
         });
 
+    decimals ??= 2;
+
     effect(() => {
         if (api.value !== -1) {
             value = api.value;
         }
 
-        let padding = (max || value).toFixed(2).length - value.toFixed(2).length,
+        let padding = (max || value).toFixed(decimals).length - value.toFixed(decimals).length,
             values = value.toString().padStart( value.toString().length + padding, '1') as any;
 
         if (formatter) {
             values = formatter.format(values);
         }
         else {
-            values = Number(values).toLocaleString();
+            values = Number(values).toLocaleString([], {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: decimals
+            });
         }
 
         values = values.split('');
