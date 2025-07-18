@@ -1,13 +1,13 @@
 .counter {
     // TODO: Switch to clamped font size css variables
     --font-size: clamp(2rem, 4vw + 1rem, 8rem);
+    --font-weight: var(--font-weight-400);
     --line-height: calc(var(--font-size) * 1.5);
     --mask-size: 0.24;
     --timing-function: var(--timing-bounce-out);
     --transition-duration: 2s;
 
     &-character {
-        --font-weight: var(--font-weight-400);
         --scale: 1;
 
         &--fraction,
