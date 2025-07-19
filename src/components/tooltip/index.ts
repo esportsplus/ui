@@ -3,12 +3,12 @@ import root from '~/components/root';
 import './scss/index.scss';
 
 
-let queue: (VoidFunction | (() => Promise<void>))[] = [],
+let queue: VoidFunction[] = [],
     running = false,
     scheduled = false;
 
 
-async function frame() {
+function frame() {
     if (running) {
         return;
     }
@@ -18,7 +18,7 @@ async function frame() {
     let item;
 
     while (item = queue.pop()) {
-        await item();
+        item();
     }
 
     running = false;
@@ -33,7 +33,7 @@ const onclick = (data: { active?: boolean, toggle?: boolean } = {}) => {
     return {
         attributes: {
             class: () => {
-                return `tooltip ${state.active ? '--active' : ''}`;
+                return `tooltip ${state.active && '--active'}`;
             },
             onclick: function(this: HTMLElement, e: Event) {
                 let active = true,
