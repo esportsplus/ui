@@ -7,13 +7,13 @@
         opacity var(--transition-duration) ease-in-out,
         transform var(--transition-duration) ease-in-out;
     transform-origin: center;
-    width: min(var(--max-width), calc(100svw - (var(--margin-horizontal) * 2)));
+    width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
     z-index: 9;
 
     @include tokens.state(inactive) {
         opacity: 0;
         pointer-events: none;
-        transform: translate(50%, 50%) scale(0.8);
+        transform: translateY(var(--margin-vertical)) scale(0.8);
 
         input[type='password'] {
             display: none;

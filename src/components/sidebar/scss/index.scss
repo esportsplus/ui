@@ -12,7 +12,7 @@
         opacity var(--transition-duration) ease-in-out,
         transform var(--transition-duration) ease-in-out;
     width: min(var(--width), calc(100% - (var(--margin-horizontal) * 2)));
-    z-index: 1;
+    z-index: 9;
 
 
     @include tokens.state(inactive) {
