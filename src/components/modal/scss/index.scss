@@ -4,6 +4,7 @@
 
 .modal {
     @include lib.position(fixed, center);
+    height: auto;
     max-height: var(--max-height);
     overflow: hidden;
     transition:
