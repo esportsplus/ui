@@ -55,6 +55,7 @@
             margin-right: calc(var(--scrollbar-width) * -1);
             overflow-x: hidden;
             overflow-y: scroll;
+            padding-right: var(--scrollbar-width);
             scrollbar-gutter: stable;
             scroll-behavior: smooth;
             width: calc(100% + var(--scrollbar-width));
