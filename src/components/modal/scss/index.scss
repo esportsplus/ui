@@ -3,16 +3,12 @@
 @use './variables.scss';
 
 .modal {
-    @include lib.position(fixed, center);
-    height: auto;
-    max-height: var(--max-height);
-    overflow: hidden;
     transition:
         opacity var(--transition-duration) ease-in-out,
         transform var(--transition-duration) ease-in-out;
     transform-origin: center;
     width: min(var(--max-width), calc(100svw - (var(--margin-horizontal) * 2)));
-    z-index: 2;
+    z-index: 9;
 
     @include tokens.state(inactive) {
         opacity: 0;
