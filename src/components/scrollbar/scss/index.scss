@@ -45,8 +45,10 @@
     &-container {
         display: flex;
         flex-flow: column;
+        height: 100%;
         overflow: hidden;
         position: relative;
+        width: 100%;
 
         &-content {
             height: 100%;
