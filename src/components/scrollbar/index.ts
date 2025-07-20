@@ -17,6 +17,7 @@ export default (data: Record<string, unknown> & { scrollbar?: Record<string, unk
 
     return html`
         <div
+            class='scrollbar-container'
             onscroll='${function(this: HTMLElement) {
                 if (width === undefined) {
                     width = this.offsetWidth - this.clientWidth;
@@ -31,7 +32,9 @@ export default (data: Record<string, unknown> & { scrollbar?: Record<string, unk
             }}'
             ${omit(data, ['scrollbar'])}
         >
-            ${content}
+            <div class="scrollbar-container-content">
+                ${content}
+            </div>
 
             <div
                 class='
