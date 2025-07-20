@@ -1,5 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
+import { omit } from '@esportsplus/utilities';
 import './scss/index.scss';
 
 
@@ -7,19 +8,33 @@ let root = document.body,
     width: number | undefined;
 
 
-// Convert to wrapper object/container instead of manually placing attributes and html
-// Look into scrollbar customization options
-export default ({ attributes, fixed }: { attributes?: Record<string, unknown>, fixed?: boolean } = {}) => {
+// TODO: Look into scrollbar customization options
+export default (data: Record<string, unknown> & { scrollbar?: Record<string, unknown> }, content: unknown) => {
     let state = reactive({
             height: 100,
             translate: 0
         });
 
-    return {
-        html: html`
+    return html`
+        <div
+            onscroll='${function(this: HTMLElement) {
+                if (width === undefined) {
+                    width = this.offsetWidth - this.clientWidth;
+
+                    if (width && width !== 17) {
+                        root.style.setProperty('--scrollbar-width', `${width}px`);
+                    }
+                }
+
+                state.height = (this.clientHeight / this.scrollHeight) * 100;
+                state.translate = (this.scrollTop / this.clientHeight) * 100;
+            }}'
+            ${omit(data, ['scrollbar'])}
+        >
+            ${content}
+
             <div
                 class='
-                    ${fixed && 'scrollbar--fixed'}
                     ${() => state.height >= 100 && 'scrollbar--hidden'}
                     scrollbar
                 '
@@ -27,26 +42,9 @@ export default ({ attributes, fixed }: { attributes?: Record<string, unknown>, f
                     --translate: translate3d(0, ${state.translate}%, 0);
                     --height: ${state.height}%;
                 `}'
-                ${attributes}
+                ${data.scrollbar}
             >
             </div>
-        `,
-        parent: {
-            attributes: {
-                class: 'scrollbar-content',
-                onscroll: function(this: HTMLElement) {
-                    if (width === undefined) {
-                        width = this.offsetWidth - this.clientWidth;
-
-                        if (width && width !== 17) {
-                            root.style.setProperty('--scrollbar-width', `${width}px`);
-                        }
-                    }
-
-                    state.height = (this.clientHeight / this.scrollHeight) * 100;
-                    state.translate = (this.scrollTop / this.clientHeight) * 100;
-                }
-            }
-        }
-    };
+        </div>
+    `;
 };

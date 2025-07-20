@@ -1,4 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
+import { html } from '@esportsplus/template';
+import { isArray, omit } from '@esportsplus/utilities';
 import root from '~/components/root';
 import './scss/index.scss';
 
@@ -25,17 +27,23 @@ function frame() {
 }
 
 
-const onclick = (data: { active?: boolean, toggle?: boolean } = {}) => {
+const onclick = (data: Record<string, unknown> & { active?: boolean, toggle?: boolean }, content: unknown) => {
     let state = reactive({
             active: data.active || false
         });
 
-    return {
-        attributes: {
-            class: () => {
-                return `tooltip ${state.active && '--active'}`;
-            },
-            onclick: function(this: HTMLElement, e: Event) {
+    if (!isArray(data.class)) {
+        data.class = data.class ? [data.class] : [];
+    }
+
+    (data.class as unknown[]).push(() => {
+        return state.active && '--active';
+    });
+
+    return html`
+        <div
+            class='tooltip'
+            onclick='${function(this: HTMLElement, e: Event) {
                 let active = true,
                     node = e.target as Node | null;
 
@@ -57,29 +65,39 @@ const onclick = (data: { active?: boolean, toggle?: boolean } = {}) => {
                     });
                     scheduled = true;
                 }
-            }
-        },
-        state
-    };
+            }}}'
+            ${omit(data, ['active', 'toggle'])}
+        >
+            ${content}
+        </div>
+    `;
 };
 
-const onhover = (active: boolean = false) => {
-    let state = reactive({ active });
+const onhover = (data: Record<string, unknown> & { active?: boolean }, content: unknown) => {
+    let state = reactive({ active: data.active || false });
 
-    return {
-        attributes: {
-            class: () => `tooltip ${state.active ? '--active' : ''}`,
-            onmouseover: () => {
+    if (!isArray(data.class)) {
+        data.class = data.class ? [data.class] : [];
+    }
+
+    (data.class as unknown[]).push(() => {
+        return state.active && '--active';
+    });
+
+    return html`
+        <div
+            class='tooltip'
+            onmouseover='${() => {
                 state.active = true;
-            },
-            onmouseout: () => {
+            }}}'
+            onmouseout='${() => {
                 state.active = false;
-            }
-        },
-        toggle: () => {
-            state.active = !state.active;
-        }
-    };
+            }}'
+            ${omit(data, ['active', 'toggle'])}
+        >
+            ${content}
+        </div>
+    `;
 };
 
 

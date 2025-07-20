@@ -30,6 +30,7 @@ export * as row from './row';
 export { default as scrollbar } from './scrollbar';
 export * as sidebar from './sidebar';
 export { default as site } from './site';
+export { default as svg } from './svg';
 export * as text from './text';
 export * as thumbnail from './thumbnail';
 export { default as tooltip } from './tooltip';

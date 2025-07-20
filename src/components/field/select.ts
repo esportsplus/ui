@@ -1,9 +1,9 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { omit } from '@esportsplus/utilities';
+import { isArray, omit } from '@esportsplus/utilities';
 import form from '~/components/form';
-import scrollbar from '~/components/scrollbar';
 import root from '~/components/root';
+import scrollbar from '~/components/scrollbar';
 import description from './description';
 import error from './error';
 import title from './title';
@@ -26,9 +26,9 @@ type Data<T extends Record<number | string, number | string>> = {
     text?: Record<string, unknown>;
     title?: unknown;
     tooltip?: {
-        direction?: unknown;
+        content?: Record<string, unknown>;
     } & Record<string, unknown>;
-} & Record<string, unknown>;
+} & Parameters<typeof scrollbar>[0] & Record<string, unknown>;
 
 
 const FIELD_OMIT: (keyof Data<any>)[] = [
@@ -42,8 +42,6 @@ const FIELD_OMIT: (keyof Data<any>)[] = [
     'selected', 'scrollbar',
     'tag', 'text', 'title', 'tooltip'
 ];
-
-const TOOLTIP_OMIT: (keyof NonNullable<Data<any>['tooltip']>)[] = ['direction'];
 
 
 function parse(keys: (number | string)[], selected: number | string) {
@@ -63,63 +61,58 @@ function parse(keys: (number | string)[], selected: number | string) {
 
 function template<T extends Record<number | string, number | string>>(data: Data<T>, state: { active: boolean, options: Record<number | string, boolean>, selected: number | string }) {
     data.scrollbar ??= {};
-    data.scrollbar.style = data.scrollbar.style || '--background-default: var(--color-black-400);';
-
+    data.scrollbar.style ??= '--background-default: var(--color-black-400);';
     data.tooltip ??= {};
-    data.tooltip.class = `tooltip-content--${data.tooltip?.direction || 's'} ${data.tooltip?.class || ''}`;
-    data.tooltip.direction ??= 's';
 
-    let { html: h, parent: { attributes: a } } = scrollbar({
-            attributes: data.scrollbar,
-            fixed: true
-        });
+    let content = data.tooltip.content ??= {};
 
-    return html`
+    if (isArray(content.class)) {
+        content.class.push('tooltip-content tooltip-content--s --flex-column --width-full');
+    }
+    else {
+        content.class = [content.class, 'tooltip-content tooltip-content--s --flex-column --width-full'];
+    }
+
+    content.scrollbar = data.scrollbar;
+
+    return scrollbar(content, html`
         <div
-            class='tooltip-content --flex-column --width-full'
-            ${omit(data.tooltip, TOOLTIP_OMIT)}
+            class='row --flex-column'
+            onclick='${(e: Event) => {
+                let key = (e?.target as HTMLElement)?.dataset?.key;
+
+                if (key === undefined) {
+                    return;
+                }
+
+                state.options[key] = true;
+                state.options[state.selected] = false;
+
+                state.active = false;
+                state.selected = key;
+
+                if (data.effect) {
+                    data.effect(key);
+                }
+            }}'
         >
-            <div
-                class='row --flex-column'
-                onclick='${(e: Event) => {
-                    let key = (e?.target as HTMLElement)?.dataset?.key;
-
-                    if (key === undefined) {
-                        return;
-                    }
-
-                    state.options[key] = true;
-                    state.options[state.selected] = false;
-
-                    state.active = false;
-                    state.selected = key;
-
-                    if (data.effect) {
-                        data.effect(key);
-                    }
-                }}'
-                ${a}
-            >
-                ${Object.keys( data.options || {} ).map((key: number | string) => html`
-                    <div
-                        class='
-                            ${() => state.options[key] && '--active'}
-                            link
-                            --flex-vertical
-                        '
-                        data-key='${key}'
-                        ${data.option}
-                    >
-                        <span class='--text-truncate'>
-                            ${data.options[key]}
-                        </span>
-                    </div>
-                `)}
-            </div>
-
-            ${h}
+            ${Object.keys( data.options || {} ).map((key: number | string) => html`
+                <div
+                    class='
+                        ${() => state.options[key] && '--active'}
+                        link
+                        --flex-vertical
+                    '
+                    data-key='${key}'
+                    ${data.option}
+                >
+                    <span class='--text-truncate'>
+                        ${data.options[key]}
+                    </span>
+                </div>
+            `)}
         </div>
-    `;
+    `);
 }
 
 

@@ -1,28 +1,19 @@
-import { html } from '@esportsplus/template';
+import { isArray } from '@esportsplus/utilities';
 import { onclick } from '~/components/root';
 import scrollbar from '~/components/scrollbar';
 import './scss/index.scss';
 
 
-type Data = {
-    attributes?: Record<string, unknown>;
-    content?: any;
-    scrollbar?: Parameters<typeof scrollbar>[0];
-};
+export default (data: Parameters<typeof scrollbar>[0], content: unknown) => {
+    data.style ??= '--background-default: var(--color-black-400);';
 
+    if (!isArray(data.class)) {
+        data.class = data.class ? [data.class] : [];
+    }
 
-export default ({ attributes, content, scrollbar: sb }: Data) => {
-    sb ??= {};
-    sb.attributes ??= {};
-    sb.attributes.style ??= '--background-default: var(--color-black-400);';
-    sb.fixed ??= true;
+    (data.class as unknown[]).push('site');
 
-    let { html: h, parent } = scrollbar(sb);
+    data.onclick = onclick;
 
-    return html`
-        <section class='site' ${attributes} ${{ onclick }} ${parent.attributes}>
-            ${content || ''}
-            ${h}
-        </section>
-    `;
+    return scrollbar(data, content);
 };

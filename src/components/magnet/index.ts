@@ -42,12 +42,16 @@ export default ({ attributes, hide }: { attributes?: Record<string, unknown>, hi
 
     return {
         html: html`
-            <div class='magnet' style='${() => `
-                height: ${state.height ? `${state.height}px` : '100%'};
-                opacity: ${state.opacity};
-                transform: translate(${state.left}px, ${state.top}px);
-                width: ${state.width}px;
-            `}' ${attributes}></div>
+            <div
+                class='magnet'
+                style='${() => `
+                    height: ${state.height ? `${state.height}px` : '100%'};
+                    opacity: ${state.opacity};
+                    transform: translate(${state.left}px, ${state.top}px);
+                    width: ${state.width}px;
+                `}'
+                ${attributes}
+            ></div>
         `,
         sibling: {
             attributes: events
