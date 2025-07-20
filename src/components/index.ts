@@ -28,7 +28,7 @@ export { default as page } from './page';
 export { default as root } from './root';
 export * as row from './row';
 export { default as scrollbar } from './scrollbar';
-export * as sidebar from './sidebar';
+export { default as sidebar } from './sidebar';
 export { default as site } from './site';
 export * as text from './text';
 export * as thumbnail from './thumbnail';
