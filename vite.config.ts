@@ -5,6 +5,7 @@ import autoprefixer from 'autoprefixer';
 
 export default defineConfig({
     build: {
+        cssMinify: 'lightningcss',
         outDir: 'build',
         rollupOptions: {
             input: [
@@ -65,6 +66,7 @@ export default defineConfig({
             plugins: [
                 autoprefixer()
             ]
-        }
+        },
+        transformer: 'lightningcss'
     },
 });
