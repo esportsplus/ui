@@ -1,0 +1,23 @@
+@use '/lib';
+@use '/tokens';
+@use './variables.scss';
+
+.overlay {
+    @include lib.position(fixed, full);
+    cursor: default;
+    overflow: hidden;
+    z-index: 1;
+
+
+    @include tokens.state(inactive) {
+        input[type='password'] {
+            display: none;
+        }
+    }
+
+
+    &-content {
+        flex: 0 0 var(--width-default);
+        width: var(--width-default);
+    }
+}
