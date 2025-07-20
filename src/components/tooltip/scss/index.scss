@@ -10,14 +10,12 @@
 .tooltip {
     cursor: pointer;
     position: relative;
-    z-index: 8;
+    z-index: 0;
 
     @include tokens.state(active) {
-        z-index: 9;
-
         // Add invisible box to increase activation/hover area
         &.tooltip--box {
-            $size: calc(100% + var(--spacer) * 2.5);
+            $size: calc(100% + var(--spacer) * 3);
 
             &::before {
                 @include lib.position(absolute, center);
@@ -33,6 +31,10 @@
         > .tooltip-arrow {
             transform: rotate(var(--rotate-to));
         }
+    }
+
+    @include tokens.state(active hover) {
+        z-index: 9;
     }
 
 
