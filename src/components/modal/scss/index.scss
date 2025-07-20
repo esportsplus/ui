@@ -13,7 +13,7 @@
     @include tokens.state(inactive) {
         opacity: 0;
         pointer-events: none;
-        transform: translateY(var(--margin-vertical)) scale(0.8);
+        transform: translateY(var(--translateY));
 
         input[type='password'] {
             display: none;
