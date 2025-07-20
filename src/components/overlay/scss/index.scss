@@ -1,6 +1,5 @@
 @use '/lib';
 @use '/tokens';
-@use './variables.scss';
 
 .overlay {
     @include lib.position(fixed, full);
