@@ -18,21 +18,23 @@ export default (data: Record<string, unknown> & { scrollbar?: Record<string, unk
     return html`
         <div
             class='scrollbar-container'
-            onscroll='${function(this: HTMLElement) {
-                if (width === undefined) {
-                    width = this.offsetWidth - this.clientWidth;
-
-                    if (width && width !== 17) {
-                        root.style.setProperty('--scrollbar-width', `${width}px`);
-                    }
-                }
-
-                state.height = (this.clientHeight / this.scrollHeight) * 100;
-                state.translate = (this.scrollTop / this.clientHeight) * 100;
-            }}'
             ${omit(data, ['scrollbar'])}
         >
-            <div class="scrollbar-container-content">
+            <div
+                class='scrollbar-container-content'
+                onscroll='${function(this: HTMLElement) {
+                    if (width === undefined) {
+                        width = this.offsetWidth - this.clientWidth;
+
+                        if (width && width !== 17) {
+                            root.style.setProperty('--scrollbar-width', `${width}px`);
+                        }
+                    }
+
+                    state.height = (this.clientHeight / this.scrollHeight) * 100;
+                    state.translate = (this.scrollTop / this.clientHeight) * 100;
+                }}'
+            >
                 ${content}
             </div>
 
