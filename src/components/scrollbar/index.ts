@@ -9,7 +9,7 @@ let root = document.body,
 
 
 // TODO: Look into scrollbar customization options
-export default (data: Record<string, unknown> & { scrollbar?: Record<string, unknown> }, content: unknown) => {
+export default (attributes: Record<string, unknown> & { content?: Record<string, unknown>, scrollbar?: Record<string, unknown> }, content: unknown) => {
     let state = reactive({
             height: 100,
             translate: 0
@@ -18,7 +18,7 @@ export default (data: Record<string, unknown> & { scrollbar?: Record<string, unk
     return html`
         <div
             class='scrollbar-container'
-            ${omit(data, ['scrollbar'])}
+            ${omit(attributes, ['content', 'scrollbar'])}
         >
             <div
                 class='scrollbar-container-content'
@@ -34,6 +34,7 @@ export default (data: Record<string, unknown> & { scrollbar?: Record<string, unk
                     state.height = (this.clientHeight / this.scrollHeight) * 100;
                     state.translate = (this.scrollTop / this.clientHeight) * 100;
                 }}'
+                ${attributes.content}
             >
                 ${content}
             </div>
@@ -47,7 +48,7 @@ export default (data: Record<string, unknown> & { scrollbar?: Record<string, unk
                     --translate: translate3d(0, ${state.translate}%, 0);
                     --height: ${state.height}%;
                 `}'
-                ${data.scrollbar}
+                ${attributes.scrollbar}
             >
             </div>
         </div>
