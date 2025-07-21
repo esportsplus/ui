@@ -10,7 +10,7 @@ import title from './title';
 type Data = {
     accept?: string;
     class?: string;
-    description?: unknown;
+    description?: Parameters<typeof description>[0]['description'];
     mask?: {
         content?: unknown;
     } & Record<string, unknown>;
@@ -19,7 +19,7 @@ type Data = {
     required?: boolean;
     style?: string;
     tag?: Record<string, unknown>;
-    title?: unknown;
+    title?: Parameters<typeof title>[0]['title'];
     value?: unknown;
 } & Record<string, unknown>;
 

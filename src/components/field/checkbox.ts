@@ -7,7 +7,7 @@ import description from './description';
 type Data = {
     class?: string;
     content?: unknown;
-    description?: unknown;
+    description?: Parameters<typeof description>[0]['description'];
     mask?: Record<string, unknown>;
     name?: string;
     style?: string;

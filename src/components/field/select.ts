@@ -12,7 +12,7 @@ import title from './title';
 type Data<T extends Record<number | string, number | string>> = {
     class?: string;
     content?: unknown;
-    description?: unknown;
+    description?: Parameters<typeof description>[0]['description'];
     effect?: (selected: number | string) => void;
     mask?: Record<string, unknown>;
     name?: string;
@@ -24,7 +24,7 @@ type Data<T extends Record<number | string, number | string>> = {
     style?: string;
     tag?: Record<string, unknown>;
     text?: Record<string, unknown>;
-    title?: unknown;
+    title?: Parameters<typeof title>[0]['title'];
     tooltip?: {
         content?: Record<string, unknown>;
     } & Record<string, unknown>;
