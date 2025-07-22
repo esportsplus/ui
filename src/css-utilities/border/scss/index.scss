@@ -19,5 +19,9 @@
 
     &-radius {
         border-radius: var(--border-radius);
+
+        &-circle {
+            aspect-ratio: 1;
+        }
     }
 }
