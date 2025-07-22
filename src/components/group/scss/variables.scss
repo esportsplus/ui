@@ -1,7 +1,9 @@
 .group {
     --margin-horizontal: var(--size-400);
-    --width: auto;
 
+    &-item {
+        --width: auto;
+    }
 
     &.--flex-column {
         .group-item {
