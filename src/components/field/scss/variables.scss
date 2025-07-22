@@ -104,7 +104,7 @@
     }
 
     &-required {
-        --border-radius: var(--border-radius-circle);
+        --border-radius: 100%;
         --size: 6px;
     }
 

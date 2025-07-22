@@ -3,6 +3,7 @@
 
 @mixin css() {
     &-mask {
+
         &--checkbox,
         &--radio,
         &--switch {
@@ -82,6 +83,7 @@
 }
 
 @mixin variables() {
+
     label#{&},
     #{tokens.state(inactive, '.field:not(label)')} &-mask {
         @include tokens.state(hover) {
@@ -104,6 +106,7 @@
     }
 
     &-mask {
+
         &--checkbox,
         &--radio,
         &--switch {
@@ -163,7 +166,7 @@
         &--radio,
         &--switch {
             &::before {
-                --box-shadow: 0 1px 0 rgba(0,0,0, 0.16);
+                --box-shadow: 0 1px 0 rgba(0, 0, 0, 0.16);
             }
         }
 
@@ -176,7 +179,7 @@
             --scale-pressed: 0.98;
 
             &::before {
-                --box-shadow: 1px 1px 0 rgba(0,0,0, 0.16);
+                --box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.16);
                 --border-width: 5px;
                 --height: 110%;
                 --translateX: 108%;
@@ -190,7 +193,7 @@
         }
 
         &--radio {
-            --border-radius: var(--border-radius-circle);
+            --border-radius: 100%;
             --opacity-active: 1;
             --opacity-default: 0.4;
             --scale-active: 0.9;
@@ -207,7 +210,7 @@
         }
 
         &--switch {
-            --border-radius: var(--border-radius-curved);
+            --border-radius: 240px;
             --padding-horizontal: var(--border-width-400);
             --padding-vertical: var(--border-width-400);
             --width: var(--width-switch);
