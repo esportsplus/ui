@@ -51,7 +51,10 @@
         width: 100%;
 
         &-content {
+            display: flex;
+            flex-wrap: wrap;
             height: 100%;
+            justify-content: flex-start;
             margin-right: calc(var(--scrollbar-width) * -1);
             overflow-x: hidden;
             overflow-y: scroll;

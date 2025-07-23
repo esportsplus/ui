@@ -3,6 +3,7 @@
 @use './variables.scss';
 
 .modal {
+    margin: auto;
     transition:
         opacity var(--transition-duration) ease-in-out,
         transform var(--transition-duration) ease-in-out;
