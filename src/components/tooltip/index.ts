@@ -51,7 +51,11 @@ const onclick = (data: Record<string, unknown> & { active?: boolean, toggle?: bo
                     active = !state.active;
                 }
 
-                frame();
+                if (this.parentElement?.closest('.tooltip')) {}
+                else {
+                    frame();
+                }
+
                 state.active = active;
 
                 if (active) {
