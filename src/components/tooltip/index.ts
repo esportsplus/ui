@@ -27,11 +27,10 @@ function frame() {
 }
 
 
-const onclick = (data: Record<string, unknown> & { active?: boolean, toggle?: boolean }, content: unknown) => {
-    let state = reactive({
-            active: data.active || false
-        });
-
+const onclick = (
+    data: Record<string, unknown> & { toggle?: boolean }, content: unknown,
+    state: { active: boolean } = reactive({ active: false })
+) => {
     if (!isArray(data.class)) {
         data.class = data.class ? [data.class] : [];
     }
@@ -77,9 +76,11 @@ const onclick = (data: Record<string, unknown> & { active?: boolean, toggle?: bo
     `;
 };
 
-const onhover = (data: Record<string, unknown> & { active?: boolean }, content: unknown) => {
-    let state = reactive({ active: data.active || false });
-
+const onhover = (
+    data: Record<string, unknown>,
+    content: unknown,
+    state: { active: boolean } = reactive({ active: false })
+) => {
     if (!isArray(data.class)) {
         data.class = data.class ? [data.class] : [];
     }
