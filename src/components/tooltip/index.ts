@@ -54,9 +54,6 @@ const onclick = (
         <div
             class='tooltip'
             onclick='${function(this: HTMLElement, e: Event) {
-                e.preventDefault();
-                e.stopPropagation();
-
                 let active = true,
                     node = e.target as Node | null;
 
