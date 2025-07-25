@@ -1,11 +1,12 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { isArray, omit } from '@esportsplus/utilities';
-import root from '~/components/root';
+import { root } from '@esportsplus/ui';
 import './scss/index.scss';
 
 
-let queue: VoidFunction[] = [],
+let parent: HTMLElement | null | undefined = null,
+    queue: { fn: VoidFunction, tooltip: HTMLElement }[] = [],
     running = false,
     scheduled = false;
 
@@ -17,10 +18,20 @@ function frame() {
 
     running = true;
 
-    let item;
+    let item,
+        keep;
 
     while (item = queue.pop()) {
-        item();
+        if (parent === item.tooltip) {
+            keep = item;
+            continue;
+        }
+
+        item.fn();
+    }
+
+    if (keep) {
+        queue.push(keep);
     }
 
     running = false;
@@ -46,19 +57,28 @@ const onclick = (
                 let active = true,
                     node = e.target as Node | null;
 
-                if (data.toggle && ( this.contains(node) || this.isSameNode(node) )) {
+                if (this === node || (data.toggle && this.contains(node))) {
                     active = !state.active;
                 }
 
-                if (this.parentElement?.closest('.tooltip')) {}
-                else {
-                    frame();
+                if (parent !== this && !parent?.contains(this)) {
+                    parent = this.parentElement?.closest('.tooltip');
+                }
+
+                frame();
+
+                if (parent === this) {
+                    parent = null;
+                    return;
                 }
 
                 state.active = active;
 
                 if (active) {
-                    queue.push(() => state.active = false);
+                    queue.push({
+                        fn: () => state.active = false,
+                        tooltip: this
+                    });
                 }
 
                 if (!scheduled) {
