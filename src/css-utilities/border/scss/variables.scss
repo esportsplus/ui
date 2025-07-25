@@ -28,14 +28,6 @@
                 --border-radius: var(--border-radius-#{$key});
             }
         }
-
-        &-circle {
-            --border-radius: 100%;
-        }
-
-        &-curved {
-            --border-radius: 240px;
-        }
     }
 
     &-default {
