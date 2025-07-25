@@ -1,16 +1,16 @@
-// https://www.fluid-type-scale.com/calculate?minFontSize=12&minWidth=400&minRatio=1.16&maxFontSize=14&maxWidth=1400&maxRatio=1.32&steps=100%2C200%2C300%2C400%2C500%2C600%2C700%2C800%2C900&baseStep=400&prefix=-&useContainerWidth=false&includeFallbacks=false&useRems=true&remValue=16&decimals=2&previewFont=Montserrat&previewText=Almost+before+we+knew+it%2C+we+had+left+the+ground&previewWidth=1400
+// https://www.fluid-type-scale.com/calculate?minFontSize=14.24&minWidth=400&minRatio=1.16&maxFontSize=14.32&maxWidth=800&maxRatio=1.32&steps=100%2C200%2C300%2C400%2C500%2C600%2C700%2C800%2C900&baseStep=400&prefix=-&useContainerWidth=false&includeFallbacks=false&useRems=true&remValue=16&decimals=2&previewFont=Montserrat&previewText=Almost+before+we+knew+it%2C+we+had+left+the+ground&previewWidth=400
 $font-size: (
-    100: clamp(0.48rem, -0.16vi + 0.52rem, 0.38rem),
-    200: clamp(0.56rem, -0.09vi + 0.58rem, 0.5rem),
-    300: clamp(0.65rem, 0.03vi + 0.64rem, 0.66rem),
-    400: clamp(0.75rem, 0.2vi + 0.7rem, 0.88rem),
-    500: clamp(0.87rem, 0.46vi + 0.76rem, 1.16rem),
+    100: clamp(0.57rem, -0.72vi + 0.75rem, 0.39rem),
+    200: clamp(0.66rem, -0.59vi + 0.81rem, 0.51rem),
+    300: clamp(0.77rem, -0.36vi + 0.86rem, 0.68rem),
+    400: clamp(0.89rem, 0.02vi + 0.89rem, 0.9rem),
+    500: clamp(1.03rem, 0.6vi + 0.88rem, 1.18rem),
 
     // Primarily Used For Headers h1 - h4
-    600: clamp(1.01rem, 0.82vi + 0.8rem, 1.52rem),
-    700: clamp(1.17rem, 1.35vi + 0.83rem, 2.01rem),
-    800: clamp(1.36rem, 2.08vi + 0.84rem, 2.66rem),
-    900: clamp(1.58rem, 3.09vi + 0.8rem, 3.51rem),
-);
+    600: clamp(1.2rem, 1.45vi + 0.84rem, 1.56rem),
+    700: clamp(1.39rem, 2.68vi + 0.72rem, 2.06rem),
+    800: clamp(1.61rem, 4.42vi + 0.51rem, 2.72rem),
+    900: clamp(1.87rem, 6.87vi + 0.15rem, 3.59rem),
+),
 
 
