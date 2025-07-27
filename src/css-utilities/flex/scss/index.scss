@@ -2,7 +2,7 @@
     &-center {
         align-content: center;
         display: flex;
-        flex-wrap: wrap;
+        flex-flow: row wrap;
         justify-content: center;
     }
 
@@ -13,7 +13,7 @@
 
     &-end {
         display: flex;
-        flex-wrap: wrap;
+        flex-flow: row wrap;
         justify-content: flex-end;
     }
 
@@ -30,12 +30,12 @@
 
     &-horizontal {
         display: flex;
-        flex-wrap: wrap;
+        flex-flow: row wrap;
         justify-content: center;
 
         &-space-between {
             display: flex;
-            flex-wrap: wrap;
+            flex-flow: row wrap;
             justify-content: space-between;
         }
     }
@@ -47,19 +47,19 @@
 
     &-start {
         display: flex;
-        flex-wrap: wrap;
+        flex-flow: row wrap;
         justify-content: flex-start;
     }
 
     &-vertical {
         align-items: center;
         display: flex;
-        flex-wrap: wrap;
+        flex-flow: row wrap;
 
         &-space-between {
             align-items: space-between;
             display: flex;
-            flex-wrap: wrap;
+            flex-flow: row wrap;
         }
     }
 }

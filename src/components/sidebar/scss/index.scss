@@ -1,6 +1,6 @@
 @use '/lib';
 @use '/tokens';
-@use './variables.scss';
+@use 'variables';
 
 .sidebar {
     @include lib.position(absolute, var(--margin-vertical) null var(--margin-vertical) null);

@@ -1,14 +1,13 @@
 @use '/lib';
 @use '/tokens';
 @use 'check' as check;
-@use 'normalize' as *;
+@use 'normalize';
 @use 'text' as text;
-@use './variables.scss';
-
-@include normalize();
+@use 'variables';
 
 .field {
     display: flex;
+    flex-flow: column;
     gap: var(--margin-vertical) var(--margin-horizontal);
     position: relative;
     transition:
@@ -26,25 +25,6 @@
 
     @include tokens.state(active) {
         z-index: 9;
-    }
-
-
-    &--optional {
-        max-height: var(--max-height);
-        opacity: 0;
-        pointer-events: none;
-        transition:
-            background var(--transition-duration) ease-in-out,
-            border-color var(--transition-duration) ease-in-out,
-            box-shadow var(--transition-duration) ease-in-out,
-            color var(--transition-duration) ease-in-out,
-            max-height var(--transition-duration) ease-in-out,
-            opacity var(--transition-duration) ease-in-out;
-
-        #{tokens.state(active, '.field')} & {
-            opacity: 1;
-            pointer-events: auto;
-        }
     }
 
 
@@ -94,7 +74,6 @@
     }
 
     &-mask {
-
         // Pseudo Element Box Shadow
         &::after {
             @include lib.position(absolute, full);
@@ -129,6 +108,18 @@
                 z-index: 1;
             }
         }
+
+        &-tag {
+            &--hidden {
+                @include lib.position(absolute, 0 null null 0);
+                appearance: none;
+                height: 0px;
+                opacity: 0;
+                pointer-events: none;
+                width: 0px;
+                z-index: -1;
+            }
+        }
     }
 
     &-required {
@@ -136,18 +127,6 @@
         border-radius: var(--border-radius);
         height: var(--size);
         width: var(--size);
-    }
-
-    &-tag {
-        &--hidden {
-            @include lib.position(absolute, 0 null null 0);
-            appearance: none;
-            height: 0px;
-            opacity: 0;
-            pointer-events: none;
-            width: 0px;
-            z-index: -1;
-        }
     }
 
     &-title {

@@ -1,14 +1,14 @@
-import { isArray } from '@esportsplus/utilities';
+import { toArray } from '@esportsplus/utilities';
 import scrollbar from '~/components/scrollbar';
+import template from '~/components/template';
 import './scss/index.scss';
 
 
-export default (data: Parameters<typeof scrollbar>[0], content: unknown) => {
-    if (!isArray(data.class)) {
-        data.class = data.class ? [data.class] : [];
+export default template.factory<Parameters<typeof scrollbar>[0]>(
+    (attributes, content) => {
+        attributes.class = toArray(attributes.class);
+        attributes.class.push('sidebar');
+
+        return scrollbar(attributes, content);
     }
-
-    (data.class as unknown[]).push('sidebar');
-
-    return scrollbar(data, content);
-};
+);

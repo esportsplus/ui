@@ -1,9 +1,9 @@
-import { html } from '@esportsplus/template';
+import { html, Attributes } from '@esportsplus/template';
 import './scss/index.scss';
 
 
-export default (attributes?: Record<string, string>) => html`
-    <div class="ellipsis" ${attributes}>
+export default (attributes?: Attributes) => html`
+    <div class='ellipsis' ${attributes}>
         <span></span>
         <span></span>
         <span></span>

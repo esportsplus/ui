@@ -1,5 +1,5 @@
 @use '/tokens';
-@use './variables.scss';
+@use 'variables';
 
 .anchor {
     max-height: calc(var(--max-height, 100%) - (var(--margin-vertical) * 2));

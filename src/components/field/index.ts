@@ -1,11 +1,10 @@
 import checkbox from './checkbox';
-import file from './file';
-import optional from './optional';
+import description from './description';
 import select from './select';
-import s from './switch';
-import textarea from './textarea';
-import text from './text';
+import input from './input';
+import title from './title';
 import './scss/index.scss';
 
 
-export default { checkbox, file, optional, select, switch: s, textarea, text };
+// export default { checkbox, description, file, select, switch: s, textarea, text, title };
+// export { checkbox, description, file, select, s as switch, textarea, text, title };

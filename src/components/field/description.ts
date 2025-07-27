@@ -1,14 +1,11 @@
-import { html } from '@esportsplus/template';
+import { html, type Attributes } from '@esportsplus/template';
+import template from '~/components/template';
 
 
-export default (data: { description?: { attributes?: Record<string, unknown>, content: unknown; } }) => {
-    if (!data?.description) {
-        return '';
-    }
-
-    return html`
-        <div class='field-description' ${data.description.attributes}>
-            ${data.description.content}
+export default template.factory<Attributes>(
+    (attributes, content) => html`
+        <div class='field-description' ${attributes}>
+            ${content}
         </div>
-    `;
-}
+    `
+);

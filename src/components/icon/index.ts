@@ -1,11 +1,14 @@
-import { html, svg } from '@esportsplus/template';
+import { html, Attributes, svg } from '@esportsplus/template';
+import template from '~/components/template';
 import './scss/index.scss';
 
 
-export default (attributes: Record<string, unknown>, icon: Parameters<typeof svg.sprite>[0]) => {
-    return html`
-        <div class='icon' ${attributes}>
-            ${svg.sprite(icon)}
-        </div>
-    `;
-};
+export default template.factory<Attributes, Parameters<typeof svg.sprite>[0]>(
+    (attributes, icon) => {
+        return html`
+            <div class='icon' ${attributes}>
+                ${svg.sprite(icon)}
+            </div>
+        `;
+    }
+);

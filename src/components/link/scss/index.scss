@@ -1,6 +1,6 @@
 @use '/lib';
 @use '/tokens';
-@use './variables.scss';
+@use 'variables';
 
 .link {
     align-content: center;
@@ -21,25 +21,6 @@
         opacity var(--transition-duration) ease-in-out;
     width: var(--width);
 
-
-    &--hover {
-        &.tooltip,
-        &:not(.--active) {
-            &:hover {
-                .link-hover {
-                    &--one {
-                        opacity: 0;
-                        transform: translateY(-75%);
-                    }
-
-                    &--two {
-                        opacity: 1;
-                        transform: translate(50%, 50%);
-                    }
-                }
-            }
-        }
-    }
 
     &--underline {
         @include tokens.state(active hover) {

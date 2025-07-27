@@ -1,7 +1,8 @@
 import { reactive } from '@esportsplus/reactivity';
-import { html } from '@esportsplus/template';
-import { isArray, omit } from '@esportsplus/utilities';
+import { html, type Attributes } from '@esportsplus/template';
+import { omit, toArray } from '@esportsplus/utilities';
 import { root } from '@esportsplus/ui';
+import template from '~/components/template';
 import './scss/index.scss';
 
 
@@ -38,92 +39,121 @@ function frame() {
 }
 
 
-const onclick = (
-    data: Record<string, unknown> & { toggle?: boolean }, content: unknown,
-    state: { active: boolean } = reactive({ active: false })
-) => {
-    if (!isArray(data.class)) {
-        data.class = data.class ? [data.class] : [];
+const menu = template.factory<
+    Attributes & {
+        options: (Attributes & { content: unknown })[],
+        option?: Attributes,
+        state?: { active: boolean },
+        toggle?: boolean,
+        'tooltip-content': Attributes & { direction?: string }
     }
-
-    (data.class as unknown[]).push(() => {
-        return state.active && '--active';
-    });
-
-    return html`
-        <div
-            class='tooltip'
-            onclick='${function(this: HTMLElement, e: Event) {
-                let active = true,
-                    node = e.target as Node | null;
-
-                if (this === node || (data.toggle && this.contains(node))) {
-                    active = !state.active;
-                }
-
-                if (parent !== this && !parent?.contains(this)) {
-                    parent = this.parentElement?.closest('.tooltip');
-                }
-
-                frame();
-
-                if (parent === this) {
-                    parent = null;
-                    return;
-                }
-
-                state.active = active;
-
-                if (active) {
-                    queue.push({
-                        fn: () => state.active = false,
-                        tooltip: this
-                    });
-                }
-
-                if (!scheduled) {
-                    root.onclick.push(() => {
-                        frame();
-                        scheduled = false;
-                    });
-                    scheduled = true;
-                }
-            }}}'
-            ${omit(data, ['active', 'toggle'])}
-        >
+>(
+    (attributes, content) => onclick(
+        omit(attributes, ['options', 'option', 'tooltip-content']),
+        html`
             ${content}
-        </div>
-    `;
-};
 
-const onhover = (
-    data: Record<string, unknown>,
-    content: unknown,
-    state: { active: boolean } = reactive({ active: false })
-) => {
-    if (!isArray(data.class)) {
-        data.class = data.class ? [data.class] : [];
+            <div
+                class='tooltip-content ${`tooltip-content--${attributes['tooltip-content']?.direction || 'nw'}`}'
+                ${omit(attributes['tooltip-content'], ['direction'])}
+            >
+                ${attributes.options.map((option) => html`
+                    <div
+                        class='link --width-full'
+                        ${omit(option, ['content'])}
+                        ${attributes.option}
+                    >
+                        ${option.content}
+                    </div>
+                `)}
+            </div>
+        `
+    )
+);
+
+const onclick = template.factory<Attributes & { state?: { active: boolean }, toggle?: boolean }>(
+    (attributes, content) => {
+        let state = attributes.state || reactive({ active: false });
+
+        attributes.class = toArray(attributes.class);
+        attributes.class.push(() => {
+            return state.active && '--active';
+        });
+
+        attributes.onclick = function(this: HTMLElement, e) {
+            let active = true,
+                node = e.target as Node | null;
+
+            if (this === node || (attributes.toggle && this.contains(node))) {
+                active = !state.active;
+            }
+
+            if (parent !== this && !parent?.contains(this)) {
+                parent = this.parentElement?.closest('.tooltip');
+            }
+
+            frame();
+
+            if (parent === this) {
+                parent = null;
+                return;
+            }
+
+            state.active = active;
+
+            if (active) {
+                queue.push({
+                    fn: () => state.active = false,
+                    tooltip: this
+                });
+            }
+
+            if (!scheduled) {
+                root.onclick.push(() => {
+                    frame();
+                    scheduled = false;
+                });
+                scheduled = true;
+            }
+        };
+
+        return html`
+            <div
+                class='tooltip'
+                ${omit(attributes, ['state', 'toggle'])}
+            >
+                ${content}
+            </div>
+        `;
     }
+);
 
-    (data.class as unknown[]).push(() => {
-        return state.active && '--active';
-    });
+const onhover = template.factory<Attributes & { state?: { active: boolean } }>(
+    (attributes, content) => {
+        let state = attributes.state || reactive({ active: false });
 
-    return html`
-        <div
-            class='tooltip'
-            onmouseover='${() => {
-                state.active = true;
-            }}}'
-            onmouseout='${() => {
-                state.active = false;
-            }}'
-            ${omit(data, ['active', 'toggle'])}
-        >
-            ${content}
-        </div>
-    `;
-};
+        attributes.class = toArray(attributes.class);
+        attributes.class.push(() => {
+            return state.active && '--active';
+        });
+
+        attributes.onmouseover = () => {
+            state.active = true;
+        };
+        attributes.onmouseout = () => {
+            state.active = false;
+        };
+
+        return html`
+            <div
+                class='tooltip'
+                ${omit(attributes, ['active', 'state', 'toggle'])}
+            >
+                ${content}
+            </div>
+        `;
+    }
+);
 
 
-export default { onclick, onhover };
+export default { menu, onclick, onhover };

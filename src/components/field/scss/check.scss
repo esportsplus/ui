@@ -3,7 +3,6 @@
 
 @mixin css() {
     &-mask {
-
         &--checkbox,
         &--radio,
         &--switch {
@@ -38,7 +37,7 @@
             }
 
             // Hide HTML Field Element
-            .field-tag {
+            .field-mask-tag {
                 @include lib.position(absolute, 0 null null 0);
                 height: 0px;
                 opacity: 0;
@@ -83,7 +82,6 @@
 }
 
 @mixin variables() {
-
     label#{&},
     #{tokens.state(inactive, '.field:not(label)')} &-mask {
         @include tokens.state(hover) {
@@ -106,7 +104,6 @@
     }
 
     &-mask {
-
         &--checkbox,
         &--radio,
         &--switch {

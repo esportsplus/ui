@@ -1,7 +1,9 @@
 .frame {
+    cursor: default;
     display: none;
     flex-wrap: wrap;
     justify-content: flex-start;
+    max-width: 100%;
     position: relative;
     width: 100%;
 

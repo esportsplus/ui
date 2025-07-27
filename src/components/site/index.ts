@@ -1,19 +1,19 @@
-import { isArray } from '@esportsplus/utilities';
+import { toArray } from '@esportsplus/utilities';
 import { onclick } from '~/components/root';
 import scrollbar from '~/components/scrollbar';
+import template from '~/components/template';
 import './scss/index.scss';
 
 
-export default (data: Parameters<typeof scrollbar>[0], content: unknown) => {
-    data.style ??= '--background-default: var(--color-black-400);';
+export default template.factory<Parameters<typeof scrollbar>[0]>(
+    (attributes, content) => {
+        attributes.class = toArray(attributes.class);
+        attributes.class.push('site');
 
-    if (!isArray(data.class)) {
-        data.class = data.class ? [data.class] : [];
+        attributes.onclick = onclick;
+
+        attributes.style ??= '--background-default: var(--color-black-400);';
+
+        return scrollbar(attributes, content);
     }
-
-    (data.class as unknown[]).push('site');
-
-    data.onclick = onclick;
-
-    return scrollbar(data, content);
-};
+);

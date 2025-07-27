@@ -1,15 +1,15 @@
 import { html } from '@esportsplus/template';
 
 
-export default (data: { error: unknown }) => {
+export default (state: { error: unknown }) => {
     return () => {
-        if (!data.error) {
+        if (!state.error) {
             return '';
         }
 
         return html`
             <div class='field-error --text-bold'>
-                ${data.error}
+                ${state.error}
             </div>
         `;
     };

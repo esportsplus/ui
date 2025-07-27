@@ -8,16 +8,6 @@
     --width: 100%;
 
 
-    &--optional {
-        --max-height: 0;
-        --max-height-active: 0;
-
-        #{tokens.state(active, '.field')} & {
-            --max-height: var(--max-height-active);
-        }
-    }
-
-
     &-description,
     &-error {
         --font-size: var(--font-size-300);

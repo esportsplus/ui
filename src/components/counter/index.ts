@@ -1,24 +1,23 @@
 import { effect, reactive } from '@esportsplus/reactivity'
-import { html } from '@esportsplus/template';
+import { html, type Attributes } from '@esportsplus/template';
+import { omit } from '@esportsplus/utilities';
 import './scss/index.scss';
-
-
-type Options = {
-    attributes?: Record<string, unknown>;
-    currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD';
-    decimals?: number;
-    delay?: number;
-    max?: number;
-    suffix?: string;
-    value: number;
-};
 
 
 let formatters: Record<string, Intl.NumberFormat> = {};
 
 
-export default ({ attributes, currency, decimals, delay, max, suffix, value }: Options) => {
-    let api = reactive({ value: -1 }),
+export default (data: Attributes & {
+    currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD';
+    decimals?: number;
+    delay?: number;
+    max?: number;
+    state?: { value: number },
+    suffix?: string;
+    value: number;
+}) => {
+    let { currency, decimals, delay, max, suffix, value } = data,
+        api = data.state || reactive({ value: -1 }),
         formatter = currency === 'IGNORE'
             ? undefined
             : formatters[currency || 'USD'] ??= new Intl.NumberFormat('en-US', {
@@ -76,43 +75,40 @@ export default ({ attributes, currency, decimals, delay, max, suffix, value }: O
         }
     });
 
-    return {
-        html: html`
-            <div class='counter' ${attributes}>
-                ${() => {
-                    let n = state.length;
+    return html`
+        <div class='counter' ${omit(data, ['currency', 'decimals', 'delay', 'max', 'state', 'suffix'])}>
+            ${() => {
+                let n = state.length;
 
-                    if (n === 0) {
-                        return '';
+                if (n === 0) {
+                    return '';
+                }
+
+                return html.reactive(state.render, function (value, i) {
+                    if (isNaN(parseInt(value as string, 10))) {
+                        return html`
+                            <span class='counter-character counter-character--symbol'>
+                                ${value}
+                            </span>
+                        `;
                     }
 
-                    return html.reactive(state.render, function (value, i) {
-                        if (isNaN(parseInt(value as string, 10))) {
-                            return html`
-                                <span class='counter-character counter-character--symbol'>
-                                    ${value}
-                                </span>
-                            `;
-                        }
-
-                        return html`
-                            <div
-                                class='
-                                    ${i > n - 3 && 'counter-character--fraction'}
-                                    counter-character
-                                '
-                            >
-                                <div class='counter-character-track' style='${() => `--value: ${this[i]}`}'>
-                                    <span>9</span>
-                                    ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span>${value}</span>`)}
-                                    <span>0</span>
-                                </div>
+                    return html`
+                        <div
+                            class='
+                                ${i > n - 3 && 'counter-character--fraction'}
+                                counter-character
+                            '
+                        >
+                            <div class='counter-character-track' style='${() => `--value: ${this[i]}`}'>
+                                <span>9</span>
+                                ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span>${value}</span>`)}
+                                <span>0</span>
                             </div>
-                        `;
-                    })
-                }}
-            </div>
-        `,
-        state: api
-    };
+                        </div>
+                    `;
+                })
+            }}
+        </div>
+    `;
 };

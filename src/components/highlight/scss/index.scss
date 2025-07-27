@@ -1,4 +1,4 @@
-@use './variables.scss';
+@use 'variables';
 
 .highlight {
     background: linear-gradient(90deg, var(--background) 50%, transparent 50%) 110% 0 / 200% 100% no-repeat;

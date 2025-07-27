@@ -1,5 +1,5 @@
 @use '/lib';
-@use './variables.scss';
+@use 'variables';
 
 .banner {
     @include lib.position(absolute, full);

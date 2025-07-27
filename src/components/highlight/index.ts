@@ -1,4 +1,5 @@
 import { reactive } from '@esportsplus/reactivity'
+import { Element } from '@esportsplus/template';
 import './scss/index.scss';
 
 
@@ -39,7 +40,7 @@ export default (background: string) => {
     return {
         attributes: {
             class: 'highlight',
-            onrender: function(element: HTMLElement & Record<PropertyKey, unknown>) {
+            onrender: function(element: Element) {
                 element[key] = state;
                 observer!.observe(element);
             },

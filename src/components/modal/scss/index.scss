@@ -1,6 +1,6 @@
 @use '/lib';
 @use '/tokens';
-@use './variables.scss';
+@use 'variables';
 
 .modal {
     margin: auto;

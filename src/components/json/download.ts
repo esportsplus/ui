@@ -1,4 +1,4 @@
-export default (content: any[] | Record<string, any>, name: string) => {
+export default (content: any[] | Record<PropertyKey, any>, name: string) => {
     let link = document.createElement('a');
 
     link.download = name + '.json';

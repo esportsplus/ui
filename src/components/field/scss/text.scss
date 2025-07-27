@@ -2,8 +2,10 @@
 
 @mixin css() {
     &-mask {
+        &--file,
         &--input,
-        &--select {
+        &--select,
+        &--textarea {
             align-items: center;
             background: var(--background);
             border: var(--border-width) var(--border-style) var(--border-color);
@@ -21,26 +23,27 @@
             }
 
             &,
-            .field-tag {
+            .field-mask-tag {
                 color: var(--color);
+            }
+
+            // Truncate Overflowing Text
+            &.field-text {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
         }
 
-        // Truncate Overflowing Text
-        &--input .field-tag,
-        &--select .field-text {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        &--input {
+        &--file,
+        &--input,
+        &--textarea {
             cursor: text;
             // Necessary To Maintain Height Of Hidden Password Fields In Floating Modals
             // - Password Managers Cause Problems When Fields Are Not Using 'display:hidden' On Password Fields
             min-height: calc((var(--padding-vertical) * 2) + var(--size));
 
-            .field-tag {
+            .field-mask-tag {
                 flex: 1 1 auto;
                 padding: var(--padding-vertical) var(--padding-horizontal);
                 min-width: 0;
@@ -50,9 +53,13 @@
                 }
             }
 
-            textarea.field-tag {
+            textarea.field-mask-tag {
                 white-space: normal;
             }
+        }
+
+        &--file {
+            cursor: pointer;
         }
 
         &--select {
@@ -75,22 +82,29 @@
             transform: translateY(50%) rotate(45deg);
             width: var(--arrow-size);
         }
-    }
 
-    &-text {
-        padding-right: var(--padding-horizontal);
+        &-text {
+            padding-right: var(--padding-horizontal);
+            pointer-events: none;
+        }
     }
 }
 
 @mixin variables() {
     &-mask {
+        &--file,
         &--input,
-        &--select {
+        &--select,
+        &--textarea {
             --font-size: var(--font-size-400);
             --line-height: var(--line-height-400);
+            --padding-horizontal: var(--padding-horizontal-400);
+            --padding-vertical: var(--padding-vertical-400);
         }
 
-        &--input {
+        &--file,
+        &--input,
+        &--textarea {
             --size: var(--size-400);
         }
 

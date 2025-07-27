@@ -1,71 +1,86 @@
 import { reactive } from '@esportsplus/reactivity';
-import { html } from '@esportsplus/template';
-import { omit } from '@esportsplus/utilities';
-import description from './description';
+import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { omit, pick } from '@esportsplus/utilities';
+import template from '~/components/template';
 
 
-type Data = {
-    class?: string;
-    content?: unknown;
-    description?: Parameters<typeof description>[0]['description'];
-    mask?: Record<string, unknown>;
+type A = Attributes & {
+    checked?: boolean;
+    disabled?: boolean;
     name?: string;
-    style?: string;
-    tag?: Record<string, unknown>;
-    title: string;
+    required?: boolean;
+    type?: string;
     value?: unknown;
-} & Record<string, unknown>;
+};
 
 
-const FIELD_OMIT: (keyof Data)[] = ['content', 'description', 'mask', 'name', 'title', 'value'];
+const TAG_KEYS = ['checked', 'disabled', 'name', 'required'];
 
 
-export default (data: Data) => {
-    let state = reactive({
-            active: false
-        });
-
+function mask(attributes: A, modifier: string, state: { active: boolean }) {
     return html`
         <div
             class='
-                ${() => state.active && '--active'}
-                field
-                --flex-column
+                ${`field-mask--${modifier}`}
+                field-mask
             '
-            onchange='${(e: Event) => {
-                if ((e.target as HTMLInputElement).type !== 'checkbox') {
-                    return;
-                }
-
-                state.active = (e.target as HTMLInputElement)?.checked;
-            }}'
-            ${omit(data, FIELD_OMIT)}
+            ${omit(attributes, TAG_KEYS)}
         >
-            <div class='field-title --flex-horizontal-space-between --flex-vertical'>
-                ${data.title}
-
-                <label
-                    class='
-                        ${data.mask?.class && String(data.mask.class).indexOf('field-mask--switch') !== -1 && 'field-mask--switch'}
-                        field-mask
-                        --margin-left --margin-400
-                    '
-                    ${data.mask}
-                >
-                    <input
-                        ${(data.class && data.class.indexOf('--active') !== -1) || data.value ? 'checked' : ''}
-                        ${data.name && `name='${data.name}'`}
-                        class='field-tag field-tag--hidden'
-                        type='checkbox'
-                        value='1'
-                        ${data.tag}
-                    >
-                </label>
-            </div>
-
-            ${data.content || ''}
-
-            ${description(data)}
+            <input
+                ${attributes.checked || attributes.value || state.active && 'checked'}
+                class='field-mask-tag field-mask-tag--hidden'
+                type='${modifier === 'radio' ? 'radio' : 'checkbox'}'
+                value='${attributes.value || 1}'
+                ${pick(attributes, TAG_KEYS)}
+            >
         </div>
-    `
+    `;
+}
+
+
+const field = template.factory<
+    Attributes & { state?: { active: boolean } },
+    (mask: ((attributes: A) => Renderable)) => Renderable
+>(
+    function(
+        this: ((attributes: A, state: { active: boolean }) => Renderable),
+        attributes,
+        content
+    ) {
+        let state = attributes.state || reactive({
+                active: false
+            });
+
+        return html`
+            <label
+                class='
+                    ${() => state.active && '--active'}
+                    field
+                '
+                onchange='${(e: Event) => {
+                    if ((e.target as HTMLInputElement).type !== 'checkbox') {
+                        return;
+                    }
+
+                    state.active = (e.target as HTMLInputElement)?.checked;
+                }}'
+                ${omit(attributes, ['state'])}
+            >
+                ${content((attributes: A) => this(attributes, state))}
+            </label>
+        `
+    }
+);
+
+
+export default {
+    checkbox: field.bind((attributes: A, state: { active: boolean }) => {
+        return mask(attributes, 'checkbox', state);
+    }),
+    radio: field.bind((attributes: A, state: { active: boolean }) => {
+        return mask(attributes, 'radio', state);
+    }),
+    switch: field.bind((attributes: A, state: { active: boolean }) => {
+        return mask(attributes, 'switch', state);
+    }),
 };

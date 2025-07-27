@@ -1,35 +1,25 @@
-import { html, svg } from '@esportsplus/template';
+import { html, Attributes, svg } from '@esportsplus/template';
 import './scss/index.scss';
+import { omit } from '@esportsplus/utilities';
 
 
 type Data = {
-    copyright: {
-        attributes?: Record<string, unknown>;
-        brand: string;
-    };
-    footer?: {
-        attributes: Record<string, unknown>;
-    };
-    nav?: {
-        attributes?: Record<string, unknown>;
-        links: { text: string, url: string }[];
-    };
-    social?: {
-        attributes?: Record<string, unknown>;
-        links: { icon: string, url: string }[]
-    };
+    copyright: Attributes & { brand: string };
+    footer?: Attributes;
+    nav?: Attributes & { links: { text: string, url: string }[] };
+    social?: Attributes & { links: { icon: string, url: string }[] };
 };
 
 
-function copy({ attributes, brand }: Data['copyright']) {
+function copy(data: Data['copyright']) {
     return html`
         <div class='footer-copyright group-item --flex-center'>
             <div
                 class='text --padding-vertical --padding-300 --text-300'
                 style='--color-default: var(--color-grey-500);'
-                ${attributes}
+                ${omit(data, ['brand'])}
             >
-                &copy; ${`${new Date().getFullYear()} ${brand}, All rights reserved`}
+                &copy; ${`${new Date().getFullYear()} ${data.brand}, All rights reserved`}
             </div>
         </div>
     `;
@@ -38,7 +28,7 @@ function copy({ attributes, brand }: Data['copyright']) {
 
 export default ({ copyright, footer, nav, social }: Data) => {
     return html`
-        <footer class='footer' ${footer?.attributes}>
+        <footer class='footer' ${footer}>
             <div class='container'>
                 <div class='group group--offset-top --flex-center --margin-400'>
 
@@ -49,7 +39,7 @@ export default ({ copyright, footer, nav, social }: Data) => {
                                     class='link --color-white --padding-vertical-300 --text-300'
                                     href='${url}'
                                     style='--color-default: var(--color-grey-500);'
-                                    ${nav.attributes}
+                                    ${omit(nav, ['links'])}
                                 >
                                     ${text}
                                 </a>
@@ -66,7 +56,7 @@ export default ({ copyright, footer, nav, social }: Data) => {
                                 class='link --color-white --padding-0px'
                                 href='${url}'
                                 style='--color-default: var(--color-grey-500);'
-                                ${social.attributes}
+                                ${omit(social, ['links'])}
                             >
                                 <div class='icon --size-500'>
                                     ${svg.sprite(icon)}

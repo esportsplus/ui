@@ -9,17 +9,17 @@ importers:
   .:
     dependencies:
       '@esportsplus/action':
-        specifier: ^0.0.56
-        version: 0.0.56
+        specifier: ^0.0.57
+        version: 0.0.57
       '@esportsplus/reactivity':
-        specifier: ^0.4.3
-        version: 0.4.3
+        specifier: ^0.4.5
+        version: 0.4.5
       '@esportsplus/template':
-        specifier: ^0.9.9
-        version: 0.9.9
+        specifier: ^0.10.2
+        version: 0.10.2
       '@esportsplus/utilities':
-        specifier: ^0.13.0
-        version: 0.13.0
+        specifier: ^0.15.0
+        version: 0.15.0
       modern-normalize:
         specifier: ^3.0.1
         version: 3.0.1
@@ -28,8 +28,8 @@ importers:
         specifier: ^0.9.1
         version: 0.9.1
       '@types/node':
-        specifier: ^24.0.14
-        version: 24.0.14
+        specifier: ^24.1.0
+        version: 24.1.0
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
@@ -46,8 +46,8 @@ importers:
         specifier: ^1.89.2
         version: 1.89.2
       vite:
-        specifier: ^7.0.4
-        version: 7.0.4(@types/node@24.0.14)(lightningcss@1.30.1)(sass@1.89.2)
+        specifier: ^7.0.6
+        version: 7.0.6(@types/node@24.1.0)(lightningcss@1.30.1)(sass@1.89.2)
 
 packages:
 
@@ -207,33 +207,33 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@esportsplus/action@0.0.56':
-    resolution: {integrity: sha512-WMFGTBYhAaVMaHm6K0k+qL3wPRshH8PHcIa3NqrOHPpemI4CmWN6+SCxkItamDX+W29hbv6bgb5pRTF9uo2OQg==}
+  '@esportsplus/action@0.0.57':
+    resolution: {integrity: sha512-fg/CEbZT84wuKnqZXI+nJtc+mIrkNpPi73e1IgGW0sXas4TTdlZTLkGOj1QZ8/ehy7/ijn8oeQKQfvqPJRLDug==}
 
   '@esportsplus/cli-passthrough@0.0.10':
     resolution: {integrity: sha512-/DcLjDxIB9NponyFtMQ3ICCXUA/hH1hp4FaL6AOepG1TwvY8g9y1MVLM71Coq7e0NpxUZt1pg73z6KSrh3Xd0w==}
 
-  '@esportsplus/custom-function@0.0.11':
-    resolution: {integrity: sha512-M+3qcHFUWmD9O8AYLkwTnsnCf7jJyiQ9LtEIvZ7dAM9Z73Ix9qzhSd+de4XMz4IkNpmDVCmDR8ABZI5vnr47Zg==}
+  '@esportsplus/custom-function@0.0.12':
+    resolution: {integrity: sha512-2neGLT2eBIFkTHYPea4ui4xPQGbswKep40RXwa0bHuIoTxGbMgGxSDbXJSYkM/O1yD7+S+VUTvNCuANxQ53dlg==}
 
-  '@esportsplus/reactivity@0.4.3':
-    resolution: {integrity: sha512-UEs6DjJVwZb/fxlGlmcVNgjAQbGuQay0kW/qadd2zBC2GjQYWB30BUbXAcwCVMNQaKjqAqVs5zi9tmffq4VeLA==}
+  '@esportsplus/reactivity@0.4.5':
+    resolution: {integrity: sha512-j/QBlUeWtKt7XxZm4eNTSuRzpckSldIqmzko3qAAw/+YqmKgGJ3H4AIfZyNOXA9n9LkPu11Wq7Okbp4gXTpU3A==}
 
   '@esportsplus/tasks@0.1.9':
     resolution: {integrity: sha512-eXInBH3Vc41pmVP5G3ysmiWbmzRfWVu0n3l0wyDwQ3Qt0LpRSrUd0RDyEiaoc+U1krODhK672UMgvP+KMkrw5w==}
 
-  '@esportsplus/template@0.9.9':
-    resolution: {integrity: sha512-bCgF8yMdvoGIvWT8pxgjGig8f91DtMuV/2a710VNhUhRPdpgAkbm7tcLxBSpTaQuMDARB5SNnUwL+/SIwOPxNw==}
+  '@esportsplus/template@0.10.2':
+    resolution: {integrity: sha512-VZLM3jfgO2ZrZoG1r1ZWqgUqX5O/IMhp3ceA13+Yy9YOXhnbXFyeH55IX1BbXJRdZyX999yB8G59rUh1NUJcdg==}
 
   '@esportsplus/typescript@0.9.1':
     resolution: {integrity: sha512-nx/f0n/z8AhpkuUXYj7t6djDoHgJXII6Sh6xVn4WkOf2d10FzCN133Gwo7BC7RSbfMO7voFuiAPMfkyZQworXA==}
     hasBin: true
 
-  '@esportsplus/utilities@0.0.9':
-    resolution: {integrity: sha512-dVRD5sg3wApeqW65QxrB2SkuWSnNYDxsbAcFIZs/eTKreh2XhbJ45AV5k9+/83HcTlTKHSBSIRgbN75dMkeoQw==}
+  '@esportsplus/utilities@0.13.2':
+    resolution: {integrity: sha512-4ZthBi2iBUt4u3HD+nH2K4eJ4CArwsmQoucPsQJOIEtKqYlO7ApOJQ/X8CFWt8wvxpf+aL2UQq4HpMNwS5FmwQ==}
 
-  '@esportsplus/utilities@0.13.0':
-    resolution: {integrity: sha512-iec3Q3sGR7td0wrv02zkuCrFn/9nHllX8Wq9UhKRwr7XmIRVCPexC03+Z/Mb5Wrx3VKVMj2GUPG7F+/5TVIO8A==}
+  '@esportsplus/utilities@0.15.0':
+    resolution: {integrity: sha512-Qiinewam7E7wZ1EfcCY4hz/PmfKDyUCboK4yHHHSsFsdVzNoEO3fJVjgUaLVrckdpg1b6Fe7lvIXmC97Lo02Tw==}
 
   '@isaacs/balanced-match@4.0.1':
     resolution: {integrity: sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==}
@@ -444,8 +444,8 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
-  '@types/node@24.0.14':
-    resolution: {integrity: sha512-4zXMWD91vBLGRtHK3YbIoFMia+1nqEz72coM42C5ETjnNCa/heoj7NT1G67iAfOqMmcfhuCZ4uNpyz8EjlAejw==}
+  '@types/node@24.1.0':
+    resolution: {integrity: sha512-ut5FthK5moxFKH2T1CUOC6ctR67rQRvvHdFLCD2Ql6KXmMuCrjsSsRI9UsLCm9M18BMwClv4pn327UvB7eeO1w==}
 
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -1100,8 +1100,8 @@ packages:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
 
-  picomatch@4.0.2:
-    resolution: {integrity: sha512-M7BAV6Rlcy5u+m6oPhAPFgJTzAioX/6B0DxyvDlo9l8+T3nLKbrczg2WLUyzd45L8RqfUMyGPzekbMvX2Ldkwg==}
+  picomatch@4.0.3:
+    resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
     engines: {node: '>=12'}
 
   pidtree@0.3.1:
@@ -1366,8 +1366,8 @@ packages:
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
 
-  vite@7.0.4:
-    resolution: {integrity: sha512-SkaSguuS7nnmV7mfJ8l81JGBFV7Gvzp8IzgE8A8t23+AxuNX61Q5H1Tpz5efduSN7NHC8nQXD3sKQKZAu5mNEA==}
+  vite@7.0.6:
+    resolution: {integrity: sha512-MHFiOENNBd+Bd9uvc8GEsIzdkn1JxMmEeYX35tI3fv0sJBUTfW5tQsoaOwuY4KhBI09A3dUJ/DXf2yxPVPUceg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -1519,24 +1519,24 @@ snapshots:
   '@esbuild/win32-x64@0.25.6':
     optional: true
 
-  '@esportsplus/action@0.0.56': {}
+  '@esportsplus/action@0.0.57': {}
 
   '@esportsplus/cli-passthrough@0.0.10': {}
 
-  '@esportsplus/custom-function@0.0.11': {}
+  '@esportsplus/custom-function@0.0.12': {}
 
-  '@esportsplus/reactivity@0.4.3':
+  '@esportsplus/reactivity@0.4.5':
     dependencies:
-      '@esportsplus/custom-function': 0.0.11
-      '@esportsplus/utilities': 0.0.9
+      '@esportsplus/custom-function': 0.0.12
+      '@esportsplus/utilities': 0.13.2
 
   '@esportsplus/tasks@0.1.9': {}
 
-  '@esportsplus/template@0.9.9':
+  '@esportsplus/template@0.10.2':
     dependencies:
-      '@esportsplus/reactivity': 0.4.3
+      '@esportsplus/reactivity': 0.4.5
       '@esportsplus/tasks': 0.1.9
-      '@esportsplus/utilities': 0.0.9
+      '@esportsplus/utilities': 0.13.2
 
   '@esportsplus/typescript@0.9.1':
     dependencies:
@@ -1544,9 +1544,9 @@ snapshots:
       tsc-alias: 1.8.16
       typescript: 5.8.3
 
-  '@esportsplus/utilities@0.0.9': {}
+  '@esportsplus/utilities@0.13.2': {}
 
-  '@esportsplus/utilities@0.13.0': {}
+  '@esportsplus/utilities@0.15.0': {}
 
   '@isaacs/balanced-match@4.0.1': {}
 
@@ -1698,7 +1698,7 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
-  '@types/node@24.0.14':
+  '@types/node@24.1.0':
     dependencies:
       undici-types: 7.8.0
 
@@ -2025,9 +2025,9 @@ snapshots:
     dependencies:
       reusify: 1.1.0
 
-  fdir@6.4.6(picomatch@4.0.2):
+  fdir@6.4.6(picomatch@4.0.3):
     optionalDependencies:
-      picomatch: 4.0.2
+      picomatch: 4.0.3
 
   fill-range@7.1.1:
     dependencies:
@@ -2436,7 +2436,7 @@ snapshots:
 
   picomatch@2.3.1: {}
 
-  picomatch@4.0.2: {}
+  picomatch@4.0.3: {}
 
   pidtree@0.3.1: {}
 
@@ -2710,8 +2710,8 @@ snapshots:
 
   tinyglobby@0.2.14:
     dependencies:
-      fdir: 6.4.6(picomatch@4.0.2)
-      picomatch: 4.0.2
+      fdir: 6.4.6(picomatch@4.0.3)
+      picomatch: 4.0.3
 
   to-regex-range@5.0.1:
     dependencies:
@@ -2782,16 +2782,16 @@ snapshots:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
 
-  vite@7.0.4(@types/node@24.0.14)(lightningcss@1.30.1)(sass@1.89.2):
+  vite@7.0.6(@types/node@24.1.0)(lightningcss@1.30.1)(sass@1.89.2):
     dependencies:
       esbuild: 0.25.6
-      fdir: 6.4.6(picomatch@4.0.2)
-      picomatch: 4.0.2
+      fdir: 6.4.6(picomatch@4.0.3)
+      picomatch: 4.0.3
       postcss: 8.5.6
       rollup: 4.45.0
       tinyglobby: 0.2.14
     optionalDependencies:
-      '@types/node': 24.0.14
+      '@types/node': 24.1.0
       fsevents: 2.3.3
       lightningcss: 1.30.1
       sass: 1.89.2

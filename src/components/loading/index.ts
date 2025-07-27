@@ -1,8 +1,8 @@
-import { html } from '@esportsplus/template';
+import { html, Attributes } from '@esportsplus/template';
 import './scss/index.scss';
 
 
-export default (attributes?: Record<PropertyKey, unknown>) => {
+export default (attributes?: Attributes) => {
     return html`
         <div
             class='loading --border-width-700 --size-800'
