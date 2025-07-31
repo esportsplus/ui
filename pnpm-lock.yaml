@@ -25,8 +25,8 @@ importers:
         version: 3.0.1
     devDependencies:
       '@esportsplus/typescript':
-        specifier: ^0.9.1
-        version: 0.9.1
+        specifier: ^0.9.2
+        version: 0.9.2
       '@types/node':
         specifier: ^24.1.0
         version: 24.1.0
@@ -225,8 +225,8 @@ packages:
   '@esportsplus/template@0.10.2':
     resolution: {integrity: sha512-VZLM3jfgO2ZrZoG1r1ZWqgUqX5O/IMhp3ceA13+Yy9YOXhnbXFyeH55IX1BbXJRdZyX999yB8G59rUh1NUJcdg==}
 
-  '@esportsplus/typescript@0.9.1':
-    resolution: {integrity: sha512-nx/f0n/z8AhpkuUXYj7t6djDoHgJXII6Sh6xVn4WkOf2d10FzCN133Gwo7BC7RSbfMO7voFuiAPMfkyZQworXA==}
+  '@esportsplus/typescript@0.9.2':
+    resolution: {integrity: sha512-7CLlWVhCbkEW3EodOk+zE0xMAFeyVs+EjYr3/H5mY+im1O+o6ig5RpY3TNWabUkEBW14Jo8TBoHQAsPJH6CnuQ==}
     hasBin: true
 
   '@esportsplus/utilities@0.13.2':
@@ -1538,7 +1538,7 @@ snapshots:
       '@esportsplus/tasks': 0.1.9
       '@esportsplus/utilities': 0.13.2
 
-  '@esportsplus/typescript@0.9.1':
+  '@esportsplus/typescript@0.9.2':
     dependencies:
       '@esportsplus/cli-passthrough': 0.0.10
       tsc-alias: 1.8.16
