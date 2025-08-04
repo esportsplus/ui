@@ -8,8 +8,8 @@
         "modern-normalize": "^3.0.1"
     },
     "devDependencies": {
-        "@esportsplus/typescript": "^0.9.1",
-        "@types/node": "^24.1.0",
+        "@esportsplus/typescript": "^0.9.2",
+        "@types/node": "^24.2.0",
         "autoprefixer": "^10.4.21",
         "glob": "^11.0.3",
         "lightningcss": "^1.30.1",
