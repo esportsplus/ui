@@ -1,6 +1,23 @@
-import response from '@esportsplus/action';
-import { Action } from './types';
+import response, { Response } from '@esportsplus/action';
+import { html, Attributes, Element } from '@esportsplus/template';
+import { omit } from '@esportsplus/utilities';
+import template from '~/components/template';
 import input from './input';
+
+
+type A = Attributes & { action: Action, state?: { processing: boolean } };
+
+type Action = (data: Payload) => Promise<Errors> | Errors;
+
+type Errors = { errors: Response<unknown>['errors'] };
+
+type Payload = {
+    input: Record<string, any>;
+    response: typeof response;
+};
+
+
+const OMIT = ['action', 'state'];
 
 
 function parse(input: ReturnType<FormData['entries']>) {
@@ -33,48 +50,59 @@ function parse(input: ReturnType<FormData['entries']>) {
 };
 
 
-export default function(action: Action, s?: { processing: boolean }) {
-    return {
-        onclick: function(this: HTMLFormElement, event: Event) {
-            let trigger = event.target as HTMLButtonElement;
+export default template.factory<A>(
+    (attributes, content) => {
+        let { action, state } = attributes;
 
-            if (trigger?.type !== 'submit') {
-                return;
-            }
+        return html`
+            <form
+                ${omit(attributes, OMIT)}
+                ${{
+                    onclick: function(event) {
+                        let trigger = event.target as HTMLButtonElement;
 
-            // On initial page load both events will be dispatched without preventDefault
-            event.preventDefault();
+                        if (trigger?.type !== 'submit') {
+                            return;
+                        }
 
-            this.dispatchEvent(
-                new SubmitEvent('submit', { cancelable: true, bubbles:true, submitter: trigger })
-            );
-        },
-        onsubmit: async function(this: HTMLFormElement, event: SubmitEvent) {
-            event.preventDefault();
+                        // On initial page load both events will be dispatched without preventDefault
+                        event.preventDefault();
 
-            if (s) {
-                s.processing = true;
-            }
+                        this.dispatchEvent(
+                            new SubmitEvent('submit', { cancelable: true, bubbles:true, submitter: trigger })
+                        );
+                    },
+                    onsubmit: async function(event) {
+                        event.preventDefault();
 
-            let { errors } = await action({
-                    input: parse( new FormData( this ).entries() ),
-                    response
-                });
+                        if (state) {
+                            state.processing = true;
+                        }
 
-            for (let i = 0, n = errors.length; i < n; i++) {
-                let { message, path } = errors[i],
-                    reactive = input.get( this[path!] );
+                        let { errors } = await action({
+                                input: parse( new FormData( this as any as HTMLFormElement ).entries() ),
+                                response
+                            });
 
-                if (!reactive) {
-                    continue;
-                }
+                        for (let i = 0, n = errors.length; i < n; i++) {
+                            let { message, path } = errors[i],
+                                reactive = input.get( (this as any as HTMLFormElement)[path!] as Element | undefined );
 
-                reactive.error = `${message[0].toUpperCase()}${message.substring(1)}`;
-            }
+                            if (!reactive) {
+                                continue;
+                            }
 
-            if (s) {
-                s.processing = false;
-            }
-        }
-    };
-};
+                            reactive.error = `${message[0].toUpperCase()}${message.substring(1)}`;
+                        }
+
+                        if (state) {
+                            state.processing = false;
+                        }
+                    }
+                }}
+            >
+                ${content}
+            </form>
+        `;
+    }
+);

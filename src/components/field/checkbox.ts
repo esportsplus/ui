@@ -14,59 +14,60 @@ type A = Attributes & {
 };
 
 
-const TAG_KEYS = ['checked', 'disabled', 'name', 'required'];
+const OMIT_FIELD = ['state'];
+
+const TAG = ['checked', 'disabled', 'name', 'required'];
 
 
 function mask(attributes: A, modifier: string, state: { active: boolean }) {
     return html`
         <div
-            class='
-                ${`field-mask--${modifier}`}
-                field-mask
-            '
-            ${omit(attributes, TAG_KEYS)}
+            class='field-mask'
+            ${omit(attributes, TAG)}
+            ${{
+                class: `field-mask--${modifier}`
+            }}
         >
             <input
-                ${attributes.checked || attributes.value || state.active && 'checked'}
                 class='field-mask-tag field-mask-tag--hidden'
-                type='${modifier === 'radio' ? 'radio' : 'checkbox'}'
-                value='${attributes.value || 1}'
-                ${pick(attributes, TAG_KEYS)}
+                ${{
+                    checked: attributes.checked || attributes.value || state.active,
+                    type: modifier === 'radio' ? 'radio' : 'checkbox',
+                    value: attributes.value || 1
+                }}
+                ${pick(attributes, TAG) as Attributes}
             >
         </div>
     `;
 }
 
 
-const field = template.factory<
-    Attributes & { state?: { active: boolean } },
-    (mask: ((attributes: A) => Renderable)) => Renderable
->(
+const field = template.factory(
     function(
-        this: ((attributes: A, state: { active: boolean }) => Renderable),
-        attributes,
-        content
+        this: ((attributes: A, state: { active: boolean }) => Renderable<unknown>),
+        attributes: Attributes & { state?: { active: boolean } },
+        content: (mask: ((attributes: A) => Renderable<unknown>)) => Renderable<unknown>
     ) {
-        let state = attributes.state || reactive({
+        let state = attributes?.state || reactive({
                 active: false
             });
 
         return html`
             <label
-                class='
-                    ${() => state.active && '--active'}
-                    field
-                '
-                onchange='${(e: Event) => {
-                    if ((e.target as HTMLInputElement).type !== 'checkbox') {
-                        return;
-                    }
+                class='field'
+                ${omit(attributes, OMIT_FIELD)}
+                ${{
+                    class: () => state.active && '--active',
+                    onchange: (e) => {
+                        if ((e.target as HTMLInputElement).type !== 'checkbox') {
+                            return;
+                        }
 
-                    state.active = (e.target as HTMLInputElement)?.checked;
-                }}'
-                ${omit(attributes, ['state'])}
+                        state.active = (e.target as HTMLInputElement)?.checked;
+                    }
+                }}
             >
-                ${content((attributes: A) => this(attributes, state))}
+                ${content((attributes) => this(attributes, state))}
             </label>
         `
     }

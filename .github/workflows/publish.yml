@@ -1,4 +1,5 @@
 name: publish to npm
+
 on:
   release:
     types: [published]
@@ -7,6 +8,7 @@ on:
     workflows: [bump]
     types:
       - completed
+
 jobs:
   publish:
     secrets:

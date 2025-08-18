@@ -4,10 +4,13 @@ import { omit } from '@esportsplus/utilities';
 import './scss/index.scss';
 
 
+const OMIT = ['currency', 'decimals', 'delay', 'max', 'state', 'suffix', 'value'];
+
+
 let formatters: Record<string, Intl.NumberFormat> = {};
 
 
-export default (data: Attributes & {
+export default (attributes: Attributes & {
     currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD';
     decimals?: number;
     delay?: number;
@@ -16,8 +19,8 @@ export default (data: Attributes & {
     suffix?: string;
     value: number;
 }) => {
-    let { currency, decimals, delay, max, suffix, value } = data,
-        api = data.state || reactive({ value: -1 }),
+    let { currency, decimals, delay, max, suffix, value } = attributes,
+        api = attributes.state || reactive({ value: -1 }),
         formatter = currency === 'IGNORE'
             ? undefined
             : formatters[currency || 'USD'] ??= new Intl.NumberFormat('en-US', {
@@ -76,7 +79,7 @@ export default (data: Attributes & {
     });
 
     return html`
-        <div class='counter' ${omit(data, ['currency', 'decimals', 'delay', 'max', 'state', 'suffix'])}>
+        <div class='counter' ${omit(attributes, OMIT)}>
             ${() => {
                 let n = state.length;
 
@@ -85,7 +88,7 @@ export default (data: Attributes & {
                 }
 
                 return html.reactive(state.render, function (value, i) {
-                    if (isNaN(parseInt(value as string, 10))) {
+                    if (isNaN(parseInt(value, 10))) {
                         return html`
                             <span class='counter-character counter-character--symbol'>
                                 ${value}
@@ -94,20 +97,19 @@ export default (data: Attributes & {
                     }
 
                     return html`
-                        <div
-                            class='
-                                ${i > n - 3 && 'counter-character--fraction'}
-                                counter-character
-                            '
-                        >
-                            <div class='counter-character-track' style='${() => `--value: ${this[i]}`}'>
+                        <div class=' counter-character' ${{
+                            class: i > n - 3 && 'counter-character--fraction'
+                        }}>
+                            <div class='counter-character-track' ${{
+                                style: `--value: ${this[i]}`}
+                            }}>
                                 <span>9</span>
                                 ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span>${value}</span>`)}
                                 <span>0</span>
                             </div>
                         </div>
                     `;
-                })
+                });
             }}
         </div>
     `;

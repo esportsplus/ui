@@ -6,9 +6,11 @@ import template from '~/components/template';
 import error from './error';
 
 
-const FILE_TAG_KEYS = ['accept', 'disabled', 'name', 'required', 'value'];
+const FILE_TAG = ['accept', 'disabled', 'name', 'required', 'value'];
 
-const TEXT_TAG_KEYS = [
+const OMIT = ['state'];
+
+const TEXT_TAG = [
     'autocapitalize',
     'autocomplete',
     'autocorrect',
@@ -27,14 +29,11 @@ const TEXT_TAG_KEYS = [
 ];
 
 
-const field = template.factory<
-    Attributes & { state?: { active: boolean, error: string } },
-    (mask: typeof file | typeof text | typeof textarea) =>  Renderable
->(
+const field = template.factory(
     function(
         this: typeof text | typeof textarea,
-        attributes,
-        content
+        attributes: Attributes & { state?: { active: boolean, error: string } },
+        content: (mask: typeof file | typeof text | typeof textarea) => Renderable<unknown>
     ) {
         let state = attributes.state || reactive({
                 active: false,
@@ -43,17 +42,17 @@ const field = template.factory<
 
         return html`
             <div
-                class='
-                    ${() => state.active && '--active'}
-                    field
-                '
-                onfocusin='${() => {
-                    state.active = true;
-                }}'
-                onfocusout='${() => {
-                    state.active = false;
-                }}'
-                ${omit(attributes, ['state'])}
+                class='field'
+                ${omit(attributes, OMIT)}
+                ${{
+                    class: () => state.active && '--active',
+                    onfocusin: () => {
+                        state.active = true;
+                    },
+                    onfocusout: () => {
+                        state.active = false;
+                    }
+                }}
             >
                 ${content(
                     ((...args: any[]) => (this.call as any)(state, ...args))
@@ -64,18 +63,20 @@ const field = template.factory<
     }
 );
 
-const file = template.factory<Attributes>(
+const file = template.factory(
     function(this: { active: boolean, error: string }, attributes, content) {
         return html`
             <label
                 class='field-mask field-mask--file'
-                ${omit(attributes, FILE_TAG_KEYS)}
+                ${omit(attributes, FILE_TAG)}
             >
                 <input
                     class='field-mask-tag field-mask-tag--hidden'
-                    onrender='${form.input.onrender(this)}'
                     type='file'
-                    ${pick(attributes, FILE_TAG_KEYS)}
+                    ${pick(attributes, FILE_TAG) as Attributes}
+                    ${{
+                        onrender: form.input.onrender(this)
+                    }}
                 >
 
                 ${content}
@@ -84,15 +85,17 @@ const file = template.factory<Attributes>(
     }
 );
 
-const text = template.factory<Attributes>(
+const text = template.factory(
     function(this: { active: boolean, error: string }, attributes, content) {
         return html`
-            <label class='field-mask field-mask--input' ${omit(attributes, TEXT_TAG_KEYS)}>
+            <label class='field-mask field-mask--input' ${omit(attributes, TEXT_TAG)}>
                 <input
                     class='field-mask-tag'
-                    onrender='${form.input.onrender(this)}'
-                    type='${attributes.type || 'text'}'
-                    ${pick(attributes, TEXT_TAG_KEYS)}
+                    ${pick(attributes, TEXT_TAG) as Attributes}
+                    ${{
+                        onrender: form.input.onrender(this),
+                        type: attributes.type || 'text'
+                    }}
                 >
                 ${content}
             </label>
@@ -100,14 +103,19 @@ const text = template.factory<Attributes>(
     }
 );
 
-const textarea = template.factory<Attributes>(
-    function(this: { active: boolean, error: string }, attributes, content) {
+const textarea = template.factory(
+    function(this: { active: boolean, error: string }, attributes: Attributes & { value?: string }, content) {
         return html`
-            <label class='field-mask field-mask--textarea' ${omit(attributes, TEXT_TAG_KEYS)}>
+            <label
+                class='field-mask field-mask--textarea'
+                ${omit(attributes, TEXT_TAG)}
+            >
                 <textarea
                     class='field-mask-tag'
-                    onrender='${form.input.onrender(this)}'
-                    ${pick(attributes, TEXT_TAG_KEYS)}
+                    ${pick(attributes, TEXT_TAG) as Attributes}
+                    ${{
+                        onrender: form.input.onrender(this)
+                    }}
                 >
                     ${attributes.value}
                 </textarea>

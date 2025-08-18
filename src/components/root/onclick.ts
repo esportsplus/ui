@@ -1,20 +1,19 @@
-let queue: (VoidFunction | (() => Promise<void>))[] = [];
+import factory from '@esportsplus/queue';
+
+
+let queue = factory<VoidFunction | (() => Promise<void>)>(64);
 
 
 const onclick = async () => {
-    if (queue.length === 0) {
-        return;
-    }
-
     let item;
 
-    while (item = queue.pop()) {
+    while (item = queue.next()) {
         await item();
     }
 };
 
 onclick.push = (fn: VoidFunction) => {
-    queue.push(fn);
+    queue.add(fn);
 };
 
 

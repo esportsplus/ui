@@ -1,12 +1,13 @@
-import { html, Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import { html } from '@esportsplus/template';
 import template from '~/components/template';
 import './scss/index.scss';
 
 
-export default template.factory<Attributes>(
+export default template.factory(
     (attributes, content) => {
-        let state = reactive({
+        let c = () => state.load && 'loader--load',
+            state = reactive({
                 load: false,
                 scale: false
             });
@@ -16,24 +17,21 @@ export default template.factory<Attributes>(
         }, 300);
 
         return html`
-            <div class='loader ${() => state.load && 'loader--load'}'>
-                <div class='loader ${() => state.load && 'loader--load'}'>
+            <div class='loader' ${{ class: c }}>
+                <div class='loader' ${{ class: c }}>
                     <div class='loader-content'>
                         <div
-                            class='
-                                ${() => state.scale && 'loader-logo--scale'}
-                                loader-logo
-                                text
-                                --flex-center
-                                --text-uppercase --text-600
-                            '
+                            class='loader-logo text --flex-center --text-uppercase --text-600'
                             style='color: var(--color-grey-500);'
-                            onanimationend='${({ animationName: name }: AnimationEvent) => {
-                                if (name === 'scale') {
-                                    state.load = true;
-                                }
-                            }}'
                             ${attributes}
+                            ${{
+                                class: () => state.scale && 'loader-logo--scale',
+                                onanimationend: ({ animationName: name }) => {
+                                    if (name === 'scale') {
+                                        state.load = true;
+                                    }
+                                }
+                            }}
                         >
                             ${content}
                         </div>

@@ -1,7 +1,7 @@
-import { html } from '@esportsplus/template';
+import { html, Renderable } from '@esportsplus/template';
 
 
-export default (state: { error: unknown }) => {
+export default (state: { error: Renderable<unknown> }) => {
     return () => {
         if (!state.error) {
             return '';
