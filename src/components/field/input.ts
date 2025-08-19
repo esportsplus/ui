@@ -31,7 +31,7 @@ const TEXT_TAG = [
 
 const field = template.factory(
     function(
-        this: typeof text | typeof textarea,
+        this: { mask: typeof file | typeof text | typeof textarea },
         attributes: Attributes & { state?: { active: boolean, error: string } },
         content: (mask: typeof file | typeof text | typeof textarea) => Renderable<unknown>
     ) {
@@ -55,7 +55,8 @@ const field = template.factory(
                 }}
             >
                 ${content(
-                    ((...args: any[]) => (this.call as any)(state, ...args))
+                    // @ts-ignore
+                    (...args: any[]) => this.mask.call({ state }, ...args)
                 )}
                 ${error(state)}
             </div>
@@ -64,7 +65,7 @@ const field = template.factory(
 );
 
 const file = template.factory(
-    function(this: { active: boolean, error: string }, attributes, content) {
+    function(this: { state: { active: boolean, error: string } }, attributes, content) {
         return html`
             <label
                 class='field-mask field-mask--file'
@@ -75,7 +76,7 @@ const file = template.factory(
                     type='file'
                     ${pick(attributes, FILE_TAG) as Attributes}
                     ${{
-                        onrender: form.input.onrender(this)
+                        onrender: form.input.onrender(this.state)
                     }}
                 >
 
@@ -86,14 +87,14 @@ const file = template.factory(
 );
 
 const text = template.factory(
-    function(this: { active: boolean, error: string }, attributes, content) {
+    function(this: { state: { active: boolean, error: string } }, attributes, content) {
         return html`
             <label class='field-mask field-mask--input' ${omit(attributes, TEXT_TAG)}>
                 <input
                     class='field-mask-tag'
                     ${pick(attributes, TEXT_TAG) as Attributes}
                     ${{
-                        onrender: form.input.onrender(this),
+                        onrender: form.input.onrender(this.state),
                         type: attributes.type || 'text'
                     }}
                 >
@@ -104,7 +105,7 @@ const text = template.factory(
 );
 
 const textarea = template.factory(
-    function(this: { active: boolean, error: string }, attributes: Attributes & { value?: string }, content) {
+    function(this: { state: { active: boolean, error: string } }, attributes: Attributes & { value?: string }, content) {
         return html`
             <label
                 class='field-mask field-mask--textarea'
@@ -114,7 +115,7 @@ const textarea = template.factory(
                     class='field-mask-tag'
                     ${pick(attributes, TEXT_TAG) as Attributes}
                     ${{
-                        onrender: form.input.onrender(this)
+                        onrender: form.input.onrender(this.state)
                     }}
                 >
                     ${attributes.value}
@@ -127,7 +128,7 @@ const textarea = template.factory(
 
 
 export default {
-    file: field.bind(file),
-    text: field.bind(text),
-    textarea: field.bind(textarea)
+    file: field.bind({ mask: file }),
+    text: field.bind({ mask: text }),
+    textarea: field.bind({ mask: textarea })
 };

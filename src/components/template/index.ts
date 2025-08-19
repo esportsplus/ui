@@ -1,5 +1,4 @@
 import { Attributes, Renderable } from '@esportsplus/template';
-import { EMPTY_OBJECT } from '@esportsplus/utilities';
 
 
 const factory = <
@@ -27,7 +26,7 @@ const factory = <
         return template.call(this, attributes, content);
     }
 
-    return factory.bind(EMPTY_OBJECT);
+    return factory;
 };
 
 
