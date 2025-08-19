@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import { isObject, omit, pick, toArray } from '@esportsplus/utilities';
+import { isObject, omit, toArray } from '@esportsplus/utilities';
 import form from '~/components/form';
 import root from '~/components/root';
 import scrollbar, { Attributes as A } from '~/components/scrollbar';
@@ -8,21 +8,12 @@ import template from '~/components/template';
 import error from './error';
 
 
-const PICK_TAG = [
-    'autocomplete',
-    'autofocus',
-    'disabled',
-    'name',
-    'required',
-    'type'
-];
-
 const OMIT_FIELD = ['options', 'state'];
 
 const OMIT_MASK = [
-    ...PICK_TAG,
     'field-mask-arrow',
     'field-mask-text',
+    'field-mask-tag',
     'scrollbar',
     'scrollbar-container-content',
     'tooltip-content',
@@ -45,6 +36,7 @@ const select = template.factory(
         },
         attributes: Attributes & A & {
             'field-mask-arrow'?: Attributes;
+            'field-mask-tag'?: Attributes;
             'field-mask-text'?: Attributes;
             'tooltip-content'?: Attributes & { direction?: string };
         },
@@ -74,7 +66,7 @@ const select = template.factory(
                         onrender: form.input.onrender(state),
                         value: () => state.selected
                     }}
-                    ${pick(attributes, PICK_TAG) as Attributes}
+                    ${attributes['field-mask-tag']}
                 >
 
                 ${content || html`
@@ -140,9 +132,6 @@ const select = template.factory(
         `;
     }
 );
-
-
-
 
 
 export default template.factory<

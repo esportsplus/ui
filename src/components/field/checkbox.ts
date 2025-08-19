@@ -1,29 +1,26 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import { omit, pick } from '@esportsplus/utilities';
+import { omit } from '@esportsplus/utilities';
 import template from '~/components/template';
 
 
 type A = Attributes & {
-    checked?: boolean;
-    disabled?: boolean;
-    name?: string;
-    required?: boolean;
-    type?: string;
-    value?: unknown;
+    'field-mask-tag'?: Attributes
 };
 
 
 const OMIT_FIELD = ['state'];
 
-const TAG = ['checked', 'disabled', 'name', 'required'];
+const OMIT_TAG = ['field-mask-tag'];
 
 
 function mask(attributes: A, modifier: string, state: { active: boolean }) {
+    let a = attributes['field-mask-tag'] || {};
+
     return html`
         <div
             class='field-mask'
-            ${omit(attributes, TAG)}
+            ${omit(attributes, OMIT_TAG)}
             ${{
                 class: `field-mask--${modifier}`
             }}
@@ -31,11 +28,11 @@ function mask(attributes: A, modifier: string, state: { active: boolean }) {
             <input
                 class='field-mask-tag field-mask-tag--hidden'
                 ${{
-                    checked: attributes.checked || attributes.value || state.active,
+                    checked: a.checked || a.value || state.active,
                     type: modifier === 'radio' ? 'radio' : 'checkbox',
-                    value: attributes.value || 1
+                    value: a.value || 1
                 }}
-                ${pick(attributes, TAG) as Attributes}
+                ${a}
             >
         </div>
     `;
@@ -44,7 +41,7 @@ function mask(attributes: A, modifier: string, state: { active: boolean }) {
 
 const field = template.factory(
     function(
-        this: ((attributes: A, state: { active: boolean }) => Renderable<unknown>),
+        this: { mask: (attributes: A, state: { active: boolean }) => Renderable<unknown> },
         attributes: Attributes & { state?: { active: boolean } },
         content: (mask: ((attributes: A) => Renderable<unknown>)) => Renderable<unknown>
     ) {
@@ -67,7 +64,7 @@ const field = template.factory(
                     }
                 }}
             >
-                ${content((attributes) => this(attributes, state))}
+                ${content((attributes) => this.mask(attributes, state))}
             </label>
         `
     }
@@ -75,13 +72,19 @@ const field = template.factory(
 
 
 export default {
-    checkbox: field.bind((attributes: A, state: { active: boolean }) => {
-        return mask(attributes, 'checkbox', state);
+    checkbox: field.bind({
+        mask: (attributes: A, state: { active: boolean }) => {
+            return mask(attributes, 'checkbox', state);
+        }
     }),
-    radio: field.bind((attributes: A, state: { active: boolean }) => {
-        return mask(attributes, 'radio', state);
+    radio: field.bind({
+        mask: (attributes: A, state: { active: boolean }) => {
+            return mask(attributes, 'radio', state);
+        }
     }),
-    switch: field.bind((attributes: A, state: { active: boolean }) => {
-        return mask(attributes, 'switch', state);
+    switch: field.bind({
+        mask: (attributes: A, state: { active: boolean }) => {
+            return mask(attributes, 'switch', state);
+        }
     }),
 };

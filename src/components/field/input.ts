@@ -1,32 +1,19 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import { omit, pick } from '@esportsplus/utilities';
+import { omit } from '@esportsplus/utilities';
 import form from '~/components/form';
 import template from '~/components/template';
 import error from './error';
 
 
-const FILE_TAG = ['accept', 'disabled', 'name', 'required', 'value'];
+type A = Attributes & {
+    'field-mask-tag'?: Attributes
+};
 
-const OMIT = ['state'];
 
-const TEXT_TAG = [
-    'autocapitalize',
-    'autocomplete',
-    'autocorrect',
-    'autofocus',
-    'disabled',
-    'maxlength',
-    'minlength',
-    'name',
-    'placeholder',
-    'readonly',
-    'required',
-    'spellcheck',
-    'type',
-    'value',
-    'wrap'
-];
+const OMIT_FIELD = ['state'];
+
+const OMIT_TAG = ['field-mask-tag'];
 
 
 const field = template.factory(
@@ -43,7 +30,7 @@ const field = template.factory(
         return html`
             <div
                 class='field'
-                ${omit(attributes, OMIT)}
+                ${omit(attributes, OMIT_FIELD)}
                 ${{
                     class: () => state.active && '--active',
                     onfocusin: () => {
@@ -65,16 +52,16 @@ const field = template.factory(
 );
 
 const file = template.factory(
-    function(this: { state: { active: boolean, error: string } }, attributes, content) {
+    function(this: { state: { active: boolean, error: string } }, attributes: A, content) {
         return html`
             <label
                 class='field-mask field-mask--file'
-                ${omit(attributes, FILE_TAG)}
+                ${omit(attributes, OMIT_TAG)}
             >
                 <input
                     class='field-mask-tag field-mask-tag--hidden'
                     type='file'
-                    ${pick(attributes, FILE_TAG) as Attributes}
+                    ${attributes['field-mask-tag']}
                     ${{
                         onrender: form.input.onrender(this.state)
                     }}
@@ -87,12 +74,15 @@ const file = template.factory(
 );
 
 const text = template.factory(
-    function(this: { state: { active: boolean, error: string } }, attributes, content) {
+    function(this: { state: { active: boolean, error: string } }, attributes: A, content) {
         return html`
-            <label class='field-mask field-mask--input' ${omit(attributes, TEXT_TAG)}>
+            <label
+                class='field-mask field-mask--input'
+                ${omit(attributes, OMIT_TAG)}
+            >
                 <input
                     class='field-mask-tag'
-                    ${pick(attributes, TEXT_TAG) as Attributes}
+                    ${attributes['field-mask-tag']}
                     ${{
                         onrender: form.input.onrender(this.state),
                         type: attributes.type || 'text'
@@ -105,20 +95,22 @@ const text = template.factory(
 );
 
 const textarea = template.factory(
-    function(this: { state: { active: boolean, error: string } }, attributes: Attributes & { value?: string }, content) {
+    function(this: { state: { active: boolean, error: string } }, attributes: A, content) {
+        let a = attributes['field-mask-tag'] || {};
+
         return html`
             <label
                 class='field-mask field-mask--textarea'
-                ${omit(attributes, TEXT_TAG)}
+                ${omit(attributes, OMIT_TAG)}
             >
                 <textarea
                     class='field-mask-tag'
-                    ${pick(attributes, TEXT_TAG) as Attributes}
+                    ${a}
                     ${{
                         onrender: form.input.onrender(this.state)
                     }}
                 >
-                    ${attributes.value}
+                    ${a.value as string}
                 </textarea>
                 ${content}
             </label>
