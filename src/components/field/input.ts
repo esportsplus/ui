@@ -18,9 +18,9 @@ const OMIT_TAG = ['field-mask-tag'];
 
 const field = template.factory(
     function(
-        this: { mask: typeof file | typeof text | typeof textarea },
+        this: { mask: typeof file | typeof range | typeof text | typeof textarea },
         attributes: Attributes & { state?: { active: boolean, error: string } },
-        content: (mask: typeof file | typeof text | typeof textarea) => Renderable<unknown>
+        content: (mask: typeof file | typeof range | typeof text | typeof textarea) => Renderable<unknown>
     ) {
         let state = attributes.state || reactive({
                 active: false,
