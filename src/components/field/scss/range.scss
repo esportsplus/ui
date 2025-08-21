@@ -13,7 +13,7 @@
 
                 &::-moz-range-thumb,
                 &::-webkit-slider-thumb {
-                    background: var(--color-purple-400);
+                    background: var(--border-color);
                     border-radius: 100%;
                     border: var(--border-width) solid var(--border-color);
                     cursor: pointer;
@@ -35,7 +35,8 @@
 @mixin variables() {
     &-mask {
         &--range {
-            --background: var(--color-black-300);
+            --background-default: var(--color-black-300);
+            --border-color-default: var(--color-white-400);
             --border-width: var(--border-width-700);
             --height: var(--size-200);
             --thumb-size: var(--size-400);
