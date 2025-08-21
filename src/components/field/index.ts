@@ -8,8 +8,8 @@ import './scss/index.scss';
 
 const { checkbox: cb, radio, switch: sw } = checkbox;
 
-const { file, text, textarea } = input;
+const { file, range, text, textarea } = input;
 
 
-export default { checkbox: cb, description, file, radio, select, switch: sw, textarea, text, title };
-export { cb as checkbox, description, file, radio, select, sw as switch, textarea, text, title };
+export default { checkbox: cb, description, file, radio, range, select, switch: sw, textarea, text, title };
+export { cb as checkbox, description, file, radio, range, select, sw as switch, textarea, text, title };
