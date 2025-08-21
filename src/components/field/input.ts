@@ -1,4 +1,4 @@
-import { reactive } from '@esportsplus/reactivity';
+import { reactive, root } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { omit } from '@esportsplus/utilities';
 import form from '~/components/form';
@@ -79,7 +79,7 @@ const range = template.factory(
                         state.value = Number((e.target as HTMLInputElement).value);
                     }}
                     type='range'
-                    value='${(a.value as number) || state.value || 0}'
+                    value='${root(() => (a.value as number) || state.value || 0)}'
                     ${a}
                 >
                 ${content}
