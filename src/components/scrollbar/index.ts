@@ -16,7 +16,7 @@ let root = document.body,
 
 
 export default template.factory<A>(
-    function(attributes, content) {
+    function(this: {  attributes?: A }, attributes, content) {
         let state = reactive({
                 height: 100,
                 translate: 0
@@ -25,13 +25,13 @@ export default template.factory<A>(
         return html`
             <div
                 class='scrollbar-container'
+                ${this?.attributes && omit(this.attributes, OMIT)}
                 ${omit(attributes, OMIT)}
-                ${this.attributes && omit(this.attributes, OMIT)}
             >
                 <div
                     class='scrollbar-container-content'
+                    ${this?.attributes?.['scrollbar-container-content']}
                     ${attributes['scrollbar-container-content']}
-                    ${this.attributes?.['scrollbar-container-content']}
                     ${{
                         onscroll: function() {
                             if (width === undefined) {
@@ -52,7 +52,7 @@ export default template.factory<A>(
 
                 <div
                     class='scrollbar'
-                    ${this.attributes?.scrollbar}
+                    ${this?.attributes?.scrollbar}
                     ${{
                         class: () => state.height >= 100 && 'scrollbar--hidden',
                         style: () => `
