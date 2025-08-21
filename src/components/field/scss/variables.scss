@@ -1,5 +1,6 @@
 @use '/tokens';
 @use 'check' as check;
+@use 'range' as range;
 @use 'text' as text;
 
 .field {
@@ -122,5 +123,6 @@
 
 
     @include check.variables();
+    @include range.variables();
     @include text.variables();
 }

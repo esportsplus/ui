@@ -1,0 +1,45 @@
+@mixin css() {
+    &-mask {
+        &--range {
+            margin: calc((var(--height) - var(--thumb-size)) / 2) 0;
+
+            .field-mask-tag {
+                background: var(--background);
+                border-radius: 240px;
+                border: 0px;
+                height: var(--height);
+                transition: opacity .2s;
+                width: var(--width);
+
+                &::-moz-range-thumb,
+                &::-webkit-slider-thumb {
+                    background: var(--color-purple-400);
+                    border-radius: 100%;
+                    border: var(--border-width) solid var(--border-color);
+                    cursor: pointer;
+                    height: var(--thumb-size);
+                    width: var(--thumb-size);
+                }
+
+                &,
+                &::-moz-range-thumb,
+                &::-webkit-slider-thumb {
+                    appearance: none;
+                    outline: none;
+                }
+            }
+        }
+    }
+}
+
+@mixin variables() {
+    &-mask {
+        &--range {
+            --background: var(--color-black-300);
+            --border-width: var(--border-width-700);
+            --height: var(--size-200);
+            --thumb-size: var(--size-400);
+            --width: 100%;
+        }
+    }
+}
