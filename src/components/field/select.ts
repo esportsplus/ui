@@ -153,7 +153,13 @@ export default template.factory<
             }
         }
     ),
-    (mask: typeof select) => Renderable<unknown>
+    (mask: (attributes: {
+        'field-mask-arrow'?: Attributes;
+        'field-mask-tag'?: Attributes;
+        'field-mask-text'?: Attributes;
+        'tooltip-content'?: Attributes & { direction?: string };
+    } & Attributes & A,
+    content: Renderable<unknown>) => Renderable<unknown>) => Renderable<unknown>
 >((attributes, content) => {
     let options = attributes.options,
         state = attributes.state || reactive({
