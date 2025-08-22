@@ -22,116 +22,117 @@ const OMIT_MASK = [
 const OMIT_OPTION = ['content'];
 
 
-const select = template.factory(
-    function(
-        this: {
-            options: Record<number | string, Attributes & { content: unknown }>;
-            option?: Attributes;
-            state: {
-                active: boolean;
-                error: string;
-                render: boolean;
-                selected: string | number;
-            }
-        },
-        attributes: Attributes & A & {
-            'field-mask-arrow'?: Attributes;
-            'field-mask-tag'?: Attributes;
-            'field-mask-text'?: Attributes;
-            'tooltip-content'?: Attributes & { direction?: string };
-        },
-        content
-    ) {
-        let { option, options, state } = this;
+const select = function(
+    this: {
+        options: { content: unknown } & Attributes;
+        option?: Attributes;
+        state: {
+            active: boolean;
+            error: string;
+            render: boolean;
+            selected: string | number;
+        }
+    },
+    attributes: {
+        'field-mask-arrow'?: Attributes;
+        'field-mask-tag'?: Attributes;
+        'field-mask-text'?: Attributes;
+        'tooltip-content'?: Attributes & { direction?: string };
+    } & Attributes & A,
+    content: Renderable<unknown>
+) {
+    let { option, options, state } = this;
 
-        return html`
-            <label
-                class='field-mask field-mask--select'
-                ${omit(attributes, OMIT_MASK)}
+    return html`
+        <label
+            class='field-mask field-mask--select'
+            ${omit(attributes, OMIT_MASK)}
+            ${{
+                onclick: () => {
+                    state.active = !state.active;
+                    state.render = true;
+
+                    if (state.active) {
+                        root.onclick.push(() => state.active = false);
+                    }
+                }
+            }}
+        >
+            <input class='field-mask-tag field-mask-tag--hidden'
                 ${{
-                    onclick: () => {
-                        state.active = !state.active;
-                        state.render = true;
-
-                        if (state.active) {
-                            root.onclick.push(() => state.active = false);
-                        }
-                    }
+                    name: attributes.name,
+                    onclick: () => { /* Prevent double click events from firing */ },
+                    onrender: form.input.onrender(state),
+                    value: () => state.selected
                 }}
+                ${attributes['field-mask-tag']}
             >
-                <input class='field-mask-tag field-mask-tag--hidden'
-                    ${{
-                        name: attributes.name,
-                        onclick: () => { /* Prevent double click events from firing */ },
-                        onrender: form.input.onrender(state),
-                        value: () => state.selected
+
+            ${content || html`
+                <div class='field-mask-text' ${attributes['field-mask-text']}>
+                    ${() => {
+                        // @ts-ignore
+                        return (options[ state.selected ]?.content || '-');
                     }}
-                    ${attributes['field-mask-tag']}
-                >
+                </div>
+            `}
 
-                ${content || html`
-                    <div class='field-mask-text' ${attributes['field-mask-text']}>
-                        ${() => (options[ state.selected ] || '-') as any}
-                    </div>
-                `}
+            <div class='field-mask-arrow' ${attributes['field-mask-arrow']}></div>
 
-                <div class='field-mask-arrow' ${attributes['field-mask-arrow']}></div>
+            ${() => {
+                if (!state.render) {
+                    return;
+                }
 
-                ${() => {
-                    if (!state.render) {
-                        return;
-                    }
-
-                    let keys = Object.keys(options),
-                        selected = reactive(
-                            Object.fromEntries( keys.map(key => [key, false]) )
-                        );
-
-                    return scrollbar(
-                        {
-                            ...attributes['tooltip-content'],
-                            class: [
-                                ...toArray(attributes['tooltip-content']?.class),
-                                `tooltip-content tooltip-content--${attributes['tooltip-content']?.direction || 's'} --flex-column --width-full`
-                            ],
-                            onclick: (e: Event) => {
-                                let key = (e?.target as HTMLElement)?.dataset?.key;
-
-                                if (key === undefined) {
-                                    return;
-                                }
-
-                                let previous = state.selected;
-
-                                state.selected = key;
-                                state.active = false;
-
-                                selected[key] = true;
-                                selected[previous] = false;
-                            },
-                            scrollbar: attributes['scrollbar'],
-                            'scrollbar-container-content': attributes['scrollbar-container-content']
-                        },
-                        keys.map((key) => html`
-                            <div class='link'
-                                ${omit(options[key], OMIT_OPTION)}
-                                ${option}
-                                ${{
-                                    class: () => selected[key] && '--active',
-                                    'data-key': key
-                                }}
-                            >
-                                <span class='--text-truncate'>
-                                    ${options[key]}
-                                </span>
-                            </div>
-                        `)
+                let keys = Object.keys(options),
+                    selected = reactive(
+                        Object.fromEntries( keys.map(key => [key, false]) )
                     );
-                }}
-            </label>
-        `;
-    }
-);
+
+                return scrollbar(
+                    {
+                        ...attributes['tooltip-content'],
+                        class: [
+                            ...toArray(attributes['tooltip-content']?.class),
+                            `tooltip-content tooltip-content--${attributes['tooltip-content']?.direction || 's'} --flex-column --width-full`
+                        ],
+                        onclick: (e: Event) => {
+                            let key = (e?.target as HTMLElement)?.dataset?.key;
+
+                            if (key === undefined) {
+                                return;
+                            }
+
+                            let previous = state.selected;
+
+                            state.selected = key;
+                            state.active = false;
+
+                            selected[key] = true;
+                            selected[previous] = false;
+                        },
+                        scrollbar: attributes['scrollbar'],
+                        'scrollbar-container-content': attributes['scrollbar-container-content']
+                    },
+                    keys.map((key) => html`
+                        <div class='link'
+                            ${omit(options[key] as Attributes, OMIT_OPTION)}
+                            ${option}
+                            ${{
+                                class: () => selected[key] && '--active',
+                                'data-key': key
+                            }}
+                        >
+                            <span class='--text-truncate --pointer-none'>
+                                ${(options[key] as any).content}
+                            </span>
+                        </div>
+                    `)
+                );
+            }}
+        </label>
+    `;
+};
 
 
 export default template.factory<
@@ -147,6 +148,7 @@ export default template.factory<
             state: {
                 active: boolean;
                 error: string;
+                render: boolean;
                 selected?: number | string;
             }
         }
@@ -157,6 +159,7 @@ export default template.factory<
         state = attributes.state || reactive({
             active: false,
             error: '',
+            render: false,
             selected: attributes.selected || Object.keys(options)[0]
         });
 
