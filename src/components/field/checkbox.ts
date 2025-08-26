@@ -56,7 +56,9 @@ const field = template.factory(
                 ${{
                     class: () => state.active && '--active',
                     onchange: (e) => {
-                        if ((e.target as HTMLInputElement).type !== 'checkbox') {
+                        let type = (e.target as HTMLInputElement).type;
+
+                        if (type !== 'checkbox' && type !== 'radio') {
                             return;
                         }
 
