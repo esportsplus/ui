@@ -39,16 +39,22 @@
     &--option {
         border-radius: 0;
 
-        &:first-child:last-child {
+        &:only-child {
             border-radius: var(--border-radius);
         }
 
-        &:first-child:not(:last-child) {
-            border-radius: var(--border-radius) var(--border-radius) 0 0;
-        }
+        &:not(:only-child) {
+            &:not(:first-child) {
+                margin-top: calc(var(--border-width) * -1);
+            }
 
-        &:last-child:not(:first-child) {
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            &:first-child {
+                border-radius: var(--border-radius) var(--border-radius) 0 0;
+            }
+
+            &:last-child {
+                border-radius: 0 0 var(--border-radius) var(--border-radius);
+            }
         }
     }
 }
