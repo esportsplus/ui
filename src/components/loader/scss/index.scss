@@ -15,15 +15,15 @@
 
 
     &--load {
-        animation: 0.4s 0.2s ease-in-out 1 both move;
+        animation: 0.4s 0.2s ease-in-out 1 both loaderMove;
 
         & & {
-            animation: 0.4s ease-in-out 1 both move;
+            animation: 0.4s ease-in-out 1 both loaderMove;
         }
     }
 
 
-    @keyframes move {
+    @keyframes loaderMove {
         0% {
             transform: translateY(0);
         }
@@ -53,10 +53,10 @@
         color: white;
 
         &--scale {
-            animation: scale 0.32s 1;
+            animation: loaderLogoScale 0.32s 1;
             animation-fill-mode: both;
 
-            @keyframes scale {
+            @keyframes loaderLogoScale {
                 from {
                     opacity: 1;
                     transform: scale3d(1, 1, 1);

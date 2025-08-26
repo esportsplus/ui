@@ -45,7 +45,15 @@ export default template.factory(
                     ${a}
                     ${omit(attributes, OMIT)}
                 >
-                    <div class='loader' ${a}>
+                    <div
+                        class='loader'
+                        ${a}
+                        ${!content && {
+                            onconnect: () => {
+                                state.load = true;
+                            }
+                        }}
+                    >
                         ${content && html`
                             <div class='loader-content' ${attributes['loader-content']}>
                                 <div
