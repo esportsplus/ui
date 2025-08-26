@@ -1,4 +1,4 @@
-import { reactive } from '@esportsplus/reactivity';
+import { reactive, root } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { omit } from '@esportsplus/utilities';
 import template from '~/components/template';
@@ -28,7 +28,7 @@ function mask(attributes: A, modifier: string, state: { active: boolean }) {
             <input
                 class='field-mask-tag field-mask-tag--hidden'
                 ${{
-                    checked: a.checked || a.value || state.active,
+                    checked: a.checked || root(() => state.active),
                     type: modifier === 'radio' ? 'radio' : 'checkbox',
                     value: a.value || 1
                 }}
@@ -56,13 +56,14 @@ const field = template.factory(
                 ${{
                     class: () => state.active && '--active',
                     onchange: (e) => {
-                        let type = (e.target as HTMLInputElement).type;
+                        let target = (e.target as HTMLInputElement),
+                            type = target.type;
 
                         if (type !== 'checkbox' && type !== 'radio') {
                             return;
                         }
 
-                        state.active = (e.target as HTMLInputElement)?.checked;
+                        state.active = target.checked;
                     }
                 }}
             >
