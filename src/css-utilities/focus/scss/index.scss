@@ -1,7 +1,7 @@
+@use './variables';
+
 .--focus-active {
     > * {
-        transition: opacity var(--transition-duration) ease-in-out;
-
         .--focus-active:has(.--active) &:not(.--active) {
             opacity: var(--opacity);
         }
