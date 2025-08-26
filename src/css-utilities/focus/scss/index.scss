@@ -1,9 +1,7 @@
 @use './variables';
 
 .--focus-active {
-    > * {
-        .--focus-active:has(.--active) &:not(.--active) {
-            opacity: var(--opacity);
-        }
+    &:has(.--active) > *:not(.--active) {
+        opacity: var(--opacity);
     }
 }
