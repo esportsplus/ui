@@ -22,7 +22,7 @@ const OMIT_MASK = [
 const OMIT_OPTION = ['content'];
 
 
-let active: { active: boolean } | null = null;
+let field: { active: boolean } | null = null;
 
 
 function set(state: { active: boolean }, value: boolean) {
@@ -31,13 +31,14 @@ function set(state: { active: boolean }, value: boolean) {
     if (state.active) {
         root.onclick.push(() => state.active = false);
 
-        if (active) {
-            active.active = false;
-            active = null;
+        if (field) {
+            field.active = false;
         }
+
+        field = state;
     }
-    else if (active === state) {
-        active = null;
+    else if (field === state) {
+        field = null;
     }
 }
 
