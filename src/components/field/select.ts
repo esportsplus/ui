@@ -22,6 +22,26 @@ const OMIT_MASK = [
 const OMIT_OPTION = ['content'];
 
 
+let active: { active: boolean } | null = null;
+
+
+function set(state: { active: boolean }, value: boolean) {
+    state.active = value;
+
+    if (state.active) {
+        root.onclick.push(() => state.active = false);
+
+        if (active) {
+            active.active = false;
+            active = null;
+        }
+    }
+    else if (active === state) {
+        active = null;
+    }
+}
+
+
 const select = function(
     this: {
         options: { content: unknown } & Attributes;
@@ -49,12 +69,11 @@ const select = function(
             ${omit(attributes, OMIT_MASK)}
             ${{
                 onclick: () => {
-                    state.active = !state.active;
-                    state.render = true;
-
-                    if (state.active) {
-                        root.onclick.push(() => state.active = false);
+                    if (state.render) {
+                        set(state, !state.active);
                     }
+
+                    state.render = true;
                 }
             }}
         >
@@ -105,11 +124,14 @@ const select = function(
 
                             let previous = state.selected;
 
+                            set(state, false);
                             state.selected = key;
-                            state.active = false;
 
                             selected[key] = true;
                             selected[previous] = false;
+                        },
+                        onconnect: () => {
+                            set(state, true);
                         },
                         scrollbar: attributes['scrollbar'],
                         'scrollbar-container-content': attributes['scrollbar-container-content']
