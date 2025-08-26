@@ -18,15 +18,6 @@
         color var(--transition-duration) ease-in-out,
         opacity var(--transition-duration) ease-in-out;
     width: var(--width);
-    z-index: 1;
-
-    @include tokens.state(hover) {
-        z-index: 8;
-    }
-
-    @include tokens.state(active) {
-        z-index: 9;
-    }
 
 
     &-description,
