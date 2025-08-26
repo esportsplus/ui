@@ -47,15 +47,6 @@
             }
         }
 
-        &--checkbox,
-        &--radio {
-            &::before {
-                position: absolute;
-                bottom: 50%;
-                right: 50%;
-            }
-        }
-
         &--radio,
         &--switch {
             &::before {
@@ -69,7 +60,18 @@
             &::before {
                 border-bottom: var(--border-width) solid var(--accent);
                 border-right: var(--border-width) solid var(--accent);
-                transform-origin: center left;
+                transform-origin: bottom center;
+                position: absolute;
+                bottom: 50%;
+                right: 92%;
+            }
+        }
+
+        &--radio {
+            &::before {
+                position: absolute;
+                bottom: 50%;
+                right: 50%;
             }
         }
 
