@@ -18,7 +18,7 @@ export { default as highlight } from './highlight';
 export { default as icon } from './icon';
 export { default as json } from './json';
 export * as link from './link';
-export * as loader from './loader';
+export { default as loader } from './loader';
 export { default as loading } from './loading';
 export * as modal from './modal';
 export { default as number } from './number';
