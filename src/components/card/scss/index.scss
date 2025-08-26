@@ -1,4 +1,5 @@
 @use '/lib';
+@use '/tokens';
 @use 'variables';
 
 .card {
@@ -39,6 +40,14 @@
     &--option {
         border-radius: 0;
 
+        @include tokens.state(active) {
+            z-index: 2;
+        }
+
+        @include tokens.state(hover) {
+            z-index: 1;
+        }
+
         &:only-child {
             border-radius: var(--border-radius);
         }
@@ -52,7 +61,7 @@
                 border-radius: var(--border-radius) var(--border-radius) 0 0;
             }
 
-            &:last-child {
+            &:not(:has(~ .card--option)) {
                 border-radius: 0 0 var(--border-radius) var(--border-radius);
             }
         }
