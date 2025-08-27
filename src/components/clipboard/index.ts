@@ -1,4 +1,5 @@
+import onclick from './onclick';
 import write from './write';
 
 
-export default { write };
+export default { onclick, write };

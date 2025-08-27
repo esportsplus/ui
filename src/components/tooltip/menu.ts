@@ -13,7 +13,7 @@ type A = Attributes & {
 };
 
 
-const OMIT = ['options', 'option', 'state', 'toggle', 'tooltip-content'];
+const OMIT = ['options', 'option', 'tooltip-content'];
 
 const OMIT_OPTION = ['content'];
 
