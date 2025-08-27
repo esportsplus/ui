@@ -17,6 +17,10 @@ const OMIT_TAG = ['field-mask-tag'];
 function mask(attributes: A, modifier: string, state: { active: boolean }) {
     let a = attributes['field-mask-tag'] || {};
 
+    if (a.checked) {
+        state.active = true;
+    }
+
     return html`
         <div
             class='field-mask'
