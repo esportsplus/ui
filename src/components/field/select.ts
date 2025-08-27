@@ -179,7 +179,7 @@ export default template.factory<
             }
         }
     ),
-    (mask: ReturnType<typeof template.factory<A>>) => Renderable<unknown>
+    (mask: typeof select) => Renderable<unknown>
 >((attributes, content) => {
     let options = attributes.options,
         state = attributes.state || reactive({
