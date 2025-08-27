@@ -51,114 +51,116 @@ function set(state: { active: boolean }, value: boolean) {
 }
 
 
-const select = function(
-    this: {
-        options: { content: unknown } & Attributes;
-        option?: Attributes;
-        state: {
-            active: boolean;
-            error: string;
-            render: boolean;
-            selected: string | number;
-        }
-    },
-    attributes: A,
-    content: Renderable<unknown>
-) {
-    let { option, options, state } = this;
+const select = template.factory(
+    function(
+        this: {
+            options: { content: unknown } & Attributes;
+            option?: Attributes;
+            state: {
+                active: boolean;
+                error: string;
+                render: boolean;
+                selected: string | number;
+            }
+        },
+        attributes: A,
+        content: Renderable<unknown>
+    ) {
+        let { option, options, state } = this;
 
-    return html`
-        <label
-            class='field-mask field-mask--select'
-            ${omit(attributes, OMIT_MASK)}
-            ${{
-                onclick: () => {
-                    if (state.render) {
-                        set(state, !state.active);
+        return html`
+            <label
+                class='field-mask field-mask--select'
+                ${omit(attributes, OMIT_MASK)}
+                ${{
+                    onclick: () => {
+                        if (state.render) {
+                            set(state, !state.active);
+                        }
+
+                        state.render = true;
+                    }
+                }}
+            >
+                <input class='field-mask-tag field-mask-tag--hidden'
+                    ${{
+                        name: attributes.name,
+                        onclick: () => { /* Prevent double click events from firing */ },
+                        onrender: form.input.onrender(state),
+                        value: () => state.selected
+                    }}
+                    ${attributes['field-mask-tag']}
+                >
+
+                ${content || html`
+                    <div class='field-mask-text' ${attributes['field-mask-text']}>
+                        ${() => {
+                            // @ts-ignore
+                            return (options[ state.selected ]?.content || '-');
+                        }}
+                    </div>
+                `}
+
+                <div class='field-mask-arrow' ${attributes['field-mask-arrow']}></div>
+
+                ${() => {
+                    if (!state.render) {
+                        return;
                     }
 
-                    state.render = true;
-                }
-            }}
-        >
-            <input class='field-mask-tag field-mask-tag--hidden'
-                ${{
-                    name: attributes.name,
-                    onclick: () => { /* Prevent double click events from firing */ },
-                    onrender: form.input.onrender(state),
-                    value: () => state.selected
-                }}
-                ${attributes['field-mask-tag']}
-            >
+                    let keys = Object.keys(options),
+                        selected = reactive(
+                            Object.fromEntries( keys.map(key => [key, false]) )
+                        );
 
-            ${content || html`
-                <div class='field-mask-text' ${attributes['field-mask-text']}>
-                    ${() => {
-                        // @ts-ignore
-                        return (options[ state.selected ]?.content || '-');
-                    }}
-                </div>
-            `}
+                    return scrollbar(
+                        {
+                            ...attributes['tooltip-content'],
+                            class: [
+                                ...toArray(attributes['tooltip-content']?.class),
+                                `tooltip-content tooltip-content--${attributes['tooltip-content']?.direction || 's'} --flex-column --width-full`
+                            ],
+                            onclick: (e: Event) => {
+                                let key = (e?.target as HTMLElement)?.dataset?.key;
 
-            <div class='field-mask-arrow' ${attributes['field-mask-arrow']}></div>
+                                if (key === undefined) {
+                                    return;
+                                }
 
-            ${() => {
-                if (!state.render) {
-                    return;
-                }
+                                let previous = state.selected;
 
-                let keys = Object.keys(options),
-                    selected = reactive(
-                        Object.fromEntries( keys.map(key => [key, false]) )
+                                set(state, false);
+                                state.selected = key;
+
+                                selected[key] = true;
+                                selected[previous] = false;
+                            },
+                            onconnect: () => {
+                                set(state, true);
+                            },
+                            scrollbar: attributes['scrollbar'],
+                            'scrollbar-container-content': attributes['scrollbar-container-content']
+                        },
+                        keys.map((key) => html`
+                            <div class='link'
+                                ${omit(options[key] as Attributes, OMIT_OPTION)}
+                                ${option}
+                                ${{
+                                    class: () => selected[key] && '--active',
+                                    'data-key': key
+                                }}
+                            >
+                                <span class='--text-truncate --pointer-none'>
+                                    ${(options[key] as any).content}
+                                </span>
+                            </div>
+                        `)
                     );
-
-                return scrollbar(
-                    {
-                        ...attributes['tooltip-content'],
-                        class: [
-                            ...toArray(attributes['tooltip-content']?.class),
-                            `tooltip-content tooltip-content--${attributes['tooltip-content']?.direction || 's'} --flex-column --width-full`
-                        ],
-                        onclick: (e: Event) => {
-                            let key = (e?.target as HTMLElement)?.dataset?.key;
-
-                            if (key === undefined) {
-                                return;
-                            }
-
-                            let previous = state.selected;
-
-                            set(state, false);
-                            state.selected = key;
-
-                            selected[key] = true;
-                            selected[previous] = false;
-                        },
-                        onconnect: () => {
-                            set(state, true);
-                        },
-                        scrollbar: attributes['scrollbar'],
-                        'scrollbar-container-content': attributes['scrollbar-container-content']
-                    },
-                    keys.map((key) => html`
-                        <div class='link'
-                            ${omit(options[key] as Attributes, OMIT_OPTION)}
-                            ${option}
-                            ${{
-                                class: () => selected[key] && '--active',
-                                'data-key': key
-                            }}
-                        >
-                            <span class='--text-truncate --pointer-none'>
-                                ${(options[key] as any).content}
-                            </span>
-                        </div>
-                    `)
-                );
-            }}
-        </label>
-    `;
-};
+                }}
+            </label>
+        `;
+    }
+);
 
 
 export default template.factory<
