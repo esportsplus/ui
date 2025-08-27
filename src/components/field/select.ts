@@ -3,7 +3,7 @@ import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { isObject, omit, toArray } from '@esportsplus/utilities';
 import form from '~/components/form';
 import root from '~/components/root';
-import scrollbar, { Attributes as A } from '~/components/scrollbar';
+import scrollbar, { Attributes as Attr } from '~/components/scrollbar';
 import template from '~/components/template';
 import error from './error';
 
@@ -20,6 +20,14 @@ const OMIT_MASK = [
 ];
 
 const OMIT_OPTION = ['content'];
+
+
+type A = {
+    'field-mask-arrow'?: Attributes;
+    'field-mask-tag'?: Attributes;
+    'field-mask-text'?: Attributes;
+    'tooltip-content'?: Attributes & { direction?: string };
+} & Attributes & Attr;
 
 
 let field: { active: boolean } | null = null;
@@ -54,12 +62,7 @@ const select = function(
             selected: string | number;
         }
     },
-    attributes: {
-        'field-mask-arrow'?: Attributes;
-        'field-mask-tag'?: Attributes;
-        'field-mask-text'?: Attributes;
-        'tooltip-content'?: Attributes & { direction?: string };
-    } & Attributes & A,
+    attributes: A,
     content: Renderable<unknown>
 ) {
     let { option, options, state } = this;
@@ -176,13 +179,7 @@ export default template.factory<
             }
         }
     ),
-    (mask: (attributes: {
-        'field-mask-arrow'?: Attributes;
-        'field-mask-tag'?: Attributes;
-        'field-mask-text'?: Attributes;
-        'tooltip-content'?: Attributes & { direction?: string };
-    } & Attributes & A,
-    content: Renderable<unknown>) => Renderable<unknown>) => Renderable<unknown>
+    (mask: ReturnType<typeof template.factory<A>>) => Renderable<unknown>
 >((attributes, content) => {
     let options = attributes.options,
         state = attributes.state || reactive({
