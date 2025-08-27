@@ -36,15 +36,30 @@ export default template.factory<A>(
                     class='tooltip-content ${`tooltip-content--${tooltipContentDirection}`}'
                     ${tooltipContent && omit(tooltipContent, OMIT_TOOLTIP_CONTENT)}
                 >
-                    ${options.map((o) => html`
-                        <div
-                            class='link --width-full'
-                            ${omit(o, OMIT_OPTION)}
-                            ${option}
-                        >
-                            ${o.content}
-                        </div>
-                    `)}
+                    ${options.map((o) => {
+                        if (o.href) {
+                            return html`
+                                <a
+                                    class='link --width-full'
+                                    target='_blank'
+                                    ${omit(o, OMIT_OPTION)}
+                                    ${option}
+                                >
+                                    ${o.content}
+                                </a>
+                            `;
+                        }
+
+                        return html`
+                            <div
+                                class='link --width-full'
+                                ${omit(o, OMIT_OPTION)}
+                                ${option}
+                            >
+                                ${o.content}
+                            </div>
+                        `;
+                    })}
                 </div>
             `
         );
