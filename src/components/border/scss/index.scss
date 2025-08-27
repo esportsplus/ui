@@ -4,9 +4,14 @@
     border-top: var(--border-width) var(--border-style) var(--border-color);
     position: relative;
     width: 100%;
+    z-index: -1;
 
 
     & + & {
         display: none;
+    }
+
+    &--offset-top {
+        margin-top: calc(var(--border-width) * -1);
     }
 }
