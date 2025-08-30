@@ -1,0 +1,72 @@
+@use '/lib';
+@use '/tokens';
+
+.switch {
+    --background: var(--background-default);
+    --background-active: var(--background-default);
+    --background-default: transparent;
+    --background-hover: var(--background-default);
+    --background-pressed: var(--background-default);
+    --border-color: var(--border-color-default);
+    --border-color-default: var(--background);
+    --border-radius: 240px;
+    --border-style: solid;
+    --border-width: 0px;
+    --box-shadow: var(--box-shadow-default);
+    --box-shadow-default: none;
+    --height: var(--size);
+    --opacity: var(--opacity-default);
+    --opacity-active: var(--opacity-default);
+    --opacity-default: 1;
+    --opacity-hover: var(--opacity-default);
+    --opacity-pressed: var(--opacity-default);
+    --padding-horizontal: var(--border-width-400);
+    --padding-vertical: var(--border-width-400);
+    --rotate: 0deg;
+    --scale: var(--scale-default);
+    --scale-active: var(--scale-default);
+    --scale-default: 1;
+    --scale-hover: var(--scale-default);
+    --scale-pressed: var(--scale-default);
+    --size: var(--size-600);
+    --width: var(--width-switch);
+    --width-switch: 40px;
+
+    &::before {
+        --box-shadow: 0 1px 0 rgba(0, 0, 0, 0.16);
+        --height: calc(var(--size) - (var(--border-width) * 2) - (var(--padding-vertical) * 2));
+        --translateX: 0px;
+        --translateY: 0px;
+        --width: var(--height);
+
+        #{tokens.state(active, '.field')} & {
+            --translateX: calc(var(--width-switch) - (var(--border-width) * 2) - var(--height) - (var(--padding-horizontal) * 2));
+        }
+    }
+
+    #{tokens.state(inactive, 'label')},
+    #{tokens.state(inactive)} {
+        @include tokens.state(hover) {
+            --background: var(--background-hover);
+            --border-color: var(--border-color-hover);
+            --box-shadow: var(--box-shadow-hover);
+            --color: var(--color-hover);
+            --opacity: var(--opacity-hover);
+            --scale: var(--scale-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --background: var(--background-pressed);
+            --border-color: var(--border-color-pressed);
+            --box-shadow: var(--box-shadow-pressed);
+            --color: var(--color-pressed);
+            --opacity: var(--opacity-pressed);
+            --scale: var(--scale-pressed);
+        }
+    }
+
+    #{tokens.state(active)} {
+        --opacity: var(--opacity-active);
+        --scale: var(--scale-active);
+    }
+}

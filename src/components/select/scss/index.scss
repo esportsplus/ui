@@ -1,0 +1,36 @@
+@use '/lib';
+
+.select {
+    align-items: center;
+    background: var(--background);
+    border: var(--border-width) var(--border-style) var(--border-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    padding: var(--padding-vertical) calc((var(--padding-horizontal) / 1.5) + var(--arrow-size)) var(--padding-vertical) var(--padding-horizontal);
+    position: relative;
+    width: 100%;
+
+    &:invalid,
+    &:required {
+        box-shadow: none;
+    }
+
+    &-arrow {
+        @include lib.position(absolute, null calc(var(--padding-horizontal) + var(--arrow-spacer)) calc(50% + var(--arrow-spacer)) null);
+        border-color: var(--border-color);
+        border-style: var(--border-style);
+        border-width: 0 var(--border-width) var(--border-width) 0;
+        content: '';
+        height: var(--arrow-size);
+        transform: translateY(50%) rotate(45deg);
+        width: var(--arrow-size);
+    }
+
+    &-tag {
+        color: var(--color);
+    }
+}

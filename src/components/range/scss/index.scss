@@ -1,0 +1,31 @@
+@use 'variables';
+
+.range {
+    margin: calc((var(--height) - var(--thumb-size)) / 2) 0;
+
+    &-tag {
+        background: var(--background);
+        border-radius: 240px;
+        border: 0px;
+        height: var(--height);
+        transition: opacity .2s;
+        width: var(--width);
+
+        &::-moz-range-thumb,
+        &::-webkit-slider-thumb {
+            background: var(--thumb-background);
+            border-radius: 100%;
+            border: var(--border-width) solid var(--border-color);
+            cursor: pointer;
+            height: var(--thumb-size);
+            width: var(--thumb-size);
+        }
+
+        &,
+        &::-moz-range-thumb,
+        &::-webkit-slider-thumb {
+            appearance: none;
+            outline: none;
+        }
+    }
+}

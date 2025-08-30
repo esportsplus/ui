@@ -1,33 +1,46 @@
 import { reactive } from '@esportsplus/reactivity';
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import { isObject, omit, toArray } from '@esportsplus/utilities';
+import { html, Renderable, type Attributes } from '@esportsplus/template';
+import { omit, toArray } from '@esportsplus/utilities';
 import form from '~/components/form';
 import root from '~/components/root';
 import scrollbar, { Attributes as Attr } from '~/components/scrollbar';
 import template from '~/components/template';
-import error from './error';
+import './scss/index.scss';
 
 
-const OMIT_FIELD = ['options', 'state'];
-
-const OMIT_MASK = [
-    'field-mask-arrow',
-    'field-mask-text',
-    'field-mask-tag',
+const OMIT = [
+    'options',
+    'select-arrow',
+    'select-tag',
+    'select-text',
     'scrollbar',
     'scrollbar-container-content',
     'tooltip-content',
 ];
 
-const OMIT_OPTION = ['content'];
-
 
 type A = {
-    'field-mask-arrow'?: Attributes;
-    'field-mask-tag'?: Attributes;
-    'field-mask-text'?: Attributes;
+    'select-arrow'?: Attributes;
+    'select-tag'?: Attributes;
+    'select-text'?: Attributes;
+    'scrollbar'?: Attributes;
+    'scrollbar-container-content'?: Attributes;
     'tooltip-content'?: Attributes & { direction?: string };
-} & Attributes & Attr;
+    options: Record<number | string, Renderable<unknown>>;
+    option?: Attributes;
+} & (
+    {
+        selected?: number | string;
+        state?: never;
+    } | {
+        state: {
+            active: boolean;
+            error: string;
+            render: boolean;
+            selected?: number | string;
+        }
+    }
+) & Attributes & Attr;
 
 
 let field: { active: boolean } | null = null;
@@ -51,27 +64,20 @@ function set(state: { active: boolean }, value: boolean) {
 }
 
 
-const select = template.factory(
-    function(
-        this: {
-            options: { content: unknown } & Attributes;
-            option?: Attributes;
-            state: {
-                active: boolean;
-                error: string;
-                render: boolean;
-                selected: string | number;
-            }
-        },
-        attributes: A,
-        content: Renderable<unknown>
-    ) {
-        let { option, options, state } = this;
+export default template.factory<A>(
+    function(attributes: A, content) {
+        let { options, option } = attributes,
+            state = attributes.state || reactive({
+                active: false,
+                error: '',
+                render: false,
+                selected: attributes.selected || Object.keys(options)[0]
+            });
 
         return html`
             <label
-                class='field-mask field-mask--select'
-                ${omit(attributes, OMIT_MASK)}
+                class='select'
+                ${omit(attributes, OMIT)}
                 ${{
                     onclick: () => {
                         if (state.render) {
@@ -82,26 +88,23 @@ const select = template.factory(
                     }
                 }}
             >
-                <input class='field-mask-tag field-mask-tag--hidden'
+                <input class='select-tag'
                     ${{
                         name: attributes.name,
                         onclick: () => { /* Prevent double click events from firing */ },
                         onrender: form.input.onrender(state),
                         value: () => state.selected
                     }}
-                    ${attributes['field-mask-tag']}
+                    ${attributes['select-tag']}
                 >
 
                 ${content || html`
-                    <div class='field-mask-text' ${attributes['field-mask-text']}>
-                        ${() => {
-                            // @ts-ignore
-                            return (options[ state.selected ]?.content || '-');
-                        }}
+                    <div class='select-text' ${attributes['select-text']}>
+                        ${() => options[ state.selected! ] || '-'}
                     </div>
                 `}
 
-                <div class='field-mask-arrow' ${attributes['field-mask-arrow']}></div>
+                <div class='select-arrow' ${attributes['select-arrow']}></div>
 
                 ${() => {
                     if (!state.render) {
@@ -127,7 +130,7 @@ const select = template.factory(
                                     return;
                                 }
 
-                                let previous = state.selected;
+                                let previous = state.selected!;
 
                                 set(state, false);
                                 state.selected = key;
@@ -142,16 +145,16 @@ const select = template.factory(
                             'scrollbar-container-content': attributes['scrollbar-container-content']
                         },
                         keys.map((key) => html`
-                            <div class='link'
-                                ${omit(options[key] as Attributes, OMIT_OPTION)}
+                            <div
+                                class='link'
                                 ${option}
                                 ${{
+                                    'data-key': key,
                                     class: () => selected[key] && '--active',
-                                    'data-key': key
                                 }}
                             >
                                 <span class='--text-truncate --pointer-none'>
-                                    ${(options[key] as any).content}
+                                    ${options[key]}
                                 </span>
                             </div>
                         `)
@@ -161,62 +164,3 @@ const select = template.factory(
         `;
     }
 );
-
-
-export default template.factory<
-    Attributes & {
-        options: Record<number | string, (number | string | Attributes & { content: unknown })>;
-        option?: Attributes;
-    } & (
-        {
-            selected?: number | string;
-            state?: never;
-        } |
-        {
-            state: {
-                active: boolean;
-                error: string;
-                render: boolean;
-                selected?: number | string;
-            }
-        }
-    ),
-    (mask: typeof select) => Renderable<unknown>
->((attributes, content) => {
-    let options = attributes.options,
-        state = attributes.state || reactive({
-            active: false,
-            error: '',
-            render: false,
-            selected: attributes.selected || Object.keys(options)[0]
-        });
-
-    for (let key in options) {
-        if (isObject(options[key])) {
-            continue;
-        }
-
-        options[key] = { content: options[key] };
-    }
-
-    return html`
-        <div class='field tooltip'
-            ${omit(attributes as any, OMIT_FIELD)}
-            ${{
-                class: () => state.active && '--active'
-            }}
-        >
-            ${content(
-                (...args: any[]) => (select.call as any)(
-                    {
-                        option: attributes.option,
-                        options: attributes.options,
-                        state
-                    },
-                    ...args
-                )
-            )}
-            ${error(state)}
-        </div>
-    `;
-});

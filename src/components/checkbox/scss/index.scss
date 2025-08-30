@@ -1,0 +1,50 @@
+@use '/lib';
+@use 'variables';
+
+.checkbox {
+    background: var(--background);
+    border-color: var(--border-color);
+    border-radius: var(--border-radius);
+    border-style: var(--border-style);
+    border-width: var(--border-width);
+    flex: 0 0 var(--width);
+    height: var(--height);
+    position: relative;
+    transition:
+        background var(--transition-duration) ease-in-out,
+        border-color var(--transition-duration) ease-in-out,
+        box-shadow var(--transition-duration) ease-in-out,
+        opacity var(--transition-duration) ease-in-out,
+        transform var(--transition-duration) ease-in-out;
+    width: var(--width);
+
+    &:invalid,
+    &:required {
+        box-shadow: none;
+    }
+
+    &::before {
+        border-bottom: var(--border-width) solid var(--accent);
+        border-right: var(--border-width) solid var(--accent);
+        bottom: 50%;
+        box-shadow: var(--box-shadow);
+        content: '';
+        height: var(--height);
+        opacity: var(--opacity);
+        position: absolute;
+        right: 92%;
+        transform: translate(var(--translateX), var(--translateY)) rotate(var(--rotate)) scale(var(--scale));
+        transform-origin: bottom center;
+        width: var(--width);
+    }
+
+    // Hide HTML Field Element
+    &-tag {
+        @include lib.position(absolute, 0 null null 0);
+        height: 0px;
+        opacity: 0;
+        pointer-events: none;
+        width: 0px;
+        z-index: 0;
+    }
+}

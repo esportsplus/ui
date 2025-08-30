@@ -1,0 +1,67 @@
+@use '/lib';
+@use '/tokens';
+
+.radio {
+    --background: var(--background-default);
+    --background-active: var(--background-default);
+    --background-default: transparent;
+    --background-hover: var(--background-default);
+    --background-pressed: var(--background-default);
+    --border-color: var(--border-color-default);
+    --border-color-default: var(--background);
+    --border-radius: 100%;
+    --border-style: solid;
+    --border-width: 0px;
+    --box-shadow: var(--box-shadow-default);
+    --box-shadow-default: none;
+    --height: var(--size);
+    --margin-horizontal: calc(var(--width-switch) - var(--width));
+    --opacity: var(--opacity-default);
+    --opacity-active: 1;
+    --opacity-default: 0.4;
+    --opacity-hover: var(--opacity-default);
+    --opacity-pressed: var(--opacity-default);
+    --rotate: 0deg;
+    --scale: var(--scale-default);
+    --scale-active: 0.9;
+    --scale-default: 0;
+    --scale-hover: 0.8;
+    --scale-pressed: 0.7;
+    --size: var(--size-600);
+    --width: var(--height);
+    --width-switch: 40px;
+
+    &::before {
+        --height: calc((var(--size) / 2) - (var(--border-width) * 2));
+        --box-shadow: 0 1px 0 rgba(0, 0, 0, 0.16);
+        --translateX: 50%;
+        --translateY: 50%;
+        --width: var(--height);
+    }
+
+    #{tokens.state(inactive, 'label')},
+    #{tokens.state(inactive)} {
+        @include tokens.state(hover) {
+            --background: var(--background-hover);
+            --border-color: var(--border-color-hover);
+            --box-shadow: var(--box-shadow-hover);
+            --color: var(--color-hover);
+            --opacity: var(--opacity-hover);
+            --scale: var(--scale-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --background: var(--background-pressed);
+            --border-color: var(--border-color-pressed);
+            --box-shadow: var(--box-shadow-pressed);
+            --color: var(--color-pressed);
+            --opacity: var(--opacity-pressed);
+            --scale: var(--scale-pressed);
+        }
+    }
+
+    #{tokens.state(active)} {
+        --opacity: var(--opacity-active);
+        --scale: var(--scale-active);
+    }
+}

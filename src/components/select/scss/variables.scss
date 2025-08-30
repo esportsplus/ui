@@ -1,0 +1,12 @@
+.select {
+    --arrow-spacer: 1px;
+    --arrow-size: 6px;
+    --font-size: var(--font-size-400);
+    --line-height: var(--line-height-400);
+    --padding-horizontal: var(--size-400);
+    --padding-vertical: var(--size-400);
+
+    &-arrow {
+        --border-width: var(--border-width-500);
+    }
+}

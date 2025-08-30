@@ -1,1 +1,36 @@
 @use 'modern-normalize/modern-normalize.css';
+
+button,
+input,
+select,
+textarea {
+    background: transparent;
+    border-radius: 0;
+    border: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+
+    &,
+    &:active,
+    &:focus,
+    &:hover {
+        outline: none;
+    }
+
+    &:invalid {
+        box-shadow: none;
+    }
+}
+
+form {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+label {
+    cursor: pointer;
+}

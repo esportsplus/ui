@@ -1,0 +1,50 @@
+@use '/lib';
+@use '/tokens';
+
+.input {
+    --background: var(--background-default);
+    --background-active: var(--background-default);
+    --background-default: transparent;
+    --background-hover: var(--background-default);
+    --background-pressed: var(--background-default);
+    --border-color: var(--border-color-default);
+    --border-color-default: var(--background);
+    --border-radius: var(--border-radius-400);
+    --border-style: solid;
+    --border-width: 0px;
+    --box-shadow: var(--box-shadow-default);
+    --box-shadow-default: none;
+    --color: var(--color-default);
+    --color-active: var(--color-default);
+    --color-default: var(--color-text-400);
+    --color-hover: var(--color-default);
+    --color-pressed: var(--color-default);
+    --font-size: var(--font-size-400);
+    --line-height: var(--line-height-400);
+    --padding-horizontal: var(--size-400);
+    --padding-vertical: var(--size-400);
+    --size: var(--size-400);
+
+    #{tokens.state(inactive)} {
+        @include tokens.state(hover) {
+           --background: var(--background-hover);
+            --border-color: var(--border-color-hover);
+            --box-shadow: var(--box-shadow-hover);
+            --color: var(--color-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --background: var(--background-pressed);
+            --border-color: var(--border-color-pressed);
+            --box-shadow: var(--box-shadow-pressed);
+            --color: var(--color-pressed);
+        }
+    }
+
+    #{tokens.state(active)} {
+        --background: var(--background-active);
+        --border-color: var(--border-color-active);
+        --box-shadow: var(--box-shadow-active);
+        --color: var(--color-active);
+    }
+}

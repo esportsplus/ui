@@ -1,0 +1,26 @@
+.textarea {
+    align-items: center;
+    background: var(--background);
+    border: var(--border-width) var(--border-style) var(--border-color);
+    border-radius: var(--border-radius);
+    cursor: text;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    position: relative;
+    width: 100%;
+
+    &:invalid,
+    &:required {
+        box-shadow: none;
+    }
+
+    &-tag {
+        color: var(--color);
+        flex: 1 1 auto;
+        padding: var(--padding-vertical) var(--padding-horizontal);
+        min-width: 0;
+        white-space: normal;
+    }
+}
