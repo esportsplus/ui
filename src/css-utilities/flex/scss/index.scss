@@ -1,9 +1,19 @@
 @use 'variables';
 
 .--flex {
+    &-center,
+    &-end,
+    &-horizontal,
+    &-horizontal-space-between,
+    &-start,
+    &-vertical,
+    &-vertical-space-between {
+        display: flex;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+    }
+
     &-center {
         align-content: center;
-        display: flex;
         flex-flow: row wrap;
         justify-content: center;
     }
@@ -11,10 +21,10 @@
     &-column {
         display: flex;
         flex-flow: column;
+        gap: var(--gap-vertical) 0px;
     }
 
     &-end {
-        display: flex;
         flex-flow: row wrap;
         justify-content: flex-end;
     }
@@ -30,18 +40,11 @@
         flex: 0 0 var(--width);
     }
 
-    &-gap {
-        display: flex;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-    }
-
     &-horizontal {
-        display: flex;
         flex-flow: row wrap;
         justify-content: center;
 
         &-space-between {
-            display: flex;
             flex-flow: row wrap;
             justify-content: space-between;
         }
@@ -50,22 +53,20 @@
     &-row {
         display: flex;
         flex-flow: row;
+        gap: 0px var(--gap-horizontal);
     }
 
     &-start {
-        display: flex;
         flex-flow: row wrap;
         justify-content: flex-start;
     }
 
     &-vertical {
         align-items: center;
-        display: flex;
         flex-flow: row wrap;
 
         &-space-between {
             align-items: space-between;
-            display: flex;
             flex-flow: row wrap;
         }
     }

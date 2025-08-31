@@ -1,38 +1,53 @@
 @use '/lib';
 @use '/tokens';
 
-.--flex-gap {
-    @each $direction in 'horizontal' 'vertical' {
-        &,
-        &-#{$direction} {
-            @each $key in lib.map-keys(tokens.$border-width) {
-                &-border-width {
-                    --gap-#{$direction}: var(--border-width-400);
+.--flex {
+    &-center,
+    &-column,
+    &-end,
+    &-horizontal,
+    &-horizontal-space-between,
+    &-row,
+    &-start,
+    &-vertical,
+    &-vertical-space-between {
+        --gap-horizontal: 0px;
+        --gap-vertical: 0px;
+    }
 
-                    &-#{$key} {
-                        --gap-#{$direction}: var(--border-width-#{$key});
+    &-gap {
+        @each $direction in 'horizontal' 'vertical' {
+            &,
+            &-#{$direction} {
+                @each $key in lib.map-keys(tokens.$border-width) {
+                    &-border-width {
+                        --gap-#{$direction}: var(--border-width-400);
+
+                        &-#{$key} {
+                            --gap-#{$direction}: var(--border-width-#{$key});
+                        }
                     }
                 }
-            }
 
-            @each $key in lib.map-keys(tokens.$spacer) {
-                &-spacer {
-                    --gap-#{$direction}: var(--spacer-400);
+                @each $key in lib.map-keys(tokens.$spacer) {
+                    &-spacer {
+                        --gap-#{$direction}: var(--spacer-400);
 
-                    &-#{$key} {
-                        --gap-#{$direction}: var(--spacer-#{$key});
+                        &-#{$key} {
+                            --gap-#{$direction}: var(--spacer-#{$key});
+                        }
                     }
                 }
-            }
 
-            @each $key in lib.map-keys(tokens.$size) {
-                &-#{$key} {
-                    --gap-#{$direction}: var(--size-#{$key});
+                @each $key in lib.map-keys(tokens.$size) {
+                    &-#{$key} {
+                        --gap-#{$direction}: var(--size-#{$key});
+                    }
                 }
-            }
 
-            &-inherit {
-                --gap-#{$direction}: inherit;
+                &-inherit {
+                    --gap-#{$direction}: inherit;
+                }
             }
         }
     }
