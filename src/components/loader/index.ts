@@ -6,6 +6,7 @@ import './scss/index.scss';
 
 
 type A = Attributes & {
+    'loader'?: Attributes,
     'loader-content'?: Attributes,
     'loader-logo'?: Attributes
 };
@@ -16,8 +17,7 @@ const OMIT = ['loader-content', 'loader-logo'];
 
 export default template.factory(
     (attributes: A, content) => {
-        let a = omit(attributes, OMIT),
-            state = reactive({
+        let state = reactive({
                 load: false,
                 remove: false,
                 scale: false
@@ -40,7 +40,7 @@ export default template.factory(
                             state.remove = true;
                         }
                     }}
-                    ${a}
+                    ${omit(attributes, OMIT)}
                 >
                     <div
                         class='loader ${() => state.load && 'loader--load'}'
@@ -49,7 +49,7 @@ export default template.factory(
                                 state.load = true;
                             }
                         }}
-                        ${a}
+                        ${attributes.loader}
                     >
                         ${content && html`
                             <div class='loader-content' ${attributes['loader-content']}>
