@@ -47,4 +47,9 @@
     &-arrow {
         --border-width: var(--border-width-500);
     }
+
+    &-option {
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-400);
+    }
 }

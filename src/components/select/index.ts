@@ -137,7 +137,7 @@ const select = template.factory<A>(
                         },
                         keys.map((key) => html`
                             <div
-                                class='link --padding-400 ${() => selected[key] && '--active'}'
+                                class='link select-option ${() => selected[key] && '--active'}'
                                 data-key='${key}'
                                 ${option}
                             >
