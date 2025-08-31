@@ -1,3 +1,5 @@
+@use 'variables';
+
 .--flex {
     &-center {
         align-content: center;
@@ -26,6 +28,11 @@
     &-fixed {
         display: flex;
         flex: 0 0 var(--width);
+    }
+
+    &-gap {
+        display: flex;
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
     &-horizontal {
