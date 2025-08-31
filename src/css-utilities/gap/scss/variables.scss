@@ -1,0 +1,39 @@
+@use '/lib';
+@use '/tokens';
+
+.--gap {
+    @each $direction in 'horizontal' 'vertical' {
+        &,
+        &-#{$direction} {
+            @each $key in lib.map-keys(tokens.$border-width) {
+                &-border-width {
+                    --gap-#{$direction}: var(--border-width-400);
+
+                    &-#{$key} {
+                        --gap-#{$direction}: var(--border-width-#{$key});
+                    }
+                }
+            }
+
+            @each $key in lib.map-keys(tokens.$spacer) {
+                &-spacer {
+                    --gap-#{$direction}: var(--spacer-400);
+
+                    &-#{$key} {
+                        --gap-#{$direction}: var(--spacer-#{$key});
+                    }
+                }
+            }
+
+            @each $key in lib.map-keys(tokens.$size) {
+                &-#{$key} {
+                    --gap-#{$direction}: var(--size-#{$key});
+                }
+            }
+
+            &-inherit {
+                --gap-#{$direction}: inherit;
+            }
+        }
+    }
+}

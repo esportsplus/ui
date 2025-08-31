@@ -2,7 +2,7 @@
 
 .grid {
     display: grid;
-    grid-gap: var(--margin-horizontal) var(--margin-vertical);
+    grid-gap: var(--gap-horizontal) var(--gap-vertical);
     grid-template-columns: repeat(auto-fit, minmax(var(--min-width), var(--max-width)));
     position: relative;
 

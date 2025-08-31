@@ -1,0 +1,8 @@
+@use 'variables';
+
+.--scroller {
+    flex-flow: row;
+    margin-bottom: calc(var(--scrollbar-width) * -1);
+    overflow-y: hidden;
+    padding-bottom: var(--scrollbar-width);
+}
