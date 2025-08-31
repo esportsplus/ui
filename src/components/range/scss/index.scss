@@ -5,7 +5,7 @@
     border-radius: 240px;
     border: 0px;
     height: var(--height);
-    margin: calc((var(--thumb-size) - var(--height)) / 2) 0;
+    margin: calc(var(--margin-vertical) + ((var(--thumb-size) - var(--height)) / 2)) var(--margin-horizontal);
     transition:
         background var(--transition-duration) ease-in-out,
         border-color var(--transition-duration) ease-in-out,
