@@ -39,7 +39,9 @@ export default defineConfig({
                             }
 
                             let layer: string,
-                                parts = file.source.split('\n', 2);
+                                segments = file.source.split('\n'),
+                                // Vite appends a value on bundle
+                                vite = segments.pop();
 
                             if (filename.startsWith('css-utilities')) {
                                 layer = 'css-utilities';
@@ -54,7 +56,7 @@ export default defineConfig({
                                 continue;
                             }
 
-                            file.source = `@layer ${layer} {${parts[0]}}\n${parts[1]}`;
+                            file.source = `@layer ${layer} {${segments.join('\n')}}\n${vite}`;
                         }
                     }
                 }
