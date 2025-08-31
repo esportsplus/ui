@@ -9,7 +9,6 @@ import './scss/index.scss';
 
 
 const OMIT = [
-    'arrow',
     'options',
     'option',
     'scrollbar',
@@ -19,9 +18,8 @@ const OMIT = [
 
 
 type A = {
-    arrow?: Renderable<unknown>;
     options: Record<number | string, Renderable<unknown>>;
-    option?: typeof option;
+    option?: Attributes;
     scrollbar?: Attributes;
     'scrollbar-container-content'?: Attributes;
     'tooltip-content'?: Attributes & { direction?: string };
@@ -60,20 +58,9 @@ function set(state: { active: boolean }, value: boolean) {
     }
 }
 
-
-const option = template.factory(
-    function(attributes, content) {
-        return html`
-            <div class='link --padding-400' ${attributes}>
-                ${content}
-            </div>
-        `;
-    }
-);
-
 const select = template.factory<A>(
     function(attributes: A, content) {
-        let options = attributes.options,
+        let { options, option } = attributes,
             state = attributes.state || reactive({
                 active: false,
                 error: '',
@@ -99,7 +86,7 @@ const select = template.factory<A>(
                     </div>
                 `}
 
-                ${attributes['arrow'] || html`<div class='select-arrow'></div>`}
+                <div class='select-arrow'></div>
 
                 <input class='select-tag'
                     ${{
@@ -118,8 +105,7 @@ const select = template.factory<A>(
                     let keys = Object.keys(options),
                         selected = reactive(
                             Object.fromEntries( keys.map(key => [key, false]) )
-                        ),
-                        template = attributes.option || option;
+                        );
 
                     return scrollbar(
                         {
@@ -149,12 +135,15 @@ const select = template.factory<A>(
                             scrollbar: attributes.scrollbar,
                             'scrollbar-container-content': attributes['scrollbar-container-content']
                         },
-                        keys.map((key) => {
-                            return template({
-                                class: () => selected[key] && '--active',
-                                'data-key': key
-                            }, options[key]);
-                        })
+                        keys.map((key) => html`
+                            <div
+                                class='link --padding-400 ${() => selected[key] && '--active'}'
+                                data-key='${key}'
+                                ${option}
+                            >
+                                ${options[key]}
+                            </div>
+                        `)
                     );
                 }}
             </label>
