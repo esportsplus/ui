@@ -15,11 +15,11 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
       '@esportsplus/reactivity':
-        specifier: ^0.16.7
-        version: 0.16.7
+        specifier: ^0.17.2
+        version: 0.17.2
       '@esportsplus/template':
-        specifier: ^0.23.2
-        version: 0.23.2
+        specifier: ^0.23.5
+        version: 0.23.5
       '@esportsplus/utilities':
         specifier: ^0.22.1
         version: 0.22.1
@@ -222,14 +222,14 @@ packages:
   '@esportsplus/queue@0.1.0':
     resolution: {integrity: sha512-ycZRjkTD9dz29yVqSGJwDnAUm9f4y8icW7fKLxvvY4gmoPqfDMJXr6QdLqYvqLfVgNvlKKVhIUFLsefmrf9kvA==}
 
-  '@esportsplus/reactivity@0.16.7':
-    resolution: {integrity: sha512-cfW3TxHkBBnZyxqtkr8A/kqTCVkcgUxOdzhidaZNeOf4w3mb/P1ROgpcG27e71nf6ktB5iZWgcX3MD6kw0gdWQ==}
+  '@esportsplus/reactivity@0.17.2':
+    resolution: {integrity: sha512-989joH10HUzzjp8NY07NmgmZGJ3UcgMP0Yi3O7GpsaZAKaBJoZJ7gO6MLo0iaQtF4IO3kRK/iKXH0ZjT7433Mg==}
 
   '@esportsplus/tasks@0.2.1':
     resolution: {integrity: sha512-MLdGqQjkDD83IdbL57EQpNPzF2xKj/4XZhY5u0Wf3BpQXn3lyXRfu1W2jODOShQD2d/SXOZRw7W6NSrYCH7iVQ==}
 
-  '@esportsplus/template@0.23.2':
-    resolution: {integrity: sha512-8ls90J5i5vLlqmPNI29iZEbK5FGryzK2Vq1Ri9UHINC6qxa0yqIxcu5bsTxyNnyJ5mAeQ/OWBBQXAEXm9uKuBw==}
+  '@esportsplus/template@0.23.5':
+    resolution: {integrity: sha512-rCel2YhQnX/CMvXHS2Kz3t1N8VEUkadEL/Xrtt/JI/LVwv3LZTQgWSx+PRhcDr3o33sZ5ZmR338xr2/NzJCq1g==}
 
   '@esportsplus/typescript@0.9.2':
     resolution: {integrity: sha512-7CLlWVhCbkEW3EodOk+zE0xMAFeyVs+EjYr3/H5mY+im1O+o6ig5RpY3TNWabUkEBW14Jo8TBoHQAsPJH6CnuQ==}
@@ -1531,7 +1531,7 @@ snapshots:
 
   '@esportsplus/queue@0.1.0': {}
 
-  '@esportsplus/reactivity@0.16.7':
+  '@esportsplus/reactivity@0.17.2':
     dependencies:
       '@esportsplus/custom-function': 0.0.13
       '@esportsplus/utilities': 0.22.1
@@ -1540,10 +1540,10 @@ snapshots:
     dependencies:
       '@esportsplus/queue': 0.1.0
 
-  '@esportsplus/template@0.23.2':
+  '@esportsplus/template@0.23.5':
     dependencies:
       '@esportsplus/queue': 0.1.0
-      '@esportsplus/reactivity': 0.16.7
+      '@esportsplus/reactivity': 0.17.2
       '@esportsplus/tasks': 0.2.1
       '@esportsplus/utilities': 0.22.1
 

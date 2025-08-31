@@ -101,7 +101,7 @@ export default (attributes: Attributes & {
                             class: i > n - 3 && 'counter-character--fraction'
                         }}>
                             <div class='counter-character-track' ${{
-                                style: `--value: ${this[i]}`}
+                                style: `--value: ${state.render[i]}`}
                             }}>
                                 <span>9</span>
                                 ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span>${value}</span>`)}
