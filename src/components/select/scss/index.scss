@@ -1,23 +1,17 @@
 @use '/lib';
 
 .select {
-    align-items: center;
-    background: var(--background);
-    border: var(--border-width) var(--border-style) var(--border-color);
-    border-radius: var(--border-radius);
     cursor: pointer;
     display: flex;
     flex-wrap: wrap;
-    font-size: var(--font-size);
-    line-height: var(--line-height);
-    padding: var(--padding-vertical) calc((var(--padding-horizontal) / 1.5) + var(--arrow-size)) var(--padding-vertical) var(--padding-horizontal);
     position: relative;
+    transition:
+        background var(--transition-duration) ease-in-out,
+        border-color var(--transition-duration) ease-in-out,
+        box-shadow var(--transition-duration) ease-in-out,
+        opacity var(--transition-duration) ease-in-out,
+        transform var(--transition-duration) ease-in-out;
     width: 100%;
-
-    &:invalid,
-    &:required {
-        box-shadow: none;
-    }
 
     &-arrow {
         @include lib.position(absolute, null calc(var(--padding-horizontal) + var(--arrow-spacer)) calc(50% + var(--arrow-spacer)) null);
@@ -30,7 +24,22 @@
         width: var(--arrow-size);
     }
 
+    &-content {
+        background: var(--background);
+        border: var(--border-width) var(--border-style) var(--border-color);
+        border-radius: var(--border-radius);
+        font-size: var(--font-size);
+        line-height: var(--line-height);
+        padding: var(--padding-vertical) calc((var(--padding-horizontal) / 1.5) + var(--arrow-size)) var(--padding-vertical) var(--padding-horizontal);
+    }
+
+    // Hide HTML Field Element
     &-tag {
-        color: var(--color);
+        @include lib.position(absolute, 0 null null 0);
+        height: 0px;
+        opacity: 0;
+        pointer-events: none;
+        width: 0px;
+        z-index: 0;
     }
 }

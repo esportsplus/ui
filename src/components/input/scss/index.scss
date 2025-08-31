@@ -5,17 +5,27 @@
     background: var(--background);
     border: var(--border-width) var(--border-style) var(--border-color);
     border-radius: var(--border-radius);
+    color: var(--color);
     cursor: text;
     display: flex;
-    overflow: hidden;
+    flex: 1 1 auto;
     flex-wrap: wrap;
     font-size: var(--font-size);
     line-height: var(--line-height);
     // Necessary To Maintain Height Of Hidden Password Fields In Floating Modals
     // - Password Managers Cause Problems When Fields Are Not Using 'display:hidden' On Password Fields
     min-height: calc((var(--padding-vertical) * 2) + var(--size));
+    min-width: 0;
+    overflow: hidden;
+    padding: var(--padding-vertical) var(--padding-horizontal);
     position: relative;
     text-overflow: ellipsis;
+    transition:
+        background var(--transition-duration) ease-in-out,
+        border-color var(--transition-duration) ease-in-out,
+        box-shadow var(--transition-duration) ease-in-out,
+        opacity var(--transition-duration) ease-in-out,
+        transform var(--transition-duration) ease-in-out;
     white-space: nowrap;
     width: 100%;
 
@@ -24,14 +34,7 @@
         box-shadow: none;
     }
 
-    &-tag {
-        color: var(--color);
-        flex: 1 1 auto;
-        padding: var(--padding-vertical) var(--padding-horizontal);
-        min-width: 0;
-
-        &[type='number'] {
-            appearance: textfield;
-        }
+    &[type='number'] {
+        appearance: textfield;
     }
 }

@@ -1,34 +1,33 @@
 @use 'variables';
 
 .range {
-    &,
-    &-tag {
-        width: var(--width);
+    background: var(--background);
+    border-radius: 240px;
+    border: 0px;
+    height: var(--height);
+    margin: calc((var(--thumb-size) - var(--height)) / 2) 0;
+    transition:
+        background var(--transition-duration) ease-in-out,
+        border-color var(--transition-duration) ease-in-out,
+        box-shadow var(--transition-duration) ease-in-out,
+        opacity var(--transition-duration) ease-in-out,
+        transform var(--transition-duration) ease-in-out;
+    width: var(--width);
+
+    &::-moz-range-thumb,
+    &::-webkit-slider-thumb {
+        background: var(--thumb-background);
+        border-radius: 100%;
+        border: var(--border-width) solid var(--border-color);
+        cursor: pointer;
+        height: var(--thumb-size);
+        width: var(--thumb-size);
     }
 
-    &-tag {
-        background: var(--background);
-        border-radius: 240px;
-        border: 0px;
-        height: var(--height);
-        margin: calc((var(--thumb-size) - var(--height)) / 2) 0;
-        transition: opacity .2s;
-
-        &::-moz-range-thumb,
-        &::-webkit-slider-thumb {
-            background: var(--thumb-background);
-            border-radius: 100%;
-            border: var(--border-width) solid var(--border-color);
-            cursor: pointer;
-            height: var(--thumb-size);
-            width: var(--thumb-size);
-        }
-
-        &,
-        &::-moz-range-thumb,
-        &::-webkit-slider-thumb {
-            appearance: none;
-            outline: none;
-        }
+    &,
+    &::-moz-range-thumb,
+    &::-webkit-slider-thumb {
+        appearance: none;
+        outline: none;
     }
 }

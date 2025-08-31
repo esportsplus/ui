@@ -9,10 +9,9 @@ import './scss/index.scss';
 
 
 const OMIT = [
+    'arrow',
     'options',
-    'select-arrow',
-    'select-tag',
-    'select-text',
+    'option',
     'scrollbar',
     'scrollbar-container-content',
     'tooltip-content',
@@ -20,14 +19,12 @@ const OMIT = [
 
 
 type A = {
-    'select-arrow'?: Attributes;
-    'select-tag'?: Attributes;
-    'select-text'?: Attributes;
-    'scrollbar'?: Attributes;
+    arrow?: Renderable<unknown>;
+    options: Record<number | string, Renderable<unknown>>;
+    option?: typeof option;
+    scrollbar?: Attributes;
     'scrollbar-container-content'?: Attributes;
     'tooltip-content'?: Attributes & { direction?: string };
-    options: Record<number | string, Renderable<unknown>>;
-    option?: Attributes;
 } & (
     {
         selected?: number | string;
@@ -64,9 +61,19 @@ function set(state: { active: boolean }, value: boolean) {
 }
 
 
-export default template.factory<A>(
+const option = template.factory(
+    function(attributes, content) {
+        return html`
+            <div class='link --padding-400' ${attributes}>
+                ${content}
+            </div>
+        `;
+    }
+);
+
+const select = template.factory<A>(
     function(attributes: A, content) {
-        let { options, option } = attributes,
+        let options = attributes.options,
             state = attributes.state || reactive({
                 active: false,
                 error: '',
@@ -77,17 +84,23 @@ export default template.factory<A>(
         return html`
             <label
                 class='select'
-                ${omit(attributes, OMIT)}
-                ${{
-                    onclick: () => {
-                        if (state.render) {
-                            set(state, !state.active);
-                        }
-
-                        state.render = true;
+                onclick=${() => {
+                    if (state.render) {
+                        set(state, !state.active);
                     }
+
+                    state.render = true;
                 }}
+                ${omit(attributes, OMIT)}
             >
+                ${content || html`
+                    <div class='select-content text'>
+                        ${() => options[ state.selected! ] || '-'}
+                    </div>
+                `}
+
+                ${attributes['arrow'] || html`<div class='select-arrow'></div>`}
+
                 <input class='select-tag'
                     ${{
                         name: attributes.name,
@@ -95,16 +108,7 @@ export default template.factory<A>(
                         onrender: form.input.onrender(state),
                         value: () => state.selected
                     }}
-                    ${attributes['select-tag']}
-                >
-
-                ${content || html`
-                    <div class='select-text' ${attributes['select-text']}>
-                        ${() => options[ state.selected! ] || '-'}
-                    </div>
-                `}
-
-                <div class='select-arrow' ${attributes['select-arrow']}></div>
+                />
 
                 ${() => {
                     if (!state.render) {
@@ -114,7 +118,8 @@ export default template.factory<A>(
                     let keys = Object.keys(options),
                         selected = reactive(
                             Object.fromEntries( keys.map(key => [key, false]) )
-                        );
+                        ),
+                        template = attributes.option || option;
 
                     return scrollbar(
                         {
@@ -141,26 +146,21 @@ export default template.factory<A>(
                             onconnect: () => {
                                 set(state, true);
                             },
-                            scrollbar: attributes['scrollbar'],
+                            scrollbar: attributes.scrollbar,
                             'scrollbar-container-content': attributes['scrollbar-container-content']
                         },
-                        keys.map((key) => html`
-                            <div
-                                class='link'
-                                ${option}
-                                ${{
-                                    'data-key': key,
-                                    class: () => selected[key] && '--active',
-                                }}
-                            >
-                                <span class='--text-truncate --pointer-none'>
-                                    ${options[key]}
-                                </span>
-                            </div>
-                        `)
+                        keys.map((key) => {
+                            return template({
+                                class: () => selected[key] && '--active',
+                                'data-key': key
+                            }, options[key]);
+                        })
                     );
                 }}
             </label>
         `;
     }
 );
+
+
+export default select;

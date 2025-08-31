@@ -6,25 +6,21 @@ import template from '~/components/template';
 import './scss/index.scss';
 
 
-type A = Attributes & {
-    'textarea-tag'?: Attributes;
-    state?: { active: boolean, error: string };
-};
+type A = Attributes & { state?: { active: boolean, error: string } };
 
 
-const OMIT = ['textarea-tag'];
+const OMIT = ['state'];
 
 
-export default template.factory(
-    function(attributes: A, content) {
-        let a = attributes['textarea-tag'],
-            state = attributes.state || reactive({
+export default template.factory<A, never>(
+    function(attributes) {
+        let state = attributes.state || reactive({
                 active: false,
                 error: ''
             });
 
         return html`
-            <label
+            <textarea
                 class='textarea'
                 ${{
                     class: () => state.active && '--active',
@@ -33,19 +29,13 @@ export default template.factory(
                     },
                     onfocusout: () => {
                         state.active = false;
-                    }
+                    },
+                    onrender: form.input.onrender(state)
                 }}
-                ${a ? omit(attributes, OMIT) : attributes}
+                ${omit(attributes, OMIT)}
             >
-                <textarea
-                    class='textarea-tag'
-                    onrender=${form.input.onrender(state)}
-                    ${a}
-                >
-                    ${a?.value as string}
-                </textarea>
-                ${content}
-            </label>
+                ${attributes?.value as string}
+            </textarea>
         `;
     }
 );

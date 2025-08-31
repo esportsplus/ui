@@ -5,41 +5,40 @@ import form from '~/components/form';
 import './scss/index.scss';
 
 
-type A = Attributes & {
-    'checkbox-tag'?: Attributes,
-    state?: { active: boolean, error: string }
-};
+const OMIT = ['checked', 'value'];
 
 
-const OMIT = ['checkbox-tag'];
-
-
-export default function(attributes?: A) {
-    let a = attributes?.['checkbox-tag'],
-        state = attributes?.state || reactive({
+const template = function(
+    this: { type: string },
+    attributes?: Attributes & { state?: { active: boolean, error: string } }
+) {
+    let state = attributes?.state || reactive({
             active: false,
             error: ''
         });
 
-    if (a?.checked) {
+    if (attributes?.checked) {
         state.active = true;
     }
 
     return html`
-        <div class='checkbox ${() => state.active && '--active'}' ${a ? omit(attributes!, OMIT) : attributes}>
+        <div class='${this.type} ${() => state.active && '--active'}' ${attributes && omit(attributes, OMIT)}>
             <input
-                class='checkbox-tag'
-                type='checkbox'
                 ${{
-                    checked: a?.checked || root(() => state.active),
+                    checked: attributes?.checked || root(() => state.active),
+                    class: `${this.type}-tag`,
                     onchange: (e: Event) => {
                         state.active = (e.target as HTMLInputElement).checked;
                     },
                     onrender: form.input.onrender(state),
-                    value: a?.value || 1
+                    type: this.type === 'radio' ? 'radio' : 'checkbox',
+                    value: attributes?.value || 1
                 }}
-                ${a}
             >
         </div>
     `;
 };
+
+
+export default template.bind({ type: 'checkbox' });
+export { template };

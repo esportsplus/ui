@@ -1,30 +1,22 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
-import { omit } from '@esportsplus/utilities';
 import form from '~/components/form';
 import template from '~/components/template';
 import './scss/index.scss';
 
 
-type A = Attributes & {
-    'input-tag'?: Attributes,
-    state?: { active: boolean, error: string }
-};
+type A = Attributes & { state?: { active: boolean, error: string } };
 
 
-const OMIT = ['input-tag'];
-
-
-export default template.factory(
-    function(attributes: A, content) {
-        let a = attributes['input-tag'],
-            state = attributes.state || reactive({
+export default template.factory<A, never>(
+    function(attributes) {
+        let state = attributes.state || reactive({
                 active: false,
                 error: ''
             });
 
         return html`
-            <label
+            <input
                 class='input'
                 ${{
                     class: () => state.active && '--active',
@@ -33,20 +25,12 @@ export default template.factory(
                     },
                     onfocusout: () => {
                         state.active = false;
-                    }
+                    },
+                    onrender: form.input.onrender(state),
+                    type: (attributes.type || 'text') as string
                 }}
-                ${a ? omit(attributes, OMIT) : attributes}
-            >
-                <input
-                    class='input-tag'
-                    ${{
-                        onrender: form.input.onrender(state),
-                        type: (attributes.type || 'text') as string
-                    }}
-                    ${a}
-                >
-                ${content}
-            </label>
+                ${attributes}
+            />
         `;
     }
 );
