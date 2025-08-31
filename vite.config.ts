@@ -9,8 +9,8 @@ export default defineConfig({
         outDir: 'build',
         rollupOptions: {
             input: [
-                ...glob.sync('./src/{components,css-utilities,fonts}/*/scss/index.scss'),
-                ...glob.sync('./src/normalize/scss/index.scss')
+                ...glob.sync('./src/normalize/scss/index.scss'),
+                ...glob.sync('./src/{components,css-utilities,fonts}/*/scss/index.scss')
             ],
             output: {
                 assetFileNames: ({ originalFileNames: [filename] }) => {
@@ -38,7 +38,7 @@ export default defineConfig({
                                 continue;
                             }
 
-                            let layer,
+                            let layer: string,
                                 parts = file.source.split('\n', 2);
 
                             if (filename.startsWith('css-utilities')) {

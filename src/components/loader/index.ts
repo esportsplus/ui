@@ -16,9 +16,7 @@ const OMIT = ['loader-content', 'loader-logo'];
 
 export default template.factory(
     (attributes: A, content) => {
-        let a = {
-                class: () => state.load && 'loader--load'
-            },
+        let a = omit(attributes, OMIT),
             state = reactive({
                 load: false,
                 remove: false,
@@ -34,7 +32,7 @@ export default template.factory(
 
             return html`
                 <div
-                    class='loader'
+                    class='loader ${() => state.load && 'loader--load'}'
                     onanimationend=${(e: AnimationEvent) => {
                         i++;
 
@@ -43,16 +41,15 @@ export default template.factory(
                         }
                     }}
                     ${a}
-                    ${omit(attributes, OMIT)}
                 >
                     <div
-                        class='loader'
-                        ${a}
+                        class='loader ${() => state.load && 'loader--load'}'
                         ${!content && {
                             onconnect: () => {
                                 state.load = true;
                             }
                         }}
+                        ${a}
                     >
                         ${content && html`
                             <div class='loader-content' ${attributes['loader-content']}>
