@@ -1,8 +1,27 @@
 .range {
+    --background: var(--background-default);
+    --background-active: var(--background-default);
     --background-default: var(--color-black-300);
+    --background-hover: var(--background-default);
+    --background-pressed: var(--background-default);
     --border-width: var(--border-width-700);
     --height: var(--size-200);
     --thumb-background: var(--color-white-400);
     --thumb-size: var(--size-400);
     --width: 100%;
+
+    #{tokens.state(inactive, 'label')},
+    #{tokens.state(inactive)} {
+        @include tokens.state(hover) {
+            --background: var(--background-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --background: var(--background-pressed);
+        }
+    }
+
+    #{tokens.state(active)} {
+        --background: var(--background-active);
+    }
 }
