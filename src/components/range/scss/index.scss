@@ -1,8 +1,6 @@
 @use 'variables';
 
 .range {
-    margin: calc((var(--height) - var(--thumb-size)) / 2) 0;
-
     &,
     &-tag {
         width: var(--width);
@@ -13,6 +11,7 @@
         border-radius: 240px;
         border: 0px;
         height: var(--height);
+        margin: calc((var(--height) - var(--thumb-size)) / 2) 0;
         transition: opacity .2s;
 
         &::-moz-range-thumb,
