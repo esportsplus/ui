@@ -27,7 +27,6 @@ export * from './page';
 export { default as radio } from './radio';
 export { default as range } from './range';
 export { default as root } from './root';
-export * as row from './row';
 export { default as select } from './select';
 export { default as switch } from './switch';
 export { default as scrollbar } from './scrollbar';
