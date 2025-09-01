@@ -3,7 +3,7 @@ export * as anchor from './anchor';
 export * as banner from './banner';
 export * as border from './border';
 export * as bubble from './bubble';
-export * as button from './button';
+export { default as button } from './button';
 export * as card from './card';
 export { default as checkbox } from './checkbox';
 export { default as clipboard } from './clipboard';

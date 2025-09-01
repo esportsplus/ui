@@ -41,6 +41,54 @@
         }
     }
 
+    &--hold {
+        overflow: hidden;
+
+        &::after {
+            border-radius: 0;
+            box-shadow: unset;
+            display: block;
+            width: 0;
+            height: 100%;
+            background: var(--background-hold);
+            z-index: 1;
+        }
+
+        @include tokens.state(active) {
+            &::after {
+                animation: buttonHold 2.4s ease-in-out forwards;
+            }
+
+            > * {
+                animation: buttonContentPulse 0.8s infinite ease-in-out;
+            }
+        }
+
+        @keyframes buttonHold {
+            0% {
+                width: 0;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+
+        @keyframes buttonContentPulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        > * {
+            z-index: 2;
+        }
+    }
+
     &--processing {
         color: transparent;
         pointer-events: none;
