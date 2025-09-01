@@ -47,6 +47,11 @@
     }
 
 
+    &--hold {
+        --animation-duration: 2.4s;
+        --background-hold: var(--background-active);
+    }
+
     &--processing {
         --animation-duration: 0.64s;
         --border-width: var(--border-width-400);

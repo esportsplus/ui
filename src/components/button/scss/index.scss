@@ -48,28 +48,26 @@
             border-radius: 0;
             box-shadow: unset;
             display: block;
-            width: 0;
+            width: 110%;
             height: 100%;
             background: var(--background-hold);
+            transform: translate(-150%, 50%);
             z-index: 1;
         }
 
         @include tokens.state(active) {
             &::after {
-                animation: buttonHold 2.4s ease-in-out forwards;
+                animation: buttonHold var(--animation-duration) ease-in-out forwards;
             }
 
             > * {
-                animation: buttonContentPulse 0.8s infinite ease-in-out;
+                animation: buttonContentPulse calc(var(--animation-duration) / 3) infinite ease-in-out;
             }
         }
 
         @keyframes buttonHold {
-            0% {
-                width: 0;
-            }
             100% {
-                width: 100%;
+                transform: translate(50%, 50%);
             }
         }
 

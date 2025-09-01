@@ -1,5 +1,5 @@
 .--error {
-    animation: error var(--transition-duration) 1 var(--timing-function);
+    animation: error var(--animation-duration) 1 linear;
 
     @keyframes error {
         0% {
