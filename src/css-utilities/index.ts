@@ -4,6 +4,7 @@ import './background/scss/index.scss';
 import './border/scss/index.scss';
 import './color/scss/index.scss';
 import './disabled/scss/index.scss';
+import './error/scss/index.scss';
 import './flex/scss/index.scss';
 import './flicker/scss/index.scss';
 import './focus/scss/index.scss';
