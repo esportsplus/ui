@@ -1,1 +1,13 @@
 @use 'variables';
+
+.--gap {
+    gap: var(--gap-vertical) var(--gap-horizontal);
+
+    &-horizontal {
+        gap: 0px var(--gap-horizontal);
+    }
+
+    &-vertical {
+        gap: var(--gap-vertical) 0px;
+    }
+}

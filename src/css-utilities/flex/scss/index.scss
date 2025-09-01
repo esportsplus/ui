@@ -4,70 +4,56 @@
     &-center,
     &-end,
     &-horizontal,
-    &-horizontal-space-between,
     &-start,
-    &-vertical,
-    &-vertical-space-between {
+    &-vertical {
         display: flex;
+        flex-flow: row wrap;
         gap: var(--gap-vertical) var(--gap-horizontal);
+        position: relative;
     }
 
-    &-center {
-        align-content: center;
-        flex-flow: row wrap;
+    &-center,
+    &-horizontal {
         justify-content: center;
     }
 
-    &-column {
+    &-center,
+    &-vertical {
+        align-items: center;
+    }
+
+    &-column,
+    &-fill,
+    &-fixed,
+    &-row {
         display: flex;
+        position: relative;
+    }
+
+    &-column {
         flex-flow: column;
         gap: var(--gap-vertical) 0px;
     }
 
     &-end {
-        flex-flow: row wrap;
         justify-content: flex-end;
     }
 
     &-fill {
-        display: flex;
         flex: 1;
         min-width: 0;
     }
 
     &-fixed {
-        display: flex;
         flex: 0 0 var(--width);
     }
 
-    &-horizontal {
-        flex-flow: row wrap;
-        justify-content: center;
-
-        &-space-between {
-            flex-flow: row wrap;
-            justify-content: space-between;
-        }
-    }
-
     &-row {
-        display: flex;
         flex-flow: row;
         gap: 0px var(--gap-horizontal);
     }
 
     &-start {
-        flex-flow: row wrap;
         justify-content: flex-start;
-    }
-
-    &-vertical {
-        align-items: center;
-        flex-flow: row wrap;
-
-        &-space-between {
-            align-items: space-between;
-            flex-flow: row wrap;
-        }
     }
 }
