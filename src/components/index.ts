@@ -11,7 +11,7 @@ export * as container from './container';
 export { default as counter } from './counter';
 export { default as ellipsis } from './ellipsis';
 export { default as form } from './form';
-export * as frame from './frame';
+export { default as frame } from './frame';
 export * as grid from './grid';
 export { default as highlight } from './highlight';
 export { default as icon } from './icon';
