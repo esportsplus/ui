@@ -1,8 +1,4 @@
 $border-radius: (
-    0px: 0px,
-    circle: 100%,
-    curved: 240px,
-
     100: 2px,
     200: 4px,
     300: 6px,
@@ -10,5 +6,9 @@ $border-radius: (
     500: 10px,
     600: 12px,
     700: 16px,
-    800: 20px
+    800: 20px,
+
+    0px: 0px,
+    circle: 100%,
+    curved: 240px,
 );
