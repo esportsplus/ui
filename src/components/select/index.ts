@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, Renderable, type Attributes } from '@esportsplus/template';
-import { omit, toArray } from '@esportsplus/utilities';
+import { EMPTY_ARRAY, omit, toArray } from '@esportsplus/utilities';
 import form from '~/components/form';
 import root from '~/components/root';
 import scrollbar, { Attributes as Attr } from '~/components/scrollbar';
@@ -121,6 +121,7 @@ const select = template.factory<A>(
 
                     return sb(
                         {
+                            ...this?.attributes?.['tooltip-content'] || EMPTY_ARRAY,
                             ...attributes['tooltip-content'],
                             class: [
                                 ...toArray(attributes['tooltip-content']?.class),
