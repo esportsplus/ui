@@ -77,7 +77,7 @@ const select = template.factory<A>(
 
         return html`
             <label
-                class='select ${() => state.active && '--active'}'
+                class='select tooltip ${() => state.active && '--active'}'
                 onclick=${() => {
                     if (state.render) {
                         set(state, !state.active);
