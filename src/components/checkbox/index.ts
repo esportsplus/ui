@@ -25,7 +25,7 @@ const factory = (type: string) => {
         return html`
             <div
                 class='${type} ${() => state.active && '--active'}'
-                ${this.attributes && omit(this.attributes, OMIT)}
+                ${this?.attributes && omit(this.attributes, OMIT)}
                 ${attributes && omit(attributes, OMIT)}
             >
                 <input

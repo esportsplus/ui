@@ -20,7 +20,7 @@ export default function(
     return html`
         <textarea
             class='textarea'
-            ${this.attributes && omit(this.attributes, OMIT)}
+            ${this?.attributes && omit(this.attributes, OMIT)}
             ${omit(attributes, OMIT)}
             ${{
                 class: () => state.active && '--active',

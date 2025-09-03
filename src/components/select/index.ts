@@ -86,7 +86,7 @@ const select = template.factory<A>(
         return html`
             <div
                 class='select tooltip ${() => state.active && '--active'}'
-                ${this.attributes && omit(this.attributes, OMIT)}
+                ${this?.attributes && omit(this.attributes, OMIT)}
                 ${omit(attributes, OMIT)}
                 onclick=${() => {
                     if (state.render) {
@@ -98,7 +98,7 @@ const select = template.factory<A>(
             >
                 ${content || (() => options[ state.selected! ] || '-')}
 
-                <div class='select-arrow' ${this.attributes?.arrow} ${attributes.arrow}></div>
+                <div class='select-arrow' ${this?.attributes?.arrow} ${attributes.arrow}></div>
 
                 <input class='select-tag'
                     ${{
@@ -150,7 +150,7 @@ const select = template.factory<A>(
                         keys.map((key) => html`
                             <div
                                 class='link select-option ${() => selected[key] && '--active'}'
-                                ${this.attributes?.option}
+                                ${this?.attributes?.option}
                                 ${option}
                                 data-key='${key}'
                             >

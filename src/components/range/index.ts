@@ -5,7 +5,7 @@ import './scss/index.scss';
 
 
 export default function(
-    this: { attributes: Attributes },
+    this: { attributes?: Attributes },
     attributes: Attributes & { state?: { active: boolean, error: string, value: number } }
 ) {
     let state = attributes.state || reactive({
@@ -22,7 +22,7 @@ export default function(
         <input
             class='range --border-state --border-black'
             type='range'
-            ${this.attributes}
+            ${this?.attributes}
             ${attributes}
             ${{
                 class: () => state.active && '--active',
