@@ -74,7 +74,7 @@ function set(current: { active: boolean }, value: boolean) {
 }
 
 const select = template.factory<A>(
-    function(attributes: A, content) {
+    function(this: { attributes?: Exclude<A, 'options' | 'selected' | 'state'> }, attributes: A, content) {
         let { options, option } = attributes,
             state = attributes.state || reactive({
                 active: false,
@@ -84,8 +84,10 @@ const select = template.factory<A>(
             });
 
         return html`
-            <label
+            <div
                 class='select tooltip ${() => state.active && '--active'}'
+                ${this.attributes && omit(this.attributes, OMIT)}
+                ${omit(attributes, OMIT)}
                 onclick=${() => {
                     if (state.render) {
                         set(state, !state.active);
@@ -93,11 +95,10 @@ const select = template.factory<A>(
 
                     state.render = true;
                 }}
-                ${omit(attributes, OMIT)}
             >
                 ${content || (() => options[ state.selected! ] || '-')}
 
-                <div class='select-arrow' ${attributes.arrow}></div>
+                <div class='select-arrow' ${this.attributes?.arrow} ${attributes.arrow}></div>
 
                 <input class='select-tag'
                     ${{
@@ -149,15 +150,16 @@ const select = template.factory<A>(
                         keys.map((key) => html`
                             <div
                                 class='link select-option ${() => selected[key] && '--active'}'
-                                data-key='${key}'
+                                ${this.attributes?.option}
                                 ${option}
+                                data-key='${key}'
                             >
                                 ${options[key]}
                             </div>
                         `)
                     );
                 }}
-            </label>
+            </div>
         `;
     }
 );

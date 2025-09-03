@@ -8,7 +8,10 @@ import './scss/index.scss';
 const OMIT = ['state'];
 
 
-export default (attributes: Attributes & { state?: { active: boolean, error: string } }) => {
+export default function(
+    this: { attributes?: Attributes },
+    attributes: Attributes & { state?: { active: boolean, error: string } }
+) {
     let state = attributes.state || reactive({
             active: false,
             error: ''
@@ -17,6 +20,8 @@ export default (attributes: Attributes & { state?: { active: boolean, error: str
     return html`
         <textarea
             class='textarea'
+            ${this.attributes && omit(this.attributes, OMIT)}
+            ${omit(attributes, OMIT)}
             ${{
                 class: () => state.active && '--active',
                 onfocusin: () => {
@@ -27,7 +32,6 @@ export default (attributes: Attributes & { state?: { active: boolean, error: str
                 },
                 onrender: form.input.onrender(state)
             }}
-            ${omit(attributes, OMIT)}
         >
             ${attributes?.value as string}
         </textarea>

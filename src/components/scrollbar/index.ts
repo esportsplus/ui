@@ -25,12 +25,12 @@ export default template.factory<A>(
         return html`
             <div
                 class='scrollbar-container'
-                ${this?.attributes && omit(this.attributes, OMIT)}
+                ${this.attributes && omit(this.attributes, OMIT)}
                 ${omit(attributes, OMIT)}
             >
                 <div
                     class='scrollbar-container-content'
-                    ${this?.attributes?.['scrollbar-container-content']}
+                    ${this.attributes?.['scrollbar-container-content']}
                     ${attributes['scrollbar-container-content']}
                     ${{
                         onscroll: function() {
@@ -52,7 +52,7 @@ export default template.factory<A>(
 
                 <div
                     class='scrollbar'
-                    ${this?.attributes?.scrollbar}
+                    ${this.attributes?.scrollbar}
                     ${attributes.scrollbar}
                     ${{
                         class: () => state.height >= 100 && 'scrollbar--hidden',
