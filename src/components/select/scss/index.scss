@@ -31,7 +31,7 @@
         border-radius: var(--border-radius);
         font-size: var(--font-size);
         line-height: var(--line-height);
-        padding: var(--padding-vertical) calc((var(--padding-horizontal) / 1.5) + var(--arrow-size)) var(--padding-vertical) var(--padding-horizontal);
+        padding: var(--padding-vertical) calc((var(--padding-horizontal) * 2) + var(--arrow-size)) var(--padding-vertical) var(--padding-horizontal);
     }
 
     // Hide HTML Field Element
