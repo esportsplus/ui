@@ -1,6 +1,9 @@
 @use 'variables';
 
 .page {
+    display: flex;
+    flex-flow: column;
+    gap: var(--gap-vertical) 0px;
     min-height: 100svh;
     position: relative;
     width: 100vw;
