@@ -88,7 +88,7 @@ const select = template.factory<A>(
                 ${omit(attributes, OMIT)}
             >
                 ${content || html`
-                    <div class='select-content text'>
+                    <div class='select-selected text'>
                         ${() => options[ state.selected! ] || '-'}
                     </div>
                 `}
