@@ -40,7 +40,7 @@ type A = {
 ) & Attributes & Attr;
 
 
-let current: { active: boolean } | null = null,
+let previous: { active: boolean } | null = null,
     sb = scrollbar.bind({
         attributes: {
             class: 'tooltip-content',
@@ -50,26 +50,26 @@ let current: { active: boolean } | null = null,
         }
     });
 
-function set(updating: { active: boolean }, value: boolean) {
-    updating.active = value;
+function set(current: { active: boolean }, value: boolean) {
+    current.active = value;
 
     if (value) {
-        if (current) {
-            current.active = false;
+        if (previous) {
+            previous.active = false;
         }
 
-        current = updating;
+        previous = current;
         root.onclick.push(() => {
-            if (current !== updating) {
+            if (previous !== current) {
                 return;
             }
 
-            current = null;
-            updating.active = false;
+            previous = null;
+            current.active = false;
         });
     }
-    else if (current === updating) {
-        current = null;
+    else if (previous === current) {
+        previous = null;
     }
 }
 
