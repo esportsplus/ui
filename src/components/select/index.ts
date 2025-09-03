@@ -9,6 +9,7 @@ import './scss/index.scss';
 
 
 const OMIT = [
+    'arrow',
     'options',
     'option',
     'scrollbar',
@@ -18,6 +19,7 @@ const OMIT = [
 
 
 type A = {
+    arrow?: Attributes;
     options: Record<number | string, Renderable<unknown>>;
     option?: Attributes;
     scrollbar?: Attributes;
@@ -87,13 +89,9 @@ const select = template.factory<A>(
                 }}
                 ${omit(attributes, OMIT)}
             >
-                ${content || html`
-                    <div class='select-selected text'>
-                        ${() => options[ state.selected! ] || '-'}
-                    </div>
-                `}
+                ${content || (() => options[ state.selected! ] || '-')}
 
-                <div class='select-arrow'></div>
+                <div class='select-arrow' ${attributes.arrow}></div>
 
                 <input class='select-tag'
                     ${{

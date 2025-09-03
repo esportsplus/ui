@@ -2,9 +2,15 @@
 @use 'variables';
 
 .select {
+    background: var(--background);
+    border: var(--border-width) var(--border-style) var(--border-color);
+    border-radius: var(--border-radius);
     cursor: pointer;
     display: flex;
     flex-wrap: wrap;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    padding: var(--padding-vertical) calc((var(--padding-horizontal) * 2) + var(--arrow-size)) var(--padding-vertical) var(--padding-horizontal);
     position: relative;
     transition:
         background var(--transition-duration) ease-in-out,
@@ -16,22 +22,13 @@
 
     &-arrow {
         @include lib.position(absolute, null calc(var(--padding-horizontal) + var(--arrow-spacer)) calc(50% + var(--arrow-spacer)) null);
-        border-color: var(--border-color);
-        border-style: var(--border-style);
+        border-color: var(--color);
+        border-style: solid;
         border-width: 0 var(--border-width) var(--border-width) 0;
         content: '';
         height: var(--arrow-size);
         transform: translateY(50%) rotate(45deg);
         width: var(--arrow-size);
-    }
-
-    &-selected {
-        background: var(--background);
-        border: var(--border-width) var(--border-style) var(--border-color);
-        border-radius: var(--border-radius);
-        font-size: var(--font-size);
-        line-height: var(--line-height);
-        padding: var(--padding-vertical) calc((var(--padding-horizontal) * 2) + var(--arrow-size)) var(--padding-vertical) var(--padding-horizontal);
     }
 
     // Hide HTML Field Element
