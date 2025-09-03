@@ -4,7 +4,10 @@ import form from '~/components/form';
 import './scss/index.scss';
 
 
-export default (attributes: Attributes & { state?: { active: boolean, error: string } }) => {
+export default function (
+    this: { attributes?: Attributes },
+    attributes: Attributes & { state?: { active: boolean, error: string } }
+) {
     let state = attributes.state || reactive({
             active: false,
             error: ''
@@ -13,6 +16,8 @@ export default (attributes: Attributes & { state?: { active: boolean, error: str
     return html`
         <input
             class='input'
+            ${this?.attributes}
+            ${attributes}
             ${{
                 class: () => state.active && '--active',
                 onfocusin: () => {
@@ -24,7 +29,6 @@ export default (attributes: Attributes & { state?: { active: boolean, error: str
                 onrender: form.input.onrender(state),
                 type: (attributes.type || 'text') as string
             }}
-            ${attributes}
         />
     `;
 };
