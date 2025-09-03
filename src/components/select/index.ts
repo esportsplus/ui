@@ -38,8 +38,15 @@ type A = {
 ) & Attributes & Attr;
 
 
-let field: { active: boolean } | null = null;
-
+let field: { active: boolean } | null = null,
+    sb = scrollbar.bind({
+        attributes: {
+            class: 'tooltip-content',
+            'scrollbar-container-content': {
+                class: '--flex-column'
+            }
+        }
+    });
 
 function set(state: { active: boolean }, value: boolean) {
     state.active = value;
@@ -70,7 +77,7 @@ const select = template.factory<A>(
 
         return html`
             <label
-                class='select'
+                class='select ${() => state.active && '--active'}'
                 onclick=${() => {
                     if (state.render) {
                         set(state, !state.active);
@@ -107,12 +114,12 @@ const select = template.factory<A>(
                             Object.fromEntries( keys.map(key => [key, false]) )
                         );
 
-                    return scrollbar(
+                    return sb(
                         {
                             ...attributes['tooltip-content'],
                             class: [
                                 ...toArray(attributes['tooltip-content']?.class),
-                                `tooltip-content tooltip-content--${attributes['tooltip-content']?.direction || 's'} --flex-column --width-full`
+                                `tooltip-content--${attributes['tooltip-content']?.direction || 's'}`
                             ],
                             onclick: (e: Event) => {
                                 let key = (e?.target as HTMLElement)?.dataset?.key;
