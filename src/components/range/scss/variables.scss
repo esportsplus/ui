@@ -3,7 +3,7 @@
 .range {
     --background: var(--background-default);
     --background-active: var(--background-default);
-    --background-default: var(--color-black-300);
+    --background-default: linear-gradient(to right, var(--thumb-background) var(--thumb-position), var(--color-black-300) var(--thumb-position));
     --background-hover: var(--background-default);
     --background-pressed: var(--background-default);
     --border-width: var(--border-width-700);
