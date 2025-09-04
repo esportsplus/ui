@@ -6,9 +6,10 @@ import './scss/index.scss';
 
 export default function(
     this: { attributes?: Attributes } | any,
-    attributes: Attributes & { min: number, max: number, state?: { active: boolean, error: string, value: number } }
+    attributes: Attributes & { max: number, min: number, state?: { active: boolean, error: string, value: number } }
 ) {
-    let state = attributes.state || reactive({
+    let { max, min } = attributes,
+        state = attributes.state || reactive({
             active: false,
             error: '',
             value: 0
@@ -21,7 +22,7 @@ export default function(
     return html`
         <input
             class='range --border-state --border-black'
-            style='${() => `--thumb-position: ${((state.value - attributes.min) / (attributes.max - attributes.min)) * 100}%`}'
+            style='${() => `--thumb-position: ${((state.value - min) / (max - min)) * 100}%`}'
             type='range'
             ${this?.attributes}
             ${attributes}
