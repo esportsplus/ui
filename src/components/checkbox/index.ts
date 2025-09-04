@@ -10,7 +10,7 @@ const OMIT = ['checked', 'value'];
 
 const factory = (type: string) => {
     function template(
-        this: { attributes?: Attributes },
+        this: { attributes?: Attributes } | any,
         attributes?: Attributes & { state?: { active: boolean, error: string } }
     ) {
         let state = attributes?.state || reactive({

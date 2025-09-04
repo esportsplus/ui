@@ -5,7 +5,7 @@ import './scss/index.scss';
 
 
 export default function(
-    this: { attributes?: Attributes },
+    this: { attributes?: Attributes } | any,
     attributes: Attributes & { state?: { active: boolean, error: string, value: number } }
 ) {
     let state = attributes.state || reactive({
