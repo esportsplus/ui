@@ -54,7 +54,9 @@
         "prepare": "pnpm build",
         "prepublishOnly": "pnpm build"
     },
-    "sideEffects": false,
+   "sideEffects": [
+        "**/*.css"
+    ],
     "type": "module",
     "version": "0.34.0"
 }
