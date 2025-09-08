@@ -1,6 +1,7 @@
 import { glob } from 'glob';
 import { defineConfig } from 'vite';
 import autoprefixer from 'autoprefixer';
+import path from 'path';
 
 
 export default defineConfig({
@@ -10,7 +11,8 @@ export default defineConfig({
         rollupOptions: {
             input: [
                 ...glob.sync('./src/normalize/scss/index.scss'),
-                ...glob.sync('./src/{components,css-utilities,fonts}/*/scss/index.scss')
+                ...glob.sync('./src/{components,css-utilities,fonts}/*/scss/index.scss'),
+                ...glob.sync('./src/css-utilities/index.scss')
             ],
             output: {
                 assetFileNames: ({ originalFileNames: [filename] }) => {
@@ -20,7 +22,6 @@ export default defineConfig({
 
                     return '[name].[ext]';
                 },
-
             },
             plugins: [
                 {

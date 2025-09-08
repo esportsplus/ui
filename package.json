@@ -19,10 +19,7 @@
         "vite": "^7.1.4"
     },
     "exports": {
-        "./css-utilities": {
-            "types": "./build/css-utilities/index.d.ts",
-            "default": "./build/css-utilities/index.js"
-        },
+        "./css-utilities": "./css-utilities/index.scss",
         "./css-utilities/*": "./build/css-utilities/*/scss/index.scss",
         "./fonts": {
             "types": "./build/fonts/index.d.ts",
@@ -35,10 +32,7 @@
             "default": "./build/normalize/index.js"
         },
         "./tokens": "./tokens.scss",
-        "./*": {
-            "types": "./build/components/*/index.d.ts",
-            "default": "./build/components/*/index.js"
-        },
+        "./*": "./build/components/*/scss/index.scss",
         ".": {
             "types": "./build/components/index.d.ts",
             "default": "./build/components/index.js"
