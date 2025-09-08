@@ -48,10 +48,10 @@
         "prepare": "pnpm build",
         "prepublishOnly": "pnpm build"
     },
-   "sideEffects": [
+    "sideEffects": [
         "**/*.css",
         "**/*.scss"
     ],
     "type": "module",
-    "version": "0.34.2"
+    "version": "0.34.3"
 }
