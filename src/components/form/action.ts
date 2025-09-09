@@ -7,12 +7,12 @@ import input from './input';
 
 type A = Attributes & { action: Action, state?: { processing: boolean } };
 
-type Action = (data: Payload) => Promise<Errors> | Errors;
+type Action = <T extends Record<string, any>>(data: Payload<T>) => Promise<Errors> | Errors;
 
 type Errors = { errors: Response<unknown>['errors'] };
 
-type Payload = {
-    input: Record<string, any>;
+type Payload<T extends Record<string, any>> = {
+    input: T;
     response: typeof response;
 };
 
