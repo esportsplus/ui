@@ -7,7 +7,7 @@ import input from './input';
 
 type A = Attributes & { action: Action, state?: { processing: boolean } };
 
-type Action = <T extends Record<string, any>>(response: Response<T>) => Promise<Errors> | Errors;
+type Action = <T extends Record<string, any>>(input: T, r: typeof response) => Promise<Errors> | Errors;
 
 type Errors = { errors: Response<unknown>['errors'] };
 
@@ -75,7 +75,8 @@ export default template.factory<A>(
                         }
 
                         let { errors } = await action(
-                                response(parse( new FormData( this as any as HTMLFormElement ).entries() ))
+                                parse( new FormData( this as any as HTMLFormElement ).entries() ),
+                                response
                             );
 
                         for (let i = 0, n = errors.length; i < n; i++) {
