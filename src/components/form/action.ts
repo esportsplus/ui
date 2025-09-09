@@ -5,9 +5,10 @@ import template from '~/components/template';
 import input from './input';
 
 
-type A = Attributes & { action: Action, state?: { processing: boolean } };
-
-type Action = <T extends Record<string, any>>(input: T, r: typeof response) => Promise<Errors> | Errors;
+type A = {
+    action: (<T extends Record<string, any>>(input: T, r: typeof response) => Promise<Errors> | Errors),
+    state?: { processing: boolean }
+} & Attributes;
 
 type Errors = { errors: Response<unknown>['errors'] };
 
