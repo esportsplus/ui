@@ -6,7 +6,7 @@ import input from './input';
 
 
 type A = {
-    action: (<T extends Record<string, any>>(input: T, r: typeof response) => Promise<Errors> | Errors),
+    action: (<I>(input: I, r: typeof response) => Promise<Errors> | Errors),
     state?: { processing: boolean }
 } & Attributes;
 
