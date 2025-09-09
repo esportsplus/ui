@@ -7,14 +7,9 @@ import input from './input';
 
 type A = Attributes & { action: Action, state?: { processing: boolean } };
 
-type Action = <T extends Record<string, any>>(data: Payload<T>) => Promise<Errors> | Errors;
+type Action = <T extends Record<string, any>>(input: T, r: typeof response) => Promise<Errors> | Errors;
 
 type Errors = { errors: Response<unknown>['errors'] };
-
-type Payload<T extends Record<string, any>> = {
-    input: T;
-    response: typeof response;
-};
 
 
 const OMIT = ['action', 'state'];
@@ -79,10 +74,10 @@ export default template.factory<A>(
                             state.processing = true;
                         }
 
-                        let { errors } = await action({
-                                input: parse( new FormData( this as any as HTMLFormElement ).entries() ),
+                        let { errors } = await action(
+                                parse( new FormData( this as any as HTMLFormElement ).entries() ),
                                 response
-                            });
+                            );
 
                         for (let i = 0, n = errors.length; i < n; i++) {
                             let { message, path } = errors[i],
