@@ -1,14 +1,8 @@
 import response, { Response } from '@esportsplus/action';
-import { html, Attributes, Element } from '@esportsplus/template';
+import { html, Attributes, Element, Renderable } from '@esportsplus/template';
 import { omit } from '@esportsplus/utilities';
-import template from '~/components/template';
 import input from './input';
 
-
-type A = {
-    action: (data: { input: Record<string, any>, response: typeof response }) => (Promise<Errors> | Errors),
-    state?: { processing: boolean }
-} & Attributes;
 
 type Errors = { errors: Response<unknown>['errors'] };
 
@@ -46,59 +40,63 @@ function parse(input: ReturnType<FormData['entries']>) {
 };
 
 
-export default template.factory<A>(
-    (attributes, content) => {
-        let { action, state } = attributes;
+export default <T extends Record<string, any>>(
+    attributes: {
+        action: (data: { input: T, response: typeof response }) => (Promise<Errors> | Errors),
+        state?: { processing: boolean }
+    } & Attributes,
+    content: Renderable<any>
+) => {
+    let { action, state } = attributes;
 
-        return html`
-            <form
-                ${omit(attributes, OMIT)}
-                ${{
-                    onclick: function(event) {
-                        let trigger = event.target as HTMLButtonElement;
+    return html`
+        <form
+            ${omit(attributes, OMIT)}
+            ${{
+                onclick: function(event) {
+                    let trigger = event.target as HTMLButtonElement;
 
-                        if (trigger?.type !== 'submit') {
-                            return;
-                        }
-
-                        // On initial page load both events will be dispatched without preventDefault
-                        event.preventDefault();
-
-                        this.dispatchEvent(
-                            new SubmitEvent('submit', { cancelable: true, bubbles:true, submitter: trigger })
-                        );
-                    },
-                    onsubmit: async function(event) {
-                        event.preventDefault();
-
-                        if (state) {
-                            state.processing = true;
-                        }
-
-                        let { errors } = await action({
-                            input: parse( new FormData( this as any as HTMLFormElement ).entries() ),
-                            response
-                        });
-
-                        for (let i = 0, n = errors.length; i < n; i++) {
-                            let { message, path } = errors[i],
-                                reactive = input.get( (this as any as HTMLFormElement)[path!] as Element | undefined );
-
-                            if (!reactive) {
-                                continue;
-                            }
-
-                            reactive.error = `${message[0].toUpperCase()}${message.substring(1)}`;
-                        }
-
-                        if (state) {
-                            state.processing = false;
-                        }
+                    if (trigger?.type !== 'submit') {
+                        return;
                     }
-                }}
-            >
-                ${content}
-            </form>
-        `;
-    }
-);
+
+                    // On initial page load both events will be dispatched without preventDefault
+                    event.preventDefault();
+
+                    this.dispatchEvent(
+                        new SubmitEvent('submit', { cancelable: true, bubbles:true, submitter: trigger })
+                    );
+                },
+                onsubmit: async function(event) {
+                    event.preventDefault();
+
+                    if (state) {
+                        state.processing = true;
+                    }
+
+                    let { errors } = await action({
+                        input: parse( new FormData( this as any as HTMLFormElement ).entries() ) as T,
+                        response
+                    });
+
+                    for (let i = 0, n = errors.length; i < n; i++) {
+                        let { message, path } = errors[i],
+                            reactive = input.get( (this as any as HTMLFormElement)[path!] as Element | undefined );
+
+                        if (!reactive) {
+                            continue;
+                        }
+
+                        reactive.error = `${message[0].toUpperCase()}${message.substring(1)}`;
+                    }
+
+                    if (state) {
+                        state.processing = false;
+                    }
+                }
+            }}
+        >
+            ${content}
+        </form>
+    `;
+};
