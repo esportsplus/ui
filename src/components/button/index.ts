@@ -31,7 +31,7 @@ const hold = template.factory(
                 }}'
                 ${attributes}
             >
-                ${content(state)}
+                ${() => content(state)}
             </div>
         `;
     }
