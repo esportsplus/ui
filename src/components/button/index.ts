@@ -13,7 +13,7 @@ const hold = template.factory(
 
         return html`
             <div
-                class='button button--hold ${() => state.holding && '--active'}'
+                class='button button--hold ${() => state.complete && '--active'}'
                 onanimationend='${(e: AnimationEvent) => {
                     if (e.animationName === 'buttonHold') {
                         state.complete = true;
