@@ -41,10 +41,11 @@
         }
     }
 
-    &--hold {
+    &--holding {
         overflow: hidden;
 
         &::after {
+            animation: buttonHolding var(--animation-duration) ease-in-out forwards;
             border-radius: 0;
             box-shadow: unset;
             display: block;
@@ -55,23 +56,18 @@
             z-index: 1;
         }
 
-        @include tokens.state(active) {
-            &::after {
-                animation: buttonHold var(--animation-duration) ease-in-out forwards;
-            }
-
-            > * {
-                animation: buttonContentPulse calc(var(--animation-duration) / 3) infinite ease-in-out;
-            }
-        }
-
-        @keyframes buttonHold {
+        @keyframes buttonHolding {
             100% {
                 transform: translateX(0%);
             }
         }
 
-        @keyframes buttonContentPulse {
+        > * {
+            animation: buttonHoldingContentPulse calc(var(--animation-duration) / 3) infinite ease-in-out;
+            z-index: 2;
+        }
+
+        @keyframes buttonHoldingContentPulse {
             0%,
             100% {
                 opacity: 1;
@@ -80,10 +76,6 @@
             50% {
                 opacity: 0.4;
             }
-        }
-
-        > * {
-            z-index: 2;
         }
     }
 
