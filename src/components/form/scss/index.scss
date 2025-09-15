@@ -1,0 +1,10 @@
+@use 'variables';
+
+.form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-vertical) var(--gap-horizontal);
+    justify-content: flex-start;
+    margin: var(--margin-vertical) var(--margin-horizontal);
+    position: relative;
+}

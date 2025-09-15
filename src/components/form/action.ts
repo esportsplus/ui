@@ -51,6 +51,7 @@ export default <T extends Record<string, any>>(
 
     return html`
         <form
+            class='form'
             ${omit(attributes, OMIT)}
             ${{
                 onclick: function(event) {
