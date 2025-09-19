@@ -21,8 +21,8 @@ importers:
         specifier: ^0.26.2
         version: 0.26.2
       '@esportsplus/utilities':
-        specifier: ^0.23.1
-        version: 0.23.1
+        specifier: ^0.24.0
+        version: 0.24.0
       modern-normalize:
         specifier: ^3.0.1
         version: 3.0.1
@@ -238,8 +238,8 @@ packages:
   '@esportsplus/utilities@0.22.3':
     resolution: {integrity: sha512-1BIjAK4Qq5Ho6c+vn1BmDbFR4MGYqJ4WvSRUGisTwQmQ2tT2JLIov4bbJQKX18rk1zyATaPe3AYVGOsSxrG95w==}
 
-  '@esportsplus/utilities@0.23.1':
-    resolution: {integrity: sha512-YuLWUPKBgosFKBjaOGTCdFy4PlwaT0QYjdH7nug28s0DyIJYSc2DA2PXJzctH+q5IfrPUabBwGNvlylsj+YvjQ==}
+  '@esportsplus/utilities@0.24.0':
+    resolution: {integrity: sha512-xwLMrRUDOEtU32oc1btRauZgwkMiEwjNKyQyubceht6dfDpvpC4Gc02p8GRhZAiJrAuH0MUPpTsneiIXdbkrew==}
 
   '@isaacs/balanced-match@4.0.1':
     resolution: {integrity: sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==}
@@ -1563,7 +1563,7 @@ snapshots:
 
   '@esportsplus/utilities@0.22.3': {}
 
-  '@esportsplus/utilities@0.23.1': {}
+  '@esportsplus/utilities@0.24.0': {}
 
   '@isaacs/balanced-match@4.0.1': {}
 
