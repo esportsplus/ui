@@ -1,0 +1,22 @@
+@use './variables';
+
+.--skeleton {
+    animation: var(--animation-duration) ease-in-out infinite buttonSkeleton;
+    background-image: linear-gradient(270deg, var(--background-pressed), var(--background-default), var(--background-default), var(--background-pressed));
+    background-size: 400% 100%;
+    color: transparent;
+    pointer-events: none;
+
+    * {
+        opacity: 0;
+    }
+
+    @keyframes skeleton {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+}
