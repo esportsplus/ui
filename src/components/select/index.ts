@@ -20,7 +20,7 @@ const OMIT = [
 
 type A = {
     arrow?: Attributes;
-    options: Record<number | string, Renderable<unknown>>;
+    options: Record<number | string, Renderable<unknown> | { content: Renderable<unknown>, selected: Renderable<unknown> }>;
     option?: Attributes;
     scrollbar?: Attributes;
     'scrollbar-container-content'?: Attributes;
@@ -73,7 +73,7 @@ function set(current: { active: boolean }, value: boolean) {
     }
 }
 
-const select = template.factory<A>(
+const select = template.factory<A, (state: { active: boolean, selected?: string | number }) => Renderable<unknown>>(
     function(this: { attributes?: Exclude<A, 'options' | 'selected' | 'state'> }, attributes: A, content) {
         let { options, option } = attributes,
             state = attributes.state || reactive({
@@ -96,7 +96,7 @@ const select = template.factory<A>(
                     state.render = true;
                 }}
             >
-                ${content || (() => options[ state.selected! ] || '-')}
+                ${content ? (() => content(state)) : (() => options[ state.selected! ] || '-')}
 
                 <div class='select-arrow' ${this?.attributes?.arrow} ${attributes.arrow}></div>
 
@@ -128,7 +128,20 @@ const select = template.factory<A>(
                                 `tooltip-content--${attributes['tooltip-content']?.direction || 's'}`
                             ],
                             onclick: (e: Event) => {
-                                let key = (e?.target as HTMLElement)?.dataset?.key;
+                                let element = e.target as HTMLElement,
+                                    key = element.dataset?.key;
+
+                                if (key === undefined) {
+                                    let parent;
+
+                                    while (parent = element.parentElement) {
+                                        key = parent.dataset?.key;
+
+                                        if (key !== undefined) {
+                                            break;
+                                        }
+                                    }
+                                }
 
                                 if (key === undefined) {
                                     return;
@@ -148,16 +161,24 @@ const select = template.factory<A>(
                             scrollbar: attributes.scrollbar,
                             'scrollbar-container-content': attributes['scrollbar-container-content']
                         },
-                        keys.map((key) => html`
-                            <div
-                                class='link select-option ${() => selected[key] && '--active'}'
-                                ${this?.attributes?.option}
-                                ${option}
-                                data-key='${key}'
-                            >
-                                ${options[key]}
-                            </div>
-                        `)
+                        keys.map((key) => {
+                            let content = options[key];
+
+                            if (content !== null && typeof content === 'object' && 'content' in content) {
+                                content = content.content;
+                            }
+
+                            return html`
+                                <div
+                                    class='link select-option ${() => selected[key] && '--active'}'
+                                    ${this?.attributes?.option}
+                                    ${option}
+                                    data-key='${key}'
+                                >
+                                    ${content}
+                                </div>
+                            `;
+                        })
                     );
                 }}
             </div>
