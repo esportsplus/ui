@@ -6,7 +6,16 @@ import './scss/index.scss';
 
 const hold = template.factory(
     function(attributes, content: (state: { holding: boolean, complete: boolean }) => Renderable<any>) {
-        let state = reactive({
+        let end = () => {
+                if (!state.complete) {
+                    state.holding = false;
+                }
+            },
+            start = (e: MouseEvent) => {
+                e.preventDefault();
+                state.holding = true;
+            },
+            state = reactive({
                 complete: false,
                 holding: false
             });
@@ -14,21 +23,16 @@ const hold = template.factory(
         return html`
             <div
                 class='button ${() => state.holding && 'button--holding'} ${() => state.complete && '--active'}'
-                onanimationend='${(e: AnimationEvent) => {
+                onanimationend=${(e: AnimationEvent) => {
                     if (e.animationName === 'buttonHolding') {
                         state.complete = true;
                     }
-                }}'
-                onclick='${() => {}}'
-                onmousedown='${(e: MouseEvent) => {
-                    e.preventDefault();
-                    state.holding = true;
-                }}'
-                onmouseup='${() => {
-                    if (!state.complete) {
-                        state.holding = false;
-                    }
-                }}'
+                }}
+                onclick=${() => {}}
+                onmousedown=${start}
+                onmouseup=${end}
+                ontouchstart=${start}
+                ontouchend=${end}
                 ${attributes}
             >
                 ${() => content(state)}
