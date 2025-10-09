@@ -50,7 +50,6 @@
             --background: var(--background-hover);
             --border-color: var(--border-color-hover);
             --box-shadow: var(--box-shadow-hover);
-            --color: var(--color-hover);
             --opacity: var(--opacity-hover);
             --scale: var(--scale-hover);
         }
@@ -59,13 +58,15 @@
             --background: var(--background-pressed);
             --border-color: var(--border-color-pressed);
             --box-shadow: var(--box-shadow-pressed);
-            --color: var(--color-pressed);
             --opacity: var(--opacity-pressed);
             --scale: var(--scale-pressed);
         }
     }
 
     #{tokens.state(active)} {
+        --background: var(--background-active);
+        --border-color: var(--border-color-active);
+        --box-shadow: var(--box-shadow-active);
         --opacity: var(--opacity-active);
         --scale: var(--scale-active);
     }
