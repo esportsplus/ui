@@ -10,7 +10,7 @@
     },
     "devDependencies": {
         "@esportsplus/typescript": "^0.9.2",
-        "@types/node": "^24.7.1",
+        "@types/node": "^24.7.2",
         "autoprefixer": "^10.4.21",
         "glob": "^11.0.3",
         "lightningcss": "^1.30.2",
