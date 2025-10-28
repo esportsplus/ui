@@ -1,0 +1,50 @@
+@use '../../anchor/scss';
+@use '/lib';
+@use '/tokens';
+@use 'variables';
+
+.alert {
+    max-width: var(--max-width);
+    position: fixed;
+    width: calc(100% - (var(--margin-horizontal) * 2));
+    z-index: 11;
+
+
+    &.anchor--n {
+        @include tokens.state(inactive) {
+            transform: translate(50%, -100%);
+        }
+    }
+
+    &.anchor--ne {
+        @include tokens.state(inactive) {
+            transform: translateY(-100%);
+        }
+    }
+
+
+    &-close {
+        @include lib.position(absolute, vertical);
+        right: var(--size-500);
+        z-index: 0;
+    }
+
+    &-message {
+        opacity: 0;
+        transition:
+            opacity var(--transition-duration) ease-in-out,
+            transform var(--transition-duration) ease-in-out;
+
+        @include tokens.state(inactive) {
+            pointer-events: none;
+            position: absolute;
+            transform: translateX(calc(25% * -1));
+            left: 0;
+            top: 0;
+        }
+
+        @include tokens.state(active) {
+            opacity: 1;
+        }
+    }
+}

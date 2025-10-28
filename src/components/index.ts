@@ -1,4 +1,6 @@
 export { default as accordion } from './accordion';
+export { default as alert } from './alert';
+export { default as back } from './back';
 export { default as button } from './button';
 export { default as checkbox } from './checkbox';
 export { default as clipboard } from './clipboard';

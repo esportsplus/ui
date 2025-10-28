@@ -1,0 +1,17 @@
+@use '@esportsplus/ui/tokens.scss';
+
+
+.back {
+    &-arrow {
+        transform: rotate(-90deg);
+        transition:
+            color var(--transition-duration) ease-in-out,
+            transform var(--transition-duration) ease-in-out;
+    }
+
+    @include tokens.state(hover) {
+        .back-arrow {
+            transform: rotate(-90deg) translateY(-2px);
+        }
+    }
+}

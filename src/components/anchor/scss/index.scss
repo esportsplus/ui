@@ -20,6 +20,12 @@
     }
 
 
+    &--n,
+    &--s {
+        right: 50%;
+        transform: translateX(50%);
+    }
+
     &--ne,
     &--nw {
         top: var(--margin-vertical);
@@ -38,5 +44,13 @@
     &--nw,
     &--sw {
         left: var(--margin-horizontal);
+    }
+
+    &--n {
+        top: var(--margin-vertical);
+    }
+
+    &--s {
+        bottom: var(--margin-vertical);
     }
 }
