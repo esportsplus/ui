@@ -128,10 +128,10 @@ const content = (
                     ${() => {
                         let message = attributes.message;
 
-                        return state.type && [...state.messages].map((content, i) => {
+                        return state.type && [...state.messages].map((content) => {
                             if (typeof content === 'string') {
                                 return html`
-                                    <p class='${i === 0 && '--text-crop-top'}' ${message}>
+                                    <p ${message}>
                                         ${content}
                                     </p>
                                 `;
