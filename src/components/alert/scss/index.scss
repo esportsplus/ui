@@ -5,6 +5,7 @@
 
 .alert {
     max-width: var(--max-width);
+    padding: var(--padding-vertical) var(--padding-horizontal);
     position: fixed;
     width: calc(100% - (var(--margin-horizontal) * 2));
     z-index: 11;

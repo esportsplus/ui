@@ -110,40 +110,41 @@ const content = (
 ) => {
     return html`
         <div
-            class='alert anchor anchor--n card --flex-fill --flex-row --flex-vertical ${() => state.active && '--active'}'
-            style='--max-width: 640px;'
+            class='alert anchor anchor--n ${() => state.active && '--active'}'
             ${omit(attributes, OMIT)}
         >
-            ${() => {
-                let type = state.type;
-
-                return html`
-                    <div class='--flex-vertical' style='${`--color: var(--color-${modifiers[type]}-400);`}'>
-                        ${icon({ class: '--margin-right --margin-600 --size-500' }, type === 'error' ? error : check)}
-                    </div>
-                `;
-            }}
-
-            <div class='--flex-fill --flex-column --gap-100 --padding-right --padding-800'>
+            <div class='--flex-row'>
                 ${() => {
-                    let message = attributes.message;
+                    let type = state.type;
 
-                    return state.type && [...state.messages].map((content, i) => {
-                        if (typeof content === 'string') {
-                            return html`
-                                <p class='${i === 0 && '--text-crop-top'}' ${message}>
-                                    ${content}
-                                </p>
-                            `;
-                        }
-
-                        return html`
-                            <div class='--flex-start'>
-                                ${content}
-                            </div>
-                        `;
-                    });
+                    return html`
+                        <div class='--flex-vertical' style='${`--color: var(--color-${modifiers[type]}-400);`}'>
+                            ${icon({ class: '--margin-right --margin-600 --size-500' }, type === 'error' ? error : check)}
+                        </div>
+                    `;
                 }}
+
+                <div class='--flex-fill --flex-column --gap-100 --padding-right --padding-800'>
+                    ${() => {
+                        let message = attributes.message;
+
+                        return state.type && [...state.messages].map((content, i) => {
+                            if (typeof content === 'string') {
+                                return html`
+                                    <p class='${i === 0 && '--text-crop-top'}' ${message}>
+                                        ${content}
+                                    </p>
+                                `;
+                            }
+
+                            return html`
+                                <div class='--flex-start'>
+                                    ${content}
+                                </div>
+                            `;
+                        });
+                    }}
+                </div>
             </div>
 
             <div
