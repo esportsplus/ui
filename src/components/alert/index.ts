@@ -1,8 +1,12 @@
+import '@esportsplus/vite/global.d.ts';
 import { Response } from '@esportsplus/action';
 import { reactive } from '@esportsplus/reactivity';
 import { html, svg, Attributes, Renderable } from '@esportsplus/template';
 import { omit } from '@esportsplus/utilities';
 import { icon } from '@esportsplus/ui';
+import check from '~/storage/svg/check.svg';
+import close from '~/storage/svg/close.svg';
+import e from '~/storage/svg/error.svg';
 import './scss/index.scss';
 
 
@@ -104,10 +108,7 @@ const info = (messages: Renderable<any>, seconds: number = 0) => activate('info'
 const success = (messages: Renderable<any>, seconds: number = 0) => activate('success', messages, seconds);
 
 
-const content = (
-    attributes: Attributes & { close?: Attributes, message?: Attributes },
-    { check, close, error }: { check: string, close: string, error: string }
-) => {
+const content = (attributes: Attributes & { close?: Attributes, message?: Attributes }) => {
     return html`
         <div
             class='alert anchor anchor--n ${() => state.active && '--active'}'
@@ -119,7 +120,7 @@ const content = (
 
                     return html`
                         <div class='--flex-vertical' style='${`--color: var(--color-${modifiers[type]}-400);`}'>
-                            ${icon({ class: '--margin-right --margin-600 --size-500' }, type === 'error' ? error : check)}
+                            ${icon({ class: '--margin-right --margin-600 --size-500' }, type === 'error' ? e : check)}
                         </div>
                     `;
                 }}

@@ -1,7 +1,8 @@
 import { glob } from 'glob';
 import { defineConfig } from 'vite';
 import autoprefixer from 'autoprefixer';
-import path from 'path';
+import { join } from 'path';
+import shelljs from 'shelljs';
 
 
 export default defineConfig({
@@ -58,6 +59,16 @@ export default defineConfig({
                             }
 
                             file.source = `@layer ${layer} {${segments.join('\n')}}\n${vite}`;
+                        }
+                    }
+                },
+                {
+                    name: '@esportsplus/ui-svg-copy',
+                    writeBundle() {
+                        let directories = glob.sync('./src/components/*/svg/');
+
+                        for (let dir of directories) {
+                            shelljs.cp('-rf', dir, dir.replace('src', 'build'));
                         }
                     }
                 }
