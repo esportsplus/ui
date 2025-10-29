@@ -4,9 +4,9 @@ import { reactive } from '@esportsplus/reactivity';
 import { html, svg, Attributes, Renderable } from '@esportsplus/template';
 import { omit } from '@esportsplus/utilities';
 import { icon } from '@esportsplus/ui';
-import check from '~/storage/svg/check.svg';
-import close from '~/storage/svg/close.svg';
-import e from '~/storage/svg/error.svg';
+import check from './svg/check.svg';
+import close from './svg/close.svg';
+import e from './svg/error.svg';
 import './scss/index.scss';
 
 
