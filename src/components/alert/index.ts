@@ -21,15 +21,10 @@ let modifiers: Record<Type, string> = {
         info: 'black',
         success: 'green'
     },
-    state = reactive({
-        active: false,
-        messages: new Set as Set<Renderable<any>>,
-        type: '' as Type
-    }),
     timeout = 250;
 
 
-function activate(key: Type, messages: Renderable<any>, seconds: number = 0) {
+function activate(key: Type, messages: Renderable<any>, seconds: number, state: { active: boolean, messages: Set<Renderable<any>>, type: Type }) {
     if (!Array.isArray(messages)) {
         messages = [messages];
     }
@@ -58,7 +53,7 @@ function activate(key: Type, messages: Renderable<any>, seconds: number = 0) {
             state.active = true;
             state.type = key;
 
-            if (seconds) {
+            if (seconds) {``
                 setTimeout(deactivate, 500 * seconds);
             }
         }, timeout);
@@ -75,7 +70,7 @@ function activate(key: Type, messages: Renderable<any>, seconds: number = 0) {
     }
 }
 
-function deactivate() {
+function deactivate(state: { active: boolean, messages: Set<Renderable<any>>, type: Type }) {
     state.active = false;
 
     setTimeout(() => {
@@ -84,82 +79,89 @@ function deactivate() {
 }
 
 
-const error = (messages: Renderable<any>, seconds: number = 0) => activate('error', messages, seconds);
-
-error.response = (response: Response<any>) => {
-    if (response.ok) {
-        return;
-    }
-
-    error(
-        response.errors.map(({ message, path }) => {
-            if (!path) {
-                return message;
-            }
-
-            return `${String(path).split('.').join(' ')} ${message}`;
-        }),
-        5
-    );
-};
-
-const info = (messages: Renderable<any>, seconds: number = 0) => activate('info', messages, seconds);
-
-const success = (messages: Renderable<any>, seconds: number = 0) => activate('success', messages, seconds);
+export default (attributes: Attributes & { close?: Attributes, message?: Attributes }) => {
+    let state = reactive({
+            active: false,
+            messages: new Set as Set<Renderable<any>>,
+            type: '' as Type
+        });
 
 
-const content = (attributes: Attributes & { close?: Attributes, message?: Attributes }) => {
-    return html`
-        <div
-            class='alert anchor anchor--n ${() => state.active && '--active'}'
-            ${omit(attributes, OMIT)}
-        >
-            <div class='--flex-row'>
-                ${() => {
-                    let type = state.type;
+    const error = (messages: Renderable<any>, seconds: number = 0) => activate('error', messages, seconds, state);
 
-                    return html`
-                        <div class='--flex-vertical' style='${`--color: var(--color-${modifiers[type]}-400);`}'>
-                            ${icon({ class: '--margin-right --margin-600 --size-500' }, type === 'error' ? e : check)}
-                        </div>
-                    `;
-                }}
+    error.response = (response: Response<any>) => {
+        if (response.ok) {
+            return;
+        }
 
-                <div class='--flex-fill --flex-column --gap-100 --padding-right --padding-800'>
-                    ${() => {
-                        let message = attributes.message;
+        error(
+            response.errors.map(({ message, path }) => {
+                if (!path) {
+                    return message;
+                }
 
-                        return state.type && [...state.messages].map((content) => {
-                            if (typeof content === 'string') {
-                                return html`
-                                    <p ${message}>
-                                        ${content}
-                                    </p>
-                                `;
-                            }
+                return `${String(path).split('.').join(' ')} ${message}`;
+            }),
+            5
+        );
+    };
 
-                            return html`
-                                <div class='--flex-start'>
-                                    ${content}
-                                </div>
-                            `;
-                        });
-                    }}
-                </div>
-            </div>
 
+    return {
+        content: html`
             <div
-                class='alert-close button --padding-300'
-                onclick='${deactivate}'
-                ${attributes.close}
+                class='alert anchor anchor--n ${() => state.active && '--active'}'
+                ${omit(attributes, OMIT)}
             >
-                <div class="icon" style='--size: 14px;'>
-                    ${svg.sprite(close)}
+                <div class='--flex-row'>
+                    ${() => {
+                        let type = state.type;
+
+                        return html`
+                            <div class='--flex-vertical' style='${`--color: var(--color-${modifiers[type]}-400);`}'>
+                                ${icon({ class: '--margin-right --margin-600 --size-500' }, type === 'error' ? e : check)}
+                            </div>
+                        `;
+                    }}
+
+                    <div class='--flex-fill --flex-column --gap-100 --padding-right --padding-800'>
+                        ${() => {
+                            let message = attributes.message;
+
+                            return state.type && [...state.messages].map((content) => {
+                                if (typeof content === 'string') {
+                                    return html`
+                                        <p ${message}>
+                                            ${content}
+                                        </p>
+                                    `;
+                                }
+
+                                return html`
+                                    <div class='--flex-start'>
+                                        ${content}
+                                    </div>
+                                `;
+                            });
+                        }}
+                    </div>
+                </div>
+
+                <div
+                    class='alert-close button --padding-300'
+                    onclick='${deactivate}'
+                    ${attributes.close}
+                >
+                    <div class="icon" style='--size: 14px;'>
+                        ${svg.sprite(close)}
+                    </div>
                 </div>
             </div>
-        </div>
-    `;
+        `,
+        deactivate: () => deactivate(state),
+        error,
+        info: (messages: Renderable<any>, seconds: number = 0) => activate('info', messages, seconds, state),
+        success: (messages: Renderable<any>, seconds: number = 0) => activate('success', messages, seconds, state)
+
+    };
 };
-
-
-export default { content, deactivate, error, info, success };
