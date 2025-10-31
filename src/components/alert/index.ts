@@ -82,7 +82,7 @@ function deactivate(state: { active: boolean, messages: Set<Renderable<any>>, ty
 export default (attributes: Attributes & { close?: Attributes, message?: Attributes }) => {
     let state = reactive({
             active: false,
-            messages: new Set as Set<Renderable<any>>,
+            messages: new Set() as Set<Renderable<any>>,
             type: '' as Type
         });
 
@@ -149,7 +149,7 @@ export default (attributes: Attributes & { close?: Attributes, message?: Attribu
 
                 <div
                     class='alert-close button --padding-300'
-                    onclick='${deactivate}'
+                    onclick='${() => deactivate(state)}'
                     ${attributes.close}
                 >
                     <div class="icon" style='--size: 14px;'>
