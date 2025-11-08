@@ -30,10 +30,9 @@ export default function(
                 onfocusout: () => {
                     state.active = false;
                 },
-                onrender: form.input.onrender(state)
+                onrender: form.input.onrender(state),
+                value: attributes?.value || ''
             }}
-        >
-            ${attributes?.value as string}
-        </textarea>
+        ></textarea>
     `;
 };
