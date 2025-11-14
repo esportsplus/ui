@@ -1,4 +1,5 @@
 @use '/lib';
+@use '/tokens';
 @use 'variables';
 
 .select {
@@ -19,6 +20,12 @@
         opacity var(--transition-duration) ease-in-out,
         transform var(--transition-duration) ease-in-out;
     width: 100%;
+
+    @include tokens.state(active) {
+        .select-arrow {
+            transform: translateY(calc(50% + var(--arrow-size) / 3)) rotate(-135deg);
+        }
+    }
 
     &-arrow {
         @include lib.position(absolute, null calc(var(--padding-horizontal) + var(--arrow-spacer)) calc(50% + var(--arrow-spacer)) null);
