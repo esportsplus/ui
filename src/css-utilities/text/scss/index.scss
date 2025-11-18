@@ -39,6 +39,18 @@
         &-top::before {
             margin-top: calc((1 - var(--line-height)) * 0.618em);
         }
+
+        &-first-child {
+            &:first-child {
+                @extend .--text-crop-top;
+            }
+        }
+
+        &-last-child {
+            &:last-child {
+                @extend .--text-crop-bottom;
+            }
+        }
     }
 
     &-italic {
