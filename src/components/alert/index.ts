@@ -127,7 +127,7 @@ export default (attributes: Attributes & { 'alert-close'?: Attributes, 'alert-me
                     ${() => {
                         let message = attributes.message;
 
-                        return state.type && [...state.messages].map((content) => {
+                        return state.rerender && [...state.messages].map((content) => {
                             if (typeof content === 'string') {
                                 return html`
                                     <p ${message}>
