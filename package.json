@@ -30,9 +30,9 @@
         },
         "./layer.scss": "./layer.scss",
         "./lib.scss": "./lib.scss",
-        "./theme/dark": {
-            "types": "./build/theme/dark/index.d.ts",
-            "default": "./build/theme/dark/index.js"
+        "./themes/dark": {
+            "types": "./build/themes/dark/index.d.ts",
+            "default": "./build/themes/dark/index.js"
         },
         "./tokens.scss": "./tokens.scss",
         "./*.scss": "./build/components/*/scss/index.scss",
