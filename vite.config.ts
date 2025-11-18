@@ -12,7 +12,7 @@ export default defineConfig({
         rollupOptions: {
             input: [
                 ...glob.sync('./src/normalize/scss/index.scss'),
-                ...glob.sync('./src/{components,css-utilities,fonts}/*/scss/index.scss'),
+                ...glob.sync('./src/{components,css-utilities,fonts,theme/dark}/*/scss/index.scss'),
                 ...glob.sync('./src/css-utilities/index.scss')
             ],
             output: {
@@ -50,6 +50,9 @@ export default defineConfig({
                             }
                             else if (filename.startsWith('components')) {
                                 layer = 'components';
+                            }
+                            else if (filename.startsWith('theme/dark')) {
+                                layer = 'theme/dark';
                             }
                             else if (filename.startsWith('normalize')) {
                                 layer = 'normalize';

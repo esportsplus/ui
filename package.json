@@ -30,7 +30,7 @@
         },
         "./layer.scss": "./layer.scss",
         "./lib.scss": "./lib.scss",
-        "./theme/dark/*": {
+        "./theme/dark": {
             "types": "./build/theme/dark/index.d.ts",
             "default": "./build/theme/dark/index.js"
         },
