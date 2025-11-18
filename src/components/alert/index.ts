@@ -13,7 +13,7 @@ import './scss/index.scss';
 type Type = 'error' | 'info' | 'success';
 
 
-const OMIT = ['alert-close', 'alert-messages', 'message'];
+const OMIT = ['alert-close', 'alert-messages', 'alert-message'];
 
 
 let modifiers: Record<Type, string> = {
@@ -75,7 +75,7 @@ function deactivate(state: { active: boolean, messages: Set<Renderable<any>>, ty
 }
 
 
-export default (attributes: Attributes & { 'alert-close'?: Attributes, 'alert-messages'?: Attributes, message?: Attributes }) => {
+export default (attributes: Attributes & { 'alert-close'?: Attributes, 'alert-messages'?: Attributes, 'alert-message'?: Attributes }) => {
     let state = reactive({
             active: false,
             messages: new Set() as Set<Renderable<any>>,
@@ -125,7 +125,7 @@ export default (attributes: Attributes & { 'alert-close'?: Attributes, 'alert-me
                     ${attributes['alert-messages']}
                 >
                     ${() => {
-                        let message = attributes.message;
+                        let message = attributes['alert-message'];
 
                         return state.rerender && [...state.messages].map((content) => {
                             if (typeof content === 'string') {
