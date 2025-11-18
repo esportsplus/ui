@@ -1,0 +1,30 @@
+.button {
+    &--primary,
+    &--secondary,
+    &--tertiary {
+        --border-color-active: var(--color-primary-300);
+        --color-default: var(--color-grey-500);
+    }
+
+    &--form,
+    &--primary {
+        --background-active: var(--color-primary-300);
+        --background-default: var(--color-primary-300);
+        --background-hover: var(--color-primary-300);
+        --background-pressed: var(--color-primary-500);
+    }
+
+    &--secondary {
+        --background-default: var(--color-black-300);
+        --background-hover: var(--color-primary-300);
+        --background-pressed: var(--color-primary-500);
+        --border-color: var(--background-color);
+    }
+
+    &--tertiary {
+        --border-color-active: var(--color-primary-300);
+        --border-color-default: var(--color-black-300);
+        --border-color-hover: var(--color-black-400);
+        --border-color-pressed: var(--color-black-500);
+    }
+}
