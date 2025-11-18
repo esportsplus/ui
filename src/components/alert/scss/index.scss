@@ -22,28 +22,4 @@
             transform: translateY(-100%);
         }
     }
-
-
-    &-close {
-        margin: calc(var(--padding-vertical) * -1) 0;
-    }
-
-    &-message {
-        opacity: 0;
-        transition:
-            opacity var(--transition-duration) ease-in-out,
-            transform var(--transition-duration) ease-in-out;
-
-        @include tokens.state(inactive) {
-            pointer-events: none;
-            position: absolute;
-            transform: translateX(calc(25% * -1));
-            left: 0;
-            top: 0;
-        }
-
-        @include tokens.state(active) {
-            opacity: 1;
-        }
-    }
 }

@@ -121,7 +121,7 @@ export default (attributes: Attributes & { 'alert-close'?: Attributes, 'alert-me
                 }}
 
                 <div
-                    class='alert-messages --flex-fill --flex-column --padding-right --padding-800'
+                    class='alert-messages --flex-column --flex-fill'
                     ${attributes['alert-messages']}
                 >
                     ${() => {
