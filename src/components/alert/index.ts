@@ -13,7 +13,7 @@ import './scss/index.scss';
 type Type = 'error' | 'info' | 'success';
 
 
-const OMIT = ['close', 'message'];
+const OMIT = ['alert-close', 'alert-messages', 'message'];
 
 
 let modifiers: Record<Type, string> = {
@@ -24,7 +24,7 @@ let modifiers: Record<Type, string> = {
     timeout = 250;
 
 
-function activate(key: Type, messages: Renderable<any>, seconds: number, state: { active: boolean, messages: Set<Renderable<any>>, type: Type }) {
+function activate(key: Type, messages: Renderable<any>, seconds: number, state: { active: boolean, messages: Set<Renderable<any>>, rerender: number, type: Type }) {
     if (!Array.isArray(messages)) {
         messages = [messages];
     }
@@ -34,33 +34,29 @@ function activate(key: Type, messages: Renderable<any>, seconds: number, state: 
     }
 
     if (state.type !== key) {
+        state.active = false;
         state.messages.clear();
     }
-    else {
-        // @ts-ignore
-        state.type = '';
-    }
+
+    state.type = key;
 
     for (let message of messages) {
         state.messages.add(message);
     }
 
     if (state.active) {
-        state.active = false;
+        state.rerender++;
 
-        // Slide in animation needs time
-        setTimeout(() => {
-            state.active = true;
-            state.type = key;
+        if (!seconds) {
+            return;
+        }
 
-            if (seconds) {``
-                setTimeout(deactivate, 500 * seconds);
-            }
-        }, timeout);
+        setTimeout(deactivate, timeout + (500 * seconds));
     }
     else {
         setTimeout(() => {
             state.active = true;
+            state.rerender++;
             state.type = key;
 
             if (seconds) {
@@ -79,10 +75,11 @@ function deactivate(state: { active: boolean, messages: Set<Renderable<any>>, ty
 }
 
 
-export default (attributes: Attributes & { close?: Attributes, message?: Attributes }) => {
+export default (attributes: Attributes & { 'alert-close'?: Attributes, 'alert-messages'?: Attributes, message?: Attributes }) => {
     let state = reactive({
             active: false,
             messages: new Set() as Set<Renderable<any>>,
+            rerender: 0,
             type: '' as Type
         });
 
@@ -110,50 +107,53 @@ export default (attributes: Attributes & { close?: Attributes, message?: Attribu
     return {
         content: html`
             <div
-                class='alert anchor anchor--n ${() => state.active && '--active'}'
+                class='alert anchor anchor--n ${() => state.active && '--active'} --flex-row'
                 ${omit(attributes, OMIT)}
             >
-                <div class='--flex-row'>
-                    ${() => {
-                        let type = state.type;
+                ${() => {
+                    let type = state.type;
 
-                        return html`
-                            <div class='--flex-vertical' style='${`--color: var(--color-${modifiers[type]}-400);`}'>
-                                ${icon({ class: '--margin-right --margin-600 --size-500' }, type === 'error' ? e : check)}
-                            </div>
-                        `;
-                    }}
-
-                    <div class='--flex-fill --flex-column --gap-100 --padding-right --padding-800'>
-                        ${() => {
-                            let message = attributes.message;
-
-                            return state.type && [...state.messages].map((content) => {
-                                if (typeof content === 'string') {
-                                    return html`
-                                        <p ${message}>
-                                            ${content}
-                                        </p>
-                                    `;
-                                }
-
-                                return html`
-                                    <div class='--flex-start'>
-                                        ${content}
-                                    </div>
-                                `;
-                            });
-                        }}
-                    </div>
-                </div>
+                    return html`
+                        <div class='--flex-vertical' style='${`--color: var(--color-${modifiers[type]}-400);`}'>
+                            ${icon({ class: '--size-500' }, type === 'error' ? e : check)}
+                        </div>
+                    `;
+                }}
 
                 <div
-                    class='alert-close button --padding-300'
-                    onclick='${() => deactivate(state)}'
-                    ${attributes.close}
+                    class='alert-messages --flex-fill --flex-column --padding-right --padding-800'
+                    ${attributes['alert-messages']}
                 >
-                    <div class="icon" style='--size: 14px;'>
-                        ${svg.sprite(close)}
+                    ${() => {
+                        let message = attributes.message;
+
+                        return state.type && [...state.messages].map((content) => {
+                            if (typeof content === 'string') {
+                                return html`
+                                    <p ${message}>
+                                        ${content}
+                                    </p>
+                                `;
+                            }
+
+                            return html`
+                                <div class='--flex-start'>
+                                    ${content}
+                                </div>
+                            `;
+                        });
+                    }}
+                </div>
+
+                <div class="--flex-vertical">
+                    <div
+                        class='alert-close button --padding-300'
+                        onclick='${() => deactivate(state)}'
+                        ${attributes['alert-close']}
+                    >
+                        <div class="icon" style='--size: 14px;'>
+                            ${svg.sprite(close)}
+                        </div>
                     </div>
                 </div>
             </div>

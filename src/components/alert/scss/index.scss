@@ -24,12 +24,6 @@
     }
 
 
-    &-close {
-        @include lib.position(absolute, vertical);
-        right: var(--size-500);
-        z-index: 0;
-    }
-
     &-message {
         opacity: 0;
         transition:
