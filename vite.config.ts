@@ -12,7 +12,7 @@ export default defineConfig({
         rollupOptions: {
             input: [
                 ...glob.sync('./src/normalize/scss/index.scss'),
-                ...glob.sync('./src/{components,css-utilities,fonts,themes/dark}/*/scss/index.scss'),
+                ...glob.sync('./src/{components,css-utilities,fonts,themes/dark,themes/light}/*/scss/index.scss'),
                 ...glob.sync('./src/css-utilities/index.scss')
             ],
             output: {
