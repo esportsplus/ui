@@ -23,7 +23,7 @@
 
     @include tokens.state(active) {
         .select-arrow {
-            transform: translateY(calc(50% + var(--arrow-size) / 3)) rotate(-135deg);
+            transform: translateY(calc(50% + var(--arrow-size) / 3)) scaleY(-1) rotate(45deg);
         }
     }
 

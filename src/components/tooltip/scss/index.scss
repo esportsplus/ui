@@ -29,7 +29,7 @@
         // Rotate arrow only if parent tooltip is active
         :not(.tooltip) .tooltip-arrow,
         > .tooltip-arrow {
-            transform: rotate(var(--rotate-to));
+            transform: rotate(var(--rotate)) scaleX(-1);
         }
     }
 
@@ -40,7 +40,7 @@
 
     &-arrow {
         margin: 0 -1px;
-        transform: rotate(var(--rotate-from));
+        transform: rotate(var(--rotate));
     }
 
 
