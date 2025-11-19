@@ -4,7 +4,7 @@ const primary = {
 };
 
 const tooltip = {
-    class: `${primary.class} --background-black --padding-horizontal-600 --padding-vertical-500`,
+    class: `${primary.class} --background-black --padding-500`,
     style: `${primary.style} white-space: nowrap;`
 };
 
