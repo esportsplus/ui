@@ -18,8 +18,8 @@ importers:
         specifier: ^0.18.1
         version: 0.18.1
       '@esportsplus/template':
-        specifier: ^0.26.4
-        version: 0.26.4
+        specifier: ^0.26.5
+        version: 0.26.5
       '@esportsplus/utilities':
         specifier: ^0.25.0
         version: 0.25.0
@@ -243,8 +243,8 @@ packages:
   '@esportsplus/tasks@0.4.0':
     resolution: {integrity: sha512-F74DAHtdO6n3LBBUxz4xNCdMnmLduSUFuKKgwv40d1yfy8sgooEcxuQBHmSi6K84H8Aw1+biw32JaIzJJ4uWSg==}
 
-  '@esportsplus/template@0.26.4':
-    resolution: {integrity: sha512-IbSkZXXwrvjj1pEWki8HTJRYzFS3IxyhHsR1j1ypvsgUkpYLX2kC0jb/JzuFThR5OGcIRIr6l/Hi4uD32OKhnw==}
+  '@esportsplus/template@0.26.5':
+    resolution: {integrity: sha512-UHe6WP49gYZB1kPO3sxadJ376faOzBLHZp4kn64SqivgfUuADwXuIIkJfx0jPAJ4Lmvi/HhA7zSu6dos3d/Qng==}
 
   '@esportsplus/typescript@0.9.2':
     resolution: {integrity: sha512-7CLlWVhCbkEW3EodOk+zE0xMAFeyVs+EjYr3/H5mY+im1O+o6ig5RpY3TNWabUkEBW14Jo8TBoHQAsPJH6CnuQ==}
@@ -2317,7 +2317,7 @@ snapshots:
     dependencies:
       '@esportsplus/queue': 0.1.0
 
-  '@esportsplus/template@0.26.4':
+  '@esportsplus/template@0.26.5':
     dependencies:
       '@esportsplus/queue': 0.1.0
       '@esportsplus/reactivity': 0.18.1
