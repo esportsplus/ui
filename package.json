@@ -34,10 +34,12 @@
             "types": "./build/themes/dark/index.d.ts",
             "default": "./build/themes/dark/index.js"
         },
+        "./themes/dark/*.scss": "./build/themes/dark/*/scss/index.scss",
         "./themes/light": {
             "types": "./build/themes/light/index.d.ts",
             "default": "./build/themes/light/index.js"
         },
+        "./themes/light/*.scss": "./build/themes/light/*/scss/index.scss",
         "./tokens.scss": "./tokens.scss",
         "./*.scss": "./build/components/*/scss/index.scss",
         "./*": {

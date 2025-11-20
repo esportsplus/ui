@@ -1,0 +1,26 @@
+.link {
+    &--primary,
+    &--tooltip {
+        --color-active: var(--color-white-400);
+        --color-default: var(--color-grey-500);
+        --color-hover: var(--color-white-400);
+        --color-pressed: var(--color-grey-500);
+        --font-weight: var(--font-weight-500);
+        --gap-horizontal: 0px;
+        --gap-vertical: 0px;
+        align-items: center;
+        display: flex;
+        flex-flow: row;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+    }
+
+    &--tooltip {
+        --background-active: var(--color-black-300);
+        --background-default: var(--color-black-400);
+        --background-hover: var(--color-black-300);
+        --background-pressed: var(--color-black-500);
+        --padding-horizontal: var(--size-500);
+        --padding-vertical: var(--size-500);
+        white-space: nowrap;
+    }
+}
