@@ -13,4 +13,4 @@ jobs:
   publish:
     secrets:
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-    uses: esportsplus/workflows/.github/workflows/publish.yml@main
+    uses: esportsplus/typescript/.github/workflows/publish.yml@main

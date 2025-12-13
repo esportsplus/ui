@@ -9,4 +9,4 @@ jobs:
   automerge:
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-    uses: esportsplus/workflows/.github/workflows/dependabot.yml@main
+    uses: esportsplus/typescript/.github/workflows/dependabot.yml@main
