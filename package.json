@@ -53,6 +53,10 @@
     },
     "name": "@esportsplus/ui",
     "private": false,
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/esportsplus/ui"
+    },
     "scripts": {
         "build": "run-s build:vite build:ts",
         "build:ts": "tsc",
