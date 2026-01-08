@@ -10,8 +10,7 @@ pnpm add @esportsplus/ui
 
 ## Dependencies
 
-- `@esportsplus/template` - Tagged template literals with compile-time transforms
-- `@esportsplus/reactivity` - Reactive state management
+- `@esportsplus/template` - Tagged template literals with compile-time transforms and reactive state management
 - `@esportsplus/action` - Response/error handling
 - `@esportsplus/utilities` - Core utilities
 
@@ -124,7 +123,7 @@ component({ class: 'custom' }, html`<span>Content</span>`)
 Components can accept and return reactive state:
 
 ```typescript
-import { reactive } from '@esportsplus/reactivity';
+import { reactive } from '@esportsplus/template';
 
 let state = reactive({ active: false });
 

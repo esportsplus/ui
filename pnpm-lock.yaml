@@ -9,17 +9,14 @@ importers:
   .:
     dependencies:
       '@esportsplus/action':
-        specifier: ^0.1.3
-        version: 0.1.3
+        specifier: ^0.1.4
+        version: 0.1.4
       '@esportsplus/queue':
         specifier: ^0.2.0
         version: 0.2.0
-      '@esportsplus/reactivity':
-        specifier: ^0.29.12
-        version: 0.29.12
       '@esportsplus/template':
-        specifier: ^0.40.4
-        version: 0.40.4
+        specifier: ^0.41.0
+        version: 0.41.0
       '@esportsplus/utilities':
         specifier: ^0.27.2
         version: 0.27.2
@@ -222,8 +219,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@esportsplus/action@0.1.3':
-    resolution: {integrity: sha512-+qrJajzYYIox14/xsXXs3+Lplge4Dtr0MaiGcAYz2IVZsfDM1slIN2AIrBdBx3af41n2SEYIt6R2dBQn8JVCHg==}
+  '@esportsplus/action@0.1.4':
+    resolution: {integrity: sha512-xI2x/kNP3fRsnId7GDGf7Vpumf4CAQSzo20xgzpG+9pOzd8hXZnU1e5GqMk6H9B4FKflGnIL9B8Qw04WTnYy+Q==}
 
   '@esportsplus/cli-passthrough@0.0.10':
     resolution: {integrity: sha512-/DcLjDxIB9NponyFtMQ3ICCXUA/hH1hp4FaL6AOepG1TwvY8g9y1MVLM71Coq7e0NpxUZt1pg73z6KSrh3Xd0w==}
@@ -237,8 +234,8 @@ packages:
   '@esportsplus/reactivity@0.29.12':
     resolution: {integrity: sha512-BWODH7z5C1e4qtKl7DhdHe88V205rvi47tD+T4ctSi/hUw7HHipqimJao34biU066t1RQh+FT1qQlLh2TVLQLw==}
 
-  '@esportsplus/template@0.40.4':
-    resolution: {integrity: sha512-BSqCISJjAdX7nVHZKm7RK1m1Y79QY0iYocre7CHNCB3dT9tBzSYmspDarn18QH073jFjkWPuPB1V4JVDnY+e2Q==}
+  '@esportsplus/template@0.41.0':
+    resolution: {integrity: sha512-lkvhiLFmKxHlxXltruRrPZO/0c+vg9X4M2tp9dOujLWrUD4+QKOW2zTtIeaFBnZgn4JQl4xNhc75Z1xBNzjXQQ==}
 
   '@esportsplus/typescript@0.27.3':
     resolution: {integrity: sha512-nuWpz7AHzhisxoX+WbP8LAk6stVNQ5eL+NTFdEFoinIMd/d3tnKfdK9No+eAiI51DWGxrRGjjq2PRA0Wnpr7qg==}
@@ -2418,7 +2415,7 @@ snapshots:
   '@esbuild/win32-x64@0.27.2':
     optional: true
 
-  '@esportsplus/action@0.1.3': {}
+  '@esportsplus/action@0.1.4': {}
 
   '@esportsplus/cli-passthrough@0.0.10': {}
 
@@ -2430,7 +2427,7 @@ snapshots:
     dependencies:
       '@esportsplus/utilities': 0.27.2
 
-  '@esportsplus/template@0.40.4':
+  '@esportsplus/template@0.41.0':
     dependencies:
       '@esportsplus/queue': 0.2.0
       '@esportsplus/reactivity': 0.29.12

@@ -1,5 +1,4 @@
-import { html } from '@esportsplus/template';
-import { reactive } from '@esportsplus/reactivity';
+import { html, reactive } from '@esportsplus/template';
 import template from '~/components/template';
 import './scss/index.scss';
 
