@@ -30,8 +30,10 @@ export default (attributes: Attributes & {
         rendering = true,
         state = reactive({
             length: 0,
+            test: () => 'sds',
             render: [] as string[]
-        });
+        }),
+        render = reactive([] as string[]);
 
     decimals ??= 2;
 
@@ -69,7 +71,7 @@ export default (attributes: Attributes & {
                 value = '0';
             }
 
-            state.render[i] = value;
+            render[i] = value;
         }
 
         if (rendering === true) {
@@ -87,7 +89,7 @@ export default (attributes: Attributes & {
                     return '';
                 }
 
-                return html.reactive(state.render, function (value, i) {
+                return html.reactive(render, function (value) {
                     if (isNaN(parseInt(value, 10))) {
                         return html`
                             <span class='counter-character counter-character--symbol'>
@@ -97,9 +99,7 @@ export default (attributes: Attributes & {
                     }
 
                     return html`
-                        <div class=' counter-character' ${{
-                            class: i > n - 3 && 'counter-character--fraction'
-                        }}>
+                        <div class=' counter-character'>
                             <div class='counter-character-track' style='${`--value: ${value}`}'>
                                 <span>9</span>
                                 ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span>${value}</span>`)}

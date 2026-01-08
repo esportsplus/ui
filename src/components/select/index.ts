@@ -96,7 +96,19 @@ const select = template.factory<A, (state: { active: boolean, selected?: string 
                     state.render = true;
                 }}
             >
-                ${content ? (() => content(state)) : (() => options[ state.selected! ] || '-')}
+                ${content ? (() => content(state)) : (() => {
+                    let selected = options[state.selected!];
+
+                    if (!selected) {
+                        return '-';
+                    }
+
+                    if (selected !== null && typeof selected === 'object' && 'content' in selected) {
+                        return selected.content;
+                    }
+
+                    return selected;
+                })}
 
                 <div class='select-arrow' ${this?.attributes?.arrow} ${attributes.arrow}></div>
 

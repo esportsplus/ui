@@ -1,3 +1,8 @@
 {
-    "extends": "@esportsplus/typescript/tsconfig.package.json"
+    "extends": "@esportsplus/typescript/tsconfig.package.json",
+    "compilerOptions": {
+        "plugins": [
+            { "transform": "@esportsplus/template/compiler/tsc" }
+        ]
+    }
 }

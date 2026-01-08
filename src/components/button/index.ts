@@ -11,10 +11,6 @@ const hold = template.factory(
                     state.holding = false;
                 }
             },
-            start = (e: MouseEvent) => {
-                e.preventDefault();
-                state.holding = true;
-            },
             state = reactive({
                 complete: false,
                 holding: false
@@ -23,17 +19,29 @@ const hold = template.factory(
         return html`
             <div
                 class='button ${() => state.holding && 'button--holding'} ${() => state.complete && '--active'}'
-                onanimationend=${(e: AnimationEvent) => {
-                    if (e.animationName === 'buttonHolding') {
-                        state.complete = true;
+                onmousedown='${(e) => {
+                    e.preventDefault();
+                    state.holding = true;
+                }}'
+                ${attributes}
+                ${{
+                    onanimationend: (e: AnimationEvent) => {
+                        if (e.animationName === 'buttonHolding') {
+                            state.complete = true;
+                        }
+                    },
+                    onclick: () => {},
+                    onmousedown: (e) => {
+                        e.preventDefault();
+                        state.holding = true;
+                    },
+                    onmouseup: end,
+                    ontouchend: end,
+                    ontouchstart: (e) => {
+                        e.preventDefault();
+                        state.holding = true;
                     }
                 }}
-                onclick=${() => {}}
-                onmousedown=${start}
-                onmouseup=${end}
-                ontouchstart=${start}
-                ontouchend=${end}
-                ${attributes}
             >
                 ${() => content(state)}
             </div>
