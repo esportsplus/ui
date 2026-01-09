@@ -15,21 +15,21 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0
       '@esportsplus/template':
-        specifier: ^0.41.3
-        version: 0.41.3
+        specifier: ^0.41.6
+        version: 0.41.6
       '@esportsplus/utilities':
         specifier: ^0.27.2
         version: 0.27.2
       '@esportsplus/vite':
-        specifier: ^0.12.3
-        version: 0.12.3(rollup@4.53.3)(terser@5.44.0)
+        specifier: ^0.12.7
+        version: 0.12.7(rollup@4.53.3)(terser@5.44.0)
       modern-normalize:
         specifier: ^3.0.1
         version: 3.0.1
     devDependencies:
       '@esportsplus/typescript':
-        specifier: ^0.27.3
-        version: 0.27.3
+        specifier: ^0.27.4
+        version: 0.27.4
       '@types/node':
         specifier: ^25.0.3
         version: 25.0.3
@@ -222,34 +222,27 @@ packages:
   '@esportsplus/action@0.1.4':
     resolution: {integrity: sha512-xI2x/kNP3fRsnId7GDGf7Vpumf4CAQSzo20xgzpG+9pOzd8hXZnU1e5GqMk6H9B4FKflGnIL9B8Qw04WTnYy+Q==}
 
-  '@esportsplus/cli-passthrough@0.0.10':
-    resolution: {integrity: sha512-/DcLjDxIB9NponyFtMQ3ICCXUA/hH1hp4FaL6AOepG1TwvY8g9y1MVLM71Coq7e0NpxUZt1pg73z6KSrh3Xd0w==}
-
   '@esportsplus/cli-passthrough@0.0.12':
     resolution: {integrity: sha512-8gnWk5L7IG5Fl6mffDYpnkK1xJHUj/PpBuMhqrb/6wadb1UKSWk/seN2uOdITCfK/UlhmtdQqGljg3dA/bGT8w==}
 
   '@esportsplus/queue@0.2.0':
     resolution: {integrity: sha512-YXutzJ9UwzNXnqdoFaPjmuv7QehComMQxoX7C0OM592akh3BNdmo7WboErlJMSkw90j5EDLsuc7ZTfBEbYpyVw==}
 
-  '@esportsplus/reactivity@0.29.14':
-    resolution: {integrity: sha512-Tuwk2JAT8FMr710AmFNRuv2Fmy46drI+cxEIptskoMJfylh7GJYg1TV4ng7NW18yRyt3ofcsSujUqc+4ZHe1Dg==}
+  '@esportsplus/reactivity@0.29.15':
+    resolution: {integrity: sha512-FuU3gyUXmRshWt8cdaJq4AAzUN7+b7EQvTMONGh25JwIB7JVZeO5V0JHSiGTAgVw1GQUfuGL3mrL623tQrE7ow==}
 
-  '@esportsplus/template@0.41.3':
-    resolution: {integrity: sha512-85+iLrsC4b/YQaZTyzwgOSzRL9FnEfoXddpduzmmD5BLZnVnAfUK64Pwz0S0Hg+jQNkVEzhLeswfkue6q1x7pw==}
+  '@esportsplus/template@0.41.6':
+    resolution: {integrity: sha512-3rsaMxBfS1qdOjCXJ0gA4BIY+NWjVstcIkQOeTWaNJx1KCJTHo1TO0C+EtGpSwBI1iAoFFTX770fGjjkAcysoA==}
 
-  '@esportsplus/typescript@0.27.3':
-    resolution: {integrity: sha512-nuWpz7AHzhisxoX+WbP8LAk6stVNQ5eL+NTFdEFoinIMd/d3tnKfdK9No+eAiI51DWGxrRGjjq2PRA0Wnpr7qg==}
-    hasBin: true
-
-  '@esportsplus/typescript@0.9.2':
-    resolution: {integrity: sha512-7CLlWVhCbkEW3EodOk+zE0xMAFeyVs+EjYr3/H5mY+im1O+o6ig5RpY3TNWabUkEBW14Jo8TBoHQAsPJH6CnuQ==}
+  '@esportsplus/typescript@0.27.4':
+    resolution: {integrity: sha512-k8+eLh9wBuGAIUO7G5UsbNO1RWRIDsAb9SCmEwFW+7NgSI+t1/nMbcgzzyNCKam8H6ZQGc2MBcqELIDXWwqg4g==}
     hasBin: true
 
   '@esportsplus/utilities@0.27.2':
     resolution: {integrity: sha512-AiBxekUWLBz0H5x4gxHQxU9DnyoTDo/VVnGfMljhCkWATuIS9eGRWTMtW6pKZBhB6Arf/1013mmhs4CVuivfOw==}
 
-  '@esportsplus/vite@0.12.3':
-    resolution: {integrity: sha512-BR0gO2C80eeMIOvPEixpMfRIA5iQQy6dgAgNlUW7KZLM4LUEoarijXsss5by0TpFNhTqMbMUY/1sIF+qdNHY5w==}
+  '@esportsplus/vite@0.12.7':
+    resolution: {integrity: sha512-hHmL/uv7NuhxTJgWler9jTf876bL2lRaIEAjRRGtB8SC/BZhEZFENgMJyLgEMHkxAjTQxyUZasGfPk4n1Vbwrw==}
     hasBin: true
 
   '@img/sharp-darwin-arm64@0.33.5':
@@ -614,9 +607,6 @@ packages:
 
   '@types/micromatch@4.0.10':
     resolution: {integrity: sha512-5jOhFDElqr4DKTrTEbnW8DZ4Hz5LRUEmyrGpCMrD/NphYv3nUnaF08xmSLx1rGGnyEs/kFnhiw6dCgcDqMr5PQ==}
-
-  '@types/node@24.10.2':
-    resolution: {integrity: sha512-WOhQTZ4G8xZ1tjJTvKOpyEVSGgOTvJAfDK3FNFgELyaTpzhdgHVHeqW8V+UJvzF5BT+/B54T/1S2K6gd9c7bbA==}
 
   '@types/node@25.0.3':
     resolution: {integrity: sha512-W609buLVRVmeW693xKfzHeIV6nJGGz98uCPfeXI1ELMLXVeKYZ9m15fAMSaUPBHYLGFsVRcMmSCksQOrZV9BYA==}
@@ -2179,11 +2169,6 @@ packages:
     resolution: {integrity: sha512-3KS2b+kL7fsuk/eJZ7EQdnEmQoaho/r6KUef7hxvltNA5DR8NAUM+8wJMbJyZ4G9/7i3v5zPBIMN5aybAh2/Jg==}
     engines: {node: '>= 0.4'}
 
-  typescript@5.8.3:
-    resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
@@ -2417,27 +2402,25 @@ snapshots:
 
   '@esportsplus/action@0.1.4': {}
 
-  '@esportsplus/cli-passthrough@0.0.10': {}
-
   '@esportsplus/cli-passthrough@0.0.12': {}
 
   '@esportsplus/queue@0.2.0': {}
 
-  '@esportsplus/reactivity@0.29.14':
+  '@esportsplus/reactivity@0.29.15':
     dependencies:
       '@esportsplus/utilities': 0.27.2
 
-  '@esportsplus/template@0.41.3':
+  '@esportsplus/template@0.41.6':
     dependencies:
       '@esportsplus/queue': 0.2.0
-      '@esportsplus/reactivity': 0.29.14
-      '@esportsplus/typescript': 0.27.3
+      '@esportsplus/reactivity': 0.29.15
+      '@esportsplus/typescript': 0.27.4
       '@esportsplus/utilities': 0.27.2
       serve: 14.2.5
     transitivePeerDependencies:
       - supports-color
 
-  '@esportsplus/typescript@0.27.3':
+  '@esportsplus/typescript@0.27.4':
     dependencies:
       '@esportsplus/cli-passthrough': 0.0.12
       '@esportsplus/utilities': 0.27.2
@@ -2445,22 +2428,16 @@ snapshots:
       tsc-alias: 1.8.16
       typescript: 5.9.3
 
-  '@esportsplus/typescript@0.9.2':
-    dependencies:
-      '@esportsplus/cli-passthrough': 0.0.10
-      tsc-alias: 1.8.16
-      typescript: 5.8.3
-
   '@esportsplus/utilities@0.27.2': {}
 
-  '@esportsplus/vite@0.12.3(rollup@4.53.3)(terser@5.44.0)':
+  '@esportsplus/vite@0.12.7(rollup@4.53.3)(terser@5.44.0)':
     dependencies:
       '@esportsplus/cli-passthrough': 0.0.12
-      '@esportsplus/typescript': 0.9.2
+      '@esportsplus/typescript': 0.27.4
       '@rollup/plugin-inject': 5.0.5(rollup@4.53.3)
       '@types/html-minifier-terser': 7.0.2
       '@types/micromatch': 4.0.10
-      '@types/node': 24.10.2
+      '@types/node': 25.0.3
       '@xmldom/xmldom': 0.9.8
       autoprefixer: 10.4.23(postcss@8.5.6)
       buffer: 6.0.3
@@ -2474,7 +2451,7 @@ snapshots:
       process: 0.11.10
       sass: 1.97.2
       svgo: 4.0.0
-      vite: 7.3.1(@types/node@24.10.2)(lightningcss@1.30.2)(sass@1.97.2)(terser@5.44.0)
+      vite: 7.3.1(@types/node@25.0.3)(lightningcss@1.30.2)(sass@1.97.2)(terser@5.44.0)
       vite-plugin-image-optimizer: 2.0.3(svgo@4.0.0)(vite@7.3.1(@types/node@25.0.3)(lightningcss@1.30.2)(sass@1.97.2)(terser@5.44.0))
     transitivePeerDependencies:
       - jiti
@@ -2752,10 +2729,6 @@ snapshots:
   '@types/micromatch@4.0.10':
     dependencies:
       '@types/braces': 3.0.5
-
-  '@types/node@24.10.2':
-    dependencies:
-      undici-types: 7.16.0
 
   '@types/node@25.0.3':
     dependencies:
@@ -4624,8 +4597,6 @@ snapshots:
       possible-typed-array-names: 1.1.0
       reflect.getprototypeof: 1.0.10
 
-  typescript@5.8.3: {}
-
   typescript@5.9.3: {}
 
   unbox-primitive@1.1.0:
@@ -4681,21 +4652,6 @@ snapshots:
       vite: 7.3.1(@types/node@25.0.3)(lightningcss@1.30.2)(sass@1.97.2)(terser@5.44.0)
     optionalDependencies:
       svgo: 4.0.0
-
-  vite@7.3.1(@types/node@24.10.2)(lightningcss@1.30.2)(sass@1.97.2)(terser@5.44.0):
-    dependencies:
-      esbuild: 0.27.2
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
-      postcss: 8.5.6
-      rollup: 4.53.3
-      tinyglobby: 0.2.15
-    optionalDependencies:
-      '@types/node': 24.10.2
-      fsevents: 2.3.3
-      lightningcss: 1.30.2
-      sass: 1.97.2
-      terser: 5.44.0
 
   vite@7.3.1(@types/node@25.0.3)(lightningcss@1.30.2)(sass@1.97.2)(terser@5.44.0):
     dependencies:
