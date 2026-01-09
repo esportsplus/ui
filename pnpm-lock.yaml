@@ -15,8 +15,8 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0
       '@esportsplus/template':
-        specifier: ^0.41.6
-        version: 0.41.6
+        specifier: ^0.41.7
+        version: 0.41.7
       '@esportsplus/utilities':
         specifier: ^0.27.2
         version: 0.27.2
@@ -28,8 +28,8 @@ importers:
         version: 3.0.1
     devDependencies:
       '@esportsplus/typescript':
-        specifier: ^0.27.4
-        version: 0.27.4
+        specifier: ^0.27.5
+        version: 0.27.5
       '@types/node':
         specifier: ^25.0.3
         version: 25.0.3
@@ -228,14 +228,14 @@ packages:
   '@esportsplus/queue@0.2.0':
     resolution: {integrity: sha512-YXutzJ9UwzNXnqdoFaPjmuv7QehComMQxoX7C0OM592akh3BNdmo7WboErlJMSkw90j5EDLsuc7ZTfBEbYpyVw==}
 
-  '@esportsplus/reactivity@0.29.15':
-    resolution: {integrity: sha512-FuU3gyUXmRshWt8cdaJq4AAzUN7+b7EQvTMONGh25JwIB7JVZeO5V0JHSiGTAgVw1GQUfuGL3mrL623tQrE7ow==}
+  '@esportsplus/reactivity@0.29.16':
+    resolution: {integrity: sha512-fX4c63B/WMBQK+sujA3vCKb0JbJAQgUOJglGEsQ/+k8kMXq0RTEZYCfyn0bFRUx9dAUG1hky54ftF08EegUJ2g==}
 
-  '@esportsplus/template@0.41.6':
-    resolution: {integrity: sha512-3rsaMxBfS1qdOjCXJ0gA4BIY+NWjVstcIkQOeTWaNJx1KCJTHo1TO0C+EtGpSwBI1iAoFFTX770fGjjkAcysoA==}
+  '@esportsplus/template@0.41.7':
+    resolution: {integrity: sha512-/5FkumpREsCnn648y5FXaf29R0E3T33c4YDq/cRmgIXemYqlsaIEX/W6raas4OPUu681mFcggo/uFS3sHrzm4g==}
 
-  '@esportsplus/typescript@0.27.4':
-    resolution: {integrity: sha512-k8+eLh9wBuGAIUO7G5UsbNO1RWRIDsAb9SCmEwFW+7NgSI+t1/nMbcgzzyNCKam8H6ZQGc2MBcqELIDXWwqg4g==}
+  '@esportsplus/typescript@0.27.5':
+    resolution: {integrity: sha512-1weL1+/W6B1r5HEnZBYlDmHQZHpvUcS+bdbRKWC+zdq50pZOcoanLqh0HhrfZNSrehzrmSrxRWr0Dg4dV8j2fA==}
     hasBin: true
 
   '@esportsplus/utilities@0.27.2':
@@ -2406,21 +2406,21 @@ snapshots:
 
   '@esportsplus/queue@0.2.0': {}
 
-  '@esportsplus/reactivity@0.29.15':
+  '@esportsplus/reactivity@0.29.16':
     dependencies:
       '@esportsplus/utilities': 0.27.2
 
-  '@esportsplus/template@0.41.6':
+  '@esportsplus/template@0.41.7':
     dependencies:
       '@esportsplus/queue': 0.2.0
-      '@esportsplus/reactivity': 0.29.15
-      '@esportsplus/typescript': 0.27.4
+      '@esportsplus/reactivity': 0.29.16
+      '@esportsplus/typescript': 0.27.5
       '@esportsplus/utilities': 0.27.2
       serve: 14.2.5
     transitivePeerDependencies:
       - supports-color
 
-  '@esportsplus/typescript@0.27.4':
+  '@esportsplus/typescript@0.27.5':
     dependencies:
       '@esportsplus/cli-passthrough': 0.0.12
       '@esportsplus/utilities': 0.27.2
@@ -2433,7 +2433,7 @@ snapshots:
   '@esportsplus/vite@0.12.7(rollup@4.53.3)(terser@5.44.0)':
     dependencies:
       '@esportsplus/cli-passthrough': 0.0.12
-      '@esportsplus/typescript': 0.27.4
+      '@esportsplus/typescript': 0.27.5
       '@rollup/plugin-inject': 5.0.5(rollup@4.53.3)
       '@types/html-minifier-terser': 7.0.2
       '@types/micromatch': 4.0.10
