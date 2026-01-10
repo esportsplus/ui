@@ -2,7 +2,7 @@
     "extends": "@esportsplus/typescript/tsconfig.package.json",
     "compilerOptions": {
         "plugins": [
-            { "transform": "@esportsplus/template/compiler/tsc" }
+            { "transform": "@esportsplus/frontend/compiler/tsc" }
         ]
     }
 }

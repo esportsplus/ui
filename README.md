@@ -10,7 +10,7 @@ pnpm add @esportsplus/ui
 
 ## Dependencies
 
-- `@esportsplus/template` - Tagged template literals with compile-time transforms and reactive state management
+- `@esportsplus/frontend` - Tagged template literals with compile-time transforms and reactive state management
 - `@esportsplus/action` - Response/error handling
 - `@esportsplus/utilities` - Core utilities
 
@@ -18,7 +18,7 @@ pnpm add @esportsplus/ui
 
 ```typescript
 import { button, form, input, select } from '@esportsplus/ui';
-import { html } from '@esportsplus/template';
+import { html } from '@esportsplus/frontend';
 
 // Simple component
 html`${button({}, 'Click Me')}`;
@@ -123,7 +123,7 @@ component({ class: 'custom' }, html`<span>Content</span>`)
 Components can accept and return reactive state:
 
 ```typescript
-import { reactive } from '@esportsplus/template';
+import { reactive } from '@esportsplus/frontend';
 
 let state = reactive({ active: false });
 
@@ -261,7 +261,7 @@ build/
 Full type safety with zero `any` types:
 
 ```typescript
-import type { Attributes } from '@esportsplus/template';
+import type { Attributes } from '@esportsplus/frontend';
 
 // Components are generic
 template.factory<A extends Attributes, C>(fn);

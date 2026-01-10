@@ -1,6 +1,6 @@
 import '@esportsplus/vite/global.d.ts';
 import { Response } from '@esportsplus/action';
-import { html, reactive, svg, Attributes, Renderable } from '@esportsplus/template';
+import { html, reactive, svg, Attributes, Renderable } from '@esportsplus/frontend';
 import { omit } from '@esportsplus/utilities';
 import { icon } from '@esportsplus/ui';
 import check from './svg/check.svg';

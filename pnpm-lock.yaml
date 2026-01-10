@@ -11,12 +11,12 @@ importers:
       '@esportsplus/action':
         specifier: ^0.1.4
         version: 0.1.4
+      '@esportsplus/frontend':
+        specifier: ^0.1.1
+        version: 0.1.1
       '@esportsplus/queue':
         specifier: ^0.2.0
         version: 0.2.0
-      '@esportsplus/template':
-        specifier: ^0.42.4
-        version: 0.42.4
       '@esportsplus/utilities':
         specifier: ^0.27.2
         version: 0.27.2
@@ -225,14 +225,17 @@ packages:
   '@esportsplus/cli-passthrough@0.0.12':
     resolution: {integrity: sha512-8gnWk5L7IG5Fl6mffDYpnkK1xJHUj/PpBuMhqrb/6wadb1UKSWk/seN2uOdITCfK/UlhmtdQqGljg3dA/bGT8w==}
 
+  '@esportsplus/frontend@0.1.1':
+    resolution: {integrity: sha512-Eo6F2eSaGqgzWORuEX1cNMTcMP/Rd42L6DQA34hicINSjm+pLQ4+f33fnhXhvuGlcxfpM4nnyUJYK5I4v4kjdQ==}
+
+  '@esportsplus/pipeline@1.2.2':
+    resolution: {integrity: sha512-spwZSRRMuefuuOKZzxTOHL4Qu5zFwo0+8Rxf4HgoBX7KueKhvp1zXBiuBpy5sYBje5op7RfeAOH+pWwHGIe0zA==}
+
   '@esportsplus/queue@0.2.0':
     resolution: {integrity: sha512-YXutzJ9UwzNXnqdoFaPjmuv7QehComMQxoX7C0OM592akh3BNdmo7WboErlJMSkw90j5EDLsuc7ZTfBEbYpyVw==}
 
   '@esportsplus/reactivity@0.29.16':
     resolution: {integrity: sha512-fX4c63B/WMBQK+sujA3vCKb0JbJAQgUOJglGEsQ/+k8kMXq0RTEZYCfyn0bFRUx9dAUG1hky54ftF08EegUJ2g==}
-
-  '@esportsplus/template@0.42.4':
-    resolution: {integrity: sha512-FfFQArcmrT9YWtRFt0/piN/wl/1AqLd5/+rYWzqvYfrokz6pLjEsOMCfsrlDagm7Zj1qp95YKao5RNxzEXju/w==}
 
   '@esportsplus/typescript@0.27.5':
     resolution: {integrity: sha512-1weL1+/W6B1r5HEnZBYlDmHQZHpvUcS+bdbRKWC+zdq50pZOcoanLqh0HhrfZNSrehzrmSrxRWr0Dg4dV8j2fA==}
@@ -2165,17 +2168,20 @@ snapshots:
 
   '@esportsplus/cli-passthrough@0.0.12': {}
 
+  '@esportsplus/frontend@0.1.1':
+    dependencies:
+      '@esportsplus/pipeline': 1.2.2
+      '@esportsplus/queue': 0.2.0
+      '@esportsplus/reactivity': 0.29.16
+      '@esportsplus/typescript': 0.27.5
+      '@esportsplus/utilities': 0.27.2
+
+  '@esportsplus/pipeline@1.2.2': {}
+
   '@esportsplus/queue@0.2.0': {}
 
   '@esportsplus/reactivity@0.29.16':
     dependencies:
-      '@esportsplus/utilities': 0.27.2
-
-  '@esportsplus/template@0.42.4':
-    dependencies:
-      '@esportsplus/queue': 0.2.0
-      '@esportsplus/reactivity': 0.29.16
-      '@esportsplus/typescript': 0.27.5
       '@esportsplus/utilities': 0.27.2
 
   '@esportsplus/typescript@0.27.5':

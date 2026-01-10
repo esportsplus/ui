@@ -1,5 +1,5 @@
 import response, { Response } from '@esportsplus/action';
-import { html, Attributes, Element, Renderable } from '@esportsplus/template';
+import { html, Attributes, Element, Renderable } from '@esportsplus/frontend';
 import { omit } from '@esportsplus/utilities';
 import input from './input';
 

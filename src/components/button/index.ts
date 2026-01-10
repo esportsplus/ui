@@ -1,4 +1,4 @@
-import { html, reactive, type Renderable } from '@esportsplus/template';
+import { html, reactive, type Renderable } from '@esportsplus/frontend';
 import template from '../template';
 import './scss/index.scss';
 

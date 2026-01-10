@@ -1,4 +1,4 @@
-import { effect, html, reactive, type Attributes } from '@esportsplus/template';
+import { effect, html, reactive, type Attributes } from '@esportsplus/frontend';
 import { omit } from '@esportsplus/utilities';
 import './scss/index.scss';
 

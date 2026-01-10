@@ -1,4 +1,4 @@
-import { Element } from '@esportsplus/template';
+import { Element } from '@esportsplus/frontend';
 
 
 let key = Symbol();
