@@ -2,7 +2,7 @@
     "author": "ICJR",
     "dependencies": {
         "@esportsplus/action": "^0.1.4",
-        "@esportsplus/frontend": "^0.1.2",
+        "@esportsplus/frontend": "^0.1.3",
         "@esportsplus/queue": "^0.2.0",
         "@esportsplus/utilities": "^0.27.2",
         "@esportsplus/vite": "^0.12.7",
@@ -10,7 +10,7 @@
     },
     "devDependencies": {
         "@esportsplus/typescript": "^0.28.0",
-        "@types/node": "^25.0.5",
+        "@types/node": "^25.0.6",
         "@types/shelljs": "^0.10.0",
         "autoprefixer": "^10.4.23",
         "glob": "^13.0.0",
