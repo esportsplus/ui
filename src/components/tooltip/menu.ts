@@ -1,4 +1,4 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/frontend';
+import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { omit } from '@esportsplus/utilities';
 import template from '~/components/template';
 import onclick from './onclick';

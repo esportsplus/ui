@@ -1,4 +1,5 @@
-import { html, reactive, Attributes } from '@esportsplus/frontend';
+import { html, Attributes } from '@esportsplus/template';
+import { reactive } from '@esportsplus/reactivity';
 import { omit } from '@esportsplus/utilities';
 import template from '~/components/template';
 

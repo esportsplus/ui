@@ -1,4 +1,4 @@
-import { html, svg } from '@esportsplus/frontend';
+import { html, svg } from '@esportsplus/template';
 import template from '~/components/template';
 import './scss/index.scss';
 

@@ -1,4 +1,4 @@
-import { Attributes, Renderable } from '@esportsplus/frontend';
+import { Attributes, Renderable } from '@esportsplus/template';
 
 
 const factory = <

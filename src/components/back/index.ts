@@ -1,4 +1,4 @@
-import { html, Attributes } from '@esportsplus/frontend';
+import { html, Attributes } from '@esportsplus/template';
 import icon from '~/components/icon';
 import template from '~/components/template';
 import arrow from './svg/arrow.svg';
