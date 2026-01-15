@@ -1,14 +1,14 @@
 // https://www.fluid-type-scale.com/calculate?minFontSize=12&minWidth=200&minRatio=1.08&maxFontSize=14&maxWidth=800&maxRatio=1.24&steps=100%2C200%2C300%2C400%2C500%2C600%2C700%2C800%2C900&baseStep=400&prefix=font-size&useContainerWidth=false&includeFallbacks=false&useRems=true&remValue=16&decimals=2&previewFont=Montserrat&previewText=Almost+before+we+knew+it%2C+we+had+left+the+ground&previewWidth=800
 $font-size: (
-    --100: clamp(0.6rem, -0.36vi + 0.64rem, 0.46rem),
-    --200: clamp(0.64rem, -0.2vi + 0.67rem, 0.57rem),
-    --300: clamp(0.69rem, 0.03vi + 0.69rem, 0.71rem),
-    --400: clamp(0.75rem, 0.33vi + 0.71rem, 0.88rem),
-    --500: clamp(0.81rem, 0.73vi + 0.72rem, 1.08rem),
-    --600: clamp(0.87rem, 1.25vi + 0.72rem, 1.35rem),
-    --700: clamp(0.94rem, 1.93vi + 0.7rem, 1.67rem),
-    --800: clamp(1.02rem, 2.8vi + 0.67rem, 2.07rem),
-    --900: clamp(1.1rem, 3.9vi + 0.61rem, 2.57rem),
+    100: clamp(0.6rem, -0.36vi + 0.64rem, 0.46rem),
+    200: clamp(0.64rem, -0.2vi + 0.67rem, 0.57rem),
+    300: clamp(0.69rem, 0.03vi + 0.69rem, 0.71rem),
+    400: clamp(0.75rem, 0.33vi + 0.71rem, 0.88rem),
+    500: clamp(0.81rem, 0.73vi + 0.72rem, 1.08rem),
+    600: clamp(0.87rem, 1.25vi + 0.72rem, 1.35rem),
+    700: clamp(0.94rem, 1.93vi + 0.7rem, 1.67rem),
+    800: clamp(1.02rem, 2.8vi + 0.67rem, 2.07rem),
+    900: clamp(1.1rem, 3.9vi + 0.61rem, 2.57rem),
 );
 
 
