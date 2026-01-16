@@ -136,6 +136,7 @@ const select = template.factory<A, (state: { active: boolean, selected?: string 
                             ...this?.attributes?.['tooltip-content'] || EMPTY_ARRAY,
                             ...attributes['tooltip-content'],
                             class: [
+                                ...toArray(this?.attributes?.['tooltip-content']?.class || EMPTY_ARRAY),
                                 ...toArray(attributes['tooltip-content']?.class),
                                 `tooltip-content--${attributes['tooltip-content']?.direction || 's'}`
                             ],
