@@ -136,7 +136,7 @@ const select = template.factory<A, (state: { active: boolean, selected?: string 
                             ...this?.attributes?.['tooltip-content'] || EMPTY_ARRAY,
                             ...attributes['tooltip-content'],
                             class: [
-                                ...toArray(this?.attributes?.['tooltip-content']?.class || EMPTY_ARRAY),
+                                ...toArray(this?.attributes?.['tooltip-content']?.class),
                                 ...toArray(attributes['tooltip-content']?.class),
                                 `tooltip-content--${attributes['tooltip-content']?.direction || 's'}`
                             ],
@@ -172,7 +172,11 @@ const select = template.factory<A, (state: { active: boolean, selected?: string 
                                 set(state, true);
                             },
                             scrollbar: attributes.scrollbar,
-                            'scrollbar-container-content': attributes['scrollbar-container-content']
+                            'scrollbar-container-content': attributes['scrollbar-container-content'],
+                            style: [
+                                ...toArray(this?.attributes?.['tooltip-content']?.style),
+                                ...toArray(attributes['tooltip-content']?.style)
+                            ],
                         },
                         keys.map((key) => {
                             let content = options[key];
