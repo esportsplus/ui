@@ -3,8 +3,8 @@
     "dependencies": {
         "@esportsplus/action": "^0.1.4",
         "@esportsplus/queue": "^0.2.0",
-        "@esportsplus/reactivity": "^0.30.1",
-        "@esportsplus/template": "^0.16.7",
+        "@esportsplus/reactivity": "^0.30.2",
+        "@esportsplus/template": "^0.16.8",
         "@esportsplus/utilities": "^0.27.2",
         "@esportsplus/vite": "^0.12.7",
         "modern-normalize": "^3.0.1"
