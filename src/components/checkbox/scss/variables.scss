@@ -40,12 +40,6 @@
         --width: 50%;
     }
 
-    #{tokens.state(default)} {
-        &::before {
-            --translateY: 100%;
-        }
-    }
-
     #{tokens.state(inactive)} {
         @include tokens.state(hover) {
             --background: var(--background-hover);
@@ -70,5 +64,9 @@
         --box-shadow: var(--box-shadow-active);
         --opacity: var(--opacity-active);
         --scale: var(--scale-active);
+
+        &::before {
+            --translateY: 100%;
+        }
     }
 }

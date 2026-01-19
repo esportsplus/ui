@@ -40,12 +40,6 @@
         --width: var(--height);
     }
 
-    #{tokens.state(default)} {
-        &::before {
-            --translateX: calc(var(--width-switch) - (var(--border-width) * 2) - var(--height) - (var(--padding-horizontal) * 2));
-        }
-    }
-
     #{tokens.state(inactive)} {
         @include tokens.state(hover) {
             --background: var(--background-hover);
@@ -72,5 +66,9 @@
         --box-shadow: var(--box-shadow-active);
         --opacity: var(--opacity-active);
         --scale: var(--scale-active);
+
+        &::before {
+            --translateX: calc(var(--width-switch) - (var(--border-width) * 2) - var(--height) - (var(--padding-horizontal) * 2));
+        }
     }
 }
