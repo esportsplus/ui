@@ -38,13 +38,14 @@
         --translateX: 0px;
         --translateY: 0px;
         --width: var(--height);
+    }
 
-        #{tokens.state(active, '.field')} & {
+    #{tokens.state(default)} {
+        &::before {
             --translateX: calc(var(--width-switch) - (var(--border-width) * 2) - var(--height) - (var(--padding-horizontal) * 2));
         }
     }
 
-    #{tokens.state(inactive, 'label')},
     #{tokens.state(inactive)} {
         @include tokens.state(hover) {
             --background: var(--background-hover);

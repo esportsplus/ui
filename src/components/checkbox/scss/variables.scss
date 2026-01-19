@@ -38,13 +38,14 @@
         --translateX: 108%;
         --translateY: 8%;
         --width: 50%;
+    }
 
-        #{tokens.state(default, '.field')} & {
+    #{tokens.state(default)} {
+        &::before {
             --translateY: 100%;
         }
     }
 
-    #{tokens.state(inactive, 'label')},
     #{tokens.state(inactive)} {
         @include tokens.state(hover) {
             --background: var(--background-hover);
