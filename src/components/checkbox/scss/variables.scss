@@ -32,12 +32,18 @@
     --width-switch: 40px;
 
     &::before {
-        --border-width: 5px;
+        --border-width: 4px;
         --box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.16);
-        --height: 110%;
-        --translateX: 108%;
+        --height: 100%;
+        --translateX: 124%;
         --translateY: 8%;
         --width: 50%;
+    }
+
+    #{tokens.state(default)} {
+        &::before {
+            --translateY: 100%;
+        }
     }
 
     #{tokens.state(inactive)} {
@@ -64,9 +70,5 @@
         --box-shadow: var(--box-shadow-active);
         --opacity: var(--opacity-active);
         --scale: var(--scale-active);
-
-        &::before {
-            --translateY: 100%;
-        }
     }
 }
