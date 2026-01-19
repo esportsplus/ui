@@ -43,6 +43,7 @@
 
     &--holding {
         overflow: hidden;
+        user-select: none;
 
         &::after {
             animation: buttonHolding var(--animation-duration) ease-in-out forwards;

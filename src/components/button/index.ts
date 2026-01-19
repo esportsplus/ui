@@ -18,7 +18,7 @@ const hold = template.factory(
 
         return html`
             <div
-                class='button ${() => state.holding && 'button--holding'} ${() => state.complete && '--active'}'
+                class='button ${() => state.holding && 'button--holding'}'
                 onmousedown='${(e) => {
                     e.preventDefault();
                     state.holding = true;
