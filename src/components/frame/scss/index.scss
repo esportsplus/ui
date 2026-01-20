@@ -1,3 +1,27 @@
+@use '/tokens';
+@use 'variables';
+
+.frames {
+    display: flex;
+    gap: var(--gap);
+    transform: translateX(calc(var(--i) * (100% + var(--gap))));
+    transition: transform 0.3s ease;
+
+    .frame {
+        flex-shrink: 0;
+        min-width: 100%;
+        width: 100%;
+
+        @include tokens.state(inactive) {
+            opacity: var(--opacity);
+
+            > * {
+                pointer-events: none;
+            }
+        }
+    }
+}
+
 .frame {
     cursor: default;
     display: none;
