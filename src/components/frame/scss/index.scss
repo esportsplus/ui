@@ -8,12 +8,12 @@
     transition: transform 0.3s ease;
 
     .frame {
-        display: flex;
         flex-shrink: 0;
         min-width: 100%;
         width: 100%;
 
         @include tokens.state(inactive) {
+            display: flex;
             opacity: var(--opacity);
 
             > * {
@@ -33,7 +33,7 @@
     width: 100%;
 
 
-    &.--active {
+    @include tokens.state(active) {
         display: flex;
     }
 }
