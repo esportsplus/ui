@@ -8,6 +8,7 @@
     transition: transform 0.3s ease;
 
     .frame {
+        display: flex;
         flex-shrink: 0;
         min-width: 100%;
         width: 100%;
