@@ -1,14 +1,14 @@
-// https://www.fluid-type-scale.com/calculate?minFontSize=12&minWidth=200&minRatio=1.08&maxFontSize=14&maxWidth=800&maxRatio=1.36&steps=100%2C200%2C300%2C400%2C500%2C600%2C700%2C800%2C900&baseStep=400&prefix=font-size&useContainerWidth=false&includeFallbacks=false&useRems=true&remValue=16&decimals=2&previewFont=Montserrat&previewText=Almost+before+we+knew+it%2C+we+had+left+the+ground&previewWidth=800
+// https://www.fluid-type-scale.com/calculate?minFontSize=12&minWidth=200&minRatio=1.04&maxFontSize=14&maxWidth=800&maxRatio=1.32&steps=100%2C200%2C300%2C400%2C500%2C600%2C700%2C800%2C900&baseStep=400&prefix=font-size&useContainerWidth=false&includeFallbacks=false&useRems=true&remValue=16&decimals=2&previewFont=Montserrat&previewText=Almost+before+we+knew+it%2C+we+had+left+the+ground&previewWidth=800
 $font-size: (
-    100: clamp(0.6rem, -0.66vi + 0.68rem, 0.35rem),
-    200: clamp(0.64rem, -0.45vi + 0.7rem, 0.47rem),
-    300: clamp(0.69rem, -0.14vi + 0.71rem, 0.64rem),
+    100: clamp(0.67rem, -0.76vi + 0.76rem, 0.38rem),
+    200: clamp(0.69rem, -0.51vi + 0.76rem, 0.5rem),
+    300: clamp(0.72rem, -0.16vi + 0.74rem, 0.66rem),
     400: clamp(0.75rem, 0.33vi + 0.71rem, 0.88rem),
-    500: clamp(0.81rem, 1.01vi + 0.68rem, 1.19rem),
-    600: clamp(0.87rem, 1.98vi + 0.63rem, 1.62rem),
-    700: clamp(0.94rem, 3.35vi + 0.53rem, 2.2rem),
-    800: clamp(1.02rem, 5.26vi + 0.36rem, 2.99rem),
-    900: clamp(1.1rem, 7.92vi + 0.11rem, 4.07rem),
+    500: clamp(0.78rem, 1vi + 0.66rem, 1.16rem),
+    600: clamp(0.81rem, 1.9vi + 0.57rem, 1.52rem),
+    700: clamp(0.84rem, 3.12vi + 0.45rem, 2.01rem),
+    800: clamp(0.88rem, 4.74vi + 0.28rem, 2.66rem),
+    900: clamp(0.91rem, 6.92vi + 0.05rem, 3.51rem),
 );
 
 
