@@ -61,6 +61,7 @@
         "build": "run-s build:vite build:ts",
         "build:ts": "tsc",
         "build:vite": "vite build",
+        "dev": "vite --config viewer/vite.config.ts",
         "-": "-",
         "prepare": "pnpm build",
         "prepublishOnly": "pnpm build"
