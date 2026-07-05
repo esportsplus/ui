@@ -42,32 +42,6 @@
 
 ## Batch 1 — Scaffold & shell
 
-### [P2] Viewer core: types, registry seed, category page, app shell, chrome scss
-- **Type**: feature
-- **Recommended-model**: opus
-- **Status**: PENDING
-- **Group**: infrastructure
-- **Source**: session evidence §2, §5 (sidebar/site/scrollbar contracts), §6 (class vocabulary), §8 (user requirements), §9 (agreed architecture)
-- **Rationale**: The chrome is the product: a floating left sidebar whose reactive state selects which components render on the main page, with ONE category-page component reused by both single-category and 'All' views (user requirement).
-- **Changes**: new `viewer/types.ts`, `viewer/demos/index.ts` (seed), `viewer/category.ts`, `viewer/app.ts`, `viewer/index.scss`.
-- **Design**:
-  - `viewer/types.ts` — `type Entry = { name: string; variants: Variant[] }`, `type Variant = { render: () => Renderable; title: string }` (`Renderable` from `@esportsplus/template`); `export type { Entry, Variant };` at bottom. The `render` thunk is load-bearing: variants instantiate lazily at template evaluation, so component instances re-create on every category switch.
-  - `viewer/demos/index.ts` (seed) — `import { Entry } from '../types';` then `const entries: Entry[] = [];` and named export `entries` at bottom (registry is a barrel-like aggregator: named export, no default). Demo batches (P4–P7) append default imports + array members, both alphabetical. Registry order IS sidebar order. Excluded by design (Q2): form, normalize, root, site, template — infrastructure; the viewer shell itself demonstrates site/sidebar/root/normalize, and form's scss loads transitively via input/checkbox/select imports.
-  - `viewer/category.ts` — THE reused page: `(entries: Entry[]) => Renderable`. For each entry: a section with a header separator (`<h2>` styled in index.scss — this is the 'All' page's visual divider) followed by the entry's variants as cards, each card showing `variant.title` and `variant.render()`. Use library vocabulary: `.grid` (auto-fit columns, `--min-width: 200px` default) for the variant layout, `.card` for variant frames; viewer-owned classes (`viewer-entry`, `viewer-variant`, ...) for chrome styling. Single-category and 'All' views differ ONLY in the array passed in.
-    - **Verify-on-contact**: confirm `html\`\`` interpolation accepts an array of Renderables (e.g. from `.map`) by grepping existing usage in `src/components/` or consumer repos; if not supported, compose via the template lib's documented list mechanism.
-  - `viewer/app.ts` — module-level `let state = reactive({ category: 'all' });` (`reactive` from `@esportsplus/reactivity`). Imports `entries` from `./demos` and the component barrel via `~/components` (paths-mapped). Composition:
-    - Sidebar: library component — `sidebar({ class: 'sidebar--floating sidebar--w --active' }, items)`. `sidebar` = `scrollbar.bind` class `'sidebar'`; scss: position absolute, `--width-default: 320px`, `--w` = left placement, `--floating` adds `--size-100` margins, explicit `.--active` is the safe state (state(default) sets `--width: var(--width-closed)` which defaults equal to `--width-default` — no visual collapse, but be explicit).
-    - Items: `'all'` first, then `entries` names (already alphabetical, lowercase dir names per Q4). Each item a `.link` element that (a) binds `.--active` from `${() => state.category === name ? '--active' : ''}` and (b) writes `state.category = name` on click.
-    - Content region: `<main class='viewer-main'>` containing a thunk binding — `${() => category(state.category === 'all' ? entries : entries.filter((entry) => entry.name === state.category))}` — reading `state.category` inside the thunk auto-tracks; the whole category page re-renders on switch. This one expression IS the 'All'-reuse requirement.
-    - **Verify-on-contact (event-binding syntax)**: grep `src/components/tooltip/onclick.ts`, `src/components/clipboard/`, `src/components/button/` for the exact `html\`\`` event-binding syntax (`onclick=${...}` or equivalent) and copy it verbatim.
-  - `viewer/index.scss` — minimal viewer chrome, token vars only, NO hardcoded colors: `.viewer-main` left offset clearing the floating 320px sidebar (sidebar's `--width-default` is scoped to `.sidebar`, so define a viewer-owned width var; spacing from `--size-*` tokens) + padding; entry header separator (border from `--color-border-*` tokens, spacing from `--size-*`); variant card/grid spacing. Implementer decides exact values; criterion: sidebar never overlaps content, headers read as separators on the 'All' page.
-- **Layers**: types/data model, reactive state, UI composition, styling
-- **Acceptance**: `tsc -p viewer/tsconfig.json` exits clean (P1's config). All viewer imports of library code go through `~/components...` — NEVER `'@esportsplus/ui'` (the vite alias exists only for the two self-importing library files; TS cannot resolve it). Visual acceptance lands in P3.
-- **Context**: `src/components/index.ts` (barrel names), `src/components/sidebar/`, `src/components/scrollbar/`, `src/tokens/` (var names), `src/components/root/scss/variables.scss` (`:root` custom properties)
-- **Depends-on**: P1
-- **Verify**: `pnpm exec tsc -p viewer/tsconfig.json`
-- **Notes**: Importing the `~/components` barrel transitively loads EVERY TS component's scss (root/index.ts among them imports the `:root` variables scss — required for anything to look right); this is intended and replaces explicit TS-component scss imports in P3. `state(...)` convention (tokens/scss/state.scss): `.--active` / `:not(.--active)` / `.--disabled` — toggling `.--active` drives sidebar/modal/anchor/tooltip visibility everywhere.
-
 ### [P3] Bootstrap entry: cascade-ordered css imports + render
 - **Type**: feature
 - **Recommended-model**: opus
