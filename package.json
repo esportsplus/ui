@@ -2,24 +2,24 @@
     "author": "ICJR",
     "dependencies": {
         "@esportsplus/action": "^0.1.4",
-        "@esportsplus/queue": "^0.2.0",
-        "@esportsplus/reactivity": "^0.30.2",
-        "@esportsplus/template": "^0.16.12",
-        "@esportsplus/utilities": "^0.27.2",
-        "@esportsplus/vite": "^0.12.7",
+        "@esportsplus/queue": "^0.4.2",
+        "@esportsplus/reactivity": "^0.31.3",
+        "@esportsplus/template": "^0.17.7",
+        "@esportsplus/utilities": "^0.28.0",
+        "@esportsplus/vite": "^0.13.3",
         "modern-normalize": "^3.0.1"
     },
     "devDependencies": {
-        "@esportsplus/typescript": "^0.29.0",
-        "@types/node": "^25.0.10",
+        "@esportsplus/typescript": "^0.29.5",
+        "@types/node": "^26.1.1",
         "@types/shelljs": "^0.10.0",
-        "autoprefixer": "^10.4.23",
-        "glob": "^13.0.0",
-        "lightningcss": "^1.31.1",
+        "autoprefixer": "^10.5.4",
+        "glob": "^13.0.6",
+        "lightningcss": "^1.32.0",
         "npm-run-all": "^4.1.5",
-        "sass": "^1.97.3",
+        "sass": "^1.101.0",
         "shelljs": "^0.10.0",
-        "vite": "^7.3.1"
+        "vite": "^8.1.5"
     },
     "exports": {
         "./css-utilities.scss": "./build/css-utilities/index.scss",
@@ -61,7 +61,6 @@
         "build": "run-s build:vite build:ts",
         "build:ts": "tsc",
         "build:vite": "vite build",
-        "dev": "vite --config viewer/vite.config.ts",
         "-": "-",
         "prepare": "pnpm build",
         "prepublishOnly": "pnpm build"
