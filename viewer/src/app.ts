@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { sidebar } from '~/components';
+import { sidebar } from '@esportsplus/ui';
 import { entries } from './demos';
 
 import category from './category';

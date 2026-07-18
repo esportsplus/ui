@@ -1,14 +1,3 @@
 {
-    "extends": "../tsconfig.json",
-    "compilerOptions": {
-        "noEmit": true,
-        "paths": {
-            "~/*": ["../src/*"]
-        },
-        "rootDir": ".."
-    },
-    "include": [
-        "./**/*",
-        "../src/scss.d.ts"
-    ]
+    "extends": "@esportsplus/typescript/tsconfig.browser.json"
 }

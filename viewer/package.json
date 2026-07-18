@@ -1,0 +1,17 @@
+{
+    "dependencies": {
+        "@esportsplus/template": "^0.17.7",
+        "@esportsplus/ui": "file:../",
+        "@esportsplus/vite": "^0.13.3"
+    },
+    "devDependencies": {
+        "npm-run-all": "^4.1.5"
+    },
+    "scripts": {
+        "build": "run-s build:vite build:ts",
+        "build:ts": "tsc",
+        "build:vite": "vite build",
+        "-": "-",
+        "dev": "vite dev --force"
+    }
+}
