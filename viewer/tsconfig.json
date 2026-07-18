@@ -1,3 +1,0 @@
-{
-    "extends": "@esportsplus/typescript/tsconfig.browser.json"
-}

@@ -17,12 +17,11 @@ import '@esportsplus/ui/text.scss';
 import '@esportsplus/ui/themes/dark/button.scss';
 import '@esportsplus/ui/themes/dark/link.scss';
 import '@esportsplus/ui/thumbnail.scss';
-import './index.scss';
 
 import { render } from '@esportsplus/template';
 import { site } from '@esportsplus/ui';
 
-import app from './app';
+import index from './actions/index';
 
 
-render(document.body, site({ class: 'scrollbar-container--full' }, app));
+render(document.body, site({ class: 'scrollbar-container--full' }, index));

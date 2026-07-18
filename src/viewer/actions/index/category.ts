@@ -1,10 +1,10 @@
 import { html, type Renderable } from '@esportsplus/template';
-import type { Entry } from './types';
+import type { Entry } from '~/viewer/types';
 
 
 const category = (entries: Entry[]): Renderable<unknown> => html`
     ${entries.map((entry) => html`
-        <section class='viewer-entry'>
+        <section class='viewer-entry' data-name='${entry.name}' id='viewer-${entry.name}'>
             <h2 class='viewer-entry-title'>${entry.name}</h2>
 
             <div class='grid'>
