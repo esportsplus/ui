@@ -1,7 +1,6 @@
 import { glob } from 'glob';
 import { defineConfig } from 'vite';
 import autoprefixer from 'autoprefixer';
-import { join } from 'path';
 import shelljs from 'shelljs';
 
 
