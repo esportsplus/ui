@@ -10,7 +10,7 @@ export default template.factory(
         return html`
             <a
                 class='back link --padding-0px --flex-vertical'
-                ${this.attributes}
+                ${this?.attributes}
                 ${attributes}
             >
                 ${icon({ class: 'back-arrow --margin-right --margin-200' }, arrow)}
