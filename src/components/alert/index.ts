@@ -109,6 +109,9 @@ export default (attributes: Attributes & { 'alert-close'?: Attributes, 'alert-me
             <div
                 class='alert anchor anchor--n ${() => state.active && '--active'} --flex-row'
                 ${omit(attributes, OMIT)}
+                ${{
+                    inert: () => !state.active
+                }}
             >
                 ${() => {
                     let type = state.type;
