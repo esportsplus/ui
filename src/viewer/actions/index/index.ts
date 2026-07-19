@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { sidebar } from '@esportsplus/ui';
-import { entries } from '~/viewer/components';
+import { entries } from './components';
 import category from './category';
 import './scss/index.scss';
 
