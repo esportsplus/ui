@@ -85,7 +85,7 @@ html`
 ### Layout
 | Component | Description |
 |-----------|-------------|
-| `scrollbar` | Custom scrollbar container |
+| `scrollbar` | Native scrollbar styling |
 | `frame` | Scrollable frame |
 | `sidebar` | Side navigation |
 | `site` | Site wrapper |
