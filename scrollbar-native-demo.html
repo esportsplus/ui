@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Native Scrollbar Demo</title>
+    <style>
+        :root {
+            --color-black-300: #6b6b76;
+            --bg: #14141a;
+            --panel: #1e1e26;
+            --text: #d8d8e0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        h1 {
+            font-size: 1rem;
+            font-weight: 500;
+            width: 100%;
+            margin: 0 0 -1rem;
+            color: #9a9aa8;
+        }
+
+        .col {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .label {
+            font-size: 0.8rem;
+            color: #8a8a96;
+        }
+
+        .scroller {
+            background: var(--panel);
+            border: 1px solid #2c2c36;
+            border-radius: 8px;
+            height: 320px;
+            padding: 1rem 1.25rem;
+            width: 300px;
+
+            /* The native approach — cross-browser (Firefox, Chrome/Edge 121+, Safari 18.2+) */
+            overflow-y: auto;
+            scrollbar-gutter: stable;
+            scrollbar-width: thin;                    /* thin | none | auto */
+            scrollbar-color: #e0245e transparent;         /* thumb (red)  track/rail (dark red) */
+        }
+
+        /* Comparison: default OS scrollbar (no native styling) */
+        .scroller--default {
+            scrollbar-width: auto;
+            scrollbar-color: auto;
+        }
+
+        /* Comparison: hidden scrollbar */
+        .scroller--none {
+            scrollbar-width: none;
+        }
+
+        /* Full control via ::-webkit-scrollbar (Chrome/Edge/Safari).
+           GOTCHA: Chromium ignores ALL ::-webkit-scrollbar pseudo-elements the moment
+           scrollbar-width or scrollbar-color is set on the element — and the base
+           .scroller sets both. So inside WebKit we reset them to auto first, THEN the
+           pseudo-elements apply. Firefox lacks ::-webkit-scrollbar, never enters this
+           block, and keeps the base thin + color (which already has no arrows). */
+        @supports selector(::-webkit-scrollbar) {
+            .scroller--webkit {
+                scrollbar-width: auto;
+                scrollbar-color: auto;
+            }
+
+            .scroller--webkit::-webkit-scrollbar {
+                width: 5px;                       /* any px width — thumb stays square */
+            }
+
+            .scroller--webkit::-webkit-scrollbar-button {
+                display: none;                    /* removes the up/down arrows */
+                height: 0;
+                width: 0;
+            }
+
+            .scroller--webkit::-webkit-scrollbar-track {
+                background: #2a1a20;              /* rail color */
+            }
+
+            .scroller--webkit::-webkit-scrollbar-track:hover {
+                background: #3a1f28;             /* rail hover */
+            }
+
+            .scroller--webkit::-webkit-scrollbar-thumb {
+                background: #e0245e;
+                border-radius: 2px;              /* small corner radius */
+            }
+
+            .scroller--webkit::-webkit-scrollbar-thumb:hover {
+                background: #ff4d7d;             /* thumb hover */
+            }
+        }
+
+        p {
+            line-height: 1.6;
+            margin: 0 0 1rem;
+        }
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Native <code>scrollbar-width</code> / <code>scrollbar-color</code> — scroll each panel</h1>
+
+    <div class="col">
+        <span class="label">thin + custom color (the replacement)</span>
+        <div class="scroller">
+            <p>This panel uses only two CSS properties: <code>scrollbar-width: thin</code> and <code>scrollbar-color: #e0245e #3a1a24</code>. No JavaScript, no negative-margin tricks, no <code>::-webkit-scrollbar</code> reset.</p>
+            <p><code>scrollbar-color</code> takes <b>two</b> values: the first is the thumb (red here), the second is the track / rail (dark red). Both are fully controllable cross-browser.</p>
+            <p>The width keyword is <code>thin</code> — the browser and OS pick the exact pixel size. You cannot force 4px here, and the thumb has no border-radius (square ends).</p>
+            <p>Scroll up and down to see the native thumb move. On macOS it will overlay and auto-fade; on Windows it reserves a gutter (that is what <code>scrollbar-gutter: stable</code> guarantees, so content does not shift when the bar appears).</p>
+            <p>Filler line one. Filler line two. Filler line three. Filler line four. Filler line five.</p>
+            <p>Filler line six. Filler line seven. Filler line eight. Filler line nine. Filler line ten.</p>
+            <p>Filler line eleven. Filler line twelve. Filler line thirteen. Filler line fourteen.</p>
+            <p>Last paragraph — you have reached the bottom of the scroll region.</p>
+        </div>
+    </div>
+
+    <div class="col">
+        <span class="label">default OS scrollbar (for contrast)</span>
+        <div class="scroller scroller--default">
+            <p>This is the ugly blocky default — <code>scrollbar-width: auto</code>, no color override. This is what the trick in your component exists to hide.</p>
+            <p>Compare its bulk against the thin panel to the left.</p>
+            <p>Filler line one. Filler line two. Filler line three. Filler line four. Filler line five.</p>
+            <p>Filler line six. Filler line seven. Filler line eight. Filler line nine. Filler line ten.</p>
+            <p>Filler line eleven. Filler line twelve. Filler line thirteen. Filler line fourteen.</p>
+            <p>Filler line fifteen. Filler line sixteen. Filler line seventeen. Filler line eighteen.</p>
+            <p>Last paragraph — bottom of the region.</p>
+        </div>
+    </div>
+
+    <div class="col">
+        <span class="label">hidden (<code>scrollbar-width: none</code>)</span>
+        <div class="scroller scroller--none">
+            <p>Fully hidden scrollbar — still scrollable by wheel/touch. This is the modern one-line replacement for the transparent <code>::-webkit-scrollbar</code> reset.</p>
+            <p>If you wanted a purely synthetic overlay bar (like your current component) you would hide the native one this way, then draw your own div on top.</p>
+            <p>Filler line one. Filler line two. Filler line three. Filler line four. Filler line five.</p>
+            <p>Filler line six. Filler line seven. Filler line eight. Filler line nine. Filler line ten.</p>
+            <p>Filler line eleven. Filler line twelve. Filler line thirteen. Filler line fourteen.</p>
+            <p>Last paragraph — bottom of the region.</p>
+        </div>
+    </div>
+
+    <div class="col">
+        <span class="label">no arrows + square (<code>::-webkit-scrollbar</code>)</span>
+        <div class="scroller scroller--webkit">
+            <p>This panel uses <code>::-webkit-scrollbar</code> for full control: <code>::-webkit-scrollbar-button { display: none }</code> removes the arrows, and <code>::-webkit-scrollbar-thumb { border-radius: 0 }</code> gives square corners. Width is <code>5px</code>, with a small <code>border-radius: 2px</code>. Hover the thumb (brightens to a lighter red) and the rail (darkens) — both use <code>:hover</code> on the pseudo-elements. WebKit/Blink only.</p>
+            <p>Works in Chrome / Edge / Safari. Firefox ignores all of this and falls back to <code>scrollbar-width: thin</code> + <code>scrollbar-color</code> declared in the same rule — which also has no arrows, so both engines end up arrow-free.</p>
+            <p>The trade-off: two code paths, and only WebKit/Blink honors the square corners and exact width. Firefox stays at its own thin rendering.</p>
+            <p>Filler line one. Filler line two. Filler line three. Filler line four. Filler line five.</p>
+            <p>Filler line six. Filler line seven. Filler line eight. Filler line nine. Filler line ten.</p>
+            <p>Filler line eleven. Filler line twelve. Filler line thirteen. Filler line fourteen.</p>
+            <p>Last paragraph — bottom of the region.</p>
+        </div>
+    </div>
+</body>
+</html>
