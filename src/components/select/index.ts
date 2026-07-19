@@ -133,6 +133,7 @@ const select = template.factory<A, (state: { active: boolean, selected?: string 
                                 ...toArray(attributes['tooltip-content']?.class),
                                 `tooltip-content--${attributes['tooltip-content']?.direction || 's'}`
                             ],
+                            inert: () => !state.active,
                             onclick: (e: Event) => {
                                 let element = e.target as HTMLElement,
                                     key = element.dataset?.key;
