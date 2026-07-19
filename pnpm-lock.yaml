@@ -18,14 +18,14 @@ importers:
         specifier: ^0.31.3
         version: 0.31.3
       '@esportsplus/template':
-        specifier: ^0.17.7
-        version: 0.17.7
+        specifier: ^0.17.8
+        version: 0.17.8
       '@esportsplus/utilities':
         specifier: ^0.28.0
         version: 0.28.0
       '@esportsplus/vite':
-        specifier: ^0.13.3
-        version: 0.13.3(esbuild@0.27.2)(sharp@0.34.5)(terser@5.44.0)
+        specifier: ^0.14.0
+        version: 0.14.0(esbuild@0.27.2)(sharp@0.34.5)(terser@5.44.0)
       modern-normalize:
         specifier: ^3.0.1
         version: 3.0.1
@@ -243,8 +243,8 @@ packages:
   '@esportsplus/reactivity@0.31.3':
     resolution: {integrity: sha512-HaGFH1RAG/NrnzPdGWRhFKizi+z+VvPuU7tqyPTa73o6ek3Qa2no3oAPgOED6vyRkktyGKWzcEVMRQPoPx16dg==}
 
-  '@esportsplus/template@0.17.7':
-    resolution: {integrity: sha512-oAquG+KDphhKWMcQmGS7WaLVYjASxgs28rnvNRIkkSviQ4Tk7gWEy+6HWUjEtpgMgDGB/5PxVNnfvoOjA/uSEQ==}
+  '@esportsplus/template@0.17.8':
+    resolution: {integrity: sha512-pbPLyLtrt9BNyWALdj4JxtUXYbmwJ5qJKv3T8agJipsfNK50KDJ4t0egbPTHiXAwxwVQyJ8n+4ZL/4XRn2EUrg==}
 
   '@esportsplus/typescript@0.29.5':
     resolution: {integrity: sha512-JJU3kpyelAMjorBtJCzXjWMtRi4ILNLPublWLT+/2NnFXpNoKuvgv+PfGtRbUDjMVoWFYkVlOlFMw8Hw74xHVQ==}
@@ -256,8 +256,8 @@ packages:
   '@esportsplus/utilities@0.28.0':
     resolution: {integrity: sha512-mQuQ+EPd68d6dGoCZlG3s0dkUtQq7yMsUW7IYqhJobNx5SQ4IqtFbfcAob/EICfwQRy3GYzS2nbHpA9oogSHFw==}
 
-  '@esportsplus/vite@0.13.3':
-    resolution: {integrity: sha512-L9ajJvX/q50V+/eXT9dp9ETC1zXOyd35SZJuUpSDrklj+FFa/aGmkdZoh/VV6LG+tRh6p+ul0wCUeciY3MoCOw==}
+  '@esportsplus/vite@0.14.0':
+    resolution: {integrity: sha512-HEBh8UcEl5P5SfzVMhxHnoSRJXbsSTiOfaRySQVsoWosC/bc+3Ycr7Owve310oUgIlYtA7pJZNa6UWipzvpo3w==}
     hasBin: true
 
   '@img/colour@1.1.0':
@@ -2183,7 +2183,7 @@ snapshots:
     dependencies:
       '@esportsplus/utilities': 0.27.3
 
-  '@esportsplus/template@0.17.7':
+  '@esportsplus/template@0.17.8':
     dependencies:
       '@esportsplus/queue': 0.4.2
       '@esportsplus/reactivity': 0.31.3
@@ -2202,7 +2202,7 @@ snapshots:
 
   '@esportsplus/utilities@0.28.0': {}
 
-  '@esportsplus/vite@0.13.3(esbuild@0.27.2)(sharp@0.34.5)(terser@5.44.0)':
+  '@esportsplus/vite@0.14.0(esbuild@0.27.2)(sharp@0.34.5)(terser@5.44.0)':
     dependencies:
       '@esportsplus/cli-passthrough': 0.0.15
       '@esportsplus/typescript': 0.29.5

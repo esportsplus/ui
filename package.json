@@ -4,9 +4,9 @@
         "@esportsplus/action": "^0.1.4",
         "@esportsplus/queue": "^0.4.2",
         "@esportsplus/reactivity": "^0.31.3",
-        "@esportsplus/template": "^0.17.7",
+        "@esportsplus/template": "^0.17.8",
         "@esportsplus/utilities": "^0.28.0",
-        "@esportsplus/vite": "^0.13.3",
+        "@esportsplus/vite": "^0.14.0",
         "modern-normalize": "^3.0.1"
     },
     "devDependencies": {
