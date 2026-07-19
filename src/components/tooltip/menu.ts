@@ -1,4 +1,5 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { reactive } from '@esportsplus/reactivity';
 import { omit } from '@esportsplus/utilities';
 import template from '~/components/template';
 import onclick from './onclick';
@@ -24,17 +25,21 @@ export default template.factory<A>(
     (attributes, content) => {
         let options = attributes.options,
             option = attributes.option,
+            state = attributes.state || reactive({ active: false }),
             tooltipContent = attributes?.['tooltip-content'],
             tooltipContentDirection = tooltipContent?.direction || 'nw';
 
         return onclick(
-            omit(attributes, OMIT),
+            { ...omit(attributes, OMIT), state },
             html`
                 ${content}
 
                 <div
                     class='tooltip-content ${`tooltip-content--${tooltipContentDirection}`}'
                     ${tooltipContent && omit(tooltipContent, OMIT_TOOLTIP_CONTENT)}
+                    ${{
+                        inert: () => !state.active
+                    }}
                 >
                     ${options.map((o) => {
                         if (o.href) {
