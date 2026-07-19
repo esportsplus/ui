@@ -4,6 +4,6 @@ import './scss/index.scss';
 
 export default scrollbar.bind({
     attributes: {
-        class: 'sidebar'
+        class: 'sidebar --flex-column'
     }
 });
