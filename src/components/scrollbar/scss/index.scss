@@ -1,82 +1,55 @@
 @use 'variables';
 
-// Hide Chrome Mobile Scrollbar
-::-webkit-scrollbar,
-::-webkit-scrollbar-track,
-::-webkit-scrollbar-thumb,
-::-webkit-scrollbar-thumb:window-inactive {
-    background: transparent;
-    box-shadow: unset;
-}
-
 .scrollbar {
-    height: 100%;
-    z-index: 9;
+    overflow: auto;
+    scroll-behavior: smooth;
+    scrollbar-color: var(--scrollbar-color) transparent;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
 
+    @supports selector(::-webkit-scrollbar) {
+        scrollbar-color: auto;
+        scrollbar-width: auto;
 
-    &,
-    &::before {
-        position: absolute;
-        right: 0;
-        top: 0;
-        transition: opacity var(--transition-duration) ease-in-out;
-        width: var(--width);
-    }
-
-    &::before {
-        background: var(--background);
-        border-radius: 1px 0 0 1px;
-        content: '';
-        height: var(--height);
-        transform: var(--translate);
-        transform-origin: top center;
-    }
-
-
-    &--fixed {
-        position: fixed;
-    }
-
-    &--hidden {
-        opacity: 0;
-    }
-
-
-    &-container {
-        display: flex;
-        flex-flow: column;
-        height: auto;
-        overflow: hidden;
-        position: relative;
-        width: 100%;
-
-        &--full {
-            height: 100%;
+        &::-webkit-scrollbar {
+            width: var(--scrollbar-width);
         }
+        &::-webkit-scrollbar-button {
+            display: none;
+            height: 0;
+            width: 0;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-color);
+            border-radius: var(--scrollbar-border-width);
+        }
+    }
 
-        &-content {
-            display: flex;
-            flex-wrap: wrap;
-            height: 100%;
-            justify-content: flex-start;
-            margin-right: calc(var(--scrollbar-width) * -1);
-            overflow-x: hidden;
-            overflow-y: scroll;
-            padding-right: var(--scrollbar-width);
-            scrollbar-gutter: stable;
-            scroll-behavior: smooth;
-            width: calc(100% + var(--scrollbar-width));
+    &.--flex-column {
+        overflow-x: hidden;
+    }
+    &.--flex-row {
+        overflow-y: hidden;
+    }
 
-            &--snap {
-                overflow: auto;
-                scroll-snap-type: both mandatory;
-                overscroll-behavior-x: contain;
+    &--full {
+        height: 100%;
+    }
+    &--hidden {
+        scrollbar-width: none;
 
-                > * {
-                    scroll-snap-stop: normal;
-                    scroll-snap-align: center;
-                }
-            }
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+    &--snap {
+        overflow: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: both mandatory;
+
+        > * {
+            scroll-snap-align: center;
+            scroll-snap-stop: normal;
         }
     }
 }

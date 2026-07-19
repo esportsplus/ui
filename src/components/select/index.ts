@@ -3,7 +3,7 @@ import { reactive } from '@esportsplus/reactivity';
 import { EMPTY_ARRAY, omit, toArray } from '@esportsplus/utilities';
 import form from '~/components/form';
 import root from '~/components/root';
-import scrollbar, { Attributes as Attr } from '~/components/scrollbar';
+import scrollbar from '~/components/scrollbar';
 import template from '~/components/template';
 import './scss/index.scss';
 
@@ -12,8 +12,6 @@ const OMIT = [
     'arrow',
     'options',
     'option',
-    'scrollbar',
-    'scrollbar-container-content',
     'tooltip-content',
 ];
 
@@ -22,8 +20,6 @@ type A = {
     arrow?: Attributes;
     options: Record<number | string, Renderable<unknown> | { content: Renderable<unknown>, selected: Renderable<unknown> }>;
     option?: Attributes;
-    scrollbar?: Attributes;
-    'scrollbar-container-content'?: Attributes;
     'tooltip-content'?: Attributes & { direction?: string };
 } & (
     {
@@ -37,16 +33,13 @@ type A = {
             selected?: number | string;
         }
     }
-) & Attributes & Attr;
+) & Attributes;
 
 
 let previous: { active: boolean } | null = null,
     sb = scrollbar.bind({
         attributes: {
-            class: 'tooltip-content',
-            'scrollbar-container-content': {
-                class: '--flex-column'
-            }
+            class: 'tooltip-content --flex-column'
         }
     });
 
@@ -171,8 +164,6 @@ const select = template.factory<A, (state: { active: boolean, selected?: string 
                             onconnect: () => {
                                 set(state, true);
                             },
-                            scrollbar: attributes.scrollbar,
-                            'scrollbar-container-content': attributes['scrollbar-container-content'],
                             style: [
                                 ...toArray(this?.attributes?.['tooltip-content']?.style),
                                 ...toArray(attributes['tooltip-content']?.style)

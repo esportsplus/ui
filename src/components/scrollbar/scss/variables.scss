@@ -1,6 +1,5 @@
 .scrollbar {
-    --background: var(--color-black-300);
-    --height: 0;
-    --translate: translate3d(0, 0, 0);
-    --width: 4px;
+    --scrollbar-border-width: 1px;
+    --scrollbar-color: var(--color-black-300);
+    --scrollbar-width: 4px;
 }

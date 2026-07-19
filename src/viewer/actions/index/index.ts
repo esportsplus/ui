@@ -15,7 +15,7 @@ function scroll(name: string) {
 }
 
 function scrollspy(main: HTMLElement) {
-    let container = main.closest('.scrollbar-container-content'),
+    let container = main.closest('.scrollbar'),
         intersecting = new Set<string>(),
         sections = main.querySelectorAll<HTMLElement>('.viewer-entry');
 
@@ -56,7 +56,9 @@ function scrollspy(main: HTMLElement) {
 
 export default html`
     ${sidebar(
-        { class: 'sidebar--floating sidebar--w --active' },
+        {
+            class: 'sidebar--floating sidebar--w --active --flex-column'
+        },
         entries.map((entry) => html`
             <div
                 class='link ${() => state.active === entry.name && '--active'}'
