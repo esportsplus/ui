@@ -1,12 +1,12 @@
-@use '../../lib';
-@use 'size';
+// Golden-ratio spacer ladder: 400 = 120px, each key one φ half-step (×1.272).
+@use 'scale';
 
 $spacer: (
-    100: 40px,
-    200: 60px,
-    300: 80px,
-    400: 120px,
-    500: 160px,
-    600: 180px,
-    700: 220px,
+    100: scale.px(scale.step(-1.5), 120),
+    200: scale.px(scale.step(-1), 120),
+    300: scale.px(scale.step(-0.5), 120),
+    400: scale.px(scale.step(0), 120),
+    500: scale.px(scale.step(0.5), 120),
+    600: scale.px(scale.step(1), 120),
+    700: scale.px(scale.step(1.5), 120),
 );

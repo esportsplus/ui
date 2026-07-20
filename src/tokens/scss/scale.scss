@@ -1,0 +1,22 @@
+// LiftKit golden-ratio scale engine (github.com/Chainlift/liftkit)
+// One factor drives every ratio scale: type, size, spacer, line-height.
+@use 'sass:math';
+
+$factor: 1.618;
+
+$eighth: math.pow($factor, 0.125);
+$half: math.pow($factor, 0.5);
+$quarter: math.pow($factor, 0.25);
+$whole: $factor;
+
+@function step($n) {
+    @return math.pow($factor, $n);
+}
+
+@function px($n, $base: 16) {
+    @return math.div(math.round($n * $base * 100), 100) * 1px;
+}
+
+@function rem($n) {
+    @return math.div(math.round($n * 1000), 1000) * 1rem;
+}
