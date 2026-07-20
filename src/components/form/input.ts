@@ -1,12 +1,12 @@
 import { Element } from '@esportsplus/template';
 
 
-let key = Symbol();
+const KEY = Symbol();
 
 
-const get = (element?: Element): { error: string } | undefined => {
+const get = (element?: Element) => {
     if (element) {
-        return element[key] as { error: string } | undefined;
+        return element[KEY] as { error: string } | undefined;
     }
 
     return undefined;
@@ -14,7 +14,7 @@ const get = (element?: Element): { error: string } | undefined => {
 
 const onrender = (reactive: { error: string }) => {
     return (element: Element) => {
-        element[key] = reactive;
+        element[KEY] = reactive;
     };
 };
 
