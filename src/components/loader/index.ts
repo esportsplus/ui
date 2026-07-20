@@ -33,10 +33,10 @@ export default template.factory(
             return html`
                 <div
                     class='loader ${() => state.load && 'loader--load'}'
-                    onanimationend=${(e: AnimationEvent) => {
+                    onanimationend=${({ animationName: name }: AnimationEvent) => {
                         i++;
 
-                        if (e.animationName === 'move' && i > 1) {
+                        if (name === 'move' && i > 1) {
                             state.remove = true;
                         }
                     }}
