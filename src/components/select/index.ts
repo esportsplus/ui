@@ -3,7 +3,6 @@ import { reactive } from '@esportsplus/reactivity';
 import { EMPTY_ARRAY, omit, toArray } from '@esportsplus/utilities';
 import form from '~/components/form';
 import root from '~/components/root';
-import scrollbar from '~/components/scrollbar';
 import template from '~/components/template';
 import './scss/index.scss';
 
@@ -36,12 +35,8 @@ type A = {
 ) & Attributes;
 
 
-let previous: { active: boolean } | null = null,
-    sb = scrollbar.bind({
-        attributes: {
-            class: 'tooltip-content --flex-column'
-        }
-    });
+let previous: { active: boolean } | null = null;
+
 
 function set(current: { active: boolean }, value: boolean) {
     current.active = value;
@@ -66,7 +61,8 @@ function set(current: { active: boolean }, value: boolean) {
     }
 }
 
-const select = template.factory<A, (state: { active: boolean, selected?: string | number }) => Renderable<unknown>>(
+
+export default template.factory<A, (state: { active: boolean, selected?: string | number }) => Renderable<unknown>>(
     function(this: { attributes?: Exclude<A, 'options' | 'selected' | 'state'> }, attributes: A, content) {
         let { options, option } = attributes,
             state = attributes.state || reactive({
@@ -124,76 +120,77 @@ const select = template.factory<A, (state: { active: boolean, selected?: string 
                             Object.fromEntries( keys.map(key => [key, false]) )
                         );
 
-                    return sb(
-                        {
-                            ...this?.attributes?.['tooltip-content'] || EMPTY_ARRAY,
-                            ...attributes['tooltip-content'],
-                            class: [
-                                ...toArray(this?.attributes?.['tooltip-content']?.class),
-                                ...toArray(attributes['tooltip-content']?.class),
-                                `tooltip-content--${attributes['tooltip-content']?.direction || 's'}`
-                            ],
-                            inert: () => !state.active,
-                            onclick: (e: Event) => {
-                                let element = e.target as HTMLElement,
-                                    key = element.dataset?.key;
+                    return html`
+                        <div
+                            class='tooltip-content --flex-column --scrollbar'
+                            ${{
+                                ...this?.attributes?.['tooltip-content'] || EMPTY_ARRAY,
+                                ...attributes['tooltip-content'],
+                                class: [
+                                    ...toArray(this?.attributes?.['tooltip-content']?.class),
+                                    ...toArray(attributes['tooltip-content']?.class),
+                                    `tooltip-content--${attributes['tooltip-content']?.direction || 's'}`
+                                ],
+                                inert: () => !state.active,
+                                onclick: (e: Event) => {
+                                    let element = e.target as HTMLElement,
+                                        key = element.dataset?.key;
 
-                                if (key === undefined) {
-                                    let parent;
+                                    if (key === undefined) {
+                                        let parent;
 
-                                    while (parent = element.parentElement) {
-                                        key = parent.dataset?.key;
+                                        while (parent = element.parentElement) {
+                                            key = parent.dataset?.key;
 
-                                        if (key !== undefined) {
-                                            break;
+                                            if (key !== undefined) {
+                                                break;
+                                            }
                                         }
                                     }
+
+                                    if (key === undefined) {
+                                        return;
+                                    }
+
+                                    let previous = state.selected!;
+
+                                    set(state, false);
+                                    state.selected = key;
+
+                                    selected[key] = true;
+                                    selected[previous] = false;
+                                },
+                                onconnect: () => {
+                                    set(state, true);
+                                },
+                                style: [
+                                    ...toArray(this?.attributes?.['tooltip-content']?.style),
+                                    ...toArray(attributes['tooltip-content']?.style)
+                                ],
+                            }}
+                        >
+                            ${keys.map((key) => {
+                                let content = options[key];
+
+                                if (content !== null && typeof content === 'object' && 'content' in content) {
+                                    content = content.content;
                                 }
 
-                                if (key === undefined) {
-                                    return;
-                                }
-
-                                let previous = state.selected!;
-
-                                set(state, false);
-                                state.selected = key;
-
-                                selected[key] = true;
-                                selected[previous] = false;
-                            },
-                            onconnect: () => {
-                                set(state, true);
-                            },
-                            style: [
-                                ...toArray(this?.attributes?.['tooltip-content']?.style),
-                                ...toArray(attributes['tooltip-content']?.style)
-                            ],
-                        },
-                        keys.map((key) => {
-                            let content = options[key];
-
-                            if (content !== null && typeof content === 'object' && 'content' in content) {
-                                content = content.content;
-                            }
-
-                            return html`
-                                <div
-                                    class='link select-option ${() => selected[key] && '--active'}'
-                                    ${this?.attributes?.option}
-                                    ${option}
-                                    data-key='${key}'
-                                >
-                                    ${content}
-                                </div>
-                            `;
-                        })
-                    );
+                                return html`
+                                    <div
+                                        class='link select-option ${() => selected[key] && '--active'}'
+                                        ${this?.attributes?.option}
+                                        ${option}
+                                        data-key='${key}'
+                                    >
+                                        ${content}
+                                    </div>
+                                `;
+                            })}
+                        </div>
+                    `;
                 }}
             </div>
         `;
     }
 );
-
-
-export default select;

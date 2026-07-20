@@ -1,4 +1,3 @@
-import { scrollbar } from '@esportsplus/ui';
 import { html } from '@esportsplus/template';
 import type { Entry } from '~/viewer/types';
 
@@ -20,11 +19,11 @@ const entry: Entry = {
     name: 'scrollbar',
     variants: [
         {
-            render: () => scrollbar({ style: box }, rows(14)),
+            render: () => html`<div class='--scrollbar' style='${box}'>${rows(14)}</div>`,
             title: 'default bar'
         },
         {
-            render: () => scrollbar({ class: 'scrollbar--hidden', style: box }, rows(14)),
+            render: () => html`<div class='--scrollbar --scrollbar--hidden' style='${box}'>${rows(14)}</div>`,
             title: 'hidden bar'
         }
     ]

@@ -24,4 +24,4 @@ import { site } from '@esportsplus/ui';
 import index from './actions/index';
 
 
-render(document.body, site({ class: 'scrollbar--full' }, index));
+render(document.body, site({ class: '--scrollbar--full' }, index));

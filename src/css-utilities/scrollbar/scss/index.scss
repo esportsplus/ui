@@ -1,6 +1,6 @@
 @use 'variables';
 
-.scrollbar {
+.--scrollbar {
     overflow: auto;
     scroll-behavior: smooth;
     scrollbar-color: var(--scrollbar-color) transparent;
@@ -42,6 +42,7 @@
             display: none;
         }
     }
+
     &--snap {
         overflow: auto;
         overscroll-behavior-x: contain;

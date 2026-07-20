@@ -1,9 +1,14 @@
-import scrollbar from '~/components/scrollbar';
+import { html } from '@esportsplus/template';
+import template from '~/components/template';
 import './scss/index.scss';
 
 
-export default scrollbar.bind({
-    attributes: {
-        class: 'sidebar --flex-column'
+export default template.factory(
+    function(this, attributes, content) {
+        return html`
+            <div class='sidebar --flex-column --scrollbar' ${this?.attributes} ${attributes}>
+                ${content}
+            </div>
+        `;
     }
-});
+);

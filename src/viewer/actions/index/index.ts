@@ -15,7 +15,7 @@ function scroll(name: string) {
 }
 
 function scrollspy(main: HTMLElement) {
-    let container = main.closest('.scrollbar'),
+    let container = main.closest('.--scrollbar'),
         intersecting = new Set<string>(),
         sections = main.querySelectorAll<HTMLElement>('.viewer-entry');
 
