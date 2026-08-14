@@ -4,3 +4,9 @@
 # instead of waiting out the release-age cutoff.
 minimumReleaseAgeExclude:
   - '@esportsplus/*'
+  # browserslist's data packages (pulled transitively via autoprefixer) republish daily, so a
+  # fresh lockfile always pins a <24h version. They are data-only build-time deps, so exempt them
+  # from the age gate rather than pin stale browser data.
+  - baseline-browser-mapping
+  - caniuse-lite
+  - electron-to-chromium
