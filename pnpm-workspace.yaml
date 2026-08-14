@@ -1,0 +1,6 @@
+# First-party @esportsplus packages are trusted, so they bypass the
+# minimumReleaseAge supply-chain gate — this lets freshly published
+# first-party upgrades (reactivity, template, ...) be consumed immediately
+# instead of waiting out the release-age cutoff.
+minimumReleaseAgeExclude:
+  - '@esportsplus/*'

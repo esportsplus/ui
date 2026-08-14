@@ -2,15 +2,15 @@
     "author": "ICJR",
     "dependencies": {
         "@esportsplus/action": "^0.1.4",
-        "@esportsplus/queue": "^0.2.0",
-        "@esportsplus/reactivity": "^0.30.2",
-        "@esportsplus/template": "^0.16.12",
-        "@esportsplus/utilities": "^0.27.2",
-        "@esportsplus/vite": "^0.12.7",
+        "@esportsplus/queue": "^0.4.2",
+        "@esportsplus/reactivity": "^0.33.0",
+        "@esportsplus/template": "^0.18.3",
+        "@esportsplus/utilities": "^0.28.0",
+        "@esportsplus/vite": "^0.14.0",
         "modern-normalize": "^3.0.1"
     },
     "devDependencies": {
-        "@esportsplus/typescript": "^0.29.0",
+        "@esportsplus/typescript": "^0.29.5",
         "@types/node": "^25.0.10",
         "@types/shelljs": "^0.10.0",
         "autoprefixer": "^10.4.23",

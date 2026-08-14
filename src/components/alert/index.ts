@@ -1,6 +1,6 @@
 import '@esportsplus/vite/global.d.ts';
 import { Response } from '@esportsplus/action';
-import { html, svg, Attributes, Renderable } from '@esportsplus/template';
+import { html, Attributes, Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { omit } from '@esportsplus/utilities';
 import { icon } from '@esportsplus/ui';
@@ -151,9 +151,7 @@ export default (attributes: Attributes & { 'alert-close'?: Attributes, 'alert-me
                         onclick='${() => deactivate(state)}'
                         ${attributes['alert-close']}
                     >
-                        <div class="icon" style='--size: 14px;'>
-                            ${svg.sprite(close)}
-                        </div>
+                        ${icon({ style: '--size: 14px;' }, close)}
                     </div>
                 </div>
             </div>
