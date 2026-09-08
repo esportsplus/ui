@@ -9,6 +9,10 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   publish:
     secrets:

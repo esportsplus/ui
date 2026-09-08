@@ -8,6 +8,14 @@ allowBuilds:
 # first-party upgrades (reactivity, template, ...) be consumed immediately
 # instead of waiting out the release-age cutoff.
 minimumReleaseAgeExclude:
+  - '@esportsplus/typescript@0.34.2'
+  - '@esportsplus/action@0.1.7'
+  - '@esportsplus/queue@0.4.5'
+  - '@esportsplus/reactivity@0.36.4'
+  - '@esportsplus/template@0.44.4'
+  - '@esportsplus/utilities@0.28.3'
+  - '@esportsplus/vite@0.14.2'
+  - '@esportsplus/typescript@0.34.1'
   - '@esportsplus/*'
   # browserslist's data packages (pulled transitively via autoprefixer) republish daily, so a
   # fresh lockfile always pins a <24h version. They are data-only build-time deps, so exempt them

@@ -3,7 +3,7 @@ import { Response } from '@esportsplus/action';
 import { html, Attributes, Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { omit } from '@esportsplus/utilities';
-import { icon } from '@esportsplus/ui';
+import icon from '~/components/icon';
 import check from './svg/check.svg';
 import close from './svg/close.svg';
 import e from './svg/error.svg';
