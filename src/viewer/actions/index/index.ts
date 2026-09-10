@@ -3,6 +3,7 @@ import { html } from '@esportsplus/template';
 import { sidebar } from '@esportsplus/ui';
 import { entries } from './components';
 import category from './category';
+import palette from './palette';
 import './scss/index.scss';
 
 
@@ -78,6 +79,7 @@ export default html`
             }
         }}
     >
+        ${palette}
         ${category(entries)}
     </main>
 `;

@@ -9,6 +9,26 @@
 }
 
 
+.viewer-controls {
+    align-items: center;
+    background: var(--background);
+    border-bottom: 1px solid var(--color-border-400);
+    display: flex;
+    gap: var(--size-400);
+    margin: calc(-1 * var(--size-500)) calc(-1 * var(--size-500)) 0;
+    padding: var(--size-400) var(--size-500);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+
+.viewer-controls-label {
+    color: var(--color-text-300);
+    font-weight: var(--font-weight-500);
+}
+
+
 .viewer-entry {
     scroll-margin-top: var(--size-500);
 }

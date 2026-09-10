@@ -11,15 +11,15 @@
     },
     "devDependencies": {
         "@esportsplus/typescript": "^0.29.5",
-        "@types/node": "^26.1.1",
+        "@types/node": "^26.1.2",
         "@types/shelljs": "^0.10.0",
         "autoprefixer": "^10.5.4",
         "glob": "^13.0.6",
-        "lightningcss": "^1.32.0",
+        "lightningcss": "^1.33.0",
         "npm-run-all": "^4.1.5",
-        "sass": "^1.101.0",
+        "sass": "^1.102.0",
         "shelljs": "^0.10.0",
-        "vite": "^8.1.5"
+        "vite": "^8.2.0"
     },
     "exports": {
         "./css-utilities.scss": "./build/css-utilities/index.scss",
