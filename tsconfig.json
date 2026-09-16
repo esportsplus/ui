@@ -1,6 +1,23 @@
 {
     "extends": "@esportsplus/typescript/tsconfig.package.json",
     "compilerOptions": {
+        "paths": {
+            "~/*": [
+                "${configDir}/src/*"
+            ],
+            "~/storage/*": [
+                "${configDir}/storage/*"
+            ],
+            "@esportsplus/ui": [
+                "${configDir}/src/components/index.ts"
+            ],
+            "@esportsplus/ui/fonts": [
+                "${configDir}/src/fonts/index.ts"
+            ],
+            "@esportsplus/ui/themes/dark": [
+                "${configDir}/src/themes/dark/index.ts"
+            ]
+        },
         "plugins": [
             { "transform": "@esportsplus/template/compiler/tsc" }
         ]
