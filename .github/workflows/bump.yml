@@ -4,6 +4,9 @@ on:
   push:
     branches: '**' # only trigger on branches, not on tags
 
+permissions:
+  contents: write
+
 jobs:
   bump:
     uses: esportsplus/typescript/.github/workflows/bump.yml@main
