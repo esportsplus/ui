@@ -16,8 +16,7 @@ effect(() => apply(state.selected));
 
 
 export default html`
-    <div class='viewer-controls'>
-        <label class='viewer-controls-label'>Color palette</label>
-        ${select({ class: 'viewer-controls-select', options, state })}
+    <div class='viewer-palette'>
+        ${select({ class: 'viewer-palette-select', options, state })}
     </div>
 `;
