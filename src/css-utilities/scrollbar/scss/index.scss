@@ -2,6 +2,7 @@
 
 .--scrollbar {
     overflow: auto;
+    overscroll-behavior: contain;
     scroll-behavior: smooth;
     scrollbar-color: var(--scrollbar-color) transparent;
     scrollbar-gutter: stable;
