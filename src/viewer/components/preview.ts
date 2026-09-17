@@ -1,5 +1,5 @@
-import { html, type Renderable } from '@esportsplus/template';
-import { href } from '~/viewer/router';
+import { href, html } from '~/viewer/app';
+import type { Renderable } from '~/viewer/app';
 import type { Page, TocItem, Variant } from '~/viewer/types';
 
 
@@ -94,5 +94,28 @@ const preview = (title: string, node: Renderable<unknown>) => html`
 `;
 
 
-export { cardGrid, detailPage, missing, preview };
+const scrollTo = (id: string) => (e: Event) => {
+    e.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+
+const layout = (page: Page): Renderable<unknown> => html`
+    <main class='viewer-main'>
+        ${page.render()}
+    </main>
+
+    <aside class='viewer-toc --scrollbar'>
+        <div class='viewer-toc-inner ${page.toc.length === 0 ? '--hidden' : ''}'>
+            <div class='viewer-toc-heading'>On This Page</div>
+
+            ${page.toc.map((item) => html`
+                <a class='viewer-toc-link' href='#' ${{ onclick: scrollTo(item.id) }}>${item.label}</a>
+            `)}
+        </div>
+    </aside>
+`;
+
+
+export { cardGrid, detailPage, layout, missing, preview };
 export type { Card, Detail };

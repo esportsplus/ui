@@ -1,6 +1,7 @@
-import { html } from '@esportsplus/template';
-
+import { html } from '~/viewer/app';
+import { layout } from '~/viewer/components/preview';
 import readme from '/README.md?raw';
+import type { Router } from '~/viewer/app';
 import type { Page } from '~/viewer/types';
 
 
@@ -138,4 +139,7 @@ const page = (): Page => ({
 });
 
 
-export default page;
+export { page };
+export default (r: Router) => r
+    .get({ name: 'docs', path: '/docs', responder: () => layout(page()) })
+    .get({ name: 'home', path: '/', responder: () => layout(page()) });

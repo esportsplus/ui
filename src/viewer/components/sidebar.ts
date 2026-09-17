@@ -1,6 +1,5 @@
-import { html } from '@esportsplus/template';
-import { sections } from './nav';
-import { href, state } from './router';
+import { href, html, state } from '~/viewer/app';
+import { sections } from '~/viewer/data/nav';
 import { matches } from './search';
 
 

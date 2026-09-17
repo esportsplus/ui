@@ -1,5 +1,4 @@
-import { html } from '@esportsplus/template';
-import { href, state } from './router';
+import { href, html, state } from '~/viewer/app';
 import { search } from './search';
 
 

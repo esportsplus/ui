@@ -1,5 +1,5 @@
-import { utilities } from './data/utilities';
-import { entries } from './examples';
+import { utilities } from './utilities';
+import { entries } from '~/viewer/examples';
 
 
 type Link = {

@@ -1,5 +1,7 @@
-import { html } from '@esportsplus/template';
+import { html } from '~/viewer/app';
 import { fonts } from '~/viewer/data/scss';
+import { layout } from '~/viewer/components/preview';
+import type { Router } from '~/viewer/app';
 import type { Page, TocItem } from '~/viewer/types';
 
 
@@ -113,4 +115,5 @@ const page = (): Page => {
 };
 
 
-export default page;
+export default (r: Router) => r
+    .get({ name: 'fonts', path: '/fonts', responder: () => layout(page()) });

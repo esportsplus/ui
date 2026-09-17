@@ -1,4 +1,4 @@
-import { reactive } from '@esportsplus/reactivity';
+import { reactive } from '~/viewer/app';
 
 
 const search = reactive({ query: '' });

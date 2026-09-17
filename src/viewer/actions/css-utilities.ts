@@ -1,5 +1,6 @@
 import { utilities } from '~/viewer/data/utilities';
-import { cardGrid, detailPage, missing } from './preview';
+import { cardGrid, detailPage, layout, missing } from '~/viewer/components/preview';
+import type { Router } from '~/viewer/app';
 import type { Page } from '~/viewer/types';
 
 
@@ -40,4 +41,6 @@ const page = (slug: string): Page => {
 };
 
 
-export default page;
+export default (r: Router) => r
+    .get({ name: 'css-utilities', path: '/css-utilities', responder: () => layout(page('')) })
+    .get({ name: 'css-utilities.detail', path: '/css-utilities/:slug', responder: (request) => layout(page(request.data.parameters?.slug ?? '')) });

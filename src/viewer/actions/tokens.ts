@@ -1,5 +1,7 @@
-import { html, type Renderable } from '@esportsplus/template';
+import { html } from '~/viewer/app';
 import { cssValue, map, tokenSources } from '~/viewer/data/scss';
+import { layout } from '~/viewer/components/preview';
+import type { Renderable, Router } from '~/viewer/app';
 import type { Page, TocItem } from '~/viewer/types';
 
 
@@ -136,4 +138,5 @@ const page = (): Page => {
 };
 
 
-export default page;
+export default (r: Router) => r
+    .get({ name: 'tokens', path: '/tokens', responder: () => layout(page()) });

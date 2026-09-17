@@ -1,6 +1,7 @@
 import { entries } from '~/viewer/examples';
 import { meta } from '~/viewer/meta';
-import { cardGrid, detailPage, missing } from './preview';
+import { cardGrid, detailPage, layout, missing } from '~/viewer/components/preview';
+import type { Router } from '~/viewer/app';
 import type { Page } from '~/viewer/types';
 
 
@@ -41,4 +42,6 @@ const page = (slug: string): Page => {
 };
 
 
-export default page;
+export default (r: Router) => r
+    .get({ name: 'components', path: '/components', responder: () => layout(page('')) })
+    .get({ name: 'components.detail', path: '/components/:slug', responder: (request) => layout(page(request.data.parameters?.slug ?? '')) });

@@ -1,49 +1,44 @@
-import { effect } from '@esportsplus/reactivity';
-import { html } from '@esportsplus/template';
-import header from './header';
-import { resolve, state } from './router';
-import sidebar from './sidebar';
-import './scss/index.scss';
+import { reactive } from '@esportsplus/reactivity';
+import { router } from '@esportsplus/routing/client';
+import components from '~/viewer/actions/components';
+import cssUtilities from '~/viewer/actions/css-utilities';
+import docs from '~/viewer/actions/docs';
+import fallback from '~/viewer/actions/fallback';
+import fonts from '~/viewer/actions/fonts';
+import themes from '~/viewer/actions/themes';
+import tokens from '~/viewer/actions/tokens';
+import type { Next, Request, Router as R } from '@esportsplus/routing/client';
+import type { Renderable } from '@esportsplus/template';
 
 
-const scrollTo = (id: string) => (e: Event) => {
-    e.preventDefault();
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+type Responder = Next<Renderable<unknown>>;
+
+type Router = R<Renderable<unknown>>;
+
+
+const instance = router(components, cssUtilities, docs, fonts, themes, tokens);
+
+const state = reactive({ section: 'docs', slug: '' });
+
+const url = reactive({ path: window.location.pathname });
+
+
+const href = (section: string, slug?: string) => slug ? `/${section}/${slug}` : `/${section}`;
+
+const sync = () => {
+    if (url.path !== window.location.pathname) {
+        url.path = window.location.pathname;
+    }
 };
 
 
-effect(() => {
-    state.section;
-    state.slug;
-
-    requestAnimationFrame(() => {
-        let element = document.querySelector('.site');
-
-        if (element) {
-            element.scrollTop = 0;
-        }
-    });
-});
+document.addEventListener('click', instance.listener);
+document.addEventListener('click', sync);
+window.addEventListener('popstate', sync);
 
 
-export default html`
-    ${header}
-
-    <div class='viewer-body'>
-        ${sidebar}
-
-        <main class='viewer-main'>
-            ${() => resolve().page.render()}
-        </main>
-
-        <aside class='viewer-toc --scrollbar'>
-            <div class='viewer-toc-inner ${() => resolve().page.toc.length === 0 ? '--hidden' : ''}'>
-                <div class='viewer-toc-heading'>On This Page</div>
-
-                ${() => resolve().page.toc.map((item) => html`
-                    <a class='viewer-toc-link' href='#' ${{ onclick: scrollTo(item.id) }}>${item.label}</a>
-                `)}
-            </div>
-        </aside>
-    </div>
-`;
+export const { back, forward, middleware, redirect, uri } = instance;
+export { computed, effect, reactive, root, signal } from '@esportsplus/reactivity';
+export { html, render } from '@esportsplus/template';
+export { fallback, href, state, url };
+export type { Renderable, Request, Responder, Router };
