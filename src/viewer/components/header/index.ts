@@ -1,5 +1,5 @@
 import { href, html, state } from '~/viewer/app';
-import { search } from '../search';
+import { modal, search } from '../search';
 import './scss/index.scss';
 
 
@@ -28,24 +28,19 @@ export default html`
                 `)}
             </nav>
 
-            <div class='header-actions'>
-                <label class='search'>
+            <div class='header-actions --flex-start'>
+                <button class='search' type='button' ${{ onclick: () => { search.open = true; } }}>
                     <svg aria-hidden='true' class='search-icon' fill='none' height='14' viewBox='0 0 24 24' width='14'>
                         <circle cx='11' cy='11' r='7' stroke='currentColor' stroke-width='2'></circle>
                         <path d='m20 20-3.5-3.5' stroke='currentColor' stroke-linecap='round' stroke-width='2'></path>
                     </svg>
 
-                    <input
-                        class='search-input'
-                        placeholder='Search…'
-                        type='search'
-                        ${{ oninput: (e: Event) => { search.query = (e.target as HTMLInputElement).value; } }}
-                    />
-                </label>
+                    <span class='search-placeholder'>Search…</span>
+                </button>
 
                 <a
                     aria-label='GitHub'
-                    class='header-icon'
+                    class='header-icon button --background-grey --color-text --padding-200'
                     href='https://github.com/esportsplus/ui'
                     rel='noreferrer'
                     target='_blank'
@@ -57,4 +52,6 @@ export default html`
             </div>
         </div>
     </header>
+
+    ${() => search.open && modal()}
 `;

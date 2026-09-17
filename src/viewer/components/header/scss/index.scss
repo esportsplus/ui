@@ -88,73 +88,8 @@
     }
 
 
-    &-search {
-        align-items: center;
-        background: color-mix(in oklab, var(--color-grey-500) 70%, transparent);
-        border: 1px solid transparent;
-        border-radius: var(--border-radius-400);
-        display: flex;
-        gap: var(--size-200);
-        max-width: 260px;
-        padding: 0 var(--size-300);
-        transition:
-            background var(--transition-duration) ease-in-out,
-            border-color var(--transition-duration) ease-in-out;
-        width: 100%;
-
-        &:focus-within {
-            background: var(--background);
-            border-color: var(--color-border-400);
-        }
-
-        &-icon {
-            color: var(--color-text-300);
-            flex: 0 0 auto;
-        }
-
-
-        &-input {
-            appearance: none;
-            background: transparent;
-            border: 0;
-            color: var(--color-text-400);
-            font: inherit;
-            font-size: var(--font-size-300);
-            height: var(--size-600);
-            min-width: 0;
-            outline: none;
-            width: 100%;
-
-            &::-webkit-search-cancel-button {
-                appearance: none;
-            }
-
-            &::placeholder {
-                color: var(--color-text-300);
-                opacity: 0.72;
-            }
-        }
-    }
-
-
     &-icon {
-        align-items: center;
-        border-radius: var(--border-radius-300);
-        color: var(--color-text-300);
-        display: inline-flex;
-        flex: 0 0 auto;
-        height: var(--size-500);
-        justify-content: center;
-        text-decoration: none;
-        transition:
-            background var(--transition-duration) ease-in-out,
-            color var(--transition-duration) ease-in-out;
-        width: var(--size-500);
-
-        &:hover {
-            background: var(--color-grey-500);
-            color: var(--color-text-400);
-        }
+        --background-default: transparent;
     }
 
 
@@ -168,10 +103,6 @@
     @media (max-width: 720px) {
         &-inner {
             padding: 0 var(--size-400);
-        }
-
-        &-search {
-            display: none;
         }
     }
 }
