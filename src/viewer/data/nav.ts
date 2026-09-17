@@ -31,17 +31,10 @@ function links(names: string[], section: string): Link[] {
 const sections: Section[] = [
     {
         groups: [
-            { label: '', links: [{ label: 'Introduction', section: 'docs', slug: '' }] }
-        ],
-        index: false,
-        label: 'Getting Started',
-        section: 'docs'
-    },
-    {
-        groups: [
             {
                 label: '',
                 links: [
+                    { label: 'Introduction', section: 'docs', slug: '' },
                     { label: 'Tokens', section: 'tokens', slug: '' },
                     { label: 'Themes', section: 'themes', slug: '' },
                     { label: 'Fonts', section: 'fonts', slug: '' }
@@ -49,16 +42,8 @@ const sections: Section[] = [
             }
         ],
         index: false,
-        label: 'Design System',
-        section: 'tokens'
-    },
-    {
-        groups: [
-            { label: '', links: links(utilities.map((item) => item.name), 'css-utilities') }
-        ],
-        index: true,
-        label: 'CSS Utilities',
-        section: 'css-utilities'
+        label: 'Getting Started',
+        section: 'docs'
     },
     {
         groups: [
@@ -67,6 +52,14 @@ const sections: Section[] = [
         index: true,
         label: 'Components',
         section: 'components'
+    },
+    {
+        groups: [
+            { label: '', links: links(utilities.map((item) => item.name), 'css-utilities') }
+        ],
+        index: true,
+        label: 'CSS Utilities',
+        section: 'css-utilities'
     }
 ];
 
