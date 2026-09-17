@@ -212,7 +212,7 @@ Each component exposes CSS custom properties:
 ```scss
 .ui-button {
   --background: var(--color-blue-400);
-  --color: var(--color-white);
+  --color: var(--color-white-400);
   --border-radius: var(--border-radius-300);
   --padding-horizontal: 16px;
   --padding-vertical: 8px;

@@ -14,7 +14,7 @@ const order = [
 
 
 function boxStyle() {
-    return 'align-items: center; background: var(--color-blue-400); border-radius: var(--border-radius-300); color: var(--color-white); display: flex; justify-content: center; min-height: var(--size-700); min-width: var(--size-700); padding: var(--size-300);';
+    return 'align-items: center; background: var(--color-blue-400); border-radius: var(--border-radius-300); color: var(--color-white-400); display: flex; justify-content: center; min-height: var(--size-700); min-width: var(--size-700); padding: var(--size-300);';
 }
 
 function box(label: Renderable<unknown>) {
@@ -208,7 +208,7 @@ const utilities: Utility[] = [
             {
                 render: () => html`
                     <div style='background: linear-gradient(120deg, var(--color-blue-400), var(--color-purple-400)); border-radius: var(--border-radius-500); padding: var(--size-700);'>
-                        <div class='--glass' style='border-radius: var(--border-radius-400); color: var(--color-white); padding: var(--size-500);'>Frosted glass</div>
+                        <div class='--glass' style='border-radius: var(--border-radius-400); color: var(--color-white-400); padding: var(--size-500);'>Frosted glass</div>
                     </div>
                 `,
                 title: 'glass'
