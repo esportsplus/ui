@@ -32,10 +32,7 @@
         overflow-y: hidden;
     }
 
-    &--full {
-        height: 100%;
-    }
-    &--hidden {
+    &-hidden {
         scrollbar-width: none;
 
         &::-webkit-scrollbar {
@@ -43,7 +40,7 @@
         }
     }
 
-    &--snap {
+    &-snap {
         overflow: auto;
         overscroll-behavior-x: contain;
         scroll-snap-type: both mandatory;

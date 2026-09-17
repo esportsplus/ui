@@ -22,7 +22,7 @@ export default {
             title: 'default bar'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar--hidden' style='${box}'>${rows(14)}</div>`,
+            render: () => html`<div class='--scrollbar --scrollbar-hidden' style='${box}'>${rows(14)}</div>`,
             title: 'hidden bar'
         }
     ]
