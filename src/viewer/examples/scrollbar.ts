@@ -1,5 +1,4 @@
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let box = 'height: 160px; border: 1px solid var(--color-border-400); border-radius: var(--border-radius-400);';
@@ -15,7 +14,7 @@ function rows(count: number) {
 }
 
 
-const entry: Entry = {
+export default {
     name: 'scrollbar',
     variants: [
         {
@@ -28,6 +27,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

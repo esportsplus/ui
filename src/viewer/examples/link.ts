@@ -1,11 +1,10 @@
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let color = '--color: var(--color-purple-300); --width: auto;';
 
 
-const entry: Entry = {
+export default {
     name: 'link',
     variants: [
         {
@@ -27,6 +26,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

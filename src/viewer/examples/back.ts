@@ -1,11 +1,10 @@
 import { back } from '@esportsplus/ui';
-import type { Entry } from '~/viewer/types';
 
 
 let link = back.bind({ attributes: { style: '--color: var(--color-purple-300);' } });
 
 
-const entry: Entry = {
+export default {
     name: 'back',
     variants: [
         {
@@ -14,6 +13,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

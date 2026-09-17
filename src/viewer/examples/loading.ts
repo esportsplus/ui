@@ -1,8 +1,7 @@
 import { loading } from '@esportsplus/ui';
-import type { Entry } from '~/viewer/types';
 
 
-const entry: Entry = {
+export default {
     name: 'loading',
     variants: [
         {
@@ -15,6 +14,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

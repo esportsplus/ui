@@ -1,11 +1,10 @@
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let item = 'padding: var(--size-400) var(--size-500); border-radius: var(--border-radius-300); background: var(--color-grey-300);';
 
 
-const entry: Entry = {
+export default {
     name: 'container',
     variants: [
         {
@@ -20,6 +19,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

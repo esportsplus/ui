@@ -1,12 +1,11 @@
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let label = 'position: relative; --color: var(--color-white-400); font-weight: var(--font-weight-600);',
     stage = 'position: relative; overflow: hidden; height: 130px; border-radius: var(--border-radius-400); padding: var(--size-500); display: flex; align-items: flex-end;';
 
 
-const entry: Entry = {
+export default {
     name: 'banner',
     variants: [
         {
@@ -38,6 +37,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

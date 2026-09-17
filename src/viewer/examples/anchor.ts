@@ -1,12 +1,11 @@
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let dot = 'padding: var(--size-200) var(--size-400); border-radius: var(--border-radius-300); background: var(--color-purple-300); color: var(--color-white-400);',
     stage = 'position: relative; height: 140px; border: 1px dashed var(--color-border-400); border-radius: var(--border-radius-400);';
 
 
-const entry: Entry = {
+export default {
     name: 'anchor',
     variants: [
         {
@@ -21,6 +20,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

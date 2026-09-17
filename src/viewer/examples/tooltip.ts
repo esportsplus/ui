@@ -1,13 +1,12 @@
 import { tooltip } from '@esportsplus/ui';
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let content = 'padding: var(--size-400) var(--size-500); --background: var(--color-black-400); color: var(--color-white-400);',
     trigger = 'button button--tertiary';
 
 
-const entry: Entry = {
+export default {
     name: 'tooltip',
     variants: [
         {
@@ -53,6 +52,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

@@ -1,9 +1,8 @@
 import { select } from '@esportsplus/ui';
 import { select as selectDark } from '@esportsplus/ui/themes/dark';
-import type { Entry } from '~/viewer/types';
 
 
-const entry: Entry = {
+export default {
     name: 'select',
     variants: [
         {
@@ -27,6 +26,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

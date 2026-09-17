@@ -1,11 +1,10 @@
 import { range } from '@esportsplus/ui';
-import type { Entry } from '~/viewer/types';
 
 
 let style = '--thumb-background: var(--color-primary-400);';
 
 
-const entry: Entry = {
+export default {
     name: 'range',
     variants: [
         {
@@ -18,6 +17,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

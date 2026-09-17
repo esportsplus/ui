@@ -1,13 +1,12 @@
 import { alert } from '@esportsplus/ui';
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let stage = 'position: relative; min-height: 96px; display: flex; align-items: flex-start;',
     trigger = 'button button--tertiary';
 
 
-const entry: Entry = {
+export default {
     name: 'alert',
     variants: [
         {
@@ -30,6 +29,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

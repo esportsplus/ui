@@ -1,11 +1,10 @@
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let cell = 'padding: var(--size-500); border-radius: var(--border-radius-300); background: var(--color-grey-300); text-align: center;';
 
 
-const entry: Entry = {
+export default {
     name: 'grid',
     variants: [
         {
@@ -30,6 +29,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

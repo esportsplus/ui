@@ -1,12 +1,11 @@
 import { truncate } from '@esportsplus/ui';
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let address = 'Fk4nZ9pQ2wR7tY1uX3vB6cM8dL0aS5gH2jK4nZ9pQ2w';
 
 
-const entry: Entry = {
+export default {
     name: 'truncate',
     variants: [
         {
@@ -22,6 +21,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

@@ -1,11 +1,10 @@
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let stage = 'position: relative; height: 110px; border: 1px dashed var(--color-border-400); border-radius: var(--border-radius-400);';
 
 
-const entry: Entry = {
+export default {
     name: 'bubble',
     variants: [
         {
@@ -29,6 +28,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

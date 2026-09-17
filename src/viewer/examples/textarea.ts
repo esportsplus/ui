@@ -1,11 +1,10 @@
 import { textarea } from '@esportsplus/ui';
-import type { Entry } from '~/viewer/types';
 
 
 let area = textarea.bind({});
 
 
-const entry: Entry = {
+export default {
     name: 'textarea',
     variants: [
         {
@@ -18,6 +17,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

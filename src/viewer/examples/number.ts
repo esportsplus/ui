@@ -1,9 +1,8 @@
 import { number } from '@esportsplus/ui';
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
-const entry: Entry = {
+export default {
     name: 'number',
     variants: [
         {
@@ -19,6 +18,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

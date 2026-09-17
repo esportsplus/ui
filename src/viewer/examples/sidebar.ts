@@ -1,6 +1,5 @@
 import { sidebar } from '@esportsplus/ui';
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let panel = 'height: 100%; --padding-horizontal: var(--size-500); --padding-vertical: var(--size-500); background: var(--color-grey-300);',
@@ -15,7 +14,7 @@ function panelContent(side: string) {
 }
 
 
-const entry: Entry = {
+export default {
     name: 'sidebar',
     variants: [
         {
@@ -36,6 +35,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

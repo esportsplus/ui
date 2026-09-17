@@ -1,6 +1,5 @@
 import { button } from '@esportsplus/ui';
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let colors = ['primary', 'secondary', 'tertiary', 'form'],
@@ -8,7 +7,7 @@ let colors = ['primary', 'secondary', 'tertiary', 'form'],
     row = 'display: flex; flex-wrap: wrap; gap: var(--size-400); align-items: center;';
 
 
-const entry: Entry = {
+export default {
     name: 'button',
     variants: [
         {
@@ -40,6 +39,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

@@ -1,11 +1,10 @@
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
 let box = '--padding-horizontal: var(--size-500); --padding-vertical: var(--size-500); --border-radius: var(--border-radius-400); --width: 200px; background: var(--color-grey-300);';
 
 
-const entry: Entry = {
+export default {
     name: 'card',
     variants: [
         {
@@ -39,6 +38,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

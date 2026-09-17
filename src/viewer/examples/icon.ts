@@ -1,11 +1,10 @@
 import { icon } from '@esportsplus/ui';
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 import bolt from '~/storage/svg/bolt.svg';
 import star from '~/storage/svg/star.svg';
 
 
-const entry: Entry = {
+export default {
     name: 'icon',
     variants: [
         {
@@ -28,6 +27,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

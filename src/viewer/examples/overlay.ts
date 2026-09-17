@@ -1,10 +1,9 @@
 import { overlay } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/viewer/types';
 
 
-const entry: Entry = {
+export default {
     name: 'overlay',
     variants: [
         {
@@ -38,6 +37,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

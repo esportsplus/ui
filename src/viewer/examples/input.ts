@@ -1,12 +1,11 @@
 import { input } from '@esportsplus/ui';
 import { input as inputDark } from '@esportsplus/ui/themes/dark';
-import type { Entry } from '~/viewer/types';
 
 
 let field = input.bind({});
 
 
-const entry: Entry = {
+export default {
     name: 'input',
     variants: [
         {
@@ -23,6 +22,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;

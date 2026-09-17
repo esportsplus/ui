@@ -1,8 +1,7 @@
 import { clipboard } from '@esportsplus/ui';
-import type { Entry } from '~/viewer/types';
 
 
-const entry: Entry = {
+export default {
     name: 'clipboard',
     variants: [
         {
@@ -14,6 +13,3 @@ const entry: Entry = {
         }
     ]
 };
-
-
-export default entry;
