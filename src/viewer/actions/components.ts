@@ -16,7 +16,6 @@ for (let i = 0, n = entries.length; i < n; i++) {
 const page = (slug: string): Page => {
     if (slug === '') {
         return cardGrid(
-            'Component Library',
             'A reactive, themeable component library built on compile-time template transforms. Select a component to see every variant.',
             'Components',
             entries.map((entry) => ({
@@ -35,7 +34,6 @@ const page = (slug: string): Page => {
 
     return detailPage({
         description: meta[slug]?.description ?? '',
-        eyebrow: meta[slug]?.category ?? 'Component',
         name: entry.name,
         variants: entry.variants
     });

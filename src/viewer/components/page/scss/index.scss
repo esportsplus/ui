@@ -1,16 +1,9 @@
 .page {
-    max-width: 860px;
+    max-width: 680px;
+    width: 100%;
 
     &-head {
         margin-bottom: var(--size-700);
-    }
-
-    &-eyebrow {
-        color: var(--color-text-300);
-        font-size: var(--font-size-200);
-        font-weight: var(--font-weight-500);
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
     }
 
     &-title {

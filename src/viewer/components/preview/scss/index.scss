@@ -1,4 +1,7 @@
 .main {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     padding: var(--size-700) 0 var(--size-900);
 }
@@ -45,23 +48,10 @@
 }
 
 
-.card-grid {
-    display: grid;
-    gap: var(--size-400);
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-}
-
-
 .doc-card {
-    border: 1px solid var(--color-border-400);
-    border-radius: var(--border-radius-500);
     color: var(--color-text-400);
     display: block;
-    padding: var(--size-400);
     text-decoration: none;
-    transition:
-        border-color var(--transition-duration) ease-in-out,
-        transform var(--transition-duration) ease-in-out;
 
     &:hover {
         border-color: var(--color-text-300);
@@ -84,9 +74,6 @@
 
 
 .preview {
-    border: 1px solid var(--color-border-400);
-    border-radius: var(--border-radius-600);
-    margin: 0 0 var(--size-500);
     overflow: hidden;
     scroll-margin-top: calc(var(--header-height) + var(--size-500));
 

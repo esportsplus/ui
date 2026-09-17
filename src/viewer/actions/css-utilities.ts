@@ -15,7 +15,6 @@ for (let i = 0, n = utilities.length; i < n; i++) {
 const page = (slug: string): Page => {
     if (slug === '') {
         return cardGrid(
-            'Styling',
             'Composable, token-aware class utilities you can drop onto any element to reuse the same CSS without writing it twice.',
             'CSS Utilities',
             utilities.map((utility) => ({
@@ -34,7 +33,6 @@ const page = (slug: string): Page => {
 
     return detailPage({
         description: utility.description,
-        eyebrow: utility.category,
         name: utility.name,
         variants: utility.variants
     });

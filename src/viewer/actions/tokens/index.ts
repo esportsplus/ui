@@ -3,7 +3,6 @@ import { cssValue, map, tokenSources } from '~/viewer/data/scss';
 import { layout } from '~/viewer/components/preview';
 import type { Renderable, Router } from '~/viewer/app';
 import type { Page, TocItem } from '~/viewer/types';
-import './scss/index.scss';
 
 
 type Group = {
@@ -37,7 +36,7 @@ const groups: Group[] = [
 
 function preview(kind: Group['kind'], value: string): Renderable<unknown> {
     if (kind === 'color') {
-        return html`<div class='swatch' style='background: ${value};'></div>`;
+        return html`<div class='thumbnail --size-600 --border --border-default --border-border' style='background: ${value};'></div>`;
     }
 
     if (kind === 'size') {
@@ -107,7 +106,6 @@ const page = (): Page => {
         render: () => html`
             <div class='page'>
                 <div class='page-head'>
-                    <div class='page-eyebrow'>Design System</div>
                     <h1 class='page-title'>Tokens</h1>
                     <p class='page-lede'>The design tokens that every component and utility is built from, read directly from the source SCSS with their current resolved values.</p>
                 </div>

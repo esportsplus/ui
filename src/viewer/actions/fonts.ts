@@ -74,7 +74,6 @@ const page = (): Page => {
         render: () => html`
             <div class='page'>
                 <div class='page-head'>
-                    <div class='page-eyebrow'>Design System</div>
                     <h1 class='page-title'>Fonts</h1>
                     <p class='page-lede'>The typefaces bundled with the library, with a live specimen at every available weight and the raw @font-face definitions read from source.</p>
                 </div>

@@ -75,7 +75,6 @@ const page = (): Page => {
         render: () => html`
             <div class='page'>
                 <div class='page-head'>
-                    <div class='page-eyebrow'>Design System</div>
                     <h1 class='page-title'>Themes</h1>
                     <p class='page-lede'>A theme is a set of CSS custom property overrides layered over the base component styles. Build your own by redefining the same variables listed below.</p>
                 </div>
@@ -91,7 +90,7 @@ const page = (): Page => {
                                 return '';
                             }
 
-                            return html`<div class='preview'><div class='preview-stage'>${preview}</div></div>`;
+                            return html`<div class='preview card --border --border-default --border-border --border-radius-600 --margin-bottom --margin-vertical-500'><div class='preview-stage'>${preview}</div></div>`;
                         }}
 
                         <table class='spec-table'>

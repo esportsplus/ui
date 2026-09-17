@@ -12,24 +12,22 @@ type Card = {
 
 type Detail = {
     description: string;
-    eyebrow: string;
     name: string;
     variants: Variant[];
 };
 
 
-const cardGrid = (eyebrow: string, lede: string, title: string, cards: Card[]): Page => ({
+const cardGrid = (lede: string, title: string, cards: Card[]): Page => ({
     render: () => html`
         <div class='page'>
             <div class='page-head'>
-                <div class='page-eyebrow'>${eyebrow}</div>
                 <h1 class='page-title'>${title}</h1>
                 <p class='page-lede'>${lede}</p>
             </div>
 
-            <div class='card-grid'>
+            <div class='grid' style='--min-width: 220px;'>
                 ${cards.map((card) => html`
-                    <a class='doc-card' href='${href(card.section, card.name)}'>
+                    <a class='doc-card card --border --border-default --border-border --border-radius-500 --padding-400' href='${href(card.section, card.name)}'>
                         <div class='doc-card-name'>${card.name}</div>
                         <p class='doc-card-description'>${card.description}</p>
                     </a>
@@ -47,7 +45,6 @@ const detailPage = (detail: Detail): Page => {
         render: () => html`
             <div class='page'>
                 <div class='page-head'>
-                    <div class='page-eyebrow'>${detail.eyebrow}</div>
                     <h1 class='page-title'>${detail.name}</h1>
                     <p class='page-lede'>${detail.description}</p>
                 </div>
@@ -55,7 +52,7 @@ const detailPage = (detail: Detail): Page => {
                 ${detail.variants.length === 0
                     ? html`<p class='page-note'>No examples yet.</p>`
                     : detail.variants.map((variant, index) => html`
-                        <div class='preview' id='v-${index}'>
+                        <div class='preview card --border --border-default --border-border --border-radius-600 --margin-bottom --margin-vertical-500' id='v-${index}'>
                             <div class='preview-bar'>
                                 <span class='preview-title'>${variant.title}</span>
                             </div>
@@ -85,7 +82,7 @@ const missing = (title: string): Page => ({
 
 
 const preview = (title: string, node: Renderable<unknown>) => html`
-    <div class='preview'>
+    <div class='preview card --border --border-default --border-border --border-radius-600 --margin-bottom --margin-vertical-500'>
         <div class='preview-bar'>
             <span class='preview-title'>${title}</span>
         </div>
