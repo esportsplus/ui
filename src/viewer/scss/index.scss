@@ -201,13 +201,15 @@
 
 
 .viewer-nav-title {
-    color: var(--color-text-400);
+    color: var(--color-text-300);
     display: block;
-    font-size: var(--font-size-300);
+    font-size: var(--font-size-200);
     font-weight: var(--font-weight-500);
-    margin-bottom: var(--size-200);
-    padding: 0 var(--size-300);
+    letter-spacing: 0.08em;
+    margin-bottom: var(--size-300);
+    padding: 0 var(--size-300) 0 0;
     text-decoration: none;
+    text-transform: uppercase;
 }
 
 
@@ -232,7 +234,7 @@ a.viewer-nav-title:hover {
 
 
 .viewer-nav-link {
-    border-radius: var(--border-radius-300);
+    border-left: 1px solid var(--color-border-400);
     color: var(--color-text-300);
     display: block;
     font-size: var(--font-size-300);
@@ -240,16 +242,16 @@ a.viewer-nav-title:hover {
     text-decoration: none;
     text-transform: capitalize;
     transition:
-        background var(--transition-duration) ease-in-out,
+        border-color var(--transition-duration) ease-in-out,
         color var(--transition-duration) ease-in-out;
 
     &:hover {
-        background: var(--color-grey-500);
+        border-color: var(--color-text-400);
         color: var(--color-text-400);
     }
 
     &.--active {
-        background: var(--color-grey-500);
+        border-color: var(--color-text-400);
         color: var(--color-text-400);
         font-weight: var(--font-weight-500);
     }

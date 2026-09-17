@@ -9,8 +9,7 @@ const active = (section: string, slug: string) => state.section === section && s
 
 export default html`
     <aside class='viewer-nav --scrollbar'>
-        <div class='viewer-nav-inner'>
-            ${sections.map((section) => html`
+        ${sections.map((section) => html`
                 <div class='viewer-nav-section ${() => section.groups.some((group) => group.links.some((link) => matches(link.label))) ? '' : '--hidden'}'>
                     ${section.index
                         ? html`<a class='viewer-nav-title' href='${href(section.section)}'>${section.label}</a>`
@@ -30,6 +29,5 @@ export default html`
                     `)}
                 </div>
             `)}
-        </div>
     </aside>
 `;
