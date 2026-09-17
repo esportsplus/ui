@@ -3,15 +3,15 @@
     "dependencies": {
         "@esportsplus/action": "^0.1.7",
         "@esportsplus/queue": "^0.4.5",
-        "@esportsplus/reactivity": "^0.36.5",
-        "@esportsplus/routing": "^0.10.6",
-        "@esportsplus/template": "^0.44.5",
+        "@esportsplus/reactivity": "^0.36.6",
+        "@esportsplus/routing": "^0.10.7",
+        "@esportsplus/template": "^0.44.6",
         "@esportsplus/utilities": "^0.28.3",
         "@esportsplus/vite": "^0.14.4",
         "modern-normalize": "^3.0.1"
     },
     "devDependencies": {
-        "@esportsplus/typescript": "^0.34.2",
+        "@esportsplus/typescript": "^0.34.3",
         "@types/node": "^25.0.10",
         "@types/shelljs": "^0.10.0",
         "autoprefixer": "^10.6.1",
