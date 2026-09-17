@@ -17,7 +17,7 @@ const factory = <
             content: C;
 
         if (two === undefined) {
-            if (typeof one === 'object') {
+            if (arguments.length === 2) {
                 attributes = one as A;
                 content = null as C;
             }
