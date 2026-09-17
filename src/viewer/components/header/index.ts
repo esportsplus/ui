@@ -1,5 +1,6 @@
 import { href, html, state } from '~/viewer/app';
-import { search } from './search';
+import { search } from '../search';
+import './scss/index.scss';
 
 
 const tabs = [
@@ -11,31 +12,31 @@ const tabs = [
 
 
 export default html`
-    <header class='viewer-header'>
-        <div class='viewer-header-inner'>
-            <a class='viewer-brand' href='${href('docs')}'>
-                <span class='viewer-brand-mark'>&lt;/&gt;</span>
-                <span class='viewer-brand-name'>esportsplus<span class='viewer-brand-slash'>/</span>ui</span>
+    <header class='header'>
+        <div class='header-inner'>
+            <a class='brand' href='${href('docs')}'>
+                <span class='brand-mark'>&lt;/&gt;</span>
+                <span class='brand-name'>esportsplus<span class='brand-slash'>/</span>ui</span>
             </a>
 
-            <nav class='viewer-header-nav'>
+            <nav class='header-nav'>
                 ${tabs.map((tab) => html`
                     <a
-                        class='viewer-header-link ${() => state.section === tab.section && '--active'}'
+                        class='header-link ${() => state.section === tab.section && '--active'}'
                         href='${href(tab.section)}'
                     >${tab.label}</a>
                 `)}
             </nav>
 
-            <div class='viewer-header-actions'>
-                <label class='viewer-search'>
-                    <svg aria-hidden='true' class='viewer-search-icon' fill='none' height='14' viewBox='0 0 24 24' width='14'>
+            <div class='header-actions'>
+                <label class='search'>
+                    <svg aria-hidden='true' class='search-icon' fill='none' height='14' viewBox='0 0 24 24' width='14'>
                         <circle cx='11' cy='11' r='7' stroke='currentColor' stroke-width='2'></circle>
                         <path d='m20 20-3.5-3.5' stroke='currentColor' stroke-linecap='round' stroke-width='2'></path>
                     </svg>
 
                     <input
-                        class='viewer-search-input'
+                        class='search-input'
                         placeholder='Search…'
                         type='search'
                         ${{ oninput: (e: Event) => { search.query = (e.target as HTMLInputElement).value; } }}
@@ -44,7 +45,7 @@ export default html`
 
                 <a
                     aria-label='GitHub'
-                    class='viewer-header-icon'
+                    class='header-icon'
                     href='https://github.com/esportsplus/ui'
                     rel='noreferrer'
                     target='_blank'

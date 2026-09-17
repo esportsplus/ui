@@ -1,0 +1,178 @@
+.header {
+    backdrop-filter: blur(12px);
+    background: color-mix(in oklab, var(--background) 84%, transparent);
+    border-bottom: 1px solid var(--color-border-400);
+    position: sticky;
+    top: 0;
+    z-index: 30;
+
+    &-inner {
+        align-items: center;
+        display: flex;
+        gap: var(--size-500);
+        height: var(--header-height);
+        padding: 0 var(--size-600);
+        width: 100%;
+    }
+
+
+    &-brand {
+        align-items: center;
+        color: var(--color-text-400);
+        display: inline-flex;
+        flex: 0 0 auto;
+        font-weight: var(--font-weight-500);
+        gap: var(--size-200);
+        letter-spacing: -0.01em;
+        text-decoration: none;
+
+        &-mark {
+            align-items: center;
+            background: var(--color-text-400);
+            border-radius: var(--border-radius-200);
+            color: var(--background);
+            display: inline-flex;
+            font-family: ui-monospace, monospace;
+            font-size: var(--font-size-200);
+            font-weight: var(--font-weight-500);
+            height: var(--size-400);
+            justify-content: center;
+            width: var(--size-400);
+        }
+
+
+        &-slash {
+            color: var(--color-text-300);
+            opacity: 0.5;
+            padding: 0 1px;
+        }
+    }
+
+
+    &-nav {
+        align-items: center;
+        display: flex;
+        gap: var(--size-100);
+    }
+
+
+    &-link {
+        border-radius: var(--border-radius-200);
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        padding: var(--size-200) var(--size-300);
+        text-decoration: none;
+        transition:
+            background var(--transition-duration) ease-in-out,
+            color var(--transition-duration) ease-in-out;
+
+        &:hover {
+            background: var(--color-grey-500);
+            color: var(--color-text-400);
+        }
+
+        &.--active {
+            color: var(--color-text-400);
+            font-weight: var(--font-weight-500);
+        }
+    }
+
+
+    &-actions {
+        align-items: center;
+        display: flex;
+        flex: 1;
+        gap: var(--size-300);
+        justify-content: flex-end;
+        min-width: 0;
+    }
+
+
+    &-search {
+        align-items: center;
+        background: color-mix(in oklab, var(--color-grey-500) 70%, transparent);
+        border: 1px solid transparent;
+        border-radius: var(--border-radius-400);
+        display: flex;
+        gap: var(--size-200);
+        max-width: 260px;
+        padding: 0 var(--size-300);
+        transition:
+            background var(--transition-duration) ease-in-out,
+            border-color var(--transition-duration) ease-in-out;
+        width: 100%;
+
+        &:focus-within {
+            background: var(--background);
+            border-color: var(--color-border-400);
+        }
+
+        &-icon {
+            color: var(--color-text-300);
+            flex: 0 0 auto;
+        }
+
+
+        &-input {
+            appearance: none;
+            background: transparent;
+            border: 0;
+            color: var(--color-text-400);
+            font: inherit;
+            font-size: var(--font-size-300);
+            height: var(--size-600);
+            min-width: 0;
+            outline: none;
+            width: 100%;
+
+            &::-webkit-search-cancel-button {
+                appearance: none;
+            }
+
+            &::placeholder {
+                color: var(--color-text-300);
+                opacity: 0.72;
+            }
+        }
+    }
+
+
+    &-icon {
+        align-items: center;
+        border-radius: var(--border-radius-300);
+        color: var(--color-text-300);
+        display: inline-flex;
+        flex: 0 0 auto;
+        height: var(--size-500);
+        justify-content: center;
+        text-decoration: none;
+        transition:
+            background var(--transition-duration) ease-in-out,
+            color var(--transition-duration) ease-in-out;
+        width: var(--size-500);
+
+        &:hover {
+            background: var(--color-grey-500);
+            color: var(--color-text-400);
+        }
+    }
+
+
+    @media (max-width: 1024px) {
+        &-nav {
+            display: none;
+        }
+    }
+
+
+    @media (max-width: 720px) {
+        &-inner {
+            padding: 0 var(--size-400);
+        }
+
+        &-search {
+            display: none;
+        }
+    }
+}
+

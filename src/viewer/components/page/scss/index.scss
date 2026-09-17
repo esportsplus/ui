@@ -1,0 +1,44 @@
+.page {
+    max-width: 860px;
+
+    &-head {
+        margin-bottom: var(--size-700);
+    }
+
+    &-eyebrow {
+        color: var(--color-text-300);
+        font-size: var(--font-size-200);
+        font-weight: var(--font-weight-500);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    &-title {
+        font-size: var(--font-size-800);
+        line-height: 1.05;
+        margin: var(--size-300) 0 0;
+        text-transform: capitalize;
+
+        @media (max-width: 720px) {
+            font-size: var(--font-size-700);
+        }
+    }
+
+    &-lede {
+        color: var(--color-text-300);
+        font-size: var(--font-size-500);
+        line-height: 1.6;
+        margin: var(--size-300) 0 0;
+        max-width: 64ch;
+    }
+
+    &-note {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+
+    &-section-title {
+        font-size: var(--font-size-600);
+        margin: var(--size-800) 0 var(--size-400);
+    }
+}

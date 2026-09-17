@@ -1,0 +1,12 @@
+:root {
+    --header-height: 56px;
+
+    // Semantic brand aliases the library expects the consumer to supply, mapped
+    // onto the base token scales so themed components (buttons, links) render.
+    --color-primary-300: var(--color-blue-300);
+    --color-primary-400: var(--color-blue-400);
+    --color-primary-500: var(--color-blue-500);
+    --color-secondary-300: var(--color-purple-300);
+    --color-secondary-400: var(--color-purple-400);
+    --color-secondary-500: var(--color-purple-500);
+}

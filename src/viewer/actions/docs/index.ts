@@ -3,6 +3,7 @@ import { layout } from '~/viewer/components/preview';
 import readme from '/README.md?raw';
 import type { Router } from '~/viewer/app';
 import type { Page } from '~/viewer/types';
+import './scss/index.scss';
 
 
 function escape(value: string) {

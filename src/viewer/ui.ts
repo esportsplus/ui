@@ -4,7 +4,10 @@ import '/src/themes/dark/button/scss/index.scss';
 import '/src/themes/dark/link/scss/index.scss';
 import '/src/css-utilities/index.scss';
 
-import './scss/index.scss';
+import './components/root/scss/index.scss';
+import './components/viewer/scss/index.scss';
+import './components/page/scss/index.scss';
+import './components/spec/scss/index.scss';
 
 
 // Vite hoists this eager glob above the explicit imports, so every component's

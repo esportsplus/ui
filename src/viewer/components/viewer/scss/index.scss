@@ -1,0 +1,19 @@
+.viewer-body {
+    display: grid;
+    gap: 0 var(--size-700);
+    grid-template-columns: 240px minmax(0, 1fr) 220px;
+    padding: 0 var(--size-600);
+    width: 100%;
+
+    @media (max-width: 1280px) {
+        grid-template-columns: 240px minmax(0, 1fr);
+    }
+
+    @media (max-width: 1024px) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    @media (max-width: 720px) {
+        padding: 0 var(--size-400);
+    }
+}

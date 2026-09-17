@@ -1,6 +1,7 @@
 import { href, html } from '~/viewer/app';
 import type { Renderable } from '~/viewer/app';
 import type { Page, TocItem, Variant } from '~/viewer/types';
+import './scss/index.scss';
 
 
 type Card = {
@@ -101,16 +102,16 @@ const scrollTo = (id: string) => (e: Event) => {
 
 
 const layout = (page: Page): Renderable<unknown> => html`
-    <main class='viewer-main'>
+    <main class='main'>
         ${page.render()}
     </main>
 
-    <aside class='viewer-toc --scrollbar'>
-        <div class='viewer-toc-inner ${page.toc.length === 0 ? '--hidden' : ''}'>
-            <div class='viewer-toc-heading'>On This Page</div>
+    <aside class='toc --scrollbar'>
+        <div class='toc-inner ${page.toc.length === 0 ? '--hidden' : ''}'>
+            <div class='toc-heading'>On This Page</div>
 
             ${page.toc.map((item) => html`
-                <a class='viewer-toc-link' href='#' ${{ onclick: scrollTo(item.id) }}>${item.label}</a>
+                <a class='toc-link' href='#' ${{ onclick: scrollTo(item.id) }}>${item.label}</a>
             `)}
         </div>
     </aside>

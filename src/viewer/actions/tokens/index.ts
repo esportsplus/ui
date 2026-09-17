@@ -3,6 +3,7 @@ import { cssValue, map, tokenSources } from '~/viewer/data/scss';
 import { layout } from '~/viewer/components/preview';
 import type { Renderable, Router } from '~/viewer/app';
 import type { Page, TocItem } from '~/viewer/types';
+import './scss/index.scss';
 
 
 type Group = {

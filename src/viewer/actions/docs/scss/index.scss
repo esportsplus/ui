@@ -1,0 +1,87 @@
+.prose {
+    color: var(--color-text-400);
+    font-size: var(--font-size-300);
+    line-height: 1.7;
+
+    h1 {
+        font-size: var(--font-size-800);
+        margin: 0 0 var(--size-400);
+    }
+
+    h2 {
+        border-bottom: 1px solid var(--color-border-400);
+        font-size: var(--font-size-600);
+        margin: var(--size-800) 0 var(--size-400);
+        padding-bottom: var(--size-200);
+    }
+
+    h3 {
+        font-size: var(--font-size-500);
+        margin: var(--size-600) 0 var(--size-300);
+    }
+
+    p {
+        margin: 0 0 var(--size-400);
+    }
+
+    ul,
+    ol {
+        margin: 0 0 var(--size-400);
+        padding-left: var(--size-500);
+    }
+
+    li {
+        margin: var(--size-100) 0;
+    }
+
+    a {
+        color: var(--color-blue-400);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    code {
+        background: color-mix(in oklab, var(--color-grey-500) 70%, transparent);
+        border-radius: var(--border-radius-200);
+        font-family: ui-monospace, monospace;
+        font-size: 0.9em;
+        padding: 0.1em 0.4em;
+    }
+
+    pre {
+        background: var(--color-black-400);
+        border-radius: var(--border-radius-500);
+        color: var(--color-grey-300);
+        margin: 0 0 var(--size-400);
+        padding: var(--size-400);
+
+        code {
+            background: none;
+            color: inherit;
+            font-size: var(--font-size-200);
+            padding: 0;
+        }
+    }
+
+    table {
+        border-collapse: collapse;
+        font-size: var(--font-size-200);
+        margin: 0 0 var(--size-400);
+        width: 100%;
+    }
+
+    th {
+        color: var(--color-text-300);
+        font-weight: var(--font-weight-500);
+    }
+
+    td,
+    th {
+        border-bottom: 1px solid var(--color-border-400);
+        padding: var(--size-200) var(--size-300);
+        text-align: left;
+    }
+}
