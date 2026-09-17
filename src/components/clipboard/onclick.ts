@@ -25,7 +25,7 @@ export default template.factory<A, (state: { copied: boolean }) => Renderable<un
                     e.preventDefault();
                     e.stopPropagation();
 
-                    write(attributes.value).then(() => {
+                    void write(attributes.value).then(() => {
                         state.copied = true;
 
                         setTimeout(() => {

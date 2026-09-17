@@ -3,3 +3,4 @@ import write from './write';
 
 
 export default { onclick, write };
+export { onclick, write };
