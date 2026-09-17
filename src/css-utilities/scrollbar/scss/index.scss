@@ -6,7 +6,6 @@
     scroll-behavior: smooth;
     scrollbar-color: var(--scrollbar-color) transparent;
     scrollbar-gutter: stable;
-    scrollbar-width: thin;
 
     @supports selector(::-webkit-scrollbar) {
         scrollbar-color: auto;
