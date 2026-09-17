@@ -9,6 +9,7 @@ import template from '@esportsplus/template/compiler/vite';
 export default defineConfig((env) => {
     if (env.command === 'serve') {
         return config({
+            appType: 'spa',
             mode: env.mode,
             plugins: [
                 template()

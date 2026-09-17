@@ -17,6 +17,9 @@ importers:
       '@esportsplus/reactivity':
         specifier: ^0.36.5
         version: 0.36.5
+      '@esportsplus/routing':
+        specifier: ^0.10.6
+        version: 0.10.6
       '@esportsplus/template':
         specifier: ^0.44.5
         version: 0.44.5
@@ -77,6 +80,9 @@ packages:
 
   '@esportsplus/reactivity@0.36.5':
     resolution: {integrity: sha512-clENWEih+vz1fQkcTLT7JyNoIfOuNdRiO9puMWU5svrqIz0Mop88acKT369yw1cLsy1JuCtVIDCYVB6+3F666g==}
+
+  '@esportsplus/routing@0.10.6':
+    resolution: {integrity: sha512-XG41F3+aFQRQb8esJ92BOAWSTDjZisZWfAAbGYDd8fQgEx3eQA6XStdoUcGyrI/HKQ1Vop5ZfEV3xO5T15oMDQ==}
 
   '@esportsplus/template@0.44.5':
     resolution: {integrity: sha512-Jw7FeXM+osqToSlnhV1q8rLd5S3UEP0tWglZTvAOZNYZpqNbOKWnOteQJZb9Qgv1bzGjoxLbLKi6dl9k1tMwcg==}
@@ -2104,6 +2110,12 @@ snapshots:
   '@esportsplus/reactivity@0.36.5':
     dependencies:
       '@esportsplus/utilities': 0.28.3
+
+  '@esportsplus/routing@0.10.6':
+    dependencies:
+      '@esportsplus/reactivity': 0.36.5
+      '@esportsplus/utilities': 0.28.3
+      '@types/node': 26.5.1
 
   '@esportsplus/template@0.44.5':
     dependencies:
