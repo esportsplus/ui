@@ -13,7 +13,8 @@ const factory = (type: string) => {
         this: { attributes?: Attributes } | any,
         attributes?: Attributes & { state?: { active: boolean, error: string } }
     ) {
-        let state = attributes?.state || reactive({
+        let ref: HTMLElement,
+            state = attributes?.state || reactive({
                 active: false,
                 error: ''
             });
@@ -27,6 +28,7 @@ const factory = (type: string) => {
                 class='${() => state.active ? type + " --active" : type}'
                 ${this?.attributes && omit(this.attributes, OMIT)}
                 ${attributes && omit(attributes, OMIT)}
+                onclick=${() => ref.click()}
             >
                 <input
                     ${{
@@ -34,6 +36,9 @@ const factory = (type: string) => {
                         class: `${type}-tag`,
                         onchange: (e: Event) => {
                             state.active = (e.target as HTMLInputElement).checked;
+                        },
+                        onconnect: (input) => {
+                            ref = input;
                         },
                         onrender: form.input.onrender(state),
                         type: type === 'radio' ? 'radio' : 'checkbox',
