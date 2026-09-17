@@ -52,9 +52,25 @@ const href = (section: string, slug?: string) => slug ? `/${section}/${slug}` : 
 
 const match = app.middleware.match(fallback);
 
-const resolve = (): View => match({} as Request<View>, app.middleware.dispatch);
+const url = reactive({ path: window.location.pathname });
+
+const resolve = (): View => {
+    // The match middleware reads its matched parameters in an untracked scope, so
+    // a same-route navigation (only the path parameter changes) would not re-run
+    // dispatch. Reading url.path subscribes callers to every navigation instead.
+    url.path;
+
+    return match({} as Request<View>, app.middleware.dispatch);
+};
 
 const state = reactive({ section: DEFAULT_SECTION, slug: '' });
+
+
+const sync = () => {
+    if (url.path !== window.location.pathname) {
+        url.path = window.location.pathname;
+    }
+};
 
 
 effect(() => {
@@ -65,6 +81,8 @@ effect(() => {
 });
 
 document.addEventListener('click', app.listener);
+document.addEventListener('click', sync);
+window.addEventListener('popstate', sync);
 
 
 export { href, resolve, state };
