@@ -1,0 +1,19 @@
+.toaster {
+    --toast-gap: var(--size-300);
+    --toast-inset: var(--size-500);
+    --toast-peek: var(--size-300);
+}
+
+
+.toast {
+    --toast-calc-height: max(var(--toast-frontmost-height, var(--toast-height, 0px)), var(--toast-height, 0px));
+    --toast-calc-offset-y: calc(var(--toast-offset-y, 0px) + (var(--toast-index, 0) * var(--toast-gap)) + var(--toast-swipe-y, 0px));
+    --toast-color: var(--color-text-300);
+    --toast-height: 0px;
+    --toast-index: 0;
+    --toast-offset-y: 0px;
+    --toast-scale: max(0, 1 - (var(--toast-index, 0) * 0.06));
+    --toast-shrink: calc(1 - var(--toast-scale));
+    --toast-swipe-x: 0px;
+    --toast-swipe-y: 0px;
+}

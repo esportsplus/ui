@@ -1,0 +1,276 @@
+@use '/lib';
+@use '/tokens';
+@use 'variables';
+
+.toaster {
+    bottom: auto;
+    left: auto;
+    position: fixed;
+    right: auto;
+    top: auto;
+    width: min(360px, calc(100% - (var(--toast-inset) * 2)));
+    z-index: 9999;
+
+    &[data-position^='top'] {
+        top: var(--toast-inset);
+    }
+
+    &[data-position^='bottom'] {
+        bottom: var(--toast-inset);
+    }
+
+    &[data-position$='left'] {
+        left: var(--toast-inset);
+    }
+
+    &[data-position$='right'] {
+        right: var(--toast-inset);
+    }
+
+    &[data-position$='center'] {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+
+.toast {
+    background: var(--background);
+    border: 1px solid var(--color-border-400);
+    border-radius: var(--border-radius-500);
+    box-shadow: var(--box-shadow-300);
+    color: var(--color-text-400);
+    left: 0;
+    overflow: visible;
+    position: absolute;
+    right: 0;
+    transform: translateX(var(--toast-swipe-x)) translateY(calc(var(--toast-swipe-y) + (var(--toast-index) * var(--toast-peek)) + (var(--toast-shrink) * var(--toast-calc-height)))) scale(var(--toast-scale));
+    transition:
+        transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.3s,
+        height 0.2s;
+    user-select: none;
+    width: 100%;
+    z-index: calc(9999 - var(--toast-index, 0));
+
+
+    [data-position*='top'] & {
+        bottom: auto;
+        top: 0;
+        transform-origin: top;
+    }
+
+    [data-position*='bottom'] & {
+        --toast-calc-offset-y: calc((var(--toast-offset-y, 0px) * -1) + (var(--toast-index, 0) * var(--toast-gap) * -1) + var(--toast-swipe-y, 0px));
+        bottom: 0;
+        top: auto;
+        transform: translateX(var(--toast-swipe-x)) translateY(calc(var(--toast-swipe-y) - (var(--toast-index) * var(--toast-peek)) - (var(--toast-shrink) * var(--toast-calc-height)))) scale(var(--toast-scale));
+        transform-origin: bottom;
+    }
+
+
+    // Invisible hit-area bridging the gap between stacked toasts while collapsed.
+    &::after {
+        content: '';
+        height: calc(var(--toast-gap) + 1px);
+        left: 0;
+        position: absolute;
+        width: 100%;
+    }
+
+    [data-position*='top'] &::after {
+        top: 100%;
+    }
+
+    [data-position*='bottom'] &::after {
+        bottom: 100%;
+    }
+
+
+    &-action {
+        flex-shrink: 0;
+    }
+
+    &-close {
+        align-items: center;
+        background: var(--background);
+        border: 1px solid var(--color-border-400);
+        border-radius: var(--border-radius-circle);
+        color: var(--color-text-500);
+        display: flex;
+        height: var(--size-500);
+        justify-content: center;
+        position: absolute;
+        right: calc(var(--size-200) * -1);
+        top: calc(var(--size-200) * -1);
+        width: var(--size-500);
+        z-index: 1;
+    }
+
+    &-content {
+        align-items: center;
+        display: flex;
+        gap: var(--size-300);
+        justify-content: space-between;
+        min-height: 0;
+        opacity: max(0, 1 - var(--toast-index, 0));
+        overflow-x: clip;
+        overflow-y: visible;
+        padding: var(--size-400);
+        transition: opacity 0.3s;
+    }
+
+    &-copy {
+        align-items: center;
+        display: inline-flex;
+        justify-content: center;
+    }
+
+    &-description {
+        color: var(--color-text-300);
+        overflow-wrap: anywhere;
+
+        &--clamp {
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 4;
+            display: -webkit-box;
+            line-clamp: 4;
+            overflow: hidden;
+        }
+    }
+
+    &-details {
+        margin-top: var(--size-200);
+        max-height: 160px;
+        overflow-y: auto;
+    }
+
+    &-details-toggle {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        gap: var(--size-200);
+    }
+
+    &-icon {
+        color: var(--toast-color);
+        flex-shrink: 0;
+        height: 18px;
+        width: 18px;
+    }
+
+    &-title {
+        font-weight: var(--font-weight-400);
+        overflow-wrap: anywhere;
+    }
+
+
+    &--error {
+        --toast-color: var(--color-red-400);
+
+        border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
+    }
+
+    &--warning {
+        --toast-color: var(--color-yellow-400);
+
+        border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
+    }
+
+    &--success {
+        --toast-color: var(--color-green-400);
+
+        border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
+    }
+
+    &--info {
+        --toast-color: var(--color-blue-400);
+
+        border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
+    }
+
+    &--loading {
+        --toast-color: var(--color-grey-500);
+
+        border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
+
+        .toast-icon {
+            animation: toast-spin 1s linear infinite;
+        }
+    }
+
+    &--message {
+        --toast-color: var(--color-text-300);
+
+        border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
+    }
+}
+
+
+// active (viewport hovered): everything fans out to its own measured offset.
+.toaster.--active .toast {
+    height: auto;
+    transform: translateX(var(--toast-swipe-x)) translateY(var(--toast-calc-offset-y));
+}
+
+.toaster.--active .toast-content {
+    opacity: 1;
+}
+
+
+// Entering: start off-screen (faded) and let the base transform animate in.
+.toaster .toast.toast--starting {
+    opacity: 0;
+}
+
+.toaster[data-position*='top'] .toast.toast--starting {
+    transform: translateY(-120%);
+}
+
+.toaster[data-position*='bottom'] .toast.toast--starting {
+    transform: translateY(120%);
+}
+
+
+// Leaving: fade, then slide toward the matching viewport edge (or the swipe
+// direction the gesture reported).
+.toaster .toast.toast--ending {
+    opacity: 0;
+}
+
+.toaster[data-position*='top'] .toast.toast--ending {
+    transform: translateY(calc(-100% - var(--toast-inset)));
+}
+
+.toaster[data-position*='bottom'] .toast.toast--ending {
+    transform: translateY(calc(100% + var(--toast-inset)));
+}
+
+.toaster .toast.toast--ending[data-swipe-direction='left'] {
+    transform: translateX(calc(var(--toast-swipe-x) - 100% - var(--toast-inset))) translateY(var(--toast-calc-offset-y));
+}
+
+.toaster .toast.toast--ending[data-swipe-direction='right'] {
+    transform: translateX(calc(var(--toast-swipe-x) + 100% + var(--toast-inset))) translateY(var(--toast-calc-offset-y));
+}
+
+.toaster .toast.toast--ending[data-swipe-direction='up'] {
+    transform: translateY(calc(var(--toast-swipe-y) - 100% - var(--toast-inset)));
+}
+
+.toaster .toast.toast--ending[data-swipe-direction='down'] {
+    transform: translateY(calc(var(--toast-swipe-y) + 100% + var(--toast-inset)));
+}
+
+
+// Following the finger: never ease the transform during a swipe.
+.toast--swiping {
+    transition: none;
+}
+
+
+@keyframes toast-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -1,7 +1,6 @@
 import type { Entry } from '~/viewer/types';
 
 import accordion from './accordion';
-import alert from './alert';
 import anchor from './anchor';
 import back from './back';
 import banner from './banner';
@@ -36,6 +35,7 @@ import switchComponent from './switch';
 import text from './text';
 import textarea from './textarea';
 import thumbnail from './thumbnail';
+import toast from './toast';
 import tooltip from './tooltip';
 import truncate from './truncate';
 import typewriter from './typewriter';
@@ -43,7 +43,6 @@ import typewriter from './typewriter';
 
 const entries: Entry[] = [
     accordion,
-    alert,
     anchor,
     back,
     banner,
@@ -78,6 +77,7 @@ const entries: Entry[] = [
     text,
     textarea,
     thumbnail,
+    toast,
     tooltip,
     truncate,
     typewriter

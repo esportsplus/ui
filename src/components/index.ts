@@ -1,5 +1,4 @@
 export { default as accordion } from './accordion';
-export { default as alert } from './alert';
 export { default as back } from './back';
 export { default as button } from './button';
 export { default as checkbox } from './checkbox';
@@ -25,6 +24,7 @@ export { default as sidebar } from './sidebar';
 export { default as site } from './site';
 export { default as template } from './template';
 export { default as textarea } from './textarea';
+export { default as toaster, toast } from './toast';
 export { default as tooltip } from './tooltip';
 export { default as truncate } from './truncate';
 export { default as typewriter } from './typewriter';

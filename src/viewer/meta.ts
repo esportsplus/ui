@@ -18,10 +18,6 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Vertically stacked, collapsible panels for revealing sections of content on demand.'
     },
-    alert: {
-        category: 'Display',
-        description: 'Inline callout for conveying success, informational, and error feedback.'
-    },
     anchor: {
         category: 'Layout',
         description: 'Compact in-page navigation list for jumping between document sections.'
@@ -157,6 +153,10 @@ const meta: Record<string, Meta> = {
     thumbnail: {
         category: 'Display',
         description: 'Compact image preview with rounded framing.'
+    },
+    toast: {
+        category: 'Feedback',
+        description: 'Stacked, auto-dismissing notifications with variants, actions, and swipe-to-dismiss.'
     },
     tooltip: {
         category: 'Interactive',

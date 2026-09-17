@@ -1,5 +1,5 @@
 import './ui';
-import { site } from '@esportsplus/ui';
+import { site, toaster } from '@esportsplus/ui';
 import { effect, fallback, html, middleware, render, state, url } from '~/viewer/app';
 import header from '~/viewer/components/header';
 import sidebar from '~/viewer/components/sidebar';
@@ -19,13 +19,22 @@ effect(() => {
 });
 
 
+// Render into a wrapper rather than document.body: the svg sprite runtime
+// injects its <symbol> sheet as body's first child, and render() clears its
+// target, which would wipe the sprite and blank every <use> icon.
+const root = document.createElement('div');
+
+root.style.display = 'contents';
+document.body.append(root);
+
 render(
-    document.body,
+    root,
     site(
-        { class: '--scrollbar--full' },
         middleware(
             (request, next) => html`
                 ${header}
+
+                ${toaster({ position: 'bottom-right' })}
 
                 <div class='viewer-body'>
                     ${sidebar}
