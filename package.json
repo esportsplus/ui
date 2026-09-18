@@ -63,7 +63,7 @@
         "build:ts": "tsc",
         "build:vite": "vite build",
         "-": "-",
-        "dev": "vite",
+        "dev": "vite --config docs/vite.config.ts",
         "prepare": "pnpm build",
         "prepublishOnly": "pnpm build"
     },

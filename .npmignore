@@ -3,5 +3,4 @@
 .vscode
 index.html
 node_modules
-src/viewer
-tsconfig.viewer.json
+docs

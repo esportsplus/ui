@@ -1,8 +1,8 @@
-import { html } from '~/viewer/app';
-import { cssValue, map, tokenSources } from '~/viewer/data/scss';
-import { layout } from '~/viewer/components/preview';
-import type { Renderable, Router } from '~/viewer/app';
-import type { Page, TocItem } from '~/viewer/types';
+import { html } from '../../app';
+import { cssValue, map, tokenSources } from '../../data/scss';
+import { layout } from '../../components/preview';
+import type { Renderable, Router } from '../../app';
+import type { Page, TocItem } from '../../types';
 
 
 type Group = {

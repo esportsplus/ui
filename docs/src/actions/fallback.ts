@@ -1,7 +1,7 @@
-import { layout } from '~/viewer/components/preview';
+import { layout } from '../components/preview';
 import { page } from './docs';
 import type { Route } from '@esportsplus/routing/client';
-import type { Renderable } from '~/viewer/app';
+import type { Renderable } from '../app';
 
 
 const fallback: Route<Renderable<unknown>> = {

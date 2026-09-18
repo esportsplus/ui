@@ -1,9 +1,9 @@
 import './ui';
 import { toaster } from '@esportsplus/ui';
-import { fallback, html, middleware, render } from '~/viewer/app';
-import header from '~/viewer/components/header';
+import { fallback, html, middleware, render } from './app';
+import header from './components/header';
 import root from '~/components/root'
-import sidebar from '~/viewer/components/sidebar';
+import sidebar from './components/sidebar';
 
 
 render(

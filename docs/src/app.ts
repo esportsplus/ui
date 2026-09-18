@@ -1,13 +1,13 @@
 import type { Next, Request as Req, Router as R } from '@esportsplus/routing/client';
 import { router } from '@esportsplus/routing/client';
 import type { Renderable } from '@esportsplus/template';
-import components from '~/viewer/actions/components';
-import cssUtilities from '~/viewer/actions/css-utilities';
-import docs from '~/viewer/actions/docs';
-import fallback from '~/viewer/actions/fallback';
-import fonts from '~/viewer/actions/fonts';
-import themes from '~/viewer/actions/themes';
-import tokens from '~/viewer/actions/tokens';
+import components from './actions/components';
+import cssUtilities from './actions/css-utilities';
+import docs from './actions/docs';
+import fallback from './actions/fallback';
+import fonts from './actions/fonts';
+import themes from './actions/themes';
+import tokens from './actions/tokens';
 
 
 type Request = Req<Renderable<unknown>>;

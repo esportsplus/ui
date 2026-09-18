@@ -1,7 +1,7 @@
-import { uri } from '~/viewer/app';
+import { uri } from '../app';
 import { utilities } from './utilities';
-import { entries } from '~/viewer/examples';
-import type { RouteName } from '~/viewer/app';
+import { entries } from '../examples';
+import type { RouteName } from '../app';
 
 
 type Link = {

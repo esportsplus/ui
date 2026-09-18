@@ -1,6 +1,6 @@
 import { html, type Renderable } from '@esportsplus/template';
 
-import type { Utility } from '~/viewer/types';
+import type { Utility } from '../types';
 
 
 const COLORS = ['blue', 'green', 'purple', 'red', 'grey', 'yellow'];

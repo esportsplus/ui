@@ -1,6 +1,6 @@
-import { html, uri } from '~/viewer/app';
+import { html, uri } from '../../app';
 import { modal, search } from '../search';
-import type { Request } from '~/viewer/app';
+import type { Request } from '../../app';
 import './scss/index.scss';
 
 

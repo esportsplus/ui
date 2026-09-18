@@ -1,8 +1,8 @@
-import { html } from '~/viewer/app';
-import { fonts } from '~/viewer/data/scss';
-import { layout } from '~/viewer/components/preview';
-import type { Router } from '~/viewer/app';
-import type { Page, TocItem } from '~/viewer/types';
+import { html } from '../app';
+import { fonts } from '../data/scss';
+import { layout } from '../components/preview';
+import type { Router } from '../app';
+import type { Page, TocItem } from '../types';
 
 
 type Face = {

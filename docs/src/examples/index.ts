@@ -1,4 +1,4 @@
-import type { Entry } from '~/viewer/types';
+import type { Entry } from '../types';
 
 import accordion from './accordion';
 import anchor from './anchor';

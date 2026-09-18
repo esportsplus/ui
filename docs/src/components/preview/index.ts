@@ -1,6 +1,6 @@
-import { html } from '~/viewer/app';
-import type { Renderable } from '~/viewer/app';
-import type { Page, TocItem, Variant } from '~/viewer/types';
+import { html } from '../../app';
+import type { Renderable } from '../../app';
+import type { Page, TocItem, Variant } from '../../types';
 import './scss/index.scss';
 
 

@@ -1,9 +1,0 @@
-{
-    "extends": "@esportsplus/typescript/tsconfig.browser.json",
-    "compilerOptions": {
-        "noEmit": true
-    },
-    "include": [
-        "src/viewer"
-    ]
-}

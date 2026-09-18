@@ -1,0 +1,28 @@
+{
+    "extends": "@esportsplus/typescript/tsconfig.browser.json",
+    "compilerOptions": {
+        "noEmit": true,
+        "rootDir": "..",
+        "paths": {
+            "~/*": [
+                "../src/*"
+            ],
+            "~/storage/*": [
+                "../storage/*"
+            ],
+            "@esportsplus/ui": [
+                "../src/components/index.ts"
+            ],
+            "@esportsplus/ui/fonts": [
+                "../src/fonts/index.ts"
+            ],
+            "@esportsplus/ui/themes/dark": [
+                "../src/themes/dark/index.ts"
+            ]
+        }
+    },
+    "include": [
+        "./**/*.ts",
+        "../vite-env.d.ts"
+    ]
+}

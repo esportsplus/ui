@@ -1,8 +1,8 @@
-import { html } from '~/viewer/app';
-import { layout } from '~/viewer/components/preview';
+import { html } from '../../app';
+import { layout } from '../../components/preview';
 import readme from '/README.md?raw';
-import type { Router } from '~/viewer/app';
-import type { Page } from '~/viewer/types';
+import type { Router } from '../../app';
+import type { Page } from '../../types';
 import './scss/index.scss';
 
 

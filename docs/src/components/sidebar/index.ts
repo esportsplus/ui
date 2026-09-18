@@ -1,7 +1,7 @@
-import { html } from '~/viewer/app';
-import { sections } from '~/viewer/data/nav';
+import { html } from '../../app';
+import { sections } from '../../data/nav';
 import { matches } from '../search';
-import type { Request } from '~/viewer/app';
+import type { Request } from '../../app';
 import './scss/index.scss';
 
 

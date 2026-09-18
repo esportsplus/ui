@@ -1,6 +1,6 @@
-import { html, reactive } from '~/viewer/app';
+import { html, reactive } from '../../app';
 import { overlay } from '@esportsplus/ui';
-import { sections } from '~/viewer/data/nav';
+import { sections } from '../../data/nav';
 import './scss/index.scss';
 
 

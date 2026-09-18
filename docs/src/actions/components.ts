@@ -1,9 +1,9 @@
-import { uri } from '~/viewer/app';
-import { entries } from '~/viewer/examples';
-import { meta } from '~/viewer/meta';
-import { cardGrid, detailPage, layout, missing } from '~/viewer/components/preview';
-import type { Router } from '~/viewer/app';
-import type { Page } from '~/viewer/types';
+import { uri } from '../app';
+import { entries } from '../examples';
+import { meta } from '../meta';
+import { cardGrid, detailPage, layout, missing } from '../components/preview';
+import type { Router } from '../app';
+import type { Page } from '../types';
 
 
 const index: Record<string, (typeof entries)[number]> = {};
