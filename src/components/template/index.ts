@@ -1,4 +1,5 @@
 import { Attributes, Renderable } from '@esportsplus/template';
+import { isObject } from '@esportsplus/utilities';
 
 
 const factory = <
@@ -14,20 +15,19 @@ const factory = <
     function factory(attributes: A, content: C): ReturnType<typeof template>;
     function factory(this: Context, one?: A | C, two?: C): ReturnType<typeof template> {
         let attributes: A = {} as A,
-            content: C;
+            content: C = null as C;
 
-        if (two === undefined) {
-            if (arguments.length === 2) {
+        if (arguments.length >= 2) {
+            attributes = one as A;
+            content = two as C;
+        }
+        else if (arguments.length === 1) {
+            if (isObject(one)) {
                 attributes = one as A;
-                content = null as C;
             }
             else {
                 content = one as C;
             }
-        }
-        else {
-            attributes = one as A;
-            content = two;
         }
 
         return template.call(this, attributes, content);
