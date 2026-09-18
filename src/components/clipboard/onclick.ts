@@ -1,7 +1,6 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { omit } from '@esportsplus/utilities';
-import template from '~/components/template';
 import write from './write';
 
 
@@ -11,7 +10,7 @@ type A = { timeout?: number, value: string } & Attributes;
 const OMIT = ['timeout', 'value'];
 
 
-export default template.factory<A, (state: { copied: boolean }) => Renderable<unknown>>(
+export default component<A, (state: { copied: boolean }) => Renderable<unknown>>(
     function(attributes, content) {
         let state = reactive({
                 copied: false

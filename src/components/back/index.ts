@@ -1,11 +1,10 @@
-import { html } from '@esportsplus/template';
+import { component, html } from '@esportsplus/template';
 import icon from '~/components/icon';
-import template from '~/components/template';
 import arrow from './svg/arrow.svg';
 import './scss/index.scss';
 
 
-export default template.factory(
+export default component(
     function (this, attributes, content) {
         return html`
             <a

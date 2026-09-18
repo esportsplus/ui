@@ -1,9 +1,8 @@
-import { html } from '@esportsplus/template';
-import template from '~/components/template';
+import { component, html } from '@esportsplus/template';
 import './scss/index.scss';
 
 
-export default template.factory(
+export default component(
     function(this, attributes, content) {
         return html`
             <div class='frame --scrollbar' ${this?.attributes} ${attributes}>

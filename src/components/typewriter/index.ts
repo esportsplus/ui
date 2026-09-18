@@ -1,6 +1,5 @@
-import { html } from '@esportsplus/template';
+import { component, html } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import template from '~/components/template';
 import './scss/index.scss';
 
 
@@ -8,7 +7,7 @@ import './scss/index.scss';
 const EMPTY_NODE = html` `;
 
 
-export default template.factory(
+export default component(
     function(_, content: string[]) {
         let state = reactive({ text: '' });
 

@@ -1,7 +1,6 @@
-import { html, Attributes } from '@esportsplus/template';
+import { component, html, Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { omit } from '@esportsplus/utilities';
-import template from '~/components/template';
 
 
 type A = Attributes & { state?: { active: boolean } };
@@ -10,7 +9,7 @@ type A = Attributes & { state?: { active: boolean } };
 const OMIT = ['state'];
 
 
-export default template.factory(
+export default component(
     (attributes: A, content) => {
         let state = attributes.state || reactive({ active: false });
 

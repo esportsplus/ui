@@ -25,7 +25,9 @@ export default (request: Request) => html`
                                 <a
                                     class='sidebar-link ${() => [active(request, link.name, link.slug) ? '--active' : '', matches(link.label) ? '' : '--hidden'].join(' ')}'
                                     href='${link.href}'
-                                >${link.label}</a>
+                                >
+                                    ${link.label}
+                                </a>
                             `)}
                         </div>
                     `)}

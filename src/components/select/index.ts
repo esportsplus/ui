@@ -1,9 +1,8 @@
-import { html, type Renderable, type Attributes } from '@esportsplus/template';
+import { component, html, type Renderable, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { EMPTY_ARRAY, omit, toArray } from '@esportsplus/utilities';
 import form from '~/components/form';
 import root from '~/components/root';
-import template from '~/components/template';
 import './scss/index.scss';
 
 
@@ -62,7 +61,7 @@ function set(current: { active: boolean }, value: boolean) {
 }
 
 
-export default template.factory<A, (state: { active: boolean, selected?: string | number }) => Renderable<unknown>>(
+export default component<A, (state: { active: boolean, selected?: string | number }) => Renderable<unknown>>(
     function(this: { attributes?: Exclude<A, 'options' | 'selected' | 'state'> }, attributes: A, content) {
         let { options, option } = attributes,
             state = attributes.state || reactive({

@@ -1,7 +1,6 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { omit } from '@esportsplus/utilities'
-import template from '~/components/template';
+import { omit } from '@esportsplus/utilities';
 import './scss/index.scss';
 
 
@@ -15,7 +14,7 @@ type A = Attributes & {
 const OMIT = ['loader-content', 'loader-logo'];
 
 
-export default template.factory(
+export default component(
     (attributes: A, content) => {
         let state = reactive({
                 load: false,

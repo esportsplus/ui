@@ -1,10 +1,9 @@
-import { html, type Renderable } from '@esportsplus/template';
+import { component, html, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import template from '../template';
 import './scss/index.scss';
 
 
-const hold = template.factory(
+const hold = component(
     function(attributes, content: (state: { holding: boolean, complete: boolean }) => Renderable<any>) {
         let end = () => {
                 if (!state.complete) {

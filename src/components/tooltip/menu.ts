@@ -1,7 +1,6 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { omit } from '@esportsplus/utilities';
-import template from '~/components/template';
 import onclick from './onclick';
 
 
@@ -21,7 +20,7 @@ const OMIT_OPTION = ['content'];
 const OMIT_TOOLTIP_CONTENT = ['direction'];
 
 
-export default template.factory<A>(
+export default component<A>(
     (attributes, content) => {
         let options = attributes.options,
             option = attributes.option,

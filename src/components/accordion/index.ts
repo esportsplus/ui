@@ -1,6 +1,5 @@
-import { html, Attributes } from '@esportsplus/template';
+import { html, Attributes, component } from '@esportsplus/template';
 import { omit } from '@esportsplus/utilities';
-import template from '~/components/template';
 import './scss/index.scss';
 
 
@@ -10,7 +9,7 @@ type A = Attributes & { state: { active: boolean | number } };
 const OMIT = ['state'];
 
 
-export default template.factory<A>(
+export default component<A>(
     function(attributes: A, content) {
         let state = attributes.state;
 

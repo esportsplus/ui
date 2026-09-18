@@ -1,7 +1,6 @@
-import { html, Attributes } from '@esportsplus/template';
+import { component, html, Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { omit } from '@esportsplus/utilities';
-import template from '~/components/template';
 import './scss/index.scss';
 
 
@@ -15,7 +14,7 @@ let key = Symbol(),
     observer: IntersectionObserver | null = null;
 
 
-export default template.factory(
+export default component(
     (attributes: A, content) => {
         if (observer === null) {
             observer = new IntersectionObserver((entries) => {
