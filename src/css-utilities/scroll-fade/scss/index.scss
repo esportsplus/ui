@@ -1,0 +1,47 @@
+@use 'variables';
+
+// Registered so the length custom properties can be interpolated by the
+// scroll-driven animation below.
+@property --scroll-fade-bottom {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
+@property --scroll-fade-top {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
+// A vertical scroll container that fades an edge only while there is content
+// past it: no top fade at the very top, no bottom fade at the very end. Driven
+// by the element's own scroll position (scroll-driven animations), so the fade
+// is direction-aware rather than a static gradient that clips the ends.
+.--scroll-fade {
+    overflow-y: auto;
+
+    @supports (animation-timeline: scroll()) {
+        animation: scroll-fade linear both;
+        animation-timeline: scroll(self);
+        -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--scroll-fade-top), #000 calc(100% - var(--scroll-fade-bottom)), transparent);
+        mask-image: linear-gradient(to bottom, transparent, #000 var(--scroll-fade-top), #000 calc(100% - var(--scroll-fade-bottom)), transparent);
+    }
+}
+
+@keyframes scroll-fade {
+    0% {
+        --scroll-fade-bottom: var(--scroll-fade-size);
+        --scroll-fade-top: 0px;
+    }
+
+    5%, 95% {
+        --scroll-fade-bottom: var(--scroll-fade-size);
+        --scroll-fade-top: var(--scroll-fade-size);
+    }
+
+    100% {
+        --scroll-fade-bottom: 0px;
+        --scroll-fade-top: var(--scroll-fade-size);
+    }
+}
