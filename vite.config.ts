@@ -1,22 +1,10 @@
-import { config } from '@esportsplus/vite';
 import { glob } from 'glob';
 import { defineConfig } from 'vite';
 import autoprefixer from 'autoprefixer';
 import shelljs from 'shelljs';
-import template from '@esportsplus/template/compiler/vite';
 
 
-export default defineConfig((env) => {
-    if (env.command === 'serve') {
-        return config({
-            appType: 'spa',
-            mode: env.mode,
-            plugins: [
-                template()
-            ]
-        });
-    }
-
+export default defineConfig(() => {
     return {
         build: {
             cssMinify: 'lightningcss',

@@ -1,17 +1,15 @@
 {
     "author": "ICJR",
     "dependencies": {
-        "@esportsplus/action": "^0.1.7",
-        "@esportsplus/queue": "^0.4.5",
-        "@esportsplus/reactivity": "^0.36.6",
-        "@esportsplus/routing": "^0.11.0",
-        "@esportsplus/template": "^0.46.2",
-        "@esportsplus/utilities": "^0.28.3",
-        "@esportsplus/vite": "^0.14.4",
+        "@esportsplus/action": "^0.1.8",
+        "@esportsplus/queue": "^0.4.6",
+        "@esportsplus/reactivity": "^0.36.7",
+        "@esportsplus/template": "^0.46.4",
+        "@esportsplus/utilities": "^0.28.4",
         "modern-normalize": "^3.0.1"
     },
     "devDependencies": {
-        "@esportsplus/typescript": "^0.34.3",
+        "@esportsplus/typescript": "^0.34.4",
         "@types/node": "^26.6.1",
         "@types/shelljs": "^0.10.0",
         "autoprefixer": "^10.6.1",
@@ -63,7 +61,7 @@
         "build:ts": "tsc",
         "build:vite": "vite build",
         "-": "-",
-        "dev": "vite --config docs/vite.config.ts",
+        "dev": "pnpm --dir docs dev",
         "prepare": "pnpm build",
         "prepublishOnly": "pnpm build"
     },

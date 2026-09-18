@@ -9,33 +9,27 @@ importers:
   .:
     dependencies:
       '@esportsplus/action':
-        specifier: ^0.1.7
-        version: 0.1.7
+        specifier: ^0.1.8
+        version: 0.1.8
       '@esportsplus/queue':
-        specifier: ^0.4.5
-        version: 0.4.5
+        specifier: ^0.4.6
+        version: 0.4.6
       '@esportsplus/reactivity':
-        specifier: ^0.36.6
-        version: 0.36.6
-      '@esportsplus/routing':
-        specifier: ^0.11.0
-        version: 0.11.0
+        specifier: ^0.36.7
+        version: 0.36.7
       '@esportsplus/template':
-        specifier: ^0.46.2
-        version: 0.46.2
+        specifier: ^0.46.4
+        version: 0.46.4
       '@esportsplus/utilities':
-        specifier: ^0.28.3
-        version: 0.28.3
-      '@esportsplus/vite':
-        specifier: ^0.14.4
-        version: 0.14.4(sharp@0.35.4(@types/node@26.6.1))(terser@5.51.2)
+        specifier: ^0.28.4
+        version: 0.28.4
       modern-normalize:
         specifier: ^3.0.1
         version: 3.0.1
     devDependencies:
       '@esportsplus/typescript':
-        specifier: ^0.34.3
-        version: 0.34.3
+        specifier: ^0.34.4
+        version: 0.34.4
       '@types/node':
         specifier: ^26.6.1
         version: 26.6.1
@@ -64,39 +58,73 @@ importers:
         specifier: ^8.3.0
         version: 8.3.0(@types/node@26.6.1)(sass@1.104.1)(terser@5.51.2)
 
+  docs:
+    dependencies:
+      '@esportsplus/reactivity':
+        specifier: ^0.36.7
+        version: 0.36.7
+      '@esportsplus/routing':
+        specifier: ^0.11.1
+        version: 0.11.1
+      '@esportsplus/template':
+        specifier: ^0.46.4
+        version: 0.46.4
+      '@esportsplus/ui':
+        specifier: workspace:*
+        version: link:..
+    devDependencies:
+      '@esportsplus/typescript':
+        specifier: ^0.34.4
+        version: 0.34.4
+      '@esportsplus/vite':
+        specifier: ^0.14.4
+        version: 0.14.4(sharp@0.35.4(@types/node@26.6.1))(terser@5.51.2)
+      '@types/node':
+        specifier: ^26.6.1
+        version: 26.6.1
+      sass:
+        specifier: ^1.104.1
+        version: 1.104.1
+      vite:
+        specifier: ^8.3.0
+        version: 8.3.0(@types/node@26.6.1)(sass@1.104.1)(terser@5.51.2)
+
 packages:
 
   '@emnapi/runtime@1.11.3':
     resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
 
-  '@esportsplus/action@0.1.7':
-    resolution: {integrity: sha512-eep6z1ULALCA6H7ht31qGurd6aVA3I4//TEErJXg3oWnj6wWRIYmzg2zFFPHUstMZZzA/NDDL7dJMK7JjGbzTA==}
+  '@esportsplus/action@0.1.8':
+    resolution: {integrity: sha512-qhyZn3fr5q37trWwyeo7M5I2purCbjZz3lxji19l67pbSUA8yXQ8zcMDVqcs4rjMD35MVkG5NPLmEAh3p/lYVQ==}
 
   '@esportsplus/cli-passthrough@0.0.18':
     resolution: {integrity: sha512-Vk37QhV09aW/PKkwGULox5lYupMyZHl06XZtrxwltk0TDJCdkAgMGteG7AU4qohurlDC3GDhnv16lItYl7dfkw==}
 
-  '@esportsplus/queue@0.4.5':
-    resolution: {integrity: sha512-ZvYikD8ENt3NaXZxj1CTVeVO+vh7iqfBfsiM/JL/qyy3wOtAGialC6OPlxwb4SeR1KllU97SbXaj4VNBWtzGpw==}
+  '@esportsplus/queue@0.4.6':
+    resolution: {integrity: sha512-ccHPLFiM/unSYk6wBbDf92n9YyQdEf2FZ8J4s0Zq/TZZg3le0fmLsHIJO/jGlN6wNE51uuJp2iL5Xp2xElPXgQ==}
 
-  '@esportsplus/reactivity@0.36.6':
-    resolution: {integrity: sha512-58PEYitw58S9LbyTTb3ouXZzkiZBsvS69B79UJSS/MTkB8zIqxgdfDo7LOV1MPRgcxH8K3dlqeZkVaUFA2NvaQ==}
+  '@esportsplus/reactivity@0.36.7':
+    resolution: {integrity: sha512-65RO1VN8v0z6dN0NjPpyINKOSYpmCRW2TagzVqkkuRiSGScyk2XuSW0x/vaWrM9YHA7Qr8TbPpMrExnR/qSjdQ==}
 
-  '@esportsplus/routing@0.11.0':
-    resolution: {integrity: sha512-NZWdEcJrvfsxeReZ7PtuFHKIyew0SAxjE+86h6XsRN7u2bl1tve6LoOAqAJOuOZ8BC4FGh4htA86xy14bLMRng==}
+  '@esportsplus/routing@0.11.1':
+    resolution: {integrity: sha512-3V27P+0c8gAk5reZYOqZsAav8pYTA04xjLFOOMoZVbmhRMX8yyXpb4pUKzblrJWQyEETjhHQ1SDBsoi7rdmjrA==}
 
-  '@esportsplus/template@0.46.2':
-    resolution: {integrity: sha512-cELYeu2DNFiTvYgKgX6Y/yIQdZn1MhvWcrzrDSGZOVIL7J7qT8lzJSiHU3i4degLmgNjXZh4O6c0t/C0bqyfdw==}
-
-  '@esportsplus/typescript@0.34.2':
-    resolution: {integrity: sha512-3D3vlqfb0reDj2QTdxDJh4ZKTv5vkvN5+oAk8+6xFZJXkt3f5D523LWyL69RJIDYwoKLdWJBZQdOV8M0qhg27g==}
-    hasBin: true
+  '@esportsplus/template@0.46.4':
+    resolution: {integrity: sha512-3sbBqYr/aK/X/gYDMWnWIZb1Y7N4iWj5GZH9a9jlmjaUZUsRq6Xu+rK8uFDJGK8HzQn/j6T64awJQqD9TvX1Jw==}
 
   '@esportsplus/typescript@0.34.3':
     resolution: {integrity: sha512-YLwW8l4Stf/7KcP0ZihrqaVpScLB+DuV0JhDZP6YGEN1bJTwpjNxBvIWIfBTYbWIb3DzCj4zDE44YWoNDJXVRQ==}
     hasBin: true
 
+  '@esportsplus/typescript@0.34.4':
+    resolution: {integrity: sha512-Z6lojZ9HaK9c0ZUqRqIFCicIGWPqwCNnBXF8tIWFnIfEwAzYDHa+KbFYfB4ny9Vwf08dGKzqJTXl5x5FdUfhHw==}
+    hasBin: true
+
   '@esportsplus/utilities@0.28.3':
     resolution: {integrity: sha512-3VkKFM0m2hwZ/N7WXSQecaV+bIS1vf2aqM104l1q/ootoBOASvqqbQlD3CjVRm+SJIY//RspuZFR7DyXGUHKhA==}
+
+  '@esportsplus/utilities@0.28.4':
+    resolution: {integrity: sha512-OOr0RvSVx/ZF6f1qGNEeRYuuQQE4G1tlatkdUuMRRxkk6E1Yk2J8IE3jLEQBcXBM9Csn21zNnarX/Tt9xvXNJA==}
 
   '@esportsplus/vite@0.14.4':
     resolution: {integrity: sha512-CqkGg30opUk68bxOqE8mc7wZj7YCaS/E4/wgai98YkZWuoCAtuY3ZgFjYi23pMteFwwq6J8IcG6WevhfH/JI6A==}
@@ -653,13 +681,6 @@ packages:
   async-function@1.0.0:
     resolution: {integrity: sha512-hsU18Ae8CDTR6Kgu9DYf0EbCr/a5iGL0rytQDobUcdpYOKokk8LEjVphnXkDkgpi0wYVsqrXuP0bZxJaTqdgoA==}
     engines: {node: '>= 0.4'}
-
-  autoprefixer@10.6.0:
-    resolution: {integrity: sha512-A26d6qs9kqGgkmImIXMYvXTzqb4Qv7AVgpY1NXzr9Y659J8qHHnLOO/zE8ewIGFMprOolAoRAQYDgNryXIJKBw==}
-    engines: {node: ^10 || ^12 || >=14}
-    hasBin: true
-    peerDependencies:
-      postcss: ^8.1.0
 
   autoprefixer@10.6.1:
     resolution: {integrity: sha512-cL1Qz6ADZhcEbny/8HPfe99J6HhNoYtpX2LFLIbhgGE7Q1hlQVkYFdetDN7Id3KiQxhDrHwzlHr/YQCnZ8+xSA==}
@@ -2099,38 +2120,28 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@esportsplus/action@0.1.7': {}
+  '@esportsplus/action@0.1.8': {}
 
   '@esportsplus/cli-passthrough@0.0.18': {}
 
-  '@esportsplus/queue@0.4.5': {}
+  '@esportsplus/queue@0.4.6': {}
 
-  '@esportsplus/reactivity@0.36.6':
+  '@esportsplus/reactivity@0.36.7':
     dependencies:
-      '@esportsplus/utilities': 0.28.3
+      '@esportsplus/utilities': 0.28.4
 
-  '@esportsplus/routing@0.11.0':
+  '@esportsplus/routing@0.11.1':
     dependencies:
-      '@esportsplus/reactivity': 0.36.6
-      '@esportsplus/utilities': 0.28.3
+      '@esportsplus/reactivity': 0.36.7
+      '@esportsplus/utilities': 0.28.4
       '@types/node': 26.6.1
 
-  '@esportsplus/template@0.46.2':
+  '@esportsplus/template@0.46.4':
     dependencies:
-      '@esportsplus/queue': 0.4.5
-      '@esportsplus/reactivity': 0.36.6
-      '@esportsplus/typescript': 0.34.3
-      '@esportsplus/utilities': 0.28.3
-
-  '@esportsplus/typescript@0.34.2':
-    dependencies:
-      '@esportsplus/cli-passthrough': 0.0.18
-      '@esportsplus/utilities': 0.28.3
-      '@types/node': 26.6.1
-      tsc-alias: 1.9.5
-      typescript: 7.0.2
-      vscode-languageserver: 10.1.1
-      vscode-languageserver-textdocument: 1.0.14
+      '@esportsplus/queue': 0.4.6
+      '@esportsplus/reactivity': 0.36.7
+      '@esportsplus/typescript': 0.34.4
+      '@esportsplus/utilities': 0.28.4
 
   '@esportsplus/typescript@0.34.3':
     dependencies:
@@ -2142,17 +2153,29 @@ snapshots:
       vscode-languageserver: 10.1.1
       vscode-languageserver-textdocument: 1.0.14
 
+  '@esportsplus/typescript@0.34.4':
+    dependencies:
+      '@esportsplus/cli-passthrough': 0.0.18
+      '@esportsplus/utilities': 0.28.3
+      '@types/node': 26.6.1
+      tsc-alias: 1.9.5
+      typescript: 7.0.2
+      vscode-languageserver: 10.1.1
+      vscode-languageserver-textdocument: 1.0.14
+
   '@esportsplus/utilities@0.28.3': {}
+
+  '@esportsplus/utilities@0.28.4': {}
 
   '@esportsplus/vite@0.14.4(sharp@0.35.4(@types/node@26.6.1))(terser@5.51.2)':
     dependencies:
       '@esportsplus/cli-passthrough': 0.0.18
-      '@esportsplus/typescript': 0.34.2
+      '@esportsplus/typescript': 0.34.3
       '@types/html-minifier-terser': 7.0.2
       '@types/micromatch': 4.0.10
       '@types/node': 26.6.1
       '@xmldom/xmldom': 0.9.12
-      autoprefixer: 10.6.0(postcss@8.5.28)
+      autoprefixer: 10.6.1(postcss@8.5.28)
       buffer: 6.0.3
       favicons: 7.3.1(@types/node@26.6.1)
       html-minifier-terser: 7.2.0
@@ -2546,15 +2569,6 @@ snapshots:
       util: 0.12.5
 
   async-function@1.0.0: {}
-
-  autoprefixer@10.6.0(postcss@8.5.28):
-    dependencies:
-      browserslist: 4.28.9
-      caniuse-lite: 1.0.30001810
-      fraction.js: 5.3.4
-      picocolors: 1.1.1
-      postcss: 8.5.28
-      postcss-value-parser: 4.2.0
 
   autoprefixer@10.6.1(postcss@8.5.28):
     dependencies:
@@ -3439,7 +3453,7 @@ snapshots:
 
   md5.js@1.3.5:
     dependencies:
-      hash-base: 3.0.5
+      hash-base: 3.1.2
       inherits: 2.0.4
       safe-buffer: 5.2.1
 
