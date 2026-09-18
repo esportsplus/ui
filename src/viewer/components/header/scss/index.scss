@@ -15,40 +15,6 @@
         width: 100%;
     }
 
-
-    &-brand {
-        align-items: center;
-        color: var(--color-text-400);
-        display: inline-flex;
-        flex: 0 0 auto;
-        font-weight: var(--font-weight-500);
-        gap: var(--size-200);
-        letter-spacing: -0.01em;
-        text-decoration: none;
-
-        &-mark {
-            align-items: center;
-            background: var(--color-text-400);
-            border-radius: var(--border-radius-200);
-            color: var(--background);
-            display: inline-flex;
-            font-family: ui-monospace, monospace;
-            font-size: var(--font-size-200);
-            font-weight: var(--font-weight-500);
-            height: var(--size-400);
-            justify-content: center;
-            width: var(--size-400);
-        }
-
-
-        &-slash {
-            color: var(--color-text-300);
-            opacity: 0.5;
-            padding: 0 1px;
-        }
-    }
-
-
     &-nav {
         align-items: center;
         display: flex;
