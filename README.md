@@ -88,7 +88,6 @@ html`
 | `scrollbar` | Native scrollbar styling |
 | `frame` | Scrollable frame |
 | `sidebar` | Side navigation |
-| `site` | Site wrapper |
 | `overlay` | Modal/overlay container |
 
 ### Utility

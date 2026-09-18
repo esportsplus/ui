@@ -21,7 +21,6 @@ export { default as root } from './root';
 export { default as select } from './select';
 export { default as switch } from './switch';
 export { default as sidebar } from './sidebar';
-export { default as site } from './site';
 export { default as template } from './template';
 export { default as textarea } from './textarea';
 export { default as toaster, toast } from './toast';
