@@ -36,11 +36,9 @@ section {
     width: var(--width);
 }
 
-h1, h2, h3, h4, h5 {
+h1, h2, h3, h4, h5, h6 {
     color: var(--color);
-    font-size: var(--font-size);
-    font-weight: var(--font-weight);
-    line-height: var(--line-height);
+    line-height: 1.2;
     margin: 0;
     padding: 0;
     position: relative;
@@ -52,6 +50,39 @@ h1, h2, h3, h4, h5 {
     sup {
         font-size: 0.64em;
     }
+}
+
+h1 {
+    font-size: var(--font-size-800);
+    font-weight: var(--font-weight-600);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+h2 {
+    font-size: var(--font-size-700);
+    font-weight: var(--font-weight-500);
+    letter-spacing: -0.015em;
+}
+
+h3 {
+    font-size: var(--font-size-600);
+    font-weight: var(--font-weight-500);
+}
+
+h4 {
+    font-size: var(--font-size-500);
+    font-weight: var(--font-weight-500);
+}
+
+h5 {
+    font-size: var(--font-size-400);
+    font-weight: var(--font-weight-500);
+}
+
+h6 {
+    font-size: var(--font-size-300);
+    font-weight: var(--font-weight-500);
 }
 
 a {

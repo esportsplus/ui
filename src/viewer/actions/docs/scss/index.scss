@@ -1,22 +1,19 @@
 .prose {
     color: var(--color-text-400);
-    font-size: var(--font-size-300);
+    font-size: var(--font-size-400);
     line-height: 1.7;
 
     h1 {
-        font-size: var(--font-size-800);
         margin: 0 0 var(--size-400);
     }
 
     h2 {
         border-bottom: 1px solid var(--color-border-400);
-        font-size: var(--font-size-600);
         margin: var(--size-800) 0 var(--size-400);
         padding-bottom: var(--size-200);
     }
 
     h3 {
-        font-size: var(--font-size-500);
         margin: var(--size-600) 0 var(--size-300);
     }
 
@@ -61,14 +58,14 @@
         code {
             background: none;
             color: inherit;
-            font-size: var(--font-size-200);
+            font-size: var(--font-size-300);
             padding: 0;
         }
     }
 
     table {
         border-collapse: collapse;
-        font-size: var(--font-size-200);
+        font-size: var(--font-size-300);
         margin: 0 0 var(--size-400);
         width: 100%;
     }

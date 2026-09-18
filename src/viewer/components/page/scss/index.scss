@@ -7,9 +7,6 @@
     }
 
     &-title {
-        font-size: var(--font-size-800);
-        line-height: 1.05;
-        margin: var(--size-300) 0 0;
         text-transform: capitalize;
 
         @media (max-width: 720px) {
@@ -31,7 +28,6 @@
     }
 
     &-section-title {
-        font-size: var(--font-size-600);
         margin: var(--size-800) 0 var(--size-400);
     }
 }
