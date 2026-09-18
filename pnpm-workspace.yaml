@@ -12,7 +12,7 @@ minimumReleaseAgeExclude:
   - '@esportsplus/action@0.1.7'
   - '@esportsplus/queue@0.4.5'
   - '@esportsplus/reactivity@0.36.4 || 0.36.6'
-  - '@esportsplus/template@0.44.4 || 0.44.6 || 0.45.0 || 0.45.1 || 0.45.3'
+  - '@esportsplus/template@0.44.4 || 0.44.6 || 0.45.0 || 0.45.1 || 0.45.3 || 0.46.1'
   - '@esportsplus/utilities@0.28.3'
   - '@esportsplus/vite@0.14.2'
   - '@esportsplus/*'
