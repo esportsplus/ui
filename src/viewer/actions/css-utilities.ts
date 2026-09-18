@@ -1,3 +1,4 @@
+import { uri } from '~/viewer/app';
 import { utilities } from '~/viewer/data/utilities';
 import { cardGrid, detailPage, layout, missing } from '~/viewer/components/preview';
 import type { Router } from '~/viewer/app';
@@ -19,8 +20,8 @@ const page = (slug: string): Page => {
             'CSS Utilities',
             utilities.map((utility) => ({
                 description: utility.description,
-                name: utility.name,
-                section: 'css-utilities'
+                href: uri('css-utilities.detail', { slug: utility.name }),
+                name: utility.name
             }))
         );
     }

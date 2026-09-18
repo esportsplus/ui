@@ -1,4 +1,4 @@
-import { href, html } from '~/viewer/app';
+import { html } from '~/viewer/app';
 import type { Renderable } from '~/viewer/app';
 import type { Page, TocItem, Variant } from '~/viewer/types';
 import './scss/index.scss';
@@ -6,8 +6,8 @@ import './scss/index.scss';
 
 type Card = {
     description: string;
+    href: string;
     name: string;
-    section: string;
 };
 
 type Detail = {
@@ -27,7 +27,7 @@ const cardGrid = (lede: string, title: string, cards: Card[]): Page => ({
 
             <div class='grid' style='--min-width: 220px;'>
                 ${cards.map((card) => html`
-                    <a class='doc-card card --border --border-default --border-border --border-radius-500 --padding-400' href='${href(card.section, card.name)}'>
+                    <a class='doc-card card --border --border-default --border-border --border-radius-500 --padding-400' href='${card.href}'>
                         <div class='doc-card-name'>${card.name}</div>
                         <p class='doc-card-description'>${card.description}</p>
                     </a>
@@ -103,7 +103,7 @@ const layout = (page: Page): Renderable<unknown> => html`
         ${page.render()}
     </main>
 
-    <aside class='toc --scrollbar'>
+    <aside class='toc --scrollbar --scroll-fade'>
         <div class='toc-inner ${page.toc.length === 0 ? '--hidden' : ''}'>
             <div class='toc-heading'>On This Page</div>
 

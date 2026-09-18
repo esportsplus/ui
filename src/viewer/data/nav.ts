@@ -1,10 +1,13 @@
+import { uri } from '~/viewer/app';
 import { utilities } from './utilities';
 import { entries } from '~/viewer/examples';
+import type { RouteName } from '~/viewer/app';
 
 
 type Link = {
+    href: string;
     label: string;
-    section: string;
+    name: RouteName;
     slug: string;
 };
 
@@ -15,15 +18,16 @@ type Group = {
 
 type Section = {
     groups: Group[];
+    href: string;
     index: boolean;
     label: string;
-    section: string;
+    name: RouteName;
 };
 
 
-function links(names: string[], section: string): Link[] {
+function links(names: string[], name: 'components.detail' | 'css-utilities.detail'): Link[] {
     return names
-        .map((name) => ({ label: name, section, slug: name }))
+        .map((slug) => ({ href: uri(name, { slug }), label: slug, name, slug }))
         .sort((a, b) => a.label.localeCompare(b.label));
 }
 
@@ -34,32 +38,35 @@ const sections: Section[] = [
             {
                 label: '',
                 links: [
-                    { label: 'Introduction', section: 'docs', slug: '' },
-                    { label: 'Tokens', section: 'tokens', slug: '' },
-                    { label: 'Themes', section: 'themes', slug: '' },
-                    { label: 'Fonts', section: 'fonts', slug: '' }
+                    { href: uri('docs'), label: 'Introduction', name: 'docs', slug: '' },
+                    { href: uri('tokens'), label: 'Tokens', name: 'tokens', slug: '' },
+                    { href: uri('themes'), label: 'Themes', name: 'themes', slug: '' },
+                    { href: uri('fonts'), label: 'Fonts', name: 'fonts', slug: '' }
                 ]
             }
         ],
+        href: uri('docs'),
         index: false,
         label: 'Getting Started',
-        section: 'docs'
+        name: 'docs'
     },
     {
         groups: [
-            { label: '', links: links(entries.map((item) => item.name), 'components') }
+            { label: '', links: links(entries.map((item) => item.name), 'components.detail') }
         ],
+        href: uri('components'),
         index: true,
         label: 'Components',
-        section: 'components'
+        name: 'components'
     },
     {
         groups: [
-            { label: '', links: links(utilities.map((item) => item.name), 'css-utilities') }
+            { label: '', links: links(utilities.map((item) => item.name), 'css-utilities.detail') }
         ],
+        href: uri('css-utilities'),
         index: true,
         label: 'CSS Utilities',
-        section: 'css-utilities'
+        name: 'css-utilities'
     }
 ];
 

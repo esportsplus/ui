@@ -1,4 +1,4 @@
-import { href, html, reactive } from '~/viewer/app';
+import { html, reactive } from '~/viewer/app';
 import { overlay } from '@esportsplus/ui';
 import { sections } from '~/viewer/data/nav';
 import './scss/index.scss';
@@ -56,7 +56,7 @@ const modal = () => overlay(
                     return results.map((link) => html`
                         <a
                             class='command-item'
-                            href='${href(link.section, link.slug)}'
+                            href='${link.href}'
                             ${{ onclick: close }}
                         >
                             <span class='command-item-arrow'>&rarr;</span>

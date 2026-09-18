@@ -1,29 +1,25 @@
-import { href, html, state } from '~/viewer/app';
+import { html, uri } from '~/viewer/app';
 import { modal, search } from '../search';
+import type { Request } from '~/viewer/app';
 import './scss/index.scss';
 
 
-const tabs = [
-    { label: 'Docs', section: 'docs' },
-    { label: 'Components', section: 'components' },
-    { label: 'Utilities', section: 'css-utilities' },
-    { label: 'Tokens', section: 'tokens' }
-];
+let tabs: { label: string; name: 'components' | 'css-utilities' | 'docs' | 'tokens' }[] = [
+        { label: 'Docs', name: 'docs' },
+        { label: 'Components', name: 'components' },
+        { label: 'Utilities', name: 'css-utilities' },
+        { label: 'Tokens', name: 'tokens' }
+    ];
 
 
-export default html`
+export default (request: Request) => html`
     <header class='header'>
         <div class='header-inner'>
-            <a class='brand' href='${href('docs')}'>
-                <span class='brand-mark'>&lt;/&gt;</span>
-                <span class='brand-name'>esportsplus<span class='brand-slash'>/</span>ui</span>
-            </a>
-
             <nav class='header-nav'>
                 ${tabs.map((tab) => html`
                     <a
-                        class='header-link ${() => state.section === tab.section && '--active'}'
-                        href='${href(tab.section)}'
+                        class='header-link ${() => request.data.route?.name?.startsWith(tab.name) ? '--active' : ''}'
+                        href='${uri(tab.name)}'
                     >${tab.label}</a>
                 `)}
             </nav>
