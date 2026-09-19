@@ -10,7 +10,6 @@ import checkbox from './checkbox';
 import clipboard from './clipboard';
 import container from './container';
 import counter from './counter';
-import frame from './frame';
 import grid from './grid';
 import icon from './icon';
 import input from './input';
@@ -27,6 +26,7 @@ import scrollbar from './scrollbar';
 import select from './select';
 import sidebar from './sidebar';
 import switchComponent from './switch';
+import tabs from './tabs';
 import text from './text';
 import textarea from './textarea';
 import thumbnail from './thumbnail';
@@ -47,7 +47,6 @@ const entries: Entry[] = [
     clipboard,
     container,
     counter,
-    frame,
     grid,
     icon,
     input,
@@ -64,6 +63,7 @@ const entries: Entry[] = [
     select,
     sidebar,
     switchComponent,
+    tabs,
     text,
     textarea,
     thumbnail,

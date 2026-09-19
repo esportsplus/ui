@@ -3,7 +3,6 @@
 
     &-caption {
         color: var(--color-text-300);
-        font-family: ui-monospace, monospace;
         font-size: var(--font-size-200);
     }
 
@@ -50,7 +49,6 @@
 
     &-number {
         color: var(--color-text-300);
-        font-family: ui-monospace, monospace;
         font-size: var(--font-size-200);
     }
 
@@ -74,7 +72,6 @@
         cursor: pointer;
         display: flex;
         flex: 1 1 0;
-        font-family: ui-monospace, monospace;
         font-size: var(--font-size-200);
         justify-content: center;
         min-height: var(--spacer-500);

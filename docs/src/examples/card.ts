@@ -14,27 +14,6 @@ export default {
                 </div>
             `,
             title: 'default'
-        },
-        {
-            render: () => html`
-                <div class='card card--flat' style='${box}'>
-                    <div class='text'>Flat card (no shadow)</div>
-                </div>
-            `,
-            title: 'flat'
-        },
-        {
-            render: () => html`
-                <div style='display: flex;'>
-                    <div class='card card--option' style='${box} --width: 150px; border: 1px solid var(--color-border-400);'>
-                        <div class='text'>Option A</div>
-                    </div>
-                    <div class='card card--option' style='${box} --width: 150px; border: 1px solid var(--color-border-400);'>
-                        <div class='text'>Option B</div>
-                    </div>
-                </div>
-            `,
-            title: 'option group'
         }
     ]
 };

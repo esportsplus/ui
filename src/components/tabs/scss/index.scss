@@ -1,0 +1,62 @@
+@use '/tokens';
+@use 'variables';
+
+.tabs {
+    min-width: 0;
+
+    &-content {
+        cursor: default;
+        display: none;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        max-width: 100%;
+        min-width: 100%;
+        position: relative;
+        width: 100%;
+
+
+        @include tokens.state(active) {
+            display: flex;
+        }
+    }
+
+    &--slide,
+    &--scroll {
+        display: flex;
+        gap: var(--gap);
+        transition: transform var(--transition-duration) var(--transition-timing-function);
+
+        > .tabs-content {
+            display: flex;
+            flex-shrink: 0;
+
+            @include tokens.state(inactive) {
+                opacity: var(--opacity);
+                pointer-events: none;
+            }
+        }
+    }
+
+    &--slide {
+        transform: translateX(calc(var(--i) * (100% + var(--gap))));
+    }
+
+    // The track needs a definite height from its clipping parent.
+    &--scroll {
+        flex-direction: column;
+        height: 100%;
+        transform: translateY(calc(var(--i) * (100% + var(--gap))));
+
+        > .tabs-content {
+            flex-basis: 100%;
+            min-height: 100%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &--slide,
+        &--scroll {
+            transition: none;
+        }
+    }
+}

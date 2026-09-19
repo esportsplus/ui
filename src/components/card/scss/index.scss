@@ -29,41 +29,4 @@
             opacity var(--transition-duration) var(--transition-timing-function);
         z-index: -1;
     }
-
-
-    &--flat {
-        &::after {
-            display: none;
-        }
-    }
-
-    &--option {
-        border-radius: 0;
-
-        @include tokens.state(active) {
-            z-index: 2;
-        }
-
-        @include tokens.state(hover) {
-            z-index: 1;
-        }
-
-        &:only-child {
-            border-radius: var(--border-radius);
-        }
-
-        &:not(:only-child) {
-            &:not(:first-child) {
-                margin-top: calc(var(--border-width) * -1);
-            }
-
-            &:first-child {
-                border-radius: var(--border-radius) var(--border-radius) 0 0;
-            }
-
-            &:not(:has(~ .card--option)) {
-                border-radius: 0 0 var(--border-radius) var(--border-radius);
-            }
-        }
-    }
 }

@@ -1,6 +1,8 @@
 @use '/tokens';
 
 .--background {
+    @include tokens.state-utility('background', tokens.$colors);
+
     &-default {
         --background: var(--background-default);
         --background-active: var(--background-default);
@@ -27,7 +29,5 @@
             --background: var(--background-pressed);
         }
     }
-
-    @include tokens.state-utility('background', tokens.$colors);
 }
 

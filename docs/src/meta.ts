@@ -54,9 +54,9 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Animated number display with currency and formatting support.'
     },
-    frame: {
+    tabs: {
         category: 'Layout',
-        description: 'Persistent content panels inside a frames container. Compare six tab layouts and transitions.'
+        description: 'Persistent tab panels with instant switching, horizontal sliding, or vertical scrolling.'
     },
     grid: {
         category: 'Layout',

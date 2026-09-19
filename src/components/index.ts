@@ -3,7 +3,6 @@ export { default as checkbox } from './checkbox';
 export { default as clipboard } from './clipboard';
 export { default as counter } from './counter';
 export { default as form } from './form';
-export { default as frame } from './frame';
 export { default as icon } from './icon';
 export { default as input } from './input';
 export { default as json } from './json';

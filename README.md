@@ -86,7 +86,7 @@ html`
 | Component | Description |
 |-----------|-------------|
 | `scrollbar` | Native scrollbar styling |
-| `frame` | Scrollable frame |
+| `tabs.scss` | Tab panels: instant by default, `tabs--slide` for horizontal motion, `tabs--scroll` for vertical motion |
 | `sidebar` | Side navigation |
 | `overlay` | Modal/overlay container |
 
@@ -98,6 +98,26 @@ html`
 | `template` | Template factory helper |
 
 ## Component Patterns
+
+### Tabs
+
+Import `@esportsplus/ui/tabs.scss`. Put `.tabs-content` panels inside `.tabs`
+and apply `.--active` to the selected panel. The default switch is instant.
+For motion, add `.tabs--slide` (horizontal) or `.tabs--scroll` (vertical),
+and set `--i` to the negative selected index: `0`, `-1`, `-2`, etc.
+
+```html
+<div style="overflow: hidden; height: 300px;">
+    <div class="tabs tabs--scroll" style="--i: -1;">
+        <div class="tabs-content" inert aria-hidden="true">First panel</div>
+        <div class="tabs-content --active">Second panel</div>
+    </div>
+</div>
+```
+
+Animated tracks need a clipping parent; vertical tracks also need a definite
+parent height. Keep inactive panels `inert` and update tab/panel ARIA attributes
+alongside the active class. The docs include reactive switching examples.
 
 ### Factory Pattern
 
