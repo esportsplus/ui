@@ -1,9 +1,9 @@
-import { html } from '../../app';
-import { layout } from '../../components/layout';
+import { html } from '../app';
+import { layout } from '../components/layout';
 import readme from '/README.md?raw';
-import type { Router } from '../../app';
-import type { Page } from '../../types';
-import { prose } from '../../components/prose';
+import type { Router } from '../app';
+import type { Page } from '../types';
+import { prose } from '../components/prose';
 
 
 const page = (): Page => ({

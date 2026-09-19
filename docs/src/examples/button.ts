@@ -1,8 +1,7 @@
-import { button } from '@esportsplus/ui';
 import { html } from '@esportsplus/template';
 
 
-let colors = ['primary', 'secondary', 'tertiary', 'form'],
+let colors = ['primary', 'secondary', 'tertiary'],
     modifiers = ['flat', 'skeleton', 'underline'],
     row = 'display: flex; flex-wrap: wrap; gap: var(--size-400); align-items: center;';
 
@@ -13,6 +12,10 @@ export default {
         {
             render: () => html`
                 <div style='${row}'>
+                    <div class="button --background-white --border --border-border --color-text --text-bold">
+                        white
+                    </div>
+
                     ${colors.map((color) => html`
                         <div class='button button--${color}' style='--width: auto;'>${color}</div>
                     `)}
@@ -29,13 +32,6 @@ export default {
                 </div>
             `,
             title: 'modifiers'
-        },
-        {
-            render: () => button.hold(
-                { class: 'button--primary', style: '--width: auto;' },
-                (state) => state.complete ? 'complete!' : state.holding ? 'holding…' : 'hold me'
-            ),
-            title: 'hold'
         }
     ]
 };

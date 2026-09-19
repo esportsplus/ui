@@ -1,7 +1,7 @@
 @use './variables';
 
 .--flicker {
-    animation: flicker var(--transition-duration) ease-in-out infinite;
+    animation: flicker var(--transition-duration) var(--transition-timing-function) infinite;
 }
 
 @keyframes flicker {

@@ -14,7 +14,7 @@
         width: 100%;
 
         tbody tr {
-            transition: background var(--transition-duration) ease-in-out;
+            transition: background var(--transition-duration) var(--transition-timing-function);
 
             &:hover {
                 background: color-mix(in oklab, var(--color-grey-500) 45%, transparent);

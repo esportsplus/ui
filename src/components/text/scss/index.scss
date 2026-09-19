@@ -2,10 +2,17 @@
 
 .text {
     color: var(--color);
+    display: flex;
     font-size: var(--font-size);
     font-weight: var(--font-weight);
+    gap: var(--gap);
     line-height: var(--line-height);
     position: relative;
-    transition: color var(--transition-duration) ease-in-out;
+    transition: color var(--transition-duration) var(--transition-timing-function);
     width: var(--width);
+
+
+    &.--text-truncate {
+        display: block;
+    }
 }

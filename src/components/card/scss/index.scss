@@ -8,12 +8,12 @@
     padding: var(--padding-vertical) var(--padding-horizontal);
     position: relative;
     transition:
-        background var(--transition-duration) ease-in-out,
-        border-color var(--transition-duration) ease-in-out,
-        box-shadow var(--transition-duration) ease-in-out,
-        max-height var(--transition-duration) ease-in-out,
-        opacity var(--transition-duration) ease-in-out,
-        transform var(--transition-duration) ease-in-out;
+        background var(--transition-duration) var(--transition-timing-function),
+        border-color var(--transition-duration) var(--transition-timing-function),
+        box-shadow var(--transition-duration) var(--transition-timing-function),
+        max-height var(--transition-duration) var(--transition-timing-function),
+        opacity var(--transition-duration) var(--transition-timing-function),
+        transform var(--transition-duration) var(--transition-timing-function);
     width: var(--width);
 
 
@@ -25,8 +25,8 @@
         content: '';
         pointer-events: none;
         transition:
-            box-shadow var(--transition-duration) ease-in-out,
-            opacity var(--transition-duration) ease-in-out;
+            box-shadow var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function);
         z-index: -1;
     }
 

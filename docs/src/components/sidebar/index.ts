@@ -24,7 +24,7 @@ export default (request: Request) => html`
 
                             ${group.links.map((link) => html`
                                 <a
-                                    class='docs-nav-link ${() => [active(request, link.name, link.slug) ? '--active' : '', matches(link.label) ? '' : '--hidden'].join(' ')}'
+                                    class='docs-sidebar-link ${() => [active(request, link.name, link.slug) ? '--active' : '', matches(link.label) ? '' : '--hidden'].join(' ')}'
                                     href='${link.href}'
                                 >
                                     ${link.label}

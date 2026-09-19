@@ -1,7 +1,7 @@
 .icon {
     --color: inherit;
     --height: var(--size);
-    --margin-horizontal: var(--size-300);
+    --margin-horizontal: calc(1em * var(--line-height) / (1.618 * 1.618 * 1.062));
     --size: var(--size-400);
     --width: var(--size);
 }

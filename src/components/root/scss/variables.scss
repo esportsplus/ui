@@ -20,7 +20,8 @@
     --font-weight: var(--font-weight-400);
     --line-height: var(--line-height-400);
     --min-width: 320px;
-    --transition-duration: #{tokens.$transition-duration};
+    --transition-duration: #{lib.map-get(tokens.$transition, 'duration')};
+    --transition-timing-function: #{lib.map-get(tokens.$transition, 'timing-function')};
 
     // https://gist.github.com/jh3y/1b3afdfa7af3ebc5668bf169cea17d09
     --timing-back: linear( 0, -0.0059 4.51%, -0.0418 15.63%, -0.0499 20.72%, -0.0476 23.51%, -0.0395 26.12%, -0.0255 28.59%, -0.0055 30.95%, 0.0281 33.76%, 0.0717 36.47%, 0.1901 41.63%, 0.344 46.32%, 0.6156 52.65%, 0.7495 56.35%, 0.8757 60.97%, 0.9663 65.85%, 1.0006 68.58%, 1.0256 71.43%, 1.0417 74.43%, 1.0493 77.65%, 1.0452 83.02%, 1.0077 94.8%, 1 );
@@ -74,22 +75,26 @@ section {
     --width: 100%;
 }
 
-h1, h2, h3, h4, h5 {
+h1, h2, h3, h4 {
     --color: var(--color-text-400);
     --font-weight: var(--font-weight-500);
     --line-height: var(--line-height-300);
 }
 
-// Loop Through Font Size Keys To Set Header Font Size + Line Height
-$keys: lib.map-keys(tokens.$font-size);
-$i: list.nth($keys, lib.list-length($keys));
+h1 {
+    --font-size: var(--font-size-700);
+}
 
-@each $h in h1 h2 h3 h4 h5 {
-    #{$h} {
-        --font-size: var(--font-size-#{$i});
-    }
+h2 {
+    --font-size: var(--font-size-600);
+}
 
-    $i: $i - 100;
+h3 {
+    --font-size: var(--font-size-500);
+}
+
+h4 {
+    --font-size: var(--font-size-400);
 }
 
 b,

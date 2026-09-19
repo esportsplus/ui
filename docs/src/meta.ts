@@ -22,10 +22,6 @@ const meta: Record<string, Meta> = {
         category: 'Layout',
         description: 'Compact in-page navigation list for jumping between document sections.'
     },
-    back: {
-        category: 'Layout',
-        description: 'Back-navigation affordance with an icon and label.'
-    },
     banner: {
         category: 'Display',
         description: 'Full-width promotional strip for announcements and notices.'
@@ -33,10 +29,6 @@ const meta: Record<string, Meta> = {
     border: {
         category: 'Layout',
         description: 'Decorative and semantic border treatments for surfaces.'
-    },
-    bubble: {
-        category: 'Display',
-        description: 'Speech-bubble container for conversational and commented content.'
     },
     button: {
         category: 'Interactive',
@@ -62,21 +54,13 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Animated number display with currency and formatting support.'
     },
-    ellipsis: {
-        category: 'Display',
-        description: 'Animated trailing dots for pending and loading states.'
-    },
     frame: {
         category: 'Layout',
-        description: 'Scrollable frame that clips overflowing content.'
+        description: 'Persistent content panels inside a frames container. Compare six tab layouts and transitions.'
     },
     grid: {
         category: 'Layout',
         description: 'Responsive auto-fit grid for arranging children.'
-    },
-    highlight: {
-        category: 'Display',
-        description: 'Reveals content as it enters the viewport.'
     },
     icon: {
         category: 'Display',
@@ -93,10 +77,6 @@ const meta: Record<string, Meta> = {
     link: {
         category: 'Layout',
         description: 'Inline and block navigation links with hover states.'
-    },
-    loader: {
-        category: 'Display',
-        description: 'Indeterminate spinner for pending operations.'
     },
     loading: {
         category: 'Display',

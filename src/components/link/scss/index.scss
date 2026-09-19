@@ -1,47 +1,20 @@
 @use '/lib';
 @use '/tokens';
 @use 'variables';
+@use '../../text/scss/index';
 
 .link {
+    @extend .text;
     align-content: center;
     background: var(--background);
-    color: var(--color);
     cursor: pointer;
-    display: flex;
     flex-wrap: wrap;
-    font-size: var(--font-size);
     justify-content: flex-start;
-    line-height: var(--line-height);
     padding: calc(var(--padding-vertical) - var(--border-width)) calc(var(--padding-horizontal) - var(--border-width));
     position: relative;
     transition:
-        background var(--transition-duration) ease-in-out,
-        border-color var(--transition-duration) ease-in-out,
-        color var(--transition-duration) ease-in-out,
-        opacity var(--transition-duration) ease-in-out;
-    width: var(--width);
-
-
-    &--underline {
-        @include tokens.state(active hover) {
-            text-decoration: underline;
-        }
-    }
-
-
-    &-hover {
-        transition: opacity 0.3s ease-in-out, 0.3s cubic-bezier(0.23, 0.65, 0.74, 1.09);
-
-        &--one {
-            transform: translateY(0);
-        }
-
-        &--two {
-            @include lib.position(absolute, center);
-            opacity: 0;
-            padding: 0 var(--padding-horizontal);
-            transform: translate(50%, 125%);
-            white-space: nowrap;
-        }
-    }
+        background var(--transition-duration) var(--transition-timing-function),
+        border-color var(--transition-duration) var(--transition-timing-function),
+        color var(--transition-duration) var(--transition-timing-function),
+        opacity var(--transition-duration) var(--transition-timing-function);
 }

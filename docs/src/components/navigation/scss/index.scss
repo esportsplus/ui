@@ -8,8 +8,8 @@
     text-decoration: none;
     text-transform: capitalize;
     transition:
-        border-color var(--transition-duration) ease-in-out,
-        color var(--transition-duration) ease-in-out;
+        border-color var(--transition-duration) var(--transition-timing-function),
+        color var(--transition-duration) var(--transition-timing-function);
 
     &.--active {
         border-color: var(--color-blue-400);

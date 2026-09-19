@@ -13,20 +13,8 @@
     --border-color-hover: var(--border-color-default);
     --border-color-pressed: var(--border-color-default);
     --border-radius: var(--border-radius-400);
-    --border-width: 0px;
     --box-shadow: var(--box-shadow-default);
     --box-shadow-default: none;
-    --color: var(--color-default);
-    --color-active: var(--color-default);
-    --color-default: var(--color-text-400);
-    --color-hover: var(--color-default);
-    --color-pressed: var(--color-default);
-    --font-size: var(--font-size-400);
-    --font-weight: var(--font-weight-400);
-    --line-height: var(--line-height-400);
-    --padding-horizontal: var(--size-400);
-    --padding-vertical: var(--size-400);
-    --width: auto;
 
     @include tokens.state(active) {
         --background: var(--background-active);
@@ -46,11 +34,6 @@
         --color: var(--color-pressed);
     }
 
-
-    &--holding {
-        --animation-duration: 2.4s;
-        --background-hold: var(--background-active);
-    }
 
     &--processing {
         --animation-duration: 0.64s;

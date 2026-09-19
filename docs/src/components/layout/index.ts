@@ -5,7 +5,9 @@ import './scss/index.scss';
 
 
 const layout = (page: Page) => html`
-    <main class='docs-main'>${page.render()}</main>
+    <main class='docs-main'>
+        ${page.render()}
+    </main>
     ${toc(page.toc)}
 `;
 

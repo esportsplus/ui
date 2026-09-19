@@ -1,17 +1,12 @@
 export { default as accordion } from './accordion';
-export { default as back } from './back';
-export { default as button } from './button';
 export { default as checkbox } from './checkbox';
 export { default as clipboard } from './clipboard';
 export { default as counter } from './counter';
-export { default as ellipsis } from './ellipsis';
 export { default as form } from './form';
 export { default as frame } from './frame';
-export { default as highlight } from './highlight';
 export { default as icon } from './icon';
 export { default as input } from './input';
 export { default as json } from './json';
-export { default as loader } from './loader';
 export { default as loading } from './loading';
 export { default as number } from './number';
 export { default as overlay } from './overlay';

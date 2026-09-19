@@ -1,12 +1,12 @@
 .docs-sidebar {
     align-self: start;
     max-height: calc(100svh - var(--header-height));
-    padding: var(--size-800) var(--size-200) var(--size-800) 0;
+    padding: var(--spacer-100) var(--size-200) var(--spacer-100) 0;
     position: sticky;
     top: var(--header-height);
 
     &-group {
-        margin-top: var(--size-300);
+        margin-top: var(--size-200);
     }
 
     &-heading {
@@ -18,6 +18,32 @@
         text-transform: uppercase;
     }
 
+    &-link {
+        border-left: var(--border-width-400) solid var(--color-border-400);
+        color: var(--color-text-400);
+        cursor: pointer;
+        display: block;
+        font-size: var(--docs-nav-font-size, var(--font-size-300));
+        font-weight: var(--font-weight-500);
+        padding: var(--size-100) var(--docs-nav-padding, var(--size-300));
+        text-decoration: none;
+        text-transform: capitalize;
+        transition:
+            border-color var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
+
+        &.--active {
+            border-color: var(--color-blue-400);
+            color: var(--color-blue-400);
+            font-weight: var(--font-weight-500);
+        }
+
+        &:hover {
+            border-color: var(--color-text-400);
+            color: var(--color-text-400);
+        }
+    }
+
     &-section {
         &:not(:first-child) {
             margin-top: var(--size-600);
@@ -25,23 +51,20 @@
     }
 
     &-title {
-        color: var(--color-text-500);
+        color: var(--color-text-300);
         display: block;
         font-size: var(--font-size-200);
-        font-weight: var(--font-weight-600);
         letter-spacing: 0.08em;
-        margin-bottom: var(--size-300);
         padding: 0 var(--size-300) 0 0;
         text-decoration: none;
         text-transform: uppercase;
+
+        &:hover {
+            color: var(--color-blue-400);
+        }
     }
 
     @media (max-width: 1024px) {
         display: none;
     }
-}
-
-
-a.docs-sidebar-title:hover {
-    color: var(--color-blue-400);
 }

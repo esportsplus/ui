@@ -1,7 +1,15 @@
 .text {
+    --border-width: 0px;
     --color: var(--color-default, inherit);
+    --color-active: var(--color-default);
+    --color-default: var(--color-text-400);
+    --color-hover: var(--color-default);
+    --color-pressed: var(--color-default);
     --font-size: var(--font-size-400);
     --font-weight: var(--font-weight-400);
+    --gap: calc(1em / 1.618 - var(--border-width));
     --line-height: var(--line-height-400);
+    --padding-horizontal: calc(1em * var(--line-height) / (1.618 * 1.618) - var(--border-width));
+    --padding-vertical: calc(1em - var(--border-width));
     --width: auto;
 }

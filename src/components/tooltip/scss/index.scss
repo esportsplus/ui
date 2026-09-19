@@ -54,8 +54,8 @@
         opacity: 0;
         overflow: hidden;
         transition:
-            opacity var(--transition-duration) ease-in-out,
-            transform var(--transition-duration) ease-in-out;
+            opacity var(--transition-duration) var(--transition-timing-function),
+            transform var(--transition-duration) var(--transition-timing-function);
         width: var(--width);
         z-index: 9;
 

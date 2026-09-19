@@ -80,7 +80,7 @@
     }
 
     &-truncate {
-        line-height: var(--size);
+        line-height: var(--line-height);
         max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;

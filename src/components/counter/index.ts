@@ -1,5 +1,5 @@
 import { html, type Attributes } from '@esportsplus/template';
-import { effect, reactive } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import { omit } from '@esportsplus/utilities';
 import './scss/index.scss';
 
@@ -27,88 +27,88 @@ export default (attributes: Attributes & {
                 style: 'currency',
                 currency: currency || 'USD'
             }),
-        rendering = true,
-        state = reactive({
-            length: 0,
-            test: () => 'sds',
-            render: [] as string[]
-        }),
-        render = reactive([] as string[]);
+        animation = reactive({ started: false }),
+        render = reactive([] as { digit: boolean; value: string }[]);
 
     decimals ??= 2;
 
-    effect(() => {
-        if (api.value !== -1) {
-            value = api.value;
-        }
+    let stop = effect(() => {
+            let target = api.value === -1 ? value : api.value,
+                started = animation.started;
 
-        let padding = (max || value).toFixed(decimals).length - value.toFixed(decimals).length,
-            values = value.toString().padStart( value.toString().length + padding, '1') as any;
+            let padding = (max || target).toFixed(decimals).length - target.toFixed(decimals).length,
+                values = target.toString().padStart(target.toString().length + padding, '1') as any;
 
-        if (formatter) {
-            values = formatter.format(values);
-        }
-        else {
-            values = Number(values).toLocaleString([], {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: decimals
-            });
-        }
-
-        values = values.split('');
-
-        if (suffix) {
-            values.push(' ', ...suffix.split(''));
-        }
-
-        state.length = values.length;
-
-        for (let i = 0, n = values.length; i < n; i++) {
-            let value = values[i];
-
-            if (!isNaN(parseInt(value, 10)) && (rendering === true || padding > 0)) {
-                padding--;
-                value = '0';
+            if (formatter) {
+                values = formatter.format(values);
+            }
+            else {
+                values = Number(values).toLocaleString([], {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: decimals
+                });
             }
 
-            render[i] = value;
-        }
+            values = values.split('');
 
-        if (rendering === true) {
-            rendering = false;
-            setTimeout(() => api.value = value, delay || 1000);
-        }
+            if (suffix) {
+                values.push(' ', ...suffix.split(''));
+            }
+
+            untrack(() => {
+                for (let i = 0, n = values.length; i < n; i++) {
+                    let value = values[i],
+                        digit = !isNaN(parseInt(value, 10));
+
+                    if (digit && (!started || padding > 0)) {
+                        padding--;
+                        value = '0';
+                    }
+
+                    // Preserve the track so CSS can transition between digit positions.
+                    if (render[i]?.digit === digit) {
+                        render[i].value = value;
+                    }
+                    else {
+                        let character = reactive({ digit, value });
+
+                        render[i] = character;
+                    }
+                }
+
+                if (render.length > values.length) {
+                    render.splice(values.length);
+                }
+            });
+        }),
+        timer = setTimeout(() => animation.started = true, delay ?? 1000);
+
+    onCleanup(() => {
+        clearTimeout(timer);
+        stop();
     });
 
     return html`
         <div class='counter' ${omit(attributes, OMIT)}>
-            ${() => {
-                let n = state.length;
-
-                if (n === 0) {
-                    return '';
-                }
-
-                return html.reactive(render, function (value) {
-                    if (isNaN(parseInt(value, 10))) {
+            ${html.reactive(render, function (character) {
+                    if (!character.digit) {
                         return html`
                             <span class='counter-character counter-character--symbol'>
-                                ${value}
+                                ${() => character.value}
                             </span>
                         `;
                     }
 
                     return html`
-                        <div class=' counter-character'>
-                            <div class='counter-character-track' style='${`--value: ${value}`}'>
+                        <div class='counter-character'>
+                            <div class='counter-character-track' style='${() => `--value: ${character.value}`}'>
                                 <span>9</span>
                                 ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span>${value}</span>`)}
                                 <span>0</span>
                             </div>
                         </div>
                     `;
-                });
-            }}
+                })}
         </div>
     `;
 };

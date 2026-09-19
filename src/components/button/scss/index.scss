@@ -1,24 +1,21 @@
 @use '/lib';
 @use '/tokens';
 @use 'variables';
+@use '../../text/scss/index';
 
 .button {
+    @extend .text;
     align-content: center;
     align-items: center;
     background: var(--background);
     border-radius: var(--border-radius);
-    color: var(--color);
     cursor: pointer;
-    display: flex;
-    flex-wrap: wrap;
-    font-size: var(--font-size);
-    font-weight: var(--font-weight);
+    flex-wrap: nowrap;
     justify-content: center;
-    line-height: var(--line-height);
-    padding: calc(var(--padding-vertical) - var(--border-width)) calc(var(--padding-horizontal) - var(--border-width));
-    position: relative;
-    transition: all var(--transition-duration) ease-in-out;
-    width: var(--width);
+    padding: var(--padding-vertical) var(--padding-horizontal);
+    transition: all var(--transition-duration) var(--transition-timing-function);
+    white-space: nowrap;
+    translate: 0;
 
 
     // Pseudo Element Box Shadow
@@ -29,8 +26,8 @@
         content: '';
         pointer-events: none;
         transition:
-            box-shadow var(--transition-duration) ease-in-out,
-            opacity var(--transition-duration) ease-in-out;
+            box-shadow var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function);
         z-index: -1;
     }
 
@@ -41,52 +38,13 @@
         }
     }
 
-    &--holding {
-        overflow: hidden;
-        user-select: none;
-
-        &::after {
-            animation: buttonHolding var(--animation-duration) ease-in-out forwards;
-            border-radius: 0;
-            box-shadow: unset;
-            display: block;
-            width: 110%;
-            height: 100%;
-            background: var(--background-hold);
-            transform: translateX(-100%);
-            z-index: 1;
-        }
-
-        @keyframes buttonHolding {
-            100% {
-                transform: translateX(0%);
-            }
-        }
-
-        > * {
-            animation: buttonHoldingContentPulse calc(var(--animation-duration) / 3) infinite ease-in-out;
-            z-index: 2;
-        }
-
-        @keyframes buttonHoldingContentPulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.4;
-            }
-        }
-    }
-
     &--processing {
         color: transparent;
         pointer-events: none;
 
         &::before {
             @include lib.position(absolute, center);
-            animation: buttonProcessing var(--animation-duration) infinite linear;
+            animation: button--processing var(--animation-duration) infinite linear;
             border: var(--border-width) solid color-mix(in srgb, var(--processing-color), transparent 90%);
             border-left-color: var(--processing-color);
             border-radius: 100%;
@@ -101,7 +59,7 @@
             opacity: 0;
         }
 
-        @keyframes buttonProcessing {
+        @keyframes button--processing {
             0% {
                 transform: translate(50%, 50%) rotate(0deg);
             }
@@ -112,7 +70,7 @@
     }
 
     &--skeleton {
-        animation: var(--animation-duration) ease-in-out infinite buttonSkeleton;
+        animation: var(--animation-duration) var(--transition-timing-function) infinite button--skeleton;
         background-image: linear-gradient(270deg, var(--background-pressed), var(--background-default), var(--background-default), var(--background-pressed));
         background-size: 400% 100%;
         color: transparent;
@@ -122,13 +80,19 @@
             opacity: 0;
         }
 
-        @keyframes buttonSkeleton {
+        @keyframes button--skeleton {
             0% {
                 background-position: 200% 0;
             }
             100% {
                 background-position: -200% 0;
             }
+        }
+    }
+
+    &--tactile {
+        @include tokens.state('pressed') {
+            translate: 0 1px;
         }
     }
 

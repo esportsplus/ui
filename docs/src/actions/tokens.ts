@@ -1,10 +1,10 @@
-import { pageHead } from '../../components/page/head';
-import { html } from '../../app';
-import { cssValue, map, tokenSources } from '../../data/scss';
-import { layout } from '../../components/layout';
-import type { Renderable, Router } from '../../app';
-import type { Page, TocItem } from '../../types';
-import { colorPalette } from '../../components/color-palette';
+import { pageHead } from '../components/page/head';
+import { html } from '../app';
+import { cssValue, map, tokenSources } from '../data/scss';
+import { layout } from '../components/layout';
+import type { Renderable, Router } from '../app';
+import type { Page, TocItem } from '../types';
+import { colorPalette } from '../components/color-palette';
 
 
 type Group = {

@@ -5,8 +5,8 @@
 .modal {
     margin: auto;
     transition:
-        opacity var(--transition-duration) ease-in-out,
-        transform var(--transition-duration) ease-in-out;
+        opacity var(--transition-duration) var(--transition-timing-function),
+        transform var(--transition-duration) var(--transition-timing-function);
     transform-origin: center;
     width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
     z-index: 9;
@@ -23,8 +23,8 @@
 
     &-frame {
         transition:
-            opacity var(--transition-duration) ease-in-out,
-            transform var(--transition-duration) ease-in-out;
+            opacity var(--transition-duration) var(--transition-timing-function),
+            transform var(--transition-duration) var(--transition-timing-function);
         transform-origin: center;
 
         @include tokens.state(inactive) {
