@@ -14,7 +14,7 @@
     },
     "devDependencies": {
         "@esportsplus/typescript": "^0.34.4",
-        "@esportsplus/vite": "^0.14.4",
+        "@esportsplus/vite": "^0.14.6",
         "@types/node": "^26.6.1",
         "sass": "^1.104.1",
         "vite": "^8.3.0"

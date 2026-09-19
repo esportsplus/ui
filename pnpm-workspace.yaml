@@ -17,7 +17,7 @@ minimumReleaseAgeExclude:
   - '@esportsplus/reactivity@0.36.4 || 0.36.6 || 0.36.7'
   - '@esportsplus/template@0.44.4 || 0.44.6 || 0.45.0 || 0.45.1 || 0.45.3 || 0.46.1 || 0.46.2 || 0.46.3 || 0.46.4'
   - '@esportsplus/utilities@0.28.3 || 0.28.4'
-  - '@esportsplus/vite@0.14.2'
+  - '@esportsplus/vite@0.14.2 || 0.14.5 || 0.14.6'
   - '@esportsplus/*'
   # browserslist's data packages (pulled transitively via autoprefixer) republish daily, so a
   # fresh lockfile always pins a <24h version. They are data-only build-time deps, so exempt them
@@ -25,3 +25,4 @@ minimumReleaseAgeExclude:
   - baseline-browser-mapping
   - caniuse-lite
   - electron-to-chromium
+  - '@types/node@26.6.2'
