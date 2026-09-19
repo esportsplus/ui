@@ -4,8 +4,11 @@
         "noEmit": true,
         "rootDir": "..",
         "paths": {
+            "~/components/*": [
+                "../src/components/*"
+            ],
             "~/*": [
-                "../src/*"
+                "./src/*"
             ],
             "~/storage/*": [
                 "../storage/*"
@@ -22,7 +25,7 @@
         }
     },
     "include": [
-        "./**/*.ts",
+        "src/**/*",
         "../vite-env.d.ts"
     ]
 }

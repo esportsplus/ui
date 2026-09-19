@@ -6,7 +6,7 @@ import type { Router } from '../app';
 import type { Page } from '../types';
 
 
-const index: Record<string, (typeof entries)[number]> = {};
+let index: Record<string, (typeof entries)[number]> = {};
 
 
 for (let i = 0, n = entries.length; i < n; i++) {
@@ -14,7 +14,7 @@ for (let i = 0, n = entries.length; i < n; i++) {
 }
 
 
-const page = (slug: string = ''): Page => {
+function page(slug: string = ''): Page {
     if (slug === '') {
         return cardGrid(
             'A reactive, themeable component library built on compile-time template transforms. Select a component to see every variant.',
@@ -38,7 +38,7 @@ const page = (slug: string = ''): Page => {
         name: entry.name,
         variants: entry.variants
     });
-};
+}
 
 
 export default (r: Router) => r

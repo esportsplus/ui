@@ -74,20 +74,20 @@ importers:
         version: link:..
     devDependencies:
       '@esportsplus/typescript':
-        specifier: ^0.34.4
-        version: 0.34.4
+        specifier: ^0.35.1
+        version: 0.35.1
       '@esportsplus/vite':
         specifier: ^0.14.6
-        version: 0.14.6(sharp@0.35.4(@types/node@26.6.1))(terser@5.51.2)
+        version: 0.14.6(sharp@0.35.4(@types/node@26.6.2))(terser@5.51.2)
       '@types/node':
-        specifier: ^26.6.1
-        version: 26.6.1
+        specifier: ^26.6.2
+        version: 26.6.2
       sass:
         specifier: ^1.104.1
         version: 1.104.1
       vite:
         specifier: ^8.3.0
-        version: 8.3.0(@types/node@26.6.1)(sass@1.104.1)(terser@5.51.2)
+        version: 8.3.0(@types/node@26.6.2)(sass@1.104.1)(terser@5.51.2)
 
 packages:
 
@@ -117,6 +117,10 @@ packages:
 
   '@esportsplus/typescript@0.34.4':
     resolution: {integrity: sha512-Z6lojZ9HaK9c0ZUqRqIFCicIGWPqwCNnBXF8tIWFnIfEwAzYDHa+KbFYfB4ny9Vwf08dGKzqJTXl5x5FdUfhHw==}
+    hasBin: true
+
+  '@esportsplus/typescript@0.35.1':
+    resolution: {integrity: sha512-TwYsBe+5XmvIVLTZiLTUeF5CtFfGuCGGwKIkkG/IDM3r0W3tdd8INk8uDYNCbvQrJashNzWbhQVAiwsaSYGvzw==}
     hasBin: true
 
   '@esportsplus/utilities@0.28.3':
@@ -2142,7 +2146,7 @@ snapshots:
     dependencies:
       '@esportsplus/reactivity': 0.36.7
       '@esportsplus/utilities': 0.28.4
-      '@types/node': 26.6.1
+      '@types/node': 26.6.2
 
   '@esportsplus/template@0.46.4':
     dependencies:
@@ -2161,11 +2165,20 @@ snapshots:
       vscode-languageserver: 10.1.1
       vscode-languageserver-textdocument: 1.0.14
 
+  '@esportsplus/typescript@0.35.1':
+    dependencies:
+      '@esportsplus/cli-passthrough': 0.0.19
+      '@types/node': 26.6.2
+      tsc-alias: 1.9.5
+      typescript: 7.0.2
+      vscode-languageserver: 10.1.1
+      vscode-languageserver-textdocument: 1.0.14
+
   '@esportsplus/utilities@0.28.3': {}
 
   '@esportsplus/utilities@0.28.4': {}
 
-  '@esportsplus/vite@0.14.6(sharp@0.35.4(@types/node@26.6.1))(terser@5.51.2)':
+  '@esportsplus/vite@0.14.6(sharp@0.35.4(@types/node@26.6.2))(terser@5.51.2)':
     dependencies:
       '@esportsplus/cli-passthrough': 0.0.19
       '@esportsplus/typescript': 0.34.4
@@ -2186,7 +2199,7 @@ snapshots:
       sass: 1.104.1
       svgo: 4.1.0
       vite: 8.3.0(@types/node@26.6.2)(sass@1.104.1)(terser@5.51.2)
-      vite-plugin-image-optimizer: 2.0.3(sharp@0.35.4(@types/node@26.6.1))(svgo@4.1.0)(vite@8.3.0(@types/node@26.6.1)(sass@1.104.1)(terser@5.51.2))
+      vite-plugin-image-optimizer: 2.0.3(sharp@0.35.4(@types/node@26.6.2))(svgo@4.1.0)(vite@8.3.0(@types/node@26.6.2)(sass@1.104.1)(terser@5.51.2))
     transitivePeerDependencies:
       - '@vitejs/devtools'
       - esbuild
@@ -3889,40 +3902,6 @@ snapshots:
       safe-buffer: 5.2.1
       to-buffer: 1.2.2
 
-  sharp@0.35.4(@types/node@26.6.1):
-    dependencies:
-      '@img/colour': 1.1.0
-      detect-libc: 2.1.2
-      semver: 7.8.5
-    optionalDependencies:
-      '@img/sharp-darwin-arm64': 0.35.4
-      '@img/sharp-darwin-x64': 0.35.4
-      '@img/sharp-freebsd-wasm32': 0.35.4
-      '@img/sharp-libvips-darwin-arm64': 1.3.3
-      '@img/sharp-libvips-darwin-x64': 1.3.3
-      '@img/sharp-libvips-linux-arm': 1.3.3
-      '@img/sharp-libvips-linux-arm64': 1.3.3
-      '@img/sharp-libvips-linux-ppc64': 1.3.3
-      '@img/sharp-libvips-linux-riscv64': 1.3.3
-      '@img/sharp-libvips-linux-s390x': 1.3.3
-      '@img/sharp-libvips-linux-x64': 1.3.3
-      '@img/sharp-libvips-linuxmusl-arm64': 1.3.3
-      '@img/sharp-libvips-linuxmusl-x64': 1.3.3
-      '@img/sharp-linux-arm': 0.35.4
-      '@img/sharp-linux-arm64': 0.35.4
-      '@img/sharp-linux-ppc64': 0.35.4
-      '@img/sharp-linux-riscv64': 0.35.4
-      '@img/sharp-linux-s390x': 0.35.4
-      '@img/sharp-linux-x64': 0.35.4
-      '@img/sharp-linuxmusl-arm64': 0.35.4
-      '@img/sharp-linuxmusl-x64': 0.35.4
-      '@img/sharp-webcontainers-wasm32': 0.35.4
-      '@img/sharp-win32-arm64': 0.35.4
-      '@img/sharp-win32-ia32': 0.35.4
-      '@img/sharp-win32-x64': 0.35.4
-      '@types/node': 26.6.1
-    optional: true
-
   sharp@0.35.4(@types/node@26.6.2):
     dependencies:
       '@img/colour': 1.1.0
@@ -4237,13 +4216,13 @@ snapshots:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
 
-  vite-plugin-image-optimizer@2.0.3(sharp@0.35.4(@types/node@26.6.1))(svgo@4.1.0)(vite@8.3.0(@types/node@26.6.1)(sass@1.104.1)(terser@5.51.2)):
+  vite-plugin-image-optimizer@2.0.3(sharp@0.35.4(@types/node@26.6.2))(svgo@4.1.0)(vite@8.3.0(@types/node@26.6.2)(sass@1.104.1)(terser@5.51.2)):
     dependencies:
       ansi-colors: 4.1.3
       pathe: 2.0.3
-      vite: 8.3.0(@types/node@26.6.1)(sass@1.104.1)(terser@5.51.2)
+      vite: 8.3.0(@types/node@26.6.2)(sass@1.104.1)(terser@5.51.2)
     optionalDependencies:
-      sharp: 0.35.4(@types/node@26.6.1)
+      sharp: 0.35.4(@types/node@26.6.2)
       svgo: 4.1.0
 
   vite@8.3.0(@types/node@26.6.1)(sass@1.104.1)(terser@5.51.2):
