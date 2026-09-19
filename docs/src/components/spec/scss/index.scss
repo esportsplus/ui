@@ -1,13 +1,21 @@
+.spec-name {
+    font-family: ui-monospace, monospace;
+    font-size: var(--font-size-200);
+}
+
+
 .spec-table {
     border-collapse: collapse;
     font-size: var(--font-size-300);
     margin: 0 0 var(--size-600);
     width: 100%;
 
-    th {
-        color: var(--color-text-300);
-        font-weight: var(--font-weight-500);
-        text-align: left;
+    tbody tr {
+        transition: background var(--transition-duration) ease-in-out;
+
+        &:hover {
+            background: color-mix(in oklab, var(--color-grey-500) 45%, transparent);
+        }
     }
 
     td,
@@ -17,19 +25,11 @@
         vertical-align: middle;
     }
 
-    tbody tr {
-        transition: background var(--transition-duration) ease-in-out;
-
-        &:hover {
-            background: color-mix(in oklab, var(--color-grey-500) 45%, transparent);
-        }
+    th {
+        color: var(--color-text-300);
+        font-weight: var(--font-weight-500);
+        text-align: left;
     }
-}
-
-
-.spec-name {
-    font-family: ui-monospace, monospace;
-    font-size: var(--font-size-200);
 }
 
 

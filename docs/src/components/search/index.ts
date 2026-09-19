@@ -39,7 +39,16 @@ const modal = () => overlay(
                     class='command-input'
                     placeholder='Search documentation…'
                     type='search'
-                    ${{ oninput: (e: Event) => { search.query = (e.target as HTMLInputElement).value; }, onkeydown: (e: KeyboardEvent) => { if (e.key === 'Escape') { close(); } } }}
+                    ${{
+                        oninput: (e: Event) => {
+                            search.query = (e.target as HTMLInputElement).value;
+                        },
+                        onkeydown: (e: KeyboardEvent) => {
+                            if (e.key === 'Escape') {
+                                close();
+                            }
+                        }
+                    }}
                 />
             </label>
 

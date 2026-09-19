@@ -18,7 +18,7 @@ export default (request: Request) => html`
             <nav class='header-nav'>
                 ${tabs.map((tab) => html`
                     <a
-                        class='header-link ${() => request.data.route?.name?.startsWith(tab.name) ? '--active' : ''}'
+                        class='button header-link --background-grey --color-text --padding-horizontal-300 --padding-vertical-200 --size-300 --text-300 ${() => request.data.route?.name?.startsWith(tab.name) && '--active'}'
                         href='${uri(tab.name)}'
                     >${tab.label}</a>
                 `)}

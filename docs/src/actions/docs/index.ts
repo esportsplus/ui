@@ -1,33 +1,74 @@
 import { html } from '../../app';
 import { layout } from '../../components/preview';
 import readme from '/README.md?raw';
-import type { Router } from '../../app';
+import type { Renderable, Router } from '../../app';
 import type { Page } from '../../types';
 import './scss/index.scss';
 
 
-function escape(value: string) {
-    return value
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
+const HEADING = /^(#{1,4})\s+(.*)$/;
+
+const HORIZONTAL_RULE = /^(-{3,}|\*{3,})$/;
+
+const INLINE = /(`[^`]+`|\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/;
+
+const INLINE_LINK = /^\[([^\]]+)\]\(([^)]+)\)$/;
+
+const LINE_BREAK = /\r\n/g;
+
+const ORDERED_LIST = /^\s*\d+\.\s+(.*)$/;
+
+const TABLE_BORDER = /^\||\|$/g;
+
+const TABLE_SEPARATOR = /^\s*\|?[\s:|-]+\|?\s*$/;
+
+const UNORDERED_LIST = /^\s*[-*]\s+(.*)$/;
+
 
 function inline(value: string) {
-    return escape(value)
-        .replace(/`([^`]+)`/g, (_, code) => `<code>${code}</code>`)
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    let output: Renderable<unknown>[] = [],
+        remaining = value,
+        match: RegExpExecArray | null;
+
+    while ((match = INLINE.exec(remaining)) !== null) {
+        if (match.index > 0) {
+            output.push(remaining.slice(0, match.index));
+        }
+
+        let token = match[0];
+
+        if (token.startsWith('`')) {
+            output.push(html`<code>${token.slice(1, -1)}</code>`);
+        }
+        else if (token.startsWith('**')) {
+            output.push(html`<strong>${inline(token.slice(2, -2))}</strong>`);
+        }
+        else {
+            let link = token.match(INLINE_LINK)!;
+
+            output.push(html`<a href='${link[2]}'>${inline(link[1])}</a>`);
+        }
+
+        remaining = remaining.slice(match.index + token.length);
+    }
+
+    if (remaining !== '') {
+        output.push(remaining);
+    }
+
+    return output;
 }
 
 function markdown(source: string) {
-    let html: string[] = [],
-        lines = source.replace(/\r\n/g, '\n').split('\n'),
-        list: 'ol' | 'ul' | null = null;
+    let renderables: Renderable<unknown>[] = [],
+        lines = source.replace(LINE_BREAK, '\n').split('\n'),
+        list: { items: Renderable<unknown>[]; type: 'ol' | 'ul' } | null = null;
 
     let closeList = () => {
         if (list !== null) {
-            html.push(`</${list}>`);
+            let { items, type } = list;
+
+            renderables.push(type === 'ol' ? html`<ol>${items}</ol>` : html`<ul>${items}</ul>`);
             list = null;
         }
     };
@@ -43,32 +84,47 @@ function markdown(source: string) {
             i++;
 
             while (i < n && !lines[i].startsWith('```')) {
-                code.push(escape(lines[i]));
+                code.push(lines[i]);
                 i++;
             }
 
-            html.push(`<pre class="--scrollbar"><code>${code.join('\n')}</code></pre>`);
+            renderables.push(html`<pre class="--scrollbar"><code>${code.join('\n')}</code></pre>`);
             continue;
         }
 
-        let heading = line.match(/^(#{1,4})\s+(.*)$/);
+        let heading = line.match(HEADING);
 
         if (heading) {
             closeList();
-            html.push(`<h${heading[1].length}>${inline(heading[2])}</h${heading[1].length}>`);
+
+            let content = inline(heading[2]);
+
+            if (heading[1].length === 1) {
+                renderables.push(html`<h1>${content}</h1>`);
+            }
+            else if (heading[1].length === 2) {
+                renderables.push(html`<h2>${content}</h2>`);
+            }
+            else if (heading[1].length === 3) {
+                renderables.push(html`<h3>${content}</h3>`);
+            }
+            else {
+                renderables.push(html`<h4>${content}</h4>`);
+            }
+
             continue;
         }
 
-        if (/^(-{3,}|\*{3,})$/.test(line.trim())) {
+        if (HORIZONTAL_RULE.test(line.trim())) {
             closeList();
-            html.push('<hr />');
+            renderables.push(html`<hr />`);
             continue;
         }
 
-        if (line.trim().startsWith('|') && lines[i + 1] && /^\s*\|?[\s:|-]+\|?\s*$/.test(lines[i + 1])) {
+        if (line.trim().startsWith('|') && lines[i + 1] && TABLE_SEPARATOR.test(lines[i + 1])) {
             closeList();
 
-            let cells = (row: string) => row.trim().replace(/^\||\|$/g, '').split('|').map((cell) => cell.trim()),
+            let cells = (row: string) => row.trim().replace(TABLE_BORDER, '').split('|').map((cell) => cell.trim()),
                 head = cells(line);
 
             i += 2;
@@ -82,58 +138,59 @@ function markdown(source: string) {
 
             i--;
 
-            html.push(
-                '<table><thead><tr>' +
-                head.map((cell) => `<th>${inline(cell)}</th>`).join('') +
-                '</tr></thead><tbody>' +
-                body.map((row) => '<tr>' + row.map((cell) => `<td>${inline(cell)}</td>`).join('') + '</tr>').join('') +
-                '</tbody></table>'
-            );
+            renderables.push(html`
+                <table>
+                    <thead>
+                        <tr>${head.map((cell) => html`<th>${inline(cell)}</th>`)}</tr>
+                    </thead>
+                    <tbody>
+                        ${body.map((row) => html`<tr>${row.map((cell) => html`<td>${inline(cell)}</td>`)}</tr>`)}
+                    </tbody>
+                </table>
+            `);
             continue;
         }
 
-        let ordered = line.match(/^\s*\d+\.\s+(.*)$/),
-            unordered = line.match(/^\s*[-*]\s+(.*)$/);
+        let ordered = line.match(ORDERED_LIST),
+            unordered = line.match(UNORDERED_LIST);
 
         if (ordered) {
-            if (list !== 'ol') {
+            if (list === null || list.type !== 'ol') {
                 closeList();
-                html.push('<ol>');
-                list = 'ol';
+                list = { items: [], type: 'ol' };
             }
 
-            html.push(`<li>${inline(ordered[1])}</li>`);
+            list.items.push(html`<li>${inline(ordered[1])}</li>`);
             continue;
         }
 
         if (unordered) {
-            if (list !== 'ul') {
+            if (list === null || list.type !== 'ul') {
                 closeList();
-                html.push('<ul>');
-                list = 'ul';
+                list = { items: [], type: 'ul' };
             }
 
-            html.push(`<li>${inline(unordered[1])}</li>`);
+            list.items.push(html`<li>${inline(unordered[1])}</li>`);
             continue;
         }
 
         closeList();
 
         if (line.trim() !== '') {
-            html.push(`<p>${inline(line)}</p>`);
+            renderables.push(html`<p>${inline(line)}</p>`);
         }
     }
 
     closeList();
 
-    return html.join('\n');
+    return renderables;
 }
 
 
 const page = (): Page => ({
     render: () => html`
         <div class='page'>
-            <div class='prose' ${{ onconnect: (element: HTMLElement) => { element.innerHTML = markdown(readme); } }}></div>
+            <div class='prose'>${markdown(readme)}</div>
         </div>
     `,
     toc: []

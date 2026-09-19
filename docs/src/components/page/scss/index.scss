@@ -6,19 +6,10 @@
         margin-bottom: var(--size-700);
     }
 
-    &-title {
-        text-transform: capitalize;
-
-        @media (max-width: 720px) {
-            font-size: var(--font-size-700);
-        }
-    }
-
     &-lede {
         color: var(--color-text-300);
-        font-size: var(--font-size-500);
+        font-size: var(--font-size-400);
         line-height: 1.6;
-        margin: var(--size-300) 0 0;
         max-width: 64ch;
     }
 
@@ -29,5 +20,13 @@
 
     &-section-title {
         margin: var(--size-800) 0 var(--size-400);
+    }
+
+    &-title {
+        text-transform: capitalize;
+
+        @media (max-width: 720px) {
+            font-size: var(--font-size-700);
+        }
     }
 }

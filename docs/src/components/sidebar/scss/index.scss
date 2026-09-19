@@ -1,25 +1,9 @@
 .sidebar {
     align-self: start;
     max-height: calc(100svh - var(--header-height));
-    padding: var(--size-800) var(--size-200) var(--size-700) 0;
+    padding: var(--size-800) var(--size-200) var(--size-800) 0;
     position: sticky;
     top: var(--header-height);
-
-    &-section {
-        margin-bottom: var(--size-500);
-    }
-
-    &-title {
-        color: var(--color-text-300);
-        display: block;
-        font-size: var(--font-size-200);
-        font-weight: var(--font-weight-500);
-        letter-spacing: 0.08em;
-        margin-bottom: var(--size-300);
-        padding: 0 var(--size-300) 0 0;
-        text-decoration: none;
-        text-transform: uppercase;
-    }
 
     &-group {
         margin-top: var(--size-300);
@@ -46,16 +30,34 @@
             border-color var(--transition-duration) ease-in-out,
             color var(--transition-duration) ease-in-out;
 
+        &.--active {
+            border-color: var(--color-blue-400);
+            color: var(--color-blue-400);
+            font-weight: var(--font-weight-500);
+        }
+
         &:hover {
             border-color: var(--color-text-400);
             color: var(--color-text-400);
         }
+    }
 
-        &.--active {
-            border-color: var(--color-text-400);
-            color: var(--color-text-400);
-            font-weight: var(--font-weight-500);
+    &-section {
+        &:not(:first-child) {
+            margin-top: var(--size-600);
         }
+    }
+
+    &-title {
+        color: var(--color-text-500);
+        display: block;
+        font-size: var(--font-size-200);
+        font-weight: var(--font-weight-600);
+        letter-spacing: 0.08em;
+        margin-bottom: var(--size-300);
+        padding: 0 var(--size-300) 0 0;
+        text-decoration: none;
+        text-transform: uppercase;
     }
 
     @media (max-width: 1024px) {
