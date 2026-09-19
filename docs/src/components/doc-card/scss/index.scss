@@ -1,0 +1,23 @@
+.doc-card {
+    color: var(--color-text-400);
+    display: block;
+    text-decoration: none;
+
+    &-description {
+        color: var(--color-text-300);
+        font-size: var(--font-size-200);
+        line-height: 1.55;
+        margin: var(--size-200) 0 0;
+    }
+
+    &-name {
+        font-size: var(--font-size-400);
+        font-weight: var(--font-weight-500);
+        text-transform: capitalize;
+    }
+
+    &:hover {
+        border-color: var(--color-text-300);
+        transform: translateY(-2px);
+    }
+}

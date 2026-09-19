@@ -22,6 +22,14 @@ selector lists remain intact.
 Sass nested selectors such as `&-actions`, `&-inner`, and `&-nav` are sorted
 within their parent too. Use `--write` to apply changes; `--check` only reports them.
 
+Consecutive simple class selectors sharing a prefix are also grouped into Sass
+nesting: `.spec-name`, `.spec-table`, and `.spec-value` become `.spec` with
+`&-name`, `&-table`, and `&-value` children. This uses the segment before the
+first hyphen and requires at least two matching siblings. Existing base rules
+remain separate so their declarations and Sass scope are preserved. Complex
+selectors, interpolation, and ordering boundaries are not crossed; groups inside
+at-rules are handled within their own scope. Comments move with their rules.
+
 Leading comments move with the following statement; same-line trailing comments
 move with the preceding statement. Existing whitespace and value text are
 retained where possible. This organizes source; it does not impose indentation

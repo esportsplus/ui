@@ -1,5 +1,5 @@
 import { html, reactive } from '../../app';
-import { overlay } from '@esportsplus/ui';
+import { command } from '../command';
 import { sections } from '../../data/nav';
 import './scss/index.scss';
 
@@ -20,65 +20,16 @@ const matches = (label: string) => {
     return query === '' || label.toLowerCase().includes(query);
 };
 
-const modal = () => overlay(
-    {
-        class: '--glass',
-        onclick: close,
-        style: 'background: color-mix(in oklab, var(--background) 45%, transparent); z-index: 50;'
-    },
-    html`
-        <div class='modal --active command' ${{ onclick: (e: MouseEvent) => e.stopPropagation() }}>
-            <label class='command-search'>
-                <svg aria-hidden='true' class='command-icon' fill='none' height='16' viewBox='0 0 24 24' width='16'>
-                    <circle cx='11' cy='11' r='7' stroke='currentColor' stroke-width='2'></circle>
-                    <path d='m20 20-3.5-3.5' stroke='currentColor' stroke-linecap='round' stroke-width='2'></path>
-                </svg>
+const modal = () => command({ search, close, links });
 
-                <input
-                    autofocus
-                    class='command-input'
-                    placeholder='Search documentation…'
-                    type='search'
-                    ${{
-                        oninput: (e: Event) => {
-                            search.query = (e.target as HTMLInputElement).value;
-                        },
-                        onkeydown: (e: KeyboardEvent) => {
-                            if (e.key === 'Escape') {
-                                close();
-                            }
-                        }
-                    }}
-                />
-            </label>
+const searchTrigger = () => html`
+    <button class='button search' type='button' ${{ onclick: () => { search.open = true; } }}>
+        <svg aria-hidden='true' class='search-icon' fill='none' height='14' viewBox='0 0 24 24' width='14'>
+            <circle cx='11' cy='11' r='7' stroke='currentColor' stroke-width='2'></circle>
+            <path d='m20 20-3.5-3.5' stroke='currentColor' stroke-linecap='round' stroke-width='2'></path>
+        </svg>
+        <span class='search-placeholder'>Search…</span>
+    </button>
+`;
 
-            <div class='command-results --scrollbar'>
-                <div class='command-heading'>Pages</div>
-
-                ${() => {
-                    let results = links.filter((link) => matches(link.label));
-
-                    if (results.length === 0) {
-                        return html`<div class='command-empty'>No results found</div>`;
-                    }
-
-                    return results.map((link) => html`
-                        <a
-                            class='command-item'
-                            href='${link.href}'
-                            ${{ onclick: close }}
-                        >
-                            <span class='command-item-arrow'>&rarr;</span>
-                            <span class='command-item-label'>${link.label}</span>
-                        </a>
-                    `);
-                }}
-            </div>
-
-            <div class='command-footer'>Go to Page</div>
-        </div>
-    `
-);
-
-
-export { close, matches, modal, search };
+export { close, matches, modal, search, searchTrigger };

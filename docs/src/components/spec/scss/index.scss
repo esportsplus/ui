@@ -1,41 +1,47 @@
-.spec-name {
-    font-family: ui-monospace, monospace;
-    font-size: var(--font-size-200);
-}
+@use '../../table-head/scss/index.scss';
 
 
-.spec-table {
-    border-collapse: collapse;
-    font-size: var(--font-size-300);
-    margin: 0 0 var(--size-600);
-    width: 100%;
+.spec {
+    &-name {
+        font-family: ui-monospace, monospace;
+        font-size: var(--font-size-200);
+    }
 
-    tbody tr {
-        transition: background var(--transition-duration) ease-in-out;
+    &-table {
+        border-collapse: collapse;
+        font-size: var(--font-size-300);
+        margin: 0 0 var(--size-600);
+        width: 100%;
 
-        &:hover {
-            background: color-mix(in oklab, var(--color-grey-500) 45%, transparent);
+        tbody tr {
+            transition: background var(--transition-duration) ease-in-out;
+
+            &:hover {
+                background: color-mix(in oklab, var(--color-grey-500) 45%, transparent);
+            }
+        }
+
+        td {
+            border-bottom: 1px solid var(--color-border-300);
+        }
+
+        td,
+        th {
+            padding: var(--size-300) var(--size-400);
+            vertical-align: middle;
+        }
+
+        th {
+            color: var(--color-text-300);
+            font-weight: var(--font-weight-500);
+            text-align: left;
         }
     }
 
-    td,
-    th {
-        border-bottom: 1px solid var(--color-border-400);
-        padding: var(--size-300) var(--size-400);
-        vertical-align: middle;
-    }
-
-    th {
+    &-value {
         color: var(--color-text-300);
-        font-weight: var(--font-weight-500);
-        text-align: left;
+        font-family: ui-monospace, monospace;
+        font-size: var(--font-size-200);
+        word-break: break-word;
     }
-}
-
-
-.spec-value {
-    color: var(--color-text-300);
-    font-family: ui-monospace, monospace;
-    font-size: var(--font-size-200);
-    word-break: break-word;
 }

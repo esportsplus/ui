@@ -1,6 +1,7 @@
+import { pageHead } from '../components/page/head';
 import { html } from '../app';
 import { fonts } from '../data/scss';
-import { layout } from '../components/preview';
+import { layout } from '../components/layout';
 import type { Router } from '../app';
 import type { Page, TocItem } from '../types';
 
@@ -72,15 +73,12 @@ const page = (): Page => {
 
     return {
         render: () => html`
-            <div class='page'>
-                <div class='page-head'>
-                    <h1 class='page-title'>Fonts</h1>
-                    <p class='page-lede'>The typefaces bundled with the library, with a live specimen at every available weight and the raw @font-face definitions read from source.</p>
-                </div>
+            <div class='page docs-page'>
+                ${pageHead('Fonts', 'The typefaces bundled with the library, with a live specimen at every available weight and the raw @font-face definitions read from source.')}
 
                 ${rendered.map((family) => html`
                     <section id='${family.id}'>
-                        <h2 class='page-section-title'>${family.family}</h2>
+                        <h2 class='docs-page-section-title'>${family.family}</h2>
 
                         <div style='display: grid; gap: var(--size-400); margin-bottom: var(--size-500);'>
                             ${family.weights.map((weight) => html`
@@ -92,7 +90,7 @@ const page = (): Page => {
                         </div>
 
                         <table class='spec-table'>
-                            <thead>
+                            <thead class='table-head'>
                                 <tr><th>Weight</th><th>Style</th><th>Formats</th></tr>
                             </thead>
                             <tbody>

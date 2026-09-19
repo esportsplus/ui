@@ -1,6 +1,8 @@
+import { pageHead } from '../components/page/head';
 import { html } from '../app';
 import { themes } from '../data/scss';
-import { layout } from '../components/preview';
+import { layout } from '../components/layout';
+import { preview } from '../components/preview';
 import type { Renderable, Router } from '../app';
 import type { Page, TocItem } from '../types';
 
@@ -73,28 +75,25 @@ const page = (): Page => {
 
     return {
         render: () => html`
-            <div class='page'>
-                <div class='page-head'>
-                    <h1 class='page-title'>Themes</h1>
-                    <p class='page-lede'>A theme is a set of CSS custom property overrides layered over the base component styles. Build your own by redefining the same variables listed below.</p>
-                </div>
+            <div class='page docs-page'>
+                ${pageHead('Themes', 'A theme is a set of CSS custom property overrides layered over the base component styles. Build your own by redefining the same variables listed below.')}
 
                 ${rendered.map((entry) => html`
                     <section id='${entry.id}'>
-                        <h2 class='page-section-title'>${entry.label}</h2>
+                        <h2 class='docs-page-section-title'>${entry.label}</h2>
 
                         ${() => {
-                            let preview = demo(entry.component);
+                            let content = demo(entry.component);
 
-                            if (preview === null) {
+                            if (content === null) {
                                 return '';
                             }
 
-                            return html`<div class='preview card --border --border-default --border-border --border-radius-600 --margin-bottom --margin-vertical-500'><div class='preview-stage'>${preview}</div></div>`;
+                            return preview(null, content);
                         }}
 
                         <table class='spec-table'>
-                            <thead>
+                            <thead class='table-head'>
                                 <tr><th>Variable</th><th>Value</th></tr>
                             </thead>
                             <tbody>

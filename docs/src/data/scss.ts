@@ -51,6 +51,7 @@ function block(scss: string, name: string) {
 
 function pairs(body: string) {
     let depth = 0,
+        interpolationDepth = 0,
         key = '',
         mode: 'key' | 'value' = 'key',
         out: [string, string][] = [],
@@ -78,12 +79,20 @@ function pairs(body: string) {
             depth--;
         }
 
-        if (depth === 0 && character === ':' && mode === 'key') {
+        // Commas inside Sass interpolation belong to the value, not the map.
+        if (character === '{') {
+            interpolationDepth++;
+        }
+        else if (character === '}') {
+            interpolationDepth--;
+        }
+
+        if (depth === 0 && interpolationDepth === 0 && character === ':' && mode === 'key') {
             mode = 'value';
             continue;
         }
 
-        if (depth === 0 && character === ',' && mode === 'value') {
+        if (depth === 0 && interpolationDepth === 0 && character === ',' && mode === 'value') {
             flush();
             continue;
         }

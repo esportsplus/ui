@@ -1,127 +1,16 @@
-.command {
-    background: var(--background);
-    border: 1px solid var(--color-border-400);
-    border-radius: var(--border-radius-600);
-    box-shadow: 0 24px 64px -16px color-mix(in oklab, var(--color-black-500) 45%, transparent);
-    display: flex;
-    flex-direction: column;
-    max-height: 70svh;
-    overflow: hidden;
-
-    &-empty {
-        color: var(--color-text-300);
-        font-size: var(--font-size-300);
-        padding: var(--size-300);
-    }
-
-    &-footer {
-        border-top: 1px solid var(--color-border-400);
-        color: var(--color-text-300);
-        font-size: var(--font-size-200);
-        padding: var(--size-300) var(--size-400);
-    }
-
-    &-heading {
-        color: var(--color-text-300);
-        font-size: var(--font-size-200);
-        font-weight: var(--font-weight-500);
-        letter-spacing: 0.08em;
-        padding: var(--size-200) var(--size-300);
-        text-transform: uppercase;
-    }
-
-    &-icon {
-        color: var(--color-text-300);
-        flex: 0 0 auto;
-    }
-
-    &-input {
-        appearance: none;
-        background: transparent;
-        border: 0;
-        color: var(--color-text-400);
-        font: inherit;
-        font-size: var(--font-size-400);
-        min-width: 0;
-        outline: none;
-        width: 100%;
-
-        &::-webkit-search-cancel-button {
-            appearance: none;
-        }
-
-        &::placeholder {
-            color: var(--color-text-300);
-            opacity: 0.72;
-        }
-    }
-
-    &-item {
-        align-items: center;
-        border-radius: var(--border-radius-400);
-        color: var(--color-text-400);
-        cursor: pointer;
-        display: flex;
-        font-size: var(--font-size-300);
-        gap: var(--size-300);
-        padding: var(--size-300);
-        text-decoration: none;
-        text-transform: capitalize;
-        transition: background var(--transition-duration) ease-in-out;
-
-        &-arrow {
-            color: var(--color-text-300);
-            flex: 0 0 auto;
-        }
-
-        &:hover,
-        &.--active {
-            background: var(--color-grey-500);
-            color: var(--color-text-400);
-        }
-    }
-
-    &-results {
-        display: flex;
-        flex-direction: column;
-        gap: var(--size-100);
-        overflow-y: auto;
-        padding: var(--size-300);
-    }
-
-    &-search {
-        align-items: center;
-        border-bottom: 1px solid var(--color-border-400);
-        display: flex;
-        gap: var(--size-300);
-        padding: var(--size-400);
-    }
-
-    &.modal {
-        --max-width: 600px;
-
-        margin: 12vh auto auto;
-    }
-}
-
-
 .search {
-    align-items: center;
-    background: color-mix(in oklab, var(--color-grey-500) 70%, transparent);
-    border: 1px solid transparent;
-    border-radius: var(--border-radius-400);
-    color: var(--color-text-300);
-    cursor: pointer;
-    display: flex;
-    font: inherit;
-    font-size: var(--font-size-300);
+    --background-default: color-mix(in oklab, var(--color-grey-500) 70%, transparent);
+    --background-hover: var(--color-white-400);
+    --border-color-hover: var(--color-border-400);
+    --border-width: var(--border-width-400);
+    --color-default: var(--color-text-300);
+    --font-size: var(--font-size-300);
+    --padding-horizontal: var(--size-300);
+    --padding-vertical: var(--size-200);
+    --width: 100%;
     gap: var(--size-200);
+    justify-content: flex-start;
     max-width: 260px;
-    padding: var(--size-200) var(--size-300);
-    transition:
-        background var(--transition-duration) ease-in-out,
-        border-color var(--transition-duration) ease-in-out;
-    width: 100%;
 
     &-icon {
         color: var(--color-text-300);
@@ -134,11 +23,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    &:hover {
-        background: var(--background);
-        border-color: var(--color-border-400);
     }
 
     @media (max-width: 720px) {

@@ -26,12 +26,15 @@
         height: var(--header-height);
         padding: 0 var(--size-600);
         width: 100%;
+
+        @media (max-width: 720px) {
+            padding: 0 var(--size-400);
+        }
     }
 
     &-link {
-        --background-default: transparent;
+        --background-hover: var(--color-grey-300);
         color: var(--color-text-400);
-        font-weight: var(--font-weight-500);
 
         &.--active {
             color: var(--color-text-500);
@@ -42,17 +45,9 @@
         align-items: center;
         display: flex;
         gap: var(--size-100);
-    }
 
-    @media (max-width: 1024px) {
-        &-nav {
+        @media (max-width: 1024px) {
             display: none;
-        }
-    }
-
-    @media (max-width: 720px) {
-        &-inner {
-            padding: 0 var(--size-400);
         }
     }
 }

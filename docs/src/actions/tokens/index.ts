@@ -1,9 +1,10 @@
-import { html, reactive } from '../../app';
+import { pageHead } from '../../components/page/head';
+import { html } from '../../app';
 import { cssValue, map, tokenSources } from '../../data/scss';
-import { layout } from '../../components/preview';
+import { layout } from '../../components/layout';
 import type { Renderable, Router } from '../../app';
 import type { Page, TocItem } from '../../types';
-import './scss/index.scss';
+import { colorPalette } from '../../components/color-palette';
 
 
 type Group = {
@@ -23,73 +24,17 @@ type Token = {
 
 
 const groups: Group[] = [
+    { file: '/src/tokens/scss/border-radius.scss', id: 'border-radius', kind: 'border-radius', prefix: 'border-radius', title: 'Border Radius', variable: 'border-radius' },
+    { file: '/src/tokens/scss/border-width.scss', id: 'border-width', kind: 'border-width', prefix: 'border-width', title: 'Border Width', variable: 'border-width' },
+    { file: '/src/tokens/scss/box-shadow.scss', id: 'box-shadow', kind: 'box-shadow', prefix: 'box-shadow', title: 'Box Shadow', variable: 'box-shadow' },
     { file: '/src/tokens/scss/color.scss', id: 'colors', kind: 'color', prefix: 'color', title: 'Colors', variable: 'color' },
-    { file: '/src/tokens/scss/size.scss', id: 'sizing', kind: 'size', prefix: 'size', title: 'Sizing', variable: 'size' },
-    { file: '/src/tokens/scss/spacer.scss', id: 'spacing', kind: 'size', prefix: 'spacer', title: 'Spacing', variable: 'spacer' },
     { file: '/src/tokens/scss/font-size.scss', id: 'font-size', kind: 'font-size', prefix: 'font-size', title: 'Font Size', variable: 'font-size' },
     { file: '/src/tokens/scss/font-weight.scss', id: 'font-weight', kind: 'font-weight', prefix: 'font-weight', title: 'Font Weight', variable: 'font-weight' },
     { file: '/src/tokens/scss/line-height.scss', id: 'line-height', kind: 'line-height', prefix: 'line-height', title: 'Line Height', variable: 'line-height' },
-    { file: '/src/tokens/scss/border-radius.scss', id: 'border-radius', kind: 'border-radius', prefix: 'border-radius', title: 'Border Radius', variable: 'border-radius' },
-    { file: '/src/tokens/scss/border-width.scss', id: 'border-width', kind: 'border-width', prefix: 'border-width', title: 'Border Width', variable: 'border-width' },
-    { file: '/src/tokens/scss/box-shadow.scss', id: 'box-shadow', kind: 'box-shadow', prefix: 'box-shadow', title: 'Box Shadow', variable: 'box-shadow' }
+    { file: '/src/tokens/scss/size.scss', id: 'sizing', kind: 'size', prefix: 'size', title: 'Sizing', variable: 'size' },
+    { file: '/src/tokens/scss/spacer.scss', id: 'spacing', kind: 'size', prefix: 'spacer', title: 'Spacing', variable: 'spacer' }
 ];
 
-
-function colors(values: Token[]): Renderable<unknown> {
-    let families = new Map<string, Token[]>(),
-        state = reactive({ message: '' });
-
-    for (let token of values) {
-        let family = token.label.replace(/-\d+$/, '');
-        families.set(family, [...(families.get(family) ?? []), token]);
-    }
-
-    let palettes = [...families];
-
-    return html`
-        <div class='token-colors'>
-            <div class='token-colors-toolbar'>
-                <div class='token-colors-navigation' aria-label='Color palettes'>
-                    <span class='token-colors-caption'>Palettes</span>
-                    ${palettes.map(([name, shades]) => html`
-                        <a class='token-colors-dot' href='#palette-${name}' aria-label='${name} palette'
-                            title='${name}' style='background: var(${shades[Math.floor(shades.length / 2)].name});'></a>
-                    `)}
-                </div>
-                <span class='token-colors-caption'>Click a shade to copy</span>
-            </div>
-            <p class='token-colors-status' role='status'>${() => state.message}</p>
-            ${palettes.map(([name, shades], index) => html`
-                <div class='token-colors-family' id='palette-${name}'>
-                    <h3 class='token-colors-heading'>
-                        <span class='token-colors-number'>${String(index + 1).padStart(2, '0')}</span>
-                        ${name}
-                    </h3>
-                    <div class='token-colors-strip'>
-                        ${shades.map((token) => html`
-                            <button type='button' class='token-colors-swatch'
-                                style='background: var(${token.name});'
-                                aria-label='Copy ${token.name}: ${token.value}'
-                                title='${token.name}: ${token.value}'
-                                ${{ onclick: async () => {
-                                    try {
-                                        await navigator.clipboard.writeText(token.value);
-                                        state.message = `Copied ${token.name}: ${token.value}`;
-                                    }
-                                    catch {
-                                        state.message = `Could not copy. ${token.name}: ${token.value}`;
-                                    }
-                                } }}>
-                                <span class='token-colors-value'>${token.value}</span>
-                                <span class='token-colors-shade'>${token.label.slice(name.length + 1)}</span>
-                            </button>
-                        `)}
-                    </div>
-                </div>
-            `)}
-        </div>
-    `;
-}
 
 function preview(kind: Group['kind'], value: string): Renderable<unknown> {
     if (kind === 'color') {
@@ -161,18 +106,15 @@ const page = (): Page => {
 
     return {
         render: () => html`
-            <div class='page'>
-                <div class='page-head'>
-                    <h1 class='page-title'>Tokens</h1>
-                    <p class='page-lede'>The design tokens that every component and utility is built from, read directly from the source SCSS with their current resolved values.</p>
-                </div>
+            <div class='page docs-page'>
+                ${pageHead('Tokens', 'The design tokens that every component and utility is built from, read directly from the source SCSS with their current resolved values.')}
 
                 ${rendered.map((entry) => html`
                     <section id='${entry.group.id}'>
-                        <h2 class='page-section-title'>${entry.group.title}</h2>
+                        <h2 class='docs-page-section-title'>${entry.group.title}</h2>
 
-                        ${entry.group.kind === 'color' ? colors(entry.tokens) : html`<table class='spec-table'>
-                            <thead>
+                        ${entry.group.kind === 'color' ? colorPalette(entry.tokens) : html`<table class='spec-table'>
+                            <thead class='table-head'>
                                 <tr><th>Token</th><th>Preview</th><th>Value</th></tr>
                             </thead>
                             <tbody>

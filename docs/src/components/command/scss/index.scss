@@ -1,0 +1,93 @@
+.command {
+    --background-default: var(--color-white-400);
+    --border-radius: var(--border-radius-600);
+    border: 1px solid var(--color-border-400);
+    box-shadow: 0 24px 64px -16px color-mix(in oklab, var(--color-black-500) 45%, transparent);
+    display: flex;
+    flex-direction: column;
+    max-height: 70svh;
+    overflow: hidden;
+
+    &-empty {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        padding: var(--size-300);
+    }
+
+    &-footer {
+        border-top: 1px solid var(--color-border-400);
+        color: var(--color-text-300);
+        font-size: var(--font-size-200);
+        padding: var(--size-300) var(--size-400);
+    }
+
+    &-heading {
+        color: var(--color-text-300);
+        font-size: var(--font-size-200);
+        font-weight: var(--font-weight-500);
+        letter-spacing: 0.08em;
+        padding: var(--size-200) var(--size-300);
+        text-transform: uppercase;
+    }
+
+    &-icon {
+        color: var(--color-text-300);
+        flex: 0 0 auto;
+    }
+
+    &-input {
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        font-family: inherit;
+        outline: none;
+
+        &::-webkit-search-cancel-button {
+            appearance: none;
+        }
+
+        &::placeholder {
+            color: var(--color-text-300);
+            opacity: 0.72;
+        }
+    }
+
+    &-item {
+        --background-hover: var(--color-grey-500);
+        --background-active: var(--color-grey-500);
+        --font-size: var(--font-size-300);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-300);
+        --width: 100%;
+        gap: var(--size-300);
+        justify-content: flex-start;
+        text-decoration: none;
+        text-transform: capitalize;
+
+        &-arrow {
+            color: var(--color-text-300);
+            flex: 0 0 auto;
+        }
+    }
+
+    &-results {
+        display: flex;
+        flex-direction: column;
+        gap: var(--size-100);
+        overflow-y: auto;
+        padding: var(--size-300);
+    }
+
+    &-search {
+        align-items: center;
+        border-bottom: 1px solid var(--color-border-400);
+        display: flex;
+        gap: var(--size-300);
+        padding: var(--size-400);
+    }
+
+    &.modal {
+        --max-width: 600px;
+
+        margin: 12vh auto auto;
+    }
+}

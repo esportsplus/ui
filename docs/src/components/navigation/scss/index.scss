@@ -1,0 +1,24 @@
+.docs-nav-link {
+    border-left: var(--border-width-400) solid var(--color-border-400);
+    color: var(--color-text-300);
+    cursor: pointer;
+    display: block;
+    font-size: var(--docs-nav-font-size, var(--font-size-300));
+    padding: var(--size-100) var(--docs-nav-padding, var(--size-300));
+    text-decoration: none;
+    text-transform: capitalize;
+    transition:
+        border-color var(--transition-duration) ease-in-out,
+        color var(--transition-duration) ease-in-out;
+
+    &.--active {
+        border-color: var(--color-blue-400);
+        color: var(--color-blue-400);
+        font-weight: var(--font-weight-500);
+    }
+
+    &:hover {
+        border-color: var(--color-text-400);
+        color: var(--color-text-400);
+    }
+}

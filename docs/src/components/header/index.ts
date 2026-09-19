@@ -1,5 +1,5 @@
 import { html, uri } from '../../app';
-import { modal, search } from '../search';
+import { modal, search, searchTrigger } from '../search';
 import type { Request } from '../../app';
 import './scss/index.scss';
 
@@ -18,21 +18,14 @@ export default (request: Request) => html`
             <nav class='header-nav'>
                 ${tabs.map((tab) => html`
                     <a
-                        class='button header-link --background-grey --color-text --padding-horizontal-300 --padding-vertical-200 --size-300 --text-300 ${() => request.data.route?.name?.startsWith(tab.name) && '--active'}'
+                        class='button header-link --color-text --padding-horizontal-300 --padding-vertical-200 --size-300 --text-bold --text-300 ${() => request.data.route?.name?.startsWith(tab.name) && '--active'}'
                         href='${uri(tab.name)}'
                     >${tab.label}</a>
                 `)}
             </nav>
 
             <div class='header-actions --flex-start'>
-                <button class='search' type='button' ${{ onclick: () => { search.open = true; } }}>
-                    <svg aria-hidden='true' class='search-icon' fill='none' height='14' viewBox='0 0 24 24' width='14'>
-                        <circle cx='11' cy='11' r='7' stroke='currentColor' stroke-width='2'></circle>
-                        <path d='m20 20-3.5-3.5' stroke='currentColor' stroke-linecap='round' stroke-width='2'></path>
-                    </svg>
-
-                    <span class='search-placeholder'>Search…</span>
-                </button>
+                ${searchTrigger()}
 
                 <a
                     aria-label='GitHub'

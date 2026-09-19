@@ -1,43 +1,10 @@
 @use '@esportsplus/ui/lib.scss';
 
 
-.doc-card {
-    color: var(--color-text-400);
-    display: block;
-    text-decoration: none;
-
-    &-description {
-        color: var(--color-text-300);
-        font-size: var(--font-size-200);
-        line-height: 1.55;
-        margin: var(--size-200) 0 0;
-    }
-
-    &-name {
-        font-size: var(--font-size-400);
-        font-weight: var(--font-weight-500);
-        text-transform: capitalize;
-    }
-
-    &:hover {
-        border-color: var(--color-text-300);
-        transform: translateY(-2px);
-    }
-}
-
-
-.main {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    padding: var(--size-800) 0 var(--size-900);
-}
-
-
 .preview {
     overflow: hidden;
     scroll-margin-top: calc(var(--header-height) + var(--size-500));
+    margin: var(--size-800) 0 0;
 
     &-bar {
         align-items: center;
@@ -76,46 +43,5 @@
         font-family: ui-monospace, monospace;
         font-size: var(--font-size-200);
         text-transform: lowercase;
-    }
-}
-
-
-.toc {
-    align-self: start;
-    max-height: calc(100svh - var(--header-height));
-    padding: var(--size-800) var(--size-200) var(--size-700) 0;
-    position: sticky;
-    top: var(--header-height);
-
-    &-heading {
-        color: var(--color-text-400);
-        font-size: var(--font-size-200);
-        font-weight: var(--font-weight-500);
-        letter-spacing: 0.08em;
-        margin-bottom: var(--size-300);
-        text-transform: uppercase;
-    }
-
-    &-link {
-        border-left: 1px solid var(--color-border-400);
-        color: var(--color-text-300);
-        cursor: pointer;
-        display: block;
-        font-size: var(--font-size-200);
-        padding: var(--size-100) var(--size-200);
-        text-decoration: none;
-        text-transform: capitalize;
-        transition:
-            border-color var(--transition-duration) ease-in-out,
-            color var(--transition-duration) ease-in-out;
-
-        &:hover {
-            border-color: var(--color-text-400);
-            color: var(--color-text-400);
-        }
-    }
-
-    @media (max-width: 1280px) {
-        display: none;
     }
 }

@@ -1,6 +1,7 @@
 import { uri } from '../app';
 import { utilities } from '../data/utilities';
-import { cardGrid, detailPage, layout, missing } from '../components/preview';
+import { cardGrid, detailPage, missing } from '../components/page';
+import { layout } from '../components/layout';
 import type { Router } from '../app';
 import type { Page } from '../types';
 

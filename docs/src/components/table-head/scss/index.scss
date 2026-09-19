@@ -1,0 +1,6 @@
+.table-head {
+    background: var(--color-grey-400);
+    border-radius: var(--border-radius-400);
+    // Row groups need clipping when their table uses collapsed borders.
+    clip-path: inset(0 round var(--border-radius-400));
+}

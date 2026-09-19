@@ -6,9 +6,50 @@ import * as NodePath from "node:path";
 import * as NodeURL from "node:url";
 import * as NodeTest from "node:test";
 import scss from "postcss-scss";
+import { compileString } from "sass";
 import { sortScss } from "./sort-scss.mjs";
 
 const script = NodeURL.fileURLToPath(new URL("./sort-scss.mjs", import.meta.url));
+
+NodeTest.test("nests prefixed classes with equivalent CSS, comments and stable output", () => {
+  const input = `// Name\n.spec-name { color: red; }\n.spec-table { td { color: blue; } &:hover { opacity: 1; } }\n.spec-value { color: green; }\n`;
+  const output = sortScss(input);
+  const root = scss.parse(output);
+  NodeAssert.equal(root.first.selector, ".spec");
+  NodeAssert.deepEqual(root.first.nodes.filter(n => n.type === "rule").map(n => n.selector),
+    ["&-name", "&-table", "&-value"]);
+  NodeAssert.match(output, /\/\/ Name\n/);
+  // Sorting already orders nested selectors; compare against that canonical CSS.
+  const canonical = input.replace('td { color: blue; } &:hover { opacity: 1; }', '&:hover { opacity: 1; } td { color: blue; }');
+  NodeAssert.equal(compileString(output, { style: "compressed" }).css, compileString(canonical, { style: "compressed" }).css);
+  NodeAssert.equal(sortScss(output), output);
+});
+
+NodeTest.test("prefix grouping respects scopes, complex selectors and Sass boundaries", () => {
+  const input = `.spec-a { color: red; }\n$gap: 1px;\n.spec-b { color: blue; }\n.spec-c:hover { color: red; }\n.spec-d { color: green; }\n@media (width > 1px) { .item-a { color: red; } .item-b { color: blue; } }`;
+  const output = sortScss(input);
+  NodeAssert.equal(compileString(output, { style: "compressed" }).css, compileString(input, { style: "compressed" }).css);
+  NodeAssert.match(output, /\.spec-a/);
+  NodeAssert.match(output, /\.spec-b/);
+  NodeAssert.match(output, /\.spec-c:hover/);
+  NodeAssert.equal(scss.parse(output).last.first.selector, ".item");
+  NodeAssert.equal(sortScss(output), output);
+});
+
+NodeTest.test("prefix grouping preserves CRLF and an existing base selector", () => {
+  const input = ".spec { color: black; }\r\n.spec-a { color: red; }\r\n.spec-b { color: blue; }\r\n";
+  const output = sortScss(input);
+  NodeAssert.equal(compileString(output, { style: "compressed" }).css, compileString(input, { style: "compressed" }).css);
+  NodeAssert.equal(output.replaceAll("\r\n", "").includes("\n"), false);
+  NodeAssert.equal(sortScss(output), output);
+});
+
+NodeTest.test("prefix grouping indents multiline selectors without whitespace-only lines", () => {
+  const output = sortScss(".spec-a {\n    td,\n    th { color: red; }\n}\n\n.spec-b {\n    color: blue;\n}\n");
+  NodeAssert.match(output, /        td,\n        th/);
+  NodeAssert.doesNotMatch(output, /^[\t ]+$/m);
+  NodeAssert.equal(sortScss(output), output);
+});
 
 NodeTest.test("sorts Sass suffix selectors recursively and keeps media boundaries", () => {
   const output = sortScss(`.header {

@@ -57,25 +57,6 @@
         }
     }
 
-    table {
-        border-collapse: collapse;
-        font-size: var(--font-size-300);
-        margin: 0 0 var(--size-400);
-        width: 100%;
-    }
-
-    td,
-    th {
-        border-bottom: 1px solid var(--color-border-400);
-        padding: var(--size-200) var(--size-300);
-        text-align: left;
-    }
-
-    th {
-        color: var(--color-text-300);
-        font-weight: var(--font-weight-500);
-    }
-
     ul,
     ol {
         margin: 0 0 var(--size-400);

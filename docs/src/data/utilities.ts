@@ -32,7 +32,7 @@ function boxes(count: number) {
 }
 
 function note(text: string) {
-    return html`<p class='page-note'>${text}</p>`;
+    return html`<p class='docs-page-note'>${text}</p>`;
 }
 
 

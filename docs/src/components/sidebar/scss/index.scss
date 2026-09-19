@@ -1,4 +1,4 @@
-.sidebar {
+.docs-sidebar {
     align-self: start;
     max-height: calc(100svh - var(--header-height));
     padding: var(--size-800) var(--size-200) var(--size-800) 0;
@@ -16,30 +16,6 @@
         letter-spacing: 0.08em;
         padding: 0 var(--size-300) var(--size-100);
         text-transform: uppercase;
-    }
-
-    &-link {
-        border-left: 1px solid var(--color-border-400);
-        color: var(--color-text-300);
-        display: block;
-        font-size: var(--font-size-300);
-        padding: var(--size-100) var(--size-300);
-        text-decoration: none;
-        text-transform: capitalize;
-        transition:
-            border-color var(--transition-duration) ease-in-out,
-            color var(--transition-duration) ease-in-out;
-
-        &.--active {
-            border-color: var(--color-blue-400);
-            color: var(--color-blue-400);
-            font-weight: var(--font-weight-500);
-        }
-
-        &:hover {
-            border-color: var(--color-text-400);
-            color: var(--color-text-400);
-        }
     }
 
     &-section {
@@ -66,6 +42,6 @@
 }
 
 
-a.sidebar-title:hover {
+a.docs-sidebar-title:hover {
     color: var(--color-blue-400);
 }

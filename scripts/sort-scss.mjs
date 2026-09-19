@@ -8,6 +8,7 @@ import scss from "postcss-scss";
 const help = `Usage: node sort-scss.mjs --check|--write <file.scss|directory>...
 
 Alphabetize sibling selectors and declaration properties recursively.
+Group sibling .prefix-* classes into .prefix { &-* { ... } } blocks.
 Sorting is strict and may change the cascade or Sass evaluation behavior.
 At-rules, Sass assignments, and interpolated names remain ordering boundaries.
 Duplicate properties retain their relative order. Keyframe steps stay in place.
@@ -111,8 +112,62 @@ function sortContainer(container) {
   }
 }
 
+function nestPrefixes(container, indent, newline) {
+  if (!container.nodes) return;
+  for (const node of [...container.nodes]) nestPrefixes(node, indent, newline);
+  if (container.type === "atrule" && /(?:^|-)keyframes$/i.test(container.name)) return;
+
+  const units = unitsFor(container.nodes);
+  const prefix = (unit) => unit.node?.type === "rule"
+    ? /^(\.[a-zA-Z_][\w]*)-[\w-]+$/.exec(unit.node.selector.trim())?.[1]
+    : undefined;
+
+  for (let start = 0; start < units.length; ) {
+    const name = prefix(units[start]);
+    let end = start + 1;
+    if (name) while (end < units.length && prefix(units[end]) === name) end++;
+    if (!name || end - start < 2) {
+      start = end;
+      continue;
+    }
+
+    const first = units[start].nodes[0];
+    const before = first.raws.before ?? "";
+    const baseIndent = /(?:^|\n)([\t ]*)$/.exec(before)?.[1] ?? "";
+    const wrapper = scss.parse(`${name} {}`).first;
+    wrapper.raws.before = before;
+    wrapper.raws.after = newline + baseIndent;
+    container.insertBefore(first, wrapper);
+
+    for (const unit of units.slice(start, end)) {
+      unit.node.selector = "&" + unit.node.selector.trim().slice(name.length);
+      for (const node of unit.nodes) {
+        const shift = (value) => value?.replace(/(\r?\n)([\t ]*)(?=\S)/g, `$1$2${indent}`);
+        const shiftBefore = (value) => value?.replace(/([\t ]*)$/, `$1${indent}`);
+        node.raws.before = shiftBefore(node.raws.before);
+        node.raws.after = /[\r\n]/.test(node.raws.after ?? "") ? shiftBefore(node.raws.after) : node.raws.after;
+        node.walk?.((child) => {
+          child.raws.before = shiftBefore(child.raws.before);
+          child.raws.after = /[\r\n]/.test(child.raws.after ?? "") ? shiftBefore(child.raws.after) : child.raws.after;
+          if (child.type === "rule") child.selector = shift(child.selector);
+        });
+        // Ensure standalone comments and inline input both start safely inside the wrapper.
+        if (!/[\r\n]/.test(node.raws.before ?? "")) {
+          node.raws.before = newline + baseIndent + indent;
+        }
+        wrapper.append(node);
+      }
+    }
+    wrapper.first.raws.before = newline + baseIndent + indent;
+    start = end;
+  }
+}
+
 export function sortScss(source, file = "input.scss") {
   const root = scss.parse(source, { from: file });
+  sortContainer(root);
+  const indent = source.match(/\n([\t ]+)\S/)?.[1] ?? "    ";
+  nestPrefixes(root, indent, source.includes("\r\n") ? "\r\n" : "\n");
   sortContainer(root);
   return root.toString(scss.stringify);
 }

@@ -1,4 +1,4 @@
-import { layout } from '../components/preview';
+import { layout } from '../components/layout';
 import { page } from './docs';
 import type { Route } from '@esportsplus/routing/client';
 import type { Renderable } from '../app';
