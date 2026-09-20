@@ -20,20 +20,24 @@
     --opacity-default: 1;
     --opacity-hover: var(--opacity-default);
     --opacity-pressed: var(--opacity-default);
-    --padding-horizontal: var(--border-width-400);
-    --padding-vertical: var(--border-width-400);
-    --rotate: 0deg;
+    --padding-horizontal: 2px;
+    --padding-vertical: 2px;
     --scale: var(--scale-default);
     --scale-active: var(--scale-default);
     --scale-default: 1;
     --scale-hover: var(--scale-default);
     --scale-pressed: var(--scale-default);
-    --size: var(--size-600);
+    --size: 28px;
+    --transition-duration: 280ms;
+    --transition-timing-function: cubic-bezier(.34, 1.56, .64, 1);
+    --focus-color: var(--background-active);
+    --focus-offset: 4px;
+    --focus-width: 2px;
     --width: var(--width-switch);
-    --width-switch: 40px;
+    --width-switch: 48px;
 
     &::before {
-        --box-shadow: 0 1px 0 rgba(0, 0, 0, 0.16);
+        --box-shadow: 0 2px 4px #0003;
         --height: calc(var(--size) - (var(--border-width) * 2) - (var(--padding-vertical) * 2));
         --translateX: 0px;
         --translateY: 0px;

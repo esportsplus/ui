@@ -7,6 +7,7 @@
     border-radius: var(--border-radius);
     border-style: var(--border-style);
     border-width: var(--border-width);
+    cursor: pointer;
     flex: 0 0 var(--width);
     height: var(--height);
     position: relative;
@@ -26,23 +27,35 @@
     &::before {
         @include lib.position(absolute, var(--padding-vertical) null null var(--padding-horizontal));
         background: var(--accent);
-        border-radius: inherit;
+        border-radius: calc(var(--border-radius) - var(--padding-vertical) / 1.5);
         box-shadow: var(--box-shadow);
         content: '';
         height: var(--height);
         opacity: var(--opacity);
-        transform: translate(var(--translateX), var(--translateY)) rotate(var(--rotate)) scale(var(--scale));
+        transform: translate(var(--translateX), var(--translateY)) scale(var(--scale));
         transform-origin: center;
+        pointer-events: none;
+        transition: transform var(--transition-duration) var(--transition-timing-function);
         width: var(--width);
     }
 
-    // Hide HTML Field Element
+    &:has(> .switch-tag:focus-visible) {
+        outline: var(--focus-width) solid var(--focus-color);
+        outline-offset: var(--focus-offset);
+    }
+
+    // Keep the native control available for pointer and keyboard interaction.
     &-tag {
         @include lib.position(absolute, 0 null null 0);
-        height: 0px;
+        cursor: inherit;
+        height: 100%;
+        margin: 0;
         opacity: 0;
-        pointer-events: none;
-        width: 0px;
-        z-index: 0;
+        width: 100%;
+        z-index: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &, &::before { transition: none; }
     }
 }

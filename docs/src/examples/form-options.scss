@@ -1,0 +1,182 @@
+.field-option {
+    display: grid;
+    gap: 10px;
+
+    &-surface {
+        border: 1px solid var(--demo-border);
+        border-radius: 12px;
+        position: relative;
+        transition: border-color var(--demo-duration), box-shadow var(--demo-duration), background var(--demo-duration);
+        &:focus-within { border-color: var(--demo-accent); }
+    }
+
+    .input, .textarea {
+        --background: transparent;
+        --border-width: 0px;
+        --border-radius: 12px;
+        --padding-horizontal: 16px;
+        --padding-vertical: 14px;
+        outline: none;
+        margin: 0;
+        min-width: 0;
+        width: 100%;
+    }
+    .textarea { min-height: 112px; resize: vertical; }
+    &-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 16px;
+        border-top: 1px solid var(--demo-border);
+        color: var(--color-text-300);
+        font-size: 12px;
+        output { font-variant-numeric: tabular-nums; }
+    }
+
+    &--floating {
+        .input, .textarea { --padding-vertical: 22px; padding-bottom: 10px; }
+        .field-option-surface > label {
+            position: absolute;
+            left: 16px;
+            top: 17px;
+            transform-origin: left top;
+            color: var(--color-text-300);
+            pointer-events: none;
+            transition: transform var(--demo-duration), color var(--demo-duration);
+        }
+        .field-option-surface:focus-within > label,
+        .field-option-surface:has(:not(:placeholder-shown):is(input, textarea)) > label {
+            transform: translateY(-10px) scale(.72);
+            color: var(--demo-accent);
+        }
+    }
+    &--inset &-surface {
+        background: color-mix(in srgb, var(--demo-border) 10%, transparent);
+        box-shadow: inset 0 2px 5px #00000012;
+        &:focus-within { box-shadow: inset 0 1px 3px #0000000a, 0 0 0 3px var(--demo-ring); }
+    }
+    &--rail &-surface {
+        background: var(--demo-tint);
+        border-color: transparent;
+        border-left: 4px solid var(--demo-border);
+        border-radius: 0 12px 12px 0;
+        &:focus-within { border-left-color: var(--demo-accent); }
+    }
+    &--double &-surface {
+        outline: 1px solid transparent;
+        outline-offset: 0;
+        transition: outline-offset var(--demo-duration), outline-color var(--demo-duration);
+        &:focus-within { outline-color: var(--demo-accent); outline-offset: 5px; }
+    }
+    &--tinted &-surface {
+        background: var(--demo-tint);
+        border-color: transparent;
+        border-bottom: 2px solid var(--demo-border);
+        border-radius: 12px 12px 0 0;
+        &:focus-within { border-bottom-color: var(--demo-accent); }
+    }
+    &--counter &-surface:focus-within,
+    &--editor &-surface:focus-within { box-shadow: 0 0 0 3px var(--demo-ring); }
+    &--capsule &-surface { display: flex; align-items: center; border-radius: 999px; padding-left: 20px; }
+    &--capsule .input { --border-radius: 999px; }
+    &-search {
+        flex: 0 0 14px;
+        height: 14px;
+        border: 2px solid currentColor;
+        border-radius: 50%;
+        opacity: .55;
+        position: relative;
+        &::after { content: ''; width: 6px; height: 2px; background: currentColor; position: absolute; right: -5px; bottom: -2px; transform: rotate(45deg); }
+    }
+    &--prefix &-surface { display: flex; align-items: stretch; }
+    &-prefix { display: flex; align-items: center; padding: 0 12px; background: var(--demo-tint); border-radius: 12px 0 0 12px; white-space: nowrap; font-size: 12px; }
+    &--paper .textarea {
+        line-height: 28px;
+        background: repeating-linear-gradient(transparent 0 27px, var(--demo-border) 27px 28px);
+        background-origin: content-box;
+        background-clip: content-box;
+    }
+    &--autosize .textarea { min-height: 76px; max-height: 260px; resize: none; }
+    &--editor .textarea { min-height: 180px; line-height: 1.8; }
+    &--editor .field-option-footer { background: var(--demo-tint); border-radius: 0 0 12px 12px; }
+}
+
+@mixin range-option-thumb {
+    appearance: none;
+    width: var(--option-thumb-width, 22px);
+    height: var(--option-thumb-height, 22px);
+    border: 3px solid var(--color-white-400);
+    border-radius: var(--option-thumb-radius, 50%);
+    background: var(--demo-accent);
+    box-shadow: 0 2px 6px #0003;
+}
+
+.range-option {
+    --option-height: 44px;
+    display: grid;
+    gap: 14px;
+    &-control { height: var(--option-height); position: relative; isolation: isolate; }
+    &-track { position: absolute; inset: 17px 0; border-radius: 999px; background: var(--demo-border); overflow: hidden; pointer-events: none; }
+    &-fill { height: 100%; width: var(--progress); background: var(--demo-accent); border-radius: inherit; }
+    input {
+        appearance: none;
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: transparent;
+        cursor: pointer;
+        z-index: 2;
+        &::-webkit-slider-thumb { @include range-option-thumb; }
+        &::-moz-range-thumb { @include range-option-thumb; }
+        &:focus-visible { outline: 2px solid var(--demo-accent); outline-offset: 5px; border-radius: 8px; }
+    }
+    &-value { position: absolute; right: 0; top: -32px; color: var(--demo-accent); font-variant-numeric: tabular-nums; pointer-events: none; }
+    &-scale { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--color-text-300); gap: 8px; }
+
+    &--bar, &--bar-tall, &--bar-segments {
+        --option-height: 48px;
+        .range-option-track { inset: 0; border-radius: 12px; background: var(--demo-tint); }
+        .range-option-fill { border-radius: 0; }
+        input::-webkit-slider-thumb { width: 0; height: var(--option-height); border: 0; box-shadow: none; background: transparent; }
+        input::-moz-range-thumb { width: 0; height: var(--option-height); border: 0; box-shadow: none; background: transparent; }
+        .range-option-value {
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--color-text-400);
+        }
+        .range-option-value--filled {
+            color: var(--color-white-400);
+            clip-path: inset(0 calc(100% - var(--progress)) 0 0);
+        }
+    }
+    &--bar-tall {
+        --option-height: 64px;
+        .range-option-track { border-radius: 16px; }
+        .range-option-value { justify-content: flex-start; padding-left: clamp(12px, calc(var(--progress) - 64px), calc(100% - 64px)); font-size: 20px; }
+    }
+    &--bar-segments .range-option-track::after {
+        content: ''; position: absolute; inset: 0;
+        background: repeating-linear-gradient(to right, transparent 0 calc(10% - 2px), var(--color-white-400) calc(10% - 2px) 10%);
+        opacity: .65;
+    }
+    &--bubble {
+        padding-top: 8px;
+        .range-option-control { margin-top: 20px; }
+        .range-option-value { top: -24px; right: auto; left: calc(11px + (100% - 22px) * var(--fraction)); transform: translateX(-50%); border-radius: 8px; padding: 4px 7px; background: var(--demo-accent); color: var(--color-white-400); font-size: 12px; }
+    }
+    &--ruler .range-option-track { inset: 9px 0; border-radius: 4px; background: repeating-linear-gradient(to right, transparent 0 calc(5% - 1px), var(--demo-border) calc(5% - 1px) 5%), var(--demo-tint); }
+    &--ruler .range-option-fill { opacity: .35; }
+    &--split { --option-thumb-width: 8px; --option-thumb-height: 38px; --option-thumb-radius: 4px; }
+    &--split .range-option-track { inset: 9px 0; border-radius: 6px; }
+    &--soft .range-option-track { inset: 14px 0; box-shadow: inset 0 2px 5px #0002; background: var(--demo-tint); }
+    &--soft { --option-thumb-width: 28px; --option-thumb-height: 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .field-option *, .field-option *::before, .field-option *::after { transition: none !important; }
+}

@@ -39,29 +39,6 @@ export function fieldVariations(kind: 'input' | 'textarea'): Variant[] {
     }));
 }
 
-export function switchVariations(): Variant[] {
-    return [
-        ['spring', 'Spring · Soft sliding thumb'],
-        ['stretch', 'Stretch · Elastic thumb'],
-        ['lift', 'Lift · Floating thumb on a slim rail'],
-        ['wipe', 'Wipe · Color travels across the track'],
-        ['rotate', 'Rotate · Turning square thumb']
-    ].map(([mode, title]) => ({
-        title,
-        render: () => html`
-            <div class='form-prototype switch-prototype switch-prototype--${mode}'>
-                ${['Notifications', 'Sound effects'].map((label, index) => html`
-                    <label class='choice-prototype-option'>
-                        <input type='checkbox' role='switch' checked='${index === 1}'>
-                        <span class='switch-prototype-track' aria-hidden='true'><span></span></span>
-                        <span>${label}</span>
-                    </label>
-                `)}
-            </div>
-        `
-    }));
-}
-
 export function rangeVariations(): Variant[] {
     return [
         ['halo', 'Halo · Thumb grows with a focus ring'],

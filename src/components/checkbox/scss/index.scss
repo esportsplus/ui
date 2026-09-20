@@ -28,7 +28,7 @@
     &--radio {
         &::after {
             background: var(--check-color);
-            border-radius: calc(var(--check-spacing) - var(--border-radius));
+            border-radius: calc(var(--border-radius) - var(--check-spacing) / 1.5);
             content: '';
             height: calc(var(--height) - var(--check-spacing) * 2);
             inset: 0;

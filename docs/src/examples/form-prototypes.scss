@@ -86,62 +86,6 @@
     }
 }
 
-.choice-prototype {
-    border: 0;
-    padding: 0;
-    margin: 0;
-    min-width: 0;
-    legend { margin-bottom: 18px; }
-    &-options { display: flex; flex-wrap: wrap; gap: 24px; }
-}
-
-.choice-prototype-option {
-    align-items: center;
-    cursor: pointer;
-    display: inline-flex;
-    gap: 10px;
-    position: relative;
-
-    > input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: inherit; }
-    > input:focus-visible + span { outline: 2px solid var(--demo-accent); outline-offset: 4px; }
-}
-
-.switch-prototype {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-
-    &-track {
-        width: 48px; height: 28px; border-radius: 28px; background: var(--demo-border);
-        position: relative; pointer-events: none;
-        transition: background var(--demo-duration), box-shadow var(--demo-duration);
-        > span {
-            position: absolute; left: 3px; top: 3px; width: 22px; height: 22px;
-            border-radius: 50%; background: var(--color-white-400);
-            box-shadow: 0 2px 4px #0003;
-            transition: transform var(--demo-duration) var(--demo-spring), width var(--demo-duration), border-radius var(--demo-duration);
-        }
-    }
-    input:hover + &-track { box-shadow: 0 0 0 3px var(--demo-ring); }
-    input:checked + &-track { background: var(--demo-accent); }
-    input:checked + &-track > span { transform: translateX(20px); }
-    &--stretch input:active + &-track > span { width: 28px; }
-    &--stretch input:checked:active + &-track > span { transform: translateX(14px); }
-    &--lift &-track { height: 12px; margin-block: 8px; }
-    &--lift &-track > span { top: -5px; background: var(--demo-accent); }
-    &--lift input:checked + &-track { background: var(--demo-ring); }
-    &--wipe &-track { overflow: hidden; }
-    &--wipe &-track::before {
-        content: ''; position: absolute; inset: 0; background: var(--demo-accent); border-radius: inherit;
-        transform: scaleX(0); transform-origin: left; transition: transform var(--demo-duration);
-    }
-    &--wipe input:checked + &-track { background: var(--demo-border); }
-    &--wipe input:checked + &-track::before { transform: scaleX(1); }
-    &--rotate &-track { border-radius: 8px; }
-    &--rotate &-track > span { border-radius: 5px; }
-    &--rotate input:checked + &-track > span { transform: translateX(20px) rotate(90deg); }
-}
-
 @mixin prototype-thumb {
     appearance: none;
     width: var(--demo-thumb-width, 20px);
