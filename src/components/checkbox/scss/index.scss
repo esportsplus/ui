@@ -6,45 +6,65 @@
     border-color: var(--border-color);
     border-radius: var(--border-radius);
     border-style: var(--border-style);
-    border-width: var(--border-width);
+    border-width: calc(var(--border-width) + var(--border-width-offset));
+    box-shadow: var(--box-shadow);
+    cursor: pointer;
     flex: 0 0 var(--width);
     height: var(--height);
+    opacity: var(--opacity);
     position: relative;
+    transform: scale(var(--scale));
+    transform-origin: center;
     transition:
         background var(--transition-duration) var(--transition-timing-function),
         border-color var(--transition-duration) var(--transition-timing-function),
+        border-width var(--transition-duration) var(--transition-timing-function),
         box-shadow var(--transition-duration) var(--transition-timing-function),
         opacity var(--transition-duration) var(--transition-timing-function),
         transform var(--transition-duration) var(--transition-timing-function);
     width: var(--width);
 
-    &:invalid,
-    &:required {
-        box-shadow: none;
-    }
 
-    &::before {
-        border-bottom: var(--border-width) solid var(--accent);
-        border-right: var(--border-width) solid var(--accent);
-        bottom: 50%;
-        box-shadow: var(--box-shadow);
-        content: '';
-        height: var(--height);
-        opacity: var(--opacity);
-        position: absolute;
-        right: 92%;
-        transform: translate(var(--translateX), var(--translateY)) rotate(var(--rotate)) scale(var(--scale));
-        transform-origin: bottom center;
-        width: var(--width);
-    }
-
-    // Hide HTML Field Element
-    &-tag {
-        @include lib.position(absolute, 0 null null 0);
-        height: 0px;
-        opacity: 0;
+    .checkbox-check {
+        height: var(--check-size);
+        inset: 0;
+        margin: auto;
         pointer-events: none;
-        width: 0px;
-        z-index: 0;
+        position: absolute;
+        width: var(--check-size);
+
+        svg {
+            fill: none;
+            stroke: var(--check-color);
+            stroke-width: var(--check-stroke-width);
+            stroke-linecap: var(--check-linecap);
+            stroke-linejoin: var(--check-linejoin);
+            stroke-dasharray: 1;
+            stroke-dashoffset: var(--check-offset);
+            transition: stroke-dashoffset var(--transition-duration) var(--check-timing-function);
+        }
+    }
+
+    &:has(> .checkbox-tag:focus-visible) {
+        outline: var(--focus-width) solid var(--focus-color);
+        outline-offset: var(--focus-offset);
+    }
+
+    // Keep the native input interactive while the SVG supplies its appearance.
+    &-tag {
+        @include lib.position(absolute, full);
+        cursor: inherit;
+        height: 100%;
+        margin: 0;
+        opacity: 0;
+        width: 100%;
+        z-index: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &,
+        .checkbox-check svg {
+            transition: none;
+        }
     }
 }

@@ -2,12 +2,11 @@ import { checkbox } from '@esportsplus/ui';
 
 
 let style = `
-        --accent: var(--color-white-400);
         --background-active: var(--color-primary-400);
         --border-color-active: var(--color-primary-400);
         --border-color-default: var(--color-border-500);
         --border-width: var(--border-width-400);
-        --size: var(--size-500);
+        --check-color: var(--color-white-400);
     `;
 
 
@@ -15,11 +14,11 @@ export default {
     name: 'checkbox',
     variants: [
         {
-            render: () => checkbox({ style }),
+            render: () => checkbox({ style, 'aria-label': 'Checkbox' }),
             title: 'default'
         },
         {
-            render: () => checkbox({ checked: true, style }),
+            render: () => checkbox({ checked: true, style, 'aria-label': 'Initially checked checkbox' }),
             title: 'checked'
         }
     ]

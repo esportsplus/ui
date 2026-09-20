@@ -1,11 +1,13 @@
 import { html, type Attributes } from '@esportsplus/template';
-import { reactive, root } from '@esportsplus/reactivity';
+import { reactive } from '@esportsplus/reactivity';
 import { omit } from '@esportsplus/utilities';
 import form from '~/components/form';
+import icon from '~/components/icon';
+import check from './svg/check.svg';
 import './scss/index.scss';
 
 
-const OMIT = ['checked', 'value'];
+const OMIT = ['checked', 'state', 'value'];
 
 
 const factory = (type: string) => {
@@ -28,11 +30,16 @@ const factory = (type: string) => {
                 class='${() => state.active ? type + " --active" : type}'
                 ${this?.attributes && omit(this.attributes, OMIT)}
                 ${attributes && omit(attributes, OMIT)}
-                onclick=${() => ref.click()}
+                onclick=${(event: MouseEvent) => {
+                    if (event.target !== ref) {
+                        ref.click();
+                    }
+                }}
             >
                 <input
                     ${{
-                        checked: attributes?.checked || root(() => state.active),
+                        checked: () => state.active,
+                        'aria-label': attributes?.['aria-label'] ?? this?.attributes?.['aria-label'],
                         class: `${type}-tag`,
                         onchange: (e: Event) => {
                             state.active = (e.target as HTMLInputElement).checked;
@@ -45,6 +52,7 @@ const factory = (type: string) => {
                         value: attributes?.value || 1
                     }}
                 >
+                ${type === 'checkbox' && icon({ class: 'checkbox-check', 'aria-hidden': 'true' }, check)}
             </div>
         `;
     }
