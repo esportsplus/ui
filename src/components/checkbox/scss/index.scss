@@ -62,6 +62,9 @@
             stroke-width: var(--check-stroke-width);
             stroke-linecap: var(--check-linecap);
             stroke-linejoin: var(--check-linejoin);
+            stroke-dasharray: 1;
+            stroke-dashoffset: var(--check-offset);
+            transition: stroke-dashoffset var(--transition-duration) var(--check-timing-function);
         }
     }
 
@@ -84,8 +87,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        --check-duration: 0s;
-
         &,
         &::before,
         .checkbox-check svg {
