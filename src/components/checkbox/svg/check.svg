@@ -1,1 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7" pathLength="1"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7" pathLength="1" style="stroke-dasharray: 1; stroke-dashoffset: var(--check-offset); transition: stroke-dashoffset var(--check-duration, var(--transition-duration)) var(--check-timing-function)"/></svg>

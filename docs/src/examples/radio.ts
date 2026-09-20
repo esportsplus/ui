@@ -2,21 +2,34 @@ import { radio } from '@esportsplus/ui';
 import { html } from '@esportsplus/template';
 
 
-let style = '--accent: var(--color-white-400); --background-active: var(--color-primary-400); --border-color-active: var(--color-primary-400); --border-color-default: var(--color-border-500); --border-width: var(--border-width-400); --size: var(--size-500);';
+let instance = 0;
+const style = `
+    --background-active: var(--color-primary-400);
+    --border-color-active: var(--color-primary-400);
+    --border-color-default: var(--color-border-500);
+    --border-width: var(--border-width-400);
+`;
 
 
 export default {
     name: 'radio',
-    variants: [
-        {
-            render: () => html`
-                <div style='display: flex; gap: var(--size-400); align-items: center;'>
-                    ${radio({ checked: true, name: 'viewer-radio', style, value: 'a' })}
-                    ${radio({ name: 'viewer-radio', style, value: 'b' })}
-                    ${radio({ name: 'viewer-radio', style, value: 'c' })}
-                </div>
-            `,
-            title: 'group'
+    variants: [{
+        title: 'Spring · Inset mark with matching corners',
+        render: () => {
+            let name = `radio-example-${++instance}`;
+            return html`
+                <fieldset style='border: 0; margin: 0; padding: 0; min-width: 0;'>
+                    <legend style='margin-bottom: var(--size-400);'>Choose a size</legend>
+                    <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
+                        ${['Small', 'Medium', 'Large'].map((label, index) => html`
+                            <label style='display: inline-flex; align-items: center; gap: var(--size-300); cursor: pointer;'>
+                                ${radio({ checked: index === 1, name, style, value: label, 'aria-label': label })}
+                                <span>${label}</span>
+                            </label>
+                        `)}
+                    </div>
+                </fieldset>
+            `;
         }
-    ]
+    }]
 };

@@ -53,12 +53,24 @@
     --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
     --width: var(--height);
 
+    &--radio {
+        --check-scale: var(--check-scale-default);
+        --check-scale-active: 1;
+        --check-scale-default: 0;
+        --check-spacing: calc(var(--size) * 8 / 26);
+
+        #{tokens.state(active)} {
+            --check-scale: var(--check-scale-active);
+        }
+    }
+
     #{tokens.state(inactive)} {
         @include tokens.state(hover) {
             --background: var(--background-hover);
             --border-color: var(--border-color-hover);
             --border-width-offset: var(--border-width-offset-hover);
             --box-shadow: var(--box-shadow-hover);
+            --check-color: var(--check-color-hover);
             --opacity: var(--opacity-hover);
             --scale: var(--scale-hover);
         }
@@ -67,6 +79,7 @@
             --background: var(--background-pressed);
             --border-color: var(--border-color-pressed);
             --box-shadow: var(--box-shadow-pressed);
+            --check-color: var(--check-color-pressed);
             --opacity: var(--opacity-pressed);
             --scale: var(--scale-pressed);
         }
@@ -76,6 +89,7 @@
         --background: var(--background-active);
         --border-color: var(--border-color-active);
         --box-shadow: var(--box-shadow-active);
+        --check-color: var(--check-color-active);
         --check-offset: var(--check-offset-active);
         --opacity: var(--opacity-active);
         --scale: var(--scale-active);

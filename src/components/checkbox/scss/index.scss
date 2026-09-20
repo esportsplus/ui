@@ -25,6 +25,29 @@
     width: var(--width);
 
 
+    &--radio {
+        &::after {
+            background: var(--check-color);
+            border-radius: calc(var(--check-spacing) - var(--border-radius));
+            content: '';
+            height: calc(var(--height) - var(--check-spacing) * 2);
+            inset: 0;
+            margin: auto;
+            pointer-events: none;
+            position: absolute;
+            transform: scale(var(--check-scale));
+            transition: transform var(--transition-duration) var(--transition-timing-function);
+            width: calc(var(--width) - var(--check-spacing) * 2);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            &::after {
+                transition: none;
+            }
+        }
+    }
+
+
     .checkbox-check {
         height: var(--check-size);
         inset: 0;
@@ -39,19 +62,18 @@
             stroke-width: var(--check-stroke-width);
             stroke-linecap: var(--check-linecap);
             stroke-linejoin: var(--check-linejoin);
-            stroke-dasharray: 1;
-            stroke-dashoffset: var(--check-offset);
-            transition: stroke-dashoffset var(--transition-duration) var(--check-timing-function);
         }
     }
 
-    &:has(> .checkbox-tag:focus-visible) {
+    &:has(> .checkbox-tag:focus-visible),
+    &:has(> .radio-tag:focus-visible) {
         outline: var(--focus-width) solid var(--focus-color);
         outline-offset: var(--focus-offset);
     }
 
     // Keep the native input interactive while the SVG supplies its appearance.
-    &-tag {
+    .checkbox-tag,
+    .radio-tag {
         @include lib.position(absolute, full);
         cursor: inherit;
         height: 100%;
@@ -62,7 +84,10 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+        --check-duration: 0s;
+
         &,
+        &::before,
         .checkbox-check svg {
             transition: none;
         }

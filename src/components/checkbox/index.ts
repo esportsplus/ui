@@ -7,10 +7,26 @@ import check from './svg/check.svg';
 import './scss/index.scss';
 
 
-const OMIT = ['checked', 'state', 'value'];
+const OMIT = ['checked', 'name', 'state', 'value'];
+const radios = new WeakMap<HTMLInputElement, { active: boolean }>();
 
 
-const factory = (type: string) => {
+function syncRadios(input: HTMLInputElement) {
+    if (!input.name) {
+        return;
+    }
+
+    for (let peer of (input.getRootNode() as Document | ShadowRoot).querySelectorAll<HTMLInputElement>('input[type="radio"]')) {
+        let state = radios.get(peer);
+
+        if (state && peer.name === input.name && peer.form === input.form) {
+            state.active = peer.checked;
+        }
+    }
+}
+
+
+const factory = (type: 'checkbox' | 'radio' | 'switch') => {
     function template(
         this: { attributes?: Attributes } | any,
         attributes?: Attributes & { state?: { active: boolean, error: string } }
@@ -27,7 +43,7 @@ const factory = (type: string) => {
 
         return html`
             <div
-                class='${() => state.active ? type + " --active" : type}'
+                class='${type === 'radio' ? 'checkbox checkbox--radio' : type} ${() => state.active && '--active'}'
                 ${this?.attributes && omit(this.attributes, OMIT)}
                 ${attributes && omit(attributes, OMIT)}
                 onclick=${(event: MouseEvent) => {
@@ -38,14 +54,29 @@ const factory = (type: string) => {
             >
                 <input
                     ${{
-                        checked: () => state.active,
+                        checked: () => {
+                            if (type === 'radio' && state.active) {
+                                queueMicrotask(() => ref && syncRadios(ref as HTMLInputElement));
+                            }
+
+                            return state.active;
+                        },
                         'aria-label': attributes?.['aria-label'] ?? this?.attributes?.['aria-label'],
                         class: `${type}-tag`,
+                        name: attributes?.name ?? this?.attributes?.name,
                         onchange: (e: Event) => {
                             state.active = (e.target as HTMLInputElement).checked;
+
+                            if (type === 'radio') {
+                                syncRadios(e.target as HTMLInputElement);
+                            }
                         },
                         onconnect: (input) => {
                             ref = input;
+
+                            if (type === 'radio') {
+                                radios.set(input as unknown as HTMLInputElement, state);
+                            }
                         },
                         onrender: form.input.onrender(state),
                         type: type === 'radio' ? 'radio' : 'checkbox',

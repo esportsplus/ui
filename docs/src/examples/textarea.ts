@@ -1,4 +1,5 @@
 import { textarea } from '@esportsplus/ui';
+import { fieldVariations } from './form-prototypes';
 
 
 let area = textarea.bind({});
@@ -7,6 +8,7 @@ let area = textarea.bind({});
 export default {
     name: 'textarea',
     variants: [
+        ...fieldVariations('textarea'),
         {
             render: () => area({ placeholder: 'Write something…' }),
             title: 'default'
