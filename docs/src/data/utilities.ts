@@ -217,17 +217,6 @@ const utilities: Utility[] = [
     },
     {
         category: 'Surface',
-        description: 'Line-height helpers mapped to the line-height token scale.',
-        name: 'line-height',
-        variants: [
-            {
-                render: () => html`<div class='--flex-column --gap-400'>${['--line-height-100', '--line-height-400'].map((c) => html`<p class='${c}' style='line-height: var(--line-height); max-width: 40ch;'><span class='code'>${c}</span> — The quick brown fox jumps over the lazy dog and keeps on running past the second line.</p>`)}</div>`,
-                title: 'line-height'
-            }
-        ]
-    },
-    {
-        category: 'Surface',
         description: 'Typography helpers for transform, alignment, weight, and decoration.',
         name: 'text',
         variants: [

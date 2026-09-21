@@ -1,31 +1,23 @@
 .search {
-    --background-default: color-mix(in oklab, var(--color-grey-500) 70%, transparent);
-    --background-hover: var(--color-white-400);
+    --border-color-default: var(--color-border-300);
     --border-color-hover: var(--color-border-400);
-    --border-width: var(--border-width-400);
     --color-default: var(--color-text-300);
-    --font-size: var(--font-size-300);
-    --padding-horizontal: var(--size-300);
-    --padding-vertical: var(--size-200);
-    --width: 100%;
-    gap: var(--size-200);
-    justify-content: flex-start;
-    max-width: 260px;
+    margin-right: var(--size-500);
+    max-width: 240px;
+    width: calc(100% - var(--size-500));
 
-    &-icon {
-        color: var(--color-text-300);
-        flex: 0 0 auto;
+
+    &:focus-visible {
+        outline: var(--border-width-500) solid var(--color-primary-400); outline-offset: 4px;
     }
 
-    &-placeholder {
-        color: var(--color-text-300);
-        opacity: 0.72;
-        overflow: hidden;
-        text-overflow: ellipsis;
+
+    kbd {
+        border: var(--border-width-400) solid var(--color-border-400);
+        border-radius: var(--border-radius-200);
+        font-family: var(--font-family); font-size: var(--font-size-200); font-weight: var(--font-weight-300);
+        margin-left: auto;
+        padding: calc(var(--size-100) * 0.125) calc(var(--size-100) * 0.5);
         white-space: nowrap;
-    }
-
-    @media (max-width: 720px) {
-        display: none;
     }
 }

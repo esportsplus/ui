@@ -10,7 +10,7 @@ import { colorPalette } from '../components/color-palette';
 type Group = {
     file: string;
     id: string;
-    kind: 'box-shadow' | 'border-radius' | 'border-width' | 'color' | 'font-size' | 'font-weight' | 'line-height' | 'size';
+    kind: 'box-shadow' | 'border-radius' | 'border-width' | 'color' | 'font-size' | 'size';
     prefix: string;
     title: string;
     variable: string;
@@ -29,8 +29,6 @@ const groups: Group[] = [
     { file: '/src/tokens/scss/box-shadow.scss', id: 'box-shadow', kind: 'box-shadow', prefix: 'box-shadow', title: 'Box Shadow', variable: 'box-shadow' },
     { file: '/src/tokens/scss/color.scss', id: 'colors', kind: 'color', prefix: 'color', title: 'Colors', variable: 'color' },
     { file: '/src/tokens/scss/font-size.scss', id: 'font-size', kind: 'font-size', prefix: 'font-size', title: 'Font Size', variable: 'font-size' },
-    { file: '/src/tokens/scss/font-weight.scss', id: 'font-weight', kind: 'font-weight', prefix: 'font-weight', title: 'Font Weight', variable: 'font-weight' },
-    { file: '/src/tokens/scss/line-height.scss', id: 'line-height', kind: 'line-height', prefix: 'line-height', title: 'Line Height', variable: 'line-height' },
     { file: '/src/tokens/scss/size.scss', id: 'sizing', kind: 'size', prefix: 'size', title: 'Sizing', variable: 'size' },
     { file: '/src/tokens/scss/spacer.scss', id: 'spacing', kind: 'size', prefix: 'spacer', title: 'Spacing', variable: 'spacer' }
 ];
@@ -57,15 +55,11 @@ function preview(kind: Group['kind'], value: string): Renderable<unknown> {
         return html`<div style='background: var(--background); border-radius: var(--border-radius-300); box-shadow: ${value}; height: var(--size-600); width: var(--size-600);'></div>`;
     }
 
-    if (kind === 'font-weight') {
-        return html`<span style='font-weight: ${value};'>Aa</span>`;
-    }
-
     if (kind === 'font-size') {
         return html`<span style='font-size: ${value};'>Aa</span>`;
     }
 
-    return html`<span style='line-height: ${value};'>Aa</span>`;
+    return html`<span style=''>Aa</span>`;
 }
 
 function tokens(group: Group): Token[] {
@@ -109,11 +103,13 @@ const page = (): Page => {
             <div class='page docs-page'>
                 ${pageHead('Tokens', 'The design tokens that every component and utility is built from, read directly from the source SCSS with their current resolved values.')}
 
+                <p class='docs-page-note'>Font weights are defined per font family. See the <a href='/fonts'>Fonts reference</a> for available families and weights.</p>
+
                 ${rendered.map((entry) => html`
                     <section id='${entry.group.id}'>
                         <h2 class='docs-page-section-title'>${entry.group.title}</h2>
 
-                        ${entry.group.kind === 'color' ? colorPalette(entry.tokens) : html`<table class='spec-table'>
+                        ${entry.group.kind === 'color' ? colorPalette(entry.tokens) : html`<div class='spec-table-scroll'><table class='spec-table'>
                             <thead class='table-head'>
                                 <tr><th>Token</th><th>Preview</th><th>Value</th></tr>
                             </thead>
@@ -126,7 +122,7 @@ const page = (): Page => {
                                     </tr>
                                 `)}
                             </tbody>
-                        </table>`}
+                        </table></div>`}
                     </section>
                 `)}
             </div>

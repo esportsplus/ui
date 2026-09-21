@@ -1,7 +1,7 @@
 .docs-sidebar {
     align-self: start;
     max-height: calc(100svh - var(--header-height));
-    padding: var(--spacer-100) var(--size-200) var(--spacer-100) 0;
+    padding: var(--size-800) var(--size-200) var(--spacer-100) 0;
     position: sticky;
     top: var(--header-height);
 
@@ -13,7 +13,6 @@
         color: var(--color-text-300);
         font-size: var(--font-size-200);
         font-weight: var(--font-weight-300);
-        letter-spacing: 0.08em;
         padding: 0 var(--size-300) var(--size-100);
         text-transform: uppercase;
     }
@@ -24,7 +23,7 @@
         cursor: pointer;
         display: block;
         font-size: var(--docs-nav-font-size, var(--font-size-300));
-        font-weight: var(--font-weight-400);
+        font-weight: var(--font-weight-300);
         padding: var(--size-100) var(--docs-nav-padding, var(--size-300));
         text-decoration: none;
         text-transform: capitalize;
@@ -44,27 +43,44 @@
         }
     }
 
-    &-section {
-        &:not(:first-child) {
-            margin-top: var(--size-600);
-        }
-    }
-
     &-title {
         color: var(--color-text-300);
-        display: block;
         font-size: var(--font-size-200);
-        letter-spacing: 0.08em;
-        padding: 0 var(--size-300) 0 0;
-        text-decoration: none;
+        font-weight: var(--font-weight-500);
+        margin-bottom: var(--size-200);
         text-transform: uppercase;
-
-        &:hover {
-            color: var(--color-blue-400);
-        }
     }
 
     @media (max-width: 1024px) {
         display: none;
+    }
+}
+
+.docs-sidebar-section--intro {
+    margin: 0;
+
+    .docs-sidebar-group {
+        margin: 0;
+    }
+
+    .docs-sidebar-link {
+        border: 0;
+        border-radius: var(--border-radius-300);
+        color: var(--color-text-400);
+        font-size: var(--font-size-300);
+        font-weight: var(--font-weight-300);
+        margin: calc(var(--size-100) * 0.125) 0;
+        padding: calc(var(--size-100) * 0.875) var(--size-300);
+
+        &.--active {
+            background: color-mix(in oklab, var(--color-primary-400) 8%, var(--color-white-300));
+            color: var(--color-primary-400);
+            font-weight: var(--font-weight-500);
+        }
+
+        &:hover {
+            background: var(--color-grey-400);
+            color: var(--color-text-500);
+        }
     }
 }

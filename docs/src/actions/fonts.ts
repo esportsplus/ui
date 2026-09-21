@@ -104,7 +104,7 @@ const page = (): Page => {
                             `)}
                         </div>
 
-                        <table class='spec-table'>
+                        <div class='spec-table-scroll'><table class='spec-table'>
                             <thead class='table-head'>
                                 <tr><th>Weight</th><th>Style</th><th>Formats</th></tr>
                             </thead>
@@ -117,7 +117,7 @@ const page = (): Page => {
                                     </tr>
                                 `)}
                             </tbody>
-                        </table>
+                        </table></div>
                     </section>
                 `)}
             </div>

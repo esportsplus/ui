@@ -137,14 +137,14 @@ function markdown(source: string) {
             i--;
 
             renderables.push(html`
-                <table class='spec-table'>
+                <div class='spec-table-scroll'><table class='spec-table'>
                     <thead class='table-head'>
                         <tr>${head.map((cell) => html`<th>${inline(cell)}</th>`)}</tr>
                     </thead>
                     <tbody>
                         ${body.map((row) => html`<tr>${row.map((cell) => html`<td>${inline(cell)}</td>`)}</tr>`)}
                     </tbody>
-                </table>
+                </table></div>
             `);
             continue;
         }

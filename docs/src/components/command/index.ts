@@ -1,3 +1,5 @@
+import icon from '~/components/icon';
+import searchSvg from '~/storage/svg/search.svg';
 import { html } from '../../app';
 import { input, overlay } from '@esportsplus/ui';
 import './scss/index.scss';
@@ -20,10 +22,7 @@ const command = ({ search, close, links }: Options) => overlay(
     html`
         <div class='modal card --active command' ${{ onclick: (e: MouseEvent) => e.stopPropagation() }}>
             <label class='command-search'>
-                <svg aria-hidden='true' class='command-icon' fill='none' height='16' viewBox='0 0 24 24' width='16'>
-                    <circle cx='11' cy='11' r='7' stroke='currentColor' stroke-width='2'></circle>
-                    <path d='m20 20-3.5-3.5' stroke='currentColor' stroke-linecap='round' stroke-width='2'></path>
-                </svg>
+                ${icon({ class: 'command-icon', 'aria-hidden': 'true', style: '--size: var(--size-400);' }, searchSvg)}
 
                 ${field({
                     autofocus: true,

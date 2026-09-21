@@ -13,11 +13,18 @@ body {
     font-family: var(--font-family);
     font-size: var(--font-size);
     font-weight: var(--font-weight);
-    line-height: var(--line-height);
     min-width: var(--min-width);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    // Recalculate typography at each element's font size instead of inheriting
+    // the body's computed length.
+    &,
+    & * {
+        letter-spacing: clamp(-0.022em, calc(0.060542rem - 0.051418em), 0em);
+        line-height: clamp(1.128em, calc(0.95em + 0.668rem), 1.618em);
+    }
 }
 
 *,
@@ -40,7 +47,6 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color);
     font-size: var(--font-size);
     font-weight: var(--font-weight-500);
-    line-height: 1.2;
     margin: 0;
     padding: 0;
     position: relative;
@@ -52,15 +58,6 @@ h1, h2, h3, h4, h5, h6 {
     sup {
         font-size: 0.64em;
     }
-}
-
-h1 {
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-}
-
-h2 {
-    letter-spacing: -0.015em;
 }
 
 a {

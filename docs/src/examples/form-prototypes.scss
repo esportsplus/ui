@@ -8,16 +8,16 @@
     color: var(--color-text-400);
     width: min(100%, 400px);
 
-    small { color: var(--color-text-300); font-size: 12px; }
+    small { color: var(--color-text-300); font-size: var(--font-size-300); }
 }
 
 .field-prototype {
     display: grid;
-    gap: 10px;
+    gap: var(--size-200);
 
     &-surface {
-        border: 1px solid var(--demo-border);
-        border-radius: 10px;
+        border: var(--border-width-400) solid var(--demo-border);
+        border-radius: var(--border-radius-500);
         position: relative;
         transition: border-color var(--demo-duration), box-shadow var(--demo-duration),
             transform var(--demo-duration) var(--demo-spring), background var(--demo-duration);
@@ -29,9 +29,9 @@
     .input, .textarea {
         --background: transparent;
         --border-width: 0px;
-        --border-radius: 10px;
-        --padding-horizontal: 14px;
-        --padding-vertical: 12px;
+        --border-radius: var(--border-radius-500);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-300);
         outline: none;
         margin: 0;
     }
@@ -48,7 +48,7 @@
             content: '';
             position: absolute;
             inset: auto 0 -1px;
-            height: 2px;
+            height: calc(var(--size-100) * 0.25);
             background: var(--demo-accent);
             transform: scaleX(0);
             transition: transform var(--demo-duration);
@@ -73,8 +73,8 @@
             position: absolute;
             top: 25%;
             bottom: 25%;
-            width: 3px;
-            border-radius: 3px;
+            width: calc(var(--size-100) * 0.375);
+            border-radius: var(--border-radius-200);
             background: var(--demo-accent);
             transform: scaleY(0);
             transition: transform var(--demo-duration) var(--demo-spring), top var(--demo-duration), bottom var(--demo-duration);
@@ -88,41 +88,41 @@
 
 @mixin prototype-thumb {
     appearance: none;
-    width: var(--demo-thumb-width, 20px);
-    height: var(--demo-thumb-height, 20px);
-    border: 2px solid var(--color-white-400);
+    width: var(--demo-thumb-width, var(--size-500));
+    height: var(--demo-thumb-height, var(--size-500));
+    border: var(--border-width-500) solid var(--color-white-400);
     border-radius: var(--demo-thumb-radius, 50%);
     background: var(--demo-accent);
-    box-shadow: 0 2px 5px #0003;
+    box-shadow: var(--box-shadow-200);
     transition: transform var(--demo-duration) var(--demo-spring), box-shadow var(--demo-duration);
 }
 
 .range-prototype {
     display: grid;
-    gap: 14px;
+    gap: var(--size-300);
     &-heading, &-scale { display: flex; justify-content: space-between; }
     &-heading output { color: var(--demo-accent); font-variant-numeric: tabular-nums; }
-    &-scale { font-size: 12px; color: var(--color-text-300); }
+    &-scale { font-size: var(--font-size-300); color: var(--color-text-300); }
     input {
-        appearance: none; width: 100%; height: var(--demo-track-height, 6px); margin: 10px 0;
-        border-radius: 20px; cursor: pointer;
+        appearance: none; width: 100%; height: var(--demo-track-height, calc(var(--size-100) * 0.75)); margin: var(--size-200) 0;
+        border-radius: var(--border-radius-800); cursor: pointer;
         background: linear-gradient(to right, var(--demo-accent) var(--progress), var(--demo-border) var(--progress));
         &::-webkit-slider-thumb { @include prototype-thumb; }
         &::-moz-range-thumb { @include prototype-thumb; }
-        &:focus-visible { outline: 2px solid var(--demo-accent); outline-offset: 8px; }
+        &:focus-visible { outline: var(--border-width-500) solid var(--demo-accent); outline-offset: 8px; }
         &:hover::-webkit-slider-thumb, &:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px var(--demo-ring); }
         &:hover::-moz-range-thumb, &:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 5px var(--demo-ring); }
     }
     &--halo input:active::-webkit-slider-thumb { transform: scale(1.2); }
     &--halo input:active::-moz-range-thumb { transform: scale(1.2); }
-    &--pill { --demo-thumb-width: 14px; --demo-thumb-height: 28px; --demo-thumb-radius: 6px; --demo-track-height: 3px; }
+    &--pill { --demo-thumb-width: 14px; --demo-thumb-height: 28px; --demo-thumb-radius: var(--border-radius-300); --demo-track-height: 3px; }
     &--lift input:active::-webkit-slider-thumb { transform: translateY(-4px) scale(1.1); }
     &--lift input:active::-moz-range-thumb { transform: translateY(-4px) scale(1.1); }
     &--steps input {
         background: repeating-linear-gradient(to right, transparent 0 calc(10% - 1px), var(--color-white-400) calc(10% - 1px) 10%),
             linear-gradient(to right, var(--demo-accent) var(--progress), var(--demo-border) var(--progress));
     }
-    &--meter { --demo-track-height: 18px; --demo-thumb-width: 8px; --demo-thumb-height: 26px; --demo-thumb-radius: 4px; }
+    &--meter { --demo-track-height: 18px; --demo-thumb-width: 8px; --demo-thumb-height: 26px; --demo-thumb-radius: var(--border-radius-200); }
 }
 
 @media (prefers-reduced-motion: reduce) {

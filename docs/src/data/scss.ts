@@ -122,7 +122,9 @@ const fonts = () => Object.entries(fontSources).map(([path, source]) => ({
     source
 }));
 
-const map = (scss: string, name: string): Node | null => {
+const map = (scss: string | undefined, name: string): Node | null => {
+    if (scss === undefined) return null;
+
     let body = block(scss, name);
 
     if (body === null) {

@@ -14,6 +14,8 @@ pnpm add @esportsplus/ui
 - `@esportsplus/action` - Response/error handling
 - `@esportsplus/utilities` - Core utilities
 
+*https://github.com/Chainlift/liftkit* temporarily trying liftkit rules
+
 ## Quick Start
 
 ```typescript
@@ -206,7 +208,7 @@ Located in `tokens.scss`:
 - **Sizing**: `--size-{300-800}` (12px-80px)
 - **Spacing**: `--spacing-{0-600}`
 - **Border**: `--border-radius-{100-900}`, `--border-width-{100-700}`
-- **Typography**: `--font-size-*`, `--font-weight-*`, `--line-height-*`
+- **Typography**: `--font-size-*`, `--font-weight-*`; line height adjusts automatically to each element's font size.
 
 ### CSS Utilities
 

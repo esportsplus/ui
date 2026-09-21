@@ -20,12 +20,12 @@
 
         &::after,
         &-bottom::after {
-            margin-bottom: calc((1 - var(--line-height)) * 0.618em);
+            margin-bottom: calc((1em - 1lh) * 0.618);
         }
 
         &::before,
         &-top::before {
-            margin-top: calc((1 - var(--line-height)) * 0.618em);
+            margin-top: calc((1em - 1lh) * 0.618);
         }
 
         &-first-child {
@@ -68,7 +68,6 @@
     }
 
     &-truncate {
-        line-height: var(--line-height);
         max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;

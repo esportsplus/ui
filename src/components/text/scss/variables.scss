@@ -8,8 +8,7 @@
     --font-size: var(--font-size-400);
     --font-weight: var(--font-weight-400);
     --gap: calc(1em / 1.618 - var(--border-width));
-    --line-height: var(--line-height-400);
-    --padding-horizontal: calc(1em * var(--line-height) / (1.618 * 1.618) - var(--border-width));
+    --padding-horizontal: calc(1lh / (1.618 * 1.618) - var(--border-width));
     --padding-vertical: calc(1em - var(--border-width));
     --width: auto;
 }

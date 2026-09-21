@@ -1,29 +1,10 @@
 .header {
-    backdrop-filter: none;
-    background: transparent;
-    border-bottom: 1px solid var(--color-border-400);
+    background: color-mix(in oklab, var(--color-white-400) 70%, transparent);
+    border-bottom: 1px solid var(--color-grey-500);
     position: sticky;
     top: 0;
     z-index: 30;
 
-    &::before {
-        backdrop-filter: blur(var(--size-300));
-        background: color-mix(
-            in oklab,
-            var(--color-white-400) 84%,
-            transparent
-        );
-        content: '';
-        inset: 0 0 calc(var(--size-700) * -1);
-        mask-image: linear-gradient(
-            to bottom,
-            black calc(100% - var(--size-700)),
-            transparent
-        );
-        pointer-events: none;
-        position: absolute;
-        z-index: -1;
-    }
 
     &-actions {
         align-items: center;
@@ -54,15 +35,22 @@
     }
 
     &-link {
-        --background-hover: var(--color-grey-300);
-        color: var(--color-text-400);
+        border-radius: var(--border-radius-300);
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        font-weight: var(--font-weight-300);
+        padding: var(--size-100) var(--size-200);
+        text-decoration: none;
+        white-space: nowrap;
 
         &.--active {
             color: var(--color-text-500);
+            font-weight: var(--font-weight-500);
         }
 
-        &:first-child {
-            margin-left: calc(var(--padding-horizontal) * -1);
+        &:hover {
+            background: var(--color-grey-300);
+            color: var(--color-text-500);
         }
     }
 
@@ -77,3 +65,37 @@
     }
 }
 
+
+.docs-brand {
+    align-items: baseline;
+    color: var(--color-text-500);
+    display: flex;
+    flex-shrink: 0;
+    font-size: var(--font-size-400);
+    font-weight: var(--font-weight-500);
+    white-space: nowrap;
+
+    &-ui {
+        color: var(--color-text-300);
+        font-weight: var(--font-weight-300);
+        white-space: pre;
+    }
+}
+
+.docs-version {
+    background: var(--color-grey-300);
+    border: var(--border-width-400) solid var(--color-border-400);
+    border-radius: var(--border-radius-300);
+    color: var(--color-text-300);
+    flex-shrink: 0;
+    font-size: var(--font-size-100);
+    font-weight: var(--font-weight-300);
+    padding: calc(var(--size-100) * 0.375) calc(var(--size-100) * 0.875);
+}
+
+@media (max-width: 720px) {
+    .header-inner { gap: var(--size-300); padding: 0 var(--size-400); }
+    .header-actions { gap: var(--size-100); }
+    .header-icon { display: none; }
+    .docs-brand { font-size: var(--font-size-400); }
+}

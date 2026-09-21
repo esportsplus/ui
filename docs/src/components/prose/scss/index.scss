@@ -1,7 +1,6 @@
 .prose {
     color: var(--color-text-400);
     font-size: var(--font-size-400);
-    line-height: 1.7;
 
     a {
         color: var(--color-blue-400);
@@ -16,7 +15,7 @@
         background: color-mix(in oklab, var(--color-grey-500) 70%, transparent);
         border-radius: var(--border-radius-200);
         font-family: ui-monospace, monospace;
-        font-size: 0.9em;
+        font-size: inherit;
         padding: 0.1em 0.4em;
     }
 
@@ -25,7 +24,7 @@
     }
 
     h2 {
-        border-bottom: 1px solid var(--color-border-400);
+        border-bottom: var(--border-width-400) solid var(--color-border-400);
         margin: var(--size-800) 0 var(--size-300);
         padding-bottom: var(--size-200);
     }

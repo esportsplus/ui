@@ -1,3 +1,5 @@
+import icon from '~/components/icon';
+import searchSvg from '~/storage/svg/search.svg';
 import { html, reactive } from '../../app';
 import { command } from '../command';
 import { sections } from '../../data/nav';
@@ -6,7 +8,7 @@ import './scss/index.scss';
 
 const search = reactive({ open: false, query: '' });
 
-const links = sections.flatMap((section) => section.groups.flatMap((group) => group.links));
+const links = () => sections().flatMap((section) => section.groups.flatMap((group) => group.links));
 
 
 const close = () => {
@@ -20,15 +22,31 @@ const matches = (label: string) => {
     return query === '' || label.toLowerCase().includes(query);
 };
 
-const modal = () => command({ search, close, links });
+document.addEventListener('keydown', (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        if (search.open) close();
+        else search.open = true;
+    }
+    else if (event.key === 'Escape' && search.open) {
+        close();
+    }
+});
 
-const searchTrigger = () => html`
-    <button class='button search' type='button' ${{ onclick: () => { search.open = true; } }}>
-        <svg aria-hidden='true' class='search-icon' fill='none' height='14' viewBox='0 0 24 24' width='14'>
-            <circle cx='11' cy='11' r='7' stroke='currentColor' stroke-width='2'></circle>
-            <path d='m20 20-3.5-3.5' stroke='currentColor' stroke-linecap='round' stroke-width='2'></path>
-        </svg>
-        <span class='search-placeholder'>Search…</span>
+const modal = () => command({ search, close, links: links() });
+
+const searchTrigger = (placeholder = 'Search documentation…') => html`
+    <button
+        class='button search --border --border-border --gap-100'
+        type='button'
+        aria-label='Search documentation'
+        aria-keyshortcuts='Control+K Meta+K' ${{ onclick: () => { search.open = true; } }}
+    >
+        ${icon({ class: 'icon', 'aria-hidden': 'true' }, searchSvg)}
+        <span class='search-placeholder --text-truncate'>
+            ${placeholder}
+        </span>
+        <kbd aria-hidden='true'>Ctrl K</kbd>
     </button>
 `;
 

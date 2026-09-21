@@ -1,5 +1,5 @@
 // LiftKit golden-ratio scale engine (github.com/Chainlift/liftkit)
-// One factor drives every ratio scale: type, size, spacer, line-height.
+// One factor drives the type, size, and spacer scales.
 @use 'sass:math';
 
 $factor: 1.618;

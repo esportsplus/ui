@@ -92,7 +92,7 @@ const page = (): Page => {
                             return preview(null, content);
                         }}
 
-                        <table class='spec-table'>
+                        <div class='spec-table-scroll'><table class='spec-table'>
                             <thead class='table-head'>
                                 <tr><th>Variable</th><th>Value</th></tr>
                             </thead>
@@ -104,7 +104,7 @@ const page = (): Page => {
                                     </tr>
                                 `)}
                             </tbody>
-                        </table>
+                        </table></div>
                     </section>
                 `)}
             </div>

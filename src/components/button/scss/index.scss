@@ -100,12 +100,12 @@
         &-left,
         &-right {
             position: absolute;
-            top: calc((#{var(--padding-vertical)} + #{var(--line-height) / 2}) * -1);
+            top: calc((#{var(--padding-vertical)} + 0.5lh) * -1);
         }
 
         @each $direction in 'left' 'right' {
             &-#{$direction} {
-                #{$direction}: calc((#{var(--padding-horizontal)} + #{var(--line-height) / 2}) * -1);
+                #{$direction}: calc((#{var(--padding-horizontal)} + 0.5lh) * -1);
             }
         }
     }

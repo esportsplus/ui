@@ -1,10 +1,10 @@
 .field-option {
     display: grid;
-    gap: 10px;
+    gap: var(--size-200);
 
     &-surface {
-        border: 1px solid var(--demo-border);
-        border-radius: 12px;
+        border: var(--border-width-400) solid var(--demo-border);
+        border-radius: var(--border-radius-600);
         position: relative;
         transition: border-color var(--demo-duration), box-shadow var(--demo-duration), background var(--demo-duration);
         &:focus-within { border-color: var(--demo-accent); }
@@ -13,9 +13,9 @@
     .input, .textarea {
         --background: transparent;
         --border-width: 0px;
-        --border-radius: 12px;
-        --padding-horizontal: 16px;
-        --padding-vertical: 14px;
+        --border-radius: var(--border-radius-600);
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-300);
         outline: none;
         margin: 0;
         min-width: 0;
@@ -25,16 +25,16 @@
     &-footer {
         display: flex;
         justify-content: space-between;
-        gap: 12px;
-        padding: 10px 16px;
-        border-top: 1px solid var(--demo-border);
+        gap: var(--size-300);
+        padding: var(--size-200) var(--size-400);
+        border-top: var(--border-width-400) solid var(--demo-border);
         color: var(--color-text-300);
-        font-size: 12px;
+        font-size: var(--font-size-300);
         output { font-variant-numeric: tabular-nums; }
     }
 
     &--floating {
-        .input, .textarea { --padding-vertical: 22px; padding-bottom: 10px; }
+        .input, .textarea { --padding-vertical: var(--size-500); padding-bottom: var(--size-200); }
         .field-option-surface > label {
             position: absolute;
             left: 16px;
@@ -52,18 +52,18 @@
     }
     &--inset &-surface {
         background: color-mix(in srgb, var(--demo-border) 10%, transparent);
-        box-shadow: inset 0 2px 5px #00000012;
-        &:focus-within { box-shadow: inset 0 1px 3px #0000000a, 0 0 0 3px var(--demo-ring); }
+        box-shadow: inset 0 2px 5px oklch(from var(--color-black-400) l c h / 0.07);
+        &:focus-within { box-shadow: inset 0 1px 3px oklch(from var(--color-black-400) l c h / 0.04), 0 0 0 3px var(--demo-ring); }
     }
     &--rail &-surface {
         background: var(--demo-tint);
         border-color: transparent;
-        border-left: 4px solid var(--demo-border);
-        border-radius: 0 12px 12px 0;
+        border-left: var(--border-width-700) solid var(--demo-border);
+        border-radius: 0 var(--border-radius-600) var(--border-radius-600) 0;
         &:focus-within { border-left-color: var(--demo-accent); }
     }
     &--double &-surface {
-        outline: 1px solid transparent;
+        outline: var(--border-width-400) solid transparent;
         outline-offset: 0;
         transition: outline-offset var(--demo-duration), outline-color var(--demo-duration);
         &:focus-within { outline-color: var(--demo-accent); outline-offset: 5px; }
@@ -71,52 +71,51 @@
     &--tinted &-surface {
         background: var(--demo-tint);
         border-color: transparent;
-        border-bottom: 2px solid var(--demo-border);
-        border-radius: 12px 12px 0 0;
+        border-bottom: var(--border-width-500) solid var(--demo-border);
+        border-radius: var(--border-radius-600) var(--border-radius-600) 0 0;
         &:focus-within { border-bottom-color: var(--demo-accent); }
     }
     &--counter &-surface:focus-within,
     &--editor &-surface:focus-within { box-shadow: 0 0 0 3px var(--demo-ring); }
-    &--capsule &-surface { display: flex; align-items: center; border-radius: 999px; padding-left: 20px; }
-    &--capsule .input { --border-radius: 999px; }
+    &--capsule &-surface { display: flex; align-items: center; border-radius: var(--border-radius-curved); padding-left: var(--size-500); }
+    &--capsule .input { --border-radius: var(--border-radius-curved); }
     &-search {
-        flex: 0 0 14px;
-        height: 14px;
-        border: 2px solid currentColor;
+        flex: 0 0 var(--size-300);
+        height: var(--size-300);
+        border: var(--border-width-500) solid currentColor;
         border-radius: 50%;
         opacity: .55;
         position: relative;
-        &::after { content: ''; width: 6px; height: 2px; background: currentColor; position: absolute; right: -5px; bottom: -2px; transform: rotate(45deg); }
+        &::after { content: ''; width: calc(var(--size-100) * 0.75); height: calc(var(--size-100) * 0.25); background: currentColor; position: absolute; right: -5px; bottom: -2px; transform: rotate(45deg); }
     }
     &--prefix &-surface { display: flex; align-items: stretch; }
-    &-prefix { display: flex; align-items: center; padding: 0 12px; background: var(--demo-tint); border-radius: 12px 0 0 12px; white-space: nowrap; font-size: 12px; }
+    &-prefix { display: flex; align-items: center; padding: 0 var(--size-300); background: var(--demo-tint); border-radius: var(--border-radius-600) 0 0 var(--border-radius-600); white-space: nowrap; font-size: var(--font-size-300); }
     &--paper .textarea {
-        line-height: 28px;
-        background: repeating-linear-gradient(transparent 0 27px, var(--demo-border) 27px 28px);
+        background: repeating-linear-gradient(transparent 0 calc(1lh - var(--border-width-400)), var(--demo-border) calc(1lh - var(--border-width-400)) 1lh);
         background-origin: content-box;
         background-clip: content-box;
     }
     &--autosize .textarea { min-height: 76px; max-height: 260px; resize: none; }
-    &--editor .textarea { min-height: 180px; line-height: 1.8; }
-    &--editor .field-option-footer { background: var(--demo-tint); border-radius: 0 0 12px 12px; }
+    &--editor .textarea { min-height: 180px; }
+    &--editor .field-option-footer { background: var(--demo-tint); border-radius: 0 0 var(--border-radius-600) var(--border-radius-600); }
 }
 
 @mixin range-option-thumb {
     appearance: none;
-    width: var(--option-thumb-width, 22px);
-    height: var(--option-thumb-height, 22px);
-    border: 3px solid var(--color-white-400);
+    width: var(--option-thumb-width, var(--size-500));
+    height: var(--option-thumb-height, var(--size-500));
+    border: var(--border-width-600) solid var(--color-white-400);
     border-radius: var(--option-thumb-radius, 50%);
     background: var(--demo-accent);
-    box-shadow: 0 2px 6px #0003;
+    box-shadow: var(--box-shadow-200);
 }
 
 .range-option {
     --option-height: 44px;
     display: grid;
-    gap: 14px;
+    gap: var(--size-300);
     &-control { height: var(--option-height); position: relative; isolation: isolate; }
-    &-track { position: absolute; inset: 17px 0; border-radius: 999px; background: var(--demo-border); overflow: hidden; pointer-events: none; }
+    &-track { position: absolute; inset: 17px 0; border-radius: var(--border-radius-curved); background: var(--demo-border); overflow: hidden; pointer-events: none; }
     &-fill { height: 100%; width: var(--progress); background: var(--demo-accent); border-radius: inherit; }
     input {
         appearance: none;
@@ -130,14 +129,14 @@
         z-index: 2;
         &::-webkit-slider-thumb { @include range-option-thumb; }
         &::-moz-range-thumb { @include range-option-thumb; }
-        &:focus-visible { outline: 2px solid var(--demo-accent); outline-offset: 5px; border-radius: 8px; }
+        &:focus-visible { outline: var(--border-width-500) solid var(--demo-accent); outline-offset: 5px; border-radius: var(--border-radius-400); }
     }
     &-value { position: absolute; right: 0; top: -32px; color: var(--demo-accent); font-variant-numeric: tabular-nums; pointer-events: none; }
-    &-scale { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--color-text-300); gap: 8px; }
+    &-scale { display: flex; justify-content: space-between; align-items: center; font-size: var(--font-size-300); color: var(--color-text-300); gap: var(--size-100); }
 
     &--bar, &--bar-tall, &--bar-segments {
         --option-height: 48px;
-        .range-option-track { inset: 0; border-radius: 12px; background: var(--demo-tint); }
+        .range-option-track { inset: 0; border-radius: var(--border-radius-600); background: var(--demo-tint); }
         .range-option-fill { border-radius: 0; }
         input::-webkit-slider-thumb { width: 0; height: var(--option-height); border: 0; box-shadow: none; background: transparent; }
         input::-moz-range-thumb { width: 0; height: var(--option-height); border: 0; box-shadow: none; background: transparent; }
@@ -146,7 +145,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
+            font-weight: var(--font-weight-500);
             color: var(--color-text-400);
         }
         .range-option-value--filled {
@@ -156,8 +155,8 @@
     }
     &--bar-tall {
         --option-height: 64px;
-        .range-option-track { border-radius: 16px; }
-        .range-option-value { justify-content: flex-start; padding-left: clamp(12px, calc(var(--progress) - 64px), calc(100% - 64px)); font-size: 20px; }
+        .range-option-track { border-radius: var(--border-radius-700); }
+        .range-option-value { justify-content: flex-start; padding-left: clamp(var(--size-300), calc(var(--progress) - calc(var(--size-400) + var(--size-900))), calc(100% - calc(var(--size-400) + var(--size-900)))); font-size: var(--font-size-500); }
     }
     &--bar-segments .range-option-track::after {
         content: ''; position: absolute; inset: 0;
@@ -165,15 +164,15 @@
         opacity: .65;
     }
     &--bubble {
-        padding-top: 8px;
-        .range-option-control { margin-top: 20px; }
-        .range-option-value { top: -24px; right: auto; left: calc(11px + (100% - 22px) * var(--fraction)); transform: translateX(-50%); border-radius: 8px; padding: 4px 7px; background: var(--demo-accent); color: var(--color-white-400); font-size: 12px; }
+        padding-top: var(--size-100);
+        .range-option-control { margin-top: var(--size-500); }
+        .range-option-value { top: -24px; right: auto; left: calc(11px + (100% - 22px) * var(--fraction)); transform: translateX(-50%); border-radius: var(--border-radius-400); padding: calc(var(--size-100) * 0.5) calc(var(--size-100) * 0.875); background: var(--demo-accent); color: var(--color-white-400); font-size: var(--font-size-300); }
     }
-    &--ruler .range-option-track { inset: 9px 0; border-radius: 4px; background: repeating-linear-gradient(to right, transparent 0 calc(5% - 1px), var(--demo-border) calc(5% - 1px) 5%), var(--demo-tint); }
+    &--ruler .range-option-track { inset: 9px 0; border-radius: var(--border-radius-200); background: repeating-linear-gradient(to right, transparent 0 calc(5% - 1px), var(--demo-border) calc(5% - 1px) 5%), var(--demo-tint); }
     &--ruler .range-option-fill { opacity: .35; }
-    &--split { --option-thumb-width: 8px; --option-thumb-height: 38px; --option-thumb-radius: 4px; }
-    &--split .range-option-track { inset: 9px 0; border-radius: 6px; }
-    &--soft .range-option-track { inset: 14px 0; box-shadow: inset 0 2px 5px #0002; background: var(--demo-tint); }
+    &--split { --option-thumb-width: 8px; --option-thumb-height: 38px; --option-thumb-radius: var(--border-radius-200); }
+    &--split .range-option-track { inset: 9px 0; border-radius: var(--border-radius-300); }
+    &--soft .range-option-track { inset: 14px 0; box-shadow: inset 0 2px 5px oklch(from var(--color-black-400) l c h / 0.13); background: var(--demo-tint); }
     &--soft { --option-thumb-width: 28px; --option-thumb-height: 28px; }
 }
 

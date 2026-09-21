@@ -1,9 +1,0 @@
-// LiftKit line-height steps: the φ-root constants themselves (unitless).
-@use 'scale';
-
-$line-height: (
-    100: scale.$eighth,
-    200: scale.$quarter,
-    300: scale.$half,
-    400: scale.$whole
-);

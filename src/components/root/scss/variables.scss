@@ -8,13 +8,11 @@
     @include lib.css-variables(box-shadow, tokens.$box-shadow);
     @include lib.css-variables(color, tokens.$color);
     @include lib.css-variables(font-size, tokens.$font-size);
-    @include lib.css-variables(line-height, tokens.$line-height);
     @include lib.css-variables(size, tokens.$size);
     @include lib.css-variables(spacer, tokens.$spacer);
 
     --background: var(--color-white-400);
     --color: var(--color-text-400);
-    --line-height: var(--line-height-400);
     --min-width: 320px;
     --transition-duration: #{lib.map-get(tokens.$transition, 'duration')};
     --transition-timing-function: #{lib.map-get(tokens.$transition, 'timing-function')};
@@ -32,7 +30,6 @@ section {
 h1, h2, h3, h4 {
     --color: var(--color-text-400);
     --font-weight: var(--font-weight-500);
-    --line-height: var(--line-height-300);
 }
 
 h1 {

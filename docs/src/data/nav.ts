@@ -32,16 +32,16 @@ function links(names: string[], name: 'components.detail' | 'css-utilities.detai
 }
 
 
-const sections: Section[] = [
+const sections = (): Section[] => [
     {
         groups: [
             {
                 label: '',
                 links: [
-                    { href: uri('docs'), label: 'Introduction', name: 'docs', slug: '' },
+                    { href: uri('docs'), label: 'Installation', name: 'docs', slug: '' },
                     { href: uri('tokens'), label: 'Tokens', name: 'tokens', slug: '' },
                     { href: uri('themes'), label: 'Themes', name: 'themes', slug: '' },
-                    { href: uri('fonts'), label: 'Fonts', name: 'fonts', slug: '' }
+                    { href: uri('fonts'), label: 'Fonts', name: 'fonts', slug: '' },
                 ]
             }
         ],
