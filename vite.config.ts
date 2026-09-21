@@ -6,13 +6,15 @@ import shelljs from 'shelljs';
 
 export default defineConfig(() => {
     return {
+        base: './',
         build: {
             cssMinify: 'lightningcss',
             outDir: 'build',
             rollupOptions: {
                 input: [
                     ...glob.sync('./src/normalize/scss/index.scss'),
-                    ...glob.sync('./src/{components,css-utilities,fonts,themes/dark,themes/light}/*/scss/index.scss'),
+                    ...glob.sync('./src/{components,css-utilities,themes/dark,themes/light}/*/scss/index.scss'),
+                    ...glob.sync('./src/css-utilities/font/*/scss/index.scss'),
                     ...glob.sync('./src/css-utilities/index.scss')
                 ],
                 output: {
@@ -33,7 +35,6 @@ export default defineConfig(() => {
 
                                 if (
                                     !filename.endsWith('.scss') ||
-                                    filename.startsWith('fonts') ||
                                     file.type !== 'asset' ||
                                     typeof file.source !== 'string'
                                 ) {
@@ -66,9 +67,13 @@ export default defineConfig(() => {
                         }
                     },
                     {
-                        name: '@esportsplus/ui-svg-copy',
+                        name: '@esportsplus/ui-assets-copy',
                         writeBundle() {
                             let directories = glob.sync('./src/components/*/svg/');
+
+                            for (let license of glob.sync('./src/css-utilities/font/*/OFL.txt')) {
+                                shelljs.cp(license, license.replace('src', 'build'));
+                            }
 
                             for (let dir of directories) {
                                 shelljs.cp('-rf', dir, dir.replace('src', 'build'));

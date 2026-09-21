@@ -1,0 +1,55 @@
+@use '/lib';
+
+
+@font-face {
+    font-display: swap;
+    font-family: 'Geist';
+    font-style: normal;
+    font-weight: 100 900;
+    src: url('./Geist-Variable.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Geist';
+    font-style: italic;
+    font-weight: 100 900;
+    src: url('./Geist-Italic-Variable.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Geist Mono';
+    font-style: normal;
+    font-weight: 100 900;
+    src: url('./GeistMono-Variable.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Geist Mono';
+    font-style: italic;
+    font-weight: 100 900;
+    src: url('./GeistMono-Italic-Variable.woff2') format('woff2');
+}
+
+
+.--font-geist {
+    --font-family: 'Geist', sans-serif;
+
+    &,
+    &-mono {
+        @include lib.css-variables(font-weight, (
+            300: 300,
+            400: 400,
+            500: 500,
+            600: 600
+        ));
+    }
+
+    &-mono {
+        --font-family: 'Geist Mono', monospace;
+    }
+}
+
+

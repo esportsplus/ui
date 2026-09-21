@@ -1,16 +1,40 @@
 @use 'sass:meta';
 
 
-@mixin css-variables($prefix, $tokens) {
+// css-variables($prefix, $tokens): custom-property declarations.
+// css-variables($class, $prefix, $tokens): custom-property declarations inside classes.
+@mixin css-variables($class: null, $prefix: null, $tokens: null) {
+    @if $tokens == null {
+        $tokens: $prefix;
+        $prefix: $class;
+        $class: null;
+    }
+    @else if $prefix == null {
+        $prefix: $class;
+        $class: null;
+    }
+
+    @if $prefix == null or (meta.type-of($tokens) != 'map' and $tokens != ()) {
+        @error 'css-variables expects ($prefix, $tokens) or ($class, $prefix, $tokens), with a token map.';
+    }
+
+    @include -tokens($class, $prefix, '', $tokens);
+}
+
+@mixin -tokens($class, $prefix, $suffix, $tokens) {
     @each $key, $value in $tokens {
+        $name: '#{$suffix}-#{$key}';
+
         @if meta.type-of($value) == 'map' {
-            @each $subkey, $subvalue in $value {
-                --#{$prefix}-#{$key}-#{$subkey}: #{$subvalue};
+            @include -tokens($class, $prefix, $name, $value);
+        }
+        @else if $class != null {
+            .#{$class}#{$name} {
+                --#{$prefix}#{$name}: #{$value};
             }
         }
         @else {
-            --#{$prefix}-#{$key}: #{$value};
+            --#{$prefix}#{$name}: #{$value};
         }
     }
 }
-

@@ -46,23 +46,38 @@ function faces(source: string): Face[] {
 }
 
 function families(): Family[] {
-    return fonts().map((font) => {
-        let parsed = faces(font.source).sort((a, b) => Number(a.weight) - Number(b.weight) || a.style.localeCompare(b.style)),
-            weights: string[] = [];
+    return fonts().flatMap((font) => {
+        let grouped = new Map<string, Face[]>();
 
-        for (let i = 0, n = parsed.length; i < n; i++) {
-            if (parsed[i].style === 'normal' && !weights.includes(parsed[i].weight)) {
-                weights.push(parsed[i].weight);
-            }
+        for (let face of faces(font.source)) {
+            let group = grouped.get(face.family) ?? [];
+
+            group.push(face);
+            grouped.set(face.family, group);
         }
 
-        return {
-            faces: parsed,
-            family: parsed[0]?.family ?? font.name,
-            id: font.name,
-            name: font.name,
-            weights
-        };
+        return Array.from(grouped, ([family, parsed]) => {
+            parsed.sort((a, b) => parseFloat(a.weight) - parseFloat(b.weight) || a.style.localeCompare(b.style));
+
+            let weights: string[] = [],
+                id = family.toLowerCase().replace(/\s+/g, '-');
+
+            for (let face of parsed) {
+                if (face.style !== 'normal') {
+                    continue;
+                }
+
+                let [start, end = start] = face.weight.split(/\s+/).map(Number);
+
+                for (let weight = start; weight <= end; weight += 100) {
+                    if (!weights.includes(String(weight))) {
+                        weights.push(String(weight));
+                    }
+                }
+            }
+
+            return { faces: parsed, family, id, name: font.name, weights };
+        });
     });
 }
 
@@ -77,14 +92,14 @@ const page = (): Page => {
                 ${pageHead('Fonts', 'The typefaces bundled with the library, with a live specimen at every available weight and the raw @font-face definitions read from source.')}
 
                 ${rendered.map((family) => html`
-                    <section id='${family.id}'>
+                    <section id='${family.id}' class='--font-${family.id}' style='font-family: var(--font-family); font-weight: var(--font-weight-400);'>
                         <h2 class='docs-page-section-title'>${family.family}</h2>
 
                         <div style='display: grid; gap: var(--size-400); margin-bottom: var(--size-500);'>
                             ${family.weights.map((weight) => html`
                                 <div>
                                     <div class='spec-value'>${weight}</div>
-                                    <div style="font-family: '${family.family}', sans-serif; font-size: var(--font-size-500); font-weight: ${weight};">The quick brown fox jumps over the lazy dog</div>
+                                    <div style="font-size: var(--font-size-500); font-weight: ${weight};">The quick brown fox jumps over the lazy dog</div>
                                 </div>
                             `)}
                         </div>

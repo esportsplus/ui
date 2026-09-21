@@ -1,3 +1,6 @@
+@use '/lib';
+
+
 @font-face {
     font-display: swap;
     font-family: 'Montserrat';
@@ -76,4 +79,16 @@
     src: local('Montserrat BoldItalic'), local('Montserrat-BoldItalic'),
          url('Montserrat-BoldItalic.woff2') format('woff2'),
          url('Montserrat-BoldItalic.woff') format('woff');
+}
+
+
+.--font-montserrat {
+    --font-family: 'Montserrat', sans-serif;
+
+    @include lib.css-variables(font-weight, (
+        300: 400,
+        400: 500,
+        500: 600,
+        600: 700
+    ));
 }

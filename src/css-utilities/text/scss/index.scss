@@ -3,18 +3,6 @@
 @use './variables';
 
 .--text {
-    &-bold {
-        font-weight: var(--font-weight-500);
-
-        @each $key in lib.map-keys(tokens.$font-weight) {
-            @if $key > 500 {
-                &-#{$key} {
-                    font-weight: var(--font-weight-#{$key});
-                }
-            }
-        }
-    }
-
     &-center {
         text-align: center;
     }

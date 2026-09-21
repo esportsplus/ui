@@ -269,11 +269,34 @@ build/
 │   │   └── scss/index.scss
 │   └── index.js
 ├── css-utilities/
-├── themes/
-│   ├── dark/
-│   └── light/
-└── fonts/
+│   └── font/
+└── themes/
+    ├── dark/
+    └── light/
 ```
+
+## Fonts
+
+Import the font stylesheet and apply its family class to `html` or `body`:
+
+```typescript
+import '@esportsplus/ui/css-utilities/font/montserrat.scss';
+
+document.documentElement.classList.add('--font-montserrat');
+```
+
+`@esportsplus/ui/css-utilities/font/geist.scss` includes Geist Sans and Geist Mono,
+selected with `--font-geist` and `--font-geist-mono`. The aggregate
+`@esportsplus/ui/css-utilities.scss` includes all three families.
+
+Family classes define `--font-family` and their `--font-weight-*` token maps.
+Components consume these variables through their own `font-family` and
+`font-weight` declarations. Nested family classes override the inherited tokens.
+The root component no longer chooses Montserrat automatically.
+
+Fonts are bundled as local assets for the consuming app to serve; no runtime CDN
+is required. Geist Sans and Geist Mono include variable weights 100–900 in normal
+and italic styles. The previous `@esportsplus/ui/fonts` entry point has been removed.
 
 ## TypeScript
 

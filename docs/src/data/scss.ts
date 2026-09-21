@@ -1,7 +1,7 @@
 type Node = Record<string, string | Record<string, string>>;
 
 
-const fontSources = import.meta.glob('/src/fonts/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
+const fontSources = import.meta.glob('/src/css-utilities/font/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
 
 const rootSource = (import.meta.glob('/src/components/root/scss/variables.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>)['/src/components/root/scss/variables.scss'] ?? '';
 
@@ -118,7 +118,7 @@ function unquote(value: string) {
 const cssValue = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 const fonts = () => Object.entries(fontSources).map(([path, source]) => ({
-    name: basename(path, 'fonts'),
+    name: basename(path, 'font'),
     source
 }));
 

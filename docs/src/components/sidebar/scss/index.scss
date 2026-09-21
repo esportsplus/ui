@@ -12,7 +12,7 @@
     &-heading {
         color: var(--color-text-300);
         font-size: var(--font-size-200);
-        font-weight: var(--font-weight-500);
+        font-weight: var(--font-weight-300);
         letter-spacing: 0.08em;
         padding: 0 var(--size-300) var(--size-100);
         text-transform: uppercase;
@@ -24,7 +24,7 @@
         cursor: pointer;
         display: block;
         font-size: var(--docs-nav-font-size, var(--font-size-300));
-        font-weight: var(--font-weight-500);
+        font-weight: var(--font-weight-400);
         padding: var(--size-100) var(--docs-nav-padding, var(--size-300));
         text-decoration: none;
         text-transform: capitalize;

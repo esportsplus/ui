@@ -25,10 +25,7 @@
     "exports": {
         "./css-utilities.scss": "./build/css-utilities/index.scss",
         "./css-utilities/*.scss": "./build/css-utilities/*/scss/index.scss",
-        "./fonts": {
-            "types": "./build/fonts/index.d.ts",
-            "default": "./build/fonts/index.js"
-        },
+        "./css-utilities/font/*.scss": "./build/css-utilities/font/*/scss/index.scss",
         "./layer.scss": "./layer.scss",
         "./lib.scss": "./lib.scss",
         "./themes/dark": {
@@ -67,7 +64,9 @@
         "prepare": "pnpm build",
         "prepublishOnly": "pnpm build"
     },
-    "sideEffects": false,
+    "sideEffects": [
+        "**/*.scss"
+    ],
     "type": "module",
     "version": "0.52.0"
 }

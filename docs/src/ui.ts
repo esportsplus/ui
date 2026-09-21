@@ -1,4 +1,5 @@
-import '@esportsplus/ui/fonts';
+import '@esportsplus/ui/css-utilities/font/montserrat.scss';
+import '@esportsplus/ui/css-utilities/font/geist.scss';
 
 import '/src/themes/dark/button/scss/index.scss';
 import '/src/themes/dark/link/scss/index.scss';

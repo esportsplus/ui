@@ -9,7 +9,7 @@ import sidebar from './components/sidebar';
 render(
     document.body,
     {
-        class: '--scrollbar',
+        class: `--font-montserrat --scrollbar`,
         onclick: root.onclick
     },
     middleware(
@@ -20,9 +20,7 @@ render(
             <div class='viewer-body'>
                 ${sidebar(request)}
                 ${() => {
-                    requestAnimationFrame(() => {
-                        document.body.scrollTop = 0;
-                    });
+                    document.body.scrollTop = 0;
 
                     return next(request);
                 }}
