@@ -1,4 +1,5 @@
 @use '/lib';
+@use '/tokens';
 @use 'variables';
 
 .checkbox {
@@ -11,46 +12,52 @@
     cursor: pointer;
     flex: 0 0 var(--width);
     height: var(--height);
-    opacity: var(--opacity);
     position: relative;
-    transform: scale(var(--scale));
-    transform-origin: center;
     transition:
         background var(--transition-duration) var(--transition-timing-function),
         border-color var(--transition-duration) var(--transition-timing-function),
         border-width var(--transition-duration) var(--transition-timing-function),
-        box-shadow var(--transition-duration) var(--transition-timing-function),
-        opacity var(--transition-duration) var(--transition-timing-function),
-        transform var(--transition-duration) var(--transition-timing-function);
+        box-shadow var(--transition-duration) var(--transition-timing-function);
     width: var(--width);
 
 
-    &--radio {
-        &::after {
-            background: var(--check-color);
-            border-radius: calc(var(--border-radius) - var(--check-spacing) / 1.5);
+    &--radio,
+    &--switch {
+        &::before {
+            background: var(--indicator-color);
+            box-shadow: var(--box-shadow);
             content: '';
-            height: calc(var(--height) - var(--check-spacing) * 2);
+            pointer-events: none;
+            transform-origin: center;
+            transition: transform var(--transition-duration) var(--transition-timing-function);
+            width: var(--width);
+        }
+    }
+
+    &--radio {
+        &::before {
+            border-radius: calc(var(--border-radius) - (var(--height) / 2));
+            height: var(--height);
             inset: 0;
             margin: auto;
-            pointer-events: none;
             position: absolute;
-            transform: scale(var(--check-scale));
-            transition: transform var(--transition-duration) var(--transition-timing-function);
-            width: calc(var(--width) - var(--check-spacing) * 2);
+            transform: scale(var(--scale));
         }
+    }
 
-        @media (prefers-reduced-motion: reduce) {
-            &::after {
-                transition: none;
-            }
+    &--switch {
+        &::before {
+            @include lib.position(absolute, var(--padding-vertical) null null var(--padding-horizontal));
+            border-radius: calc(var(--border-radius) - var(--padding-vertical) / 1.5);
+            height: calc(var(--height) - (var(--border-width) * 2) - (var(--padding-vertical) * 2));
+            transform: translateX(var(--translateX)) scale(var(--scale));
         }
     }
 
 
     .checkbox-check {
         height: var(--check-size);
-        inset: 0;
+        inset: 0 0 0 1px;
         margin: auto;
         pointer-events: none;
         position: absolute;
@@ -58,25 +65,29 @@
 
         svg {
             fill: none;
-            stroke: var(--check-color);
+            stroke: var(--indicator-color);
             stroke-width: var(--check-stroke-width);
             stroke-linecap: var(--check-linecap);
             stroke-linejoin: var(--check-linejoin);
             stroke-dasharray: 1;
-            stroke-dashoffset: var(--check-offset);
+            stroke-dashoffset: 1;
             transition: stroke-dashoffset var(--transition-duration) var(--check-timing-function);
         }
     }
 
-    &:has(> .checkbox-tag:focus-visible),
-    &:has(> .radio-tag:focus-visible) {
+    #{tokens.state(active)} .checkbox-check svg {
+        stroke-dashoffset: 0;
+    }
+
+    &:has(> .checkbox-tag:focus-visible, > .radio-tag:focus-visible, > .switch-tag:focus-visible) {
         outline: var(--focus-width) solid var(--focus-color);
         outline-offset: var(--focus-offset);
     }
 
     // Keep the native input interactive while the SVG supplies its appearance.
     .checkbox-tag,
-    .radio-tag {
+    .radio-tag,
+    .switch-tag {
         @include lib.position(absolute, full);
         cursor: inherit;
         height: 100%;

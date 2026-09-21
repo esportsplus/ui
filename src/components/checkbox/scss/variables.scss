@@ -21,66 +21,86 @@
     --box-shadow-default: none;
     --box-shadow-hover: var(--box-shadow-default);
     --box-shadow-pressed: var(--box-shadow-default);
-    --check-color: var(--check-color-default);
-    --check-color-active: var(--check-color-default);
-    --check-color-default: var(--color-white-400);
-    --check-color-hover: var(--check-color-default);
-    --check-color-pressed: var(--check-color-default);
     --check-linecap: round;
     --check-linejoin: round;
-    --check-offset: var(--check-offset-default);
-    --check-offset-active: 0;
-    --check-offset-default: 1;
     --check-size: 80%;
     --check-stroke-width: 4;
     --check-timing-function: ease;
     --focus-color: var(--border-color-active);
-    --focus-offset: 4px;
+    --focus-offset: 2px;
     --focus-width: 2px;
     --height: var(--size);
-    --opacity: var(--opacity-default);
-    --opacity-active: var(--opacity-default);
-    --opacity-default: 1;
-    --opacity-hover: var(--opacity-default);
-    --opacity-pressed: var(--opacity-default);
+    --indicator-color: var(--indicator-color-default);
+    --indicator-color-active: var(--indicator-color-default);
+    --indicator-color-default: var(--color-white-400);
+    --indicator-color-hover: var(--indicator-color-default);
+    --indicator-color-pressed: var(--indicator-color-default);
     --scale: var(--scale-default);
     --scale-active: 1;
     --scale-default: 0.92;
-    --scale-hover: var(--scale-default);
-    --scale-pressed: 0.9;
+    --scale-hover: 0.96;
+    --scale-pressed: var(--scale-default);
     --size: var(--size-500);
     --transition-duration: 280ms;
     --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
     --width: var(--height);
 
-    &--radio {
-        --check-scale: var(--check-scale-default);
-        --check-scale-active: 1;
-        --check-scale-default: 0;
-        --check-spacing: calc(var(--size) * 8 / 26);
 
-        #{tokens.state(active)} {
-            --check-scale: var(--check-scale-active);
+    &--radio,
+    &--switch {
+        &::before {
+            --box-shadow: 0 2px 4px #0003;
         }
     }
 
+    &--radio {
+        --border-radius: 100%;
+        --scale-default: 0;
+        --scale-hover: 0;
+
+        &::before {
+            --height: var(--size-200);
+            --width: var(--size-200);
+        }
+    }
+
+    &--switch {
+        --border-width-offset-hover: 0px;
+        --box-shadow-active: var(--box-shadow-default);
+        --focus-color: var(--background-active);
+        --padding-horizontal: 2px;
+        --padding-vertical: 2px;
+        --width: var(--width-rail);
+        --width-rail: calc(var(--height) * 1.8);
+
+        &::before {
+            --translateX: 0px;
+            --width: var(--height);
+        }
+
+        #{tokens.state(active)}::before {
+            --translateX: calc(var(--width-rail) - (var(--border-width) * 2) - var(--height) - (var(--padding-horizontal) * 2));
+        }
+    }
+
+
     #{tokens.state(inactive)} {
-        @include tokens.state(hover) {
+        &:hover,
+        label:hover & {
             --background: var(--background-hover);
             --border-color: var(--border-color-hover);
             --border-width-offset: var(--border-width-offset-hover);
             --box-shadow: var(--box-shadow-hover);
-            --check-color: var(--check-color-hover);
-            --opacity: var(--opacity-hover);
+            --indicator-color: var(--indicator-color-hover);
             --scale: var(--scale-hover);
         }
 
-        @include tokens.state(pressed) {
+        &:active,
+        label:active & {
             --background: var(--background-pressed);
             --border-color: var(--border-color-pressed);
             --box-shadow: var(--box-shadow-pressed);
-            --check-color: var(--check-color-pressed);
-            --opacity: var(--opacity-pressed);
+            --indicator-color: var(--indicator-color-pressed);
             --scale: var(--scale-pressed);
         }
     }
@@ -89,9 +109,7 @@
         --background: var(--background-active);
         --border-color: var(--border-color-active);
         --box-shadow: var(--box-shadow-active);
-        --check-color: var(--check-color-active);
-        --check-offset: var(--check-offset-active);
-        --opacity: var(--opacity-active);
+        --indicator-color: var(--indicator-color-active);
         --scale: var(--scale-active);
     }
 }

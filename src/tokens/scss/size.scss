@@ -1,5 +1,7 @@
 // Golden-ratio size ladder: 400 = 16px (1em), each key one φ half-step (×1.272).
 @use 'scale';
+@use 'sass:math';
+@use 'sass:map';
 
 $size: (
     100: scale.px(scale.step(-1.5)),
@@ -14,3 +16,8 @@ $size: (
 
     0px: 0px,
 );
+
+// Snap the derived sizes to whole CSS pixels without changing the ratio engine.
+@each $key, $value in $size {
+    $size: map.set($size, $key, math.round($value));
+}

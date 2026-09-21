@@ -7,7 +7,7 @@ import check from './svg/check.svg';
 import './scss/index.scss';
 
 
-const OMIT = ['checked', 'name', 'state', 'value'];
+const OMIT = ['checked', 'id', 'name', 'state', 'value'];
 const radios = new WeakMap<HTMLInputElement, { active: boolean }>();
 
 
@@ -43,7 +43,7 @@ const factory = (type: 'checkbox' | 'radio' | 'switch') => {
 
         return html`
             <div
-                class='${type === 'radio' ? 'checkbox checkbox--radio' : type} ${() => state.active && '--active'}'
+                class='checkbox ${(type === 'radio' || type === 'switch') && `checkbox--${type}`} ${() => state.active && '--active'}'
                 ${this?.attributes && omit(this.attributes, OMIT)}
                 ${attributes && omit(attributes, OMIT)}
                 onclick=${(event: MouseEvent) => {
@@ -63,6 +63,7 @@ const factory = (type: 'checkbox' | 'radio' | 'switch') => {
                         },
                         'aria-label': attributes?.['aria-label'] ?? this?.attributes?.['aria-label'],
                         class: `${type}-tag`,
+                        id: attributes?.id ?? this?.attributes?.id,
                         name: attributes?.name ?? this?.attributes?.name,
                         onchange: (e: Event) => {
                             state.active = (e.target as HTMLInputElement).checked;
