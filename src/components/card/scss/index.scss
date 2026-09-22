@@ -5,7 +5,9 @@
 .card {
     background: var(--background);
     border-radius: var(--border-radius);
-    padding: var(--padding-vertical) var(--padding-horizontal);
+    padding:
+        max(0px, calc(var(--padding-vertical) - var(--border-width)))
+        max(0px, calc(var(--padding-horizontal) - var(--border-width)));
     position: relative;
     transition:
         background var(--transition-duration) var(--transition-timing-function),

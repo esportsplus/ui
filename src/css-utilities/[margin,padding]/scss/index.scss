@@ -1,43 +1,53 @@
 @use './variables';
 
-@each $property in margin padding {
-    .--#{$property} {
-        &,
-        &-horizontal {
-            #{$property}-left: var(--#{$property}-horizontal);
-            #{$property}-right: var(--#{$property}-horizontal);
+.--margin {
+    &,
+    &-horizontal {
+        margin-left: var(--margin-horizontal);
+        margin-right: var(--margin-horizontal);
+    }
 
-            @if ($property == padding) {
-                &.--border {
-                    padding-left: calc(var(--padding-horizontal) - var(--border-width));
-                    padding-right: calc(var(--padding-horizontal) - var(--border-width));
-                }
-            }
+    &,
+    &-vertical {
+        margin-bottom: var(--margin-vertical);
+        margin-top: var(--margin-vertical);
+    }
+
+    @each $direction in 'bottom' 'top' {
+        &-#{$direction} {
+            margin-#{$direction}: var(--margin-vertical);
         }
+    }
 
-        &,
-        &-vertical {
-            #{$property}-bottom: var(--#{$property}-vertical);
-            #{$property}-top: var(--#{$property}-vertical);
-
-            @if ($property == padding) {
-                &.--border {
-                    padding-bottom: calc(var(--padding-vertical) - var(--border-width));
-                    padding-top: calc(var(--padding-vertical) - var(--border-width));
-                }
-            }
+    @each $direction in 'left' 'right' {
+        &-#{$direction} {
+            margin-#{$direction}: var(--margin-horizontal);
         }
+    }
+}
 
-        @each $direction in 'bottom' 'top' {
-            &-#{$direction} {
-                #{$property}-#{$direction}: var(--#{$property}-vertical);
-            }
+.--padding {
+    &,
+    &-horizontal {
+        padding-left: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
+        padding-right: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
+    }
+
+    &,
+    &-vertical {
+        padding-bottom: max(0px, calc(var(--padding-vertical) - var(--border-width)));
+        padding-top: max(0px, calc(var(--padding-vertical) - var(--border-width)));
+    }
+
+    @each $direction in 'bottom' 'top' {
+        &-#{$direction} {
+            padding-#{$direction}: max(0px, calc(var(--padding-vertical) - var(--border-width)));
         }
+    }
 
-        @each $direction in 'left' 'right' {
-            &-#{$direction} {
-                #{$property}-#{$direction}: var(--#{$property}-horizontal);
-            }
+    @each $direction in 'left' 'right' {
+        &-#{$direction} {
+            padding-#{$direction}: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
         }
     }
 }

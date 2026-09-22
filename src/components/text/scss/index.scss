@@ -5,7 +5,8 @@
     display: flex;
     font-size: var(--font-size);
     font-weight: var(--font-weight);
-    gap: var(--gap);
+    line-height: var(--line-height);
+    gap: var(--gap-vertical) var(--gap-horizontal);
     position: relative;
     transition: color var(--transition-duration) var(--transition-timing-function);
     width: var(--width);

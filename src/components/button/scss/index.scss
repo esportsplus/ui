@@ -12,7 +12,9 @@
     cursor: pointer;
     flex-wrap: nowrap;
     justify-content: center;
-    padding: var(--padding-vertical) var(--padding-horizontal);
+    padding:
+        max(0px, calc(var(--padding-vertical) - var(--border-width)))
+        max(0px, calc(var(--padding-horizontal) - var(--border-width)));
     transition: all var(--transition-duration) var(--transition-timing-function);
     white-space: nowrap;
     translate: 0;

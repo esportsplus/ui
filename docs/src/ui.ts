@@ -1,8 +1,6 @@
 import '@esportsplus/ui/css-utilities/font/montserrat.scss';
 import '@esportsplus/ui/css-utilities/font/geist.scss';
 
-import '/src/themes/dark/button/scss/index.scss';
-import '/src/themes/dark/link/scss/index.scss';
 import '/src/css-utilities/index.scss';
 
 import './components/root/scss/index.scss';

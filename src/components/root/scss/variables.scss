@@ -2,6 +2,8 @@
 @use '/lib';
 @use '/tokens';
 
+
+
 :root {
     @include lib.css-variables(border-radius, tokens.$border-radius);
     @include lib.css-variables(border-width, tokens.$border-width);
@@ -13,18 +15,28 @@
 
     --background: var(--color-white-400);
     --color: var(--color-text-400);
+    --font-size: var(--font-size-400);
+    --font-weight: var(--font-weight-400);
     --min-width: 320px;
     --transition-duration: #{lib.map-get(tokens.$transition, 'duration')};
     --transition-timing-function: #{lib.map-get(tokens.$transition, 'timing-function')};
 }
 
-body {
-    --font-size: var(--font-size-400);
-    --font-weight: var(--font-weight-400);
+* {
+    --border-radius: calc(1em / 1.618);
+    --gap: calc(1em / 1.618);
+    --gap-horizontal: var(--gap);
+    --gap-vertical: var(--gap);
+    --letter-spacing: clamp(-0.022em, calc(0.060542rem - 0.051418em), 0em);
+    --line-height: clamp(1.128em, calc(0.95em + 0.668rem), 1.618em);
+    --padding-horizontal: 1em;
+    --padding-vertical: calc(1em * 1.272 / (1.618 * 1.618));
 }
 
-section {
-    --width: 100%;
+b,
+strong {
+    --color: var(--color-text-400);
+    --font-weight: var(--font-weight-500);
 }
 
 h1, h2, h3, h4 {
@@ -33,23 +45,25 @@ h1, h2, h3, h4 {
 }
 
 h1 {
-    --font-size: var(--font-size-700);
+    --font-size: var(--font-size-800);
 }
 
 h2 {
-    --font-size: var(--font-size-600);
+    --font-size: var(--font-size-700);
 }
 
 h3 {
-    --font-size: var(--font-size-500);
+    --font-size: var(--font-size-600);
 }
 
 h4 {
+    --font-size: var(--font-size-500);
+}
+
+h5 {
     --font-size: var(--font-size-400);
 }
 
-b,
-strong {
-    --color: var(--color-text-400);
-    --font-weight: var(--font-weight-500);
+section {
+    --width: 100%;
 }

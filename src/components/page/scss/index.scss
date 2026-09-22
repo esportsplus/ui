@@ -24,11 +24,6 @@
         font-size: var(--font-size);
     }
 
-    &-suptitle + &-title,
-    &-title + &-subtitle {
-        margin-top: var(--margin-vertical);
-    }
-
     &-title {
         text-wrap: balance;
     }

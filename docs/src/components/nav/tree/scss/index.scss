@@ -1,0 +1,15 @@
+.nav-tree {
+    &-link {
+        --border-color-default: var(--color-border-400);
+        --border-color-active: var(--color-blue-400);
+        --border-color-hover: var(--color-text-400);
+        --border-color-pressed: var(--border-color-hover);
+        --color-default: var(--color-text-400);
+        --color-active: var(--color-blue-400);
+        text-transform: capitalize;
+    }
+
+    &-title {
+        --color-default: var(--color-text-300);
+    }
+}

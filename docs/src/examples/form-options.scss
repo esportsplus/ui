@@ -77,8 +77,8 @@
     }
     &--counter &-surface:focus-within,
     &--editor &-surface:focus-within { box-shadow: 0 0 0 3px var(--demo-ring); }
-    &--capsule &-surface { display: flex; align-items: center; border-radius: var(--border-radius-curved); padding-left: var(--size-500); }
-    &--capsule .input { --border-radius: var(--border-radius-curved); }
+    &--capsule &-surface { display: flex; align-items: center; border-radius: 50%; padding-left: var(--size-500); }
+    &--capsule .input { --border-radius: 50%; }
     &-search {
         flex: 0 0 var(--size-300);
         height: var(--size-300);
@@ -115,7 +115,7 @@
     display: grid;
     gap: var(--size-300);
     &-control { height: var(--option-height); position: relative; isolation: isolate; }
-    &-track { position: absolute; inset: 17px 0; border-radius: var(--border-radius-curved); background: var(--demo-border); overflow: hidden; pointer-events: none; }
+    &-track { position: absolute; inset: 17px 0; border-radius: 50%; background: var(--demo-border); overflow: hidden; pointer-events: none; }
     &-fill { height: 100%; width: var(--progress); background: var(--demo-accent); border-radius: inherit; }
     input {
         appearance: none;

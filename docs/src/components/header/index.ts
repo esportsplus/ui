@@ -20,8 +20,17 @@ let tabs: { label: string; name: 'components' | 'css-utilities' | 'docs' | 'toke
 export default (request: Request) => html`
     <header class='header --glass'>
         <div class='header-inner'>
-            <a class='docs-brand' href='${uri('docs')}' aria-label='Esportsplus UI home'>esportsplus<span class='docs-brand-ui'> / ui</span></a>
-            <span class='docs-version' title='v${version}'>v${release}</span>
+            <a class='header-brand' href='${uri('docs')}' aria-label='Esportsplus UI home'>
+                esportsplus<span class='header-brand-ui'> / ui</span>
+            </a>
+
+            <span
+                class='header-version button button--flat --border --font-size-100 --font-weight-300'
+                title='v${version}'
+            >
+                v${release}
+            </span>
+
             <nav class='header-nav'>
                 ${tabs.map((tab) => html`
                     <a

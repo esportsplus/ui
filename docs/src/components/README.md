@@ -10,7 +10,7 @@ these components; they should not own shared component styles.
 | `doc-card` | Documentation links built on the library card |
 | `header` | Site header and primary navigation |
 | `layout` | Main content placement and composition with the TOC |
-| `navigation` | Shared sidebar and TOC link styles (`docs-nav-link`) |
+| `nav/tree` | Shared navigation groups, links, titles, and states for the sidebar and in-page navigation |
 | `page` | Docs page headings, card grids, detail pages, and empty states |
 | `preview` | The single example frame renderer used by details and themes |
 | `prose` | Markdown rendering and prose typography; tables use `spec-table` |
@@ -19,7 +19,6 @@ these components; they should not own shared component styles.
 | `sidebar` | Documentation navigation structure and placement |
 | `spec` | Shared data tables and token/value typography |
 | `table-head` | Table-header surface and corner styling, included by `spec` |
-| `toc` | In-page navigation and scrolling |
 | `viewer` | Responsive outer shell grid |
 
 Components with TypeScript renderers import their own styles. `ui.ts` loads the

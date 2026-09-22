@@ -8,24 +8,40 @@
     }
 
     &-crop {
-        &::after,
-        &::before,
-        &-bottom::after,
-        &-top::before {
-            content: '';
-            display: block;
-            height: 0;
-            width: 100%;
+        @supports (text-box: trim-both cap alphabetic) {
+            & {
+                text-box: trim-both cap alphabetic;
+            }
+
+            &-top {
+                text-box: trim-start cap alphabetic;
+            }
+
+            &-bottom {
+                text-box: trim-end cap alphabetic;
+            }
         }
 
-        &::after,
-        &-bottom::after {
-            margin-bottom: calc((1em - 1lh) * 0.618);
-        }
+        @supports not (text-box: trim-both cap alphabetic) {
+            &::after,
+            &::before,
+            &-bottom::after,
+            &-top::before {
+                content: '';
+                display: block;
+                height: 0;
+                width: 100%;
+            }
 
-        &::before,
-        &-top::before {
-            margin-top: calc((1em - 1lh) * 0.618);
+            &::after,
+            &-bottom::after {
+                margin-bottom: calc((1em - 1lh) * 0.618);
+            }
+
+            &::before,
+            &-top::before {
+                margin-top: calc((1em - 1lh) * 0.618);
+            }
         }
 
         &-first-child {
