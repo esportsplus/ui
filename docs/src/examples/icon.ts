@@ -19,7 +19,7 @@ export default {
         {
             render: () => html`
                 <div style='display: flex; gap: var(--size-500); align-items: center;'>
-                    ${icon({ class: '--size-500' }, star)}
+                    ${icon({ style: '--size: var(--size-500);' }, star)}
                     ${icon({ style: '--size: 40px; color: var(--color-purple-300);' }, bolt)}
                 </div>
             `,

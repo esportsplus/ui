@@ -37,10 +37,14 @@ const modal = () => command({ search, close, links: links() });
 
 const searchTrigger = (placeholder = 'Search documentation…') => html`
     <button
-        class='button search --border --border-border --gap-100'
+        class='button search --border-border'
         type='button'
+        style='--border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color); gap: var(--size-100);'
         aria-label='Search documentation'
-        aria-keyshortcuts='Control+K Meta+K' ${{ onclick: () => { search.open = true; } }}
+        aria-keyshortcuts='Control+K Meta+K'
+        ${{
+            onclick: () => { search.open = true; }
+        }}
     >
         ${icon({ class: 'icon', 'aria-hidden': 'true' }, searchSvg)}
         <span class='search-placeholder --text-truncate'>

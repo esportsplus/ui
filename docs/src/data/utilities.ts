@@ -31,27 +31,16 @@ function boxes(count: number) {
     return out;
 }
 
+function gap(key: number) {
+    return `--gap-horizontal: var(--size-${key}); --gap-vertical: var(--size-${key});`;
+}
+
 function note(text: string) {
     return html`<p class='docs-page-note'>${text}</p>`;
 }
 
 
 const utilities: Utility[] = [
-    {
-        category: 'Layout',
-        description: 'Margin and padding steps on the size scale, applied uniformly or per side via --margin-* and --padding-* classes.',
-        name: 'spacing',
-        variants: [
-            {
-                render: () => html`<div class='--padding-700' style='background: var(--color-grey-500); border-radius: var(--border-radius-400);'>${box('--padding-700')}</div>`,
-                title: 'padding'
-            },
-            {
-                render: () => html`<div class='--flex-start'>${['--margin-200', '--margin-500', '--margin-800'].map((c) => html`<div class='${c}' style='${boxStyle()}'>${c.replace('--margin-', '')}</div>`)}</div>`,
-                title: 'margin'
-            }
-        ]
-    },
     {
         category: 'Layout',
         description: 'Absolutely position an element and pin it to an edge or center it within its nearest positioned ancestor.',
@@ -77,35 +66,20 @@ const utilities: Utility[] = [
     },
     {
         category: 'Layout',
-        description: 'Flexbox layouts with alignment and direction modifiers, plus token-based gaps.',
+        description: 'Flexbox layouts with alignment and direction modifiers; set --gap-horizontal and --gap-vertical to space children.',
         name: 'flex',
         variants: [
             {
-                render: () => html`<div class='--flex-center --gap-400'>${boxes(3)}</div>`,
+                render: () => html`<div class='--flex-center' style='${gap(400)}'>${boxes(3)}</div>`,
                 title: 'center'
             },
             {
-                render: () => html`<div class='--flex-column --gap-300'>${boxes(3)}</div>`,
+                render: () => html`<div class='--flex-column' style='${gap(300)}'>${boxes(3)}</div>`,
                 title: 'column'
             },
             {
-                render: () => html`<div class='--flex-horizontal-space-between --gap-400' style='width: 100%;'>${boxes(3)}</div>`,
+                render: () => html`<div class='--flex-horizontal-space-between' style='${gap(400)} width: 100%;'>${boxes(3)}</div>`,
                 title: 'space-between'
-            }
-        ]
-    },
-    {
-        category: 'Layout',
-        description: 'Set the horizontal and vertical gap between flex or grid children using the size scale.',
-        name: 'gap',
-        variants: [
-            {
-                render: () => html`<div class='--flex-start --gap-200'>${boxes(4)}</div>`,
-                title: 'gap-200'
-            },
-            {
-                render: () => html`<div class='--flex-start --gap-600'>${boxes(4)}</div>`,
-                title: 'gap-600'
             }
         ]
     },
@@ -121,51 +95,13 @@ const utilities: Utility[] = [
         ]
     },
     {
-        category: 'Layout',
-        description: 'Square sizing helpers that set width and height together from the size scale.',
-        name: 'size',
-        variants: [
-            {
-                render: () => html`<div class='--flex-center --gap-400'>${['--size-500', '--size-700', '--size-900'].map((c) => html`<div class='${c}' style='background: var(--color-blue-400); border-radius: var(--border-radius-300); height: var(--size); width: var(--size);'></div>`)}</div>`,
-                title: 'squares'
-            }
-        ]
-    },
-    {
-        category: 'Layout',
-        description: 'Width helpers for full and fractional block sizing.',
-        name: 'width',
-        variants: [
-            {
-                render: () => html`<div class='--flex-column --gap-300' style='width: 100%;'>${['--width-full', '--width-half'].map((c) => html`<div class='--width ${c}' style='${boxStyle()}'>${c.replace('--width-', '')}</div>`)}</div>`,
-                title: 'full & half'
-            }
-        ]
-    },
-    {
-        category: 'Layout',
-        description: 'Viewport-relative sizing helper for full-height sections.',
-        name: 'viewport',
-        variants: [
-            {
-                render: () => html`
-                    <div>
-                        <div class='code'>--viewport</div>
-                        ${note('Sets the element to fill the viewport height (100svh). Not shown at scale so it does not overflow this preview.')}
-                    </div>
-                `,
-                title: 'viewport'
-            }
-        ]
-    },
-    {
         category: 'Surface',
         description: 'Apply token background colors to any surface via --background-* classes.',
         name: 'background',
         variants: [
             {
-                render: () => html`<div class='--flex-center --gap-400'>${COLORS.map((c) => html`
-                    <div class='--flex-column --gap-100' style='align-items: center;'>
+                render: () => html`<div class='--flex-center' style='${gap(400)}'>${COLORS.map((c) => html`
+                    <div class='--flex-column' style='${gap(100)} align-items: center;'>
                         <div class='--background-default --background-${c}' style='background: var(--background); border: 1px solid var(--color-border-500); border-radius: var(--border-radius-300); height: var(--size-800); width: var(--size-800);'></div>
                         <span style='font-size: var(--font-size-200);'>${c}</span>
                     </div>
@@ -176,16 +112,12 @@ const utilities: Utility[] = [
     },
     {
         category: 'Surface',
-        description: 'Border color, style, radius, and width helpers built from the border tokens.',
+        description: 'Border color helpers built from the color tokens via --border-* classes.',
         name: 'border',
         variants: [
             {
-                render: () => html`<div class='--flex-center --gap-400'>${['--border-blue', '--border-red', '--border-green'].map((c) => html`<div class='--border --border-default ${c}' style='border-radius: var(--border-radius-300); padding: var(--size-400);'>${c.replace('--border-', '')}</div>`)}</div>`,
+                render: () => html`<div class='--flex-center' style='${gap(400)}'>${['--border-blue', '--border-red', '--border-green'].map((c) => html`<div class='--border-default ${c}' style='--border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color); border-radius: var(--border-radius-300); padding: var(--size-400);'>${c.replace('--border-', '')}</div>`)}</div>`,
                 title: 'colors'
-            },
-            {
-                render: () => html`<div class='--flex-center --gap-400'>${['--border-dashed', '--border-dotted'].map((c) => html`<div class='--border --border-default --border-blue ${c}' style='border-radius: var(--border-radius-300); padding: var(--size-400);'>${c.replace('--border-', '')}</div>`)}</div>`,
-                title: 'styles'
             }
         ]
     },
@@ -195,7 +127,7 @@ const utilities: Utility[] = [
         name: 'color',
         variants: [
             {
-                render: () => html`<div class='--flex-center --gap-400' style='font-weight: var(--font-weight-500);'>${COLORS.map((c) => html`<span class='--color-default --color-${c}' style='color: var(--color);'>${c}</span>`)}</div>`,
+                render: () => html`<div class='--flex-center' style='${gap(400)} font-weight: var(--font-weight-500);'>${COLORS.map((c) => html`<span class='--color-default --color-${c}' style='color: var(--color);'>${c}</span>`)}</div>`,
                 title: 'colors'
             }
         ]
@@ -217,13 +149,9 @@ const utilities: Utility[] = [
     },
     {
         category: 'Surface',
-        description: 'Typography helpers for transform, alignment, weight, and decoration.',
+        description: 'Typography helpers for cropping and truncating text.',
         name: 'text',
         variants: [
-            {
-                render: () => html`<div class='--flex-column --gap-300'>${['--text-uppercase', '--text-bold', '--text-italic', '--text-underline', '--text-line-through'].map((c) => html`<div class='${c}'>${c.replace('--text-', '')} — sample text</div>`)}</div>`,
-                title: 'styles'
-            },
             {
                 render: () => html`<div class='--text-truncate' style='max-width: 240px;'>This sentence is intentionally long so it gets truncated with an ellipsis.</div>`,
                 title: 'truncate'
@@ -243,34 +171,12 @@ const utilities: Utility[] = [
     },
     {
         category: 'State',
-        description: 'Plays a brief shake animation to flag an errored element.',
-        name: 'error',
-        variants: [
-            {
-                render: () => html`<div class='--border --border-default --border-red --error' style='--animation-duration: 0.5s; border-radius: var(--border-radius-300); color: var(--color-red-400); padding: var(--size-400);'>Something went wrong</div>`,
-                title: 'error'
-            }
-        ]
-    },
-    {
-        category: 'State',
-        description: 'Dims the non-active children of a container so the active one stands out.',
-        name: 'focus',
-        variants: [
-            {
-                render: () => html`<div class='--focus-active --flex-center --gap-400'>${[0, 1, 2].map((i) => html`<div class='${i === 1 ? '--active' : ''}' style='${boxStyle()}'>${i + 1}</div>`)}</div>`,
-                title: 'focus-active'
-            }
-        ]
-    },
-    {
-        category: 'State',
         description: 'Hide elements from layout and assistive technology with --hidden.',
         name: 'hidden',
         variants: [
             {
                 render: () => html`
-                    <div class='--flex-center --gap-400'>
+                    <div class='--flex-center' style='${gap(400)}'>
                         ${box('visible')}
                         <div class='--hidden' style='${boxStyle()}'>hidden</div>
                         ${note('The second box uses --hidden and is removed from layout.')}
@@ -293,39 +199,12 @@ const utilities: Utility[] = [
     },
     {
         category: 'State',
-        description: 'Toggle pointer-events to make elements click-through or interactive.',
-        name: 'pointer',
-        variants: [
-            {
-                render: () => html`
-                    <div>
-                        <div class='--pointer-none button button--primary' style='--width: auto;'>Click-through</div>
-                        ${note('--pointer-none disables pointer events; --pointer restores them.')}
-                    </div>
-                `,
-                title: 'pointer'
-            }
-        ]
-    },
-    {
-        category: 'State',
         description: 'Animated shimmer placeholder for loading and skeleton states.',
         name: 'skeleton',
         variants: [
             {
                 render: () => html`<div class='--skeleton' style='--from: var(--color-border-500); --to: var(--color-grey-400); border: 1px solid var(--color-border-400); border-radius: var(--border-radius-400); height: var(--size-800); width: 240px;'></div>`,
                 title: 'skeleton'
-            }
-        ]
-    },
-    {
-        category: 'State',
-        description: 'Subtle flicker animation for drawing attention to transient elements.',
-        name: 'flicker',
-        variants: [
-            {
-                render: () => html`<div class='--flicker' style='${boxStyle()} min-width: var(--size-900);'>flicker</div>`,
-                title: 'flicker'
             }
         ]
     },

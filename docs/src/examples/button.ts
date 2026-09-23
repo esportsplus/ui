@@ -12,7 +12,10 @@ export default {
         {
             render: () => html`
                 <div style='${row}'>
-                    <div class="button --background-white --border --border-border --color-text --text-bold">
+                    <div
+                        class='button --background-white --border-border --color-text'
+                        style='--border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color); font-weight: var(--font-weight-600);'
+                    >
                         white
                     </div>
 

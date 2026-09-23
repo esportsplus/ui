@@ -7,7 +7,7 @@ import './scss/index.scss';
 
 
 export default (request: Request) => html`
-    <aside class='docs-sidebar --flex-column --gap-600 --scrollbar --scroll-fade'>
+    <aside class='docs-sidebar --flex-column --scrollbar --scroll-fade' style='--gap-horizontal: var(--size-600); --gap-vertical: var(--size-600);'>
         ${searchTrigger('Quick search')}
         ${navTree(sections().map((section) => ({
             label: section.label,

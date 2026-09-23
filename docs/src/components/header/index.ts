@@ -25,7 +25,8 @@ export default (request: Request) => html`
             </a>
 
             <span
-                class='header-version button button--flat --border --font-size-100 --font-weight-300'
+                class='header-version button button--flat'
+                style='border: 1px solid var(--border-color);--font-size: var(--font-size-100);--font-weight: var(--font-weight-300);'
                 title='v${version}'
             >
                 v${release}
@@ -43,9 +44,10 @@ export default (request: Request) => html`
             <div class='header-actions --flex-start'>
                 <a
                     aria-label='GitHub'
-                    class='header-icon button --background-grey --color-text --padding-200'
+                    class='header-icon button --background-grey'
                     href='https://github.com/esportsplus/ui'
                     rel='noreferrer'
+                    style='--padding-horizontal: var(--size-200);--padding-vertical: var(--size-200);'
                     target='_blank'
                 >
                     ${icon({ class: '', 'aria-hidden': 'true', style: '--size: var(--size-400);' }, githubSvg)}

@@ -9,7 +9,11 @@ type Card = {
 };
 
 const docCard = (card: Card) => html`
-    <a class='doc-card card --border --border-default --border-border --border-radius-500 --padding-400' href='${card.href}'>
+    <a
+        class='doc-card card --border-default --border-border'
+        href='${card.href}'
+        style='border: 1px solid var(--border-color);border-radius: var(--border-radius-500);--padding-horizontal: var(--size-400);--padding-vertical: var(--size-400);'
+    >
         <div class='doc-card-name'>${card.name}</div>
         <p class='doc-card-description'>${card.description}</p>
     </a>
