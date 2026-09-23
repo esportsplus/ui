@@ -7,17 +7,22 @@ import check from './svg/check.svg';
 import './scss/index.scss';
 
 
-const OMIT = ['checked', 'id', 'name', 'state', 'value'];
+type A = Attributes & {
+    'aria-label'?: string;
+    checked?: boolean;
+    id?: string;
+    name?: string;
+    state?: { error: string };
+    value?: number | string;
+};
+
+
+const OMIT = ['aria-label', 'checked', 'id', 'name', 'state', 'value'];
 
 
 const factory = (type: 'checkbox' | 'radio' | 'switch') => {
-    function template(
-        this: { attributes?: Attributes } | any,
-        attributes?: Attributes & { state?: { active: boolean, error: string } }
-    ) {
-        let state = attributes?.state || reactive({
-                error: ''
-            });
+    function template(this: { attributes?: Exclude<A, 'state'> } | void, attributes?: A) {
+        let state = attributes?.state || reactive({ error: '' });
 
         return html`
             <div
@@ -26,18 +31,16 @@ const factory = (type: 'checkbox' | 'radio' | 'switch') => {
                 ${attributes && omit(attributes, OMIT)}
             >
                 <input
-                    ${{
-                        'aria-label': attributes?.['aria-label'] ?? this?.attributes?.['aria-label'],
-                        checked: attributes?.checked,
-                        class: 'checkbox-tag',
-                        id: attributes?.id ?? this?.attributes?.id,
-                        name: attributes?.name ?? this?.attributes?.name,
-                        onrender: form.input.onrender(state),
-                        type: type === 'radio' ? 'radio' : 'checkbox',
-                        value: attributes?.value ?? 1
-                    }}
+                    aria-label=${attributes?.['aria-label'] ?? this?.attributes?.['aria-label']}
+                    checked=${attributes?.checked}
+                    class='checkbox-tag'
+                    id=${attributes?.id ?? this?.attributes?.id}
+                    name=${attributes?.name ?? this?.attributes?.name}
+                    onrender=${form.input.onrender(state)}
+                    type=${type === 'radio' ? 'radio' : 'checkbox'}
+                    value=${attributes?.value ?? 1}
                 >
-                ${type === 'checkbox' && icon({ 'aria-hidden': 'true', class: 'checkbox-check' }, check)}
+                ${type === 'checkbox' && icon({ 'aria-hidden': true, class: 'checkbox-check' }, check)}
             </div>
         `;
     }

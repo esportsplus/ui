@@ -1,8 +1,8 @@
 import { html } from '../../app';
 import { clipboard, icon, toast } from '@esportsplus/ui';
 import type { Renderable } from '../../app';
-import check from '/src/components/toast/svg/check.svg';
-import copy from '/src/components/toast/svg/copy.svg';
+import check from '~/components/toast/svg/check.svg';
+import copy from '~/components/toast/svg/copy.svg';
 import './scss/index.scss';
 
 

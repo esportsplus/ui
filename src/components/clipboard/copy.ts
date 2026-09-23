@@ -5,14 +5,13 @@ import write from './write';
 
 
 type A = Attributes & {
-    oncopied?: () => void;
     onerror?: () => void;
     timeout?: number;
     value: string;
 };
 
 
-const OMIT = ['oncopied', 'onerror', 'timeout', 'value'];
+const OMIT = ['onerror', 'timeout', 'value'];
 
 
 export default component<A, (state: { copied: boolean }) => Renderable<unknown>>(
@@ -22,7 +21,9 @@ export default component<A, (state: { copied: boolean }) => Renderable<unknown>>
             connected = true;
 
         return html`
-            <button type='button' ${omit(attributes, OMIT)}
+            <button
+                type='button'
+                ${omit(attributes, OMIT)}
                 ${{
                     onconnect: () => { connected = true; },
                     ondisconnect: () => {
@@ -49,9 +50,9 @@ export default component<A, (state: { copied: boolean }) => Renderable<unknown>>
                         }
 
                         timer = setTimeout(() => { state.copied = false; }, attributes.timeout ?? 3000);
-                        attributes.oncopied?.();
                     }
-                }}>
+                }}
+            >
                 ${() => content(state)}
             </button>
         `;

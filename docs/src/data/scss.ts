@@ -1,13 +1,17 @@
+import rootSource from '~/components/root/scss/variables.scss?raw';
+
+
 type Node = Record<string, string | Record<string, string>>;
 
 
-const fontSources = import.meta.glob('/src/css-utilities/font/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
+const fontSources = import.meta.glob('../../../src/css-utilities/font/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
 
-const rootSource = (import.meta.glob('/src/components/root/scss/variables.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>)['/src/components/root/scss/variables.scss'] ?? '';
+const themeSources = import.meta.glob('../../../src/themes/*/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
 
-const themeSources = import.meta.glob('/src/themes/*/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
-
-const tokenSources = import.meta.glob('/src/tokens/scss/*.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
+const tokenSources = Object.fromEntries(
+    Object.entries(import.meta.glob('../../../src/tokens/scss/*.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>)
+        .map(([path, source]) => [path.slice(path.lastIndexOf('/') + 1, -'.scss'.length), source])
+);
 
 
 function basename(path: string, from: string) {

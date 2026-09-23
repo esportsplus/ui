@@ -8,7 +8,6 @@ import { colorPalette } from '../components/color-palette';
 
 
 type Group = {
-    file: string;
     id: string;
     kind: 'box-shadow' | 'border-radius' | 'border-width' | 'color' | 'font-size' | 'size';
     prefix: string;
@@ -24,13 +23,13 @@ type Token = {
 
 
 const groups: Group[] = [
-    { file: '/src/tokens/scss/border-radius.scss', id: 'border-radius', kind: 'border-radius', prefix: 'border-radius', title: 'Border Radius', variable: 'border-radius' },
-    { file: '/src/tokens/scss/border-width.scss', id: 'border-width', kind: 'border-width', prefix: 'border-width', title: 'Border Width', variable: 'border-width' },
-    { file: '/src/tokens/scss/box-shadow.scss', id: 'box-shadow', kind: 'box-shadow', prefix: 'box-shadow', title: 'Box Shadow', variable: 'box-shadow' },
-    { file: '/src/tokens/scss/color.scss', id: 'colors', kind: 'color', prefix: 'color', title: 'Colors', variable: 'color' },
-    { file: '/src/tokens/scss/font-size.scss', id: 'font-size', kind: 'font-size', prefix: 'font-size', title: 'Font Size', variable: 'font-size' },
-    { file: '/src/tokens/scss/size.scss', id: 'sizing', kind: 'size', prefix: 'size', title: 'Sizing', variable: 'size' },
-    { file: '/src/tokens/scss/spacer.scss', id: 'spacing', kind: 'size', prefix: 'spacer', title: 'Spacing', variable: 'spacer' }
+    { id: 'border-radius', kind: 'border-radius', prefix: 'border-radius', title: 'Border Radius', variable: 'border-radius' },
+    { id: 'border-width', kind: 'border-width', prefix: 'border-width', title: 'Border Width', variable: 'border-width' },
+    { id: 'box-shadow', kind: 'box-shadow', prefix: 'box-shadow', title: 'Box Shadow', variable: 'box-shadow' },
+    { id: 'colors', kind: 'color', prefix: 'color', title: 'Colors', variable: 'color' },
+    { id: 'font-size', kind: 'font-size', prefix: 'font-size', title: 'Font Size', variable: 'font-size' },
+    { id: 'sizing', kind: 'size', prefix: 'size', title: 'Sizing', variable: 'size' },
+    { id: 'spacing', kind: 'size', prefix: 'spacer', title: 'Spacing', variable: 'spacer' }
 ];
 
 
@@ -63,7 +62,7 @@ function preview(kind: Group['kind'], value: string): Renderable<unknown> {
 }
 
 function tokens(group: Group): Token[] {
-    let node = map(tokenSources[group.file], group.variable);
+    let node = map(tokenSources[group.variable], group.variable);
 
     if (node === null) {
         return [];

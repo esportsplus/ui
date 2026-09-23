@@ -15,8 +15,8 @@ minimumReleaseAgeExclude:
   - '@esportsplus/action@0.1.7 || 0.1.8'
   - '@esportsplus/queue@0.4.5 || 0.4.6'
   - '@esportsplus/reactivity@0.36.4 || 0.36.6 || 0.36.7'
-  - '@esportsplus/template@0.44.4 || 0.44.6 || 0.45.0 || 0.45.1 || 0.45.3 || 0.46.1 || 0.46.2 || 0.46.3 || 0.46.4 || 0.46.5 || 0.46.6 || 0.48.1'
-  - '@esportsplus/utilities@0.28.3 || 0.28.4'
+  - '@esportsplus/template@0.44.4 || 0.44.6 || 0.45.0 || 0.45.1 || 0.45.3 || 0.46.1 || 0.46.2 || 0.46.3 || 0.46.4 || 0.46.5 || 0.46.6 || 0.48.1 || 0.49.0'
+  - '@esportsplus/utilities@0.28.3 || 0.28.4 || 0.28.5'
   - '@esportsplus/vite@0.14.2 || 0.14.5 || 0.14.6'
   - '@esportsplus/*'
   # browserslist's data packages (pulled transitively via autoprefixer) republish daily, so a

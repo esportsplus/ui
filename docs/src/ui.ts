@@ -1,7 +1,7 @@
 import '@esportsplus/ui/css-utilities/font/montserrat.scss';
 import '@esportsplus/ui/css-utilities/font/geist.scss';
 
-import '/src/css-utilities/index.scss';
+import '~/css-utilities/index.scss';
 
 import './components/root/scss/index.scss';
 import './components/viewer/scss/index.scss';
@@ -14,4 +14,4 @@ import './components/spec/scss/index.scss';
 // by source order. In dev the library resolves to `src`, whose SCSS has no
 // `@layer` wrapper (that is added at build), so the cascade is plain source
 // order rather than layers — hence the deliberate ordering here.
-import.meta.glob('/src/components/*/scss/index.scss', { eager: true });
+import.meta.glob('../../src/components/*/scss/index.scss', { eager: true });

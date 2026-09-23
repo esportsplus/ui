@@ -3,13 +3,13 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vite .. --config vite.config.ts",
+        "dev": "vite",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
         "@esportsplus/reactivity": "^0.36.7",
         "@esportsplus/routing": "^0.11.1",
-        "@esportsplus/template": "^0.48.1",
+        "@esportsplus/template": "^0.49.0",
         "@esportsplus/ui": "workspace:*"
     },
     "devDependencies": {

@@ -5,7 +5,7 @@ import './scss/index.scss';
 
 
 export default function(
-    this: { attributes?: Attributes } | any,
+    this: { attributes?: Attributes } | void,
     attributes: Attributes & { max: number, min: number, state?: { active: boolean, error: string, value: number } }
 ) {
     let { max, min } = attributes,

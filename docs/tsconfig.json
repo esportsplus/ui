@@ -7,6 +7,9 @@
             "~/components/*": [
                 "../src/components/*"
             ],
+            "~/css-utilities/*": [
+                "../src/css-utilities/*"
+            ],
             "~/*": [
                 "./src/*"
             ],
