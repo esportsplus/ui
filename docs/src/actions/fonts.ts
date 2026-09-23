@@ -92,7 +92,11 @@ const page = (): Page => {
                 ${pageHead('Fonts', 'The typefaces bundled with the library, with a live specimen at every available weight and the raw @font-face definitions read from source.')}
 
                 ${rendered.map((family) => html`
-                    <section id='${family.id}' class='--font-${family.id}' style='font-family: var(--font-family); font-weight: var(--font-weight-400);'>
+                    <section
+                        id='${family.id}'
+                        class='--font-${family.id}'
+                        style='font-family: var(--font-family); font-weight: var(--font-weight-400);'
+                    >
                         <h2 class='docs-page-section-title'>${family.family}</h2>
 
                         <div style='display: grid; gap: var(--size-400); margin-bottom: var(--size-500);'>
