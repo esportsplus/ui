@@ -1,5 +1,4 @@
 import { select } from '@esportsplus/ui';
-import { select as selectDark } from '@esportsplus/ui/themes/dark';
 
 
 export default {
@@ -17,12 +16,6 @@ export default {
                 selected: 'gbp'
             }),
             title: 'pre-selected'
-        },
-        {
-            render: () => selectDark({
-                options: { one: 'One', three: 'Three', two: 'Two' }
-            }),
-            title: 'dark preset'
         }
     ]
 };
