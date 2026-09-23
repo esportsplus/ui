@@ -1,16 +1,12 @@
 @use 'variables';
 
 .textarea {
-    align-items: center;
     background: var(--background);
     border: var(--border-width) var(--border-style) var(--border-color);
     border-radius: var(--border-radius);
     color: var(--color);
     cursor: text;
-    display: flex;
-    field-sizing: content;
     flex: 1 1 auto;
-    flex-wrap: wrap;
     font-size: var(--font-size);
     min-width: 0;
     padding:
@@ -23,11 +19,25 @@
         box-shadow var(--transition-duration) var(--transition-timing-function),
         opacity var(--transition-duration) var(--transition-timing-function),
         transform var(--transition-duration) var(--transition-timing-function);
-    white-space: normal;
     width: 100%;
 
     &:invalid,
     &:required {
         box-shadow: none;
+    }
+
+
+    &--autoresize {
+        field-sizing: content;
+        height: auto;
+        max-height: var(--max-height);
+        min-height: var(--min-height);
+        overflow-y: auto;
+        resize: none;
+
+        &-fallback {
+            box-sizing: border-box;
+            height: calc(var(--content-height, var(--min-height)) + 2 * var(--border-width));
+        }
     }
 }
