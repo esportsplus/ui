@@ -1,16 +1,12 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
-import { omit } from '@esportsplus/utilities';
 import './scss/index.scss';
-
-
-const OMIT = ['currency', 'decimals', 'delay', 'max', 'state', 'suffix', 'value'];
 
 
 let formatters: Record<string, Intl.NumberFormat> = {};
 
 
-export default (attributes: Attributes & {
+export default ({ currency, decimals = 2, delay, max, state: api = reactive({ value: -1 }), suffix, value, ...attributes }: Attributes & {
     currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD';
     decimals?: number;
     delay?: number;
@@ -19,20 +15,15 @@ export default (attributes: Attributes & {
     suffix?: string;
     value: number;
 }) => {
-    let { currency, decimals, delay, max, suffix, value } = attributes,
-        api = attributes.state || reactive({ value: -1 }),
-        formatter = currency === 'IGNORE'
+    let formatter = currency === 'IGNORE'
             ? undefined
             : formatters[currency || 'USD'] ??= new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: currency || 'USD'
             }),
         animation = reactive({ started: false }),
-        render = reactive([] as { digit: boolean; value: string }[]);
-
-    decimals ??= 2;
-
-    let stop = effect(() => {
+        render = reactive([] as { digit: boolean; value: string }[]),
+        stop = effect(() => {
             let target = api.value === -1 ? value : api.value,
                 started = animation.started;
 
@@ -89,7 +80,7 @@ export default (attributes: Attributes & {
     });
 
     return html`
-        <div class='counter' ${omit(attributes, OMIT)}>
+        <div class='counter' ${attributes}>
             ${html.reactive(render, function (character) {
                     if (!character.digit) {
                         return html`

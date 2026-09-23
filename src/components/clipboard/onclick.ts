@@ -1,30 +1,25 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { omit } from '@esportsplus/utilities';
 import write from './write';
 
 
 type A = { timeout?: number, value: string } & Attributes;
 
 
-const OMIT = ['timeout', 'value'];
-
-
 export default component<A, (state: { copied: boolean }) => Renderable<unknown>>(
-    function(attributes, content) {
+    function({ timeout = 1000 * 2, value, ...attributes }, content) {
         let state = reactive({
                 copied: false
-            }),
-            timeout = attributes.timeout || 1000 * 2;
+            });
 
         return html`
             <div
-                ${omit(attributes, OMIT)}
+                ${attributes}
                 onclick=${(e: MouseEvent) => {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    void write(attributes.value).then(() => {
+                    void write(value).then(() => {
                         state.copied = true;
 
                         setTimeout(() => {

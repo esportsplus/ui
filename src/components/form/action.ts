@@ -1,13 +1,9 @@
 import response, { Response } from '@esportsplus/action';
 import { html, Attributes, Element, Renderable } from '@esportsplus/template';
-import { omit } from '@esportsplus/utilities';
 import input from './input';
 
 
 type Errors = { errors: Response<unknown>['errors'] };
-
-
-const OMIT = ['action', 'state'];
 
 
 function parse(input: ReturnType<FormData['entries']>) {
@@ -41,18 +37,16 @@ function parse(input: ReturnType<FormData['entries']>) {
 
 
 export default <T extends Record<string, any>>(
-    attributes: {
+    { action, state, ...attributes }: {
         action: (data: { input: T, response: typeof response }) => (Promise<Errors> | Errors),
         state?: { processing: boolean }
     } & Attributes,
     content: Renderable<any>
 ) => {
-    let { action, state } = attributes;
-
     return html`
         <form
             class='form'
-            ${omit(attributes, OMIT)}
+            ${attributes}
             ${{
                 onclick: function(event) {
                     let trigger = event.target as HTMLButtonElement;

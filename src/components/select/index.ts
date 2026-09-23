@@ -1,16 +1,7 @@
 import { component, html, type Renderable, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { EMPTY_ARRAY, omit, toArray } from '@esportsplus/utilities';
 import form from '~/components/form';
 import './scss/index.scss';
-
-
-const OMIT = [
-    'arrow',
-    'options',
-    'option',
-    'tooltip-content',
-];
 
 
 type A = {
@@ -23,6 +14,7 @@ type A = {
         selected?: number | string;
         state?: never;
     } | {
+        selected?: never;
         state: {
             active: boolean;
             error: string;
@@ -33,23 +25,38 @@ type A = {
 ) & Attributes;
 
 
+type D = Attributes & Pick<A, 'arrow' | 'option' | 'tooltip-content'>;
+
+
 export default component<A, (state: { active: boolean, selected?: string | number }) => Renderable<unknown>>(
-    function(this: { attributes?: Exclude<A, 'options' | 'selected' | 'state'> }, attributes: A, content) {
-        let element: HTMLElement,
-            { options, option } = attributes,
-            state = attributes.state || reactive({
+    function(
+        this: { attributes?: D },
+        {
+            arrow,
+            option,
+            options,
+            selected,
+            state = reactive({
                 active: false,
                 error: '',
                 render: false,
-                selected: attributes.selected || Object.keys(options)[0]
-            });
+                selected: selected || Object.keys(options)[0]
+            }),
+            'tooltip-content': tooltipContent,
+            ...attributes
+        }: A,
+        content
+    ) {
+        let { arrow: defaultArrow, option: defaultOption, 'tooltip-content': defaultTooltipContent, ...defaults }: D = this?.attributes ?? {},
+            { direction: defaultDirection, ...defaultTooltipContentAttributes } = defaultTooltipContent ?? {},
+            { direction = defaultDirection || 's', ...tooltipContentAttributes } = tooltipContent ?? {},
+            element: HTMLElement;
 
         return html`
             <div
                 class='select tooltip ${() => state.active && '--active'}'
-                ${this?.attributes && omit(this.attributes, OMIT)}
-                ${omit(attributes, OMIT)}
-                onrender=${(node: HTMLElement) => element = node}
+                ${defaults}
+                ${attributes}
                 ondocumentclick=${(event: MouseEvent) => {
                     if (!state.active || !element?.isConnected) {
                         return;
@@ -66,6 +73,7 @@ export default component<A, (state: { active: boolean, selected?: string | numbe
 
                     state.render = true;
                 }}
+                onrender=${(node: HTMLElement) => element = node}
             >
                 ${content ? (() => content(state)) : (() => {
                     let selected = options[state.selected!];
@@ -81,7 +89,7 @@ export default component<A, (state: { active: boolean, selected?: string | numbe
                     return selected;
                 })}
 
-                <div class='select-arrow' ${this?.attributes?.arrow} ${attributes.arrow}></div>
+                <div class='select-arrow' ${defaultArrow} ${arrow}></div>
 
                 <input class='select-tag'
                     ${{
@@ -104,15 +112,10 @@ export default component<A, (state: { active: boolean, selected?: string | numbe
 
                     return html`
                         <div
-                            class='tooltip-content --flex-column --scrollbar'
+                            class='tooltip-content tooltip-content--${direction} --flex-column --scrollbar'
+                            ${defaultTooltipContentAttributes}
+                            ${tooltipContentAttributes}
                             ${{
-                                ...this?.attributes?.['tooltip-content'] || EMPTY_ARRAY,
-                                ...attributes['tooltip-content'],
-                                class: [
-                                    ...toArray(this?.attributes?.['tooltip-content']?.class),
-                                    ...toArray(attributes['tooltip-content']?.class),
-                                    `tooltip-content--${attributes['tooltip-content']?.direction || 's'}`
-                                ],
                                 inert: () => !state.active,
                                 onclick: (e: Event) => {
                                     let element = e.target as HTMLElement,
@@ -144,11 +147,7 @@ export default component<A, (state: { active: boolean, selected?: string | numbe
                                 },
                                 onconnect: () => {
                                     state.active = true;
-                                },
-                                style: [
-                                    ...toArray(this?.attributes?.['tooltip-content']?.style),
-                                    ...toArray(attributes['tooltip-content']?.style)
-                                ],
+                                }
                             }}
                         >
                             ${keys.map((key) => {
@@ -161,7 +160,7 @@ export default component<A, (state: { active: boolean, selected?: string | numbe
                                 return html`
                                     <div
                                         class='link select-option ${() => selected[key] && '--active'}'
-                                        ${this?.attributes?.option}
+                                        ${defaultOption}
                                         ${option}
                                         data-key='${key}'
                                     >

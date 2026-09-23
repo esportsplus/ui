@@ -1,9 +1,11 @@
+@use '/tokens';
+
 .accordion {
     display: grid;
     grid-template-rows: 1fr;
     transition: grid-template-rows .3s;
 
-    &[inert] {
+    @include tokens.state(inactive) {
         grid-template-rows: 0fr;
     }
 

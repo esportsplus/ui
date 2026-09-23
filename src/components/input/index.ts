@@ -6,12 +6,15 @@ import './scss/index.scss';
 
 export default function (
     this: { attributes?: Attributes } | void,
-    attributes: Attributes & { state?: { active: boolean, error: string } }
-) {
-    let state = attributes.state || reactive({
+    {
+        state = reactive({
             active: false,
             error: ''
-        });
+        }),
+        ...attributes
+    }: Attributes & { state?: { active: boolean, error: string } }
+) {
+    attributes.type ??= 'text';
 
     return html`
         <input
@@ -27,7 +30,6 @@ export default function (
                     state.active = false;
                 },
                 onrender: form.input.onrender(state),
-                type: (attributes.type || 'text') as string
             }}
         />
     `;

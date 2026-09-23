@@ -1,6 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { omit } from '@esportsplus/utilities';
 import onclick from './onclick';
 
 
@@ -13,43 +12,32 @@ type A = Attributes & {
 };
 
 
-const OMIT = ['options', 'option', 'tooltip-content'];
-
-const OMIT_OPTION = ['content'];
-
-const OMIT_TOOLTIP_CONTENT = ['direction'];
-
-
 export default component<A>(
-    (attributes, content) => {
-        let options = attributes.options,
-            option = attributes.option,
-            state = attributes.state || reactive({ active: false }),
-            tooltipContent = attributes?.['tooltip-content'],
-            tooltipContentDirection = tooltipContent?.direction || 'nw';
+    ({ options, option, state = reactive({ active: false }), 'tooltip-content': tooltipContent, ...attributes }, content) => {
+        let { direction = 'nw', ...tooltipContentAttributes } = tooltipContent ?? {};
 
         return onclick(
-            { ...omit(attributes, OMIT), state },
+            { ...attributes, state },
             html`
                 ${content}
 
                 <div
-                    class='tooltip-content ${`tooltip-content--${tooltipContentDirection}`}'
-                    ${tooltipContent && omit(tooltipContent, OMIT_TOOLTIP_CONTENT)}
+                    class='tooltip-content ${`tooltip-content--${direction}`}'
+                    ${tooltipContentAttributes}
                     ${{
                         inert: () => !state.active
                     }}
                 >
-                    ${options.map((o) => {
+                    ${options.map(({ content, ...o }) => {
                         if (o.href) {
                             return html`
                                 <a
                                     class='link --width-full'
                                     target='_blank'
-                                    ${omit(o, OMIT_OPTION)}
+                                    ${o}
                                     ${option}
                                 >
-                                    ${o.content}
+                                    ${content}
                                 </a>
                             `;
                         }
@@ -57,10 +45,10 @@ export default component<A>(
                         return html`
                             <div
                                 class='link --width-full'
-                                ${omit(o, OMIT_OPTION)}
+                                ${o}
                                 ${option}
                             >
-                                ${o.content}
+                                ${content}
                             </div>
                         `;
                     })}

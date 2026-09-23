@@ -1,29 +1,24 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { omit } from '@esportsplus/utilities';
 import write from './write';
 
 
 type A = Attributes & {
-    onerror?: () => void;
     timeout?: number;
     value: string;
 };
 
 
-const OMIT = ['onerror', 'timeout', 'value'];
-
-
-export default component<A, (state: { copied: boolean }) => Renderable<unknown>>(
-    (attributes, content) => {
-        let state = reactive({ copied: false }),
+export default component<A, (state: { copied: boolean, failed: boolean }) => Renderable<unknown>>(
+    ({ timeout = 3000, value, ...attributes }, content) => {
+        let state = reactive({ copied: false, failed: false }),
             timer: ReturnType<typeof setTimeout> | undefined,
             connected = true;
 
         return html`
             <button
                 type='button'
-                ${omit(attributes, OMIT)}
+                ${attributes}
                 ${{
                     onconnect: () => { connected = true; },
                     ondisconnect: () => {
@@ -35,7 +30,7 @@ export default component<A, (state: { copied: boolean }) => Renderable<unknown>>
                         event.preventDefault();
                         event.stopPropagation();
 
-                        let copied = await write(attributes.value);
+                        let copied = await write(value);
 
                         if (!connected) {
                             return;
@@ -45,11 +40,11 @@ export default component<A, (state: { copied: boolean }) => Renderable<unknown>>
                         state.copied = copied;
 
                         if (!copied) {
-                            attributes.onerror?.();
+                            state.failed = true;
                             return;
                         }
 
-                        timer = setTimeout(() => { state.copied = false; }, attributes.timeout ?? 3000);
+                        timer = setTimeout(() => { state.copied = false; }, timeout);
                     }
                 }}
             >

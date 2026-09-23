@@ -1,23 +1,16 @@
-import { html, Attributes, component } from '@esportsplus/template';
-import { omit } from '@esportsplus/utilities';
+import { reactive } from '@esportsplus/reactivity';
+import { html, component, type Attributes } from '@esportsplus/template';
 import './scss/index.scss';
 
 
-type A = Attributes & { state: { active: boolean | number } };
-
-
-const OMIT = ['state'];
-
-
-export default component<A>(
-    function(attributes: A, content) {
-        let state = attributes.state;
-
+export default component<Attributes & { state?: { active: boolean | number } }>(
+    function({ state = reactive({ active: false }), ...attributes }, content) {
         return html`
             <div
                 class='accordion'
-                ${omit(attributes, OMIT)}
+                ${attributes}
                 ${{
+                    class: () => state.active && '--active',
                     inert: () => !state.active
                 }}
             >
