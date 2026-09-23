@@ -78,13 +78,13 @@
             --width: var(--height);
         }
 
-        #{tokens.state(active)}::before {
+        &:has(input:checked)::before {
             --translateX: calc(var(--width-rail) - (var(--border-width) * 2) - var(--height) - (var(--padding-horizontal) * 2));
         }
     }
 
 
-    #{tokens.state(inactive)} {
+    &:not(:has(input:checked)) {
         &:hover,
         label:hover & {
             --background: var(--background-hover);
@@ -105,7 +105,7 @@
         }
     }
 
-    #{tokens.state(active)} {
+    &:has(input:checked) {
         --background: var(--background-active);
         --border-color: var(--border-color-active);
         --box-shadow: var(--box-shadow-active);

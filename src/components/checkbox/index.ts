@@ -8,22 +8,6 @@ import './scss/index.scss';
 
 
 const OMIT = ['checked', 'id', 'name', 'state', 'value'];
-const radios = new WeakMap<HTMLInputElement, { active: boolean }>();
-
-
-function syncRadios(input: HTMLInputElement) {
-    if (!input.name) {
-        return;
-    }
-
-    for (let peer of (input.getRootNode() as Document | ShadowRoot).querySelectorAll<HTMLInputElement>('input[type="radio"]')) {
-        let state = radios.get(peer);
-
-        if (state && peer.name === input.name && peer.form === input.form) {
-            state.active = peer.checked;
-        }
-    }
-}
 
 
 const factory = (type: 'checkbox' | 'radio' | 'switch') => {
@@ -31,60 +15,29 @@ const factory = (type: 'checkbox' | 'radio' | 'switch') => {
         this: { attributes?: Attributes } | any,
         attributes?: Attributes & { state?: { active: boolean, error: string } }
     ) {
-        let ref: HTMLElement,
-            state = attributes?.state || reactive({
-                active: false,
+        let state = attributes?.state || reactive({
                 error: ''
             });
 
-        if (attributes?.checked) {
-            state.active = true;
-        }
-
         return html`
             <div
-                class='checkbox ${(type === 'radio' || type === 'switch') && `checkbox--${type}`} ${() => state.active && '--active'}'
+                class='checkbox ${(type === 'radio' || type === 'switch') && `checkbox--${type}`}'
                 ${this?.attributes && omit(this.attributes, OMIT)}
                 ${attributes && omit(attributes, OMIT)}
-                onclick=${(event: MouseEvent) => {
-                    if (event.target !== ref) {
-                        ref.click();
-                    }
-                }}
             >
                 <input
                     ${{
-                        checked: () => {
-                            if (type === 'radio' && state.active) {
-                                queueMicrotask(() => ref && syncRadios(ref as HTMLInputElement));
-                            }
-
-                            return state.active;
-                        },
                         'aria-label': attributes?.['aria-label'] ?? this?.attributes?.['aria-label'],
-                        class: `${type}-tag`,
+                        checked: attributes?.checked,
+                        class: 'checkbox-tag',
                         id: attributes?.id ?? this?.attributes?.id,
                         name: attributes?.name ?? this?.attributes?.name,
-                        onchange: (e: Event) => {
-                            state.active = (e.target as HTMLInputElement).checked;
-
-                            if (type === 'radio') {
-                                syncRadios(e.target as HTMLInputElement);
-                            }
-                        },
-                        onconnect: (input) => {
-                            ref = input;
-
-                            if (type === 'radio') {
-                                radios.set(input as unknown as HTMLInputElement, state);
-                            }
-                        },
                         onrender: form.input.onrender(state),
                         type: type === 'radio' ? 'radio' : 'checkbox',
-                        value: attributes?.value || 1
+                        value: attributes?.value ?? 1
                     }}
                 >
-                ${type === 'checkbox' && icon({ class: 'checkbox-check', 'aria-hidden': 'true' }, check)}
+                ${type === 'checkbox' && icon({ 'aria-hidden': 'true', class: 'checkbox-check' }, check)}
             </div>
         `;
     }

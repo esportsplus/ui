@@ -12,6 +12,7 @@
     cursor: pointer;
     flex: 0 0 var(--width);
     height: var(--height);
+    pointer-events: none;
     position: relative;
     transition:
         background var(--transition-duration) var(--transition-timing-function),
@@ -55,6 +56,15 @@
     }
 
 
+    &:has(input:checked) .checkbox-check svg {
+        stroke-dashoffset: 0;
+    }
+
+    &:has(> .checkbox-tag:focus-visible, > .radio-tag:focus-visible, > .switch-tag:focus-visible) {
+        outline: var(--focus-width) solid var(--focus-color);
+        outline-offset: var(--focus-offset);
+    }
+
     .checkbox-check {
         height: var(--check-size);
         inset: 0 0 0 1px;
@@ -75,24 +85,15 @@
         }
     }
 
-    #{tokens.state(active)} .checkbox-check svg {
-        stroke-dashoffset: 0;
-    }
-
-    &:has(> .checkbox-tag:focus-visible, > .radio-tag:focus-visible, > .switch-tag:focus-visible) {
-        outline: var(--focus-width) solid var(--focus-color);
-        outline-offset: var(--focus-offset);
-    }
-
     // Keep the native input interactive while the SVG supplies its appearance.
-    .checkbox-tag,
-    .radio-tag,
-    .switch-tag {
+    // TODO: Pointer events none on parent and default here?
+    &-tag {
         @include lib.position(absolute, full);
         cursor: inherit;
         height: 100%;
         margin: 0;
         opacity: 0;
+        pointer-events: all;
         width: 100%;
         z-index: 1;
     }
