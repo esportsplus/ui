@@ -2,7 +2,6 @@ import { component, html, type Renderable, type Attributes } from '@esportsplus/
 import { reactive } from '@esportsplus/reactivity';
 import { EMPTY_ARRAY, omit, toArray } from '@esportsplus/utilities';
 import form from '~/components/form';
-import root from '~/components/root';
 import './scss/index.scss';
 
 
@@ -34,36 +33,10 @@ type A = {
 ) & Attributes;
 
 
-let previous: { active: boolean } | null = null;
-
-
-function set(current: { active: boolean }, value: boolean) {
-    current.active = value;
-
-    if (value) {
-        if (previous) {
-            previous.active = false;
-        }
-
-        previous = current;
-        root.onclick.push(() => {
-            if (previous !== current) {
-                return;
-            }
-
-            previous = null;
-            current.active = false;
-        });
-    }
-    else if (previous === current) {
-        previous = null;
-    }
-}
-
-
 export default component<A, (state: { active: boolean, selected?: string | number }) => Renderable<unknown>>(
     function(this: { attributes?: Exclude<A, 'options' | 'selected' | 'state'> }, attributes: A, content) {
-        let { options, option } = attributes,
+        let element: HTMLElement,
+            { options, option } = attributes,
             state = attributes.state || reactive({
                 active: false,
                 error: '',
@@ -76,9 +49,19 @@ export default component<A, (state: { active: boolean, selected?: string | numbe
                 class='select tooltip ${() => state.active && '--active'}'
                 ${this?.attributes && omit(this.attributes, OMIT)}
                 ${omit(attributes, OMIT)}
+                onrender=${(node: HTMLElement) => element = node}
+                ondocumentclick=${(event: MouseEvent) => {
+                    if (!state.active || !element?.isConnected) {
+                        return;
+                    }
+
+                    if (!element.contains(event.target as Node | null)) {
+                        state.active = false;
+                    }
+                }}
                 onclick=${() => {
                     if (state.render) {
-                        set(state, !state.active);
+                        state.active = !state.active;
                     }
 
                     state.render = true;
@@ -153,14 +136,14 @@ export default component<A, (state: { active: boolean, selected?: string | numbe
 
                                     let previous = state.selected!;
 
-                                    set(state, false);
+                                    state.active = false;
                                     state.selected = key;
 
                                     selected[key] = true;
                                     selected[previous] = false;
                                 },
                                 onconnect: () => {
-                                    set(state, true);
+                                    state.active = true;
                                 },
                                 style: [
                                     ...toArray(this?.attributes?.['tooltip-content']?.style),

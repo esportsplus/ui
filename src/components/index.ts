@@ -11,7 +11,6 @@ export { default as number } from './number';
 export { default as overlay } from './overlay';
 export { default as radio } from './radio';
 export { default as range } from './range';
-export { default as root } from './root';
 export { default as select } from './select';
 export { default as switch } from './switch';
 export { default as sidebar } from './sidebar';

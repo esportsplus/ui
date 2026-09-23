@@ -1,48 +1,15 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { omit } from '@esportsplus/utilities';
-import root from '~/components/root';
 
 
 const OMIT = ['state', 'toggle'];
 
 
-let parent: HTMLElement | null | undefined = null,
-    queue: { fn: VoidFunction, tooltip: HTMLElement }[] = [],
-    running = false,
-    scheduled = false;
-
-
-function frame() {
-    if (running) {
-        return;
-    }
-
-    running = true;
-
-    let item,
-        keep;
-
-    while (item = queue.pop()) {
-        if (parent === item.tooltip) {
-            keep = item;
-            continue;
-        }
-
-        item.fn();
-    }
-
-    if (keep) {
-        queue.push(keep);
-    }
-
-    running = false;
-}
-
-
 export default component<Attributes & { state?: { active: boolean }, toggle?: boolean }>(
     (attributes, content) => {
-        let state = attributes.state || reactive({ active: false }),
+        let ref: HTMLElement,
+            state = attributes.state || reactive({ active: false }),
             toggle = attributes.toggle || false;
 
         return html`
@@ -51,42 +18,19 @@ export default component<Attributes & { state?: { active: boolean }, toggle?: bo
                 ${omit(attributes, OMIT)}
                 ${{
                     class: () => state.active && '--active',
-                    onclick: function(e) {
-                        let active = true,
-                            node = e.target as Node | null;
-
-                        if (this === node || (toggle && this.contains(node))) {
-                            active = !state.active;
-                        }
-
-                        if (parent !== this && !parent?.contains(this)) {
-                            parent = this.parentElement?.closest('.tooltip');
-                        }
-
-                        frame();
-
-                        if (parent === this) {
-                            parent = null;
+                    ondocumentclick: (event) => {
+                        if (!state.active || !ref?.isConnected) {
                             return;
                         }
 
-                        state.active = active;
-
-                        if (active) {
-                            queue.push({
-                                fn: () => state.active = false,
-                                tooltip: this
-                            });
+                        if (!ref.contains(event.target as Node | null)) {
+                            state.active = false;
                         }
-
-                        if (!scheduled) {
-                            root.onclick.push(() => {
-                                frame();
-                                scheduled = false;
-                            });
-                            scheduled = true;
-                        }
-                    }
+                    },
+                    onclick: function(e) {
+                        state.active = this === e.target || toggle ? !state.active : true;
+                    },
+                    onrender: (element) => ref = element
                 }}
             >
                 ${content}

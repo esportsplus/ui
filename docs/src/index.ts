@@ -2,15 +2,13 @@ import './ui';
 import { toaster } from '@esportsplus/ui';
 import { fallback, html, middleware, render } from './app';
 import header from './components/header';
-import root from '~/components/root'
 import sidebar from './components/sidebar';
 
 
 render(
     document.body,
     {
-        class: `--font-montserrat --scrollbar`,
-        onclick: root.onclick
+        class: `--font-montserrat --scrollbar`
     },
     middleware(
         (request, next) => html`
