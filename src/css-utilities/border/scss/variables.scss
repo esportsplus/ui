@@ -4,30 +4,9 @@
 .--border {
     @include tokens.state-utility('border-color', tokens.$colors);
 
-    &,
-    &-bottom,
-    &-left,
-    &-right,
-    &-top {
-        --border-style: solid;
-        --border-width: var(--border-width-400);
-    }
-
-    &-dashed {
-        --border-style: dashed;
-    }
-
-    &-dotted {
-        --border-style: dotted;
-    }
-
     &-radius {
-        --border-radius: var(--border-radius-400);
-
-        @each $key in lib.map-keys(tokens.$border-radius) {
-            &-#{$key} {
-                --border-radius: var(--border-radius-#{$key});
-            }
+        &-responsive {
+            --border-radius: #{"calc( progress((100vi - 100cqi) / 2, 0px, var(--gap-horizontal)) * var(--border-radius) )"};
         }
     }
 
@@ -55,16 +34,6 @@
 
         @include tokens.state(pressed) {
             --border-color: var(--border-color-pressed);
-        }
-    }
-
-    &-width {
-        --border-width: var(--border-width-400);
-
-        @each $key in lib.map-keys(tokens.$border-width) {
-            &-#{$key} {
-                --border-width: var(--border-width-#{$key});
-            }
         }
     }
 }

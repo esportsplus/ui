@@ -3,19 +3,21 @@ import select from '~/components/select';
 
 export default select.bind({
     attributes: {
-        class: '--background-black --border --border-black --color-white',
+        class: '--background-black --border-black --color-white',
         option: {
-            class: '--background-black --color-white --padding-horizontal-500 --width-full',
-            style: '--color-default: var(--color-grey-500);white-space: nowrap;'
+            class: '--background-black --color-white',
+            style: '--color-default: var(--color-grey-500); --padding-horizontal: var(--size-500); white-space: nowrap; width: 100%;'
         },
-        style: '--border-color-default: var(--color-black-300);',
+        style: '--border-color-default: var(--color-black-300); --border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color);',
 
         'tooltip-content': {
-            class: '--border --border-radius-500',
             direction: 'sw',
             style: `
                 --background: var(--color-black-400);
                 --border-color: var(--color-black-300);
+                --border-radius: var(--border-radius-500);
+                --border-width: var(--border-width-400);
+                border: var(--border-width) solid var(--border-color);
             `
         }
     }

@@ -1,12 +1,7 @@
 @use '/lib';
 @use '/tokens';
-@use './variables';
 
 .--text {
-    &-center {
-        text-align: center;
-    }
-
     &-crop {
         @supports (text-box: trim-both cap alphabetic) {
             & {
@@ -57,49 +52,10 @@
         }
     }
 
-    &-italic {
-        font-style: italic;
-    }
-
-    &-line-through {
-        text-decoration: line-through;
-        text-decoration-thickness: var(--line-width);
-    }
-
-    &-multiplier {
-        font-size: calc(var(--font-size) * var(--text-multiplier));
-    }
-
-    &-outline {
-        color: var(--color);
-        word-break: break-word;
-        word-wrap: break-word;
-
-        @supports (-webkit-text-stroke-width: 1px) {
-            color: transparent;
-            -webkit-text-fill-color: transparent;
-            -webkit-text-stroke-color: var(--color);
-            -webkit-text-stroke-width: var(--stroke-width);
-        }
-    }
-
     &-truncate {
         max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    &-underline {
-        text-decoration: underline;
-
-        &-dotted {
-            text-decoration: underline;
-            text-decoration-style: dotted;
-        }
-    }
-
-    &-uppercase {
-        text-transform: uppercase;
     }
 }

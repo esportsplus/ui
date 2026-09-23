@@ -10,10 +10,6 @@
         --color-pressed: var(--color-default);
     }
 
-    &-inherit {
-        --color: inherit;
-    }
-
     &-state {
         --color: var(--color-default);
         --color-active: var(--color-default);
