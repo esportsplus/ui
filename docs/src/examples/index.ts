@@ -3,7 +3,6 @@ import type { Entry } from '../types';
 import accordion from './accordion';
 import anchor from './anchor';
 import banner from './banner';
-import border from './border';
 import button from './button';
 import card from './card';
 import checkbox from './checkbox';
@@ -40,7 +39,6 @@ const entries: Entry[] = [
     accordion,
     anchor,
     banner,
-    border,
     button,
     card,
     checkbox,

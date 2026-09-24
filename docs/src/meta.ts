@@ -26,10 +26,6 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Full-width promotional strip for announcements and notices.'
     },
-    border: {
-        category: 'Layout',
-        description: 'Decorative and semantic border treatments for surfaces.'
-    },
     button: {
         category: 'Interactive',
         description: 'Trigger actions with color, modifier, and hold-to-confirm variants.'
