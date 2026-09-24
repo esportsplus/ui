@@ -1,8 +1,14 @@
 import { component, html, type Renderable, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
-import { SELECT_ARROW, SELECT_OPTION, SELECT_TOOLTIP_CONTENT } from './constants';
 import './scss/index.scss';
+
+
+const SELECT_ARROW = Symbol.for('@esportsplus/ui/select.arrow');
+
+const SELECT_OPTION = Symbol.for('@esportsplus/ui/select.option');
+
+const SELECT_TOOLTIP_CONTENT = Symbol.for('@esportsplus/ui/select.tooltip-content');
 
 
 type A = {
