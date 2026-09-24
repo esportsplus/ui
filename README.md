@@ -67,7 +67,7 @@ html`
 | `button` | Standard button | `button.hold` |
 | `tooltip` | Popup content | `tooltip.menu`, `tooltip.onclick`, `tooltip.onhover` |
 | `accordion` | Collapsible sections | - |
-| `clipboard` | Copy to clipboard | `clipboard.onclick`, `clipboard.write` |
+| `clipboard` | Copy to clipboard | `clipboard.copy`, `clipboard.write` |
 | `alert` | Notifications | error, info, success types |
 
 ### Display
@@ -90,7 +90,8 @@ html`
 | `scrollbar` | Native scrollbar styling |
 | `tabs.scss` | Tab panels: instant by default, `tabs--slide` for horizontal motion, `tabs--scroll` for vertical motion |
 | `sidebar` | Side navigation |
-| `overlay` | Modal/overlay container |
+| `modal` | Native `<dialog>` modal driven by `state.active` (Esc and backdrop click close it) |
+| `overlay` | Full-viewport overlay container |
 
 ### Utility
 | Component | Description |

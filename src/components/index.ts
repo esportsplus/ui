@@ -7,6 +7,7 @@ export { default as icon } from './icon';
 export { default as input } from './input';
 export { default as json } from './json';
 export { default as loading } from './loading';
+export { default as modal } from './modal';
 export { default as number } from './number';
 export { default as overlay } from './overlay';
 export { default as radio } from './radio';

@@ -2,23 +2,46 @@
 @use '/tokens';
 @use 'variables';
 
+// Zero specificity so paired classes (e.g. '.card') still win over the dialog UA reset.
+:where(dialog.modal) {
+    background: transparent;
+    border: 0;
+    color: inherit;
+    max-height: 100%;
+    max-width: 100%;
+    padding: 0;
+}
+
+// Outranks pairings like '.card { position: relative }' that would unpin the dialog from the viewport.
+dialog.modal {
+    position: fixed;
+}
+
 .modal {
     margin: auto;
     transition:
         opacity var(--transition-duration) var(--transition-timing-function),
-        transform var(--transition-duration) var(--transition-timing-function);
+        translate var(--transition-duration) var(--transition-timing-function);
     transform-origin: center;
     width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
-    z-index: 9;
 
     @include tokens.state(inactive) {
         opacity: 0;
         pointer-events: none;
-        transform: translateY(var(--translateY));
+        translate: 0 var(--translateY);
+
+        &::backdrop {
+            opacity: 0;
+        }
 
         input[type='password'] {
             display: none;
         }
+    }
+
+    &::backdrop {
+        background: var(--backdrop);
+        transition: opacity var(--transition-duration) var(--transition-timing-function);
     }
 
     &-frame {
@@ -29,6 +52,13 @@
 
         @include tokens.state(inactive) {
             display: none;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &,
+        &::backdrop {
+            transition: none;
         }
     }
 }

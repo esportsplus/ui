@@ -1,4 +1,5 @@
 .modal {
+    --backdrop: color-mix(in srgb, var(--color-black-500) 64%, transparent);
     --margin-horizontal: 0px;
     --margin-vertical: 0px;
     --max-width: 480px;
