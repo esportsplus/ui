@@ -2,8 +2,8 @@
     "author": "ICJR",
     "dependencies": {
         "@esportsplus/action": "^0.1.8",
-        "@esportsplus/reactivity": "^0.36.7",
-        "@esportsplus/template": "^0.50.0",
+        "@esportsplus/reactivity": "^0.37.0",
+        "@esportsplus/template": "^0.51.0",
         "@esportsplus/utilities": "^0.28.5",
         "modern-normalize": "^3.0.1"
     },

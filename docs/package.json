@@ -7,9 +7,9 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "@esportsplus/reactivity": "^0.36.7",
-        "@esportsplus/routing": "^0.11.1",
-        "@esportsplus/template": "^0.50.0",
+        "@esportsplus/reactivity": "^0.37.0",
+        "@esportsplus/routing": "^0.11.2",
+        "@esportsplus/template": "^0.51.0",
         "@esportsplus/ui": "workspace:*"
     },
     "devDependencies": {
