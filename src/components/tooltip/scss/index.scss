@@ -13,17 +13,20 @@
     z-index: 0;
 
     @include tokens.state(active) {
-        // Add invisible box to increase activation/hover area
-        &.tooltip--box {
-            $size: calc(100% + var(--spacer) * 3);
-
-            &::before {
-                @include lib.position(absolute, center);
-                content: '';
-                height: $size;
-                width: $size;
-                z-index: -1;
-            }
+        // Cone from the pointer to the tooltip, computed by 'tooltip.onhover'; other
+        // tooltips never set the variables, so the pseudo-element stays empty.
+        // clip-path also clips hit-testing, so only the cone keeps it open. Lowest layer
+        // so it never intercepts clicks meant for the tooltip, including morph (-2).
+        &::before {
+            background: var(--safe-color);
+            clip-path: var(--safe-area);
+            content: '';
+            height: var(--safe-height);
+            left: var(--safe-left);
+            position: absolute;
+            top: var(--safe-top);
+            width: var(--safe-width);
+            z-index: -3;
         }
 
         // Rotate arrow only if parent tooltip is active
@@ -37,12 +40,31 @@
         z-index: 9;
     }
 
+    // Morph tooltips (-2) sit behind the trigger. A child can't paint under its parent's own
+    // background, so repaint that background above them; the label still paints on top.
+    // Shares '.button::after' (its shadow layer) when the trigger is a button.
+    // Gooey join between trigger and tooltip while the morph runs; 'morph()' injects the filter
+    // and toggles the class.
+    &.--morphing {
+        filter: url(#tooltip-morph-goo);
+    }
+
+    &:has(> .tooltip-content--morph, > .tooltip-message--morph, > :not(.tooltip) > .tooltip-content--morph, > :not(.tooltip) > .tooltip-message--morph)::after {
+        background: inherit;
+        border-radius: inherit;
+        content: '';
+        display: block;
+        inset: 0;
+        pointer-events: none;
+        position: absolute;
+        z-index: -1;
+    }
+
 
     &-arrow {
         margin-inline: -1px;
         rotate: var(--rotate);
     }
-
 
     &-content,
     &-message {
@@ -69,7 +91,6 @@
         #{$active} {
             opacity: 1;
             scale: 1;
-            transition-delay: var(--delay);
         }
 
         #{$not-active} {
@@ -84,6 +105,65 @@
         @include north($active);
         @include south($active);
         @include west($active);
+
+
+        // Grows out of the trigger: 'morph()' seeds the trigger's box as clip-path insets, then the
+        // clip springs out to the tooltip's own box. Content never moves; the shape reveals it.
+        &--morph {
+            // Closing: collapse onto the trigger, overshoot it as a blob, settle to its exact box.
+            animation: tooltip-morph-close var(--morph-close-duration) linear;
+            background: transparent;
+            // The overshooting clip would reveal the shadow around the box mid-spring.
+            box-shadow: none;
+            clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));
+            // Lets the background layer reach back to the trigger; clip-path does the clipping.
+            overflow: visible;
+            // Blurs the content. The background layer is one flat colour overhanging the clip by three
+            // blur radii, so within the clip only text and media visibly blur; the container stays
+            // crisp and flat. (A backdrop-filter overlay instead paints its blur as an unclipped
+            // rectangle, squaring the corners mid-morph.)
+            filter: blur(var(--morph-blur));
+            // Always fully opaque; only blur animates. Visibility hides it at rest instead (behind
+            // a transparent trigger, or before the first open when there's no clip yet), switching
+            // off only once the close has finished.
+            opacity: 1;
+            // Closing: content blurs quickly as the shape starts to shrink.
+            transition:
+                filter var(--morph-close-duration) cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0s linear var(--morph-close-duration);
+            visibility: hidden;
+            // Below the trigger's repainted background, see '.tooltip:has(...)::after'.
+            z-index: -2;
+
+            // Background spanning the tooltip, the trigger and the close's landing overshoot, so the
+            // clip has something to show wherever it goes. It also overhangs every side by three blur
+            // radii: the content blur samples past the tooltip's edge, and reading transparency there
+            // would soften and lighten the edges until the blur settles. The overhang is clipped away.
+            &::before {
+                background: var(--background);
+                content: '';
+                inset:
+                    min(calc(var(--morph-blur) * -3), calc(var(--morph-top) - var(--morph-land)))
+                    min(calc(var(--morph-blur) * -3), calc(var(--morph-right) - var(--morph-land)))
+                    min(calc(var(--morph-blur) * -3), calc(var(--morph-bottom) - var(--morph-land)))
+                    min(calc(var(--morph-blur) * -3), calc(var(--morph-left) - var(--morph-land)));
+                position: absolute;
+                z-index: -1;
+            }
+
+            #{$active} {
+                animation: none;
+                clip-path: inset(0 round var(--border-radius));
+                filter: none;
+                // Visibility isn't transitioned here so the shape shows instantly; it starts hidden
+                // behind the trigger, so there's nothing to fade in. Content starts focusing as it
+                // emerges and is sharp as the menu settles.
+                transition:
+                    clip-path var(--morph-open-duration) var(--morph-timing-function),
+                    filter var(--morph-open-duration) var(--morph-focus-timing-function);
+                visibility: visible;
+            }
+        }
     }
 
     &-message {
@@ -96,5 +176,29 @@
         padding-inline: var(--padding-horizontal);
         pointer-events: none;
         white-space: nowrap;
+    }
+}
+
+
+// Shrinks straight onto the trigger (every edge together) until it's a blob '--morph-land'
+// larger than the trigger on every side, then settles into the trigger's exact box. The first
+// leg decelerates into the landing so it reads as a stop over the trigger, not a pass through it.
+@keyframes tooltip-morph-close {
+    0% {
+        animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
+        clip-path: inset(0 round var(--border-radius));
+    }
+    60% {
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        clip-path: inset(
+            calc(var(--morph-top) - var(--morph-land))
+            calc(var(--morph-right) - var(--morph-land))
+            calc(var(--morph-bottom) - var(--morph-land))
+            calc(var(--morph-left) - var(--morph-land))
+            round calc(var(--morph-radius) + var(--morph-land))
+        );
+    }
+    100% {
+        clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));
     }
 }
