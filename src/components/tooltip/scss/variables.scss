@@ -16,13 +16,14 @@
         --width: auto;
 
         &--morph {
-            --morph-blur: 8px;
-            --morph-close-duration: 0.08s;
+            --morph-blur: 4px;
+            --morph-close-duration: 0.12s;
             // Starts clearing as soon as content emerges from behind the trigger, settling with the shape.
             --morph-focus-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
-            --morph-land: 4px;
-            --morph-open-duration: 0.12s;
-            --morph-timing-function: cubic-bezier(0.34, 1.24, 0.64, 1);
+            --morph-land: 2px;
+            --morph-open-duration: 0.16s;
+            // Slight spring: ~5% overshoot, a ~1% settle back, then rest.
+            --morph-timing-function: linear(0, 0.12 5%, 0.42 12%, 0.76 20%, 0.96 27%, 1.04 34%, 1.05 40%, 1.035 47%, 1.01 55%, 0.993 64%, 0.99 72%, 0.997 84%, 1);
             // Motion comes from the morph, not the slide/scale.
             --offset: 0px;
             --scale: 1;
