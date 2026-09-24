@@ -5,7 +5,7 @@
         top: calc(100% - var(--spacer));
 
         #{$active} {
-            transform: translateY(calc(var(--spacer) * 2));
+            translate: 0 calc(var(--spacer) * 2);
         }
     }
 
@@ -13,11 +13,11 @@
         position: absolute;
         right: 50%;
         top: calc(100% - var(--spacer));
-        transform: translateX(50%);
         transform-origin: center top;
+        translate: 50%;
 
         #{$active} {
-            transform: translate(50%, calc(var(--spacer) * 2));
+            translate: 50% calc(var(--spacer) * 2);
         }
     }
 

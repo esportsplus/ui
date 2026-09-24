@@ -29,7 +29,7 @@
         // Rotate arrow only if parent tooltip is active
         :not(.tooltip) .tooltip-arrow,
         > .tooltip-arrow {
-            transform: rotate(var(--rotate)) scaleX(-1);
+            scale: -1 1;
         }
     }
 
@@ -39,8 +39,8 @@
 
 
     &-arrow {
-        margin: 0 -1px;
-        transform: rotate(var(--rotate));
+        margin-inline: -1px;
+        rotate: var(--rotate);
     }
 
 
@@ -55,7 +55,7 @@
         overflow: hidden;
         transition:
             opacity var(--transition-duration) var(--transition-timing-function),
-            transform var(--transition-duration) var(--transition-timing-function);
+            translate var(--transition-duration) var(--transition-timing-function);
         width: var(--width);
         z-index: 9;
 
@@ -88,7 +88,8 @@
         cursor: auto;
         font-size: var(--font-size);
         font-weight: var(--font-weight);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         pointer-events: none;
         white-space: nowrap;
     }

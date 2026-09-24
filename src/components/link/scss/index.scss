@@ -10,9 +10,8 @@
     cursor: pointer;
     flex-wrap: wrap;
     justify-content: flex-start;
-    padding:
-        max(0px, calc(var(--padding-vertical) - var(--border-width)))
-        max(0px, calc(var(--padding-horizontal) - var(--border-width)));
+    padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
+    padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
     position: relative;
     transition:
         background var(--transition-duration) var(--transition-timing-function),

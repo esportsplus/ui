@@ -9,7 +9,7 @@
     transition:
         max-width var(--transition-duration) var(--transition-timing-function),
         opacity var(--transition-duration) var(--transition-timing-function),
-        transform var(--transition-duration) var(--transition-timing-function);
+        translate var(--transition-duration) var(--transition-timing-function);
     width: min(var(--width), calc(100% - (var(--margin-horizontal) * 2)));
     z-index: 9;
 
@@ -26,7 +26,7 @@
 
         &.sidebar--offscreen {
             @include tokens.state(inactive) {
-                transform: translateX(var(--width));
+                translate: var(--width);
             }
         }
     }
@@ -36,7 +36,7 @@
 
         &.sidebar--offscreen {
             @include tokens.state(inactive) {
-                transform: translateX(calc(var(--width) * -1));
+                translate: calc(var(--width) * -1);
             }
         }
     }

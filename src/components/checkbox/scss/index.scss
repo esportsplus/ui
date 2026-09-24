@@ -30,7 +30,9 @@
             content: '';
             pointer-events: none;
             transform-origin: center;
-            transition: transform var(--transition-duration) var(--transition-timing-function);
+            transition:
+                scale var(--transition-duration) var(--transition-timing-function),
+                translate var(--transition-duration) var(--transition-timing-function);
             width: var(--width);
         }
     }
@@ -42,7 +44,7 @@
             inset: 0;
             margin: auto;
             position: absolute;
-            transform: scale(var(--scale));
+            scale: var(--scale);
         }
     }
 
@@ -51,7 +53,8 @@
             @include lib.position(absolute, var(--padding-vertical) null null var(--padding-horizontal));
             border-radius: calc(var(--border-radius) - var(--padding-vertical) / 1.5);
             height: calc(var(--height) - (var(--border-width) * 2) - (var(--padding-vertical) * 2));
-            transform: translateX(var(--translateX)) scale(var(--scale));
+            scale: var(--scale);
+            translate: var(--translateX);
         }
     }
 

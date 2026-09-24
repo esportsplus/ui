@@ -5,6 +5,7 @@
     flex-wrap: wrap;
     gap: var(--gap-vertical) var(--gap-horizontal);
     justify-content: flex-start;
-    margin: var(--margin-vertical) var(--margin-horizontal);
+    margin-block: var(--margin-vertical);
+    margin-inline: var(--margin-horizontal);
     position: relative;
 }

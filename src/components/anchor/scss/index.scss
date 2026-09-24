@@ -7,7 +7,7 @@
     position: absolute;
     transition:
         opacity var(--transition-duration) var(--transition-timing-function),
-        transform var(--transition-duration) var(--transition-timing-function);
+        translate var(--transition-duration) var(--transition-timing-function);
     z-index: 9;
 
 
@@ -23,7 +23,7 @@
     &--n,
     &--s {
         right: 50%;
-        transform: translateX(50%);
+        translate: 50%;
     }
 
     &--ne,

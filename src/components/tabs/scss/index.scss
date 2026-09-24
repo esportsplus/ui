@@ -24,7 +24,7 @@
     &--scroll {
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        transition: transform var(--transition-duration) var(--transition-timing-function);
+        transition: translate var(--transition-duration) var(--transition-timing-function);
 
         > .tabs-content {
             display: flex;
@@ -38,14 +38,14 @@
     }
 
     &--slide {
-        transform: translateX(calc(var(--i) * (100% + var(--gap-horizontal))));
+        translate: calc(var(--i) * (100% + var(--gap-horizontal)));
     }
 
     // The track needs a definite height from its clipping parent.
     &--scroll {
         flex-direction: column;
         height: 100%;
-        transform: translateY(calc(var(--i) * (100% + var(--gap-vertical))));
+        translate: 0 calc(var(--i) * (100% + var(--gap-vertical)));
 
         > .tabs-content {
             flex-basis: 100%;

@@ -5,7 +5,8 @@
     border-radius: 240px;
     border: 0px;
     height: var(--height);
-    margin: calc(var(--margin-vertical) + ((var(--thumb-size) - var(--height)) / 2)) var(--margin-horizontal);
+    margin-block: calc(var(--margin-vertical) + ((var(--thumb-size) - var(--height)) / 2));
+    margin-inline: var(--margin-horizontal);
     transition:
         background var(--transition-duration) var(--transition-timing-function),
         border-color var(--transition-duration) var(--transition-timing-function),

@@ -16,9 +16,8 @@
     min-height: calc((var(--padding-vertical) * 2) + var(--size));
     min-width: 0;
     overflow: hidden;
-    padding:
-        max(0px, calc(var(--padding-vertical) - var(--border-width)))
-        max(0px, calc(var(--padding-horizontal) - var(--border-width)));
+    padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
+    padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
     position: relative;
     text-overflow: ellipsis;
     transition:

@@ -4,7 +4,7 @@
     }
 
     &--gradient {
-        --from: rgba(3,0,19, 0.32);
+        --from: rgb(3 0 19 / 32%);
         --to: var(--color-black-500);
     }
 }

@@ -5,7 +5,8 @@
     flex-wrap: wrap;
     gap: var(--gap-vertical) var(--gap-horizontal);
     justify-content: flex-start;
-    margin: var(--margin-vertical) auto;
+    margin-block: var(--margin-vertical);
+    margin-inline: auto;
     position: relative;
     width: min(var(--max-width), calc(100% - var(--margin-horizontal) * 2));
 }

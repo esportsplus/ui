@@ -45,7 +45,7 @@
 
         &--symbol {
             font-size: calc(var(--font-size) * var(--scale));
-            margin-right: 0.1ch;
+            margin-inline-end: 0.1ch;
             opacity: var(--opacity);
         }
 
@@ -58,6 +58,13 @@
                 height: 1lh;
                 transform-style: flat;
             }
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &,
+        &-character-track {
+            transition: none;
         }
     }
 }
