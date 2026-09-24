@@ -14,11 +14,11 @@ export default {
     name: 'checkbox',
     variants: [
         {
-            render: () => checkbox({ style, 'aria-label': 'Checkbox' }),
+            render: () => checkbox({ style, [checkbox.input]: { 'aria-label': 'Checkbox' } }),
             title: 'default'
         },
         {
-            render: () => checkbox({ checked: true, style, 'aria-label': 'Initially checked checkbox' }),
+            render: () => checkbox({ style, [checkbox.input]: { 'aria-label': 'Initially checked checkbox', checked: true } }),
             title: 'checked'
         }
     ]

@@ -1,4 +1,7 @@
-import { factory } from '~/components/checkbox';
+import checkbox, { factory } from '~/components/checkbox';
 
 
-export default factory('radio');
+const radio: typeof checkbox = factory('radio');
+
+
+export default radio;

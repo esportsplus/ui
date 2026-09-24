@@ -12,15 +12,15 @@ export default {
     name: 'switch',
     variants: [
         {
-            render: () => switchComponent({ style, 'aria-label': 'Notifications' }),
+            render: () => switchComponent({ style, [switchComponent.input]: { 'aria-label': 'Notifications' } }),
             title: 'default'
         },
         {
-            render: () => switchComponent({ style: `${style} --border-radius: var(--border-radius-300);`, 'aria-label': 'Notifications' }),
+            render: () => switchComponent({ style: `${style} --border-radius: var(--border-radius-300);`, [switchComponent.input]: { 'aria-label': 'Notifications' } }),
             title: 'squared'
         },
         {
-            render: () => switchComponent({ checked: true, style, 'aria-label': 'Sound effects' }),
+            render: () => switchComponent({ style, [switchComponent.input]: { 'aria-label': 'Sound effects', checked: true } }),
             title: 'on'
         }
     ]

@@ -2,49 +2,39 @@ import { html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
 import icon from '~/components/icon';
+import { CHECKBOX_INPUT } from './constants';
 import check from './svg/check.svg';
 import './scss/index.scss';
 
 
-type A = Attributes & {
-    'aria-label'?: string;
-    checked?: boolean;
-    id?: string;
-    name?: string;
-    state?: { error: string };
-    value?: number | string;
-};
+type A = Attributes & { [CHECKBOX_INPUT]?: Attributes };
 
 
 const factory = (type: 'checkbox' | 'radio' | 'switch') => {
     function template(
-        this: { attributes?: Exclude<A, 'state'> } | void,
-        { 'aria-label': ariaLabel, checked, id, name, state = reactive({ error: '' }), value = 1, ...attributes }: A = {}
+        this: { attributes?: A } | void,
+        { state = reactive({ error: '' }), ...attributes }: A & { state?: { error: string } } = {}
     ) {
-        let { 'aria-label': defaultAriaLabel, checked: _checked, id: defaultId, name: defaultName, state: _state, value: _value, ...defaults }: A = this?.attributes ?? {};
-
         return html`
             <div
                 class='checkbox ${(type === 'radio' || type === 'switch') && `checkbox--${type}`}'
-                ${defaults}
+                ${this?.attributes}
                 ${attributes}
             >
                 <input
-                    aria-label=${ariaLabel ?? defaultAriaLabel}
-                    checked=${checked}
                     class='checkbox-tag'
-                    id=${id ?? defaultId}
-                    name=${name ?? defaultName}
+                    value='1'
+                    ${this?.attributes?.[CHECKBOX_INPUT]}
+                    ${attributes[CHECKBOX_INPUT]}
                     onrender=${form.input.onrender(state)}
                     type=${type === 'radio' ? 'radio' : 'checkbox'}
-                    value=${value}
                 >
                 ${type === 'checkbox' && icon({ 'aria-hidden': true, class: 'checkbox-check' }, check)}
             </div>
         `;
     }
 
-    return template;
+    return Object.assign(template, { input: CHECKBOX_INPUT } as const);
 };
 
 

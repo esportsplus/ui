@@ -1,16 +1,16 @@
 import select from '~/components/select';
 
 
-export default select.bind({
+const themed: typeof select = Object.assign(select.bind({
     attributes: {
         class: '--background-black --border-black --color-white',
-        option: {
+        [select.option]: {
             class: '--background-black --color-white',
             style: '--color-default: var(--color-grey-500); --padding-horizontal: var(--size-500); white-space: nowrap; width: 100%;'
         },
         style: '--border-color-default: var(--color-black-300); --border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color);',
 
-        'tooltip-content': {
+        [select.tooltipContent]: {
             direction: 'sw',
             style: `
                 --background: var(--color-black-400);
@@ -21,4 +21,7 @@ export default select.bind({
             `
         }
     }
-});
+}), { arrow: select.arrow, option: select.option, tooltipContent: select.tooltipContent } as const);
+
+
+export default themed;

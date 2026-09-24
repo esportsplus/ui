@@ -37,14 +37,14 @@ export default {
             render: () => tooltip.menu(
                 {
                     class: trigger,
-                    option: { style: 'padding: var(--size-300) var(--size-500); --color-default: var(--color-white-400); white-space: nowrap;' },
+                    [tooltip.menu.option]: { style: 'padding: var(--size-300) var(--size-500); --color-default: var(--color-white-400); white-space: nowrap;' },
                     options: [
                         { content: 'Profile' },
                         { content: 'Settings' },
                         { content: 'Docs ↗', href: '#' }
                     ],
                     style: '--width: auto;',
-                    'tooltip-content': { direction: 's', style: content }
+                    [tooltip.menu.tooltipContent]: { direction: 's', style: content }
                 },
                 html`open menu`
             ),

@@ -23,7 +23,7 @@ export default {
                     <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
                         ${['Small', 'Medium', 'Large'].map((label, index) => html`
                             <label style='display: inline-flex; align-items: center; gap: var(--size-300); cursor: pointer;'>
-                                ${radio({ checked: index === 1, name, style, value: label, 'aria-label': label })}
+                                ${radio({ style, [radio.input]: { 'aria-label': label, checked: index === 1, name, value: label } })}
                                 <span>${label}</span>
                             </label>
                         `)}

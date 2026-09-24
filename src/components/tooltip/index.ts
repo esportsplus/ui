@@ -4,4 +4,7 @@ import onhover from './onhover';
 import './scss/index.scss';
 
 
-export default { menu, onclick, onhover };
+const tooltip: { menu: typeof menu, onclick: typeof onclick, onhover: typeof onhover } = { menu, onclick, onhover };
+
+
+export default tooltip;
