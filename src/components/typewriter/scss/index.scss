@@ -1,19 +1,34 @@
-.typewriter {
-    &::after {
-        animation: blink 0.64s infinite;
-        content: '|';
+@use 'variables';
 
-        @keyframes blink {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0;
-            }
-        }
+.typewriter {
+    text-shadow: var(--glow);
+
+    &::after {
+        animation: typewriter--blink var(--caret-duration) var(--caret-timing-function) infinite;
+        color: var(--caret-color);
+        content: var(--caret);
 
         @media (prefers-reduced-motion: reduce) {
             animation: none;
         }
+    }
+
+    &--block::after {
+        background: var(--caret-color);
+        box-shadow: var(--glow);
+        display: inline-block;
+        height: 1lh;
+        margin-inline-start: 0.08em;
+        vertical-align: bottom;
+        width: 0.56em;
+    }
+}
+
+@keyframes typewriter--blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
     }
 }
