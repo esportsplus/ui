@@ -1,12 +1,24 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { MENU_OPTION, MENU_TOOLTIP_CONTENT } from './constants';
 import onclick from './onclick';
+
+
+const MENU_OPTION = Symbol.for('@esportsplus/ui/tooltip.menu.option');
+
+const MENU_TOOLTIP_CONTENT = Symbol.for('@esportsplus/ui/tooltip.menu.tooltip-content');
 
 
 type A = Attributes & {
     [MENU_OPTION]?: Attributes,
     [MENU_TOOLTIP_CONTENT]?: Attributes & { direction?: string },
+    onanimationcancel?: never,
+    onanimationend?: never,
+    onanimationstart?: never,
+    onclick?: never,
+    ondocumentclick?: never,
+    ontransitioncancel?: never,
+    ontransitionend?: never,
+    ontransitionrun?: never,
     options: (Attributes & { content: Renderable<unknown> })[],
     state?: { active: boolean },
     toggle?: boolean
