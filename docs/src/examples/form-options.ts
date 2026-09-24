@@ -8,7 +8,6 @@ import './form-options.scss';
 // https://codepen.io/AdrianBece/pen/KKKZQOY — floating labels
 // https://mantine.dev/core/input/ — filled fields and attached sections
 // https://mantine.dev/core/textarea/ — counters and autosizing
-// https://codepen.io/Rakeshid03/pen/BaPzzxv — range value and progress
 let instance = 0;
 
 export function moreFieldVariations(kind: 'input' | 'textarea'): Variant[] {
@@ -64,39 +63,6 @@ export function moreFieldVariations(kind: 'input' | 'textarea'): Variant[] {
                         ${mode === 'editor' && html`<div class='field-option-footer'><span>Plain text</span><output for='${id}'>${() => state.words} words</output></div>`}
                     </div>
                     <small id='${id}-hint'>${hint}</small>
-                </div>
-            `;
-        }
-    }));
-}
-
-export function moreRangeVariations(): Variant[] {
-    return [
-        ['bar', 'Fill bar · 48px with an inside value'],
-        ['bar-tall', 'Tall fill · 64px with a following value'],
-        ['bar-segments', 'Segmented fill · 48px with an inside value'],
-        ['bubble', 'Bubble · Value follows the thumb'],
-        ['ruler', 'Ruler · Fine graduation marks'],
-        ['split', 'Split · Thick rail and a vertical handle'],
-        ['soft', 'Soft · Recessed track and raised thumb']
-    ].map(([mode, title]) => ({
-        title,
-        render: () => {
-            const id = `range-option-${++instance}`,
-                state = reactive({ value: 40 }),
-                bar = mode.startsWith('bar');
-
-            return html`
-                <div class='form-prototype range-option range-option--${mode}'>
-                    <label for='${id}'>${bar ? 'Intensity' : 'Volume'}</label>
-                    <div class='range-option-control' style='${() => `--progress: ${state.value}%; --fraction: ${state.value / 100};`}'>
-                        <div class='range-option-track' aria-hidden='true'><div class='range-option-fill'></div></div>
-                        <input id='${id}' type='range' min='0' max='100' value='40' step='${mode === 'bar-segments' ? 10 : 1}'
-                            oninput='${(event: Event) => state.value = Number((event.target as HTMLInputElement).value)}'>
-                        <output for='${id}' class='range-option-value'>${() => state.value}%</output>
-                        ${bar && html`<span class='range-option-value range-option-value--filled' aria-hidden='true'>${() => state.value}%</span>`}
-                    </div>
-                    <div class='range-option-scale'><span>0</span><small>Drag or use arrow keys</small><span>100</span></div>
                 </div>
             `;
         }

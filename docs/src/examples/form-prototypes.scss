@@ -1,3 +1,7 @@
+@use 'sass:list';
+@use 'sass:math';
+
+
 .form-prototype {
     --demo-accent: var(--color-primary-400);
     --demo-border: var(--color-border-500);
@@ -86,47 +90,115 @@
     }
 }
 
-@mixin prototype-thumb {
-    appearance: none;
-    width: var(--demo-thumb-width, var(--size-500));
-    height: var(--demo-thumb-height, var(--size-500));
-    border: var(--border-width-500) solid var(--color-white-400);
-    border-radius: var(--demo-thumb-radius, 50%);
-    background: var(--demo-accent);
-    box-shadow: var(--box-shadow-200);
-    transition: transform var(--demo-duration) var(--demo-spring), box-shadow var(--demo-duration);
+@function range-ticks($count, $color, $height) {
+    $layers: ();
+
+    @for $i from 0 through $count {
+        $layers: list.append($layers, linear-gradient($color, $color) math.percentage(math.div($i, $count)) 50% / 1px $height no-repeat, comma);
+    }
+
+    @return $layers;
 }
 
-.range-prototype {
+.range-surface {
+    --surface-background: color-mix(in srgb, var(--color-text-400) 8%, transparent);
+    --surface-height: 32px;
+    --surface-radius: var(--border-radius-400);
+    --surface-thumb: 16px;
+    --surface-travel: calc(100% - var(--surface-thumb));
     display: grid;
-    gap: var(--size-300);
-    &-heading, &-scale { display: flex; justify-content: space-between; }
-    &-heading output { color: var(--demo-accent); font-variant-numeric: tabular-nums; }
-    &-scale { font-size: var(--font-size-300); color: var(--color-text-300); }
+    gap: var(--size-200);
+
+    &-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-size: var(--font-size-300);
+        color: var(--color-text-300);
+        output { font-variant-numeric: tabular-nums; }
+    }
+    &-control {
+        position: relative;
+        height: var(--surface-height);
+        border-radius: var(--surface-radius);
+        background: var(--surface-background);
+        isolation: isolate;
+    }
+    &-fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: calc(var(--surface-thumb) + var(--surface-travel) * var(--fraction));
+        border-radius: inherit;
+        background: var(--color-white-400);
+        box-shadow: var(--box-shadow-200);
+        pointer-events: none;
+    }
+    &-handle {
+        position: absolute;
+        top: 50%;
+        left: calc(var(--surface-thumb) / 2 + var(--surface-travel) * var(--fraction));
+        width: 2px;
+        height: 40%;
+        border-radius: var(--border-radius-200);
+        background: var(--color-text-400);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 1;
+    }
+    &-label, &-value {
+        position: absolute;
+        top: 50%;
+        z-index: 1;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+    &-label { left: var(--size-400); color: var(--color-text-300); }
+    &-value {
+        right: var(--size-400);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--font-weight-500);
+        span { margin-left: calc(var(--size-100) * 0.5); color: var(--color-text-300); font-weight: normal; }
+    }
     input {
-        appearance: none; width: 100%; height: var(--demo-track-height, calc(var(--size-100) * 0.75)); margin: var(--size-200) 0;
-        border-radius: var(--border-radius-800); cursor: pointer;
-        background: linear-gradient(to right, var(--demo-accent) var(--progress), var(--demo-border) var(--progress));
-        &::-webkit-slider-thumb { @include prototype-thumb; }
-        &::-moz-range-thumb { @include prototype-thumb; }
-        &:focus-visible { outline: var(--border-width-500) solid var(--demo-accent); outline-offset: 8px; }
-        &:hover::-webkit-slider-thumb, &:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px var(--demo-ring); }
-        &:hover::-moz-range-thumb, &:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 5px var(--demo-ring); }
+        appearance: none;
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        border-radius: inherit;
+        background: transparent;
+        cursor: ew-resize;
+        z-index: 2;
+        &::-webkit-slider-thumb { appearance: none; width: var(--surface-thumb); height: var(--surface-height); border: 0; background: transparent; }
+        &::-moz-range-thumb { width: var(--surface-thumb); height: var(--surface-height); border: 0; background: transparent; }
+        &:focus-visible { outline: var(--border-width-500) solid var(--demo-accent); outline-offset: 4px; }
     }
-    &--halo input:active::-webkit-slider-thumb { transform: scale(1.2); }
-    &--halo input:active::-moz-range-thumb { transform: scale(1.2); }
-    &--pill { --demo-thumb-width: 14px; --demo-thumb-height: 28px; --demo-thumb-radius: var(--border-radius-300); --demo-track-height: 3px; }
-    &--lift input:active::-webkit-slider-thumb { transform: translateY(-4px) scale(1.1); }
-    &--lift input:active::-moz-range-thumb { transform: translateY(-4px) scale(1.1); }
-    &--steps input {
-        background: repeating-linear-gradient(to right, transparent 0 calc(10% - 1px), var(--color-white-400) calc(10% - 1px) 10%),
-            linear-gradient(to right, var(--demo-accent) var(--progress), var(--demo-border) var(--progress));
+
+    &--inline {
+        --surface-height: 40px;
+        --surface-radius: var(--border-radius-500);
+        --surface-thumb: 2px;
+        .range-surface-fill { background: color-mix(in srgb, var(--color-text-400) 20%, var(--color-white-400)); box-shadow: none; }
     }
-    &--meter { --demo-track-height: 18px; --demo-thumb-width: 8px; --demo-thumb-height: 26px; --demo-thumb-radius: var(--border-radius-200); }
+
+    &--ticks-major, &--ticks-all {
+        --tick-major: color-mix(in srgb, var(--color-text-400) 40%, transparent);
+        --tick-minor: color-mix(in srgb, var(--color-text-400) 20%, transparent);
+        .range-surface-control::before {
+            content: '';
+            position: absolute;
+            inset: 0 auto 0 calc(var(--surface-thumb) / 2 - 0.5px);
+            width: calc(var(--surface-travel) + 1px);
+            background: range-ticks(10, var(--tick-major), 10px);
+            pointer-events: none;
+        }
+    }
+    &--ticks-all .range-surface-control::before {
+        background: range-ticks(10, var(--tick-major), 10px), range-ticks(50, var(--tick-minor), 5px);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .form-prototype *, .form-prototype *::before, .form-prototype *::after { transition: none !important; }
-    .range-prototype input::-webkit-slider-thumb { transition: none; }
-    .range-prototype input::-moz-range-thumb { transition: none; }
 }
