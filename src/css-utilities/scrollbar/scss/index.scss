@@ -23,7 +23,6 @@
 
     @supports selector(::-webkit-scrollbar) {
         scrollbar-color: auto;
-        scrollbar-width: auto;
 
         &::-webkit-scrollbar {
             width: var(--scrollbar-width);
@@ -91,5 +90,11 @@
             scroll-snap-align: center;
             scroll-snap-stop: normal;
         }
+    }
+
+    // Native thin bar everywhere; restores scrollbar-color after the webkit reset above.
+    &-thin {
+        scrollbar-color: var(--scrollbar-color) transparent;
+        scrollbar-width: thin;
     }
 }
