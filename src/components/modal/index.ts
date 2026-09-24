@@ -4,7 +4,12 @@ import './scss/index.scss';
 
 
 type A = Attributes<HTMLDialogElement> & {
-    state?: { active: boolean }
+    oncancel?: never;
+    onclick?: never;
+    onclose?: never;
+    onconnect?: never;
+    ondisconnect?: never;
+    state?: { active: boolean };
 };
 
 
@@ -34,11 +39,11 @@ export default component<A>(
                 ${this?.attributes}
                 ${attributes}
                 ${{
-                    oncancel: (e: Event) => {
+                    oncancel: (e) => {
                         e.preventDefault();
                         state.active = false;
                     },
-                    onclick: (e: MouseEvent) => {
+                    onclick: (e) => {
                         let element = e.currentTarget as HTMLDialogElement;
 
                         if (e.target === element && outside(element, e)) {
