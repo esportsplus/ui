@@ -8,11 +8,12 @@ const EMPTY_NODE = html` `;
 
 
 export default component(
-    function(_, content: string[]) {
-        let state = reactive({ text: '' });
+    function(attributes, content: string[]) {
+        let state = reactive({ text: '' }),
+            timer: ReturnType<typeof setTimeout> | undefined;
 
         return html`
-            <div class='typewriter' ${{
+            <div class='typewriter' ${attributes} ${{
                 onconnect: () => {
                     let character = 0,
                         i = 0,
@@ -20,13 +21,13 @@ export default component(
                         write = content[i];
 
                     function play() {
-                        setTimeout(() => {
+                        timer = setTimeout(() => {
                             state.text = write.slice(0, character);
 
                             if (isWriting) {
                                 if (character > write.length) {
                                     isWriting = false;
-                                    setTimeout(play, 2000);
+                                    timer = setTimeout(play, 2000);
                                     return;
                                 }
                                 else {
@@ -48,6 +49,9 @@ export default component(
                     }
 
                     play();
+                },
+                ondisconnect: () => {
+                    clearTimeout(timer);
                 }
             }}>
                 ${() => state.text || EMPTY_NODE}
