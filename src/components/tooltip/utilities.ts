@@ -64,10 +64,11 @@ function morph(element: HTMLElement, open: VoidFunction) {
     // after they're restored and animates into the start shape instead of out of it.
     tooltip.getBoundingClientRect();
 
-    // Activating in the same frame skips the start shape; paint it first, then open.
+    // Open on the next frame, restoring transitions in the same step: the flush above committed
+    // the start shape, so the open transitions out of it with only one frame of latency.
     let frame = requestAnimationFrame(() => {
         style.removeProperty('transition');
-        frame = requestAnimationFrame(open);
+        open();
     });
 
     return () => {

@@ -181,14 +181,24 @@
 
 
 // Shrinks straight onto the trigger (every edge together) until it's a blob '--morph-land'
-// larger than the trigger on every side, then settles into the trigger's exact box. The first
-// leg decelerates into the landing so it reads as a stop over the trigger, not a pass through it.
+// larger than the trigger on every side, holds there, then settles into the trigger's exact box.
+// The hold matters: without it, edges still arriving (the travel differs per direction) overlap
+// with the final shrink, so it never reads as having landed.
 @keyframes tooltip-morph-close {
     0% {
         animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
         clip-path: inset(0 round var(--border-radius));
     }
-    60% {
+    55% {
+        clip-path: inset(
+            calc(var(--morph-top) - var(--morph-land))
+            calc(var(--morph-right) - var(--morph-land))
+            calc(var(--morph-bottom) - var(--morph-land))
+            calc(var(--morph-left) - var(--morph-land))
+            round calc(var(--morph-radius) + var(--morph-land))
+        );
+    }
+    80% {
         animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
         clip-path: inset(
             calc(var(--morph-top) - var(--morph-land))
