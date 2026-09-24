@@ -61,6 +61,15 @@
         }
     }
 
+    // Odometer-style ripple: the rightmost digit settles first.
+    &--stagger {
+        @for $i from 2 through 16 {
+            .counter-character:nth-last-child(#{$i}) .counter-character-track {
+                transition-delay: calc(#{$i - 1} * var(--stagger));
+            }
+        }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         &,
         &-character-track {
