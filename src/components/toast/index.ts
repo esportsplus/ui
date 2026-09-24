@@ -133,7 +133,7 @@ function row(toast: Toast, position: Position) {
                     `}
                 </div>
 
-                ${toast.type === 'error' && typeof toast.description === 'string' && clipboard.onclick(
+                ${toast.type === 'error' && typeof toast.description === 'string' && clipboard.copy(
                     {
                         class: 'toast-copy button',
                         value: String(toast.description)

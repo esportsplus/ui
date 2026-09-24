@@ -4,6 +4,8 @@ import write from './write';
 
 
 type A = Attributes & {
+    ondisconnect?: never;
+    onclick?: never;
     timeout?: number;
     value: string;
 };
@@ -12,44 +14,36 @@ type A = Attributes & {
 export default component<A, (state: { copied: boolean, failed: boolean }) => Renderable<unknown>>(
     ({ timeout = 3000, value, ...attributes }, content) => {
         let state = reactive({ copied: false, failed: false }),
-            timer: ReturnType<typeof setTimeout> | undefined,
-            connected = true;
+            reset = () => {
+                clearTimeout(timer);
+                state.copied = false;
+                state.failed = false;
+            },
+            timer: ReturnType<typeof setTimeout> | undefined;
 
         return html`
-            <button
-                type='button'
+            <div
                 ${attributes}
                 ${{
-                    onconnect: () => { connected = true; },
-                    ondisconnect: () => {
-                        connected = false;
-                        clearTimeout(timer);
-                        state.copied = false;
-                    },
-                    onclick: async (event: MouseEvent) => {
-                        event.preventDefault();
-                        event.stopPropagation();
+                    ondisconnect: reset,
+                    onclick: async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
 
-                        let copied = await write(value);
+                        reset();
 
-                        if (!connected) {
-                            return;
-                        }
+                        state.copied = await write(value);
 
-                        clearTimeout(timer);
-                        state.copied = copied;
-
-                        if (!copied) {
+                        if (!state.copied) {
                             state.failed = true;
-                            return;
                         }
 
-                        timer = setTimeout(() => { state.copied = false; }, timeout);
+                        timer = setTimeout(reset, timeout);
                     }
                 }}
             >
                 ${() => content(state)}
-            </button>
+            </div>
         `;
     }
 );
