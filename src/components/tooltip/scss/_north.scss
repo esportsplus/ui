@@ -1,23 +1,23 @@
 @mixin north($active) {
     &--ne,
     &--nw {
-        bottom: calc(100% - var(--spacer));
+        bottom: calc(100% + var(--spacer) - var(--offset));
         position: absolute;
 
         #{$active} {
-            translate: 0 calc(var(--spacer) * -2);
+            translate: 0 calc(var(--offset) * -1);
         }
     }
 
     &--n {
-        bottom: calc(100% - var(--spacer));
+        bottom: calc(100% + var(--spacer) - var(--offset));
         position: absolute;
         right: 50%;
         transform-origin: center bottom;
         translate: 50%;
 
         #{$active} {
-            translate: 50% calc(var(--spacer) * -2);
+            translate: 50% calc(var(--offset) * -1);
         }
     }
 

@@ -1,23 +1,23 @@
 @mixin east($active) {
     &--en,
     &--es {
-        left: calc(100% - var(--spacer));
+        left: calc(100% + var(--spacer) - var(--offset));
         position: absolute;
 
         #{$active} {
-            translate: calc(var(--spacer) * 2);
+            translate: var(--offset);
         }
     }
 
     &--e {
         bottom: 50%;
-        left: calc(100% - var(--spacer));
+        left: calc(100% + var(--spacer) - var(--offset));
         position: absolute;
         transform-origin: center left;
         translate: 0 50%;
 
         #{$active} {
-            translate: calc(var(--spacer) * 2) 50%;
+            translate: var(--offset) 50%;
         }
     }
 

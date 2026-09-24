@@ -5,10 +5,34 @@
         --background-default: transparent;
         --border-radius: var(--border-radius-400);
         --box-shadow: var(--box-shadow-400);
+        --delay: 0s;
         --max-width: calc(90vw - (var(--size-700) * 2));
         --min-width: auto;
+        --offset: calc(var(--spacer) * 2);
+        --scale: 1;
         --spacer: var(--size-300);
         --width: auto;
+
+        // Hover intent: wait before showing, hide immediately.
+        &--delay {
+            --delay: 400ms;
+        }
+
+        &--fade {
+            --offset: 0px;
+        }
+
+        &--scale {
+            --offset: var(--spacer);
+            --scale: 0.88;
+        }
+
+        &--spring {
+            --offset: calc(var(--spacer) * 3);
+            --scale: 0.96;
+            --transition-duration: 0.4s;
+            --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
     }
 
     &-arrow {

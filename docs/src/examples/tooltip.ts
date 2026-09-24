@@ -49,6 +49,23 @@ export default {
                 html`open menu`
             ),
             title: 'menu'
-        }
+        },
+        ...[
+            ['tooltip-content--fade', 'fade'],
+            ['tooltip-content--scale', 'scale'],
+            ['tooltip-content--spring', 'spring'],
+            ['tooltip-content--delay', 'hover intent delay']
+        ].map(([variant, title]) => ({
+            render: () => tooltip.onhover(
+                { class: trigger, style: '--width: auto;' },
+                html`
+                    hover me
+                    <div class='tooltip-content tooltip-content--s ${variant}' style='${content}'>
+                        ${title}
+                    </div>
+                `
+            ),
+            title
+        }))
     ]
 };

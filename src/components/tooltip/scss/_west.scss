@@ -2,22 +2,22 @@
     &--wn,
     &--ws {
         position: absolute;
-        right: calc(100% - var(--spacer));
+        right: calc(100% + var(--spacer) - var(--offset));
 
         #{$active} {
-            translate: calc(var(--spacer) * -2);
+            translate: calc(var(--offset) * -1);
         }
     }
 
     &--w {
         bottom: 50%;
         position: absolute;
-        right: calc(100% - var(--spacer));
+        right: calc(100% + var(--spacer) - var(--offset));
         transform-origin: center right;
         translate: 0 50%;
 
         #{$active} {
-            translate: calc(var(--spacer) * -2) 50%;
+            translate: calc(var(--offset) * -1) 50%;
         }
     }
 
