@@ -21,6 +21,7 @@ dialog.modal {
     margin: auto;
     transition:
         opacity var(--transition-duration) var(--transition-timing-function),
+        scale var(--transition-duration) var(--transition-timing-function),
         translate var(--transition-duration) var(--transition-timing-function);
     transform-origin: center;
     width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
@@ -28,6 +29,7 @@ dialog.modal {
     @include tokens.state(inactive) {
         opacity: 0;
         pointer-events: none;
+        scale: var(--scale);
         translate: 0 var(--translateY);
 
         &::backdrop {
@@ -42,6 +44,20 @@ dialog.modal {
     &::backdrop {
         background: var(--backdrop);
         transition: opacity var(--transition-duration) var(--transition-timing-function);
+    }
+
+
+    &--blur::backdrop {
+        backdrop-filter: blur(var(--blur));
+    }
+
+    &--sheet {
+        margin-block-end: 0;
+        transform-origin: bottom;
+
+        @include tokens.state(inactive) {
+            opacity: 1;
+        }
     }
 
     &-frame {

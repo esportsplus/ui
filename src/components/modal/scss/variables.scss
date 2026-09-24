@@ -3,5 +3,31 @@
     --margin-horizontal: 0px;
     --margin-vertical: 0px;
     --max-width: 480px;
+    --scale: 1;
     --translateY: var(--margin-vertical);
+
+    &--blur {
+        --backdrop: color-mix(in srgb, var(--color-black-500) 32%, transparent);
+        --blur: 8px;
+    }
+
+    &--fade {
+        --translateY: 0px;
+    }
+
+    &--scale {
+        --scale: 0.92;
+        --translateY: 0px;
+    }
+
+    &--sheet {
+        --translateY: 100%;
+    }
+
+    &--spring {
+        --scale: 0.8;
+        // --transition-duration: 0.48s;
+        --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        --translateY: 0px;
+    }
 }
