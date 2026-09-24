@@ -2,18 +2,22 @@ import { html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
 import icon from '~/components/icon';
-import { CHECKBOX_INPUT } from './constants';
 import check from './svg/check.svg';
 import './scss/index.scss';
 
 
-type A = Attributes & { [CHECKBOX_INPUT]?: Attributes };
+type A = Attributes & { onrender?: never, type?: never };
+
+type Attr = A & { [CHECKBOX_INPUT]?: A };
+
+
+const CHECKBOX_INPUT = Symbol.for('@esportsplus/ui/checkbox.input');
 
 
 const factory = (type: 'checkbox' | 'radio' | 'switch') => {
     function template(
-        this: { attributes?: A } | void,
-        { state = reactive({ error: '' }), ...attributes }: A & { state?: { error: string } } = {}
+        this: { attributes?: Attr } | void,
+        { state = reactive({ error: '' }), ...attributes }: Attr & { state?: { error: string } } = {}
     ) {
         return html`
             <div
@@ -23,11 +27,11 @@ const factory = (type: 'checkbox' | 'radio' | 'switch') => {
             >
                 <input
                     class='checkbox-tag'
+                    onrender=${form.input.onrender(state)}
+                    type=${type === 'radio' ? 'radio' : 'checkbox'}
                     value='1'
                     ${this?.attributes?.[CHECKBOX_INPUT]}
                     ${attributes[CHECKBOX_INPUT]}
-                    onrender=${form.input.onrender(state)}
-                    type=${type === 'radio' ? 'radio' : 'checkbox'}
                 >
                 ${type === 'checkbox' && icon({ 'aria-hidden': true, class: 'checkbox-check' }, check)}
             </div>
@@ -39,4 +43,4 @@ const factory = (type: 'checkbox' | 'radio' | 'switch') => {
 
 
 export default factory('checkbox');
-export { factory };
+export { factory, CHECKBOX_INPUT };

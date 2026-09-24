@@ -4,15 +4,22 @@ import form from '~/components/form';
 import './scss/index.scss';
 
 
+type A = Attributes & {
+    onfocusin?: never;
+    onfocusout?: never;
+    onrender?: never;
+};
+
+
 export default function (
-    this: { attributes?: Attributes } | void,
+    this: { attributes?: A } | void,
     {
         state = reactive({
             active: false,
             error: ''
         }),
         ...attributes
-    }: Attributes & { state?: { active: boolean, error: string } }
+    }: A & { state?: { active: boolean, error: string } }
 ) {
     attributes.type ??= 'text';
 
