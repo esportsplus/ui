@@ -19,7 +19,7 @@ export default function (
             error: ''
         }),
         ...attributes
-    }: A & { state?: { active: boolean, error: string } }
+    }: A & { state?: { active: boolean, error: string } } = {}
 ) {
     attributes.type ??= 'text';
 

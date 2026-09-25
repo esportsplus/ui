@@ -55,7 +55,7 @@ type State = {
 let uid = 0;
 
 
-export default Object.assign(component<A>(
+export default component(
     function(
         this: { attributes?: D },
         {
@@ -231,5 +231,6 @@ export default Object.assign(component<A>(
                 />
             </div>
         `;
-    }
-), { lens: DATALIST_LENS, option: DATALIST_OPTION, scroller: DATALIST_SCROLLER } as const);
+    },
+    { lens: DATALIST_LENS, option: DATALIST_OPTION, scroller: DATALIST_SCROLLER }
+);

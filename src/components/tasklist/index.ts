@@ -156,20 +156,18 @@ function row(task: Task, reorder: boolean, attributes?: CheckboxAttributes) {
 }
 
 
-export default Object.assign(
-    component<Attributes & { [TASKLIST_CHECKBOX]?: CheckboxAttributes; reorder?: boolean; tasks: Task[] }>(
-        function({ reorder = true, tasks, ...attributes }) {
-            return html`
-                <ul class='tasklist' ${attributes}>
-                    ${(reorder ? [
-                        ...tasks.filter((task) => !task.checked),
-                        ...tasks.filter((task) => task.checked)
-                    ] : tasks).map((task) => row(task, reorder, attributes[TASKLIST_CHECKBOX]))}
-                </ul>
-            `;
-        }
-    ),
-    { checkbox: TASKLIST_CHECKBOX } as const
+export default component(
+    function({ reorder = true, tasks, ...attributes }: Attributes & { [TASKLIST_CHECKBOX]?: CheckboxAttributes; reorder?: boolean; tasks: Task[] }) {
+        return html`
+            <ul class='tasklist' ${attributes}>
+                ${(reorder ? [
+                    ...tasks.filter((task) => !task.checked),
+                    ...tasks.filter((task) => task.checked)
+                ] : tasks).map((task) => row(task, reorder, attributes[TASKLIST_CHECKBOX]))}
+            </ul>
+        `;
+    },
+    { checkbox: TASKLIST_CHECKBOX }
 );
 
 

@@ -26,8 +26,8 @@ type A = Attributes & {
 };
 
 
-export default Object.assign(component<A>(
-    ({ options, state = reactive({ active: false }), ...attributes }, content) => {
+export default component(
+    ({ options, state = reactive({ active: false }), ...attributes }: A, content) => {
         let { direction = 'nw', ...tooltipContent } = attributes[MENU_TOOLTIP_CONTENT] ?? {};
 
         return onclick(
@@ -46,8 +46,9 @@ export default Object.assign(component<A>(
                 </div>
             `
         );
-    }
-), { option: MENU_OPTION, tooltipContent: MENU_TOOLTIP_CONTENT } as const);
+    },
+    { option: MENU_OPTION, tooltipContent: MENU_TOOLTIP_CONTENT }
+);
 
 
 export type { A };

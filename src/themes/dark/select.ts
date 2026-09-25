@@ -1,7 +1,7 @@
 import select from '~/components/select';
 
 
-const themed: typeof select = Object.assign(select.bind({
+const themed: typeof select = select.bind({
     attributes: {
         class: '--background-black --border-black --color-white',
         [select.option]: {
@@ -21,7 +21,7 @@ const themed: typeof select = Object.assign(select.bind({
             `
         }
     }
-}), { arrow: select.arrow, option: select.option, tooltipContent: select.tooltipContent } as const);
+});
 
 
 export default themed;

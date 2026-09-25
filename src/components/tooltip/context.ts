@@ -20,8 +20,8 @@ type A = Attributes & {
 };
 
 
-export default Object.assign(component<A>(
-    ({ options, state = reactive({ active: false }), ...attributes }, content) => {
+export default component(
+    ({ options, state = reactive({ active: false }), ...attributes }: A, content) => {
         let menu: HTMLElement | undefined;
 
         return html`
@@ -91,5 +91,6 @@ export default Object.assign(component<A>(
                 </div>
             </div>
         `;
-    }
-), { option: CONTEXT_OPTION, tooltipContent: CONTEXT_TOOLTIP_CONTENT } as const);
+    },
+    { option: CONTEXT_OPTION, tooltipContent: CONTEXT_TOOLTIP_CONTENT }
+);

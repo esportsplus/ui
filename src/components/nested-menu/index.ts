@@ -82,8 +82,8 @@ function tree(items: Item[], parent?: MenuNode) {
 }
 
 
-export default Object.assign(component<A>(
-    ({ animate = true, items, onselect, state = reactive({ active: false }), ...attributes }, content) => {
+export default component(
+    ({ animate = true, items, onselect, state = reactive({ active: false }), ...attributes }: A, content) => {
         let elements = new WeakMap<Element, MenuNode>(),
             root: MenuNode = { children: [], state: reactive({ open: true, render: true, settled: true }) },
             stack: MenuNode[] = [root],
@@ -439,7 +439,8 @@ export default Object.assign(component<A>(
                 ${panel(root)}
             </div>
         `;
-    }
-), { trigger: NESTED_MENU_TRIGGER } as const);
+    },
+    { trigger: NESTED_MENU_TRIGGER }
+);
 
 export type { Item };

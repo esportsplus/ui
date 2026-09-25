@@ -48,8 +48,8 @@ function focus(fan: Element | null) {
 }
 
 
-export default Object.assign(component<A>(
-    ({ closeOnSelect = true, direction = 'e', options, state = reactive({ active: false }), ...attributes }, content) => html`
+export default component(
+    ({ closeOnSelect = true, direction = 'e', options, state = reactive({ active: false }), ...attributes }: A, content) => html`
         <div
             class='button-fan ${`button-fan--${direction}`}'
             ${attributes}
@@ -168,5 +168,6 @@ export default Object.assign(component<A>(
                 })}
             </div>
         </div>
-    `
-), { option: FAN_OPTION, trigger: FAN_TRIGGER } as const);
+    `,
+    { option: FAN_OPTION, trigger: FAN_TRIGGER }
+);

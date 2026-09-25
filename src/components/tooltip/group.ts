@@ -50,8 +50,8 @@ function measure(container: HTMLElement, element: HTMLElement, index: number) {
 }
 
 
-export default Object.assign(component<A>(
-    ({ items, state = reactive({ active: false, gliding: false, index: -1 }), ...attributes }) => {
+export default component(
+    ({ items, state = reactive({ active: false, gliding: false, index: -1 }), ...attributes }: A) => {
         let { direction = 'n', ...tooltipContent } = attributes[GROUP_TOOLTIP_CONTENT] ?? {},
             frame = 0;
 
@@ -157,5 +157,6 @@ export default Object.assign(component<A>(
                 </div>
             </div>
         `;
-    }
-), { item: GROUP_ITEM, tooltipContent: GROUP_TOOLTIP_CONTENT } as const);
+    },
+    { item: GROUP_ITEM, tooltipContent: GROUP_TOOLTIP_CONTENT }
+);

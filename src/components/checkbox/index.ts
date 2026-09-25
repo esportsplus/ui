@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
 import icon from '~/components/icon';
@@ -14,10 +14,10 @@ type Attr = A & { [CHECKBOX_INPUT]?: A };
 const CHECKBOX_INPUT = Symbol.for('@esportsplus/ui/checkbox.input');
 
 
-const factory = Object.assign((type: 'checkbox' | 'radio' | 'switch') => {
-    function template(
+const factory = Object.assign((type: 'checkbox' | 'radio' | 'switch') => component(
+    function(
         this: { attributes?: Attr } | void,
-        { state = reactive({ error: '' }), ...attributes }: Attr & { state?: { error: string } } = {}
+        { state = reactive({ error: '' }), ...attributes }: Attr & { state?: { error: string } }
     ) {
         return html`
             <div
@@ -36,10 +36,9 @@ const factory = Object.assign((type: 'checkbox' | 'radio' | 'switch') => {
                 ${type === 'checkbox' && icon({ 'aria-hidden': true, class: 'checkbox-check' }, check)}
             </div>
         `;
-    }
-
-    return template;
-}, { input: CHECKBOX_INPUT } as const);
+    },
+    { input: CHECKBOX_INPUT }
+), { input: CHECKBOX_INPUT } as const);
 
 
 export default factory('checkbox');

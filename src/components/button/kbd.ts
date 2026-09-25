@@ -51,8 +51,8 @@ function parse(name: string): Key {
 }
 
 
-export default Object.assign(component<A>(
-    ({ keys: names, ontrigger, ...attributes }) => {
+export default component(
+    ({ keys: names, ontrigger, ...attributes }: A) => {
         let keys = names.map(parse);
 
         // Only a key going from up to down can complete the combo, so holding it fires once.
@@ -151,5 +151,6 @@ export default Object.assign(component<A>(
                 `)}
             </kbd>
         `;
-    }
-), { key: KBD_KEY } as const);
+    },
+    { key: KBD_KEY }
+);

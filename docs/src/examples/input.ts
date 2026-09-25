@@ -6,8 +6,7 @@ import { moreFieldVariations } from './form-options';
 import { inputPatternVariations } from './form-patterns';
 
 
-let field = input.bind({}),
-    instance = 0,
+let instance = 0,
     style = `
         --border-color-active: color-mix(in oklch, var(--color-text-500) 40%, transparent);
         --border-color-default: var(--color-border-400);
@@ -27,11 +26,11 @@ export default {
         ...boardOtpVariations(),
         ...inputPatternVariations(),
         {
-            render: () => field({ placeholder: 'Type here…' }),
+            render: () => input({ placeholder: 'Type here…' }),
             title: 'default'
         },
         {
-            render: () => field({ placeholder: 'Password', type: 'password' }),
+            render: () => input({ placeholder: 'Password', type: 'password' }),
             title: 'password'
         },
         {

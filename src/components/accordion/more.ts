@@ -18,7 +18,7 @@ type A = Attributes & {
 };
 
 
-export default Object.assign(component<A>(
+export default component(
     ({
         label = 'Expanded content',
         less = 'Show less',
@@ -27,7 +27,7 @@ export default Object.assign(component<A>(
         more = 'Show more',
         state = reactive({ active: false }),
         ...attributes
-    }, content) => {
+    }: A, content) => {
         let id = `accordion-more-${crypto.randomUUID()}`,
             measured = reactive({ clamped: false, height: 0 }),
             observer: ResizeObserver | undefined,
@@ -92,5 +92,6 @@ export default Object.assign(component<A>(
                 </button>
             </div>
         `;
-    }
-), { trigger: MORE_TRIGGER } as const);
+    },
+    { trigger: MORE_TRIGGER }
+);

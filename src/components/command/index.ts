@@ -72,7 +72,7 @@ function highlight(label: string, needle: string) {
 }
 
 
-export default Object.assign(component<A>(
+export default component(
     function(
         this: { attributes?: D },
         {
@@ -276,6 +276,7 @@ export default Object.assign(component<A>(
         // palette's computeds and effects live and die with the caller without the
         // caller subscribing to them.
         return root((_dispose) => palette());
-    }
-), { input: COMMAND_INPUT, item: COMMAND_ITEM } as const);
+    },
+    { input: COMMAND_INPUT, item: COMMAND_ITEM }
+);
 export type { Group, Item };

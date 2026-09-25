@@ -35,7 +35,7 @@ type A = {
 type D = Attributes & Pick<A, typeof SELECT_ARROW | typeof SELECT_OPTION | typeof SELECT_TOOLTIP_CONTENT>;
 
 
-export default Object.assign(component<A, (state: { active: boolean, selected?: string | number }) => Renderable<unknown>>(
+export default component(
     function(
         this: { attributes?: D },
         {
@@ -49,7 +49,7 @@ export default Object.assign(component<A, (state: { active: boolean, selected?: 
             }),
             ...attributes
         }: A,
-        content
+        content: (state: { active: boolean, selected?: string | number }) => Renderable<unknown>
     ) {
         let { direction: defaultDirection, ...defaultTooltipContent } = this?.attributes?.[SELECT_TOOLTIP_CONTENT] ?? {},
             { direction = defaultDirection || 's', ...tooltipContent } = attributes[SELECT_TOOLTIP_CONTENT] ?? {};
@@ -176,5 +176,6 @@ export default Object.assign(component<A, (state: { active: boolean, selected?: 
                 }}
             </div>
         `;
-    }
-), { arrow: SELECT_ARROW, option: SELECT_OPTION, tooltipContent: SELECT_TOOLTIP_CONTENT } as const);
+    },
+    { arrow: SELECT_ARROW, option: SELECT_OPTION, tooltipContent: SELECT_TOOLTIP_CONTENT }
+);

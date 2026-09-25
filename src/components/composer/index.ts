@@ -31,7 +31,7 @@ type A = Attributes & {
 type D = Attributes & Pick<A, typeof COMPOSER_SEND | typeof COMPOSER_TEXTAREA>;
 
 
-export default Object.assign(component<A>(
+export default component(
     function(
         this: { attributes?: D },
         {
@@ -112,5 +112,6 @@ export default Object.assign(component<A>(
                 `}
             </div>
         `;
-    }
-), { send: COMPOSER_SEND, textarea: COMPOSER_TEXTAREA } as const);
+    },
+    { send: COMPOSER_SEND, textarea: COMPOSER_TEXTAREA }
+);
