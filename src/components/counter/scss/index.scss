@@ -49,10 +49,11 @@
             opacity: var(--opacity);
         }
 
+        // --index counts digits from the right, so the rightmost digit settles first.
         &-track {
             display: grid;
             translate: 0 calc((var(--value) + 1) * (1lh * -1));
-            transition: translate var(--transition-duration) var(--timing-function);
+            transition: translate var(--transition-duration) var(--timing-function) calc(var(--index) * var(--stagger));
 
             span {
                 height: 1lh;
@@ -61,12 +62,29 @@
         }
     }
 
-    // Odometer-style ripple: the rightmost digit settles first.
-    &--stagger {
-        @for $i from 2 through 16 {
-            .counter-character:nth-last-child(#{$i}) .counter-character-track {
-                transition-delay: calc(#{$i - 1} * var(--stagger));
+    &--blur {
+        @media (prefers-reduced-motion: no-preference) {
+            .counter-character-track {
+                animation: var(--transition-duration) ease-out calc(var(--index) * var(--stagger));
+
+                &[data-roll='1'] {
+                    animation-name: counter-blur-1;
+                }
+
+                &[data-roll='2'] {
+                    animation-name: counter-blur-2;
+                }
             }
+        }
+    }
+
+    &--ticker {
+        gap: 0;
+
+        .counter-character,
+        .counter-character-track span {
+            background: none;
+            color: inherit;
         }
     }
 
@@ -75,5 +93,25 @@
         &-character-track {
             transition: none;
         }
+    }
+}
+
+@keyframes counter-blur-1 {
+    0%, 100% {
+        filter: blur(0);
+    }
+
+    20% {
+        filter: blur(var(--blur));
+    }
+}
+
+@keyframes counter-blur-2 {
+    0%, 100% {
+        filter: blur(0);
+    }
+
+    20% {
+        filter: blur(var(--blur));
     }
 }

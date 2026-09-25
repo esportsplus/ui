@@ -6,11 +6,13 @@ import './scss/index.scss';
 let formatters: Record<string, Intl.NumberFormat> = {};
 
 
-export default ({ currency, decimals = 2, delay, max, state: api = reactive({ value: -1 }), suffix, value, ...attributes }: Attributes & {
+export default ({ currency, decimals = 2, delay, max, prefix, startOnView, state: api = reactive({ value: -1 }), suffix, value, ...attributes }: Attributes & {
     currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD';
     decimals?: number;
     delay?: number;
     max?: number;
+    prefix?: string;
+    startOnView?: boolean;
     state?: { value: number },
     suffix?: string;
     value: number;
@@ -22,7 +24,8 @@ export default ({ currency, decimals = 2, delay, max, state: api = reactive({ va
                 currency: currency || 'USD'
             }),
         animation = reactive({ started: false }),
-        render = reactive([] as { digit: boolean; value: string }[]),
+        observer: IntersectionObserver | undefined,
+        render = reactive([] as { digit: boolean; index: number; roll: number; value: string }[]),
         stop = effect(() => {
             let target = api.value === -1 ? value : api.value,
                 started = animation.started;
@@ -42,14 +45,22 @@ export default ({ currency, decimals = 2, delay, max, state: api = reactive({ va
 
             values = values.split('');
 
+            if (prefix) {
+                values.unshift(...prefix.split(''));
+            }
+
             if (suffix) {
                 values.push(' ', ...suffix.split(''));
             }
 
             untrack(() => {
+                let remaining = values.filter((value: string) => !isNaN(parseInt(value, 10))).length;
+
                 for (let i = 0, n = values.length; i < n; i++) {
-                    let value = values[i],
-                        digit = !isNaN(parseInt(value, 10));
+                    let previous = render[i],
+                        value = values[i],
+                        digit = !isNaN(parseInt(value, 10)),
+                        index = digit ? --remaining : 0;
 
                     if (digit && (!started || padding > 0)) {
                         padding--;
@@ -57,11 +68,16 @@ export default ({ currency, decimals = 2, delay, max, state: api = reactive({ va
                     }
 
                     // Preserve the track so CSS can transition between digit positions.
-                    if (render[i]?.digit === digit) {
-                        render[i].value = value;
+                    if (previous?.digit === digit) {
+                        previous.index = index;
+
+                        if (previous.value !== value) {
+                            previous.roll = previous.roll === 1 ? 2 : 1;
+                            previous.value = value;
+                        }
                     }
                     else {
-                        let character = reactive({ digit, value });
+                        let character = reactive({ digit, index, roll: 0, value });
 
                         render[i] = character;
                     }
@@ -72,15 +88,41 @@ export default ({ currency, decimals = 2, delay, max, state: api = reactive({ va
                 }
             });
         }),
+        timer: ReturnType<typeof setTimeout> | undefined;
+
+    function start() {
         timer = setTimeout(() => animation.started = true, delay ?? 1000);
+    }
 
     onCleanup(() => {
         clearTimeout(timer);
+        observer?.disconnect();
         stop();
     });
 
     return html`
-        <div class='counter' ${attributes}>
+        <div
+            class='counter'
+            ${attributes}
+            ${{
+                onconnect: (element: HTMLElement) => {
+                    if (!startOnView) {
+                        start();
+                        return;
+                    }
+
+                    observer = new IntersectionObserver((entries) => {
+                        if (!entries.some((entry) => entry.isIntersecting)) {
+                            return;
+                        }
+
+                        observer?.disconnect();
+                        start();
+                    });
+                    observer.observe(element);
+                }
+            }}
+        >
             ${html.reactive(render, function (character) {
                     if (!character.digit) {
                         return html`
@@ -90,9 +132,14 @@ export default ({ currency, decimals = 2, delay, max, state: api = reactive({ va
                         `;
                     }
 
+                    // Alternating the roll parity swaps between identical keyframes, restarting the per-roll animation.
                     return html`
                         <div class='counter-character'>
-                            <div class='counter-character-track' style='${() => `--value: ${character.value}`}'>
+                            <div
+                                class='counter-character-track'
+                                data-roll='${() => character.roll}'
+                                style='${() => `--index: ${character.index}; --value: ${character.value}`}'
+                            >
                                 <span>9</span>
                                 ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span>${value}</span>`)}
                                 <span>0</span>

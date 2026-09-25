@@ -1,8 +1,10 @@
 .counter {
     // TODO: Switch to clamped font size css variables
+    --blur: 0.05em;
     --font-size: clamp(2rem, 4vw + 1rem, 8rem);
     --font-weight: var(--font-weight-400);
     --mask-size: 0.24;
+    --stagger: 0s;
     // Bounce-out
     --timing-function: linear(0, 0.004, 0.016, 0.035, 0.063, 0.098, 0.141 13.6%, 0.25, 0.391, 0.563, 0.765, 1, 0.891 40.9%, 0.848, 0.813, 0.785, 0.766, 0.754, 0.75, 0.754, 0.766, 0.785, 0.813, 0.848, 0.891 68.2%, 1 72.7%, 0.973, 0.953, 0.941, 0.938, 0.941, 0.953, 0.973, 1, 0.988, 0.984, 0.988, 1);
     --transition-duration: 2s;
@@ -41,6 +43,20 @@
 
         &--symbol:first-child {
             --scale: 0.8;
+        }
+    }
+
+    // After &-character so the symbol override wins the equal-specificity :first-child rule.
+    &--ticker {
+        --font-size: 1em;
+        --mask-size: 0.12;
+        --stagger: 0.06s;
+        --timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        --transition-duration: 0.9s;
+
+        .counter-character--symbol {
+            --opacity: 1;
+            --scale: 1;
         }
     }
 }
