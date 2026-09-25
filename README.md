@@ -55,20 +55,26 @@ html`
 | `input` | Text input with validation state | - |
 | `textarea` | Multi-line text input | - |
 | `checkbox` | Checkbox with label | - |
+| `composer` | Chat input with toolbar actions, send button and footer | - |
 | `radio` | Radio button group | - |
 | `range` | Range slider | - |
+| `datalist` | Inertial wheel picker (scroll-snapped listbox) | - |
 | `select` | Dropdown with custom options | - |
 | `switch` | Toggle switch | - |
+| `tasklist` | Checklist that strikes through checked tasks and moves them below the open ones | `tasklist.checkbox` |
 | `form` | Form wrapper | `form.action`, `form.input` |
 
 ### Interactive
 | Component | Description | Variants |
 |-----------|-------------|----------|
-| `button` | Standard button | `button.hold` |
-| `tooltip` | Popup content | `tooltip.menu`, `tooltip.onclick`, `tooltip.onhover` |
+| `button` | Standard button | `button.fan`, `button.hold` |
+| `tooltip` | Popup content | `tooltip.context`, `tooltip.menu`, `tooltip.onclick`, `tooltip.onhover` |
 | `accordion` | Collapsible sections | - |
 | `clipboard` | Copy to clipboard | `clipboard.copy`, `clipboard.write` |
+| `command` | Command palette: modal + input, grouped live filtering, keyboard navigation | `command.input`, `command.item` |
 | `alert` | Notifications | error, info, success types |
+| `sortable` | Drag-and-drop reordering of an element's children | `sortable--{effect}` modifiers |
+| `swipeDeck` | Card stack decided by swipe, arrow keys, or buttons, with undo | - |
 
 ### Display
 | Component | Description |
@@ -83,10 +89,13 @@ html`
 | `number` | Number formatting |
 | `truncate` | Text truncation |
 | `json` | JSON display |
+| `taskList` | Streaming log of an agent's tasks and steps |
+| `webSearch` | Streaming trail of an agent's searches and the sources it opened |
 
 ### Layout
 | Component | Description |
 |-----------|-------------|
+| `breadcrumb` | Navigation trail: `breadcrumb.list`, `.item`, `.link`, `.menu`, `.page`, `.separator`, `.ellipsis` |
 | `scrollbar` | Native scrollbar styling |
 | `tabs.scss` | Tab panels: instant by default, `tabs--slide` for horizontal motion, `tabs--scroll` for vertical motion |
 | `sidebar` | Side navigation |
@@ -121,6 +130,67 @@ and set `--i` to the negative selected index: `0`, `-1`, `-2`, etc.
 Animated tracks need a clipping parent; vertical tracks also need a definite
 parent height. Keep inactive panels `inert` and update tab/panel ARIA attributes
 alongside the active class. The docs include reactive switching examples.
+
+### Sortable
+
+Spread `sortable()` onto any element to make its immediate children draggable.
+A dashed `.sortable-placeholder` holds the slot while siblings shift around it,
+and the held item swings with the drag's momentum, pivoting on the grab point.
+Anything with `.sortable-overlay` inside an item only shows while it is held.
+
+```typescript
+html`
+    <div class='toolbar sortable--bouncy sortable--jiggle' ${sortable({ handle: '.grip', onsort: (item, from, to) => {} })}>
+        <button>…<span class='sortable-overlay'>Reload</span></button>
+    </div>
+`;
+```
+
+Combine up to one modifier of each kind:
+
+- Swing (movement-driven): `bouncy`, `damped`, `floppy`, `heavy`, `rigid`, `snappy`, `subtle`, `wobbly`;
+  or tune `--swing-angle`, `--swing-damping`, `--swing-stiffness`, `--swing-strength`.
+- Animation (while held): `breathe`, `drift`, `float`, `heartbeat`, `jelly`, `jiggle`, `orbit`, `pop`,
+  `settle`, `shimmy`, `sway`, `tremble`, `wiggle`; or set `--drag-animation`.
+
+The DOM is reordered directly; reactive lists should update their data in `onsort`.
+
+### Task List and Web Search
+
+Both stream an agent's work one unit at a time. A task is one unit for its
+header plus one per step; a search step is one unit, plus one more for its
+Sources row when it has `sources`. On their own they pace themselves
+(`startDelay`, `stepInterval`, and per-step `dwell` for web search) and call
+`onComplete` once the last unit lands. Pass `state` to drive them from real
+events instead; the internal timer switches off.
+
+```typescript
+import { taskList, webSearch } from '@esportsplus/ui';
+
+taskList({
+    collapseOnComplete: 'all',
+    onComplete: () => showAnswer(),
+    tasks: [
+        { runningTitle: 'Editing files', steps: [{ chips: [{ label: 'layout.tsx' }], label: 'Wired it into' }], title: 'Registered the toggle' }
+    ]
+});
+
+let state = reactive({ revealed: 0 });
+
+webSearch({
+    state,
+    steps: [
+        { brand: 'reddit', label: 'Searched Reddit for', meta: '12 threads', query: 'design tokens' },
+        { label: 'Opened the top results', sources: [{ brand: 'github', domain: 'github.com', href: 'https://github.com', title: 'Registry model' }] }
+    ]
+});
+
+// Advance as each tool call resolves.
+state.revealed++;
+```
+
+`working` relabels the trailing indicator, or `false` drops it. `brand` accepts
+any of the 24 built-in site marks; anything else takes an `icon`.
 
 ### Factory Pattern
 

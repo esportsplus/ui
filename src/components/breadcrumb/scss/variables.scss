@@ -1,0 +1,17 @@
+.breadcrumb {
+    --color: var(--color-default);
+    --color-active: var(--color-text-500);
+    --color-default: var(--color-text-300);
+    --color-hover: var(--color-text-500);
+    --font-size: var(--font-size-300);
+
+
+    &-ellipsis {
+        --size: var(--size-500);
+    }
+
+    &-menu-caret.icon,
+    &-separator .icon {
+        --size: var(--size-300);
+    }
+}

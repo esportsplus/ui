@@ -39,6 +39,59 @@ export function fieldVariations(kind: 'input' | 'textarea'): Variant[] {
     }));
 }
 
+export function rangeBubbleVariations(): Variant[] {
+    let currency = (value: number) => `$${value}`,
+        designs = [
+            { format: String, label: 'Volume', max: 100, min: 0, step: 1, title: 'Bubble · Exact value above the thumb', values: [42] },
+            { format: currency, label: 'Monthly budget', max: 100, min: 0, step: 1, title: 'Bubble · Dual thumb range', values: [25, 75] },
+            { format: currency, label: 'Price', max: 1000, min: 0, step: 50, title: 'Bubble · Stepped price range', values: [200, 800] },
+            { format: String, label: 'Brightness', max: 100, min: 0, step: 1, title: 'Bubble · Without value bubble', tooltip: false, values: [36] },
+            { disabled: true, format: String, label: 'Allocation', max: 100, min: 0, step: 1, title: 'Bubble · Disabled range', values: [20, 70] }
+        ];
+
+    return designs.map(({ disabled, format, label, max, min, step, title, tooltip, values }) => ({
+        title,
+        render: () => {
+            let dual = values.length === 2,
+                id = `range-bubble-${++instance}`,
+                state = reactive({ high: values[values.length - 1], low: dual ? values[0] : min }),
+                fraction = (value: number) => (value - min) / (max - min),
+                thumbs = (dual ? ['low', 'high'] : ['high']) as ('high' | 'low')[];
+
+            return html`
+                <div class='form-prototype range-bubble ${dual ? 'range-bubble--dual' : 'range-bubble--single'} ${disabled && 'range-bubble--disabled'} ${tooltip === false && 'range-bubble--quiet'}'
+                    style='${() => `--from: ${fraction(state.low)}; --to: ${fraction(state.high)};`}'>
+                    <div class='range-bubble-heading'>
+                        <label id='${id}'>${label}</label>
+                        ${tooltip === false && html`<output>${() => format(state.high)}</output>`}
+                    </div>
+                    <div class='range-bubble-control'>
+                        <div class='range-bubble-fill' aria-hidden='true'></div>
+                        ${thumbs.map((key) => html`
+                            <input type='range' min='${min}' max='${max}' step='${step}' value='${state[key]}'
+                                aria-disabled='${disabled ? 'true' : 'false'}'
+                                aria-labelledby='${id}'
+                                aria-valuetext='${() => format(state[key])}'
+                                tabindex='${disabled ? -1 : 0}'
+                                oninput='${(event: Event) => {
+                                    let target = event.target as HTMLInputElement,
+                                        value = Number(target.value);
+
+                                    value = key === 'low' ? Math.min(value, state.high) : Math.max(value, state.low);
+                                    target.value = String(value);
+                                    state[key] = value;
+                                }}'>
+                            <div class='range-bubble-thumb' style='${() => `--at: ${fraction(state[key])};`}' aria-hidden='true'>
+                                <span class='range-bubble-value'>${() => format(state[key])}</span>
+                            </div>
+                        `)}
+                    </div>
+                </div>
+            `;
+        }
+    }));
+}
+
 export function rangeVariations(): Variant[] {
     let designs = [
             { label: 'Volume', mode: 'heading', title: 'Heading · Value above the track', unit: '%', value: 60 },

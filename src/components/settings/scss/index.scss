@@ -1,0 +1,327 @@
+@use '/lib';
+@use '/tokens';
+@use 'variables';
+
+// The saved pill straddles the panel's bottom edge, so the dialog itself can't clip.
+dialog.settings {
+    overflow: visible;
+}
+
+.settings {
+    filter: blur(0);
+    transition:
+        filter var(--transition-duration) var(--transition-timing-function),
+        opacity var(--transition-duration) var(--transition-timing-function),
+        scale var(--transition-duration) var(--transition-timing-function),
+        translate var(--transition-duration) var(--transition-timing-function);
+
+    @include tokens.state(inactive) {
+        filter: blur(var(--blur));
+    }
+
+
+    &-body {
+        flex: 1 1 auto;
+        min-height: 0;
+        position: relative;
+    }
+
+    &-card {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        display: flex;
+        flex-direction: column;
+        padding-left: 12px;
+        width: 100%;
+    }
+
+    &-close {
+        align-items: center;
+        background: var(--surface-muted);
+        border: 0;
+        border-radius: 100%;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        flex: 0 0 auto;
+        height: 24px;
+        justify-content: center;
+        outline: none;
+        padding: 0;
+        transition: background var(--transition-duration) var(--transition-timing-function);
+        width: 24px;
+
+        .icon {
+            --size: 16px;
+        }
+
+        &:hover {
+            background: var(--color-border-300);
+        }
+
+        &:focus-visible {
+            box-shadow: 0 0 0 2px var(--color-primary-400, var(--color-blue-400));
+        }
+    }
+
+    &-content {
+        height: 100%;
+        overflow-y: auto;
+        padding: 0 var(--padding) var(--padding);
+    }
+
+    &-fade {
+        background: linear-gradient(to bottom, var(--surface), transparent);
+        height: 40px;
+        inset: 0 0 auto;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        transition: opacity 0.2s ease-out;
+
+        @include tokens.state(active) {
+            opacity: 1;
+        }
+    }
+
+    &-field {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        color: var(--text);
+        flex: 0 0 auto;
+        height: 32px;
+        line-height: 32px;
+        overflow: hidden;
+        padding: 0 6px 0 10px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: var(--width);
+
+        &--muted {
+            color: var(--text-muted);
+        }
+    }
+
+    &-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding-top: 4px;
+
+        &-label {
+            color: var(--text-muted);
+            font-weight: var(--font-weight-500);
+            margin-bottom: 2px;
+            padding-left: 8px;
+        }
+    }
+
+    &-header {
+        align-items: center;
+        display: flex;
+        flex: 0 0 auto;
+        justify-content: space-between;
+        padding: var(--padding) var(--padding) 12px;
+    }
+
+    &-item {
+        align-items: center;
+        background: var(--background);
+        border: 0;
+        border-radius: var(--border-radius);
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        font: inherit;
+        font-weight: var(--font-weight-500);
+        gap: 8px;
+        outline: none;
+        padding: 8px;
+        text-align: left;
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
+        width: 100%;
+
+        @include tokens.state(active) {
+            --background: var(--background-active);
+            color: var(--text);
+        }
+
+        @include tokens.state(hover) {
+            --background: var(--background-hover);
+        }
+
+        &:focus-visible {
+            box-shadow: inset 0 0 0 2px var(--color-primary-400, var(--color-blue-400));
+        }
+
+        &-icon {
+            --size: 20px;
+            color: var(--text-muted);
+        }
+
+        &-label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    &-main {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    &-nav {
+        background: var(--surface-rail);
+        border-right: var(--border-width-400) solid var(--separator);
+        display: flex;
+        flex: 0 0 var(--rail-width);
+        flex-direction: column;
+        gap: 20px;
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    &-page {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+    }
+
+    // clip, not hidden: hidden boxes stay programmatically scrollable, so focusing a clipped
+    // control would scroll the whole panel with no way back.
+    &-panel {
+        background: var(--surface);
+        border-radius: var(--radius);
+        box-shadow: var(--box-shadow-100);
+        color: var(--text);
+        display: flex;
+        font-size: var(--font-size);
+        height: var(--height);
+        line-height: 1.43;
+        max-height: calc(100dvh - (var(--margin-horizontal) * 2));
+        outline: none;
+        overflow: clip;
+        width: 100%;
+    }
+
+    &-row {
+        align-items: center;
+        border-bottom: var(--border-width-400) solid var(--separator);
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+        min-height: 52px;
+        padding: 10px 10px 10px 0;
+        width: 100%;
+
+        &:last-child {
+            border-bottom: 0;
+        }
+
+        &-description {
+            color: var(--text-muted);
+            font-size: var(--font-size-small);
+        }
+
+        &-label {
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+    }
+
+    &-saved {
+        align-items: center;
+        background: var(--surface);
+        border: var(--border-width-400) solid var(--separator);
+        border-radius: 999px;
+        bottom: 0;
+        box-shadow: var(--box-shadow-300);
+        color: var(--text);
+        display: flex;
+        font-size: var(--font-size-small);
+        font-weight: var(--font-weight-500);
+        gap: 4px;
+        left: 50%;
+        padding: 4px 10px 4px 6px;
+        pointer-events: none;
+        position: absolute;
+        transition:
+            filter 0.2s ease-out,
+            opacity 0.2s ease-out,
+            scale 0.2s ease-out,
+            translate 0.2s ease-out;
+        white-space: nowrap;
+        z-index: 1;
+
+        &.--hidden,
+        &.--leaving {
+            filter: blur(2px);
+            opacity: 0;
+            scale: 0.9;
+        }
+
+        &.--hidden {
+            translate: -50% calc(50% + 12px);
+        }
+
+        &.--leaving {
+            translate: -50% calc(50% - 10px);
+        }
+
+        &.--shown {
+            translate: -50% 50%;
+        }
+
+        &-icon {
+            --size: 16px;
+            color: var(--saved);
+        }
+    }
+
+    &-section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+
+        &-description {
+            color: var(--color-text-300);
+            font-size: var(--font-size-small);
+            opacity: 0.8;
+            padding: 0 12px;
+        }
+
+        &-label {
+            color: var(--text-muted);
+            font-size: var(--font-size-small);
+            font-weight: var(--font-weight-500);
+            padding: 0 12px;
+        }
+    }
+
+    &-title {
+        --font-size: 20px;
+        --font-weight: var(--font-weight-500);
+        color: var(--text);
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
+        line-height: 1.4;
+        margin: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &,
+        &-fade,
+        &-saved {
+            transition: none;
+        }
+    }
+}

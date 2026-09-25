@@ -1,0 +1,26 @@
+.nested-menu {
+    --background: var(--color-white-400);
+    --background-hover: var(--color-grey-500);
+    --border-radius: var(--border-radius-600);
+    --box-shadow: var(--box-shadow-500);
+    --close-duration: 0.12s;
+    --color: var(--color-text-500);
+    --color-danger: var(--color-red-400);
+    --color-disabled: var(--color-text-300);
+    --color-hint: var(--color-text-300);
+    --font-size: 0.875rem;
+    --gap: var(--size-200);
+    --item-border-radius: var(--border-radius-400);
+    --item-height: 36px;
+    --item-padding: var(--size-200);
+    --offset: var(--size-200);
+    --open-duration: 0.28s;
+    --open-timing-function: cubic-bezier(0.2, 0, 0, 1);
+    --padding: 4px;
+    --scrim: oklch(from var(--color-black-400) l c h / 0.08);
+    --width: 17rem;
+
+    @media (pointer: coarse) {
+        --item-height: 44px;
+    }
+}

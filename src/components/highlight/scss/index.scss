@@ -1,0 +1,48 @@
+@use 'variables';
+
+.highlight {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    display: none;
+    height: var(--height);
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    scale: var(--scale-hidden);
+    top: 0;
+    transition:
+        background var(--transition-duration) var(--transition-timing-function),
+        border-radius var(--glide-duration) var(--glide-timing-function),
+        display var(--fade-duration) allow-discrete,
+        height var(--glide-duration) var(--glide-timing-function),
+        opacity var(--fade-duration) var(--transition-timing-function),
+        scale var(--fade-duration) var(--transition-timing-function),
+        translate var(--glide-duration) var(--glide-timing-function),
+        width var(--glide-duration) var(--glide-timing-function);
+    translate: var(--x) var(--y);
+    width: var(--width);
+    z-index: -1;
+
+    &.--visible {
+        display: block;
+        opacity: 1;
+        scale: 1;
+
+        // Entering from display: none has no prior box, so position snaps and only the fade/scale plays.
+        @starting-style {
+            opacity: 0;
+            scale: var(--scale-hidden);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: background var(--transition-duration) var(--transition-timing-function);
+    }
+}
+
+// Zero specificity so a container that is already positioned (absolute, fixed, sticky) keeps its own value.
+:where(:has(> .highlight)) {
+    isolation: isolate;
+    position: relative;
+}

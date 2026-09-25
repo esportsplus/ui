@@ -1,0 +1,115 @@
+@use 'variables';
+
+.reading-progress {
+    align-items: center;
+    display: flex;
+    gap: var(--gap);
+
+    &-check {
+        flex-shrink: 0;
+        height: 12px;
+        width: 12px;
+
+        polyline {
+            stroke: currentColor;
+            stroke-dasharray: 1;
+            stroke-dashoffset: 1;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 16;
+            transition: stroke-dashoffset var(--draw-duration) var(--draw-timing-function) var(--draw-delay);
+        }
+    }
+
+    &-done,
+    &-remaining,
+    &-sizer {
+        grid-area: 1 / 1;
+        white-space: nowrap;
+    }
+
+    &-done,
+    &-sizer {
+        align-items: center;
+        display: flex;
+        gap: 4px;
+    }
+
+    &-done {
+        color: var(--color-done);
+        opacity: 0;
+    }
+
+    &-done,
+    &-label,
+    &-remaining {
+        transition:
+            opacity var(--fade-duration) var(--fade-timing-function),
+            translate var(--fade-duration) var(--fade-timing-function);
+    }
+
+    &-fill {
+        background: var(--fill);
+        border-radius: var(--border-radius);
+        height: var(--height);
+        transform: scaleX(var(--progress, 0));
+        transform-origin: left;
+        transition: transform var(--fill-duration) var(--fill-timing-function);
+    }
+
+    &-label {
+        translate: var(--shift) 0;
+    }
+
+    // Sizer reserves the widest state so the bar never reflows when the readout swaps.
+    &-readout {
+        color: var(--color);
+        display: grid;
+        flex-shrink: 0;
+        font-family: var(--font-family);
+        font-size: var(--font-size);
+        font-variant-numeric: tabular-nums;
+        justify-items: end;
+    }
+
+    &-sizer {
+        visibility: hidden;
+    }
+
+    &-track {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        flex: 1;
+        min-width: 0;
+        padding: var(--padding);
+    }
+
+    &.--complete {
+        .reading-progress-done {
+            opacity: 1;
+        }
+
+        .reading-progress-label {
+            translate: 0 0;
+        }
+
+        .reading-progress-remaining {
+            opacity: 0;
+        }
+
+        polyline {
+            stroke-dashoffset: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-done,
+        &-fill,
+        &-label,
+        &-remaining,
+        polyline {
+            transition: none;
+        }
+    }
+}

@@ -1,0 +1,19 @@
+.log {
+    --font-family-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+    --font-size: var(--font-size-300);
+    --font-size-small: var(--font-size-200);
+    --guide-color: var(--color-border-400);
+    --shimmer-color: var(--color-text-400);
+    --shimmer-highlight: var(--color-text-500);
+    --soft: cubic-bezier(0.22, 1, 0.36, 1);
+    --text-primary: var(--color-text-500);
+    --text-secondary: var(--color-text-400);
+    --text-tertiary: var(--color-text-300);
+    --working-color: var(--color-text-300);
+
+    // Rows are drawn on a 20px line (at 14px type); the guide curves assume it.
+    &,
+    * {
+        --line-height: calc(20 / 14);
+    }
+}

@@ -1,0 +1,48 @@
+@use '/tokens';
+
+.tree {
+    --background: var(--background-default);
+    --background-active: var(--color-grey-500);
+    --background-default: transparent;
+    --background-hover: var(--color-grey-400);
+    --border-radius: var(--border-radius-300);
+    --caret-duration: 320ms;
+    --caret-size: 16px;
+    // Spring: stiffness 700, damping 46
+    --caret-timing-function: linear(0, 0.2 6%, 0.53 13%, 0.8 21%, 0.96 30%, 1.02 38%, 1.03 45%, 1.01 60%, 1);
+    --close-duration: 200ms;
+    --close-fade-duration: 140ms;
+    --close-timing-function: cubic-bezier(0.4, 0, 1, 1);
+    --color: var(--color-default);
+    --color-active: var(--color-text-500);
+    --color-default: var(--color-text-300);
+    --color-hover: var(--color-text-400);
+    --focus-color: var(--color-blue-400);
+    --focus-width: 1.5px;
+    --font-size: var(--font-size-300);
+    --font-weight: var(--font-weight-400);
+    --font-weight-active: var(--font-weight-500);
+    --gap: var(--size-200);
+    --guide-color: var(--color-border-300);
+    --guide-width: 1px;
+    --height: 28px;
+    --meta-color: var(--color-text-300);
+    --meta-font-family: 'Geist Mono', ui-monospace, monospace;
+    --open-duration: 280ms;
+    --open-fade-duration: 180ms;
+    --open-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    --padding-horizontal: var(--size-300);
+
+    &-row {
+        @include tokens.state(hover) {
+            --background: var(--background-hover);
+            --color: var(--color-hover);
+        }
+
+        @include tokens.state(active) {
+            --background: var(--background-active);
+            --color: var(--color-active);
+            --font-weight: var(--font-weight-active);
+        }
+    }
+}

@@ -1,4 +1,5 @@
 import { textarea } from '@esportsplus/ui';
+import { boardTextareaVariations } from './board-fields';
 import { fieldVariations } from './form-prototypes';
 import { moreFieldVariations } from './form-options';
 
@@ -8,6 +9,7 @@ export default {
     variants: [
         ...fieldVariations('textarea'),
         ...moreFieldVariations('textarea'),
+        ...boardTextareaVariations(),
         {
             render: () => textarea({
                 autoresize: { height: { max: '240px', min: '60px' } },

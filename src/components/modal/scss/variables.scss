@@ -6,6 +6,15 @@
     --scale: 1;
     --translateY: var(--margin-vertical);
 
+    &--alert {
+        --backdrop: rgb(0 0 0 / 10%);
+        --blur: 4px;
+        --scale: 0.95;
+        --transition-duration: 100ms;
+        --transition-timing-function: ease;
+        --translateY: 0px;
+    }
+
     &--blur {
         --backdrop: color-mix(in srgb, var(--color-black-500) 32%, transparent);
         --blur: 8px;

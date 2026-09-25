@@ -1,0 +1,109 @@
+@use 'variables';
+
+.marquee {
+    color: var(--color);
+    font-size: var(--font-size);
+    font-weight: var(--font-weight);
+    isolation: isolate;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+
+    &-group {
+        align-items: center;
+        display: flex;
+        gap: var(--item-gap);
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        width: max-content;
+
+        li {
+            flex-shrink: 0;
+        }
+    }
+
+    &-item {
+        align-items: center;
+        border-radius: var(--item-border-radius);
+        color: inherit;
+        display: inline-flex;
+        flex-shrink: 0;
+        gap: var(--size-200);
+        height: var(--item-height);
+        letter-spacing: -0.01em;
+        padding: 0 var(--item-padding-horizontal);
+        text-decoration: none;
+        white-space: nowrap;
+
+        &--link {
+            background: none;
+            border: 0;
+            cursor: pointer;
+            font: inherit;
+            outline: none;
+            transition: background-color var(--transition-duration), box-shadow var(--transition-duration), color var(--transition-duration);
+
+            &:focus-visible {
+                background: color-mix(in srgb, var(--focus-color) 8%, transparent);
+                box-shadow: inset 0 0 0 1px var(--focus-color);
+            }
+
+            &:focus-visible,
+            &:hover {
+                color: var(--color-hover);
+            }
+        }
+    }
+
+    &-label {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    // Lets the mark's children join the item's flex layout, matching the unwrapped aria-hidden copies.
+    &-mark {
+        display: contents;
+    }
+
+    &-track {
+        align-items: center;
+        display: flex;
+        gap: var(--item-gap);
+        // Root transitions transform on every element; that would lag each frame and animate the loop wrap.
+        transition: none;
+        width: max-content;
+        will-change: transform;
+    }
+
+    &-viewport {
+        mask: linear-gradient(to right, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
+        outline: none;
+        overflow: hidden;
+        padding: var(--padding-vertical) 0;
+
+        &:focus-visible {
+            box-shadow: inset 0 0 0 1px var(--focus-color);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-group--copy {
+            display: none;
+        }
+
+        &-track {
+            will-change: auto;
+        }
+
+        &-viewport {
+            overflow-x: auto;
+        }
+    }
+}

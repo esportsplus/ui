@@ -1,5 +1,12 @@
 @use '/tokens';
 
+// Registered so the mask's fade length interpolates instead of snapping.
+@property --accordion-more-fade {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
 .accordion {
     display: grid;
     grid-template-rows: 1fr;
@@ -14,7 +21,137 @@
         overflow: hidden;
     }
 
+    &-more {
+        --fade-size: 2lh;
+        --focus-color: var(--color-blue-400);
+        --transition-duration: .48s;
+        --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        --trigger-transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        display: flex;
+        flex-direction: column;
+        gap: var(--size-300);
+
+        // Content box height animates between two measured lengths; the body keeps
+        // its natural layout so text never reflows mid-transition.
+        &-content {
+            --accordion-more-fade: 0px;
+            height: min(var(--height, 100vh), calc(var(--lines) * 1lh));
+            -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--accordion-more-fade)), transparent);
+            mask-image: linear-gradient(to bottom, #000 calc(100% - var(--accordion-more-fade)), transparent);
+            overflow: hidden;
+            transition:
+                --accordion-more-fade calc(var(--transition-duration) / 2) var(--transition-timing-function),
+                height var(--transition-duration) var(--transition-timing-function);
+
+            &:focus-visible {
+                border-radius: var(--border-radius-300);
+                outline: var(--border-width-400) solid var(--focus-color);
+                outline-offset: var(--size-100);
+            }
+        }
+
+        &.--clamped:not(.--active) &-content {
+            --accordion-more-fade: var(--fade-size);
+        }
+
+        @include tokens.state(active) {
+            .accordion-more-content {
+                height: min(var(--height, var(--max-height)), var(--max-height));
+            }
+        }
+
+        &.--scrollable &-content {
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        &-trigger {
+            align-items: center;
+            align-self: flex-start;
+            background: transparent;
+            border: var(--border-width-400) solid color-mix(in srgb, currentColor 16%, transparent);
+            border-radius: 999px;
+            color: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            font: inherit;
+            font-size: var(--font-size-300);
+            gap: var(--size-200);
+            padding: var(--size-100) var(--size-300) var(--size-100) var(--size-400);
+            transition:
+                background-color .16s,
+                border-color .16s,
+                opacity .16s;
+
+            &:hover {
+                background: color-mix(in srgb, currentColor 6%, transparent);
+                border-color: color-mix(in srgb, currentColor 28%, transparent);
+            }
+
+            &:focus-visible {
+                outline: var(--border-width-400) solid var(--focus-color);
+                outline-offset: var(--size-100);
+            }
+
+            &:disabled {
+                opacity: 0;
+                pointer-events: none;
+                visibility: hidden;
+            }
+
+            &-icon {
+                fill: none;
+                height: 12px;
+                stroke: currentColor;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                stroke-width: 1.5;
+                transition: rotate .4s var(--trigger-transition-timing-function);
+                width: 12px;
+            }
+
+            // Both labels share one grid cell so the pill sizes to the wider label
+            // and the swap crossfades in place.
+            &-label {
+                display: grid;
+
+                > span {
+                    grid-area: 1 / 1;
+                    transition:
+                        opacity .2s,
+                        translate .32s var(--trigger-transition-timing-function);
+                }
+
+                > span:last-child {
+                    opacity: 0;
+                    translate: 0 50%;
+                }
+            }
+        }
+
+        @include tokens.state(active) {
+            .accordion-more-trigger-icon {
+                rotate: 180deg;
+            }
+
+            .accordion-more-trigger-label > span:first-child {
+                opacity: 0;
+                translate: 0 -50%;
+            }
+
+            .accordion-more-trigger-label > span:last-child {
+                opacity: 1;
+                translate: 0 0;
+            }
+        }
+    }
+
     @media (prefers-reduced-motion: reduce) {
-        transition: none;
+        &,
+        &-more-content,
+        &-more-trigger-icon,
+        &-more-trigger-label > span {
+            transition: none;
+        }
     }
 }

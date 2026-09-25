@@ -1,0 +1,8 @@
+.task-list {
+    --chip-background: var(--color-grey-400);
+    --chip-background-hover: var(--color-grey-500);
+    --chip-border: color-mix(in oklab, var(--color-border-400) 50%, transparent);
+    --chip-border-hover: var(--color-border-400);
+    --icon-color: var(--color-text-300);
+    --task-gap: 5px;
+}

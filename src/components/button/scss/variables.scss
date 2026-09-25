@@ -34,6 +34,39 @@
     }
 
 
+    &--feedback {
+        --draw-duration: 0.26s;
+        --draw-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --error-color: var(--color-red-400);
+        --face-blur: 3px;
+        // Stands in for an overdamped spring (stiffness 260, damping 34, mass 0.8), which never overshoots.
+        --face-duration: 0.4s;
+        --face-gap: 0.375em;
+        --face-offset: 3px;
+        --face-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --icon-size: 0.875em;
+        --spin-duration: 0.85s;
+        --success-color: var(--color-green-500);
+    }
+
+    &--hold {
+        // Inverts the button as the sweep passes; buttons with a transparent background must set --fill-color.
+        --fill-background: var(--color);
+        --fill-color: var(--background);
+    }
+
+    // The bottom shadow is the cap's side wall; pressing sinks the cap 1px into it.
+    &--kbd {
+        --box-shadow-default: 0 var(--kbd-depth) 0 var(--kbd-shadow-color);
+        --kbd-depth: 2px;
+        --kbd-shadow-color: color-mix(in srgb, var(--background-default) 60%, black);
+
+        @include tokens.state(active pressed) {
+            --background: var(--background-active);
+            --box-shadow: 0 calc(var(--kbd-depth) - 1px) 0 var(--kbd-shadow-color);
+        }
+    }
+
     &--processing {
         --animation-duration: 0.64s;
         --border-width: var(--border-width-400);
@@ -44,4 +77,52 @@
     &--skeleton {
         --animation-duration: 6.4s;
     }
+}
+
+.button-fan {
+    --focus-color: currentColor;
+    --focus-offset: 2px;
+    --focus-width: 2px;
+    --option-opacity-duration: 0.2s;
+    --option-pressed-scale: 0.92;
+    --option-scale: 0.5;
+    --option-spring: linear(0, 0.067, 0.221, 0.406, 0.586, 0.741, 0.862, 0.949, 1.006, 1.037, 1.051, 1.053, 1.047, 1.038, 1.028, 1.019, 1.011, 1.006, 1.002, 0.999, 0.998, 0.997, 0.997, 0.998, 1);
+    --option-spring-duration: 0.6s;
+    --spacer: var(--size-300);
+    --stagger: 30ms;
+    --swap-rotate: 90deg;
+    --swap-spring: linear(0, 0.07, 0.228, 0.418, 0.602, 0.759, 0.88, 0.965, 1.019, 1.047, 1.058, 1.056, 1.048, 1.038, 1.027, 1.017, 1.009, 1.003, 1, 0.998, 0.997, 0.997, 0.997, 0.998, 1);
+    --swap-spring-duration: 0.44s;
+    --trigger-pressed-scale: 0.94;
+
+
+    &--e {
+        --direction-x: -1;
+        --direction-y: 0;
+        --origin: left center;
+    }
+
+    &--n {
+        --direction-x: 0;
+        --direction-y: 1;
+        --origin: center bottom;
+    }
+
+    &--s {
+        --direction-x: 0;
+        --direction-y: -1;
+        --origin: center top;
+    }
+
+    &--w {
+        --direction-x: 1;
+        --direction-y: 0;
+        --origin: right center;
+    }
+}
+
+.button-kbd {
+    --gap: var(--size-200);
+    --plus-color: color-mix(in srgb, currentColor 60%, transparent);
+    --plus-size: var(--size-300);
 }

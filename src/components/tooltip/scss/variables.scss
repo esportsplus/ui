@@ -15,6 +15,29 @@
         --spacer: var(--size-300);
         --width: auto;
 
+        // Unfolds out of the trigger-side corner while scaling up (beUI's animated dropdown); the
+        // corner follows the direction, see the direction overrides in 'index.scss'.
+        &--corner {
+            // Covers the '--box-shadow-400' extent so the resting clip doesn't cut the shadow.
+            --corner-bleed: 24px;
+            --corner-clip-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+            --corner-close-duration: 0.26s;
+            --corner-open-clip-duration: 0.32s;
+            --corner-open-duration: 0.36s;
+            --offset: 0px;
+            --scale: 0.96;
+            --transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        // Unfolds away from the trigger along one axis with a slight overshoot (Material menus,
+        // Codinhood's 'growDown'); the axis follows the direction.
+        &--grow {
+            --offset: 0px;
+            --scale: 1 0;
+            --transition-duration: 0.24s;
+            --transition-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1);
+        }
+
         &--morph {
             --morph-blur: 4px;
             --morph-close-duration: 0.16s;
@@ -46,6 +69,25 @@
             --transition-duration: 0.24s;
             --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+
+        // Options cascade in one after another (select and command menus).
+        &--stagger {
+            --offset: 4px;
+            --scale: 0.98;
+            --stagger-delay: 0.025s;
+            --stagger-offset: 6px;
+            --transition-duration: 0.15s;
+            --transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        // The Radix / shadcn / Headless UI dropdown and select default: fade, 95% scale and an 8px slide
+        // from the trigger side, quick in and quicker out.
+        &--zoom {
+            --offset: 8px;
+            --scale: 0.95;
+            --transition-duration: 0.15s;
+            --transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        }
     }
 
     &-arrow {
@@ -60,4 +102,30 @@
         --padding-horizontal: var(--size-300);
         --padding-vertical: var(--size-300);
     }
+}
+
+
+.tooltip-group-content {
+    --background: var(--color-black-400);
+    --border-radius: var(--border-radius-400);
+    --box-shadow: var(--box-shadow-400);
+    --color: var(--color-white-400);
+    --font-size: var(--font-size-300);
+    --font-weight: var(--font-weight-400);
+    --group-blur: 7px;
+    --group-close-duration: 0.128s;
+    --group-delay: 0s;
+    --group-glide-duration: 0.4s;
+    --group-glide-timing-function: cubic-bezier(0.22, 1.12, 0.36, 1);
+    --group-open-duration: 0.16s;
+    --group-rise: 4px;
+    --group-scale: 0.94;
+    --group-swap-blur: 3px;
+    --group-swap-duration: 0.14s;
+    --group-swap-shift: 10px;
+    --group-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --max-width: calc(90vw - (var(--size-700) * 2));
+    --padding-horizontal: var(--size-300);
+    --padding-vertical: var(--size-300);
+    --spacer: var(--size-300);
 }

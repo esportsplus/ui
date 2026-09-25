@@ -1,0 +1,80 @@
+.agent-demo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-400);
+    max-width: 100%;
+    width: 440px;
+
+    &-replay {
+        align-self: flex-start;
+    }
+
+    &--wide {
+        width: 560px;
+    }
+}
+
+.agent-chat {
+    border: var(--border-width-400) solid var(--color-border-400);
+    border-radius: var(--border-radius-700);
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-300);
+    height: 500px;
+    max-width: 100%;
+    padding: var(--size-300);
+    width: 600px;
+
+    &-answer {
+        color: var(--color-text-500);
+        display: flex;
+        flex-direction: column;
+        font-size: var(--font-size-300);
+        gap: var(--size-200);
+    }
+
+    &-bubble {
+        align-self: flex-end;
+        background: var(--color-grey-400);
+        border-radius: var(--border-radius-700);
+        color: var(--color-text-500);
+        font-size: var(--font-size-300);
+        max-width: 80%;
+        padding: 11px var(--size-300);
+    }
+
+    &-composer {
+        align-items: center;
+        border: var(--border-width-400) solid var(--color-border-400);
+        border-radius: var(--border-radius-600);
+        display: flex;
+        gap: var(--size-300);
+        justify-content: space-between;
+        padding: var(--size-200) var(--size-200) var(--size-200) var(--size-400);
+    }
+
+    &-empty {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        padding: var(--size-700) 0;
+        text-align: center;
+    }
+
+    &-prompt {
+        color: var(--color-text-400);
+        font-size: var(--font-size-300);
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-thread {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: var(--size-400);
+        padding: var(--size-100);
+    }
+}
+

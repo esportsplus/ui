@@ -12,21 +12,21 @@ importers:
         specifier: ^0.1.8
         version: 0.1.8
       '@esportsplus/reactivity':
-        specifier: ^0.37.0
-        version: 0.37.0
+        specifier: ^0.37.2
+        version: 0.37.2
       '@esportsplus/template':
-        specifier: ^0.51.0
-        version: 0.51.0
+        specifier: ^0.52.1
+        version: 0.52.1
       '@esportsplus/utilities':
-        specifier: ^0.28.5
-        version: 0.28.5
+        specifier: ^0.28.6
+        version: 0.28.6
       modern-normalize:
         specifier: ^3.0.1
         version: 3.0.1
     devDependencies:
       '@esportsplus/typescript':
-        specifier: ^0.35.1
-        version: 0.35.1
+        specifier: ^0.36.1
+        version: 0.36.1
       '@types/node':
         specifier: ^26.6.2
         version: 26.6.2
@@ -64,30 +64,27 @@ importers:
   docs:
     dependencies:
       '@esportsplus/reactivity':
-        specifier: ^0.37.0
-        version: 0.37.0
+        specifier: ^0.37.2
+        version: 0.37.2
       '@esportsplus/routing':
-        specifier: ^0.11.2
-        version: 0.11.2
+        specifier: ^0.11.3
+        version: 0.11.3
       '@esportsplus/template':
-        specifier: ^0.51.0
-        version: 0.51.0
+        specifier: ^0.52.1
+        version: 0.52.1
       '@esportsplus/ui':
         specifier: workspace:*
         version: link:..
     devDependencies:
       '@esportsplus/typescript':
-        specifier: ^0.35.1
-        version: 0.35.1
+        specifier: ^0.36.1
+        version: 0.36.1
       '@esportsplus/vite':
-        specifier: ^0.14.6
-        version: 0.14.6(sharp@0.35.4(@types/node@26.6.2))(terser@5.51.2)
+        specifier: ^0.14.7
+        version: 0.14.7(sharp@0.35.4(@types/node@26.6.2))(terser@5.51.2)
       '@types/node':
         specifier: ^26.6.2
         version: 26.6.2
-      '@vitejs/plugin-basic-ssl':
-        specifier: ^2.3.0
-        version: 2.3.0(vite@8.3.0(@types/node@26.6.2)(sass@1.105.0)(terser@5.51.2))
       sass:
         specifier: ^1.105.0
         version: 1.105.0
@@ -103,37 +100,30 @@ packages:
   '@esportsplus/action@0.1.8':
     resolution: {integrity: sha512-qhyZn3fr5q37trWwyeo7M5I2purCbjZz3lxji19l67pbSUA8yXQ8zcMDVqcs4rjMD35MVkG5NPLmEAh3p/lYVQ==}
 
-  '@esportsplus/cli-passthrough@0.0.18':
-    resolution: {integrity: sha512-Vk37QhV09aW/PKkwGULox5lYupMyZHl06XZtrxwltk0TDJCdkAgMGteG7AU4qohurlDC3GDhnv16lItYl7dfkw==}
-
   '@esportsplus/cli-passthrough@0.0.19':
     resolution: {integrity: sha512-DRhP579js4sM+Faww6dcpJ2B+CqgjWBnMvpEY/b39mRJyT6W0u8ie1o1oRh2HnzxdhnYChW8XAR40POTuVhJnA==}
 
   '@esportsplus/queue@0.4.6':
     resolution: {integrity: sha512-ccHPLFiM/unSYk6wBbDf92n9YyQdEf2FZ8J4s0Zq/TZZg3le0fmLsHIJO/jGlN6wNE51uuJp2iL5Xp2xElPXgQ==}
 
-  '@esportsplus/reactivity@0.37.0':
-    resolution: {integrity: sha512-RNVwlJXkkZEjvvF8GMiUVzfT/sAHuSun7Am8PdZJ4q/1cL3qe6IOH0nbfju6bArtnT57jIP77wm9js77TKSqYQ==}
+  '@esportsplus/reactivity@0.37.2':
+    resolution: {integrity: sha512-umWVcrl1vYS6j0Y88UrPQY4c5ezpFqx+e+hy1ViqrWqiLgnGnOd+icjgcGtaMxlIgDNKul9ObbdC2e8xnskksw==}
 
-  '@esportsplus/routing@0.11.2':
-    resolution: {integrity: sha512-uUVukhJ2wIJ75bTEQodcM8NIeQMeaRWNGbtbbqtULGcN7BQhB0qug35J6t1fQwIJN1/5hxmeDd44OXItM3ad8A==}
+  '@esportsplus/routing@0.11.3':
+    resolution: {integrity: sha512-MyWvP1mFCNmWci+NL0u/a8RCgJXcvNqw0gVxcLeGJQowZgaTHod9yFPMmLZP5E+BPxE/pEqPeqHI/nS8U8bfug==}
 
-  '@esportsplus/template@0.51.0':
-    resolution: {integrity: sha512-kEwgbFejctsSf+4z1w6ilRjo4pnKQ1D/gzmbP20NI1jB1aGN14GvNL/rPXF1lGuLt2UqO9X7JBWxz68O28k1GQ==}
+  '@esportsplus/template@0.52.1':
+    resolution: {integrity: sha512-97f9mUtNWnZHex8BKJ5LujxwxEYcJRo+DbbZvUXw62kFD6G0ka2L5VEX5UhqjYdsmctN8olM+NY/JclGalJ5/A==}
 
-  '@esportsplus/typescript@0.34.4':
-    resolution: {integrity: sha512-Z6lojZ9HaK9c0ZUqRqIFCicIGWPqwCNnBXF8tIWFnIfEwAzYDHa+KbFYfB4ny9Vwf08dGKzqJTXl5x5FdUfhHw==}
+  '@esportsplus/typescript@0.36.1':
+    resolution: {integrity: sha512-rJeZpQOulnn1ANxlDkq7329g8oSq8YrThglPvVwBdBeJho6yK1I1tGOuV5LStVpeaAuLw6ttE6CAeb2xeT+tMw==}
     hasBin: true
 
-  '@esportsplus/typescript@0.35.1':
-    resolution: {integrity: sha512-TwYsBe+5XmvIVLTZiLTUeF5CtFfGuCGGwKIkkG/IDM3r0W3tdd8INk8uDYNCbvQrJashNzWbhQVAiwsaSYGvzw==}
-    hasBin: true
+  '@esportsplus/utilities@0.28.6':
+    resolution: {integrity: sha512-fO3Q6j1PUzW9whqjzGE9+T9Ytc2IoS+W4MoNJOkQGsjZ66om40wqaIFVoBdKosvTj0xqSG02a/cWhiVKwwqtgw==}
 
-  '@esportsplus/utilities@0.28.5':
-    resolution: {integrity: sha512-OjbFQF5BXLj9tSMC5kieu2m66nlwzcqCxPxlq7m3csXrEEEAwk137ru1HorUQtIBmghXEdIA7vIRr7cHy7ZU9g==}
-
-  '@esportsplus/vite@0.14.6':
-    resolution: {integrity: sha512-dziQWaQ6NeDor8P6zmLrSGSM2fxrsST6LUm0D98ffcEl1fP70FgedzmhsA2EDkGp/pMytWPURnvEr+4jklljlA==}
+  '@esportsplus/vite@0.14.7':
+    resolution: {integrity: sha512-pjLjKoaAEgLj8OP02+zZnxuEghPIKBnIVQdD1SMOH9PMRQvDmpR8QzkKPOABYaJXxjzbtF3LHz32xMGwn+udTw==}
     hasBin: true
 
   '@img/colour@1.1.0':
@@ -644,12 +634,6 @@ packages:
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [win32]
-
-  '@vitejs/plugin-basic-ssl@2.3.0':
-    resolution: {integrity: sha512-bdyo8rB3NnQbikdMpHaML9Z1OZPBu6fFOBo+OtxsBlvMJtysWskmBcnbIDhUqgC8tcxNv/a+BcV5U+2nQMm1OQ==}
-    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
-    peerDependencies:
-      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
 
   '@xmldom/xmldom@0.9.12':
     resolution: {integrity: sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A==}
@@ -2144,40 +2128,28 @@ snapshots:
 
   '@esportsplus/action@0.1.8': {}
 
-  '@esportsplus/cli-passthrough@0.0.18': {}
-
   '@esportsplus/cli-passthrough@0.0.19': {}
 
   '@esportsplus/queue@0.4.6': {}
 
-  '@esportsplus/reactivity@0.37.0':
+  '@esportsplus/reactivity@0.37.2':
     dependencies:
-      '@esportsplus/utilities': 0.28.5
+      '@esportsplus/utilities': 0.28.6
 
-  '@esportsplus/routing@0.11.2':
+  '@esportsplus/routing@0.11.3':
     dependencies:
-      '@esportsplus/reactivity': 0.37.0
-      '@esportsplus/utilities': 0.28.5
+      '@esportsplus/reactivity': 0.37.2
+      '@esportsplus/utilities': 0.28.6
       '@types/node': 26.6.2
 
-  '@esportsplus/template@0.51.0':
+  '@esportsplus/template@0.52.1':
     dependencies:
       '@esportsplus/queue': 0.4.6
-      '@esportsplus/reactivity': 0.37.0
-      '@esportsplus/typescript': 0.34.4
-      '@esportsplus/utilities': 0.28.5
+      '@esportsplus/reactivity': 0.37.2
+      '@esportsplus/typescript': 0.36.1
+      '@esportsplus/utilities': 0.28.6
 
-  '@esportsplus/typescript@0.34.4':
-    dependencies:
-      '@esportsplus/cli-passthrough': 0.0.18
-      '@esportsplus/utilities': 0.28.5
-      '@types/node': 26.6.2
-      tsc-alias: 1.9.5
-      typescript: 7.0.2
-      vscode-languageserver: 10.1.1
-      vscode-languageserver-textdocument: 1.0.14
-
-  '@esportsplus/typescript@0.35.1':
+  '@esportsplus/typescript@0.36.1':
     dependencies:
       '@esportsplus/cli-passthrough': 0.0.19
       '@types/node': 26.6.2
@@ -2186,25 +2158,22 @@ snapshots:
       vscode-languageserver: 10.1.1
       vscode-languageserver-textdocument: 1.0.14
 
-  '@esportsplus/utilities@0.28.5': {}
+  '@esportsplus/utilities@0.28.6': {}
 
-  '@esportsplus/vite@0.14.6(sharp@0.35.4(@types/node@26.6.2))(terser@5.51.2)':
+  '@esportsplus/vite@0.14.7(sharp@0.35.4(@types/node@26.6.2))(terser@5.51.2)':
     dependencies:
       '@esportsplus/cli-passthrough': 0.0.19
-      '@esportsplus/typescript': 0.34.4
+      '@esportsplus/typescript': 0.36.1
       '@types/html-minifier-terser': 7.0.2
       '@types/micromatch': 4.0.10
       '@types/node': 26.6.2
       '@xmldom/xmldom': 0.9.12
-      autoprefixer: 10.6.1(postcss@8.5.28)
       buffer: 6.0.3
       favicons: 7.3.1(@types/node@26.6.2)
       html-minifier-terser: 7.2.0
-      lightningcss: 1.33.0
       micromatch: 4.0.8
       node-stdlib-browser: 1.3.1
       npm-run-all: 4.1.5
-      postcss: 8.5.28
       process: 0.11.10
       sass: 1.105.0
       svgo: 4.1.0
@@ -2542,10 +2511,6 @@ snapshots:
 
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
-
-  '@vitejs/plugin-basic-ssl@2.3.0(vite@8.3.0(@types/node@26.6.2)(sass@1.105.0)(terser@5.51.2))':
-    dependencies:
-      vite: 8.3.0(@types/node@26.6.2)(sass@1.105.0)(terser@5.51.2)
 
   '@xmldom/xmldom@0.9.12': {}
 
@@ -4291,7 +4256,7 @@ snapshots:
       isarray: 2.0.5
       which-boxed-primitive: 1.1.1
       which-collection: 1.0.2
-      which-typed-array: 1.1.22
+      which-typed-array: 1.1.23
 
   which-collection@1.0.2:
     dependencies:

@@ -1,0 +1,171 @@
+@use 'variables';
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+
+    // Spacing sits inside the unit's content, not on the grid item, so a task that has not landed takes no room.
+    &-task + &-task,
+    &-task + .log-working {
+        > .log-unit-content > :first-child {
+            margin-top: var(--task-gap);
+        }
+    }
+
+    &-chip {
+        align-items: center;
+        background: var(--chip-background);
+        border: 1px solid var(--chip-border);
+        border-radius: 6px;
+        display: inline-flex;
+        gap: 4px;
+        margin-inline: 3px 2px;
+        max-width: 100%;
+        padding: 2px 6px;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+        translate: 0 -1px;
+        vertical-align: middle;
+
+        &:has(> .task-list-chip-icon) {
+            padding-inline-start: 4px;
+        }
+
+        &:hover {
+            background: var(--chip-background-hover);
+            border-color: var(--chip-border-hover);
+        }
+
+        &-icon {
+            align-items: center;
+            display: flex;
+            flex-shrink: 0;
+            height: 14px;
+            justify-content: center;
+            width: 14px;
+
+            > * {
+                height: 100%;
+                width: 100%;
+            }
+        }
+
+        &-label {
+            --line-height: calc(16 / 12);
+
+            color: var(--text-primary);
+            font-size: var(--font-size-small);
+            font-weight: var(--font-weight-500);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    &-header {
+        align-items: center;
+        border-radius: 6px;
+        display: flex;
+        gap: 8px;
+        padding-block: 2px;
+        width: 100%;
+
+        &:focus-visible {
+            outline: 2px solid var(--color-primary-400, var(--color-blue-400));
+            outline-offset: -2px;
+        }
+    }
+
+    &-icon {
+        align-items: center;
+        color: var(--icon-color);
+        display: flex;
+        flex-shrink: 0;
+        height: 16px;
+        justify-content: center;
+        width: 16px;
+
+        > * {
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    &-step {
+        padding-block: 4px;
+    }
+
+    // Collapsing a task folds its steps; the header stays.
+    &-steps {
+        display: grid;
+        grid-template-rows: 0fr;
+        opacity: 0;
+        transition: grid-template-rows 0.3s var(--soft), opacity 0.22s ease-out;
+
+        &.--active {
+            grid-template-rows: 1fr;
+            opacity: 1;
+        }
+
+        &-content {
+            margin-inline-start: 8px;
+            min-height: 0;
+            min-width: 0;
+            overflow: hidden;
+
+            &::before {
+                content: '';
+                display: block;
+                height: 2px;
+            }
+        }
+    }
+
+    // Running and finished titles share one cell so the swap never shifts the row.
+    &-title {
+        display: grid;
+        flex: 1;
+        font-weight: var(--font-weight-500);
+        min-width: 0;
+        overflow: hidden;
+
+        &-text {
+            filter: blur(0);
+            grid-area: 1 / 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition:
+                filter 0.26s var(--soft),
+                opacity 0.26s var(--soft),
+                translate 0.26s var(--soft);
+            white-space: nowrap;
+
+            &--final {
+                filter: blur(3px);
+                opacity: 0;
+                translate: 0 4px;
+
+                .--done & {
+                    filter: blur(0);
+                    opacity: 1;
+                    translate: 0;
+                }
+            }
+
+            &--running {
+                .--done & {
+                    filter: blur(3px);
+                    opacity: 0;
+                    translate: 0 -4px;
+                }
+            }
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &-steps,
+        &-title-text {
+            transition: none;
+        }
+    }
+}

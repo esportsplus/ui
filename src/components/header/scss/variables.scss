@@ -1,0 +1,21 @@
+.header {
+    --backdrop: color-mix(in srgb, var(--canvas) 50%, transparent);
+    --blur: 8px;
+    --border-color: color-mix(in srgb, var(--foreground) 5%, transparent);
+    --canvas: var(--color-white-400);
+    --color-link: var(--color-text-300);
+    --color-link-active: var(--color-text-500);
+    --divider: color-mix(in srgb, var(--foreground) 10%, transparent);
+    --ease: cubic-bezier(0.645, 0.045, 0.355, 1);
+    --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+    --foreground: var(--color-text-500);
+    --height: 72px;
+    --height-mobile: 56px;
+    --max-width: 1152px;
+    --muted: color-mix(in srgb, var(--foreground) 5%, transparent);
+    --panel-enter: 0.2s;
+    --panel-exit: 0.15s;
+    --panel-shift: 16px;
+    --screen: 100svh;
+    --surface: color-mix(in srgb, var(--canvas) 75%, transparent);
+}

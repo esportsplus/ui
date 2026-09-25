@@ -1,20 +1,13 @@
 import icon from '~/components/icon';
 import searchSvg from '~/storage/svg/search.svg';
+import { command } from '@esportsplus/ui';
 import { html, reactive } from '../../app';
-import { command } from '../command';
 import { sections } from '../../data/nav';
 import './scss/index.scss';
 
 
-const search = reactive({ open: false, query: '' });
+const search = reactive({ active: false, query: '' });
 
-const links = () => sections().flatMap((section) => section.groups.flatMap((group) => group.links));
-
-
-const close = () => {
-    search.open = false;
-    search.query = '';
-};
 
 const matches = (label: string) => {
     let query = search.query.trim().toLowerCase();
@@ -25,15 +18,20 @@ const matches = (label: string) => {
 document.addEventListener('keydown', (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
-        if (search.open) close();
-        else search.open = true;
-    }
-    else if (event.key === 'Escape' && search.open) {
-        close();
+        search.active = !search.active;
+        search.query = '';
     }
 });
 
-const modal = () => command({ search, close, links: links() });
+const modal = () => command({
+    class: 'modal--scale modal--blur',
+    groups: sections().map((section) => ({
+        items: section.groups.flatMap((group) => group.links.map(({ href, label }) => ({ href, label }))),
+        label: section.label
+    })),
+    placeholder: 'Search documentation…',
+    state: search
+});
 
 const searchTrigger = (placeholder = 'Search documentation…') => html`
     <button
@@ -43,7 +41,7 @@ const searchTrigger = (placeholder = 'Search documentation…') => html`
         aria-label='Search documentation'
         aria-keyshortcuts='Control+K Meta+K'
         ${{
-            onclick: () => { search.open = true; }
+            onclick: () => { search.active = true; }
         }}
     >
         ${icon({ class: 'icon', 'aria-hidden': 'true' }, searchSvg)}
@@ -54,4 +52,4 @@ const searchTrigger = (placeholder = 'Search documentation…') => html`
     </button>
 `;
 
-export { close, matches, modal, search, searchTrigger };
+export { matches, modal, search, searchTrigger };

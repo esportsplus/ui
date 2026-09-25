@@ -1,0 +1,24 @@
+.swipe-deck {
+    --accent: var(--color-blue-400);
+    --background: var(--color-white-400);
+    --border-color: var(--color-border-300);
+    --border-radius: 14px;
+    --box-shadow: 0 1px 2px oklch(from var(--color-black-300) l c h / 0.05), 0 6px 14px -12px oklch(from var(--color-black-300) l c h / 0.4);
+    --box-shadow-active: 0 1px 2px oklch(from var(--color-black-300) l c h / 0.06), 0 16px 32px -18px oklch(from var(--color-black-300) l c h / 0.55);
+    --color: var(--color-text-400);
+    --color-muted: var(--color-text-300);
+    --drag-scale: 1.03;
+    --empty-background: var(--color-grey-400);
+    --height: 180px;
+    --inset: 20px;
+    --offset: 10px;
+    --shrink: 0.045;
+
+    // Springs sampled from the motion configs the component was cloned from (stiffness / damping / mass).
+    // 520 / 34 / 0.45
+    --spring-cell: 387ms linear(0, 0.104, 0.286, 0.465, 0.606, 0.714, 0.793, 0.852, 0.895, 0.925, 0.946, 0.962, 0.973, 0.981, 0.986, 0.99, 0.993, 0.995, 0.996, 0.997, 0.998, 0.999, 0.999, 0.999, 1);
+    // 260 / 34 / 0.8
+    --spring-crossfade: 730ms linear(0, 0.102, 0.279, 0.444, 0.582, 0.688, 0.769, 0.829, 0.874, 0.906, 0.931, 0.949, 0.962, 0.972, 0.979, 0.985, 0.989, 0.992, 0.994, 0.995, 0.997, 0.998, 0.998, 0.999, 1);
+    // 260 / 34 / 1
+    --spring-settle: 673ms linear(0, 0.076, 0.226, 0.383, 0.524, 0.641, 0.732, 0.802, 0.854, 0.893, 0.922, 0.943, 0.959, 0.97, 0.978, 0.984, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.998, 0.999, 1);
+}

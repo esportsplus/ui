@@ -1,0 +1,10 @@
+.button-kbd {
+    align-items: center;
+    display: inline-flex;
+    gap: var(--gap);
+
+    .button-kbd-plus {
+        --size: var(--plus-size);
+        color: var(--plus-color);
+    }
+}

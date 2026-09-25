@@ -8,4 +8,55 @@
     height: var(--height);
     position: relative;
     width: var(--width);
+
+
+    &--stack {
+        & + & {
+            margin-left: calc(var(--stack-overlap) * -1);
+        }
+
+        // Cuts out the next sibling's shape (assumed to share this thumbnail's size), grown by
+        // the gap: band right of its corner centers, band between its corners, and its two left
+        // corner arcs. `min()` lets percentage radii (e.g. 100% circles) resolve in any context;
+        // arc radii live in the color stops since Chromium rejects mixed-unit calc() as a size.
+        &:has(+ .thumbnail--stack) {
+            --stack-cut: calc(var(--stack-radius) + var(--stack-gap));
+            --stack-radius: min(var(--border-radius), var(--height) / 2, var(--width) / 2);
+            --stack-x: calc(100% - var(--stack-overlap) + var(--stack-radius));
+            mask-composite: subtract, add, add, add, add;
+            mask-image:
+                var(--status-mask, linear-gradient(#000 0 0)),
+                linear-gradient(to right, transparent var(--stack-x), #000 0),
+                linear-gradient(to right, transparent calc(100% - var(--stack-overlap) - var(--stack-gap)), #000 0),
+                radial-gradient(circle at var(--stack-x) var(--stack-radius), #000 calc(var(--stack-cut) - 0.5px), transparent calc(var(--stack-cut) + 0.5px)),
+                radial-gradient(circle at var(--stack-x) calc(100% - var(--stack-radius)), #000 calc(var(--stack-cut) - 0.5px), transparent calc(var(--stack-cut) + 0.5px));
+            mask-position: 0 0, 0 0, 0 50%, 0 0, 0 0;
+            mask-repeat: no-repeat;
+            mask-size: 100% 100%, 100% 100%, 100% calc(100% - var(--stack-radius) * 2), 100% 100%, 100% 100%;
+        }
+    }
+
+    &--status {
+        --status-mask: radial-gradient(
+            circle at calc(100% - var(--status-size) / 2) calc(100% - var(--status-size) / 2),
+            #000 calc(var(--status-size) / 2 - 0.5px),
+            transparent calc(var(--status-size) / 2 + 0.5px) calc(var(--status-size) / 2 + var(--status-gap) - 0.5px),
+            #000 calc(var(--status-size) / 2 + var(--status-gap) + 0.5px)
+        );
+        // Chromium rounds the mask clip by border-radius, which would crop the dot on circles
+        mask-clip: no-clip;
+        mask-image: var(--status-mask);
+
+        // Oversized by 1px so the mask alone defines the dot's edge, leaving no background fringe beneath it
+        &::after {
+            background: var(--status-color);
+            border-radius: 100%;
+            bottom: -0.5px;
+            content: '';
+            height: calc(var(--status-size) + 1px);
+            position: absolute;
+            right: -0.5px;
+            width: calc(var(--status-size) + 1px);
+        }
+    }
 }

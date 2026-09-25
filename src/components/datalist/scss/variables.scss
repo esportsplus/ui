@@ -1,0 +1,26 @@
+.datalist {
+    --background: transparent;
+    --border-radius: var(--border-radius-700);
+    --color: var(--color-text-500);
+    --focus-color: var(--color-border-500);
+    --focus-width: 2px;
+    --font-size: var(--font-size-400);
+    --font-weight: var(--font-weight-500);
+    --height: calc(var(--item-height) * 5);
+    --item-height: 40px;
+    --padding: var(--size-200);
+    --perspective: 704px;
+    --width: 224px;
+
+    &-lens {
+        --background: var(--color-border-300);
+        --border-radius: var(--border-radius-600);
+    }
+
+    &-option {
+        --opacity-falloff: 0.55;
+        --rotate: 38deg;
+        --scale: 1.14;
+        --scale-falloff: 0.34;
+    }
+}

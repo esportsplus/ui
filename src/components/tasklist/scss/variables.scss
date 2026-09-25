@@ -1,0 +1,83 @@
+@use '/tokens';
+
+.tasklist {
+    --background: transparent;
+    --border-radius: var(--border-radius-300);
+    --check-duration: 280ms;
+    --description-color: var(--color-text-300);
+    --description-color-checked: var(--color-border-500);
+    --description-font-size: var(--font-size-300);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --font-size: var(--font-size-400);
+    --gap: var(--size-100);
+    --gap-horizontal: var(--size-300);
+    --label-color: var(--color-text-500);
+    --label-color-checked: var(--color-text-300);
+    --line-height: var(--size-500);
+    // Spring with stiffness 320 and damping 30, sampled across its 500ms settle
+    --move-duration: 500ms;
+    --move-timing-function: linear(0, 0.109, 0.322, 0.536, 0.71, 0.835, 0.916, 0.965, 0.991, 1.003, 1.007, 1.008, 1.006, 1.005, 1.003, 1.002, 1);
+    --nudge-distance: 8px;
+    --nudge-duration: 300ms;
+    --padding-horizontal: var(--size-200);
+    --padding-vertical: var(--size-100);
+    --pop-duration: 340ms;
+    --pop-scale: 1.08;
+    --strike-duration: 380ms;
+    --strike-color: currentColor;
+    --strike-width: 1.5px;
+
+
+    .tasklist-checkbox {
+        --background-active: var(--color-primary-400);
+        --border-color-active: var(--color-primary-400);
+        --border-color-default: var(--color-border-500);
+        --border-width: var(--border-width-400);
+        --size: var(--line-height);
+        --transition-duration: var(--check-duration);
+    }
+
+    &--plan {
+        --background-hover: color-mix(in oklch, var(--color-text-500) 3%, transparent);
+        --border-radius: var(--border-radius-400);
+        --check-duration: 150ms;
+        --description-font-size: var(--font-size-100);
+        --font-size: var(--font-size-200);
+        --gap: 2px;
+        --gap-horizontal: 10px;
+        --grip-color: var(--color-border-300);
+        --grip-size: 12px;
+        --hover-duration: 150ms;
+        --index-color: var(--color-border-500);
+        --index-font-family: 'Geist Mono', ui-monospace, monospace;
+        --index-font-size: var(--font-size-100);
+        --label-font-weight: var(--font-weight-500);
+        --nudge-distance: 0px;
+        --off-opacity: 0.45;
+        --padding-horizontal: var(--size-100);
+        --pop-scale: 1;
+        --strike-color: var(--color-border-400);
+        --strike-duration: 200ms;
+        --strike-width: 1px;
+
+        .tasklist-checkbox {
+            --background-active: var(--color-text-500);
+            --border-color-active: var(--color-text-500);
+            --border-color-default: var(--color-border-400);
+            --border-radius: 5px;
+            --border-width: 1px;
+            --border-width-offset-hover: 0px;
+            --box-shadow-active: none;
+            --size: 16px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --check-duration: 0ms;
+        --move-duration: 0ms;
+        --nudge-duration: 0ms;
+        --pop-duration: 0ms;
+        --strike-duration: 0ms;
+    }
+}

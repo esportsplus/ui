@@ -1,6 +1,7 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import onclick from './onclick';
+import render, { type Option } from './options';
 
 
 const MENU_OPTION = Symbol.for('@esportsplus/ui/tooltip.menu.option');
@@ -19,7 +20,7 @@ type A = Attributes & {
     ontransitioncancel?: never,
     ontransitionend?: never,
     ontransitionrun?: never,
-    options: (Attributes & { content: Renderable<unknown> })[],
+    options: Option[],
     state?: { active: boolean },
     toggle?: boolean
 };
@@ -41,32 +42,12 @@ export default Object.assign(component<A>(
                         inert: () => !state.active
                     }}
                 >
-                    ${options.map(({ content, ...o }) => {
-                        if (o.href) {
-                            return html`
-                                <a
-                                    class='link --width-full'
-                                    target='_blank'
-                                    ${o}
-                                    ${attributes[MENU_OPTION]}
-                                >
-                                    ${content}
-                                </a>
-                            `;
-                        }
-
-                        return html`
-                            <div
-                                class='link --width-full'
-                                ${o}
-                                ${attributes[MENU_OPTION]}
-                            >
-                                ${content}
-                            </div>
-                        `;
-                    })}
+                    ${render(options, attributes[MENU_OPTION])}
                 </div>
             `
         );
     }
 ), { option: MENU_OPTION, tooltipContent: MENU_TOOLTIP_CONTENT } as const);
+
+
+export type { A };

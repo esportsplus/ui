@@ -59,6 +59,10 @@ export default {
         {
             render: () => demo('modal--scale modal--blur', 'Blurs the page behind the backdrop.'),
             title: 'blur backdrop'
+        },
+        {
+            render: () => demo('modal--alert', 'Quick fade and scale over a light blurred backdrop.'),
+            title: 'alert'
         }
     ]
 };

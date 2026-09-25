@@ -1,0 +1,35 @@
+// Children read '--padding' because the root '*' rule resets
+// '--padding-horizontal' and '--padding-vertical' on every element.
+.command {
+    --background-default: var(--color-white-400);
+    --border-color-default: var(--color-border-300);
+    --border-radius: var(--border-radius-700);
+    --border-width: var(--border-width-400);
+    --box-shadow-default: var(--box-shadow-600);
+    --heading-height: 36px;
+    --height: 408px;
+    --max-width: 600px;
+    --padding: var(--size-200);
+    --padding-horizontal: var(--padding);
+    --padding-vertical: var(--padding);
+    --row-height: 36px;
+
+    &-footer {
+        --background: var(--color-grey-300);
+        --color: var(--color-text-300);
+    }
+
+    &-highlight {
+        --background: var(--color-grey-500);
+    }
+
+    &-match {
+        --background: oklch(from var(--color-yellow-300) l c h / 0.4);
+    }
+
+    &-search {
+        --background: oklch(from var(--color-grey-500) l c h / 0.5);
+        --color: var(--color-text-300);
+        --height: 36px;
+    }
+}

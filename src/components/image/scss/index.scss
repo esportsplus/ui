@@ -1,0 +1,82 @@
+@use 'variables';
+
+.image {
+    aspect-ratio: var(--aspect-ratio);
+    background: var(--background);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+
+    &-error {
+        background: var(--error-background);
+        color: var(--error-color);
+        display: grid;
+        opacity: 0;
+        place-items: center;
+        transition: opacity var(--transition-duration) var(--timing-function);
+
+        svg {
+            height: var(--error-size);
+            width: var(--error-size);
+        }
+    }
+
+    &-error,
+    &-placeholder,
+    &-source {
+        height: 100%;
+        inset: 0;
+        position: absolute;
+        width: 100%;
+    }
+
+    &-placeholder {
+        filter: blur(var(--blur));
+        scale: var(--placeholder-scale);
+    }
+
+    &-placeholder,
+    &-source {
+        object-fit: cover;
+        user-select: none;
+    }
+
+    &-source {
+        filter: blur(var(--develop-blur)) saturate(var(--develop-saturate));
+        opacity: 0;
+        scale: var(--develop-scale);
+        transition:
+            filter var(--transition-duration) var(--timing-function),
+            opacity var(--transition-duration) var(--timing-function),
+            scale var(--transition-duration) var(--timing-function);
+    }
+
+    &.--error {
+        .image-error {
+            opacity: 1;
+        }
+    }
+
+    &.--instant {
+        .image-error,
+        .image-source {
+            transition: none;
+        }
+    }
+
+    &.--ready {
+        .image-source {
+            filter: blur(0) saturate(1);
+            opacity: 1;
+            scale: 1;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-error,
+        &-source {
+            transition: none;
+        }
+    }
+}

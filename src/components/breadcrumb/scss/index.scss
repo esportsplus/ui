@@ -1,0 +1,74 @@
+@use '/tokens';
+@use 'variables';
+
+.breadcrumb {
+    color: var(--color);
+    font-size: var(--font-size);
+
+
+    &-ellipsis {
+        align-items: center;
+        display: flex;
+        height: var(--size);
+        justify-content: center;
+        width: var(--size);
+    }
+
+    &-item {
+        align-items: center;
+        display: inline-flex;
+        gap: var(--gap);
+    }
+
+    &-link {
+        color: var(--color);
+        transition: color var(--transition-duration) var(--transition-timing-function);
+
+        @include tokens.state(hover) {
+            --color: var(--color-hover);
+        }
+    }
+
+    &-list {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--gap);
+        list-style: none;
+        margin: 0;
+        overflow-wrap: break-word;
+        padding: 0;
+    }
+
+    &-menu {
+        align-items: center;
+        display: flex;
+        gap: calc(var(--gap) / 2);
+
+        @include tokens.state(active) {
+            --color: var(--color-hover);
+
+            .breadcrumb-menu-caret {
+                transform: rotate(180deg);
+            }
+        }
+
+
+        &-caret {
+            transition: transform var(--transition-duration) var(--transition-timing-function);
+        }
+    }
+
+    &-page {
+        color: var(--color-active);
+    }
+
+    &-separator {
+        align-items: center;
+        display: flex;
+
+        [dir='rtl'] & .icon {
+            transform: scaleX(-1);
+        }
+    }
+}

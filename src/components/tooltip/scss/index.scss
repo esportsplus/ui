@@ -2,6 +2,7 @@
 @use '/tokens';
 @use 'center' as *;
 @use 'east' as *;
+@use 'group';
 @use 'north' as *;
 @use 'south' as *;
 @use 'west' as *;
@@ -38,6 +39,10 @@
 
     @include tokens.state(active hover) {
         z-index: 9;
+    }
+
+    &--context {
+        cursor: inherit;
     }
 
     // Morph tooltips (-2) sit behind the trigger. A child can't paint under its parent's own
@@ -100,11 +105,71 @@
         }
 
 
+        &--context {
+            position: absolute;
+        }
+
         @include center($active);
         @include east($active);
         @include north($active);
         @include south($active);
         @include west($active);
+
+
+        // Opening reveals from the corner slightly ahead of the scale settling; closing runs both
+        // back on one shorter duration. The open state swaps durations through variables rather
+        // than redeclaring 'transition', so the reduced-motion override below still wins.
+        &--corner {
+            --corner-clip-duration: var(--corner-close-duration);
+            --corner-duration: var(--corner-close-duration);
+            clip-path: inset(var(--corner-inset) round var(--border-radius));
+            transition:
+                clip-path var(--corner-clip-duration) var(--corner-clip-timing-function),
+                opacity var(--corner-duration) var(--transition-timing-function),
+                scale var(--corner-duration) var(--transition-timing-function),
+                translate var(--corner-duration) var(--transition-timing-function);
+
+            #{$active} {
+                --corner-clip-duration: var(--corner-open-clip-duration);
+                --corner-duration: var(--corner-open-duration);
+                clip-path: inset(calc(var(--corner-bleed) * -1) round calc(var(--border-radius) + var(--corner-bleed)));
+            }
+        }
+
+        // Closing drops the delays so items leave together.
+        &--stagger {
+            > * {
+                opacity: 0;
+                transition:
+                    opacity var(--transition-duration) var(--transition-timing-function),
+                    translate var(--transition-duration) var(--transition-timing-function);
+                translate: 0 calc(var(--stagger-offset) * -1);
+            }
+
+            #{$active} {
+                > * {
+                    opacity: 1;
+                    transition-delay: calc(var(--stagger-index, 0) * var(--stagger-delay));
+                    translate: 0;
+                }
+            }
+
+            @for $i from 1 through 12 {
+                > :nth-child(#{$i}) {
+                    --stagger-index: #{$i - 1};
+                }
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            &--corner,
+            &--grow,
+            &--stagger,
+            &--stagger > *,
+            &--zoom {
+                transition-duration: 0s;
+            }
+        }
 
 
         // Grows out of the trigger: 'morph()' seeds the trigger's box as clip-path insets, then the
@@ -163,6 +228,35 @@
                     filter var(--morph-open-duration) var(--morph-focus-timing-function);
                 visibility: visible;
             }
+        }
+    }
+
+    // Grow unfolds away from the trigger, so its axis follows the direction: vertical for
+    // north/south (the default), horizontal for east/west. Corner collapses onto the edge or
+    // corner nearest the trigger, matching each direction's 'transform-origin'.
+    @each $base in 'content', 'message' {
+        @each $direction, $inset in (
+            'c': 46%,
+            'e': 46% 92% 46% 0,
+            'en': 0 92% 92% 0,
+            'es': 92% 92% 0 0,
+            'n': 92% 46% 0 46%,
+            'ne': 92% 0 0 92%,
+            'nw': 92% 92% 0 0,
+            's': 0 46% 92% 46%,
+            'se': 0 0 92% 92%,
+            'sw': 0 92% 92% 0,
+            'w': 46% 0 46% 92%,
+            'wn': 0 0 92% 92%,
+            'ws': 92% 0 0 92%
+        ) {
+            &-#{$base}--corner.tooltip-#{$base}--#{$direction} {
+                --corner-inset: #{$inset};
+            }
+        }
+
+        &-#{$base}--grow:is(.tooltip-#{$base}--e, .tooltip-#{$base}--en, .tooltip-#{$base}--es, .tooltip-#{$base}--w, .tooltip-#{$base}--wn, .tooltip-#{$base}--ws) {
+            --scale: 0 1;
         }
     }
 

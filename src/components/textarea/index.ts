@@ -7,7 +7,7 @@ import './scss/index.scss';
 type Autoresize = { height: { max: `${number}px`, min: `${number}px` } };
 
 
-function autoresize({ height }: Autoresize) {
+function autoresize({ height }: Autoresize, oninput: Attributes['oninput']) {
     let attributes = {
             class: 'textarea--autoresize',
             style: `
@@ -23,11 +23,14 @@ function autoresize({ height }: Autoresize) {
     return {
         ...attributes,
         class: `${attributes.class} textarea--autoresize-fallback`,
-        oninput: (e: InputEvent) => {
+        oninput: function(this: HTMLElement, e: InputEvent) {
             let element = e.target as HTMLTextAreaElement;
 
             element.style.setProperty('--content-height', '0px');
             element.style.setProperty('--content-height', `${element.scrollHeight}px`);
+
+            // The runtime keeps one listener per event, so this handler replaces the caller's
+            oninput?.call(this, e);
         }
     };
 }
@@ -54,7 +57,7 @@ export default component(function(
             class='textarea'
             ${this?.attributes}
             ${attributes}
-            ${resize && autoresize(resize)}
+            ${resize && autoresize(resize, attributes.oninput ?? this?.attributes?.oninput)}
             ${{
                 class: () => state.active && '--active',
                 onfocusin: () => {

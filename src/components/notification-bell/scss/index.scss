@@ -1,0 +1,132 @@
+@use 'variables';
+
+.notification-bell {
+    align-items: center;
+    background: var(--background);
+    border: 0;
+    border-radius: var(--border-radius);
+    color: var(--color);
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 var(--size);
+    height: var(--size);
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    transition: background var(--transition-duration) var(--transition-timing-function);
+    width: var(--size);
+
+    &:focus-visible {
+        outline: var(--focus-width) solid var(--focus-color);
+        outline-offset: var(--focus-offset);
+    }
+
+    @each $i in 1, 2 {
+        &[data-ring='#{$i}'] .notification-bell-icon {
+            animation: notification-bell-ring-#{$i} var(--ring-duration) ease-in-out;
+        }
+    }
+
+    &-badge {
+        align-items: center;
+        background: var(--badge-background);
+        border-radius: calc(var(--badge-size) / 2);
+        box-shadow: 0 0 0 var(--badge-outline-width) var(--badge-outline-color);
+        color: var(--badge-color);
+        display: flex;
+        font-size: var(--badge-font-size);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--badge-font-weight);
+        height: var(--badge-size);
+        justify-content: center;
+        left: calc(100% - var(--badge-inset));
+        line-height: var(--badge-size);
+        min-width: var(--badge-size);
+        padding: 0 calc(var(--badge-size) * 0.25);
+        pointer-events: none;
+        position: absolute;
+        top: var(--badge-inset);
+        transform: translate(-50%, -50%) scale(0);
+        transition: transform var(--badge-transition-duration) var(--badge-timing-function);
+
+        &.--active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        &--dot {
+            height: var(--dot-size);
+            min-width: 0;
+            padding: 0;
+            width: var(--dot-size);
+        }
+    }
+
+    &-character {
+        display: grid;
+        height: 1lh;
+        overflow: hidden;
+
+        &-track {
+            display: grid;
+            transition: translate var(--roll-duration) var(--roll-timing-function);
+            translate: 0 calc(var(--value) * -1lh);
+
+            span {
+                height: 1lh;
+                text-align: center;
+            }
+        }
+    }
+
+    // Outranks `.icon` so its --size default can't win on source order
+    .notification-bell-icon {
+        --size: var(--icon-size);
+        transform-origin: 50% 8%;
+
+        svg {
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: var(--icon-stroke-width);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &,
+        &-badge,
+        &-character-track {
+            transition: none;
+        }
+
+        @each $i in 1, 2 {
+            &[data-ring='#{$i}'] .notification-bell-icon {
+                animation: none;
+            }
+        }
+    }
+}
+
+@each $i in 1, 2 {
+    @keyframes notification-bell-ring-#{$i} {
+        0%,
+        100% {
+            rotate: 0deg;
+        }
+        15% {
+            rotate: var(--ring-angle);
+        }
+        30% {
+            rotate: calc(var(--ring-angle) * -0.85);
+        }
+        45% {
+            rotate: calc(var(--ring-angle) * 0.6);
+        }
+        60% {
+            rotate: calc(var(--ring-angle) * -0.4);
+        }
+        75% {
+            rotate: calc(var(--ring-angle) * 0.2);
+        }
+    }
+}

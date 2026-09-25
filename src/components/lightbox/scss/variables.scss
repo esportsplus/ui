@@ -1,0 +1,24 @@
+@use '/lib';
+
+.lightbox {
+    --backdrop: color-mix(in srgb, var(--color-black-500) 80%, transparent);
+    --border-radius: 14px;
+    --button-background: var(--color-white-300);
+    --button-border-color: var(--color-border-300);
+    --button-border-color-hover: var(--color-border-400);
+    --button-color: var(--color-text-300);
+    --button-color-hover: var(--color-text-500);
+    --button-radius: 9px;
+    --button-size: 32px;
+    --caption-font-size: 12.5px;
+    --chrome-padding: 12px;
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --exit-timing-function: cubic-bezier(0.4, 0, 1, 1);
+    --focus-color: var(--color-blue-300);
+    --padding: 16px;
+
+    @include lib.breakpoint(min-width, 639px) {
+        --chrome-padding: 16px;
+        --padding: 56px;
+    }
+}

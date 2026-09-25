@@ -1,0 +1,15 @@
+.image {
+    --aspect-ratio: auto;
+    --background: var(--color-grey-500);
+    --blur: 14px;
+    --border-radius: var(--border-radius-600);
+    --develop-blur: 18px;
+    --develop-saturate: 0.6;
+    --develop-scale: 1.06;
+    --error-background: var(--color-white-400);
+    --error-color: var(--color-text-300);
+    --error-size: 22px;
+    --placeholder-scale: 1.08;
+    --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --transition-duration: 0.65s;
+}

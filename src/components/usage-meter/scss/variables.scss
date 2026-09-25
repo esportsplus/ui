@@ -1,0 +1,43 @@
+@use '/tokens';
+
+.usage-meter {
+    --fill: var(--fill-normal);
+    --fill-critical: color-mix(in oklch, var(--color-red-400) 80%, transparent);
+    --fill-normal: var(--color-text-500);
+    --fill-warning: color-mix(in oklch, var(--color-yellow-500) 80%, transparent);
+    --font-family-mono: 'Geist Mono', ui-monospace, monospace;
+    --gap: var(--size-200);
+    --label-color: var(--color-text-500);
+    --label-font-size: var(--font-size-200);
+    --label-font-weight: var(--font-weight-500);
+    --max-width: 380px;
+    --meta-color: var(--color-text-300);
+    --meta-color-muted: var(--color-border-500);
+    --meta-font-size: var(--font-size-100);
+    --track-background: color-mix(in oklch, var(--color-text-500) 6%, transparent);
+    --track-height: 6px;
+    --track-width: 100%;
+    --transition-duration: 500ms;
+    --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
+
+    &--inline {
+        --gap: var(--size-300);
+        --max-width: none;
+        --track-background: color-mix(in oklch, var(--color-text-500) 7%, transparent);
+        --track-height: 4px;
+        --track-width: 64px;
+    }
+
+    &[data-level='critical'] {
+        --fill: var(--fill-critical);
+    }
+
+    &[data-level='warning'] {
+        --fill: var(--fill-warning);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --transition-duration: 0ms;
+    }
+}

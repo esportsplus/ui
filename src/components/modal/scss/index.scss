@@ -47,6 +47,7 @@ dialog.modal {
     }
 
 
+    &--alert::backdrop,
     &--blur::backdrop {
         backdrop-filter: blur(var(--blur));
     }

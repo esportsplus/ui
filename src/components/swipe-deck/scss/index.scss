@@ -1,0 +1,275 @@
+@use 'variables';
+
+// Registered so the card's rotation, fade and stack position all follow one interpolated value.
+@property --depth {
+    inherits: false;
+    initial-value: 0;
+    syntax: '<number>';
+}
+
+@property --lift {
+    inherits: false;
+    initial-value: 1;
+    syntax: '<number>';
+}
+
+@property --x {
+    inherits: false;
+    initial-value: 0;
+    syntax: '<number>';
+}
+
+.swipe-deck {
+    width: 100%;
+
+    &-announcer {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-badge {
+        background: var(--background);
+        border: 1px solid var(--color-border-400);
+        border-radius: 6px;
+        color: var(--color);
+        font-size: var(--font-size-200);
+        font-weight: var(--font-weight-500);
+        letter-spacing: 0.08em;
+        opacity: var(--intent);
+        padding: 4px 8px;
+        pointer-events: none;
+        position: absolute;
+        scale: 0.94;
+        text-transform: uppercase;
+        top: 12px;
+        transition:
+            border-color 150ms,
+            color 150ms,
+            opacity var(--spring-cell),
+            scale var(--spring-cell);
+        white-space: nowrap;
+
+        &--left {
+            left: 12px;
+        }
+
+        &--right {
+            right: 12px;
+        }
+
+        &.--active {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        &.--visible {
+            scale: 1;
+        }
+    }
+
+    &-card {
+        background: var(--background);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        color: var(--color);
+        height: var(--height);
+        inset-inline: var(--inset);
+        // Fully visible until 150px of travel, gone by 340px.
+        opacity: clamp(0, (340 - max(var(--x), -1 * var(--x))) / 190, 1);
+        overflow: hidden;
+        position: absolute;
+        rotate: calc(var(--x) * 0.04deg);
+        scale: calc((1 - (var(--depth) * var(--shrink))) * var(--lift));
+        top: 0;
+        touch-action: pan-y;
+        transform-origin: 50% 100%;
+        transition:
+            --depth var(--spring-crossfade),
+            --lift var(--spring-cell),
+            --x var(--spring-settle);
+        translate: calc(var(--x) * 1px) calc(var(--depth) * var(--offset));
+        user-select: none;
+
+        &.--active {
+            box-shadow: var(--box-shadow-active);
+            cursor: grab;
+            transition:
+                --depth var(--spring-crossfade) 0.1s,
+                --lift var(--spring-cell),
+                --x var(--spring-settle);
+        }
+
+        &.--dragging {
+            --lift: var(--drag-scale);
+            cursor: grabbing;
+            transition:
+                --depth var(--spring-crossfade),
+                --lift var(--spring-cell);
+        }
+
+        &.--dropping {
+            opacity: 0;
+            transition:
+                --depth var(--spring-crossfade),
+                opacity var(--spring-crossfade);
+        }
+
+        &.--leaving {
+            border-color: transparent;
+            transition:
+                --x 0.3s cubic-bezier(0.4, 0, 1, 1),
+                border-color 0.1s linear;
+        }
+    }
+
+    &-control {
+        background: var(--background);
+        border: 1px solid var(--border-color);
+        border-radius: 9px;
+        font-size: var(--font-size-300);
+        font-weight: var(--font-weight-500);
+        gap: 6px;
+        height: 32px;
+        padding-inline: 10px;
+
+        &--left {
+            justify-self: start;
+        }
+
+        &--right {
+            justify-self: end;
+        }
+
+        &:focus-visible {
+            border-color: var(--accent);
+        }
+
+        &:hover {
+            background: var(--empty-background);
+        }
+    }
+
+    &-control,
+    &-undo {
+        align-items: center;
+        color: var(--color);
+        display: inline-flex;
+        outline: none;
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            border-color var(--transition-duration) var(--transition-timing-function),
+            box-shadow var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function);
+
+        &.--spent {
+            opacity: 0;
+        }
+    }
+
+    &-controls {
+        align-items: center;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 1fr auto 1fr;
+        height: 32px;
+        margin-top: 12px;
+    }
+
+    &-count {
+        display: inline-grid;
+        justify-items: end;
+
+        &-reserve {
+            visibility: hidden;
+        }
+
+        > span {
+            grid-area: 1 / 1;
+        }
+    }
+
+    &-empty {
+        background: var(--empty-background);
+        border-radius: var(--border-radius);
+        box-shadow: inset 0 1px 2px oklch(from var(--color-black-300) l c h / 0.07);
+        color: var(--color-muted);
+        display: grid;
+        font-size: var(--font-size-300);
+        height: var(--height);
+        inset-inline: var(--inset);
+        opacity: 0;
+        padding-inline: 16px;
+        place-items: center;
+        position: absolute;
+        text-align: center;
+        top: 0;
+        transition: opacity var(--spring-crossfade);
+        z-index: 0;
+
+        &.--active {
+            opacity: 1;
+        }
+    }
+
+    &-stage {
+        border-radius: var(--border-radius);
+        height: calc(var(--height) + 26px);
+        outline: none;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+
+        &:focus-visible {
+            box-shadow: 0 0 0 1px var(--accent);
+        }
+    }
+
+    &-status {
+        align-items: center;
+        color: var(--color-muted);
+        display: flex;
+        font-family: ui-monospace, monospace;
+        font-size: var(--font-size-200);
+        font-variant-numeric: tabular-nums;
+        gap: 8px;
+    }
+
+    &-undo {
+        border-radius: 5px;
+        gap: 4px;
+        padding: 2px 4px;
+
+        &:focus-visible {
+            background: oklch(from var(--accent) l c h / 0.06);
+            box-shadow: inset 0 0 0 1px var(--accent);
+        }
+
+        &:hover {
+            background: var(--empty-background);
+        }
+    }
+
+    &-viewport {
+        inset: 0;
+        mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+        overflow: hidden;
+        position: absolute;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-badge,
+        &-card,
+        &-card.--active,
+        &-card.--dragging,
+        &-card.--dropping,
+        &-card.--leaving,
+        &-empty {
+            transition: none;
+        }
+    }
+}

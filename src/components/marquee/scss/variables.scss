@@ -1,0 +1,18 @@
+.marquee {
+    --color: var(--color-text-300);
+    --color-hover: var(--color-text-400);
+    --fade: var(--size-700);
+    --focus-color: var(--color-blue-400);
+    --font-size: var(--font-size-300);
+    --font-weight: var(--font-weight-500);
+    --item-border-radius: var(--border-radius-300);
+    --item-gap: 40px;
+    --item-height: 40px;
+    --item-padding-horizontal: var(--size-300);
+    --transition-duration: 0.15s;
+
+    // Children re-declare --padding-* via root's `*` rule, so it has to be set here rather than inherited.
+    &-viewport {
+        --padding-vertical: var(--size-200);
+    }
+}

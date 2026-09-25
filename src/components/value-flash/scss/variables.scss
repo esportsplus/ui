@@ -1,0 +1,47 @@
+// Springs are sampled from motion's stiffness / damping / mass so the CSS settles like the original.
+.value-flash {
+    --arrow-offset: 0.3em;
+    --arrow-size: 0.68em;
+    --border-radius: var(--border-radius-300);
+    --cell: linear(0, 0.092, 0.262, 0.426, 0.567, 0.679, 0.764, 0.827, 0.874, 0.908, 0.933, 0.951, 0.964, 0.974, 0.981, 0.986, 0.99, 0.993, 0.995, 0.996, 0.997, 0.998, 0.999, 0.999, 1);
+    --cell-duration: 360ms;
+    --clear: cubic-bezier(0.4, 0, 1, 1);
+    --clear-duration: 160ms;
+    --color-down: var(--color-red-500);
+    // The green scale is tuned for dark surfaces; drop lightness so text stays legible on light ones.
+    --color-up: oklch(from var(--color-green-500) 0.6 c h);
+    --drop-blur: 4px;
+    --drop-duration: 140ms;
+    --drop-offset: 0.7em;
+    --font-size: var(--font-size-300);
+    --font-weight: var(--font-weight-500);
+    --gap: 6px;
+    --lift: linear(0, 0.06, 0.193, 0.351, 0.506, 0.644, 0.758, 0.845, 0.909, 0.954, 0.983, 1.001, 1.011, 1.015, 1.015, 1.014, 1.012, 1.009, 1.007, 1.005, 1.003, 1.002, 1.001, 1.001, 1);
+    --lift-duration: 390ms;
+    --lift-scale: 1.05;
+    --padding: 3px 6px;
+    --pop: linear(0, 0.136, 0.423, 0.722, 0.953, 1.092, 1.145, 1.138, 1.1, 1.055, 1.017, 0.992, 0.98, 0.979, 0.983, 0.99, 0.996, 1, 1.003, 1.003, 1.003, 1.002, 1.001, 1, 1);
+    --pop-duration: 460ms;
+    --roll: linear(0, 0.065, 0.201, 0.348, 0.487, 0.606, 0.703, 0.779, 0.837, 0.881, 0.913, 0.937, 0.955, 0.968, 0.977, 0.984, 0.988, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 0.999, 1);
+    --roll-blur: 5px;
+    --roll-duration: 340ms;
+    --roll-offset: 0.85em;
+    --settle: linear(0, 0.086, 0.242, 0.399, 0.533, 0.641, 0.725, 0.79, 0.84, 0.879, 0.908, 0.93, 0.947, 0.96, 0.969, 0.977, 0.982, 0.987, 0.99, 0.992, 0.994, 0.995, 0.997, 0.997, 1);
+    --settle-duration: 660ms;
+    --tint-opacity: 14%;
+    --tone-duration: 200ms;
+
+    @media (prefers-reduced-motion: reduce) {
+        --arrow-offset: 0em;
+        --cell-duration: 1ms;
+        --clear-duration: 1ms;
+        --drop-blur: 0px;
+        --drop-duration: 1ms;
+        --drop-offset: 0em;
+        --lift-scale: 1;
+        --pop-duration: 1ms;
+        --roll-blur: 0px;
+        --roll-duration: 1ms;
+        --roll-offset: 0em;
+    }
+}

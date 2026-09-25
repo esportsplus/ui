@@ -1,0 +1,82 @@
+@use '/tokens';
+
+.composer {
+    --background: var(--color-grey-400);
+    --border-radius: var(--border-radius-700);
+    --width: 100%;
+
+    &-action {
+        --background: transparent;
+        --background-hover: color-mix(in srgb, var(--color-text-500), transparent 94%);
+        --background-pressed: color-mix(in srgb, var(--color-text-500), transparent 90%);
+        --border-radius: var(--border-radius-300);
+        --color: var(--color-text-400);
+        --color-hover: var(--color-text-500);
+        --font-size: var(--font-size-400);
+        --gap: var(--size-100);
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-100);
+
+        @include tokens.state(hover) {
+            --background: var(--background-hover);
+            --color: var(--color-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --background: var(--background-pressed);
+            --color: var(--color-hover);
+        }
+    }
+
+    &-actions,
+    &-footer {
+        --gap: var(--size-100);
+    }
+
+    &-footer {
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-200);
+    }
+
+    &-input {
+        --background: var(--color-white-300);
+        --border-color: var(--border-color-default);
+        --border-color-active: var(--color-border-400);
+        --border-color-default: var(--color-border-300);
+        --border-width: var(--border-width-400);
+        --box-shadow: none;
+
+        &:focus-within {
+            --border-color: var(--border-color-active);
+        }
+
+        .textarea {
+            --color-default: var(--color-text-500);
+            --font-size: var(--font-size-400);
+            --padding-horizontal: var(--size-500);
+            --padding-vertical: var(--size-400);
+            --placeholder-color: var(--color-text-300);
+        }
+    }
+
+    &-send {
+        --background: var(--color-text-500);
+        --background-disabled: var(--color-text-300);
+        --color: var(--color-white-300);
+        --icon-size: var(--size-300);
+        --size: var(--size-600);
+    }
+
+    &-separator {
+        --background: var(--color-border-300);
+        --height: var(--size-400);
+        --margin-horizontal: var(--size-100);
+        --width: var(--border-width-400);
+    }
+
+    &-toolbar {
+        --gap: var(--size-300);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-300);
+    }
+}

@@ -1,0 +1,125 @@
+@use '/tokens';
+
+.button-fan {
+    align-items: center;
+    display: inline-flex;
+    position: relative;
+
+    @include tokens.state(active) {
+        z-index: 9;
+
+        > .button-fan-options > .button-fan-option {
+            --delay: calc(var(--i) * var(--stagger));
+            opacity: 1;
+            pointer-events: auto;
+            scale: 1;
+            translate: 0 0;
+
+            &:active {
+                scale: var(--option-pressed-scale);
+            }
+        }
+
+        > .button--fan .button-fan-swap {
+            > :first-child {
+                opacity: 0;
+                rotate: var(--swap-rotate);
+            }
+
+            > :last-child {
+                opacity: 1;
+                rotate: 0deg;
+            }
+        }
+    }
+
+
+    &-options {
+        align-items: center;
+        display: flex;
+        gap: var(--spacer);
+        pointer-events: none;
+        position: absolute;
+        z-index: 0;
+    }
+
+    &-swap {
+        display: inline-grid;
+        place-items: center;
+
+        > * {
+            grid-area: 1 / 1;
+            transition:
+                opacity var(--swap-spring-duration) var(--swap-spring),
+                rotate var(--swap-spring-duration) var(--swap-spring);
+        }
+
+        > :last-child {
+            opacity: 0;
+            rotate: calc(var(--swap-rotate) * -1);
+        }
+    }
+
+    // Chained through the root so the `.button` transition can't override the stagger
+    > .button-fan-options > .button-fan-option {
+        --delay: calc((var(--n) - 1 - var(--i)) * var(--stagger));
+        opacity: 0;
+        scale: var(--option-scale);
+        transform-origin: var(--origin);
+        transition:
+            opacity var(--option-opacity-duration) ease-out var(--delay),
+            scale var(--option-spring-duration) var(--option-spring) var(--delay),
+            translate var(--option-spring-duration) var(--option-spring) var(--delay);
+        translate:
+            calc((100% + var(--spacer)) * (var(--i) + 1) * var(--direction-x))
+            calc((100% + var(--spacer)) * (var(--i) + 1) * var(--direction-y));
+    }
+
+    > .button-fan-options > .button-fan-option,
+    > .button--fan {
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+        }
+    }
+
+
+    &--e > .button-fan-options {
+        flex-direction: row;
+        inset: 0 auto 0 100%;
+        padding-left: var(--spacer);
+    }
+
+    &--n > .button-fan-options {
+        flex-direction: column-reverse;
+        inset: auto 0 100% 0;
+        padding-bottom: var(--spacer);
+    }
+
+    &--s > .button-fan-options {
+        flex-direction: column;
+        inset: 100% 0 auto 0;
+        padding-top: var(--spacer);
+    }
+
+    &--w > .button-fan-options {
+        flex-direction: row-reverse;
+        inset: 0 100% 0 auto;
+        padding-right: var(--spacer);
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        --swap-rotate: 0deg;
+
+        > .button-fan-options > .button-fan-option {
+            scale: 1;
+            transition: opacity 0.15s ease-out;
+            translate: none;
+        }
+
+        .button-fan-swap > * {
+            transition: opacity 0.15s ease-out;
+        }
+    }
+}

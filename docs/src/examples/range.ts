@@ -1,7 +1,7 @@
-import { rangeVariations } from './form-prototypes';
+import { rangeBubbleVariations, rangeVariations } from './form-prototypes';
 
 
 export default {
     name: 'range',
-    variants: rangeVariations()
+    variants: [...rangeVariations(), ...rangeBubbleVariations()]
 };

@@ -1,0 +1,84 @@
+@use '/lib';
+@use 'variables';
+
+.datalist {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    color: var(--color);
+    font-size: var(--font-size);
+    font-weight: var(--font-weight);
+    padding: var(--padding);
+    position: relative;
+    width: min(100%, var(--width));
+
+    &-lens {
+        @include lib.position(absolute, 50% var(--padding) null var(--padding));
+        background: var(--background);
+        border-radius: var(--border-radius);
+        height: var(--item-height);
+        pointer-events: none;
+        transform: translateY(-50%);
+    }
+
+    &-option {
+        // `--offset` (scroll position) and `--half` (half viewport) are written by JS in item units
+        --t: clamp(-1, calc((var(--index) - var(--offset, 0)) / var(--half, 2.5)), 1);
+        --t-abs: max(var(--t), var(--t) * -1);
+
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        font-variant: tabular-nums;
+        height: var(--item-height);
+        justify-content: center;
+        opacity: calc(1 - var(--opacity-falloff) * var(--t-abs));
+        scroll-snap-align: center;
+        transform:
+            scale(calc(var(--scale) - var(--scale-falloff) * var(--t-abs)))
+            rotateX(calc(var(--rotate) * var(--t) * -1));
+        // Driven per scroll frame; the inherited root transition would ease it behind the scroll
+        transition: none;
+        user-select: none;
+
+        @media (prefers-reduced-motion: reduce) {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    &-scroller {
+        border-radius: var(--border-radius);
+        height: var(--height);
+        mask-image: linear-gradient(to bottom, transparent 0, #000 30%, #000 70%, transparent 100%);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        perspective: var(--perspective);
+        position: relative;
+        scroll-snap-type: y mandatory;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
+        }
+    }
+
+    // Padding lives on the track, not the scroller, since some engines drop a scroller's block-end padding from its scroll range
+    &-track {
+        padding-block: calc((var(--height) - var(--item-height)) / 2);
+    }
+
+    // Hide HTML Field Element
+    &-tag {
+        @include lib.position(absolute, 0 null null 0);
+        height: 0px;
+        opacity: 0;
+        pointer-events: none;
+        width: 0px;
+        z-index: 0;
+    }
+}

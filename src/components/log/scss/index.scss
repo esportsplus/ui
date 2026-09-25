@@ -1,0 +1,269 @@
+@use 'variables';
+
+// Registered so the reveal's bottom fade can be interpolated.
+@property --log-fade {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
+.log {
+    color: var(--text-secondary);
+    font-size: var(--font-size);
+    width: 100%;
+
+    button {
+        background: none;
+        border: 0;
+        color: inherit;
+        cursor: pointer;
+        font: inherit;
+        margin: 0;
+        padding: 0;
+        text-align: start;
+    }
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+
+.log-bridge {
+    background: var(--guide-color);
+    height: var(--height);
+    left: var(--offset);
+    pointer-events: none;
+    position: absolute;
+    scale: 1 0;
+    top: calc(var(--height) * -1);
+    transform-origin: top;
+    transition: scale 0.12s linear;
+    width: 1px;
+
+    &.--active {
+        scale: 1;
+    }
+}
+
+.log-chevron {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+    height: 16px;
+    transition: color 0.15s ease, rotate 0.3s ease;
+    width: 16px;
+
+    [aria-expanded='true'] > & {
+        rotate: 180deg;
+    }
+
+    :hover > & {
+        color: var(--text-secondary);
+    }
+}
+
+.log-guide {
+    color: var(--guide-color);
+    inset-block: 0;
+    inset-inline-start: 0;
+    pointer-events: none;
+    position: absolute;
+    width: 12px;
+
+    svg {
+        inset-inline-start: 0;
+        position: absolute;
+        top: 0;
+    }
+
+    path {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        transition: stroke-dashoffset 0.14s linear 0.12s;
+    }
+
+    &-line {
+        background: currentColor;
+        bottom: 0;
+        inset-inline-start: 0;
+        position: absolute;
+        scale: 1 0;
+        top: 8px;
+        transform-origin: top;
+        transition: scale 0.12s linear;
+        width: 1px;
+    }
+}
+
+// Each row draws its curve; the line down to the next row only exists once that row has landed.
+.log-row {
+    padding-inline-start: 16px;
+    position: relative;
+
+    &:first-child .log-guide path {
+        transition-delay: 0s;
+    }
+
+    &.--active .log-guide path {
+        stroke-dashoffset: 0;
+    }
+
+    &.--active:has(+ .log-row.--active) .log-guide-line {
+        scale: 1;
+    }
+}
+
+.log-shimmer {
+    animation: log-shimmer 3.4s linear infinite;
+    background-clip: text;
+    background-image: linear-gradient(
+        100deg,
+        var(--shimmer-color) 16%,
+        var(--shimmer-color) 38%,
+        var(--shimmer-highlight) 50%,
+        var(--shimmer-color) 62%,
+        var(--shimmer-color) 84%
+    );
+    background-position: 200%;
+    background-size: 300% 100%;
+    color: transparent;
+    will-change: background-position;
+}
+
+.log-unit {
+    --log-fade: 22px;
+
+    display: grid;
+    filter: blur(6px);
+    grid-template-rows: 0fr;
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--log-fade)), transparent calc(100% + 1px));
+    opacity: 0;
+    overflow: hidden;
+    transition:
+        --log-fade 0.44s var(--soft),
+        filter 0.42s var(--soft),
+        grid-template-rows 0.38s var(--soft),
+        opacity 0.42s var(--soft),
+        translate 0.42s var(--soft);
+    translate: 0 4px;
+
+    &.--active {
+        --log-fade: 0px;
+
+        filter: blur(0);
+        grid-template-rows: 1fr;
+        opacity: 1;
+        translate: 0;
+    }
+
+    &-content {
+        min-height: 0;
+        min-width: 0;
+    }
+}
+
+.log-working {
+    color: var(--working-color);
+
+    &-content {
+        align-items: center;
+        display: flex;
+        gap: 10px;
+        padding-block: 4px;
+    }
+
+    &-label {
+        animation: log-shimmer 2.6s linear infinite;
+        background-clip: text;
+        background-image: linear-gradient(
+            100deg,
+            color-mix(in oklab, var(--working-color) 55%, transparent) 30%,
+            var(--working-color) 50%,
+            color-mix(in oklab, var(--working-color) 55%, transparent) 70%
+        );
+        background-position: 200%;
+        background-size: 300% 100%;
+        color: transparent;
+        font-weight: var(--font-weight-500);
+        will-change: background-position;
+    }
+
+    &-star {
+        animation: log-star 1.4s ease-in-out var(--delay) infinite;
+        height: var(--size);
+        margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+        position: absolute;
+        scale: 0;
+        width: var(--size);
+    }
+
+    &-stars {
+        color: color-mix(in oklab, currentColor 75%, transparent);
+        display: block;
+        flex-shrink: 0;
+        height: 21px;
+        position: relative;
+        width: 21px;
+    }
+
+    &-timer {
+        color: var(--text-tertiary);
+        font-family: var(--font-family-mono);
+        font-size: var(--font-size-small);
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .log-bridge,
+    .log-chevron,
+    .log-guide path,
+    .log-guide-line,
+    .log-unit {
+        transition: none;
+    }
+
+    .log-shimmer,
+    .log-working-label {
+        animation: none;
+        background: none;
+        color: inherit;
+    }
+
+    .log-working-star {
+        animation: none;
+        opacity: 0.7;
+        scale: 1;
+    }
+}
+
+
+@keyframes log-shimmer {
+    0% {
+        background-position: 200%;
+    }
+
+    100% {
+        background-position: -100%;
+    }
+}
+
+@keyframes log-star {
+    0%, 100% {
+        opacity: 0;
+        scale: 0;
+    }
+
+    40% {
+        opacity: 1;
+        scale: 1;
+    }
+
+    60% {
+        opacity: 0.9;
+        scale: 0.8;
+    }
+}

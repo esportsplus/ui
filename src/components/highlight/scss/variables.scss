@@ -1,0 +1,26 @@
+@use '/tokens';
+
+.highlight {
+    --background: var(--background-default);
+    --background-active: color-mix(in srgb, currentColor 10%, transparent);
+    --background-default: color-mix(in srgb, currentColor 6%, transparent);
+    --background-hover: var(--background-default);
+    --background-pressed: color-mix(in srgb, currentColor 14%, transparent);
+    --fade-duration: 0.2s;
+    --glide-duration: 0.6s;
+    // Damped spring (~4% overshoot) sampled into linear() so the glide settles past its target and back.
+    --glide-timing-function: linear(0, 0.035, 0.123, 0.239, 0.367, 0.494, 0.611, 0.715, 0.803, 0.874, 0.929, 0.971, 1, 1.02, 1.032, 1.037, 1.038, 1.037, 1.033, 1.028, 1.024, 1.019, 1.014, 1.01, 1);
+    --scale-hidden: 0.92;
+
+    @include tokens.state(active) {
+        --background: var(--background-active);
+    }
+
+    &.--hover {
+        --background: var(--background-hover);
+    }
+
+    &.--pressed {
+        --background: var(--background-pressed);
+    }
+}

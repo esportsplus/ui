@@ -1,0 +1,50 @@
+@use '/lib';
+@use '/tokens';
+
+.settings {
+    --backdrop: color-mix(in srgb, var(--color-black-500) 50%, transparent);
+    --blur: 4px;
+    --font-size-small: 13px;
+    --height: 614px;
+    --margin-horizontal: var(--size-400);
+    --max-width: 871px;
+    --padding: 32px;
+    --rail-width: 274px;
+    --radius: 24px;
+    --saved: oklch(64.8% 0.2 131.684);
+    --scale: 0.85;
+    --separator: var(--color-border-300);
+    --surface: var(--color-white-300);
+    --surface-muted: var(--color-grey-500);
+    --surface-rail: var(--color-grey-400);
+    --text: var(--color-text-500);
+    --text-muted: var(--color-text-300);
+    --transition-duration: 0.3s;
+    --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    --translateY: 0px;
+
+    // The dialog's open/close timing must not leak into the controls it hosts.
+    &-panel {
+        --font-size: 14px;
+        --transition-duration: #{lib.map-get(tokens.$transition, 'duration')};
+        --transition-timing-function: #{lib.map-get(tokens.$transition, 'timing-function')};
+    }
+
+    &-card {
+        --background: var(--surface-rail);
+        --border-radius: var(--border-radius-700);
+    }
+
+    &-field {
+        --background: var(--surface-muted);
+        --border-radius: var(--border-radius-500);
+        --width: 202px;
+    }
+
+    &-item {
+        --background: transparent;
+        --background-active: var(--surface-muted);
+        --background-hover: color-mix(in srgb, var(--surface-muted) 60%, transparent);
+        --border-radius: var(--border-radius-500);
+    }
+}

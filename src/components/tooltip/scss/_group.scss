@@ -1,0 +1,164 @@
+@use '/tokens';
+
+.tooltip-group {
+    display: inline-flex;
+    position: relative;
+    z-index: 0;
+
+    @include tokens.state(active) {
+        z-index: 9;
+
+        > .tooltip-group-content > .tooltip-group-box {
+            filter: blur(0);
+            opacity: 1;
+            scale: 1;
+            transition:
+                filter var(--group-open-duration) var(--group-timing-function) var(--group-delay),
+                opacity var(--group-open-duration) var(--group-timing-function) var(--group-delay),
+                scale var(--group-open-duration) var(--group-timing-function) var(--group-delay),
+                translate var(--group-open-duration) var(--group-timing-function) var(--group-delay);
+            translate: 0;
+        }
+    }
+
+    &.--gliding {
+        > .tooltip-group-content {
+            transition:
+                height var(--group-glide-duration) var(--group-glide-timing-function),
+                translate var(--group-glide-duration) var(--group-glide-timing-function),
+                width var(--group-glide-duration) var(--group-glide-timing-function);
+        }
+
+        .tooltip-group-layer {
+            transition:
+                filter var(--group-swap-duration) var(--group-timing-function),
+                opacity var(--group-swap-duration) var(--group-timing-function),
+                translate var(--group-swap-duration) var(--group-timing-function);
+        }
+    }
+
+
+    &-box {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        color: var(--color);
+        filter: blur(var(--group-blur));
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
+        inset: 0;
+        opacity: 0;
+        overflow: hidden;
+        position: absolute;
+        scale: var(--group-scale);
+        transition:
+            filter var(--group-close-duration) var(--group-timing-function),
+            opacity var(--group-close-duration) var(--group-timing-function),
+            scale var(--group-close-duration) var(--group-timing-function),
+            translate var(--group-close-duration) var(--group-timing-function);
+    }
+
+    // Physical insets: the anchor comes from 'offsetLeft/offsetTop', which are physical too.
+    &-content {
+        height: var(--group-height);
+        pointer-events: none;
+        position: absolute;
+        transition: none;
+        width: var(--group-width);
+        z-index: 9;
+
+        &--e,
+        &--w {
+            --group-axis-x: 0;
+            --group-axis-y: 1;
+            top: 0;
+            translate: 0 calc(var(--group-y) - 50%);
+        }
+
+        &--n,
+        &--s {
+            --group-axis-x: 1;
+            --group-axis-y: 0;
+            left: 0;
+            translate: calc(var(--group-x) - 50%) 0;
+        }
+
+        &--e {
+            left: calc(100% + var(--spacer));
+
+            > .tooltip-group-box {
+                transform-origin: left center;
+                translate: calc(var(--group-rise) * -1) 0;
+            }
+        }
+
+        &--n {
+            bottom: calc(100% + var(--spacer));
+
+            > .tooltip-group-box {
+                transform-origin: center bottom;
+                translate: 0 var(--group-rise);
+            }
+        }
+
+        &--s {
+            top: calc(100% + var(--spacer));
+
+            > .tooltip-group-box {
+                transform-origin: center top;
+                translate: 0 calc(var(--group-rise) * -1);
+            }
+        }
+
+        &--w {
+            right: calc(100% + var(--spacer));
+
+            > .tooltip-group-box {
+                transform-origin: right center;
+                translate: var(--group-rise) 0;
+            }
+        }
+    }
+
+    // Root 'transition: inherit' would hand layers the pop transition and slide them in on open.
+    &-layer {
+        --group-shift: var(--group-swap-shift);
+        filter: blur(var(--group-swap-blur));
+        left: 50%;
+        max-width: var(--max-width);
+        opacity: 0;
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
+        position: absolute;
+        top: 50%;
+        transition: none;
+        translate:
+            calc(-50% + var(--group-shift) * var(--group-axis-x))
+            calc(-50% + var(--group-shift) * var(--group-axis-y));
+        white-space: nowrap;
+        width: max-content;
+
+        &.--active {
+            --group-shift: 0px;
+            filter: blur(0);
+            opacity: 1;
+        }
+
+        &.--before {
+            --group-shift: calc(var(--group-swap-shift) * -1);
+        }
+    }
+}
+
+
+// Only the fades remain. The extra specificity beats the defaults in 'variables.scss'.
+@media (prefers-reduced-motion: reduce) {
+    .tooltip-group > .tooltip-group-content {
+        --group-blur: 0px;
+        --group-glide-duration: 0s;
+        --group-rise: 0px;
+        --group-scale: 1;
+        --group-swap-blur: 0px;
+        --group-swap-shift: 0px;
+    }
+}

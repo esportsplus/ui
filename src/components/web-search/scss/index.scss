@@ -1,0 +1,270 @@
+@use 'variables';
+
+.web-search {
+    display: flex;
+    flex-direction: column;
+
+    &:not(.web-search--heading) > .log-working {
+        padding-inline-start: 14px;
+    }
+
+    &--heading .web-search-rows {
+        margin-inline-start: 7px;
+    }
+
+    &-badge-dot {
+        background: var(--dot-color);
+        border-radius: 50%;
+        height: 8px;
+        width: 8px;
+    }
+
+    &-badge-icon {
+        align-items: center;
+        display: flex;
+        height: 12px;
+        justify-content: center;
+        width: 12px;
+
+        > * {
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    &-glyph {
+        align-items: center;
+        color: var(--icon-color);
+        display: flex;
+        flex-shrink: 0;
+        height: 16px;
+        justify-content: center;
+        margin-top: 2px;
+        width: 16px;
+
+        > * {
+            height: 100%;
+            width: 100%;
+        }
+
+        > .web-search-logo {
+            color: var(--text-primary);
+            height: 13px;
+            width: 13px;
+        }
+    }
+
+    &-heading-content,
+    &-row-content,
+    &-sources-content {
+        padding-block: 4px;
+    }
+
+    &-label {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &-logo {
+        flex-shrink: 0;
+    }
+
+    &-mark {
+        align-items: center;
+        background: var(--mark-background);
+        border: 1px solid var(--mark-border);
+        border-radius: 50%;
+        display: flex;
+        flex-shrink: 0;
+        height: 20px;
+        justify-content: center;
+        position: relative;
+        transition: translate 0.15s ease;
+        width: 20px;
+        z-index: var(--z);
+
+        > .web-search-logo {
+            color: var(--text-primary);
+            height: 12px;
+            width: 12px;
+        }
+    }
+
+    &-meta {
+        color: var(--text-tertiary);
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+        padding-top: 1px;
+    }
+
+    &-more {
+        color: var(--text-tertiary);
+        font-variant-numeric: tabular-nums;
+        margin-inline-start: 8px;
+
+        &.--hidden {
+            display: none;
+        }
+    }
+
+    &-query {
+        color: var(--text-tertiary);
+        font-family: var(--font-family-mono);
+        font-size: var(--font-size-small);
+        margin-inline-start: 6px;
+    }
+
+    &-row {
+        padding-inline-start: 14px;
+    }
+
+    &-source {
+        display: grid;
+        grid-template-rows: 0fr;
+        overflow: hidden;
+        transition: grid-template-rows 0.28s var(--soft);
+
+        &.--active {
+            grid-template-rows: 1fr;
+        }
+
+        // The grid item carries no padding, so a folded row collapses to nothing.
+        &-content {
+            min-height: 0;
+            min-width: 0;
+        }
+
+        &-domain {
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+            font-size: var(--font-size-small);
+
+            @media (max-width: 639px) {
+                display: none;
+            }
+        }
+
+        &-link {
+            align-items: center;
+            border-radius: 6px;
+            color: inherit;
+            display: flex;
+            gap: 8px;
+            padding: 4px;
+
+            &:is(a) {
+                transition: background-color 0.15s ease;
+
+                &:hover {
+                    background: var(--source-hover);
+                }
+            }
+        }
+
+        &:not(.--active) .web-search-mark {
+            visibility: hidden;
+        }
+
+        &-text {
+            align-items: center;
+            display: flex;
+            flex: 1;
+            gap: 8px;
+            min-width: 0;
+            opacity: 0;
+            transition: opacity 0.16s;
+        }
+
+        &.--active .web-search-source-text {
+            opacity: 1;
+            transition-delay: 0.05s;
+        }
+
+        &-title {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    // Branches off its step, so it reserves no room until it lands.
+    &-sources {
+        margin-top: 0;
+        position: relative;
+        transition: margin-top 0.38s var(--soft);
+
+        &.--active {
+            margin-top: 2px;
+        }
+
+        &-list {
+            margin-inline-start: 7px;
+        }
+
+        // Always follows its step, so its curve waits for the bridge.
+        .log-row:first-child .log-guide path {
+            transition-delay: 0.12s;
+        }
+
+        &-toggle {
+            align-items: center;
+            border-radius: 6px;
+            display: flex;
+
+            &:focus-visible {
+                outline: 2px solid var(--color-primary-400, var(--color-blue-400));
+                outline-offset: 2px;
+            }
+
+            > .log-chevron {
+                margin-inline-start: 4px;
+            }
+        }
+    }
+
+    // Marks overlap in the stack and lift clear of their neighbours on hover.
+    &-stack {
+        align-items: center;
+        display: flex;
+        margin-inline-start: 8px;
+        transition: width 0.45s var(--spring) 0.07s;
+
+        > .web-search-mark {
+            &:hover {
+                translate: 0 -2px;
+                z-index: 10;
+            }
+
+            &.--hidden {
+                display: none;
+            }
+
+            + .web-search-mark {
+                margin-inline-start: -6px;
+            }
+        }
+    }
+
+    &-step {
+        align-items: flex-start;
+        display: flex;
+        gap: 8px;
+    }
+
+    &-trail {
+        position: relative;
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &-mark,
+        &-source,
+        &-source-text,
+        &-sources,
+        &-stack {
+            transition: none;
+        }
+    }
+}

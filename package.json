@@ -2,13 +2,13 @@
     "author": "ICJR",
     "dependencies": {
         "@esportsplus/action": "^0.1.8",
-        "@esportsplus/reactivity": "^0.37.0",
-        "@esportsplus/template": "^0.51.0",
-        "@esportsplus/utilities": "^0.28.5",
+        "@esportsplus/reactivity": "^0.37.2",
+        "@esportsplus/template": "^0.52.1",
+        "@esportsplus/utilities": "^0.28.6",
         "modern-normalize": "^3.0.1"
     },
     "devDependencies": {
-        "@esportsplus/typescript": "^0.35.1",
+        "@esportsplus/typescript": "^0.36.1",
         "@types/node": "^26.6.2",
         "@types/shelljs": "^0.10.0",
         "autoprefixer": "^10.6.1",

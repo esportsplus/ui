@@ -1,0 +1,508 @@
+@use '/lib';
+@use '/tokens';
+@use 'variables';
+
+// Zero-height sticky host: the bar overlays the page instead of reserving space.
+.header {
+    container: header / inline-size;
+    height: 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+
+
+    &::before {
+        @include lib.position(absolute, top);
+        backdrop-filter: blur(var(--blur));
+        background: var(--backdrop);
+        content: '';
+        height: var(--screen);
+        opacity: 0;
+        pointer-events: none;
+        transition:
+            opacity 0.2s var(--ease),
+            visibility 0s 0.2s;
+        visibility: hidden;
+    }
+
+    &.--open::before {
+        opacity: 1;
+        transition-delay: 0s;
+        visibility: visible;
+    }
+
+    &.--scrolled .header-bar {
+        backdrop-filter: blur(var(--blur));
+        background: var(--surface);
+        border-bottom-color: var(--border-color);
+    }
+
+    @include tokens.state(active) {
+        @container header (width < 1024px) {
+            .header {
+                &-actions {
+                    display: flex;
+                }
+
+                &-bar {
+                    backdrop-filter: blur(var(--blur));
+                    background: var(--surface);
+                    height: var(--screen);
+                    overflow-y: auto;
+                }
+
+                &-drawer {
+                    display: block;
+                }
+            }
+        }
+
+        .header {
+            &-toggle-icon {
+                &--close {
+                    opacity: 1;
+                    rotate: 0deg;
+                    scale: 1;
+                }
+
+                &--open {
+                    opacity: 0;
+                    rotate: 180deg;
+                    scale: 0;
+                }
+            }
+        }
+    }
+
+
+    &-actions {
+        display: none;
+        flex-direction: column;
+        gap: var(--size-300);
+        margin-block: var(--size-600);
+        width: 100%;
+
+        @container header (min-width: 640px) {
+            flex-direction: row;
+        }
+    }
+
+    &-bar {
+        @include lib.position(absolute, top);
+        border-bottom: var(--border-width-400) solid transparent;
+        height: var(--height-mobile);
+        overflow: hidden;
+        transition:
+            backdrop-filter 0.2s var(--ease),
+            background-color 0.2s var(--ease),
+            border-color 0.2s var(--ease),
+            box-shadow 0.2s var(--ease),
+            height 0.2s var(--ease);
+    }
+
+    &-brand {
+        align-items: center;
+        color: var(--foreground);
+        display: flex;
+        gap: var(--size-100);
+        text-decoration: none;
+
+        svg {
+            height: 20px;
+            width: auto;
+        }
+    }
+
+    &-chevron {
+        height: 12px;
+        margin-left: 6px;
+        opacity: 0.75;
+        position: relative;
+        top: 1px;
+        transition: translate 0.15s var(--ease);
+        width: 12px;
+    }
+
+    &-container {
+        margin-inline: auto;
+        max-width: var(--max-width);
+        padding-inline: var(--size-600);
+    }
+
+    &-drawer {
+        display: none;
+        width: 100%;
+    }
+
+    &-drawer-group {
+        border-bottom: var(--border-width-400) solid var(--divider);
+
+        @include tokens.state(active) {
+            .header-chevron {
+                rotate: 180deg;
+            }
+        }
+    }
+
+    &-drawer-link,
+    &-drawer-trigger {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        color: var(--foreground);
+        cursor: pointer;
+        display: flex;
+        font-size: 1.125rem;
+        font-weight: var(--font-weight-500);
+        justify-content: space-between;
+        padding: var(--size-300) 0;
+        text-decoration: none;
+        width: 100%;
+    }
+
+    &-drawer-link {
+        border-bottom: var(--border-width-400) solid var(--divider);
+        padding-block: var(--size-400);
+    }
+
+    &-drawer-links {
+        padding-bottom: var(--size-500);
+
+        .header-link {
+            align-items: center;
+            padding: var(--size-100) 0;
+
+            &:hover {
+                background: transparent;
+            }
+        }
+
+        .header-link-title {
+            font-size: var(--font-size-400);
+            font-weight: var(--font-weight-400);
+        }
+    }
+
+    &-link {
+        border-radius: var(--border-radius-300);
+        color: var(--foreground);
+        display: grid;
+        gap: var(--size-200);
+        grid-template-columns: auto 1fr;
+        outline: none;
+        padding: var(--size-100);
+        text-decoration: none;
+        transition: background-color 0.15s var(--ease);
+
+        &:hover,
+        &:focus-visible {
+            background: var(--muted);
+        }
+
+        &--rich .header-link-icon {
+            background:
+                radial-gradient(circle, transparent, color-mix(in srgb, var(--foreground) 3%, transparent)),
+                var(--canvas);
+            border-radius: var(--border-radius-400);
+            box-shadow:
+                0 0 0 1px var(--divider),
+                0 1px 2px 0 color-mix(in srgb, var(--foreground) 5%, transparent);
+            height: 36px;
+            width: 36px;
+
+            svg {
+                filter: drop-shadow(0 1px 1px color-mix(in srgb, var(--foreground) 6.5%, transparent));
+            }
+        }
+    }
+
+    &-link-body {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    &-link-description {
+        color: var(--color-link);
+        font-size: 0.75rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-link-icon {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+
+        svg {
+            height: 16px;
+            width: 16px;
+        }
+    }
+
+    &-link-title {
+        font-size: 0.875rem;
+        font-weight: var(--font-weight-500);
+    }
+
+    &-nav {
+        display: none;
+    }
+
+    &-drawer-links,
+    &-nav-list,
+    &-section-links {
+        list-style: none;
+        margin: 0;
+        padding-left: 0;
+    }
+
+    &-nav-list {
+        align-items: center;
+        display: flex;
+        gap: var(--size-300);
+    }
+
+    &-panel {
+        @include lib.position(absolute, top);
+        display: grid;
+        gap: var(--size-400);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        opacity: 0;
+        padding: var(--size-500) 88px var(--size-900) 0;
+        transition:
+            opacity var(--panel-exit) var(--ease-out),
+            translate var(--panel-exit) var(--ease-out),
+            visibility 0s var(--panel-exit);
+        visibility: hidden;
+
+        // Inactive panels rest on the side of the active trigger they sit on, so switching
+        // slides the incoming panel in and the outgoing one out in the direction of travel.
+        &.--after {
+            translate: var(--panel-shift) 0;
+        }
+
+        &.--before {
+            translate: calc(var(--panel-shift) * -1) 0;
+        }
+
+        @include tokens.state(active) {
+            opacity: 1;
+            transition:
+                opacity var(--panel-enter) var(--ease-out),
+                translate var(--panel-enter) var(--ease-out),
+                visibility 0s;
+            visibility: visible;
+        }
+    }
+
+    &-row {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        position: relative;
+    }
+
+    &-rule {
+        @include lib.position(absolute, bottom);
+        background: linear-gradient(90deg, var(--foreground) 1px, transparent 1px) 0 0 / 4px 1px repeat-x;
+        display: none;
+        height: 1px;
+        opacity: 0.2;
+    }
+
+    &-section {
+        align-content: start;
+        display: grid;
+        gap: var(--size-200);
+        grid-column: span var(--columns);
+
+        & + & {
+            border-left: var(--border-width-400) solid var(--divider);
+            padding-left: var(--size-400);
+        }
+    }
+
+    &-section-links {
+        display: grid;
+        gap: var(--size-100);
+        grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+    }
+
+    &-section-title {
+        color: var(--color-link);
+        font-size: 0.75rem;
+        font-weight: var(--font-weight-500);
+        margin-left: var(--size-100);
+        text-transform: uppercase;
+    }
+
+    &-start {
+        align-items: center;
+        border-bottom: var(--border-width-400) solid var(--divider);
+        display: flex;
+        gap: var(--size-700);
+        height: var(--height-mobile);
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    &-toggle {
+        background: transparent;
+        border: 0;
+        color: var(--foreground);
+        cursor: pointer;
+        display: block;
+        margin: -10px -12px -10px -10px;
+        padding: 10px;
+        position: relative;
+        z-index: 1;
+    }
+
+    &-toggle-icon {
+        display: block;
+        height: 20px;
+        margin: auto;
+        transition:
+            opacity 0.2s var(--ease),
+            rotate 0.2s var(--ease),
+            scale 0.2s var(--ease);
+        width: 20px;
+
+        &--close {
+            @include lib.position(absolute, full);
+            opacity: 0;
+            rotate: -180deg;
+            scale: 0;
+        }
+    }
+
+    &-trigger {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: var(--border-radius-300);
+        color: var(--color-link);
+        cursor: pointer;
+        display: inline-flex;
+        font-size: 0.875rem;
+        font-weight: var(--font-weight-500);
+        height: 32px;
+        justify-content: center;
+        outline: none;
+        padding: 4px var(--size-400);
+        text-decoration: none;
+        transition:
+            background-color 0.15s var(--ease),
+            color 0.15s var(--ease);
+        white-space: nowrap;
+
+        &:hover,
+        &:focus-visible,
+        &.--active {
+            background: var(--muted);
+            color: var(--color-link-active);
+        }
+
+        &:focus-visible {
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--foreground) 15%, transparent);
+        }
+
+        &.--active .header-chevron {
+            translate: 0 1px;
+        }
+    }
+
+    &-viewport {
+        display: none;
+    }
+
+
+    @container header (min-width: 1024px) {
+        &.--open {
+            .header-bar {
+                backdrop-filter: blur(var(--blur));
+                background: var(--surface);
+                border-bottom-color: var(--border-color);
+                box-shadow:
+                    0 0 0 1px var(--border-color),
+                    0 10px 15px -3px color-mix(in srgb, var(--color-black-400) 6.5%, transparent);
+                height: calc(var(--height) + var(--viewport-height));
+            }
+
+            .header-rule {
+                display: block;
+            }
+        }
+
+        &-actions {
+            display: flex;
+            margin: 0;
+            width: auto;
+        }
+
+        &-bar {
+            height: var(--height);
+        }
+
+        &-container {
+            padding-inline: var(--size-800);
+        }
+
+        &-drawer,
+        &-toggle {
+            display: none;
+        }
+
+        &-nav {
+            display: block;
+            height: fit-content;
+            inset: 0;
+            margin: auto;
+            position: absolute;
+            width: fit-content;
+        }
+
+        &-row {
+            padding-block: var(--size-500);
+        }
+
+        &-start {
+            border-bottom: 0;
+            height: auto;
+            width: auto;
+        }
+
+        &-viewport {
+            display: block;
+            opacity: 0;
+            position: relative;
+            transform: perspective(1200px) rotateX(-8deg) scale(0.96);
+            transform-origin: top;
+            transition:
+                opacity var(--panel-exit) var(--ease-out),
+                transform var(--panel-exit) var(--ease-out);
+        }
+
+        &.--open .header-viewport {
+            opacity: 1;
+            transform: perspective(1200px) rotateX(0deg) scale(1);
+            transition:
+                opacity var(--panel-enter) var(--ease-out),
+                transform var(--panel-enter) var(--ease-out);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &::before,
+        &-bar,
+        &-chevron,
+        &-panel,
+        &-toggle-icon,
+        &-viewport {
+            transition: none;
+        }
+    }
+}

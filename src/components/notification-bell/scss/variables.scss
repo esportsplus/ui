@@ -1,0 +1,41 @@
+@use '/tokens';
+
+.notification-bell {
+    --background: var(--background-default);
+    --background-default: transparent;
+    --background-hover: color-mix(in srgb, currentColor 8%, transparent);
+    --background-pressed: color-mix(in srgb, currentColor 14%, transparent);
+    --badge-background: var(--color-red-400);
+    --badge-color: var(--color-white-400);
+    --badge-font-size: calc(var(--size) * 0.26);
+    --badge-font-weight: var(--font-weight-500);
+    --badge-inset: calc(var(--size) * 0.12);
+    --badge-outline-color: var(--color-white-400);
+    --badge-outline-width: 2px;
+    --badge-size: calc(var(--size) * 0.42);
+    --badge-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --badge-transition-duration: 280ms;
+    --border-radius: 50%;
+    --color: var(--color-text-400);
+    --dot-size: calc(var(--size) * 0.24);
+    --focus-color: currentColor;
+    --focus-offset: 2px;
+    --focus-width: 2px;
+    --icon-size: 50%;
+    --icon-stroke-width: 2;
+    --ring-angle: 14deg;
+    --ring-duration: 800ms;
+    --roll-duration: 400ms;
+    --roll-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    --size: var(--size-800);
+    --transition-duration: 160ms;
+    --transition-timing-function: ease;
+
+    @include tokens.state(hover) {
+        --background: var(--background-hover);
+    }
+
+    @include tokens.state(pressed) {
+        --background: var(--background-pressed);
+    }
+}

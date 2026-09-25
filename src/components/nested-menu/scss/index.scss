@@ -1,0 +1,219 @@
+@use '/tokens';
+@use 'variables';
+
+.nested-menu {
+    display: inline-block;
+    position: relative;
+
+    &-chevron {
+        border-color: currentColor;
+        border-style: solid;
+        border-width: 0 1.5px 1.5px 0;
+        flex-shrink: 0;
+        height: 6px;
+        margin-inline: 2px;
+        opacity: 0.6;
+        rotate: -45deg;
+        transition: rotate var(--open-duration) var(--open-timing-function);
+        width: 6px;
+    }
+
+    &-entry {
+        position: relative;
+
+        // Above the parent's scrim, so the open child panel stays undimmed
+        &.--open {
+            z-index: 2;
+        }
+    }
+
+    &-header,
+    &-item {
+        align-items: center;
+        border-radius: var(--item-border-radius);
+        display: flex;
+        gap: var(--gap);
+        min-height: var(--item-height);
+        padding-inline: var(--item-padding);
+    }
+
+    &-header {
+        cursor: pointer;
+
+        .nested-menu-chevron {
+            rotate: 45deg;
+        }
+    }
+
+    &-hint {
+        color: var(--color-hint);
+        font-size: 0.75rem;
+    }
+
+    &-icon {
+        display: inline-flex;
+        flex-shrink: 0;
+    }
+
+    &-item {
+        appearance: none;
+        background: transparent;
+        border: 0;
+        color: inherit;
+        cursor: pointer;
+        font: inherit;
+        outline: none;
+        text-align: start;
+        transition: background var(--close-duration) var(--open-timing-function);
+        width: 100%;
+
+        &:focus,
+        &:hover {
+            background: var(--background-hover);
+        }
+
+        &.--danger {
+            color: var(--color-danger);
+        }
+
+        &:disabled {
+            background: transparent;
+            color: var(--color-disabled);
+            cursor: not-allowed;
+        }
+    }
+
+    &-label,
+    &-title {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-panel {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        color: var(--color);
+        font-size: var(--font-size);
+        isolation: isolate;
+        padding: var(--padding);
+        position: absolute;
+        width: var(--width);
+
+        // Scrim over parent panels while a child is open; it also takes clicks meant to pop back here
+        &::after {
+            background: var(--scrim);
+            border-radius: inherit;
+            content: '';
+            inset: 0;
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+            transition: opacity var(--open-duration) var(--open-timing-function);
+            z-index: 1;
+        }
+
+        &.--covered::after {
+            cursor: pointer;
+            opacity: 1;
+            pointer-events: auto;
+        }
+    }
+
+    // Root panel
+    > .nested-menu-panel {
+        left: 0;
+        opacity: 0;
+        top: calc(100% + var(--offset));
+        transition:
+            opacity var(--close-duration) var(--open-timing-function),
+            visibility 0s linear var(--close-duration);
+        translate: var(--shift-x, 0px) 0;
+        visibility: hidden;
+        z-index: 9;
+
+        &.--active {
+            opacity: 1;
+            transition: opacity var(--close-duration) var(--open-timing-function);
+            visibility: visible;
+        }
+    }
+
+    // Sub-panels start clipped to the row that opened them, so the row reads as the panel's header,
+    // then the clip grows downward. The open clip overhangs the box so the shadow isn't cut off.
+    &-entry > &-panel {
+        clip-path: inset(
+            var(--padding)
+            var(--padding)
+            calc(100% - var(--padding) - var(--item-height))
+            var(--padding)
+            round var(--item-border-radius)
+        );
+        inset-inline: calc(var(--padding) * -1);
+        pointer-events: none;
+        top: calc(var(--padding) * -1);
+        transition:
+            clip-path var(--close-duration) var(--open-timing-function),
+            visibility 0s linear var(--close-duration);
+        visibility: hidden;
+        width: auto;
+        z-index: 2;
+
+        &.--active {
+            clip-path: inset(-48px round calc(var(--border-radius) + 48px));
+            pointer-events: auto;
+            transition: clip-path var(--open-duration) var(--open-timing-function);
+            visibility: visible;
+
+            &.--settled {
+                clip-path: none;
+            }
+        }
+    }
+
+    // Regular and bold copies of the title are stacked; crossfading them morphs the weight
+    // without reflowing the label.
+    &-title {
+        display: grid;
+
+        &-bold,
+        &-regular {
+            grid-area: 1 / 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: opacity var(--open-duration) var(--open-timing-function);
+        }
+
+        &-bold {
+            font-weight: 600;
+            opacity: 0;
+        }
+    }
+
+    &-panel.--active > &-header &-title {
+        &-bold {
+            opacity: 1;
+        }
+
+        &-regular {
+            opacity: 0;
+        }
+    }
+
+    &-trigger {
+        cursor: pointer;
+    }
+
+    &.--instant {
+        --close-duration: 0s;
+        --open-duration: 0s;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --close-duration: 0s;
+        --open-duration: 0s;
+    }
+}

@@ -1,0 +1,105 @@
+@use 'variables';
+
+.composer {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: var(--width);
+
+
+    &-action {
+        align-items: center;
+        background: var(--background);
+        border: 0;
+        border-radius: var(--border-radius);
+        color: var(--color);
+        cursor: pointer;
+        display: inline-flex;
+        flex: 0 0 auto;
+        font-size: var(--font-size);
+        gap: var(--gap);
+        padding: var(--padding-vertical) var(--padding-horizontal);
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
+        white-space: nowrap;
+    }
+
+    &-actions,
+    &-footer {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--gap);
+        min-width: 0;
+    }
+
+    &-footer {
+        padding: var(--padding-vertical) var(--padding-horizontal);
+    }
+
+    &-input {
+        background: var(--background);
+        border: var(--border-width) solid var(--border-color);
+        border-radius: inherit;
+        box-shadow: var(--box-shadow);
+        cursor: text;
+        display: flex;
+        flex-direction: column;
+        transition:
+            border-color var(--transition-duration) var(--transition-timing-function),
+            box-shadow var(--transition-duration) var(--transition-timing-function);
+
+        .textarea {
+            &::placeholder {
+                color: var(--placeholder-color);
+            }
+        }
+    }
+
+    &-send {
+        align-items: center;
+        background: var(--background);
+        border: 0;
+        border-radius: 100%;
+        color: var(--color);
+        cursor: pointer;
+        display: flex;
+        flex: 0 0 var(--size);
+        height: var(--size);
+        justify-content: center;
+        margin-left: auto;
+        padding: 0;
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function);
+        width: var(--size);
+
+        &:disabled {
+            background: var(--background-disabled);
+            cursor: default;
+        }
+
+        .icon {
+            --size: var(--icon-size);
+        }
+    }
+
+    &-separator {
+        align-self: center;
+        background: var(--background);
+        flex: 0 0 var(--width);
+        height: var(--height);
+        margin: 0 var(--margin-horizontal);
+        width: var(--width);
+    }
+
+    &-toolbar {
+        align-items: center;
+        display: flex;
+        gap: var(--gap);
+        padding: 0 var(--padding-horizontal) var(--padding-vertical);
+    }
+}

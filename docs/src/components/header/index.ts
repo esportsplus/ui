@@ -1,7 +1,7 @@
 import icon from '~/components/icon';
 import githubSvg from '~/storage/svg/github.svg';
 import { html, uri } from '../../app';
-import { modal, search } from '../search';
+import { modal } from '../search';
 import type { Request } from '../../app';
 import './scss/index.scss';
 import { version } from '../../../../package.json';
@@ -18,33 +18,33 @@ let tabs: { label: string; name: 'components' | 'css-utilities' | 'docs' | 'toke
 
 
 export default (request: Request) => html`
-    <header class='header --glass'>
-        <div class='header-inner'>
-            <a class='header-brand' href='${uri('docs')}' aria-label='Esportsplus UI home'>
-                esportsplus<span class='header-brand-ui'> / ui</span>
+    <header class='docs-header --glass'>
+        <div class='docs-header-inner'>
+            <a class='docs-header-brand' href='${uri('docs')}' aria-label='Esportsplus UI home'>
+                esportsplus<span class='docs-header-brand-ui'> / ui</span>
             </a>
 
             <span
-                class='header-version button button--flat'
+                class='docs-header-version button button--flat'
                 style='border: 1px solid var(--border-color);--font-size: var(--font-size-100);--font-weight: var(--font-weight-300);'
                 title='v${version}'
             >
                 v${release}
             </span>
 
-            <nav class='header-nav'>
+            <nav class='docs-header-nav'>
                 ${tabs.map((tab) => html`
                     <a
-                        class='header-link ${() => request.data.route?.name?.startsWith(tab.name) ? '--active' : ''}'
+                        class='docs-header-link ${() => request.data.route?.name?.startsWith(tab.name) ? '--active' : ''}'
                         href='${uri(tab.name)}'
                     >${tab.label}</a>
                 `)}
             </nav>
 
-            <div class='header-actions --flex-start'>
+            <div class='docs-header-actions --flex-start'>
                 <a
                     aria-label='GitHub'
-                    class='header-icon button --background-grey'
+                    class='docs-header-icon button --background-grey'
                     href='https://github.com/esportsplus/ui'
                     rel='noreferrer'
                     style='--padding-horizontal: var(--size-200);--padding-vertical: var(--size-200);'
@@ -56,5 +56,5 @@ export default (request: Request) => html`
         </div>
     </header>
 
-    ${() => search.open && modal()}
+    ${modal()}
 `;

@@ -1,0 +1,282 @@
+@use 'variables';
+
+.sortable {
+    > * {
+        -webkit-touch-callout: none;
+    }
+
+    // Stays in the container (so selectors like '.toolbar > button' keep matching) but is lifted out of
+    // flow with 'position: fixed'; the placeholder holds its slot.
+    > .--dragging {
+        cursor: grabbing;
+        transition:
+            box-shadow var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function);
+        will-change: transform;
+        z-index: var(--drag-z-index);
+
+        &:not(.--dropping) {
+            animation: var(--drag-animation);
+            box-shadow: var(--drag-box-shadow);
+            scale: var(--drag-scale);
+        }
+    }
+
+    &.--active {
+        user-select: none;
+    }
+
+
+    // Nested anywhere inside an item; only rendered while that item is held. The dragged item is
+    // 'position: fixed', so this covers it without the item needing its own positioning.
+    &-overlay {
+        align-items: center;
+        background: inherit;
+        border-radius: inherit;
+        display: none;
+        inset: 0;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        transition:
+            display var(--overlay-transition-duration) allow-discrete,
+            opacity var(--overlay-transition-duration) var(--transition-timing-function);
+        z-index: 1;
+
+        .sortable > .--dragging & {
+            display: flex;
+            opacity: 1;
+
+            @starting-style {
+                opacity: 0;
+            }
+        }
+
+        .sortable > .--dropping & {
+            opacity: 0;
+        }
+    }
+
+    &-placeholder {
+        background: var(--placeholder-background);
+        border: var(--placeholder-border-width) dashed var(--placeholder-border-color);
+        border-radius: var(--radius);
+        box-sizing: border-box;
+        flex: none;
+        pointer-events: none;
+        transition:
+            opacity var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function);
+
+        @starting-style {
+            opacity: 0;
+            scale: 0.9;
+        }
+    }
+}
+
+
+// Scale keyframes build on '--drag-scale' so the lift survives the animation.
+@keyframes sortable-breathe {
+    from {
+        scale: var(--drag-scale);
+    }
+
+    to {
+        scale: calc(var(--drag-scale) * 1.025);
+    }
+}
+
+@keyframes sortable-float {
+    from {
+        translate: 0 0;
+    }
+
+    to {
+        translate: 0 -2px;
+    }
+}
+
+@keyframes sortable-heartbeat {
+    0%, 28%, 70%, 100% {
+        scale: var(--drag-scale);
+    }
+
+    14%, 42% {
+        scale: calc(var(--drag-scale) * 1.03);
+    }
+}
+
+@keyframes sortable-jelly {
+    from {
+        scale: calc(var(--drag-scale) * 1.02) calc(var(--drag-scale) * 0.98);
+    }
+
+    to {
+        scale: calc(var(--drag-scale) * 0.98) calc(var(--drag-scale) * 1.02);
+    }
+}
+
+@keyframes sortable-jiggle {
+    0%, 100% {
+        rotate: -0.7deg;
+        translate: 0 0.3px;
+    }
+
+    25% {
+        rotate: 0.5deg;
+        translate: 0.3px 0;
+    }
+
+    50% {
+        rotate: 0.7deg;
+        translate: 0 -0.3px;
+    }
+
+    75% {
+        rotate: -0.5deg;
+        translate: -0.3px 0;
+    }
+}
+
+@keyframes sortable-orbit {
+    0%, 100% {
+        translate: 1.2px 0;
+    }
+
+    12.5% {
+        translate: 0.85px 0.85px;
+    }
+
+    25% {
+        translate: 0 1.2px;
+    }
+
+    37.5% {
+        translate: -0.85px 0.85px;
+    }
+
+    50% {
+        translate: -1.2px 0;
+    }
+
+    62.5% {
+        translate: -0.85px -0.85px;
+    }
+
+    75% {
+        translate: 0 -1.2px;
+    }
+
+    87.5% {
+        translate: 0.85px -0.85px;
+    }
+}
+
+@keyframes sortable-pop {
+    0% {
+        scale: 1;
+    }
+
+    45% {
+        scale: calc(var(--drag-scale) * 1.06);
+    }
+
+    75% {
+        scale: calc(var(--drag-scale) * 0.98);
+    }
+
+    100% {
+        scale: var(--drag-scale);
+    }
+}
+
+@keyframes sortable-settle {
+    0%, 100% {
+        rotate: 0deg;
+    }
+
+    15% {
+        rotate: 3deg;
+    }
+
+    30% {
+        rotate: -2deg;
+    }
+
+    45% {
+        rotate: 1.2deg;
+    }
+
+    60% {
+        rotate: -0.6deg;
+    }
+
+    75% {
+        rotate: 0.25deg;
+    }
+}
+
+@keyframes sortable-shimmy {
+    from {
+        translate: -0.6px 0;
+    }
+
+    to {
+        translate: 0.6px 0;
+    }
+}
+
+@keyframes sortable-sway {
+    from {
+        rotate: -1.2deg;
+    }
+
+    to {
+        rotate: 1.2deg;
+    }
+}
+
+@keyframes sortable-tremble {
+    0%, 100% {
+        rotate: 0deg;
+        translate: 0 0;
+    }
+
+    20% {
+        rotate: -0.3deg;
+        translate: -0.4px 0.3px;
+    }
+
+    40% {
+        rotate: 0.2deg;
+        translate: 0.5px -0.2px;
+    }
+
+    60% {
+        rotate: -0.1deg;
+        translate: -0.2px -0.4px;
+    }
+
+    80% {
+        rotate: 0.3deg;
+        translate: 0.3px 0.4px;
+    }
+}
+
+@keyframes sortable-wiggle {
+    from {
+        rotate: -0.6deg;
+    }
+
+    to {
+        rotate: 0.6deg;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sortable > .--dragging:not(.--dropping) {
+        animation: none;
+    }
+}

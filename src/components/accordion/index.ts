@@ -1,9 +1,10 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, component, type Attributes } from '@esportsplus/template';
+import more from './more';
 import './scss/index.scss';
 
 
-export default component<Attributes & { state?: { active: boolean | number } }>(
+const base = component<Attributes & { state?: { active: boolean | number } }>(
     function({ state = reactive({ active: false }), ...attributes }, content) {
         return html`
             <div
@@ -19,3 +20,8 @@ export default component<Attributes & { state?: { active: boolean | number } }>(
         `;
     }
 );
+
+const accordion: typeof base & { more: typeof more } = Object.assign(base, { more });
+
+
+export default accordion;

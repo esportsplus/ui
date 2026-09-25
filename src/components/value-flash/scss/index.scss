@@ -1,0 +1,193 @@
+@use 'variables';
+
+.value-flash {
+    align-items: center;
+    border-radius: var(--border-radius);
+    display: inline-grid;
+    font-size: var(--font-size);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--font-weight);
+    gap: var(--gap);
+    grid-auto-flow: column;
+    padding: var(--padding);
+    position: relative;
+    transition:
+        color var(--tone-duration) var(--transition-timing-function),
+        scale var(--settle-duration) var(--settle);
+
+    &[data-direction='down'] {
+        --tone: var(--color-down);
+    }
+
+    &[data-direction='up'] {
+        --tone: var(--color-up);
+    }
+
+    &:is([data-flash='even'], [data-flash='odd']) {
+        color: var(--tone);
+        scale: var(--lift-scale);
+        transition:
+            color var(--tone-duration) var(--transition-timing-function),
+            scale var(--lift-duration) var(--lift);
+
+        .value-flash-tint {
+            opacity: 1;
+            transition: opacity var(--cell-duration) var(--cell);
+        }
+    }
+
+    &[data-flash='even'] .value-flash-arrow svg {
+        animation-name: value-flash-pop-2;
+    }
+
+    &[data-flash='odd'] .value-flash-arrow svg {
+        animation-name: value-flash-pop-1;
+    }
+
+    &[data-flash='off'] .value-flash-arrow svg {
+        animation: value-flash-clear var(--clear-duration) var(--clear) both;
+    }
+
+    &-announcement {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-arrow {
+        display: grid;
+        height: 1em;
+        place-items: center;
+        position: relative;
+        width: 1em;
+
+        svg {
+            --from: var(--arrow-offset);
+
+            animation: none var(--pop-duration) var(--pop) both;
+            display: block;
+            height: var(--arrow-size);
+            opacity: 0;
+            width: var(--arrow-size);
+        }
+    }
+
+    &[data-direction='down'] &-arrow svg {
+        --from: calc(var(--arrow-offset) * -1);
+
+        rotate: 180deg;
+    }
+
+    &-text {
+        grid-area: 1 / 1;
+
+        &--down,
+        &--up {
+            animation: value-flash-roll var(--roll-duration) var(--roll) both;
+        }
+
+        &--down {
+            --from: calc(var(--roll-offset) * -1);
+            --to: var(--drop-offset);
+        }
+
+        &--up {
+            --from: var(--roll-offset);
+            --to: calc(var(--drop-offset) * -1);
+        }
+
+        // Pulled out of flow so the incoming text alone sizes the value.
+        &--leaving {
+            animation: value-flash-drop var(--drop-duration) var(--clear) both;
+            inset-inline-start: 0;
+            position: absolute;
+        }
+    }
+
+    &-tint {
+        background: color-mix(in oklch, var(--tone, transparent) var(--tint-opacity), transparent);
+        border-radius: inherit;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        transition: opacity var(--clear-duration) var(--clear);
+    }
+
+    &-value {
+        display: inline-grid;
+        overflow: hidden;
+        position: relative;
+    }
+}
+
+@keyframes value-flash-clear {
+    from {
+        opacity: 1;
+        scale: 1;
+    }
+
+    to {
+        opacity: 0;
+        scale: 0.8;
+    }
+}
+
+@keyframes value-flash-drop {
+    from {
+        filter: blur(0);
+        opacity: 1;
+        translate: 0 0;
+    }
+
+    to {
+        filter: blur(var(--drop-blur));
+        opacity: 0;
+        translate: 0 var(--to, 0);
+    }
+}
+
+@keyframes value-flash-pop-1 {
+    from {
+        opacity: 0;
+        scale: 0.4;
+        translate: 0 var(--from);
+    }
+
+    to {
+        opacity: 1;
+        scale: 1;
+        translate: 0 0;
+    }
+}
+
+@keyframes value-flash-pop-2 {
+    from {
+        opacity: 0;
+        scale: 0.4;
+        translate: 0 var(--from);
+    }
+
+    to {
+        opacity: 1;
+        scale: 1;
+        translate: 0 0;
+    }
+}
+
+@keyframes value-flash-roll {
+    from {
+        filter: blur(var(--roll-blur));
+        opacity: 0;
+        translate: 0 var(--from);
+    }
+
+    to {
+        filter: blur(0);
+        opacity: 1;
+        translate: 0 0;
+    }
+}

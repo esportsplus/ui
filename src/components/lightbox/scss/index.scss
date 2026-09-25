@@ -1,0 +1,194 @@
+@use '/lib';
+@use '/tokens';
+@use 'variables';
+
+.lightbox {
+    @include tokens.state(active) {
+        .lightbox {
+            &-chrome {
+                opacity: 1;
+                transition: opacity 0.4s var(--ease);
+            }
+
+            &-veil {
+                opacity: 1;
+                transition: opacity 0.4s var(--ease);
+            }
+        }
+    }
+
+
+    &-actions {
+        align-items: center;
+        display: flex;
+        gap: 8px;
+        pointer-events: auto;
+    }
+
+    &-assistive {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-button {
+        background: var(--button-background);
+        border: 1px solid var(--button-border-color);
+        border-radius: var(--button-radius);
+        color: var(--button-color);
+        cursor: pointer;
+        display: grid;
+        height: var(--button-size);
+        outline: none;
+        padding: 0;
+        place-items: center;
+        transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease,
+            color 0.15s ease;
+        width: var(--button-size);
+
+        &-plus {
+            transition: opacity 0.15s ease;
+        }
+
+        &.--zoomed &-plus {
+            opacity: 0;
+        }
+
+        &:focus-visible {
+            border-color: var(--focus-color);
+            box-shadow: 0 10px 20px -14px var(--focus-color);
+        }
+
+        &:hover {
+            border-color: var(--button-border-color-hover);
+            color: var(--button-color-hover);
+        }
+
+        svg {
+            fill: none;
+            height: 15px;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 16;
+            width: 15px;
+        }
+    }
+
+    &-caption {
+        background: var(--button-background);
+        border: 1px solid var(--button-border-color);
+        border-radius: var(--button-radius);
+        color: var(--button-color-hover);
+        font-size: var(--caption-font-size);
+        margin: 0;
+        max-width: 65%;
+        overflow: hidden;
+        padding: 6px 10px;
+        pointer-events: auto;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: auto;
+    }
+
+    &-chrome {
+        @include lib.position(absolute, full);
+        align-items: flex-start;
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        opacity: 0;
+        padding: var(--chrome-padding);
+        pointer-events: none;
+        transition: opacity 0.2s var(--exit-timing-function);
+    }
+
+    &-frame {
+        @include lib.position(absolute, full);
+        -webkit-touch-callout: none;
+        cursor: zoom-in;
+        outline: none;
+        overflow: hidden;
+        touch-action: none;
+        user-select: none;
+
+        &.--zoomed {
+            cursor: grab;
+
+            &:active {
+                cursor: grabbing;
+            }
+        }
+
+        &:focus-visible {
+            box-shadow: inset 0 0 0 1px var(--focus-color);
+        }
+    }
+
+    // Both axes auto so the max caps scale the box proportionally; the attributes' own size would
+    // distort it, leaving the rounded corners outside the letterboxed picture.
+    &-image {
+        height: auto;
+        max-height: 100%;
+        max-width: 100%;
+        width: auto;
+    }
+
+    &-stage {
+        @include lib.position(absolute, full);
+        align-items: center;
+        display: flex;
+        filter: blur(4px);
+        justify-content: center;
+        padding: var(--padding);
+        transition: filter 0.5s var(--ease);
+
+        @include tokens.state(active) {
+            filter: blur(0px);
+            transition: filter 0.35s var(--ease);
+        }
+    }
+
+    &-veil {
+        @include lib.position(absolute, full);
+        background: var(--backdrop);
+        opacity: 0;
+        transition: opacity 0.3s var(--ease);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-button-plus,
+        &-chrome,
+        &-stage,
+        &-veil {
+            transition: none !important;
+        }
+    }
+}
+
+// Zero specificity so the UA dialog reset stays overridable.
+:where(dialog.lightbox) {
+    background: transparent;
+    border: 0;
+    color: inherit;
+    height: 100%;
+    margin: 0;
+    max-height: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    padding: 0;
+    width: 100%;
+}
+
+dialog.lightbox {
+    @include lib.position(fixed, full);
+
+    &::backdrop {
+        background: transparent;
+    }
+}

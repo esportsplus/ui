@@ -4,4 +4,16 @@
     --height: var(--size);
     --size: var(--size-700);
     --width: var(--size);
+
+
+    &--stack {
+        --stack-gap: var(--border-width-500);
+        --stack-overlap: calc(var(--width) / 4);
+    }
+
+    &--status {
+        --status-color: var(--color-green-400);
+        --status-gap: var(--border-width-500);
+        --status-size: calc(min(var(--height), var(--width)) * 0.3);
+    }
 }

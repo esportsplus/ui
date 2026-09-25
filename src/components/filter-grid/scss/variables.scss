@@ -1,0 +1,41 @@
+.filter-grid {
+    --empty-color: var(--color-text-300);
+    --spacer: var(--size-300);
+
+    &-count {
+        --opacity: 1;
+    }
+
+    &-filter {
+        --border-color: var(--color-border-400);
+        --border-color-focus: var(--color-blue-400);
+        --border-radius: var(--border-radius-300);
+        --color: var(--color-text-400);
+        --color-active: var(--color-white-400);
+        --count-color: var(--color-text-300);
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-500);
+        --height: var(--size-700);
+        --padding-horizontal: var(--size-300);
+        --transition-duration: 0.16s;
+    }
+
+    &-filters {
+        --gap: var(--size-100);
+    }
+
+    &-item {
+        --background: var(--color-white-300);
+        --border-color: var(--color-border-300);
+        --border-radius: var(--border-radius-600);
+        --box-shadow: var(--box-shadow-200);
+        --padding: var(--size-300);
+    }
+
+    &-thumb {
+        --background: var(--color-black-400);
+        --border-radius: var(--border-radius-300);
+        --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --transition-duration: 0.28s;
+    }
+}

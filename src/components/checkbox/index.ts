@@ -14,7 +14,7 @@ type Attr = A & { [CHECKBOX_INPUT]?: A };
 const CHECKBOX_INPUT = Symbol.for('@esportsplus/ui/checkbox.input');
 
 
-const factory = (type: 'checkbox' | 'radio' | 'switch') => {
+const factory = Object.assign((type: 'checkbox' | 'radio' | 'switch') => {
     function template(
         this: { attributes?: Attr } | void,
         { state = reactive({ error: '' }), ...attributes }: Attr & { state?: { error: string } } = {}
@@ -38,9 +38,9 @@ const factory = (type: 'checkbox' | 'radio' | 'switch') => {
         `;
     }
 
-    return Object.assign(template, { input: CHECKBOX_INPUT } as const);
-};
+    return template;
+}, { input: CHECKBOX_INPUT } as const);
 
 
 export default factory('checkbox');
-export { factory, CHECKBOX_INPUT };
+export { factory };

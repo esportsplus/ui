@@ -50,6 +50,23 @@ export default {
             ),
             title: 'menu'
         },
+        {
+            render: () => tooltip.context(
+                {
+                    class: '--flex-center',
+                    [tooltip.context.option]: { style: 'padding: var(--size-300) var(--size-500); --color-default: var(--color-white-400); white-space: nowrap;' },
+                    options: [
+                        { content: 'Back' },
+                        { content: 'Reload' },
+                        { content: 'Docs ↗', href: '#' }
+                    ],
+                    style: 'border: 1px dashed currentColor; height: 160px; width: 320px;',
+                    [tooltip.context.tooltipContent]: { style: content }
+                },
+                html`right click here`
+            ),
+            title: 'context'
+        },
         ...[
             ['tooltip-content--scale', 'scale'],
             ['tooltip-content--scale-spring', 'scale + spring'],
@@ -63,6 +80,30 @@ export default {
                         ${title}
                     </div>
                 `
+            ),
+            title
+        })),
+        // Dropdown / select menu animations
+        ...[
+            ['tooltip-content--zoom', 'menu: zoom (Radix / shadcn / Headless UI)'],
+            ['tooltip-content--corner', 'menu: corner (beUI)'],
+            ['tooltip-content--grow', 'menu: grow (Material)'],
+            ['tooltip-content--stagger', 'menu: stagger']
+        ].map(([variant, title]) => ({
+            render: () => tooltip.menu(
+                {
+                    class: trigger,
+                    [tooltip.menu.option]: { style: 'padding: var(--size-300) var(--size-500); --color-default: var(--color-white-400); white-space: nowrap;' },
+                    options: [
+                        { content: 'Profile' },
+                        { content: 'Settings' },
+                        { content: 'Billing' },
+                        { content: 'Sign out' }
+                    ],
+                    style: '--width: auto;',
+                    [tooltip.menu.tooltipContent]: { class: variant, direction: 's', style: content }
+                },
+                html`open menu`
             ),
             title
         })),
@@ -103,6 +144,39 @@ export default {
                 `
             ),
             title: 'morph message (onhover, e)'
+        },
+        // Group: one shared tooltip glides between items while its content slides the other way.
+        ...([
+            ['n', 'group (toolbar, n)'],
+            ['s', 'group (toolbar, s)']
+        ] as const).map(([direction, title]) => ({
+            render: () => tooltip.group({
+                [tooltip.group.item]: { class: trigger, tabindex: 0 },
+                items: [
+                    { content: 'B', tooltip: 'Bold' },
+                    { content: 'I', tooltip: 'Italic' },
+                    { content: 'U', tooltip: 'Underline' },
+                    { content: 'Link', tooltip: 'Insert link' },
+                    { content: 'Clear', tooltip: 'Clear all formatting' }
+                ],
+                style: 'gap: var(--size-200);',
+                [tooltip.group.tooltipContent]: { direction }
+            }),
+            title
+        })),
+        {
+            render: () => tooltip.group({
+                [tooltip.group.item]: { class: trigger, tabindex: 0 },
+                items: [
+                    { content: 'Home', tooltip: 'Dashboard' },
+                    { content: 'Inbox', tooltip: '3 unread messages' },
+                    { content: 'Teams', tooltip: 'Teams' },
+                    { content: 'Settings', tooltip: 'Account & preferences' }
+                ],
+                style: 'flex-direction: column; gap: var(--size-200);',
+                [tooltip.group.tooltipContent]: { direction: 'e' }
+            }),
+            title: 'group (vertical, e)'
         }
     ]
 };

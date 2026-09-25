@@ -1,0 +1,149 @@
+@use '/lib';
+@use 'variables';
+
+.sticky-header {
+    --lifted: clamp(0, var(--progress) / 0.12, 1);
+    --offset: calc(var(--travel) * var(--progress));
+
+    background: var(--background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    position: relative;
+
+
+    &-bar {
+        @include lib.position(absolute, top);
+        height: var(--expanded-height);
+        min-height: var(--compact-height);
+        pointer-events: none;
+    }
+
+    &-compact {
+        --reveal: clamp(0, (var(--progress) - 0.55) / 0.35, 1);
+
+        color: var(--title-compact-color);
+        font-size: var(--title-compact-font-size);
+        font-weight: var(--font-weight-500);
+        inset: 3px 0 auto 0;
+        line-height: 1.4;
+        opacity: var(--reveal);
+        overflow: hidden;
+        position: absolute;
+        text-overflow: ellipsis;
+        translate: 0 calc((1 - var(--reveal)) * 6px);
+        white-space: nowrap;
+    }
+
+    // Edges ride the bottom of the shrinking bar and only appear once content slides underneath.
+    &-edge {
+        @include lib.position(absolute, top);
+        opacity: var(--lifted);
+        translate: 0 calc(var(--expanded-height) - var(--offset));
+
+        &--fade {
+            background: linear-gradient(var(--background), transparent);
+            height: 20px;
+        }
+
+        &--line {
+            background: var(--border-color);
+            height: 1px;
+        }
+
+        &--shadow {
+            box-shadow: var(--edge-shadow);
+            height: 1px;
+        }
+    }
+
+    &-expanded {
+        opacity: clamp(0, 1 - var(--progress) / 0.45, 1);
+        scale: calc(1 - 0.05 * var(--progress));
+        transform-origin: left top;
+        translate: 0 calc(var(--offset) * -1);
+    }
+
+    &-fade {
+        background: linear-gradient(transparent, var(--background));
+        bottom: 0;
+        height: 24px;
+        margin-top: -24px;
+        pointer-events: none;
+        position: sticky;
+    }
+
+    // Sliding a solid plate up reads the same as scaling it, without the per-frame raster.
+    &-plate {
+        @include lib.position(absolute, top);
+        background: var(--background);
+        height: var(--expanded-height);
+        translate: 0 calc(var(--offset) * -1);
+    }
+
+    &-row {
+        @include lib.position(absolute, top);
+        align-items: flex-start;
+        display: flex;
+        gap: 10px;
+        padding: var(--padding-top) var(--padding-horizontal) 0;
+    }
+
+    &-scroll {
+        max-height: var(--max-height);
+        outline: none;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        scroll-padding-top: calc(var(--compact-height) + 10px);
+        scrollbar-gutter: stable;
+
+        &:focus-visible {
+            background: oklch(from var(--focus-color) l c h / 0.06);
+            box-shadow: inset 0 0 0 1px var(--focus-color);
+        }
+    }
+
+    &-slot {
+        align-items: center;
+        display: flex;
+        flex-shrink: 0;
+        height: var(--slot-height);
+        pointer-events: auto;
+
+        &--actions {
+            gap: 6px;
+        }
+    }
+
+    &-spacer {
+        height: var(--expanded-height);
+    }
+
+    &-subtitle {
+        color: var(--subtitle-color);
+        font-size: var(--subtitle-font-size);
+        line-height: 1.35;
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-title {
+        color: var(--title-color);
+        font-size: var(--title-font-size);
+        font-weight: var(--font-weight-500);
+        letter-spacing: -0.03em;
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-titles {
+        flex: 1;
+        min-width: 0;
+        position: relative;
+    }
+}
