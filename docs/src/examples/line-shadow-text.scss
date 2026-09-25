@@ -1,0 +1,13 @@
+.line-shadow-text-demo {
+    font-size: clamp(48px, 9vw, 96px);
+    font-weight: var(--font-weight-600);
+    letter-spacing: -0.05em;
+    line-height: 1;
+    margin: 0;
+    text-align: center;
+    text-wrap: balance;
+
+    &-word {
+        font-style: italic;
+    }
+}

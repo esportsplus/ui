@@ -1,0 +1,22 @@
+.text-animate-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+
+    &-text {
+        color: var(--color-text-500);
+        font-size: var(--font-size-500);
+        font-weight: var(--font-weight-500);
+        max-width: 560px;
+        text-align: center;
+
+        &--large {
+            font-size: clamp(28px, 5vw, 40px);
+            font-weight: var(--font-weight-600);
+            letter-spacing: -0.025em;
+            line-height: 1.15;
+        }
+    }
+}

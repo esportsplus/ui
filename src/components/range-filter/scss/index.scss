@@ -1,0 +1,257 @@
+@use 'variables';
+
+.range-filter {
+    color: var(--color);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-inline: auto;
+    max-width: 100%;
+    width: var(--width);
+
+    &-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &-clear {
+        align-items: center;
+        background: var(--clear-background);
+        border: 1px solid var(--clear-border);
+        border-radius: 6px;
+        box-shadow: 0 1px 2px oklch(from var(--color-black-300) l c h / 0.05);
+        color: var(--muted-color);
+        cursor: pointer;
+        display: inline-flex;
+        flex-shrink: 0;
+        font: inherit;
+        font-size: 12px;
+        font-weight: var(--font-weight-500);
+        gap: 4px;
+        height: 24px;
+        outline: 0 solid var(--focus-color);
+        outline-offset: 2px;
+        padding: 0 8px;
+        transition:
+            background-color 150ms ease-out,
+            color 150ms ease-out,
+            opacity 150ms ease-out;
+
+        &:disabled {
+            cursor: default;
+            opacity: 0.5;
+        }
+
+        &:focus-visible {
+            outline-width: 2px;
+        }
+
+        &:not(:disabled):hover {
+            background: var(--clear-hover);
+            color: var(--color);
+        }
+
+        svg {
+            height: 12px;
+            width: 12px;
+        }
+    }
+
+    // Folds to nothing when the number is too short to need it, so digits slide over rather than jump.
+    &-column {
+        display: inline-block;
+        height: 1lh;
+        max-width: 1ch;
+        overflow: hidden;
+        position: relative;
+        text-align: center;
+        transition:
+            max-width var(--roll-duration) var(--roll-ease),
+            opacity var(--roll-duration) var(--roll-ease);
+        vertical-align: bottom;
+
+        &.--digit {
+            width: 1ch;
+        }
+
+        // Letters and separators are often wider than a digit, and a lone space must keep its width.
+        &.--symbol {
+            max-width: 1.5em;
+            white-space: pre;
+        }
+
+        &.--empty {
+            max-width: 0;
+            opacity: 0;
+        }
+
+        &.--symbol .range-filter-strip,
+        &:not(.--symbol) .range-filter-symbol {
+            display: none;
+        }
+    }
+
+    &-columns {
+        display: inline-flex;
+    }
+
+    &-dash {
+        color: var(--muted-color);
+    }
+
+    &-ghost {
+        background: var(--ghost-color);
+        border-radius: 999px;
+        height: var(--track-height);
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 50%;
+        transition:
+            left 75ms ease-out,
+            opacity 100ms ease-out,
+            width 75ms ease-out;
+        translate: 0 -50%;
+        z-index: 1;
+
+        &.--active {
+            opacity: 1;
+        }
+    }
+
+    &-header {
+        align-items: flex-start;
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+    }
+
+    &-label {
+        color: var(--muted-color);
+        font-size: 12px;
+        font-weight: var(--font-weight-500);
+        letter-spacing: 0.05em;
+        margin: 0 0 4px;
+        text-transform: uppercase;
+    }
+
+    &-number {
+        display: inline-flex;
+    }
+
+    &-range {
+        background: var(--range-color);
+        inset-block: 0;
+        position: absolute;
+        transition: none;
+    }
+
+    &-root {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        height: var(--thumb-size);
+        position: relative;
+        touch-action: none;
+        user-select: none;
+        width: 100%;
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-strip {
+        display: flex;
+        flex-direction: column;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: translate var(--roll-duration) var(--roll-ease);
+        translate: 0 calc(var(--digit, 0) * -10%);
+
+        span {
+            height: 1lh;
+        }
+    }
+
+    // Held inside the track like Radix does it: the centre travels from half a thumb in at each end.
+    &-thumb {
+        background: var(--thumb-background);
+        border: 2px solid var(--thumb-border);
+        border-radius: 50%;
+        box-shadow: 0 4px 6px -1px oklch(from var(--color-black-300) l c h / 0.1), 0 2px 4px -2px oklch(from var(--color-black-300) l c h / 0.1);
+        height: var(--thumb-size);
+        left: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
+        outline: 0 solid var(--focus-color);
+        outline-offset: 2px;
+        position: absolute;
+        top: 50%;
+        transition: scale 150ms ease-out;
+        translate: -50% -50%;
+        width: var(--thumb-size);
+
+        &:focus-visible {
+            outline-width: 3px;
+        }
+
+        &:hover,
+        &.--active {
+            scale: 1.25;
+        }
+    }
+
+    &-ticks {
+        color: var(--tick-color);
+        display: flex;
+        font-size: 11px;
+        font-weight: var(--font-weight-500);
+        justify-content: space-between;
+        user-select: none;
+    }
+
+    &-track {
+        background: var(--track-color);
+        border-radius: 999px;
+        height: var(--track-height);
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+    }
+
+    // Centred rather than baseline-aligned: the clipped digit columns report their bottom edge as their baseline.
+    &-value {
+        align-items: center;
+        display: inline-flex;
+        font-size: var(--value-font-size);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--font-weight-700, 700);
+    }
+
+    &-values {
+        align-items: center;
+        display: flex;
+        gap: 6px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-column,
+        &-ghost,
+        &-strip,
+        &-thumb {
+            transition: none;
+        }
+
+        &-thumb:hover,
+        &-thumb.--active {
+            scale: 1;
+        }
+    }
+}

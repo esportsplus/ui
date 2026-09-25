@@ -1,0 +1,18 @@
+.file-tree {
+    --active-background: var(--color-grey-500);
+    --border-radius: 6px;
+    --color: var(--color-text-500);
+    --duration: 200ms;
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --focus-color: oklch(from var(--color-text-500) l c h / 0.38);
+    --font-size: calc(var(--font-size-400) * 0.875);
+    --gap: 4px;
+    --icon-size: 16px;
+    --indent: 20px;
+    --indicator-color: var(--color-grey-500);
+    --indicator-hover: var(--color-border-500);
+    --indicator-offset: 6px;
+    --padding: 8px;
+    --padding-end: 4px;
+    --row-gap: 4px;
+}

@@ -1,0 +1,138 @@
+@use 'variables';
+
+.file-tree {
+    color: var(--color);
+    font-size: var(--font-size);
+    height: 100%;
+    position: relative;
+    width: 100%;
+
+    // Opens by animating the row track from 0fr to 1fr, so the folder grows to its real height without measuring.
+    &-content {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows var(--duration) var(--ease);
+
+        &.--active {
+            grid-template-rows: 1fr;
+        }
+    }
+
+    &-clip {
+        min-height: 0;
+        overflow: hidden;
+        position: relative;
+    }
+
+    &-folder {
+        position: relative;
+    }
+
+    &-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--row-gap);
+
+        .file-tree-clip > & {
+            margin-inline-start: var(--indent);
+            padding-block: var(--row-gap);
+        }
+    }
+
+    &-icon {
+        flex-shrink: 0;
+        height: var(--icon-size);
+        width: var(--icon-size);
+    }
+
+    &-indicator {
+        background: var(--indicator-color);
+        border-radius: 6px;
+        height: 100%;
+        inset-inline-start: var(--indicator-offset);
+        position: absolute;
+        transition: background-color 300ms ease-in-out;
+        width: 1px;
+
+        &:hover {
+            background: var(--indicator-hover);
+        }
+    }
+
+    &-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-toggle {
+        background: transparent;
+        border: 0;
+        border-radius: var(--border-radius);
+        bottom: 4px;
+        color: inherit;
+        cursor: pointer;
+        font: inherit;
+        height: 32px;
+        inset-inline-end: 8px;
+        outline: 0 solid var(--focus-color);
+        outline-offset: 2px;
+        padding: 0 8px;
+        position: absolute;
+        transition: background-color 150ms ease-out;
+
+        &:focus-visible {
+            outline-width: 2px;
+        }
+
+        &:hover {
+            background: var(--active-background);
+        }
+    }
+
+    &-trigger {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: var(--border-radius);
+        color: inherit;
+        cursor: pointer;
+        display: flex;
+        font: inherit;
+        gap: var(--gap);
+        max-width: 100%;
+        outline: 0 solid var(--focus-color);
+        outline-offset: 1px;
+        padding: 0;
+        padding-inline-end: var(--padding-end);
+        text-align: start;
+        transition: background-color 200ms ease-in-out;
+        width: fit-content;
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        &:focus-visible {
+            outline-width: 2px;
+        }
+
+        &.--active:not(:disabled) {
+            background: var(--active-background);
+        }
+    }
+
+    &-viewport {
+        height: 100%;
+        overflow: auto;
+        padding-inline: var(--padding);
+        position: relative;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-content {
+            transition: none;
+        }
+    }
+}

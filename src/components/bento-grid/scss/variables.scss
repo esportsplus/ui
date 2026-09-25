@@ -1,0 +1,19 @@
+.bento-grid {
+    --background: var(--color-white-300);
+    --border-radius: 12px;
+    --box-shadow: 0 0 0 1px oklch(from var(--color-black-300) l c h / 0.03), 0 2px 4px oklch(from var(--color-black-300) l c h / 0.05), 0 12px 24px oklch(from var(--color-black-300) l c h / 0.05);
+    --description-color: var(--color-text-300);
+    --duration: 300ms;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --focus-color: oklch(from var(--color-text-500) l c h / 0.38);
+    --gap: 16px;
+    --icon-color: var(--color-text-400);
+    --icon-size: 48px;
+    --link-color: var(--color-text-500);
+    --link-font-size: calc(var(--font-size-400) * 0.875);
+    --name-color: var(--color-text-400);
+    --name-font-size: var(--font-size-500);
+    --overlay-hover: oklch(from var(--color-black-300) l c h / 0.03);
+    --padding: 16px;
+    --row-height: 22rem;
+}

@@ -1,0 +1,15 @@
+.slider {
+    --color: var(--color-text-500);
+    --end: 0;
+    --font-size: calc(var(--font-size-400) * 0.875);
+    --indicator-color: var(--color-text-500);
+    --rail-inset: 2px;
+    --ring: oklch(from var(--color-text-500) l c h / 0.24);
+    --start: 0;
+    --thumb-background: var(--color-white-300);
+    --thumb-border: var(--color-border-300);
+    --thumb-shadow: 0 1px 2px oklch(from var(--color-black-300) l c h / 0.05), 0 1px oklch(from var(--color-black-300) l c h / 0.04);
+    --thumb-size: 16px;
+    --track-color: var(--color-border-300);
+    --track-size: 4px;
+}

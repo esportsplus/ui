@@ -1,0 +1,17 @@
+.text-animate {
+    --blur: 10px;
+    --delay: 0s;
+    --distance: 20px;
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --filter-duration: 300ms;
+    --hidden-filter: blur(0);
+    --hidden-scale: 1;
+    --hidden-x: 0;
+    --hidden-y: 0;
+    --opacity-duration: 300ms;
+    --scale-duration: 300ms;
+    --scale-ease: var(--ease);
+    --segments: 1;
+    --stagger: 0s;
+    --translate-duration: 300ms;
+}

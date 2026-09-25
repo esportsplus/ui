@@ -34,6 +34,14 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Full-width promotional strip for announcements and notices.'
     },
+    'bento-grid': {
+        category: 'Layout',
+        description: 'Feature grid of cards whose text lifts on hover to reveal a call to action over decorative background art (Magic UI).'
+    },
+    'bento-grid-spotlight': {
+        category: 'Layout',
+        description: 'Feature grid whose cards spring in on scroll, glow under the pointer, trace a border beam, and optionally tilt (Spectrum UI).'
+    },
     'bookmark-button': {
         category: 'Interactive',
         description: 'Save toggle whose ribbon fills from the bottom up and lands with a small squash.'
@@ -130,9 +138,17 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Scroll-driven product tour whose screenshot camera pans, zooms, and spotlights the feature being read.'
     },
+    'file-tree': {
+        category: 'Interactive',
+        description: 'Collapsible file and folder tree with guide lines, locked items, natural sorting, and expand or collapse all (Magic UI).'
+    },
     'filter-grid': {
         category: 'Display',
         description: 'Filter chips over a card grid that rearranges with FLIP motion instead of blinking.'
+    },
+    'gradient-text': {
+        category: 'Display',
+        description: 'Text filled with a looping gradient that slides through the letters (Magic UI).'
     },
     grid: {
         category: 'Layout',
@@ -177,6 +193,10 @@ const meta: Record<string, Meta> = {
     lightbox: {
         category: 'Overlay',
         description: 'Gesture-driven image viewer that zooms toward the pointer and flies back to its thumbnail on close.'
+    },
+    'line-shadow-text': {
+        category: 'Display',
+        description: 'Text with an offset drop shadow drawn in drifting diagonal hatch lines (Magic UI).'
     },
     link: {
         category: 'Layout',
@@ -234,6 +254,10 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Scroll-linked page indicator whose active pill stretches between dots like a worm, with an optional autoplay countdown.'
     },
+    progress: {
+        category: 'Display',
+        description: 'Progress bar with an optional label, percentage, and a status line derived from the value.'
+    },
     'pull-to-refresh': {
         category: 'Interactive',
         description: 'Rubber-band pull gesture for touch and mouse that spins a stepped indicator and slides new items in from the top.'
@@ -250,6 +274,10 @@ const meta: Record<string, Meta> = {
         category: 'Form Controls',
         description: 'Slider input for choosing a value along a track.'
     },
+    'range-filter': {
+        category: 'Form Controls',
+        description: 'Dual-thumb price filter with rolling digits, a clear button, and a ghost preview of where a click would stretch the range (shadcn/space).'
+    },
     'range-slider': {
         category: 'Form Controls',
         description: 'Dual-thumb slider for picking a min and max, with gliding thumbs, value tooltips, and editable fields.'
@@ -262,9 +290,17 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Self-updating "5 min ago" time element that rolls its digits as they change, with the full date on hover.'
     },
+    'scroll-fade': {
+        category: 'Layout',
+        description: 'Scroll panel whose edges wash and blur content as it leaves, with optional progressive blur and auto-hiding edges (componentry).'
+    },
     'scroll-spine': {
         category: 'Layout',
         description: 'Table of contents drawn to scale, with bands that fill as you read and a marker that stretches between sections.'
+    },
+    'scroll-velocity': {
+        category: 'Display',
+        description: 'Looping rows of text or images that speed up and reverse with the page scroll (Magic UI).'
     },
     scrollbar: {
         category: 'Layout',
@@ -298,6 +334,10 @@ const meta: Record<string, Meta> = {
         category: 'Overlay',
         description: 'Bottom sheet that drags to dismiss, with flick detection, rubber-band resistance, and a fading backdrop.'
     },
+    'shiny-text': {
+        category: 'Display',
+        description: 'Muted text with a band of light that sweeps across it and rests (Magic UI).'
+    },
     'shortcut-recorder': {
         category: 'Form Controls',
         description: 'Records a keyboard shortcut from the keys you hold, rejecting combinations already in use.'
@@ -309,6 +349,10 @@ const meta: Record<string, Meta> = {
     sidebar: {
         category: 'Layout',
         description: 'Floating side panel for navigation or filters.'
+    },
+    slider: {
+        category: 'Form Controls',
+        description: 'Single or range slider with edge-aligned thumbs, vertical orientation, value output, and hidden form fields (coss ui).'
     },
     'sliding-tabs': {
         category: 'Layout',
@@ -373,6 +417,10 @@ const meta: Record<string, Meta> = {
     text: {
         category: 'Display',
         description: 'Typographic primitives for headings, body copy, and captions.'
+    },
+    'text-animate': {
+        category: 'Display',
+        description: 'Text that enters by character, word, line, or whole with fade, blur, slide, and spring scale presets (Magic UI).'
     },
     'text-progress': {
         category: 'Display',

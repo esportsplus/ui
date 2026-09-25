@@ -1,0 +1,24 @@
+.file-tree-demo {
+    background: var(--color-white-300);
+    border: 1px solid var(--color-border-300);
+    border-radius: 8px;
+    height: 300px;
+    max-width: 100%;
+    overflow: hidden;
+    padding: 8px;
+    width: 384px;
+
+    &-caption {
+        color: var(--color-text-300);
+        font-size: 13px;
+        margin: 0;
+    }
+
+    &-stack {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+}

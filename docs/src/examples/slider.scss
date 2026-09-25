@@ -1,0 +1,62 @@
+.slider-demo {
+    max-width: 100%;
+    width: 320px;
+
+    &--vertical {
+        display: flex;
+        gap: 48px;
+        height: 200px;
+        justify-content: center;
+    }
+
+    &-caption {
+        color: var(--color-text-300);
+        font-size: 13px;
+        margin: 12px 0 0;
+    }
+
+    &-scale {
+        color: var(--color-text-300);
+        display: flex;
+        font-size: 12px;
+        font-weight: var(--font-weight-500);
+        gap: 4px;
+        justify-content: space-between;
+        margin-top: 16px;
+    }
+
+    // Each tick sits at a thumb-centre position, so the edge inset matches the slider's half-thumb travel.
+    &-tick {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 0;
+
+        i {
+            background: oklch(from var(--color-text-300) l c h / 0.72);
+            height: 4px;
+            width: 1px;
+        }
+
+        &.--minor {
+            i {
+                height: 2px;
+            }
+
+            span {
+                opacity: 0;
+            }
+        }
+    }
+
+    &-ticks {
+        color: var(--color-text-300);
+        display: flex;
+        font-size: 12px;
+        font-weight: var(--font-weight-500);
+        justify-content: space-between;
+        margin-top: 12px;
+        padding-inline: 8px;
+    }
+}

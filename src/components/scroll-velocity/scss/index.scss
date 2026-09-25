@@ -1,0 +1,29 @@
+@use 'variables';
+
+.scroll-velocity {
+    position: relative;
+    width: 100%;
+
+    &-block {
+        align-items: center;
+        display: inline-flex;
+        flex-shrink: 0;
+        // Padding rather than a gap between copies, so one copy's measured width is exactly one loop.
+        padding-inline-end: var(--gap, 0.25em);
+    }
+
+    &-row {
+        overflow: hidden;
+        white-space: nowrap;
+        width: 100%;
+    }
+
+    // Root transitions transform on every element; that would lag each frame and smear the loop wrap.
+    &-strip {
+        align-items: center;
+        display: inline-flex;
+        transition: none;
+        user-select: none;
+        will-change: transform;
+    }
+}

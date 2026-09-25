@@ -1,0 +1,106 @@
+@use 'variables';
+
+// Segments enter in reading order and leave in reverse, so the last one in is the first one out.
+.text-animate {
+    display: block;
+    white-space: pre-wrap;
+
+    &-segment {
+        display: inline-block;
+        filter: var(--hidden-filter);
+        opacity: 0;
+        scale: var(--hidden-scale);
+        transition:
+            filter var(--filter-duration) var(--ease),
+            opacity var(--opacity-duration) var(--ease),
+            scale var(--scale-duration) var(--scale-ease),
+            translate var(--translate-duration) var(--ease);
+        transition-delay: calc((var(--segments) - 1 - var(--i)) * var(--stagger));
+        translate: var(--hidden-x) var(--hidden-y);
+        white-space: pre;
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-word {
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+
+    &--blurIn {
+        --hidden-filter: blur(var(--blur));
+    }
+
+    &--blurInDown {
+        --hidden-filter: blur(var(--blur));
+        --hidden-y: calc(var(--distance) * -1);
+        --opacity-duration: 400ms;
+    }
+
+    &--blurInUp {
+        --hidden-filter: blur(var(--blur));
+        --hidden-y: var(--distance);
+        --opacity-duration: 400ms;
+    }
+
+    &--fadeIn,
+    &--slideUp {
+        --hidden-y: var(--distance);
+    }
+
+    &--line &-segment {
+        display: block;
+    }
+
+    &--scaleDown {
+        --hidden-scale: 1.5;
+    }
+
+    &--scaleDown,
+    &--scaleUp {
+        --scale-duration: 950ms;
+        // Underdamped spring (stiffness 300, damping 15), so the letters overshoot and settle.
+        --scale-ease: linear(0, 0.133, 0.422, 0.739, 0.996, 1.153, 1.217, 1.204, 1.148, 1.078, 1.017, 0.975, 0.955, 0.953, 0.963, 0.978, 0.992, 1.003, 1.009, 1.011, 1.009, 1.006, 1.003, 1, 0.998, 0.998, 0.998, 0.998, 0.999, 1, 1);
+    }
+
+    &--scaleUp {
+        --hidden-scale: 0.5;
+    }
+
+    &--slideDown {
+        --hidden-y: calc(var(--distance) * -1);
+    }
+
+    &--slideLeft {
+        --hidden-x: var(--distance);
+    }
+
+    &--slideRight {
+        --hidden-x: calc(var(--distance) * -1);
+    }
+
+    &.--show &-segment {
+        filter: blur(0);
+        opacity: 1;
+        scale: 1;
+        transition-delay: calc(var(--delay) + var(--i) * var(--stagger));
+        translate: 0 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-segment {
+            filter: none;
+            scale: 1;
+            transition: opacity var(--opacity-duration) var(--ease);
+            translate: 0 0;
+        }
+    }
+}

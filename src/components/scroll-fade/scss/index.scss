@@ -1,0 +1,104 @@
+@use 'sass:list';
+@use 'variables';
+
+// Blur strength per progressive layer, weakest (furthest from the edge) first.
+$strengths: 0.25, 0.5, 1, 2;
+
+.scroll-fade {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+
+    // Content scrolls under a wash of the page colour that is also blurred, and the wash's own mask fades it in, so
+    // text dissolves into the edge instead of being cut by a hard gradient line.
+    &-edge {
+        backdrop-filter: blur(var(--blur));
+        background: linear-gradient(var(--direction), transparent, var(--fade-color));
+        height: var(--size);
+        inset-inline: 0;
+        mask-image: linear-gradient(var(--mask-direction), #000 var(--stop), transparent);
+        pointer-events: none;
+        position: absolute;
+        transition: opacity var(--duration) ease-out;
+        user-select: none;
+        z-index: 30;
+
+        &--bottom {
+            --direction: to bottom;
+            --mask-direction: to top;
+            bottom: 0;
+        }
+
+        &--fixed {
+            position: fixed;
+        }
+
+        // A masked or translucent parent would cut its children's backdrop off from the page, so the progressive
+        // edge keeps itself plain and gives the wash and each blur band their own element.
+        &--progressive {
+            backdrop-filter: none;
+            background: none;
+            mask-image: none;
+
+            &::before {
+                background: linear-gradient(var(--direction), transparent, var(--fade-color));
+                content: '';
+                inset: 0;
+                mask-image: linear-gradient(var(--mask-direction), #000 var(--stop), transparent);
+                position: absolute;
+            }
+
+            &::before,
+            .scroll-fade-layer {
+                transition: opacity var(--duration) ease-out;
+            }
+
+            &.--hidden {
+                opacity: 1;
+
+                &::before,
+                .scroll-fade-layer {
+                    opacity: 0;
+                }
+            }
+        }
+
+        &--top {
+            --direction: to top;
+            --mask-direction: to bottom;
+            top: 0;
+        }
+
+        &.--hidden {
+            opacity: 0;
+        }
+    }
+
+    // Each band starts a quarter further toward the edge and blurs twice as hard, so the stack ramps smoothly.
+    &-layer {
+        inset: 0;
+        mask-image: linear-gradient(var(--mask-direction), #000 calc(100% - (var(--layer) + 1) * 25%), transparent calc(100% - var(--layer) * 25%));
+        position: absolute;
+
+        @for $i from 1 through list.length($strengths) {
+            &:nth-child(#{$i}) {
+                backdrop-filter: blur(calc(var(--blur) * #{list.nth($strengths, $i)}));
+            }
+        }
+    }
+
+    &-viewport {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+
+        &.--no-scrollbar {
+            scrollbar-width: none;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+    }
+}

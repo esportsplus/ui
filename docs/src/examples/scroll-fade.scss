@@ -1,0 +1,45 @@
+.scroll-fade-demo {
+    background: var(--color-white-300);
+    border: 1px solid var(--color-border-300);
+    border-radius: 12px;
+    height: 360px;
+    max-width: 100%;
+    width: 520px;
+
+    &--custom {
+        overflow: hidden;
+        position: relative;
+    }
+
+    &-article {
+        color: var(--color-text-400);
+        font-size: 15px;
+        line-height: 1.7;
+        padding: 48px 32px 120px;
+
+        h2 {
+            color: var(--color-text-500);
+            font-size: 32px;
+            font-weight: var(--font-weight-500);
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin: 0 0 16px;
+        }
+
+        h3 {
+            color: var(--color-text-500);
+            font-size: 18px;
+            font-weight: var(--font-weight-500);
+            margin: 32px 0 8px;
+        }
+
+        p {
+            margin: 0 0 12px;
+        }
+    }
+
+    &-scroll {
+        height: 100%;
+        overflow-y: auto;
+    }
+}

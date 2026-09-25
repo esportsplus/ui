@@ -1,0 +1,7 @@
+.shiny-text {
+    --color: oklch(from var(--color-text-300) l c h / 0.7);
+    --duration: 8s;
+    --shine-color: oklch(from var(--color-black-300) l c h / 0.8);
+    --shine-width: 100px;
+    --transition-duration: 300ms;
+}

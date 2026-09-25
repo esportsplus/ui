@@ -6,6 +6,8 @@ import announcementBanner from './announcement-banner';
 import autosave from './autosave';
 import backToTop from './back-to-top';
 import banner from './banner';
+import bentoGrid from './bento-grid';
+import bentoGridSpotlight from './bento-grid-spotlight';
 import bookmarkButton from './bookmark-button';
 import breadcrumb from './breadcrumb';
 import breadcrumbs from './breadcrumbs';
@@ -32,7 +34,9 @@ import dynamicIsland from './dynamic-island';
 import emailTypoFix from './email-typo-fix';
 import expandingCard from './expanding-card';
 import featureSpotlight from './feature-spotlight';
+import fileTree from './file-tree';
 import filterGrid from './filter-grid';
+import gradientText from './gradient-text';
 import grid from './grid';
 import header from './header';
 import highlight from './highlight';
@@ -44,6 +48,7 @@ import input from './input';
 import json from './json';
 import kanbanBoard from './kanban-board';
 import lightbox from './lightbox';
+import lineShadowText from './line-shadow-text';
 import link from './link';
 import loading from './loading';
 import longPress from './long-press';
@@ -60,14 +65,18 @@ import overlay from './overlay';
 import page from './page';
 import pageDots from './page-dots';
 import pagination from './pagination';
+import progress from './progress';
 import pullToRefresh from './pull-to-refresh';
 import radio from './radio';
 import radioCards from './radio-cards';
 import range from './range';
+import rangeFilter from './range-filter';
 import rangeSlider from './range-slider';
 import readingProgress from './reading-progress';
 import relativeTime from './relative-time';
+import scrollFade from './scroll-fade';
 import scrollSpine from './scroll-spine';
+import scrollVelocity from './scroll-velocity';
 import scrollbar from './scrollbar';
 import scrubInput from './scrub-input';
 import select from './select';
@@ -76,9 +85,11 @@ import selectionToolbar from './selection-toolbar';
 import settings from './settings';
 import shareButton from './share-button';
 import sheet from './sheet';
+import shinyText from './shiny-text';
 import shortcutRecorder from './shortcut-recorder';
 import shortcutSheet from './shortcut-sheet';
 import sidebar from './sidebar';
+import slider from './slider';
 import slidingTabs from './sliding-tabs';
 import snapCarousel from './snap-carousel';
 import sortable from './sortable';
@@ -96,6 +107,7 @@ import tagInput from './tag-input';
 import taskList from './task-list';
 import tasklist from './tasklist';
 import text from './text';
+import textAnimate from './text-animate';
 import textProgress from './text-progress';
 import textarea from './textarea';
 import thumbnail from './thumbnail';
@@ -122,6 +134,8 @@ const entries: Entry[] = [
     autosave,
     backToTop,
     banner,
+    bentoGrid,
+    bentoGridSpotlight,
     bookmarkButton,
     breadcrumb,
     breadcrumbs,
@@ -148,7 +162,9 @@ const entries: Entry[] = [
     emailTypoFix,
     expandingCard,
     featureSpotlight,
+    fileTree,
     filterGrid,
+    gradientText,
     grid,
     header,
     highlight,
@@ -160,6 +176,7 @@ const entries: Entry[] = [
     json,
     kanbanBoard,
     lightbox,
+    lineShadowText,
     link,
     loading,
     longPress,
@@ -176,14 +193,18 @@ const entries: Entry[] = [
     page,
     pageDots,
     pagination,
+    progress,
     pullToRefresh,
     radio,
     radioCards,
     range,
+    rangeFilter,
     rangeSlider,
     readingProgress,
     relativeTime,
+    scrollFade,
     scrollSpine,
+    scrollVelocity,
     scrollbar,
     scrubInput,
     select,
@@ -192,9 +213,11 @@ const entries: Entry[] = [
     settings,
     shareButton,
     sheet,
+    shinyText,
     shortcutRecorder,
     shortcutSheet,
     sidebar,
+    slider,
     slidingTabs,
     snapCarousel,
     sortable,
@@ -212,6 +235,7 @@ const entries: Entry[] = [
     taskList,
     tasklist,
     text,
+    textAnimate,
     textProgress,
     textarea,
     thumbnail,

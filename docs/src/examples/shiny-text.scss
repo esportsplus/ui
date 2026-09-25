@@ -1,0 +1,44 @@
+.shiny-text-demo {
+    &-arrow {
+        height: 12px;
+        margin-inline-start: 4px;
+        transition: translate 300ms ease-in-out;
+        width: 12px;
+    }
+
+    &-headline {
+        font-size: 32px;
+        font-weight: var(--font-weight-600);
+        letter-spacing: -0.025em;
+        margin: 0;
+        text-align: center;
+    }
+
+    &-label {
+        align-items: center;
+        display: inline-flex;
+        justify-content: center;
+        padding: 4px 16px;
+
+        &:hover {
+            --color: var(--color-text-400);
+        }
+    }
+
+    &-pill {
+        background: var(--color-grey-400);
+        border: 1px solid oklch(from var(--color-black-300) l c h / 0.05);
+        border-radius: 999px;
+        font-size: 16px;
+        text-decoration: none;
+        transition: background-color 150ms ease-in;
+
+        &:hover {
+            background: var(--color-grey-500);
+
+            .shiny-text-demo-arrow {
+                translate: 2px 0;
+            }
+        }
+    }
+}

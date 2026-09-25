@@ -1,0 +1,226 @@
+@use 'variables';
+
+// Columns follow the component's own width, so the layout adapts inside panels and not only to the viewport.
+.bento-grid-spotlight {
+    container-type: inline-size;
+    margin-inline: auto;
+    max-width: var(--max-width);
+    width: 100%;
+
+    &-background {
+        inset: 0;
+        opacity: 0.5;
+        position: absolute;
+        transition: opacity var(--duration) ease;
+        z-index: 0;
+    }
+
+    // Only a ring the width of the border shows, so the rotating light reads as travelling around the edge.
+    &-beam {
+        border-radius: inherit;
+        inset: 0;
+        mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        overflow: hidden;
+        padding: var(--beam-width);
+        pointer-events: none;
+        position: absolute;
+        z-index: 0;
+
+        &-light {
+            animation: bento-grid-spotlight-beam var(--beam-duration) linear infinite;
+            aspect-ratio: 1;
+            background: conic-gradient(from 0deg, var(--beam-from) 0%, var(--beam-to) 50%, var(--beam-from) 100%);
+            left: 50%;
+            opacity: 0.3;
+            position: absolute;
+            top: 50%;
+            transition: opacity var(--duration) ease;
+            translate: -50% -50%;
+            width: 250%;
+        }
+    }
+
+    &-body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: space-between;
+        padding: var(--padding);
+        position: relative;
+        z-index: 1;
+    }
+
+    &-card {
+        background: var(--background);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        display: flex;
+        flex-direction: column;
+        grid-row: span var(--rows);
+        overflow: hidden;
+        position: relative;
+        transition:
+            box-shadow var(--duration) ease,
+            scale var(--hover-duration) var(--hover-ease),
+            transform var(--tilt-duration) var(--tilt-ease),
+            translate var(--hover-duration) var(--hover-ease);
+
+        &.--tilt {
+            transform: perspective(var(--perspective)) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+        }
+
+        &:hover {
+            box-shadow: var(--box-shadow-hover);
+            scale: var(--hover-scale);
+            translate: 0 var(--hover-lift);
+
+            .bento-grid-spotlight-background,
+            .bento-grid-spotlight-glow,
+            .bento-grid-spotlight-beam-light {
+                opacity: 1;
+            }
+        }
+
+        &:active {
+            scale: var(--press-scale);
+        }
+    }
+
+    &-description {
+        color: var(--description-color);
+        font-size: var(--description-font-size);
+        margin: 4px 0 0;
+    }
+
+    &-footer {
+        align-items: flex-start;
+        display: flex;
+        gap: 16px;
+    }
+
+    &-visual:not(:empty) + &-footer {
+        margin-top: 24px;
+    }
+
+    &-glow {
+        background: radial-gradient(
+            var(--spotlight-size) circle at var(--spot-x, 50%) var(--spot-y, 50%),
+            var(--spotlight-color),
+            transparent 80%
+        );
+        inset: -1px;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        transition: opacity var(--duration) ease;
+        z-index: 0;
+    }
+
+    &-grid {
+        display: grid;
+        gap: var(--gap);
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    &-icon {
+        align-items: center;
+        background: var(--icon-background);
+        border-radius: 12px;
+        color: var(--title-color);
+        display: flex;
+        flex-shrink: 0;
+        height: 40px;
+        justify-content: center;
+        width: 40px;
+
+        svg {
+            height: 20px;
+            width: 20px;
+        }
+    }
+
+    &-title {
+        color: var(--title-color);
+        font-size: var(--title-font-size);
+        font-weight: var(--font-weight-500);
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    &-visual {
+        flex: 1;
+        min-height: 0;
+    }
+
+    // Cards wait unseen until the grid scrolls in, then rise into place one after another on a spring.
+    &:not(.--visible) &-card {
+        opacity: 0;
+    }
+
+    &.--visible &-card {
+        animation: bento-grid-spotlight-enter var(--enter-duration) var(--enter-ease) backwards;
+        animation-delay: calc(var(--i, 0) * var(--enter-stagger));
+    }
+
+    @container (min-width: 560px) {
+        &-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        &-card {
+            grid-column: span min(var(--columns), 2);
+        }
+    }
+
+    @container (min-width: 900px) {
+        &-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        &-card {
+            grid-column: span var(--columns);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-beam-light {
+            animation: none;
+        }
+
+        &-card {
+            transition: box-shadow var(--duration) ease;
+
+            &,
+            &:active,
+            &:hover {
+                scale: 1;
+                transform: none;
+                translate: 0 0;
+            }
+        }
+
+        &:not(.--visible) &-card {
+            opacity: 1;
+        }
+
+        &.--visible &-card {
+            animation: none;
+        }
+    }
+}
+
+@keyframes bento-grid-spotlight-beam {
+    to {
+        rotate: 360deg;
+    }
+}
+
+@keyframes bento-grid-spotlight-enter {
+    from {
+        opacity: 0;
+        scale: 0.98;
+        translate: 0 12px;
+    }
+}

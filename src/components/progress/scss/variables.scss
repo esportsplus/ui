@@ -1,0 +1,11 @@
+.progress {
+    --color: var(--color-text-500);
+    --duration: 150ms;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --font-size: calc(var(--font-size-400) * 0.875);
+    --height: 6px;
+    --indicator-color: var(--color-text-500);
+    --muted-color: var(--color-text-300);
+    --status-font-size: 12px;
+    --track-color: var(--color-grey-500);
+}

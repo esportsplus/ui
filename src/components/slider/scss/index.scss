@@ -1,0 +1,182 @@
+@use 'variables';
+
+// Edge alignment: thumb centres travel from half a thumb in at one end to half a thumb in at the other, so a thumb
+// at min or max never hangs past the track.
+$travel: 'var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size))';
+
+.slider {
+    color: var(--color);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--font-size);
+    gap: 8px;
+
+    &-control {
+        display: flex;
+        position: relative;
+        touch-action: none;
+        user-select: none;
+    }
+
+    &-header {
+        align-items: center;
+        display: flex;
+        gap: 4px;
+        justify-content: space-between;
+    }
+
+    &-indicator {
+        background: var(--indicator-color);
+        border-radius: 999px;
+        position: absolute;
+        transition: none;
+    }
+
+    &-label {
+        font-weight: var(--font-weight-500);
+    }
+
+    &-output {
+        font-variant-numeric: tabular-nums;
+        margin-inline-start: auto;
+    }
+
+    &-thumb {
+        background: var(--thumb-background);
+        border: 1px solid var(--thumb-border);
+        border-radius: 50%;
+        box-shadow: var(--thumb-shadow);
+        cursor: grab;
+        height: var(--thumb-size);
+        outline: none;
+        position: absolute;
+        transition:
+            box-shadow 150ms ease-out,
+            scale 150ms ease-out;
+        width: var(--thumb-size);
+
+        &:focus-visible {
+            box-shadow: 0 0 0 3px var(--ring);
+        }
+
+        &.--active {
+            box-shadow: none;
+            cursor: grabbing;
+            scale: 1.2;
+        }
+    }
+
+    &-track {
+        flex-grow: 1;
+        position: relative;
+
+        // The visible rail stops a hair short of each end, so its rounded caps sit under the thumbs at min and max.
+        &::before {
+            background: var(--track-color);
+            border-radius: 999px;
+            content: '';
+            position: absolute;
+        }
+    }
+
+
+    &--horizontal {
+        width: 100%;
+
+        .slider-control {
+            align-items: center;
+            min-height: var(--thumb-size);
+            min-width: 176px;
+            width: 100%;
+        }
+
+        .slider-indicator {
+            inset-block: 0;
+            inset-inline-end: calc(100% - (var(--thumb-size) / 2 + var(--end) * (100% - var(--thumb-size))));
+            inset-inline-start: calc(var(--thumb-size) / 2 + var(--start) * (100% - var(--thumb-size)));
+
+            &--single {
+                inset-inline-start: var(--rail-inset);
+            }
+        }
+
+        .slider-thumb {
+            inset-inline-start: calc(#{$travel});
+            top: 50%;
+            translate: -50% -50%;
+
+            &:dir(rtl) {
+                translate: 50% -50%;
+            }
+        }
+
+        .slider-track {
+            height: var(--track-size);
+
+            &::before {
+                inset: 0 var(--rail-inset);
+            }
+        }
+    }
+
+    &--vertical {
+        align-items: center;
+        height: 100%;
+
+        .slider-control {
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+            min-height: 176px;
+        }
+
+        .slider-indicator {
+            bottom: calc(var(--thumb-size) / 2 + var(--start) * (100% - var(--thumb-size)));
+            inset-inline: 0;
+            top: calc(100% - (var(--thumb-size) / 2 + var(--end) * (100% - var(--thumb-size))));
+
+            &--single {
+                bottom: var(--rail-inset);
+            }
+        }
+
+        .slider-thumb {
+            bottom: calc(#{$travel});
+            left: 50%;
+            translate: -50% 50%;
+        }
+
+        .slider-track {
+            width: var(--track-size);
+
+            &::before {
+                inset: var(--rail-inset) 0;
+            }
+        }
+    }
+
+    &.--disabled {
+        opacity: 0.64;
+
+        .slider-control {
+            pointer-events: none;
+        }
+    }
+
+    // A thumb under a finger gets a larger target.
+    @media (pointer: coarse) {
+        & {
+            --thumb-size: 20px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-thumb {
+            transition: box-shadow 150ms ease-out;
+
+            &.--active {
+                scale: 1;
+            }
+        }
+    }
+}

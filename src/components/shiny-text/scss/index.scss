@@ -1,0 +1,32 @@
+@use 'variables';
+
+// The text keeps a translucent fill, so the clipped band behind it reads as a glint passing through the letters.
+.shiny-text {
+    animation: shiny-text var(--duration) infinite;
+    background-clip: text;
+    background-image: linear-gradient(to right, transparent, var(--shine-color) 50%, transparent);
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    background-size: var(--shine-width) 100%;
+    color: var(--color);
+    transition: color var(--transition-duration) ease-out;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+        background-image: none;
+    }
+}
+
+// Sweeps across and back, then rests for the final stretch of each cycle.
+@keyframes shiny-text {
+    0%,
+    90%,
+    100% {
+        background-position: calc(-100% - var(--shine-width)) 0;
+    }
+
+    30%,
+    60% {
+        background-position: calc(100% + var(--shine-width)) 0;
+    }
+}

@@ -1,0 +1,20 @@
+@use 'variables';
+
+// The gradient repeats its first stop at the end, so sliding it one full background-size loops seamlessly.
+.gradient-text {
+    animation: gradient-text var(--duration) linear infinite;
+    background-clip: text;
+    background-image: linear-gradient(to right, var(--color-from), var(--color-to), var(--color-from));
+    background-size: var(--background-size) 100%;
+    color: transparent;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+}
+
+@keyframes gradient-text {
+    to {
+        background-position: var(--background-size) 0;
+    }
+}

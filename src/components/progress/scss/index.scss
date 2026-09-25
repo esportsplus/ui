@@ -1,0 +1,49 @@
+@use 'variables';
+
+.progress {
+    color: var(--color);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--font-size);
+    gap: 8px;
+    width: 100%;
+
+    &-header {
+        align-items: baseline;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    // The bar is full width and slides in from the left, so it moves on the compositor instead of re-laying out.
+    &-indicator {
+        background: var(--indicator-color);
+        height: 100%;
+        transition: translate var(--duration) var(--ease);
+        width: 100%;
+    }
+
+    &-percent {
+        color: var(--muted-color);
+        font-variant-numeric: tabular-nums;
+    }
+
+    &-status {
+        color: var(--muted-color);
+        font-size: var(--status-font-size);
+    }
+
+    &-track {
+        background: var(--track-color);
+        border-radius: 999px;
+        height: var(--height);
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-indicator {
+            transition: none;
+        }
+    }
+}

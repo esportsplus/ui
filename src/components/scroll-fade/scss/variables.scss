@@ -1,0 +1,10 @@
+// Standalone edges carry their own defaults; edges inside a container inherit its values instead.
+.scroll-fade,
+.scroll-fade-edge:not(.scroll-fade > *) {
+    --blur: 3px;
+    --duration: 200ms;
+    --fade-color: var(--color-white-300);
+    --size: 110px;
+    // Portion of the fade, from the edge in, that is fully opaque before the mask starts letting content through.
+    --stop: 35%;
+}

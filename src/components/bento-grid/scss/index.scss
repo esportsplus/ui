@@ -1,0 +1,174 @@
+@use 'variables';
+
+// Cards read the grid's width rather than the viewport's, so the layout holds up inside narrow columns and panels.
+.bento-grid {
+    container-type: inline-size;
+    display: grid;
+    gap: var(--gap);
+    grid-auto-rows: var(--row-height);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+
+    &-arrow {
+        flex-shrink: 0;
+        height: 16px;
+        transition: translate var(--duration) var(--ease);
+        width: 16px;
+    }
+
+    &-background {
+        inset: 0;
+        pointer-events: none;
+        position: absolute;
+
+        > * {
+            pointer-events: auto;
+        }
+    }
+
+    // Pushed to the bottom, leaving the top of the card to the background art.
+    &-body {
+        margin-top: auto;
+        padding: var(--padding);
+        position: relative;
+        z-index: 1;
+    }
+
+    &-card {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        display: flex;
+        flex-direction: column;
+        grid-column: span 3;
+        justify-content: space-between;
+        overflow: hidden;
+        position: relative;
+    }
+
+    &-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        pointer-events: none;
+        transition: translate var(--duration) var(--ease);
+    }
+
+    &-cta {
+        display: flex;
+        padding: 0 var(--padding) var(--padding);
+        position: relative;
+        z-index: 1;
+    }
+
+    &-description {
+        color: var(--description-color);
+        margin: 0;
+        max-width: 32rem;
+    }
+
+    &-icon {
+        color: var(--icon-color);
+        display: flex;
+        height: var(--icon-size);
+        transform-origin: left;
+        transition: scale var(--duration) var(--ease);
+        width: var(--icon-size);
+
+        svg {
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    &-link {
+        align-items: center;
+        border-radius: 4px;
+        color: var(--link-color);
+        display: inline-flex;
+        font-size: var(--link-font-size);
+        font-weight: var(--font-weight-500);
+        gap: 8px;
+        outline: 0 solid var(--focus-color);
+        outline-offset: 2px;
+        text-decoration: none;
+        text-underline-offset: 4px;
+
+        &:focus-visible {
+            outline-width: 2px;
+        }
+
+        &:hover {
+            text-decoration: underline;
+
+            .bento-grid-arrow {
+                translate: 2px 0;
+            }
+        }
+    }
+
+    &-name {
+        color: var(--name-color);
+        font-size: var(--name-font-size);
+        font-weight: var(--font-weight-600);
+        margin: 0;
+    }
+
+    &-overlay {
+        inset: 0;
+        pointer-events: none;
+        position: absolute;
+        transition: background-color var(--duration) var(--ease);
+    }
+
+    &-card:hover &-overlay {
+        background: var(--overlay-hover);
+    }
+
+    &-card:hover &-icon,
+    &-card:focus-within &-icon {
+        scale: 0.75;
+    }
+
+    // Wide enough for columns: the call to action waits below the card and the text lifts to make room for it.
+    @container (min-width: 720px) {
+        &-card {
+            grid-column: span var(--span);
+        }
+
+        &-cta {
+            bottom: 0;
+            inset-inline: 0;
+            opacity: 0;
+            padding: var(--padding);
+            position: absolute;
+            transition:
+                opacity var(--duration) var(--ease),
+                translate var(--duration) var(--ease);
+            translate: 0 40px;
+        }
+
+        &-card:hover &-content,
+        &-card:focus-within &-content {
+            translate: 0 -40px;
+        }
+
+        &-card:hover &-cta,
+        &-card:focus-within &-cta {
+            opacity: 1;
+            translate: 0 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-arrow,
+        &-content,
+        &-icon {
+            transition: none;
+        }
+
+        &-cta {
+            translate: 0 0 !important;
+        }
+    }
+}

@@ -1,0 +1,57 @@
+.scroll-velocity-demo {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+
+    // Edge fades in the page colour, so rows appear to slide in and out rather than being cut off.
+    &::after,
+    &::before {
+        bottom: 0;
+        content: '';
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        width: 25%;
+        z-index: 1;
+    }
+
+    &::after {
+        background: linear-gradient(to left, var(--color-white-300), transparent);
+        right: 0;
+    }
+
+    &::before {
+        background: linear-gradient(to right, var(--color-white-300), transparent);
+        left: 0;
+    }
+
+    &--images {
+        padding-block: 16px;
+    }
+
+    &-image {
+        border-radius: 8px;
+        box-shadow: 0 1px 2px oklch(from var(--color-black-300) l c h / 0.05);
+        display: inline-block;
+        height: 160px;
+        margin-inline: 16px;
+        object-fit: cover;
+        width: 240px;
+    }
+
+    &-row {
+        padding-block: 16px;
+    }
+
+    &-text {
+        font-size: clamp(36px, 7vw, 72px);
+        font-weight: var(--font-weight-700, 700);
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+
+        &--small {
+            font-size: 24px;
+            font-weight: var(--font-weight-500);
+        }
+    }
+}
