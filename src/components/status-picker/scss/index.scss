@@ -1,0 +1,290 @@
+@use 'variables';
+
+$ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+.status-picker {
+    color: var(--color);
+    display: inline-block;
+    font-size: var(--font-size);
+    position: relative;
+
+    &-avatar {
+        flex: 0 0 auto;
+        position: relative;
+    }
+
+    &-badge {
+        display: grid;
+        grid-area: 1 / 1;
+        opacity: 0;
+        place-items: center;
+        rotate: -120deg;
+        scale: 0.3;
+        transition:
+            opacity 150ms $ease-out,
+            rotate 150ms $ease-out,
+            scale 150ms $ease-out;
+
+        // Entering is driven by the script so it can spin in from the other side.
+        &.--active {
+            opacity: 1;
+            rotate: 0deg;
+            scale: 1;
+            transition: none;
+        }
+    }
+
+    &-check {
+        color: var(--color);
+        display: none;
+        flex: 0 0 auto;
+        height: 16px;
+        stroke-width: 1.5;
+        width: 16px;
+
+        [aria-checked='true'] > & {
+            display: block;
+        }
+    }
+
+    &-icon {
+        display: block;
+        height: var(--badge-size);
+        width: var(--badge-size);
+
+        &--away {
+            fill: var(--away-color);
+        }
+
+        &--dnd {
+            circle {
+                fill: var(--dnd-color);
+            }
+
+            rect {
+                fill: var(--color-white-300);
+            }
+        }
+
+        &--invisible {
+            fill: none;
+            stroke: var(--invisible-color);
+            stroke-width: 2.2;
+        }
+
+        &--online {
+            fill: var(--online-color);
+        }
+    }
+
+    &-initials {
+        background: var(--avatar-background);
+        border-radius: 50%;
+        color: var(--avatar-color);
+        display: grid;
+        font-size: var(--font-size-300);
+        font-weight: var(--font-weight-500);
+        height: var(--avatar-size);
+        place-items: center;
+        width: var(--avatar-size);
+    }
+
+    &-item {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: var(--item-border-radius);
+        color: var(--color);
+        cursor: pointer;
+        display: flex;
+        font: inherit;
+        gap: var(--size-300);
+        margin: 0;
+        outline: none;
+        padding: var(--size-100) var(--size-300);
+        text-align: left;
+        transition: background 100ms;
+        width: 100%;
+
+        &.--highlighted {
+            background: var(--background-hover);
+        }
+
+        &-badge {
+            display: grid;
+            flex: 0 0 auto;
+            height: 16px;
+            place-items: center;
+            width: 16px;
+        }
+
+        &-hint {
+            color: var(--color-muted);
+            display: block;
+            font-size: var(--font-size-300);
+        }
+
+        &-label {
+            color: var(--color);
+            display: block;
+        }
+
+        &-text {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    &-menu {
+        background: var(--background);
+        border-radius: var(--menu-border-radius);
+        box-shadow: var(--box-shadow);
+        left: 0;
+        margin-top: var(--size-100);
+        opacity: 0;
+        padding: var(--menu-padding);
+        position: absolute;
+        scale: 0.98;
+        top: 100%;
+        // Grows out of the avatar it belongs to.
+        transform-origin: 24px 0;
+        transition:
+            opacity 120ms $ease-out,
+            scale 120ms $ease-out,
+            translate 120ms $ease-out,
+            visibility 0s linear 120ms;
+        translate: 0 -2px;
+        visibility: hidden;
+        width: var(--menu-width);
+        z-index: 10;
+
+        .status-picker.--active > & {
+            animation: status-picker-menu 200ms $ease-out;
+            opacity: 1;
+            scale: 1;
+            transition: none;
+            translate: 0 0;
+            visibility: visible;
+        }
+    }
+
+    &-name {
+        color: var(--color);
+        display: block;
+        font-weight: var(--font-weight-400);
+    }
+
+    // The badge sits in a cut-out ring of the page background.
+    &-slot {
+        background: var(--background);
+        border-radius: 50%;
+        bottom: -2px;
+        display: grid;
+        height: var(--slot-size);
+        overflow: hidden;
+        place-items: center;
+        position: absolute;
+        right: -2px;
+        width: var(--slot-size);
+    }
+
+    &-status {
+        color: var(--color-muted);
+        display: block;
+        font-size: calc(var(--font-size-400) * 0.8125);
+        height: 18px;
+        position: relative;
+
+        &-label {
+            filter: blur(3px);
+            left: 0;
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            transition:
+                filter 120ms $ease-out,
+                opacity 120ms $ease-out,
+                translate 120ms $ease-out;
+            translate: 0 -4px;
+            white-space: nowrap;
+
+            &.--active {
+                display: block;
+                filter: none;
+                opacity: 1;
+                position: relative;
+                transition: none;
+                translate: 0 0;
+            }
+        }
+    }
+
+    &-text {
+        min-width: 0;
+    }
+
+    &-trigger {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: var(--trigger-border-radius);
+        color: inherit;
+        cursor: pointer;
+        display: flex;
+        font: inherit;
+        gap: var(--size-300);
+        margin: 0;
+        outline: none;
+        padding: var(--size-100) var(--size-400) var(--size-100) var(--size-100);
+        text-align: left;
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function);
+
+        &:hover,
+        .status-picker.--active > & {
+            background: var(--background-hover);
+        }
+
+        &:active {
+            scale: var(--press-scale);
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--color);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-badge,
+        &-status-label {
+            transition: none;
+        }
+
+        &-menu {
+            transition: visibility 0s;
+
+            .status-picker.--active > & {
+                animation: none;
+            }
+        }
+
+        &-trigger {
+            transition: background var(--transition-duration) var(--transition-timing-function);
+
+            &:active {
+                scale: 1;
+            }
+        }
+    }
+}
+
+
+@keyframes status-picker-menu {
+    from {
+        filter: blur(4px);
+        opacity: 0;
+        scale: 0.96;
+        translate: 0 -4px;
+    }
+}

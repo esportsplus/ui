@@ -1,0 +1,39 @@
+.kanban-board {
+    --card-background: var(--color-white-300);
+    --card-border-radius: 10px;
+    --card-box-shadow:
+        0 0 0 1px oklch(0 0 0 / 0.06),
+        0 1px 2px oklch(0 0 0 / 0.06),
+        0 6px 16px -6px oklch(0 0 0 / 0.12);
+    --card-color: var(--color-text-500);
+    --card-font-size: var(--font-size-300);
+    --card-height: 44px;
+    --card-lifted-box-shadow:
+        0 0 0 1px oklch(0 0 0 / 0.06),
+        0 2px 4px oklch(0 0 0 / 0.06),
+        0 12px 24px -6px oklch(0 0 0 / 0.2);
+    --card-padding-horizontal: 12px;
+    --column-background: var(--color-grey-400);
+    --column-gap: 8px;
+    --column-padding: 8px;
+    --count-font-size: var(--font-size-200);
+    --focus-ring: oklch(0.2 0 0 / 0.38);
+    --gap: 12px;
+    --header-color: var(--color-text-300);
+    --header-font-size: var(--font-size-300);
+    --header-height: 36px;
+    --height: 380px;
+    --lift-scale: 1.03;
+    --press-scale: 0.96;
+    --width: 600px;
+
+    .sortable {
+        --drag-box-shadow: var(--card-lifted-box-shadow);
+        --drag-scale: var(--lift-scale);
+        --placeholder-background: oklch(0 0 0 / 0.03);
+        --placeholder-border-color: oklch(0 0 0 / 0.2);
+        --placeholder-border-width: 1px;
+        --swing-angle: 2deg;
+        --swing-strength: 0.002;
+    }
+}

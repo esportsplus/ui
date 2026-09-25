@@ -1,0 +1,19 @@
+.relative-time {
+    --color-hover: var(--color-text-500);
+    --focus-color: var(--color-text-500);
+    --placeholder: '0 min ago';
+}
+
+.relative-time-tooltip.tooltip-message {
+    --border-radius: var(--border-radius-300);
+    --box-shadow: var(--box-shadow-200);
+    --font-size: var(--font-size-300);
+    --font-weight: var(--font-weight-500);
+    --offset: 3px;
+    --padding-horizontal: var(--size-100);
+    --padding-vertical: calc(var(--size-100) / 2);
+    --scale: 0.9;
+    --spacer: 6px;
+    --transition-duration: 0.1s;
+    --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}

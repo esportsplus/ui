@@ -1,0 +1,95 @@
+.inline-edit-demo {
+    background: var(--color-white-300);
+    border-radius: 24px;
+    box-shadow: var(--box-shadow-200);
+    color: var(--color-text-500);
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
+    padding: 20px;
+    width: 400px;
+
+    &--plain {
+        gap: var(--size-200);
+    }
+
+    &-avatar {
+        align-items: center;
+        background: var(--color-grey-500);
+        border-radius: 50%;
+        color: var(--color-text-400);
+        display: flex;
+        font-size: var(--font-size-400);
+        font-weight: var(--font-weight-600);
+        height: 56px;
+        justify-content: center;
+        width: 56px;
+    }
+
+    &-bio {
+        font-size: 15px;
+        line-height: 24px;
+    }
+
+    &-handle {
+        color: var(--color-text-300);
+        font-size: 14px;
+        line-height: 20px;
+        margin: 0 0 8px;
+    }
+
+    &-header {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    &-live {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        width: 1px;
+    }
+
+    &-name {
+        font-size: 18px;
+        font-weight: var(--font-weight-600);
+        line-height: 28px;
+    }
+
+    &-saved {
+        align-items: center;
+        color: var(--color-text-300);
+        display: flex;
+        filter: blur(4px);
+        font-size: 12px;
+        gap: 6px;
+        opacity: 0;
+        transition:
+            filter 150ms cubic-bezier(0.23, 1, 0.32, 1),
+            opacity 150ms cubic-bezier(0.23, 1, 0.32, 1),
+            translate 150ms cubic-bezier(0.23, 1, 0.32, 1);
+        translate: 0 2px;
+
+        svg {
+            height: 14px;
+            width: 14px;
+        }
+
+        &.--active {
+            filter: blur(0);
+            opacity: 1;
+            transition-duration: 200ms;
+            translate: 0 0;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inline-edit-demo-saved {
+        filter: none;
+        translate: 0 0;
+    }
+}

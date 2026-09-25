@@ -1,0 +1,229 @@
+@use 'variables';
+
+$ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+$fill-in: linear(0, 0.069, 0.225, 0.411, 0.59, 0.743, 0.861, 0.945, 0.999, 1.03, 1.044, 1.046, 1.041, 1.033, 1.025, 1.017, 1.01, 1.005, 1.002, 1, 0.998, 0.998, 0.998, 0.998, 1);
+
+.checkbox-group {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    color: var(--color);
+    padding: var(--padding);
+    width: var(--width);
+
+    &-box {
+        display: grid;
+        flex: 0 0 auto;
+        position: relative;
+        transition: scale var(--transition-duration) var(--transition-timing-function);
+
+        .checkbox {
+            --background-active: transparent;
+            --border-color-active: var(--color);
+            --border-color-default: color-mix(in oklch, var(--color) 25%, transparent);
+            --border-color-hover: color-mix(in oklch, var(--color) 45%, transparent);
+            --border-radius: var(--border-radius-300);
+            --border-width: var(--box-border-width);
+            --border-width-offset-hover: 0px;
+            --box-shadow-active: none;
+            --check-size: 14px;
+            --check-stroke-width: 3.4;
+            --focus-width: 0px;
+            --indicator-color-default: var(--check-color);
+            --size: var(--box-size);
+            --transition-duration: 150ms;
+            --transition-timing-function: ease-out;
+
+            // Covers the border too, so a filled box is exactly the box size.
+            &::before {
+                background: var(--color);
+                border-radius: var(--border-radius);
+                content: '';
+                inset: calc(var(--box-border-width) * -1);
+                opacity: 0;
+                pointer-events: none;
+                position: absolute;
+                scale: 0.8;
+                transition:
+                    opacity 120ms $ease-out,
+                    scale 120ms $ease-out;
+            }
+
+            &:has(input:checked, input:indeterminate)::before {
+                opacity: 1;
+                scale: 1;
+                transition:
+                    opacity 250ms $fill-in,
+                    scale 250ms $fill-in;
+            }
+
+            // Opacity snaps off only once the undraw ends, since a round cap at zero length still leaves a dot.
+            .checkbox-check svg {
+                opacity: 0;
+                transition:
+                    opacity 0s linear 100ms,
+                    stroke-dashoffset 100ms $ease-out;
+            }
+
+            &:has(input:checked) .checkbox-check svg {
+                opacity: 1;
+                transition:
+                    opacity 0s,
+                    stroke-dashoffset 200ms $ease-out;
+            }
+        }
+
+        &:has(input:indeterminate) {
+            .checkbox {
+                border-color: var(--color);
+            }
+
+            .checkbox-group-dash {
+                opacity: 1;
+                stroke-dashoffset: 0;
+                transition:
+                    opacity 0s,
+                    stroke-dashoffset 200ms $ease-out;
+            }
+        }
+    }
+
+    &-count {
+        color: var(--color-muted);
+        flex: 0 0 auto;
+        font-size: var(--font-size-300);
+        font-variant-numeric: tabular-nums;
+    }
+
+    &-dash {
+        color: var(--check-color);
+        height: 70%;
+        inset: 0;
+        margin: auto;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        stroke-width: 2.25;
+        transition:
+            opacity 0s linear 100ms,
+            stroke-dashoffset 100ms $ease-out;
+        width: 70%;
+    }
+
+    &-description {
+        color: var(--color-muted);
+        font-size: var(--description-font-size);
+        line-height: var(--description-line-height);
+    }
+
+    &-divider {
+        background: var(--border-color);
+        height: 1px;
+        margin: 4px var(--row-padding-horizontal);
+    }
+
+    &-hint {
+        color: var(--color-muted);
+        font-size: var(--font-size-300);
+        margin: 0;
+        padding: var(--padding) var(--row-padding-horizontal) var(--size-200);
+        user-select: none;
+
+        kbd {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: inherit;
+            padding: 1px 4px;
+        }
+    }
+
+    &-label {
+        color: var(--color);
+        font-size: var(--font-size-400);
+        font-weight: var(--font-weight-400);
+        line-height: var(--label-line-height);
+    }
+
+    &-row {
+        align-items: center;
+        border-radius: var(--row-border-radius);
+        cursor: pointer;
+        display: flex;
+        gap: var(--size-300);
+        min-height: var(--row-min-height);
+        padding: var(--row-padding-vertical) var(--row-padding-horizontal);
+        touch-action: manipulation;
+        transition: background var(--transition-duration) var(--transition-timing-function);
+        user-select: none;
+
+        &:hover {
+            background: var(--row-background-hover);
+        }
+
+        &:active .checkbox-group-box {
+            scale: var(--press-scale);
+        }
+
+        &:has(input:focus-visible) {
+            outline: var(--focus-width) solid var(--color);
+            outline-offset: calc(var(--focus-width) * -1);
+        }
+
+        &--description {
+            align-items: flex-start;
+
+            // Centers the box on the first line of text.
+            .checkbox-group-box {
+                margin-top: 1px;
+            }
+        }
+
+        &--parent .checkbox-group-label {
+            font-weight: var(--font-weight-500);
+        }
+    }
+
+    &-text {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-box {
+            transition: none;
+
+            .checkbox {
+                &::before,
+                &:has(input:checked, input:indeterminate)::before {
+                    scale: 1;
+                    transition: opacity 120ms $ease-out;
+                }
+
+                .checkbox-check svg,
+                &:has(input:checked) .checkbox-check svg {
+                    stroke-dashoffset: 0;
+                    transition: opacity 150ms $ease-out;
+                }
+            }
+
+            &:has(input:indeterminate) .checkbox-group-dash {
+                transition: opacity 150ms $ease-out;
+            }
+        }
+
+        &-dash {
+            stroke-dashoffset: 0;
+            transition: opacity 150ms $ease-out;
+        }
+
+        &-row:active .checkbox-group-box {
+            scale: 1;
+        }
+    }
+}

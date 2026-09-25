@@ -1,0 +1,192 @@
+@use 'variables';
+
+$icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.897, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
+
+.select-menu {
+    color: var(--color);
+    font-size: var(--font-size);
+    position: relative;
+    width: var(--width);
+
+    &-check {
+        filter: blur(4px);
+        flex: 0 0 auto;
+        height: 16px;
+        opacity: 0;
+        scale: 0.25;
+        stroke-width: 1.5;
+        transition:
+            filter 300ms $icon-swap,
+            opacity 300ms $icon-swap,
+            scale 300ms $icon-swap;
+        width: 16px;
+
+        [aria-selected='true'] > & {
+            filter: blur(0px);
+            opacity: 1;
+            scale: 1;
+        }
+    }
+
+    &-chevron {
+        color: var(--color-muted);
+        flex: 0 0 auto;
+        height: 16px;
+        stroke-width: 1.5;
+        width: 16px;
+    }
+
+    // Visually hidden, but it names both the trigger and the list.
+    &-label {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-option {
+        align-items: center;
+        border-radius: var(--border-radius-400);
+        cursor: default;
+        display: flex;
+        gap: var(--size-200);
+        height: var(--item-height);
+        padding: 0 var(--size-100);
+        user-select: none;
+
+        // No transition on the highlight: it follows every move, so easing would read as lag.
+        &.--highlighted {
+            background: var(--highlight);
+        }
+
+        &-detail {
+            color: var(--color-muted);
+            flex: 0 0 auto;
+            font-size: var(--font-size-300);
+            font-variant-numeric: tabular-nums;
+        }
+
+        &-label {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    &-panel {
+        left: 0;
+        position: absolute;
+        top: 0;
+        z-index: 50;
+    }
+
+    &-scroll {
+        align-items: center;
+        color: var(--color-muted);
+        display: flex;
+        height: 24px;
+        inset-inline: 0;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        transition: opacity 150ms ease-out;
+
+        svg {
+            height: 14px;
+            stroke-width: 1.5;
+            width: 14px;
+        }
+
+        &--down {
+            bottom: 0;
+
+            .select-menu-panel[data-hover][data-down] & {
+                opacity: 1;
+                pointer-events: auto;
+            }
+        }
+
+        &--up {
+            top: 0;
+
+            .select-menu-panel[data-hover][data-up] & {
+                opacity: 1;
+                pointer-events: auto;
+            }
+        }
+    }
+
+    &-scroller {
+        max-height: calc(var(--rows) * var(--item-height) + var(--pad) * 2);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: var(--pad);
+    }
+
+    &-tag {
+        display: none;
+    }
+
+    &-trigger {
+        align-items: center;
+        background: var(--background);
+        border: 0;
+        border-radius: var(--trigger-border-radius);
+        box-shadow: var(--box-shadow);
+        color: var(--color);
+        cursor: pointer;
+        display: flex;
+        font: inherit;
+        gap: var(--size-200);
+        height: var(--height);
+        margin: 0;
+        outline: none;
+        padding: 0 10px 0 var(--size-300);
+        text-align: left;
+        touch-action: manipulation;
+        transition: scale var(--transition-duration) var(--transition-timing-function);
+        user-select: none;
+        width: 100%;
+
+        &:active {
+            scale: var(--press-scale);
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--color);
+            outline-offset: 2px;
+        }
+    }
+
+    &-value {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-check {
+            filter: none;
+            scale: 1;
+        }
+
+        .select-menu-panel {
+            --scale: 1;
+        }
+
+        &-trigger {
+            transition: none;
+
+            &:active {
+                scale: 1;
+            }
+        }
+    }
+}

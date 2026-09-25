@@ -1,0 +1,20 @@
+.undo-toast {
+    --undo-toast-background: var(--color-grey-400);
+    --undo-toast-box-shadow:
+        0 0 0 1px color-mix(in oklab, var(--color-black-300) 6%, transparent),
+        0 1px 2px color-mix(in oklab, var(--color-black-300) 6%, transparent),
+        0 6px 16px -6px color-mix(in oklab, var(--color-black-300) 12%, transparent);
+    --undo-toast-color: var(--color-text-500);
+    --undo-toast-color-muted: var(--color-text-300);
+    --undo-toast-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --undo-toast-focus-color: color-mix(in oklab, var(--color-text-500) 38%, transparent);
+    --undo-toast-height: 240px;
+    --undo-toast-row-background-hover: var(--color-white-300);
+    --undo-toast-row-height: 56px;
+
+
+    &--white {
+        --undo-toast-background: var(--color-white-300);
+        --undo-toast-row-background-hover: var(--color-grey-400);
+    }
+}

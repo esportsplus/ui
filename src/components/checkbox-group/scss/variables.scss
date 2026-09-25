@@ -1,0 +1,28 @@
+.checkbox-group {
+    --background: var(--color-white-300);
+    --border-color: var(--color-border-300);
+    --border-radius: calc(var(--row-border-radius) + var(--padding));
+    --box-border-width: 1.5px;
+    --box-shadow:
+        0 0 0 1px oklch(from var(--color-black-500) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
+    --box-size: var(--size-500);
+    --check-color: var(--color-white-300);
+    --color: var(--color-text-500);
+    --color-muted: var(--color-text-300);
+    --description-font-size: calc(var(--font-size-400) * 0.875);
+    --description-line-height: 1.43;
+    --focus-width: var(--border-width-500);
+    --label-line-height: 1.4;
+    --padding: 6px;
+    --press-scale: 0.96;
+    --row-background-hover: var(--color-grey-400);
+    --row-border-radius: 14px;
+    --row-min-height: 44px;
+    --row-padding-horizontal: var(--size-300);
+    --row-padding-vertical: var(--size-200);
+    --transition-duration: 150ms;
+    --transition-timing-function: ease-out;
+    --width: min(360px, 100%);
+}

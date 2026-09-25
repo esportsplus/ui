@@ -1,0 +1,27 @@
+.sheet {
+    --background: var(--color-white-300);
+    --backdrop-color: color-mix(in srgb, var(--color-black-500) 40%, transparent);
+    --box-shadow:
+        0 0 0 var(--border-width-400) var(--color-border-300),
+        0 -8px 40px oklch(from var(--color-black-500) l c h / 0.15);
+    --close-duration: 0.3s;
+    --color: var(--color-text-500);
+    --edge-color: var(--color-border-300);
+    // The iOS drawer curve: fast out of the gate, long gentle settle.
+    --ease: cubic-bezier(0.32, 0.72, 0, 1);
+    --handle-color: var(--color-border-300);
+    --handle-height: 6px;
+    --handle-margin: var(--size-500);
+    --handle-width: 40px;
+    --open-duration: 0.5s;
+    --padding-bottom: var(--size-700);
+    --padding-sides: calc(var(--size-400) * 1.5);
+    --padding-top: var(--size-300);
+    --radius: 28px;
+    --width: 448px;
+
+    &--full {
+        --radius: var(--border-radius-700);
+        --width: 100%;
+    }
+}

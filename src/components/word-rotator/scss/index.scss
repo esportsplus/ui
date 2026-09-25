@@ -1,0 +1,33 @@
+@use 'variables';
+
+.word-rotator {
+    color: var(--color);
+    display: inline-block;
+    position: relative;
+
+    &-box {
+        display: inline-block;
+        position: relative;
+        text-align: left;
+        white-space: pre;
+    }
+
+    &-letter {
+        display: inline-block;
+
+        &.--exiting {
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+        }
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+}

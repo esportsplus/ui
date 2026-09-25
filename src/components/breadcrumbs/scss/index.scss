@@ -1,0 +1,235 @@
+@use '/tokens';
+@use 'variables';
+
+.breadcrumbs {
+    font-size: var(--font-size);
+    min-width: 0;
+    position: relative;
+    width: 100%;
+
+
+    &-current {
+        color: var(--color-active);
+        display: block;
+        font-weight: var(--font-weight-current);
+        overflow: hidden;
+        padding-inline: var(--link-padding);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-link {
+        align-items: center;
+        border-radius: var(--link-radius);
+        color: var(--color);
+        display: inline-flex;
+        height: var(--height);
+        outline: none;
+        padding-inline: var(--link-padding);
+        text-decoration: underline;
+        text-decoration-color: transparent;
+        text-underline-offset: 4px;
+        touch-action: manipulation;
+        transition:
+            color 0.15s ease-out,
+            scale 0.15s ease-out,
+            text-decoration-color 0.15s ease-out;
+        user-select: none;
+        white-space: nowrap;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+        }
+
+        &:hover {
+            color: var(--color-active);
+            text-decoration-color: var(--underline-color);
+        }
+    }
+
+    &-list {
+        align-items: center;
+        display: flex;
+        height: var(--height);
+        list-style: none;
+        margin: 0;
+        min-width: 0;
+        padding: 0;
+        position: relative;
+    }
+
+    &-menu.tooltip-content {
+        --background-default: var(--menu-background);
+        --border-radius: var(--menu-radius);
+        --box-shadow: var(--menu-box-shadow);
+        --offset: 0px;
+        --scale: 0.95;
+        --spacer: 6px;
+        --transition-duration: var(--menu-duration-out);
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        display: flex;
+        flex-direction: column;
+        outline: none;
+        padding: 4px;
+        // Grows out of the dots.
+        transform-origin: calc(var(--trigger-width) / 2) 0;
+        width: var(--menu-width);
+
+        .tooltip.--active > & {
+            --transition-duration: var(--menu-duration-in);
+        }
+    }
+
+    &-menu-root.tooltip {
+        cursor: default;
+        display: flex;
+    }
+
+    // No transition on the highlight: it follows every hover, so any easing reads as lag.
+    &-option {
+        align-items: center;
+        border-radius: var(--border-radius-400);
+        color: var(--color-active);
+        cursor: default;
+        display: flex;
+        flex-shrink: 0;
+        gap: 10px;
+        height: 36px;
+        outline: none;
+        padding-inline: 8px;
+        text-decoration: none;
+        user-select: none;
+
+        &:focus {
+            background: var(--hover-background);
+        }
+
+        &[hidden] {
+            display: none;
+        }
+
+        span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        svg {
+            color: var(--color);
+            flex-shrink: 0;
+            height: 16px;
+            width: 16px;
+        }
+    }
+
+    &-ruler {
+        display: flex;
+        left: 0;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        visibility: hidden;
+        white-space: nowrap;
+    }
+
+    &-segment {
+        align-items: center;
+        display: flex;
+        flex-shrink: 0;
+
+        &--current {
+            flex-shrink: 1;
+            min-width: 0;
+        }
+
+        &.--hidden {
+            display: none;
+        }
+    }
+
+    &-separator {
+        color: var(--separator-color);
+        flex-shrink: 0;
+        height: var(--separator-size);
+        width: var(--separator-size);
+    }
+
+    &-space {
+        display: block;
+        width: var(--trigger-width);
+    }
+
+    &-text {
+        padding-inline: var(--link-padding);
+
+        &--current {
+            font-weight: var(--font-weight-current);
+        }
+    }
+
+    &-trigger {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: var(--link-radius);
+        color: var(--color);
+        cursor: pointer;
+        display: flex;
+        height: calc(var(--height) - 4px);
+        justify-content: center;
+        outline: none;
+        padding: 0;
+        touch-action: manipulation;
+        transition:
+            background-color 0.15s ease-out,
+            color 0.15s ease-out,
+            scale 0.15s ease-out;
+        user-select: none;
+        width: var(--trigger-width);
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+        }
+
+        &:hover,
+        .tooltip.--active > & {
+            background: var(--hover-background);
+            color: var(--color-active);
+        }
+
+        svg {
+            height: 16px;
+            width: 16px;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &-link {
+            transition:
+                color 0.15s ease-out,
+                text-decoration-color 0.15s ease-out;
+        }
+
+        &-menu.tooltip-content {
+            --scale: 1;
+        }
+
+        &-trigger {
+            transition:
+                background-color 0.15s ease-out,
+                color 0.15s ease-out;
+        }
+    }
+}

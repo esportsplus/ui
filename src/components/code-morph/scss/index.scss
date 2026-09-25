@@ -1,0 +1,384 @@
+@use 'variables';
+
+.code-morph {
+    background: var(--background);
+    border-radius: var(--radius);
+    box-shadow: var(--box-shadow);
+    color: var(--color);
+    max-width: 100%;
+    overflow: hidden;
+    width: var(--width);
+
+
+    // Rows that gained code in this step, so the reader knows where to look once the motion settles.
+    &-added {
+        background: color-mix(in oklab, var(--color-text-500) 4%, transparent);
+        border-left: 2px solid color-mix(in oklab, var(--color-text-500) 25%, transparent);
+        height: var(--row-height);
+        inset-inline: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        transition: opacity 0.15s ease-out;
+        z-index: 2;
+
+        &.--active {
+            opacity: 1;
+            transition: opacity 0.3s ease-out 0.3s;
+        }
+    }
+
+    // Fits the current step, so a short step leaves no empty editor below it; only the footer rides the edge.
+    &-code {
+        display: flex;
+        font-family: var(--font-family);
+        font-size: var(--font-size);
+        line-height: var(--row-height);
+        padding-block: 16px;
+        position: relative;
+        transition: height var(--move-duration) var(--move-timing-function);
+    }
+
+    &-copy {
+        background: none;
+        border: 0;
+        border-radius: var(--tab-radius);
+        color: var(--muted-color);
+        cursor: pointer;
+        display: grid;
+        flex-shrink: 0;
+        height: 36px;
+        outline: none;
+        place-items: center;
+        touch-action: manipulation;
+        transition:
+            color 0.15s ease-out,
+            scale 0.15s ease-out;
+        width: 36px;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 1px;
+        }
+
+        &:hover {
+            color: var(--color);
+        }
+    }
+
+    &-count {
+        color: var(--muted-color);
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--font-weight-500);
+    }
+
+    &-footer {
+        align-items: center;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        font-size: var(--font-size-400);
+        gap: 12px;
+        height: 48px;
+        padding-inline: var(--size-400);
+    }
+
+    &-gutter {
+        background: var(--background);
+        color: color-mix(in oklab, var(--muted-color) 60%, transparent);
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+        left: 0;
+        padding-inline: var(--size-400);
+        position: sticky;
+        text-align: right;
+        user-select: none;
+        z-index: 1;
+    }
+
+    &-header {
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        padding: 8px;
+    }
+
+    // Both icons share one grid cell, so the outgoing one stays centred under the incoming one.
+    &-icon {
+        filter: blur(0px);
+        grid-area: 1 / 1;
+        height: 16px;
+        transition:
+            filter 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+            opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+            scale 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        width: 16px;
+
+        &--check,
+        .code-morph-copy.--copied &--copy {
+            filter: blur(4px);
+            opacity: 0;
+            scale: 0.25;
+        }
+
+        .code-morph-copy.--copied &--check {
+            filter: blur(0px);
+            opacity: 1;
+            scale: 1;
+        }
+    }
+
+    &-number {
+        height: var(--row-height);
+        transition: opacity 0.2s ease-out;
+
+        &.--hidden {
+            opacity: 0;
+        }
+    }
+
+    &-panel {
+        outline: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+            outline-offset: -2px;
+        }
+    }
+
+    &-pill {
+        background: var(--pill-background);
+        border-radius: var(--tab-radius);
+        box-shadow: var(--pill-box-shadow);
+        height: 100%;
+        left: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        transition:
+            translate var(--pill-duration) var(--pill-timing-function),
+            width var(--pill-duration) var(--pill-timing-function);
+
+        &.--instant {
+            transition: none;
+        }
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        margin: 0;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-tab {
+        background: none;
+        border: 0;
+        border-radius: var(--tab-radius);
+        color: var(--muted-color);
+        cursor: pointer;
+        font-size: var(--font-size-300);
+        font-weight: var(--font-weight-500);
+        height: 36px;
+        outline: none;
+        padding-inline: 12px;
+        position: relative;
+        touch-action: manipulation;
+        transition:
+            color 0.15s ease-out,
+            scale 0.15s ease-out;
+        user-select: none;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 1px;
+        }
+
+        &:hover,
+        &.--active {
+            color: var(--color);
+        }
+
+        &-label {
+            position: relative;
+        }
+    }
+
+    &-tabs {
+        align-items: center;
+        display: flex;
+        gap: 4px;
+        position: relative;
+    }
+
+    &-title {
+        grid-area: 1 / 1;
+        opacity: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition:
+            filter 0.12s cubic-bezier(0.23, 1, 0.32, 1),
+            opacity 0.12s cubic-bezier(0.23, 1, 0.32, 1);
+        white-space: nowrap;
+
+        &:not(.--active) {
+            filter: blur(2px);
+        }
+
+        &.--active {
+            animation: code-morph-title 0.24s cubic-bezier(0.23, 1, 0.32, 1);
+            opacity: 1;
+        }
+    }
+
+    &-titles {
+        display: grid;
+        flex: 1;
+        min-width: 0;
+    }
+
+    // New tokens wait so they arrive into space the moves have already opened; removed ones hold their red
+    // tint for a beat before going.
+    &-token {
+        border-radius: 3px;
+        color: var(--syntax-plain);
+        left: 0;
+        position: absolute;
+        top: 0;
+        transition:
+            background-color 0.2s ease,
+            color 0.2s ease,
+            transform var(--move-duration) var(--move-timing-function);
+        white-space: pre;
+
+        @each $kind in comment, fn, keyword, number, punct, string, type {
+            &--#{$kind} {
+                color: var(--syntax-#{$kind});
+            }
+        }
+
+        &.--enter {
+            animation: code-morph-enter 260ms cubic-bezier(0.23, 1, 0.32, 1) 300ms both;
+        }
+
+        &.--exit {
+            animation: code-morph-exit 360ms cubic-bezier(0.23, 1, 0.32, 1) both;
+            background-color: color-mix(in oklab, var(--exit-color) 12%, transparent);
+            color: var(--exit-color);
+        }
+    }
+
+    &-tokens {
+        flex-shrink: 0;
+        position: relative;
+        white-space: pre;
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &-code,
+        &-pill {
+            transition: none;
+        }
+
+        &-copy,
+        &-tab {
+            transition: color 0.15s ease-out;
+        }
+
+        &-title.--active {
+            animation-name: code-morph-fade-in;
+        }
+
+        &-token {
+            transition:
+                background-color 0.2s ease,
+                color 0.2s ease;
+
+            &.--enter {
+                animation: code-morph-fade-in 200ms ease 120ms both;
+            }
+
+            &.--exit {
+                animation: code-morph-fade-out 160ms ease both;
+            }
+        }
+    }
+}
+
+@keyframes code-morph-enter {
+    from {
+        filter: blur(4px);
+        opacity: 0;
+        translate: 0 4px;
+    }
+
+    to {
+        filter: none;
+        opacity: 1;
+        translate: 0 0;
+    }
+}
+
+@keyframes code-morph-exit {
+    0%, 40% {
+        filter: none;
+        opacity: 1;
+        translate: 0 0;
+    }
+
+    100% {
+        filter: blur(2px);
+        opacity: 0;
+        translate: 0 -3px;
+    }
+}
+
+@keyframes code-morph-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes code-morph-fade-out {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes code-morph-title {
+    from {
+        filter: blur(4px);
+        opacity: 0;
+        translate: 0 4px;
+    }
+
+    to {
+        filter: blur(0px);
+        opacity: 1;
+        translate: 0 0;
+    }
+}

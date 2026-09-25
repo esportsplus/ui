@@ -1,0 +1,36 @@
+.shortcut-sheet {
+    --close-duration: 0.1s;
+    --color: var(--color-text-500);
+    --color-muted: var(--color-text-300);
+    --dialog-backdrop: color-mix(in srgb, var(--color-text-500) 10%, transparent);
+    --dialog-background: var(--color-white-300);
+    --dialog-height: min(480px, calc(100dvh - (var(--size-400) * 2)));
+    --dialog-radius: var(--size-500);
+    --dialog-scale: 0.98;
+    --dialog-width: 520px;
+    // Lights instantly, then fades like an afterglow; the slow fade is what reads as "that key worked".
+    --flash-duration: 0.5s;
+    --font-size: calc(var(--font-size-400) * 0.875);
+    --input-font-size: calc(var(--font-size-400) * 0.9375);
+    --kbd-background: var(--color-white-300);
+    --kbd-border-color: var(--color-border-300);
+    --kbd-duration: 0.3s;
+    --kbd-font-size: calc(var(--font-size-300) * 0.95);
+    --kbd-pressed-background: var(--color-text-500);
+    --kbd-pressed-color: var(--color-white-300);
+    --kbd-size: 24px;
+    --open-duration: 0.15s;
+    --raised:
+        0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-300) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+    --row-background: var(--color-grey-400);
+    --row-height: 40px;
+    --surface: var(--color-grey-400);
+    --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --title-font-size: calc(var(--font-size-400) * 0.9375);
+
+    &--blur {
+        --dialog-backdrop: color-mix(in srgb, var(--color-black-500) 24%, transparent);
+    }
+}

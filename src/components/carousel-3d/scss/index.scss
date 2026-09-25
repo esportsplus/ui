@@ -1,0 +1,155 @@
+@use 'variables';
+
+.carousel-3d {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 100%;
+    width: var(--max-width);
+
+    &-button {
+        align-items: center;
+        background: var(--button-background);
+        border: 0;
+        border-radius: 999px;
+        box-shadow: var(--button-box-shadow);
+        color: var(--button-color);
+        cursor: pointer;
+        display: flex;
+        height: var(--button-size);
+        justify-content: center;
+        outline: none;
+        padding: 0;
+        touch-action: manipulation;
+        transition: scale 0.15s ease-out;
+        user-select: none;
+        width: var(--button-size);
+
+        svg {
+            height: 16px;
+            width: 16px;
+        }
+
+        &:active {
+            scale: var(--button-pressed-scale);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-ring-color);
+            outline-offset: 2px;
+        }
+    }
+
+    &-card {
+        --text: 1;
+        background: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--card-box-shadow);
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        height: var(--card-height);
+        justify-content: space-between;
+        left: calc(var(--card-width) / -2);
+        padding: var(--card-padding);
+        position: absolute;
+        top: calc(var(--card-height) / -2);
+        width: var(--card-width);
+    }
+
+    &-controls {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+    }
+
+    &-counter {
+        color: var(--muted-color);
+        font-family: ui-monospace, monospace;
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
+        margin: 0;
+        text-align: center;
+        width: 64px;
+    }
+
+    &-index {
+        color: var(--muted-color);
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+        opacity: var(--text);
+    }
+
+    &-note {
+        color: var(--muted-color);
+        display: block;
+        font-size: 14px;
+        font-weight: 400;
+        letter-spacing: normal;
+        line-height: 1.5;
+        margin-top: 6px;
+        text-wrap: pretty;
+    }
+
+    &-ring {
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform-style: preserve-3d;
+
+        // Reduced motion: the flat row cross-fades which card is lit instead of turning.
+        &.--flat .carousel-3d-card {
+            transition: opacity 0.2s ease-out;
+        }
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    // pan-y: a vertical swipe still scrolls the page on touch screens.
+    &-stage {
+        border-radius: 16px;
+        cursor: grab;
+        height: var(--stage-height);
+        outline: none;
+        overflow: hidden;
+        perspective: var(--perspective);
+        position: relative;
+        touch-action: pan-y;
+        user-select: none;
+        width: 100%;
+
+        &:active {
+            cursor: grabbing;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-ring-color);
+        }
+    }
+
+    &-title {
+        color: var(--title-color);
+        font-size: 18px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        line-height: 1.375;
+        margin: 0;
+        opacity: var(--text);
+        text-wrap: balance;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-button {
+            transition: none;
+        }
+    }
+}

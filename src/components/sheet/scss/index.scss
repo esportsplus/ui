@@ -1,0 +1,65 @@
+@use 'variables';
+
+.sheet.modal {
+    --backdrop: var(--backdrop-color);
+    --margin-horizontal: 0px;
+    --max-width: var(--width);
+    --transition-duration: var(--open-duration);
+    --transition-timing-function: var(--ease);
+    background: var(--background);
+    border-radius: var(--radius) var(--radius) 0 0;
+    box-shadow: var(--box-shadow);
+    color: var(--color);
+    cursor: grab;
+    outline: none;
+    // The surface continues below the screen edge, so pulling the sheet up reveals more sheet.
+    overflow: visible;
+    padding: var(--padding-top) var(--padding-sides) var(--padding-bottom);
+    touch-action: none;
+    user-select: none;
+
+    // Exits get out of the way faster than entrances arrive.
+    &:not(.--active) {
+        --transition-duration: var(--close-duration);
+    }
+
+    &.--active::backdrop {
+        opacity: calc(1 - var(--progress, 0));
+    }
+
+    &.--dragging {
+        cursor: grabbing;
+
+        &,
+        &::backdrop {
+            transition: none;
+        }
+    }
+
+    &::after {
+        background: inherit;
+        box-shadow:
+            var(--border-width-400) 0 0 var(--edge-color),
+            calc(var(--border-width-400) * -1) 0 0 var(--edge-color);
+        content: '';
+        height: 50vh;
+        inset-inline: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 100%;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &::backdrop {
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+        }
+    }
+}
+
+.sheet-handle {
+    background: var(--handle-color);
+    border-radius: var(--handle-height);
+    height: var(--handle-height);
+    margin: 0 auto var(--handle-margin);
+    width: var(--handle-width);
+}

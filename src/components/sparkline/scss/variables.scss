@@ -1,0 +1,30 @@
+.sparkline {
+    --area-color: color-mix(in oklab, var(--line-color) 8%, transparent);
+    --color: var(--color-text-500);
+    --cursor-color: color-mix(in oklab, var(--color-text-300) 40%, transparent);
+    // Long for a UI animation on purpose: the draw introduces the shape once, and a faster line reads as a flicker.
+    --draw-duration: 0.7s;
+    --draw-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --dot-color: var(--line-color);
+    --dot-ring-color: var(--color-white-300);
+    --dot-size: 12px;
+    --focus-color: var(--color-text-500);
+    --font-size: var(--font-size-400);
+    --line-color: var(--color-text-500);
+    --line-width: 2.5;
+    --muted-color: var(--color-text-300);
+    --plot-offset: 48px;
+    --tip-background: var(--color-text-500);
+    --tip-color: var(--color-white-300);
+    --tip-font-size: var(--font-size-300);
+    --value-font-size: var(--font-size-700);
+    --value-font-weight: var(--font-weight-600);
+    --width: 520px;
+
+
+    &--accent {
+        --dot-color: var(--color-blue-400);
+        --line-color: var(--color-blue-400);
+        --tip-background: var(--color-blue-400);
+    }
+}

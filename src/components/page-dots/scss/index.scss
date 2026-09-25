@@ -1,0 +1,95 @@
+@use 'variables';
+
+// Geometry is derived from '--progress' alone, so a scroll or drag only rewrites one custom property per frame.
+.page-dots {
+    --step: calc(var(--dot-size) + var(--dot-gap));
+    contain: layout;
+    flex: none;
+    height: var(--height);
+    position: relative;
+    // Never changes width: the active slot is always one pill wide, whichever dot owns it.
+    width: calc((var(--count) - 1) * var(--step) + var(--pill-width));
+
+    // Each dot swells toward pill width as its page approaches, so the row makes room for the pill and every gap stays even mid-scroll.
+    &-dot {
+        --near: clamp(0, 1 - max(var(--progress) - var(--index), var(--index) - var(--progress)), 1);
+        align-items: center;
+        background: none;
+        border: 0;
+        border-radius: 999px;
+        box-sizing: content-box;
+        cursor: pointer;
+        display: flex;
+        inset-block: 0;
+        left: calc(var(--index) * var(--step) + (var(--pill-width) - var(--dot-size)) * clamp(0, var(--index) - var(--progress), 1));
+        // Reaches half the gap past each side of its dot, so the hit areas tile the row with no dead space between them.
+        margin: 0 0 0 calc(var(--dot-gap) / -2);
+        outline: none;
+        padding: 0 calc(var(--dot-gap) / 2);
+        position: absolute;
+        touch-action: manipulation;
+        width: calc(var(--dot-size) + (var(--pill-width) - var(--dot-size)) * var(--near));
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--focus-color);
+        }
+
+        &:active .page-dots-mark {
+            scale: var(--pressed-scale);
+        }
+
+        @media (hover: hover) {
+            &:hover .page-dots-mark {
+                background: var(--dot-color-hover);
+            }
+        }
+    }
+
+    &-fill {
+        background: var(--pill-color);
+        inset: 0;
+        position: absolute;
+        transform-origin: left;
+    }
+
+    &-mark {
+        background: var(--dot-color);
+        border-radius: 999px;
+        height: var(--dot-size);
+        transition:
+            background-color var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function);
+        width: 100%;
+    }
+
+    // Spans the two pages it sits between: the leading edge travels in the first 60% of the move and the trailing edge in the
+    // last 60%, so the pill stretches toward the next dot, then pulls its tail in after it, like a worm.
+    &-pill {
+        --k: clamp(0, round(down, var(--progress), 1), max(var(--count) - 2, 0));
+        --t: clamp(0, var(--progress) - var(--k), 1);
+        --lead-t: clamp(0, var(--t) / 0.6, 1);
+        --trail-t: clamp(0, (var(--t) - 0.4) / 0.6, 1);
+        --lead: calc(var(--lead-t) * var(--lead-t) * (3 - 2 * var(--lead-t)));
+        --trail: calc(var(--trail-t) * var(--trail-t) * (3 - 2 * var(--trail-t)));
+        background: var(--track-color);
+        border-radius: 999px;
+        height: var(--dot-size);
+        left: 0;
+        overflow: hidden;
+        pointer-events: none;
+        position: absolute;
+        top: 50%;
+        translate: calc(var(--k) * var(--step) + var(--step) * var(--trail)) -50%;
+        width: calc(var(--pill-width) + var(--step) * (var(--lead) - var(--trail)));
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-mark {
+            transition: background-color var(--transition-duration) var(--transition-timing-function);
+        }
+
+        &-dot:active .page-dots-mark {
+            scale: none;
+        }
+    }
+}

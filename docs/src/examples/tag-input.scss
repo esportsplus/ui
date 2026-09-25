@@ -1,0 +1,19 @@
+.tag-input-demo {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-300);
+    width: min(440px, 100%);
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+
+    &-submit {
+        --background-default: var(--color-text-500);
+        --color-default: var(--color-white-300);
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-200);
+    }
+}

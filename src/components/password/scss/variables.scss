@@ -1,0 +1,50 @@
+.password {
+    --background: var(--background-default);
+    --background-active: var(--background-default);
+    --background-default: transparent;
+    --background-hover: var(--background-default);
+    --border-color: var(--border-color-default);
+    --border-color-active: var(--border-color-default);
+    --border-color-default: var(--background);
+    --border-color-hover: var(--border-color-default);
+    --border-radius: var(--border-radius-400);
+    --border-style: solid;
+    --border-width: 0px;
+    --box-shadow: var(--box-shadow-default);
+    --box-shadow-active: var(--box-shadow-default);
+    --box-shadow-default: none;
+    --box-shadow-hover: var(--box-shadow-default);
+    --key-background: var(--color-white-400);
+    --key-border-color: var(--color-border-400);
+    --key-color: var(--color-text-300);
+    --key-height: 22px;
+    --key-light-color: var(--key-border-color);
+    --key-light-color-active: var(--color-green-400);
+    --key-width: 30px;
+    --toggle-background-hover: var(--color-grey-400);
+    --toggle-color: var(--color-text-300);
+    --toggle-color-hover: var(--color-text-500);
+    --toggle-size: 32px;
+    --transition-duration: 150ms;
+    --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --transition-timing-function-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
+    --warning-color: var(--color-text-300);
+    --warning-font-size: var(--font-size-300);
+    --warning-height: 20px;
+
+    &:not(.--active):hover {
+        --background: var(--background-hover);
+        --border-color: var(--border-color-hover);
+        --box-shadow: var(--box-shadow-hover);
+    }
+
+    &.--active {
+        --background: var(--background-active);
+        --border-color: var(--border-color-active);
+        --box-shadow: var(--box-shadow-active);
+    }
+
+    &.--capslock {
+        --key-light-color: var(--key-light-color-active);
+    }
+}

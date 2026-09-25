@@ -1,0 +1,36 @@
+.feature-spotlight {
+    --body-font-size: calc(var(--font-size-400) * 0.875);
+    --chrome-background: var(--color-grey-400);
+    --chrome-dot: var(--color-border-300);
+    --chrome-height: 28px;
+    --color: var(--color-text-500);
+    --color-muted: var(--color-text-300);
+    --column-gap: 28px;
+    --dim-color: color-mix(in oklab, var(--color-white-300) 70%, transparent);
+    --dim-in-delay: 0.15s;
+    --dim-in-duration: 0.35s;
+    --dim-out-duration: 0.5s;
+    --divider-color: var(--color-border-300);
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --hole-radius: var(--border-radius-600);
+    --number-font-size: calc(var(--font-size-400) * 0.8125);
+    --pin-background: var(--color-white-300);
+    --rail-background: var(--color-border-300);
+    --rail-duration: 0.5s;
+    --rail-fill: var(--color-text-500);
+    --ring-color: color-mix(in oklab, var(--color-text-500) 22%, transparent);
+    --stage-background: var(--color-white-300);
+    --stage-radius: 14px;
+    --stage-shadow:
+        0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-300) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+    --stage-width: 360px;
+    --text-duration: 0.3s;
+    --title-font-size: calc(var(--font-size-400) * 1.0625);
+
+    &--dark-dim {
+        --dim-color: color-mix(in oklab, var(--color-black-500) 55%, transparent);
+        --ring-color: color-mix(in oklab, var(--color-white-300) 60%, transparent);
+    }
+}

@@ -1,0 +1,40 @@
+.contribution-heatmap-demo {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-400);
+    max-width: 100%;
+    width: fit-content;
+
+    &-legend {
+        align-self: flex-end;
+    }
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+
+    &-summary {
+        color: var(--color-text-300);
+
+        a {
+            color: var(--color-text-500);
+            font-weight: var(--font-weight-500);
+            text-decoration: underline;
+            text-decoration-color: color-mix(in oklab, var(--color-text-500) 25%, transparent);
+            text-underline-offset: 2px;
+            transition: text-decoration-color 0.15s ease-out;
+
+            &:hover {
+                text-decoration-color: var(--color-text-500);
+            }
+        }
+
+        strong {
+            color: var(--color-text-500);
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight-600);
+        }
+    }
+}

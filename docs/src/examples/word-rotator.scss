@@ -1,0 +1,26 @@
+.word-rotator-demo {
+    color: var(--color-text-300);
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: var(--font-weight-600);
+    letter-spacing: -0.025em;
+    margin: 0;
+    text-align: center;
+    width: 100%;
+
+    &--small {
+        font-size: var(--font-size-500);
+        font-weight: var(--font-weight-500);
+    }
+
+    &-stack {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+    }
+
+    &-word {
+        color: var(--color-text-500);
+    }
+}

@@ -1,0 +1,22 @@
+.date-range-picker {
+    --accent: var(--color-text-500);
+    --accent-contrast: var(--color-white-300);
+    --background: var(--color-white-300);
+    --band: oklch(from var(--color-text-500) l c h / 0.07);
+    --border: var(--color-border-300);
+    --box-shadow: 0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06), 0 1px 2px oklch(from var(--color-black-300) l c h / 0.06), 0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+    --color-muted: var(--color-text-300);
+    --day-size: 36px;
+    --edge: oklch(from var(--color-text-500) l c h / 0.14);
+    --focus-ring: oklch(from var(--color-text-500) l c h / 0.38);
+    --font-size: calc(var(--font-size-400) * 0.875);
+    --font-size-small: calc(var(--font-size-400) * 0.75);
+    --font-size-title: calc(var(--font-size-400) * 0.9375);
+    --foreground: var(--color-text-500);
+    --hover: oklch(from var(--color-text-500) l c h / 0.05);
+    --icon-duration: 446ms;
+    --icon-timing-function: linear(0, 0.118, 0.319, 0.509, 0.657, 0.769, 0.848, 0.901, 0.937, 0.96, 0.975, 0.984, 0.99, 0.994, 1);
+    --radius: 24px;
+    --row-height: 40px;
+    --width: 600px;
+}

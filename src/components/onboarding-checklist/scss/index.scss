@@ -1,0 +1,414 @@
+@use '/tokens';
+@use 'variables';
+
+.onboarding-checklist {
+    background: var(--background);
+    border-radius: var(--radius);
+    box-shadow: var(--box-shadow);
+    color: var(--foreground);
+    display: block;
+    font-size: var(--font-size);
+    overflow: hidden;
+    width: var(--width);
+
+
+    &-action {
+        --background-default: var(--accent);
+        --color-default: var(--accent-contrast);
+        --padding-horizontal: 16px;
+        --padding-vertical: 0px;
+        border-radius: 999px;
+        display: grid;
+        font-size: var(--font-size);
+        font-weight: var(--font-weight-500);
+        height: 36px;
+        outline: 0 solid var(--focus-ring);
+        outline-offset: 2px;
+        user-select: none;
+
+        &:focus-visible {
+            outline-width: 2px;
+        }
+
+        &:active {
+            scale: 0.96;
+        }
+
+        .--done & {
+            --background-default: var(--pressed);
+            --color-default: var(--color-muted);
+            cursor: default;
+            scale: 1;
+        }
+
+        // Both labels share a cell so the button keeps its width.
+        &-label {
+            align-items: center;
+            display: flex;
+            gap: 6px;
+            grid-area: 1 / 1;
+            justify-content: center;
+            transition:
+                filter 200ms ease-out,
+                opacity 200ms ease-out;
+
+            .--done & {
+                filter: blur(4px);
+                opacity: 0;
+            }
+
+            &--done {
+                filter: blur(4px);
+                opacity: 0;
+
+                .--done & {
+                    filter: none;
+                    opacity: 1;
+                }
+
+                .onboarding-checklist-icon {
+                    filter: blur(4px);
+                    opacity: 0;
+                    scale: 0.25;
+                    transition:
+                        filter 300ms var(--ease),
+                        opacity 300ms var(--ease),
+                        scale 300ms var(--ease);
+
+                    .--done & {
+                        filter: none;
+                        opacity: 1;
+                        scale: 1;
+                    }
+                }
+            }
+        }
+    }
+
+    &-body {
+        align-items: flex-start;
+        display: flex;
+        filter: blur(4px);
+        flex-direction: column;
+        gap: 12px;
+        opacity: 0;
+        padding: 0 12px 16px 44px;
+        transition:
+            filter 150ms ease-out,
+            opacity 150ms ease-out,
+            translate 150ms ease-out;
+        translate: 0 -4px;
+
+        .accordion.--active > .accordion-content > & {
+            filter: none;
+            opacity: 1;
+            transition-duration: 250ms;
+            translate: 0;
+        }
+    }
+
+    &-celebration {
+        align-items: flex-start;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 4px 20px 20px;
+
+        &-actions {
+            margin-top: 12px;
+        }
+
+        &-note {
+            color: var(--color-muted);
+            line-height: 20px;
+            text-wrap: pretty;
+        }
+
+        &-title {
+            color: var(--foreground);
+            font-size: calc(var(--font-size-400) * 1.0625);
+            font-weight: var(--font-weight-600);
+            letter-spacing: -0.01em;
+        }
+
+        // A rare, one-time moment, so it gets a gentle staggered entrance: heading, note, then the button.
+        .--celebrating & > * {
+            animation: onboarding-checklist-enter 400ms var(--ease) both;
+
+            &:nth-child(2) {
+                animation-delay: 200ms;
+            }
+
+            &:nth-child(3) {
+                animation-delay: 280ms;
+            }
+        }
+
+        .--celebrating & > :first-child {
+            animation-delay: 120ms;
+        }
+    }
+
+    &-checkbox {
+        --background-active: var(--accent);
+        --border-color-active: var(--accent);
+        --border-color-default: oklch(from var(--color-muted) l c h / 0.6);
+        --border-color-hover: var(--color-muted);
+        --border-radius: 6px;
+        --border-width: 1.5px;
+        --border-width-offset-hover: 0px;
+        --box-shadow-active: none;
+        --check-size: 75%;
+        --check-stroke-width: 3;
+        --focus-color: var(--focus-ring);
+        --indicator-color-default: var(--accent-contrast);
+        --size: 20px;
+        --transition-duration: 150ms;
+        --transition-timing-function: ease-out;
+        transition-property: background, border-color, scale;
+
+        .onboarding-checklist-toggle:active & {
+            scale: 0.96;
+        }
+    }
+
+    &-chevron {
+        color: var(--color-muted);
+        flex-shrink: 0;
+        height: 16px;
+        transition: rotate 200ms var(--ease);
+        width: 16px;
+
+        .--open & {
+            rotate: 180deg;
+        }
+    }
+
+    // The list and the finished state swap by collapsing one and opening the other, so only the space below the header moves.
+    &-collapse,
+    &-details {
+        transition: grid-template-rows 200ms var(--ease);
+
+        @include tokens.state(active) {
+            transition-duration: 300ms;
+        }
+    }
+
+    &-description {
+        color: var(--color-muted);
+        line-height: 20px;
+        text-wrap: pretty;
+    }
+
+    &-details {
+        @include tokens.state(active) {
+            transition-duration: 250ms;
+        }
+    }
+
+    &-header {
+        align-items: center;
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+        padding: 20px 20px 12px;
+    }
+
+    &-heading {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+
+        &-count {
+            color: var(--color-muted);
+            font-variant-numeric: tabular-nums;
+        }
+
+        &-title {
+            color: var(--foreground);
+            font-size: calc(var(--font-size-400) * 1.125);
+            font-weight: var(--font-weight-600);
+            letter-spacing: -0.01em;
+        }
+    }
+
+    &-list {
+        list-style: none;
+        margin: 0;
+        padding: 0 8px 8px;
+    }
+
+    &-live {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-icon {
+        height: 16px;
+        width: 16px;
+    }
+
+    &-ring {
+        display: grid;
+        flex-shrink: 0;
+        height: 48px;
+        place-items: center;
+        position: relative;
+        width: 48px;
+
+        svg {
+            inset: 0;
+            position: absolute;
+            rotate: -90deg;
+        }
+
+        &-fill {
+            stroke: var(--accent);
+            stroke-dasharray: 1;
+            stroke-dashoffset: calc(1 - var(--progress));
+        }
+
+        &-track {
+            stroke: var(--ring-track);
+        }
+
+        &-value {
+            font-size: calc(var(--font-size-400) * 0.6875);
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight-500);
+            position: relative;
+
+            span {
+                color: var(--color-muted);
+            }
+        }
+    }
+
+    &-row {
+        align-items: center;
+        display: flex;
+    }
+
+    // Draws left to right when checked and retracts faster when unchecked: slow where it rewards, quick where it undoes.
+    &-strike {
+        background: currentColor;
+        height: 1px;
+        left: 0;
+        position: absolute;
+        scale: 0 1;
+        top: 50%;
+        transform-origin: left;
+        transition: scale 150ms var(--ease);
+        width: 100%;
+
+        .--done & {
+            scale: 1;
+            transition-duration: 300ms;
+        }
+    }
+
+    &-summary {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 10px;
+        color: inherit;
+        cursor: pointer;
+        display: flex;
+        flex: 1 1 0;
+        font: inherit;
+        gap: 12px;
+        height: 48px;
+        justify-content: space-between;
+        min-width: 0;
+        outline: 0 solid var(--focus-ring);
+        padding: 0 12px 0 4px;
+        text-align: left;
+        transition: background-color 150ms ease-out;
+
+        &:active {
+            background: var(--pressed);
+        }
+
+        &:focus-visible {
+            outline-width: 2px;
+        }
+
+        @media (hover: hover) {
+            &:hover:not(:active) {
+                background: var(--hover);
+            }
+        }
+    }
+
+    &-title {
+        color: var(--foreground);
+        font-size: var(--font-size-title);
+        min-width: 0;
+        overflow: hidden;
+        position: relative;
+        text-overflow: ellipsis;
+        transition: color 200ms ease-out;
+        white-space: nowrap;
+
+        .--done & {
+            color: var(--color-muted);
+        }
+    }
+
+    // A 40px hit area around the 20px box.
+    &-toggle {
+        cursor: pointer;
+        display: grid;
+        flex-shrink: 0;
+        height: 40px;
+        place-items: center;
+        position: relative;
+        width: 40px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-action-label--done .onboarding-checklist-icon,
+        &-body {
+            filter: none;
+            scale: 1;
+            translate: 0;
+        }
+
+        &-chevron,
+        &-collapse,
+        &-details,
+        &-strike {
+            transition: none;
+        }
+
+        &-celebration {
+            .--celebrating & > * {
+                animation-name: onboarding-checklist-fade;
+            }
+        }
+
+        &-checkbox {
+            transition-property: background, border-color;
+        }
+    }
+}
+
+@keyframes onboarding-checklist-enter {
+    from {
+        filter: blur(4px);
+        opacity: 0;
+        translate: 0 6px;
+    }
+}
+
+@keyframes onboarding-checklist-fade {
+    from {
+        opacity: 0;
+    }
+}

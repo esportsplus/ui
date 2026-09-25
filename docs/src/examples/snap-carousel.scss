@@ -1,0 +1,327 @@
+// Each card acts out its own principle. These loops are explanatory, not UI feedback, so they run well
+// past the usual 300ms. The track is the card's 232px content box, minus the 10px dot.
+.snap-carousel-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-400);
+    width: 100%;
+
+    &-bar {
+        animation: snap-carousel-demo-bar 2.2s infinite;
+        background: oklch(from var(--color-text-500) l c h / 0.15);
+        border-radius: 6px;
+        transform-origin: bottom;
+        width: 24px;
+
+        &:last-child {
+            background: var(--color-text-500);
+        }
+    }
+
+    &-bars {
+        align-items: flex-end;
+        display: flex;
+        gap: 8px;
+        height: 100%;
+    }
+
+    &-dot {
+        background: var(--color-text-500);
+        border-radius: 999px;
+        height: 10px;
+        left: 0;
+        margin-top: -5px;
+        position: absolute;
+        top: 50%;
+        width: 10px;
+    }
+
+    &-eased {
+        animation: snap-carousel-demo-eased 2.6s infinite;
+    }
+
+    &-from,
+    &-to {
+        animation: 2.4s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+        background: var(--color-text-500);
+        grid-area: 1 / 1;
+        height: 40px;
+        width: 40px;
+    }
+
+    &-from {
+        animation-name: snap-carousel-demo-from;
+        border-radius: 8px;
+
+        &.snap-carousel-demo-soft {
+            animation-name: snap-carousel-demo-from-blur;
+        }
+    }
+
+    &-lane {
+        height: 10px;
+        position: relative;
+    }
+
+    &-legend {
+        color: var(--color-text-300);
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+    }
+
+    &-linear {
+        animation: snap-carousel-demo-linear 2.6s infinite;
+        background: oklch(from var(--color-text-500) l c h / 0.25);
+    }
+
+    &-morph {
+        display: grid;
+    }
+
+    &-pair {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &-pairs {
+        align-items: center;
+        display: flex;
+        height: 100%;
+        justify-content: space-around;
+    }
+
+    &-panel {
+        animation: snap-carousel-demo-panel 2.4s infinite;
+        background: var(--color-white-300);
+        border-radius: 12px;
+        bottom: 28px;
+        box-shadow:
+            0 0 0 1px oklch(from var(--color-black-500) l c h / 0.06),
+            0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
+            0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        height: 44px;
+        justify-content: center;
+        left: 4px;
+        padding: 0 12px;
+        position: absolute;
+        transform-origin: 0 100%;
+        width: 128px;
+
+        span {
+            background: oklch(from var(--color-text-500) l c h / 0.2);
+            border-radius: 999px;
+            height: 6px;
+            width: 64px;
+
+            + span {
+                background: oklch(from var(--color-text-500) l c h / 0.1);
+                width: 40px;
+            }
+        }
+    }
+
+    &-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    &-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        height: 100%;
+        justify-content: center;
+    }
+
+    &-spring {
+        animation: snap-carousel-demo-spring 2.6s linear infinite;
+    }
+
+    &-stage {
+        height: 100%;
+        position: relative;
+    }
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+
+    &-still {
+        left: calc(50% - 5px);
+    }
+
+    // The tick the spring is chasing is the solid one; both sit under the dot's center.
+    &-target-a {
+        animation: snap-carousel-demo-target-a 2.6s step-end infinite;
+        left: 204.5px;
+    }
+
+    &-target-b {
+        animation: snap-carousel-demo-target-b 2.6s step-end infinite;
+        left: 54.5px;
+    }
+
+    &-tick {
+        background: var(--color-text-500);
+        height: 16px;
+        position: absolute;
+        top: 50%;
+        translate: 0 -50%;
+        width: 1px;
+    }
+
+    &-to {
+        animation-name: snap-carousel-demo-to;
+        border-radius: 999px;
+
+        &.snap-carousel-demo-soft {
+            animation-name: snap-carousel-demo-to-blur;
+        }
+    }
+
+    &-track {
+        background: var(--color-border-300);
+        height: 1px;
+        left: 5px;
+        position: absolute;
+        right: 5px;
+        top: 50%;
+    }
+
+    // The trigger dips as if pressed, then the panel grows out of its corner.
+    &-trigger {
+        animation: snap-carousel-demo-trigger 2.4s infinite;
+        background: var(--color-text-500);
+        border-radius: 999px;
+        bottom: 0;
+        height: 20px;
+        left: 0;
+        position: absolute;
+        width: 56px;
+    }
+
+    &-zero {
+        left: 50%;
+        position: absolute;
+        top: calc(50% + 12px);
+        translate: -50% 0;
+    }
+}
+
+// Same distance, same 1.3s: only the curve differs.
+@keyframes snap-carousel-demo-linear {
+    0% { animation-timing-function: linear; opacity: 0; translate: 0 0; }
+    6% { animation-timing-function: linear; opacity: 1; translate: 0 0; }
+    56% { opacity: 1; translate: 222px 0; }
+    88% { opacity: 1; translate: 222px 0; }
+    96%, 100% { opacity: 0; translate: 222px 0; }
+}
+
+@keyframes snap-carousel-demo-eased {
+    0% { opacity: 0; translate: 0 0; }
+    6% { animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); opacity: 1; translate: 0 0; }
+    56% { opacity: 1; translate: 222px 0; }
+    88% { opacity: 1; translate: 222px 0; }
+    96%, 100% { opacity: 0; translate: 222px 0; }
+}
+
+// Sampled from a real spring (stiffness 170, damping 16) heading for the right tick, retargeted to the
+// left one 260ms in. It overshoots and swings back without a stop, because it kept its speed.
+@keyframes snap-carousel-demo-spring {
+    0% { opacity: 0; translate: 0 0; }
+    5% { opacity: 1; }
+    7.7% { translate: 0 0; }
+    9.2% { translate: 24.4px 0; }
+    10.8% { translate: 72px 0; }
+    12.3% { translate: 120.2px 0; }
+    13.8% { translate: 163.9px 0; }
+    15.4% { translate: 192.8px 0; }
+    16.9% { translate: 208.9px 0; }
+    18.5% { translate: 210.4px 0; }
+    20% { translate: 181.4px 0; }
+    21.5% { translate: 141.9px 0; }
+    23.1% { translate: 100.8px 0; }
+    24.6% { translate: 70.1px 0; }
+    26.2% { translate: 50.7px 0; }
+    27.7% { translate: 39.6px 0; }
+    29.2% { translate: 36.2px 0; }
+    30.8% { translate: 37px 0; }
+    32.3% { translate: 40.2px 0; }
+    33.8% { translate: 43.7px 0; }
+    35.4% { translate: 46.7px 0; }
+    36.9% { translate: 49.1px 0; }
+    38.5% { translate: 50.4px 0; }
+    40% { translate: 51px 0; }
+    41.5% { translate: 51.2px 0; }
+    44.6% { translate: 50.7px 0; }
+    47.7% { translate: 50.2px 0; }
+    50.8% { translate: 50px 0; }
+    86% { opacity: 1; translate: 50px 0; }
+    94%, 100% { opacity: 0; translate: 50px 0; }
+}
+
+@keyframes snap-carousel-demo-target-a {
+    0% { opacity: 1; }
+    17.7% { opacity: 0.2; }
+    94% { opacity: 1; }
+}
+
+@keyframes snap-carousel-demo-target-b {
+    0% { opacity: 0.2; }
+    17.7% { opacity: 1; }
+    94% { opacity: 0.2; }
+}
+
+@keyframes snap-carousel-demo-bar {
+    0% { animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); opacity: 0; translate: 0 10px; }
+    16% { opacity: 1; translate: 0 0; }
+    84% { animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); opacity: 1; translate: 0 0; }
+    94%, 100% { opacity: 0; translate: 0 0; }
+}
+
+// Two crossfades of the same square into the same circle; only the blurred one reads as one shape changing.
+@keyframes snap-carousel-demo-from {
+    0%, 30% { opacity: 1; }
+    50%, 80% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes snap-carousel-demo-to {
+    0%, 30% { opacity: 0; }
+    50%, 80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes snap-carousel-demo-from-blur {
+    0%, 30% { filter: blur(0); opacity: 1; }
+    50%, 80% { filter: blur(4px); opacity: 0; }
+    100% { filter: blur(0); opacity: 1; }
+}
+
+@keyframes snap-carousel-demo-to-blur {
+    0%, 30% { filter: blur(4px); opacity: 0; }
+    50%, 80% { filter: blur(0); opacity: 1; }
+    100% { filter: blur(4px); opacity: 0; }
+}
+
+@keyframes snap-carousel-demo-trigger {
+    0%, 4% { animation-timing-function: ease-out; scale: 1; }
+    8% { animation-timing-function: ease-out; scale: 0.96; }
+    14%, 100% { scale: 1; }
+}
+
+@keyframes snap-carousel-demo-panel {
+    0%, 8% { animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); opacity: 0; scale: 0.6; }
+    22% { opacity: 1; scale: 1; }
+    82% { animation-timing-function: ease-out; opacity: 1; scale: 1; }
+    90%, 100% { opacity: 0; scale: 0.96; }
+}

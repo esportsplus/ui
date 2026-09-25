@@ -1,0 +1,22 @@
+.multi-step-form {
+    --accent: var(--color-text-500);
+    --accent-contrast: var(--color-white-300);
+    --background: var(--color-grey-400);
+    --border: var(--color-border-300);
+    --box-shadow: 0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06), 0 1px 2px oklch(from var(--color-black-300) l c h / 0.06), 0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+    --color-muted: var(--color-text-300);
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --field-background: var(--color-white-300);
+    --focus-ring: oklch(from var(--color-text-500) l c h / 0.38);
+    --font-size: calc(var(--font-size-400) * 0.9375);
+    --font-size-small: calc(var(--font-size-400) * 0.875);
+    --font-size-title: calc(var(--font-size-400) * 1.25);
+    --foreground: var(--color-text-500);
+    // Critically damped spring: a card edge that overshoots reads as the layout being unsure.
+    --height-duration: 446ms;
+    --height-timing-function: linear(0, 0.118, 0.319, 0.509, 0.657, 0.769, 0.848, 0.901, 0.937, 0.96, 0.975, 0.984, 0.99, 0.994, 1);
+    --radius: 20px;
+    --spring-duration: 446ms;
+    --track: oklch(from var(--color-text-500) l c h / 0.15);
+    --width: 420px;
+}

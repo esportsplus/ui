@@ -1,0 +1,117 @@
+@use 'variables';
+
+.hover-card {
+    display: inline-block;
+    position: relative;
+
+
+    &-body {
+        display: block;
+    }
+
+    &-content {
+        background: var(--card-background);
+        border-radius: var(--card-radius);
+        box-shadow: var(--card-shadow);
+        color: var(--card-color);
+        display: block;
+        font-size: var(--card-font-size);
+        font-weight: var(--font-weight-400);
+        line-height: var(--card-line-height);
+        max-width: calc(100vw - 24px);
+        opacity: 0;
+        padding: var(--card-padding);
+        pointer-events: none;
+        position: absolute;
+        scale: var(--scale);
+        text-align: left;
+        // Exits are faster than entrances so a closing card never holds the eye.
+        transition:
+            opacity var(--close-duration) var(--timing-function),
+            scale var(--close-duration) var(--timing-function),
+            visibility 0s linear var(--close-duration);
+        visibility: hidden;
+        white-space: normal;
+        width: var(--card-width);
+        z-index: 50;
+
+        // An invisible strip across the gap keeps the pointer inside while it travels from trigger to card.
+        &::before {
+            content: '';
+            height: calc(var(--card-gap) + 4px);
+            inset-inline: 0;
+            position: absolute;
+        }
+
+        &--n {
+            bottom: 100%;
+            margin-bottom: var(--card-gap);
+
+            &::before {
+                bottom: calc((var(--card-gap) + 4px) * -1);
+            }
+        }
+
+        &--s {
+            margin-top: var(--card-gap);
+            top: 100%;
+
+            &::before {
+                top: calc((var(--card-gap) + 4px) * -1);
+            }
+        }
+
+        &.--active {
+            opacity: 1;
+            pointer-events: auto;
+            scale: 1;
+            transition:
+                opacity var(--open-duration) var(--timing-function),
+                scale var(--open-duration) var(--timing-function),
+                visibility 0s;
+            visibility: visible;
+        }
+
+        // Instant cards (one replacing another) skip both the fade and the scale.
+        &.--instant {
+            &,
+            &.--active {
+                transition: none;
+            }
+        }
+    }
+
+    &-trigger {
+        background: none;
+        border: 0;
+        border-radius: var(--border-radius-200);
+        color: var(--trigger-color);
+        cursor: pointer;
+        font: inherit;
+        font-weight: var(--font-weight-500);
+        outline: none;
+        padding: 0;
+        text-decoration: underline;
+        text-decoration-color: var(--trigger-decoration);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 4px;
+        transition: text-decoration-color var(--open-duration) ease-out;
+        white-space: nowrap;
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--trigger-color);
+            outline-offset: var(--border-width-500);
+        }
+
+        &:hover,
+        &[aria-expanded='true'] {
+            text-decoration-color: var(--trigger-decoration-active);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-content {
+            scale: 1;
+        }
+    }
+}

@@ -1,0 +1,54 @@
+.bookmark-button-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-500);
+    width: min(440px, 100%);
+
+    &--row {
+        flex-direction: row;
+    }
+
+    &-card {
+        background: var(--color-grey-400);
+        border-radius: var(--border-radius-700);
+        box-shadow:
+            0 0 0 1px color-mix(in oklab, var(--color-black-300) 6%, transparent),
+            0 6px 16px -6px color-mix(in oklab, var(--color-black-300) 12%, transparent);
+        padding: 20px;
+        width: 100%;
+    }
+
+    &-footer {
+        align-items: center;
+        display: flex;
+        gap: var(--size-400);
+        justify-content: space-between;
+        margin-top: var(--size-400);
+    }
+
+    &-kicker {
+        color: var(--color-text-300);
+        font-size: 12px;
+        margin: 0;
+    }
+
+    &-text {
+        color: var(--color-text-300);
+        font-size: 14px;
+        margin: 6px 0 0;
+        text-wrap: pretty;
+    }
+
+    &-footer &-text {
+        margin: 0;
+    }
+
+    &-title {
+        --font-size: 16px;
+
+        color: var(--color-text-500);
+        font-weight: var(--font-weight-500);
+        margin: 4px 0 0;
+    }
+}

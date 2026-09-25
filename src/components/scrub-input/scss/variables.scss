@@ -1,0 +1,23 @@
+.scrub-input {
+    --background: var(--color-white-300);
+    --border-radius: var(--border-radius-400);
+    --color: var(--color-text-500);
+    --field-padding: 10px;
+    --font-size: var(--font-size-300);
+    --height: 40px;
+    --label-color: var(--color-text-300);
+    --label-color-active: var(--color-text-500);
+    --label-width: 36px;
+    --needle-color: var(--color-text-500);
+    --outline-color: var(--color-text-500);
+    --outline-width: var(--border-width-500);
+    --tape-color: var(--color-text-300);
+    --tape-enter-duration: 150ms;
+    --tape-height: 8px;
+    --tape-leave-duration: 200ms;
+    --tape-major-height: 6px;
+    --tape-minor-height: 3px;
+    --tape-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    // Keep in sync with the component's TICK constant; the tape offset is computed against it.
+    --tick: 6px;
+}

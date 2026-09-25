@@ -1,0 +1,22 @@
+.scroll-spine {
+    --band-color: oklch(from var(--color) l c h / 0.12);
+    --band-width: 3px;
+    --color: var(--color-text-500);
+    --fill-color: var(--color);
+    --focus-color: var(--color);
+    --font-size: 13px;
+    --marker-color: oklch(from var(--color) l c h / 0.06);
+    --marker-radius: var(--border-radius-400);
+    --muted-color: var(--color-text-300);
+    --notch-color: var(--color);
+    // Matches whatever the spine sits on, so the reading dot looks cut out of the band.
+    --notch-ring-color: var(--color-grey-400);
+    --notch-size: 9px;
+    --pressed-scale: 0.96;
+    --preview-background: var(--color);
+    --preview-color: var(--color-white-300);
+    --preview-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --transition-duration: 0.15s;
+    --transition-timing-function: ease-out;
+    --width: 180px;
+}

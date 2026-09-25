@@ -1,0 +1,18 @@
+.command-palette-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-300);
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        // Height reserved up front, so the confirmation appearing never shifts the trigger.
+        min-height: 1lh;
+        text-align: center;
+
+        span {
+            color: var(--color-text-500);
+        }
+    }
+}

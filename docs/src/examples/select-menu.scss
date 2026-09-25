@@ -1,0 +1,26 @@
+.select-menu-demo {
+    display: flex;
+    flex-direction: column;
+    width: min(440px, 100%);
+
+    &-row {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        font-size: calc(var(--font-size-400) * 0.875);
+        font-weight: var(--font-weight-400);
+        gap: var(--size-200) var(--size-400);
+        justify-content: space-between;
+        padding-block: var(--size-300);
+
+        &:not(:last-child) {
+            border-bottom: 1px solid var(--color-border-300);
+        }
+    }
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        padding-top: var(--size-300);
+    }
+}

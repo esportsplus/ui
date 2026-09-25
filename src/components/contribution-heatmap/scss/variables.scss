@@ -1,0 +1,39 @@
+.contribution-heatmap,
+.contribution-heatmap-legend {
+    --cell-radius: var(--border-radius-100);
+    --cell-size: 10px;
+    --color: var(--color-text-300);
+    --focus-color: var(--color-text-500);
+    --font-size: var(--font-size-300);
+    --hover-color: color-mix(in oklab, var(--color-text-500) 50%, transparent);
+    // One hue, light to dark. Level 0 stays faintly visible so empty days still read as part of the grid.
+    --level-0: color-mix(in oklab, var(--level-color) 7%, transparent);
+    --level-1: color-mix(in oklab, var(--level-color) 25%, transparent);
+    --level-2: color-mix(in oklab, var(--level-color) 45%, transparent);
+    --level-3: color-mix(in oklab, var(--level-color) 70%, transparent);
+    --level-4: var(--level-color);
+    --level-color: var(--color-text-500);
+    --pitch: 13px;
+    // Per column, so the whole year sweeps in under half a second and reads as one gesture.
+    --stagger: 8ms;
+    --transition-duration: 0.3s;
+    --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.contribution-heatmap--blue,
+.contribution-heatmap-legend--blue {
+    --level-color: var(--color-blue-400);
+}
+
+.contribution-heatmap-tip .tooltip-message {
+    --border-radius: var(--border-radius-300);
+    --font-size: var(--font-size-300);
+    --font-weight: var(--font-weight-500);
+    --offset: 0px;
+    --padding-horizontal: var(--size-100);
+    --padding-vertical: calc(var(--size-100) / 2);
+    --spacer: 6px;
+    // Appears in 100ms and leaves in 75ms, so it never lingers.
+    --transition-duration: 75ms;
+    --transition-timing-function: ease-out;
+}

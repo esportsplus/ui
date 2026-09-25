@@ -1,0 +1,52 @@
+.text-progress-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+
+    &-range {
+        max-width: 100%;
+        width: 240px;
+    }
+
+    &-restart {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+        color: var(--color-text-300);
+        cursor: pointer;
+        display: flex;
+        font: inherit;
+        font-size: 13px;
+        font-weight: var(--font-weight-500);
+        gap: 6px;
+        height: 32px;
+        outline: none;
+        padding-inline: 12px;
+        transition:
+            background-color 150ms ease-out,
+            color 150ms ease-out,
+            scale 150ms ease-out;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-text-500);
+            outline-offset: 2px;
+        }
+
+        &:hover {
+            background: var(--color-grey-400);
+            color: var(--color-text-500);
+        }
+
+        svg {
+            height: 14px;
+            width: 14px;
+        }
+    }
+}

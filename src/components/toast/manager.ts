@@ -9,10 +9,12 @@ type Action = {
 
 type Options = {
     action?: Action;
+    countdown?: boolean;
     description?: Renderable<unknown> | string;
     dismissible?: boolean;
     duration?: number;
     id?: string;
+    ondismiss?: () => void;
     priority?: 'low' | 'high';
 };
 
@@ -26,7 +28,9 @@ type Timer = {
 
 type Toast = {
     action?: Action;
+    countdown: boolean;
     createdAt: number;
+    cycle: number;
     description?: Renderable<unknown> | string;
     dismissible: boolean;
     duration: number;
@@ -53,7 +57,8 @@ const DURATIONS: Record<Type, number> = {
 const EXIT_DURATION = 300;
 
 
-let counter = 0,
+let callbacks = new Map<string, () => void>(),
+    counter = 0,
     paused = false,
     timers = new Map<string, Timer>();
 
@@ -129,7 +134,9 @@ function create(type: Type, title: Renderable<unknown> | string, options: Option
     let id = options.id ?? `toast-${++counter}`,
         toast = reactive({
             action: options.action,
+            countdown: options.countdown ?? false,
             createdAt: Date.now(),
+            cycle: 0,
             description: options.description,
             dismissible: options.dismissible ?? true,
             duration: options.duration ?? DURATIONS[type],
@@ -140,6 +147,10 @@ function create(type: Type, title: Renderable<unknown> | string, options: Option
             title,
             type
         }) as Toast;
+
+    if (options.ondismiss) {
+        callbacks.set(id, options.ondismiss);
+    }
 
     toasts.push(toast);
 
@@ -168,6 +179,13 @@ function dismiss(id: string) {
     toast.status = 'ending';
 
     setTimeout(() => remove(id), EXIT_DURATION);
+
+    let callback = callbacks.get(id);
+
+    if (callback) {
+        callbacks.delete(id);
+        callback();
+    }
 }
 
 function normalizeToastHeight(height: number | null | undefined): number {
@@ -190,6 +208,7 @@ function pause() {
 function remove(id: string) {
     let index = toasts.findIndex((toast) => toast.id === id);
 
+    callbacks.delete(id);
     clearTimer(id);
 
     if (index !== -1) {
@@ -212,6 +231,9 @@ function schedule(toast: Toast) {
     if (toast.duration <= 0) {
         return;
     }
+
+    // Restarts a countdown ring bound to this timer.
+    toast.cycle += 1;
 
     if (state.active) {
         timers.set(toast.id, {
@@ -241,12 +263,20 @@ function update(id: string, options: Options) {
         toast.action = options.action;
     }
 
+    if (options.countdown !== undefined) {
+        toast.countdown = options.countdown;
+    }
+
     if (options.description !== undefined) {
         toast.description = options.description;
     }
 
     if (options.dismissible !== undefined) {
         toast.dismissible = options.dismissible;
+    }
+
+    if (options.ondismiss !== undefined) {
+        callbacks.set(id, options.ondismiss);
     }
 
     if (options.priority !== undefined) {

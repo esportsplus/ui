@@ -1,0 +1,54 @@
+@use '/tokens';
+
+.shortcut-recorder {
+    --color: var(--color-text-500);
+    --color-error: var(--color-red-400);
+    --color-muted: var(--color-text-300);
+    --font-size: var(--font-size-400);
+    --font-size-small: var(--font-size-300);
+    --gap: var(--size-400);
+    --timing-function-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --timing-function-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &-field {
+        --background: var(--background-default);
+        --background-active: var(--color-white-300);
+        --background-default: var(--color-grey-400);
+        --background-hover: var(--color-white-300);
+        --border-color: var(--border-color-default);
+        --border-color-active: var(--color-text-500);
+        --border-color-default: var(--color-border-400);
+        --border-color-hover: var(--border-color-default);
+        --border-radius: var(--border-radius-500);
+        --border-width: var(--border-width-default);
+        --border-width-active: 1.5px;
+        --border-width-default: 1px;
+        --focus-color: var(--color-text-500);
+        --focus-offset: 2px;
+        --focus-width: 2px;
+        --gap: 4px;
+        --height: 36px;
+        --min-width: 96px;
+        --padding-horizontal: 6px;
+        --transition-duration: 150ms;
+
+        @include tokens.state(hover) {
+            --background: var(--background-hover);
+            --border-color: var(--border-color-hover);
+        }
+
+        #{tokens.state(active)} {
+            --background: var(--background-active);
+            --border-color: var(--border-color-active);
+            --border-width: var(--border-width-active);
+        }
+    }
+
+    &-key {
+        --background: var(--color-white-300);
+        --border-color: var(--color-border-400);
+        --border-radius: var(--border-radius-300);
+        --padding-horizontal: 6px;
+        --size: 24px;
+    }
+}

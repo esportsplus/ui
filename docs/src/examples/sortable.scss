@@ -45,6 +45,26 @@
         flex-direction: column;
         gap: var(--size-200);
         width: min(320px, 100%);
+
+        &--group {
+            background: var(--color-grey-400);
+            border-radius: 14px;
+            flex: 1;
+            min-height: 160px;
+            padding: var(--size-200);
+            width: 220px;
+        }
+    }
+
+    &-lists {
+        display: flex;
+        gap: var(--size-400);
+
+        &-column {
+            display: flex;
+            flex-direction: column;
+            gap: var(--size-200);
+        }
     }
 
     &-row {

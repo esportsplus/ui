@@ -1,0 +1,51 @@
+.relative-time-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-500);
+    max-width: 100%;
+
+    // Each clause wraps as a unit, so a narrow line never starts on a dot.
+    &-clause {
+        white-space: nowrap;
+    }
+
+    &-dot {
+        padding-inline-start: 6px;
+    }
+
+    &-feed {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        line-height: 24px;
+        max-width: 100%;
+        text-align: center;
+        width: auto;
+    }
+
+    &-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--size-300);
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        width: min(320px, 100%);
+
+        li {
+            color: var(--color-text-300);
+            display: flex;
+            font-size: var(--font-size-300);
+            justify-content: space-between;
+
+            > span:first-child {
+                color: var(--color-text-500);
+            }
+        }
+    }
+
+    &-name {
+        color: var(--color-text-500);
+        font-weight: var(--font-weight-500);
+    }
+}

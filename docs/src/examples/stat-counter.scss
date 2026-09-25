@@ -1,0 +1,77 @@
+.stat-counter-demo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-400);
+    max-width: 100%;
+    width: 600px;
+
+    &--narrow {
+        width: 320px;
+    }
+
+    &-header {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    // Half a turn per press, so repeated presses keep spinning the same way instead of snapping back.
+    &-refresh {
+        align-items: center;
+        background: var(--color-white-300);
+        border: 0;
+        border-radius: 999px;
+        box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), var(--box-shadow-200);
+        color: var(--color-text-500);
+        cursor: pointer;
+        display: flex;
+        font-size: var(--font-size-300);
+        font-weight: var(--font-weight-500);
+        gap: 8px;
+        height: 36px;
+        padding-inline: var(--size-400);
+        touch-action: manipulation;
+        transition: scale 0.15s ease-out;
+        user-select: none;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-text-500);
+        }
+
+        svg {
+            height: 16px;
+            transition: rotate 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            width: 16px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            &,
+            svg {
+                transition: none;
+            }
+        }
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-subtitle {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+
+    &-title {
+        color: var(--color-text-500);
+        font-weight: var(--font-weight-500);
+    }
+}

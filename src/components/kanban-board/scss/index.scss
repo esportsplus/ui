@@ -1,0 +1,126 @@
+@use 'variables';
+
+.kanban-board {
+    display: grid;
+    gap: var(--gap);
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    height: var(--height);
+    max-width: 100%;
+    position: relative;
+    width: var(--width);
+
+    &-card {
+        align-items: center;
+        background: var(--card-background);
+        border: 0;
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--card-box-shadow);
+        color: var(--card-color);
+        cursor: grab;
+        display: flex;
+        font: inherit;
+        font-size: var(--card-font-size);
+        height: 100%;
+        outline: none;
+        padding: 0 var(--card-padding-horizontal);
+        position: relative;
+        text-align: start;
+        touch-action: none;
+        transition:
+            box-shadow var(--transition-duration) var(--transition-timing-function),
+            scale 150ms ease-out;
+        user-select: none;
+        width: 100%;
+
+        &:active {
+            scale: var(--press-scale);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-ring);
+            outline-offset: 1px;
+        }
+
+        &-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    &-column {
+        background: var(--column-background);
+        border-radius: calc(var(--card-border-radius) + var(--column-padding));
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        padding: var(--column-padding);
+    }
+
+    &-count {
+        font-size: var(--count-font-size);
+        font-variant-numeric: tabular-nums;
+    }
+
+    &-header {
+        align-items: center;
+        color: var(--header-color);
+        display: flex;
+        flex-shrink: 0;
+        font-size: var(--header-font-size);
+        font-weight: var(--font-weight-500);
+        height: var(--header-height);
+        justify-content: space-between;
+        padding: 0 8px;
+    }
+
+    &-item {
+        border-radius: var(--card-border-radius);
+        flex-shrink: 0;
+        height: var(--card-height);
+        list-style: none;
+
+        // Pressing a card that is already lifted shouldn't shrink it under the lift.
+        &.--dragging .kanban-board-card,
+        &.--held .kanban-board-card {
+            scale: 1;
+        }
+
+        &.--held {
+            outline: 1px dashed oklch(0 0 0 / 0.2);
+            outline-offset: -1px;
+
+            .kanban-board-card {
+                box-shadow: var(--card-lifted-box-shadow);
+                scale: var(--lift-scale);
+                z-index: 1;
+            }
+        }
+    }
+
+    &-list {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: var(--column-gap);
+        margin: 0;
+        min-height: 0;
+        padding: 0;
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-card {
+            transition: none;
+        }
+    }
+}

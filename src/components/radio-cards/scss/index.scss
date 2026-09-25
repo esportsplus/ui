@@ -1,0 +1,232 @@
+@use 'variables';
+
+$dot-in: linear(0, 0.077, 0.251, 0.456, 0.649, 0.809, 0.927, 1.004, 1.048, 1.066, 1.067, 1.058, 1.045, 1.031, 1.019, 1.009, 1.002, 0.998, 0.996, 0.995, 0.996, 0.996, 0.997, 0.998, 1);
+$ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+$icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.897, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
+
+.radio-cards {
+    border: 0;
+    color: var(--color);
+    margin: 0;
+    min-width: 0;
+    padding: 0;
+    width: var(--width);
+
+    &-amount {
+        color: var(--color);
+        font-size: var(--amount-font-size);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--font-weight-500);
+    }
+
+    &-badge {
+        background: var(--badge-background);
+        border-radius: 999px;
+        color: var(--color-muted);
+        font-size: var(--font-size-300);
+        font-weight: var(--font-weight-400);
+        line-height: 1.4;
+        padding: 2px var(--size-200);
+        transition: background var(--transition-duration) var(--transition-timing-function);
+    }
+
+    &-card {
+        align-items: center;
+        background: var(--background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--box-shadow);
+        cursor: pointer;
+        display: flex;
+        gap: var(--padding);
+        padding: var(--padding);
+        position: relative;
+        touch-action: manipulation;
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function);
+        user-select: none;
+
+        &:hover {
+            --background: var(--background-hover);
+            --badge-background: var(--badge-background-hover);
+        }
+
+        &:active {
+            scale: var(--press-scale);
+        }
+
+        // Lifts the checked card so its ring stays above the neighbours it slides across.
+        &:has(input:checked) {
+            z-index: 1;
+        }
+
+        &:has(input:focus-visible) {
+            outline: var(--focus-width) solid var(--color);
+            outline-offset: 2px;
+        }
+    }
+
+    &-check {
+        color: var(--check-color);
+        filter: blur(4px);
+        height: var(--check-size);
+        inset: 0;
+        margin: auto;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        scale: 0.25;
+        stroke-width: var(--check-stroke-width);
+        transition:
+            filter 300ms $icon-swap,
+            opacity 300ms $icon-swap,
+            scale 300ms $icon-swap;
+        width: var(--check-size);
+    }
+
+    &-content {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    &-description {
+        color: var(--color-muted);
+        font-size: var(--description-font-size);
+        line-height: var(--description-line-height);
+        text-wrap: pretty;
+    }
+
+    &-dot {
+        display: grid;
+        flex: 0 0 auto;
+        position: relative;
+
+        .checkbox {
+            --background-active: transparent;
+            --border-color-active: var(--color);
+            --border-color-default: color-mix(in oklch, var(--color) 25%, transparent);
+            --border-color-hover: color-mix(in oklch, var(--color) 45%, transparent);
+            --border-width: var(--dot-border-width);
+            --border-width-offset-hover: 0px;
+            --box-shadow-active: none;
+            --focus-width: 0px;
+            --indicator-color-default: var(--color);
+            --scale-active: 1;
+            --scale-default: 0.5;
+            --scale-hover: 0.5;
+            --scale-pressed: 0.5;
+            --size: var(--dot-size);
+            --transition-duration: 150ms;
+            --transition-timing-function: ease-out;
+
+            // Covers the border too, and starts at half size so the fill grows out of the ring's own center.
+            &::before {
+                --box-shadow: none;
+                --height: calc(100% + var(--dot-border-width) * 2);
+                --width: calc(100% + var(--dot-border-width) * 2);
+                border-radius: 50%;
+                inset: calc(var(--dot-border-width) * -1);
+                opacity: 0;
+                transition:
+                    opacity 150ms $ease-out,
+                    scale 150ms $ease-out;
+            }
+
+            &:has(input:checked)::before {
+                opacity: 1;
+                transition:
+                    opacity 350ms $dot-in,
+                    scale 350ms $dot-in;
+            }
+        }
+
+        &:has(input:checked) .radio-cards-check {
+            filter: blur(0px);
+            opacity: 1;
+            scale: 1;
+        }
+    }
+
+    &-grid {
+        display: grid;
+        gap: var(--card-gap);
+        // Equal rows keep every card the same size, so the ring only ever translates between them.
+        grid-auto-rows: 1fr;
+    }
+
+    &-heading {
+        align-items: center;
+        display: flex;
+        gap: var(--size-200);
+    }
+
+    &-legend {
+        color: var(--color);
+        font-size: var(--font-size-400);
+        font-weight: var(--font-weight-400);
+        margin-bottom: var(--card-gap);
+        padding: 0;
+    }
+
+    &-period {
+        color: var(--color-muted);
+        font-size: var(--font-size-300);
+    }
+
+    &-price {
+        align-items: baseline;
+        display: flex;
+        flex: 0 0 auto;
+        gap: 2px;
+    }
+
+    &-ring {
+        border: var(--ring-width) solid var(--ring-color);
+        border-radius: inherit;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+
+        .radio-cards-card:has(input:checked) & {
+            opacity: 1;
+        }
+    }
+
+    &-title {
+        color: var(--color);
+        font-size: var(--font-size-400);
+        font-weight: var(--font-weight-500);
+        line-height: var(--title-line-height);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-card {
+            transition: background var(--transition-duration) var(--transition-timing-function);
+
+            &:active {
+                scale: 1;
+            }
+        }
+
+        &-check {
+            filter: none;
+            scale: 1;
+            transition: opacity 150ms $ease-out;
+        }
+
+        &-dot .checkbox {
+            --scale-default: 1;
+            --scale-hover: 1;
+            --scale-pressed: 1;
+
+            &::before,
+            &:has(input:checked)::before {
+                transition: opacity 150ms $ease-out;
+            }
+        }
+    }
+}

@@ -1,0 +1,42 @@
+.command-palette {
+    --close-duration: 0.1s;
+    --color: var(--color-text-500);
+    --color-muted: var(--color-text-300);
+    --dialog-backdrop: color-mix(in srgb, var(--color-text-500) 10%, transparent);
+    --dialog-background: var(--color-white-300);
+    --dialog-border-radius: var(--border-radius-600);
+    --dialog-offset: 20vh;
+    --dialog-scale: 0.98;
+    --dialog-width: 400px;
+    --divider-color: var(--color-border-300);
+    --font-size: calc(var(--font-size-400) * 0.875);
+    --kbd-background: var(--color-white-300);
+    --kbd-border-color: var(--color-border-300);
+    --kbd-border-radius: var(--border-radius-200);
+    --kbd-font-size: calc(var(--font-size-300) * 0.875);
+    --kbd-size: 20px;
+    --label-font-size: var(--font-size-300);
+    --list-max-height: min(320px, 50vh);
+    --open-duration: 0.15s;
+    --option-background: var(--color-grey-400);
+    --option-border-radius: var(--border-radius-400);
+    --option-height: 36px;
+    --raised:
+        0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-300) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+    --search-height: 48px;
+    --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --trigger-background: var(--color-grey-400);
+    --trigger-border-radius: var(--border-radius-400);
+    --trigger-height: 36px;
+    --trigger-width: 240px;
+
+    &--blur {
+        --dialog-backdrop: color-mix(in srgb, var(--color-black-500) 24%, transparent);
+    }
+
+    &--centered {
+        --dialog-offset: auto;
+    }
+}

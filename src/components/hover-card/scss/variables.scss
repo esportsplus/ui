@@ -1,0 +1,25 @@
+.hover-card {
+    --card-background: var(--color-white-300);
+    --card-color: var(--color-text-500);
+    --card-font-size: calc(var(--font-size-400) * 0.875);
+    --card-gap: 8px;
+    --card-line-height: 20px;
+    --card-padding: var(--size-400);
+    --card-radius: var(--size-500);
+    --card-shadow:
+        0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-300) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+    --card-width: 300px;
+    --close-duration: 0.1s;
+    --open-duration: 0.15s;
+    --scale: 0.96;
+    --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --trigger-color: var(--color-text-500);
+    --trigger-decoration: color-mix(in srgb, var(--color-text-500) 25%, transparent);
+    --trigger-decoration-active: var(--color-text-500);
+
+    &--fade {
+        --scale: 1;
+    }
+}

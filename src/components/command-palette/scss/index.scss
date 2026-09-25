@@ -1,0 +1,235 @@
+@use 'variables';
+
+.command-palette {
+    display: contents;
+
+
+    &--blur &-dialog.modal::backdrop {
+        backdrop-filter: blur(var(--size-100));
+    }
+
+    &-dialog.modal {
+        --backdrop: var(--dialog-backdrop);
+        --margin-horizontal: var(--size-400);
+        --max-width: var(--dialog-width);
+        --scale: var(--dialog-scale);
+        --transition-duration: var(--open-duration);
+        --transition-timing-function: var(--timing-function);
+        --translateY: 0px;
+        background: var(--dialog-background);
+        border-radius: var(--dialog-border-radius);
+        box-shadow: var(--raised);
+        color: var(--color);
+        // Pinned from the top rather than centered, so the input stays put while filtering resizes the list.
+        margin-block: var(--dialog-offset) auto;
+        overflow: hidden;
+        transform-origin: top;
+
+        &:not(.--active) {
+            --transition-duration: var(--close-duration);
+        }
+    }
+
+    &-empty {
+        color: var(--color-muted);
+        font-size: var(--font-size);
+        padding: var(--size-700) var(--size-400);
+        text-align: center;
+    }
+
+    &-group-label {
+        color: var(--color-muted);
+        font-size: var(--label-font-size);
+        font-weight: var(--font-weight-500);
+        padding: var(--size-100) var(--size-300) calc(var(--size-100) / 2);
+        user-select: none;
+    }
+
+    &-icon {
+        flex-shrink: 0;
+        height: var(--size-400);
+        width: var(--size-400);
+    }
+
+    &-input.input {
+        --color-default: var(--color);
+        --font-size: var(--font-size);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --size: 0px;
+        height: 100%;
+        outline: none;
+
+        &::placeholder {
+            color: var(--color-muted);
+        }
+    }
+
+    &-kbd {
+        align-items: center;
+        background: var(--kbd-background);
+        border: var(--border-width-400) solid var(--kbd-border-color);
+        border-radius: var(--kbd-border-radius);
+        color: var(--color-muted);
+        display: flex;
+        font-family: inherit;
+        font-size: var(--kbd-font-size);
+        height: var(--kbd-size);
+        justify-content: center;
+        line-height: 1;
+        min-width: var(--kbd-size);
+        padding-inline: calc(var(--size-100) / 2);
+    }
+
+    &-keys {
+        display: flex;
+        flex-shrink: 0;
+        gap: 2px;
+    }
+
+    &-label {
+        color: var(--color);
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &--filtered {
+            color: var(--color-muted);
+        }
+    }
+
+    &-list {
+        max-height: var(--list-max-height);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        // Padding plus the option radius equals the dialog radius.
+        padding: calc(var(--size-100) / 2);
+        scroll-padding-block: calc(var(--size-100) / 2);
+
+        &.--empty {
+            display: none;
+        }
+    }
+
+    &-match {
+        color: var(--color);
+    }
+
+    &-option {
+        align-items: center;
+        border-radius: var(--option-border-radius);
+        cursor: default;
+        display: flex;
+        font-size: var(--font-size);
+        gap: var(--size-200);
+        height: var(--option-height);
+        padding-inline: var(--size-300);
+        transition: none;
+        user-select: none;
+
+        &.--active {
+            background: var(--option-background);
+        }
+
+        &-icon {
+            color: var(--color-muted);
+            display: flex;
+            flex-shrink: 0;
+
+            &:empty {
+                display: none;
+            }
+
+            svg {
+                height: var(--size-400);
+                width: var(--size-400);
+            }
+
+            .--active > & {
+                color: var(--color);
+            }
+        }
+    }
+
+    &-panel {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &-search {
+        align-items: center;
+        border-bottom: var(--border-width-400) solid var(--divider-color);
+        color: var(--color-muted);
+        display: flex;
+        flex-shrink: 0;
+        gap: var(--size-200);
+        height: var(--search-height);
+        padding-inline: var(--size-400);
+    }
+
+    &-trigger {
+        align-items: center;
+        background: var(--trigger-background);
+        border: 0;
+        border-radius: var(--trigger-border-radius);
+        box-shadow: var(--raised);
+        color: var(--color-muted);
+        cursor: pointer;
+        display: flex;
+        font: inherit;
+        font-size: var(--font-size);
+        gap: var(--size-100);
+        height: var(--trigger-height);
+        max-width: 100%;
+        outline: none;
+        padding-inline: var(--size-300) 6px;
+        touch-action: manipulation;
+        transition:
+            color var(--open-duration) ease-out,
+            scale var(--open-duration) ease-out;
+        user-select: none;
+        width: var(--trigger-width);
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--color);
+            outline-offset: var(--border-width-500);
+        }
+
+        &:hover {
+            color: var(--color);
+        }
+
+        &-label {
+            flex: 1 1 auto;
+            overflow: hidden;
+            text-align: left;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-dialog.modal {
+            --scale: 1;
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+
+            &::backdrop {
+                transition: opacity var(--transition-duration) var(--transition-timing-function);
+            }
+        }
+
+        &-trigger {
+            transition: color var(--open-duration) ease-out;
+
+            &:active {
+                scale: 1;
+            }
+        }
+    }
+}

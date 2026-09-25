@@ -1,0 +1,151 @@
+@use 'variables';
+
+// A grid rather than flex so the weeks column adds nothing to the min-content width: the heatmap only
+// scrolls when the screen is genuinely too narrow for the year.
+.contribution-heatmap {
+    color: var(--color);
+    display: grid;
+    font-size: var(--font-size);
+    grid-template-columns: auto minmax(0, max-content);
+    max-width: 100%;
+    position: relative;
+    width: fit-content;
+
+
+    // Settles from 0.6, not 0: a square growing from nothing reads as a pop, one settling from slightly small
+    // reads as arriving.
+    &-cell {
+        background: var(--level-0);
+        border-radius: var(--cell-radius);
+        flex-shrink: 0;
+        height: var(--cell-size);
+        opacity: 0;
+        outline: none;
+        scale: 0.6;
+        transition:
+            opacity var(--transition-duration) var(--transition-timing-function) calc(var(--column) * var(--stagger)),
+            scale var(--transition-duration) var(--transition-timing-function) calc(var(--column) * var(--stagger));
+        width: var(--cell-size);
+
+        // Rings the hovered day outside itself, so it shows on the darkest level too.
+        &:hover {
+            outline: 1px solid var(--hover-color);
+            outline-offset: 1px;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 1px;
+        }
+
+        &--empty {
+            background: none;
+        }
+
+        @for $level from 1 through 4 {
+            &[data-level='#{$level}'] {
+                background: var(--level-#{$level});
+            }
+        }
+    }
+
+    // Stays put while the weeks scroll, so rows keep their names.
+    &-days {
+        display: flex;
+        flex-direction: column;
+        margin-inline-end: 5px;
+        margin-top: 23px;
+
+        span {
+            height: var(--pitch);
+            line-height: var(--cell-size);
+        }
+    }
+
+    &-grid {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--pitch) - var(--cell-size));
+
+        &.--shown .contribution-heatmap-cell {
+            opacity: 1;
+            scale: 1;
+        }
+    }
+
+    &-months {
+        height: 20px;
+        position: relative;
+
+        span {
+            line-height: 1;
+            position: absolute;
+            top: 0;
+        }
+    }
+
+    &-row {
+        display: flex;
+        gap: calc(var(--pitch) - var(--cell-size));
+    }
+
+    // Room on every side, so focus and hover rings aren't clipped by the scroll container.
+    &-scroll {
+        min-width: 0;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        padding: 3px;
+    }
+
+    // Qualified by the root so it beats the reused tooltip's own position and stacking.
+    & &-tip {
+        cursor: auto;
+        height: 0;
+        left: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        width: 0;
+        z-index: 10;
+
+        &.--active .tooltip-message {
+            --transition-duration: 0.1s;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &-cell {
+            scale: 1;
+            transition: none;
+        }
+    }
+}
+
+.contribution-heatmap-legend {
+    align-items: center;
+    color: var(--color);
+    display: flex;
+    font-size: var(--font-size);
+    gap: 4px;
+
+    > span:first-child {
+        margin-inline-end: 4px;
+    }
+
+    > span:last-child {
+        margin-inline-start: 4px;
+    }
+}
+
+.contribution-heatmap-swatch {
+    border-radius: var(--cell-radius);
+    height: var(--cell-size);
+    width: var(--cell-size);
+
+    @for $level from 0 through 4 {
+        &[data-level='#{$level}'] {
+            background: var(--level-#{$level});
+        }
+    }
+}

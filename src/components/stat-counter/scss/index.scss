@@ -1,0 +1,246 @@
+@use 'variables';
+
+.stat-counter {
+    color: var(--color);
+    container-type: inline-size;
+    max-width: 100%;
+    width: var(--width);
+
+
+    &-affix {
+        white-space: pre;
+    }
+
+    &-arrow {
+        height: 12px;
+        transition: rotate 0.2s var(--ease-out);
+        width: 12px;
+    }
+
+    &-body {
+        display: flex;
+        flex-direction: column;
+        gap: var(--grid-gap);
+        margin: 0;
+        min-width: 0;
+    }
+
+    &-card {
+        background: var(--card-background);
+        border-radius: var(--card-radius);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+        padding: var(--card-padding);
+    }
+
+    &-chip {
+        align-items: center;
+        align-self: start;
+        background: var(--chip-background);
+        border-radius: 999px;
+        display: inline-flex;
+        font-size: var(--font-size-300);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--font-weight-500);
+        gap: 4px;
+        grid-area: 1 / 1;
+        line-height: 24px;
+        padding-inline: 8px;
+        transition:
+            filter 0.2s ease-out,
+            opacity 0.2s ease-out;
+        white-space: nowrap;
+
+        &.--hidden {
+            filter: blur(4px);
+            opacity: 0;
+            transition-duration: 0.1s;
+        }
+    }
+
+    // Trend and date share one cell and swap through a blur, so the chip never jumps in width mid-scrub.
+    &-chips {
+        align-self: start;
+        display: grid;
+        height: 24px;
+    }
+
+    // Qualified by the root so the roll timing beats the reused ticker's own.
+    & &-counter {
+        --font-weight: var(--value-font-weight);
+        --stagger: 0s;
+        --transition-duration: var(--count-duration);
+        --timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    &-card.--scrubbing &-counter {
+        --transition-duration: var(--scrub-duration);
+    }
+
+    &-cursor {
+        background: color-mix(in oklab, var(--color-text-500) 20%, transparent);
+        inset-block: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        transition:
+            left 0.15s ease-out,
+            opacity 0.15s ease-out;
+        width: 1px;
+    }
+
+    &-dot {
+        background: var(--color);
+        border-radius: 50%;
+        box-shadow: 0 0 0 2px var(--card-background);
+        height: 7px;
+        margin: -3.5px 0 0 -3.5px;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        scale: 0.5;
+        transition:
+            left 0.15s ease-out,
+            opacity 0.15s ease-out,
+            scale 0.15s ease-out,
+            top 0.15s ease-out;
+        width: 7px;
+    }
+
+    &-label {
+        color: var(--muted-color);
+        font-size: var(--label-font-size);
+    }
+
+    &-line {
+        color: var(--line-color);
+        height: 100%;
+        inset: 0;
+        overflow: visible;
+        position: absolute;
+        transition: opacity 0.15s ease-out;
+        width: 100%;
+
+        path {
+            transition: d 0.5s var(--ease-out);
+        }
+
+        // The same line again, clipped at the inspected point, so everything up to it stays at full strength.
+        &--past {
+            opacity: 0;
+            transition:
+                clip-path 0.15s ease-out,
+                opacity 0.15s ease-out;
+        }
+    }
+
+    // Four across when there's room, two by two on a phone.
+    &-list {
+        display: grid;
+        gap: var(--grid-gap);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 0;
+
+        @container (min-width: 560px) {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        &.--started .stat-counter-spark {
+            clip-path: inset(-4px);
+        }
+    }
+
+    // A few px of padding widens the target without moving the line.
+    &-slider {
+        border-radius: var(--border-radius-400);
+        cursor: ew-resize;
+        margin: -4px;
+        outline: none;
+        padding: 4px;
+        touch-action: pan-y;
+        user-select: none;
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+        }
+    }
+
+    // Wipes in left to right, the direction time runs along the line.
+    &-spark {
+        clip-path: inset(-4px 100% -4px -4px);
+        height: 32px;
+        position: relative;
+        transition: clip-path var(--wipe-duration) var(--ease-out) calc(var(--index) * var(--stagger));
+        width: 100%;
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-trend {
+        &.--bad {
+            color: var(--bad-color);
+        }
+
+        &.--down .stat-counter-arrow {
+            rotate: 180deg;
+        }
+    }
+
+    // Muted while it shows the past, so a glance never mistakes an old figure for today's.
+    &-value {
+        display: flex;
+        font-size: var(--value-font-size);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--value-font-weight);
+        letter-spacing: -0.025em;
+        line-height: 1.25;
+        overflow: hidden;
+        transition: color 0.15s ease-out;
+        white-space: nowrap;
+
+        .stat-counter-card.--past & {
+            color: var(--muted-color);
+        }
+    }
+
+    &-when {
+        color: var(--muted-color);
+    }
+
+    &-card.--scrubbing {
+        .stat-counter-cursor {
+            opacity: 1;
+        }
+
+        .stat-counter-dot {
+            opacity: 1;
+            scale: 1;
+        }
+
+        .stat-counter-line {
+            opacity: 0.3;
+        }
+
+        .stat-counter-line--past {
+            opacity: 1;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &-arrow,
+        &-line path,
+        &-spark {
+            transition: none;
+        }
+    }
+}

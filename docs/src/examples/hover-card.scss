@@ -1,0 +1,119 @@
+.hover-card-demo {
+    color: var(--color-text-500);
+    font-size: calc(var(--font-size-400) * 0.9375);
+    line-height: 28px;
+    max-width: 440px;
+    text-wrap: pretty;
+
+    &-avatar {
+        background: var(--color-grey-300);
+        border-radius: 50%;
+        flex-shrink: 0;
+        height: 48px;
+        outline: 1px solid oklch(from var(--color-black-300) l c h / 0.1);
+        outline-offset: -1px;
+        overflow: hidden;
+        width: 48px;
+
+        img {
+            display: block;
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    &-bio {
+        display: block;
+        margin-top: var(--size-100);
+        text-wrap: pretty;
+    }
+
+    &-follow {
+        background: var(--color-text-500);
+        border: 0;
+        border-radius: 999px;
+        color: var(--color-white-300);
+        cursor: pointer;
+        display: grid;
+        font: inherit;
+        font-size: calc(var(--font-size-400) * 0.875);
+        font-weight: var(--font-weight-500);
+        height: 36px;
+        padding-inline: var(--size-400);
+        transition:
+            background-color 0.15s ease-out,
+            box-shadow 0.15s ease-out,
+            color 0.15s ease-out,
+            scale 0.15s ease-out;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &.--active {
+            background: var(--color-white-300);
+            box-shadow:
+                0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06),
+                0 1px 2px oklch(from var(--color-black-300) l c h / 0.06),
+                0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+            color: var(--color-text-500);
+        }
+
+        // Both labels share one cell so the button never changes width.
+        span {
+            align-self: center;
+            grid-area: 1 / 1;
+            transition: opacity 0.15s;
+        }
+
+        &.--active span:first-child,
+        &:not(.--active) span:last-child {
+            opacity: 0;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            &:active {
+                scale: 1;
+            }
+        }
+    }
+
+    &-handle {
+        color: var(--color-text-300);
+        display: block;
+        font-size: calc(var(--font-size-400) * 0.8125);
+    }
+
+    &-hint {
+        color: var(--color-text-300);
+    }
+
+    &-name {
+        display: block;
+        font-size: calc(var(--font-size-400) * 0.9375);
+        font-weight: var(--font-weight-600, var(--font-weight-500));
+        letter-spacing: -0.01em;
+        margin-top: var(--size-300);
+    }
+
+    &-stats {
+        color: var(--color-text-300);
+        display: flex;
+        font-size: calc(var(--font-size-400) * 0.8125);
+        gap: var(--size-400);
+        margin-top: var(--size-300);
+
+        strong {
+            color: var(--color-text-500);
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight-600, var(--font-weight-500));
+        }
+    }
+
+    &-top {
+        align-items: flex-start;
+        display: flex;
+        gap: var(--size-300);
+        justify-content: space-between;
+    }
+}

@@ -1,0 +1,18 @@
+.tree-view {
+    --background-active: var(--color-grey-500);
+    --background-hover: color-mix(in oklab, var(--background-active) 60%, transparent);
+    --border-radius: var(--border-radius-300);
+    --chevron-size: 14px;
+    --color-active: var(--color-text-500);
+    --color-default: var(--color-text-300);
+    --font-size: var(--font-size-400);
+    --gap: 6px;
+    --guide-color: var(--color-border-400);
+    --guide-color-active: color-mix(in oklab, var(--color-active) 35%, transparent);
+    --height: 32px;
+    --icon-size: var(--size-400);
+    --indent: var(--size-400);
+    --outline-color: var(--color-active);
+    --padding-horizontal: 8px;
+    --transition-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}

@@ -1,0 +1,23 @@
+.waitlist-join {
+    --accent: var(--color-text-500);
+    --accent-contrast: var(--color-white-300);
+    --background: var(--color-white-300);
+    --box-shadow: 0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06), 0 1px 2px oklch(from var(--color-black-300) l c h / 0.06), 0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+    --color-danger: var(--color-red-500);
+    --color-muted: var(--color-text-300);
+    --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    // Every face sits on the same light circle, like a printed photo, with a faint outline for an edge.
+    --face-background: oklch(0.97 0 0);
+    --face-ring: oklch(from var(--color-black-300) l c h / 0.1);
+    --face-silhouette: oklch(0.84 0 0);
+    --face-size: 36px;
+    --focus-ring: oklch(from var(--color-text-500) l c h / 0.38);
+    --font-size: calc(var(--font-size-400) * 0.875);
+    --font-size-small: calc(var(--font-size-400) * 0.8125);
+    --foreground: var(--color-text-500);
+    --icon-duration: 446ms;
+    --icon-timing-function: linear(0, 0.118, 0.319, 0.509, 0.657, 0.769, 0.848, 0.901, 0.937, 0.96, 0.975, 0.984, 0.99, 0.994, 1);
+    --radius: 20px;
+    --surface: var(--color-grey-400);
+    --width: min(440px, 100%);
+}

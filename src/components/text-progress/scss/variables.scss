@@ -1,0 +1,26 @@
+.text-progress {
+    --check-size: 16px;
+    --color: var(--color-text-500);
+    --done-gap: 6px;
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --font-size: var(--font-size-400);
+    --font-weight: var(--font-weight-500);
+    --muted-color: var(--color-text-300);
+    --part-gap: 10px;
+    --part-height: 24px;
+    --track-color: oklch(from var(--color-text-500) l c h / 0.2);
+
+    &--blue {
+        --color: var(--color-blue-400);
+        --track-color: oklch(from var(--color-blue-400) l c h / 0.2);
+    }
+
+    &--large {
+        --check-size: 22px;
+        --done-gap: 8px;
+        --font-size: var(--font-size-600);
+        --part-gap: 14px;
+        --part-height: 32px;
+    }
+}

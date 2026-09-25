@@ -1,0 +1,30 @@
+.tag-input {
+    --box-background: var(--color-grey-400);
+    --box-border-radius: 14px;
+    --box-padding: 6px;
+    --box-shadow: var(--box-shadow-200);
+    --chip-background: var(--color-white-300);
+    --chip-background-active: var(--color-text-500);
+    // 8px inside 6px of box padding keeps the 14px box concentric.
+    --chip-border-radius: var(--border-radius-400);
+    --chip-color: var(--color-text-500);
+    --chip-color-active: var(--color-white-300);
+    --chip-height: 32px;
+    --chip-remove-color: var(--color-text-300);
+    --chip-remove-color-hover: var(--color-text-500);
+    --chip-remove-hover-background: oklch(from var(--color-text-500) l c h / 0.06);
+    --chip-shadow: var(--box-shadow-100);
+    --color: var(--color-text-500);
+    --entry-min-width: 120px;
+    --font-size: var(--font-size-300);
+    --gap: 6px;
+    --hint-color: var(--color-text-300);
+    --hint-font-size: var(--font-size-200);
+    --label-font-size: var(--font-size-300);
+    --label-font-weight: var(--font-weight-500);
+    --outline-color: var(--color-text-500);
+    --placeholder-color: var(--color-text-300);
+    // Shared by a chip's text and the field, so a typed tag becomes a chip without its letters shifting.
+    --text-inset: 10px;
+    --width: min(440px, 100%);
+}

@@ -1,0 +1,12 @@
+.card-input-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-400);
+    width: 100%;
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+}

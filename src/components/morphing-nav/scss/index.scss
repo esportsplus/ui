@@ -1,0 +1,284 @@
+@use '/tokens';
+@use 'variables';
+
+.morphing-nav {
+    font-size: var(--font-size);
+    position: relative;
+
+
+    &-action,
+    &-brand {
+        align-items: center;
+        display: flex;
+        flex-shrink: 0;
+    }
+
+    &-bar {
+        align-items: center;
+        background: var(--background);
+        border-radius: var(--bar-radius);
+        box-shadow: var(--box-shadow);
+        display: flex;
+        gap: 4px;
+        height: var(--bar-height);
+        padding: var(--bar-padding);
+    }
+
+    &-brand {
+        padding-inline: 10px;
+    }
+
+    // Invisible bridge over the gap, so the cursor never "leaves" on its way down from the bar.
+    &-bridge {
+        height: var(--gap);
+        inset-inline: 0;
+        position: absolute;
+        top: calc(var(--gap) * -1);
+    }
+
+    // Overlaps the panel by 1px to hide its ring under the caret.
+    &-caret {
+        fill: var(--background);
+        left: 0;
+        position: absolute;
+        stroke: var(--caret-stroke);
+        top: -8px;
+        transition: translate var(--morph-duration) var(--morph-timing-function);
+        translate: var(--caret-x, 0px) 0;
+        z-index: 1;
+    }
+
+    &-chevron {
+        flex-shrink: 0;
+        height: 12px;
+        transition: rotate 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+        width: 12px;
+    }
+
+    &-description {
+        color: var(--muted);
+        display: block;
+        font-size: var(--description-font-size);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-icon {
+        color: var(--muted);
+        display: flex;
+        flex-shrink: 0;
+        height: 18px;
+        // Nudged down to sit on the title's first line, not above it.
+        margin-top: 2px;
+        width: 18px;
+
+        svg {
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    &-link {
+        align-items: flex-start;
+        border-radius: var(--link-radius);
+        color: inherit;
+        display: flex;
+        gap: 12px;
+        outline: none;
+        padding: 12px 16px 12px 12px;
+        text-decoration: none;
+        transition: background-color 0.15s ease-out;
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+            outline-offset: -2px;
+        }
+
+        &:hover {
+            background: var(--surface);
+        }
+    }
+
+    &-links {
+        display: grid;
+        gap: 2px;
+        list-style: none;
+        margin: 0;
+        padding: var(--panel-padding);
+
+        li {
+            min-width: 0;
+        }
+    }
+
+    &-list {
+        align-items: center;
+        display: flex;
+        flex: 1 1 auto;
+        gap: 2px;
+        list-style: none;
+        margin: 0;
+        min-width: 0;
+        padding: 0;
+    }
+
+    &-panel {
+        background: var(--background);
+        border-radius: var(--panel-radius);
+        box-shadow: var(--box-shadow);
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+    }
+
+    // Size, position and caret share one spring; the panel only fades and scales on open and close.
+    // Leaves faster and smaller than it came: the exit shouldn't hold the eye.
+    &-popover {
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        scale: 0.98;
+        top: calc(100% + var(--gap));
+        transition:
+            opacity var(--close-duration) cubic-bezier(0.23, 1, 0.32, 1),
+            scale var(--close-duration) cubic-bezier(0.23, 1, 0.32, 1),
+            visibility 0s linear var(--close-duration);
+        visibility: hidden;
+        z-index: 10;
+
+        @include tokens.state(active) {
+            opacity: 1;
+            pointer-events: auto;
+            scale: 1;
+            transition:
+                height var(--morph-duration) var(--morph-timing-function),
+                opacity var(--fade-duration) cubic-bezier(0.23, 1, 0.32, 1),
+                scale var(--fade-duration) cubic-bezier(0.23, 1, 0.32, 1),
+                translate var(--morph-duration) var(--morph-timing-function),
+                width var(--morph-duration) var(--morph-timing-function);
+            visibility: visible;
+        }
+
+        &.--opening {
+            opacity: 0;
+            scale: 0.97;
+
+            &,
+            .morphing-nav-caret {
+                transition: none;
+            }
+        }
+    }
+
+    // Pinned to its natural width, so text never reflows while the panel morphs around it.
+    &-section {
+        left: 0;
+        max-width: var(--nav-width, none);
+        position: absolute;
+        top: 0;
+        visibility: hidden;
+        width: max-content;
+
+        @include tokens.state(active) {
+            visibility: visible;
+        }
+
+        &--columns .morphing-nav-links {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    &-text {
+        display: block;
+        min-width: 0;
+    }
+
+    &-title {
+        color: var(--color-active);
+        display: block;
+        font-weight: var(--font-weight-500);
+    }
+
+    &-trigger {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: var(--trigger-radius);
+        color: var(--color);
+        cursor: pointer;
+        display: flex;
+        font-size: inherit;
+        gap: 4px;
+        height: var(--trigger-height);
+        outline: none;
+        padding-inline: var(--trigger-padding);
+        touch-action: manipulation;
+        transition:
+            background-color 0.15s ease-out,
+            color 0.15s ease-out,
+            scale 0.15s ease-out;
+        user-select: none;
+        white-space: nowrap;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+        }
+
+        &:hover {
+            color: var(--color-active);
+        }
+
+        @include tokens.state(active) {
+            background: var(--surface);
+            color: var(--color-active);
+
+            .morphing-nav-chevron {
+                rotate: 180deg;
+            }
+        }
+    }
+
+
+    @media (max-width: 639px) {
+        --trigger-padding: 10px;
+
+        &-action,
+        &-brand,
+        &-chevron {
+            display: none;
+        }
+
+        &-section--columns .morphing-nav-links {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --morph-duration: 0s;
+
+        &-chevron {
+            transition: none;
+        }
+
+        &-popover {
+            scale: 1;
+
+            &.--opening {
+                scale: 1;
+            }
+        }
+
+        &-trigger {
+            transition:
+                background-color 0.15s ease-out,
+                color 0.15s ease-out;
+        }
+    }
+}

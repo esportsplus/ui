@@ -1,0 +1,39 @@
+.dynamic-island {
+    --background: var(--color-text-500);
+    --color: var(--color-white-300);
+    --content-delay: 0.08s;
+    --content-duration: 0.25s;
+    --content-exit-duration: 0.12s;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --focus-ring-color: var(--color-white-300);
+    --idle-height: 42px;
+    --idle-radius: 21px;
+    --idle-width: 156px;
+    // Caps the widest shape at the viewport minus the page gutters.
+    --max-width: calc(100vw - 2rem);
+    // Spring with a 0.4s visual duration and 0.25 bounce: the elastic settle Apple uses for the island.
+    --morph-duration: 0.7s;
+    --morph-easing: linear(0, 0.0234, 0.0831, 0.1661, 0.2617, 0.3622, 0.4617, 0.5561, 0.6426, 0.7198, 0.7869, 0.8439, 0.8913, 0.9297, 0.96, 0.9833, 1.0005, 1.0127, 1.0208, 1.0257, 1.0279, 1.0283, 1.0273, 1.0254, 1.023, 1.0202, 1.0173, 1.0145, 1.0119, 1.0095, 1.0074, 1.0056, 1.004, 1.0028, 1.0017, 1.0009, 1.0003, 0.9999, 0.9996, 0.9994, 1);
+    --music-height: 100px;
+    --music-radius: 36px;
+    --music-width: 390px;
+    --ring-height: 46px;
+    --ring-radius: 23px;
+    --ring-width: 220px;
+    --shape-height: var(--idle-height);
+    --shape-radius: var(--idle-radius);
+    --shape-width: var(--idle-width);
+    // Critically damped spring (no bounce) sampled over its duration.
+    --spring: linear(0, 0.0575, 0.1803, 0.3208, 0.4551, 0.5729, 0.6711, 0.7501, 0.8122, 0.8601, 0.8966, 0.924, 0.9445, 0.9596, 0.9708, 0.9789, 0.9848, 0.9891, 0.9922, 0.9944, 0.996, 0.9972, 0.998, 0.9986, 1);
+    --timer-height: 46px;
+    --timer-radius: 23px;
+    --timer-width: 260px;
+
+    @each $mode in idle, music, ring, timer {
+        &--#{$mode} {
+            --shape-height: var(--#{$mode}-height);
+            --shape-radius: var(--#{$mode}-radius);
+            --shape-width: var(--#{$mode}-width);
+        }
+    }
+}

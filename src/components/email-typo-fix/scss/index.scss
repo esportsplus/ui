@@ -1,0 +1,213 @@
+@use 'variables';
+
+.email-typo-fix {
+    color: var(--color);
+    display: flex;
+    flex-direction: column;
+
+
+    &-accept,
+    &-dismiss {
+        background: transparent;
+        border: 0;
+        border-radius: var(--border-radius-400);
+        color: var(--muted-color);
+        cursor: pointer;
+        outline: none;
+        transition:
+            background-color var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function);
+
+        &:hover {
+            background: var(--button-hover-background);
+        }
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--outline-color);
+        }
+    }
+
+    &-accept {
+        align-items: center;
+        display: flex;
+        flex: 1;
+        font: inherit;
+        font-size: var(--suggestion-font-size);
+        height: 40px;
+        line-height: 1.43;
+        margin-inline-start: -8px;
+        min-width: 0;
+        padding-inline: 8px;
+        text-align: start;
+
+        // Wraps to a second line on a phone rather than cutting off the one part that matters.
+        &-text {
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            display: -webkit-box;
+            overflow: hidden;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    &-address {
+        color: var(--address-color);
+
+        &-fix {
+            font-weight: var(--font-weight-600);
+            text-decoration: underline;
+            text-decoration-color: var(--fix-underline-color);
+            text-decoration-thickness: 2px;
+            text-underline-offset: 3px;
+        }
+    }
+
+    &-control {
+        font-size: var(--font-size);
+        margin-top: 8px;
+        position: relative;
+    }
+
+    &-dismiss {
+        align-items: center;
+        display: flex;
+        flex-shrink: 0;
+        height: 36px;
+        justify-content: center;
+        padding: 0;
+        width: 36px;
+
+        &:hover {
+            color: var(--address-color);
+        }
+
+        svg {
+            height: 14px;
+            width: 14px;
+        }
+    }
+
+    // Kerning and ligatures off, here and in the overlay, so letters set one span at a time land exactly where the field draws them.
+    &-control > #{&}-field {
+        --background-default: var(--field-background);
+        --border-radius: var(--field-border-radius);
+        --color-default: currentColor;
+        font-kerning: none;
+        font-size: inherit;
+        font-variant-ligatures: none;
+        height: var(--field-height);
+        min-height: 0;
+        outline: none;
+        padding-block: 0;
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--outline-color);
+        }
+
+        &::placeholder {
+            color: var(--muted-color);
+        }
+
+        .email-typo-fix.--morphing & {
+            caret-color: transparent;
+            color: transparent;
+        }
+    }
+
+    &-hint,
+    &-suggest {
+        align-items: center;
+        display: flex;
+        filter: blur(2px);
+        inset: 0;
+        margin: 0;
+        opacity: 0;
+        position: absolute;
+        transition:
+            filter var(--panel-leave-duration) var(--transition-timing-function),
+            opacity var(--panel-leave-duration) var(--transition-timing-function);
+        visibility: hidden;
+
+        &.--active {
+            filter: none;
+            opacity: 1;
+            visibility: visible;
+        }
+    }
+
+    &-hint {
+        color: var(--muted-color);
+        font-size: var(--hint-font-size);
+
+        &-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    &-label {
+        font-size: var(--label-font-size);
+        font-weight: var(--label-font-weight);
+    }
+
+    &-morph {
+        align-items: center;
+        color: var(--color);
+        display: flex;
+        font-kerning: none;
+        font-variant-ligatures: none;
+        inset: 0;
+        pointer-events: none;
+        position: absolute;
+        white-space: pre;
+
+        &-glyph {
+            display: inline-block;
+            position: relative;
+
+            &--leaving {
+                position: absolute;
+            }
+        }
+
+        &-underline {
+            background: var(--fix-underline-color);
+            border-radius: 999px;
+            bottom: -3px;
+            height: 2px;
+            inset-inline: 0;
+            opacity: 0;
+            position: absolute;
+        }
+    }
+
+    // One fixed-height slot for the hint, the suggestion and the sent note, so nothing below ever moves.
+    &-note {
+        gap: 4px;
+        height: var(--note-height);
+        margin-top: 8px;
+        position: relative;
+    }
+
+    &-suggest {
+        gap: 4px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .email-typo-fix-accept:active,
+    .email-typo-fix-dismiss:active {
+        scale: 1;
+    }
+
+    .email-typo-fix-hint,
+    .email-typo-fix-suggest {
+        filter: none;
+    }
+}

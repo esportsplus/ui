@@ -1,0 +1,35 @@
+.carousel-3d-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-500);
+    width: 100%;
+
+    &-jump {
+        background: transparent;
+        border: var(--border-width-400) solid var(--color-border-300);
+        border-radius: 999px;
+        color: var(--color-text-300);
+        cursor: pointer;
+        font: inherit;
+        font-size: var(--font-size-300);
+        padding: var(--size-100) var(--size-300);
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
+
+        &.--active {
+            background: var(--color-text-500);
+            border-color: var(--color-text-500);
+            color: var(--color-white-300);
+        }
+    }
+
+    &-jumps {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--size-200);
+        justify-content: center;
+        max-width: 520px;
+    }
+}

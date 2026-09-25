@@ -1,0 +1,129 @@
+.announcement-banner-demo {
+    background: var(--color-white-300);
+    border-radius: var(--border-radius-700);
+    box-shadow:
+        0 0 0 1px color-mix(in oklab, var(--color-black-300) 6%, transparent),
+        0 6px 16px -6px color-mix(in oklab, var(--color-black-300) 12%, transparent);
+    font-size: 14px;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+    width: min(520px, 100%);
+
+    &--short {
+        height: 140px;
+    }
+
+    p {
+        margin: 0;
+    }
+
+    // Pinned to the frame, so it stays under the cursor while the banner reopens.
+    // Arrives after the banner has closed, leaves at once.
+    &-again {
+        background: var(--color-grey-400);
+        border: 0;
+        border-radius: 999px;
+        bottom: 12px;
+        box-shadow:
+            0 0 0 1px color-mix(in oklab, var(--color-black-300) 6%, transparent),
+            0 6px 16px -6px color-mix(in oklab, var(--color-black-300) 12%, transparent);
+        color: var(--color-text-500);
+        cursor: pointer;
+        filter: blur(2px);
+        font: inherit;
+        font-weight: var(--font-weight-500);
+        height: 36px;
+        opacity: 0;
+        padding-inline: 14px;
+        position: absolute;
+        right: 12px;
+        transition:
+            filter 100ms cubic-bezier(0.23, 1, 0.32, 1),
+            opacity 100ms cubic-bezier(0.23, 1, 0.32, 1),
+            scale 100ms cubic-bezier(0.23, 1, 0.32, 1),
+            translate 100ms cubic-bezier(0.23, 1, 0.32, 1);
+        translate: 0 4px;
+
+        &.--active {
+            filter: blur(0px);
+            opacity: 1;
+            transition-delay: 200ms;
+            transition-duration: 200ms;
+            translate: 0 0;
+        }
+
+        &:active {
+            scale: 0.96;
+        }
+    }
+
+    &-avatar {
+        background: var(--color-grey-400);
+        border-radius: 999px;
+        height: 28px;
+        margin-left: auto;
+        width: 28px;
+    }
+
+    &-body {
+        padding: 20px 20px 0;
+    }
+
+    &-brand {
+        font-weight: var(--font-weight-600);
+    }
+
+    &-heading {
+        --font-size: 18px;
+
+        color: var(--color-text-500);
+        font-weight: var(--font-weight-600);
+        margin-bottom: 4px;
+    }
+
+    &-muted {
+        color: var(--color-text-300);
+    }
+
+    &-nav {
+        align-items: center;
+        border-bottom: 1px solid var(--color-border-300);
+        color: var(--color-text-500);
+        display: flex;
+        gap: 20px;
+        height: 48px;
+        padding-inline: 20px;
+    }
+
+    &-stat {
+        background: var(--color-grey-400);
+        border-radius: 12px;
+        font-size: 12px;
+        padding: 10px 12px;
+    }
+
+    &-stats {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 16px;
+    }
+
+    &-value {
+        color: var(--color-text-500);
+        font-size: 15px;
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--font-weight-500);
+        margin-top: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-again,
+        &-again.--active {
+            filter: none;
+            transition-property: opacity;
+            translate: 0 0;
+        }
+    }
+}

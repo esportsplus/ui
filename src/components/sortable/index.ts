@@ -3,13 +3,16 @@ import './scss/index.scss';
 
 
 type Options = {
+    // Containers sharing a group name trade items; the container the drag started in receives 'onsort'.
+    group?: string;
     // Selector for the part of an item that starts a drag; the whole item when omitted.
     handle?: string;
-    onsort?: (item: HTMLElement, from: number, to: number) => void;
+    onsort?: (item: HTMLElement, from: number, to: number, source: HTMLElement, target: HTMLElement) => void;
 };
 
 type Rect = {
     bottom: number;
+    container: HTMLElement;
     left: number;
     right: number;
     top: number;
@@ -42,10 +45,13 @@ function child(container: HTMLElement, node: Node | null) {
     return node instanceof HTMLElement ? node : null;
 }
 
-function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, onsort: Options['onsort']) {
+function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { group, onsort }: Options) {
     let animations = new Map<HTMLElement, Animation>(),
         baseLeft = 0,
         baseTop = 0,
+        containers = group
+            ? Array.from(document.querySelectorAll<HTMLElement>(`.sortable[data-sortable-group="${CSS.escape(group)}"]`))
+            : [container],
         cssText = '',
         frame = 0,
         from = index(item),
@@ -106,7 +112,10 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, onsort
             style.left = `${rect.left * 2 - moved.left}px`;
             style.top = `${rect.top * 2 - moved.top}px`;
 
-            container.classList.add('--active');
+            for (let i = 0, n = containers.length; i < n; i++) {
+                containers[i].classList.add('--active');
+            }
+
             item.classList.add('--dragging');
         });
 
@@ -151,18 +160,71 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, onsort
             slot.replaceWith(item);
             item.classList.remove('--dragging', '--dropping');
             animation.cancel();
-            container.classList.remove('--active');
 
-            let to = index(item);
+            for (let i = 0, n = containers.length; i < n; i++) {
+                containers[i].classList.remove('--active');
+            }
 
-            if (onsort && to !== from) {
-                onsort(item, from, to);
+            let target = item.parentElement!,
+                to = index(item);
+
+            if (onsort && (to !== from || target !== container)) {
+                onsort(item, from, to, container, target);
             }
         };
 
         // The pointerup that ended the drag is followed by a click on whatever sits under the pointer.
         addEventListener('click', swallow, true);
         setTimeout(() => removeEventListener('click', swallow, true));
+    }
+
+    // Slots the placeholder beside the target's item nearest the pointer, on the side the pointer is on:
+    // left/right when that item shares a row with a sibling, above/below otherwise.
+    function enter(target: HTMLElement) {
+        let distance = Infinity,
+            nearest: Element | null = null;
+
+        for (let element of target.children) {
+            if (element === item || element === placeholder) {
+                continue;
+            }
+
+            let rect = element.getBoundingClientRect(),
+                d = Math.hypot(Math.max(rect.left - x, 0, x - rect.right), Math.max(rect.top - y, 0, y - rect.bottom));
+
+            if (d < distance) {
+                distance = d;
+                nearest = element;
+            }
+        }
+
+        if (!nearest) {
+            target.append(placeholder!);
+            return;
+        }
+
+        let rect = nearest.getBoundingClientRect(),
+            row = false;
+
+        for (let element of target.children) {
+            if (element === item || element === nearest || element === placeholder) {
+                continue;
+            }
+
+            let other = element.getBoundingClientRect();
+
+            if (other.top < rect.bottom && other.bottom > rect.top) {
+                row = true;
+                break;
+            }
+        }
+
+        if (row ? x > rect.left + rect.width / 2 : y > rect.top + rect.height / 2) {
+            nearest.after(placeholder!);
+        }
+        else {
+            nearest.before(placeholder!);
+        }
     }
 
     function move(e: PointerEvent) {
@@ -185,12 +247,30 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, onsort
         }
     }
 
+    function over() {
+        if (containers.length === 1) {
+            return container;
+        }
+
+        for (let i = 0, n = containers.length; i < n; i++) {
+            let rect = containers[i].getBoundingClientRect();
+
+            if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                return containers[i];
+            }
+        }
+
+        return null;
+    }
+
     function reflow(mutate: VoidFunction) {
         let first = new Map<Element, DOMRect>();
 
-        for (let element of container.children) {
-            if (element !== item) {
-                first.set(element, element.getBoundingClientRect());
+        for (let i = 0, n = containers.length; i < n; i++) {
+            for (let element of containers[i].children) {
+                if (element !== item) {
+                    first.set(element, element.getBoundingClientRect());
+                }
             }
         }
 
@@ -203,33 +283,37 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, onsort
         animations.clear();
         layout.clear();
 
-        let bounds = container.getBoundingClientRect(),
-            left = bounds.left - container.scrollLeft,
-            top = bounds.top - container.scrollTop;
+        for (let i = 0, n = containers.length; i < n; i++) {
+            let parent = containers[i],
+                bounds = parent.getBoundingClientRect(),
+                left = bounds.left - parent.scrollLeft,
+                top = bounds.top - parent.scrollTop;
 
-        for (let element of container.children) {
-            if (element === item || !(element instanceof HTMLElement)) {
-                continue;
+            for (let element of parent.children) {
+                if (element === item || !(element instanceof HTMLElement)) {
+                    continue;
+                }
+
+                let rect = element.getBoundingClientRect(),
+                    start = first.get(element);
+
+                layout.set(element, {
+                    bottom: rect.bottom - top,
+                    container: parent,
+                    left: rect.left - left,
+                    right: rect.right - left,
+                    top: rect.top - top
+                });
+
+                if (!start || reduced || (start.left === rect.left && start.top === rect.top)) {
+                    continue;
+                }
+
+                animations.set(element, element.animate([
+                    { translate: `${start.left - rect.left}px ${start.top - rect.top}px` },
+                    { translate: '0px 0px' }
+                ], SHIFT));
             }
-
-            let rect = element.getBoundingClientRect(),
-                start = first.get(element);
-
-            layout.set(element, {
-                bottom: rect.bottom - top,
-                left: rect.left - left,
-                right: rect.right - left,
-                top: rect.top - top
-            });
-
-            if (!start || reduced || (start.left === rect.left && start.top === rect.top)) {
-                continue;
-            }
-
-            animations.set(element, element.animate([
-                { translate: `${start.left - rect.left}px ${start.top - rect.top}px` },
-                { translate: '0px 0px' }
-            ], SHIFT));
         }
     }
 
@@ -253,17 +337,31 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, onsort
     }
 
     function sort() {
-        let bounds = container.getBoundingClientRect(),
-            left = x - bounds.left + container.scrollLeft,
-            slot = layout.get(placeholder!),
-            top = y - bounds.top + container.scrollTop;
+        let slot = layout.get(placeholder!),
+            target = over();
 
-        if (!slot) {
+        if (!slot || !target) {
             return;
         }
 
+        if (target !== slot.container) {
+            reflow(() => enter(target));
+            return;
+        }
+
+        let bounds = target.getBoundingClientRect(),
+            left = x - bounds.left + target.scrollLeft,
+            top = y - bounds.top + target.scrollTop;
+
         for (let [element, rect] of layout) {
-            if (element === placeholder || left < rect.left || left > rect.right || top < rect.top || top > rect.bottom) {
+            if (
+                element === placeholder ||
+                rect.container !== target ||
+                left < rect.left ||
+                left > rect.right ||
+                top < rect.top ||
+                top > rect.bottom
+            ) {
                 continue;
             }
 
@@ -364,8 +462,9 @@ function swallow(e: Event) {
 }
 
 
-export default ({ handle, onsort }: Options = {}): Attributes => ({
+export default ({ group, handle, onsort }: Options = {}): Attributes => ({
     class: 'sortable',
+    ...(group && { 'data-sortable-group': group }),
     onpointerdown: (e: PointerEvent) => {
         let container = e.currentTarget as HTMLElement;
 
@@ -379,6 +478,6 @@ export default ({ handle, onsort }: Options = {}): Attributes => ({
             return;
         }
 
-        drag(container, item, e, onsort);
+        drag(container, item, e, { group, onsort });
     }
 });

@@ -1,0 +1,234 @@
+@use '/tokens';
+@use 'variables';
+
+.range-slider {
+    color: var(--color);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--font-size);
+    gap: 12px;
+    width: var(--width);
+
+
+    &-dash {
+        background: var(--background);
+        flex-shrink: 0;
+        height: 1px;
+        width: 12px;
+    }
+
+    &-field {
+        align-items: center;
+        background: var(--field-background);
+        border-radius: var(--border-radius-400);
+        box-shadow: var(--box-shadow);
+        cursor: text;
+        display: flex;
+        flex: 1 1 0;
+        gap: 6px;
+        height: var(--field-height);
+        min-width: 0;
+        outline: 0 solid var(--focus-color);
+        outline-offset: 2px;
+        padding-inline: 12px;
+
+        &:has(:focus-visible) {
+            outline-width: 2px;
+        }
+
+        &-label {
+            color: var(--color-muted);
+        }
+
+        &-prefix {
+            color: var(--color-muted);
+            margin-inline-start: auto;
+        }
+
+        .range-slider-input {
+            --background-default: transparent;
+            --color-default: currentColor;
+            --font-size: inherit;
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
+            flex: 0 1 64px;
+            font-variant-numeric: tabular-nums;
+            margin-inline-start: auto;
+            min-height: 0;
+            outline: none;
+            text-align: right;
+            width: 64px;
+        }
+
+        &-prefix + .range-slider-input {
+            margin-inline-start: 0;
+        }
+    }
+
+    &-fields {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+    }
+
+    &-fill {
+        background: var(--fill);
+        height: 100%;
+        transform: translateX(calc(var(--low) * 100%)) scaleX(calc(var(--high) - var(--low)));
+        transform-origin: left;
+        transition: transform var(--glide-duration) var(--glide-timing-function);
+    }
+
+    &-handle {
+        inset: 0;
+        pointer-events: none;
+        position: absolute;
+        transition: translate var(--glide-duration) var(--glide-timing-function);
+        translate: calc(var(--position) * 100%) 0;
+
+        &--high {
+            --position: var(--high);
+        }
+
+        &--low {
+            --position: var(--low);
+        }
+
+        &.--raised {
+            z-index: 1;
+        }
+    }
+
+    &-header {
+        align-items: baseline;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    &-label {
+        font-weight: var(--font-weight-500);
+    }
+
+    &-rail {
+        background: var(--background);
+        border-radius: 999px;
+        height: var(--height);
+        inset-inline: 0;
+        overflow: hidden;
+        position: absolute;
+        top: 50%;
+        translate: 0 -50%;
+    }
+
+    &-summary {
+        color: var(--color-muted);
+        font-variant-numeric: tabular-nums;
+    }
+
+    &-thumb {
+        background: var(--thumb-background);
+        border-radius: 50%;
+        box-shadow: var(--box-shadow);
+        height: var(--thumb-size);
+        left: 0;
+        outline: 0 solid var(--focus-color);
+        outline-offset: 2px;
+        pointer-events: auto;
+        position: absolute;
+        top: 50%;
+        touch-action: none;
+        transition: scale 150ms ease-out;
+        translate: -50% -50%;
+        width: var(--thumb-size);
+
+        &::after,
+        &::before {
+            border-radius: 50%;
+            content: '';
+            position: absolute;
+        }
+
+        &::after {
+            inset: calc((var(--thumb-size) - var(--hit-size)) / 2);
+        }
+
+        &::before {
+            background: var(--thumb-dot);
+            inset: calc((var(--thumb-size) - var(--thumb-dot-size)) / 2);
+        }
+
+        &:focus-visible {
+            outline-width: 2px;
+        }
+
+        @include tokens.state(active) {
+            scale: var(--thumb-scale-active);
+        }
+    }
+
+    // In over 150ms, out in 100ms, so it never lingers behind the thumb.
+    &-tooltip {
+        background: var(--tooltip-background);
+        border-radius: 999px;
+        bottom: 100%;
+        color: var(--tooltip-color);
+        font-size: var(--font-size-300);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--font-weight-500);
+        left: 50%;
+        line-height: 1.33;
+        margin-bottom: var(--tooltip-offset);
+        opacity: 0;
+        padding: 4px 8px;
+        pointer-events: none;
+        position: absolute;
+        scale: 0.97;
+        transform-origin: bottom;
+        transition:
+            opacity 100ms var(--tooltip-ease),
+            scale 100ms var(--tooltip-ease),
+            translate 100ms var(--tooltip-ease);
+        translate: -50% 4px;
+        white-space: nowrap;
+
+        .range-slider-thumb.--active > &,
+        .range-slider-thumb:focus-visible > & {
+            opacity: 1;
+            scale: 1;
+            transition-duration: 150ms;
+            translate: -50% 0;
+        }
+    }
+
+    &-track {
+        cursor: pointer;
+        height: var(--hit-size);
+        margin-top: 32px;
+        position: relative;
+        touch-action: none;
+        user-select: none;
+    }
+
+
+    // Dragging a thumb directly follows the pointer 1:1; only track clicks, keys and typed values glide.
+    &.--dragging {
+        .range-slider-fill,
+        .range-slider-handle {
+            transition: none;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-fill,
+        &-handle,
+        &-thumb {
+            transition: none;
+        }
+
+        &-tooltip {
+            scale: 1;
+            transition: opacity 100ms var(--tooltip-ease);
+            translate: -50% 0;
+        }
+    }
+}

@@ -1,0 +1,220 @@
+@use '/tokens';
+@use 'variables';
+
+.collapsible-sidebar {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    display: flex;
+    overflow: hidden;
+    position: relative;
+
+    @include tokens.state(inactive) {
+        --width: var(--width-collapsed);
+
+        // Gone well before the shrinking edge reaches it, so it is never seen being clipped.
+        .collapsible-sidebar-label {
+            filter: blur(var(--label-blur));
+            opacity: 0;
+            transition-delay: 0s;
+            transition-duration: var(--label-duration-out);
+        }
+    }
+
+
+    &-header {
+        align-items: center;
+        display: flex;
+        flex-shrink: 0;
+        gap: var(--padding);
+        height: var(--header-height);
+        padding-inline: var(--padding);
+    }
+
+    &-highlight {
+        background: var(--highlight-background);
+        border-radius: var(--item-border-radius);
+        height: var(--item-height);
+        inset-inline: var(--padding);
+        pointer-events: none;
+        position: absolute;
+        top: var(--padding);
+        transition: translate var(--highlight-duration) var(--highlight-timing-function);
+        translate: 0 calc(var(--index) * (var(--item-height) + var(--gap)));
+    }
+
+    &-icon,
+    &-toggle svg {
+        flex: 0 0 var(--icon-size);
+        height: var(--icon-size);
+        width: var(--icon-size);
+    }
+
+    // Presses in on its own, so the icon never moves relative to the rail it is centered in.
+    &-icon {
+        display: flex;
+        position: relative;
+        transition: scale 0.15s ease-out;
+
+        svg {
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    &-item {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: var(--item-border-radius);
+        color: var(--color);
+        cursor: pointer;
+        display: flex;
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
+        gap: 12px;
+        height: var(--item-height);
+        outline: none;
+        // Centers the icon in the collapsed rail, so collapsing never moves it.
+        padding: 0 0 0 calc((var(--width-collapsed) - var(--padding) * 2 - var(--icon-size)) / 2);
+        position: relative;
+        touch-action: manipulation;
+        transition: color 0.15s ease-out;
+        user-select: none;
+        white-space: nowrap;
+        width: 100%;
+
+        &:active .collapsible-sidebar-icon {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+            outline-offset: -2px;
+        }
+
+        &:hover,
+        &.--active {
+            color: var(--color-active);
+        }
+    }
+
+    &-label {
+        filter: blur(0px);
+        opacity: 1;
+        position: relative;
+        transition:
+            filter var(--label-duration-in) ease-out var(--label-delay),
+            opacity var(--label-duration-in) ease-out var(--label-delay);
+    }
+
+    &-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap);
+        list-style: none;
+        margin: 0;
+        padding: var(--padding);
+    }
+
+    &-main {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    // Width, not scale: scaling would squash every icon and label, and the width is what pushes the content along.
+    &-nav {
+        border-inline-end: var(--border-width-400) solid var(--border-color);
+        flex-shrink: 0;
+        overflow: hidden;
+        position: relative;
+        transition: width var(--width-duration) var(--width-timing-function);
+        width: var(--width);
+    }
+
+    // Sits outside the nav so its overflow can't clip the tip.
+    &-tip.tooltip {
+        height: var(--item-height);
+        left: 0;
+        pointer-events: none;
+        position: absolute;
+        top: calc(var(--padding) + var(--index) * (var(--item-height) + var(--gap)));
+        width: var(--width-collapsed);
+        z-index: 1;
+    }
+
+    &-tip-message.tooltip-message {
+        --border-radius: var(--border-radius-300);
+        --box-shadow: none;
+        --font-weight: var(--font-weight-500);
+        --offset: 4px;
+        --padding-horizontal: 10px;
+        --padding-vertical: 0px;
+        --scale: 0.97;
+        --spacer: 8px;
+        --transition-duration: var(--tip-duration-out);
+        --transition-timing-function: var(--tip-timing-function);
+        align-items: center;
+        display: flex;
+        height: 32px;
+
+        .tooltip.--active > & {
+            --transition-duration: var(--tip-duration-in);
+        }
+    }
+
+    &-toggle {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: var(--item-border-radius);
+        color: var(--color);
+        cursor: pointer;
+        display: flex;
+        flex-shrink: 0;
+        height: var(--item-height);
+        justify-content: center;
+        outline: none;
+        touch-action: manipulation;
+        transition:
+            background-color 0.15s ease-out,
+            color 0.15s ease-out,
+            scale 0.15s ease-out;
+        width: var(--item-height);
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+        }
+
+        &:hover {
+            background: var(--highlight-background);
+            color: var(--color-active);
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &-highlight,
+        &-icon,
+        &-nav {
+            transition: none;
+        }
+
+        &-tip-message.tooltip-message {
+            --offset: 0px;
+            --scale: 1;
+        }
+
+        &-toggle {
+            transition:
+                background-color 0.15s ease-out,
+                color 0.15s ease-out;
+        }
+    }
+}

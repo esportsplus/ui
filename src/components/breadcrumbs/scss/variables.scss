@@ -1,0 +1,30 @@
+.breadcrumbs {
+    --color: var(--color-text-300);
+    --color-active: var(--color-text-500);
+    --focus-color: var(--color-text-500);
+    --font-size: var(--font-size-400);
+    --font-weight-current: var(--font-weight-500);
+    --height: 36px;
+    --hover-background: oklch(from var(--color-text-500) l c h / 0.06);
+    --link-padding: 6px;
+    --link-radius: var(--border-radius-300);
+    --menu-background: var(--color-grey-400);
+    --menu-box-shadow: 0 0 0 var(--border-width-400) var(--color-border-300), var(--box-shadow-300);
+    --menu-duration-in: 0.18s;
+    --menu-duration-out: 0.1s;
+    --menu-radius: var(--border-radius-600);
+    --menu-width: 192px;
+    --separator-color: oklch(from var(--color-text-300) l c h / 0.5);
+    --separator-size: 16px;
+    --trigger-width: 36px;
+    --underline-color: oklch(from var(--color-text-500) l c h / 0.4);
+
+
+    &--compact {
+        --font-size: var(--font-size-300);
+        --height: 28px;
+        --link-padding: 4px;
+        --separator-size: 14px;
+        --trigger-width: 28px;
+    }
+}

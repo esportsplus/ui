@@ -1,0 +1,46 @@
+.typewriter-retype {
+    --caret: '';
+    --caret-align: -0.18em;
+    --caret-background: var(--caret-color);
+    --caret-color: currentColor;
+    --caret-duration: 1.06s;
+    --caret-height: 1.1em;
+    --caret-offset: 2px;
+    --caret-radius: 999px;
+    --caret-timing-function: linear;
+    --caret-width: 2px;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --glow: 0 0 0 transparent;
+    --ink-duration: 140ms;
+    --select-duration: 220ms;
+    --selection-color: oklch(from var(--color-text-500) l c h / 0.15);
+    --selection-radius: 3px;
+    --swap-duration: 500ms;
+
+    &--block {
+        --caret-align: bottom;
+        --caret-height: 1lh;
+        --caret-offset: 0.08em;
+        --caret-radius: 0;
+        --caret-width: 0.56em;
+    }
+
+    &--glow {
+        --glow: 0 0 0.4em var(--caret-color);
+    }
+
+    &--hard {
+        --caret-duration: 1s;
+        --caret-timing-function: steps(1, end);
+    }
+
+    &--underscore {
+        --caret: '_';
+        --caret-align: baseline;
+        --caret-background: transparent;
+        --caret-height: auto;
+        --caret-offset: 0.04em;
+        --caret-radius: 0;
+        --caret-width: auto;
+    }
+}

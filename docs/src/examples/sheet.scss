@@ -1,0 +1,55 @@
+.sheet-demo {
+    &-done,
+    &-open {
+        border: 0;
+        border-radius: 999px;
+        cursor: pointer;
+        font: inherit;
+        font-size: calc(var(--font-size-400) * 0.875);
+        font-weight: var(--font-weight-500);
+        transition: scale 0.15s ease-out;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+
+            &:active {
+                scale: 1;
+            }
+        }
+    }
+
+    &-done {
+        background: var(--color-text-500);
+        color: var(--color-white-300);
+        height: 44px;
+        margin-top: calc(var(--size-400) * 1.5);
+        width: 100%;
+    }
+
+    &-open {
+        background: var(--color-grey-400);
+        box-shadow:
+            0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06),
+            0 1px 2px oklch(from var(--color-black-300) l c h / 0.06),
+            0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+        color: var(--color-text-500);
+        height: 40px;
+        padding-inline: var(--size-400);
+    }
+
+    &-text {
+        color: var(--color-text-300);
+        font-size: calc(var(--font-size-400) * 0.875);
+        margin-top: 6px;
+        text-wrap: pretty;
+    }
+
+    &-title {
+        --font-size: var(--font-size-400);
+        color: var(--color-text-500);
+    }
+}

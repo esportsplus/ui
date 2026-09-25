@@ -1,0 +1,169 @@
+@use 'variables';
+
+.sparkline {
+    color: var(--color);
+    font-size: var(--font-size);
+    max-width: 100%;
+    width: var(--width);
+
+
+    &-area {
+        fill: var(--area-color);
+        opacity: 0;
+        transition: opacity var(--draw-duration) var(--draw-timing-function);
+    }
+
+    // Moves instantly: any easing would make the readout trail the pointer.
+    &-cursor {
+        background: var(--cursor-color);
+        height: 100%;
+        position: absolute;
+        top: 0;
+        translate: -50% 0;
+        width: 1px;
+    }
+
+    &-delta {
+        color: var(--muted-color);
+        white-space: nowrap;
+
+        &-value {
+            color: var(--color);
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight-500);
+        }
+    }
+
+    &-dot {
+        background: var(--dot-color);
+        border-radius: 50%;
+        box-shadow: 0 0 0 2px var(--dot-ring-color);
+        height: var(--dot-size);
+        position: absolute;
+        translate: -50% -50%;
+        width: var(--dot-size);
+    }
+
+    &-header {
+        align-items: baseline;
+        display: flex;
+        gap: var(--size-400);
+        justify-content: space-between;
+    }
+
+    // The round cap would show as a dot before the draw starts, so the line also starts hidden.
+    &-line {
+        opacity: 0;
+        stroke: var(--line-color);
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: var(--line-width);
+        transition:
+            opacity 0.05s var(--draw-timing-function),
+            stroke-dashoffset var(--draw-duration) var(--draw-timing-function);
+    }
+
+    &-overlay {
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        transition: opacity 0.15s ease-out;
+    }
+
+    &-plot {
+        aspect-ratio: 520 / 160;
+        border-radius: var(--border-radius-100);
+        margin-top: var(--plot-offset);
+        outline: none;
+        position: relative;
+        touch-action: pan-y;
+        user-select: none;
+        width: 100%;
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 4px;
+        }
+
+        &.--active .sparkline-overlay {
+            opacity: 1;
+            transition-duration: 0.1s;
+        }
+
+        &.--shown {
+            .sparkline-area,
+            .sparkline-line {
+                opacity: 1;
+            }
+
+            .sparkline-line {
+                stroke-dashoffset: 0;
+            }
+        }
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-svg {
+        display: block;
+        height: auto;
+        overflow: visible;
+        width: 100%;
+    }
+
+    &-tip {
+        align-items: baseline;
+        background: var(--tip-background);
+        border-radius: 999px;
+        bottom: 100%;
+        color: var(--tip-color);
+        display: flex;
+        font-size: var(--tip-font-size);
+        gap: var(--size-300);
+        margin-bottom: 10px;
+        padding: 6px 12px;
+        position: absolute;
+        translate: -50% 0;
+        white-space: nowrap;
+
+        &-label {
+            opacity: 0.7;
+        }
+
+        &-value {
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight-600);
+        }
+    }
+
+    &-title {
+        color: var(--muted-color);
+    }
+
+    &-value {
+        font-size: var(--value-font-size);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--value-font-weight);
+        letter-spacing: -0.025em;
+        line-height: 1.2;
+    }
+
+
+    // Skips the draw and keeps only a fade.
+    @media (prefers-reduced-motion: reduce) {
+        &-line {
+            stroke-dashoffset: 0;
+            transition: opacity var(--draw-duration) var(--draw-timing-function);
+        }
+    }
+}

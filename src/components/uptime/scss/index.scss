@@ -1,0 +1,163 @@
+@use 'variables';
+
+.uptime {
+    color: var(--color);
+    font-size: var(--font-size);
+    position: relative;
+    width: var(--width);
+
+    &-axis,
+    &-header,
+    &-service-header {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    &-axis {
+        color: var(--color-muted);
+        margin-top: var(--size-300);
+    }
+
+    &-bar {
+        background: var(--bar-color);
+        border-radius: var(--bar-border-radius);
+        flex: 1;
+        min-width: 0;
+        transition:
+            opacity var(--transition-duration) var(--timing-function),
+            scale var(--transition-duration) var(--timing-function);
+
+        &.--active {
+            scale: 1 var(--bar-active-scale);
+        }
+    }
+
+    &-bars {
+        border-radius: var(--border-radius-200);
+        cursor: default;
+        display: flex;
+        gap: var(--bar-gap);
+        height: var(--bar-height);
+        outline: none;
+
+        &:focus-visible {
+            outline: 2px solid var(--color);
+            outline-offset: 4px;
+        }
+
+        &.--active .uptime-bar:not(.--active) {
+            opacity: var(--bar-dim);
+        }
+    }
+
+    &-live {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-range,
+    &-service-day {
+        color: var(--color-muted);
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &-service-caption {
+        align-items: center;
+        color: var(--color-muted);
+        display: flex;
+        gap: var(--size-200);
+        justify-content: flex-end;
+        min-width: 0;
+    }
+
+    &-service-header {
+        gap: var(--size-400);
+        height: var(--size-500);
+        margin-bottom: var(--size-300);
+    }
+
+    // Each caption change mounts a fresh node, so the entry animation replays per swap.
+    &-service-message {
+        animation: uptime-caption var(--transition-duration) var(--timing-function);
+        font-variant-numeric: tabular-nums;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &--active {
+            color: var(--color);
+        }
+
+        &--degraded,
+        &--ok,
+        &--outage {
+            &::before {
+                background: var(--dot);
+                border-radius: 50%;
+                content: '';
+                display: inline-block;
+                height: var(--dot-size);
+                margin-inline-end: var(--size-100);
+                vertical-align: middle;
+                width: var(--dot-size);
+            }
+        }
+    }
+
+    &-service-name {
+        flex-shrink: 0;
+        font-weight: var(--font-weight-500);
+    }
+
+    &-services {
+        display: flex;
+        flex-direction: column;
+        gap: var(--service-gap);
+        margin-top: var(--service-gap);
+    }
+
+    &-status {
+        align-items: center;
+        display: flex;
+        font-size: var(--font-size-400);
+        font-weight: var(--font-weight-500);
+        gap: var(--size-200);
+
+        &::before {
+            background: var(--dot);
+            border-radius: 50%;
+            content: '';
+            height: var(--dot-size);
+            width: var(--dot-size);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-bar {
+            transition: none;
+
+            &.--active {
+                scale: none;
+            }
+        }
+
+        &-service-message {
+            animation: none;
+        }
+    }
+}
+
+@keyframes uptime-caption {
+    from {
+        filter: blur(var(--caption-blur));
+        opacity: 0;
+        translate: 0 var(--caption-offset);
+    }
+}

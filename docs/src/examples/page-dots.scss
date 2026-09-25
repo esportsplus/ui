@@ -1,0 +1,173 @@
+.page-dots-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-400);
+    width: min(400px, 100%);
+
+    &-caption {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        font-variant-numeric: tabular-nums;
+    }
+
+    &-card {
+        background: var(--color-white-300);
+        border: var(--border-width-400) solid var(--color-border-300);
+        border-radius: 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex: none;
+        flex-direction: column;
+        height: 220px;
+        justify-content: flex-end;
+        padding: var(--size-600);
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+        width: 100%;
+    }
+
+    // The toggle sits on the right with a matching spacer on the left, so the dots stay centered under the cards.
+    &-controls {
+        align-items: center;
+        display: flex;
+        gap: var(--size-400);
+    }
+
+    &-icon {
+        filter: blur(4px);
+        grid-area: 1 / 1;
+        height: 16px;
+        opacity: 0;
+        scale: 0.25;
+        transition:
+            filter 0.53s var(--spring),
+            opacity 0.53s var(--spring),
+            scale 0.53s var(--spring);
+        width: 16px;
+    }
+
+    &-note {
+        color: var(--color-text-300);
+        font-size: 15px;
+        margin: 2px 0 0;
+    }
+
+    &-number {
+        color: var(--color-text-300);
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
+        margin: 0;
+    }
+
+    &-row {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--size-300);
+    }
+
+    &-scroller {
+        border-radius: 20px;
+        display: flex;
+        gap: var(--size-400);
+        outline: none;
+        // Keeps the horizontal swipe from also scrolling the page sideways or triggering back navigation.
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        width: 100%;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--color-text-500);
+            outline-offset: 2px;
+        }
+    }
+
+    &-spacer {
+        flex: none;
+        height: 32px;
+        width: 32px;
+    }
+
+    &-title {
+        color: var(--color-text-500);
+        font-size: 18px;
+        font-weight: var(--font-weight-500);
+        margin: 6px 0 0;
+    }
+
+    &-toggle {
+        --spring: linear(0, 0.057, 0.179, 0.319, 0.453, 0.571, 0.669, 0.748, 0.811, 0.859, 0.895, 0.923, 0.944, 0.959, 0.970, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
+        align-items: center;
+        background: none;
+        border: 0;
+        border-radius: 999px;
+        color: var(--color-text-300);
+        cursor: pointer;
+        display: grid;
+        flex: none;
+        height: 32px;
+        justify-items: center;
+        outline: none;
+        padding: 0;
+        position: relative;
+        touch-action: manipulation;
+        transition:
+            background-color 0.15s ease-out,
+            color 0.15s ease-out,
+            scale 0.15s ease-out;
+        width: 32px;
+
+        &::after {
+            border-radius: 999px;
+            content: '';
+            inset: -6px;
+            position: absolute;
+        }
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--color-text-500);
+        }
+
+        &:hover {
+            background: var(--color-grey-400);
+            color: var(--color-text-500);
+        }
+
+        &.--active .page-dots-demo-icon--pause,
+        &:not(.--active) .page-dots-demo-icon--play {
+            filter: blur(0);
+            opacity: 1;
+            scale: 1;
+        }
+    }
+
+    // Reduced motion keeps the cross-fade but drops the scale and blur.
+    @media (prefers-reduced-motion: reduce) {
+        &-icon {
+            filter: none;
+            scale: 1;
+            transition: opacity 0.53s var(--spring);
+        }
+
+        &-toggle {
+            transition:
+                background-color 0.15s ease-out,
+                color 0.15s ease-out;
+
+            &:active {
+                scale: none;
+            }
+        }
+    }
+}

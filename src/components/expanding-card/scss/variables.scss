@@ -1,0 +1,22 @@
+.expanding-card {
+    --card-background: var(--color-grey-400);
+    --card-border-radius: 18px;
+    --card-pressed-scale: 0.96;
+    --dialog-backdrop: oklch(from var(--color-text-500) l c h / 0.15);
+    --dialog-background: var(--color-grey-400);
+    // The radius grows with the surface: 18px suits a small card, 24px the larger dialog.
+    --dialog-border-radius: 24px;
+    --dialog-width: 440px;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --focus-ring-color: oklch(from var(--color-text-500) l c h / 0.38);
+    --list-gap: 12px;
+    --max-width: 400px;
+    --muted-color: var(--color-text-300);
+    --shadow-raised:
+        0 0 0 var(--border-width-400) oklch(from var(--color-black-500) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
+    --slot-background: oklch(from var(--color-text-500) l c h / 0.03);
+    --slot-border-color: var(--color-border-300);
+    --text-color: var(--color-text-500);
+}

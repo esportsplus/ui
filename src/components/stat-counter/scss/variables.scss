@@ -1,0 +1,24 @@
+.stat-counter {
+    --bad-color: var(--color-red-500);
+    --card-background: var(--color-grey-400);
+    --card-padding: var(--size-400);
+    --card-radius: var(--border-radius-700);
+    --chip-background: var(--color-white-300);
+    --color: var(--color-text-500);
+    // Long enough to read as counting; shorter and the number just blinks to its value.
+    --count-duration: 0.7s;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --focus-color: var(--color-text-500);
+    --grid-gap: 12px;
+    --label-font-size: var(--font-size-300);
+    --line-color: color-mix(in oklab, var(--color-text-500) 60%, transparent);
+    --muted-color: var(--color-text-300);
+    // Scrubbing glides faster, so the number keeps up with the finger but still counts.
+    --scrub-duration: 0.3s;
+    // Cards wipe their sparklines in one after another.
+    --stagger: 50ms;
+    --value-font-size: var(--font-size-600);
+    --value-font-weight: var(--font-weight-600);
+    --width: 600px;
+    --wipe-duration: 0.5s;
+}

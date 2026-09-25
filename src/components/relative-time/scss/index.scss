@@ -1,0 +1,88 @@
+@use 'variables';
+
+// Qualified twice so it beats the reused tooltip's own cursor.
+.relative-time.relative-time {
+    border-radius: var(--border-radius-100);
+    cursor: default;
+    display: inline-flex;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+    transition: color 0.15s ease-out;
+    white-space: nowrap;
+
+    // Brightens on hover so the text reads as something with more to say.
+    &:focus-visible,
+    &:hover {
+        color: var(--color-hover);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 2px;
+    }
+}
+
+.relative-time {
+    &-digit,
+    &-rest {
+        display: inline-block;
+        white-space: pre;
+    }
+
+    &-digits,
+    &-rests,
+    &-roll,
+    &-slot {
+        display: inline-flex;
+        position: relative;
+    }
+
+    // An empty flex item would lend the line its bottom edge as a baseline, lifting "just now".
+    &-digits:empty {
+        display: none;
+    }
+
+    // Holds roughly the right width so the line doesn't reflow once the moment is known.
+    &-roll.--placeholder::before {
+        content: var(--placeholder);
+        visibility: hidden;
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    // Opens from slightly below, smaller and blurred; closes faster than it opens.
+    &-tooltip.tooltip-message {
+        filter: blur(2px);
+        transform-origin: bottom center;
+        transition:
+            filter var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function),
+            translate var(--transition-duration) var(--transition-timing-function);
+
+        .relative-time.--active > & {
+            --transition-duration: 0.16s;
+            filter: blur(0px);
+        }
+
+        .relative-time.--instant > & {
+            transition: none;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &-tooltip.tooltip-message {
+            --offset: 0px;
+            --scale: 1;
+            filter: none;
+        }
+    }
+}

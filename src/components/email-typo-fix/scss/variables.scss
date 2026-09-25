@@ -1,0 +1,18 @@
+.email-typo-fix {
+    --address-color: var(--color-text-500);
+    --button-hover-background: var(--color-grey-400);
+    --color: var(--color-text-500);
+    --field-background: var(--color-grey-400);
+    --field-border-radius: var(--border-radius-500);
+    --field-height: 44px;
+    --fix-underline-color: oklch(from var(--color-text-500) l c h / 0.4);
+    --font-size: var(--font-size-400);
+    --hint-font-size: var(--font-size-300);
+    --label-font-size: var(--font-size-300);
+    --label-font-weight: var(--font-weight-500);
+    --muted-color: var(--color-text-300);
+    --note-height: 40px;
+    --outline-color: var(--color-text-500);
+    --panel-leave-duration: 120ms;
+    --suggestion-font-size: var(--font-size-300);
+}

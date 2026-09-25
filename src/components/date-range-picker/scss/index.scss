@@ -1,0 +1,380 @@
+@use '/tokens';
+@use 'variables';
+
+.date-range-picker {
+    background: var(--background);
+    border-radius: var(--radius);
+    box-shadow: var(--box-shadow);
+    color: var(--foreground);
+    font-size: var(--font-size);
+    max-width: 100%;
+    padding: 16px;
+    width: var(--width);
+
+
+    &-apply {
+        --background-default: var(--accent);
+        --color-default: var(--accent-contrast);
+        --padding-horizontal: 16px;
+        --padding-vertical: 0px;
+        border-radius: 999px;
+        font-weight: var(--font-weight-500);
+        height: 36px;
+
+        &:disabled {
+            opacity: 0.4;
+        }
+
+        &:not(:disabled):active {
+            scale: 0.96;
+        }
+
+        // Both labels share a cell, so the button keeps one width.
+        &-label {
+            align-items: center;
+            display: flex;
+            gap: 6px;
+            grid-area: 1 / 1;
+            justify-content: center;
+        }
+
+        &-label--idle,
+        &-text {
+            transition:
+                filter 200ms ease-out,
+                opacity 200ms ease-out;
+        }
+
+        &-label--idle {
+            .--applied & {
+                filter: blur(4px);
+                opacity: 0;
+            }
+        }
+
+        &-icon {
+            filter: blur(4px);
+            height: 16px;
+            opacity: 0;
+            scale: 0.25;
+            transition:
+                filter var(--icon-duration) var(--icon-timing-function),
+                opacity var(--icon-duration) var(--icon-timing-function),
+                scale var(--icon-duration) var(--icon-timing-function);
+            width: 16px;
+
+            .--applied & {
+                filter: none;
+                opacity: 1;
+                scale: 1;
+            }
+        }
+
+        &-labels {
+            display: grid;
+        }
+
+        &-text {
+            filter: blur(4px);
+            opacity: 0;
+
+            .--applied & {
+                filter: none;
+                opacity: 1;
+            }
+        }
+    }
+
+    &-apply,
+    &-clear,
+    &-preset,
+    &-step {
+        font-size: var(--font-size);
+        outline: 0 solid var(--focus-ring);
+        outline-offset: 2px;
+        user-select: none;
+
+        &:focus-visible {
+            outline-width: 2px;
+        }
+    }
+
+    &-area {
+        height: calc(var(--row-height) + 32px + var(--row-height) * 6 + 8px);
+        margin: -4px;
+        overflow: hidden;
+        padding: 4px;
+        position: relative;
+    }
+
+    // The band rounds off wherever a week or the month breaks it; endpoints only fill toward the rest of the range.
+    &-cell {
+        height: var(--row-height);
+        padding: 0;
+        position: relative;
+
+        &.--band::before {
+            background: var(--band);
+            content: '';
+            inset: 2px 0;
+            position: absolute;
+        }
+
+        &.--band-end::before {
+            border-bottom-right-radius: 999px;
+            border-top-right-radius: 999px;
+        }
+
+        &.--band-hi::before {
+            right: 50%;
+        }
+
+        &.--band-lo::before {
+            left: 50%;
+        }
+
+        &.--band-start::before {
+            border-bottom-left-radius: 999px;
+            border-top-left-radius: 999px;
+        }
+    }
+
+    &-clear {
+        --background-hover: var(--hover);
+        --color-default: var(--color-muted);
+        --color-hover: var(--foreground);
+        --padding-horizontal: 14px;
+        --padding-vertical: 0px;
+        border-radius: 999px;
+        height: 36px;
+        outline-offset: 0;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        @include tokens.state(disabled) {
+            opacity: 0.4;
+        }
+    }
+
+    &-day {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 50%;
+        color: var(--foreground);
+        cursor: pointer;
+        display: flex;
+        font: inherit;
+        font-variant-numeric: tabular-nums;
+        height: var(--day-size);
+        justify-content: center;
+        margin: 0 auto;
+        outline: 0 solid var(--focus-ring);
+        outline-offset: 1px;
+        padding: 0;
+        position: relative;
+        touch-action: manipulation;
+        transition:
+            background-color 150ms ease-out,
+            scale 150ms ease-out;
+        user-select: none;
+        width: var(--day-size);
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline-width: 2px;
+        }
+
+        &:hover {
+            background: var(--band);
+        }
+
+        // The prospective end: marked, but not yet filled.
+        &.--edge {
+            background: var(--edge);
+        }
+
+        @include tokens.state(active) {
+            background: var(--accent);
+            color: var(--accent-contrast);
+        }
+    }
+
+    &-footer {
+        align-items: center;
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 8px;
+        height: 56px;
+        margin: 12px -16px 0;
+        padding: 12px 16px 0;
+    }
+
+    &-grid {
+        border-collapse: collapse;
+        table-layout: fixed;
+        width: 100%;
+
+        th {
+            color: var(--color-muted);
+            font-size: var(--font-size-small);
+            font-weight: var(--font-weight-500);
+            height: 32px;
+            padding: 0;
+            text-align: center;
+        }
+    }
+
+    &-hint {
+        color: var(--color-muted);
+        font-size: var(--font-size-small);
+        height: 16px;
+        line-height: 16px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-live {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-month {
+        flex: 1 1 0;
+        min-width: 0;
+
+        &-title {
+            align-items: center;
+            display: flex;
+            font-size: var(--font-size-title);
+            font-weight: var(--font-weight-500);
+            height: var(--row-height);
+            justify-content: center;
+        }
+    }
+
+    &-months {
+        display: flex;
+        gap: 24px;
+
+        &[data-exiting] {
+            pointer-events: none;
+            position: absolute;
+        }
+    }
+
+    &-nav {
+        display: flex;
+        inset: 4px 4px auto;
+        justify-content: space-between;
+        pointer-events: none;
+        position: absolute;
+        z-index: 1;
+    }
+
+    // Scrolls sideways on narrow screens; the vertical padding keeps focus outlines from being clipped by that overflow.
+    &-presets {
+        display: flex;
+        gap: 6px;
+        margin: -4px -16px 8px;
+        overflow-x: auto;
+        padding: 4px 16px;
+        scrollbar-width: none;
+    }
+
+    &-preset {
+        --background-hover: var(--hover);
+        --color-default: var(--color-muted);
+        --color-hover: var(--foreground);
+        --padding-horizontal: 14px;
+        --padding-vertical: 0px;
+        border-radius: 999px;
+        box-shadow: inset 0 0 0 1px var(--border);
+        flex-shrink: 0;
+        height: 36px;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &[aria-pressed='true'] {
+            --background-default: var(--accent);
+            --background-hover: var(--accent);
+            --color-default: var(--accent-contrast);
+            --color-hover: var(--accent-contrast);
+            box-shadow: none;
+        }
+    }
+
+    &-status {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    &-step {
+        --background-hover: var(--hover);
+        --color-default: var(--color-muted);
+        --color-hover: var(--foreground);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        border-radius: 50%;
+        height: 40px;
+        outline-offset: 0;
+        pointer-events: auto;
+        touch-action: manipulation;
+        width: 40px;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        svg {
+            height: 16px;
+            width: 16px;
+        }
+    }
+
+    &-summary {
+        color: var(--color-muted);
+        font-variant-numeric: tabular-nums;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @include tokens.state(active) {
+            color: var(--foreground);
+        }
+    }
+
+    &-today {
+        background: currentColor;
+        border-radius: 50%;
+        bottom: 4px;
+        height: 4px;
+        left: 50%;
+        position: absolute;
+        translate: -50% 0;
+        width: 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-apply-icon {
+            filter: none;
+            scale: 1;
+        }
+
+        &-day {
+            transition: background-color 150ms ease-out;
+        }
+    }
+}

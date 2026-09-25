@@ -1,0 +1,142 @@
+@use 'variables';
+
+.typewriter-retype {
+    display: inline-grid;
+    text-shadow: var(--glow);
+    white-space: pre;
+
+    // A macOS-length blink with short fades rather than a hard flash; solid while keys move and hidden while a
+    // selection is up, as in a real text field.
+    &-line::after,
+    &-sizer::after {
+        background: var(--caret-background);
+        border-radius: var(--caret-radius);
+        box-shadow: var(--glow);
+        color: var(--caret-color);
+        content: var(--caret);
+        display: inline-block;
+        height: var(--caret-height);
+        margin-inline-start: var(--caret-offset);
+        vertical-align: var(--caret-align);
+        width: var(--caret-width);
+    }
+
+    &-letter {
+        animation: typewriter-retype--ink var(--ink-duration) var(--ease-out);
+    }
+
+    &-line {
+        grid-area: 1 / 1;
+        text-align: left;
+
+        &::after {
+            animation: typewriter-retype--blink var(--caret-duration) var(--caret-timing-function) infinite;
+        }
+    }
+
+    &-option {
+        grid-area: 1 / 1;
+        opacity: 0;
+        transition: opacity var(--swap-duration) ease-in-out;
+
+        &.--active {
+            opacity: 1;
+        }
+    }
+
+    // The ink stays and a tinted block sits behind it, slightly taller than the glyphs like the line box a browser
+    // paints. It sweeps in from the word's end but vanishes the instant a key replaces it.
+    &-selection {
+        background: var(--selection-color);
+        border-radius: var(--selection-radius);
+        inset: -0.06em -1px;
+        position: absolute;
+        scale: 0 1;
+        transform-origin: right;
+    }
+
+    &-sizer {
+        grid-area: 1 / 1;
+        visibility: hidden;
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-swap {
+        display: none;
+    }
+
+    &-text {
+        position: relative;
+    }
+
+    &-word {
+        display: inline-block;
+        position: relative;
+    }
+
+    &.--reduced {
+        .typewriter-retype-line::after,
+        .typewriter-retype-word {
+            display: none;
+        }
+
+        .typewriter-retype-swap {
+            display: inline-grid;
+        }
+    }
+
+    &.--selecting {
+        .typewriter-retype-line::after {
+            visibility: hidden;
+        }
+
+        .typewriter-retype-selection {
+            scale: 1 1;
+            transition: scale var(--select-duration) var(--ease-out);
+        }
+    }
+
+    &.--typing .typewriter-retype-line::after {
+        animation: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-letter,
+        &-line::after {
+            animation: none;
+        }
+
+        &.--selecting .typewriter-retype-selection {
+            transition: none;
+        }
+    }
+}
+
+@keyframes typewriter-retype--blink {
+    0%, 45% {
+        opacity: 1;
+    }
+
+    55%, 95% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes typewriter-retype--ink {
+    from {
+        filter: blur(2px);
+        opacity: 0;
+    }
+}

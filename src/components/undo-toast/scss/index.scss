@@ -1,0 +1,216 @@
+@use '/tokens';
+@use 'variables';
+
+// 24px radius around 8px padding leaves 16px for the rows.
+.undo-toast {
+    background: var(--undo-toast-background);
+    border-radius: 24px;
+    box-shadow: var(--undo-toast-box-shadow);
+    height: var(--undo-toast-height);
+    padding: 8px;
+    position: relative;
+
+
+    &-delete.button {
+        --background-default: transparent;
+        --background-hover: color-mix(in oklab, var(--undo-toast-color) 5%, transparent);
+        --border-radius: 999px;
+        --color-default: var(--undo-toast-color-muted);
+        --color-hover: var(--undo-toast-color);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+
+        border: 0;
+        flex-shrink: 0;
+        height: 36px;
+        outline: none;
+        touch-action: manipulation;
+        transition:
+            background-color 150ms ease-out,
+            color 150ms ease-out,
+            scale 150ms ease-out;
+        user-select: none;
+        width: 36px;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--undo-toast-focus-color);
+        }
+
+        svg {
+            fill: none;
+            height: 16px;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 1.5;
+            width: 16px;
+        }
+    }
+
+    &-empty {
+        align-items: center;
+        display: flex;
+        filter: blur(4px);
+        flex-direction: column;
+        gap: 12px;
+        inset: 0;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        text-align: center;
+
+        @include tokens.state(active) {
+            filter: blur(0px);
+            opacity: 1;
+            pointer-events: auto;
+            transition:
+                filter 250ms var(--undo-toast-ease) 50ms,
+                opacity 250ms var(--undo-toast-ease) 50ms;
+        }
+
+        &-label {
+            color: var(--undo-toast-color-muted);
+            font-size: 15px;
+        }
+    }
+
+    &-list {
+        list-style: none;
+        margin: 0;
+        outline: none;
+        padding: 0;
+        position: relative;
+    }
+
+    &-live {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-restore.button {
+        --background-default: var(--color-white-300);
+        --border-radius: 999px;
+        --box-shadow-default: var(--undo-toast-box-shadow);
+        --color-default: var(--undo-toast-color);
+        --font-size: 14px;
+        --font-weight: var(--font-weight-500);
+        --padding-horizontal: 16px;
+        --padding-vertical: 0px;
+
+        border: 0;
+        height: 36px;
+        outline: none;
+        transition: scale 150ms ease-out;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--undo-toast-focus-color);
+        }
+    }
+
+    &-row {
+        align-items: center;
+        border-radius: 16px;
+        display: flex;
+        gap: 12px;
+        height: var(--undo-toast-row-height);
+        padding-inline: 14px 10px;
+        transition: background-color 150ms ease-out;
+
+        &:hover {
+            background: var(--undo-toast-row-background-hover);
+        }
+
+        &[hidden] {
+            display: none;
+        }
+
+        &--leaving {
+            pointer-events: none;
+            position: absolute;
+        }
+
+        &-meta,
+        &-name {
+            line-height: 20px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        &-meta {
+            color: var(--undo-toast-color-muted);
+            font-size: 13px;
+        }
+
+        &-name {
+            color: var(--undo-toast-color);
+            font-size: 15px;
+            font-weight: var(--font-weight-500);
+        }
+
+        &-text {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            min-width: 0;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &-delete.button {
+            transition:
+                background-color 150ms ease-out,
+                color 150ms ease-out;
+
+            &:active {
+                scale: 1;
+            }
+        }
+
+        &-empty {
+            filter: none;
+        }
+
+        &-restore.button {
+            transition: none;
+
+            &:active {
+                scale: 1;
+            }
+        }
+    }
+}
+
+
+// Rendered inside the toast, so it lives outside the component root.
+.undo-toast-message {
+    display: flex;
+    min-width: 0;
+    position: relative;
+
+    &-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &--leaving {
+            left: 0;
+            position: absolute;
+            top: 0;
+        }
+    }
+}

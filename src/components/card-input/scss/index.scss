@@ -1,0 +1,512 @@
+@use 'variables';
+
+.card-input {
+    color: var(--color);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: var(--width);
+
+
+    &-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    &-brand {
+        display: grid;
+
+        &--large {
+            height: 32px;
+            width: 48px;
+        }
+
+        &--small {
+            height: 24px;
+            width: 36px;
+        }
+
+        &-mark {
+            filter: blur(4px);
+            grid-area: 1 / 1;
+            height: 100%;
+            opacity: 0;
+            scale: 0.25;
+            transition:
+                filter var(--swap-duration) var(--spring),
+                opacity var(--swap-duration) var(--spring),
+                scale var(--swap-duration) var(--spring);
+            width: 100%;
+
+            &.--active {
+                filter: blur(0);
+                opacity: 1;
+                scale: 1;
+            }
+
+            svg {
+                display: block;
+                height: 100%;
+                width: 100%;
+            }
+        }
+    }
+
+    &-caption {
+        font-size: 12px;
+        letter-spacing: 0.025em;
+        opacity: 0.6;
+        text-transform: uppercase;
+    }
+
+    &-card {
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform var(--flip-duration) var(--flip-timing-function);
+        width: 100%;
+
+        &.--flipped {
+            transform: rotateY(180deg);
+        }
+    }
+
+    &-chip {
+        height: 32px;
+        width: 44px;
+    }
+
+    &-control {
+        position: relative;
+
+        &-brand {
+            color: var(--muted-color);
+            display: flex;
+            pointer-events: none;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transition: color var(--transition-duration) var(--transition-timing-function);
+            translate: 0 -50%;
+
+            &.--known {
+                color: var(--color);
+            }
+        }
+    }
+
+    &-digit {
+        display: inline-block;
+
+        &.--gap {
+            margin-inline-start: 0.6em;
+        }
+
+        &.--placeholder {
+            opacity: 0.45;
+        }
+
+        &[data-roll='1'] {
+            animation: card-input-digit-1 var(--digit-duration) ease-out;
+        }
+
+        &[data-roll='2'] {
+            animation: card-input-digit-2 var(--digit-duration) ease-out;
+        }
+    }
+
+    &-disclaimer {
+        font-size: 12px;
+        margin: auto 0 0;
+        opacity: 0.6;
+        padding: 0 24px 20px;
+    }
+
+    // Shares the label's row, so showing it never shifts the fields below.
+    &-error {
+        color: var(--error-color);
+        font-size: 13px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition:
+            filter 200ms cubic-bezier(0.23, 1, 0.32, 1),
+            opacity 200ms cubic-bezier(0.23, 1, 0.32, 1),
+            translate 200ms cubic-bezier(0.23, 1, 0.32, 1);
+        white-space: nowrap;
+
+        @starting-style {
+            filter: blur(4px);
+            opacity: 0;
+            translate: 0 2px;
+        }
+    }
+
+    &-expires {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        gap: 4px;
+
+        &-value {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: var(--font-weight-500);
+        }
+    }
+
+    &-face {
+        backface-visibility: hidden;
+        background: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--card-shadow);
+        color: var(--card-color);
+        display: flex;
+        flex-direction: column;
+        inset: 0;
+        overflow: hidden;
+        position: absolute;
+        transition: opacity 200ms ease-out;
+
+        &--back {
+            transform: rotateY(180deg);
+        }
+
+        &--front {
+            justify-content: space-between;
+            padding: 24px;
+        }
+
+        &-bottom {
+            align-items: flex-end;
+            display: flex;
+            gap: 24px;
+            justify-content: space-between;
+        }
+
+        &-top {
+            align-items: flex-start;
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+
+    &-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    // Qualified by the control so it wins over the reused input styles regardless of stylesheet order.
+    &-shell #{&}-field {
+        --background-default: var(--field-background);
+        --border-color-active: var(--field-border-color);
+        --border-color-default: var(--field-border-color);
+        --border-color-hover: var(--field-border-color);
+        --border-color-pressed: var(--field-border-color);
+        --border-radius: var(--field-border-radius);
+        --border-width: var(--border-width-400);
+        --color-default: currentColor;
+        --padding-horizontal: 14px;
+        font-size: var(--field-font-size);
+        font-variant-numeric: tabular-nums;
+        height: var(--field-height);
+        min-height: 0;
+        outline: none;
+        padding-block: 0;
+        transition: border-color 150ms ease-out;
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--outline-color);
+            outline-offset: -1px;
+        }
+
+        &::placeholder {
+            color: oklch(from var(--muted-color) l c h / 0.7);
+        }
+
+        &[aria-invalid='true'] {
+            --field-border-color: var(--error-color);
+            --outline-color: var(--error-color);
+        }
+
+        &--cvc,
+        &--expiry,
+        &--number {
+            font-family: var(--font-mono);
+        }
+
+        &--number {
+            padding-inline-end: 64px;
+        }
+    }
+
+    &-holder {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+
+        &-value {
+            font-size: 15px;
+            font-weight: var(--font-weight-500);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+    }
+
+    &-label {
+        font-size: var(--label-font-size);
+        font-weight: var(--label-font-weight);
+        user-select: none;
+    }
+
+    &-live {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-note {
+        align-items: center;
+        color: var(--muted-color);
+        display: flex;
+        font-size: 13px;
+        gap: 6px;
+        justify-content: center;
+        margin: 0;
+
+        svg {
+            flex-shrink: 0;
+            height: 14px;
+            width: 14px;
+        }
+    }
+
+    &-number {
+        align-self: flex-start;
+        font-family: var(--font-mono);
+        font-size: var(--card-number-font-size);
+        letter-spacing: 0.025em;
+        white-space: nowrap;
+    }
+
+    &-preview {
+        aspect-ratio: 1.586;
+        perspective: 1200px;
+        position: relative;
+        user-select: none;
+        width: 100%;
+    }
+
+    // Driven by transitions on its box, so moving between fields slides while appearing from nowhere does not.
+    &-ring {
+        border: 1px solid oklch(from var(--card-color) l c h / 0.35);
+        border-radius: var(--border-radius-400);
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        transition:
+            height var(--ring-duration) var(--spring),
+            left var(--ring-duration) var(--spring),
+            opacity 120ms ease-out,
+            top var(--ring-duration) var(--spring),
+            width var(--ring-duration) var(--spring);
+
+        &.--active {
+            opacity: 1;
+            transition:
+                height var(--ring-duration) var(--spring),
+                left var(--ring-duration) var(--spring),
+                opacity 200ms ease-out,
+                top var(--ring-duration) var(--spring),
+                width var(--ring-duration) var(--spring);
+        }
+    }
+
+    &-row {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    &-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+
+        &-header {
+            align-items: baseline;
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+        }
+    }
+
+    &-signature {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+        padding: 20px 24px 0;
+
+        &-value {
+            align-items: center;
+            background: var(--card-color);
+            border-radius: var(--border-radius-300);
+            color: var(--card-background);
+            display: flex;
+            flex: 1;
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-style: italic;
+            height: 40px;
+            justify-content: flex-end;
+            padding-inline: 12px;
+        }
+    }
+
+    &-stripe {
+        background: oklch(from var(--card-color) l c h / 0.15);
+        height: 44px;
+        margin-top: 24px;
+    }
+
+    // Both labels share one cell so the button never changes size.
+    &-submit {
+        background: var(--submit-background);
+        border: 0;
+        border-radius: var(--field-border-radius);
+        color: var(--submit-color);
+        cursor: pointer;
+        font: inherit;
+        font-size: var(--field-font-size);
+        font-weight: var(--font-weight-500);
+        height: var(--field-height);
+        outline: none;
+        touch-action: manipulation;
+        transition: scale 150ms ease-out;
+        user-select: none;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--outline-color);
+            outline-offset: 2px;
+        }
+
+        &-icon {
+            flex-shrink: 0;
+            height: 16px;
+            width: 16px;
+        }
+
+        &-label {
+            align-items: center;
+            display: flex;
+            gap: 8px;
+            grid-area: 1 / 1;
+            justify-content: center;
+
+            > * {
+                transition:
+                    filter var(--swap-duration) var(--spring),
+                    opacity var(--swap-duration) var(--spring),
+                    scale var(--swap-duration) var(--spring);
+            }
+
+            &--confirmed > *,
+            .card-input-submit.--active &--idle > * {
+                filter: blur(4px);
+                opacity: 0;
+            }
+
+            &--confirmed > svg {
+                scale: 0.25;
+            }
+
+            .card-input-submit.--active &--confirmed > * {
+                filter: blur(0);
+                opacity: 1;
+                scale: 1;
+            }
+        }
+
+        &-labels {
+            display: grid;
+        }
+    }
+}
+
+@keyframes card-input-digit-1 {
+    from {
+        filter: blur(2px);
+        opacity: 0;
+        translate: 0 -4px;
+    }
+}
+
+@keyframes card-input-digit-2 {
+    from {
+        filter: blur(2px);
+        opacity: 0;
+        translate: 0 -4px;
+    }
+}
+
+// No half turn: the faces cross-fade in place and every blur, slide and scale drops to a plain fade.
+@media (prefers-reduced-motion: reduce) {
+    .card-input-brand-mark,
+    .card-input-submit-label > * {
+        filter: none !important;
+        scale: 1 !important;
+    }
+
+    .card-input-card.--flipped {
+        transform: none;
+    }
+
+    .card-input-digit[data-roll] {
+        animation-name: card-input-fade;
+    }
+
+    .card-input-error {
+        @starting-style {
+            filter: none;
+            translate: 0 0;
+        }
+    }
+
+    .card-input-face--back {
+        opacity: 0;
+        transform: none;
+    }
+
+    .card-input-card.--flipped .card-input-face--back {
+        opacity: 1;
+    }
+
+    .card-input-card.--flipped .card-input-face--front {
+        opacity: 0;
+    }
+
+    .card-input-submit:active {
+        scale: 1;
+    }
+}
+
+@keyframes card-input-fade {
+    from {
+        opacity: 0;
+    }
+}

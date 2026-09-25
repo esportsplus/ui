@@ -1,0 +1,32 @@
+.radio-cards {
+    --amount-font-size: calc(var(--font-size-400) * 1.125);
+    --background: var(--background-default);
+    --background-default: var(--color-white-300);
+    --background-hover: var(--color-grey-400);
+    --badge-background: var(--color-grey-400);
+    --badge-background-hover: var(--color-white-300);
+    --box-shadow:
+        0 0 0 1px oklch(from var(--color-black-500) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
+    --card-border-radius: var(--border-radius-700);
+    --card-gap: var(--size-300);
+    --check-color: var(--color-white-300);
+    --check-size: 12px;
+    --check-stroke-width: 2.25;
+    --color: var(--color-text-500);
+    --color-muted: var(--color-text-300);
+    --description-font-size: calc(var(--font-size-400) * 0.875);
+    --description-line-height: 1.43;
+    --dot-border-width: 1.5px;
+    --dot-size: var(--size-500);
+    --focus-width: var(--border-width-500);
+    --padding: var(--size-400);
+    --press-scale: 0.98;
+    --ring-color: var(--color);
+    --ring-width: var(--border-width-500);
+    --title-line-height: 1.4;
+    --transition-duration: 150ms;
+    --transition-timing-function: ease-out;
+    --width: min(480px, 100%);
+}

@@ -1,0 +1,30 @@
+.dock {
+    --background: var(--color-grey-400);
+    --box-shadow: 0 0 0 var(--border-width-400) var(--color-border-300), var(--box-shadow-200);
+    --gap: 8px;
+    --height: 64px;
+    --icon-ratio: 0.45;
+    --item-background: var(--color-white-300);
+    --item-box-shadow: 0 0 0 var(--border-width-400) var(--color-border-300), var(--box-shadow-100);
+    --item-color: var(--color-text-500);
+    --item-radius: 999px;
+    --light-color: var(--color-text-500);
+    // The running light comes on as the icon first lands (0.55 of the 700ms hop), not on click.
+    --light-delay: 0.385s;
+    --light-size: 4px;
+    --padding: 12px;
+    --radius: 999px;
+    // Read by the magnification spring (JS) when the dock connects.
+    --size-peak: 72px;
+    --size-rest: 40px;
+
+
+    &--square {
+        --item-radius: var(--border-radius-600);
+        --radius: var(--border-radius-700);
+    }
+
+    &--subtle {
+        --size-peak: 54px;
+    }
+}

@@ -1,0 +1,36 @@
+.morphing-nav {
+    --background: var(--color-white-300);
+    --bar-height: 52px;
+    --bar-padding: 6px;
+    // Concentric corners: trigger radius plus the bar padding.
+    --bar-radius: calc(var(--trigger-radius) + var(--bar-padding));
+    --box-shadow: 0 0 0 var(--border-width-400) var(--color-border-300), var(--box-shadow-300);
+    --caret-stroke: oklch(from var(--color-black-300) l c h / 0.08);
+    --close-duration: 0.15s;
+    --color: var(--color-text-300);
+    --color-active: var(--color-text-500);
+    --description-font-size: var(--font-size-300);
+    --fade-duration: 0.2s;
+    --focus-color: var(--color-text-500);
+    --font-size: var(--font-size-400);
+    --gap: 12px;
+    --link-radius: var(--border-radius-400);
+    // One spring drives size, position and caret, so they arrive together; no bounce, since an overshooting
+    // panel would uncover empty space.
+    --morph-duration: 0.3s;
+    --morph-timing-function: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
+    --muted: var(--color-text-300);
+    --panel-padding: 8px;
+    // Concentric corners: link radius plus the panel padding.
+    --panel-radius: calc(var(--link-radius) + var(--panel-padding));
+    --surface: var(--color-grey-400);
+    --trigger-height: 40px;
+    --trigger-padding: 12px;
+    --trigger-radius: 10px;
+
+
+    &--flat {
+        --box-shadow: 0 0 0 var(--border-width-400) var(--color-border-300);
+        --caret-stroke: var(--color-border-300);
+    }
+}

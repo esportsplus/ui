@@ -1,0 +1,102 @@
+@use '/tokens';
+@use 'variables';
+
+.dock {
+    align-items: flex-end;
+    background: var(--background);
+    border-radius: var(--radius);
+    box-shadow: var(--box-shadow);
+    display: flex;
+    gap: var(--gap);
+    height: var(--height);
+    padding: 0 var(--padding) var(--padding);
+
+
+    // Width and height grow instead of scale on purpose: the neighbours have to move apart, not overlap.
+    &-button {
+        --size: var(--size-rest);
+        align-items: center;
+        background: var(--item-background);
+        border: 0;
+        border-radius: var(--item-radius);
+        box-shadow: var(--item-box-shadow);
+        color: var(--item-color);
+        cursor: pointer;
+        display: flex;
+        flex-shrink: 0;
+        height: var(--size);
+        justify-content: center;
+        outline: none;
+        position: relative;
+        // Lands on its base, so the squash spreads along the dock.
+        transform-origin: 50% 100%;
+        transition: scale 0.15s ease-out;
+        width: var(--size);
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--item-color);
+            outline-offset: 2px;
+        }
+
+        svg {
+            height: calc(var(--size) * var(--icon-ratio));
+            width: calc(var(--size) * var(--icon-ratio));
+        }
+    }
+
+    &-item.tooltip {
+        cursor: default;
+        display: flex;
+        flex-shrink: 0;
+    }
+
+    &-label.tooltip-message {
+        --border-radius: var(--border-radius-300);
+        --box-shadow: none;
+        --font-weight: var(--font-weight-500);
+        --offset: 4px;
+        --padding-horizontal: 8px;
+        --padding-vertical: 4px;
+        --spacer: 12px;
+        --transition-duration: 0.15s;
+        --transition-timing-function: ease-out;
+
+        // Once a label is up, moving along the dock swaps it with no animation.
+        &.--instant {
+            transition: none;
+        }
+    }
+
+    &-light {
+        background: var(--light-color);
+        border-radius: 50%;
+        height: var(--light-size);
+        left: 50%;
+        margin: 4px 0 0 calc(var(--light-size) / -2);
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        scale: 0.5;
+        top: 100%;
+        transition:
+            opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1),
+            scale 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+        width: var(--light-size);
+
+        @include tokens.state(active) {
+            opacity: 1;
+            scale: 1;
+            transition-delay: var(--light-delay);
+            transition-duration: 0.2s;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        --light-delay: 0s;
+    }
+}

@@ -1,0 +1,41 @@
+.select-menu {
+    --background: var(--color-grey-400);
+    --box-shadow:
+        0 0 0 1px oklch(from var(--color-black-500) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
+    --color: var(--color-text-500);
+    --color-muted: var(--color-text-300);
+    --focus-width: var(--border-width-500);
+    --font-size: calc(var(--font-size-400) * 0.875);
+    --height: 40px;
+    --highlight: color-mix(in oklch, var(--color) 6%, transparent);
+    --item-height: 36px;
+    --press-scale: 0.96;
+    --transition-duration: 150ms;
+    --transition-timing-function: ease-out;
+    --trigger-border-radius: var(--border-radius-400);
+    --width: min(260px, 100%);
+
+    // Nested so it outranks the '.tooltip-content' defaults it composes with.
+    .select-menu-panel {
+        --background: var(--color-grey-400);
+        --border-radius: var(--border-radius-600);
+        --box-shadow:
+            0 0 0 1px oklch(from var(--color-black-500) l c h / 0.06),
+            0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
+            0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
+        --fade: 24px;
+        --pad: 4px;
+        --rows: 8;
+        --scale: 0.96;
+        --transition-duration: 150ms;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --width: auto;
+    }
+
+    // Leaves faster than it arrives, so choosing never waits on the list.
+    &:not(.--active) .select-menu-panel {
+        --transition-duration: 100ms;
+    }
+}

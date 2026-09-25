@@ -1,0 +1,148 @@
+@use 'variables';
+
+// Every part is exactly one line tall, so centring lines them up; baseline alignment breaks on the clipped digit
+// columns.
+.text-progress {
+    align-items: center;
+    color: var(--color);
+    display: inline-flex;
+    font-size: var(--font-size);
+    font-weight: var(--font-weight);
+    gap: var(--part-gap);
+    line-height: var(--part-height);
+    position: relative;
+
+    &-check {
+        flex-shrink: 0;
+        height: var(--check-size);
+        width: var(--check-size);
+
+        path {
+            stroke-dashoffset: 1;
+            transition: stroke-dashoffset 0s var(--ease-in-out) 150ms;
+        }
+    }
+
+    &-done {
+        align-items: center;
+        display: flex;
+        filter: blur(4px);
+        gap: var(--done-gap);
+        grid-area: 1 / 1;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+            filter 150ms var(--ease-out),
+            opacity 150ms var(--ease-out),
+            translate 150ms var(--ease-out);
+        translate: 0 4px;
+        white-space: nowrap;
+    }
+
+    &-ink {
+        inset: 0;
+        position: absolute;
+    }
+
+    &-label {
+        grid-area: 1 / 1;
+        position: relative;
+        transition:
+            filter 300ms var(--ease-out),
+            opacity 300ms var(--ease-out),
+            translate 300ms var(--ease-out);
+        white-space: nowrap;
+    }
+
+    &-labels {
+        display: grid;
+    }
+
+    &-percent {
+        color: var(--muted-color);
+        display: flex;
+        font-variant-numeric: tabular-nums;
+        transition:
+            filter 300ms var(--ease-out),
+            opacity 300ms var(--ease-out);
+    }
+
+    &-roll {
+        display: inline-block;
+        height: 1lh;
+        overflow: hidden;
+        position: relative;
+        width: 1ch;
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-strip {
+        display: flex;
+        flex-direction: column;
+        inset-inline: 0;
+        position: absolute;
+        top: 0;
+        transition: translate 300ms var(--ease-out);
+        white-space: pre;
+
+        span {
+            height: 1lh;
+        }
+    }
+
+    &-track {
+        color: var(--track-color);
+    }
+
+    &.--done {
+        .text-progress-check path {
+            stroke-dashoffset: 0;
+            transition-duration: 300ms;
+        }
+
+        .text-progress-done {
+            filter: none;
+            opacity: 1;
+            pointer-events: auto;
+            transition:
+                filter 300ms var(--ease-out) 100ms,
+                opacity 300ms var(--ease-out) 100ms,
+                translate 300ms var(--ease-out) 100ms;
+            translate: 0 0;
+        }
+
+        .text-progress-label {
+            filter: blur(4px);
+            opacity: 0;
+            transition-duration: 200ms;
+            translate: 0 -4px;
+        }
+
+        .text-progress-percent {
+            filter: blur(4px);
+            opacity: 0;
+            transition-duration: 200ms;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-check path,
+        &-strip,
+        &.--done &-check path {
+            transition: none;
+        }
+
+        &-done,
+        &.--done &-label {
+            translate: 0 0;
+        }
+    }
+}

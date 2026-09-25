@@ -1,0 +1,397 @@
+@use '/tokens';
+@use 'variables';
+
+.multi-step-form {
+    color: var(--foreground);
+    display: grid;
+    font-size: var(--font-size);
+    max-width: 100%;
+    width: var(--width);
+
+
+    &-back,
+    &-submit {
+        --padding-vertical: 0px;
+        border-radius: 999px;
+        font-size: var(--font-size);
+        font-weight: var(--font-weight-500);
+        height: 44px;
+        outline: 0 solid var(--focus-ring);
+        outline-offset: 2px;
+        touch-action: manipulation;
+        user-select: none;
+
+        &:focus-visible {
+            outline-width: 2px;
+        }
+
+        &:not(:disabled):active {
+            scale: 0.96;
+        }
+    }
+
+    &-back {
+        --color-default: var(--color-muted);
+        --color-hover: var(--foreground);
+        --background-hover: var(--field-background);
+        --padding-horizontal: 16px;
+        outline-offset: 0;
+
+        // Always rendered, so Continue keeps its place when Back is hidden.
+        &:disabled {
+            opacity: 0;
+            pointer-events: none;
+        }
+    }
+
+    &-bar {
+        background: var(--track);
+        border-radius: 999px;
+        height: 6px;
+        overflow: hidden;
+        width: 32px;
+
+        // Fills left to right when reached and drains right to left when you step back, so the bar points the way you moved.
+        &::before {
+            background: var(--accent);
+            border-radius: inherit;
+            content: '';
+            display: block;
+            height: 100%;
+            scale: 0 1;
+            transform-origin: right;
+            transition: scale 300ms var(--ease);
+        }
+
+        @include tokens.state(active) {
+            &::before {
+                scale: 1;
+                transform-origin: left;
+            }
+        }
+    }
+
+    &-body {
+        overflow: hidden;
+
+        &[data-measured] {
+            transition: height var(--height-duration) var(--height-timing-function);
+        }
+    }
+
+    &-card {
+        align-self: end;
+        background: var(--background);
+        border-radius: var(--radius);
+        box-shadow: var(--box-shadow);
+        flex-direction: column;
+        flex-wrap: nowrap;
+        grid-area: 1 / 1;
+        overflow: hidden;
+
+        .multi-step-form-panel:not(.--active):not([data-exiting]) {
+            display: none;
+        }
+    }
+
+    &-done-icon {
+        color: var(--foreground);
+        height: 24px;
+        width: 24px;
+
+        // One beat late, so the check lands after the panel has arrived.
+        .multi-step-form-card .--active > & {
+            animation: multi-step-form-pop var(--spring-duration) var(--height-timing-function) 80ms both;
+        }
+    }
+
+    &-done-text {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+        width: 100%;
+
+        .multi-step-form-note {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    &-footer {
+        align-items: center;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        padding: 16px;
+    }
+
+    &-ghost {
+        display: flex;
+        flex-direction: column;
+        grid-area: 1 / 1;
+        visibility: hidden;
+    }
+
+    &-header {
+        align-items: center;
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+        padding: 24px 24px 0;
+    }
+
+    &-heading {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    &-inner {
+        position: relative;
+    }
+
+    &-input {
+        --background-default: var(--field-background);
+        --color-default: var(--foreground);
+        --font-size: var(--font-size);
+        --padding-horizontal: 14px;
+        --padding-vertical: 0px;
+        border-radius: 12px;
+        box-shadow: var(--box-shadow);
+        flex: 0 0 auto;
+        height: 44px;
+        min-height: 0;
+        outline: 0 solid var(--focus-ring);
+
+        &::placeholder {
+            color: var(--color-muted);
+        }
+
+        &:focus-visible {
+            outline-width: 2px;
+        }
+    }
+
+    // Every label shares one grid cell, so the button holds the width of the longest and never resizes.
+    &-label {
+        filter: blur(4px);
+        grid-area: 1 / 1;
+        opacity: 0;
+        transition:
+            filter 200ms ease-out,
+            opacity 200ms ease-out;
+
+        @include tokens.state(active) {
+            filter: none;
+            opacity: 1;
+        }
+    }
+
+    &-labels {
+        display: grid;
+    }
+
+    &-live {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-note {
+        color: var(--color-muted);
+    }
+
+    &-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 24px;
+
+        &--done {
+            align-items: center;
+            padding-block: 36px;
+            text-align: center;
+        }
+
+        &[data-exiting] {
+            inset: 0 0 auto;
+            pointer-events: none;
+            position: absolute;
+        }
+    }
+
+    &-plan {
+        align-items: center;
+        background: var(--field-background);
+        border-radius: 12px;
+        box-shadow: var(--box-shadow);
+        cursor: pointer;
+        display: flex;
+        gap: 14px;
+        outline: 0 solid var(--focus-ring);
+        padding: 12px 16px;
+        transition:
+            box-shadow 150ms ease-out,
+            scale 150ms ease-out;
+        user-select: none;
+
+        &:active {
+            scale: 0.98;
+        }
+
+        &:has(:focus-visible) {
+            outline-width: 2px;
+        }
+
+        @include tokens.state(active) {
+            box-shadow: 0 0 0 1.5px var(--accent);
+        }
+
+        &-name {
+            color: var(--foreground);
+            font-weight: var(--font-weight-500);
+        }
+
+        &-note {
+            color: var(--color-muted);
+            font-size: var(--font-size-small);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        &-price {
+            color: var(--color-muted);
+            font-size: var(--font-size-small);
+            font-variant-numeric: tabular-nums;
+        }
+
+        &-text {
+            display: flex;
+            flex: 1 1 0;
+            flex-direction: column;
+            min-width: 0;
+        }
+    }
+
+    &-plans {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &-progress {
+        display: flex;
+        gap: 6px;
+    }
+
+    &-radio {
+        --border-color-active: var(--accent);
+        --border-color-default: var(--color-border-400);
+        --border-color-hover: var(--color-muted);
+        --border-width: 1.5px;
+        --border-width-offset-hover: 0px;
+        --box-shadow-active: none;
+        --focus-width: 0px;
+        --indicator-color-default: var(--accent);
+        --size: 20px;
+        --transition-duration: 150ms;
+        --transition-timing-function: ease-out;
+    }
+
+    &-review {
+        background: var(--field-background);
+        border-radius: 12px;
+        box-shadow: var(--box-shadow);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 0;
+        padding: 12px 16px;
+
+        &-row {
+            align-items: center;
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+
+            dd {
+                color: var(--foreground);
+                font-weight: var(--font-weight-500);
+                margin: 0;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            dt {
+                color: var(--color-muted);
+            }
+        }
+    }
+
+    &-stack {
+        display: grid;
+
+        > .multi-step-form-panel {
+            grid-area: 1 / 1;
+        }
+    }
+
+    &-step {
+        color: var(--color-muted);
+        font-size: var(--font-size-small);
+        font-variant-numeric: tabular-nums;
+    }
+
+    &-submit {
+        --background-default: var(--accent);
+        --color-default: var(--accent-contrast);
+        --padding-horizontal: 20px;
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.4;
+        }
+    }
+
+    &-title {
+        color: var(--foreground);
+        font-size: var(--font-size-title);
+        font-weight: var(--font-weight-500);
+        outline: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-bar::before,
+        &-body[data-measured] {
+            transition: none;
+        }
+
+        &-done-icon {
+            .multi-step-form-card .--active > & {
+                animation-name: multi-step-form-fade;
+            }
+        }
+    }
+}
+
+@keyframes multi-step-form-fade {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes multi-step-form-pop {
+    from {
+        filter: blur(4px);
+        opacity: 0;
+        scale: 0.25;
+    }
+}

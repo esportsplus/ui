@@ -1,0 +1,19 @@
+.selection-toolbar-demo {
+    background: var(--color-white-300);
+    border-radius: var(--border-radius-700);
+    box-shadow:
+        0 0 0 1px color-mix(in oklab, var(--color-black-300) 6%, transparent),
+        0 6px 16px -6px color-mix(in oklab, var(--color-black-300) 12%, transparent);
+    height: 256px;
+    padding: 24px;
+    width: min(480px, 100%);
+
+    > .selection-toolbar {
+        height: 100%;
+    }
+
+    &--surface {
+        background: var(--color-grey-400);
+        height: auto;
+    }
+}

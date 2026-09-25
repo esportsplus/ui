@@ -1,0 +1,345 @@
+@use 'variables';
+
+@mixin thumb {
+    background: var(--thumb);
+    border: var(--thumb-border);
+    border-radius: 50%;
+    box-shadow: var(--thumb-shadow);
+    box-sizing: border-box;
+    cursor: pointer;
+    height: var(--thumb-size);
+    transition: scale var(--transition-duration) var(--transition-timing-function);
+    width: var(--thumb-size);
+}
+
+@mixin track {
+    background: var(--track);
+    border-radius: 999px;
+    box-shadow: var(--hairline);
+    height: var(--track-height);
+}
+
+.color-picker {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    color: var(--color);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--font-size);
+    gap: var(--spacing);
+    padding: var(--padding);
+    width: var(--width);
+
+    &-alpha {
+        align-items: center;
+        border: 1px solid var(--border-color);
+        border-radius: var(--control-border-radius);
+        color: var(--color-muted);
+        display: flex;
+        flex: 0 0 56px;
+        font-family: var(--font-family-mono);
+        font-variant-numeric: tabular-nums;
+        height: var(--control-height);
+        justify-content: center;
+        user-select: none;
+    }
+
+    // Sized by the native range, whose thumb already stops half its width short of each end.
+    .color-picker-channel {
+        appearance: none;
+        background: none;
+        border: 0;
+        border-radius: 999px;
+        cursor: pointer;
+        display: block;
+        height: 28px;
+        margin: 0;
+        outline: none;
+        touch-action: none;
+        width: 100%;
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--color);
+            outline-offset: 1px;
+        }
+
+        &::-webkit-slider-runnable-track {
+            @include track;
+        }
+
+        &::-moz-range-track {
+            @include track;
+        }
+
+        &::-webkit-slider-thumb {
+            @include thumb;
+            appearance: none;
+            margin-top: calc((var(--track-height) - var(--thumb-size)) / 2);
+        }
+
+        &::-moz-range-thumb {
+            @include thumb;
+        }
+
+        // Grows a touch while held so you can tell you've got hold of it.
+        &:active::-webkit-slider-thumb {
+            scale: 1.1;
+        }
+
+        &:active::-moz-range-thumb {
+            scale: 1.1;
+        }
+
+        &--alpha {
+            --thumb: linear-gradient(rgb(var(--rgb) / var(--alpha)), rgb(var(--rgb) / var(--alpha))), var(--checker);
+            --track: linear-gradient(to right, rgb(var(--rgb) / 0), rgb(var(--rgb))), var(--checker);
+        }
+
+        // Pure hues on purpose: the rail is the color math, not a theme surface.
+        &--hue {
+            --thumb: hsl(var(--hue) 100% 50%);
+            --track: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+        }
+    }
+
+    &-channels {
+        align-items: center;
+        display: flex;
+        gap: var(--spacing);
+    }
+
+    &-fields {
+        display: flex;
+        gap: var(--size-100);
+    }
+
+    &-hash {
+        color: var(--color-muted);
+        transition: color var(--transition-duration) var(--transition-timing-function);
+        user-select: none;
+    }
+
+    &-hex {
+        align-items: center;
+        background: var(--background);
+        border: 1px solid var(--border-color);
+        border-radius: var(--control-border-radius);
+        cursor: text;
+        display: flex;
+        flex: 1;
+        font-family: var(--font-family-mono);
+        height: var(--control-height);
+        min-width: 0;
+        padding: 0 10px;
+        transition: border-color var(--transition-duration) var(--transition-timing-function);
+
+        &:focus-within {
+            outline: var(--focus-width) solid var(--color);
+            outline-offset: -1px;
+        }
+
+        &.--invalid {
+            border-color: var(--color-invalid);
+
+            &:focus-within {
+                outline-color: var(--color-invalid);
+            }
+
+            .color-picker-hash {
+                color: var(--color-invalid);
+            }
+        }
+
+        .input {
+            --background-default: transparent;
+            --color-default: var(--color-text-500);
+            --font-size: inherit;
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
+            --size: 0px;
+            flex: 1;
+            font-family: inherit;
+            min-width: 0;
+            outline: none;
+            padding-left: 2px;
+            text-transform: uppercase;
+        }
+    }
+
+    // Pure black and white on purpose: the gradients are the color math, not a theme surface.
+    &-pad {
+        background-color: hsl(var(--hue) 100% 50%);
+        background-image: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
+        border-radius: var(--control-border-radius);
+        cursor: crosshair;
+        height: var(--pad-height);
+        outline: none;
+        position: relative;
+        touch-action: none;
+        user-select: none;
+
+        &::after {
+            border-radius: inherit;
+            box-shadow: var(--hairline);
+            content: '';
+            inset: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--color);
+            outline-offset: 2px;
+        }
+
+        &:active .color-picker-thumb {
+            scale: 1.1;
+        }
+    }
+
+    &-preview {
+        background: linear-gradient(rgb(var(--rgb) / var(--alpha)), rgb(var(--rgb) / var(--alpha))), var(--checker);
+        border-radius: var(--control-border-radius);
+        box-shadow: var(--hairline);
+        flex: 0 0 auto;
+        height: var(--preview-size);
+        width: var(--preview-size);
+    }
+
+    &-recent {
+        border-top: 1px solid var(--border-color);
+        padding-top: var(--spacing);
+
+        &-label {
+            color: var(--color-muted);
+            font-size: var(--font-size-300);
+            margin: 0 0 var(--size-100);
+            user-select: none;
+        }
+    }
+
+    &-sliders {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    &-status {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-swatch {
+        background: linear-gradient(var(--swatch), var(--swatch)), var(--checker);
+        border: 0;
+        border-radius: 50%;
+        box-shadow:
+            var(--hairline),
+            0 0 0 0 var(--background),
+            0 0 0 0 var(--color);
+        cursor: pointer;
+        flex: 0 0 auto;
+        height: var(--swatch-size);
+        margin: 0;
+        outline: none;
+        padding: 0;
+        position: relative;
+        touch-action: manipulation;
+        transition:
+            box-shadow var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function);
+        user-select: none;
+        width: var(--swatch-size);
+
+        // A larger hit area; with the gap, neighbours meet but never overlap.
+        &::after {
+            border-radius: 50%;
+            content: '';
+            inset: -4px;
+            position: absolute;
+        }
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--color);
+            outline-offset: 4px;
+        }
+
+        &.--active {
+            box-shadow:
+                var(--hairline),
+                0 0 0 2px var(--background),
+                0 0 0 4px var(--color);
+        }
+
+        &.--leaving {
+            pointer-events: none;
+            position: absolute;
+        }
+    }
+
+    &-swatches {
+        display: flex;
+        gap: var(--size-100);
+        height: var(--swatch-size);
+        position: relative;
+    }
+
+    &-thumb {
+        background: rgb(var(--rgb));
+        border: var(--thumb-border);
+        border-radius: 50%;
+        box-shadow: var(--thumb-shadow);
+        box-sizing: border-box;
+        height: var(--thumb-size);
+        pointer-events: none;
+        position: absolute;
+        transition: scale var(--transition-duration) var(--transition-timing-function);
+        translate: -50% -50%;
+        width: var(--thumb-size);
+        z-index: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .color-picker-channel {
+            &::-webkit-slider-thumb {
+                transition: none;
+            }
+
+            &::-moz-range-thumb {
+                transition: none;
+            }
+
+            &:active::-webkit-slider-thumb {
+                scale: 1;
+            }
+
+            &:active::-moz-range-thumb {
+                scale: 1;
+            }
+        }
+
+        &-pad:active .color-picker-thumb,
+        &-swatch:active {
+            scale: 1;
+        }
+
+        &-swatch {
+            transition: box-shadow var(--transition-duration) var(--transition-timing-function);
+        }
+
+        &-thumb {
+            transition: none;
+        }
+    }
+}

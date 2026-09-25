@@ -1,0 +1,13 @@
+// Headroom for icons that swell above the shelf and the labels over them.
+.dock-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-500);
+    padding-top: 80px;
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+}

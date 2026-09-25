@@ -1,0 +1,110 @@
+.scroll-spine-demo {
+    background: var(--color-grey-400);
+    border-radius: 16px;
+    box-shadow:
+        0 0 0 var(--border-width-400) oklch(from var(--color-black-300) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-300) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+    container-type: inline-size;
+    display: flex;
+    height: 440px;
+    max-width: 100%;
+    overflow: hidden;
+    width: 620px;
+
+    &-article {
+        color: var(--color-text-300);
+        font-size: 15px;
+        line-height: 1.625;
+        padding: 24px 24px 160px;
+        text-wrap: pretty;
+
+        p {
+            margin: 12px 0 0;
+        }
+    }
+
+    // Headings beside the bands when there is room; bands alone on a phone, where the heading shows on hover or focus.
+    &-aside {
+        align-items: center;
+        border-left: var(--border-width-400) solid var(--color-border-300);
+        display: flex;
+        flex: none;
+        flex-direction: column;
+        padding-top: 24px;
+        width: 48px;
+
+        .scroll-spine {
+            --width: 20px;
+        }
+    }
+
+    &-caption {
+        color: var(--color-text-300);
+        display: none;
+        font-size: 12px;
+        font-weight: var(--font-weight-500);
+        letter-spacing: 0.06em;
+        margin: 0 0 16px;
+        text-transform: uppercase;
+    }
+
+    &-heading {
+        color: var(--color-text-500);
+        font-size: 16px;
+        font-weight: var(--font-weight-500);
+        margin: 28px 0 0;
+        scroll-margin-top: 16px;
+    }
+
+    .scroll-spine-demo-meta {
+        font-size: 13px;
+        margin: 0;
+    }
+
+    &-scroller {
+        flex: 1;
+        // The bottom fade says there is more below.
+        mask-image: linear-gradient(to bottom, black calc(100% - 48px), transparent);
+        min-width: 0;
+        outline: none;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--color-text-500);
+            outline-offset: -2px;
+        }
+    }
+
+    &-title {
+        color: var(--color-text-500);
+        font-size: 20px;
+        font-weight: var(--font-weight-600);
+        margin: 4px 0 0;
+        text-wrap: balance;
+    }
+
+    @container (min-width: 520px) {
+        &:not(.scroll-spine-demo--narrow) {
+            .scroll-spine-demo-aside {
+                align-items: stretch;
+                padding: 24px 20px 0 24px;
+                width: 212px;
+            }
+
+            .scroll-spine-demo-caption {
+                display: block;
+            }
+
+            .scroll-spine-demo-aside .scroll-spine {
+                --width: 100%;
+            }
+        }
+    }
+}

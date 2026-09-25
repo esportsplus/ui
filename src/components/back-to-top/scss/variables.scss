@@ -1,0 +1,30 @@
+.back-to-top {
+    --background: var(--color-white-300);
+    --box-shadow:
+        0 0 0 var(--border-width-400) oklch(from var(--color-black-300) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-300) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+    --color: var(--color-text-500);
+    --enter-duration: 0.25s;
+    --enter-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --exit-duration: 0.15s;
+    --focus-color: var(--color);
+    --hidden-blur: 4px;
+    --hidden-scale: 0.85;
+    --hover-lift: -2px;
+    --offset: var(--size-500);
+    --pressed-scale: 0.96;
+    --ring-color: var(--color);
+    --ring-width: 1.5;
+    --size: 44px;
+    --track-color: var(--color-border-300);
+    --transition-duration: 0.15s;
+    --transition-timing-function: ease-out;
+    --z-index: 10;
+
+    &--dark {
+        --background: var(--color-text-500);
+        --color: var(--color-white-300);
+        --track-color: oklch(from var(--color-white-300) l c h / 0.2);
+    }
+}

@@ -1,0 +1,26 @@
+.page-dots {
+    --color: var(--color-text-500);
+    --dot-color: oklch(from var(--color) l c h / 0.2);
+    --dot-color-hover: oklch(from var(--color) l c h / 0.35);
+    --dot-gap: 6px;
+    --dot-size: 6px;
+    --focus-color: var(--color);
+    --height: 32px;
+    --pill-color: var(--color);
+    --pill-width: 20px;
+    --pressed-scale: 0.96;
+    --track-color: var(--pill-color);
+    --transition-duration: 0.15s;
+    --transition-timing-function: ease-out;
+
+    // Twice the dots' tint, so the pill still reads as the active slot before its countdown fills it.
+    &--autoplay {
+        --track-color: oklch(from var(--pill-color) l c h / 0.4);
+    }
+
+    &--large {
+        --dot-gap: 8px;
+        --dot-size: 8px;
+        --pill-width: 28px;
+    }
+}

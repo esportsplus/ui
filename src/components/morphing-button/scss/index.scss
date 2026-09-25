@@ -1,0 +1,154 @@
+@use 'variables';
+
+.morphing-button {
+    // Compound selector so these win over `.button` regardless of stylesheet order.
+    &.button {
+        --background-default: var(--morphing-button-background);
+        --color-default: var(--morphing-button-color);
+        --font-size: var(--morphing-button-font-size);
+        --font-weight: var(--font-weight-500);
+        --line-height: 20px;
+
+        border: 0;
+        display: inline-flex;
+        height: var(--morphing-button-height);
+        outline: none;
+        overflow: hidden;
+        touch-action: manipulation;
+        transition:
+            background-color 200ms ease-out,
+            color 200ms ease-out,
+            scale 200ms ease-out;
+        user-select: none;
+    }
+
+    &:active:not([aria-disabled='true']) {
+        scale: var(--morphing-button-scale-pressed);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--morphing-button-focus-color);
+        outline-offset: 2px;
+    }
+
+    &[aria-disabled='true'] {
+        cursor: default;
+    }
+
+
+    // Every layer shares one grid cell, so the idle width is the widest label;
+    // in the circle the cell overflows both sides equally and the button clips it.
+    &-content {
+        display: grid;
+        flex-shrink: 0;
+        place-items: center;
+    }
+
+    &-icon {
+        fill: none;
+        filter: blur(4px);
+        grid-area: 1 / 1;
+        height: var(--morphing-button-icon-size);
+        opacity: 0;
+        scale: 0.25;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
+        transition:
+            filter 300ms var(--morphing-button-spring),
+            opacity 300ms var(--morphing-button-spring),
+            scale 300ms var(--morphing-button-spring);
+        width: var(--morphing-button-icon-size);
+    }
+
+    &-live {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-spinner {
+        animation: morphing-button-spin 700ms linear infinite;
+        transform-box: fill-box;
+        transform-origin: center;
+    }
+
+    // Leaves in 150ms, before the width has closed on it; arrives in 200ms as it opens.
+    &-text {
+        filter: blur(4px);
+        grid-area: 1 / 1;
+        opacity: 0;
+        transition:
+            filter 150ms ease-out,
+            opacity 150ms ease-out;
+        white-space: nowrap;
+    }
+
+
+    &--error {
+        &.button {
+            --background-default: var(--morphing-button-background-error);
+            --color-default: var(--morphing-button-color-error);
+        }
+
+        .morphing-button-text--error {
+            filter: blur(0px);
+            opacity: 1;
+            transition-duration: 200ms;
+        }
+    }
+
+    &--idle {
+        .morphing-button-text--idle {
+            filter: blur(0px);
+            opacity: 1;
+            transition-duration: 200ms;
+        }
+    }
+
+    &--loading {
+        .morphing-button-icon--loading {
+            filter: blur(0px);
+            opacity: 1;
+            scale: 1;
+        }
+    }
+
+    &--success {
+        .morphing-button-icon--success {
+            filter: blur(0px);
+            opacity: 1;
+            scale: 1;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &.button {
+            transition:
+                background-color 200ms ease-out,
+                color 200ms ease-out;
+        }
+
+        &:active:not([aria-disabled='true']) {
+            scale: 1;
+        }
+
+        .morphing-button-icon {
+            filter: none;
+            scale: 1;
+            transition-property: opacity;
+        }
+    }
+}
+
+
+@keyframes morphing-button-spin {
+    to {
+        rotate: 360deg;
+    }
+}

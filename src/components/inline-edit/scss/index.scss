@@ -1,0 +1,152 @@
+@use 'variables';
+
+// Pulled out by its own padding, so the text lines up with the surrounding content while the tint still has room.
+.inline-edit {
+    color: var(--color);
+    display: grid;
+    margin-inline: calc(var(--box-padding-start) * -1);
+    position: relative;
+
+
+    &-display,
+    & > #{&}-field {
+        border-radius: var(--box-border-radius);
+        grid-area: 1 / 1;
+        overflow: hidden;
+        padding: var(--box-padding-block) var(--box-padding-end) var(--box-padding-block) var(--box-padding-start);
+        text-align: start;
+        text-overflow: ellipsis;
+        white-space: pre;
+        width: 100%;
+    }
+
+    &--multiline > #{&}-display,
+    &--multiline > #{&}-field {
+        overflow-wrap: break-word;
+        text-overflow: clip;
+        white-space: pre-wrap;
+    }
+
+    // Stays in the cell while editing (hidden), so the field inherits its exact width and starting height.
+    &-display {
+        background: transparent;
+        border: 0;
+        color: inherit;
+        cursor: text;
+        display: block;
+        font: inherit;
+        letter-spacing: inherit;
+        line-height: inherit;
+        outline: none;
+        transition: background-color var(--transition-duration) var(--transition-timing-function);
+
+        &:hover {
+            background: var(--background-hover);
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--outline-color);
+        }
+
+        .inline-edit.--active > & {
+            visibility: hidden;
+        }
+
+        .inline-edit.--empty:not(.--active) > & {
+            color: var(--placeholder-color);
+        }
+    }
+
+    // Qualified by the root so it wins over the reused input/textarea styles regardless of stylesheet order.
+    & > #{&}-field {
+        --background-default: var(--field-background);
+        --color-default: currentColor;
+        box-shadow: var(--field-ring);
+        display: block;
+        font-size: inherit;
+        font-weight: inherit;
+        height: 100%;
+        letter-spacing: inherit;
+        line-height: inherit;
+        min-height: 0;
+        outline: none;
+        resize: none;
+        transition: none;
+
+        &::placeholder {
+            color: var(--placeholder-color);
+        }
+    }
+
+    // Pinned to the first line's height so it stays put as the text grows.
+    &-icon {
+        color: var(--icon-color);
+        display: grid;
+        height: 24px;
+        inset-block-start: 4px;
+        inset-inline-end: 6px;
+        place-items: center;
+        pointer-events: none;
+        position: absolute;
+        width: 24px;
+
+        svg {
+            grid-area: 1 / 1;
+            height: var(--icon-size);
+            transition:
+                filter var(--icon-swap-duration) var(--icon-swap-timing-function),
+                opacity var(--icon-swap-duration) var(--icon-swap-timing-function),
+                scale var(--icon-swap-duration) var(--icon-swap-timing-function);
+            width: var(--icon-size);
+        }
+
+        &-check {
+            color: var(--icon-color-saved);
+            filter: blur(4px);
+            opacity: 0;
+            scale: 0.25;
+        }
+
+        // The pencil only shows on hover or keyboard focus.
+        &-pencil {
+            opacity: 0;
+        }
+
+        .inline-edit:hover &-pencil,
+        .inline-edit:has(:focus-visible) &-pencil {
+            opacity: 1;
+        }
+
+        .inline-edit.--saved &-check {
+            filter: blur(0);
+            opacity: 1;
+            scale: 1;
+        }
+
+        .inline-edit.--saved &-pencil {
+            filter: blur(4px);
+            opacity: 0;
+            scale: 0.25;
+        }
+
+        .inline-edit.--active > & {
+            visibility: hidden;
+        }
+    }
+
+    &-label {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inline-edit-icon svg {
+        filter: none !important;
+        scale: 1 !important;
+    }
+}

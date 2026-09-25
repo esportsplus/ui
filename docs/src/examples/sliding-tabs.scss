@@ -1,0 +1,26 @@
+// A fixed height keeps the card still when panels of different lengths swap in.
+.sliding-tabs-demo {
+    background: var(--color-white-300);
+    border-radius: 20px;
+    box-shadow: 0 0 0 var(--border-width-400) var(--color-border-300), var(--box-shadow-200);
+    height: 220px;
+    padding: 12px;
+    width: min(480px, 100%);
+
+    &-controlled {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--size-400);
+        width: 100%;
+    }
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+
+    &-strong {
+        color: var(--color-text-500);
+    }
+}

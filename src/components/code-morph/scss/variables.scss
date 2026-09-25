@@ -1,0 +1,33 @@
+.code-morph {
+    --background: var(--color-grey-400);
+    --border-color: var(--color-border-300);
+    --box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), var(--box-shadow-200);
+    --color: var(--color-text-500);
+    --exit-color: var(--color-red-500);
+    --focus-color: var(--color-text-500);
+    --font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --font-size: var(--font-size-300);
+    --muted-color: var(--color-text-300);
+    // Moves run past the usual UI ceiling on purpose: this is explanatory motion, and the eye has to follow
+    // each token to its new place.
+    --move-duration: 480ms;
+    --move-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+    --pill-background: var(--color-white-300);
+    --pill-box-shadow: 0 0 0 1px oklch(0 0 0 / 0.06), var(--box-shadow-100);
+    --pill-duration: 0.3s;
+    --pill-timing-function: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
+    --radius: var(--border-radius-700);
+    // Must match LINE in index.ts, which places the tokens on this grid.
+    --row-height: 22px;
+    // Syntax colours encode token kinds, so they keep their hue at roughly 4.5:1 on the surface.
+    --syntax-comment: var(--color-text-300);
+    --syntax-fn: oklch(from var(--color-blue-400) 0.5 0.14 255);
+    --syntax-keyword: oklch(from var(--color-purple-400) 0.5 0.15 300);
+    --syntax-number: oklch(from var(--color-red-400) 0.54 0.14 50);
+    --syntax-plain: var(--color);
+    --syntax-punct: color-mix(in oklab, var(--color-text-500) 55%, transparent);
+    --syntax-string: oklch(from var(--color-green-500) 0.5 0.11 150);
+    --syntax-type: oklch(from var(--color-blue-400) 0.5 0.1 200);
+    --tab-radius: var(--border-radius-400);
+    --width: 580px;
+}

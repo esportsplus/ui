@@ -1,0 +1,205 @@
+@use 'variables';
+
+.story-progress {
+    background: var(--background);
+    border-radius: var(--radius);
+    box-shadow: var(--box-shadow);
+    color: var(--color);
+    display: flex;
+    flex-direction: column;
+    height: var(--height);
+    outline: none;
+    overflow: hidden;
+    position: relative;
+    touch-action: manipulation;
+    user-select: none;
+    width: min(var(--max-width), 100%);
+
+    &:focus-visible {
+        outline: 2px solid var(--focus-ring-color);
+        outline-offset: 2px;
+    }
+
+    &-bar {
+        background: var(--bar-color);
+        border-radius: 999px;
+        flex: 1;
+        height: var(--bar-height);
+        overflow: hidden;
+    }
+
+    &-bars {
+        display: flex;
+        gap: 4px;
+        padding: 12px 12px 0;
+    }
+
+    &-caption {
+        color: var(--muted-color);
+        font-size: 15px;
+        text-wrap: pretty;
+    }
+
+    &-count {
+        color: var(--muted-color);
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &-fill {
+        background: var(--fill-color);
+        border-radius: 999px;
+        display: block;
+        height: 100%;
+        transform-origin: left;
+    }
+
+    &-header {
+        align-items: center;
+        display: flex;
+        height: 44px;
+        justify-content: space-between;
+        padding: 0 16px;
+    }
+
+    // Static cue for the paused state, so the frozen bar isn't the only signal.
+    &-pause,
+    &-play {
+        grid-area: 1 / 1;
+        height: 16px;
+        transition:
+            filter 0.3s var(--spring),
+            opacity 0.3s var(--spring),
+            scale 0.3s var(--spring);
+        width: 16px;
+    }
+
+    &-play,
+    &-toggle.--paused &-pause {
+        filter: blur(4px);
+        opacity: 0;
+        scale: 0.25;
+    }
+
+    &-toggle.--paused &-play {
+        filter: blur(0);
+        opacity: 1;
+        scale: 1;
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        margin: 0;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-stories {
+        flex: 1;
+        position: relative;
+        transition: opacity 0.2s ease-out;
+
+        &.--dimmed {
+            opacity: var(--dim-opacity);
+        }
+    }
+
+    &-story {
+        display: flex;
+        filter: blur(4px);
+        flex-direction: column;
+        gap: 8px;
+        inset: 0;
+        justify-content: flex-end;
+        opacity: 0;
+        padding: 24px;
+        position: absolute;
+        transition:
+            filter 0.15s var(--ease-out),
+            opacity 0.15s var(--ease-out);
+
+        &.--active {
+            filter: blur(0);
+            opacity: 1;
+            transition:
+                filter 0.25s var(--ease-out),
+                opacity 0.25s var(--ease-out);
+        }
+    }
+
+    &-toggle {
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+        color: var(--muted-color);
+        cursor: pointer;
+        display: grid;
+        height: 40px;
+        margin-right: -8px;
+        outline: none;
+        padding: 0;
+        place-items: center;
+        transition:
+            color 0.15s ease-out,
+            scale 0.15s ease-out;
+        width: 40px;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-ring-color);
+        }
+
+        &:hover {
+            color: var(--color);
+        }
+    }
+
+    &-value {
+        font-size: var(--value-font-size);
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+        letter-spacing: -0.025em;
+        line-height: 1;
+    }
+
+    // Reachable by screen readers; pointer taps are handled by the card itself.
+    &-zones {
+        bottom: 0;
+        display: flex;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 60px;
+
+        button {
+            background: transparent;
+            border: 0;
+            flex: 1;
+            outline: none;
+            padding: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-play,
+        &-toggle.--paused &-pause,
+        &-story {
+            filter: none;
+        }
+
+        &-pause,
+        &-play {
+            transition: opacity 0.3s var(--spring);
+        }
+
+        &-toggle {
+            transition: color 0.15s ease-out;
+        }
+    }
+}

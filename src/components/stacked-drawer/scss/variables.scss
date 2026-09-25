@@ -1,0 +1,20 @@
+.stacked-drawer {
+    --background: var(--color-border-400);
+    --border-radius: 40px;
+    --dim: 0.2;
+    --dim-color: var(--color-black-500);
+    --duration-close: 0.32s;
+    --duration-open: 0.45s;
+    --handle-color: var(--color-border-400);
+    --height: 100%;
+    --inset: 40px;
+    --overscroll: 36px;
+    --page-background: var(--color-grey-300);
+    --peek: 18px;
+    --scale: 0.94;
+    --sheet-background: var(--color-white-300);
+    --sheet-border-radius: 28px;
+    --sheet-box-shadow: var(--box-shadow-400);
+    --timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    --width: 100%;
+}

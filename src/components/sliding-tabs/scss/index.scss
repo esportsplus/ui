@@ -1,0 +1,174 @@
+@use '/tokens';
+@use 'variables';
+
+// Registered so the two ends of the underline can transition independently.
+@property --sliding-tabs-left {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
+@property --sliding-tabs-right {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
+.sliding-tabs {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+
+    &-hover {
+        background: var(--hover-background);
+        border-radius: calc(var(--radius) - 2px);
+        height: calc(var(--tab-height) - var(--hover-inset) * 2);
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: var(--hover-inset);
+        transition:
+            opacity var(--hover-duration-out) cubic-bezier(0.23, 1, 0.32, 1),
+            translate var(--hover-duration) var(--spring),
+            width var(--hover-duration) var(--spring);
+
+        @include tokens.state(active) {
+            opacity: 1;
+            transition-duration: var(--hover-duration-in), var(--hover-duration), var(--hover-duration);
+        }
+    }
+
+    &-label {
+        position: relative;
+        transition: scale 0.15s ease-out;
+    }
+
+    &-list {
+        border-bottom: var(--border-width-400) solid var(--border-color);
+        display: flex;
+        gap: 2px;
+        padding-inline: 2px;
+        position: relative;
+    }
+
+    &-panel {
+        border-radius: var(--radius);
+        color: var(--panel-color);
+        font-size: var(--font-size);
+        grid-area: 1 / 1;
+        line-height: 1.625;
+        outline: none;
+        padding: var(--panel-padding);
+        text-wrap: pretty;
+
+        &.--active,
+        &.--leaving {
+            display: block;
+        }
+
+        &.--leaving {
+            pointer-events: none;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+        }
+    }
+
+    &-panels {
+        display: grid;
+    }
+
+    &-tab {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: var(--radius);
+        color: var(--color);
+        cursor: pointer;
+        display: flex;
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
+        height: var(--tab-height);
+        outline: none;
+        padding-inline: var(--tab-padding);
+        position: relative;
+        touch-action: manipulation;
+        transition: color 0.15s ease-out;
+        user-select: none;
+        white-space: nowrap;
+
+        // Only the label presses in; scaling the tab would skew the box the underline is measured from.
+        &:active .sliding-tabs-label {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+            outline-offset: -4px;
+        }
+
+        &:hover,
+        &.--active {
+            color: var(--color-active);
+        }
+    }
+
+    // One full-width line clipped down to the tab, so the stretch costs no layout.
+    &-underline {
+        background: var(--underline-color);
+        bottom: calc(var(--border-width-400) * -1);
+        clip-path: inset(0 calc(100% - var(--sliding-tabs-right)) 0 var(--sliding-tabs-left) round 1px);
+        display: none;
+        height: var(--underline-height);
+        inset-inline: 0;
+        pointer-events: none;
+        position: absolute;
+        transition:
+            --sliding-tabs-left var(--lead-duration) var(--spring),
+            --sliding-tabs-right var(--tail-duration) var(--spring);
+
+        &.--forward {
+            transition:
+                --sliding-tabs-left var(--tail-duration) var(--spring),
+                --sliding-tabs-right var(--lead-duration) var(--spring);
+        }
+
+        .sliding-tabs-list.--ready > & {
+            display: block;
+        }
+    }
+
+    &-hover.--instant,
+    &-underline.--instant {
+        transition: none;
+    }
+
+    // Shown until the clipped underline has been measured.
+    &-list:not(.--ready) &-tab.--active::after {
+        background: var(--underline-color);
+        border-radius: 1px;
+        bottom: calc(var(--border-width-400) * -1);
+        content: '';
+        height: var(--underline-height);
+        inset-inline: 0;
+        position: absolute;
+    }
+
+
+    @media (max-width: 639px) {
+        --tab-padding: 10px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --hover-duration: 0s;
+        --lead-duration: 0s;
+        --tail-duration: 0s;
+
+        &-label {
+            transition: none;
+        }
+    }
+}

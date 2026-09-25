@@ -1,0 +1,50 @@
+// Geometry is read once by the scroll math (JS) and must stay in px.
+.sticky-stack {
+    --background: var(--color-grey-400);
+    --bar-color: var(--color-border-300);
+    --bar-height: 28px;
+    --bar-width: 3px;
+    --box-shadow:
+        0 0 0 var(--border-width-400) oklch(from var(--color-black-300) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-300) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+    --card-background: var(--color-white-300);
+    --card-border-radius: var(--border-radius-700);
+    // Scroll distance between one card settling and the next one arriving.
+    --card-gap: 80px;
+    --card-height: 280px;
+    --card-padding: var(--size-600);
+    --color: var(--color-text-500);
+    --dim-per-card: 0.12;
+    --fill-color: var(--color);
+    --first-top: 20px;
+    --focus-color: var(--color);
+    --header-height: 112px;
+    --max-dim: 0.4;
+    --muted-color: var(--color-text-300);
+    --pressed-scale: 0.96;
+    --radius: 24px;
+    // Per card resting on top; four cards deep this reaches 0.84, still wide enough that the stack reads as cards rather than a fan.
+    --scale-per-card: 0.04;
+    --shade-color: var(--color-black-500);
+    // Each stuck card sits this much lower, leaving a strip of every card beneath it visible.
+    --step: 14px;
+    --transition-duration: 0.15s;
+    --transition-timing-function: ease-out;
+    --viewport-height: 480px;
+    --width: min(480px, 100%);
+
+    &--compact {
+        --card-gap: 56px;
+        --card-height: 200px;
+        --header-height: 88px;
+        --step: 10px;
+        --viewport-height: 360px;
+    }
+
+    &--flat {
+        --dim-per-card: 0;
+        --max-dim: 0;
+        --scale-per-card: 0;
+    }
+}

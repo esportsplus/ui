@@ -1,0 +1,7 @@
+.word-rotator {
+    --color: inherit;
+
+    &--accent {
+        --color: var(--color-blue-400);
+    }
+}

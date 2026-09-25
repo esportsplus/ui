@@ -9,6 +9,8 @@
     --toast-calc-height: max(var(--toast-frontmost-height, var(--toast-height, 0px)), var(--toast-height, 0px));
     --toast-calc-offset-y: calc(var(--toast-offset-y, 0px) + (var(--toast-index, 0) * var(--toast-gap)) + var(--toast-swipe-y, 0px));
     --toast-color: var(--color-text-300);
+    // Circumference of the r=8 countdown ring: 2 * PI * 8.
+    --toast-countdown-length: 50.27;
     --toast-height: 0px;
     --toast-index: 0;
     --toast-offset-y: 0px;

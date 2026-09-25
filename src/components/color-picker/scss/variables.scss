@@ -1,0 +1,33 @@
+.color-picker {
+    --background: var(--color-white-300);
+    --border-color: var(--color-border-300);
+    --border-radius: 20px;
+    --box-shadow:
+        0 0 0 1px oklch(from var(--color-black-500) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
+    --checker: repeating-conic-gradient(var(--color-border-300) 0 25%, var(--color-white-300) 0 50%) 0 0 / 8px 8px;
+    --color: var(--color-text-500);
+    --color-invalid: var(--color-red-400);
+    --color-muted: var(--color-text-300);
+    --control-border-radius: var(--border-radius-400);
+    --control-height: 36px;
+    --focus-width: var(--border-width-500);
+    --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --font-size: calc(var(--font-size-400) * 0.875);
+    --hairline: inset 0 0 0 1px color-mix(in oklch, var(--color) 10%, transparent);
+    --pad-height: 176px;
+    --padding: 12px;
+    --preview-size: 44px;
+    --spacing: 12px;
+    --swatch-size: 28px;
+    --thumb-border: 2px solid var(--color-white-300);
+    --thumb-shadow:
+        0 0 0 1px oklch(from var(--color-black-500) l c h / 0.12),
+        0 1px 3px oklch(from var(--color-black-500) l c h / 0.3);
+    --thumb-size: 20px;
+    --track-height: 12px;
+    --transition-duration: 150ms;
+    --transition-timing-function: ease-out;
+    --width: min(320px, 100%);
+}

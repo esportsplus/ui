@@ -1,0 +1,111 @@
+@use 'variables';
+
+.back-to-top {
+    background: var(--background);
+    border: 0;
+    border-radius: 999px;
+    box-shadow: var(--box-shadow);
+    color: var(--color);
+    cursor: pointer;
+    display: grid;
+    filter: blur(var(--hidden-blur));
+    height: var(--size);
+    opacity: 0;
+    outline: none;
+    overflow: hidden;
+    padding: 0;
+    place-items: center;
+    position: relative;
+    transform: scale(var(--hidden-scale));
+    transition:
+        filter var(--exit-duration) var(--enter-timing-function),
+        opacity var(--exit-duration) var(--enter-timing-function),
+        scale var(--transition-duration) var(--transition-timing-function),
+        transform var(--exit-duration) var(--enter-timing-function),
+        visibility 0s linear var(--exit-duration);
+    visibility: hidden;
+    width: var(--size);
+
+    &.--active {
+        filter: blur(0);
+        opacity: 1;
+        transform: none;
+        transition:
+            filter var(--enter-duration) var(--enter-timing-function),
+            opacity var(--enter-duration) var(--enter-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function),
+            transform var(--enter-duration) var(--enter-timing-function),
+            visibility 0s;
+        visibility: visible;
+    }
+
+    &:active {
+        scale: var(--pressed-scale);
+    }
+
+    &:focus-visible {
+        outline: var(--border-width-500) solid var(--focus-color);
+        outline-offset: 2px;
+    }
+
+    &-arrow {
+        grid-area: 1 / 1;
+        height: 16px;
+        transition: translate var(--transition-duration) var(--transition-timing-function);
+        width: 16px;
+    }
+
+    // How far you've read, drawn around the edge.
+    &-progress,
+    &-track {
+        stroke-width: var(--ring-width);
+    }
+
+    &-progress {
+        stroke: var(--ring-color);
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        stroke-linecap: round;
+    }
+
+    &-ring {
+        height: 100%;
+        inset: 0;
+        pointer-events: none;
+        position: absolute;
+        rotate: -90deg;
+        width: 100%;
+    }
+
+    &-track {
+        stroke: var(--track-color);
+    }
+
+    &--fixed {
+        bottom: var(--offset);
+        position: fixed;
+        right: var(--offset);
+        z-index: var(--z-index);
+    }
+
+    @media (hover: hover) {
+        &:hover &-arrow {
+            translate: 0 var(--hover-lift);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &,
+        &.--active {
+            transition: none;
+        }
+
+        &:active {
+            scale: none;
+        }
+
+        &-arrow {
+            transition: none;
+        }
+    }
+}

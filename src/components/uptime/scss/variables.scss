@@ -1,0 +1,56 @@
+.uptime {
+    --bar-active-scale: 1.15;
+    --bar-border-radius: var(--border-radius-100);
+    --bar-dim: 0.35;
+    --bar-gap: 3px;
+    --bar-height: var(--size-600);
+    --caption-blur: 4px;
+    --caption-offset: 4px;
+    --color: var(--color-text-400);
+    --color-degraded: oklch(0.8 0.15 78);
+    --color-muted: var(--color-text-300);
+    // Healthy days stay low-chroma so months of calm don't shout; incidents keep their strength.
+    --color-ok: oklch(0.8 0.09 160);
+    --color-outage: oklch(0.64 0.2 25);
+    --dot-size: 6px;
+    --font-size: var(--font-size-300);
+    --service-gap: var(--size-600);
+    --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --transition-duration: 0.2s;
+    --width: min(440px, 100%);
+
+    &-bar {
+        --bar-color: var(--color-ok);
+
+        &--degraded {
+            --bar-color: var(--color-degraded);
+        }
+
+        &--outage {
+            --bar-color: var(--color-outage);
+        }
+    }
+
+    &-service-message {
+        &--degraded {
+            --dot: var(--color-degraded);
+        }
+
+        &--ok {
+            --dot: var(--color-ok);
+        }
+
+        &--outage {
+            --dot: var(--color-outage);
+        }
+    }
+
+    &-status {
+        --dot: var(--color-ok);
+        --dot-size: 8px;
+
+        &--degraded {
+            --dot: var(--color-degraded);
+        }
+    }
+}

@@ -1,0 +1,45 @@
+// The panel floats over this reserved space, so opening, morphing and closing never change the demo's height.
+.morphing-nav-demo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-400);
+    height: 340px;
+    width: min(600px, 100%);
+
+    &-action {
+        align-items: center;
+        background: var(--color-text-500);
+        border: 0;
+        border-radius: 10px;
+        color: var(--color-white-300);
+        cursor: pointer;
+        display: flex;
+        font-size: inherit;
+        font-weight: var(--font-weight-500);
+        height: 40px;
+        outline: none;
+        padding-inline: 14px;
+        transition: scale 0.15s ease-out;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-text-500);
+            outline-offset: 2px;
+        }
+    }
+
+    &-brand {
+        color: var(--color-text-500);
+        height: 20px;
+        width: 20px;
+    }
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        margin-top: auto;
+    }
+}

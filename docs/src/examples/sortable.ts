@@ -169,6 +169,37 @@ export default {
                 </div>
             `,
             title: 'list (handle)'
+        },
+        {
+            render: () => {
+                let state = reactive({ last: 'drag a task into the other list' });
+
+                return html`
+                    <div class='sortable-demo'>
+                        <div class='sortable-demo-lists'>
+                            ${[['Backlog', tasks.slice(0, 3)], ['Sprint', tasks.slice(3)]].map(([title, items]) => html`
+                                <div class='sortable-demo-lists-column'>
+                                    <span class='sortable-demo-status'>${title}</span>
+                                    <div
+                                        class='sortable-demo-list sortable-demo-list--group ${modifiers}'
+                                        data-name='${title}'
+                                        ${sortable({
+                                            group: 'sortable-demo',
+                                            onsort: (item, from, to, source, target) => {
+                                                state.last = `${item.textContent?.trim()}: ${source.dataset.name} #${from + 1} → ${target.dataset.name} #${to + 1}`;
+                                            }
+                                        })}
+                                    >
+                                        ${(items as string[]).map((task) => html`<div class='sortable-demo-row'>${task}</div>`)}
+                                    </div>
+                                </div>
+                            `)}
+                        </div>
+                        <span class='sortable-demo-status'>${() => state.last}</span>
+                    </div>
+                `;
+            },
+            title: 'groups (move between lists)'
         }
     ]
 };

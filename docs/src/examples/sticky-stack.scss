@@ -1,0 +1,26 @@
+.sticky-stack-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-400);
+    width: min(480px, 100%);
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+
+    &-subtitle {
+        color: var(--color-text-300);
+        font-size: 14px;
+        margin: 0;
+    }
+
+    &-title {
+        color: var(--color-text-500);
+        font-size: 20px;
+        font-weight: var(--font-weight-600);
+        letter-spacing: -0.025em;
+        margin: 0;
+    }
+}

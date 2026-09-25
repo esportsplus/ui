@@ -1,0 +1,174 @@
+@use 'variables';
+
+.snap-carousel {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 100%;
+    width: var(--max-width);
+
+    &-arrow {
+        align-items: center;
+        background: var(--arrow-background);
+        border: 0;
+        border-radius: 999px;
+        box-shadow: var(--arrow-box-shadow);
+        color: var(--arrow-color);
+        cursor: pointer;
+        display: flex;
+        height: var(--arrow-size);
+        justify-content: center;
+        outline: none;
+        padding: 0;
+        touch-action: manipulation;
+        transition:
+            opacity 0.15s ease-out,
+            scale 0.15s ease-out;
+        user-select: none;
+        width: var(--arrow-size);
+
+        svg {
+            height: 20px;
+            width: 20px;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-ring-color);
+            outline-offset: 2px;
+        }
+
+        &:not(.--disabled):active {
+            scale: var(--arrow-pressed-scale);
+        }
+
+        &.--disabled {
+            cursor: default;
+            opacity: var(--arrow-disabled-opacity);
+        }
+    }
+
+    &-card {
+        background: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--card-box-shadow);
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        height: var(--card-height);
+        justify-content: flex-end;
+        padding: var(--card-padding);
+        width: var(--card-width);
+    }
+
+    &-controls {
+        display: flex;
+        gap: 12px;
+    }
+
+    &-slide {
+        flex-shrink: 0;
+        scroll-snap-align: center;
+    }
+
+    &-text {
+        color: var(--text-color);
+        font-size: var(--text-font-size);
+        line-height: 22px;
+        margin: 0;
+        text-wrap: pretty;
+    }
+
+    &-title {
+        color: var(--title-color);
+        font-size: var(--title-font-size);
+        font-weight: var(--title-font-weight);
+        margin: 0;
+    }
+
+    // Inline padding lets the first and last cards reach the center at any width; block padding
+    // keeps their shadows from being clipped. The faded edges hint there is more past each side.
+    &-track {
+        cursor: grab;
+        display: flex;
+        gap: var(--card-gap);
+        mask-image: linear-gradient(to right, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
+        outline: none;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        padding: var(--size-400) calc((100% - var(--card-width)) / 2);
+        position: relative;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        &.--dragging {
+            cursor: grabbing;
+            user-select: none;
+        }
+    }
+
+    // Holds the focus ring so the edge mask fades only the cards, not the outline.
+    &-viewport {
+        border-radius: var(--card-border-radius);
+        width: 100%;
+
+        &:has(:focus-visible) {
+            outline: 2px solid var(--focus-ring-color);
+            outline-offset: 2px;
+        }
+    }
+
+    // Only the centered card's illustration plays, and only while the carousel is on screen; the
+    // neighbours hold whatever frame they reached.
+    &-visual {
+        height: var(--visual-height);
+        margin-bottom: auto;
+        position: relative;
+        width: 100%;
+
+        * {
+            animation-play-state: paused;
+        }
+    }
+
+    &.--visible &-slide.--active &-visual * {
+        animation-play-state: running;
+    }
+
+    // Driven by each card's own position in the scroller; 50% of the 'cover' range is dead center.
+    @supports (animation-timeline: view()) {
+        &-card {
+            animation: snap-carousel-focus linear both;
+            animation-timeline: view(inline);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --focus-scale: 1;
+
+        &-arrow {
+            transition: opacity 0.15s ease-out;
+        }
+
+        &-visual * {
+            animation: none !important;
+        }
+    }
+}
+
+@keyframes snap-carousel-focus {
+    0%, 100% {
+        opacity: var(--focus-opacity);
+        scale: var(--focus-scale);
+    }
+
+    50% {
+        opacity: 1;
+        scale: 1;
+    }
+}

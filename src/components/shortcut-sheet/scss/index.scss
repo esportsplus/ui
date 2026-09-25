@@ -1,0 +1,306 @@
+@use 'variables';
+
+.shortcut-sheet {
+    display: contents;
+
+
+    &--blur &-dialog.modal::backdrop {
+        backdrop-filter: blur(var(--size-100));
+    }
+
+    &-close {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 50%;
+        color: var(--color-muted);
+        cursor: pointer;
+        display: flex;
+        flex-shrink: 0;
+        height: 36px;
+        justify-content: center;
+        outline: none;
+        touch-action: manipulation;
+        transition:
+            background-color var(--open-duration) ease-out,
+            color var(--open-duration) ease-out,
+            scale var(--open-duration) ease-out;
+        width: 36px;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--color);
+        }
+
+        &:hover {
+            background: var(--surface);
+            color: var(--color);
+        }
+
+        svg {
+            height: var(--size-400);
+            width: var(--size-400);
+        }
+    }
+
+    &-dialog.modal {
+        --backdrop: var(--dialog-backdrop);
+        --margin-horizontal: var(--size-400);
+        --max-width: var(--dialog-width);
+        --scale: var(--dialog-scale);
+        --transition-duration: var(--open-duration);
+        --transition-timing-function: var(--timing-function);
+        --translateY: 0px;
+        background: var(--dialog-background);
+        border-radius: var(--dialog-radius);
+        box-shadow: var(--raised);
+        color: var(--color);
+        overflow: hidden;
+
+        &:not(.--active) {
+            --transition-duration: var(--close-duration);
+        }
+
+        &.--leaving {
+            --scale: 1;
+        }
+    }
+
+    &-empty {
+        color: var(--color-muted);
+        font-size: var(--font-size);
+        padding: var(--size-600) var(--size-100);
+        text-align: center;
+    }
+
+    &-group {
+        display: block;
+        width: 100%;
+    }
+
+    &-group-label {
+        --font-size: var(--font-size-300);
+        color: var(--color-muted);
+        font-weight: var(--font-weight-500);
+        padding: var(--size-400) var(--size-100) calc(var(--size-100) / 2);
+    }
+
+    &-header {
+        align-items: center;
+        display: flex;
+        flex-shrink: 0;
+        height: 56px;
+        justify-content: space-between;
+        padding-inline: var(--size-500) 10px;
+    }
+
+    &-input.input {
+        --background-default: var(--surface);
+        --border-radius: var(--border-radius-400);
+        --color-default: var(--color);
+        --font-size: var(--input-font-size);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: 0px;
+        --size: 40px;
+        height: 40px;
+        outline: none;
+        padding-inline-start: 36px;
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--color);
+        }
+
+        &::placeholder {
+            color: var(--color-muted);
+        }
+
+        &::-webkit-search-cancel-button {
+            display: none;
+        }
+    }
+
+    &-kbd {
+        align-items: center;
+        background: var(--kbd-background);
+        border-radius: var(--border-radius-300);
+        box-shadow:
+            0 0 0 var(--border-width-400) var(--kbd-border-color),
+            inset 0 calc(var(--border-width-400) * -1) 0 var(--kbd-border-color);
+        color: var(--color-muted);
+        display: flex;
+        font-family: inherit;
+        font-size: var(--kbd-font-size);
+        height: var(--kbd-size);
+        justify-content: center;
+        line-height: 1;
+        min-width: var(--kbd-size);
+        padding-inline: 6px;
+        // The inset bottom edge gives the keycap its depth; pressing drops the cap by that edge.
+        transition:
+            background-color var(--kbd-duration) ease-out,
+            box-shadow var(--kbd-duration) ease-out,
+            color var(--kbd-duration) ease-out,
+            translate var(--kbd-duration) ease-out;
+
+        .--active > * > & {
+            background: var(--kbd-pressed-background);
+            box-shadow: none;
+            color: var(--kbd-pressed-color);
+            transition-duration: 0s;
+            translate: 0 1px;
+        }
+    }
+
+    &-keys {
+        display: flex;
+        flex-shrink: 0;
+        gap: calc(var(--size-100) / 2);
+    }
+
+    &-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-list {
+        border-radius: 0 0 var(--dialog-radius) var(--dialog-radius);
+        flex: 1 1 auto;
+        min-height: 0;
+        outline: none;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        // Inset plus the row radius equals the dialog's corners.
+        padding: 0 var(--size-300) var(--size-300);
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--color);
+            outline-offset: calc(var(--border-width-500) * -1);
+        }
+    }
+
+    &-panel {
+        display: flex;
+        flex-direction: column;
+        height: var(--dialog-height);
+    }
+
+    &-row {
+        align-items: center;
+        border-radius: var(--border-radius-400);
+        color: var(--color);
+        display: flex;
+        font-size: var(--font-size);
+        gap: var(--size-400);
+        height: var(--row-height);
+        justify-content: space-between;
+        padding-inline: var(--size-100);
+        transition: background-color var(--flash-duration) ease-out;
+
+        &.--active {
+            background: var(--row-background);
+            transition-duration: 0s;
+        }
+    }
+
+    &-rows {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    &-search {
+        color: var(--color-muted);
+        flex-shrink: 0;
+        margin-inline: var(--size-300);
+        position: relative;
+
+        &-icon {
+            height: var(--size-400);
+            left: var(--size-300);
+            pointer-events: none;
+            position: absolute;
+            top: 50%;
+            translate: 0 -50%;
+            width: var(--size-400);
+            z-index: 1;
+        }
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-title {
+        --font-size: var(--title-font-size);
+        color: var(--color);
+        font-weight: var(--font-weight-600, var(--font-weight-500));
+        width: auto;
+    }
+
+    &-trigger {
+        align-items: center;
+        background: var(--surface);
+        border: 0;
+        border-radius: 999px;
+        box-shadow: var(--raised);
+        color: var(--color);
+        cursor: pointer;
+        display: flex;
+        font: inherit;
+        font-size: var(--font-size);
+        font-weight: var(--font-weight-500);
+        gap: 10px;
+        height: 40px;
+        outline: none;
+        padding-inline: var(--size-400) var(--size-100);
+        touch-action: manipulation;
+        transition: scale var(--open-duration) ease-out;
+        user-select: none;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--color);
+            outline-offset: var(--border-width-500);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-close,
+        &-trigger {
+            &:active {
+                scale: 1;
+            }
+        }
+
+        &-dialog.modal {
+            --scale: 1;
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+
+            &::backdrop {
+                transition: opacity var(--transition-duration) var(--transition-timing-function);
+            }
+        }
+
+        &-kbd {
+            transition:
+                background-color var(--kbd-duration) ease-out,
+                color var(--kbd-duration) ease-out;
+
+            .--active > * > & {
+                translate: none;
+            }
+        }
+    }
+}

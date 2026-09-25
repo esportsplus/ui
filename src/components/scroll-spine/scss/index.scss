@@ -1,0 +1,209 @@
+@use 'variables';
+
+.scroll-spine {
+    flex: none;
+    position: relative;
+    user-select: none;
+    width: var(--width);
+
+    &-band {
+        background: var(--band-color);
+        border-radius: 999px;
+        inset-block: 0;
+        left: 50%;
+        overflow: hidden;
+        position: absolute;
+        translate: -50% 0;
+        width: var(--band-width);
+    }
+
+    &-button {
+        background: none;
+        border: 0;
+        border-radius: var(--border-radius-300);
+        color: inherit;
+        cursor: pointer;
+        font: inherit;
+        inset: 0;
+        outline: none;
+        padding: 0;
+        position: absolute;
+        text-align: left;
+        touch-action: manipulation;
+        transition: scale var(--transition-duration) var(--transition-timing-function);
+
+        &:active {
+            scale: var(--pressed-scale);
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--focus-color);
+        }
+    }
+
+    // Written by the scroll handler; starts empty.
+    &-fill {
+        background: var(--fill-color);
+        border-radius: 999px;
+        inset: 0;
+        position: absolute;
+        transform: scaleY(0);
+        transform-origin: top;
+    }
+
+    &-item {
+        left: 0;
+        position: absolute;
+        right: 0;
+    }
+
+    &-label {
+        border: 0;
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-list {
+        inset: 0;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        position: absolute;
+    }
+
+    // The current section, as a soft block that stretches from band to band like a caterpillar.
+    &-marker {
+        background: var(--marker-color);
+        border-radius: var(--marker-radius);
+        left: 50%;
+        position: absolute;
+        translate: -50% 0;
+        width: 20px;
+    }
+
+    // Exactly where the reading line is, riding the bands.
+    &-notch {
+        background: var(--notch-color);
+        border-radius: 999px;
+        box-shadow: 0 0 0 3px var(--notch-ring-color);
+        height: var(--notch-size);
+        left: 50%;
+        margin: calc(var(--notch-size) / -2) 0 0 calc(var(--notch-size) / -2);
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        width: var(--notch-size);
+
+        &.--active {
+            opacity: 1;
+        }
+    }
+
+    // Hung off the left of the band; only used when the spine is too narrow for inline headings.
+    &-preview {
+        background: var(--preview-background);
+        border-radius: 999px;
+        color: var(--preview-color);
+        filter: blur(2px);
+        font-size: var(--font-size);
+        font-weight: var(--font-weight-500);
+        margin-right: 4px;
+        opacity: 0;
+        padding: 6px 12px;
+        pointer-events: none;
+        position: absolute;
+        right: 100%;
+        top: 0;
+        transition:
+            filter 0.1s var(--preview-timing-function),
+            opacity 0.1s var(--preview-timing-function),
+            translate 0.1s var(--preview-timing-function);
+        translate: 6px 0;
+        white-space: nowrap;
+        z-index: 10;
+    }
+
+    &-button:focus-visible + &-preview {
+        filter: none;
+        opacity: 1;
+        transition-duration: 0.2s;
+        translate: 0 0;
+    }
+
+    @media (hover: hover) {
+        &-button:hover + &-preview {
+            filter: none;
+            opacity: 1;
+            transition-duration: 0.2s;
+            translate: 0 0;
+        }
+    }
+
+    // Wide enough for words: every band carries its heading.
+    &.--inline {
+        .scroll-spine-band {
+            left: 0;
+            translate: none;
+        }
+
+        .scroll-spine-button {
+            left: -8px;
+            padding-left: 20px;
+        }
+
+        .scroll-spine-label {
+            clip-path: none;
+            color: var(--muted-color);
+            display: block;
+            font-size: var(--font-size);
+            height: auto;
+            line-height: 16px;
+            overflow: hidden;
+            position: static;
+            text-overflow: ellipsis;
+            transition: color var(--transition-duration) var(--transition-timing-function);
+            width: auto;
+        }
+
+        .scroll-spine-button.--active .scroll-spine-label {
+            color: var(--color);
+            font-weight: var(--font-weight-500);
+        }
+
+        .scroll-spine-marker {
+            left: -8px;
+            right: 0;
+            translate: none;
+            width: auto;
+        }
+
+        .scroll-spine-notch {
+            left: calc(var(--band-width) / 2);
+        }
+
+        .scroll-spine-preview {
+            display: none;
+        }
+
+        @media (hover: hover) {
+            .scroll-spine-button:hover .scroll-spine-label {
+                color: var(--color);
+            }
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-button {
+            transition: none;
+        }
+
+        &-preview {
+            translate: 0 0;
+        }
+    }
+}

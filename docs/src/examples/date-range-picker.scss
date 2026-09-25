@@ -1,0 +1,42 @@
+.date-range-picker-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-400);
+    width: 100%;
+
+    // Leaves room below the trigger for the popover inside the preview.
+    &--popover {
+        justify-content: flex-start;
+        min-height: 540px;
+    }
+
+    &-content {
+        --border-radius: 24px;
+        --box-shadow: var(--box-shadow-500);
+        --width: min(600px, 90vw);
+
+        .date-range-picker {
+            --box-shadow: none;
+            width: 100%;
+        }
+    }
+
+    &-state {
+        color: var(--color-text-300);
+        font-variant-numeric: tabular-nums;
+    }
+
+    &-trigger {
+        --background-default: var(--color-white-300);
+        --background-hover: var(--color-grey-400);
+        --padding-horizontal: 16px;
+        --padding-vertical: 0px;
+        border-radius: 999px;
+        box-shadow: inset 0 0 0 1px var(--color-border-400);
+        font-size: calc(var(--font-size-400) * 0.875);
+        font-weight: var(--font-weight-500);
+        gap: 8px;
+        height: 40px;
+    }
+}

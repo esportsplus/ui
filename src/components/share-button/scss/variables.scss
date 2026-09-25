@@ -1,0 +1,24 @@
+.share-button {
+    --share-button-background: var(--color-white-300);
+    --share-button-box-shadow:
+        0 0 0 1px color-mix(in oklab, var(--color-black-300) 6%, transparent),
+        0 1px 2px color-mix(in oklab, var(--color-black-300) 6%, transparent),
+        0 6px 16px -6px color-mix(in oklab, var(--color-black-300) 12%, transparent);
+    --share-button-color: var(--color-text-500);
+    --share-button-color-muted: var(--color-text-300);
+    --share-button-divider-color: var(--color-border-300);
+    --share-button-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --share-button-focus-color: color-mix(in oklab, var(--color-text-500) 38%, transparent);
+    --share-button-font-size: 14px;
+    --share-button-height: 44px;
+    --share-button-icon-size: 16px;
+    --share-button-scale-pressed: 0.96;
+    --share-button-target-background-hover: var(--color-grey-400);
+    --share-button-target-size: 36px;
+
+
+    &--surface {
+        --share-button-background: var(--color-grey-400);
+        --share-button-target-background-hover: var(--color-white-300);
+    }
+}

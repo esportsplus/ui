@@ -1,0 +1,254 @@
+@use 'variables';
+
+// Laid out by its own width, not the viewport's, so it works in a column as well as full bleed.
+.feature-spotlight {
+    container-type: inline-size;
+    display: block;
+    // Where the pinned screenshot comes to rest, so it stops clear of whatever follows the section.
+    padding-bottom: calc(var(--size-400) * 2.5);
+    // Keeps the live region inside whatever scrolls the section instead of stretching the page.
+    position: relative;
+    width: 100%;
+
+
+    &-body {
+        color: var(--color-muted);
+        font-size: var(--body-font-size);
+        line-height: 1.625;
+        opacity: 0.6;
+        text-wrap: pretty;
+        transition: opacity var(--text-duration) ease-out;
+
+        .--active > * > * > & {
+            opacity: 1;
+        }
+    }
+
+    &-button {
+        align-items: flex-start;
+        background: none;
+        border: 0;
+        border-radius: var(--border-radius-600);
+        color: inherit;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        font: inherit;
+        gap: var(--size-100);
+        outline: none;
+        padding: calc(var(--size-100) / 2) 0 calc(var(--size-100) / 2) var(--size-400);
+        position: relative;
+        text-align: left;
+        touch-action: manipulation;
+        transition: scale 0.15s ease-out;
+        width: 100%;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--color);
+            outline-offset: calc(var(--size-100) / 2);
+        }
+    }
+
+    &-camera {
+        left: 0;
+        position: absolute;
+        top: 0;
+        transform-origin: top left;
+    }
+
+    &-chrome {
+        align-items: center;
+        background: var(--chrome-background);
+        border-bottom: var(--border-width-400) solid var(--divider-color);
+        display: flex;
+        gap: 6px;
+        height: var(--chrome-height);
+        padding-inline: var(--size-300);
+
+        span {
+            background: var(--chrome-dot);
+            border-radius: 50%;
+            height: var(--size-100);
+            width: var(--size-100);
+        }
+    }
+
+    // The spotlight: a rounded hole whose giant shadow dims the rest. Sized with width and height rather than
+    // scale so its corners stay round. The dim trails on the way out, so the pull back reads as the room lights
+    // coming up after the camera leaves.
+    &-hole {
+        border-radius: var(--hole-radius);
+        box-shadow:
+            0 0 0 var(--border-width-500) var(--ring-color),
+            0 0 0 2000px var(--dim-color);
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        transition: opacity var(--dim-out-duration) var(--ease);
+
+        &.--active {
+            opacity: 1;
+            transition: opacity var(--dim-in-duration) var(--ease) var(--dim-in-delay);
+        }
+    }
+
+    &-item {
+        padding-block: var(--size-700);
+
+        &:first-child {
+            padding-top: var(--size-400);
+        }
+
+        &:last-child {
+            padding-bottom: calc(var(--size-400) * 4);
+        }
+    }
+
+    &-layout {
+        column-gap: var(--column-gap);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    &-list {
+        display: flex;
+        flex-direction: column;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    &-number {
+        color: var(--color-muted);
+        font-size: var(--number-font-size);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--font-weight-500);
+        transition: color var(--text-duration) ease-out;
+
+        .--active > * > * > & {
+            color: var(--color);
+        }
+    }
+
+    &-pin {
+        background: var(--pin-background);
+        padding: var(--size-300) 0 var(--size-400);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    // A rail beside each feature: the lit one is what the screenshot is showing.
+    &-rail {
+        background: var(--rail-background);
+        border-radius: 999px;
+        bottom: calc(var(--size-100) / 2);
+        left: 0;
+        overflow: hidden;
+        position: absolute;
+        top: calc(var(--size-100) / 2);
+        width: 2px;
+
+        span {
+            background: var(--rail-fill);
+            border-radius: inherit;
+            display: block;
+            height: 100%;
+            scale: 1 0;
+            transform-origin: top;
+            transition: scale var(--rail-duration) var(--ease);
+            width: 100%;
+
+            .--active & {
+                scale: 1;
+            }
+        }
+    }
+
+    // Positioned, so measured spots add their offsets up to here.
+    &-shot {
+        position: relative;
+        transform-origin: top left;
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-stage {
+        background: var(--stage-background);
+        border-radius: var(--stage-radius);
+        box-shadow: var(--stage-shadow);
+        margin: 0;
+        overflow: hidden;
+    }
+
+    &-title {
+        color: var(--color-muted);
+        font-size: var(--title-font-size);
+        font-weight: var(--font-weight-600, var(--font-weight-500));
+        line-height: 1.375;
+        text-wrap: balance;
+        transition: color var(--text-duration) ease-out;
+
+        .--active > * > * > &,
+        .feature-spotlight-button:hover > & {
+            color: var(--color);
+        }
+    }
+
+    &-view {
+        overflow: hidden;
+        position: relative;
+    }
+
+    @container (min-width: 34rem) {
+        &-item:first-child {
+            padding-top: calc(var(--size-400) * 1.5);
+        }
+
+        &-layout {
+            grid-template-columns: minmax(0, 1fr) minmax(0, var(--stage-width));
+        }
+
+        &-list {
+            order: 1;
+        }
+
+        &-pin {
+            align-self: start;
+            background: transparent;
+            order: 2;
+            padding: 0;
+            top: var(--sticky-top, var(--size-500));
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-button:active {
+            scale: 1;
+        }
+
+        &-hole {
+            &,
+            &.--active {
+                transition: opacity 0.2s linear;
+            }
+        }
+
+        &-rail span {
+            transition: none;
+        }
+    }
+}

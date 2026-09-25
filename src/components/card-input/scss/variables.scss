@@ -1,0 +1,29 @@
+.card-input {
+    --card-background: var(--color-text-500);
+    --card-border-radius: var(--border-radius-700);
+    --card-color: var(--color-white-300);
+    --card-number-font-size: clamp(16px, 5.2vw, 21px);
+    --card-shadow: var(--box-shadow-300);
+    --color: var(--color-text-500);
+    --digit-duration: 150ms;
+    --error-color: var(--color-red-400);
+    --field-background: var(--color-white-300);
+    --field-border-color: var(--color-border-300);
+    --field-border-radius: var(--border-radius-600);
+    --field-font-size: 15px;
+    --field-height: 44px;
+    // A half turn across the card's full width reads as a rush under ~400ms, and nobody waits on it.
+    --flip-duration: 764ms;
+    --flip-timing-function: linear(0, 0.031, 0.108, 0.205, 0.315, 0.421, 0.524, 0.614, 0.695, 0.762, 0.82, 0.865, 0.903, 0.931, 0.954, 0.97, 0.982, 0.991, 0.997, 1.001, 1.004, 1.005, 1.006, 1.006, 1.005, 1.005, 1.004, 1.004, 1.003, 1.002, 1);
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --label-font-size: var(--font-size-300);
+    --label-font-weight: var(--font-weight-500);
+    --muted-color: var(--color-text-300);
+    --outline-color: var(--color-text-500);
+    --ring-duration: 300ms;
+    --spring: linear(0, 0.035, 0.118, 0.216, 0.319, 0.424, 0.515, 0.6, 0.669, 0.728, 0.781, 0.822, 0.856, 0.885, 0.908, 0.927, 0.942, 0.954, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
+    --submit-background: var(--color-text-500);
+    --submit-color: var(--color-white-300);
+    --swap-duration: 300ms;
+    --width: min(400px, 100%);
+}

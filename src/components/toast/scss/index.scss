@@ -127,6 +127,30 @@
         justify-content: center;
     }
 
+    // The ring is the timer itself: linear because it is a clock.
+    &-countdown {
+        flex-shrink: 0;
+        height: 20px;
+        rotate: -90deg;
+        width: 20px;
+
+        circle {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        &-ring {
+            animation: toast-countdown linear forwards;
+            stroke-dasharray: var(--toast-countdown-length);
+            stroke-linecap: round;
+        }
+
+        &-track {
+            opacity: 0.2;
+        }
+    }
+
     &-description {
         color: var(--color-text-300);
         overflow-wrap: anywhere;
@@ -220,6 +244,12 @@
 }
 
 
+// Hovering the stack pauses every timer, so the rings pause with them.
+.toaster.--active .toast-countdown-ring {
+    animation-play-state: paused;
+}
+
+
 // Entering: start off-screen (faded) and let the base transform animate in.
 .toaster .toast.toast--starting {
     opacity: 0;
@@ -280,6 +310,12 @@
     }
 }
 
+
+@keyframes toast-countdown {
+    to {
+        stroke-dashoffset: var(--toast-countdown-length);
+    }
+}
 
 @keyframes toast-spin {
     to {

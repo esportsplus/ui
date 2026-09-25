@@ -1,0 +1,70 @@
+.dynamic-island-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 100%;
+    width: 420px;
+
+    &-option {
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+        color: var(--color-text-300);
+        cursor: pointer;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        height: 36px;
+        outline: none;
+        padding: 0 16px;
+        touch-action: manipulation;
+        transition:
+            background-color 0.15s ease-out,
+            color 0.15s ease-out,
+            scale 0.15s ease-out;
+        user-select: none;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid oklch(from var(--color-text-500) l c h / 0.38);
+            outline-offset: 2px;
+        }
+
+        &:hover {
+            color: var(--color-text-500);
+        }
+
+        &.--active {
+            background: var(--color-white-300);
+            box-shadow:
+                0 0 0 1px oklch(from var(--color-black-500) l c h / 0.06),
+                0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
+                0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
+            color: var(--color-text-500);
+        }
+    }
+
+    &-options {
+        background: var(--color-grey-400);
+        border-radius: 999px;
+        box-shadow:
+            0 0 0 1px oklch(from var(--color-black-500) l c h / 0.06),
+            0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
+            0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
+        display: flex;
+        gap: 4px;
+        padding: 6px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-option {
+            transition:
+                background-color 0.15s ease-out,
+                color 0.15s ease-out;
+        }
+    }
+}

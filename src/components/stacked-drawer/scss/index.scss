@@ -1,0 +1,122 @@
+@use '/lib';
+@use '/tokens';
+@use 'variables';
+
+.stacked-drawer {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    height: var(--height);
+    isolation: isolate;
+    max-width: 100%;
+    overflow: hidden;
+    position: relative;
+    width: var(--width);
+
+
+    // Following the finger: the layer below tracks the drag too, so neither may ease.
+    &.--dragging {
+        cursor: grabbing;
+
+        .stacked-drawer-page,
+        .stacked-drawer-sheet {
+            transition: none;
+
+            &::after {
+                transition: none;
+            }
+        }
+    }
+
+
+    &-handle {
+        background: var(--handle-color);
+        border-radius: 9999px;
+        flex-shrink: 0;
+        height: 6px;
+        margin: 10px auto 0;
+        width: 44px;
+    }
+
+    // '--covered' is how far the layer above has opened, from 0 to 1.
+    &-page,
+    &-sheet {
+        --duration-covered: var(--duration-close);
+
+        display: flex;
+        flex-direction: column;
+        scale: calc(1 - var(--covered) * (1 - var(--scale)));
+        transform-origin: top;
+
+        &::after {
+            @include lib.position(absolute, full);
+            background: var(--dim-color);
+            border-radius: inherit;
+            content: '';
+            opacity: calc(var(--covered) * var(--dim));
+            pointer-events: none;
+            transition: opacity var(--duration-covered) var(--timing-function);
+        }
+
+        &.--covered {
+            --duration-covered: var(--duration-open);
+        }
+    }
+
+    &-page {
+        @include lib.position(absolute, full);
+        background: var(--page-background);
+        border-radius: inherit;
+        transition:
+            scale var(--duration-covered) var(--timing-function),
+            translate var(--duration-covered) var(--timing-function);
+        translate: 0 calc(var(--covered) * var(--peek));
+    }
+
+    // Extends past the bottom edge by '--overscroll' so an upward drag never reveals a gap beneath it.
+    &-sheet {
+        --duration-translate: var(--duration-close);
+
+        background: var(--sheet-background);
+        border-radius: var(--sheet-border-radius) var(--sheet-border-radius) 0 0;
+        box-shadow: var(--sheet-box-shadow);
+        inset: calc(var(--inset) + (var(--peek) * var(--index))) 0 calc(var(--overscroll) * -1) 0;
+        outline: none;
+        padding-bottom: var(--overscroll);
+        position: absolute;
+        touch-action: none;
+        transition:
+            scale var(--duration-covered) var(--timing-function),
+            translate var(--duration-translate) var(--timing-function);
+        translate: 0 100%;
+        user-select: none;
+
+        @include tokens.state(active) {
+            --duration-translate: var(--duration-open);
+
+            translate: 0 var(--offset);
+
+            &:not(.--covered) {
+                cursor: grab;
+            }
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &-page,
+        &-sheet {
+            scale: none;
+            translate: none;
+        }
+
+        &-sheet {
+            opacity: 0;
+            transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+            translate: 0 var(--offset);
+
+            @include tokens.state(active) {
+                opacity: 1;
+            }
+        }
+    }
+}

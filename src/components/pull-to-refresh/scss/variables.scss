@@ -1,0 +1,10 @@
+.pull-to-refresh {
+    --background: var(--color-white-300);
+    --color: var(--color-text-500);
+    --fade-duration: 0.15s;
+    --fade-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --height: 100%;
+    --indicator-height: 64px;
+    --spin-duration: 0.8s;
+    --spinner-size: 24px;
+}

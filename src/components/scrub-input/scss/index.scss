@@ -1,0 +1,105 @@
+@use 'variables';
+
+.scrub-input {
+    align-items: center;
+    background: var(--background);
+    border-radius: var(--border-radius);
+    color: var(--color);
+    display: flex;
+    height: var(--height);
+    overflow: hidden;
+    position: relative;
+
+    &:has(.scrub-input-field:focus-visible) {
+        outline: var(--outline-width) solid var(--outline-color);
+    }
+
+
+    // Qualified by the root so it wins over the reused input styles regardless of stylesheet order.
+    & > #{&}-field {
+        --color-default: currentColor;
+        --font-size: inherit;
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        font-variant-numeric: tabular-nums;
+        height: 100%;
+        min-height: 0;
+        outline: none;
+        padding-inline-end: var(--field-padding);
+    }
+
+    &-label {
+        align-items: center;
+        color: var(--label-color);
+        cursor: ew-resize;
+        display: flex;
+        flex-shrink: 0;
+        font-size: var(--font-size);
+        height: 100%;
+        justify-content: center;
+        touch-action: none;
+        transition: color var(--transition-duration) var(--transition-timing-function);
+        user-select: none;
+        width: var(--label-width);
+
+        svg {
+            height: 16px;
+            width: 16px;
+        }
+
+        &:hover,
+        .scrub-input.--active & {
+            color: var(--label-color-active);
+        }
+    }
+
+    &-needle {
+        background: var(--needle-color);
+        bottom: 0;
+        height: var(--tape-height);
+        left: 50%;
+        position: absolute;
+        translate: -50% 0;
+        width: 1px;
+    }
+
+    // Runs under a fixed needle while scrubbing: one step is one pixel of tape, so the ticks travel exactly as far as the pointer.
+    &-tape {
+        bottom: 0;
+        color: var(--tape-color);
+        height: var(--tape-height);
+        inset-inline: 0;
+        mask-image: linear-gradient(to right, transparent, #000 30%, #000 70%, transparent);
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        transition:
+            opacity var(--tape-leave-duration) var(--tape-timing-function),
+            translate var(--tape-leave-duration) var(--tape-timing-function);
+        translate: 0 4px;
+
+        .scrub-input.--active > & {
+            opacity: 1;
+            transition-duration: var(--tape-enter-duration);
+            translate: 0 0;
+        }
+    }
+
+    &-ticks {
+        background-image:
+            linear-gradient(to right, currentColor 1px, transparent 1px),
+            linear-gradient(to right, currentColor 1px, transparent 1px);
+        background-position-x: calc(50% - var(--offset, 0px));
+        background-position-y: bottom;
+        background-repeat: repeat-x;
+        background-size: var(--tick) var(--tape-minor-height), calc(var(--tick) * 5) var(--tape-major-height);
+        inset: 0;
+        position: absolute;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scrub-input-tape {
+        translate: 0 0;
+    }
+}

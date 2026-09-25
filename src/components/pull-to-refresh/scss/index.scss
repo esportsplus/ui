@@ -1,0 +1,91 @@
+@use 'variables';
+
+// JS writes only '--y' (feed offset in px, unitless), '--pull' (0 to 1 toward the threshold) and '--reveal' (share of ticks
+// drawn); everything else is derived here.
+.pull-to-refresh {
+    --pull: 0;
+    --reveal: 0;
+    --y: 0;
+    height: var(--height);
+    min-height: 0;
+    position: relative;
+
+    &-content {
+        background: var(--background);
+        min-height: 100%;
+        translate: 0 calc(var(--y) * 1px);
+        user-select: none;
+    }
+
+    // Dropped to 0 when a refresh ends, so the spinner fades rather than shrinking tick by tick as the feed retracts.
+    &-glyph {
+        display: flex;
+        rotate: calc(var(--y) * 3deg);
+
+        &.--fading {
+            opacity: 0;
+            transition: opacity var(--fade-duration) var(--fade-timing-function);
+        }
+    }
+
+    &-indicator {
+        align-items: center;
+        color: var(--color);
+        display: flex;
+        height: var(--indicator-height);
+        inset: 0 0 auto;
+        justify-content: center;
+        opacity: var(--pull);
+        pointer-events: none;
+        position: absolute;
+    }
+
+    &-scroller {
+        height: 100%;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        position: relative;
+    }
+
+    &-spinner {
+        height: var(--spinner-size);
+        width: var(--spinner-size);
+    }
+
+    &-status {
+        border: 0;
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    // Graded like the system spinner: the leading tick is solid and each one behind it fades, so the stepped rotation reads
+    // as a sweep. Ticks are drawn in clockwise from the top as the pull grows.
+    &-tick {
+        opacity: calc(clamp(0, (var(--reveal) * 8 - var(--order)) * 1000, 1) * (1 - var(--index) * 0.1));
+    }
+
+    // The indeterminate spin is a stepped rotation of graded ticks, like the system activity indicator.
+    &.--refreshing &-spinner {
+        animation: pull-to-refresh-spin var(--spin-duration) steps(8) infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &.--refreshing &-spinner {
+            animation: none;
+        }
+
+        &-glyph.--fading {
+            transition: none;
+        }
+    }
+}
+
+@keyframes pull-to-refresh-spin {
+    to {
+        rotate: 360deg;
+    }
+}

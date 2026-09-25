@@ -1,0 +1,22 @@
+.autosave {
+    --blur: 3px;
+    --check-color: var(--color-text-500);
+    --check-delay: 0.12s;
+    --check-duration: 0.35s;
+    --check-stroke-width: 1.6;
+    --color: var(--color-text-300);
+    --dot-gap: calc(var(--icon-size) * 0.3125);
+    --dot-size: calc(var(--icon-size) / 4);
+    --enter-duration: 0.22s;
+    --exit-duration: 0.12s;
+    --font-size: var(--font-size-300);
+    --gap: 0.5rem;
+    --icon-size: 1.25em;
+    --move-duration: 0.4s;
+    --pulse-duration: 1s;
+    --pulse-stagger: 0.16s;
+    --shift: 3px;
+    --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    // As wide as the longest label, so the icon never shifts and old and new words cross in the same spot.
+    --width: 11em;
+}

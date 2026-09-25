@@ -1,0 +1,198 @@
+@use 'variables';
+
+.shortcut-recorder {
+    align-items: center;
+    color: var(--color);
+    display: flex;
+    font-size: var(--font-size);
+    gap: var(--gap);
+    justify-content: space-between;
+
+    &-dot {
+        animation: shortcut-recorder-blink 1.1s ease-in-out infinite;
+        background: var(--color-error);
+        border-radius: 50%;
+        height: 6px;
+        width: 6px;
+    }
+
+    &-error {
+        animation: shortcut-recorder-reveal 180ms var(--timing-function-out);
+        color: var(--color-error);
+        display: block;
+        font-size: var(--font-size-small);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-field {
+        align-items: center;
+        background: var(--background);
+        border: 0;
+        border-radius: var(--border-radius);
+        box-shadow: inset 0 0 0 var(--border-width) var(--border-color);
+        color: inherit;
+        cursor: pointer;
+        display: flex;
+        flex-shrink: 0;
+        font: inherit;
+        gap: var(--gap);
+        height: var(--height);
+        justify-content: flex-end;
+        min-width: var(--min-width);
+        outline: none;
+        padding: 0 var(--padding-horizontal);
+        transition:
+            background var(--transition-duration) var(--timing-function-out),
+            box-shadow var(--transition-duration) var(--timing-function-out);
+
+        // Recording already draws a dark edge, a focus ring on top of it would double up.
+        &:not(.--active):focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+        }
+
+        &[data-shake='1'] {
+            animation: shortcut-recorder-shake-1 320ms ease-out;
+        }
+
+        &[data-shake='2'] {
+            animation: shortcut-recorder-shake-2 320ms ease-out;
+        }
+    }
+
+    &-key {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        box-shadow:
+            inset 0 0 0 1px var(--border-color),
+            0 1px 0 var(--border-color);
+        display: grid;
+        font-family: inherit;
+        font-size: var(--font-size-small);
+        font-weight: var(--font-weight-500);
+        height: var(--size);
+        min-width: var(--size);
+        padding: 0 var(--padding-horizontal);
+        place-items: center;
+
+        &--enter {
+            animation: shortcut-recorder-enter 300ms var(--timing-function-spring) backwards;
+        }
+
+        &--settle {
+            animation: shortcut-recorder-settle 300ms var(--timing-function-spring) calc(var(--index) * 30ms) backwards;
+        }
+    }
+
+    // Fills the free space so the error beneath has room before it truncates.
+    &-label {
+        flex: 1 1 auto;
+        min-width: 0;
+        position: relative;
+    }
+
+    &-placeholder {
+        align-items: center;
+        color: var(--color-muted);
+        display: flex;
+        font-size: var(--font-size-small);
+        gap: 6px;
+        padding: 0 6px;
+
+        &--fade {
+            animation: shortcut-recorder-fade 180ms var(--timing-function-out);
+        }
+    }
+
+    // Hangs below the label without taking room, so labels stay centred against their fields.
+    &-status {
+        inset: 100% 0 auto;
+        padding-top: 2px;
+        position: absolute;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-dot,
+        &-error,
+        &-field,
+        &-key,
+        &-placeholder {
+            animation: none;
+            transition: none;
+        }
+    }
+}
+
+@keyframes shortcut-recorder-blink {
+    50% {
+        opacity: 0.25;
+    }
+}
+
+@keyframes shortcut-recorder-enter {
+    from {
+        filter: blur(3px);
+        opacity: 0;
+        scale: 0.8;
+    }
+}
+
+@keyframes shortcut-recorder-fade {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes shortcut-recorder-reveal {
+    from {
+        filter: blur(3px);
+        opacity: 0;
+        translate: 0 -2px;
+    }
+}
+
+@keyframes shortcut-recorder-settle {
+    from {
+        opacity: 0.6;
+        scale: 1.08;
+        translate: 0 -3px;
+    }
+}
+
+@keyframes shortcut-recorder-shake-1 {
+    20% {
+        translate: -4px;
+    }
+
+    40% {
+        translate: 4px;
+    }
+
+    60% {
+        translate: -3px;
+    }
+
+    80% {
+        translate: 3px;
+    }
+}
+
+@keyframes shortcut-recorder-shake-2 {
+    20% {
+        translate: -4px;
+    }
+
+    40% {
+        translate: 4px;
+    }
+
+    60% {
+        translate: -3px;
+    }
+
+    80% {
+        translate: 3px;
+    }
+}

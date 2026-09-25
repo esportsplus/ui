@@ -1,0 +1,56 @@
+.onboarding-checklist-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    width: min(400px, 100%);
+
+    &-card {
+        animation: onboarding-checklist-demo-enter 250ms cubic-bezier(0.23, 1, 0.32, 1);
+        width: 100%;
+    }
+
+    &-restore {
+        --background-default: var(--color-grey-400);
+        --color-default: var(--color-text-500);
+        --padding-horizontal: 16px;
+        --padding-vertical: 0px;
+        animation: onboarding-checklist-demo-restore 250ms cubic-bezier(0.23, 1, 0.32, 1);
+        border-radius: 999px;
+        box-shadow: 0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06), 0 1px 2px oklch(from var(--color-black-300) l c h / 0.06), 0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+        font-size: calc(var(--font-size-400) * 0.875);
+        font-weight: var(--font-weight-500);
+        height: 36px;
+
+        &:active {
+            scale: 0.96;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-card,
+        &-restore {
+            animation-name: onboarding-checklist-demo-fade;
+        }
+    }
+}
+
+@keyframes onboarding-checklist-demo-enter {
+    from {
+        filter: blur(4px);
+        opacity: 0;
+        translate: 0 -4px;
+    }
+}
+
+@keyframes onboarding-checklist-demo-fade {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes onboarding-checklist-demo-restore {
+    from {
+        filter: blur(4px);
+        opacity: 0;
+    }
+}

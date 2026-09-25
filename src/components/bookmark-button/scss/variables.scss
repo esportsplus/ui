@@ -1,0 +1,28 @@
+.bookmark-button {
+    --bookmark-button-background: var(--color-grey-400);
+    --bookmark-button-background-hover: var(--color-white-300);
+    --bookmark-button-box-shadow:
+        0 0 0 1px color-mix(in oklab, var(--color-black-300) 6%, transparent),
+        0 1px 2px color-mix(in oklab, var(--color-black-300) 6%, transparent),
+        0 6px 16px -6px color-mix(in oklab, var(--color-black-300) 12%, transparent);
+    --bookmark-button-color: var(--color-text-500);
+    --bookmark-button-count-color: var(--color-text-500);
+    --bookmark-button-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --bookmark-button-fill-duration: 260ms;
+    --bookmark-button-focus-color: color-mix(in oklab, var(--color-text-500) 38%, transparent);
+    --bookmark-button-font-size: 14px;
+    --bookmark-button-gap: var(--size-100);
+    --bookmark-button-height: 40px;
+    --bookmark-button-icon-size: 20px;
+    --bookmark-button-scale-pressed: 0.96;
+    --bookmark-button-unfill-duration: 150ms;
+    --border-radius: 999px;
+    --padding-horizontal: 16px;
+    --padding-vertical: 0px;
+
+
+    &--white {
+        --bookmark-button-background: var(--color-white-300);
+        --bookmark-button-background-hover: color-mix(in oklab, var(--color-white-300) 60%, transparent);
+    }
+}

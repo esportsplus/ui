@@ -1,0 +1,42 @@
+.collapsible-sidebar {
+    --background: var(--color-white-300);
+    --border-color: var(--color-border-300);
+    --border-radius: var(--border-radius-700);
+    --box-shadow: 0 0 0 var(--border-width-400) var(--border-color), var(--box-shadow-200);
+    --color: var(--color-text-300);
+    --color-active: var(--color-text-500);
+    --focus-color: var(--color-text-500);
+    --font-size: var(--font-size-400);
+    --font-weight: var(--font-weight-500);
+    --gap: 4px;
+    --header-height: 56px;
+    --highlight-background: var(--color-grey-400);
+    // Critically damped (no bounce) spring sampled over its settle time; only the duration changes per use.
+    --highlight-duration: 0.31s;
+    --highlight-timing-function: var(--spring);
+    --icon-size: 20px;
+    --item-border-radius: var(--border-radius-400);
+    --item-height: 40px;
+    --label-blur: 4px;
+    // Expanding waits for the rail to open most of the way before the label sharpens in.
+    --label-delay: 0.12s;
+    --label-duration-in: 0.2s;
+    --label-duration-out: 0.1s;
+    --padding: 8px;
+    --spring: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
+    --tip-duration-in: 0.125s;
+    --tip-duration-out: 0.1s;
+    --tip-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --width: var(--width-expanded);
+    --width-collapsed: 64px;
+    --width-duration: 0.38s;
+    --width-expanded: 240px;
+    --width-timing-function: var(--spring);
+
+
+    &--dense {
+        --gap: 2px;
+        --item-height: 36px;
+        --width-collapsed: 56px;
+    }
+}

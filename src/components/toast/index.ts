@@ -27,6 +27,15 @@ const ICONS = { error, info, loading, success, warning };
 const dismiss = toast.dismiss;
 
 
+function countdown(toast: Toast) {
+    return html`
+        <svg aria-hidden='true' class='toast-countdown' data-cycle='${toast.cycle}' viewBox='0 0 20 20'>
+            <circle class='toast-countdown-track' cx='10' cy='10' r='8' />
+            <circle class='toast-countdown-ring' cx='10' cy='10' r='8' style='animation-duration: ${toast.duration}ms;' />
+        </svg>
+    `;
+}
+
 function row(toast: Toast, position: Position) {
     let swipe = reactive({ direction: '', x: 0, y: 0 }),
         horizontal = position.endsWith('left') || position.endsWith('right'),
@@ -122,6 +131,7 @@ function row(toast: Toast, position: Position) {
             }}
         >
             <div class='toast-content'>
+                ${() => toast.countdown && countdown(toast)}
                 ${toast.type !== 'message' ? icon({ class: 'toast-icon' }, ICONS[toast.type]) : ''}
 
                 <div class='--flex-column --flex-fill'>

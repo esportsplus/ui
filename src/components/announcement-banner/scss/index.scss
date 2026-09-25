@@ -1,0 +1,183 @@
+@use '/tokens';
+@use 'variables';
+
+.announcement-banner {
+    display: grid;
+    grid-template-rows: 0fr;
+    // Waits for the content to mostly fade, so the text never gets squeezed while readable.
+    transition: grid-template-rows 240ms var(--announcement-banner-drawer) 80ms;
+
+
+    &-clip {
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    &-content {
+        align-items: center;
+        background: var(--announcement-banner-background);
+        color: var(--announcement-banner-color);
+        display: flex;
+        filter: blur(2px);
+        flex-wrap: nowrap;
+        font-size: var(--announcement-banner-font-size);
+        gap: 10px;
+        height: var(--announcement-banner-height);
+        opacity: 0;
+        outline: none;
+        padding-inline: 16px 6px;
+        transition:
+            filter 120ms var(--announcement-banner-ease),
+            opacity 120ms var(--announcement-banner-ease);
+        translate: 0 -100%;
+    }
+
+    &-dismiss.button {
+        --background-default: transparent;
+        --background-hover: color-mix(in oklab, var(--announcement-banner-color) 15%, transparent);
+        --border-radius: 999px;
+        --color-default: color-mix(in oklab, var(--announcement-banner-color) 70%, transparent);
+        --color-hover: var(--announcement-banner-color);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+
+        border: 0;
+        flex-shrink: 0;
+        height: 32px;
+        margin-inline-start: auto;
+        outline: none;
+        touch-action: manipulation;
+        transition:
+            background-color 150ms ease-out,
+            color 150ms ease-out,
+            scale 150ms ease-out;
+        user-select: none;
+        width: 32px;
+
+        // Grows the hit area to 40px without growing the circle.
+        &::before {
+            border-radius: 999px;
+            content: '';
+            inset: -4px;
+            position: absolute;
+        }
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--announcement-banner-color);
+        }
+
+        svg {
+            fill: none;
+            height: var(--announcement-banner-icon-size);
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-width: 1.5;
+            width: var(--announcement-banner-icon-size);
+        }
+    }
+
+    &-icon {
+        display: flex;
+        flex-shrink: 0;
+
+        svg {
+            fill: none;
+            height: var(--announcement-banner-icon-size);
+            stroke: currentColor;
+            stroke-linejoin: round;
+            stroke-width: 1.5;
+            width: var(--announcement-banner-icon-size);
+        }
+    }
+
+    &-link {
+        border-radius: var(--border-radius-100);
+        color: inherit;
+        flex-shrink: 0;
+        font-weight: var(--font-weight-500);
+        outline: none;
+        text-decoration: underline;
+        text-decoration-color: color-mix(in oklab, var(--announcement-banner-color) 40%, transparent);
+        text-underline-offset: 3px;
+        transition: text-decoration-color 150ms ease-out;
+
+        &:hover {
+            text-decoration-color: var(--announcement-banner-color);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--announcement-banner-color);
+            outline-offset: 2px;
+        }
+    }
+
+    &-text {
+        flex: 0 1 auto;
+        margin: 0;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: auto;
+    }
+
+
+    &--returning {
+        .announcement-banner-content {
+            translate: 0 0;
+        }
+    }
+
+
+    @include tokens.state(active) {
+        grid-template-rows: 1fr;
+        transition: grid-template-rows 280ms var(--announcement-banner-drawer);
+
+        .announcement-banner-content {
+            filter: blur(0px);
+            opacity: 1;
+            transition:
+                filter 200ms var(--announcement-banner-ease),
+                opacity 200ms var(--announcement-banner-ease),
+                translate 280ms var(--announcement-banner-drawer);
+            translate: 0 0;
+        }
+
+        // Starts once the space has mostly opened.
+        &.announcement-banner--returning .announcement-banner-content {
+            transition:
+                filter 200ms var(--announcement-banner-ease) 120ms,
+                opacity 200ms var(--announcement-banner-ease) 120ms;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &,
+        &.--active {
+            transition: none;
+        }
+
+        .announcement-banner-content,
+        &.--active .announcement-banner-content,
+        &.--active.announcement-banner--returning .announcement-banner-content {
+            filter: none;
+            transition: opacity 200ms var(--announcement-banner-ease);
+            translate: 0 0;
+        }
+
+        &-dismiss.button {
+            transition:
+                background-color 150ms ease-out,
+                color 150ms ease-out;
+
+            &:active {
+                scale: 1;
+            }
+        }
+    }
+}

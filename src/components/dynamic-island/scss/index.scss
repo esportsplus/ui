@@ -1,0 +1,278 @@
+@use 'variables';
+
+// Fixed to the tallest state and anchored at the top, so the island grows down and out symmetrically
+// and nothing below it ever moves.
+.dynamic-island {
+    display: flex;
+    height: max(var(--idle-height), var(--music-height), var(--ring-height), var(--timer-height));
+    justify-content: center;
+    position: relative;
+    width: 100%;
+
+    &-artist {
+        color: oklch(from var(--color) l c h / 0.6);
+        font-size: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-bell {
+        transform-origin: 50% 15%;
+    }
+
+    // Each state's content is laid out at its own final size and centered, so text never reflows while
+    // the pill morphs around it; the pill clips it until the shape catches up. Old content clears out
+    // fast and the new one waits a beat, so the two never read as overlapping text.
+    &-content {
+        align-items: center;
+        box-sizing: border-box;
+        display: flex;
+        filter: blur(4px);
+        gap: 16px;
+        height: var(--height);
+        left: 0;
+        margin: 0 auto;
+        max-width: var(--max-width);
+        opacity: 0;
+        padding: 0 18px;
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+        scale: 0.95;
+        top: 0;
+        transition:
+            filter var(--content-exit-duration) var(--ease-out),
+            opacity var(--content-exit-duration) var(--ease-out),
+            scale 0s var(--content-exit-duration),
+            visibility 0s var(--content-exit-duration);
+        visibility: hidden;
+        width: var(--width);
+
+        @each $mode in idle, music, ring, timer {
+            &--#{$mode} {
+                --height: var(--#{$mode}-height);
+                --width: var(--#{$mode}-width);
+            }
+        }
+
+        &--music {
+            padding: 0 24px;
+        }
+
+        &.--active {
+            filter: blur(0);
+            opacity: 1;
+            pointer-events: auto;
+            scale: 1;
+            transition:
+                filter var(--content-duration) var(--ease-out) var(--content-delay),
+                opacity var(--content-duration) var(--ease-out) var(--content-delay),
+                scale var(--content-duration) var(--ease-out) var(--content-delay);
+            visibility: visible;
+        }
+    }
+
+    &-content--ring.--active &-bell {
+        animation: dynamic-island-bell 0.6s ease-in-out 0.15s;
+    }
+
+    // An endless loop nothing interrupts; pausing freezes the bars in place rather than snapping them.
+    &-eq {
+        align-items: flex-end;
+        display: flex;
+        gap: 4px;
+        height: 20px;
+
+        span {
+            animation: dynamic-island-eq ease-in-out infinite alternate;
+            background: var(--color);
+            border-radius: 999px;
+            height: 100%;
+            scale: 1 var(--rest);
+            transform-origin: bottom;
+            width: 4px;
+        }
+
+        &.--paused span {
+            animation-play-state: paused;
+        }
+    }
+
+    &-icon {
+        flex-shrink: 0;
+        height: 20px;
+        width: 20px;
+    }
+
+    &-label {
+        font-size: 14px;
+        font-weight: 500;
+        margin-left: auto;
+    }
+
+    // A faint lens, like the camera sitting in the real cutout.
+    &-lens {
+        background: oklch(from var(--color) l c h / 0.15);
+        border-radius: 999px;
+        height: 12px;
+        margin-left: auto;
+        width: 12px;
+    }
+
+    &-pause,
+    &-play {
+        grid-area: 1 / 1;
+        height: 20px;
+        transition:
+            filter 0.3s var(--spring),
+            opacity 0.3s var(--spring),
+            scale 0.3s var(--spring);
+        width: 20px;
+    }
+
+    &-pause,
+    &-toggle.--playing &-play {
+        filter: blur(4px);
+        opacity: 0;
+        scale: 0.25;
+    }
+
+    &-toggle.--playing &-pause {
+        filter: blur(0);
+        opacity: 1;
+        scale: 1;
+    }
+
+    &-pill {
+        background: var(--background);
+        border-radius: var(--shape-radius);
+        color: var(--color);
+        height: var(--shape-height);
+        max-width: var(--max-width);
+        overflow: hidden;
+        position: relative;
+        transition:
+            border-radius var(--morph-duration) var(--morph-easing),
+            height var(--morph-duration) var(--morph-easing),
+            width var(--morph-duration) var(--morph-easing);
+        width: var(--shape-width);
+    }
+
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-time {
+        font-size: 15px;
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        margin-left: auto;
+    }
+
+    &-title {
+        font-size: 15px;
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-toggle {
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+        color: inherit;
+        cursor: pointer;
+        display: grid;
+        flex-shrink: 0;
+        height: 44px;
+        margin-right: -6px;
+        outline: none;
+        padding: 0;
+        place-items: center;
+        touch-action: manipulation;
+        transition:
+            background-color 0.15s ease-out,
+            scale 0.15s ease-out;
+        width: 44px;
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-ring-color);
+        }
+
+        &:hover {
+            background: oklch(from var(--color) l c h / 0.1);
+        }
+    }
+
+    &-track {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --morph-duration: 0.3s;
+        --morph-easing: var(--spring);
+
+        &-content,
+        &-content.--active,
+        &-pause,
+        &-toggle.--playing &-play {
+            filter: none;
+            scale: 1;
+        }
+
+        &-content--ring.--active &-bell,
+        &-eq span {
+            animation: none;
+        }
+
+        &-toggle {
+            transition: background-color 0.15s ease-out;
+        }
+    }
+}
+
+@keyframes dynamic-island-bell {
+    0%, 100% {
+        rotate: 0deg;
+    }
+
+    20% {
+        rotate: -16deg;
+    }
+
+    40% {
+        rotate: 13deg;
+    }
+
+    60% {
+        rotate: -9deg;
+    }
+
+    80% {
+        rotate: 5deg;
+    }
+}
+
+@keyframes dynamic-island-eq {
+    from {
+        scale: 1 0.3;
+    }
+
+    to {
+        scale: 1 1;
+    }
+}

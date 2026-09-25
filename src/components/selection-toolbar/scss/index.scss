@@ -1,0 +1,221 @@
+@use '/tokens';
+@use 'variables';
+
+.selection-toolbar {
+    position: relative;
+
+
+    &-button.button {
+        --background-default: transparent;
+        --background-hover: color-mix(in oklab, var(--selection-toolbar-color) 6%, transparent);
+        --border-radius: var(--border-radius-400);
+        --color-default: var(--selection-toolbar-color-muted);
+        --color-hover: var(--selection-toolbar-color);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+
+        border: 0;
+        height: var(--selection-toolbar-button-size);
+        outline: none;
+        touch-action: manipulation;
+        transition:
+            background-color 150ms ease-out,
+            color 150ms ease-out,
+            scale 150ms ease-out;
+        user-select: none;
+        width: var(--selection-toolbar-button-size);
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--selection-toolbar-focus-color);
+        }
+
+        &[aria-pressed='true'] {
+            --background-default: color-mix(in oklab, var(--selection-toolbar-color) 8%, transparent);
+            --background-hover: color-mix(in oklab, var(--selection-toolbar-color) 10%, transparent);
+            --color-default: var(--selection-toolbar-color);
+        }
+    }
+
+    &-divider {
+        background: var(--selection-toolbar-divider-color);
+        height: 20px;
+        margin-inline: 4px;
+        width: 1px;
+    }
+
+    &-editor {
+        border-radius: var(--border-radius-400);
+        caret-color: var(--selection-toolbar-color);
+        color: var(--selection-toolbar-color-muted);
+        font-size: var(--selection-toolbar-font-size);
+        height: 100%;
+        line-height: 1.625;
+        outline: none;
+        overflow-y: auto;
+        text-wrap: pretty;
+
+        &:focus-visible {
+            outline: 2px solid var(--selection-toolbar-focus-color);
+            outline-offset: 4px;
+        }
+
+        ::selection {
+            background: var(--selection-toolbar-mark);
+            color: var(--selection-toolbar-color);
+        }
+
+        a {
+            color: var(--selection-toolbar-color);
+            text-decoration: underline;
+            text-decoration-color: color-mix(in oklab, var(--selection-toolbar-color) 40%, transparent);
+            text-underline-offset: 4px;
+        }
+
+        em {
+            color: var(--selection-toolbar-color);
+        }
+
+        mark {
+            background: var(--selection-toolbar-mark);
+            border-radius: var(--border-radius-100);
+            color: var(--selection-toolbar-color);
+        }
+
+        p {
+            margin: 0;
+        }
+
+        p + p {
+            margin-top: 12px;
+        }
+
+        strong {
+            color: var(--selection-toolbar-color);
+            font-weight: var(--font-weight-600);
+        }
+    }
+
+    &-icon {
+        fill: none;
+        grid-area: 1 / 1;
+        height: var(--selection-toolbar-icon-size);
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.5;
+        width: var(--selection-toolbar-icon-size);
+
+        &--check,
+        &--copy {
+            transition:
+                filter 300ms var(--selection-toolbar-spring),
+                opacity 300ms var(--selection-toolbar-spring),
+                scale 300ms var(--selection-toolbar-spring);
+        }
+
+        &--check {
+            filter: blur(4px);
+            opacity: 0;
+            scale: 0.25;
+        }
+    }
+
+    &-live {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-swap {
+        display: grid;
+    }
+
+    // 12px radius around 4px padding keeps the 8px buttons concentric.
+    &-toolbar {
+        align-items: center;
+        background: var(--selection-toolbar-background);
+        border-radius: var(--border-radius-600);
+        box-shadow: var(--selection-toolbar-box-shadow);
+        display: flex;
+        gap: 2px;
+        left: 0;
+        opacity: 0;
+        padding: 4px;
+        pointer-events: none;
+        position: absolute;
+        scale: 0.96;
+        top: 0;
+        transition:
+            opacity 100ms var(--selection-toolbar-ease),
+            scale 100ms var(--selection-toolbar-ease),
+            translate var(--selection-toolbar-follow-duration) var(--selection-toolbar-follow);
+        z-index: 10;
+
+        @include tokens.state(active) {
+            opacity: 1;
+            pointer-events: auto;
+            scale: 1;
+            transition:
+                opacity 180ms var(--selection-toolbar-ease),
+                scale 180ms var(--selection-toolbar-ease),
+                translate var(--selection-toolbar-follow-duration) var(--selection-toolbar-follow);
+        }
+
+        // Typing hides the toolbar at once; every other close fades.
+        &--instant,
+        &--jump {
+            transition: none;
+        }
+    }
+
+
+    .selection-toolbar-button.--active {
+        .selection-toolbar-icon--check {
+            filter: blur(0px);
+            opacity: 1;
+            scale: 1;
+        }
+
+        .selection-toolbar-icon--copy {
+            filter: blur(4px);
+            opacity: 0;
+            scale: 0.25;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &-button.button {
+            transition:
+                background-color 150ms ease-out,
+                color 150ms ease-out;
+
+            &:active {
+                scale: 1;
+            }
+        }
+
+        &-icon--check,
+        &-icon--copy {
+            transition-property: opacity;
+        }
+
+        &-toolbar,
+        &-toolbar.--active {
+            scale: 1;
+            transition-property: opacity;
+        }
+
+        .selection-toolbar-button.--active .selection-toolbar-icon {
+            filter: none;
+            scale: 1;
+        }
+    }
+}

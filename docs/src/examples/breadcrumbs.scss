@@ -1,0 +1,65 @@
+.breadcrumbs-demo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-400);
+    width: min(520px, 100%);
+
+    &-frame {
+        align-items: center;
+        background: var(--color-white-300);
+        border-radius: var(--border-radius-700);
+        box-shadow: 0 0 0 var(--border-width-400) var(--color-border-300), var(--box-shadow-200);
+        display: flex;
+        height: 56px;
+        max-width: 100%;
+        padding-inline: 10px;
+        position: relative;
+    }
+
+    // A 24px wide hit area around a 6px grip, centred on the edge.
+    &-handle {
+        align-items: center;
+        border-radius: 999px;
+        cursor: ew-resize;
+        display: flex;
+        height: 40px;
+        justify-content: center;
+        outline: none;
+        position: absolute;
+        right: -12px;
+        top: 50%;
+        touch-action: none;
+        translate: 0 -50%;
+        width: 24px;
+
+        &:focus-visible {
+            outline: 2px solid var(--color-text-500);
+        }
+
+        span {
+            background: var(--color-border-300);
+            border-radius: 999px;
+            height: 24px;
+            transition:
+                background-color 0.15s ease-out,
+                scale 0.15s ease-out;
+            width: 6px;
+        }
+
+        &:hover span {
+            background: var(--color-text-300);
+        }
+
+        &:active span {
+            background: var(--color-text-500);
+            scale: 1 1.15;
+        }
+    }
+
+    &-hint {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        margin: 0;
+        padding-inline: 4px;
+    }
+}

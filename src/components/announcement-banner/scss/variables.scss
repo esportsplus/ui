@@ -1,0 +1,18 @@
+.announcement-banner {
+    --announcement-banner-background: var(--color-text-500);
+    --announcement-banner-color: var(--color-white-300);
+    --announcement-banner-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+    --announcement-banner-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --announcement-banner-font-size: 14px;
+    --announcement-banner-height: 44px;
+    --announcement-banner-icon-size: 16px;
+
+
+    &--blue {
+        --announcement-banner-background: var(--color-blue-400);
+    }
+
+    &--purple {
+        --announcement-banner-background: var(--color-purple-400);
+    }
+}
