@@ -100,6 +100,7 @@ import statusPicker from './status-picker';
 import stickyHeader from './sticky-header';
 import stickyStack from './sticky-stack';
 import storyProgress from './story-progress';
+import surfaceField from './surface-field';
 import swipeDeck from './swipe-deck';
 import switchComponent from './switch';
 import tabs from './tabs';
@@ -228,6 +229,7 @@ const entries: Entry[] = [
     stickyHeader,
     stickyStack,
     storyProgress,
+    surfaceField,
     swipeDeck,
     switchComponent,
     tabs,

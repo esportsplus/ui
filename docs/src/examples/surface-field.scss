@@ -1,0 +1,407 @@
+.surface-field-demo {
+    border-radius: 16px;
+    box-shadow: 0 0 0 1px var(--color-border-300);
+    display: flex;
+    height: 600px;
+    overflow: hidden;
+    width: 100%;
+
+    &-backdrop {
+        border-radius: 16px;
+        box-shadow: 0 0 0 1px var(--color-border-300);
+        height: 360px;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    &-group {
+        border-top: 1px solid var(--color-border-300);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding-top: 16px;
+
+        h4 {
+            font-size: calc(var(--font-size-400) * 0.875);
+            font-weight: var(--font-weight-600);
+            margin: 0;
+        }
+    }
+
+    &-card {
+        background: var(--color-white-300);
+        border-radius: 14px;
+        box-shadow: 0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06), 0 8px 24px -8px oklch(from var(--color-black-300) l c h / 0.14);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 360px;
+        padding: 20px 24px;
+    }
+
+    &-hero {
+        align-items: center;
+        display: flex;
+        height: 100%;
+        justify-content: center;
+        padding: 24px;
+        text-align: center;
+
+        code {
+            background: var(--color-grey-400);
+            border-radius: 4px;
+            font-size: 0.9em;
+            padding: 1px 4px;
+        }
+
+        h3 {
+            font-size: calc(var(--font-size-400) * 1.25);
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+
+        p {
+            color: var(--color-text-300);
+            font-size: calc(var(--font-size-400) * 0.875);
+            line-height: 1.5;
+            margin: 0;
+        }
+    }
+
+    &-intro {
+        color: var(--color-text-300);
+        font-size: calc(var(--font-size-400) * 0.8125);
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    &-label {
+        display: flex;
+        flex-direction: column;
+        font-size: calc(var(--font-size-400) * 0.8125);
+        gap: 2px;
+
+        b {
+            color: var(--color-text-300);
+            font-variant-numeric: tabular-nums;
+            font-weight: inherit;
+        }
+
+        small {
+            color: var(--color-text-300);
+            font-size: calc(var(--font-size-400) * 0.75);
+        }
+    }
+
+    &-note {
+        color: var(--color-text-300);
+        font-size: calc(var(--font-size-400) * 0.8125);
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    &-panel {
+        background: var(--color-white-300);
+        border-right: 1px solid var(--color-border-300);
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        gap: 16px;
+        overflow-y: auto;
+        padding: 20px;
+        width: 248px;
+    }
+
+    &-preset {
+        display: flex;
+        gap: 8px;
+
+        select {
+            background: var(--color-grey-400);
+            border: 0;
+            border-radius: 8px;
+            color: inherit;
+            flex: 1;
+            font: inherit;
+            font-size: calc(var(--font-size-400) * 0.875);
+            height: 36px;
+            padding-inline: 10px;
+        }
+    }
+
+    &-reset {
+        background: var(--color-grey-400);
+        border: 0;
+        border-radius: 8px;
+        color: inherit;
+        cursor: pointer;
+        font: inherit;
+        font-size: calc(var(--font-size-400) * 0.8125);
+        padding-inline: 12px;
+    }
+
+    &-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        &.--inline {
+            align-items: center;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        > .surface-field-demo-label {
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        &.--inline > .surface-field-demo-label {
+            flex-direction: column;
+        }
+
+        input[type='color'] {
+            background: none;
+            border: 0;
+            cursor: pointer;
+            height: 28px;
+            padding: 0;
+            width: 40px;
+        }
+
+        .checkbox--switch {
+            --background-active: var(--color-text-500);
+            --background-default: var(--color-border-400);
+            flex-shrink: 0;
+        }
+
+        input[type='range'] {
+            accent-color: var(--color-text-500);
+            width: 100%;
+        }
+    }
+
+    &-stage {
+        background: var(--color-grey-300);
+        flex: 1;
+        min-width: 0;
+    }
+
+    // The node editor wants the full width, so its panel moves underneath and lays its groups out side by side.
+    &.--stacked {
+        flex-direction: column-reverse;
+        height: auto;
+
+        .surface-field-demo-panel {
+            align-items: start;
+            border-right: 0;
+            border-top: 1px solid var(--color-border-300);
+            display: grid;
+            gap: 16px 24px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            max-height: 320px;
+            width: 100%;
+        }
+
+        .surface-field-demo-stage {
+            flex: none;
+            height: 460px;
+        }
+    }
+
+    @media (max-width: 720px) {
+        flex-direction: column-reverse;
+        height: auto;
+
+        &-panel {
+            border-right: 0;
+            border-top: 1px solid var(--color-border-300);
+            max-height: 320px;
+            width: 100%;
+        }
+
+        &-stage {
+            flex: none;
+            height: 480px;
+        }
+    }
+}
+
+// Node canvas: a pannable, zoomable world layer over the field, with a minimap and zoom controls.
+.surface-field-editor {
+    cursor: grab;
+    inset: 0;
+    outline: none;
+    overflow: hidden;
+    position: absolute;
+    touch-action: none;
+
+    &.--panning {
+        cursor: grabbing;
+    }
+
+    &:focus-visible {
+        box-shadow: inset 0 0 0 2px oklch(from var(--color-text-500) l c h / 0.3);
+    }
+
+    &-controls {
+        background: var(--color-white-300);
+        border-radius: 12px;
+        bottom: 16px;
+        box-shadow: 0 0 0 1px var(--color-border-300), 0 6px 16px -8px oklch(from var(--color-black-300) l c h / 0.2);
+        display: flex;
+        gap: 2px;
+        left: 50%;
+        padding: 4px;
+        position: absolute;
+        translate: -50% 0;
+        z-index: 2;
+
+        button {
+            align-items: center;
+            background: none;
+            border: 0;
+            border-radius: 8px;
+            color: var(--color-text-400);
+            cursor: pointer;
+            display: flex;
+            height: 32px;
+            justify-content: center;
+            transition: background-color 150ms ease;
+            width: 32px;
+
+            &:hover {
+                background: var(--color-grey-400);
+            }
+
+            &:focus-visible {
+                outline: 2px solid oklch(from var(--color-text-500) l c h / 0.4);
+            }
+
+            svg {
+                height: 16px;
+                width: 16px;
+            }
+        }
+    }
+
+    &-edges {
+        left: 0;
+        overflow: visible;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+
+        path {
+            fill: none;
+            stroke: var(--color-text-300);
+            stroke-opacity: 0.55;
+            stroke-width: 1.25;
+            vector-effect: non-scaling-stroke;
+
+            &.--dashed {
+                animation: surface-field-editor-flow 1s linear infinite;
+                stroke-dasharray: 4 4;
+            }
+        }
+    }
+
+    &-lens {
+        border: 1px solid oklch(from var(--color-text-500) l c h / 0.35);
+        border-radius: 3px;
+        pointer-events: none;
+        position: absolute;
+        transition: none;
+    }
+
+    &-minimap {
+        aspect-ratio: 1200 / 660;
+        background: var(--color-white-300);
+        border-radius: 10px;
+        box-shadow: 0 0 0 1px var(--color-border-300), 0 6px 16px -8px oklch(from var(--color-black-300) l c h / 0.2);
+        cursor: pointer;
+        overflow: hidden;
+        position: absolute;
+        right: 16px;
+        top: 16px;
+        width: 150px;
+        z-index: 2;
+
+        &-node {
+            background: var(--color-border-400);
+            border-radius: 2px;
+            position: absolute;
+            transition: none;
+        }
+    }
+
+    // Compact cards with connection dots on both sides.
+    &-node {
+        --surface-border-radius: 10px;
+        --surface-handle-height: 16px;
+        cursor: default;
+
+        &::after,
+        &::before {
+            background: var(--color-white-300);
+            border: 1px solid var(--color-text-300);
+            border-radius: 50%;
+            content: '';
+            height: 7px;
+            position: absolute;
+            top: 50%;
+            translate: 0 -50%;
+            width: 7px;
+        }
+
+        &::after {
+            right: -4px;
+        }
+
+        &::before {
+            left: -4px;
+        }
+
+        .surface-field-surface-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 0 14px 10px;
+        }
+
+        b {
+            font-size: calc(var(--font-size-400) * 0.8125);
+            font-weight: var(--font-weight-600);
+            white-space: nowrap;
+        }
+
+        small {
+            color: var(--color-text-300);
+            font-size: 9px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+    }
+
+    &-world {
+        height: 0;
+        left: 0;
+        position: absolute;
+        top: 0;
+        transform-origin: 0 0;
+        transition: none;
+        width: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-edges path.--dashed {
+            animation: none;
+        }
+    }
+}
+
+@keyframes surface-field-editor-flow {
+    to {
+        stroke-dashoffset: -8;
+    }
+}

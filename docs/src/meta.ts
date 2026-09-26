@@ -394,6 +394,10 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Auto-advancing stories with segmented progress bars, tap-to-navigate, and press-and-hold to pause.'
     },
+    'surface-field': {
+        category: 'Display',
+        description: 'Canvas field of dots and lines lit by the pointer, rippling on click and bending around draggable, resizable surfaces (Surface Field).'
+    },
     'swipe-deck': {
         category: 'Interactive',
         description: 'Card stack decided by swiping, arrow keys, or buttons, with undo.'

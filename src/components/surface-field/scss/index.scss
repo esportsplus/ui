@@ -1,0 +1,115 @@
+@use 'variables';
+
+// The canvas paints behind the content and never takes the pointer; the host listens instead, so the light keeps
+// following over surfaces and content.
+.surface-field {
+    isolation: isolate;
+    position: relative;
+
+    &-canvas {
+        color: var(--color);
+        height: 100%;
+        inset: 0;
+        pointer-events: none;
+        position: absolute;
+        transition: none;
+        width: 100%;
+        z-index: 0;
+    }
+
+    &-content {
+        height: 100%;
+        position: relative;
+        z-index: 1;
+    }
+
+    // Geometry is written every pointer move, so only the lift eases.
+    &-surface {
+        background: var(--surface-background);
+        border-radius: var(--surface-border-radius);
+        box-shadow: 0 0 0 1px var(--surface-border-color), var(--surface-box-shadow);
+        display: flex;
+        flex-direction: column;
+        left: 0;
+        position: absolute;
+        top: 0;
+        transition: box-shadow var(--surface-lift-duration) ease, scale var(--surface-lift-duration) ease;
+
+        &.--active {
+            box-shadow: 0 0 0 1px var(--surface-border-color), var(--surface-box-shadow-active);
+            scale: 1.01;
+        }
+
+        &-content {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            padding: 0 16px 16px;
+        }
+
+        &-handle,
+        &-resize {
+            background: none;
+            border: 0;
+            color: var(--surface-grip-color);
+            padding: 0;
+            touch-action: none;
+
+            &:focus-visible {
+                outline: 2px solid oklch(from var(--color) l c h / 0.4);
+                outline-offset: -2px;
+            }
+        }
+
+        &-handle {
+            border-radius: var(--surface-border-radius) var(--surface-border-radius) 0 0;
+            cursor: grab;
+            flex-shrink: 0;
+            height: var(--surface-handle-height);
+            position: relative;
+            width: 100%;
+
+            &::before {
+                background: currentColor;
+                border-radius: 999px;
+                content: '';
+                height: 2px;
+                left: 50%;
+                opacity: 0.7;
+                position: absolute;
+                top: 50%;
+                translate: -50% -50%;
+                width: 18px;
+            }
+        }
+
+        &.--active &-handle {
+            cursor: grabbing;
+        }
+
+        // Two diagonal ticks in the corner, drawn with a gradient so no icon is needed.
+        &-resize {
+            background:
+                linear-gradient(135deg, transparent 45%, currentColor 45%, currentColor 52%, transparent 52%) 4px 4px / 12px 12px no-repeat,
+                linear-gradient(135deg, transparent 70%, currentColor 70%, currentColor 77%, transparent 77%) 4px 4px / 12px 12px no-repeat;
+            border-radius: 0 0 var(--surface-border-radius) 0;
+            bottom: 0;
+            cursor: nwse-resize;
+            height: 22px;
+            opacity: 0.7;
+            position: absolute;
+            right: 0;
+            width: 22px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-surface {
+            transition: box-shadow var(--surface-lift-duration) ease;
+
+            &.--active {
+                scale: 1;
+            }
+        }
+    }
+}

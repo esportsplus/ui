@@ -92,6 +92,7 @@ export { default as statusPicker } from './status-picker';
 export { default as stickyHeader } from './sticky-header';
 export { default as stickyStack } from './sticky-stack';
 export { default as storyProgress } from './story-progress';
+export { default as surfaceField } from './surface-field';
 export { default as swipeDeck } from './swipe-deck';
 export { default as switch } from './switch';
 export { default as tagInput } from './tag-input';
