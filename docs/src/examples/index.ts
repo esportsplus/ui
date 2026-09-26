@@ -65,6 +65,7 @@ import overlay from './overlay';
 import page from './page';
 import pageDots from './page-dots';
 import pagination from './pagination';
+import planCard from './plan-card';
 import progress from './progress';
 import pullToRefresh from './pull-to-refresh';
 import radio from './radio';
@@ -194,6 +195,7 @@ const entries: Entry[] = [
     page,
     pageDots,
     pagination,
+    planCard,
     progress,
     pullToRefresh,
     radio,

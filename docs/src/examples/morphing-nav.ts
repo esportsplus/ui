@@ -2,6 +2,7 @@ import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { morphingNav } from '@esportsplus/ui';
 import type { Entry } from '../types';
+import { navigationMenuVariants } from './navigation-menu';
 import './morphing-nav.scss';
 
 
@@ -84,6 +85,7 @@ export default {
         {
             render: () => demo({ modifier: 'morphing-nav--flat' }),
             title: 'morphing-nav--flat'
-        }
+        },
+        ...navigationMenuVariants()
     ]
 } satisfies Entry;

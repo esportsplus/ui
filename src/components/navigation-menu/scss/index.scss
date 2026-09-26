@@ -1,0 +1,213 @@
+@use '/tokens';
+@use 'variables';
+
+.navigation-menu {
+    display: flex;
+    font-size: var(--font-size);
+    max-width: 100%;
+    position: relative;
+    width: max-content;
+
+
+    &-chevron {
+        flex-shrink: 0;
+        height: 12px;
+        margin-left: 4px;
+        position: relative;
+        top: 1px;
+        width: 12px;
+    }
+
+    // Layers stack in one spot; only the active one, and the one sliding out, are shown.
+    &-content {
+        left: 0;
+        max-width: calc(100vw - 32px);
+        padding: 4px;
+        position: absolute;
+        top: 0;
+        visibility: hidden;
+        width: max-content;
+
+        &.--active,
+        &.--leaving {
+            visibility: visible;
+        }
+
+        &.--leaving {
+            pointer-events: none;
+        }
+    }
+
+    &-item {
+        position: relative;
+    }
+
+    &-link {
+        align-items: flex-start;
+        border-radius: var(--link-radius);
+        color: var(--color);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        outline: none;
+        padding: 8px 12px 8px 16px;
+        text-align: left;
+        text-decoration: none;
+        transition: background-color 0.15s ease-out;
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+            outline-offset: -2px;
+        }
+
+        &:hover,
+        &:focus-visible {
+            background: var(--hover-background);
+        }
+
+        &--compact {
+            align-items: center;
+            color: var(--description-color);
+            flex-direction: row;
+            gap: 6px;
+            padding: 4px 8px;
+
+            &:hover {
+                color: var(--color);
+            }
+        }
+    }
+
+    &-link-description {
+        color: var(--description-color);
+        font-size: var(--description-font-size);
+        line-height: 1.625;
+    }
+
+    &-link-title {
+        font-size: var(--title-font-size);
+        font-weight: var(--font-weight-600);
+    }
+
+    &-list {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--gap);
+        justify-content: center;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        position: relative;
+    }
+
+    // Positioned before it shows, so it fades in where the pointer is; once shown it slides between items.
+    &-pill {
+        background: var(--hover-background);
+        border-radius: 999px;
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        transition: opacity 0.15s var(--pill-timing-function);
+
+        @include tokens.state(active) {
+            opacity: 1;
+            transition:
+                opacity var(--pill-duration) var(--pill-timing-function),
+                translate var(--pill-duration) var(--pill-timing-function),
+                width var(--pill-duration) var(--pill-timing-function);
+        }
+    }
+
+    // Size and position ease between panels; the flip on open and the fade on close are played from script.
+    &-popup {
+        background: var(--background);
+        border-radius: var(--popup-radius);
+        box-shadow: var(--box-shadow);
+        color: var(--color);
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        transition:
+            height var(--popup-duration) cubic-bezier(0.23, 1, 0.32, 1),
+            translate var(--popup-duration) cubic-bezier(0.23, 1, 0.32, 1),
+            width var(--popup-duration) cubic-bezier(0.23, 1, 0.32, 1);
+        visibility: hidden;
+        z-index: 50;
+
+        // Invisible bridge over the gap, so the cursor never "leaves" on its way down from the trigger.
+        &::before {
+            content: '';
+            height: 10px;
+            inset-inline: 0;
+            position: absolute;
+            top: -10px;
+        }
+
+        @include tokens.state(active) {
+            opacity: 1;
+            pointer-events: auto;
+            visibility: visible;
+        }
+
+        &.--instant {
+            transition: none;
+        }
+    }
+
+    &-trigger {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+        color: var(--color);
+        cursor: pointer;
+        display: inline-flex;
+        font-size: inherit;
+        font-weight: var(--font-weight-500);
+        height: var(--trigger-height);
+        justify-content: center;
+        outline: none;
+        padding-inline: var(--trigger-padding);
+        position: relative;
+        text-decoration: none;
+        touch-action: manipulation;
+        user-select: none;
+        white-space: nowrap;
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+        }
+
+        // Stretches the open trigger's hit area across the gap, so moving to a neighbour never falls through.
+        @include tokens.state(active) {
+            &::after {
+                content: '';
+                inset-block: 0;
+                inset-inline: calc(var(--gap) * -1);
+                position: absolute;
+            }
+        }
+
+        &--link {
+            padding-inline: 10px;
+        }
+    }
+
+    &-viewport {
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        --pill-duration: 0s;
+        --popup-duration: 0s;
+    }
+}

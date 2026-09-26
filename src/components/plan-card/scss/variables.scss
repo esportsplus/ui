@@ -1,0 +1,33 @@
+.plan-card {
+    --action-hover: oklch(from var(--color-black-300) l c h / 0.07);
+    --background: var(--color-white-300);
+    --border-color: var(--color-border-300);
+    --color: var(--color-text-500);
+    --focus-color: var(--color-text-500);
+    --icon-background: oklch(76.9% 0.188 70.08 / 0.15);
+    --icon-color: oklch(66.6% 0.179 58.318);
+    --muted: var(--color-text-300);
+    --padding: 20px;
+    --primary-background: var(--color-text-500);
+    --primary-color: var(--color-white-300);
+    --radius: 16px;
+    --ring-color: var(--color-text-500);
+    --ring-track: var(--color-border-300);
+    --secondary-background: var(--color-grey-500);
+    --secondary-color: var(--color-text-500);
+    --spring: cubic-bezier(0.16, 1, 0.3, 1);
+    --success-color: oklch(62.7% 0.194 149.214);
+    --todos-background: var(--color-grey-300);
+    --width: 512px;
+
+
+    &--blue {
+        --icon-background: oklch(from var(--color-blue-400) l c h / 0.12);
+        --icon-color: var(--color-blue-400);
+    }
+
+    &--flat {
+        --border-color: transparent;
+        --todos-background: var(--color-grey-400);
+    }
+}

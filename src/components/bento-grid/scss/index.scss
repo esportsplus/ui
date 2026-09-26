@@ -130,8 +130,9 @@
         scale: 0.75;
     }
 
-    // Wide enough for columns: the call to action waits below the card and the text lifts to make room for it.
-    @container (min-width: 720px) {
+    // Wide enough for three ~180px columns: the call to action waits below the card and the text lifts to make room
+    // for it. Magic UI switches at the lg viewport, where its grid is around 700–900px; docs previews are narrower.
+    @container (min-width: 560px) {
         &-card {
             grid-column: span var(--span);
         }
