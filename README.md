@@ -81,7 +81,7 @@ html`
 | Component | Description | Variants |
 |-----------|-------------|----------|
 | `button` | Standard button | `button.fan`, `button.hold` |
-| `tooltip` | Popup content | `tooltip.context`, `tooltip.menu`, `tooltip.onclick`, `tooltip.onhover` |
+| `tooltip` | Popup content; `tooltip.menu` is a keyboard menu (arrows, Home/End, Escape returns focus, Tab closes) that closes once an option is chosen | `tooltip.context`, `tooltip.menu`, `tooltip.onclick`, `tooltip.onhover` |
 | `accordion` | Collapsible sections | - |
 | `clipboard` | Copy to clipboard | `clipboard.copy`, `clipboard.write` |
 | `command` | Command palette: modal + input, grouped live filtering, keyboard navigation | `command.input`, `command.item` |

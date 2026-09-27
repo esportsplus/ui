@@ -9,8 +9,7 @@ export default (options: Option[], attributes?: Attributes) => options.map(({ co
         return html`
             <a
                 class='link --width-full'
-                target='_blank'
-                ${o}
+                ${{ target: '_blank', ...o }}
                 ${attributes}
             >
                 ${content}
