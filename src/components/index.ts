@@ -1,5 +1,5 @@
 export { default as accordion } from './accordion';
-export { default as announcementBanner } from './announcement-banner';
+export { default as announcement } from './announcement';
 export { default as autosave } from './autosave';
 export { default as backToTop } from './back-to-top';
 export { default as bentoGrid } from './bento-grid';

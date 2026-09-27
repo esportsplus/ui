@@ -123,7 +123,7 @@ html`
 | `json` | JSON display |
 | `taskList` | Streaming log of an agent's tasks and steps |
 | `webSearch` | Streaming trail of an agent's searches and the sources it opened |
-| `announcementBanner` | Dismissible top-of-page announcement that slides in and collapses the space it held |
+| `announcement` | Animated top-of-page container (`state.active`) that slides its content in and collapses the space it held; the content and close control are the consumer's |
 | `dynamicIsland` | Morphing pill that springs between idle, timer, music and ringer states (`state.mode`) with announced changes |
 | `featureSpotlight` | Scroll-driven product tour: a pinned screenshot whose spring camera pans and zooms to the `data-spot` (or `region`) of the feature being read, with a dimming spotlight |
 | `onboardingChecklist` | Setup checklist (`checkbox` rows, `accordion` details) with a spring progress ring, strike-through on done, and a celebration once every task is complete; `done`, `open`, `ondismiss`, `state.count` |

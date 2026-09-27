@@ -22,9 +22,9 @@ const meta: Record<string, Meta> = {
         category: 'Layout',
         description: 'Compact in-page navigation list for jumping between document sections.'
     },
-    'announcement-banner': {
+    announcement: {
         category: 'Feedback',
-        description: 'Dismissible announcement strip that slides in from the top and folds its space away when closed.'
+        description: 'Animated container that slides announcement content in from the top and folds its space away when state.active turns off.'
     },
     'back-to-top': {
         category: 'Interactive',

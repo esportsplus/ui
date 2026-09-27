@@ -1,4 +1,4 @@
-.announcement-banner-demo {
+.announcement-demo {
     background: var(--color-white-300);
     border-radius: var(--border-radius-700);
     box-shadow:
@@ -66,6 +66,23 @@
         width: 28px;
     }
 
+    &-bar {
+        --bar-background: var(--color-text-500);
+        --bar-color: var(--color-white-300);
+
+        align-items: center;
+        background: var(--bar-background);
+        color: var(--bar-color);
+        display: flex;
+        gap: 10px;
+        height: 44px;
+        padding-inline: 16px 6px;
+
+        &--blue {
+            --bar-background: var(--color-blue-400);
+        }
+    }
+
     &-body {
         padding: 20px 20px 0;
     }
@@ -74,12 +91,95 @@
         font-weight: var(--font-weight-600);
     }
 
+    &-close {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+        color: color-mix(in oklab, var(--bar-color) 70%, transparent);
+        cursor: pointer;
+        display: flex;
+        flex-shrink: 0;
+        height: 32px;
+        justify-content: center;
+        margin-inline-start: auto;
+        outline: none;
+        position: relative;
+        touch-action: manipulation;
+        transition:
+            background-color 150ms ease-out,
+            color 150ms ease-out,
+            scale 150ms ease-out;
+        width: 32px;
+
+        // Grows the hit area to 40px without growing the circle.
+        &::before {
+            border-radius: 999px;
+            content: '';
+            inset: -4px;
+            position: absolute;
+        }
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--bar-color);
+        }
+
+        &:hover {
+            background: color-mix(in oklab, var(--bar-color) 15%, transparent);
+            color: var(--bar-color);
+        }
+
+        svg {
+            fill: none;
+            height: 16px;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-width: 1.5;
+            width: 16px;
+        }
+    }
+
     &-heading {
         --font-size: 18px;
 
         color: var(--color-text-500);
         font-weight: var(--font-weight-600);
         margin-bottom: 4px;
+    }
+
+    &-icon {
+        fill: none;
+        flex-shrink: 0;
+        height: 16px;
+        stroke: currentColor;
+        stroke-linejoin: round;
+        stroke-width: 1.5;
+        width: 16px;
+    }
+
+    &-link {
+        border-radius: var(--border-radius-100);
+        color: inherit;
+        flex-shrink: 0;
+        font-weight: var(--font-weight-500);
+        outline: none;
+        text-decoration: underline;
+        text-decoration-color: color-mix(in oklab, var(--bar-color) 40%, transparent);
+        text-underline-offset: 3px;
+        transition: text-decoration-color 150ms ease-out;
+
+        &:focus-visible {
+            outline: 2px solid var(--bar-color);
+            outline-offset: 2px;
+        }
+
+        &:hover {
+            text-decoration-color: var(--bar-color);
+        }
     }
 
     &-muted {
@@ -110,6 +210,15 @@
         margin-top: 16px;
     }
 
+    &-text {
+        flex: 0 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: auto;
+    }
+
     &-value {
         color: var(--color-text-500);
         font-size: 15px;
@@ -124,6 +233,16 @@
             filter: none;
             transition-property: opacity;
             translate: 0 0;
+        }
+
+        &-close {
+            transition:
+                background-color 150ms ease-out,
+                color 150ms ease-out;
+
+            &:active {
+                scale: 1;
+            }
         }
     }
 }
