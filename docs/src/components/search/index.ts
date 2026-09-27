@@ -1,5 +1,5 @@
 import icon from '~/components/icon';
-import searchSvg from '~/storage/svg/search.svg';
+import searchSvg from '@esportsplus/ui/svg/search.svg';
 import { command } from '@esportsplus/ui';
 import { html, reactive } from '../../app';
 import { sections } from '../../data/nav';

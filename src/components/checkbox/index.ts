@@ -2,7 +2,7 @@ import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
 import icon from '~/components/icon';
-import check from './svg/check.svg';
+import check from '@esportsplus/ui/svg/check.svg';
 import './scss/index.scss';
 
 

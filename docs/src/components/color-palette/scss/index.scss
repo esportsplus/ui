@@ -10,6 +10,15 @@
         --size: var(--size-400);
         color: inherit;
         flex: 0 0 var(--size-400);
+
+        // The shared check carries no stroke of its own; the copy glyph brings its own and ignores these.
+        &.icon svg {
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 2;
+        }
     }
 
     &-dot {

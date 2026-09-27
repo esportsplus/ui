@@ -1,5 +1,5 @@
 import icon from '~/components/icon';
-import infoSvg from '~/storage/svg/info.svg';
+import infoSvg from '@esportsplus/ui/svg/info.svg';
 import { html, reactive } from '../../app';
 import { pageNavigation } from '../page-navigation';
 

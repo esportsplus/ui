@@ -335,6 +335,20 @@ Styles are organized into layers for proper cascade:
 @use '@esportsplus/ui/themes/dark/*.scss';
 ```
 
+### Icons
+
+The icons the components use are exported from `@esportsplus/ui/svg/*.svg`, so a site can match them:
+
+```typescript
+import check from '@esportsplus/ui/svg/check.svg';
+import { icon } from '@esportsplus/ui';
+
+icon({ class: 'my-check' }, check);
+```
+
+Like the components' own SVG imports, these resolve to sprite symbol ids through `@esportsplus/vite`'s svg
+plugin. `check.svg` carries no stroke styling, so set `fill: none` and a `stroke` on the rendered `svg`.
+
 ### Design Tokens
 
 Located in `tokens.scss`:

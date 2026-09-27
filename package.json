@@ -31,6 +31,7 @@
         "./css-utilities/font/*.scss": "./build/css-utilities/font/*/scss/index.scss",
         "./layer.scss": "./layer.scss",
         "./lib.scss": "./lib.scss",
+        "./svg/*.svg": "./storage/svg/*.svg",
         "./themes/dark": {
             "types": "./build/themes/dark/index.d.ts",
             "default": "./build/themes/dark/index.js"

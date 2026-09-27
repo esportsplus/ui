@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import check from '@esportsplus/ui/svg/check.svg';
 import './scss/index.scss';
 
 
@@ -86,9 +87,7 @@ export default ({ state = reactive<State>({ savedAt: null, status: 'saved' }), .
                 <span class='autosave-dot' style='--i: 0;'></span>
                 <span class='autosave-dot' style='--i: 1;'></span>
                 <span class='autosave-dot' style='--i: 2;'></span>
-                <svg class='autosave-check' viewBox='0 0 16 16'>
-                    <path d='M3.75 8.25l2.75 2.75 5.75-6' pathLength='1' />
-                </svg>
+                <svg class='autosave-check'><use href='#${check}' /></svg>
             </span>
             <span class='autosave-label'>
                 ${slots.map((slot) => html`

@@ -124,6 +124,15 @@
         align-items: center;
         display: inline-flex;
         justify-content: center;
+
+        // The shared check carries no stroke of its own; the copy glyph brings its own and ignores these.
+        .icon svg {
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 2;
+        }
     }
 
     // The ring is the timer itself: linear because it is a clock.
