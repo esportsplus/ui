@@ -26,25 +26,9 @@ const meta: Record<string, Meta> = {
         category: 'Feedback',
         description: 'Animated container that slides announcement content in from the top and folds its space away when state.active turns off.'
     },
-    'back-to-top': {
-        category: 'Interactive',
-        description: 'Floating scroll-to-top button that appears past a threshold, rings its progress, and lifts its arrow on the trip up.'
-    },
     banner: {
         category: 'Display',
         description: 'Full-width promotional strip for announcements and notices.'
-    },
-    'bento-grid': {
-        category: 'Layout',
-        description: 'Feature grid of cards whose text lifts on hover to reveal a call to action over decorative background art (Magic UI).'
-    },
-    'bento-grid-spotlight': {
-        category: 'Layout',
-        description: 'Feature grid whose cards spring in on scroll, glow under the pointer, trace a border beam, and optionally tilt (Spectrum UI).'
-    },
-    'bookmark-button': {
-        category: 'Interactive',
-        description: 'Save toggle whose ribbon fills from the bottom up and lands with a small squash.'
     },
     breadcrumb: {
         category: 'Layout',
@@ -81,14 +65,6 @@ const meta: Record<string, Meta> = {
     clipboard: {
         category: 'Interactive',
         description: 'Copy-to-clipboard affordance with click and programmatic variants.'
-    },
-    'code-morph': {
-        category: 'Display',
-        description: 'Stepped code walkthrough where tokens shared between steps glide to their new line and column, Magic Move style.'
-    },
-    'collapsible-sidebar': {
-        category: 'Layout',
-        description: 'Navigation rail that springs between labelled and icon-only widths, with a sliding highlight and tips while collapsed.'
     },
     'color-picker': {
         category: 'Form Controls',

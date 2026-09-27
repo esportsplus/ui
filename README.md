@@ -86,8 +86,6 @@ html`
 | `clipboard` | Copy to clipboard | `clipboard.copy`, `clipboard.write` |
 | `command` | Command palette: modal + input, grouped live filtering, keyboard navigation | `command.input`, `command.item` |
 | `alert` | Notifications | error, info, success types |
-| `backToTop` | Floating back-to-top button with a scroll-progress ring and an arrow that lifts off; follows the window or any scroller | `back-to-top--dark`, `back-to-top--fixed` |
-| `bookmarkButton` | Save toggle whose ribbon fills from the bottom and lands with a squash, with an optional rolling count | `bookmark-button--white` |
 | `carousel3d` | Draggable 3D card ring that spins on a spring, throws with momentum, and flattens under reduced motion; `state.active` is two-way | `carousel3d.button`, `carousel3d.card` |
 | `commandPalette` | ⌘K/Ctrl+K launcher on `modal` + `input`: substring-then-subsequence matching with highlighted runs, grouped results, arrow/Enter keys, `onrun` | `commandPalette.dialog`, `commandPalette.input`, `commandPalette.option`, `commandPalette.trigger`, `command-palette--blur`, `command-palette--centered` |
 | `dock` | macOS-style dock whose icons swell toward the cursor on a spring, with delayed `tooltip` labels and a hop-and-squash launch that lights a running dot (per-item `state.running`, `onlaunch`) | `dock.button`, `dock--square`, `dock--subtle` |
@@ -130,7 +128,6 @@ html`
 | `undoToast` | List whose deletes wait behind an Undo toast (`toast.*` with a countdown ring) before committing |
 | `textProgress` | `progressbar` whose label fills with ink on a spring (`state.value`), with rolling digits and a drawn check on done |
 | `wordRotator` | Rotating word (`state.index`, `state.paused`) whose shared letters glide into place while the others blur out and in |
-| `codeMorph` | Stepped code tabs (`state.step`) diffed at token level: shared tokens glide to their new line and column, new ones fade in, removed ones flash red; copy via `clipboard.write` |
 | `contributionHeatmap` | Year of activity squares that sweep in by column, with a hover label (reuses `tooltip` styles), roving-tabindex grid keys and `contributionHeatmap.legend`; `contribution-heatmap--blue` |
 | `relativeTime` | Self-updating `<time>` ("4 min ago") that wakes once per visible change and rolls its digits; full date in a `tooltip` on hover/focus; `state.now` pins the clock |
 | `sparkline` | Inline SVG line chart that draws itself in, with a scrub readout for pointer, touch and arrow keys (`state.active`, `state.index`); `sparkline--accent` |
@@ -146,7 +143,6 @@ html`
 | `modal` | Native `<dialog>` modal driven by `state.active` (Esc and backdrop click close it) |
 | `overlay` | Full-viewport overlay container |
 | `breadcrumbs` | Path trail that folds middle segments into a `tooltip.onclick` menu as space runs out, sliding the rest over (FLIP); `onnavigate` intercepts links |
-| `collapsibleSidebar` | Navigation rail that springs between labelled and icon-only widths, with a sliding highlight and `tooltip-message` tips while collapsed (`state.expanded`, `state.selected`) |
 | `morphingNav` | Navigation bar whose dropdown panel morphs size, position and caret between sections on hover intent, with full keyboard support (`state.active`) |
 | `scrollSpine` | Scale-drawing table of contents: bands sized to each section fill as you read, and a spring marker stretches between them |
 | `sheet` | Bottom sheet on `modal` (`modal--sheet`) that drags to dismiss past 25% or on a flick, rubber-bands upward, and fades its backdrop with the drag (`sheet.handle`, `sheet--full`) |

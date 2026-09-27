@@ -4,11 +4,7 @@ import accordion from './accordion';
 import anchor from './anchor';
 import announcement from './announcement';
 import autosave from './autosave';
-import backToTop from './back-to-top';
 import banner from './banner';
-import bentoGrid from './bento-grid';
-import bentoGridSpotlight from './bento-grid-spotlight';
-import bookmarkButton from './bookmark-button';
 import breadcrumb from './breadcrumb';
 import breadcrumbs from './breadcrumbs';
 import button from './button';
@@ -18,8 +14,6 @@ import carousel3d from './carousel-3d';
 import checkbox from './checkbox';
 import checkboxGroup from './checkbox-group';
 import clipboard from './clipboard';
-import codeMorph from './code-morph';
-import collapsibleSidebar from './collapsible-sidebar';
 import colorPicker from './color-picker';
 import command from './command';
 import commandPalette from './command-palette';
@@ -133,11 +127,7 @@ const entries: Entry[] = [
     anchor,
     announcement,
     autosave,
-    backToTop,
     banner,
-    bentoGrid,
-    bentoGridSpotlight,
-    bookmarkButton,
     breadcrumb,
     breadcrumbs,
     button,
@@ -147,8 +137,6 @@ const entries: Entry[] = [
     checkbox,
     checkboxGroup,
     clipboard,
-    codeMorph,
-    collapsibleSidebar,
     colorPicker,
     command,
     commandPalette,
