@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { computed, dispose, reactive, read, untrack } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -112,7 +112,7 @@ function short(iso: string, withYear: boolean) {
 
 function template(
     this: { attributes?: Partial<A> } | void,
-    { onapply, state, today = toIso(new Date()), value, ...attributes }: A = {}
+    { onapply, state, today = toIso(new Date()), value, ...attributes }: A
 ) {
     let applied: ReturnType<typeof setTimeout> | undefined,
         area: HTMLElement | undefined,
@@ -637,5 +637,5 @@ function toIso(d: Date) {
 }
 
 
-export default Object.assign(template, { day: DATE_RANGE_PICKER_DAY, describe } as const);
+export default component(template, { day: DATE_RANGE_PICKER_DAY, describe });
 export type { Range, State };

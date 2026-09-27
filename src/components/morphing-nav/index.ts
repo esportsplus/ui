@@ -1,4 +1,4 @@
-import { html, on, type Attributes, type Element, type Renderable } from '@esportsplus/template';
+import { component, html, on, type Attributes, type Element, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -492,5 +492,5 @@ const morphingNav = ({ action, brand, label = 'Main', onnavigate, sections, stat
 };
 
 
-export default Object.assign(morphingNav, { link: MORPHING_NAV_LINK, panel: MORPHING_NAV_PANEL, trigger: MORPHING_NAV_TRIGGER } as const);
+export default component(morphingNav, { link: MORPHING_NAV_LINK, panel: MORPHING_NAV_PANEL, trigger: MORPHING_NAV_TRIGGER });
 export type { Link, Section, State };

@@ -1,4 +1,4 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -401,5 +401,5 @@ function template(this: { attributes?: Partial<A> } | void, { items, label, stat
 }
 
 
-export default Object.assign(template, { button: CAROUSEL_3D_BUTTON, card: CAROUSEL_3D_CARD } as const);
+export default component(template, { button: CAROUSEL_3D_BUTTON, card: CAROUSEL_3D_CARD });
 export type { Item as Carousel3dItem, State as Carousel3dState };

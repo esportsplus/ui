@@ -1,5 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, reactive } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
 
@@ -77,11 +77,11 @@ function unband(offset: number) {
 }
 
 
-export default Object.assign(component<A, Renderable<unknown>>(
+export default component(
     function(
         this: { attributes?: Partial<A> },
         { announce = announcement, onrefresh, state = reactive({ refreshing: false }), ...attributes }: A,
-        content
+        content: Renderable<unknown>
     ) {
         let busy = false,
             cleanup: VoidFunction | undefined,
@@ -299,14 +299,14 @@ export default Object.assign(component<A, Renderable<unknown>>(
             touch = { pulling: false, y: e.touches[0].clientY };
         }
 
-        onCleanup(effect(() => {
+        effect(() => {
             if (!state.refreshing || busy) {
                 return;
             }
 
             scroller?.scrollTo({ behavior: reduced() ? 'auto' : 'smooth', top: 0 });
             refresh(0);
-        }));
+        });
 
         return html`
             <div
@@ -432,7 +432,8 @@ export default Object.assign(component<A, Renderable<unknown>>(
                 <span aria-live='polite' class='pull-to-refresh-status'></span>
             </div>
         `;
-    }
-), { scroller: PULL_TO_REFRESH_SCROLLER } as const);
+    },
+    { scroller: PULL_TO_REFRESH_SCROLLER }
+);
 
 export type { State };

@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { factory } from '~/components/checkbox';
 import form from '~/components/form';
@@ -45,7 +45,7 @@ function check() {
 
 function template(
     this: { attributes?: Partial<A> } | void,
-    { oncreate, plans = DEFAULT_PLANS, state, ...attributes }: A = {}
+    { oncreate, plans = DEFAULT_PLANS, state, ...attributes }: A
 ) {
     let body: HTMLElement | undefined,
         defaults = this?.attributes,
@@ -364,5 +364,5 @@ function template(
 }
 
 
-export default Object.assign(template, { input: MULTI_STEP_FORM_INPUT } as const);
+export default component(template, { input: MULTI_STEP_FORM_INPUT });
 export type { Plan, State };

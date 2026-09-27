@@ -48,39 +48,36 @@ export default ({ state = reactive<State>({ savedAt: null, status: 'saved' }), .
         slots = [
             reactive({ phase: '', text: '' }),
             reactive({ phase: '', text: '' })
-        ],
-        stopLabel = effect(
-            () => text(state, clock.now),
-            (value, previous) => {
-                if (previous === undefined) {
-                    slots[current].text = value;
-                    return;
-                }
+        ];
 
-                if (value === previous) {
-                    return;
-                }
-
-                // Two stacked slots let the old words leave while the new ones arrive in the same spot.
-                slots[current].phase = 'exit';
-                current = current === 0 ? 1 : 0;
-                slots[current].phase = 'enter';
+    effect(
+        () => text(state, clock.now),
+        (value, previous) => {
+            if (previous === undefined) {
                 slots[current].text = value;
-            }
-        ),
-        stopTick = effect(() => {
-            if (state.status !== 'saved' || state.savedAt === null) {
                 return;
             }
 
-            let timer = setInterval(() => clock.now = Date.now(), MINUTE / 2);
+            if (value === previous) {
+                return;
+            }
 
-            onCleanup(() => clearInterval(timer));
-        });
+            // Two stacked slots let the old words leave while the new ones arrive in the same spot.
+            slots[current].phase = 'exit';
+            current = current === 0 ? 1 : 0;
+            slots[current].phase = 'enter';
+            slots[current].text = value;
+        }
+    );
 
-    onCleanup(() => {
-        stopLabel();
-        stopTick();
+    effect(() => {
+        if (state.status !== 'saved' || state.savedAt === null) {
+            return;
+        }
+
+        let timer = setInterval(() => clock.now = Date.now(), MINUTE / 2);
+
+        onCleanup(() => clearInterval(timer));
     });
 
     return html`

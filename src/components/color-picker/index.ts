@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import input from '~/components/input';
 import range from '~/components/range';
@@ -162,7 +162,7 @@ function template(
         value = DEFAULT_VALUE,
         state = reactive({ error: '', value: '' }),
         ...attributes
-    }: A = {}
+    }: A
 ) {
     let start = fromHex(state.value || value, { a: 1, h: 0, s: 0, v: 0 }) ?? { a: 1, h: 220, s: 0.6, v: 0.9 },
         alpha: Channel = reactive({ active: false, error: '', value: Math.round(start.a * 100) }),
@@ -647,4 +647,4 @@ function template(
 }
 
 
-export default Object.assign(template, { swatch: COLOR_PICKER_SWATCH } as const);
+export default component(template, { swatch: COLOR_PICKER_SWATCH });

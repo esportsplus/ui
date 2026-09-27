@@ -1,4 +1,4 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import input from '~/components/input';
 import './scss/index.scss';
@@ -259,7 +259,7 @@ function suggest(email: string): string | null {
 }
 
 
-export default Object.assign(
+export default component(
     function(
         this: { attributes?: D } | void,
         {
@@ -611,5 +611,5 @@ export default Object.assign(
             </div>
         `;
     },
-    { field: EMAIL_TYPO_FIX_FIELD, suggest } as const
+    { field: EMAIL_TYPO_FIX_FIELD, suggest }
 );

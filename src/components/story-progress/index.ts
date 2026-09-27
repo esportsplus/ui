@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -243,5 +243,5 @@ function template(this: { attributes?: Partial<A> } | void, { duration = DURATIO
 }
 
 
-export default Object.assign(template, { toggle: STORY_PROGRESS_TOGGLE } as const);
+export default component(template, { toggle: STORY_PROGRESS_TOGGLE });
 export type { State as StoryProgressState, Story as StoryProgressStory };

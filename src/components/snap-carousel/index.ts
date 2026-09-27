@@ -1,4 +1,4 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -320,5 +320,5 @@ function template(this: { attributes?: Partial<A> } | void, { label = 'Carousel'
 }
 
 
-export default Object.assign(template, { arrow: SNAP_CAROUSEL_ARROW, card: SNAP_CAROUSEL_CARD } as const);
+export default component(template, { arrow: SNAP_CAROUSEL_ARROW, card: SNAP_CAROUSEL_CARD });
 export type { Slide as SnapCarouselSlide, State as SnapCarouselState };

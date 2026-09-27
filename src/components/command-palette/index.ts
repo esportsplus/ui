@@ -1,5 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import input from '~/components/input';
 import modal from '~/components/modal';
 import './scss/index.scss';
@@ -204,7 +204,7 @@ function search() {
 }
 
 
-export default Object.assign(
+export default component(
     function(
         this: { attributes?: A } | void,
         {
@@ -451,6 +451,6 @@ export default Object.assign(
         input: COMMAND_PALETTE_INPUT,
         option: COMMAND_PALETTE_OPTION,
         trigger: COMMAND_PALETTE_TRIGGER
-    } as const
+    }
 );
 export type { Command, State };

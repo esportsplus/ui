@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import '~/components/tooltip/scss/index.scss';
 import './scss/index.scss';
@@ -344,5 +344,5 @@ function template(this: { attributes?: Partial<A> } | void, { data, label, state
 }
 
 
-export default Object.assign(template, { cell: CONTRIBUTION_HEATMAP_CELL, legend } as const);
+export default component(template, { cell: CONTRIBUTION_HEATMAP_CELL, legend });
 export type { Day as ContributionHeatmapDay, State as ContributionHeatmapState };

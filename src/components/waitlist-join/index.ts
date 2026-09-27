@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import clipboard from '~/components/clipboard';
 import counter from '~/components/counter';
@@ -541,5 +541,5 @@ function template(
 }
 
 
-export default Object.assign(template, { input: WAITLIST_JOIN_INPUT } as const);
+export default component(template, { input: WAITLIST_JOIN_INPUT });
 export type { QueuePerson, State };

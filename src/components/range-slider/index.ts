@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import input from '~/components/input';
 import './scss/index.scss';
@@ -273,5 +273,5 @@ function template(
 }
 
 
-export default Object.assign(template, { input: RANGE_SLIDER_INPUT, thumb: RANGE_SLIDER_THUMB } as const);
+export default component(template, { input: RANGE_SLIDER_INPUT, thumb: RANGE_SLIDER_THUMB });
 export type { State };

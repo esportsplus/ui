@@ -137,8 +137,8 @@ function unwrap(element: Element) {
 }
 
 
-export default Object.assign(
-    component<A>(function(this, { href = '#', label, state = reactive({ copied: false, open: false }), ...attributes }, content) {
+export default component(
+    function(this, { href = '#', label, state = reactive({ copied: false, open: false }), ...attributes }: A, content) {
         let buttons: HTMLButtonElement[] = [],
             copyTimer: ReturnType<typeof setTimeout> | undefined,
             dismissed = false,
@@ -505,6 +505,6 @@ export default Object.assign(
                 <span aria-live='polite' class='selection-toolbar-live'>${() => live.text}</span>
             </div>
         `;
-    }),
-    { editor: SELECTION_TOOLBAR_EDITOR, toolbar: SELECTION_TOOLBAR_TOOLBAR } as const
+    },
+    { editor: SELECTION_TOOLBAR_EDITOR, toolbar: SELECTION_TOOLBAR_TOOLBAR }
 );

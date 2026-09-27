@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
 import { write } from '~/components/clipboard';
 import './scss/index.scss';
@@ -38,7 +38,7 @@ function reduced() {
 }
 
 
-export default Object.assign(
+export default component(
     function(this: { attributes?: Partial<A> } | void, { state = reactive({ copied: false, open: false }), text = 'Share', title, url, ...attributes }: A) {
         let animations: Animation[] = [],
             encodedTitle = encodeURIComponent(title),
@@ -324,5 +324,5 @@ export default Object.assign(
             </div>
         `;
     },
-    { target: SHARE_BUTTON_TARGET, trigger: SHARE_BUTTON_TRIGGER } as const
+    { target: SHARE_BUTTON_TARGET, trigger: SHARE_BUTTON_TRIGGER }
 );

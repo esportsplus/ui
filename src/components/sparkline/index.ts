@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -230,5 +230,5 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
 }
 
 
-export default Object.assign(template, { plot: SPARKLINE_PLOT } as const);
+export default component(template, { plot: SPARKLINE_PLOT });
 export type { Point as SparklinePoint, State as SparklineState };

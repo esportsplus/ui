@@ -1,5 +1,5 @@
 import { effect, reactive } from '@esportsplus/reactivity';
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import './scss/index.scss';
 
 
@@ -111,7 +111,7 @@ function viewport(root: HTMLElement | null) {
 }
 
 
-export default Object.assign(
+export default component(
     function(
         this: { attributes?: A } | void,
         { features, screenshot, size, state = reactive({ active: -1 }), ...attributes }: A
@@ -432,6 +432,6 @@ export default Object.assign(
             </section>
         `;
     },
-    { item: FEATURE_SPOTLIGHT_ITEM, stage: FEATURE_SPOTLIGHT_STAGE } as const
+    { item: FEATURE_SPOTLIGHT_ITEM, stage: FEATURE_SPOTLIGHT_STAGE }
 );
 export type { Feature, Region };

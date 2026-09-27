@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
 import modal from '~/components/modal';
 import './scss/index.scss';
@@ -373,5 +373,5 @@ function template(this: { attributes?: Partial<A> } | void, { items, state = rea
 }
 
 
-export default Object.assign(template, { card: EXPANDING_CARD_CARD } as const);
+export default component(template, { card: EXPANDING_CARD_CARD });
 export type { Item as ExpandingCardItem, State as ExpandingCardState };

@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -351,5 +351,5 @@ function template(
 }
 
 
-export default Object.assign(template, { button: SCROLL_SPINE_BUTTON } as const);
+export default component(template, { button: SCROLL_SPINE_BUTTON });
 export type { Item, State };

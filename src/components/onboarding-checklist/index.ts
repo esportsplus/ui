@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive, untrack } from '@esportsplus/reactivity';
 import accordion from '~/components/accordion';
 import checkbox, { factory } from '~/components/checkbox';
@@ -248,5 +248,5 @@ function template(
 }
 
 
-export default Object.assign(template, { task: ONBOARDING_CHECKLIST_TASK } as const);
+export default component(template, { task: ONBOARDING_CHECKLIST_TASK });
 export type { State, Task };

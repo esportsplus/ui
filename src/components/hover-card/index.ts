@@ -152,168 +152,166 @@ function reduced() {
 }
 
 
-export default Object.assign(
-    component<A>(
-        function(this, { card, group: shared, label, state = reactive({ active: false }), ...attributes }, content) {
-            let animations: Animation[] = [],
-                body: HTMLElement | undefined,
-                element: HTMLElement | undefined,
-                id = `hover-card-${++uid}`,
-                owner = shared ?? group(),
-                pointer = 'mouse',
-                root: HTMLElement | undefined,
-                self: Card = {
-                    close: (instant) => {
-                        if (!element) {
-                            return;
-                        }
+export default component(
+    function(this, { card, group: shared, label, state = reactive({ active: false }), ...attributes }: A, content) {
+        let animations: Animation[] = [],
+            body: HTMLElement | undefined,
+            element: HTMLElement | undefined,
+            id = `hover-card-${++uid}`,
+            owner = shared ?? group(),
+            pointer = 'mouse',
+            root: HTMLElement | undefined,
+            self: Card = {
+                close: (instant) => {
+                    if (!element) {
+                        return;
+                    }
 
-                        element.classList.toggle('--instant', instant);
-                        element.classList.remove('--active');
-                        state.active = false;
-                    },
-                    open: (instant, from) => {
-                        if (!element || !body || !root || !trigger) {
-                            return;
-                        }
-
-                        for (let i = 0, n = animations.length; i < n; i++) {
-                            animations[i].cancel();
-                        }
-
-                        animations = [];
-                        place(element, root, trigger);
-                        element.classList.toggle('--instant', instant);
-                        element.classList.add('--active');
-                        state.active = true;
-
-                        if (!from) {
-                            return;
-                        }
-
-                        let to = element.getBoundingClientRect(),
-                            dx = from.left - to.left,
-                            dy = from.top - to.top,
-                            still = reduced();
-
-                        if (!still && (dx || dy)) {
-                            animations.push(element.animate({ translate: [`${dx}px ${dy}px`, '0 0'] }, TRAVEL));
-                        }
-
-                        animations.push(
-                            body.animate(
-                                still ? { opacity: [0, 1] } : { filter: ['blur(4px)', 'blur(0px)'], opacity: [0, 1] },
-                                DEVELOP
-                            )
-                        );
-                    },
-                    rect: () => element?.isConnected ? element.getBoundingClientRect() : undefined
+                    element.classList.toggle('--instant', instant);
+                    element.classList.remove('--active');
+                    state.active = false;
                 },
-                trigger: HTMLElement | undefined;
+                open: (instant, from) => {
+                    if (!element || !body || !root || !trigger) {
+                        return;
+                    }
 
-            return html`
-                <span
-                    class='hover-card'
-                    ${this?.attributes}
-                    ${attributes}
+                    for (let i = 0, n = animations.length; i < n; i++) {
+                        animations[i].cancel();
+                    }
+
+                    animations = [];
+                    place(element, root, trigger);
+                    element.classList.toggle('--instant', instant);
+                    element.classList.add('--active');
+                    state.active = true;
+
+                    if (!from) {
+                        return;
+                    }
+
+                    let to = element.getBoundingClientRect(),
+                        dx = from.left - to.left,
+                        dy = from.top - to.top,
+                        still = reduced();
+
+                    if (!still && (dx || dy)) {
+                        animations.push(element.animate({ translate: [`${dx}px ${dy}px`, '0 0'] }, TRAVEL));
+                    }
+
+                    animations.push(
+                        body.animate(
+                            still ? { opacity: [0, 1] } : { filter: ['blur(4px)', 'blur(0px)'], opacity: [0, 1] },
+                            DEVELOP
+                        )
+                    );
+                },
+                rect: () => element?.isConnected ? element.getBoundingClientRect() : undefined
+            },
+            trigger: HTMLElement | undefined;
+
+        return html`
+            <span
+                class='hover-card'
+                ${this?.attributes}
+                ${attributes}
+                ${{
+                    ondocumentpointerdown: (e: PointerEvent) => {
+                        // Taps have no hover, so a tap opens the card and a tap anywhere else closes it.
+                        if (state.active && root && !root.contains(e.target as Node | null)) {
+                            owner.close();
+                        }
+                    },
+                    onfocusin: (e: FocusEvent) => {
+                        // Keyboard focus only; a tap also focuses the trigger, and opening here would let the
+                        // click that follows close it again.
+                        if (e.target === trigger && trigger?.matches(':focus-visible')) {
+                            owner.request(self, true);
+                        }
+                    },
+                    onfocusout: (e: FocusEvent) => {
+                        if (!root?.contains(e.relatedTarget as Node | null)) {
+                            owner.release(self);
+                        }
+                    },
+                    onkeydown: (e: KeyboardEvent) => {
+                        if (e.key !== 'Escape' || !state.active) {
+                            return;
+                        }
+
+                        owner.close();
+                        trigger?.focus();
+                    },
+                    onpointerout: (e: PointerEvent) => {
+                        if (e.pointerType === 'touch' || root?.contains(e.relatedTarget as Node | null)) {
+                            return;
+                        }
+
+                        owner.release(self);
+                    },
+                    onpointerover: (e: PointerEvent) => {
+                        if (e.pointerType === 'touch' || root?.contains(e.relatedTarget as Node | null)) {
+                            return;
+                        }
+
+                        owner.request(self);
+                    },
+                    onrender: (el: HTMLElement) => {
+                        root = el;
+                    }
+                }}
+            >
+                <button
+                    class='hover-card-trigger'
+                    type='button'
+                    ${this?.attributes?.[HOVER_CARD_TRIGGER]}
+                    ${attributes[HOVER_CARD_TRIGGER]}
                     ${{
-                        ondocumentpointerdown: (e: PointerEvent) => {
-                            // Taps have no hover, so a tap opens the card and a tap anywhere else closes it.
-                            if (state.active && root && !root.contains(e.target as Node | null)) {
+                        'aria-controls': () => state.active ? id : undefined,
+                        'aria-expanded': () => state.active ? 'true' : 'false',
+                        onclick: (e: MouseEvent) => {
+                            // A mouse has already opened it by hovering; taps and keys toggle.
+                            if (state.active && (e.detail === 0 || pointer === 'touch')) {
                                 owner.close();
                             }
-                        },
-                        onfocusin: (e: FocusEvent) => {
-                            // Keyboard focus only; a tap also focuses the trigger, and opening here would let the
-                            // click that follows close it again.
-                            if (e.target === trigger && trigger?.matches(':focus-visible')) {
+                            else {
                                 owner.request(self, true);
                             }
                         },
-                        onfocusout: (e: FocusEvent) => {
-                            if (!root?.contains(e.relatedTarget as Node | null)) {
-                                owner.release(self);
-                            }
-                        },
-                        onkeydown: (e: KeyboardEvent) => {
-                            if (e.key !== 'Escape' || !state.active) {
-                                return;
-                            }
-
-                            owner.close();
-                            trigger?.focus();
-                        },
-                        onpointerout: (e: PointerEvent) => {
-                            if (e.pointerType === 'touch' || root?.contains(e.relatedTarget as Node | null)) {
-                                return;
-                            }
-
-                            owner.release(self);
-                        },
-                        onpointerover: (e: PointerEvent) => {
-                            if (e.pointerType === 'touch' || root?.contains(e.relatedTarget as Node | null)) {
-                                return;
-                            }
-
-                            owner.request(self);
+                        onpointerdown: (e: PointerEvent) => {
+                            pointer = e.pointerType;
                         },
                         onrender: (el: HTMLElement) => {
-                            root = el;
+                            trigger = el;
                         }
                     }}
                 >
-                    <button
-                        class='hover-card-trigger'
-                        type='button'
-                        ${this?.attributes?.[HOVER_CARD_TRIGGER]}
-                        ${attributes[HOVER_CARD_TRIGGER]}
-                        ${{
-                            'aria-controls': () => state.active ? id : undefined,
-                            'aria-expanded': () => state.active ? 'true' : 'false',
-                            onclick: (e: MouseEvent) => {
-                                // A mouse has already opened it by hovering; taps and keys toggle.
-                                if (state.active && (e.detail === 0 || pointer === 'touch')) {
-                                    owner.close();
-                                }
-                                else {
-                                    owner.request(self, true);
-                                }
-                            },
-                            onpointerdown: (e: PointerEvent) => {
-                                pointer = e.pointerType;
-                            },
-                            onrender: (el: HTMLElement) => {
-                                trigger = el;
-                            }
-                        }}
-                    >
-                        ${content}
-                    </button>
+                    ${content}
+                </button>
 
-                    <span
-                        aria-label='${label ?? ''}'
-                        class='hover-card-content hover-card-content--s'
-                        id='${id}'
-                        role='group'
-                        ${this?.attributes?.[HOVER_CARD_CONTENT]}
-                        ${attributes[HOVER_CARD_CONTENT]}
-                        ${{
-                            ondisconnect: () => {
-                                owner.release(self);
-                            },
-                            onrender: (el: HTMLElement) => {
-                                element = el;
-                            }
-                        }}
-                    >
-                        <span class='hover-card-body' ${{ onrender: (el: HTMLElement) => { body = el; } }}>
-                            ${card}
-                        </span>
+                <span
+                    aria-label='${label ?? ''}'
+                    class='hover-card-content hover-card-content--s'
+                    id='${id}'
+                    role='group'
+                    ${this?.attributes?.[HOVER_CARD_CONTENT]}
+                    ${attributes[HOVER_CARD_CONTENT]}
+                    ${{
+                        ondisconnect: () => {
+                            owner.release(self);
+                        },
+                        onrender: (el: HTMLElement) => {
+                            element = el;
+                        }
+                    }}
+                >
+                    <span class='hover-card-body' ${{ onrender: (el: HTMLElement) => { body = el; } }}>
+                        ${card}
                     </span>
                 </span>
-            `;
-        }
-    ),
-    { content: HOVER_CARD_CONTENT, group, trigger: HOVER_CARD_TRIGGER } as const
+            </span>
+        `;
+    },
+    { content: HOVER_CARD_CONTENT, group, trigger: HOVER_CARD_TRIGGER }
 );
 export type { Group };

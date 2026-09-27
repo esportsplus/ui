@@ -1,5 +1,5 @@
 import { effect, reactive } from '@esportsplus/reactivity';
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import input from '~/components/input';
 import modal from '~/components/modal';
 import './scss/index.scss';
@@ -168,7 +168,7 @@ function spoken(keys: string[], mac: boolean) {
 }
 
 
-export default Object.assign(
+export default component(
     function(
         this: { attributes?: A } | void,
         {
@@ -449,6 +449,6 @@ export default Object.assign(
         input: SHORTCUT_SHEET_INPUT,
         row: SHORTCUT_SHEET_ROW,
         trigger: SHORTCUT_SHEET_TRIGGER
-    } as const
+    }
 );
 export type { Shortcut, State };

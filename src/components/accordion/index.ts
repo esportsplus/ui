@@ -1,4 +1,4 @@
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, reactive } from '@esportsplus/reactivity';
 import { html, component, type Attributes } from '@esportsplus/template';
 import './scss/index.scss';
 
@@ -17,11 +17,11 @@ export default component<Attributes & {
                 viewport: HTMLElement | undefined;
 
             // Scroll position survives the height change, so collapsing would otherwise clamp to wherever the reader left off.
-            onCleanup(effect(() => {
+            effect(() => {
                 if (!state.active) {
                     viewport?.scrollTo({ top: 0 });
                 }
-            }));
+            });
 
             a = {
                 class: 'accordion--more',

@@ -1,4 +1,4 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import '~/components/tabs/scss/index.scss';
 import './scss/index.scss';
@@ -287,5 +287,5 @@ const slidingTabs = ({ label, selected, state, tabs, ...attributes }: A) => {
 };
 
 
-export default Object.assign(slidingTabs, { panel: SLIDING_TABS_PANEL, tab: SLIDING_TABS_TAB } as const);
+export default component(slidingTabs, { panel: SLIDING_TABS_PANEL, tab: SLIDING_TABS_TAB });
 export type { State, Tab };

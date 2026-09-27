@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -319,5 +319,5 @@ function template(
 }
 
 
-export default Object.assign(template, { menu: STATUS_PICKER_MENU, trigger: STATUS_PICKER_TRIGGER } as const);
+export default component(template, { menu: STATUS_PICKER_MENU, trigger: STATUS_PICKER_TRIGGER });
 export type { Option, Status };

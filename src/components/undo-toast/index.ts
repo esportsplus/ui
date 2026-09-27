@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { toast } from '~/components/toast';
 import './scss/index.scss';
@@ -88,7 +88,7 @@ function shortcut() {
 }
 
 
-export default Object.assign(
+export default component(
     function(this: { attributes?: Partial<A> } | void, { duration = 5000, emptyLabel = 'No files left', items, label = 'Files', ondelete, restoreLabel, state = reactive({ empty: false, pending: 0 }), ...attributes }: A) {
         let gone = new Set<string>(),
             live = reactive({ text: '' }),
@@ -355,5 +355,5 @@ export default Object.assign(
             </div>
         `;
     },
-    { row: UNDO_TOAST_ROW } as const
+    { row: UNDO_TOAST_ROW }
 );

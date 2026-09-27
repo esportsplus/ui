@@ -1,4 +1,4 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -604,5 +604,5 @@ const navigationMenu = ({ align = 'start', items, label = 'Main', state, ...attr
 };
 
 
-export default Object.assign(navigationMenu, { popup: NAVIGATION_MENU_POPUP, trigger: NAVIGATION_MENU_TRIGGER } as const);
+export default component(navigationMenu, { popup: NAVIGATION_MENU_POPUP, trigger: NAVIGATION_MENU_TRIGGER });
 export type { Align, Item, State };

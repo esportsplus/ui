@@ -1,4 +1,4 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -400,5 +400,5 @@ const planCard = ({
 };
 
 
-export default Object.assign(planCard, { approve: PLAN_CARD_APPROVE, view: PLAN_CARD_VIEW } as const);
+export default component(planCard, { approve: PLAN_CARD_APPROVE, view: PLAN_CARD_VIEW });
 export type { State, Todo };

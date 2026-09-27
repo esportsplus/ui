@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -51,7 +51,7 @@ function reduced() {
 }
 
 
-export default Object.assign(
+export default component(
     function(this: { attributes?: Partial<A> } | void, { label = 'Save changes', onsave, retryLabel = 'Try again', state = reactive({ status: 'idle' as Status }), successFor = 1500, ...attributes }: A) {
         let attempt = 0,
             morph: Animation | undefined,
@@ -184,5 +184,5 @@ export default Object.assign(
             </button>
         `;
     },
-    { content: MORPHING_BUTTON_CONTENT } as const
+    { content: MORPHING_BUTTON_CONTENT }
 );

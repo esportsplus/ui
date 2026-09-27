@@ -255,15 +255,13 @@ function row({ content, direction = 1, reactivity = true, velocity = 5, ...attri
 }
 
 
-export default Object.assign(
-    component<Attributes>(
-        function(this, attributes, content) {
-            return html`
-                <div class='scroll-velocity' ${this?.attributes} ${attributes}>
-                    ${content}
-                </div>
-            `;
-        }
-    ),
+export default component(
+    function(this, attributes: Attributes, content) {
+        return html`
+            <div class='scroll-velocity' ${this?.attributes} ${attributes}>
+                ${content}
+            </div>
+        `;
+    },
     { row }
 );

@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { factory } from '~/components/checkbox';
 import radio from '~/components/radio';
@@ -141,5 +141,5 @@ function template(
 }
 
 
-export default Object.assign(template, { card: RADIO_CARDS_CARD, input: RADIO_CARDS_INPUT } as const);
+export default component(template, { card: RADIO_CARDS_CARD, input: RADIO_CARDS_INPUT });
 export type { Option };

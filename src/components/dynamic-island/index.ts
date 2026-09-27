@@ -1,4 +1,4 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -59,7 +59,7 @@ function pad(value: number) {
 
 function template(
     this: { attributes?: Partial<A> } | void,
-    { state = reactive({ artist: 'M83', elapsed: 0, mode: 'idle' as Mode, playing: true, title: 'Midnight City' }), ...attributes }: A = {}
+    { state = reactive({ artist: 'M83', elapsed: 0, mode: 'idle' as Mode, playing: true, title: 'Midnight City' }), ...attributes }: A
 ) {
     let bound = this?.attributes,
         stop: VoidFunction | undefined,
@@ -157,5 +157,5 @@ function template(
 }
 
 
-export default Object.assign(template, { toggle: DYNAMIC_ISLAND_TOGGLE } as const);
+export default component(template, { toggle: DYNAMIC_ISLAND_TOGGLE });
 export type { Mode as DynamicIslandMode, State as DynamicIslandState };

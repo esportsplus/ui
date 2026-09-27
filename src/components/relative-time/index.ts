@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import '~/components/tooltip/scss/index.scss';
 import './scss/index.scss';
@@ -406,5 +406,5 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
 }
 
 
-export default Object.assign(template, { tooltip: RELATIVE_TIME_TOOLTIP } as const);
+export default component(template, { tooltip: RELATIVE_TIME_TOOLTIP });
 export type { State as RelativeTimeState, Value as RelativeTimeValue };

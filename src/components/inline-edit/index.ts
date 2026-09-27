@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import input from '~/components/input';
 import textarea from '~/components/textarea';
@@ -174,4 +174,4 @@ function template(
 }
 
 
-export default Object.assign(template, { display: INLINE_EDIT_DISPLAY, field: INLINE_EDIT_FIELD } as const);
+export default component(template, { display: INLINE_EDIT_DISPLAY, field: INLINE_EDIT_FIELD });

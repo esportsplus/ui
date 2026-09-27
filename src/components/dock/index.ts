@@ -1,4 +1,4 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import '~/components/tooltip';
 import './scss/index.scss';
@@ -261,5 +261,5 @@ const dock = ({ items, label = 'Dock', onlaunch, ...attributes }: A) => {
 };
 
 
-export default Object.assign(dock, { button: DOCK_BUTTON } as const);
+export default component(dock, { button: DOCK_BUTTON });
 export type { Item };
