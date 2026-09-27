@@ -22,6 +22,10 @@
         "vite": "^8.3.1"
     },
     "exports": {
+        "./css-utilities/scrollbar": {
+            "types": "./build/css-utilities/scrollbar/index.d.ts",
+            "default": "./build/css-utilities/scrollbar/index.js"
+        },
         "./css-utilities.scss": "./build/css-utilities/index.scss",
         "./css-utilities/*.scss": "./build/css-utilities/*/scss/index.scss",
         "./css-utilities/font/*.scss": "./build/css-utilities/font/*/scss/index.scss",

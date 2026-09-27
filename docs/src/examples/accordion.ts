@@ -1,59 +1,26 @@
 import { accordion } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import './accordion.scss';
+import scrollbar from '~/css-utilities/scrollbar';
 
 
 // The consumer owns the control, label, and shared expansion state.
 const more = (attributes: { lines?: number, style?: string }, content: Renderable<unknown>) => {
-    let id = `accordion-example-${crypto.randomUUID()}`,
-        cleanup: (() => void) | undefined,
+    let fade = scrollbar.fade(),
+        id = `accordion-example-${crypto.randomUUID()}`,
         state = reactive({ active: false, expandable: false });
 
     return html`
-        <div
-            style='max-width: 480px;'
-            ${{
-                onconnect: (element: HTMLElement) => {
-                    if (CSS.supports('animation-timeline: scroll()')) {
-                        return;
-                    }
-
-                    let viewport = element.querySelector<HTMLElement>('.accordion')!,
-                        body = viewport.querySelector<HTMLElement>('.accordion-content')!;
-
-                    // Match the utility's fade ramp over the first/last 5% of scrolling.
-                    let measure = () => {
-                        let range = viewport.scrollHeight - viewport.clientHeight,
-                            progress = range > 0 ? Math.max(0, Math.min(1, viewport.scrollTop / range)) : 0;
-
-                        viewport.style.setProperty('--fade-top-progress', String(range > 0 ? Math.min(1, progress / 0.05) : 0));
-                        viewport.style.setProperty('--fade-bottom-progress', String(range > 0 ? Math.min(1, (1 - progress) / 0.05) : 0));
-                    };
-
-                    let observer = new ResizeObserver(measure);
-
-                    observer.observe(viewport);
-                    observer.observe(body);
-                    viewport.addEventListener('scroll', measure, { passive: true });
-                    measure();
-
-                    cleanup = () => {
-                        observer.disconnect();
-                        viewport.removeEventListener('scroll', measure);
-                    };
-                },
-                ondisconnect: () => cleanup?.()
-            }}
-        >
+        <div style='max-width: 480px;'>
             ${accordion({
+                ...fade,
                 lines: 3,
                 ...attributes,
                 'aria-label': 'Expanded content',
-                class: ['accordion-example --scrollbar-fade', () => state.expandable && '--clamped'],
                 id,
                 role: 'region',
                 state,
+                style: [attributes.style, fade.style],
                 tabindex: '0'
             }, content)}
             ${() => state.expandable && html`

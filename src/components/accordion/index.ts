@@ -3,10 +3,7 @@ import { html, component, type Attributes } from '@esportsplus/template';
 import './scss/index.scss';
 
 
-export default component<Attributes & {
-    onconnect?: never,
-    ondisconnect?: never
-} & ({
+export default component<Attributes & ({
     lines: number,
     state?: { active: boolean | number, expandable: boolean }
 } | {
