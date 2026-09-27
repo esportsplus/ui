@@ -47,12 +47,12 @@
 
     &-fade {
         overflow-y: auto;
+        -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--scroll-fade-top), #000 calc(100% - var(--scroll-fade-bottom)), transparent);
+        mask-image: linear-gradient(to bottom, transparent, #000 var(--scroll-fade-top), #000 calc(100% - var(--scroll-fade-bottom)), transparent);
 
         @supports (animation-timeline: scroll()) {
-            animation: scrollbar-fade linear both;
+            animation: scrollbar-fade 1ms linear both;
             animation-timeline: scroll(self);
-            -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--scroll-fade-top), #000 calc(100% - var(--scroll-fade-bottom)), transparent);
-            mask-image: linear-gradient(to bottom, transparent, #000 var(--scroll-fade-top), #000 calc(100% - var(--scroll-fade-bottom)), transparent);
         }
 
         @keyframes scrollbar-fade {

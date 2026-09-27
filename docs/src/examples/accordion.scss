@@ -1,0 +1,18 @@
+.accordion-example.--scrollbar-fade {
+    --scroll-fade-size: 2lh;
+
+    &:not(.--active) {
+        animation: none;
+    }
+
+    &.--clamped:not(.--active) {
+        --scroll-fade-bottom: var(--scroll-fade-size);
+    }
+
+    @supports not (animation-timeline: scroll()) {
+        &.--active {
+            --scroll-fade-top: calc(var(--scroll-fade-size) * var(--fade-top-progress, 0));
+            --scroll-fade-bottom: calc(var(--scroll-fade-size) * var(--fade-bottom-progress, 0));
+        }
+    }
+}
