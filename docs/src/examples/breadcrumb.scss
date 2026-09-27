@@ -1,4 +1,4 @@
-.breadcrumbs-demo {
+.breadcrumb-demo {
     display: flex;
     flex-direction: column;
     gap: var(--size-400);
@@ -14,6 +14,14 @@
         max-width: 100%;
         padding-inline: 10px;
         position: relative;
+
+        // Sits straight on the page, the way most sites place a trail above a heading.
+        &--plain {
+            background: none;
+            border-radius: 0;
+            box-shadow: none;
+            padding-inline: 0;
+        }
     }
 
     // A 24px wide hit area around a 6px grip, centred on the edge.

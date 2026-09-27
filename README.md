@@ -136,13 +136,12 @@ html`
 ### Layout
 | Component | Description |
 |-----------|-------------|
-| `breadcrumb` | Navigation trail: `breadcrumb.list`, `.item`, `.link`, `.menu`, `.page`, `.separator`, `.ellipsis` |
 | `scrollbar` | Native scrollbar styling; `--scrollbar-fade` / `--scrollbar-blur` edges driven by scroll timelines, with `scrollbar.fade()` / `scrollbar.blur()` (`@esportsplus/ui/css-utilities/scrollbar`) adding a JS fallback only where those are unsupported |
 | `tabs.scss` | Tab panels: instant by default, `tabs--slide` for horizontal motion, `tabs--scroll` for vertical motion |
 | `sidebar` | Side navigation |
 | `modal` | Native `<dialog>` modal driven by `state.active` (Esc and backdrop click close it) |
 | `overlay` | Full-viewport overlay container |
-| `breadcrumbs` | Path trail that folds middle segments into a `tooltip.onclick` menu as space runs out, sliding the rest over (FLIP); `onnavigate` intercepts links |
+| `breadcrumb` | Path trail that folds middle segments into a `tooltip.menu` as space runs out, the rest sliding over as each one closes; `onnavigate` intercepts links; `separator: 'chevron' \| 'slash'` (default `'slash'`) |
 | `morphingNav` | Navigation bar whose dropdown panel morphs size, position and caret between sections on hover intent, with full keyboard support (`state.active`) |
 | `scrollSpine` | Scale-drawing table of contents: bands sized to each section fill as you read, and a spring marker stretches between them |
 | `sheet` | Bottom sheet on `modal` (`modal--sheet`) that drags to dismiss past 25% or on a flick, rubber-bands upward, and fades its backdrop with the drag (`sheet.handle`, `sheet--full`) |

@@ -2,7 +2,6 @@ export { default as accordion } from './accordion';
 export { default as announcement } from './announcement';
 export { default as autosave } from './autosave';
 export { default as breadcrumb } from './breadcrumb';
-export { default as breadcrumbs } from './breadcrumbs';
 export { default as button } from './button';
 export { default as cardInput } from './card-input';
 export { default as carousel3d } from './carousel-3d';

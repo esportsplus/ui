@@ -32,10 +32,6 @@ const meta: Record<string, Meta> = {
     },
     breadcrumb: {
         category: 'Layout',
-        description: 'Displays the path to the current resource using a hierarchy of links.'
-    },
-    breadcrumbs: {
-        category: 'Layout',
         description: 'Path trail that folds middle segments into a menu as space runs out, sliding the rest to close the gap.'
     },
     button: {

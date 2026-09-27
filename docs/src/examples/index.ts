@@ -6,7 +6,6 @@ import announcement from './announcement';
 import autosave from './autosave';
 import banner from './banner';
 import breadcrumb from './breadcrumb';
-import breadcrumbs from './breadcrumbs';
 import button from './button';
 import card from './card';
 import cardInput from './card-input';
@@ -129,7 +128,6 @@ const entries: Entry[] = [
     autosave,
     banner,
     breadcrumb,
-    breadcrumbs,
     button,
     card,
     cardInput,
