@@ -94,9 +94,6 @@
 
     // Kerning and ligatures off, here and in the overlay, so letters set one span at a time land exactly where the field draws them.
     &-control > #{&}-field {
-        --background-default: var(--field-background);
-        --border-radius: var(--field-border-radius);
-        --color-default: currentColor;
         font-kerning: none;
         font-size: inherit;
         font-variant-ligatures: none;

@@ -23,4 +23,22 @@
     --tooltip-ease: cubic-bezier(0.23, 1, 0.32, 1);
     --tooltip-offset: 10px;
     --width: min(440px, 100%);
+
+    &-field .range-slider-input {
+        --background-default: transparent;
+        --color-default: currentColor;
+        --font-size: inherit;
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+    }
+
+    &-handle {
+        &--high {
+            --position: var(--high);
+        }
+
+        &--low {
+            --position: var(--low);
+        }
+    }
 }

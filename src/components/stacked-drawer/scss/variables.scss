@@ -1,3 +1,5 @@
+@use '/tokens';
+
 .stacked-drawer {
     --background: var(--color-border-400);
     --border-radius: 40px;
@@ -17,4 +19,21 @@
     --sheet-box-shadow: var(--box-shadow-400);
     --timing-function: cubic-bezier(0.32, 0.72, 0, 1);
     --width: 100%;
+
+    &-page,
+    &-sheet {
+        --duration-covered: var(--duration-close);
+
+        &.--covered {
+            --duration-covered: var(--duration-open);
+        }
+    }
+
+    &-sheet {
+        --duration-translate: var(--duration-close);
+
+        @include tokens.state(active) {
+            --duration-translate: var(--duration-open);
+        }
+    }
 }

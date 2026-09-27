@@ -27,4 +27,25 @@
     &--subtle {
         --size-peak: 54px;
     }
+
+    &-button {
+        --size: var(--size-rest);
+    }
+
+    &-label.tooltip-message {
+        --border-radius: var(--border-radius-300);
+        --box-shadow: none;
+        --font-weight: var(--font-weight-500);
+        --offset: 4px;
+        --padding-horizontal: 8px;
+        --padding-vertical: 4px;
+        --spacer: 12px;
+        --transition-duration: 0.15s;
+        --transition-timing-function: ease-out;
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        --light-delay: 0s;
+    }
 }

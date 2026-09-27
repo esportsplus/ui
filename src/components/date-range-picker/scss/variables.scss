@@ -19,4 +19,42 @@
     --radius: 24px;
     --row-height: 40px;
     --width: 600px;
+
+    &-apply {
+        --background-default: var(--accent);
+        --color-default: var(--accent-contrast);
+        --padding-horizontal: 16px;
+        --padding-vertical: 0px;
+    }
+
+    &-clear {
+        --background-hover: var(--hover);
+        --color-default: var(--color-muted);
+        --color-hover: var(--foreground);
+        --padding-horizontal: 14px;
+        --padding-vertical: 0px;
+    }
+
+    &-preset {
+        --background-hover: var(--hover);
+        --color-default: var(--color-muted);
+        --color-hover: var(--foreground);
+        --padding-horizontal: 14px;
+        --padding-vertical: 0px;
+
+        &[aria-pressed='true'] {
+            --background-default: var(--accent);
+            --background-hover: var(--accent);
+            --color-default: var(--accent-contrast);
+            --color-hover: var(--accent-contrast);
+        }
+    }
+
+    &-step {
+        --background-hover: var(--hover);
+        --color-default: var(--color-muted);
+        --color-hover: var(--foreground);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+    }
 }

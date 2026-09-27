@@ -17,10 +17,6 @@
 
     // Qualified by the root so it wins over the reused input styles regardless of stylesheet order.
     & > #{&}-field {
-        --color-default: currentColor;
-        --font-size: inherit;
-        --padding-horizontal: 0px;
-        --padding-vertical: 0px;
         font-variant-numeric: tabular-nums;
         height: 100%;
         min-height: 0;

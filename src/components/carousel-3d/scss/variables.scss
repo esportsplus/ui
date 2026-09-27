@@ -22,4 +22,8 @@
         0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
     --stage-height: 260px;
     --title-color: var(--color-text-500);
+
+    &-card {
+        --text: 1;
+    }
 }

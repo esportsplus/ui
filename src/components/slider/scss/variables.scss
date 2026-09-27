@@ -12,4 +12,9 @@
     --thumb-size: 16px;
     --track-color: var(--color-border-300);
     --track-size: 4px;
+
+    // A thumb under a finger gets a larger target.
+    @media (pointer: coarse) {
+        --thumb-size: 20px;
+    }
 }

@@ -1,3 +1,5 @@
+@use '/tokens';
+
 .tooltip {
     // Set a translucent color to review the safe area shape.
     --safe-color: transparent;
@@ -15,18 +17,29 @@
         --spacer: var(--size-300);
         --width: auto;
 
+        // Mirrors '$active' in 'index.scss'.
+        $active: '#{tokens.state(active, ".tooltip")} > &, #{tokens.state(active, ".tooltip")} :not(.tooltip) > &';
+
         // Unfolds out of the trigger-side corner while scaling up (beUI's animated dropdown); the
-        // corner follows the direction, see the direction overrides in 'index.scss'.
+        // corner follows the direction, see the direction overrides below.
         &--corner {
             // Covers the '--box-shadow-400' extent so the resting clip doesn't cut the shadow.
             --corner-bleed: 24px;
+            // The open state swaps these durations rather than redeclaring 'transition'.
+            --corner-clip-duration: var(--corner-close-duration);
             --corner-clip-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
             --corner-close-duration: 0.26s;
+            --corner-duration: var(--corner-close-duration);
             --corner-open-clip-duration: 0.32s;
             --corner-open-duration: 0.36s;
             --offset: 0px;
             --scale: 0.96;
             --transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+            #{$active} {
+                --corner-clip-duration: var(--corner-open-clip-duration);
+                --corner-duration: var(--corner-open-duration);
+            }
         }
 
         // Unfolds away from the trigger along one axis with a slight overshoot (Material menus,
@@ -78,6 +91,12 @@
             --stagger-offset: 6px;
             --transition-duration: 0.15s;
             --transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+
+            @for $i from 1 through 12 {
+                > :nth-child(#{$i}) {
+                    --stagger-index: #{$i - 1};
+                }
+            }
         }
 
         // The Radix / shadcn / Headless UI dropdown and select default: fade, 95% scale and an 8px slide
@@ -101,6 +120,35 @@
         --font-weight: var(--font-weight-400);
         --padding-horizontal: var(--size-300);
         --padding-vertical: var(--size-300);
+    }
+
+    // Grow unfolds away from the trigger, so its axis follows the direction: vertical for
+    // north/south (the default), horizontal for east/west. Corner collapses onto the edge or
+    // corner nearest the trigger, matching each direction's 'transform-origin'.
+    @each $base in 'content', 'message' {
+        @each $direction, $inset in (
+            'c': 46%,
+            'e': 46% 92% 46% 0,
+            'en': 0 92% 92% 0,
+            'es': 92% 92% 0 0,
+            'n': 92% 46% 0 46%,
+            'ne': 92% 0 0 92%,
+            'nw': 92% 92% 0 0,
+            's': 0 46% 92% 46%,
+            'se': 0 0 92% 92%,
+            'sw': 0 92% 92% 0,
+            'w': 46% 0 46% 92%,
+            'wn': 0 0 92% 92%,
+            'ws': 92% 0 0 92%
+        ) {
+            &-#{$base}--corner.tooltip-#{$base}--#{$direction} {
+                --corner-inset: #{$inset};
+            }
+        }
+
+        &-#{$base}--grow:is(.tooltip-#{$base}--e, .tooltip-#{$base}--en, .tooltip-#{$base}--es, .tooltip-#{$base}--w, .tooltip-#{$base}--wn, .tooltip-#{$base}--ws) {
+            --scale: 0 1;
+        }
     }
 }
 

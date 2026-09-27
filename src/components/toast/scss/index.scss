@@ -62,7 +62,6 @@
     }
 
     [data-position*='bottom'] & {
-        --toast-calc-offset-y: calc((var(--toast-offset-y, 0px) * -1) + (var(--toast-index, 0) * var(--toast-gap) * -1) + var(--toast-swipe-y, 0px));
         bottom: 0;
         top: auto;
         transform-origin: bottom;
@@ -191,32 +190,22 @@
 
 
     &--error {
-        --toast-color: var(--color-red-400);
-
         border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
     }
 
     &--warning {
-        --toast-color: var(--color-yellow-400);
-
         border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
     }
 
     &--success {
-        --toast-color: var(--color-green-400);
-
         border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
     }
 
     &--info {
-        --toast-color: var(--color-blue-400);
-
         border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
     }
 
     &--loading {
-        --toast-color: var(--color-grey-500);
-
         border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
 
         .toast-icon {
@@ -225,8 +214,6 @@
     }
 
     &--message {
-        --toast-color: var(--color-text-300);
-
         border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
     }
 }

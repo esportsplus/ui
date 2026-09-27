@@ -46,11 +46,6 @@
         }
 
         .range-slider-input {
-            --background-default: transparent;
-            --color-default: currentColor;
-            --font-size: inherit;
-            --padding-horizontal: 0px;
-            --padding-vertical: 0px;
             flex: 0 1 64px;
             font-variant-numeric: tabular-nums;
             margin-inline-start: auto;
@@ -85,14 +80,6 @@
         position: absolute;
         transition: translate var(--glide-duration) var(--glide-timing-function);
         translate: calc(var(--position) * 100%) 0;
-
-        &--high {
-            --position: var(--high);
-        }
-
-        &--low {
-            --position: var(--low);
-        }
 
         &.--raised {
             z-index: 1;

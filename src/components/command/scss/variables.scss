@@ -31,5 +31,10 @@
         --background: oklch(from var(--color-grey-500) l c h / 0.5);
         --color: var(--color-text-300);
         --height: 36px;
+
+        > .input {
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
+        }
     }
 }

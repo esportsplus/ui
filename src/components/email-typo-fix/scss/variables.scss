@@ -15,4 +15,10 @@
     --outline-color: var(--color-text-500);
     --panel-leave-duration: 120ms;
     --suggestion-font-size: var(--font-size-300);
+
+    &-control > #{&}-field {
+        --background-default: var(--field-background);
+        --border-radius: var(--field-border-radius);
+        --color-default: currentColor;
+    }
 }

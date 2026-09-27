@@ -15,7 +15,21 @@
     --padding-vertical: 0px;
 
 
+    // Compound selector so these win over `.button` regardless of stylesheet order.
+    &.button {
+        --background-default: var(--morphing-button-background);
+        --color-default: var(--morphing-button-color);
+        --font-size: var(--morphing-button-font-size);
+        --font-weight: var(--font-weight-500);
+        --line-height: 20px;
+    }
+
     &--blue {
         --morphing-button-background: var(--color-blue-400);
+    }
+
+    &--error.button {
+        --background-default: var(--morphing-button-background-error);
+        --color-default: var(--morphing-button-color-error);
     }
 }

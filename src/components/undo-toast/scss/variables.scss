@@ -17,4 +17,25 @@
         --undo-toast-background: var(--color-white-300);
         --undo-toast-row-background-hover: var(--color-grey-400);
     }
+
+    &-delete.button {
+        --background-default: transparent;
+        --background-hover: color-mix(in oklab, var(--undo-toast-color) 5%, transparent);
+        --border-radius: 999px;
+        --color-default: var(--undo-toast-color-muted);
+        --color-hover: var(--undo-toast-color);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+    }
+
+    &-restore.button {
+        --background-default: var(--color-white-300);
+        --border-radius: 999px;
+        --box-shadow-default: var(--undo-toast-box-shadow);
+        --color-default: var(--undo-toast-color);
+        --font-size: 14px;
+        --font-weight: var(--font-weight-500);
+        --padding-horizontal: 16px;
+        --padding-vertical: 0px;
+    }
 }

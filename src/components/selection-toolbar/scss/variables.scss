@@ -21,4 +21,20 @@
     &--white {
         --selection-toolbar-background: var(--color-white-300);
     }
+
+    &-button.button {
+        --background-default: transparent;
+        --background-hover: color-mix(in oklab, var(--selection-toolbar-color) 6%, transparent);
+        --border-radius: var(--border-radius-400);
+        --color-default: var(--selection-toolbar-color-muted);
+        --color-hover: var(--selection-toolbar-color);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+
+        &[aria-pressed='true'] {
+            --background-default: color-mix(in oklab, var(--selection-toolbar-color) 8%, transparent);
+            --background-hover: color-mix(in oklab, var(--selection-toolbar-color) 10%, transparent);
+            --color-default: var(--selection-toolbar-color);
+        }
+    }
 }

@@ -22,5 +22,8 @@
         --rotate: 38deg;
         --scale: 1.14;
         --scale-falloff: 0.34;
+        // `--offset` (scroll position) and `--half` (half viewport) are written by JS in item units
+        --t: clamp(-1, calc((var(--index) - var(--offset, 0)) / var(--half, 2.5)), 1);
+        --t-abs: max(var(--t), var(--t) * -1);
     }
 }

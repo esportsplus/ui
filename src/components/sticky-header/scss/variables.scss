@@ -7,7 +7,9 @@
     --edge-shadow: 0 6px 16px -10px oklch(from var(--color-black-300) l c h / 0.4);
     --expanded-height: 68px;
     --focus-color: var(--color-blue-300);
+    --lifted: clamp(0, var(--progress) / 0.12, 1);
     --max-height: 320px;
+    --offset: calc(var(--travel) * var(--progress));
     --padding-horizontal: var(--size-400);
     --padding-top: 12px;
     --progress: 0;
@@ -19,4 +21,8 @@
     --title-compact-font-size: 13px;
     --title-font-size: 20px;
     --travel: calc(var(--expanded-height) - var(--compact-height));
+
+    &-compact {
+        --reveal: clamp(0, (var(--progress) - 0.55) / 0.35, 1);
+    }
 }

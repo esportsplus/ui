@@ -1,12 +1,5 @@
 @use 'variables';
 
-// Registered so the reveal's bottom fade can be interpolated.
-@property --log-fade {
-    inherits: false;
-    initial-value: 0px;
-    syntax: '<length>';
-}
-
 .log {
     color: var(--text-secondary);
     font-size: var(--font-size);
@@ -133,8 +126,6 @@
 }
 
 .log-unit {
-    --log-fade: 22px;
-
     display: grid;
     filter: blur(6px);
     grid-template-rows: 0fr;
@@ -150,8 +141,6 @@
     translate: 0 4px;
 
     &.--active {
-        --log-fade: 0px;
-
         filter: blur(0);
         grid-template-rows: 1fr;
         opacity: 1;

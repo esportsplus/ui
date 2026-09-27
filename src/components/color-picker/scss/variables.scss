@@ -30,4 +30,26 @@
     --transition-duration: 150ms;
     --transition-timing-function: ease-out;
     --width: min(320px, 100%);
+
+    .color-picker-channel {
+        &--alpha {
+            --thumb: linear-gradient(rgb(var(--rgb) / var(--alpha)), rgb(var(--rgb) / var(--alpha))), var(--checker);
+            --track: linear-gradient(to right, rgb(var(--rgb) / 0), rgb(var(--rgb))), var(--checker);
+        }
+
+        // Pure hues on purpose: the rail is the color math, not a theme surface.
+        &--hue {
+            --thumb: hsl(var(--hue) 100% 50%);
+            --track: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+        }
+    }
+
+    &-hex .input {
+        --background-default: transparent;
+        --color-default: var(--color-text-500);
+        --font-size: inherit;
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --size: 0px;
+    }
 }

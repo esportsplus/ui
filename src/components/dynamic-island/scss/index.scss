@@ -49,13 +49,6 @@
         visibility: hidden;
         width: var(--width);
 
-        @each $mode in idle, music, ring, timer {
-            &--#{$mode} {
-                --height: var(--#{$mode}-height);
-                --width: var(--#{$mode}-width);
-            }
-        }
-
         &--music {
             padding: 0 24px;
         }
@@ -223,9 +216,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        --morph-duration: 0.3s;
-        --morph-easing: var(--spring);
-
         &-content,
         &-content.--active,
         &-pause,

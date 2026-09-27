@@ -21,4 +21,34 @@
         --share-button-background: var(--color-grey-400);
         --share-button-target-background-hover: var(--color-white-300);
     }
+
+    &-close.button {
+        --color-default: var(--share-button-color-muted);
+        --color-hover: var(--share-button-color);
+    }
+
+    &-target.button,
+    &-trigger.button {
+        --background-default: transparent;
+        --border-radius: 999px;
+        --color-default: var(--share-button-color);
+        --font-size: var(--share-button-font-size);
+        --font-weight: var(--font-weight-500);
+        --line-height: 20px;
+        --padding-vertical: 0px;
+    }
+
+    &-target.button {
+        --background-hover: var(--share-button-target-background-hover);
+        --padding-horizontal: 0px;
+    }
+
+    // After the shared target rule so its padding wins.
+    &-target.share-button-copy {
+        --padding-horizontal: 10px;
+    }
+
+    &-trigger.button {
+        --padding-horizontal: 20px;
+    }
 }

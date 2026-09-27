@@ -20,4 +20,49 @@
     --radius: 20px;
     --surface: var(--color-grey-400);
     --width: min(440px, 100%);
+
+    &-copy {
+        --background-default: var(--accent);
+        --color-default: var(--accent-contrast);
+        --padding-horizontal: 12px;
+        --padding-vertical: 0px;
+    }
+
+    &-form {
+        --gap-horizontal: 8px;
+    }
+
+    &-input {
+        --background-default: var(--surface);
+        --color-default: var(--foreground);
+        --font-size: calc(var(--font-size-400) * 0.9375);
+        --padding-horizontal: 14px;
+        --padding-vertical: 0px;
+    }
+
+    &-reset {
+        --background-hover: var(--surface);
+        --color-default: var(--color-muted);
+        --color-hover: var(--foreground);
+        --padding-horizontal: 8px;
+        --padding-vertical: 0px;
+    }
+
+    &-roll {
+        --font-weight: var(--font-weight-600);
+        --stagger: 80ms;
+        --timing-function: var(--ease);
+        --transition-duration: 700ms;
+    }
+
+    &-submit {
+        --background-default: var(--accent);
+        --color-default: var(--accent-contrast);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+
+        &.button--processing {
+            --border-width: var(--border-width-500);
+        }
+    }
 }

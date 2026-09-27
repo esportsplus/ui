@@ -20,9 +20,6 @@
         // corner arcs. `min()` lets percentage radii (e.g. 100% circles) resolve in any context;
         // arc radii live in the color stops since Chromium rejects mixed-unit calc() as a size.
         &:has(+ .thumbnail--stack) {
-            --stack-cut: calc(var(--stack-radius) + var(--stack-gap));
-            --stack-radius: min(var(--border-radius), var(--height) / 2, var(--width) / 2);
-            --stack-x: calc(100% - var(--stack-overlap) + var(--stack-radius));
             mask-composite: subtract, add, add, add, add;
             mask-image:
                 var(--status-mask, linear-gradient(#000 0 0)),
@@ -37,12 +34,6 @@
     }
 
     &--status {
-        --status-mask: radial-gradient(
-            circle at calc(100% - var(--status-size) / 2) calc(100% - var(--status-size) / 2),
-            #000 calc(var(--status-size) / 2 - 0.5px),
-            transparent calc(var(--status-size) / 2 + 0.5px) calc(var(--status-size) / 2 + var(--status-gap) - 0.5px),
-            #000 calc(var(--status-size) / 2 + var(--status-gap) + 0.5px)
-        );
         // Chromium rounds the mask clip by border-radius, which would crop the dot on circles
         mask-clip: no-clip;
         mask-image: var(--status-mask);

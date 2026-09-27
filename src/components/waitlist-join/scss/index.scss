@@ -26,10 +26,6 @@
     }
 
     &-copy {
-        --background-default: var(--accent);
-        --color-default: var(--accent-contrast);
-        --padding-horizontal: 12px;
-        --padding-vertical: 0px;
         border-radius: 9px;
         flex-shrink: 0;
         font-size: var(--font-size-small);
@@ -118,7 +114,6 @@
     }
 
     &-form {
-        --gap-horizontal: 8px;
         flex-wrap: nowrap;
         inset: 0;
         margin: 0;
@@ -171,11 +166,6 @@
     }
 
     &-input {
-        --background-default: var(--surface);
-        --color-default: var(--foreground);
-        --font-size: calc(var(--font-size-400) * 0.9375);
-        --padding-horizontal: 14px;
-        --padding-vertical: 0px;
         border-radius: 12px;
         box-shadow: none;
         flex: 1 1 0;
@@ -303,11 +293,6 @@
     }
 
     &-reset {
-        --background-hover: var(--surface);
-        --color-default: var(--color-muted);
-        --color-hover: var(--foreground);
-        --padding-horizontal: 8px;
-        --padding-vertical: 0px;
         border-radius: 8px;
         font-size: var(--font-size-small);
         height: 32px;
@@ -316,10 +301,6 @@
     }
 
     &-roll {
-        --font-weight: var(--font-weight-600);
-        --stagger: 80ms;
-        --timing-function: var(--ease);
-        --transition-duration: 700ms;
         display: inline-flex;
     }
 
@@ -345,19 +326,11 @@
     }
 
     &-submit {
-        --background-default: var(--accent);
-        --color-default: var(--accent-contrast);
-        --padding-horizontal: 0px;
-        --padding-vertical: 0px;
         border-radius: 12px;
         flex: 0 0 84px;
         font-size: var(--font-size);
         font-weight: var(--font-weight-500);
         height: 44px;
-
-        &.button--processing {
-            --border-width: var(--border-width-500);
-        }
     }
 
     &-swap {

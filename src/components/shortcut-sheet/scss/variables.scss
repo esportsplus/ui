@@ -33,4 +33,46 @@
     &--blur {
         --dialog-backdrop: color-mix(in srgb, var(--color-black-500) 24%, transparent);
     }
+
+    &-dialog.modal {
+        --backdrop: var(--dialog-backdrop);
+        --margin-horizontal: var(--size-400);
+        --max-width: var(--dialog-width);
+        --scale: var(--dialog-scale);
+        --transition-duration: var(--open-duration);
+        --transition-timing-function: var(--timing-function);
+        --translateY: 0px;
+
+        &:not(.--active) {
+            --transition-duration: var(--close-duration);
+        }
+
+        &.--leaving {
+            --scale: 1;
+        }
+    }
+
+    &-group-label {
+        --font-size: var(--font-size-300);
+    }
+
+    &-input.input {
+        --background-default: var(--surface);
+        --border-radius: var(--border-radius-400);
+        --color-default: var(--color);
+        --font-size: var(--input-font-size);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: 0px;
+        --size: 40px;
+    }
+
+    &-title {
+        --font-size: var(--title-font-size);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-dialog.modal {
+            --scale: 1;
+        }
+    }
 }

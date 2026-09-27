@@ -36,4 +36,18 @@
             --shape-width: var(--#{$mode}-width);
         }
     }
+
+    &-content {
+        @each $mode in idle, music, ring, timer {
+            &--#{$mode} {
+                --height: var(--#{$mode}-height);
+                --width: var(--#{$mode}-width);
+            }
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --morph-duration: 0.3s;
+        --morph-easing: var(--spring);
+    }
 }

@@ -1,24 +1,5 @@
 @use 'variables';
 
-// Registered so the card's rotation, fade and stack position all follow one interpolated value.
-@property --depth {
-    inherits: false;
-    initial-value: 0;
-    syntax: '<number>';
-}
-
-@property --lift {
-    inherits: false;
-    initial-value: 1;
-    syntax: '<number>';
-}
-
-@property --x {
-    inherits: false;
-    initial-value: 0;
-    syntax: '<number>';
-}
-
 .swipe-deck {
     width: 100%;
 
@@ -105,7 +86,6 @@
         }
 
         &.--dragging {
-            --lift: var(--drag-scale);
             cursor: grabbing;
             transition:
                 --depth var(--spring-crossfade),

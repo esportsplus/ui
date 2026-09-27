@@ -107,10 +107,6 @@
         top: 0;
         width: 0;
         z-index: 10;
-
-        &.--active .tooltip-message {
-            --transition-duration: 0.1s;
-        }
     }
 
 

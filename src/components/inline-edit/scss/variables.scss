@@ -14,4 +14,10 @@
     --icon-swap-timing-function: linear(0, 0.035, 0.118, 0.216, 0.319, 0.424, 0.515, 0.6, 0.669, 0.728, 0.781, 0.822, 0.856, 0.885, 0.908, 0.927, 0.942, 0.954, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
     --outline-color: var(--color-text-500);
     --placeholder-color: var(--color-text-300);
+
+    // Qualified by the root so it wins over the reused input/textarea styles regardless of stylesheet order.
+    & > #{&}-field {
+        --background-default: var(--field-background);
+        --color-default: currentColor;
+    }
 }

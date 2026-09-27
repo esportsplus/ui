@@ -19,4 +19,12 @@
     --slot-background: oklch(from var(--color-text-500) l c h / 0.03);
     --slot-border-color: var(--color-border-300);
     --text-color: var(--color-text-500);
+
+    &-dialog.modal {
+        --backdrop: var(--dialog-backdrop);
+        --margin-horizontal: 1rem;
+        --max-width: var(--dialog-width);
+        --transition-duration: 0.2s;
+        --transition-timing-function: var(--ease-out);
+    }
 }

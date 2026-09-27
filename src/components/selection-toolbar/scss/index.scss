@@ -6,14 +6,6 @@
 
 
     &-button.button {
-        --background-default: transparent;
-        --background-hover: color-mix(in oklab, var(--selection-toolbar-color) 6%, transparent);
-        --border-radius: var(--border-radius-400);
-        --color-default: var(--selection-toolbar-color-muted);
-        --color-hover: var(--selection-toolbar-color);
-        --padding-horizontal: 0px;
-        --padding-vertical: 0px;
-
         border: 0;
         height: var(--selection-toolbar-button-size);
         outline: none;
@@ -31,12 +23,6 @@
 
         &:focus-visible {
             outline: 2px solid var(--selection-toolbar-focus-color);
-        }
-
-        &[aria-pressed='true'] {
-            --background-default: color-mix(in oklab, var(--selection-toolbar-color) 8%, transparent);
-            --background-hover: color-mix(in oklab, var(--selection-toolbar-color) 10%, transparent);
-            --color-default: var(--selection-toolbar-color);
         }
     }
 

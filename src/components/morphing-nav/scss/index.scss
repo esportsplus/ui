@@ -247,8 +247,6 @@
 
 
     @media (max-width: 639px) {
-        --trigger-padding: 10px;
-
         &-action,
         &-brand,
         &-chevron {
@@ -261,8 +259,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        --morph-duration: 0s;
-
         &-chevron {
             transition: none;
         }

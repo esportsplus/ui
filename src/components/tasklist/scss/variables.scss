@@ -71,6 +71,10 @@
             --box-shadow-active: none;
             --size: 16px;
         }
+
+        .tasklist-item:hover {
+            --background: var(--background-hover);
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {

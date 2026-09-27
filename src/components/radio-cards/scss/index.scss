@@ -46,11 +46,6 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
             scale var(--transition-duration) var(--transition-timing-function);
         user-select: none;
 
-        &:hover {
-            --background: var(--background-hover);
-            --badge-background: var(--badge-background-hover);
-        }
-
         &:active {
             scale: var(--press-scale);
         }
@@ -105,28 +100,8 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
         position: relative;
 
         .checkbox {
-            --background-active: transparent;
-            --border-color-active: var(--color);
-            --border-color-default: color-mix(in oklch, var(--color) 25%, transparent);
-            --border-color-hover: color-mix(in oklch, var(--color) 45%, transparent);
-            --border-width: var(--dot-border-width);
-            --border-width-offset-hover: 0px;
-            --box-shadow-active: none;
-            --focus-width: 0px;
-            --indicator-color-default: var(--color);
-            --scale-active: 1;
-            --scale-default: 0.5;
-            --scale-hover: 0.5;
-            --scale-pressed: 0.5;
-            --size: var(--dot-size);
-            --transition-duration: 150ms;
-            --transition-timing-function: ease-out;
-
             // Covers the border too, and starts at half size so the fill grows out of the ring's own center.
             &::before {
-                --box-shadow: none;
-                --height: calc(100% + var(--dot-border-width) * 2);
-                --width: calc(100% + var(--dot-border-width) * 2);
                 border-radius: 50%;
                 inset: calc(var(--dot-border-width) * -1);
                 opacity: 0;
@@ -219,10 +194,6 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
         }
 
         &-dot .checkbox {
-            --scale-default: 1;
-            --scale-hover: 1;
-            --scale-pressed: 1;
-
             &::before,
             &:has(input:checked)::before {
                 transition: opacity 150ms $ease-out;

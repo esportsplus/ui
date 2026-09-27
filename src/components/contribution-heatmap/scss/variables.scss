@@ -37,3 +37,7 @@
     --transition-duration: 75ms;
     --transition-timing-function: ease-out;
 }
+
+.contribution-heatmap .contribution-heatmap-tip.--active .tooltip-message {
+    --transition-duration: 0.1s;
+}

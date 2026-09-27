@@ -5,4 +5,8 @@
     --chip-border-hover: var(--color-border-400);
     --icon-color: var(--color-text-300);
     --task-gap: 5px;
+
+    &-chip-label {
+        --line-height: calc(16 / 12);
+    }
 }

@@ -51,10 +51,6 @@ dialog.settings {
         transition: background var(--transition-duration) var(--transition-timing-function);
         width: 24px;
 
-        .icon {
-            --size: 16px;
-        }
-
         &:hover {
             background: var(--color-border-300);
         }
@@ -144,12 +140,7 @@ dialog.settings {
         width: 100%;
 
         @include tokens.state(active) {
-            --background: var(--background-active);
             color: var(--text);
-        }
-
-        @include tokens.state(hover) {
-            --background: var(--background-hover);
         }
 
         &:focus-visible {
@@ -157,7 +148,6 @@ dialog.settings {
         }
 
         &-icon {
-            --size: 20px;
             color: var(--text-muted);
         }
 
@@ -281,7 +271,6 @@ dialog.settings {
         }
 
         &-icon {
-            --size: 16px;
             color: var(--saved);
         }
     }
@@ -308,8 +297,6 @@ dialog.settings {
     }
 
     &-title {
-        --font-size: 20px;
-        --font-weight: var(--font-weight-500);
         color: var(--text);
         font-size: var(--font-size);
         font-weight: var(--font-weight);

@@ -130,7 +130,6 @@
 
     // Qualified so it wins over the reused input styles regardless of stylesheet order.
     &-entry > #{&}-field {
-        --color-default: currentColor;
         font-size: inherit;
         height: var(--chip-height);
         min-height: 0;

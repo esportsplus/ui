@@ -21,4 +21,10 @@
     &--muted {
         --hover-background: var(--color-grey-400);
     }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        --pill-duration: 0s;
+        --popup-duration: 0s;
+    }
 }

@@ -65,6 +65,10 @@
         --color: var(--color-white-300);
         --icon-size: var(--size-300);
         --size: var(--size-600);
+
+        .icon {
+            --size: var(--icon-size);
+        }
     }
 
     &-separator {

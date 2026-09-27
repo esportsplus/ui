@@ -38,4 +38,9 @@
     @include tokens.state(pressed) {
         --background: var(--background-pressed);
     }
+
+    // Outranks `.icon` so its --size default can't win on source order
+    .notification-bell-icon {
+        --size: var(--icon-size);
+    }
 }

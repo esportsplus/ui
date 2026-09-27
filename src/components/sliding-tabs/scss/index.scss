@@ -1,19 +1,6 @@
 @use '/tokens';
 @use 'variables';
 
-// Registered so the two ends of the underline can transition independently.
-@property --sliding-tabs-left {
-    inherits: false;
-    initial-value: 0px;
-    syntax: '<length>';
-}
-
-@property --sliding-tabs-right {
-    inherits: false;
-    initial-value: 0px;
-    syntax: '<length>';
-}
-
 .sliding-tabs {
     display: flex;
     flex-direction: column;
@@ -158,15 +145,7 @@
     }
 
 
-    @media (max-width: 639px) {
-        --tab-padding: 10px;
-    }
-
     @media (prefers-reduced-motion: reduce) {
-        --hover-duration: 0s;
-        --lead-duration: 0s;
-        --tail-duration: 0s;
-
         &-label {
             transition: none;
         }

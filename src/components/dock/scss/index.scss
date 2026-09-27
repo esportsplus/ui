@@ -14,7 +14,6 @@
 
     // Width and height grow instead of scale on purpose: the neighbours have to move apart, not overlap.
     &-button {
-        --size: var(--size-rest);
         align-items: center;
         background: var(--item-background);
         border: 0;
@@ -55,16 +54,6 @@
     }
 
     &-label.tooltip-message {
-        --border-radius: var(--border-radius-300);
-        --box-shadow: none;
-        --font-weight: var(--font-weight-500);
-        --offset: 4px;
-        --padding-horizontal: 8px;
-        --padding-vertical: 4px;
-        --spacer: 12px;
-        --transition-duration: 0.15s;
-        --transition-timing-function: ease-out;
-
         // Once a label is up, moving along the dock swaps it with no animation.
         &.--instant {
             transition: none;
@@ -93,10 +82,5 @@
             transition-delay: var(--light-delay);
             transition-duration: 0.2s;
         }
-    }
-
-
-    @media (prefers-reduced-motion: reduce) {
-        --light-delay: 0s;
     }
 }

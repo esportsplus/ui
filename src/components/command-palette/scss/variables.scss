@@ -39,4 +39,32 @@
     &--centered {
         --dialog-offset: auto;
     }
+
+    &-dialog.modal {
+        --backdrop: var(--dialog-backdrop);
+        --margin-horizontal: var(--size-400);
+        --max-width: var(--dialog-width);
+        --scale: var(--dialog-scale);
+        --transition-duration: var(--open-duration);
+        --transition-timing-function: var(--timing-function);
+        --translateY: 0px;
+
+        &:not(.--active) {
+            --transition-duration: var(--close-duration);
+        }
+    }
+
+    &-input.input {
+        --color-default: var(--color);
+        --font-size: var(--font-size);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --size: 0px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-dialog.modal {
+            --scale: 1;
+        }
+    }
 }

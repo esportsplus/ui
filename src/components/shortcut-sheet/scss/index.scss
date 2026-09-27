@@ -47,26 +47,11 @@
     }
 
     &-dialog.modal {
-        --backdrop: var(--dialog-backdrop);
-        --margin-horizontal: var(--size-400);
-        --max-width: var(--dialog-width);
-        --scale: var(--dialog-scale);
-        --transition-duration: var(--open-duration);
-        --transition-timing-function: var(--timing-function);
-        --translateY: 0px;
         background: var(--dialog-background);
         border-radius: var(--dialog-radius);
         box-shadow: var(--raised);
         color: var(--color);
         overflow: hidden;
-
-        &:not(.--active) {
-            --transition-duration: var(--close-duration);
-        }
-
-        &.--leaving {
-            --scale: 1;
-        }
     }
 
     &-empty {
@@ -82,7 +67,6 @@
     }
 
     &-group-label {
-        --font-size: var(--font-size-300);
         color: var(--color-muted);
         font-weight: var(--font-weight-500);
         padding: var(--size-400) var(--size-100) calc(var(--size-100) / 2);
@@ -98,13 +82,6 @@
     }
 
     &-input.input {
-        --background-default: var(--surface);
-        --border-radius: var(--border-radius-400);
-        --color-default: var(--color);
-        --font-size: var(--input-font-size);
-        --padding-horizontal: var(--size-300);
-        --padding-vertical: 0px;
-        --size: 40px;
         height: 40px;
         outline: none;
         padding-inline-start: 36px;
@@ -240,7 +217,6 @@
     }
 
     &-title {
-        --font-size: var(--title-font-size);
         color: var(--color);
         font-weight: var(--font-weight-600, var(--font-weight-500));
         width: auto;
@@ -285,7 +261,6 @@
         }
 
         &-dialog.modal {
-            --scale: 1;
             transition: opacity var(--transition-duration) var(--transition-timing-function);
 
             &::backdrop {

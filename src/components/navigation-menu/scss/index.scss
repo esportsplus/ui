@@ -204,10 +204,4 @@
         position: relative;
         width: 100%;
     }
-
-
-    @media (prefers-reduced-motion: reduce) {
-        --pill-duration: 0s;
-        --popup-duration: 0s;
-    }
 }

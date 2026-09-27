@@ -29,4 +29,42 @@
     --transition-duration: 150ms;
     --transition-timing-function: ease-out;
     --width: min(480px, 100%);
+
+    &-card:hover {
+        --background: var(--background-hover);
+        --badge-background: var(--badge-background-hover);
+    }
+
+    &-dot .checkbox {
+        --background-active: transparent;
+        --border-color-active: var(--color);
+        --border-color-default: color-mix(in oklch, var(--color) 25%, transparent);
+        --border-color-hover: color-mix(in oklch, var(--color) 45%, transparent);
+        --border-width: var(--dot-border-width);
+        --border-width-offset-hover: 0px;
+        --box-shadow-active: none;
+        --focus-width: 0px;
+        --indicator-color-default: var(--color);
+        --scale-active: 1;
+        --scale-default: 0.5;
+        --scale-hover: 0.5;
+        --scale-pressed: 0.5;
+        --size: var(--dot-size);
+        --transition-duration: 150ms;
+        --transition-timing-function: ease-out;
+
+        &::before {
+            --box-shadow: none;
+            --height: calc(100% + var(--dot-border-width) * 2);
+            --width: calc(100% + var(--dot-border-width) * 2);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-dot .checkbox {
+            --scale-default: 1;
+            --scale-hover: 1;
+            --scale-pressed: 1;
+        }
+    }
 }
