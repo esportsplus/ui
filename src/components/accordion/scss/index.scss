@@ -19,6 +19,8 @@
         display: block;
         // Animate the outer box while content retains its natural height for measurement.
         height: min(var(--height, 100vh), calc(var(--lines) * 1lh));
+        overflow-y: auto;
+        overscroll-behavior: contain;
         transition: height var(--transition-duration) var(--transition-timing-function);
 
         &:focus-visible {
@@ -37,8 +39,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        & {
-            transition: none;
-        }
+        transition: none;
     }
 }

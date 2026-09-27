@@ -21,7 +21,7 @@ const more = (attributes: { lines?: number, style?: string }, content: Renderabl
                 role: 'region',
                 state,
                 style: [attributes.style, fade.style],
-                tabindex: '0'
+                tabindex: () => state.active && '0'
             }, content)}
             ${() => state.expandable && html`
                 <button
@@ -81,10 +81,10 @@ export default {
             render: () => more({}, html`
                 <div class='text'>
                     Show more reveals clamped content progressively. Only the container height animates,
-                    so the text keeps its layout and never reflows while expanding. The consumer controls
-                    any fade styling and supplies the button and its label. Content
+                    so the text keeps its layout and never reflows while expanding. The consumer supplies
+                    the button, its label, and any fade styling, here the --scrollbar-fade utility. Content
                     longer than the maximum height scrolls inside the region instead of pushing the page,
-                    and the external button toggles the shared expansion state.
+                    and the button only renders while there is more to show.
                 </div>
             `),
             title: 'show more'
@@ -104,7 +104,7 @@ export default {
         },
         {
             render: () => more({}, html`
-                <div class='text'>Short content fits without clamping, so the external button is disabled.</div>
+                <div class='text'>Short content fits without clamping, so there is nothing to expand and no button is shown.</div>
             `),
             title: 'fits'
         }
