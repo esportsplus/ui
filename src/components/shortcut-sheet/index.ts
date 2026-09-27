@@ -184,6 +184,7 @@ export default component(
             padding = '',
             release: VoidFunction | undefined,
             results = reactive(() => filter(shortcuts, state.query)),
+            rows = new Map<string, HTMLElement>(),
             stop: VoidFunction | undefined,
             timer: ReturnType<typeof setTimeout> | undefined,
             trigger: HTMLElement | undefined;
@@ -254,7 +255,7 @@ export default component(
                 state.flash = '';
             }, FLASH);
 
-            document.getElementById(`${id}-${hit.id}`)?.scrollIntoView({ block: 'nearest' });
+            rows.get(hit.id)?.scrollIntoView({ block: 'nearest' });
         }
 
         function show() {
@@ -420,9 +421,9 @@ export default component(
                                             ${items.map((shortcut) => html`
                                                 <li
                                                     class='shortcut-sheet-row ${() => state.flash === shortcut.id && '--active'}'
-                                                    id='${id}-${shortcut.id}'
                                                     ${this?.attributes?.[SHORTCUT_SHEET_ROW]}
                                                     ${attributes[SHORTCUT_SHEET_ROW]}
+                                                    ${{ onrender: (element: HTMLElement) => { rows.set(shortcut.id, element); } }}
                                                 >
                                                     <span class='shortcut-sheet-label'>${shortcut.label}</span>
                                                     <span class='shortcut-sheet-sr'>${spoken(shortcut.keys, mac)}</span>

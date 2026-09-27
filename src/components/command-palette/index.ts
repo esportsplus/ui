@@ -218,6 +218,7 @@ export default component(
     ) {
         let id = `command-palette-${++uid}`,
             mac = /Mac|iPhone|iPad/.test(navigator.platform),
+            options: HTMLElement[] = [],
             // Last pointer position, so a list scrolling under a still cursor (which browsers can report as
             // hover) never steals the active item from the keys.
             pointer: { x: number, y: number } | null = null,
@@ -355,7 +356,7 @@ export default component(
 
                                             // 'nearest' only scrolls when the item is out of view; smooth so stepping past
                                             // the edge glides the list along rather than jumping it.
-                                            document.getElementById(option(state.index) ?? '')?.scrollIntoView({
+                                            options[state.index]?.scrollIntoView({
                                                 behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
                                                 block: 'nearest'
                                             });
@@ -425,6 +426,9 @@ export default component(
                                                         if (index !== selected()) {
                                                             state.index = index;
                                                         }
+                                                    },
+                                                    onrender: (element: HTMLElement) => {
+                                                        options[index] = element;
                                                     }
                                                 }}
                                             >

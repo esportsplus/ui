@@ -91,7 +91,8 @@ export default component(
             }));
 
         function palette() {
-            let highlighted = reactive(-1),
+            let elements: HTMLElement[] = [],
+                highlighted = reactive(-1),
                 needle = reactive(() => state.query.trim().toLowerCase()),
                 visible = reactive(() => filter(sections, needle)),
                 rows = reactive(() => visible.flatMap((section) => section.rows)),
@@ -131,7 +132,7 @@ export default component(
                 let next = list[(list.findIndex((row) => row.index === current) + step + n) % n].index;
 
                 highlighted = next;
-                document.getElementById(`${id}-${next}`)?.scrollIntoView({ block: 'nearest' });
+                elements[next]?.scrollIntoView({ block: 'nearest' });
             }
 
             // Rows and group labels have fixed heights, so the highlight position is
@@ -175,6 +176,9 @@ export default component(
                             },
                             onmousemove: () => {
                                 highlighted = index;
+                            },
+                            onrender: (element: HTMLElement) => {
+                                elements[index] = element;
                             }
                         }}
                     >
@@ -198,8 +202,10 @@ export default component(
                             move(event.key === 'ArrowDown' ? 1 : -1);
                         }
                         else if (event.key === 'Enter') {
+                            let current = active;
+
                             event.preventDefault();
-                            document.getElementById(`${id}-${active}`)?.click();
+                            elements[current]?.click();
                         }
                     },
                     state
