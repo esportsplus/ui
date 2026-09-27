@@ -75,7 +75,6 @@ import rangeFilter from './range-filter';
 import rangeSlider from './range-slider';
 import readingProgress from './reading-progress';
 import relativeTime from './relative-time';
-import scrollFade from './scroll-fade';
 import scrollSpine from './scroll-spine';
 import scrollVelocity from './scroll-velocity';
 import scrollbar from './scrollbar';
@@ -205,7 +204,6 @@ const entries: Entry[] = [
     rangeSlider,
     readingProgress,
     relativeTime,
-    scrollFade,
     scrollSpine,
     scrollVelocity,
     scrollbar,

@@ -3,10 +3,12 @@
     --scrollbar-color: var(--color-black-300);
     --scrollbar-width: 4px;
 
+    &-blur {
+        --scroll-blur: 4px;
+        --scroll-blur-size: 3lh;
+    }
+
     &-fade {
         --scroll-fade-size: 2lh;
-        --scroll-fade-top: clamp(0px, var(--scroll-top, 0px), var(--scroll-fade-size));
-        --scroll-fade-bottom: clamp(0px, calc(var(--scroll-height, 0px) - var(--scroll-client-height, 0px) - var(--scroll-top, 0px)), var(--scroll-fade-size));
-
     }
 }

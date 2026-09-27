@@ -294,10 +294,6 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Self-updating "5 min ago" time element that rolls its digits as they change, with the full date on hover.'
     },
-    'scroll-fade': {
-        category: 'Layout',
-        description: 'Scroll panel whose edges wash and blur content as it leaves, with optional progressive blur and auto-hiding edges (componentry).'
-    },
     'scroll-spine': {
         category: 'Layout',
         description: 'Table of contents drawn to scale, with bands that fill as you read and a marker that stretches between sections.'
@@ -308,7 +304,7 @@ const meta: Record<string, Meta> = {
     },
     scrollbar: {
         category: 'Layout',
-        description: 'Native scrollbar styling with thin, token-driven colors.'
+        description: 'Native scrollbar styling with thin, token-driven colors, plus edge fades and blurs that track the scroll position.'
     },
     'scrub-input': {
         category: 'Form Controls',

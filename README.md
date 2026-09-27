@@ -140,7 +140,7 @@ html`
 | Component | Description |
 |-----------|-------------|
 | `breadcrumb` | Navigation trail: `breadcrumb.list`, `.item`, `.link`, `.menu`, `.page`, `.separator`, `.ellipsis` |
-| `scrollbar` | Native scrollbar styling |
+| `scrollbar` | Native scrollbar styling; `--scrollbar-fade` / `--scrollbar-blur` edges driven by scroll timelines, with `scrollbar.fade()` / `scrollbar.blur()` (`@esportsplus/ui/css-utilities/scrollbar`) adding a JS fallback only where those are unsupported |
 | `tabs.scss` | Tab panels: instant by default, `tabs--slide` for horizontal motion, `tabs--scroll` for vertical motion |
 | `sidebar` | Side navigation |
 | `modal` | Native `<dialog>` modal driven by `state.active` (Esc and backdrop click close it) |

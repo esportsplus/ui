@@ -1,4 +1,5 @@
 import { html } from '@esportsplus/template';
+import scrollbar from '~/css-utilities/scrollbar';
 
 
 let box = 'height: 160px; border: 1px solid var(--color-border-400); border-radius: var(--border-radius-400);';
@@ -28,6 +29,18 @@ export default {
         {
             render: () => html`<div class='--scrollbar --scrollbar-thin' style='${box}'>${rows(14)}</div>`,
             title: 'thin bar'
+        },
+        {
+            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar.fade()}>${rows(14)}</div>`,
+            title: 'fade'
+        },
+        {
+            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar.blur()}>${rows(14)}</div>`,
+            title: 'blur'
+        },
+        {
+            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar.fade()}>${rows(2)}</div>`,
+            title: 'fade (content fits)'
         }
     ]
 };

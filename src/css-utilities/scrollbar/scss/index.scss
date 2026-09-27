@@ -1,12 +1,14 @@
 @use 'variables';
 
-@property --scroll-fade-top {
+// Registered so the length custom properties can be interpolated by the
+// scroll-driven animation below.
+@property --scroll-fade-bottom {
     inherits: false;
     initial-value: 0px;
     syntax: '<length>';
 }
 
-@property --scroll-fade-bottom {
+@property --scroll-fade-top {
     inherits: false;
     initial-value: 0px;
     syntax: '<length>';
@@ -43,9 +45,73 @@
         overflow-y: hidden;
     }
 
+    // Sticky edges pin to the scrollport and cancel their own height with a negative margin; a flex or grid
+    // scroller still adds its row gap beside each edge.
+    &-blur {
+        &::after,
+        &::before {
+            backdrop-filter: blur(var(--scroll-blur));
+            content: '';
+            display: block;
+            flex-shrink: 0;
+            height: var(--scroll-blur-size);
+            pointer-events: none;
+            position: sticky;
+            z-index: 1;
+        }
+
+        &::after {
+            bottom: 0;
+            margin-top: calc(var(--scroll-blur-size) * -1);
+            mask-image: linear-gradient(to top, #000, transparent);
+            opacity: var(--scroll-overflow-bottom, 0);
+        }
+
+        &::before {
+            margin-bottom: calc(var(--scroll-blur-size) * -1);
+            mask-image: linear-gradient(to bottom, #000, transparent);
+            opacity: var(--scroll-overflow-top, 0);
+            top: 0;
+        }
+
+        // The scroller is the edges' nearest scroll container, so they follow its own scroll.
+        @supports (animation-timeline: scroll()) {
+            &::after {
+                animation: scrollbar-blur-bottom 1ms linear both;
+                animation-timeline: scroll(nearest);
+            }
+
+            &::before {
+                animation: scrollbar-blur-top 1ms linear both;
+                animation-timeline: scroll(nearest);
+            }
+        }
+
+        @keyframes scrollbar-blur-bottom {
+            0%, 95% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes scrollbar-blur-top {
+            0% {
+                opacity: 0;
+            }
+
+            5%, 100% {
+                opacity: 1;
+            }
+        }
+    }
+
+    // Unsupported browsers get --scroll-overflow-* from the scrollbar.fade() fallback instead of the timeline.
     &-fade {
-        overflow-y: auto;
-        -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--scroll-fade-top), #000 calc(100% - var(--scroll-fade-bottom)), transparent);
+        --scroll-fade-bottom: calc(var(--scroll-fade-size) * var(--scroll-overflow-bottom, 0));
+        --scroll-fade-top: calc(var(--scroll-fade-size) * var(--scroll-overflow-top, 0));
         mask-image: linear-gradient(to bottom, transparent, #000 var(--scroll-fade-top), #000 calc(100% - var(--scroll-fade-bottom)), transparent);
 
         @supports (animation-timeline: scroll()) {
@@ -55,18 +121,18 @@
 
         @keyframes scrollbar-fade {
             0% {
-                --scroll-fade-top: 0px;
                 --scroll-fade-bottom: var(--scroll-fade-size);
+                --scroll-fade-top: 0px;
             }
 
             5%, 95% {
-                --scroll-fade-top: var(--scroll-fade-size);
                 --scroll-fade-bottom: var(--scroll-fade-size);
+                --scroll-fade-top: var(--scroll-fade-size);
             }
 
             100% {
-                --scroll-fade-top: var(--scroll-fade-size);
                 --scroll-fade-bottom: 0px;
+                --scroll-fade-top: var(--scroll-fade-size);
             }
         }
     }
