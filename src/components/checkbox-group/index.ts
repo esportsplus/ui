@@ -1,6 +1,7 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import checkbox, { factory } from '~/components/checkbox';
+import dash from '@esportsplus/ui/svg/dash.svg';
 import './scss/index.scss';
 
 
@@ -65,6 +66,12 @@ function template(
         return n;
     }
 
+    function fill(a: number, b: number, checked: boolean) {
+        for (let i = Math.min(a, b), n = Math.max(a, b); i <= n; i++) {
+            state[items[i].id] = checked;
+        }
+    }
+
     function mixed() {
         let n = count();
 
@@ -80,13 +87,7 @@ function template(
     }
 
     function toggle(index: number, checked: boolean) {
-        let from = shift && anchor !== null ? anchor : index,
-            hi = Math.max(from, index);
-
-        for (let i = Math.min(from, index); i <= hi; i++) {
-            state[items[i].id] = checked;
-        }
-
+        fill(shift && anchor !== null ? anchor : index, index, checked);
         anchor = index;
         shift = false;
     }
@@ -105,27 +106,19 @@ function template(
                             checked: () => all(),
                             indeterminate: () => mixed(),
                             onchange: () => {
-                                let checked = !all();
-
                                 anchor = null;
                                 shift = false;
-
-                                for (let i = 0, n = items.length; i < n; i++) {
-                                    state[items[i].id] = checked;
-                                }
+                                fill(0, items.length - 1, !all());
                             }
                         }
                     })}
-                    <svg aria-hidden='true' class='checkbox-group-dash' fill='none' stroke='currentColor' stroke-linecap='round' viewBox='0 0 16 16'>
-                        <path d='M4 8h8' pathLength='1' />
-                    </svg>
+                    <svg aria-hidden='true' class='checkbox-group-dash'><use href='#${dash}' /></svg>
                 </span>
                 <span class='checkbox-group-text'>
                     <span class='checkbox-group-label' id='${id}-all'>${label}</span>
                 </span>
                 <span class='checkbox-group-count'>${() => count()} of ${items.length}</span>
             </label>
-            <div class='checkbox-group-divider'></div>
             <div aria-labelledby='${id}-all' class='checkbox-group-items' role='group'>
                 ${items.map((item, index) => html`
                     <label
@@ -167,5 +160,5 @@ function template(
 }
 
 
-export default Object.assign(template, { input: CHECKBOX_GROUP_INPUT, row: CHECKBOX_GROUP_ROW } as const);
+export default component(template, { input: CHECKBOX_GROUP_INPUT, row: CHECKBOX_GROUP_ROW });
 export type { Item };

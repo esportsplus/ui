@@ -25,7 +25,12 @@ export default {
     name: 'checkbox-group',
     variants: [
         {
-            render: () => checkboxGroup({ items: notifications, label: 'All notifications', value: ['comments', 'mentions'] }),
+            render: () => checkboxGroup({
+                items: notifications,
+                label: 'All notifications',
+                style: '--gap-vertical: var(--size-400);',
+                value: ['comments', 'mentions']
+            }),
             title: 'notifications'
         },
         {
@@ -34,7 +39,14 @@ export default {
 
                 return html`
                     <div class='checkbox-group-demo'>
-                        ${checkboxGroup({ hint: false, items: toppings, label: 'Toppings', name: 'toppings', state })}
+                        ${checkboxGroup({
+                            hint: false,
+                            items: toppings,
+                            label: 'Toppings',
+                            name: 'toppings',
+                            state,
+                            style: '--gap-vertical: var(--size-300);'
+                        })}
                         <span class='checkbox-group-demo-status'>
                             ${() => toppings.filter((item) => state[item.id]).map((item) => item.label).join(', ') || 'none'}
                         </span>

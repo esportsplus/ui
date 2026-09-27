@@ -4,12 +4,14 @@ $ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 $fill-in: linear(0, 0.069, 0.225, 0.411, 0.59, 0.743, 0.861, 0.945, 0.999, 1.03, 1.044, 1.046, 1.041, 1.033, 1.025, 1.017, 1.01, 1.005, 1.002, 1, 0.998, 0.998, 0.998, 0.998, 1);
 
 .checkbox-group {
-    background: var(--background);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
     color: var(--color);
-    padding: var(--padding);
-    width: var(--width);
+
+    &,
+    &-items {
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-vertical) 0px;
+    }
 
     &-box {
         display: grid;
@@ -18,22 +20,6 @@ $fill-in: linear(0, 0.069, 0.225, 0.411, 0.59, 0.743, 0.861, 0.945, 0.999, 1.03,
         transition: scale var(--transition-duration) var(--transition-timing-function);
 
         .checkbox {
-            --background-active: transparent;
-            --border-color-active: var(--color);
-            --border-color-default: color-mix(in oklch, var(--color) 25%, transparent);
-            --border-color-hover: color-mix(in oklch, var(--color) 45%, transparent);
-            --border-radius: var(--border-radius-300);
-            --border-width: var(--box-border-width);
-            --border-width-offset-hover: 0px;
-            --box-shadow-active: none;
-            --check-size: 14px;
-            --check-stroke-width: 3.4;
-            --focus-width: 0px;
-            --indicator-color-default: var(--check-color);
-            --size: var(--box-size);
-            --transition-duration: 150ms;
-            --transition-timing-function: ease-out;
-
             // Covers the border too, so a filled box is exactly the box size.
             &::before {
                 background: var(--color);
@@ -96,15 +82,17 @@ $fill-in: linear(0, 0.069, 0.225, 0.411, 0.59, 0.743, 0.861, 0.945, 0.999, 1.03,
     }
 
     &-dash {
-        color: var(--check-color);
+        fill: none;
         height: 70%;
         inset: 0;
         margin: auto;
         opacity: 0;
         pointer-events: none;
         position: absolute;
+        stroke: var(--check-color);
         stroke-dasharray: 1;
         stroke-dashoffset: 1;
+        stroke-linecap: round;
         stroke-width: 2.25;
         transition:
             opacity 0s linear 100ms,
@@ -118,17 +106,10 @@ $fill-in: linear(0, 0.069, 0.225, 0.411, 0.59, 0.743, 0.861, 0.945, 0.999, 1.03,
         line-height: var(--description-line-height);
     }
 
-    &-divider {
-        background: var(--border-color);
-        height: 1px;
-        margin: 4px var(--row-padding-horizontal);
-    }
-
     &-hint {
         color: var(--color-muted);
         font-size: var(--font-size-300);
         margin: 0;
-        padding: var(--padding) var(--row-padding-horizontal) var(--size-200);
         user-select: none;
 
         kbd {
@@ -149,27 +130,14 @@ $fill-in: linear(0, 0.069, 0.225, 0.411, 0.59, 0.743, 0.861, 0.945, 0.999, 1.03,
 
     &-row {
         align-items: center;
-        border-radius: var(--row-border-radius);
         cursor: pointer;
         display: flex;
-        gap: var(--size-300);
-        min-height: var(--row-min-height);
-        padding: var(--row-padding-vertical) var(--row-padding-horizontal);
+        gap: var(--gap-horizontal);
         touch-action: manipulation;
-        transition: background var(--transition-duration) var(--transition-timing-function);
         user-select: none;
-
-        &:hover {
-            background: var(--row-background-hover);
-        }
 
         &:active .checkbox-group-box {
             scale: var(--press-scale);
-        }
-
-        &:has(input:focus-visible) {
-            outline: var(--focus-width) solid var(--color);
-            outline-offset: calc(var(--focus-width) * -1);
         }
 
         &--description {

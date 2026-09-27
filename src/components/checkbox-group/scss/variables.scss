@@ -1,28 +1,33 @@
 .checkbox-group {
-    --background: var(--color-white-300);
     --border-color: var(--color-border-300);
-    --border-radius: calc(var(--row-border-radius) + var(--padding));
     --box-border-width: 1.5px;
-    --box-shadow:
-        0 0 0 1px oklch(from var(--color-black-500) l c h / 0.06),
-        0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
-        0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
     --box-size: var(--size-500);
     --check-color: var(--color-white-300);
     --color: var(--color-text-500);
     --color-muted: var(--color-text-300);
     --description-font-size: calc(var(--font-size-400) * 0.875);
     --description-line-height: 1.43;
-    --focus-width: var(--border-width-500);
+    --gap-horizontal: var(--size-300);
+    --gap-vertical: 0px;
     --label-line-height: 1.4;
-    --padding: 6px;
     --press-scale: 0.96;
-    --row-background-hover: var(--color-grey-400);
-    --row-border-radius: 14px;
-    --row-min-height: 44px;
-    --row-padding-horizontal: var(--size-300);
-    --row-padding-vertical: var(--size-200);
     --transition-duration: 150ms;
     --transition-timing-function: ease-out;
-    --width: min(360px, 100%);
+
+    &-box .checkbox {
+        --background-active: transparent;
+        --border-color-active: var(--color);
+        --border-color-default: color-mix(in oklch, var(--color) 25%, transparent);
+        --border-color-hover: color-mix(in oklch, var(--color) 45%, transparent);
+        --border-radius: var(--border-radius-300);
+        --border-width: var(--box-border-width);
+        --border-width-offset-hover: 0px;
+        --box-shadow-active: none;
+        --check-size: 14px;
+        --check-stroke-width: 3.4;
+        --indicator-color-default: var(--check-color);
+        --size: var(--box-size);
+        --transition-duration: 150ms;
+        --transition-timing-function: ease-out;
+    }
 }
