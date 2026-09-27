@@ -1,6 +1,7 @@
 import { uri } from '../app';
 import { utilities } from './utilities';
 import { entries } from '../examples';
+import { meta } from '../meta';
 import type { RouteName } from '../app';
 
 
@@ -25,9 +26,9 @@ type Section = {
 };
 
 
-function links(names: string[], name: 'components.detail' | 'css-utilities.detail'): Link[] {
+function links(names: string[], name: 'components.detail' | 'css-utilities.detail', label = (slug: string) => slug): Link[] {
     return names
-        .map((slug) => ({ href: uri(name, { slug }), label: slug, name, slug }))
+        .map((slug) => ({ href: uri(name, { slug }), label: label(slug), name, slug }))
         .sort((a, b) => a.label.localeCompare(b.label));
 }
 
@@ -52,7 +53,7 @@ const sections = (): Section[] => [
     },
     {
         groups: [
-            { label: '', links: links(entries.map((item) => item.name), 'components.detail') }
+            { label: '', links: links(entries.map((item) => item.name), 'components.detail', (slug) => meta[slug]?.label ?? slug) }
         ],
         href: uri('components'),
         index: true,

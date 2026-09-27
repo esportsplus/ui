@@ -23,7 +23,7 @@ function page(slug: string = ''): Page {
             entries.map((entry) => ({
                 description: meta[entry.name]?.description ?? '',
                 href: uri('components.detail', { slug: entry.name }),
-                name: entry.name
+                name: meta[entry.name]?.label ?? entry.name
             }))
         );
     }
@@ -36,7 +36,7 @@ function page(slug: string = ''): Page {
 
     return detailPage({
         description: meta[slug]?.description ?? '',
-        name: entry.name,
+        name: meta[slug]?.label ?? entry.name,
         variants: entry.variants
     });
 }

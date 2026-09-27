@@ -1,4 +1,4 @@
-.card-input {
+.cc {
     --card-background: var(--color-text-500);
     --card-border-radius: var(--border-radius-700);
     --card-color: var(--color-white-300);
@@ -26,4 +26,37 @@
     --submit-color: var(--color-white-300);
     --swap-duration: 300ms;
     --width: min(400px, 100%);
+
+    // Qualified so it wins over the shared button styles regardless of stylesheet order.
+    &-actions #{&}-submit {
+        --background-default: var(--submit-background);
+        --border-radius: var(--field-border-radius);
+        --color-default: var(--submit-color);
+        --face-duration: var(--swap-duration);
+        --face-gap: 8px;
+        --face-timing-function: var(--spring);
+        --font-size: var(--field-font-size);
+        --font-weight: var(--font-weight-500);
+        --icon-size: 16px;
+        --padding-horizontal: 20px;
+        --padding-vertical: 0px;
+    }
+
+    // Qualified by the control so it wins over the reused input styles regardless of stylesheet order.
+    &-shell #{&}-field {
+        --background-default: var(--field-background);
+        --border-color-active: var(--field-border-color);
+        --border-color-default: var(--field-border-color);
+        --border-color-hover: var(--field-border-color);
+        --border-color-pressed: var(--field-border-color);
+        --border-radius: var(--field-border-radius);
+        --border-width: var(--border-width-400);
+        --color-default: currentColor;
+        --padding-horizontal: 14px;
+
+        &[aria-invalid='true'] {
+            --field-border-color: var(--error-color);
+            --outline-color: var(--error-color);
+        }
+    }
 }

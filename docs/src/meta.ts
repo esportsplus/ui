@@ -1,6 +1,8 @@
 type Meta = {
     category: string;
     description: string;
+    // Display name, for slugs that don't read right capitalized (e.g. acronyms).
+    label?: string;
 };
 
 
@@ -42,13 +44,14 @@ const meta: Record<string, Meta> = {
         category: 'Layout',
         description: 'Rounded surface that groups related content and actions.'
     },
-    'card-input': {
-        category: 'Form Controls',
-        description: 'Payment card form with a live card preview that flips for the CVC, brand detection, auto-formatting and Luhn validation.'
-    },
     'carousel-3d': {
         category: 'Interactive',
         description: 'Draggable 3D card ring that spins on a spring, throws with momentum, and flattens for reduced motion.'
+    },
+    cc: {
+        category: 'Form Controls',
+        description: 'Payment card form with a live card preview that flips for the CVC, brand detection, auto-formatting and Luhn validation.',
+        label: 'CC'
     },
     checkbox: {
         category: 'Form Controls',

@@ -1,6 +1,6 @@
 @use 'variables';
 
-.card-input {
+.cc {
     color: var(--color);
     display: flex;
     flex-direction: column;
@@ -14,8 +14,10 @@
         gap: 10px;
     }
 
+    // A sprite <svg> has no viewBox of its own, so the cell must be definite for the marks' 100% to resolve.
     &-brand {
         display: grid;
+        grid-template: 100% / 100%;
 
         &--large {
             height: 32px;
@@ -108,11 +110,11 @@
         }
 
         &[data-roll='1'] {
-            animation: card-input-digit-1 var(--digit-duration) ease-out;
+            animation: cc-digit-1 var(--digit-duration) ease-out;
         }
 
         &[data-roll='2'] {
-            animation: card-input-digit-2 var(--digit-duration) ease-out;
+            animation: cc-digit-2 var(--digit-duration) ease-out;
         }
     }
 
@@ -199,15 +201,6 @@
 
     // Qualified by the control so it wins over the reused input styles regardless of stylesheet order.
     &-shell #{&}-field {
-        --background-default: var(--field-background);
-        --border-color-active: var(--field-border-color);
-        --border-color-default: var(--field-border-color);
-        --border-color-hover: var(--field-border-color);
-        --border-color-pressed: var(--field-border-color);
-        --border-radius: var(--field-border-radius);
-        --border-width: var(--border-width-400);
-        --color-default: currentColor;
-        --padding-horizontal: 14px;
         font-size: var(--field-font-size);
         font-variant-numeric: tabular-nums;
         height: var(--field-height);
@@ -223,11 +216,6 @@
 
         &::placeholder {
             color: oklch(from var(--muted-color) l c h / 0.7);
-        }
-
-        &[aria-invalid='true'] {
-            --field-border-color: var(--error-color);
-            --outline-color: var(--error-color);
         }
 
         &--cvc,
@@ -380,21 +368,12 @@
         margin-top: 24px;
     }
 
-    // Both labels share one cell so the button never changes size.
-    &-submit {
-        background: var(--submit-background);
+    // Qualified so it wins over the shared button styles regardless of stylesheet order.
+    &-actions #{&}-submit {
         border: 0;
-        border-radius: var(--field-border-radius);
-        color: var(--submit-color);
-        cursor: pointer;
-        font: inherit;
-        font-size: var(--field-font-size);
-        font-weight: var(--font-weight-500);
         height: var(--field-height);
         outline: none;
-        touch-action: manipulation;
         transition: scale 150ms ease-out;
-        user-select: none;
 
         &:active {
             scale: 0.96;
@@ -404,51 +383,10 @@
             outline: var(--border-width-500) solid var(--outline-color);
             outline-offset: 2px;
         }
-
-        &-icon {
-            flex-shrink: 0;
-            height: 16px;
-            width: 16px;
-        }
-
-        &-label {
-            align-items: center;
-            display: flex;
-            gap: 8px;
-            grid-area: 1 / 1;
-            justify-content: center;
-
-            > * {
-                transition:
-                    filter var(--swap-duration) var(--spring),
-                    opacity var(--swap-duration) var(--spring),
-                    scale var(--swap-duration) var(--spring);
-            }
-
-            &--confirmed > *,
-            .card-input-submit.--active &--idle > * {
-                filter: blur(4px);
-                opacity: 0;
-            }
-
-            &--confirmed > svg {
-                scale: 0.25;
-            }
-
-            .card-input-submit.--active &--confirmed > * {
-                filter: blur(0);
-                opacity: 1;
-                scale: 1;
-            }
-        }
-
-        &-labels {
-            display: grid;
-        }
     }
 }
 
-@keyframes card-input-digit-1 {
+@keyframes cc-digit-1 {
     from {
         filter: blur(2px);
         opacity: 0;
@@ -456,7 +394,7 @@
     }
 }
 
-@keyframes card-input-digit-2 {
+@keyframes cc-digit-2 {
     from {
         filter: blur(2px);
         opacity: 0;
@@ -466,46 +404,45 @@
 
 // No half turn: the faces cross-fade in place and every blur, slide and scale drops to a plain fade.
 @media (prefers-reduced-motion: reduce) {
-    .card-input-brand-mark,
-    .card-input-submit-label > * {
+    .cc-brand-mark {
         filter: none !important;
         scale: 1 !important;
     }
 
-    .card-input-card.--flipped {
+    .cc-card.--flipped {
         transform: none;
     }
 
-    .card-input-digit[data-roll] {
-        animation-name: card-input-fade;
+    .cc-digit[data-roll] {
+        animation-name: cc-fade;
     }
 
-    .card-input-error {
+    .cc-error {
         @starting-style {
             filter: none;
             translate: 0 0;
         }
     }
 
-    .card-input-face--back {
+    .cc-face--back {
         opacity: 0;
         transform: none;
     }
 
-    .card-input-card.--flipped .card-input-face--back {
+    .cc-card.--flipped .cc-face--back {
         opacity: 1;
     }
 
-    .card-input-card.--flipped .card-input-face--front {
+    .cc-card.--flipped .cc-face--front {
         opacity: 0;
     }
 
-    .card-input-submit:active {
+    .cc-actions .cc-submit:active {
         scale: 1;
     }
 }
 
-@keyframes card-input-fade {
+@keyframes cc-fade {
     from {
         opacity: 0;
     }

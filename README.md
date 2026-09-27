@@ -63,7 +63,7 @@ html`
 | `switch` | Toggle switch | - |
 | `tasklist` | Checklist that strikes through checked tasks and moves them below the open ones | `tasklist.checkbox` |
 | `form` | Form wrapper | `form.action`, `form.input` |
-| `cardInput` | Payment card form (`input` fields) with a live card preview that flips for the CVC, brand detection, caret-safe formatting and Luhn/expiry validation; `onvalid` receives brand, last 4, expiry and name | `cardInput.field`, `cardInput.submit` |
+| `cc` | Payment card form (`input` fields) with a live card preview that flips for the CVC, brand detection, caret-safe formatting and Luhn/expiry validation; `onvalid` receives brand, last 4, expiry and name | `cc.field`, `cc.submit` |
 | `checkboxGroup` | Checklist built on `checkbox` with a select-all parent (mixed state), drawn marks, and Shift-click ranges | - |
 | `colorPicker` | Saturation pad, hue/opacity sliders (`range`), hex field (`input`), and an animated recent-colors row | - |
 | `dateRangePicker` | Two-month calendar (one below 540px) with presets, a hover-preview band, sliding month changes, full grid keyboard navigation and an Apply confirmation; `state.start`/`state.end` are ISO dates, `onapply` receives the range, `dateRangePicker.describe` formats it | `dateRangePicker.day` |

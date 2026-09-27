@@ -1,14 +1,14 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { cardInput } from '@esportsplus/ui';
-import './card-input.scss';
+import { cc } from '@esportsplus/ui';
+import './cc.scss';
 
 
 export default {
-    name: 'card-input',
+    name: 'cc',
     variants: [
         {
-            render: () => cardInput({}),
+            render: () => cc({}),
             title: 'default'
         },
         {
@@ -17,15 +17,15 @@ export default {
                     state = reactive({ cvc: '', expiry: '12/30', name: 'Grace Hopper', number: '3782 822463 10005' });
 
                 return html`
-                    <div class='card-input-demo'>
-                        ${cardInput({
+                    <div class='cc-demo'>
+                        ${cc({
                             onvalid: (card) => {
                                 result.text = `${card.brand} ending ${card.last4}, expires ${card.expiry}, ${card.name}`;
                             },
                             state,
                             submit: 'Validate card'
                         })}
-                        <span class='card-input-demo-status'>${() => result.text}</span>
+                        <span class='cc-demo-status'>${() => result.text}</span>
                     </div>
                 `;
             },

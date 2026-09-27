@@ -8,8 +8,8 @@ import banner from './banner';
 import breadcrumb from './breadcrumb';
 import button from './button';
 import card from './card';
-import cardInput from './card-input';
 import carousel3d from './carousel-3d';
+import cc from './cc';
 import checkbox from './checkbox';
 import checkboxGroup from './checkbox-group';
 import clipboard from './clipboard';
@@ -130,8 +130,8 @@ const entries: Entry[] = [
     breadcrumb,
     button,
     card,
-    cardInput,
     carousel3d,
+    cc,
     checkbox,
     checkboxGroup,
     clipboard,
