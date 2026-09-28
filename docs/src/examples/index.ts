@@ -21,7 +21,6 @@ import dateRangePicker from './date-range-picker';
 import dock from './dock';
 import dynamicIsland from './dynamic-island';
 import emailTypoFix from './email-typo-fix';
-import expandingCard from './expanding-card';
 import featureSpotlight from './feature-spotlight';
 import fileTree from './file-tree';
 import filterGrid from './filter-grid';
@@ -133,7 +132,6 @@ const entries: Entry[] = [
     dock,
     dynamicIsland,
     emailTypoFix,
-    expandingCard,
     featureSpotlight,
     fileTree,
     filterGrid,

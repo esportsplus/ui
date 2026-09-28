@@ -84,7 +84,7 @@ html`
 | `command` | ⌘K/Ctrl+K command palette on `modal` + `input`: substring-then-subsequence matching with highlighted runs, grouped results, arrow/Enter keys, `onrun`; `sidebar` adds a tab rail whose views scroll vertically (`tabs--scroll`) and cycle with Tab/Shift+Tab (Home lists recent commands, persisted through any `store` implementing `get`/`set`; Commands lists every command; a keyboard view lists `shortcuts`); setting `state.tab` switches views and clears the search. Icons are sprite ids; `.command-trigger` also styles standalone search buttons | `command.dialog` (e.g. `modal--blur`), `command.input`, `command.option`, `command.trigger`, `command--centered` |
 | `alert` | Notifications | error, info, success types |
 | `dock` | macOS-style dock whose icons swell toward the cursor on a spring, with delayed `tooltip` labels and a hop-and-squash launch that lights a running dot (per-item `state.running`, `onlaunch`) | `dock.button`, `dock--square`, `dock--subtle` |
-| `expandingCard` | Card list whose cards morph (FLIP) into a `modal` detail dialog and fly back into their slot; `state.open` is two-way | `expandingCard.card` |
+| `card.expand` | List of `card--expand` cards that each morph into their own `card` `modal` and fly back into their slot through a view transition (a plain `modal` fade where unsupported, a cross-fade under reduced motion); `state.open` is two-way | `card.expand.trigger` |
 | `kanbanBoard` | Columns of cards dragged within and between lists (built on `sortable` groups), with keyboard moves | - |
 | `morphingButton` | Async save button that morphs into a spinner circle, confirms with a check, and shakes on failure | `morphing-button--blue` |
 | `pageDots` | Page indicator driven by a continuous `state.progress`; the pill stretches between dots like a worm, with an optional autoplay countdown | `page-dots--large` |
@@ -130,6 +130,7 @@ html`
 | Component | Description |
 |-----------|-------------|
 | `scrollbar` | Native scrollbar styling; `--scrollbar-horizontal` scrolls x only; `--scrollbar-fade` / `--scrollbar-blur` edges driven by scroll timelines, with `scrollbar.fade()` / `scrollbar.blur()` (`@esportsplus/ui/css-utilities/scrollbar`) adding a JS fallback only where those are unsupported; `scrollbar.drag('horizontal' \| 'vertical' \| 'both')` adds mouse drag-to-scroll (`--scrollbar-drag`) |
+| `card.scss` | Surface (background, radius, shadow and padding variables); `card--morph` makes it a shell that morphs between stacked `card-morph-layer`s inside a clipping `card-morph-viewport`: size it through `--morph-width`/`--morph-height`, mark the shown layer `--active` and the layers ahead of it `--before`, `--instant` snaps; `--morph-*` variables tune the motion |
 | `tabs.scss` | Tab panels: instant by default, `tabs--slide` for horizontal motion, `tabs--scroll` for vertical motion |
 | `sidebar` | Side navigation |
 | `modal` | Native `<dialog>` modal driven by `state.active` (Esc and backdrop click close it) |

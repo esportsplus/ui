@@ -42,7 +42,7 @@ const meta: Record<string, Meta> = {
     },
     card: {
         category: 'Layout',
-        description: 'Rounded surface that groups related content and actions.'
+        description: 'Rounded surface that groups related content and actions, plus cards that morph into a detail dialog and fly back into their slot.'
     },
     cc: {
         category: 'Form Controls',
@@ -96,10 +96,6 @@ const meta: Record<string, Meta> = {
     'email-typo-fix': {
         category: 'Form Controls',
         description: 'Email field that spots common domain typos after a pause and fixes them in one click with a letter-morph animation.'
-    },
-    'expanding-card': {
-        category: 'Overlay',
-        description: 'List of cards that each morph into a modal detail view and fly back into their slot on close.'
     },
     'feature-spotlight': {
         category: 'Display',
