@@ -17,7 +17,7 @@ export { default as dynamicIsland } from './dynamic-island';
 export { default as emailTypoFix } from './email-typo-fix';
 export { default as featureSpotlight } from './feature-spotlight';
 export { default as fileTree } from './file-tree';
-export { default as filterGrid } from './filter-grid';
+export { default as filter } from './filter';
 export { default as form } from './form';
 export { default as header } from './header';
 export { default as heatmap } from './heatmap';

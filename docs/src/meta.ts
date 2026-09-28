@@ -101,9 +101,9 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Collapsible file and folder tree with guide lines, locked items, natural sorting, and expand or collapse all (Magic UI).'
     },
-    'filter-grid': {
-        category: 'Display',
-        description: 'Filter chips over a card grid that rearranges with FLIP motion instead of blinking.'
+    filter: {
+        category: 'Interactive',
+        description: 'Headless filter controller: bring your own triggers and layout, and matching items shift, scale, and fade into place.'
     },
     grid: {
         category: 'Layout',

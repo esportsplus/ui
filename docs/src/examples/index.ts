@@ -22,7 +22,7 @@ import dynamicIsland from './dynamic-island';
 import emailTypoFix from './email-typo-fix';
 import featureSpotlight from './feature-spotlight';
 import fileTree from './file-tree';
-import filterGrid from './filter-grid';
+import filter from './filter';
 import grid from './grid';
 import header from './header';
 import heatmap from './heatmap';
@@ -133,7 +133,7 @@ const entries: Entry[] = [
     emailTypoFix,
     featureSpotlight,
     fileTree,
-    filterGrid,
+    filter,
     grid,
     header,
     heatmap,
