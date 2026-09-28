@@ -65,9 +65,9 @@ const meta: Record<string, Meta> = {
         category: 'Form Controls',
         description: 'Saturation pad, hue and opacity sliders, a hex field, and a recent-colors row that reorders as you commit.'
     },
-    'command-palette': {
+    command: {
         category: 'Overlay',
-        description: 'Keyboard-first ⌘K launcher with fuzzy search, highlighted matches, grouped results, and arrow-key navigation.'
+        description: 'Keyboard-first ⌘K command palette with fuzzy search, highlighted matches, grouped results, and arrow-key navigation.'
     },
     container: {
         category: 'Layout',
@@ -300,10 +300,6 @@ const meta: Record<string, Meta> = {
     'shortcut-recorder': {
         category: 'Form Controls',
         description: 'Records a keyboard shortcut from the keys you hold, rejecting combinations already in use.'
-    },
-    'shortcut-sheet': {
-        category: 'Overlay',
-        description: 'Searchable keyboard-shortcut reference opened with ?, lighting up each listed shortcut as it is pressed.'
     },
     sidebar: {
         category: 'Layout',

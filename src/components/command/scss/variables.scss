@@ -1,40 +1,125 @@
-// Children read '--padding' because the root '*' rule resets
-// '--padding-horizontal' and '--padding-vertical' on every element.
+// The trigger also dresses page-level search buttons outside a palette, so it carries the shared shadow itself.
+.command,
+.command-trigger {
+    --raised:
+        0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06),
+        0 1px 2px oklch(from var(--color-black-300) l c h / 0.06),
+        0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+}
+
 .command {
-    --background-default: var(--color-white-400);
-    --border-color-default: var(--color-border-300);
-    --border-radius: var(--border-radius-700);
-    --border-width: var(--border-width-400);
-    --box-shadow-default: var(--box-shadow-600);
-    --heading-height: 36px;
-    --height: 408px;
-    --max-width: 600px;
-    --padding: var(--size-200);
-    --padding-horizontal: var(--padding);
-    --padding-vertical: var(--padding);
-    --row-height: 36px;
+    --close-duration: 0.1s;
+    --color: var(--color-text-500);
+    --color-muted: var(--color-text-300);
+    --count-fade: 48px;
+    --dialog-backdrop: color-mix(in srgb, var(--color-text-500) 10%, transparent);
+    --dialog-background: var(--color-white-300);
+    --dialog-border-radius: var(--border-radius-600);
+    --dialog-offset: 20vh;
+    --dialog-scale: 0.98;
+    --dialog-width: 600px;
+    --divider-color: var(--color-border-300);
+    --font-size: calc(var(--font-size-400) * 0.875);
+    --footer-height: 44px;
+    --kbd-icon-size: 12px;
+    --label-font-size: var(--font-size-200);
+    --list-max-height: min(320px, 50vh);
+    --open-duration: 0.15s;
+    --option-background: var(--color-grey-400);
+    --option-border-radius: var(--border-radius-400);
+    --option-height: 36px;
+    --search-height: 48px;
+    --sidebar-background: var(--color-grey-400);
+    --tab-size: 40px;
+    --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --view-duration: 0.4s;
 
-    &-footer {
-        --background: var(--color-grey-300);
-        --color: var(--color-text-300);
+    &--centered {
+        --dialog-offset: auto;
     }
 
-    &-highlight {
-        --background: var(--color-grey-500);
+    &-dialog.modal {
+        --backdrop: var(--dialog-backdrop);
+        --margin-horizontal: var(--size-400);
+        --max-width: var(--dialog-width);
+        --scale: var(--dialog-scale);
+        --transition-duration: var(--open-duration);
+        --transition-timing-function: var(--timing-function);
+        --translateY: 0px;
+
+        &:not(.--active) {
+            --transition-duration: var(--close-duration);
+        }
     }
 
-    &-match {
-        --background: oklch(from var(--color-yellow-300) l c h / 0.4);
+    // Rests on the active option; the palette moves `--active` for both pointer and keys.
+    &-highlight.highlight {
+        --background-active: var(--option-background);
+        --glide-duration: 0.3s;
     }
 
-    &-search {
-        --background: oklch(from var(--color-grey-500) l c h / 0.5);
-        --color: var(--color-text-300);
-        --height: 36px;
+    &-input.input {
+        --color-default: var(--color);
+        --font-size: var(--font-size);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --size: 0px;
+    }
 
-        > .input {
-            --padding-horizontal: 0px;
-            --padding-vertical: 0px;
+    &-kbd-icon.icon {
+        --size: var(--kbd-icon-size);
+    }
+
+    &-option-icon.icon {
+        --color: var(--color-muted);
+
+        .--active > & {
+            --color: inherit;
+        }
+    }
+
+    // The selected tab lifts onto the dialog surface, like a card sitting on the rail.
+    &-tab.button {
+        --background-active: var(--dialog-background);
+        --border-radius: var(--border-radius-400);
+        --color-active: var(--color);
+        --color-default: var(--color-muted);
+        --color-hover: var(--color);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --width: var(--tab-size);
+
+        &.--active {
+            --box-shadow-default: var(--raised);
+        }
+    }
+
+    // One 24px keycap line plus 6px either side makes the 36px trigger.
+    &-trigger.button {
+        --background-default: var(--color-grey-400);
+        --border-radius: var(--border-radius-400);
+        --box-shadow-default: var(--raised);
+        --color-default: var(--color-text-300);
+        --color-hover: var(--color-text-500);
+        --font-size: calc(var(--font-size-400) * 0.875);
+        --gap-horizontal: var(--size-100);
+        --line-height: 24px;
+        --padding-horizontal: 6px;
+        --padding-vertical: 6px;
+        --transition-duration: 0.15s;
+        --transition-timing-function: ease-out;
+        --width: 240px;
+    }
+
+    &-views .tabs {
+        --gap-vertical: 0px;
+        --transition-duration: var(--view-duration);
+        --transition-timing-function: var(--timing-function);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-dialog.modal {
+            --scale: 1;
         }
     }
 }

@@ -1,23 +1,5 @@
-.search {
-    --border-color-default: var(--color-border-300);
-    --border-color-hover: var(--color-border-400);
-    --color-default: var(--color-text-300);
+// Looks come from `.command-trigger`; only the sidebar placement lives here.
+.search.button {
+    --width: min(240px, calc(100% - var(--size-500)));
     margin-right: var(--size-500);
-    max-width: 240px;
-    width: calc(100% - var(--size-500));
-
-
-    &:focus-visible {
-        outline: var(--border-width-500) solid var(--color-primary-400); outline-offset: 4px;
-    }
-
-
-    kbd {
-        border: var(--border-width-400) solid var(--color-border-400);
-        border-radius: var(--border-radius-200);
-        font-family: var(--font-family); font-size: var(--font-size-200); font-weight: var(--font-weight-300);
-        margin-left: auto;
-        padding: calc(var(--size-100) * 0.125) calc(var(--size-100) * 0.5);
-        white-space: nowrap;
-    }
 }

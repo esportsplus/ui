@@ -82,10 +82,9 @@ html`
 | `tooltip` | Popup content; `tooltip.menu` is a keyboard menu (arrows, Home/End, Escape returns focus, Tab closes) that closes once an option is chosen | `tooltip.context`, `tooltip.menu`, `tooltip.onclick`, `tooltip.onhover` |
 | `accordion` | Collapsible sections | - |
 | `clipboard` | Copy to clipboard | `clipboard.copy`, `clipboard.write` |
-| `command` | Command palette: modal + input, grouped live filtering, keyboard navigation | `command.input`, `command.item` |
+| `command` | ⌘K/Ctrl+K command palette on `modal` + `input`: substring-then-subsequence matching with highlighted runs, grouped results, arrow/Enter keys, `onrun`; `sidebar` adds a tab rail whose views scroll vertically (`tabs--scroll`) and cycle with Tab/Shift+Tab (Home lists recent commands, persisted through any `store` implementing `get`/`set`; Commands lists every command; a keyboard view lists `shortcuts`); setting `state.tab` switches views and clears the search. Icons are sprite ids; `.command-trigger` also styles standalone search buttons | `command.dialog` (e.g. `modal--blur`), `command.input`, `command.option`, `command.trigger`, `command--centered` |
 | `alert` | Notifications | error, info, success types |
 | `carousel3d` | Draggable 3D card ring that spins on a spring, throws with momentum, and flattens under reduced motion; `state.active` is two-way | `carousel3d.button`, `carousel3d.card` |
-| `commandPalette` | ⌘K/Ctrl+K launcher on `modal` + `input`: substring-then-subsequence matching with highlighted runs, grouped results, arrow/Enter keys, `onrun` | `commandPalette.dialog`, `commandPalette.input`, `commandPalette.option`, `commandPalette.trigger`, `command-palette--blur`, `command-palette--centered` |
 | `dock` | macOS-style dock whose icons swell toward the cursor on a spring, with delayed `tooltip` labels and a hop-and-squash launch that lights a running dot (per-item `state.running`, `onlaunch`) | `dock.button`, `dock--square`, `dock--subtle` |
 | `expandingCard` | Card list whose cards morph (FLIP) into a `modal` detail dialog and fly back into their slot; `state.open` is two-way | `expandingCard.card` |
 | `hoverCard` | Inline trigger with a delayed preview card (open 500ms, close grace 150ms); triggers sharing `hoverCard.group()` hand the card over instantly, travelling between them; tap, focus and Escape supported | `hoverCard.content`, `hoverCard.group`, `hoverCard.trigger`, `hover-card--fade` |
@@ -95,7 +94,6 @@ html`
 | `pullToRefresh` | Rubber-band pull gesture (touch and mouse) with a stepped tick spinner; new items above the old first one slide in | - |
 | `selectionToolbar` | Contenteditable text with a floating bold/italic/link/highlight/copy toolbar that follows the selection | `selection-toolbar--white` |
 | `shareButton` | Share pill that reshapes into copy-link (via `clipboard.write`), X, email and native share targets | `share-button--surface` |
-| `shortcutSheet` | Searchable keyboard-shortcut reference on `modal` + `input`, opened with `?`; pressing a listed shortcut lights its row and keycaps (`Mod` = ⌘/Ctrl) | `shortcutSheet.dialog`, `shortcutSheet.input`, `shortcutSheet.row`, `shortcutSheet.trigger`, `shortcut-sheet--blur` |
 | `snapCarousel` | Native scroll-snap card carousel with mouse flick, scroll-driven focus scaling, and edge-aware arrows | `snapCarousel.arrow`, `snapCarousel.card` |
 | `sortable` | Drag-and-drop reordering of an element's children, across containers with `group` | `sortable--{effect}` modifiers |
 | `statusPicker` | Avatar presence menu (`menuitemradio`) whose shaped badge spins into the next status | - |

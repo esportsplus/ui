@@ -1,54 +1,61 @@
 import icon from '~/components/icon';
 import searchSvg from '@esportsplus/ui/svg/search.svg';
 import { command } from '@esportsplus/ui';
-import { html, reactive } from '../../app';
+import { mac } from '~/lib/platform';
+import { html, reactive, redirect } from '../../app';
 import { sections } from '../../data/nav';
+import type { Tab } from '~/components/command';
 import './scss/index.scss';
 
 
-const search = reactive({ active: false, query: '' });
+const search = reactive({ active: false, index: 0, query: '', tab: 'home' as Tab });
 
 
+// The palette keeps its query after closing, so the sidebar only filters while it is open.
 const matches = (label: string) => {
     let query = search.query.trim().toLowerCase();
 
-    return query === '' || label.toLowerCase().includes(query);
+    return !search.active || query === '' || label.toLowerCase().includes(query);
 };
 
-document.addEventListener('keydown', (event) => {
-    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault();
-        search.active = !search.active;
-        search.query = '';
-    }
-});
+// The palette handles Cmd/Ctrl+K itself; the sidebar and header open it through `searchTrigger` instead of its own button.
+const modal = () => {
+    let links = new Map(sections().flatMap((section) => section.groups.flatMap((group) => group.links.map((link) => [link.href, link] as const))));
 
-const modal = () => command({
-    class: 'modal--scale modal--blur',
-    groups: sections().map((section) => ({
-        items: section.groups.flatMap((group) => group.links.map(({ href, label }) => ({ href, label }))),
-        label: section.label
-    })),
-    placeholder: 'Search documentation…',
-    state: search
-});
+    return command({
+        [command.dialog]: { class: 'modal--blur' },
+        [command.trigger]: { hidden: true },
+        commands: sections().flatMap((section) => section.groups.flatMap((group) => group.links.map(({ href, label }) => ({ group: section.label, id: href, label })))),
+        onrun: (entry) => {
+            let link = links.get(entry.id);
+
+            if (link) {
+                redirect(link.name, { slug: link.slug });
+            }
+        },
+        placeholder: 'Search documentation…',
+        state: search
+    });
+};
 
 const searchTrigger = (placeholder = 'Search documentation…') => html`
     <button
-        class='button search --border-border'
-        type='button'
-        style='--border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color); gap: var(--size-100);'
+        aria-keyshortcuts='${mac() ? 'Meta+K' : 'Control+K'}'
         aria-label='Search documentation'
-        aria-keyshortcuts='Control+K Meta+K'
+        class='button command-trigger search'
+        type='button'
         ${{
-            onclick: () => { search.active = true; }
+            onclick: () => {
+                search.active = true;
+            }
         }}
     >
-        ${icon({ class: 'icon', 'aria-hidden': 'true' }, searchSvg)}
-        <span class='search-placeholder --text-truncate'>
-            ${placeholder}
+        ${icon({ 'aria-hidden': 'true' }, searchSvg)}
+        <span class='command-trigger-label'>${placeholder}</span>
+        <span aria-hidden='true' class='command-keys'>
+            <kbd class='button button--kbd'>${mac() ? '⌘' : 'Ctrl'}</kbd>
+            <kbd class='button button--kbd'>K</kbd>
         </span>
-        <kbd aria-hidden='true'>Ctrl K</kbd>
     </button>
 `;
 

@@ -14,7 +14,6 @@ import checkbox from './checkbox';
 import clipboard from './clipboard';
 import colorPicker from './color-picker';
 import command from './command';
-import commandPalette from './command-palette';
 import composer from './composer';
 import container from './container';
 import contributionHeatmap from './contribution-heatmap';
@@ -76,7 +75,6 @@ import shareButton from './share-button';
 import sheet from './sheet';
 import shinyText from './shiny-text';
 import shortcutRecorder from './shortcut-recorder';
-import shortcutSheet from './shortcut-sheet';
 import sidebar from './sidebar';
 import slider from './slider';
 import slidingTabs from './sliding-tabs';
@@ -132,7 +130,6 @@ const entries: Entry[] = [
     clipboard,
     colorPicker,
     command,
-    commandPalette,
     composer,
     container,
     contributionHeatmap,
@@ -194,7 +191,6 @@ const entries: Entry[] = [
     sheet,
     shinyText,
     shortcutRecorder,
-    shortcutSheet,
     sidebar,
     slider,
     slidingTabs,
