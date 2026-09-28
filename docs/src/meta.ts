@@ -243,15 +243,7 @@ const meta: Record<string, Meta> = {
     },
     range: {
         category: 'Form Controls',
-        description: 'Slider input for choosing a value along a track.'
-    },
-    'range-filter': {
-        category: 'Form Controls',
-        description: 'Dual-thumb price filter with rolling digits, a clear button, and a ghost preview of where a click would stretch the range (shadcn/space).'
-    },
-    'range-slider': {
-        category: 'Form Controls',
-        description: 'Dual-thumb slider for picking a min and max, with gliding thumbs, value tooltips, and editable fields.'
+        description: 'Slider input for choosing a value along a track, plus single and dual-thumb range filters with rolling digits, a ghost preview, and optional min/max fields.'
     },
     'reading-progress': {
         category: 'Display',

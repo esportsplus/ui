@@ -62,8 +62,6 @@ import progress from './progress';
 import pullToRefresh from './pull-to-refresh';
 import radio from './radio';
 import range from './range';
-import rangeFilter from './range-filter';
-import rangeSlider from './range-slider';
 import readingProgress from './reading-progress';
 import relativeTime from './relative-time';
 import scrollSpine from './scroll-spine';
@@ -182,8 +180,6 @@ const entries: Entry[] = [
     pullToRefresh,
     radio,
     range,
-    rangeFilter,
-    rangeSlider,
     readingProgress,
     relativeTime,
     scrollSpine,

@@ -57,7 +57,6 @@ export { default as pullToRefresh } from './pull-to-refresh';
 export { default as radio } from './radio';
 export { default as range } from './range';
 export { default as rangeFilter } from './range-filter';
-export { default as rangeSlider } from './range-slider';
 export { default as readingProgress } from './reading-progress';
 export { default as relativeTime } from './relative-time';
 export { default as scrollSpine } from './scroll-spine';
