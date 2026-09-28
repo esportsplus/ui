@@ -69,10 +69,6 @@ const meta: Record<string, Meta> = {
         category: 'Layout',
         description: 'Width-constrained wrapper that centers content within the page.'
     },
-    'contribution-heatmap': {
-        category: 'Display',
-        description: 'GitHub-style year of activity squares that sweep in by column, with a hover label and arrow-key grid navigation.'
-    },
     counter: {
         category: 'Display',
         description: 'Animated number display with currency and formatting support.'
@@ -116,6 +112,10 @@ const meta: Record<string, Meta> = {
     header: {
         category: 'Layout',
         description: 'Sticky site header with hover mega-menus that grow the bar to fit, a scroll-frosted surface, and a mobile drawer.'
+    },
+    heatmap: {
+        category: 'Display',
+        description: 'Calendar heatmap of daily values that sweeps in by column, with a templated floating tooltip, drag-to-scroll and arrow-key grid navigation.'
     },
     highlight: {
         category: 'Interactive',

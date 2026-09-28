@@ -1,5 +1,5 @@
-.contribution-heatmap,
-.contribution-heatmap-legend {
+.heatmap,
+.heatmap-legend {
     --cell-radius: var(--border-radius-100);
     --cell-size: 10px;
     --color: var(--color-text-300);
@@ -13,31 +13,34 @@
     --level-3: color-mix(in oklab, var(--level-color) 70%, transparent);
     --level-4: var(--level-color);
     --level-color: var(--color-text-500);
+    --months-height: 20px;
     --pitch: 13px;
+    --ring-space: 3px;
+    --scrollbar-spacing: var(--size-300);
     // Per column, so the whole year sweeps in under half a second and reads as one gesture.
     --stagger: 8ms;
     --transition-duration: 0.3s;
     --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.contribution-heatmap--blue,
-.contribution-heatmap-legend--blue {
+.heatmap--blue,
+.heatmap-legend--blue {
     --level-color: var(--color-blue-400);
 }
 
-.contribution-heatmap-tip .tooltip-message {
-    --border-radius: var(--border-radius-300);
-    --font-size: var(--font-size-300);
-    --font-weight: var(--font-weight-500);
-    --offset: 0px;
-    --padding-horizontal: var(--size-100);
-    --padding-vertical: calc(var(--size-100) / 2);
+// Compact for a dense grid.
+.heatmap .tooltip-shared {
+    --padding: var(--size-100) var(--size-200);
+    --radius: var(--border-radius-300);
     --spacer: 6px;
-    // Appears in 100ms and leaves in 75ms, so it never lingers.
-    --transition-duration: 75ms;
-    --transition-timing-function: ease-out;
 }
 
-.contribution-heatmap .contribution-heatmap-tip.--active .tooltip-message {
-    --transition-duration: 0.1s;
+// A long glide lags behind a pointer sweeping across 13px cells, and the content keeps pace with it. Gated so
+// it can't undo the tooltip's reduced-motion override.
+@media (prefers-reduced-motion: no-preference) {
+    .heatmap .tooltip-shared {
+        --glide-duration: 0.15s;
+        --swap-duration: 0.15s;
+        --swap-fade-duration: 0.1s;
+    }
 }

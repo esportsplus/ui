@@ -14,7 +14,6 @@ import clipboard from './clipboard';
 import colorPicker from './color-picker';
 import command from './command';
 import container from './container';
-import contributionHeatmap from './contribution-heatmap';
 import counter from './counter';
 import datalist from './datalist';
 import dateRangePicker from './date-range-picker';
@@ -26,6 +25,7 @@ import fileTree from './file-tree';
 import filterGrid from './filter-grid';
 import grid from './grid';
 import header from './header';
+import heatmap from './heatmap';
 import highlight from './highlight';
 import icon from './icon';
 import image from './image';
@@ -125,7 +125,6 @@ const entries: Entry[] = [
     colorPicker,
     command,
     container,
-    contributionHeatmap,
     counter,
     datalist,
     dateRangePicker,
@@ -137,6 +136,7 @@ const entries: Entry[] = [
     filterGrid,
     grid,
     header,
+    heatmap,
     highlight,
     icon,
     image,

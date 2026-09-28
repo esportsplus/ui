@@ -1,9 +1,9 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { contributionHeatmap } from '@esportsplus/ui';
-import type { ContributionHeatmapDay } from '~/components/contribution-heatmap';
+import { heatmap } from '@esportsplus/ui';
+import type { HeatmapDay } from '~/components/heatmap';
 import type { Entry } from '../types';
-import './contribution-heatmap.scss';
+import './heatmap.scss';
 
 
 // A trimmed, fixed copy of the lab's sample: 52 weeks of @xevrion's public graph, starting on a Sunday.
@@ -31,21 +31,37 @@ const LEVELS = (
     '1113443122113111211111322113142231213212321111121111311211211113031043221112120312131441110'
 );
 
+const LONG_DATE = new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'long', timeZone: 'UTC', weekday: 'long', year: 'numeric' });
+
 const NUMBER = new Intl.NumberFormat('en-US');
+
+const SHORT_DATE = new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 
 const START = Date.UTC(2025, 8, 21);
 
 const USER = 'xevrion';
 
 
+function contributions(value: number) {
+    if (value === 0) {
+        return 'No contributions';
+    }
+
+    return `${NUMBER.format(value)} contribution${value === 1 ? '' : 's'}`;
+}
+
+function utc(day: HeatmapDay) {
+    return new Date(`${day.date}T00:00:00Z`);
+}
+
 function year(bucketed = true) {
-    let days: ContributionHeatmapDay[] = [];
+    let days: HeatmapDay[] = [];
 
     for (let i = 0, n = COUNTS.length; i < n; i++) {
         days.push({
-            count: COUNTS[i],
             date: new Date(START + i * 86400000).toISOString().slice(0, 10),
-            level: bucketed ? Number(LEVELS[i]) : undefined
+            level: bucketed ? Number(LEVELS[i]) : undefined,
+            value: COUNTS[i]
         });
     }
 
@@ -53,31 +69,45 @@ function year(bucketed = true) {
 }
 
 
+const github = {
+    describe: (day: HeatmapDay) => `${contributions(day.value)} on ${LONG_DATE.format(utc(day))}`,
+    tooltip: (day: HeatmapDay) => html`<strong>${contributions(day.value)}</strong> on ${SHORT_DATE.format(utc(day))}`
+};
+
+// The same component for another kind of daily value: only the tooltip and label templates change.
+const practice = {
+    describe: (day: HeatmapDay) => `${day.value} minutes practiced on ${LONG_DATE.format(utc(day))}`,
+    tooltip: (day: HeatmapDay) => day.value
+        ? html`<strong>${day.value} min</strong> practiced · ${SHORT_DATE.format(utc(day))}`
+        : `Rest day · ${SHORT_DATE.format(utc(day))}`
+};
+
+
 export default {
-    name: 'contribution-heatmap',
+    name: 'heatmap',
     variants: [
         {
             render: () => html`
-                <div class='contribution-heatmap-demo'>
-                    <span class='contribution-heatmap-demo-summary'>
-                        <strong>${NUMBER.format(COUNTS.reduce((sum, count) => sum + count, 0))}</strong>
+                <div class='heatmap-demo'>
+                    <span class='heatmap-demo-summary'>
+                        <strong class='--tabular'>${NUMBER.format(COUNTS.reduce((sum, count) => sum + count, 0))}</strong>
                         contributions in the last year by
                         <a href='https://github.com/${USER}' rel='noreferrer' target='_blank'>@${USER}</a>
                     </span>
-                    ${contributionHeatmap({ data: year() })}
-                    ${contributionHeatmap.legend({ class: 'contribution-heatmap-demo-legend' })}
+                    ${heatmap({ data: year(), label: 'Contributions over the last year', ...github })}
+                    ${heatmap.legend({ class: 'heatmap-demo-legend' })}
                 </div>
             `,
-            title: 'default'
+            title: 'default (GitHub contributions)'
         },
         {
             render: () => html`
-                <div class='contribution-heatmap-demo'>
-                    ${contributionHeatmap({ class: 'contribution-heatmap--blue', data: year(false), thresholds: [1, 8, 16, 30] })}
-                    ${contributionHeatmap.legend({ class: 'contribution-heatmap-demo-legend contribution-heatmap-legend--blue' })}
+                <div class='heatmap-demo'>
+                    ${heatmap({ class: 'heatmap--blue', data: year(false), label: 'Minutes practiced over the last year', thresholds: [1, 8, 16, 30], ...practice })}
+                    ${heatmap.legend({ class: 'heatmap-demo-legend heatmap-legend--blue' })}
                 </div>
             `,
-            title: 'contribution-heatmap--blue, custom thresholds'
+            title: 'heatmap--blue, custom thresholds and tooltip template'
         },
         {
             render: () => {
@@ -85,16 +115,16 @@ export default {
                     state = reactive({ index: 0 });
 
                 return html`
-                    <div class='contribution-heatmap-demo'>
-                        ${contributionHeatmap({ data, state })}
-                        <span class='contribution-heatmap-demo-status'>
-                            ${() => `tab stop: ${data[state.index].date} (${data[state.index].count})`}
+                    <div class='heatmap-demo'>
+                        ${heatmap({ data, state, ...github })}
+                        <span class='heatmap-demo-status --tabular'>
+                            ${() => `tab stop: ${data[state.index].date} (${data[state.index].value})`}
                         </span>
                         <button class='button --background-blue --color-white' onclick=${() => {
                             let busiest = 0;
 
                             for (let i = 0, n = data.length; i < n; i++) {
-                                if (data[i].count > data[busiest].count) {
+                                if (data[i].value > data[busiest].value) {
                                     busiest = i;
                                 }
                             }

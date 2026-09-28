@@ -1,4 +1,4 @@
-.contribution-heatmap-demo {
+.heatmap-demo {
     align-items: flex-start;
     display: flex;
     flex-direction: column;
@@ -33,7 +33,6 @@
 
         strong {
             color: var(--color-text-500);
-            font-variant-numeric: tabular-nums;
             font-weight: var(--font-weight-600);
         }
     }

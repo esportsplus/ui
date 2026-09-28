@@ -1,16 +1,19 @@
 @use 'variables';
 
-// A grid rather than flex so the weeks column adds nothing to the min-content width: the heatmap only
-// scrolls when the screen is genuinely too narrow for the year.
-.contribution-heatmap {
+.heatmap {
     color: var(--color);
+    // A grid rather than flex so the days column adds nothing to the min-content width: the heatmap only
+    // scrolls when the screen is genuinely too narrow for the year.
     display: grid;
     font-size: var(--font-size);
     grid-template-columns: auto minmax(0, max-content);
     max-width: 100%;
-    position: relative;
     width: fit-content;
 
+
+    &-body {
+        width: max-content;
+    }
 
     // Settles from 0.6, not 0: a square growing from nothing reads as a pop, one settling from slightly small
     // reads as arriving.
@@ -54,7 +57,7 @@
         display: flex;
         flex-direction: column;
         margin-inline-end: 5px;
-        margin-top: 23px;
+        margin-top: calc(var(--months-height) + var(--ring-space));
 
         span {
             height: var(--pitch);
@@ -67,17 +70,18 @@
         flex-direction: column;
         gap: calc(var(--pitch) - var(--cell-size));
 
-        &.--shown .contribution-heatmap-cell {
+        &.--shown .heatmap-cell {
             opacity: 1;
             scale: 1;
         }
     }
 
     &-months {
-        height: 20px;
+        height: var(--months-height);
         position: relative;
 
         span {
+            left: calc(var(--column) * var(--pitch));
             line-height: 1;
             position: absolute;
             top: 0;
@@ -89,24 +93,11 @@
         gap: calc(var(--pitch) - var(--cell-size));
     }
 
-    // Room on every side, so focus and hover rings aren't clipped by the scroll container.
+    // Room on every side so focus and hover rings aren't clipped, plus a gap between the weeks and the bar.
     &-scroll {
         min-width: 0;
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        padding: 3px;
-    }
-
-    // Qualified by the root so it beats the reused tooltip's own position and stacking.
-    & &-tip {
-        cursor: auto;
-        height: 0;
-        left: 0;
-        pointer-events: none;
-        position: absolute;
-        top: 0;
-        width: 0;
-        z-index: 10;
+        padding: var(--ring-space);
+        padding-bottom: var(--scrollbar-spacing);
     }
 
 
@@ -118,7 +109,7 @@
     }
 }
 
-.contribution-heatmap-legend {
+.heatmap-legend {
     align-items: center;
     color: var(--color);
     display: flex;
@@ -134,7 +125,7 @@
     }
 }
 
-.contribution-heatmap-swatch {
+.heatmap-swatch {
     border-radius: var(--cell-radius);
     height: var(--cell-size);
     width: var(--cell-size);
