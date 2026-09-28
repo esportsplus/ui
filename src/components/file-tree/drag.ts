@@ -1,0 +1,453 @@
+import { peek, reactive, type Signal } from '@esportsplus/reactivity';
+import { html, type Attributes } from '@esportsplus/template';
+
+
+type Drag<E> = {
+    // Asked before 'drop', like VS Code's 'explorer.confirmDragAndDrop'; false cancels it.
+    confirm?: (drop: Drop<E>) => boolean | Promise<boolean>;
+    drop: (drop: Drop<E>) => void;
+};
+
+type Drop<E> = {
+    // Alt/Option was held: the elements are copied into the target rather than moved.
+    copy: boolean;
+    elements: E[];
+    // The folder receiving them, or null for the top level.
+    target: E | null;
+};
+
+type Effect = '' | 'copy' | 'move' | 'none';
+
+type Row<T> = {
+    depth: number;
+    element: { name: string };
+    key: number;
+    locked: boolean;
+    open: Signal<boolean> | null;
+    parent: T | null;
+};
+
+type Tree<T> = {
+    find: (id: string) => T | undefined;
+    // The rows a press on 'row' drags.
+    grab: (row: T) => T[];
+    // The last row on screen inside a folder, or the folder itself when closed.
+    last: (row: T) => T;
+    open: (row: T) => void;
+    viewport: () => HTMLElement | undefined;
+};
+
+
+// Touch has to hold still this long before a drag starts, so a swipe across the rows still scrolls them.
+const DELAY = 300;
+
+// Within this far of the viewport's top or bottom a drag scrolls it, faster the closer it gets.
+const EDGE = 32;
+
+// How long a folder is hovered before it opens, after VS Code.
+const HOVER = 500;
+
+// Pixels per second at the edge itself.
+const SPEED = 600;
+
+const THRESHOLD = 4;
+
+
+function prevent(e: Event) {
+    e.preventDefault();
+}
+
+function swallow(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+
+// Pointer events rather than native drag and drop: the rows are virtualized, so the pressed row can scroll out of
+// the DOM mid-drag, taking a native drag's source and events with it; the viewport holds the pointer instead, and
+// the feedback, Alt copy, auto-scroll and touch all stay in the tree's hands.
+export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: Tree<T>) => {
+    let busy = false,
+        ghost: HTMLElement | undefined,
+        sources: T[] = [],
+        // 'target' is the drop folder's key, -1 for the top level; 'last' the key of the last row in its box.
+        ui = reactive({ count: 0, effect: '' as Effect, label: '', last: 0, target: 0 });
+
+    function drag(list: T[], e: PointerEvent) {
+        let active = false,
+            cancelled = false,
+            carry = 0,
+            copy = e.altKey,
+            frame = 0,
+            opening: ReturnType<typeof setTimeout> | undefined,
+            originX = e.clientX,
+            originY = e.clientY,
+            pointer = e.pointerId,
+            // A folder, null for the top level, undefined when a release would drop nothing.
+            target: T | null | undefined,
+            time = 0,
+            touch = e.pointerType === 'touch',
+            timer = touch ? setTimeout(activate, DELAY) : undefined,
+            x = e.clientX,
+            y = e.clientY;
+
+        function activate() {
+            clearTimeout(timer);
+
+            active = true;
+            sources = list;
+            ui.count = list.length;
+            ui.label = list[0].element.name;
+
+            getSelection()?.removeAllRanges();
+            // Held by the viewport, so the pointer stays with the drag once the pressed row scrolls out of the DOM.
+            tree.viewport()?.setPointerCapture(pointer);
+            ghost?.showPopover();
+            place();
+            aim();
+
+            frame = requestAnimationFrame(tick);
+        }
+
+        function aim() {
+            let viewport = tree.viewport();
+
+            if (!viewport) {
+                return;
+            }
+
+            let bounds = viewport.getBoundingClientRect(),
+                next: T | null | undefined;
+
+            if (x >= bounds.left && x < bounds.right && y >= bounds.top && y < bounds.bottom) {
+                let bottom = bounds.top,
+                    found = false;
+
+                // By height alone: a nested row starts at its indent, and the space left of it is still that row.
+                for (let node of viewport.querySelectorAll<HTMLElement>('.file-tree-row[data-id]')) {
+                    let rect = node.getBoundingClientRect();
+
+                    if (y >= rect.top && y < rect.bottom) {
+                        let row = tree.find(node.dataset.id!);
+
+                        found = true;
+                        next = row && (row.open ? row : row.parent);
+                        break;
+                    }
+
+                    bottom = Math.max(bottom, rect.bottom);
+                }
+
+                if (!found) {
+                    // Past the last row is the top level; anywhere else, rows are still rendering in behind a scroll.
+                    if (y < bottom || viewport.scrollTop + viewport.clientHeight < viewport.scrollHeight - 1) {
+                        return;
+                    }
+
+                    next = null;
+                }
+            }
+
+            if (next !== undefined && !allowed(next)) {
+                next = undefined;
+            }
+
+            ui.effect = next === undefined ? 'none' : copy ? 'copy' : 'move';
+
+            if (next === target) {
+                return;
+            }
+
+            target = next;
+            clearTimeout(opening);
+
+            if (next) {
+                viewport.style.setProperty('--drop-depth', String(next.depth));
+
+                if (next.open && !peek(next.open)) {
+                    opening = setTimeout(expand, HOVER);
+                }
+            }
+
+            ui.last = next ? tree.last(next).key : 0;
+            ui.target = next ? next.key : next === null ? -1 : 0;
+        }
+
+        function allowed(folder: T | null) {
+            if (folder?.locked) {
+                return false;
+            }
+
+            let moves = false;
+
+            for (let i = 0, n = list.length; i < n; i++) {
+                let row = list[i];
+
+                for (let node = folder; node; node = node.parent) {
+                    if (node === row) {
+                        return false;
+                    }
+                }
+
+                if (row.parent !== folder) {
+                    moves = true;
+                }
+            }
+
+            return copy || moves;
+        }
+
+        function cleanup() {
+            stop();
+            busy = false;
+
+            document.removeEventListener('contextmenu', prevent);
+            document.removeEventListener('dragstart', prevent);
+            document.removeEventListener('keydown', key, true);
+            document.removeEventListener('keyup', key, true);
+            document.removeEventListener('pointercancel', release);
+            document.removeEventListener('pointermove', move);
+            document.removeEventListener('pointerup', release);
+            document.removeEventListener('selectstart', prevent);
+            document.removeEventListener('touchmove', scroll);
+        }
+
+        function expand() {
+            if (!target) {
+                return;
+            }
+
+            tree.open(target);
+            ui.last = tree.last(target).key;
+        }
+
+        function key(e: KeyboardEvent) {
+            if (!active) {
+                return;
+            }
+
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                cancelled = true;
+                stop();
+            }
+            else if (e.key === 'Alt') {
+                // Pressed and released alone, Alt would move focus to the browser's menu on Windows.
+                e.preventDefault();
+                copy = e.altKey;
+                aim();
+            }
+        }
+
+        function move(e: PointerEvent) {
+            if (e.pointerId !== pointer || cancelled) {
+                return;
+            }
+
+            copy = e.altKey;
+            x = e.clientX;
+            y = e.clientY;
+
+            if (active) {
+                place();
+                aim();
+                return;
+            }
+
+            if (Math.hypot(x - originX, y - originY) < THRESHOLD) {
+                return;
+            }
+
+            if (touch) {
+                cleanup();
+            }
+            else {
+                activate();
+            }
+        }
+
+        function place() {
+            ghost?.style.setProperty('translate', `${x}px ${y}px`);
+        }
+
+        async function release(e: PointerEvent) {
+            if (e.pointerId !== pointer) {
+                return;
+            }
+
+            let folder = active && e.type === 'pointerup' ? target : undefined,
+                moved = active || cancelled;
+
+            cleanup();
+
+            if (moved) {
+                // The pointerup that ended the drag is followed by a click on whatever sits under the pointer.
+                addEventListener('click', swallow, true);
+                setTimeout(() => removeEventListener('click', swallow, true));
+            }
+
+            if (folder === undefined) {
+                return;
+            }
+
+            let result = { copy, elements: list.map((row) => row.element), target: folder?.element ?? null };
+
+            if (!confirm || await confirm(result)) {
+                drop(result);
+            }
+        }
+
+        function scroll(e: TouchEvent) {
+            if (active) {
+                e.preventDefault();
+            }
+        }
+
+        function stop() {
+            let viewport = tree.viewport();
+
+            active = false;
+            cancelAnimationFrame(frame);
+            clearTimeout(opening);
+            clearTimeout(timer);
+
+            if (ghost?.matches(':popover-open')) {
+                ghost.hidePopover();
+            }
+
+            if (viewport?.hasPointerCapture(pointer)) {
+                viewport.releasePointerCapture(pointer);
+            }
+
+            viewport?.style.removeProperty('--drop-depth');
+            sources = [];
+            target = undefined;
+            ui.effect = '';
+            ui.last = 0;
+            ui.target = 0;
+        }
+
+        function tick(now: number) {
+            frame = requestAnimationFrame(tick);
+
+            let dt = time ? Math.min((now - time) / 1000, 1 / 30) : 0,
+                viewport = tree.viewport();
+
+            time = now;
+
+            if (viewport) {
+                let bounds = viewport.getBoundingClientRect(),
+                    pull = 0,
+                    zone = Math.min(EDGE, bounds.height / 4);
+
+                if (x >= bounds.left && x < bounds.right) {
+                    if (y < bounds.top + zone) {
+                        pull = Math.max(-1, (y - bounds.top - zone) / zone);
+                    }
+                    else if (y > bounds.bottom - zone) {
+                        pull = Math.min(1, (y - bounds.bottom + zone) / zone);
+                    }
+                }
+
+                // Whole pixels only, the remainder carried: a slow pull moves less than a pixel a frame.
+                carry = pull ? carry + pull * SPEED * dt : 0;
+
+                let step = Math.trunc(carry);
+
+                if (step) {
+                    carry -= step;
+                    viewport.scrollTop += step;
+                }
+            }
+
+            aim();
+        }
+
+        busy = true;
+
+        document.addEventListener('contextmenu', prevent);
+        document.addEventListener('dragstart', prevent);
+        document.addEventListener('keydown', key, true);
+        document.addEventListener('keyup', key, true);
+        document.addEventListener('pointercancel', release);
+        document.addEventListener('pointermove', move);
+        document.addEventListener('pointerup', release);
+        document.addEventListener('selectstart', prevent);
+        document.addEventListener('touchmove', scroll, { passive: false });
+    }
+
+    // Where 'row' sits in the box drawn around the target folder and its open contents.
+    function mark(row: T) {
+        let target = ui.target;
+
+        if (target <= 0) {
+            return false;
+        }
+
+        for (let node: T | null = row; node; node = node.parent) {
+            if (node.key === target) {
+                let end = row.key === ui.last;
+
+                return node === row ? (end ? 'only' : 'start') : (end ? 'end' : 'middle');
+            }
+        }
+
+        return false;
+    }
+
+    return {
+        ghost: html`
+            <div
+                aria-hidden='true'
+                class='file-tree-drag'
+                popover='manual'
+                ${{
+                    'data-effect': () => ui.effect || false,
+                    onrender: (element: HTMLElement) => {
+                        ghost = element;
+                    }
+                }}
+            >
+                <span class='file-tree-drag-name'>${() => ui.label}</span>
+                ${() => ui.count > 1 && html`<span class='file-tree-drag-count'>${ui.count}</span>`}
+                <span class='file-tree-drag-copy'>+</span>
+            </div>
+        `,
+        root: {
+            'data-drag': () => ui.effect || false,
+            'data-drop': () => ui.target === -1 ? 'root' : false
+        } as Attributes,
+        row: (row: T): Attributes => ({
+            'data-dragged': () => ui.effect !== '' && sources.includes(row) ? 'true' : false,
+            'data-drop': () => mark(row),
+            onpointerdown: (e: PointerEvent) => {
+                if (busy || row.locked || e.button !== 0 || !e.isPrimary) {
+                    return;
+                }
+
+                let grabbed = tree.grab(row),
+                    // A row inside another dragged folder travels with it.
+                    list = grabbed.filter((item) => {
+                        if (item.locked) {
+                            return false;
+                        }
+
+                        for (let node = item.parent; node; node = node.parent) {
+                            if (grabbed.includes(node)) {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    });
+
+                if (list.length) {
+                    drag(list, e);
+                }
+            }
+        })
+    };
+};
+
+export type { Drag, Drop };

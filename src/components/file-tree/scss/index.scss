@@ -1,5 +1,12 @@
 @use 'variables';
 
+// Animated on the tree while a folder opens or closes; registered so it interpolates and every row reads one value.
+@property --file-tree-progress {
+    inherits: true;
+    initial-value: 0;
+    syntax: '<number>';
+}
+
 .file-tree {
     color: var(--color);
     font-size: var(--font-size);
@@ -7,132 +14,550 @@
     position: relative;
     width: 100%;
 
-    // Opens by animating the row track from 0fr to 1fr, so the folder grows to its real height without measuring.
-    &-content {
-        display: grid;
-        grid-template-rows: 0fr;
-        transition: grid-template-rows var(--duration) var(--ease);
+    // One guide per ancestor under each ancestor's chevron, outside the row's box so the highlight covers the row
+    // alone; rows carry no vertical margins, so each row's share joins into an unbroken line. The parent's guide is a
+    // 1px box and the others are its shadows ('--guides'), whole indents further out: boxes snap to whole pixels the
+    // same way on every row, where a gradient's line falls between pixels and each row rounds it its own way.
+    &--indicator &-row {
+        --guide-direction: 1;
 
-        &.--active {
-            grid-template-rows: 1fr;
+        &:dir(rtl) {
+            --guide-direction: -1;
+        }
+
+        &::before {
+            background: currentColor;
+            box-shadow: var(--guides);
+            color: var(--indicator-color);
+            content: '';
+            inset-block: 0;
+            inset-inline-start: calc(var(--padding) + var(--twistie-size) / 2 - 0.5px - var(--indent));
+            position: absolute;
+            // Top-level rows have no parent to draw.
+            width: calc(min(var(--depth), 1) * 1px);
         }
     }
 
-    &-clip {
-        min-height: 0;
-        overflow: hidden;
-        position: relative;
+    // On the tree rather than the viewport, so the copies standing in for rows mid-motion, laid beside the viewport,
+    // brighten and show along with the rest.
+    &--indicator:hover &-row::before {
+        --indicator-color: var(--indicator-hover);
     }
 
-    &-folder {
-        position: relative;
+    &--indicator-hover &-row::before {
+        opacity: 0;
+        transition: opacity var(--indicator-duration) ease-out;
     }
 
-    &-group {
+    &--indicator-hover:hover &-row::before {
+        opacity: 1;
+    }
+
+    // The accordion: the folder's bottom edge travels over its rows, 0 to --motion-rows rows down. Runs under
+    // reduced motion as well, since its end is what settles the motion.
+    &[data-motion] {
+        --motion-edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
+        animation: file-tree-collapse var(--collapse-duration) var(--motion-easing) forwards;
+    }
+
+    &[data-motion='open'] {
+        animation-duration: var(--expand-duration);
+        animation-name: file-tree-expand;
+    }
+
+    // The viewport holds the pointer for the whole drag, so its cursor is the one that shows.
+    &[data-drag] &-viewport {
+        cursor: grabbing;
+
+        .file-tree-row {
+            cursor: inherit;
+        }
+    }
+
+    &[data-drag='copy'] &-viewport {
+        cursor: copy;
+    }
+
+    &[data-drag='move'] &-row[data-dragged] {
+        opacity: var(--dragged-opacity);
+    }
+
+    &[data-drag='none'] &-viewport {
+        cursor: no-drop;
+    }
+
+    &[data-drop='root'] &-viewport {
+        background: var(--drop-background);
+        box-shadow: inset 0 0 0 var(--border-width-400) var(--drop-border-color);
+    }
+
+    &-badge {
+        display: flex;
+        flex-shrink: 0;
+        font-size: var(--badge-font-size);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--badge-font-weight);
+        gap: var(--badge-gap);
+        margin-inline-start: auto;
+        padding-inline-start: var(--item-gap);
+
+        @each $tone in additions, added, conflict, deleted, deletions, error, ignored, modified, open, submodule, unsaved, warning {
+            > [data-tone='#{$tone}'] {
+                color: var(--#{$tone}-color);
+            }
+        }
+
+        // Changes in the index sit in a tinted chip, so a file staged and then edited again reads as two letters.
+        > [data-staged] {
+            background: color-mix(in srgb, currentColor var(--staged-tint), transparent);
+            border-radius: var(--staged-radius);
+            padding-inline: var(--staged-padding);
+        }
+    }
+
+    &-chevron {
+        transition: rotate var(--chevron-duration) ease-out;
+
+        // Mirrored to point left, so opening turns it the other way to still point down.
+        &:dir(rtl) {
+            scale: -1 1;
+
+            [aria-expanded='true'] > * > & {
+                rotate: -90deg;
+            }
+        }
+
+        [aria-expanded='true'] > * > & {
+            rotate: 90deg;
+        }
+    }
+
+    // A popover, so it rides the top layer clear of any clipping or transformed ancestor; the UA popover styles are
+    // undone here. The drag moves it to the pointer by its 'translate'.
+    &-drag {
+        background: var(--drag-background);
+        border: 0;
+        border-radius: var(--drag-radius);
+        box-shadow: var(--drag-box-shadow);
+        color: var(--color);
+        font-size: var(--font-size);
+        gap: var(--item-gap);
+        inset: auto;
+        left: 0;
+        margin: var(--drag-offset) 0 0 var(--drag-offset);
+        overflow: visible;
+        padding: var(--drag-padding);
+        pointer-events: none;
+        position: fixed;
+        top: 0;
+        white-space: nowrap;
+
+        &:popover-open {
+            align-items: center;
+            display: flex;
+        }
+
+        &-copy {
+            color: var(--added-color);
+            display: none;
+            font-weight: var(--badge-font-weight);
+
+            [data-effect='copy'] > & {
+                display: block;
+            }
+        }
+
+        &-count {
+            color: var(--ignored-color);
+            font-size: var(--badge-font-size);
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--badge-font-weight);
+        }
+    }
+
+    &-input {
+        background: var(--input-background);
+        border: 1px solid var(--input-border-color);
+        border-radius: var(--input-radius);
+        color: inherit;
+        flex: 1;
+        font: inherit;
+        height: calc(var(--row-height) - 2px);
+        min-width: 0;
+        outline: none;
+        padding-inline: var(--input-padding);
+        user-select: text;
+
+        &[aria-invalid='true'] {
+            border-color: var(--error-color);
+        }
+
+        &[readonly] {
+            opacity: 0.6;
+        }
+    }
+
+    // Hangs below the row over the ones beneath, aligned with the input, so the list doesn't shift while typing.
+    &-message {
+        background: var(--message-background);
+        border: 1px solid var(--error-color);
+        border-radius: var(--input-radius);
+        font-size: var(--message-font-size);
+        inset-inline: calc(var(--padding) + var(--twistie-size) + var(--icon-size) + var(--item-gap) * 2) 0;
+        padding: var(--message-padding);
+        position: absolute;
+        top: 100%;
+        white-space: normal;
+        z-index: 1;
+    }
+
+    // Laid over the viewport's visible box; the layer starts at the folder's bottom edge.
+    // Laid over the viewport, which stays the tree's one tab stop.
+    &-empty {
+        align-items: center;
+        color: var(--empty-color);
         display: flex;
         flex-direction: column;
-        gap: var(--row-gap);
-
-        .file-tree-clip > & {
-            margin-inline-start: var(--indent);
-            padding-block: var(--row-gap);
-        }
-    }
-
-    &-icon {
-        flex-shrink: 0;
-        height: var(--icon-size);
-        width: var(--icon-size);
-    }
-
-    &-indicator {
-        background: var(--indicator-color);
-        border-radius: 6px;
-        height: 100%;
-        inset-inline-start: var(--indicator-offset);
+        gap: var(--size-200);
+        inset: 0;
+        justify-content: center;
+        padding: var(--size-400);
         position: absolute;
-        transition: background-color 300ms ease-in-out;
-        width: 1px;
+        text-align: center;
+    }
 
-        &:hover {
-            background: var(--indicator-hover);
+    &-motion {
+        display: none;
+        overflow: hidden;
+        pointer-events: none;
+        position: absolute;
+
+        &-layer {
+            left: 0;
+            position: absolute;
+            right: 0;
+
+            > .file-tree-row {
+                position: absolute;
+            }
         }
     }
 
     &-name {
+        color: var(--tone, inherit);
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
 
-    &-toggle {
-        background: transparent;
-        border: 0;
-        border-radius: var(--border-radius);
-        bottom: 4px;
-        color: inherit;
-        cursor: pointer;
-        font: inherit;
-        height: 32px;
-        inset-inline-end: 8px;
-        outline: 0 solid var(--focus-color);
-        outline-offset: 2px;
-        padding: 0 8px;
-        position: absolute;
-        transition: background-color 150ms ease-out;
-
-        &:focus-visible {
-            outline-width: 2px;
-        }
-
-        &:hover {
-            background: var(--active-background);
+        [data-tone='deleted'] > & {
+            text-decoration: line-through;
         }
     }
 
-    &-trigger {
+    &-notice {
+        color: var(--notice-color);
+    }
+
+    &-row {
         align-items: center;
-        background: transparent;
-        border: 0;
-        border-radius: var(--border-radius);
-        color: inherit;
+        border-radius: var(--row-radius);
         cursor: pointer;
         display: flex;
-        font: inherit;
-        gap: var(--gap);
-        max-width: 100%;
+        gap: var(--item-gap);
+        height: var(--row-height);
+        // Nested rows start at their depth, so the one highlight resizes and shifts as it moves between them.
+        margin-inline-start: calc(var(--depth) * var(--indent));
         outline: 0 solid var(--focus-color);
-        outline-offset: 1px;
-        padding: 0;
-        padding-inline-end: var(--padding-end);
-        text-align: start;
-        transition: background-color 200ms ease-in-out;
-        width: fit-content;
+        outline-offset: -1px;
+        padding-inline: var(--padding);
+        position: relative;
+        user-select: none;
 
-        &:disabled {
+        // The contents alone, so the guide and a selection behind the row keep their strength.
+        &.--cut > * {
+            opacity: var(--cut-opacity);
+        }
+
+        &.--disabled {
             cursor: not-allowed;
             opacity: 0.5;
         }
 
+        // The drop target and its open contents read as one box, from the folder's indent down to its last row.
+        &[data-drop]::after {
+            background: var(--drop-background);
+            border: 0 solid var(--drop-border-color);
+            border-inline-width: var(--border-width-400);
+            content: '';
+            inset-block: 0;
+            inset-inline: calc((var(--drop-depth) - var(--depth)) * var(--indent)) 0;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        &[data-drop='end']::after,
+        &[data-drop='only']::after {
+            border-block-end-width: var(--border-width-400);
+            border-end-end-radius: var(--row-radius);
+            border-end-start-radius: var(--row-radius);
+        }
+
+        &[data-drop='only']::after,
+        &[data-drop='start']::after {
+            border-block-start-width: var(--border-width-400);
+            border-start-end-radius: var(--row-radius);
+            border-start-start-radius: var(--row-radius);
+        }
+
+        // Selected rows besides the primary, which the highlight covers.
+        &.--selected {
+            background: var(--background-selected);
+        }
+
+        // Nothing to act on while loading; the error row retries.
+        &.file-tree-notice:not([data-tone]) {
+            cursor: default;
+        }
+
+        // A folder's rows fade in a beat behind the opening.
+        &[data-reveal] {
+            animation: file-tree-reveal var(--reveal-duration) ease-out var(--reveal-delay) backwards;
+        }
+
+        // A square band across the tree's full width, back past the row's depth inset, so a scope's rows join into
+        // one block. Isolated, the band sits over the highlight and under the row's content and guides.
+        &[data-scope] {
+            isolation: isolate;
+
+            &::after {
+                background: color-mix(in srgb, var(--scope) var(--scope-tint), transparent);
+                content: '';
+                inset-block: 0;
+                inset-inline: calc(var(--depth) * var(--indent) * -1) 0;
+                pointer-events: none;
+                position: absolute;
+                z-index: -1;
+            }
+        }
+
+        .file-tree-viewport:focus-visible > &.--focused {
+            outline-width: 1px;
+        }
+    }
+
+    &-spinner {
+        flex-shrink: 0;
+    }
+
+    // Takes no room in the list, so the rows scroll on beneath it; it only covers them.
+    &-sticky {
+        height: 0;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+
+        &-rows {
+            background: var(--sticky-background);
+            box-shadow: var(--sticky-shadow);
+
+            &:not(:has(> .file-tree-row)) {
+                display: none;
+            }
+
+            > .file-tree-row {
+                &.--selected {
+                    background: var(--background-active);
+                }
+
+                &:not(.--disabled, .--selected):hover {
+                    background: var(--background-hover);
+                }
+
+                // The deepest folder, pushed up by the rows after its own, slides under the one above it.
+                &:last-child {
+                    clip-path: inset(var(--sticky-push, 0px) calc(var(--depth) * var(--indent) * -1) 0);
+                    margin-block-start: calc(var(--sticky-push, 0px) * -1);
+                }
+
+                .file-tree-viewport:focus-visible &.--focused {
+                    outline-width: 1px;
+                }
+            }
+        }
+    }
+
+    &-toggle.button {
+        bottom: 4px;
+        height: 32px;
+        inset-inline-end: var(--size-100);
+        outline: 0 solid var(--focus-color);
+        outline-offset: 2px;
+        position: absolute;
+
         &:focus-visible {
             outline-width: 2px;
         }
+    }
 
-        &.--active:not(:disabled) {
-            background: var(--active-background);
+    &-tooltip {
+        &-meta {
+            color: color-mix(in srgb, currentColor 70%, transparent);
+            display: block;
+            font-size: var(--font-size-200);
+            white-space: nowrap;
         }
+
+        &-path {
+            display: block;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    &-twistie {
+        display: flex;
+        flex-shrink: 0;
+        width: var(--twistie-size);
     }
 
     &-viewport {
         height: 100%;
-        overflow: auto;
-        padding-inline: var(--padding);
-        position: relative;
+        outline: none;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    // The list has already swapped rows, so the rows below are drawn back where they sat and ride the edge home, and
+    // copies stand in for any no longer rendered. Opening: the folder's rows show above the edge. Closing: copies of
+    // them fade out above it. The real rows move, not their contents, so the highlight follows the selected one.
+    @media (prefers-reduced-motion: no-preference) {
+        &[data-motion] &-motion {
+            display: block;
+        }
+
+        &[data-motion='close'] {
+            .file-tree-motion-layer {
+                animation: file-tree-conceal var(--conceal-duration) ease-out forwards;
+                height: var(--motion-edge);
+                overflow: hidden;
+            }
+
+            .file-tree-row[data-motion] ~ .file-tree-row {
+                translate: 0 var(--motion-edge);
+            }
+        }
+
+        &[data-motion='open'] {
+            .file-tree-motion-layer {
+                translate: 0 var(--motion-edge);
+            }
+
+            .file-tree-row[data-reveal] {
+                // Open at the sides, so the guides drawn outside the row still show.
+                clip-path: inset(
+                    0
+                    calc(var(--depth) * var(--indent) * -1)
+                    clamp(0px, calc((var(--reveal-index) + 1) * var(--row-height) - var(--motion-edge)), var(--row-height))
+                    calc(var(--depth) * var(--indent) * -1)
+                );
+
+                ~ .file-tree-row:not([data-reveal]) {
+                    translate: 0 calc(var(--motion-edge) - var(--motion-rows) * var(--row-height));
+                }
+            }
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        &-content {
+        &-chevron {
             transition: none;
         }
+
+        &-row[data-reveal] {
+            animation-name: file-tree-fade;
+        }
+    }
+
+    // High contrast themes swap every color for the system palette and drop tints and shadows, which would take the
+    // highlight, the scope bands and all but the parent's guide with them.
+    @media (forced-colors: active) {
+        // Opted out, so the shadow copies drawing the further ancestors' guides survive.
+        &--indicator &-row::before {
+            --indicator-color: GrayText;
+            --indicator-hover: CanvasText;
+            forced-color-adjust: none;
+        }
+
+        &-row {
+            // Opted out, or the backplate drawn behind text in Canvas hides the name.
+            &.--active {
+                background: Highlight;
+                forced-color-adjust: none;
+
+                &,
+                .file-tree-badge > *,
+                .file-tree-name,
+                .icon {
+                    color: HighlightText;
+                }
+            }
+
+            &.--disabled {
+                color: GrayText;
+                opacity: 1;
+            }
+
+            &:hover:not(.--active) {
+                outline: 1px dashed Highlight;
+            }
+
+            &[data-scope]::after {
+                display: none;
+            }
+
+            .file-tree-viewport:focus-visible > &.--focused {
+                outline: 1px solid CanvasText;
+            }
+        }
+    }
+}
+
+@keyframes file-tree-collapse {
+    from {
+        --file-tree-progress: 1;
+    }
+
+    to {
+        --file-tree-progress: 0;
+    }
+}
+
+@keyframes file-tree-conceal {
+    to {
+        filter: blur(2px);
+        opacity: 0;
+    }
+}
+
+@keyframes file-tree-expand {
+    from {
+        --file-tree-progress: 0;
+    }
+
+    to {
+        --file-tree-progress: 1;
+    }
+}
+
+@keyframes file-tree-fade {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes file-tree-reveal {
+    from {
+        filter: blur(2px);
+        opacity: 0;
     }
 }

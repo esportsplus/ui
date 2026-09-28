@@ -8,6 +8,11 @@
     padding: 8px;
     width: 384px;
 
+    &-actions {
+        display: flex;
+        gap: 8px;
+    }
+
     &-caption {
         color: var(--color-text-300);
         font-size: 13px;

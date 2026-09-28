@@ -96,8 +96,6 @@ import textarea from './textarea';
 import thumbnail from './thumbnail';
 import toast from './toast';
 import tooltip from './tooltip';
-import tree from './tree';
-import treeView from './tree-view';
 import truncate from './truncate';
 import typewriter from './typewriter';
 import typewriterRetype from './typewriter-retype';
@@ -207,8 +205,6 @@ const entries: Entry[] = [
     thumbnail,
     toast,
     tooltip,
-    tree,
-    treeView,
     truncate,
     typewriter,
     typewriterRetype,

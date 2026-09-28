@@ -385,14 +385,6 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Contextual popover for hints, menus, and hover details, including one shared tooltip that glides between the triggers bound to it.'
     },
-    tree: {
-        category: 'Interactive',
-        description: 'Keyboard-navigable hierarchy of expandable branches for files, folders, and nested data.'
-    },
-    'tree-view': {
-        category: 'Interactive',
-        description: 'Nested file tree whose folders unfold in place while the selection glides to the picked file.'
-    },
     truncate: {
         category: 'Display',
         description: 'Single-line text truncation with an ellipsis.'
