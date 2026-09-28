@@ -149,9 +149,17 @@ const utilities: Utility[] = [
     },
     {
         category: 'Surface',
-        description: 'Typography helpers for cropping and truncating text.',
+        description: 'Typography helpers for cropping, truncating and filling text with a looping gradient; set --color-from, --color-to, --duration and --speed to tune --text-gradient.',
         name: 'text',
         variants: [
+            {
+                render: () => html`<p class='--text-gradient' style='font-size: 36px; font-weight: var(--font-weight-600); letter-spacing: -0.025em; margin: 0;'>Introducing Magic UI</p>`,
+                title: 'gradient'
+            },
+            {
+                render: () => html`<p class='--text-gradient' style='--color-from: #4ade80; --color-to: #06b6d4; --speed: 2; font-size: 36px; font-weight: var(--font-weight-600); letter-spacing: -0.025em; margin: 0;'>Fast Gradient</p>`,
+                title: 'gradient, custom colors, speed 2'
+            },
             {
                 render: () => html`<div class='--text-truncate' style='max-width: 240px;'>This sentence is intentionally long so it gets truncated with an ellipsis.</div>`,
                 title: 'truncate'

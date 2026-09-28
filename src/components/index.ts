@@ -20,7 +20,6 @@ export { default as featureSpotlight } from './feature-spotlight';
 export { default as fileTree } from './file-tree';
 export { default as filterGrid } from './filter-grid';
 export { default as form } from './form';
-export { default as gradientText } from './gradient-text';
 export { default as header } from './header';
 export { default as highlight } from './highlight';
 export { default as hoverCard } from './hover-card';

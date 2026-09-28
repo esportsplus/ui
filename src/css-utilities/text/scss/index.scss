@@ -1,5 +1,6 @@
 @use '/lib';
 @use '/tokens';
+@use './variables';
 
 .--text {
     &-crop {
@@ -52,10 +53,30 @@
         }
     }
 
+    // The gradient repeats its first stop at the end, so sliding it one full background-size loops seamlessly.
+    &-gradient {
+        --background-size: calc(var(--speed) * 300%);
+        animation: text-gradient var(--duration) linear infinite;
+        background-clip: text;
+        background-image: linear-gradient(to right, var(--color-from), var(--color-to), var(--color-from));
+        background-size: var(--background-size) 100%;
+        color: transparent;
+
+        @media (prefers-reduced-motion: reduce) {
+            animation: none;
+        }
+    }
+
     &-truncate {
         max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+}
+
+@keyframes text-gradient {
+    to {
+        background-position: var(--background-size) 0;
     }
 }

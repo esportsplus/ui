@@ -113,10 +113,6 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Filter chips over a card grid that rearranges with FLIP motion instead of blinking.'
     },
-    'gradient-text': {
-        category: 'Display',
-        description: 'Text filled with a looping gradient that slides through the letters (Magic UI).'
-    },
     grid: {
         category: 'Layout',
         description: 'Responsive auto-fit grid for arranging children.'

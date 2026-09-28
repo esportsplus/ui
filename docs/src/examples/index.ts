@@ -25,7 +25,6 @@ import expandingCard from './expanding-card';
 import featureSpotlight from './feature-spotlight';
 import fileTree from './file-tree';
 import filterGrid from './filter-grid';
-import gradientText from './gradient-text';
 import grid from './grid';
 import header from './header';
 import highlight from './highlight';
@@ -139,7 +138,6 @@ const entries: Entry[] = [
     featureSpotlight,
     fileTree,
     filterGrid,
-    gradientText,
     grid,
     header,
     highlight,
