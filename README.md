@@ -136,7 +136,7 @@ html`
 | `modal` | Native `<dialog>` modal driven by `state.active` (Esc and backdrop click close it) |
 | `overlay` | Full-viewport overlay container |
 | `breadcrumb` | Path trail that folds middle segments into a `tooltip.menu` as space runs out, the rest sliding over as each one closes; `onnavigate` intercepts links; `separator: 'chevron' \| 'slash'` (default `'slash'`) |
-| `morphingNav` | Navigation bar whose dropdown panel morphs size, position and caret between sections on hover intent, with full keyboard support (`state.active`) |
+| `navigationMenu` | Navigation bar whose `highlight` pill follows the cursor and whose `card--morph` panel morphs size and position between sections on hover intent, flipping open from its trigger; full keyboard support, `align: 'center' \| 'end' \| 'start'`, `navigation-menu--muted` (`state.active`) |
 | `scrollSpine` | Scale-drawing table of contents: bands sized to each section fill as you read, and a spring marker stretches between them |
 | `sheet` | Bottom sheet on `modal` (`modal--sheet`) that drags to dismiss past 25% or on a flick, rubber-bands upward, and fades its backdrop with the drag (`sheet.handle`, `sheet--full`) |
 | `slidingTabs` | Tab list whose underline stretches toward the new tab and gathers under it, with a hover pill and cross-sliding `tabs.scss` panels (`state.selected`) |

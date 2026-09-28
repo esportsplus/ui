@@ -177,13 +177,13 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Async save button that morphs into a spinner, confirms with a check, and shakes when it fails.'
     },
-    'morphing-nav': {
-        category: 'Layout',
-        description: 'Navigation bar whose dropdown panel morphs size, position and caret between sections as the cursor moves.'
-    },
     'multi-step-form': {
         category: 'Form Controls',
         description: 'Stepped form card with a progress bar, directional step transitions, and a height that springs to fit.'
+    },
+    'navigation-menu': {
+        category: 'Layout',
+        description: 'Navigation bar with a hover pill whose dropdown panel morphs size and position between sections as the cursor moves (Kobra).'
     },
     'notification-bell': {
         category: 'Display',

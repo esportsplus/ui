@@ -41,8 +41,8 @@ import longPress from './long-press';
 import marquee from './marquee';
 import modal from './modal';
 import morphingButton from './morphing-button';
-import morphingNav from './morphing-nav';
 import multiStepForm from './multi-step-form';
+import navigationMenu from './navigation-menu';
 import nestedMenu from './nested-menu';
 import notificationBell from './notification-bell';
 import number from './number';
@@ -152,8 +152,8 @@ const entries: Entry[] = [
     marquee,
     modal,
     morphingButton,
-    morphingNav,
     multiStepForm,
+    navigationMenu,
     nestedMenu,
     notificationBell,
     number,

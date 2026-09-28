@@ -35,7 +35,6 @@ export { default as longPress } from './long-press';
 export { default as marquee } from './marquee';
 export { default as modal } from './modal';
 export { default as morphingButton } from './morphing-button';
-export { default as morphingNav } from './morphing-nav';
 export { default as multiStepForm } from './multi-step-form';
 export { default as navigationMenu } from './navigation-menu';
 export { default as nestedMenu } from './nested-menu';

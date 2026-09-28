@@ -18,24 +18,8 @@
         width: 12px;
     }
 
-    // Layers stack in one spot; only the active one, and the one sliding out, are shown.
     &-content {
-        left: 0;
         max-width: calc(100vw - 32px);
-        padding: 4px;
-        position: absolute;
-        top: 0;
-        visibility: hidden;
-        width: max-content;
-
-        &.--active,
-        &.--leaving {
-            visibility: visible;
-        }
-
-        &.--leaving {
-            pointer-events: none;
-        }
     }
 
     &-item {
@@ -98,45 +82,17 @@
         list-style: none;
         margin: 0;
         padding: 0;
-        position: relative;
     }
 
-    // Positioned before it shows, so it fades in where the pointer is; once shown it slides between items.
-    &-pill {
-        background: var(--hover-background);
-        border-radius: 999px;
-        left: 0;
-        opacity: 0;
-        pointer-events: none;
-        position: absolute;
-        top: 0;
-        transition: opacity 0.15s var(--pill-timing-function);
-
-        @include tokens.state(active) {
-            opacity: 1;
-            transition:
-                opacity var(--pill-duration) var(--pill-timing-function),
-                translate var(--pill-duration) var(--pill-timing-function),
-                width var(--pill-duration) var(--pill-timing-function);
-        }
-    }
-
-    // Size and position ease between panels; the flip on open and the fade on close are played from script.
-    &-popup {
-        background: var(--background);
-        border-radius: var(--popup-radius);
-        box-shadow: var(--box-shadow);
+    // Size and position morph through 'card--morph'; this flips it open from its trigger and fades it shut.
+    &-popup.card {
         color: var(--color);
         left: 0;
         opacity: 0;
         pointer-events: none;
         position: absolute;
         top: 0;
-        transition:
-            height var(--popup-duration) cubic-bezier(0.23, 1, 0.32, 1),
-            translate var(--popup-duration) cubic-bezier(0.23, 1, 0.32, 1),
-            width var(--popup-duration) cubic-bezier(0.23, 1, 0.32, 1);
-        visibility: hidden;
+        transform: scale(var(--close-scale));
         z-index: 50;
 
         // Invisible bridge over the gap, so the cursor never "leaves" on its way down from the trigger.
@@ -149,13 +105,12 @@
         }
 
         @include tokens.state(active) {
+            animation:
+                navigation-menu-fade var(--open-fade-duration) var(--open-fade-timing-function),
+                navigation-menu-flip var(--open-duration) var(--open-timing-function);
             opacity: 1;
             pointer-events: auto;
-            visibility: visible;
-        }
-
-        &.--instant {
-            transition: none;
+            transform: none;
         }
     }
 
@@ -197,11 +152,17 @@
             padding-inline: 10px;
         }
     }
+}
 
-    &-viewport {
-        height: 100%;
-        overflow: hidden;
-        position: relative;
-        width: 100%;
+
+@keyframes navigation-menu-fade {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes navigation-menu-flip {
+    from {
+        transform: var(--open-transform);
     }
 }
