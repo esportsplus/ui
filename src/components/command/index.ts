@@ -423,6 +423,11 @@ export default component(
                 return;
             }
 
+            // A focused element that declares Mod+K as its own (an editor's link shortcut) keeps it.
+            if (/\b(Control|Meta)\+K\b/i.test((e.target as Element | null)?.closest?.('[aria-keyshortcuts]')?.getAttribute('aria-keyshortcuts') ?? '')) {
+                return;
+            }
+
             // Browsers bind Ctrl+K to address bar search, and the site's own search listens later.
             e.preventDefault();
             e.stopPropagation();
