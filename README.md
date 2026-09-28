@@ -69,7 +69,6 @@ html`
 | `emailTypoFix` | Email field (`input`) that suggests a fix for common domain typos after a pause, applying it with a letter-morph; `state.sent` swaps the hint for a sent note | `emailTypoFix.field`, `emailTypoFix.suggest` |
 | `inlineEdit` | Click-to-edit text that swaps in an `input` (or `textarea` with `multiline`) without moving a glyph; Enter/blur saves, Escape cancels, `onsave` fires | `inlineEdit.display`, `inlineEdit.field` |
 | `multiStepForm` | Stepped `form.action` card (`input`, `radio`) with a progress bar, directional step transitions, focus moved into each step and a height that springs to fit; `state.panel`, `oncreate`, custom `plans` | `multiStepForm.input` |
-| `radioCards` | Native radio group (`radio`) laid out as cards with a selection ring that glides between them | - |
 | `rangeSlider` | Dual-thumb slider whose thumbs stop at each other, glide on track clicks and keys, show a value tooltip while dragged or focused, and pair with editable min/max `input` fields; `state.low`/`state.high`, `format`, `prefix` | `rangeSlider.input`, `rangeSlider.thumb` |
 | `scrubInput` | Numeric `input` whose label scrubs the value on drag (Shift ×10, Alt ×0.1, optional pointer lock) over a tape measure; arrows step, Escape restores | `scrubInput.field`, `scrubInput.label` |
 | `selectMenu` | macOS-style listbox opening with the selected option over the trigger, with typeahead and hover scrolling | - |

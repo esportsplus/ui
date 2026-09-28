@@ -239,11 +239,7 @@ const meta: Record<string, Meta> = {
     },
     radio: {
         category: 'Form Controls',
-        description: 'Single-choice selection from a grouped set of options.'
-    },
-    'radio-cards': {
-        category: 'Form Controls',
-        description: 'Native radio group laid out as cards, with a selection ring that glides to the option you pick.'
+        description: 'Single-choice selection from a grouped set of options, including option cards built from radio and card.'
     },
     range: {
         category: 'Form Controls',

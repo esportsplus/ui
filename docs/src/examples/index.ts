@@ -61,7 +61,6 @@ import planCard from './plan-card';
 import progress from './progress';
 import pullToRefresh from './pull-to-refresh';
 import radio from './radio';
-import radioCards from './radio-cards';
 import range from './range';
 import rangeFilter from './range-filter';
 import rangeSlider from './range-slider';
@@ -182,7 +181,6 @@ const entries: Entry[] = [
     progress,
     pullToRefresh,
     radio,
-    radioCards,
     range,
     rangeFilter,
     rangeSlider,

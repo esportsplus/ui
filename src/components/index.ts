@@ -55,7 +55,6 @@ export { default as planCard } from './plan-card';
 export { default as progress } from './progress';
 export { default as pullToRefresh } from './pull-to-refresh';
 export { default as radio } from './radio';
-export { default as radioCards } from './radio-cards';
 export { default as range } from './range';
 export { default as rangeFilter } from './range-filter';
 export { default as rangeSlider } from './range-slider';
