@@ -38,7 +38,6 @@ import fileTree from './file-tree';
 import filterGrid from './filter-grid';
 import gradientText from './gradient-text';
 import grid from './grid';
-import header from './header';
 import highlight from './highlight';
 import hoverCard from './hover-card';
 import icon from './icon';
@@ -82,7 +81,6 @@ import scrollbar from './scrollbar';
 import scrubInput from './scrub-input';
 import select from './select';
 import selectMenu from './select-menu';
-import selectionToolbar from './selection-toolbar';
 import settings from './settings';
 import shareButton from './share-button';
 import sheet from './sheet';
@@ -168,7 +166,6 @@ const entries: Entry[] = [
     filterGrid,
     gradientText,
     grid,
-    header,
     highlight,
     hoverCard,
     icon,
@@ -212,7 +209,6 @@ const entries: Entry[] = [
     scrubInput,
     select,
     selectMenu,
-    selectionToolbar,
     settings,
     shareButton,
     sheet,

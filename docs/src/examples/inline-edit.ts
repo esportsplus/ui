@@ -70,6 +70,42 @@ export default {
                 `;
             },
             title: 'empty + observed state'
+        },
+        {
+            render: () => html`
+                <article aria-label='Release notes' class='inline-edit-demo inline-edit-demo--page'>
+                    ${inlineEdit({
+                        class: 'inline-edit--seamless inline-edit-demo-title',
+                        label: 'Title',
+                        placeholder: 'Untitled',
+                        value: 'Release notes: September'
+                    })}
+                    <p class='inline-edit-demo-handle'>Draft · edited just now</p>
+                    ${inlineEdit.rich({
+                        class: 'inline-edit--seamless inline-edit-demo-bio',
+                        label: 'Body',
+                        multiline: true,
+                        placeholder: 'Start writing…',
+                        value: '<p>Search now matches across <strong>every workspace</strong> you belong to. Results rank by recency first, then by how often you open them.</p><p>Select any text to format it. Keyboard shortcuts work too, and <mark>Escape</mark> always takes you back to where you were.</p>'
+                    })}
+                </article>
+            `,
+            title: 'seamless'
+        },
+        {
+            render: () => html`
+                <div class='inline-edit-demo'>
+                    ${inlineEdit.rich({
+                        class: 'inline-edit-demo-bio',
+                        href: 'https://esportsplus.com',
+                        label: 'Note',
+                        multiline: true,
+                        placeholder: 'Write a note',
+                        value: '<p>Good interfaces are made of details nobody notices. The press that gives a little under your finger, the menu that grows out of the button you clicked, the toolbar that appears right where your attention already is.</p><p>Select part of this note to format it. Press <strong>Ctrl</strong> or <strong>Cmd</strong> with <em>B</em> or <em>I</em> on a selection, or arrow through the toolbar once focus is inside it.</p>'
+                    })}
+                </div>
+            `,
+            title: 'rich + formatting'
         }
     ]
 };

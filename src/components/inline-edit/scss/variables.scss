@@ -12,6 +12,37 @@
     --icon-size: 16px;
     --icon-swap-duration: 300ms;
     --icon-swap-timing-function: linear(0, 0.035, 0.118, 0.216, 0.319, 0.424, 0.515, 0.6, 0.669, 0.728, 0.781, 0.822, 0.856, 0.885, 0.908, 0.927, 0.942, 0.954, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
+    --link-underline-color: oklch(from var(--color-text-500) l c h / 0.4);
+    --mark-background: oklch(from var(--color-text-500) l c h / 0.15);
     --outline-color: var(--color-text-500);
+    --paragraph-gap: 12px;
     --placeholder-color: var(--color-text-300);
+    --toolbar-background: var(--color-grey-400);
+    --toolbar-box-shadow:
+        0 0 0 1px color-mix(in oklab, var(--color-black-300) 6%, transparent),
+        0 1px 2px color-mix(in oklab, var(--color-black-300) 6%, transparent),
+        0 6px 16px -6px color-mix(in oklab, var(--color-black-300) 12%, transparent);
+    --toolbar-button-size: 36px;
+    --toolbar-color: var(--color-text-500);
+    --toolbar-color-muted: var(--color-text-300);
+    --toolbar-divider-color: var(--color-border-300);
+    --toolbar-focus-color: color-mix(in oklab, var(--color-text-500) 38%, transparent);
+    --toolbar-icon-size: 16px;
+
+    // Feeds the reused tooltip content; qualified so it wins over the tooltip defaults regardless of stylesheet order.
+    & #{&}-toolbar {
+        --background: var(--toolbar-background);
+        --border-radius: var(--border-radius-600);
+        --box-shadow: var(--toolbar-box-shadow);
+        --scale: 0.96;
+        --transition-duration: 180ms;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --width: max-content;
+    }
+
+    // No field chrome while editing; only the caret shows the text is live.
+    &--seamless {
+        --field-background: transparent;
+        --field-ring: none;
+    }
 }

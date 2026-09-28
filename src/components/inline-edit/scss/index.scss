@@ -9,6 +9,7 @@
 
 
     &-display,
+    &-editor,
     & > #{&}-field {
         border-radius: var(--box-border-radius);
         grid-area: 1 / 1;
@@ -21,6 +22,7 @@
     }
 
     &--multiline > #{&}-display,
+    &--multiline > #{&}-editor,
     &--multiline > #{&}-field {
         overflow-wrap: break-word;
         text-overflow: clip;
@@ -54,6 +56,66 @@
 
         .inline-edit.--empty:not(.--active) > & {
             color: var(--placeholder-color);
+        }
+    }
+
+    // Pinned to the root's corner at zero size, so the toolbar is placed in root coordinates without covering the text.
+    // Qualified by the root so it wins over the reused tooltip styles regardless of stylesheet order.
+    & > #{&}-anchor {
+        height: 0;
+        inset: 0 auto auto 0;
+        position: absolute;
+        width: 0;
+    }
+
+    // Always editable, so a click drops the caret where it lands; the field look only shows while editing.
+    &-editor {
+        caret-color: currentColor;
+        cursor: text;
+        outline: none;
+        position: relative;
+        transition: background-color var(--transition-duration) var(--transition-timing-function);
+
+        &:hover {
+            background: var(--background-hover);
+        }
+
+        .inline-edit.--active > & {
+            background: var(--field-background);
+            box-shadow: var(--field-ring);
+            text-overflow: clip;
+        }
+
+        .inline-edit.--empty > &::before {
+            color: var(--placeholder-color);
+            content: attr(data-placeholder);
+            pointer-events: none;
+            position: absolute;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: underline;
+            text-decoration-color: var(--link-underline-color);
+            text-underline-offset: 4px;
+        }
+
+        mark {
+            background: var(--mark-background);
+            border-radius: var(--border-radius-100);
+            color: inherit;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        p + p {
+            margin-top: var(--paragraph-gap);
+        }
+
+        strong {
+            font-weight: var(--font-weight-600);
         }
     }
 
@@ -142,11 +204,88 @@
         white-space: nowrap;
         width: 1px;
     }
+
+    // Visible overflow lets the group's labels hang outside the bar.
+    & #{&}-toolbar {
+        left: 0;
+        overflow: visible;
+        padding: 4px;
+        top: 0;
+    }
+
+    &-toolbar-button.button {
+        --background-default: transparent;
+        --background-hover: color-mix(in oklab, var(--toolbar-color) 6%, transparent);
+        --border-radius: var(--border-radius-400);
+        --color-default: var(--toolbar-color-muted);
+        --color-hover: var(--toolbar-color);
+        --icon-size: var(--toolbar-icon-size);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        border: 0;
+        height: var(--toolbar-button-size);
+        outline: none;
+        transition:
+            background-color 150ms ease-out,
+            color 150ms ease-out,
+            scale 150ms ease-out;
+        width: var(--toolbar-button-size);
+
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--toolbar-focus-color);
+        }
+
+        &[aria-pressed='true'] {
+            --background-default: color-mix(in oklab, var(--toolbar-color) 8%, transparent);
+            --background-hover: color-mix(in oklab, var(--toolbar-color) 10%, transparent);
+            --color-default: var(--toolbar-color);
+        }
+    }
+
+    // The divider sits in the item's margin, so the group still centres the label on the button.
+    &-toolbar-copy {
+        margin-inline-start: 9px;
+        position: relative;
+
+        &::before {
+            background: var(--toolbar-divider-color);
+            content: '';
+            height: 20px;
+            inset-block-start: 50%;
+            inset-inline-start: -5px;
+            position: absolute;
+            translate: 0 -50%;
+            width: 1px;
+        }
+    }
+
+    &-toolbar-group {
+        align-items: center;
+        gap: 2px;
+    }
+
+    &-toolbar-icon {
+        fill: none;
+        height: var(--toolbar-icon-size);
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.5;
+        width: var(--toolbar-icon-size);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .inline-edit-icon svg {
         filter: none !important;
         scale: 1 !important;
+    }
+
+    .inline-edit-toolbar-button.button:active {
+        scale: 1;
     }
 }

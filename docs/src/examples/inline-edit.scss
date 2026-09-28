@@ -9,6 +9,10 @@
     padding: 20px;
     width: 400px;
 
+    &--page {
+        width: 480px;
+    }
+
     &--plain {
         gap: var(--size-200);
     }
@@ -84,6 +88,13 @@
             transition-duration: 200ms;
             translate: 0 0;
         }
+    }
+
+    &-title {
+        font-size: 24px;
+        font-weight: var(--font-weight-600);
+        letter-spacing: -0.01em;
+        line-height: 32px;
     }
 }
 

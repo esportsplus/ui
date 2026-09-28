@@ -68,7 +68,7 @@ html`
 | `colorPicker` | Saturation pad, hue/opacity sliders (`range`), hex field (`input`), and an animated recent-colors row | - |
 | `dateRangePicker` | Two-month calendar (one below 540px) with presets, a hover-preview band, sliding month changes, full grid keyboard navigation and an Apply confirmation; `state.start`/`state.end` are ISO dates, `onapply` receives the range, `dateRangePicker.describe` formats it | `dateRangePicker.day` |
 | `emailTypoFix` | Email field (`input`) that suggests a fix for common domain typos after a pause, applying it with a letter-morph; `state.sent` swaps the hint for a sent note | `emailTypoFix.field`, `emailTypoFix.suggest` |
-| `inlineEdit` | Click-to-edit text that swaps in an `input` (or `textarea` with `multiline`) without moving a glyph; Enter/blur saves, Escape cancels, `onsave` fires | `inlineEdit.display`, `inlineEdit.field` |
+| `inlineEdit` | Click-to-edit text that swaps in an `input` (or `textarea` with `multiline`) without moving a glyph; Enter/blur saves, Escape cancels, `onsave` fires. `inlineEdit.rich` edits formatted HTML in place with a bold/italic/link/highlight/copy toolbar that follows the selection | `inlineEdit.display`, `inlineEdit.field`, `inlineEdit.rich.editor`, `inlineEdit.rich.toolbar`, `inline-edit--seamless` |
 | `multiStepForm` | Stepped `form.action` card (`input`, `radio`) with a progress bar, directional step transitions, focus moved into each step and a height that springs to fit; `state.panel`, `oncreate`, custom `plans` | `multiStepForm.input` |
 | `radioCards` | Native radio group (`radio`) laid out as cards with a selection ring that glides between them | - |
 | `rangeSlider` | Dual-thumb slider whose thumbs stop at each other, glide on track clicks and keys, show a value tooltip while dragged or focused, and pair with editable min/max `input` fields; `state.low`/`state.high`, `format`, `prefix` | `rangeSlider.input`, `rangeSlider.thumb` |
@@ -97,7 +97,6 @@ html`
 | `morphingButton` | Async save button that morphs into a spinner circle, confirms with a check, and shakes on failure | `morphing-button--blue` |
 | `pageDots` | Page indicator driven by a continuous `state.progress`; the pill stretches between dots like a worm, with an optional autoplay countdown | `page-dots--large` |
 | `pullToRefresh` | Rubber-band pull gesture (touch and mouse) with a stepped tick spinner; new items above the old first one slide in | - |
-| `selectionToolbar` | Contenteditable text with a floating bold/italic/link/highlight/copy toolbar that follows the selection | `selection-toolbar--white` |
 | `shareButton` | Share pill that reshapes into copy-link (via `clipboard.write`), X, email and native share targets | `share-button--surface` |
 | `shortcutSheet` | Searchable keyboard-shortcut reference on `modal` + `input`, opened with `?`; pressing a listed shortcut lights its row and keycaps (`Mod` = ⌘/Ctrl) | `shortcutSheet.dialog`, `shortcutSheet.input`, `shortcutSheet.row`, `shortcutSheet.trigger`, `shortcut-sheet--blur` |
 | `snapCarousel` | Native scroll-snap card carousel with mouse flick, scroll-driven focus scaling, and edge-aware arrows | `snapCarousel.arrow`, `snapCarousel.card` |

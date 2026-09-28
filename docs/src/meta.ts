@@ -154,10 +154,6 @@ const meta: Record<string, Meta> = {
         category: 'Layout',
         description: 'Responsive auto-fit grid for arranging children.'
     },
-    header: {
-        category: 'Layout',
-        description: 'Sticky site header with hover mega-menus that grow the bar to fit, a scroll-frosted surface, and a mobile drawer.'
-    },
     highlight: {
         category: 'Interactive',
         description: 'Hover highlight that glides behind sibling items and rests on the active one.'
@@ -176,7 +172,7 @@ const meta: Record<string, Meta> = {
     },
     'inline-edit': {
         category: 'Form Controls',
-        description: 'Click-to-edit text that swaps to a field in place, saving on Enter or blur and cancelling on Escape.'
+        description: 'Click-to-edit text that swaps to a field in place, saving on Enter or blur and cancelling on Escape; the rich variant edits formatted text directly with a toolbar that follows the selection.'
     },
     input: {
         category: 'Form Controls',
@@ -321,10 +317,6 @@ const meta: Record<string, Meta> = {
     'select-menu': {
         category: 'Form Controls',
         description: 'macOS-style listbox that opens with the selected option over the trigger, with typeahead and hover scrolling.'
-    },
-    'selection-toolbar': {
-        category: 'Interactive',
-        description: 'Formatting toolbar that springs out of the current text selection and follows it.'
     },
     settings: {
         category: 'Overlay',

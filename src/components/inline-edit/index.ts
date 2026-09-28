@@ -2,6 +2,7 @@ import { html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import input from '~/components/input';
 import textarea from '~/components/textarea';
+import rich from './rich';
 import './scss/index.scss';
 
 
@@ -174,4 +175,7 @@ function template(
 }
 
 
-export default Object.assign(template, { display: INLINE_EDIT_DISPLAY, field: INLINE_EDIT_FIELD } as const);
+const inlineEdit: typeof template & { display: typeof INLINE_EDIT_DISPLAY, field: typeof INLINE_EDIT_FIELD, rich: typeof rich } = Object.assign(template, { display: INLINE_EDIT_DISPLAY, field: INLINE_EDIT_FIELD, rich } as const);
+
+
+export default inlineEdit;
