@@ -1,6 +1,7 @@
 import { component, html, on, type Attributes, type Element, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import form from '~/components/form';
+import scrollbar from '~/css-utilities/scrollbar';
 import './scss/index.scss';
 
 
@@ -29,7 +30,12 @@ type A = {
     [DATALIST_SCROLLER]?: Attributes & {
         'aria-activedescendant'?: never;
         onconnect?: never;
+        ondragstart?: never;
         onkeydown?: never;
+        onpointercancel?: never;
+        onpointerdown?: never;
+        onpointermove?: never;
+        onpointerup?: never;
         onscroll?: never;
     };
     options: Record<number | string, Renderable<unknown>>;
@@ -78,6 +84,7 @@ export default component(
             observer: ResizeObserver | undefined,
             previous: string | undefined,
             scroller: HTMLElement | undefined,
+            timeline = typeof CSS !== 'undefined' && CSS.supports('animation-timeline: view()'),
             timer: ReturnType<typeof setTimeout> | undefined;
 
         function clamp(index: number) {
@@ -91,12 +98,23 @@ export default component(
                 return;
             }
 
-            height = option.offsetHeight;
+            let next = option.offsetHeight;
+
+            // Measured while hidden (0) or at another item size, the scroller no longer sits on the selection
+            if (next !== height) {
+                height = next;
+                scroller.scrollTop = clamp(keys.indexOf(String(state.selected))) * height;
+            }
+
+            if (!height || timeline) {
+                return;
+            }
+
             scroller.style.setProperty('--half', `${scroller.clientHeight / 2 / height}`);
             paint();
         }
 
-        // Selection is derived from scroll position; the drum transform reads `--offset` in CSS
+        // Selection is derived from scroll position
         function onscroll() {
             if (!scroller || !height) {
                 return;
@@ -115,7 +133,12 @@ export default component(
             timer = setTimeout(settle, SETTLE_DELAY);
         }
 
+        // Fallback for engines without scroll-driven animations; the drum transform reads `--offset` in CSS
         function paint() {
+            if (timeline) {
+                return;
+            }
+
             scroller!.style.setProperty('--offset', `${scroller!.scrollTop / height}`);
         }
 
@@ -161,18 +184,21 @@ export default component(
                 <div class='datalist-lens' aria-hidden='true' ${this?.attributes?.[DATALIST_LENS]} ${attributes[DATALIST_LENS]}></div>
 
                 <div
-                    class='datalist-scroller'
+                    class='datalist-scroller --scrollbar-hidden'
                     role='listbox'
                     tabindex='0'
                     ${this?.attributes?.[DATALIST_SCROLLER]}
                     ${attributes[DATALIST_SCROLLER]}
+                    ${scrollbar.drag('vertical')}
                     ${{
-                        'aria-activedescendant': () => `${id}-${keys.indexOf(String(state.selected))}`,
+                        'aria-activedescendant': () => {
+                            let index = keys.indexOf(String(state.selected));
+
+                            return index !== -1 && `${id}-${index}`;
+                        },
                         onconnect: (element: Element) => {
                             scroller = element;
                             measure();
-                            scroller.scrollTop = clamp(keys.indexOf(String(state.selected))) * height;
-                            paint();
 
                             // `scrollend` does not bubble so it cannot be delegated
                             on(element, 'scrollend', settle);
