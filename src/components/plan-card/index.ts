@@ -1,6 +1,7 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import { mac } from '~/lib/platform';
+import tooltip from '~/components/tooltip';
 import './scss/index.scss';
 
 
@@ -45,6 +46,9 @@ const PLAN_CARD_VIEW = Symbol.for('@esportsplus/ui/plan-card.view');
 // Circumference of the countdown ring (r = 7).
 const RING = 2 * Math.PI * 7;
 
+// The labels wait a beat under the pointer; keyboard focus shows them at once.
+const TOOLTIP_DELAY = 400;
+
 
 let uid = 0;
 
@@ -74,6 +78,7 @@ const planCard = ({
         s = state ?? reactive({ approved: false, countdown: autoApprove > 0 ? autoApprove : -1, expanded: false }),
         started = reactive({ value: false }),
         timer: ReturnType<typeof setInterval> | undefined,
+        tip = tooltip.shared({ delay: { open: TOOLTIP_DELAY } }),
         total = untrack(() => s.countdown);
 
     function approve(auto: boolean) {
@@ -215,14 +220,14 @@ const planCard = ({
                 ${(ondownload || onexpand) && html`
                     <span class='plan-card-actions'>
                         ${ondownload && html`
-                            <button aria-label='Download the plan' class='plan-card-action' data-tooltip='Download' type='button' onclick='${ondownload}'>
+                            <button aria-label='Download the plan' class='plan-card-action' type='button' ${tip.bind('Download')} onclick='${ondownload}'>
                                 <svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
                                     <path d='M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 11l5 5 5-5M12 4v12' />
                                 </svg>
                             </button>
                         `}
                         ${onexpand && html`
-                            <button aria-label='Open the full plan' class='plan-card-action' data-tooltip='Open' type='button' onclick='${onexpand}'>
+                            <button aria-label='Open the full plan' class='plan-card-action' type='button' ${tip.bind('Open')} onclick='${onexpand}'>
                                 <svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
                                     <path d='M16 4h4v4M14 10l6-6M8 20H4v-4M4 20l6-6' />
                                 </svg>
@@ -323,8 +328,8 @@ const planCard = ({
                             <button
                                 aria-label='Cancel auto approval'
                                 class='plan-card-cancel'
-                                data-tooltip='Cancel'
                                 type='button'
+                                ${tip.bind('Cancel')}
                                 ${{
                                     disabled: () => s.countdown === -1,
                                     onclick: cancel
@@ -392,6 +397,8 @@ const planCard = ({
                     </button>
                 </span>
             </footer>
+
+            ${tip.render({ 'aria-hidden': 'true', class: 'plan-card-tooltip' })}
         </article>
     `;
 };

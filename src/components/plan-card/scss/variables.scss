@@ -30,4 +30,15 @@
         --border-color: transparent;
         --todos-background: var(--color-grey-400);
     }
+
+    &-tooltip.tooltip-shared {
+        --background: var(--color-text-500);
+        --box-shadow: none;
+        --color: var(--color-white-300);
+        --font-size: 12px;
+        --font-weight: var(--font-weight-500);
+        --padding: 4px 8px;
+        --radius: 6px;
+        --spacer: 6px;
+    }
 }
