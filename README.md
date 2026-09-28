@@ -55,7 +55,6 @@ html`
 | `input` | Text input with validation state | - |
 | `textarea` | Multi-line text input | - |
 | `checkbox` | Checkbox with label; `checkbox.group` builds a checklist with a select-all header (mixed state), optional counter, and Shift-click ranges | `checkbox.group` |
-| `composer` | Chat input with toolbar actions, send button and footer | - |
 | `radio` | Radio button group | - |
 | `range` | Range slider | - |
 | `datalist` | Inertial wheel picker (scroll-snapped listbox) | - |
@@ -84,7 +83,6 @@ html`
 | `clipboard` | Copy to clipboard | `clipboard.copy`, `clipboard.write` |
 | `command` | ⌘K/Ctrl+K command palette on `modal` + `input`: substring-then-subsequence matching with highlighted runs, grouped results, arrow/Enter keys, `onrun`; `sidebar` adds a tab rail whose views scroll vertically (`tabs--scroll`) and cycle with Tab/Shift+Tab (Home lists recent commands, persisted through any `store` implementing `get`/`set`; Commands lists every command; a keyboard view lists `shortcuts`); setting `state.tab` switches views and clears the search. Icons are sprite ids; `.command-trigger` also styles standalone search buttons | `command.dialog` (e.g. `modal--blur`), `command.input`, `command.option`, `command.trigger`, `command--centered` |
 | `alert` | Notifications | error, info, success types |
-| `carousel3d` | Draggable 3D card ring that spins on a spring, throws with momentum, and flattens under reduced motion; `state.active` is two-way | `carousel3d.button`, `carousel3d.card` |
 | `dock` | macOS-style dock whose icons swell toward the cursor on a spring, with delayed `tooltip` labels and a hop-and-squash launch that lights a running dot (per-item `state.running`, `onlaunch`) | `dock.button`, `dock--square`, `dock--subtle` |
 | `expandingCard` | Card list whose cards morph (FLIP) into a `modal` detail dialog and fly back into their slot; `state.open` is two-way | `expandingCard.card` |
 | `hoverCard` | Inline trigger with a delayed preview card (open 500ms, close grace 150ms); triggers sharing `hoverCard.group()` hand the card over instantly, travelling between them; tap, focus and Escape supported | `hoverCard.content`, `hoverCard.group`, `hoverCard.trigger`, `hover-card--fade` |

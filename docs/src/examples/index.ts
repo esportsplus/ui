@@ -8,13 +8,11 @@ import banner from './banner';
 import breadcrumb from './breadcrumb';
 import button from './button';
 import card from './card';
-import carousel3d from './carousel-3d';
 import cc from './cc';
 import checkbox from './checkbox';
 import clipboard from './clipboard';
 import colorPicker from './color-picker';
 import command from './command';
-import composer from './composer';
 import container from './container';
 import contributionHeatmap from './contribution-heatmap';
 import counter from './counter';
@@ -124,13 +122,11 @@ const entries: Entry[] = [
     breadcrumb,
     button,
     card,
-    carousel3d,
     cc,
     checkbox,
     clipboard,
     colorPicker,
     command,
-    composer,
     container,
     contributionHeatmap,
     counter,

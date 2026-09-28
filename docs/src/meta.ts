@@ -44,10 +44,6 @@ const meta: Record<string, Meta> = {
         category: 'Layout',
         description: 'Rounded surface that groups related content and actions.'
     },
-    'carousel-3d': {
-        category: 'Interactive',
-        description: 'Draggable 3D card ring that spins on a spring, throws with momentum, and flattens for reduced motion.'
-    },
     cc: {
         category: 'Form Controls',
         description: 'Payment card form with a live card preview that flips for the CVC, brand detection, auto-formatting and Luhn validation.',
