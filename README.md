@@ -54,17 +54,16 @@ html`
 |-----------|-------------|----------|
 | `input` | Text input with validation state | - |
 | `textarea` | Multi-line text input | - |
-| `checkbox` | Checkbox with label | - |
+| `checkbox` | Checkbox with label; `checkbox.group` builds a checklist with a select-all header (mixed state), optional counter, and Shift-click ranges | `checkbox.group` |
 | `composer` | Chat input with toolbar actions, send button and footer | - |
 | `radio` | Radio button group | - |
 | `range` | Range slider | - |
 | `datalist` | Inertial wheel picker (scroll-snapped listbox) | - |
 | `select` | Dropdown with custom options | - |
-| `switch` | Toggle switch | - |
+| `switch` | Toggle switch; `switch.group` builds the same group as `checkbox.group` with switches, the select-all knob resting midway when mixed | `switch.group` |
 | `tasklist` | Checklist that strikes through checked tasks and moves them below the open ones | `tasklist.checkbox` |
 | `form` | Form wrapper | `form.action`, `form.input` |
 | `cc` | Payment card form (`input` fields) with a live card preview that flips for the CVC, brand detection, caret-safe formatting and Luhn/expiry validation; `onvalid` receives brand, last 4, expiry and name | `cc.field`, `cc.submit` |
-| `checkboxGroup` | Checklist built on `checkbox` with a select-all parent (mixed state), drawn marks, and Shift-click ranges | - |
 | `colorPicker` | Saturation pad, hue/opacity sliders (`range`), hex field (`input`), and an animated recent-colors row (hidden while empty); `value` is required, no surface of its own, so place it in a `card` | `colorPicker.swatch` |
 | `dateRangePicker` | Two-month calendar (one below 540px) with presets, a hover-preview band, sliding month changes, full grid keyboard navigation and an Apply confirmation; `state.start`/`state.end` are ISO dates, `onapply` receives the range, `dateRangePicker.describe` formats it | `dateRangePicker.day` |
 | `emailTypoFix` | Email field (`input`) that suggests a fix for common domain typos after a pause, applying it with a letter-morph; `state.sent` swaps the hint for a sent note | `emailTypoFix.field`, `emailTypoFix.suggest` |

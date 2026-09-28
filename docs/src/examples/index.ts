@@ -11,7 +11,6 @@ import card from './card';
 import carousel3d from './carousel-3d';
 import cc from './cc';
 import checkbox from './checkbox';
-import checkboxGroup from './checkbox-group';
 import clipboard from './clipboard';
 import colorPicker from './color-picker';
 import command from './command';
@@ -133,7 +132,6 @@ const entries: Entry[] = [
     carousel3d,
     cc,
     checkbox,
-    checkboxGroup,
     clipboard,
     colorPicker,
     command,

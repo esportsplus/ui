@@ -55,11 +55,7 @@ const meta: Record<string, Meta> = {
     },
     checkbox: {
         category: 'Form Controls',
-        description: 'Binary and grouped selection control with an optional label.'
-    },
-    'checkbox-group': {
-        category: 'Form Controls',
-        description: 'Checklist with a select-all parent that goes mixed, drawn checkmarks, and Shift-click range selection.'
+        description: 'Binary selection control, plus checklist groups with a select-all header that goes mixed and Shift-click range selection.'
     },
     clipboard: {
         category: 'Interactive',
@@ -379,7 +375,7 @@ const meta: Record<string, Meta> = {
     },
     switch: {
         category: 'Form Controls',
-        description: 'Toggle control for binary on and off settings.'
+        description: 'Toggle control for binary on and off settings, plus switch groups with a select-all header and Shift-click ranges.'
     },
     tabs: {
         category: 'Layout',

@@ -6,7 +6,6 @@ export { default as button } from './button';
 export { default as carousel3d } from './carousel-3d';
 export { default as cc } from './cc';
 export { default as checkbox } from './checkbox';
-export { default as checkboxGroup } from './checkbox-group';
 export { default as clipboard } from './clipboard';
 export { default as colorPicker } from './color-picker';
 export { default as command } from './command';

@@ -1,6 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { factory } from '~/components/checkbox';
 import form from '~/components/form';
 import input from '~/components/input';
 import radio from '~/components/radio';
@@ -216,7 +215,7 @@ function template(
                         <label class='multi-step-form-plan' ${{ class: () => s.plan === plan.id && '--active' }}>
                             ${radio({
                                 class: 'multi-step-form-radio',
-                                [factory.input]: {
+                                [radio.input]: {
                                     checked: () => s.plan === plan.id,
                                     name: `${prefix}${ghost ? '-ghost' : ''}-plan`,
                                     onchange: () => {
