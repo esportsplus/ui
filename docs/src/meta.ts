@@ -111,7 +111,7 @@ const meta: Record<string, Meta> = {
     },
     'inline-edit': {
         category: 'Form Controls',
-        description: 'Click-to-edit text that swaps to a field in place, saving on Enter or blur and cancelling on Escape; the rich variant edits formatted text directly with a toolbar that follows the selection.'
+        description: 'Click-to-edit text that swaps to a field in place, saving on Enter or blur and cancelling on Escape; the rich variant edits markdown in place, with a per-field whitelist of formatting in a toolbar that follows the selection.'
     },
     input: {
         category: 'Form Controls',

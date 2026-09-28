@@ -100,23 +100,96 @@
             text-underline-offset: 4px;
         }
 
+        blockquote {
+            border-inline-start: 2px solid var(--quote-border-color);
+            color: var(--quote-color);
+            padding-inline-start: 12px;
+        }
+
+        blockquote,
+        h1,
+        h2,
+        h3,
+        ol,
+        p,
+        pre,
+        ul {
+            margin: 0;
+        }
+
+        code,
+        pre {
+            background: var(--code-background);
+            font-family: var(--font-family-mono);
+            font-size: 0.875em;
+        }
+
+        code {
+            border-radius: var(--border-radius-100);
+            padding: 0.125em 0.3em;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-weight: var(--font-weight-600);
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: var(--heading-1-size);
+        }
+
+        h2 {
+            font-size: var(--heading-2-size);
+        }
+
+        h3 {
+            font-size: var(--heading-3-size);
+        }
+
+        li[data-checked='true'] {
+            color: var(--task-done-color);
+            text-decoration: line-through;
+        }
+
         mark {
             background: var(--mark-background);
             border-radius: var(--border-radius-100);
             color: inherit;
         }
 
-        p {
-            margin: 0;
+        ol,
+        ul {
+            padding-inline-start: 1.5em;
         }
 
-        p + p {
-            margin-top: var(--paragraph-gap);
+        pre {
+            border-radius: var(--border-radius-400);
+            padding: 8px 12px;
+            white-space: pre-wrap;
         }
 
         strong {
             font-weight: var(--font-weight-600);
         }
+
+        ul[data-task] {
+            list-style: none;
+            padding-inline-start: 0;
+        }
+
+        > * + * {
+            margin-top: var(--paragraph-gap);
+        }
+    }
+
+    // The checklist box: an atomic inline, so the done item's strike-through doesn't run across it.
+    &-task {
+        display: inline-flex;
+        margin-inline-end: 0.5em;
+        user-select: none;
+        vertical-align: -0.125em;
     }
 
     // Qualified by the root so it wins over the reused input/textarea styles regardless of stylesheet order.
@@ -203,12 +276,21 @@
         width: 1px;
     }
 
-    // Visible overflow lets the group's labels hang outside the bar.
+    // Visible overflow lets the block select's list hang outside the bar.
     & #{&}-toolbar {
         left: 0;
         overflow: visible;
         padding: 4px;
         top: 0;
+    }
+
+    // The block select is a bare trigger here; its own list still opens as a panel.
+    & #{&}-toolbar-block {
+        --background: transparent;
+        --box-shadow: none;
+        --height: var(--toolbar-button-size);
+        --width: var(--toolbar-select-width);
+        color: var(--toolbar-color);
     }
 
     &-toolbar-button.button {
@@ -221,6 +303,7 @@
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         border: 0;
+        flex: none;
         height: var(--toolbar-button-size);
         outline: none;
         transition:
@@ -242,28 +325,31 @@
             --background-hover: color-mix(in oklab, var(--toolbar-color) 10%, transparent);
             --color-default: var(--toolbar-color);
         }
-    }
 
-    // The divider sits in the item's margin, so the group still centres the label on the button.
-    &-toolbar-copy {
-        margin-inline-start: 9px;
-        position: relative;
-
-        &::before {
-            background: var(--toolbar-divider-color);
-            content: '';
-            height: 20px;
-            inset-block-start: 50%;
-            inset-inline-start: -5px;
-            position: absolute;
-            translate: 0 -50%;
-            width: 1px;
+        &[hidden] {
+            display: none;
         }
     }
 
-    &-toolbar-group {
+    &-toolbar-divider {
+        background: var(--toolbar-divider-color);
+        flex: none;
+        height: 20px;
+        margin-inline: 4px;
+        width: 1px;
+    }
+
+    // One pane shows at a time: the buttons, or the link field while a link is being set.
+    &-toolbar-format,
+    &-toolbar-link {
         align-items: center;
+        display: flex;
         gap: 2px;
+    }
+
+    &-toolbar--link > #{&}-toolbar-format,
+    &-toolbar:not(#{&}-toolbar--link) > #{&}-toolbar-link {
+        display: none;
     }
 
     &-toolbar-icon {
@@ -274,6 +360,22 @@
         stroke-linejoin: round;
         stroke-width: 1.5;
         width: var(--toolbar-icon-size);
+    }
+
+    & #{&}-toolbar-url.input {
+        --background-default: transparent;
+        --color-default: var(--toolbar-color);
+        --padding-horizontal: 8px;
+        --padding-vertical: 0px;
+        font-size: var(--toolbar-font-size);
+        height: var(--toolbar-button-size);
+        min-height: 0;
+        outline: none;
+        width: var(--toolbar-url-width);
+
+        &[aria-invalid='true'] {
+            --color-default: var(--color-red-400);
+        }
     }
 }
 

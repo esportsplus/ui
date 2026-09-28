@@ -83,10 +83,16 @@ export default {
                     <p class='inline-edit-demo-handle'>Draft · edited just now</p>
                     ${inlineEdit.rich({
                         class: 'inline-edit--seamless inline-edit-demo-bio',
+                        features: ['bold', 'italic', 'highlight', 'link', 'heading', 'bullet', 'copy'],
                         label: 'Body',
                         multiline: true,
                         placeholder: 'Start writing…',
-                        value: '<p>Search now matches across <strong>every workspace</strong> you belong to. Results rank by recency first, then by how often you open them.</p><p>Select any text to format it. Keyboard shortcuts work too, and <mark>Escape</mark> always takes you back to where you were.</p>'
+                        value: [
+                            'Search now matches across **every workspace** you belong to. Results rank by recency first, then by how often you open them.',
+                            '## What changed',
+                            '- Select any text to format it',
+                            '- ==Escape== always takes you back to where you were'
+                        ].join('\n\n')
                     })}
                 </article>
             `,
@@ -94,18 +100,38 @@ export default {
         },
         {
             render: () => html`
-                <div class='inline-edit-demo'>
+                <div class='inline-edit-demo inline-edit-demo--wide'>
                     ${inlineEdit.rich({
                         class: 'inline-edit-demo-bio',
-                        href: 'https://esportsplus.com',
+                        features: ['bold', 'italic', 'strike', 'code', 'highlight', 'link', 'heading', 'quote', 'codeblock', 'bullet', 'ordered', 'task', 'clear', 'copy'],
                         label: 'Note',
                         multiline: true,
                         placeholder: 'Write a note',
-                        value: '<p>Good interfaces are made of details nobody notices. The press that gives a little under your finger, the menu that grows out of the button you clicked, the toolbar that appears right where your attention already is.</p><p>Select part of this note to format it. Press <strong>Ctrl</strong> or <strong>Cmd</strong> with <em>B</em> or <em>I</em> on a selection, or arrow through the toolbar once focus is inside it.</p>'
+                        value: [
+                            '# Launch notes',
+                            'Good interfaces are made of details nobody notices: the press that gives a little, the menu that grows out of the button you clicked, the [toolbar](https://esportsplus.com) that appears right where your attention already is.',
+                            '> Select text to format it. Rest on a button to see its shortcut.',
+                            '- [x] Markdown in, markdown out',
+                            '- [ ] Whitelist per field',
+                            '```\ninlineEdit.rich({ features: [\'bold\', \'link\'] })\n```'
+                        ].join('\n\n')
                     })}
                 </div>
             `,
-            title: 'rich + formatting'
+            title: 'every feature'
+        },
+        {
+            render: () => {
+                let state = reactive({ editing: false, saved: false, value: 'Ship the **new** docs' });
+
+                return html`
+                    <div class='inline-edit-demo inline-edit-demo--plain'>
+                        ${inlineEdit.rich({ features: ['bold', 'italic'], label: 'Task', placeholder: 'Name this task', state })}
+                        <span class='inline-edit-demo-handle'>${() => `Markdown: ${state.value || '(empty)'}`}</span>
+                    </div>
+                `;
+            },
+            title: 'one line, bold + italic only'
         }
     ]
 };

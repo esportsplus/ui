@@ -1,10 +1,16 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import { reactive } from '@esportsplus/reactivity';
+import { component, html, render as mount, type Attributes, type Renderable } from '@esportsplus/template';
+import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import faces from '~/components/button/faces';
+import checkbox from '~/components/checkbox';
 import { check, copy as copyIcon, cross } from '~/components/button/icons';
 import write from '~/components/clipboard/write';
+import input from '~/components/input';
+import selectMenu from '~/components/select-menu';
 import tooltip from '~/components/tooltip';
-import { closest, same, sanitize, select, unwrap } from './utilities';
+import { mac } from '~/lib/platform';
+import { active, clear, kind, link, normalize, setBlock, toggle, units, type Kind } from './format';
+import { parse, serialize, type Block, type Feature, type Mark } from './markdown';
+import { closest, safe, same, select } from './utilities';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
@@ -12,12 +18,12 @@ import './scss/index.scss';
 type A = Attributes & {
     [INLINE_EDIT_RICH_EDITOR]?: Attributes;
     [INLINE_EDIT_RICH_TOOLBAR]?: Attributes;
-    href?: string;
+    // The whitelist: only these become formatting, in the toolbar, the shortcuts, pastes and the saved markdown.
+    features?: Feature[];
     label: string;
     multiline?: boolean;
     ondisconnect?: never;
     ondocumentselectionchange?: never;
-    onfocusout?: never;
     onsave?: (value: string) => void;
     onwindowpointercancel?: never;
     onwindowpointerup?: never;
@@ -26,7 +32,7 @@ type A = Attributes & {
     value?: string;
 };
 
-type Format = 'bold' | 'highlight' | 'italic' | 'link';
+type Action = Exclude<Mark, 'link'> | 'clear' | 'copy' | 'link';
 
 type State = {
     editing: boolean;
@@ -35,10 +41,21 @@ type State = {
 };
 
 
+const ACTIONS: { action: Action, label: string, shortcut?: string }[] = [
+    { action: 'bold', label: 'Bold', shortcut: 'B' },
+    { action: 'italic', label: 'Italic', shortcut: 'I' },
+    { action: 'strike', label: 'Strikethrough', shortcut: 'Shift+X' },
+    { action: 'code', label: 'Code', shortcut: 'E' },
+    { action: 'highlight', label: 'Highlight', shortcut: 'Shift+H' },
+    { action: 'link', label: 'Link', shortcut: 'K' },
+    { action: 'clear', label: 'Clear formatting' },
+    { action: 'copy', label: 'Copy as markdown' }
+];
+
+const BASE: Feature[] = ['bold', 'italic', 'link', 'copy'];
+
 // Long enough to read the check, short enough to copy again right away.
 const COPIED_FOR = 1400;
-
-const FORMATS: Format[] = ['bold', 'italic', 'link', 'highlight'];
 
 // Space between the selection and the toolbar, and between the toolbar and the viewport edge.
 const GAP = 8;
@@ -47,30 +64,59 @@ const INLINE_EDIT_RICH_EDITOR = Symbol.for('@esportsplus/ui/inline-edit.rich.edi
 
 const INLINE_EDIT_RICH_TOOLBAR = Symbol.for('@esportsplus/ui/inline-edit.rich.toolbar');
 
-const LABELS: Record<Format, string> = {
-    bold: 'Bold',
-    highlight: 'Highlight',
-    italic: 'Italic',
-    link: 'Link'
-};
+const KINDS: { feature?: Block, label: string, value: Kind }[] = [
+    { label: 'Text', value: 'paragraph' },
+    { feature: 'heading', label: 'Heading 1', value: 'h1' },
+    { feature: 'heading', label: 'Heading 2', value: 'h2' },
+    { feature: 'heading', label: 'Heading 3', value: 'h3' },
+    { feature: 'quote', label: 'Quote', value: 'quote' },
+    { feature: 'codeblock', label: 'Code block', value: 'codeblock' },
+    { feature: 'bullet', label: 'Bulleted list', value: 'bullet' },
+    { feature: 'ordered', label: 'Numbered list', value: 'ordered' },
+    { feature: 'task', label: 'Checklist', value: 'task' }
+];
+
+// Long enough that labels only show once the pointer rests, so passing across the toolbar stays quiet.
+const TOOLTIP_DELAY = 700;
 
 // Long enough to notice after the field settles, short enough that the pencil is back before the next edit.
 const SAVED_FOR = 1600;
 
-const TAGS: Record<Format, string> = {
-    bold: 'strong',
-    highlight: 'mark',
-    italic: 'em',
-    link: 'a'
-};
 
+function hint(label: string, shortcut?: string) {
+    if (!shortcut) {
+        return label;
+    }
 
-function icon(format: Format) {
-    switch (format) {
+    return mac()
+        ? `${label} ${shortcut.replace('Shift+', '⇧')}`.replace(/(⇧?)(\w)$/, '$1⌘$2')
+        : `${label} Ctrl+${shortcut}`;
+}
+
+function icon(action: Exclude<Action, 'copy'> | 'apply' | 'open' | 'unlink') {
+    switch (action) {
+        case 'apply':
+            return html`
+                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
+                    <path d='m3.5 8.5 3 3 6-7' />
+                </svg>
+            `;
         case 'bold':
             return html`
                 <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
                     <path d='M4.75 3.25h3.9a2.4 2.4 0 0 1 0 4.8h-3.9Zm0 4.8h4.6a2.35 2.35 0 0 1 0 4.7h-4.6Z' stroke-width='1.75' />
+                </svg>
+            `;
+        case 'clear':
+            return html`
+                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
+                    <path d='M4.25 3.25h7.5M8.5 3.25l-2 9.5M3 3l10 10' />
+                </svg>
+            `;
+        case 'code':
+            return html`
+                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
+                    <path d='M5.5 4.5 2 8l3.5 3.5M10.5 4.5 14 8l-3.5 3.5' />
                 </svg>
             `;
         case 'highlight':
@@ -86,6 +132,24 @@ function icon(format: Format) {
                     <path d='M7 3.25h5M4 12.75h5M9.5 3.25l-3 9.5' />
                 </svg>
             `;
+        case 'open':
+            return html`
+                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
+                    <path d='M9 2.75h4.25V7M13.25 2.75 7.5 8.5M11.5 9.5v3a.75.75 0 0 1-.75.75h-7.5a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 .75-.75h3' />
+                </svg>
+            `;
+        case 'strike':
+            return html`
+                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
+                    <path d='M2.75 8h10.5M10.75 5c-.3-1.1-1.4-1.75-2.75-1.75-1.6 0-2.75.9-2.75 2.1 0 .7.35 1.25 1 1.65M5.25 11c.3 1.1 1.4 1.75 2.75 1.75 1.6 0 2.75-.9 2.75-2.1 0-.35-.1-.65-.25-.9' />
+                </svg>
+            `;
+        case 'unlink':
+            return html`
+                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
+                    <path d='M7 9a2.5 2.5 0 0 0 3.54 0l2-2A2.5 2.5 0 0 0 9 3.46l-.5.5M9 7a2.5 2.5 0 0 0-3.54 0l-2 2A2.5 2.5 0 0 0 7 12.54l.5-.5M3 3l10 10' />
+                </svg>
+            `;
         default:
             return html`
                 <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
@@ -93,6 +157,17 @@ function icon(format: Format) {
                 </svg>
             `;
     }
+}
+
+// What was typed into the link field, as an address: a bare domain gets https, a bare email mailto.
+function address(value: string) {
+    let href = value.trim();
+
+    if (href && !/^[a-z][a-z\d+.-]*:/i.test(href) && !/^[/#?]/.test(href)) {
+        href = (/^[^\s/@]+@[^\s/@]+\.[^\s/@]+$/.test(href) ? 'mailto:' : 'https://') + href;
+    }
+
+    return href && safe(href) ? href : '';
 }
 
 function reduced() {
@@ -104,7 +179,7 @@ export default component(
     function(
         this: { attributes?: Pick<A, typeof INLINE_EDIT_RICH_EDITOR | typeof INLINE_EDIT_RICH_TOOLBAR> } | void,
         {
-            href = '#',
+            features: whitelist = BASE,
             label,
             multiline = false,
             onsave,
@@ -114,14 +189,28 @@ export default component(
             ...attributes
         }: A
     ) {
+        let features = new Set(multiline ? whitelist : whitelist.filter((feature) => !KINDS.some((k) => k.feature === feature))),
+            actions = ACTIONS.filter(({ action }) => features.has(action)),
+            block = reactive({ active: false, error: '', value: 'paragraph' }),
+            // Declared so page-wide shortcuts (a command palette on Mod+K) leave these to the text.
+            keyshortcuts = actions
+                .flatMap(({ shortcut }) => shortcut ? ['Control', 'Meta'].map((mod) => `${mod}+${shortcut}`) : [])
+                .concat(multiline ? ['Control+Enter', 'Meta+Enter'] : [])
+                .join(' '),
+            kinds = KINDS.filter((k) => !k.feature || features.has(k.feature)),
+            local = reactive({ copied: 'idle' as 'error' | 'idle' | 'success', empty: value.trim() === '', live: '' }),
+            tip = tooltip.shared({ delay: { open: TOOLTIP_DELAY } });
+
         let anchor: HTMLElement | undefined,
-            buttons: HTMLButtonElement[] = [],
             copyTimer: ReturnType<typeof setTimeout> | undefined,
             dismissed = false,
             editor: HTMLElement | undefined,
             focusIndex = 0,
             frame = 0,
-            local = reactive({ copied: 'idle' as 'error' | 'idle' | 'success', empty: value.trim() === '', live: '' }),
+            // Checklist boxes mounted into the text, each with the disposer of its component.
+            boxes = new Map<HTMLElement, VoidFunction>(),
+            items: HTMLElement[] = [],
+            linking = false,
             observer: ResizeObserver | undefined,
             open = false,
             pressing = false,
@@ -129,7 +218,76 @@ export default component(
             root: HTMLElement | undefined,
             saved: Range | null = null,
             savedTimer: ReturnType<typeof setTimeout> | undefined,
-            toolbar: HTMLElement | undefined;
+            shown: Kind = 'paragraph',
+            toolbar: HTMLElement | undefined,
+            unlink: HTMLElement | undefined,
+            url: HTMLInputElement | undefined;
+
+        // The select only reports a value; one that differs from the block under the selection is a choice.
+        effect(() => {
+            let next = block.value as Kind;
+
+            if (next !== shown) {
+                untrack(() => turn(next));
+            }
+        });
+
+        function apply(href: string | null) {
+            let range = current();
+
+            if (!editor || !range) {
+                return;
+            }
+
+            if (href !== null) {
+                href = address(href);
+
+                if (!href) {
+                    url?.setAttribute('aria-invalid', 'true');
+                    return;
+                }
+            }
+
+            back();
+            run(() => link(editor!, range, href));
+            local.live = href ? 'Link set' : 'Link removed';
+        }
+
+        // Leaves the link field for the buttons, handing focus and the selection back to the text.
+        function back() {
+            linking = false;
+            toolbar?.classList.remove('inline-edit-toolbar--link');
+            editor?.focus({ preventScroll: true });
+
+            let range = current();
+
+            if (range) {
+                select(range);
+                place(range);
+            }
+        }
+
+        // Copies carry markdown, so a paste back in keeps the formatting.
+        function clip(e: ClipboardEvent, cut: boolean) {
+            let selection = window.getSelection(),
+                range = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+            if (!range || range.collapsed || !e.clipboardData) {
+                return;
+            }
+
+            let holder = document.createElement('div');
+
+            holder.append(range.cloneContents());
+            e.preventDefault();
+            e.clipboardData.setData('text/html', holder.innerHTML);
+            e.clipboardData.setData('text/plain', serialize(holder, features, multiline));
+
+            if (cut) {
+                range.deleteContents();
+                empty();
+            }
+        }
 
         async function copy() {
             let range = current();
@@ -137,6 +295,10 @@ export default component(
             if (!range) {
                 return;
             }
+
+            let holder = document.createElement('div');
+
+            holder.append(range.cloneContents());
 
             // Confirms on press; waiting for the write makes the click feel ignored.
             clearTimeout(copyTimer);
@@ -146,7 +308,7 @@ export default component(
                 local.copied = 'idle';
             }, COPIED_FOR);
 
-            if (!(await write(range.toString()))) {
+            if (!(await write(serialize(holder, features, multiline)))) {
                 local.copied = 'error';
                 local.live = 'Couldn\'t copy';
             }
@@ -175,25 +337,16 @@ export default component(
             }
 
             state.editing = false;
+            linking = false;
+            toolbar?.classList.remove('inline-edit-toolbar--link');
             show(false);
-            empty();
-            sanitize(editor);
 
-            let next = local.empty ? '' : editor.innerHTML.trim();
-
-            if (commit && next !== state.value) {
-                state.value = next;
-                state.saved = true;
-                onsave?.(next);
-
-                clearTimeout(savedTimer);
-                savedTimer = setTimeout(() => {
-                    state.saved = false;
-                }, SAVED_FOR);
+            if (commit) {
+                save();
             }
-            else {
-                render(state.value);
-            }
+
+            // Rebuilt from the markdown either way: a save drops anything outside the whitelist, a cancel reverts.
+            render(state.value);
 
             if (keyboard) {
                 editor.blur();
@@ -201,19 +354,65 @@ export default component(
         }
 
         function focus(index: number) {
-            focusIndex = (index + buttons.length) % buttons.length;
+            focusIndex = (index + items.length) % items.length;
             roving();
-            buttons[focusIndex]?.focus();
+            items[focusIndex]?.focus();
         }
 
-        // Focus moving between the text and the toolbar stays in the edit.
         function leave(e: FocusEvent) {
+            // Focus moving between the text and the toolbar stays in the edit.
             if (!root?.contains(e.relatedTarget as Node | null)) {
                 finish(true, false);
             }
         }
 
+        // Swaps the buttons for the link field, prefilled when the selection sits in a link.
+        function linker() {
+            let range = current();
+
+            if (!editor || !range || !toolbar || !url) {
+                return;
+            }
+
+            let existing = closest(range.startContainer, 'a', editor);
+
+            if (existing && existing === closest(range.endContainer, 'a', editor)) {
+                saved = document.createRange();
+                saved.selectNodeContents(existing);
+                select(saved);
+            }
+            else {
+                existing = null;
+            }
+
+            linking = true;
+            url.value = existing?.getAttribute('href') ?? '';
+            url.removeAttribute('aria-invalid');
+
+            if (unlink) {
+                unlink.hidden = !existing;
+            }
+
+            toolbar.classList.add('inline-edit-toolbar--link');
+            place(saved!);
+            url.focus({ preventScroll: true });
+            url.select();
+        }
+
         function navigate(e: KeyboardEvent) {
+            if (e.target === url) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    apply(url.value);
+                }
+                else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    back();
+                }
+
+                return;
+            }
+
             if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                 e.preventDefault();
                 focus(focusIndex + (e.key === 'ArrowRight' ? 1 : -1));
@@ -222,7 +421,7 @@ export default component(
                 e.preventDefault();
                 focus(e.key === 'Home' ? 0 : -1);
             }
-            else if (e.key === 'Escape') {
+            else if (e.key === 'Escape' && !block.active) {
                 e.preventDefault();
                 dismiss();
                 editor?.focus({ preventScroll: true });
@@ -235,22 +434,162 @@ export default component(
             }
         }
 
-        function render(markup: string) {
+        // Markdown pastes as formatting; several lines split the block at the caret and land between its halves.
+        function paste(e: ClipboardEvent) {
+            let selection = window.getSelection();
+
+            e.preventDefault();
+
+            if (!editor || !selection || selection.rangeCount === 0) {
+                return;
+            }
+
+            let range = selection.getRangeAt(0),
+                text = e.clipboardData?.getData('text/plain') ?? '';
+
+            range.deleteContents();
+
+            let code = closest(range.startContainer, 'pre, code', editor),
+                fragment: DocumentFragment | Text = code ? document.createTextNode(text) : parse(text, features, multiline && text.includes('\n')),
+                last = fragment.nodeType === Node.TEXT_NODE ? fragment : fragment.lastChild;
+
+            if (!last) {
+                return;
+            }
+
+            if (code || !multiline || !text.includes('\n')) {
+                range.insertNode(fragment);
+            }
+            else {
+                normalize(editor);
+
+                let top: Node = range.startContainer;
+
+                while (top !== editor && top.parentNode !== editor) {
+                    top = top.parentNode!;
+                }
+
+                if (top === editor) {
+                    editor.append(fragment);
+                }
+                else {
+                    let tail = document.createRange();
+
+                    tail.setStart(range.startContainer, range.startOffset);
+                    tail.setEndAfter(top);
+
+                    let rest = tail.extractContents(),
+                        after = rest.firstChild;
+
+                    (top as ChildNode).after(fragment, rest);
+
+                    for (let node of [top, after]) {
+                        if (node && !node.textContent) {
+                            node.parentNode?.removeChild(node);
+                        }
+                    }
+                }
+            }
+
+            tasks(false);
+
+            let caret = document.createRange();
+
+            caret.selectNodeContents(last);
+            caret.collapse(false);
+            select(caret);
+            empty();
+        }
+
+        function place(range: Range) {
+            if (!root || !toolbar) {
+                return;
+            }
+
+            let bounds = range.getBoundingClientRect(),
+                box = root.getBoundingClientRect(),
+                h = toolbar.offsetHeight,
+                lines = [...range.getClientRects()].filter((rect) => rect.width > 0),
+                w = toolbar.offsetWidth;
+
+            let first = lines[0] ?? bounds,
+                last = lines[lines.length - 1] ?? bounds;
+
+            // Floats outside the field, so only the viewport limits it: flips below when there's no room above.
+            let below = first.top < h + GAP,
+                center = bounds.left + bounds.width / 2,
+                x = Math.min(Math.max(center - w / 2, GAP), document.documentElement.clientWidth - w - GAP);
+
+            let left = x - box.left,
+                top = below ? last.bottom - box.top + GAP : first.top - box.top - h - GAP;
+
+            // Scales out of the selection itself, even when clamped to the edge.
+            toolbar.style.transformOrigin = `${center - x}px ${below ? 0 : h}px`;
+
+            if (!open || reduced()) {
+                toolbar.style.transition = 'none';
+                toolbar.style.translate = `${left}px ${top}px`;
+                void toolbar.offsetWidth;
+                toolbar.style.removeProperty('transition');
+            }
+            else {
+                toolbar.style.translate = `${left}px ${top}px`;
+            }
+        }
+
+        function render(markdown: string) {
             if (!editor) {
                 return;
             }
 
-            let template = document.createElement('template');
+            for (let dispose of boxes.values()) {
+                dispose();
+            }
 
-            template.innerHTML = markup;
-            editor.replaceChildren(sanitize(template.content));
+            boxes.clear();
+            editor.replaceChildren(parse(markdown, features, multiline));
+            tasks(false);
             empty();
         }
 
         function roving() {
-            for (let i = 0, n = buttons.length; i < n; i++) {
-                buttons[i].tabIndex = i === focusIndex ? 0 : -1;
+            for (let i = 0, n = items.length; i < n; i++) {
+                items[i].tabIndex = i === focusIndex ? 0 : -1;
             }
+        }
+
+        // Every transform returns the range to leave selected, or nothing when there was no selection to act on.
+        function run(transform: () => Range | null) {
+            let next = transform();
+
+            tasks(false);
+
+            if (next) {
+                select(next);
+            }
+
+            empty();
+        }
+
+        function save() {
+            if (!editor) {
+                return;
+            }
+
+            let next = serialize(editor, features, multiline);
+
+            if (next === state.value) {
+                return;
+            }
+
+            state.value = next;
+            state.saved = true;
+            onsave?.(next);
+
+            clearTimeout(savedTimer);
+            savedTimer = setTimeout(() => {
+                state.saved = false;
+            }, SAVED_FOR);
         }
 
         // The selection finalises after pointerup, so it is read a frame later.
@@ -282,19 +621,19 @@ export default component(
         }
 
         function sync() {
-            if (!editor || !root || !toolbar) {
+            if (!editor || !toolbar || (!actions.length && kinds.length < 2)) {
                 return;
             }
 
             let selection = window.getSelection(),
                 range = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
 
-            if (!range || range.collapsed || !editor.contains(range.commonAncestorContainer)) {
-                // Tabbing into the toolbar can nudge the selection; keep it open.
-                if (toolbar.contains(document.activeElement)) {
-                    return;
-                }
+            // Focus in the toolbar (its buttons, the select, the link field) keeps it where it is.
+            if (toolbar.contains(document.activeElement) || linking) {
+                return;
+            }
 
+            if (!range || range.collapsed || !editor.contains(range.commonAncestorContainer)) {
                 if (open) {
                     show(false);
                 }
@@ -316,42 +655,14 @@ export default component(
             }
 
             saved = range.cloneRange();
+            place(range);
 
-            let bounds = range.getBoundingClientRect(),
-                box = root.getBoundingClientRect(),
-                h = toolbar.offsetHeight,
-                lines = [...range.getClientRects()].filter((rect) => rect.width > 0),
-                w = toolbar.offsetWidth;
-
-            let first = lines[0] ?? bounds,
-                last = lines[lines.length - 1] ?? bounds;
-
-            // Floats outside the field, so only the viewport limits it: flips below when there's no room above.
-            let below = first.top < h + GAP,
-                center = bounds.left + bounds.width / 2,
-                x = Math.min(Math.max(center - w / 2, GAP), document.documentElement.clientWidth - w - GAP);
-
-            let left = x - box.left,
-                top = below ? last.bottom - box.top + GAP : first.top - box.top - h - GAP;
-
-            // Scales out of the selection itself, even when clamped to the edge.
-            toolbar.style.transformOrigin = `${center - x}px ${below ? 0 : h}px`;
-
-            if (!open || reduced()) {
-                toolbar.style.transition = 'none';
-                toolbar.style.translate = `${left}px ${top}px`;
-                void toolbar.offsetWidth;
-                toolbar.style.removeProperty('transition');
-            }
-            else {
-                toolbar.style.translate = `${left}px ${top}px`;
+            for (let button of toolbar.querySelectorAll<HTMLElement>('[data-mark]')) {
+                button.setAttribute('aria-pressed', active(editor, range, button.dataset.mark as Mark) ? 'true' : 'false');
             }
 
-            for (let i = 0, n = FORMATS.length; i < n; i++) {
-                let start = closest(range.startContainer, TAGS[FORMATS[i]], editor);
-
-                buttons[i]?.setAttribute('aria-pressed', start && start === closest(range.endContainer, TAGS[FORMATS[i]], editor) ? 'true' : 'false');
-            }
+            shown = kind(units(editor, range)[0]);
+            block.value = shown;
 
             if (!open) {
                 focusIndex = 0;
@@ -360,77 +671,151 @@ export default component(
             }
         }
 
-        function toggle(format: Format) {
+        // Every checklist item leads with one checkbox, a non-editable island the markdown skips; boxes left
+        // anywhere else (an item turned into text, one the browser split off) go. 'fresh' marks items the
+        // browser just split, which copy the checked state of the item they came from.
+        function tasks(fresh: boolean) {
+            if (!editor || !features.has('task')) {
+                return;
+            }
+
+            for (let [box, dispose] of boxes) {
+                let item = box.parentElement;
+
+                if (!editor.contains(box) || item?.tagName !== 'LI' || !item.parentElement?.hasAttribute('data-task') || item.firstChild !== box) {
+                    dispose();
+                    box.remove();
+                    boxes.delete(box);
+                }
+            }
+
+            let selection = window.getSelection(),
+                caret = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+            for (let item of editor.querySelectorAll<HTMLElement>('ul[data-task] > li')) {
+                let first = item.firstChild as HTMLElement | null;
+
+                if (first && boxes.has(first)) {
+                    continue;
+                }
+
+                if (fresh) {
+                    item.setAttribute('data-checked', 'false');
+                }
+
+                let box = document.createElement('span');
+
+                box.className = 'inline-edit-task';
+                box.contentEditable = 'false';
+                boxes.set(box, mount(box, checkbox({
+                    [checkbox.input]: {
+                        'aria-label': 'Done',
+                        checked: item.getAttribute('data-checked') === 'true',
+                        onchange: (e: Event) => {
+                            let input = e.currentTarget as HTMLInputElement;
+
+                            input.closest('li')?.setAttribute('data-checked', input.checked ? 'true' : 'false');
+
+                            // Ticked without editing, it saves at once; mid-edit it goes with the rest.
+                            if (!state.editing) {
+                                save();
+                            }
+                        }
+                    }
+                })));
+                item.prepend(box);
+
+                // A caret at the very start of the item would type in front of the box.
+                if (caret?.collapsed && caret.startContainer === item && caret.startOffset === 0) {
+                    caret.setStartAfter(box);
+                    caret.collapse(true);
+                    select(caret);
+                }
+            }
+        }
+
+        function trigger(action: Action) {
+            switch (action) {
+                case 'clear':
+                    run(() => clear(editor!, current()!));
+                    local.live = 'Formatting cleared';
+                    return;
+                case 'copy':
+                    void copy();
+                    return;
+                case 'link':
+                    linker();
+                    return;
+                default:
+                    run(() => toggle(editor!, current()!, action));
+            }
+        }
+
+        function turn(target: Kind) {
             let range = current();
 
             if (!editor || !range) {
                 return;
             }
 
-            let end = closest(range.endContainer, TAGS[format], editor),
-                next = document.createRange(),
-                start = closest(range.startContainer, TAGS[format], editor);
+            shown = target;
+            editor.focus({ preventScroll: true });
+            run(() => setBlock(editor!, range, target));
+        }
 
-            if (start && start === end) {
-                let firstChild = start.firstChild,
-                    lastChild = start.lastChild;
+        // Backspace at the very start of a checklist item turns it into text, instead of deleting its box.
+        function unlist(e: KeyboardEvent) {
+            let selection = window.getSelection(),
+                caret = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null,
+                item = editor && caret?.collapsed ? closest(caret.startContainer, 'ul[data-task] > li', editor) : null;
 
-                unwrap(start);
-
-                if (!firstChild || !lastChild) {
-                    return;
-                }
-
-                next.setStartBefore(firstChild);
-                next.setEndAfter(lastChild);
-                local.live = `${LABELS[format]} off`;
-            }
-            else {
-                let element = document.createElement(TAGS[format]),
-                    fragment = range.extractContents();
-
-                // Merges partial marks of the same kind into the new one, so formatting never nests.
-                fragment.querySelectorAll(TAGS[format]).forEach(unwrap);
-
-                if (format === 'link') {
-                    element.setAttribute('href', href);
-                }
-
-                element.appendChild(fragment);
-                range.insertNode(element);
-                next.selectNodeContents(element);
-                local.live = `${LABELS[format]} on`;
+            if (!caret || !item) {
+                return false;
             }
 
-            // Splitting a partly selected mark can leave an empty shell behind.
-            editor.querySelectorAll(Object.values(TAGS).join(',')).forEach((element) => {
-                if (!element.textContent) {
-                    element.remove();
-                }
+            let before = document.createRange();
+
+            before.setStart(item, 0);
+            before.setEnd(caret.startContainer, caret.startOffset);
+
+            if (before.toString()) {
+                return false;
+            }
+
+            e.preventDefault();
+            run(() => {
+                let next = setBlock(editor!, caret, 'paragraph');
+
+                next?.collapse(true);
+
+                return next;
             });
 
-            select(next);
+            return true;
         }
 
-        function trigger(i: number, name: string, content: Renderable<unknown>, onclick: VoidFunction) {
-            return html`
-                <button
-                    aria-label='${name}'
-                    class='button button--feedback inline-edit-toolbar-button'
-                    tabindex='-1'
-                    type='button'
-                    ${{
-                        onclick,
-                        onfocus: () => {
-                            focusIndex = i;
-                            roving();
+        let button = ({ action, label, shortcut }: (typeof ACTIONS)[number], content: Renderable<unknown>) => html`
+            <button
+                aria-label='${label}'
+                class='button button--feedback inline-edit-toolbar-button'
+                data-tooltip='${action === 'copy' ? () => local.copied === 'success' ? 'Copied' : label : hint(label, shortcut)}'
+                tabindex='-1'
+                type='button'
+                ${action === 'clear' || action === 'copy' ? {} : { 'aria-pressed': 'false', 'data-mark': action }}
+                ${{
+                    onclick: () => {
+                        if (current()) {
+                            trigger(action);
                         }
-                    }}
-                >
-                    ${content}
-                </button>
-            `;
-        }
+                    }
+                }}
+            >
+                ${content}
+            </button>
+        `;
+
+        let marks = actions.filter(({ action }) => action !== 'clear' && action !== 'copy'),
+            tools = actions.filter(({ action }) => action === 'clear' || action === 'copy');
 
         return html`
             <div
@@ -459,6 +844,7 @@ export default component(
                 <div
                     aria-label='${label}'
                     aria-multiline='${multiline ? 'true' : 'false'}'
+                    aria-keyshortcuts='${keyshortcuts}'
                     aria-placeholder='${placeholder}'
                     class='inline-edit-editor'
                     contenteditable='true'
@@ -467,21 +853,41 @@ export default component(
                     ${this?.attributes?.[INLINE_EDIT_RICH_EDITOR]}
                     ${attributes[INLINE_EDIT_RICH_EDITOR]}
                     ${{
+                        oncopy: (e: ClipboardEvent) => clip(e, false),
+                        oncut: (e: ClipboardEvent) => clip(e, true),
                         onfocus: () => {
                             state.editing = true;
+
+                            // Clicking back into the text leaves the link field.
+                            if (linking) {
+                                linking = false;
+                                toolbar?.classList.remove('inline-edit-toolbar--link');
+                            }
                         },
-                        oninput: empty,
+                        oninput: () => {
+                            tasks(true);
+                            empty();
+                        },
                         onkeydown: (e: KeyboardEvent) => {
-                            let mod = e.metaKey || e.ctrlKey;
+                            let key = e.key.toLowerCase(),
+                                mod = e.metaKey || e.ctrlKey;
 
-                            if (mod && !e.altKey && (e.key === 'b' || e.key === 'i')) {
+                            if (mod && !e.altKey && key !== 'enter') {
+                                let action = ACTIONS.find(({ shortcut }) => shortcut?.toLowerCase() === (e.shiftKey ? 'shift+' : '') + key)?.action;
+
                                 // Same path as the buttons, so the shortcut updates the toolbar like a click.
-                                e.preventDefault();
+                                if (action && features.has(action)) {
+                                    e.preventDefault();
 
-                                if (current()) {
-                                    toggle(e.key === 'b' ? 'bold' : 'italic');
+                                    if (current()) {
+                                        trigger(action);
+                                    }
                                 }
 
+                                return;
+                            }
+
+                            if (e.key === 'Backspace' && unlist(e)) {
                                 return;
                             }
 
@@ -498,8 +904,8 @@ export default component(
                                 return;
                             }
 
-                            // Shift+Enter still adds a line break to a multiline field.
-                            if (e.key === 'Enter' && !(multiline && e.shiftKey)) {
+                            // One line saves on Enter; a multiline field keeps Enter for new blocks and saves on Mod+Enter.
+                            if (e.key === 'Enter' && (mod || !multiline)) {
                                 e.preventDefault();
                                 finish(true, true);
                                 return;
@@ -509,30 +915,7 @@ export default component(
                                 show(false, true);
                             }
                         },
-                        // Pasted markup would bring its own styles along; only the text comes in.
-                        onpaste: (e: ClipboardEvent) => {
-                            let selection = window.getSelection();
-
-                            e.preventDefault();
-
-                            if (!selection || selection.rangeCount === 0) {
-                                return;
-                            }
-
-                            let range = selection.getRangeAt(0),
-                                text = document.createTextNode(e.clipboardData?.getData('text/plain') ?? '');
-
-                            if (!multiline) {
-                                text.data = text.data.replace(/\s+/g, ' ');
-                            }
-
-                            range.deleteContents();
-                            range.insertNode(text);
-                            range.setStartAfter(text);
-                            range.collapse(true);
-                            select(range);
-                            empty();
-                        },
+                        onpaste: paste,
                         onpointerdown: (e: PointerEvent) => {
                             if (e.button === 0) {
                                 pressing = true;
@@ -551,17 +934,23 @@ export default component(
                             anchor = element;
                             root = element.parentElement ?? undefined;
                             toolbar = element.querySelector<HTMLElement>('.inline-edit-toolbar') ?? undefined;
-                            buttons = [...element.querySelectorAll<HTMLButtonElement>('.inline-edit-toolbar-button')];
+                            unlink = element.querySelector<HTMLElement>('.inline-edit-toolbar-unlink') ?? undefined;
+                            url = element.querySelector<HTMLInputElement>('.inline-edit-toolbar-url') ?? undefined;
+                            items = [...element.querySelectorAll<HTMLElement>('.inline-edit-toolbar-format .select-menu-trigger, .inline-edit-toolbar-format .inline-edit-toolbar-button')];
 
                             // Bound directly: delegated mousedown listeners are passive, and delegation only runs
-                            // the nearest bound handler, which for keys and focus inside the toolbar is the group's.
+                            // the nearest bound handler, which inside the toolbar belongs to the tooltip or select.
                             let bar = toolbar,
                                 host = root,
-                                prevent = (e: MouseEvent) => e.preventDefault();
+                                prevent = (e: MouseEvent) => {
+                                    // Keeps the text selected and focused when a button is clicked; the link field takes focus.
+                                    if ((e.target as Element).tagName !== 'INPUT') {
+                                        e.preventDefault();
+                                    }
+                                };
 
-                            // Keeps the text selected and focused when a button is clicked.
-                            bar?.addEventListener('mousedown', prevent);
                             bar?.addEventListener('keydown', navigate);
+                            bar?.addEventListener('mousedown', prevent);
                             host?.addEventListener('focusout', leave);
                             release = () => {
                                 bar?.removeEventListener('keydown', navigate);
@@ -587,30 +976,66 @@ export default component(
                         ${this?.attributes?.[INLINE_EDIT_RICH_TOOLBAR]}
                         ${attributes[INLINE_EDIT_RICH_TOOLBAR]}
                     >
-                        ${tooltip.group({
-                            class: 'inline-edit-toolbar-group',
-                            items: [
-                                ...FORMATS.map((format, i) => ({
-                                    content: trigger(i, LABELS[format], icon(format), () => toggle(format)),
-                                    tooltip: LABELS[format]
-                                })),
-                                {
-                                    class: 'inline-edit-toolbar-copy',
-                                    content: trigger(
-                                        FORMATS.length,
-                                        'Copy',
-                                        faces(() => local.copied, [
-                                            { content: '', icon: copyIcon, key: 'idle' },
-                                            { content: '', icon: check, key: 'success', tone: 'success' },
-                                            { content: '', icon: cross, key: 'error', tone: 'error' }
-                                        ]),
-                                        () => void copy()
-                                    ),
-                                    tooltip: () => local.copied === 'success' ? 'Copied' : 'Copy'
-                                }
-                            ],
-                            [tooltip.group.tooltipContent]: { direction: 'n' }
-                        })}
+                        <div class='inline-edit-toolbar-format' ${tip.delegate({ edge: true })}>
+                            ${kinds.length > 1
+                                ? html`
+                                    ${selectMenu({ class: 'inline-edit-toolbar-block', label: 'Text style', options: kinds, state: block })}
+                                    ${marks.length || tools.length ? html`<span aria-hidden='true' class='inline-edit-toolbar-divider'></span>` : ''}
+                                `
+                                : ''}
+                            ${marks.map((item) => button(item, icon(item.action as Exclude<Action, 'copy'>)))}
+                            ${marks.length && tools.length ? html`<span aria-hidden='true' class='inline-edit-toolbar-divider'></span>` : ''}
+                            ${tools.map((item) => button(
+                                item,
+                                item.action === 'copy'
+                                    ? faces(() => local.copied, [
+                                        { content: '', icon: copyIcon, key: 'idle' },
+                                        { content: '', icon: check, key: 'success', tone: 'success' },
+                                        { content: '', icon: cross, key: 'error', tone: 'error' }
+                                    ])
+                                    : icon(item.action as Exclude<Action, 'copy'>)
+                            ))}
+                            ${tip.render()}
+                        </div>
+                        ${features.has('link')
+                            ? html`
+                                <div class='inline-edit-toolbar-link'>
+                                    ${input({ 'aria-label': 'Link address', class: 'inline-edit-toolbar-url', placeholder: 'Paste or type a link', type: 'url' })}
+                                    <button
+                                        aria-label='Apply link'
+                                        class='button button--feedback inline-edit-toolbar-button'
+                                        type='button'
+                                        ${{ onclick: () => apply(url?.value ?? '') }}
+                                    >
+                                        ${icon('apply')}
+                                    </button>
+                                    <button
+                                        aria-label='Open link in a new tab'
+                                        class='button button--feedback inline-edit-toolbar-button'
+                                        type='button'
+                                        ${{
+                                            onclick: () => {
+                                                let href = address(url?.value ?? '');
+
+                                                if (href) {
+                                                    window.open(href, '_blank', 'noopener');
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        ${icon('open')}
+                                    </button>
+                                    <button
+                                        aria-label='Remove link'
+                                        class='button button--feedback inline-edit-toolbar-button inline-edit-toolbar-unlink'
+                                        type='button'
+                                        ${{ onclick: () => apply(null) }}
+                                    >
+                                        ${icon('unlink')}
+                                    </button>
+                                </div>
+                            `
+                            : ''}
                     </div>
                 </div>
                 <span aria-hidden='true' class='inline-edit-icon'>
@@ -627,3 +1052,5 @@ export default component(
     },
     { editor: INLINE_EDIT_RICH_EDITOR, toolbar: INLINE_EDIT_RICH_TOOLBAR }
 );
+
+export type { Feature };

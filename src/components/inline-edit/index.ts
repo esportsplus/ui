@@ -175,4 +175,9 @@ function template(
 }
 
 
-export default component(template, { display: INLINE_EDIT_DISPLAY, field: INLINE_EDIT_FIELD, rich });
+const plain = component(template, { display: INLINE_EDIT_DISPLAY, field: INLINE_EDIT_FIELD });
+
+const inlineEdit: typeof plain & { rich: typeof rich } = Object.assign(plain, { rich });
+
+
+export default inlineEdit;

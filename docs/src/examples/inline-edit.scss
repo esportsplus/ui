@@ -17,6 +17,10 @@
         gap: var(--size-200);
     }
 
+    &--wide {
+        width: 560px;
+    }
+
     &-avatar {
         align-items: center;
         background: var(--color-grey-500);

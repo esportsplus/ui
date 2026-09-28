@@ -4,9 +4,14 @@
     --box-padding-block: 4px;
     --box-padding-end: 36px;
     --box-padding-start: 8px;
+    --code-background: oklch(from var(--color-text-500) l c h / 0.06);
     --color: var(--color-text-500);
     --field-background: var(--color-white-300);
     --field-ring: 0 0 0 1.5px oklch(from var(--color-text-500) l c h / 0.25);
+    --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --heading-1-size: 1.5em;
+    --heading-2-size: 1.25em;
+    --heading-3-size: 1.125em;
     --icon-color: var(--color-text-300);
     --icon-color-saved: var(--color-text-500);
     --icon-size: 16px;
@@ -17,6 +22,12 @@
     --outline-color: var(--color-text-500);
     --paragraph-gap: 12px;
     --placeholder-color: var(--color-text-300);
+    --quote-border-color: var(--color-border-300);
+    --quote-color: var(--color-text-400);
+    --task-border-color: var(--color-text-300);
+    --task-check-color: var(--color-white-300);
+    --task-checked-color: var(--color-text-500);
+    --task-done-color: var(--color-text-300);
     --toolbar-background: var(--color-grey-400);
     --toolbar-box-shadow:
         0 0 0 1px color-mix(in oklab, var(--color-black-300) 6%, transparent),
@@ -27,7 +38,10 @@
     --toolbar-color-muted: var(--color-text-300);
     --toolbar-divider-color: var(--color-border-300);
     --toolbar-focus-color: color-mix(in oklab, var(--color-text-500) 38%, transparent);
+    --toolbar-font-size: var(--font-size-300);
     --toolbar-icon-size: 16px;
+    --toolbar-select-width: 132px;
+    --toolbar-url-width: 220px;
 
     // Feeds the reused tooltip content; qualified so it wins over the tooltip defaults regardless of stylesheet order.
     & #{&}-toolbar {
@@ -45,6 +59,18 @@
     & > #{&}-field {
         --background-default: var(--field-background);
         --color-default: currentColor;
+    }
+
+    // Feeds the reused checkbox; qualified so it wins over the checkbox defaults regardless of stylesheet order.
+    & #{&}-task .checkbox {
+        --background-active: var(--task-checked-color);
+        --border-color-active: var(--task-checked-color);
+        --border-color-default: var(--task-border-color);
+        // The default radius is sized for a larger box; at text size it reads as a circle.
+        --border-radius: var(--border-radius-200);
+        --border-width: 1.5px;
+        --indicator-color-default: var(--task-check-color);
+        --size: 1em;
     }
 
     // No field chrome while editing; only the caret shows the text is live.
