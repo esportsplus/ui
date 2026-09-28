@@ -4,6 +4,7 @@ import './scss/index.scss';
 
 
 type A = Attributes & {
+    hover?: boolean;
     onconnect?: never;
     ondisconnect?: never;
     ondocumentfocusin?: never;
@@ -13,10 +14,16 @@ type A = Attributes & {
     ondocumentpointerout?: never;
     ondocumentpointerover?: never;
     ondocumentpointerup?: never;
+    // Selector for nested items to track; by default the highlight tracks its parent's direct children.
+    target?: string;
 };
 
 
-function active(parent: Element, self: Element) {
+function active(parent: Element, self: Element, target?: string) {
+    if (target) {
+        return parent.querySelector(`${target}.--active`);
+    }
+
     let children = parent.children;
 
     for (let i = 0, n = children.length; i < n; i++) {
@@ -30,11 +37,20 @@ function active(parent: Element, self: Element) {
     return null;
 }
 
-function sibling(parent: Element, self: Element, node: EventTarget | null) {
+function sibling(parent: Element, self: Element, node: EventTarget | null, target?: string) {
     let element = node instanceof Element ? node : null;
 
-    while (element && element.parentElement !== parent) {
-        element = element.parentElement;
+    if (target) {
+        element = element?.closest(target) ?? null;
+
+        if (element && !parent.contains(element)) {
+            element = null;
+        }
+    }
+    else {
+        while (element && element.parentElement !== parent) {
+            element = element.parentElement;
+        }
     }
 
     if (!element || element === self || element.classList.contains('--disabled')) {
@@ -46,7 +62,7 @@ function sibling(parent: Element, self: Element, node: EventTarget | null) {
 
 
 export default component<A>(
-    (attributes) => {
+    ({ hover = true, target, ...attributes }) => {
         let focused: Element | null = null,
             hovered: Element | null = null,
             mutations: MutationObserver | undefined,
@@ -76,33 +92,37 @@ export default component<A>(
                 return;
             }
 
-            if (hovered?.parentElement !== parent) {
+            // Items re-rendered away take their hover and focus with them.
+            if (hovered && !parent.contains(hovered)) {
                 hovered = null;
             }
 
-            if (focused?.parentElement !== parent) {
+            if (focused && !parent.contains(focused)) {
                 focused = null;
             }
 
-            let target = hovered || focused || active(parent, self);
+            let box = parent.getBoundingClientRect(),
+                item = hovered || focused || active(parent, self, target);
 
-            if (!target) {
+            // An unrendered container (a closed dialog) has nothing to measure; staying hidden lets it enter in place.
+            if (!item || !box.width) {
                 state.visible = false;
                 return;
             }
 
-            let box = parent.getBoundingClientRect(),
-                rect = target.getBoundingClientRect();
+            let rect = item.getBoundingClientRect(),
+                // A transformed ancestor (a dialog scaling open) skews client rects; scale back to layout pixels.
+                scale = box.width ? parent.offsetWidth / box.width : 1;
 
-            state.height = rect.height;
-            state.radius = getComputedStyle(target).borderRadius;
-            state.variant = target.classList.contains('--active')
+            state.height = rect.height * scale;
+            state.radius = getComputedStyle(item).borderRadius;
+            state.variant = item.classList.contains('--active')
                 ? '--active'
-                : pressed && target === hovered ? '--pressed' : '--hover';
+                : pressed && item === hovered ? '--pressed' : '--hover';
             state.visible = true;
-            state.width = rect.width;
-            state.x = rect.left - box.left - parent.clientLeft + parent.scrollLeft;
-            state.y = rect.top - box.top - parent.clientTop + parent.scrollTop;
+            state.width = rect.width * scale;
+            state.x = (rect.left - box.left) * scale - parent.clientLeft + parent.scrollLeft;
+            state.y = (rect.top - box.top) * scale - parent.clientTop + parent.scrollTop;
         }
 
         return html`
@@ -181,7 +201,7 @@ export default component<A>(
                             return;
                         }
 
-                        focused = (e.target as Element).matches(':focus-visible') ? sibling(parent, self, e.target) : null;
+                        focused = (e.target as Element).matches(':focus-visible') ? sibling(parent, self, e.target, target) : null;
                         update();
                     },
                     ondocumentfocusout: (e: FocusEvent) => {
@@ -194,19 +214,19 @@ export default component<A>(
                     },
                     ondocumentpointercancel: release,
                     ondocumentpointerdown: (e: PointerEvent) => {
-                        let target = parent && self ? sibling(parent, self, e.target) : null;
+                        let item = hover && parent && self ? sibling(parent, self, e.target, target) : null;
 
-                        if (!target) {
+                        if (!item) {
                             return;
                         }
 
-                        hovered = target;
+                        hovered = item;
                         pressed = true;
                         update();
                     },
                     // Crossing gaps between siblings keeps the last one so the highlight glides instead of snapping back.
                     ondocumentpointerout: (e: PointerEvent) => {
-                        if (!parent?.contains(e.target as Node | null) || parent.contains(e.relatedTarget as Node | null)) {
+                        if (!hover || !parent?.contains(e.target as Node | null) || parent.contains(e.relatedTarget as Node | null)) {
                             return;
                         }
 
@@ -215,13 +235,13 @@ export default component<A>(
                         update();
                     },
                     ondocumentpointerover: (e: PointerEvent) => {
-                        let target = parent && self ? sibling(parent, self, e.target) : null;
+                        let item = hover && parent && self ? sibling(parent, self, e.target, target) : null;
 
-                        if (!target || target === hovered) {
+                        if (!item || item === hovered) {
                             return;
                         }
 
-                        hovered = target;
+                        hovered = item;
                         update();
                     },
                     ondocumentpointerup: release,
