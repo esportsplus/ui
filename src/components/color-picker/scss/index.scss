@@ -20,20 +20,14 @@
 }
 
 .color-picker {
-    background: var(--background);
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    color: var(--color);
     display: flex;
     flex-direction: column;
     font-size: var(--font-size);
     gap: var(--spacing);
-    padding: var(--padding);
-    width: var(--width);
 
     &-alpha {
         align-items: center;
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--control-border-color);
         border-radius: var(--control-border-radius);
         color: var(--color-muted);
         display: flex;
@@ -103,50 +97,18 @@
         gap: var(--size-100);
     }
 
-    &-hash {
-        color: var(--color-muted);
-        transition: color var(--transition-duration) var(--transition-timing-function);
-        user-select: none;
-    }
-
     &-hex {
-        align-items: center;
-        background: var(--background);
-        border: 1px solid var(--border-color);
-        border-radius: var(--control-border-radius);
-        cursor: text;
-        display: flex;
-        flex: 1;
         font-family: var(--font-family-mono);
-        height: var(--control-height);
-        min-width: 0;
-        padding: 0 10px;
-        transition: border-color var(--transition-duration) var(--transition-timing-function);
+        outline: none;
+        text-transform: uppercase;
 
-        &:focus-within {
+        &:focus {
             outline: var(--focus-width) solid var(--color);
             outline-offset: -1px;
         }
 
-        &.--invalid {
-            border-color: var(--color-invalid);
-
-            &:focus-within {
-                outline-color: var(--color-invalid);
-            }
-
-            .color-picker-hash {
-                color: var(--color-invalid);
-            }
-        }
-
-        .input {
-            flex: 1;
-            font-family: inherit;
-            min-width: 0;
-            outline: none;
-            padding-left: 2px;
-            text-transform: uppercase;
+        &[aria-invalid='true']:focus {
+            outline-color: var(--color-invalid);
         }
     }
 
@@ -191,7 +153,7 @@
     }
 
     &-recent {
-        border-top: 1px solid var(--border-color);
+        border-top: 1px solid var(--control-border-color);
         padding-top: var(--spacing);
 
         &-label {
@@ -225,7 +187,7 @@
         border-radius: 50%;
         box-shadow:
             var(--hairline),
-            0 0 0 0 var(--background),
+            0 0 0 0 var(--ring-offset-color),
             0 0 0 0 var(--color);
         cursor: pointer;
         flex: 0 0 auto;
@@ -261,7 +223,7 @@
         &.--active {
             box-shadow:
                 var(--hairline),
-                0 0 0 2px var(--background),
+                0 0 0 2px var(--ring-offset-color),
                 0 0 0 4px var(--color);
         }
 

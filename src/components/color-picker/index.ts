@@ -9,7 +9,7 @@ type A = Attributes & {
     [COLOR_PICKER_SWATCH]?: Attributes;
     recent?: string[];
     state?: { error: string, value: string };
-    value?: string;
+    value: string;
 };
 
 type Channel = { active: boolean, error: string, value: number };
@@ -25,10 +25,6 @@ type Parts = {
 
 
 const COLOR_PICKER_SWATCH = Symbol.for('@esportsplus/ui/color-picker.swatch');
-
-const DEFAULT_RECENT = ['#E5484D', '#F5A524', '#30A46C', '#0090FF', '#8E4EC6'];
-
-const DEFAULT_VALUE = '#5B8DEF';
 
 // Wide enough for a useful history, narrow enough to stay one row at 320px.
 const MAX_RECENT = 8;
@@ -158,14 +154,19 @@ function toHsv(r: number, g: number, b: number, previous: Hsva) {
 function template(
     this: { attributes?: Pick<A, typeof COLOR_PICKER_SWATCH> } | void,
     {
-        recent: initial = DEFAULT_RECENT,
-        value = DEFAULT_VALUE,
+        recent: initial = [],
         state = reactive({ error: '', value: '' }),
+        value,
         ...attributes
     }: A
 ) {
-    let start = fromHex(state.value || value, { a: 1, h: 0, s: 0, v: 0 }) ?? { a: 1, h: 220, s: 0.6, v: 0.9 },
-        alpha: Channel = reactive({ active: false, error: '', value: Math.round(start.a * 100) }),
+    let start = fromHex(state.value || value, { a: 1, h: 0, s: 0, v: 0 });
+
+    if (!start) {
+        throw new Error(`Color picker: '${state.value || value}' is not a valid hex color`);
+    }
+
+    let alpha: Channel = reactive({ active: false, error: '', value: Math.round(start.a * 100) }),
         color = reactive({ a: start.a, h: start.h, s: start.s, v: start.v }),
         dirty = { alpha: false, hue: false, pad: false },
         hue: Channel = reactive({ active: false, error: '', value: Math.round(start.h) }),
@@ -190,7 +191,7 @@ function template(
             // Enter keeps the text so it can be fixed; leaving the field puts the real value back rather than
             // stranding a broken one.
             if (leaving) {
-                field.value = toHex(read()).slice(1);
+                field.value = toHex(read());
             }
 
             picker.invalid = !leaving;
@@ -201,7 +202,7 @@ function template(
 
         picker.invalid = false;
         update(next);
-        field.value = toHex(next).slice(1);
+        field.value = toHex(next);
 
         if (changed) {
             commit();
@@ -346,7 +347,7 @@ function template(
 
         // The field follows the color except while it is being typed in.
         if (hex && document.activeElement !== hex) {
-            hex.value = toHex(read()).slice(1);
+            hex.value = toHex(read());
         }
     }
 
@@ -378,36 +379,36 @@ function template(
     }
 
     let disposers = [
-        effect(() => {
-            let next = alpha.value;
+            effect(() => {
+                let next = alpha.value;
 
-            untrack(() => {
-                if (Math.round(color.a * 100) !== next) {
-                    update({ a: next / 100 });
-                }
-            });
-        }),
-        effect(() => {
-            let next = hue.value;
+                untrack(() => {
+                    if (Math.round(color.a * 100) !== next) {
+                        update({ a: next / 100 });
+                    }
+                });
+            }),
+            effect(() => {
+                let next = hue.value;
 
-            untrack(() => {
-                if (Math.round(color.h) !== next) {
-                    update({ h: next });
-                }
-            });
-        }),
-        effect(() => {
-            let next = state.value;
+                untrack(() => {
+                    if (Math.round(color.h) !== next) {
+                        update({ h: next });
+                    }
+                });
+            }),
+            effect(() => {
+                let next = state.value;
 
-            untrack(() => {
-                let parsed = next && toHex(read()) !== next.toUpperCase() ? fromHex(next, read()) : null;
+                untrack(() => {
+                    let parsed = next && toHex(read()) !== next.toUpperCase() ? fromHex(next, read()) : null;
 
-                if (parsed) {
-                    update(parsed);
-                }
-            });
-        })
-    ];
+                    if (parsed) {
+                        update(parsed);
+                    }
+                });
+            })
+        ];
 
     onCleanup(() => {
         for (let i = 0, n = disposers.length; i < n; i++) {
@@ -565,43 +566,40 @@ function template(
             </div>
 
             <div class='color-picker-fields'>
-                <label class='color-picker-hex ${() => picker.invalid && '--invalid'}'>
-                    <span class='color-picker-hash'>#</span>
-                    ${input({
-                        'aria-invalid': () => picker.invalid ? 'true' : 'false',
-                        'aria-label': 'Hex color',
-                        autocapitalize: 'characters',
-                        autocomplete: 'off',
-                        class: 'color-picker-hex-input',
-                        maxlength: 9,
-                        onblur: () => apply(true),
-                        onconnect: (element: HTMLInputElement) => {
-                            parts.hex = element;
-                            element.value = toHex(read()).slice(1);
-                        },
-                        onfocus: function(this: HTMLInputElement) {
-                            this.select();
-                        },
-                        oninput: () => {
+                ${input({
+                    'aria-invalid': () => picker.invalid ? 'true' : 'false',
+                    'aria-label': 'Hex color',
+                    autocapitalize: 'characters',
+                    autocomplete: 'off',
+                    class: 'color-picker-hex',
+                    maxlength: 9,
+                    onblur: () => apply(true),
+                    onconnect: (element: HTMLInputElement) => {
+                        parts.hex = element;
+                        element.value = toHex(read());
+                    },
+                    onfocus: function(this: HTMLInputElement) {
+                        this.select();
+                    },
+                    oninput: () => {
+                        picker.invalid = false;
+                    },
+                    onkeydown: function(this: HTMLInputElement, e: KeyboardEvent) {
+                        if (e.key === 'Enter') {
+                            apply(false);
+                        }
+                        else if (e.key === 'Escape') {
+                            this.value = toHex(read());
                             picker.invalid = false;
-                        },
-                        onkeydown: function(this: HTMLInputElement, e: KeyboardEvent) {
-                            if (e.key === 'Enter') {
-                                apply(false);
-                            }
-                            else if (e.key === 'Escape') {
-                                this.value = toHex(read()).slice(1);
-                                picker.invalid = false;
-                            }
-                        },
-                        spellcheck: false
-                    })}
-                </label>
+                        }
+                    },
+                    spellcheck: false
+                })}
                 <span aria-hidden='true' class='color-picker-alpha'>${() => `${Math.round(color.a * 100)}%`}</span>
                 <span aria-live='polite' class='color-picker-status'>${() => picker.invalid ? 'Not a valid hex color' : ''}</span>
             </div>
 
-            <div class='color-picker-recent'>
+            <div class='color-picker-recent' ${{ hidden: () => recent.length === 0 }}>
                 <p class='color-picker-recent-label' id='${id}-recent'>Recent</p>
                 <div
                     aria-labelledby='${id}-recent'
