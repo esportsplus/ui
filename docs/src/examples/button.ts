@@ -77,13 +77,9 @@ export default {
 
                 return html`
                     <div style='${row}'>
-                        ${button.kbd({
-                            [button.kbd.key]: { class: '--background-grey' },
-                            keys: ['meta', 'k'],
-                            ontrigger: () => state.triggered++
-                        })}
-                        ${button.kbd({ [button.kbd.key]: { class: '--background-grey' }, keys: ['shift', '?'] })}
-                        ${button.kbd({ [button.kbd.key]: { class: '--background-blue --color-white' }, keys: ['up'] })}
+                        ${button.kbd({ keys: ['meta', 'k'], ontrigger: () => state.triggered++ })}
+                        ${button.kbd({ keys: ['shift', '?'] })}
+                        ${button.kbd({ keys: ['up'] })}
                         <span>triggered ${() => state.triggered}×</span>
                     </div>
                 `;
