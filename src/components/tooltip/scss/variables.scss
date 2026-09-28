@@ -20,35 +20,41 @@
         // Mirrors '$active' in 'index.scss'.
         $active: '#{tokens.state(active, ".tooltip")} > &, #{tokens.state(active, ".tooltip")} :not(.tooltip) > &';
 
-        // Unfolds out of the trigger-side corner while scaling up (beUI's animated dropdown); the
-        // corner follows the direction, see the direction overrides below.
-        &--corner {
+        // Opens over the trigger instead of beside it (uselayouts' smooth dropdown), anchored on the
+        // trigger's edge or corner for the direction; items cascade in the way the shape grows, see
+        // the direction overrides below.
+        &--expand {
             // Covers the '--box-shadow-400' extent so the resting clip doesn't cut the shadow.
-            --corner-bleed: 24px;
-            // The open state swaps these durations rather than redeclaring 'transition'.
-            --corner-clip-duration: var(--corner-close-duration);
-            --corner-clip-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-            --corner-close-duration: 0.26s;
-            --corner-duration: var(--corner-close-duration);
-            --corner-open-clip-duration: 0.32s;
-            --corner-open-duration: 0.36s;
+            --expand-bleed: 24px;
+            // Closing swaps this delay: the shape crossfades back into the trigger once it has
+            // nearly landed. Items leave together at once.
+            --expand-close-fade-delay: 0.2s;
+            --expand-content-delay: 0.06s;
+            --expand-content-duration: 0.15s;
+            --expand-content-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+            --expand-duration: 0.4s;
+            --expand-fade-delay: var(--expand-close-fade-delay);
+            --expand-fade-duration: 0.15s;
+            --expand-offset: 8px;
+            --expand-shift: 0;
+            --expand-stagger: 0.02s;
+            // Spring (damping 34, stiffness 380, mass 0.8) sampled into linear().
+            --expand-timing-function: linear(0, 0.072, 0.22, 0.382, 0.529, 0.651, 0.747, 0.82, 0.874, 0.913, 0.94, 0.96, 0.973, 0.982, 0.988, 0.992, 0.995, 0.997, 0.998, 0.999, 1);
             --offset: 0px;
-            --scale: 0.96;
-            --transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+            // Cancels the '100%' every direction pushes the tooltip past the trigger by, so it
+            // lines up with the trigger's own edges instead.
+            --spacer: -100%;
 
             #{$active} {
-                --corner-clip-duration: var(--corner-open-clip-duration);
-                --corner-duration: var(--corner-open-duration);
+                --expand-fade-delay: 0s;
             }
-        }
 
-        // Unfolds away from the trigger along one axis with a slight overshoot (Material menus,
-        // Codinhood's 'growDown'); the axis follows the direction.
-        &--grow {
-            --offset: 0px;
-            --scale: 1 0;
-            --transition-duration: 0.24s;
-            --transition-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1);
+            // Cascade order.
+            @for $i from 1 through 12 {
+                > :nth-child(#{$i}) {
+                    --index: #{$i - 1};
+                }
+            }
         }
 
         &--morph {
@@ -83,34 +89,14 @@
             --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        // Options cascade in one after another (select and command menus).
-        &--stagger {
-            --offset: 4px;
-            --scale: 0.98;
-            --stagger-delay: 0.025s;
-            --stagger-offset: 6px;
-            --transition-duration: 0.15s;
-            --transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-
-            @for $i from 1 through 12 {
-                > :nth-child(#{$i}) {
-                    --stagger-index: #{$i - 1};
-                }
-            }
-        }
-
-        // The Radix / shadcn / Headless UI dropdown and select default: fade, 95% scale and an 8px slide
-        // from the trigger side, quick in and quicker out.
-        &--zoom {
-            --offset: 8px;
-            --scale: 0.95;
-            --transition-duration: 0.15s;
-            --transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
     }
 
     &-arrow {
         --rotate: 0deg;
+    }
+
+    &-content[role='menu'] {
+        --option-focus-background: color-mix(in srgb, currentColor 12%, transparent);
     }
 
     &-message {
@@ -122,32 +108,20 @@
         --padding-vertical: var(--size-300);
     }
 
-    // Grow unfolds away from the trigger, so its axis follows the direction: vertical for
-    // north/south (the default), horizontal for east/west. Corner collapses onto the edge or
-    // corner nearest the trigger, matching each direction's 'transform-origin'.
     @each $base in 'content', 'message' {
-        @each $direction, $inset in (
-            'c': 46%,
-            'e': 46% 92% 46% 0,
-            'en': 0 92% 92% 0,
-            'es': 92% 92% 0 0,
-            'n': 92% 46% 0 46%,
-            'ne': 92% 0 0 92%,
-            'nw': 92% 92% 0 0,
-            's': 0 46% 92% 46%,
-            'se': 0 0 92% 92%,
-            'sw': 0 92% 92% 0,
-            'w': 46% 0 46% 92%,
-            'wn': 0 0 92% 92%,
-            'ws': 92% 0 0 92%
+        // Items drift the way the shape grows; corner anchors drift sideways, as the reference does
+        // from its top-right anchor ('se').
+        @each $directions, $shift in (
+            ('e', 'en', 'es', 'nw', 'sw'): calc(var(--expand-offset) * -1) 0,
+            ('n'): 0 var(--expand-offset),
+            ('s'): 0 calc(var(--expand-offset) * -1),
+            ('ne', 'se', 'w', 'wn', 'ws'): var(--expand-offset) 0
         ) {
-            &-#{$base}--corner.tooltip-#{$base}--#{$direction} {
-                --corner-inset: #{$inset};
+            @each $direction in $directions {
+                &-#{$base}--expand.tooltip-#{$base}--#{$direction} {
+                    --expand-shift: #{$shift};
+                }
             }
-        }
-
-        &-#{$base}--grow:is(.tooltip-#{$base}--e, .tooltip-#{$base}--en, .tooltip-#{$base}--es, .tooltip-#{$base}--w, .tooltip-#{$base}--wn, .tooltip-#{$base}--ws) {
-            --scale: 0 1;
         }
     }
 }

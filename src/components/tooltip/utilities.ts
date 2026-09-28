@@ -35,17 +35,20 @@ function goo() {
     );
 }
 
-// Seeds the '--morph' variant with the trigger's box, then calls 'open' once that start
-// shape has been painted; the returned function cancels a pending open.
+// Seeds the '--expand' and '--morph' variants with the trigger's box, then calls 'open' once
+// that start shape has been painted; the returned function cancels a pending open.
 function morph(element: HTMLElement, open: VoidFunction) {
     let tooltip = content(element);
 
-    if (!tooltip || !(tooltip.classList.contains('tooltip-content--morph') || tooltip.classList.contains('tooltip-message--morph'))) {
+    if (!tooltip?.matches('.tooltip-content--expand, .tooltip-content--morph, .tooltip-message--expand, .tooltip-message--morph')) {
         open();
         return;
     }
 
-    goo();
+    // '--expand' overlaps the trigger, so there's no gap for the goo to bridge.
+    if (tooltip.matches('.tooltip-content--morph, .tooltip-message--morph')) {
+        goo();
+    }
 
     let box = tooltip.getBoundingClientRect(),
         rect = element.getBoundingClientRect(),
