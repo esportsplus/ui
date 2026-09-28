@@ -77,25 +77,9 @@ const meta: Record<string, Meta> = {
         category: 'Form Controls',
         description: 'Scroll-snapped wheel picker where the scroll position is the selection.'
     },
-    'date-range-picker': {
-        category: 'Form Controls',
-        description: 'Two-month calendar for picking a start and end date, with presets, a hover preview band, and full keyboard navigation.'
-    },
     dock: {
         category: 'Interactive',
         description: 'macOS-style dock whose icons swell toward the cursor and launch with a bounce and a running light.'
-    },
-    'dynamic-island': {
-        category: 'Display',
-        description: 'Morphing black pill that springs between idle, timer, music, and ringer states.'
-    },
-    'email-typo-fix': {
-        category: 'Form Controls',
-        description: 'Email field that spots common domain typos after a pause and fixes them in one click with a letter-morph animation.'
-    },
-    'feature-spotlight': {
-        category: 'Display',
-        description: 'Scroll-driven product tour whose screenshot camera pans, zooms, and spotlights the feature being read.'
     },
     'file-tree': {
         category: 'Interactive',
@@ -404,10 +388,6 @@ const meta: Record<string, Meta> = {
     'value-flash': {
         category: 'Display',
         description: 'Marks what just changed with a directional roll, tint, and arrow.'
-    },
-    'waitlist-join': {
-        category: 'Form Controls',
-        description: 'Waitlist signup that drops you into a visible queue, rolls up your spot, and moves you ahead when you share.'
     },
     'web-search': {
         category: 'Display',

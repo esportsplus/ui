@@ -16,11 +16,7 @@ import command from './command';
 import container from './container';
 import counter from './counter';
 import datalist from './datalist';
-import dateRangePicker from './date-range-picker';
 import dock from './dock';
-import dynamicIsland from './dynamic-island';
-import emailTypoFix from './email-typo-fix';
-import featureSpotlight from './feature-spotlight';
 import fileTree from './file-tree';
 import filter from './filter';
 import grid from './grid';
@@ -103,7 +99,6 @@ import undoToast from './undo-toast';
 import uptime from './uptime';
 import usageMeter from './usage-meter';
 import valueFlash from './value-flash';
-import waitlistJoin from './waitlist-join';
 import webSearch from './web-search';
 import wordRotator from './word-rotator';
 
@@ -125,11 +120,7 @@ const entries: Entry[] = [
     container,
     counter,
     datalist,
-    dateRangePicker,
     dock,
-    dynamicIsland,
-    emailTypoFix,
-    featureSpotlight,
     fileTree,
     filter,
     grid,
@@ -212,7 +203,6 @@ const entries: Entry[] = [
     uptime,
     usageMeter,
     valueFlash,
-    waitlistJoin,
     webSearch,
     wordRotator
 ];

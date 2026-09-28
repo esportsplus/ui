@@ -64,15 +64,12 @@ html`
 | `form` | Form wrapper | `form.action`, `form.input` |
 | `cc` | Payment card form (`input` fields) with a live card preview that flips for the CVC, brand detection, caret-safe formatting and Luhn/expiry validation; `onvalid` receives brand, last 4, expiry and name | `cc.field`, `cc.submit` |
 | `colorPicker` | Saturation pad, hue/opacity sliders (`range`), hex field (`input`), and an animated recent-colors row (hidden while empty); `value` is required, no surface of its own, so place it in a `card` | `colorPicker.swatch` |
-| `dateRangePicker` | Two-month calendar (one below 540px) with presets, a hover-preview band, sliding month changes, full grid keyboard navigation and an Apply confirmation; `state.start`/`state.end` are ISO dates, `onapply` receives the range, `dateRangePicker.describe` formats it | `dateRangePicker.day` |
-| `emailTypoFix` | Email field (`input`) that suggests a fix for common domain typos after a pause, applying it with a letter-morph; `state.sent` swaps the hint for a sent note | `emailTypoFix.field`, `emailTypoFix.suggest` |
 | `inlineEdit` | Click-to-edit text that swaps in an `input` (or `textarea` with `multiline`) without moving a glyph; Enter/blur saves, Escape cancels, `onsave` fires | `inlineEdit.display`, `inlineEdit.field` |
 | `multiStepForm` | Stepped `form.action` card (`input`, `radio`) with a progress bar, directional step transitions, focus moved into each step and a height that springs to fit; `state.panel`, `oncreate`, custom `plans` | `multiStepForm.input` |
 | `rangeFilter` | Range filter with rolling-digit values, a Clear button, a ghost preview of where a click would stretch the selection, and scale ticks; a number `value` gives one thumb, a pair gives two that stop at each other; `fields` adds editable min/max `input` fields, `disabled`; `state.low`/`state.high`, `format`, `prefix`, `step`, `ticks` | - |
 | `scrubInput` | Numeric `input` whose label scrubs the value on drag (Shift ×10, Alt ×0.1, optional pointer lock) over a tape measure; arrows step, Escape restores | `scrubInput.field`, `scrubInput.label` |
 | `selectMenu` | macOS-style listbox opening with the selected option over the trigger, with typeahead and hover scrolling | - |
 | `tagInput` | Chip field (`input`) turning typed or pasted text into tags that form in place, nudge on duplicates, and go on a double Backspace; `name` submits `name[]` | `tagInput.field` |
-| `waitlistJoin` | Waitlist signup (`form.action`, `input`) with friendly email validation, a queue strip you drop into and hop along (FLIP), a rolling `counter` position and a referral link copied via `clipboard.write`; `onjoin` | `waitlistJoin.input` |
 
 ### Interactive
 | Component | Description | Variants |
@@ -115,8 +112,6 @@ html`
 | `taskList` | Streaming log of an agent's tasks and steps |
 | `webSearch` | Streaming trail of an agent's searches and the sources it opened |
 | `announcement` | Animated top-of-page container (`state.active`) that slides its content in and collapses the space it held; the content and close control are the consumer's |
-| `dynamicIsland` | Morphing pill that springs between idle, timer, music and ringer states (`state.mode`) with announced changes |
-| `featureSpotlight` | Scroll-driven product tour: a pinned screenshot whose spring camera pans and zooms to the `data-spot` (or `region`) of the feature being read, with a dimming spotlight |
 | `onboardingChecklist` | Setup checklist (`checkbox` rows, `accordion` details) with a spring progress ring, strike-through on done, and a celebration once every task is complete; `done`, `open`, `ondismiss`, `state.count` |
 | `undoToast` | List whose deletes wait behind an Undo toast (`toast.*` with a countdown ring) before committing |
 | `textProgress` | `progressbar` whose label fills with ink on a spring (`state.value`), with rolling digits and a drawn check on done |
