@@ -1,51 +1,73 @@
 .dock {
-    --background: var(--color-grey-400);
-    --box-shadow: 0 0 0 var(--border-width-400) var(--color-border-300), var(--box-shadow-200);
-    --gap: 8px;
-    --height: 64px;
+    --background-default: var(--color-grey-400);
+    --border-radius: 999px;
+    --border-width: 0px;
+    --box-shadow-default: 0 0 0 var(--border-width-400) var(--color-border-300), var(--box-shadow-200);
+    // Long on purpose: it is the "starting up" signal itself, it plays once per app, and input is never blocked while it plays.
+    --hop-duration: 0.7s;
     --icon-ratio: 0.45;
-    --item-background: var(--color-white-300);
-    --item-box-shadow: 0 0 0 var(--border-width-400) var(--color-border-300), var(--box-shadow-100);
-    --item-color: var(--color-text-500);
+    // Shelf space around the resting icons. Its own name: the global per-element reset would swallow '--padding-*' on the items.
+    --inset: 12px;
     --item-radius: 999px;
     --light-color: var(--color-text-500);
-    // The running light comes on as the icon first lands (0.55 of the 700ms hop), not on click.
-    --light-delay: 0.385s;
+    // The running light comes on as the icon first lands (55% into 'dock-hop'), not on click.
+    --light-delay: calc(var(--hop-duration) * 0.55);
     --light-size: 4px;
-    --padding: 12px;
-    --radius: 999px;
-    // Read by the magnification spring (JS) when the dock connects.
-    --size-peak: 72px;
+    // Stands in for the overdamped spring the swell used to run on: no overshoot, settled in about 0.3s.
+    --magnify-duration: 0.3s;
+    --magnify-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --padding-horizontal: calc(var(--inset) - var(--spacing) / 2);
+    --padding-vertical: 0px;
+    // The hovered icon peaks and each neighbour steps a third of the way back to rest.
+    --size-far: calc(var(--size-rest) + (var(--size-peak) - var(--size-rest)) / 3);
+    --size-near: calc(var(--size-rest) + (var(--size-peak) - var(--size-rest)) * 2 / 3);
+    --size-peak: 54px;
     --size-rest: 40px;
+    // Split into padding on each item so the gaps are hoverable too.
+    --spacing: 8px;
 
 
     &--square {
+        --border-radius: var(--border-radius-700);
         --item-radius: var(--border-radius-600);
-        --radius: var(--border-radius-700);
-    }
-
-    &--subtle {
-        --size-peak: 54px;
     }
 
     &-button {
+        --background-default: var(--color-white-300);
+        --border-radius: var(--item-radius);
+        --box-shadow-default: 0 0 0 var(--border-width-400) var(--color-border-300), var(--box-shadow-100);
+        --color: var(--color-text-500);
+    }
+
+    &-item {
         --size: var(--size-rest);
+    }
+
+    // Both anchor to the item's top, which is the shelf's; clears an icon at full swell by 12px.
+    &-label.tooltip-message,
+    &-label.tooltip-shared {
+        --box-shadow: none;
+        --font-weight: var(--font-weight-500);
+        --spacer: calc(var(--size-peak) - var(--size-rest) - var(--inset) + 12px);
     }
 
     &-label.tooltip-message {
         --border-radius: var(--border-radius-300);
-        --box-shadow: none;
-        --font-weight: var(--font-weight-500);
         --offset: 4px;
         --padding-horizontal: 8px;
         --padding-vertical: 4px;
-        --spacer: 12px;
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;
     }
 
+    &-label.tooltip-shared {
+        --padding: 4px 8px;
+        --radius: var(--border-radius-300);
+    }
 
+
+    // A zero-length hop still ends, so the launch clears itself.
     @media (prefers-reduced-motion: reduce) {
-        --light-delay: 0s;
+        --hop-duration: 0s;
     }
 }

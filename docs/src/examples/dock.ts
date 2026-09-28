@@ -5,10 +5,10 @@ import type { Entry } from '../types';
 import './dock.scss';
 
 
-function demo(modifier = '') {
+function demo(attributes: Partial<Parameters<typeof dock>[0]> = {}) {
     return html`
         <div class='dock-demo'>
-            ${dock({ class: modifier, items: items(['Home', 'Mail']) })}
+            ${dock({ ...attributes, items: items(['Home', 'Mail']) })}
         </div>
     `;
 }
@@ -79,11 +79,11 @@ export default {
             title: 'controlled running state + onlaunch'
         },
         {
-            render: () => demo('dock--subtle'),
-            title: 'dock--subtle'
+            render: () => demo({ group: true }),
+            title: 'group tooltip'
         },
         {
-            render: () => demo('dock--square'),
+            render: () => demo({ class: 'dock--square' }),
             title: 'dock--square'
         }
     ]
