@@ -3,8 +3,12 @@ import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 
 
+// The counter takes the surrounding font size; these demos keep a display size.
+let display = 'font-size: clamp(2rem, 4vw + 1rem, 8rem);';
+
+
 function animated(variant?: string) {
-    return cycle([1234, 87654, 4200000], (state) => counter({ class: variant, currency: 'USD', state, value: 1234 }));
+    return cycle([1234, 87654, 4200000], (state) => counter({ class: variant, currency: 'USD', state, style: display, value: 1234 }));
 }
 
 function cycle(values: number[], render: (state: { value: number }) => ReturnType<typeof counter>) {
@@ -47,6 +51,10 @@ export default {
             title: 'USD (animated)'
         },
         {
+            render: () => animated('counter--shade'),
+            title: 'shade'
+        },
+        {
             render: () => animated('counter--snap'),
             title: 'snap'
         },
@@ -55,19 +63,11 @@ export default {
             title: 'spring'
         },
         {
-            render: () => animated('counter--linear'),
-            title: 'linear'
-        },
-        {
-            render: () => animated('counter--stagger'),
-            title: 'stagger'
-        },
-        {
-            render: () => counter({ currency: 'IGNORE', value: 98765 }),
+            render: () => counter({ currency: 'IGNORE', style: display, value: 98765 }),
             title: 'plain number'
         },
         {
-            render: () => counter({ currency: 'IGNORE', decimals: 0, suffix: 'pts', value: 4200 }),
+            render: () => counter({ currency: 'IGNORE', decimals: 0, style: display, suffix: 'pts', value: 4200 }),
             title: 'suffix'
         },
         {

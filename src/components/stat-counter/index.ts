@@ -161,7 +161,7 @@ function template(this: { attributes?: Partial<A> } | void, { state, stats, ...a
                     <span aria-hidden='true' class='stat-counter-value'>
                         <span class='stat-counter-affix'>${() => current().prefix ?? ''}</span>
                         ${counter({
-                            class: 'counter--ticker stat-counter-counter',
+                            class: 'counter--inherit counter--ticker stat-counter-counter',
                             currency: 'IGNORE',
                             decimals: initial.decimals ?? 0,
                             delay: 0,

@@ -3,11 +3,24 @@ import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
 
+type Currency = 'EUR' | 'GBP' | 'IGNORE' | 'USD';
+
+
 let formatters: Record<string, Intl.NumberFormat> = {};
 
 
-export default ({ currency, decimals = 2, delay, max, prefix, startOnView, state: api = reactive({ value: -1 }), suffix, value, ...attributes }: Attributes & {
-    currency?: 'IGNORE' | 'EUR' | 'GBP' | 'USD';
+// Both paths use the visitor's locale; 'IGNORE' formats a plain number instead of a currency.
+function formatter(currency: Currency, decimals: number) {
+    if (currency === 'IGNORE') {
+        return formatters[decimals] ??= new Intl.NumberFormat(undefined, { maximumFractionDigits: decimals });
+    }
+
+    return formatters[currency] ??= new Intl.NumberFormat(undefined, { currency, style: 'currency' });
+}
+
+
+export default ({ currency = 'USD', decimals = 2, delay, max, prefix, startOnView, value, state: api = reactive({ value }), suffix, ...attributes }: Attributes & {
+    currency?: Currency;
     decimals?: number;
     delay?: number;
     max?: number;
@@ -17,33 +30,16 @@ export default ({ currency, decimals = 2, delay, max, prefix, startOnView, state
     suffix?: string;
     value: number;
 }) => {
-    let formatter = currency === 'IGNORE'
-            ? undefined
-            : formatters[currency || 'USD'] ??= new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: currency || 'USD'
-            }),
-        animation = reactive({ started: false }),
+    let animation = reactive({ started: false }),
+        format = formatter(currency, decimals),
         observer: IntersectionObserver | undefined,
         render = reactive([] as { digit: boolean; index: number; roll: number; value: string }[]),
         stop = effect(() => {
-            let target = api.value === -1 ? value : api.value,
-                started = animation.started;
+            let started = animation.started,
+                target = api.value;
 
             let padding = (max || target).toFixed(decimals).length - target.toFixed(decimals).length,
-                values = target.toString().padStart(target.toString().length + padding, '1') as any;
-
-            if (formatter) {
-                values = formatter.format(values);
-            }
-            else {
-                values = Number(values).toLocaleString([], {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: decimals
-                });
-            }
-
-            values = values.split('');
+                values = format.format(Number(target.toString().padStart(target.toString().length + padding, '1'))).split('');
 
             if (prefix) {
                 values.unshift(...prefix.split(''));
@@ -126,7 +122,7 @@ export default ({ currency, decimals = 2, delay, max, prefix, startOnView, state
             ${html.reactive(render, function (character) {
                     if (!character.digit) {
                         return html`
-                            <span class='counter-character counter-character--symbol'>
+                            <span aria-hidden='true' class='counter-character counter-character--symbol'>
                                 ${() => character.value}
                             </span>
                         `;
@@ -134,7 +130,7 @@ export default ({ currency, decimals = 2, delay, max, prefix, startOnView, state
 
                     // Alternating the roll parity swaps between identical keyframes, restarting the per-roll animation.
                     return html`
-                        <div class='counter-character'>
+                        <div aria-hidden='true' class='counter-character'>
                             <div
                                 class='counter-character-track'
                                 data-roll='${() => character.roll}'
@@ -147,6 +143,7 @@ export default ({ currency, decimals = 2, delay, max, prefix, startOnView, state
                         </div>
                     `;
                 })}
+            <span class='counter-sr'>${() => `${prefix ?? ''}${format.format(api.value)}${suffix ? ` ${suffix}` : ''}`}</span>
         </div>
     `;
 };

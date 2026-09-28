@@ -101,7 +101,7 @@ html`
 | Component | Description |
 |-----------|-------------|
 | `autosave` | Save status driven by `state.status` (`unsaved`, `saving`, `saved`) and `state.savedAt` |
-| `counter` | Animated number with currency formatting |
+| `counter` | Rolling-digit number with locale-aware currency formatting, sized by the surrounding `font-size`; `--color` sets the digits (`counter--inherit` takes the text color) and a `--fill` gradient replaces it (`counter--shade`); screen readers get the formatted value |
 | `loader` | Loading spinner |
 | `loading` | Border loading indicator |
 | `typewriter` | Animated typing effect |

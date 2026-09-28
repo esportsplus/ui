@@ -1,18 +1,24 @@
 @use 'variables';
 
 .counter {
+    color: var(--color);
     display: flex;
     gap: 2px;
     place-items: center;
     transition: transform calc(var(--transition-duration) / 4) var(--transition-duration);
     transform-style: flat;
 
+    // Only the elements holding glyphs are painted, so a translucent '--fill' never stacks over itself.
+    // The text fill goes transparent rather than 'color', which keeps 'currentColor' usable in '--fill'.
+    &-character--symbol,
+    &-character-track span {
+        background: var(--fill, linear-gradient(currentColor, currentColor));
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
     &-character,
     &-character-track span {
-        background: linear-gradient(hsl(0 0% 98%) 50%, hsl(0 0% 45%));
-        background-attachment: fixed;
-        background-clip: text;
-        color: transparent;
         transform-style: flat;
     }
 
@@ -22,7 +28,6 @@
         font-variant: tabular-nums;
         font-weight: var(--font-weight);
         height: 1lh;
-        mask: linear-gradient(transparent, white calc(1lh * var(--mask-size)) calc(100% - (1lh * var(--mask-size))), transparent);
         overflow: hidden;
         transform-style: flat;
 
@@ -78,14 +83,17 @@
         }
     }
 
+    &-sr {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
     &--ticker {
         gap: 0;
-
-        .counter-character,
-        .counter-character-track span {
-            background: none;
-            color: inherit;
-        }
     }
 
     @media (prefers-reduced-motion: reduce) {
