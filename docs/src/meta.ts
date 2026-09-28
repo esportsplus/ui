@@ -127,7 +127,7 @@ const meta: Record<string, Meta> = {
     },
     image: {
         category: 'Display',
-        description: 'Blur-up image that develops from a low-quality placeholder into the full photo.'
+        description: 'Lazyloaded image that fades its placeholder out over the decoded full image, then removes it.'
     },
     'inline-edit': {
         category: 'Form Controls',
