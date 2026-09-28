@@ -127,27 +127,50 @@
 }
 
 
-.tooltip-group-content {
+// '--padding' and '--radius' rather than the usual names: the root resets '--padding-*' and '--border-radius' on
+// every element, so the box and layers inside would never see them.
+.tooltip-shared {
     --background: var(--color-black-400);
-    --border-radius: var(--border-radius-400);
+    --blur: 7px;
     --box-shadow: var(--box-shadow-400);
+    --close-duration: 0.128s;
     --color: var(--color-white-400);
     --font-size: var(--font-size-300);
     --font-weight: var(--font-weight-400);
-    --group-blur: 7px;
-    --group-close-duration: 0.128s;
-    --group-delay: 0s;
-    --group-glide-duration: 0.4s;
-    --group-glide-timing-function: cubic-bezier(0.22, 1.12, 0.36, 1);
-    --group-open-duration: 0.16s;
-    --group-rise: 4px;
-    --group-scale: 0.94;
-    --group-swap-blur: 3px;
-    --group-swap-duration: 0.14s;
-    --group-swap-shift: 10px;
-    --group-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --glide-duration: 0.4s;
+    --glide-timing-function: cubic-bezier(0.22, 1.12, 0.36, 1);
     --max-width: calc(90vw - (var(--size-700) * 2));
-    --padding-horizontal: var(--size-300);
-    --padding-vertical: var(--size-300);
+    --open-duration: 0.16s;
+    --padding: var(--size-300);
+    --radius: var(--border-radius-400);
+    --rise: 4px;
+    --scale: 0.94;
     --spacer: var(--size-300);
+    --swap-blur: 2px;
+    // Rides the glide rather than finishing ahead of it, so the content visibly travels with the box.
+    --swap-duration: 0.32s;
+    // Shorter than the slide, so the two layers barely overlap and never read as doubled text.
+    --swap-fade-duration: 0.16s;
+    // A share of the content's own size, so short labels and wide cards travel alike; the box clips the rest.
+    --swap-shift: 60%;
+    --swap-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --white-space: nowrap;
+
+    &--interactive {
+        --white-space: normal;
+    }
+}
+
+
+// Only the fades remain. After the defaults, so it wins at the same specificity.
+@media (prefers-reduced-motion: reduce) {
+    .tooltip-shared {
+        --blur: 0px;
+        --glide-duration: 0s;
+        --rise: 0px;
+        --scale: 1;
+        --swap-blur: 0px;
+        --swap-shift: 0%;
+    }
 }

@@ -2,8 +2,8 @@
 @use '/tokens';
 @use 'center' as *;
 @use 'east' as *;
-@use 'group';
 @use 'north' as *;
+@use 'shared';
 @use 'south' as *;
 @use 'west' as *;
 @use 'variables';
@@ -102,6 +102,12 @@
             &, * {
                 pointer-events: none;
             }
+        }
+
+        // A warm handoff between delayed tooltips ('delay') swaps straight in. Single-class specificity and
+        // ahead of the '--expand' and '--morph' variants, so those keep their own motion.
+        &:where(.tooltip.--instant > *, .tooltip.--instant :not(.tooltip) > *) {
+            transition: none;
         }
 
 

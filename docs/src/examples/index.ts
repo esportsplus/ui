@@ -28,7 +28,6 @@ import filterGrid from './filter-grid';
 import grid from './grid';
 import header from './header';
 import highlight from './highlight';
-import hoverCard from './hover-card';
 import icon from './icon';
 import image from './image';
 import inlineEdit from './inline-edit';
@@ -141,7 +140,6 @@ const entries: Entry[] = [
     grid,
     header,
     highlight,
-    hoverCard,
     icon,
     image,
     inlineEdit,

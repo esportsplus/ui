@@ -125,10 +125,6 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Hover highlight that glides behind sibling items and rests on the active one.'
     },
-    'hover-card': {
-        category: 'Overlay',
-        description: 'Delayed preview card for inline mentions that travels between triggers in a shared group and opens by hover, tap, or focus.'
-    },
     icon: {
         category: 'Display',
         description: 'Sprite-backed SVG icon with accessible sizing.'
@@ -391,7 +387,7 @@ const meta: Record<string, Meta> = {
     },
     tooltip: {
         category: 'Interactive',
-        description: 'Contextual popover for hints, menus, and hover details.'
+        description: 'Contextual popover for hints, menus, and hover details, including one shared tooltip that glides between the triggers bound to it.'
     },
     tree: {
         category: 'Interactive',

@@ -1,12 +1,12 @@
 import context from './context';
-import group from './group';
 import menu from './menu';
 import onclick from './onclick';
 import onhover from './onhover';
+import shared from './shared';
 import './scss/index.scss';
 
 
-const tooltip: { context: typeof context, group: typeof group, menu: typeof menu, onclick: typeof onclick, onhover: typeof onhover } = { context, group, menu, onclick, onhover };
+const tooltip: { context: typeof context, menu: typeof menu, onclick: typeof onclick, onhover: typeof onhover, shared: typeof shared } = { context, menu, onclick, onhover, shared };
 
 
 export default tooltip;

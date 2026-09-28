@@ -22,7 +22,6 @@ export { default as filterGrid } from './filter-grid';
 export { default as form } from './form';
 export { default as header } from './header';
 export { default as highlight } from './highlight';
-export { default as hoverCard } from './hover-card';
 export { default as icon } from './icon';
 export { default as image } from './image';
 export { default as inlineEdit } from './inline-edit';

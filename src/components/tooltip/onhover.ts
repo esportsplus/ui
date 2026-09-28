@@ -1,18 +1,26 @@
 import { component, html, Attributes } from '@esportsplus/template';
-import { reactive } from '@esportsplus/reactivity';
-import { content, morph, morphing } from './utilities';
+import { onCleanup, reactive } from '@esportsplus/reactivity';
+import { content, cool, morph, morphing, wait, warm, type Delay } from './utilities';
 
 
-type A = Attributes & {
+type A = Attributes & Options & {
     onanimationcancel?: never,
     onanimationend?: never,
     onanimationstart?: never,
+    ondocumentkeydown?: never,
+    onfocusin?: never,
+    onfocusout?: never,
     onmouseover?: never,
     onmouseout?: never,
     onpointermove?: never,
     ontransitioncancel?: never,
     ontransitionend?: never,
-    ontransitionrun?: never,
+    ontransitionrun?: never
+};
+
+type Options = {
+    // Keyboard focus never waits for the open delay.
+    delay?: Delay,
     state?: { active: boolean }
 };
 
@@ -86,68 +94,141 @@ function safe(element: HTMLElement, x: number, y: number) {
 }
 
 
-export default component<A>(
-    ({ state = reactive({ active: false }), ...attributes }, content) => {
-        let cancel: VoidFunction | undefined,
-            settled = morphing(false),
-            x = 0,
-            y = 0;
+// The hover behaviour without an element of its own: spread it on any '.tooltip' element that holds a
+// '.tooltip-content' or '.tooltip-message'.
+function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state = reactive({ active: false }) }: Options = {}) {
+    let leaving: ReturnType<typeof setTimeout> | undefined,
+        local = reactive({ instant: false }),
+        morphed: VoidFunction | undefined,
+        pending: VoidFunction | undefined,
+        settled = morphing(false),
+        x = 0,
+        y = 0;
 
-        return html`
-            <div
-                class='tooltip'
-                ${attributes}
-                ${{
-                    class: () => state.active && '--active',
-                    onanimationcancel: settled,
-                    onanimationend: settled,
-                    onanimationstart: morphing(true),
-                    onmouseover: (e: MouseEvent) => {
-                        let element = e.currentTarget as HTMLElement;
+    function close() {
+        clearTimeout(leaving);
+        leaving = undefined;
+        morphed?.();
+        morphed = undefined;
+        pending?.();
+        pending = undefined;
 
-                        // Moving between the trigger and its own children isn't entering it.
-                        if (state.active || cancel || element.contains(e.relatedTarget as Node | null)) {
-                            return;
-                        }
+        if (opening && state.active) {
+            cool();
+        }
 
-                        cancel = morph(element, () => {
-                            cancel = undefined;
-                            state.active = true;
-                        });
-                    },
-                    onmouseout: (e: MouseEvent) => {
-                        if ((e.currentTarget as HTMLElement).contains(e.relatedTarget as Node | null)) {
-                            return;
-                        }
-
-                        cancel?.();
-                        cancel = undefined;
-                        state.active = false;
-                    },
-                    onpointermove: (e: PointerEvent) => {
-                        let element = e.currentTarget as HTMLElement;
-
-                        x = e.clientX;
-                        y = e.clientY;
-
-                        if (state.active) {
-                            safe(element, x, y);
-                        }
-                    },
-                    ontransitioncancel: settled,
-                    // Content animates in; re-measure once it settles so the cone targets its final position.
-                    ontransitionend: (e: TransitionEvent) => {
-                        settled(e);
-
-                        if (state.active) {
-                            safe(e.currentTarget as HTMLElement, x, y);
-                        }
-                    },
-                    ontransitionrun: morphing(true)
-                }}
-            >
-                ${content}
-            </div>
-        `;
+        state.active = false;
     }
+
+    function open(element: HTMLElement) {
+        pending = undefined;
+        morphed = morph(element, () => {
+            morphed = undefined;
+            state.active = true;
+        });
+    }
+
+    // A wait that hasn't opened yet is dropped at once; only a showing tooltip waits out the close delay.
+    function release() {
+        pending?.();
+        pending = undefined;
+
+        if (!closing || !(state.active || morphed)) {
+            close();
+            return;
+        }
+
+        leaving ??= setTimeout(close, closing);
+    }
+
+    function stay() {
+        clearTimeout(leaving);
+        leaving = undefined;
+    }
+
+    onCleanup(() => {
+        clearTimeout(leaving);
+        pending?.();
+    });
+
+    return {
+        class: () => state.active && (local.instant ? '--active --instant' : '--active'),
+        onanimationcancel: settled,
+        onanimationend: settled,
+        onanimationstart: morphing(true),
+        // On the document, so Escape dismisses a hovered tooltip wherever focus is.
+        ondocumentkeydown: (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && (state.active || pending)) {
+                close();
+            }
+        },
+        onfocusin: (e: FocusEvent) => {
+            stay();
+
+            if (state.active || morphed || !(e.target as Element).matches(':focus-visible')) {
+                return;
+            }
+
+            pending?.();
+            local.instant = false;
+            open(e.currentTarget as HTMLElement);
+        },
+        onfocusout: (e: FocusEvent) => {
+            if (!(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node | null)) {
+                release();
+            }
+        },
+        onmouseover: (e: MouseEvent) => {
+            let element = e.currentTarget as HTMLElement;
+
+            // Moving between the trigger and its own children isn't entering it.
+            if (element.contains(e.relatedTarget as Node | null)) {
+                return;
+            }
+
+            stay();
+
+            if (state.active || morphed || pending) {
+                return;
+            }
+
+            local.instant = opening > 0 && warm();
+            pending = wait(opening, () => open(element));
+        },
+        onmouseout: (e: MouseEvent) => {
+            if (!(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node | null)) {
+                release();
+            }
+        },
+        onpointermove: (e: PointerEvent) => {
+            let element = e.currentTarget as HTMLElement;
+
+            x = e.clientX;
+            y = e.clientY;
+
+            if (state.active) {
+                safe(element, x, y);
+            }
+        },
+        ontransitioncancel: settled,
+        // Content animates in; re-measure once it settles so the cone targets its final position.
+        ontransitionend: (e: TransitionEvent) => {
+            settled(e);
+
+            if (state.active) {
+                safe(e.currentTarget as HTMLElement, x, y);
+            }
+        },
+        ontransitionrun: morphing(true)
+    };
+}
+
+
+export default component(
+    ({ delay, state, ...attributes }: A, content) => html`
+        <div class='tooltip' ${attributes} ${trigger({ delay, state })}>
+            ${content}
+        </div>
+    `,
+    { trigger }
 );
