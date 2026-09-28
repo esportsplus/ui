@@ -1,5 +1,6 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { mac } from '~/lib/platform';
 import './scss/index.scss';
 
 
@@ -47,10 +48,6 @@ const RING = 2 * Math.PI * 7;
 
 let uid = 0;
 
-
-function mac() {
-    return /Mac|iPhone|iPad/.test(navigator.platform);
-}
 
 function reduced() {
     return matchMedia('(prefers-reduced-motion: reduce)').matches;

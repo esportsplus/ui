@@ -1,6 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { toast } from '~/components/toast';
+import { mac } from '~/lib/platform';
 import './scss/index.scss';
 
 
@@ -84,7 +85,7 @@ function reduced() {
 }
 
 function shortcut() {
-    return /Mac|iPhone|iPad/.test(navigator.platform) ? 'Command Z' : 'Control Z';
+    return mac() ? 'Command Z' : 'Control Z';
 }
 
 
