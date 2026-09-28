@@ -11,15 +11,13 @@
     position: absolute;
     scale: var(--scale-hidden);
     top: 0;
+    // Position and size sit on the item at all times; gliding between items is an offset the script adds on top.
     transition:
         background var(--transition-duration) var(--transition-timing-function),
-        border-radius var(--glide-duration) var(--glide-timing-function),
+        border-radius var(--glide) var(--glide-timing-function),
         display var(--fade-duration) allow-discrete,
-        height var(--glide-duration) var(--glide-timing-function),
         opacity var(--fade-duration) var(--transition-timing-function),
-        scale var(--fade-duration) var(--transition-timing-function),
-        translate var(--glide-duration) var(--glide-timing-function),
-        width var(--glide-duration) var(--glide-timing-function);
+        scale var(--fade-duration) var(--transition-timing-function);
     translate: var(--x) var(--y);
     width: var(--width);
     z-index: -1;
