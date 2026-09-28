@@ -25,6 +25,7 @@
         scrollbar-color: auto;
 
         &::-webkit-scrollbar {
+            height: var(--scrollbar-width);
             width: var(--scrollbar-width);
         }
         &::-webkit-scrollbar-button {
@@ -108,6 +109,15 @@
         }
     }
 
+    // Toggled by scrollbar.drag(). Its writes track the pointer 1:1, so smooth scrolling and snapping would
+    // fight them.
+    &-drag.--dragging {
+        cursor: grabbing;
+        scroll-behavior: auto;
+        scroll-snap-type: none;
+        user-select: none;
+    }
+
     // Unsupported browsers get --scroll-overflow-* from the scrollbar.fade() fallback instead of the timeline.
     &-fade {
         --scroll-fade-bottom: calc(var(--scroll-fade-size) * var(--scroll-overflow-bottom, 0));
@@ -143,6 +153,14 @@
         &::-webkit-scrollbar {
             display: none;
         }
+    }
+
+    // No vertical gutter held open, and vertical wheels chain through to the page.
+    &-horizontal {
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-y: auto;
+        scrollbar-gutter: auto;
     }
 
     &-snap {

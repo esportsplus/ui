@@ -130,7 +130,7 @@ html`
 ### Layout
 | Component | Description |
 |-----------|-------------|
-| `scrollbar` | Native scrollbar styling; `--scrollbar-fade` / `--scrollbar-blur` edges driven by scroll timelines, with `scrollbar.fade()` / `scrollbar.blur()` (`@esportsplus/ui/css-utilities/scrollbar`) adding a JS fallback only where those are unsupported |
+| `scrollbar` | Native scrollbar styling; `--scrollbar-horizontal` scrolls x only; `--scrollbar-fade` / `--scrollbar-blur` edges driven by scroll timelines, with `scrollbar.fade()` / `scrollbar.blur()` (`@esportsplus/ui/css-utilities/scrollbar`) adding a JS fallback only where those are unsupported; `scrollbar.drag('horizontal' \| 'vertical' \| 'both')` adds mouse drag-to-scroll (`--scrollbar-drag`) |
 | `tabs.scss` | Tab panels: instant by default, `tabs--slide` for horizontal motion, `tabs--scroll` for vertical motion |
 | `sidebar` | Side navigation |
 | `modal` | Native `<dialog>` modal driven by `state.active` (Esc and backdrop click close it) |
