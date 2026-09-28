@@ -277,7 +277,7 @@ export default ({ columns, label = 'Board', onsort, ...attributes }: A) => {
                     <div class='kanban-board-header' aria-hidden='true'>
                         <span>${column.title}</span>
                         ${counter({
-                            class: 'kanban-board-count counter--ticker',
+                            class: 'kanban-board-count counter--inherit counter--ticker',
                             currency: 'IGNORE',
                             decimals: 0,
                             delay: 0,

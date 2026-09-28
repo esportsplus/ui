@@ -1,3 +1,22 @@
+// Registered so the card's rotation, fade and stack position all follow one interpolated value.
+@property --swipe-deck-depth {
+    inherits: false;
+    initial-value: 0;
+    syntax: '<number>';
+}
+
+@property --swipe-deck-lift {
+    inherits: false;
+    initial-value: 1;
+    syntax: '<number>';
+}
+
+@property --swipe-deck-x {
+    inherits: false;
+    initial-value: 0;
+    syntax: '<number>';
+}
+
 .swipe-deck {
     --accent: var(--color-blue-400);
     --background: var(--color-white-400);
@@ -21,4 +40,8 @@
     --spring-crossfade: 730ms linear(0, 0.102, 0.279, 0.444, 0.582, 0.688, 0.769, 0.829, 0.874, 0.906, 0.931, 0.949, 0.962, 0.972, 0.979, 0.985, 0.989, 0.992, 0.994, 0.995, 0.997, 0.998, 0.998, 0.999, 1);
     // 260 / 34 / 1
     --spring-settle: 673ms linear(0, 0.076, 0.226, 0.383, 0.524, 0.641, 0.732, 0.802, 0.854, 0.893, 0.922, 0.943, 0.959, 0.97, 0.978, 0.984, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.998, 0.999, 1);
+
+    &-card.--dragging {
+        --swipe-deck-lift: var(--drag-scale);
+    }
 }

@@ -20,7 +20,17 @@
     --scrim: oklch(from var(--color-black-400) l c h / 0.08);
     --width: 17rem;
 
+    &.--instant {
+        --close-duration: 0s;
+        --open-duration: 0s;
+    }
+
     @media (pointer: coarse) {
         --item-height: 44px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --close-duration: 0s;
+        --open-duration: 0s;
     }
 }

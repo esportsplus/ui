@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import counter from '~/components/counter';
 import './scss/index.scss';
@@ -161,7 +161,7 @@ function template(this: { attributes?: Partial<A> } | void, { state, stats, ...a
                     <span aria-hidden='true' class='stat-counter-value'>
                         <span class='stat-counter-affix'>${() => current().prefix ?? ''}</span>
                         ${counter({
-                            class: 'counter--ticker stat-counter-counter',
+                            class: 'counter--inherit counter--ticker stat-counter-counter',
                             currency: 'IGNORE',
                             decimals: initial.decimals ?? 0,
                             delay: 0,
@@ -333,5 +333,5 @@ function template(this: { attributes?: Partial<A> } | void, { state, stats, ...a
 }
 
 
-export default Object.assign(template, { card: STAT_COUNTER_CARD, slider: STAT_COUNTER_SLIDER } as const);
+export default component(template, { card: STAT_COUNTER_CARD, slider: STAT_COUNTER_SLIDER });
 export type { Stat as StatCounterStat, State as StatCounterState };

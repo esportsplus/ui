@@ -18,8 +18,6 @@
             box-shadow var(--transition-duration) ease-out;
 
         .input {
-            --background: transparent;
-            --border-width: 0px;
             outline: none;
             // Reserved for both the key and the toggle so text never shifts when the key arrives
             padding-right: calc(var(--toggle-size) + var(--key-width) + var(--size-300));

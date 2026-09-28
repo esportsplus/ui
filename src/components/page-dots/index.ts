@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
@@ -133,5 +133,5 @@ function template(
 }
 
 
-export default Object.assign(template, { dot: PAGE_DOTS_DOT } as const);
+export default component(template, { dot: PAGE_DOTS_DOT });
 export type { State };

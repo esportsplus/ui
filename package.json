@@ -2,8 +2,8 @@
     "author": "ICJR",
     "dependencies": {
         "@esportsplus/action": "^0.1.8",
-        "@esportsplus/reactivity": "^0.38.0",
-        "@esportsplus/template": "^0.54.0",
+        "@esportsplus/reactivity": "^0.38.1",
+        "@esportsplus/template": "^0.54.1",
         "@esportsplus/utilities": "^0.28.6",
         "modern-normalize": "^3.0.1"
     },
@@ -22,11 +22,16 @@
         "vite": "^8.3.1"
     },
     "exports": {
+        "./css-utilities/scrollbar": {
+            "types": "./build/css-utilities/scrollbar/index.d.ts",
+            "default": "./build/css-utilities/scrollbar/index.js"
+        },
         "./css-utilities.scss": "./build/css-utilities/index.scss",
         "./css-utilities/*.scss": "./build/css-utilities/*/scss/index.scss",
         "./css-utilities/font/*.scss": "./build/css-utilities/font/*/scss/index.scss",
         "./layer.scss": "./layer.scss",
         "./lib.scss": "./lib.scss",
+        "./svg/*.svg": "./storage/svg/*.svg",
         "./themes/dark": {
             "types": "./build/themes/dark/index.d.ts",
             "default": "./build/themes/dark/index.js"

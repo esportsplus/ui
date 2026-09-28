@@ -1,36 +1,30 @@
 @use '/tokens';
 @use 'variables';
 
+// Surfaces come from '.card'. Items stretch the full shelf height, so the whole shelf is hoverable; icons sit on
+// its bottom inset and the swell spills upward.
 .dock {
-    align-items: flex-end;
-    background: var(--background);
-    border-radius: var(--radius);
-    box-shadow: var(--box-shadow);
     display: flex;
-    gap: var(--gap);
-    height: var(--height);
-    padding: 0 var(--padding) var(--padding);
+    height: calc(var(--size-rest) + var(--inset) * 2);
 
 
     // Width and height grow instead of scale on purpose: the neighbours have to move apart, not overlap.
     &-button {
-        --size: var(--size-rest);
         align-items: center;
-        background: var(--item-background);
         border: 0;
-        border-radius: var(--item-radius);
-        box-shadow: var(--item-box-shadow);
-        color: var(--item-color);
+        color: var(--color);
         cursor: pointer;
         display: flex;
         flex-shrink: 0;
         height: var(--size);
         justify-content: center;
         outline: none;
-        position: relative;
         // Lands on its base, so the squash spreads along the dock.
         transform-origin: 50% 100%;
-        transition: scale 0.15s ease-out;
+        transition:
+            height var(--magnify-duration) var(--magnify-timing-function),
+            scale 0.15s ease-out,
+            width var(--magnify-duration) var(--magnify-timing-function);
         width: var(--size);
 
         &:active {
@@ -38,37 +32,35 @@
         }
 
         &:focus-visible {
-            outline: 2px solid var(--item-color);
+            outline: 2px solid var(--color);
             outline-offset: 2px;
         }
 
+        &.--launching {
+            animation:
+                dock-hop var(--hop-duration),
+                dock-squash var(--hop-duration) ease-in-out;
+        }
+
+        // Relative to the button, so the icon follows the transition too.
         svg {
-            height: calc(var(--size) * var(--icon-ratio));
-            width: calc(var(--size) * var(--icon-ratio));
+            height: calc(var(--icon-ratio) * 100%);
+            width: calc(var(--icon-ratio) * 100%);
         }
     }
 
-    &-item.tooltip {
+    // Holds the items when they share one label.
+    &-group {
+        display: flex;
+    }
+
+    &-item {
+        align-items: flex-end;
         cursor: default;
         display: flex;
         flex-shrink: 0;
-    }
-
-    &-label.tooltip-message {
-        --border-radius: var(--border-radius-300);
-        --box-shadow: none;
-        --font-weight: var(--font-weight-500);
-        --offset: 4px;
-        --padding-horizontal: 8px;
-        --padding-vertical: 4px;
-        --spacer: 12px;
-        --transition-duration: 0.15s;
-        --transition-timing-function: ease-out;
-
-        // Once a label is up, moving along the dock swaps it with no animation.
-        &.--instant {
-            transition: none;
-        }
+        padding: 0 calc(var(--spacing) / 2) var(--inset);
+        position: relative;
     }
 
     &-light {
@@ -76,12 +68,13 @@
         border-radius: 50%;
         height: var(--light-size);
         left: 50%;
-        margin: 4px 0 0 calc(var(--light-size) / -2);
+        margin-inline-start: calc(var(--light-size) / -2);
         opacity: 0;
         pointer-events: none;
         position: absolute;
         scale: 0.5;
-        top: 100%;
+        // 4px under the resting button.
+        top: calc(100% - var(--inset) + 4px);
         transition:
             opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1),
             scale 0.15s cubic-bezier(0.23, 1, 0.32, 1);
@@ -94,9 +87,69 @@
             transition-duration: 0.2s;
         }
     }
+}
 
 
-    @media (prefers-reduced-motion: reduce) {
-        --light-delay: 0s;
+// The hovered icon peaks and swells its two neighbours on each side. Touch has no hover to follow, and
+// reduced motion keeps the icons still.
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .dock-item:hover {
+        --size: var(--size-peak);
+    }
+
+    .dock-item:has(+ .dock-item:hover),
+    .dock-item:hover + .dock-item {
+        --size: var(--size-near);
+    }
+
+    .dock-item:has(+ .dock-item + .dock-item:hover),
+    .dock-item:hover + .dock-item + .dock-item {
+        --size: var(--size-far);
+    }
+}
+
+
+// Up fast and down with gravity; each landing is the quickest part.
+@keyframes dock-hop {
+    0% {
+        animation-timing-function: ease-out;
+        translate: 0 0;
+    }
+    30% {
+        animation-timing-function: ease-in;
+        translate: 0 -22px;
+    }
+    55% {
+        animation-timing-function: ease-out;
+        translate: 0 0;
+    }
+    78% {
+        animation-timing-function: ease-in;
+        translate: 0 -9px;
+    }
+    100% {
+        translate: 0 0;
+    }
+}
+
+// Squashes on each landing, so the icon reads as having weight.
+@keyframes dock-squash {
+    0% {
+        scale: 1 1;
+    }
+    30% {
+        scale: 0.97 1.04;
+    }
+    55% {
+        scale: 1.08 0.9;
+    }
+    70% {
+        scale: 0.99 1.02;
+    }
+    80% {
+        scale: 1.03 0.96;
+    }
+    100% {
+        scale: 1 1;
     }
 }

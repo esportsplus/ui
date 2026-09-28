@@ -40,6 +40,13 @@
         --width: max-content;
     }
 
+
+    // Qualified by the root so it wins over the reused input/textarea styles regardless of stylesheet order.
+    & > #{&}-field {
+        --background-default: var(--field-background);
+        --color-default: currentColor;
+    }
+
     // No field chrome while editing; only the caret shows the text is live.
     &--seamless {
         --field-background: transparent;

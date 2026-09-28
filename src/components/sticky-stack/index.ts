@@ -110,11 +110,11 @@ function top(layout: Layout, i: number) {
 }
 
 
-export default Object.assign(component<A, Renderable<unknown>>(
+export default component(
     function(
         this: { attributes?: Partial<A> },
         { items, label, state = reactive({ active: 0 }), ...attributes }: A,
-        heading
+        heading: Renderable<unknown>
     ) {
         let animations: Animation[] = [],
             cards: HTMLElement[] = [],
@@ -307,7 +307,8 @@ export default Object.assign(component<A, Renderable<unknown>>(
                 </nav>
             </div>
         `;
-    }
-), { card: STICKY_STACK_CARD, dot: STICKY_STACK_DOT } as const);
+    },
+    { card: STICKY_STACK_CARD, dot: STICKY_STACK_DOT }
+);
 
 export type { Item, State };

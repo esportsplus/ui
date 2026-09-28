@@ -13,10 +13,6 @@
 
 
     &-action {
-        --background-default: var(--accent);
-        --color-default: var(--accent-contrast);
-        --padding-horizontal: 16px;
-        --padding-vertical: 0px;
         border-radius: 999px;
         display: grid;
         font-size: var(--font-size);
@@ -35,8 +31,6 @@
         }
 
         .--done & {
-            --background-default: var(--pressed);
-            --color-default: var(--color-muted);
             cursor: default;
             scale: 1;
         }
@@ -150,21 +144,6 @@
     }
 
     &-checkbox {
-        --background-active: var(--accent);
-        --border-color-active: var(--accent);
-        --border-color-default: oklch(from var(--color-muted) l c h / 0.6);
-        --border-color-hover: var(--color-muted);
-        --border-radius: 6px;
-        --border-width: 1.5px;
-        --border-width-offset-hover: 0px;
-        --box-shadow-active: none;
-        --check-size: 75%;
-        --check-stroke-width: 3;
-        --focus-color: var(--focus-ring);
-        --indicator-color-default: var(--accent-contrast);
-        --size: 20px;
-        --transition-duration: 150ms;
-        --transition-timing-function: ease-out;
         transition-property: background, border-color, scale;
 
         .onboarding-checklist-toggle:active & {

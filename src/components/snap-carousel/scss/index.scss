@@ -149,8 +149,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        --focus-scale: 1;
-
         &-arrow {
             transition: opacity 0.15s ease-out;
         }

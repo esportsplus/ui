@@ -35,6 +35,10 @@
         --border-radius: var(--border-radius-700);
     }
 
+    &-close .icon {
+        --size: 16px;
+    }
+
     &-field {
         --background: var(--surface-muted);
         --border-radius: var(--border-radius-500);
@@ -46,5 +50,26 @@
         --background-active: var(--surface-muted);
         --background-hover: color-mix(in srgb, var(--surface-muted) 60%, transparent);
         --border-radius: var(--border-radius-500);
+
+        @include tokens.state(active) {
+            --background: var(--background-active);
+        }
+
+        @include tokens.state(hover) {
+            --background: var(--background-hover);
+        }
+
+        &-icon {
+            --size: 20px;
+        }
+    }
+
+    &-saved-icon {
+        --size: 16px;
+    }
+
+    &-title {
+        --font-size: 20px;
+        --font-weight: var(--font-weight-500);
     }
 }

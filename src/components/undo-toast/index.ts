@@ -1,6 +1,7 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { toast } from '~/components/toast';
+import { mac } from '~/lib/platform';
 import './scss/index.scss';
 
 
@@ -84,11 +85,11 @@ function reduced() {
 }
 
 function shortcut() {
-    return /Mac|iPhone|iPad/.test(navigator.platform) ? 'Command Z' : 'Control Z';
+    return mac() ? 'Command Z' : 'Control Z';
 }
 
 
-export default Object.assign(
+export default component(
     function(this: { attributes?: Partial<A> } | void, { duration = 5000, emptyLabel = 'No files left', items, label = 'Files', ondelete, restoreLabel, state = reactive({ empty: false, pending: 0 }), ...attributes }: A) {
         let gone = new Set<string>(),
             live = reactive({ text: '' }),
@@ -355,5 +356,5 @@ export default Object.assign(
             </div>
         `;
     },
-    { row: UNDO_TOAST_ROW } as const
+    { row: UNDO_TOAST_ROW }
 );

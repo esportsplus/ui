@@ -216,7 +216,7 @@ export default <T>(
         render = (card: Card) => {
             let item = items[card.index];
 
-            // Only the exit property ends a card; leaving interrupts its promotion, which cancels '--depth'.
+            // Only the exit property ends a card; leaving interrupts its promotion, which cancels '--swipe-deck-depth'.
             function settle(this: HTMLElement, e: TransitionEvent) {
                 if (e.target !== this) {
                     return;
@@ -224,7 +224,7 @@ export default <T>(
 
                 if (
                     (card.phase === 'drop' && e.propertyName === 'opacity') ||
-                    (card.phase === 'leave' && e.propertyName === '--x')
+                    (card.phase === 'leave' && e.propertyName === '--swipe-deck-x')
                 ) {
                     remove(card);
                 }
@@ -320,7 +320,7 @@ export default <T>(
                             // The card behind the active one rises toward the front as the drag commits.
                             let depth = card.depth === 1 ? 1 - state.step / grain : card.depth;
 
-                            return `--depth: ${depth}; --x: ${card.x}; z-index: ${card.phase === 'leave' ? 12 : 10 - card.depth};`;
+                            return `--swipe-deck-depth: ${depth}; --swipe-deck-x: ${card.x}; z-index: ${card.phase === 'leave' ? 12 : 10 - card.depth};`;
                         }
                     }}
                 >

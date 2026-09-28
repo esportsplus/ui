@@ -17,32 +17,37 @@
         border-radius: var(--border-radius);
         height: var(--item-height);
         pointer-events: none;
-        transform: translateY(-50%);
+        translate: 0 -50%;
     }
 
     &-option {
-        // `--offset` (scroll position) and `--half` (half viewport) are written by JS in item units
-        --t: clamp(-1, calc((var(--index) - var(--offset, 0)) / var(--half, 2.5)), 1);
-        --t-abs: max(var(--t), var(--t) * -1);
-
         align-items: center;
         cursor: pointer;
         display: flex;
-        font-variant: tabular-nums;
+        font-variant-numeric: tabular-nums;
         height: var(--item-height);
         justify-content: center;
         opacity: calc(1 - var(--opacity-falloff) * var(--t-abs));
+        rotate: x calc(var(--rotate) * var(--t) * -1);
+        scale: calc(var(--scale) - var(--scale-falloff) * var(--t-abs));
         scroll-snap-align: center;
-        transform:
-            scale(calc(var(--scale) - var(--scale-falloff) * var(--t-abs)))
-            rotateX(calc(var(--rotate) * var(--t) * -1));
         // Driven per scroll frame; the inherited root transition would ease it behind the scroll
         transition: none;
         user-select: none;
 
+        // Driven by each option's own position in the scroller; the range runs from its center
+        // crossing the bottom edge to crossing the top edge, so 50% is dead center.
+        @supports (animation-timeline: view()) {
+            animation: datalist-drum linear both;
+            animation-range: entry 50% exit 50%;
+            animation-timeline: view();
+        }
+
         @media (prefers-reduced-motion: reduce) {
+            animation: none;
             opacity: 1;
-            transform: none;
+            rotate: none;
+            scale: none;
         }
     }
 
@@ -55,11 +60,6 @@
         perspective: var(--perspective);
         position: relative;
         scroll-snap-type: y mandatory;
-        scrollbar-width: none;
-
-        &::-webkit-scrollbar {
-            display: none;
-        }
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
@@ -80,5 +80,26 @@
         pointer-events: none;
         width: 0px;
         z-index: 0;
+    }
+}
+
+@keyframes datalist-drum {
+    0%, 100% {
+        opacity: calc(1 - var(--opacity-falloff));
+        scale: calc(var(--scale) - var(--scale-falloff));
+    }
+
+    0% {
+        rotate: x calc(var(--rotate) * -1);
+    }
+
+    50% {
+        opacity: 1;
+        rotate: x 0deg;
+        scale: var(--scale);
+    }
+
+    100% {
+        rotate: x var(--rotate);
     }
 }

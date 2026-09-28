@@ -78,9 +78,7 @@
         }
     }
 
-    // Outranks `.icon` so its --size default can't win on source order
     .notification-bell-icon {
-        --size: var(--icon-size);
         transform-origin: 50% 8%;
 
         svg {

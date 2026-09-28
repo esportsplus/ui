@@ -10,11 +10,11 @@
             "~/css-utilities/*": [
                 "../src/css-utilities/*"
             ],
+            "~/lib/*": [
+                "../src/lib/*"
+            ],
             "~/*": [
                 "./src/*"
-            ],
-            "~/storage/*": [
-                "../storage/*"
             ],
             "@esportsplus/ui": [
                 "../src/components/index.ts"

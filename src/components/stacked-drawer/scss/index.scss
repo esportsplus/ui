@@ -40,8 +40,6 @@
     // '--covered' is how far the layer above has opened, from 0 to 1.
     &-page,
     &-sheet {
-        --duration-covered: var(--duration-close);
-
         display: flex;
         flex-direction: column;
         scale: calc(1 - var(--covered) * (1 - var(--scale)));
@@ -55,10 +53,6 @@
             opacity: calc(var(--covered) * var(--dim));
             pointer-events: none;
             transition: opacity var(--duration-covered) var(--timing-function);
-        }
-
-        &.--covered {
-            --duration-covered: var(--duration-open);
         }
     }
 
@@ -74,8 +68,6 @@
 
     // Extends past the bottom edge by '--overscroll' so an upward drag never reveals a gap beneath it.
     &-sheet {
-        --duration-translate: var(--duration-close);
-
         background: var(--sheet-background);
         border-radius: var(--sheet-border-radius) var(--sheet-border-radius) 0 0;
         box-shadow: var(--sheet-box-shadow);
@@ -91,8 +83,6 @@
         user-select: none;
 
         @include tokens.state(active) {
-            --duration-translate: var(--duration-open);
-
             translate: 0 var(--offset);
 
             &:not(.--covered) {

@@ -1,92 +1,158 @@
-import { breadcrumb, tooltip } from '@esportsplus/ui';
-import { component, html, type Attributes } from '@esportsplus/template';
+import { reactive } from '@esportsplus/reactivity';
+import { html } from '@esportsplus/template';
+import { breadcrumb } from '@esportsplus/ui';
+import type { Separator } from '~/components/breadcrumb';
+import type { Entry } from '../types';
+import './breadcrumb.scss';
 
 
-let content = 'padding: var(--size-300) 0; --background: var(--color-black-400); color: var(--color-white-400);',
-    option = 'padding: var(--size-200) var(--size-500); --color-default: var(--color-white-400); white-space: nowrap;';
+let path = [
+    { href: '/workspace', label: 'Workspace' },
+    { href: '/workspace/projects', label: 'Projects' },
+    { href: '/workspace/projects/ui-lab', label: 'ui-lab' },
+    { href: '/workspace/projects/ui-lab/src', label: 'src' },
+    { href: '/workspace/projects/ui-lab/src/lab', label: 'lab' },
+    { href: '/workspace/projects/ui-lab/src/lab/components', label: 'components' },
+    { href: '/workspace/projects/ui-lab/src/lab/components/button.tsx', label: 'button.tsx' }
+];
 
-let routerLink = component<Attributes & { to: string }>(
-    ({ to, ...attributes }, content) => html`<a href='${to}' ${attributes}>${content}</a>`
-);
+
+// Narrow enough to fold everything, wide enough that the current page still reads in full.
+const MIN_WIDTH = 220;
+
+const STEP = 16;
+
+
+function resizable({ modifier = '', plain = false, separator, status }: { modifier?: string, plain?: boolean, separator?: Separator, status?: { last: string } } = {}) {
+    let drag: { width: number; x: number } | null = null,
+        frame: HTMLElement | undefined,
+        handle: HTMLElement | undefined,
+        wrap: HTMLElement | undefined;
+
+    // Written straight to the DOM: resizing is continuous, and only a fold change inside the trail reacts.
+    function resize(width: number) {
+        let max = wrap?.clientWidth ?? width;
+
+        if (!frame || !handle) {
+            return;
+        }
+
+        let next = Math.round(Math.min(Math.max(width, MIN_WIDTH), max));
+
+        frame.style.width = `${next}px`;
+        handle.setAttribute('aria-valuemax', String(Math.round(max)));
+        handle.setAttribute('aria-valuenow', String(next));
+    }
+
+    return html`
+        <div class='breadcrumb-demo' ${{ onrender: (element: HTMLElement) => { wrap = element; } }}>
+            <div class='breadcrumb-demo-frame ${plain && 'breadcrumb-demo-frame--plain'}' ${{ onrender: (element: HTMLElement) => { frame = element; } }}>
+                ${breadcrumb({
+                    class: modifier,
+                    items: path,
+                    separator,
+                    onnavigate: (item, index) => {
+                        if (status) {
+                            status.last = `navigate → ${item.label} (#${index})`;
+                        }
+                    }
+                })}
+                <div
+                    aria-label='Container width'
+                    aria-orientation='horizontal'
+                    aria-valuemax='520'
+                    aria-valuemin='${MIN_WIDTH}'
+                    aria-valuenow='520'
+                    class='breadcrumb-demo-handle'
+                    role='slider'
+                    tabindex='0'
+                    ${{
+                        onconnect: (element: HTMLElement) => {
+                            handle = element;
+
+                            let max = String(Math.round(wrap?.clientWidth ?? 0));
+
+                            element.setAttribute('aria-valuemax', max);
+                            element.setAttribute('aria-valuenow', max);
+                        },
+                        onkeydown: (e: KeyboardEvent) => {
+                            let width = frame?.offsetWidth ?? 0,
+                                next = ({
+                                    ArrowDown: width - STEP,
+                                    ArrowLeft: width - STEP,
+                                    ArrowRight: width + STEP,
+                                    ArrowUp: width + STEP,
+                                    End: Infinity,
+                                    Home: MIN_WIDTH,
+                                    PageDown: width - STEP * 4,
+                                    PageUp: width + STEP * 4
+                                } as Record<string, number>)[e.key];
+
+                            if (next === undefined) {
+                                return;
+                            }
+
+                            e.preventDefault();
+                            resize(next);
+                        },
+                        onpointercancel: () => {
+                            drag = null;
+                        },
+                        onpointerdown: (e: PointerEvent) => {
+                            if (e.button !== 0) {
+                                return;
+                            }
+
+                            (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+                            drag = { width: frame?.offsetWidth ?? 0, x: e.clientX };
+                        },
+                        onpointermove: (e: PointerEvent) => {
+                            if (drag) {
+                                resize(drag.width + e.clientX - drag.x);
+                            }
+                        },
+                        onpointerup: () => {
+                            drag = null;
+                        }
+                    }}
+                >
+                    <span></span>
+                </div>
+            </div>
+            <p class='breadcrumb-demo-hint'>
+                ${() => status ? status.last : 'Drag the edge to resize. Folded folders live behind the dots.'}
+            </p>
+        </div>
+    `;
+}
 
 
 export default {
     name: 'breadcrumb',
     variants: [
         {
-            render: () => breadcrumb(
-                breadcrumb.list(html`
-                    ${breadcrumb.item(breadcrumb.link({ href: '/docs' }, 'Home'))}
-                    ${breadcrumb.separator()}
-                    ${breadcrumb.item(breadcrumb.link({ href: '/components' }, 'Components'))}
-                    ${breadcrumb.separator()}
-                    ${breadcrumb.item(breadcrumb.page('Breadcrumb'))}
-                `)
-            ),
-            title: 'basic'
+            render: () => resizable(),
+            title: 'default (drag the edge to resize)'
         },
         {
-            render: () => breadcrumb(
-                breadcrumb.list(html`
-                    ${breadcrumb.item(breadcrumb.link({ href: '/docs' }, 'Home'))}
-                    ${breadcrumb.separator('/')}
-                    ${breadcrumb.item(breadcrumb.link({ href: '/components' }, 'Components'))}
-                    ${breadcrumb.separator('/')}
-                    ${breadcrumb.item(breadcrumb.page('Breadcrumb'))}
-                `)
-            ),
-            title: 'custom separator'
+            render: () => resizable({ separator: 'chevron' }),
+            title: "separator: 'chevron'"
         },
         {
-            render: () => breadcrumb(
-                breadcrumb.list(html`
-                    ${breadcrumb.item(breadcrumb.link({ href: '/docs' }, 'Home'))}
-                    ${breadcrumb.separator()}
-                    ${breadcrumb.item(breadcrumb.ellipsis())}
-                    ${breadcrumb.separator()}
-                    ${breadcrumb.item(breadcrumb.link({ href: '/components' }, 'Components'))}
-                    ${breadcrumb.separator()}
-                    ${breadcrumb.item(breadcrumb.page('Breadcrumb'))}
-                `)
-            ),
-            title: 'collapsed'
+            render: () => resizable({ plain: true }),
+            title: 'no background'
         },
         {
-            render: () => breadcrumb(
-                breadcrumb.list(html`
-                    ${breadcrumb.item(breadcrumb.link({ href: '/docs' }, 'Home'))}
-                    ${breadcrumb.separator('/')}
-                    ${breadcrumb.item(
-                        breadcrumb.menu(
-                            {
-                                [tooltip.menu.option]: { style: option },
-                                options: [
-                                    { content: 'Documentation' },
-                                    { content: 'Themes' },
-                                    { content: 'GitHub' }
-                                ],
-                                [tooltip.menu.tooltipContent]: { style: content }
-                            },
-                            'Components'
-                        )
-                    )}
-                    ${breadcrumb.separator('/')}
-                    ${breadcrumb.item(breadcrumb.page('Breadcrumb'))}
-                `)
-            ),
-            title: 'dropdown'
+            render: () => resizable({ plain: true, separator: 'chevron' }),
+            title: "no background, separator: 'chevron'"
         },
         {
-            render: () => breadcrumb(
-                breadcrumb.list(html`
-                    ${breadcrumb.item(breadcrumb.link({ render: routerLink, to: '/docs' }, 'Home'))}
-                    ${breadcrumb.separator()}
-                    ${breadcrumb.item(breadcrumb.link({ render: routerLink, to: '/components' }, 'Components'))}
-                    ${breadcrumb.separator()}
-                    ${breadcrumb.item(breadcrumb.page('Breadcrumb'))}
-                `)
-            ),
-            title: 'link component'
+            render: () => resizable({ status: reactive({ last: 'click a crumb or a folded folder' }) }),
+            title: 'onnavigate'
+        },
+        {
+            render: () => resizable({ modifier: 'breadcrumb--compact' }),
+            title: 'breadcrumb--compact'
         }
     ]
-};
+} satisfies Entry;

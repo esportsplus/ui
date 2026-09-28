@@ -1,24 +1,5 @@
 @use 'variables';
 
-// Registered so the card's rotation, fade and stack position all follow one interpolated value.
-@property --depth {
-    inherits: false;
-    initial-value: 0;
-    syntax: '<number>';
-}
-
-@property --lift {
-    inherits: false;
-    initial-value: 1;
-    syntax: '<number>';
-}
-
-@property --x {
-    inherits: false;
-    initial-value: 0;
-    syntax: '<number>';
-}
-
 .swipe-deck {
     width: 100%;
 
@@ -80,49 +61,48 @@
         height: var(--height);
         inset-inline: var(--inset);
         // Fully visible until 150px of travel, gone by 340px.
-        opacity: clamp(0, (340 - max(var(--x), -1 * var(--x))) / 190, 1);
+        opacity: clamp(0, (340 - max(var(--swipe-deck-x), -1 * var(--swipe-deck-x))) / 190, 1);
         overflow: hidden;
         position: absolute;
-        rotate: calc(var(--x) * 0.04deg);
-        scale: calc((1 - (var(--depth) * var(--shrink))) * var(--lift));
+        rotate: calc(var(--swipe-deck-x) * 0.04deg);
+        scale: calc((1 - (var(--swipe-deck-depth) * var(--shrink))) * var(--swipe-deck-lift));
         top: 0;
         touch-action: pan-y;
         transform-origin: 50% 100%;
         transition:
-            --depth var(--spring-crossfade),
-            --lift var(--spring-cell),
-            --x var(--spring-settle);
-        translate: calc(var(--x) * 1px) calc(var(--depth) * var(--offset));
+            --swipe-deck-depth var(--spring-crossfade),
+            --swipe-deck-lift var(--spring-cell),
+            --swipe-deck-x var(--spring-settle);
+        translate: calc(var(--swipe-deck-x) * 1px) calc(var(--swipe-deck-depth) * var(--offset));
         user-select: none;
 
         &.--active {
             box-shadow: var(--box-shadow-active);
             cursor: grab;
             transition:
-                --depth var(--spring-crossfade) 0.1s,
-                --lift var(--spring-cell),
-                --x var(--spring-settle);
+                --swipe-deck-depth var(--spring-crossfade) 0.1s,
+                --swipe-deck-lift var(--spring-cell),
+                --swipe-deck-x var(--spring-settle);
         }
 
         &.--dragging {
-            --lift: var(--drag-scale);
             cursor: grabbing;
             transition:
-                --depth var(--spring-crossfade),
-                --lift var(--spring-cell);
+                --swipe-deck-depth var(--spring-crossfade),
+                --swipe-deck-lift var(--spring-cell);
         }
 
         &.--dropping {
             opacity: 0;
             transition:
-                --depth var(--spring-crossfade),
+                --swipe-deck-depth var(--spring-crossfade),
                 opacity var(--spring-crossfade);
         }
 
         &.--leaving {
             border-color: transparent;
             transition:
-                --x 0.3s cubic-bezier(0.4, 0, 1, 1),
+                --swipe-deck-x 0.3s cubic-bezier(0.4, 0, 1, 1),
                 border-color 0.1s linear;
         }
     }

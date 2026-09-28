@@ -1,0 +1,7 @@
+.accordion {
+    &--more {
+        --focus-color: var(--color-primary-400);
+        --max-height: 320px;
+        --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+}

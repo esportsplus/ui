@@ -1,0 +1,69 @@
+@use '/tokens';
+@use 'variables';
+
+.announcement {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    // Waits for the content to mostly fade, so it never gets squeezed while readable.
+    transition: grid-template-rows 240ms var(--announcement-drawer) 80ms;
+
+
+    // Keeps its natural height while the row collapses under it, so -100% is always a full-height slide.
+    &-content {
+        align-self: start;
+        filter: blur(2px);
+        min-height: 0;
+        opacity: 0;
+        transition:
+            filter 120ms var(--announcement-ease),
+            opacity 120ms var(--announcement-ease);
+        translate: 0 -100%;
+    }
+
+
+    &--returning {
+        .announcement-content {
+            translate: 0 0;
+        }
+    }
+
+
+    @include tokens.state(active) {
+        grid-template-rows: 1fr;
+        transition: grid-template-rows 280ms var(--announcement-drawer);
+
+        .announcement-content {
+            filter: blur(0px);
+            opacity: 1;
+            transition:
+                filter 200ms var(--announcement-ease),
+                opacity 200ms var(--announcement-ease),
+                translate 280ms var(--announcement-drawer);
+            translate: 0 0;
+        }
+
+        // Starts once the space has mostly opened.
+        &.announcement--returning .announcement-content {
+            transition:
+                filter 200ms var(--announcement-ease) 120ms,
+                opacity 200ms var(--announcement-ease) 120ms;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &,
+        &.--active {
+            transition: none;
+        }
+
+        .announcement-content,
+        &.--active .announcement-content,
+        &.--active.announcement--returning .announcement-content {
+            filter: none;
+            transition: opacity 200ms var(--announcement-ease);
+            translate: 0 0;
+        }
+    }
+}

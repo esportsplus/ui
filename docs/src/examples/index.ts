@@ -2,44 +2,26 @@ import type { Entry } from '../types';
 
 import accordion from './accordion';
 import anchor from './anchor';
-import announcementBanner from './announcement-banner';
+import announcement from './announcement';
 import autosave from './autosave';
-import backToTop from './back-to-top';
 import banner from './banner';
-import bentoGrid from './bento-grid';
-import bentoGridSpotlight from './bento-grid-spotlight';
-import bookmarkButton from './bookmark-button';
 import breadcrumb from './breadcrumb';
-import breadcrumbs from './breadcrumbs';
 import button from './button';
 import card from './card';
-import cardInput from './card-input';
-import carousel3d from './carousel-3d';
+import cc from './cc';
 import checkbox from './checkbox';
-import checkboxGroup from './checkbox-group';
 import clipboard from './clipboard';
-import codeMorph from './code-morph';
-import collapsibleSidebar from './collapsible-sidebar';
 import colorPicker from './color-picker';
 import command from './command';
-import commandPalette from './command-palette';
-import composer from './composer';
 import container from './container';
-import contributionHeatmap from './contribution-heatmap';
 import counter from './counter';
 import datalist from './datalist';
-import dateRangePicker from './date-range-picker';
 import dock from './dock';
-import dynamicIsland from './dynamic-island';
-import emailTypoFix from './email-typo-fix';
-import expandingCard from './expanding-card';
-import featureSpotlight from './feature-spotlight';
 import fileTree from './file-tree';
-import filterGrid from './filter-grid';
-import gradientText from './gradient-text';
+import filter from './filter';
 import grid from './grid';
+import heatmap from './heatmap';
 import highlight from './highlight';
-import hoverCard from './hover-card';
 import icon from './icon';
 import image from './image';
 import inlineEdit from './inline-edit';
@@ -54,8 +36,8 @@ import longPress from './long-press';
 import marquee from './marquee';
 import modal from './modal';
 import morphingButton from './morphing-button';
-import morphingNav from './morphing-nav';
 import multiStepForm from './multi-step-form';
+import navigationMenu from './navigation-menu';
 import nestedMenu from './nested-menu';
 import notificationBell from './notification-bell';
 import number from './number';
@@ -68,13 +50,9 @@ import planCard from './plan-card';
 import progress from './progress';
 import pullToRefresh from './pull-to-refresh';
 import radio from './radio';
-import radioCards from './radio-cards';
 import range from './range';
-import rangeFilter from './range-filter';
-import rangeSlider from './range-slider';
 import readingProgress from './reading-progress';
 import relativeTime from './relative-time';
-import scrollFade from './scroll-fade';
 import scrollSpine from './scroll-spine';
 import scrollVelocity from './scroll-velocity';
 import scrollbar from './scrollbar';
@@ -86,7 +64,6 @@ import shareButton from './share-button';
 import sheet from './sheet';
 import shinyText from './shiny-text';
 import shortcutRecorder from './shortcut-recorder';
-import shortcutSheet from './shortcut-sheet';
 import sidebar from './sidebar';
 import slider from './slider';
 import slidingTabs from './sliding-tabs';
@@ -113,8 +90,6 @@ import textarea from './textarea';
 import thumbnail from './thumbnail';
 import toast from './toast';
 import tooltip from './tooltip';
-import tree from './tree';
-import treeView from './tree-view';
 import truncate from './truncate';
 import typewriter from './typewriter';
 import typewriterRetype from './typewriter-retype';
@@ -122,7 +97,6 @@ import undoToast from './undo-toast';
 import uptime from './uptime';
 import usageMeter from './usage-meter';
 import valueFlash from './value-flash';
-import waitlistJoin from './waitlist-join';
 import webSearch from './web-search';
 import wordRotator from './word-rotator';
 
@@ -130,44 +104,26 @@ import wordRotator from './word-rotator';
 const entries: Entry[] = [
     accordion,
     anchor,
-    announcementBanner,
+    announcement,
     autosave,
-    backToTop,
     banner,
-    bentoGrid,
-    bentoGridSpotlight,
-    bookmarkButton,
     breadcrumb,
-    breadcrumbs,
     button,
     card,
-    cardInput,
-    carousel3d,
+    cc,
     checkbox,
-    checkboxGroup,
     clipboard,
-    codeMorph,
-    collapsibleSidebar,
     colorPicker,
     command,
-    commandPalette,
-    composer,
     container,
-    contributionHeatmap,
     counter,
     datalist,
-    dateRangePicker,
     dock,
-    dynamicIsland,
-    emailTypoFix,
-    expandingCard,
-    featureSpotlight,
     fileTree,
-    filterGrid,
-    gradientText,
+    filter,
     grid,
+    heatmap,
     highlight,
-    hoverCard,
     icon,
     image,
     inlineEdit,
@@ -182,8 +138,8 @@ const entries: Entry[] = [
     marquee,
     modal,
     morphingButton,
-    morphingNav,
     multiStepForm,
+    navigationMenu,
     nestedMenu,
     notificationBell,
     number,
@@ -196,13 +152,9 @@ const entries: Entry[] = [
     progress,
     pullToRefresh,
     radio,
-    radioCards,
     range,
-    rangeFilter,
-    rangeSlider,
     readingProgress,
     relativeTime,
-    scrollFade,
     scrollSpine,
     scrollVelocity,
     scrollbar,
@@ -214,7 +166,6 @@ const entries: Entry[] = [
     sheet,
     shinyText,
     shortcutRecorder,
-    shortcutSheet,
     sidebar,
     slider,
     slidingTabs,
@@ -241,8 +192,6 @@ const entries: Entry[] = [
     thumbnail,
     toast,
     tooltip,
-    tree,
-    treeView,
     truncate,
     typewriter,
     typewriterRetype,
@@ -250,7 +199,6 @@ const entries: Entry[] = [
     uptime,
     usageMeter,
     valueFlash,
-    waitlistJoin,
     webSearch,
     wordRotator
 ];

@@ -38,4 +38,10 @@
     &:not(.--active) .select-menu-panel {
         --transition-duration: 100ms;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+        .select-menu-panel {
+            --scale: 1;
+        }
+    }
 }

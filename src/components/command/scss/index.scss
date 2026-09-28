@@ -1,213 +1,234 @@
-@use '/lib';
-@use '/tokens';
-@use '../../card/scss/index' as card;
-@use '../../modal/scss/index' as modal;
 @use 'variables';
 
 .command {
-    border: var(--border-width) solid var(--border-color);
-    flex-direction: column;
-    height: min(var(--height), 76svh);
-    margin: 12svh auto auto;
+    display: contents;
 
-    // Author 'display' beats the UA 'dialog:not([open]) { display: none }' rule.
-    &[open] {
-        display: flex;
+
+    &-count {
+        color: var(--color-muted);
+        flex-shrink: 0;
+        font-size: var(--label-font-size);
+        font-variant-numeric: tabular-nums;
+        user-select: none;
+        white-space: nowrap;
     }
 
+    &-dialog.modal {
+        background: var(--dialog-background);
+        border-radius: var(--dialog-border-radius);
+        box-shadow: var(--raised);
+        color: var(--color);
+        // Pinned from the top rather than centered, so the input stays put while filtering resizes the list.
+        margin-block: var(--dialog-offset) auto;
+        overflow: hidden;
+        transform-origin: top;
+    }
 
     &-empty {
-        color: var(--color-text-300);
-        font-size: var(--font-size-300);
-        padding-top: var(--size-800);
+        color: var(--color-muted);
+        font-size: var(--font-size);
+        // Centers the message in a scrolling view's fixed height.
+        margin-block: auto;
+        padding: var(--size-700) var(--size-400);
         text-align: center;
-
-        b {
-            color: var(--color-text-500);
-            font-weight: var(--font-weight-500);
-        }
     }
 
     &-footer {
         align-items: center;
-        background: var(--background);
-        border-bottom-left-radius: inherit;
-        border-bottom-right-radius: inherit;
-        border-top: var(--border-width) solid var(--color-border-300);
-        color: var(--color);
+        border-top: var(--border-width-400) solid var(--divider-color);
+        color: var(--color-muted);
         display: flex;
-        flex: 0 0 auto;
-        font-size: var(--font-size-200);
-        font-weight: var(--font-weight-500);
-        gap: var(--size-200);
-        margin: var(--size-200) calc(var(--border-width) - var(--padding)) calc(var(--border-width) - var(--padding));
-        min-height: 44px;
-        padding: 0 var(--size-400);
+        flex-shrink: 0;
+        font-size: var(--label-font-size);
+        gap: var(--size-400);
+        height: var(--footer-height);
+        padding-inline: var(--size-400);
+        user-select: none;
 
-        kbd {
+        &-hint {
             align-items: center;
-            background: var(--color-white-300);
-            border: var(--border-width) solid var(--color-border-400);
-            border-radius: var(--border-radius-300);
-            display: inline-flex;
-            font-family: inherit;
-            font-size: var(--font-size-200);
-            height: 22px;
-            justify-content: center;
-            min-width: 22px;
-            padding: 0 var(--size-100);
-        }
-
-        span + kbd {
-            margin-left: var(--size-300);
-        }
-    }
-
-    &-group-label {
-        align-items: flex-end;
-        color: var(--color-text-300);
-        display: flex;
-        font-size: var(--font-size-200);
-        font-weight: var(--font-weight-500);
-        height: var(--heading-height);
-        padding: 0 var(--size-300) var(--size-100);
-    }
-
-    &-highlight {
-        @include lib.position(absolute, 0 0 null 0);
-        background: var(--background);
-        border-radius: var(--border-radius-400);
-        height: var(--row-height);
-        opacity: 0;
-        pointer-events: none;
-        transform: translateY(calc(var(--heading-height) * var(--group, 1) + var(--row-height) * var(--row, 0)));
-        transition:
-            opacity var(--transition-duration) var(--transition-timing-function),
-            transform 0.28s cubic-bezier(0.34, 1.24, 0.64, 1);
-
-        @include tokens.state(active) {
-            opacity: 1;
-        }
-    }
-
-    &-item {
-        align-items: center;
-        border-radius: var(--border-radius-400);
-        color: oklch(from var(--color-text-500) l c h / 0.8);
-        cursor: pointer;
-        display: flex;
-        font-size: var(--font-size-300);
-        font-weight: var(--font-weight-500);
-        gap: var(--size-300);
-        height: var(--row-height);
-        padding: 0 var(--size-300);
-        position: relative;
-        text-decoration: none;
-        transition:
-            color var(--transition-duration) var(--transition-timing-function),
-            transform var(--transition-duration) var(--transition-timing-function);
-        z-index: 1;
-
-        &:active {
-            transform: scale(0.985);
-        }
-
-        &-icon {
-            color: var(--color-text-300);
             display: flex;
-            flex: 0 0 auto;
-            transition: transform 0.24s cubic-bezier(0.34, 1.24, 0.64, 1);
-        }
+            gap: var(--size-200);
 
-        &-label {
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        @include tokens.state(active) {
-            color: var(--color-text-500);
-
-            .command-item-icon {
-                transform: translateX(2px);
+            // Close stays on the left; the remaining hints pack to the end.
+            &:first-child {
+                margin-inline-end: auto;
             }
+        }
+    }
+
+    // Matches the docs sidebar's section titles.
+    &-group-label {
+        color: var(--color-muted);
+        font-size: var(--label-font-size);
+        font-weight: var(--font-weight-500);
+        padding: var(--size-100) var(--size-300) calc(var(--size-100) / 2);
+        text-transform: uppercase;
+        user-select: none;
+    }
+
+    &-input.input {
+        height: 100%;
+        outline: none;
+
+        &::placeholder {
+            color: var(--color-muted);
+        }
+
+        // Long queries fade out before they reach the result count instead of running into it.
+        .command-search:has(.command-count) & {
+            mask-image: linear-gradient(to right, #000 calc(100% - var(--count-fade)), transparent);
+        }
+    }
+
+    // Keycaps here are legends, not controls, so they take no hover or press.
+    &-keys {
+        display: flex;
+        flex-shrink: 0;
+        gap: calc(var(--size-100) / 2);
+        pointer-events: none;
+    }
+
+    &-label {
+        color: var(--color);
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &--filtered {
+            color: var(--color-muted);
         }
     }
 
     &-list {
-        position: relative;
+        max-height: var(--list-max-height);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        // Padding plus the option radius equals the dialog radius; the sides take 2px more to clear the highlight off the edges.
+        padding: calc(var(--size-100) / 2) calc(var(--size-100) / 2 + 2px);
+        scroll-padding-block: calc(var(--size-100) / 2);
+        width: 100%;
+
+        &.--empty {
+            display: none;
+        }
+    }
+
+    &-main {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-width: 0;
     }
 
     &-match {
-        background: var(--background);
-        border-radius: var(--border-radius-100);
-        color: inherit;
+        color: var(--color);
     }
 
-    &-results {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow-x: hidden;
-        overflow-y: auto;
+    &-option {
+        align-items: center;
+        border-radius: var(--option-border-radius);
+        cursor: pointer;
+        display: flex;
+        font-size: var(--font-size);
+        gap: var(--size-200);
+        height: var(--option-height);
+        padding-inline: var(--size-300);
+        transition: none;
+        user-select: none;
+
+        // Shortcut rows are a reference list; nothing runs on click.
+        &--inert {
+            cursor: default;
+        }
+    }
+
+    &-panel {
+        display: flex;
     }
 
     &-search {
         align-items: center;
-        background: var(--background);
-        border: var(--border-width) solid var(--color-border-300);
-        border-radius: var(--border-radius-400);
-        cursor: text;
+        border-bottom: var(--border-width-400) solid var(--divider-color);
+        color: var(--color-muted);
         display: flex;
-        flex: 0 0 auto;
-        gap: var(--size-300);
-        height: var(--height);
-        padding: 0 var(--size-300);
+        flex-shrink: 0;
+        gap: var(--size-200);
+        height: var(--search-height);
+        padding-inline: var(--size-400);
+    }
 
-        &-icon {
-            color: var(--color);
-            flex: 0 0 auto;
-            height: 14px;
-            position: relative;
-            width: 14px;
+    &-sidebar {
+        background: var(--sidebar-background);
+        border-right: var(--border-width-400) solid var(--divider-color);
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        gap: var(--size-100);
+        padding: var(--size-200);
+    }
 
-            &::after,
-            &::before {
-                content: '';
-                position: absolute;
-            }
+    &-tab.button {
+        height: var(--tab-size);
+    }
 
-            &::after {
-                background: currentColor;
-                border-radius: 1px;
-                bottom: 0;
-                height: 5px;
-                right: 1px;
-                transform: rotate(-45deg);
-                transform-origin: bottom center;
-                width: 1.5px;
-            }
+    &-trigger.button {
+        max-width: 100%;
+        // The keycaps sit 6px from the end; the icon side gets the usual inset.
+        padding-inline-start: var(--size-300);
+        touch-action: manipulation;
+        user-select: none;
 
-            &::before {
-                border: 1.5px solid currentColor;
-                border-radius: 50%;
-                height: 10px;
-                left: 0;
-                top: 0;
-                width: 10px;
+        &:active {
+            scale: 0.96;
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--color-text-500);
+            outline-offset: var(--border-width-500);
+        }
+
+        // Pages with their own search buttons hide this one; `display: flex` from `.button` would otherwise override `hidden`.
+        &[hidden] {
+            display: none;
+        }
+    }
+
+    &-trigger-label {
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-align: left;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-view.tabs-content {
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+
+    &-views {
+        overflow: hidden;
+
+        // Scrolling views translate by their own height, so the viewport needs a definite one.
+        &:has(> .tabs--scroll) {
+            height: var(--list-max-height);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-dialog.modal {
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+
+            &::backdrop {
+                transition: opacity var(--transition-duration) var(--transition-timing-function);
             }
         }
 
-        > .input {
-            --padding-horizontal: 0px;
-            --padding-vertical: 0px;
-            font-family: inherit;
-            outline: none;
-
-            &::placeholder {
-                color: var(--color-text-300);
-                opacity: 0.6;
-            }
+        &-trigger.button:active {
+            scale: 1;
         }
     }
 }

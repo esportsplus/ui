@@ -1,0 +1,144 @@
+// A popover, so it sits in the top layer; the UA popover styles are undone here. The padding on the anchor side is
+// the gap to the trigger, which also carries the pointer across to interactive content. 'tooltip.shared' sets the
+// '--shared-*' size and position.
+.tooltip-shared {
+    background: none;
+    border: 0;
+    box-sizing: content-box;
+    color: var(--color);
+    font-size: var(--font-size);
+    font-weight: var(--font-weight);
+    height: var(--shared-height);
+    inset: auto;
+    left: 0;
+    margin: 0;
+    overflow: visible;
+    padding: 0;
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    translate: var(--shared-x) var(--shared-y);
+    width: var(--shared-width);
+
+    // Only while moving between triggers; a fresh open appears in place.
+    &.--gliding {
+        transition:
+            height var(--glide-duration) var(--glide-timing-function),
+            translate var(--glide-duration) var(--glide-timing-function),
+            width var(--glide-duration) var(--glide-timing-function);
+
+        .tooltip-shared-layer {
+            transition:
+                filter var(--swap-duration) var(--swap-timing-function),
+                opacity var(--swap-fade-duration) linear,
+                translate var(--swap-duration) var(--swap-timing-function);
+        }
+    }
+
+    &.--active > .tooltip-shared-box {
+        filter: blur(0);
+        opacity: 1;
+        scale: 1;
+        transition:
+            filter var(--open-duration) var(--timing-function),
+            opacity var(--open-duration) var(--timing-function),
+            scale var(--open-duration) var(--timing-function),
+            translate var(--open-duration) var(--timing-function);
+        translate: 0;
+    }
+
+    // A warm handoff from another delayed tooltip swaps straight in.
+    &.--instant > .tooltip-shared-box {
+        transition: none;
+    }
+
+    &--e {
+        padding-left: var(--spacer);
+
+        > .tooltip-shared-box {
+            translate: calc(var(--rise) * -1) 0;
+        }
+    }
+
+    &--interactive.--active {
+        pointer-events: auto;
+    }
+
+    &--n {
+        padding-bottom: var(--spacer);
+
+        > .tooltip-shared-box {
+            translate: 0 var(--rise);
+        }
+    }
+
+    &--s {
+        padding-top: var(--spacer);
+
+        > .tooltip-shared-box {
+            translate: 0 calc(var(--rise) * -1);
+        }
+    }
+
+    &--w {
+        padding-right: var(--spacer);
+
+        > .tooltip-shared-box {
+            translate: var(--rise) 0;
+        }
+    }
+
+
+    &-box {
+        background: var(--background);
+        border-radius: var(--radius);
+        box-shadow: var(--box-shadow);
+        display: block;
+        filter: blur(var(--blur));
+        height: 100%;
+        opacity: 0;
+        overflow: hidden;
+        position: relative;
+        scale: var(--scale);
+        transition:
+            filter var(--close-duration) var(--timing-function),
+            opacity var(--close-duration) var(--timing-function),
+            scale var(--close-duration) var(--timing-function),
+            translate var(--close-duration) var(--timing-function);
+    }
+
+    // Centered in the box, so the box can resize around it. '--travel-x' and '--travel-y' are the unit vector of the
+    // trip between triggers, set by 'tooltip.shared': incoming content waits one shift along it, then settles to the
+    // middle, while outgoing content carries on one shift the other way. The shift is a percentage, so it scales with
+    // the layer's own width and height.
+    &-layer {
+        --shift: var(--swap-shift);
+        filter: blur(var(--swap-blur));
+        left: 50%;
+        max-width: var(--max-width);
+        opacity: 0;
+        padding: var(--padding);
+        position: absolute;
+        top: 50%;
+        translate:
+            calc(-50% + var(--shift) * var(--travel-x, 0))
+            calc(-50% + var(--shift) * var(--travel-y, 0));
+        white-space: var(--white-space);
+        width: max-content;
+
+        &.--active {
+            --shift: 0px;
+            filter: blur(0);
+            opacity: 1;
+        }
+
+        &.--leaving {
+            --shift: calc(var(--swap-shift) * -1);
+        }
+
+        // Root styles give 'strong' its own page text color, unreadable on the bubble.
+        strong {
+            --color: inherit;
+        }
+    }
+}

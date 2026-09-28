@@ -163,13 +163,6 @@ $travel: 'var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size))';
         }
     }
 
-    // A thumb under a finger gets a larger target.
-    @media (pointer: coarse) {
-        & {
-            --thumb-size: 20px;
-        }
-    }
-
     @media (prefers-reduced-motion: reduce) {
         &-thumb {
             transition: box-shadow 150ms ease-out;

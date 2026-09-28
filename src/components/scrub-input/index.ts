@@ -66,8 +66,8 @@ function gear(e: { altKey: boolean, shiftKey: boolean }) {
 }
 
 
-export default Object.assign(
-    component(function(
+export default component(
+    function(
         this: { attributes?: D } | void,
         {
             label,
@@ -335,5 +335,6 @@ export default Object.assign(
                 })}
             </div>
         `;
-    }
-), { field: SCRUB_INPUT_FIELD, label: SCRUB_INPUT_LABEL } as const);
+    },
+    { field: SCRUB_INPUT_FIELD, label: SCRUB_INPUT_LABEL }
+);

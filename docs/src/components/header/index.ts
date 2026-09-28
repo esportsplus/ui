@@ -1,5 +1,5 @@
 import icon from '~/components/icon';
-import githubSvg from '~/storage/svg/github.svg';
+import githubSvg from '@esportsplus/ui/svg/github.svg';
 import { html, uri } from '../../app';
 import { modal } from '../search';
 import type { Request } from '../../app';

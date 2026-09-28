@@ -1,7 +1,13 @@
+@use '/tokens';
+
 .navigation-menu {
-    --background: var(--color-white-300);
-    --box-shadow: 0 0 0 var(--border-width-400) oklch(from var(--color-black-300) l c h / 0.1), var(--box-shadow-300);
+    --close-duration: 0.16s;
+    --close-scale: 0.96;
+    --close-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     --color: var(--color-text-500);
+    --content-duration: 0.2s;
+    --content-shift: 32px;
+    --content-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
     --description-color: var(--color-text-300);
     --description-font-size: 0.875rem;
     --focus-color: var(--color-text-500);
@@ -9,10 +15,20 @@
     --gap: 8px;
     --hover-background: oklch(0.945 0 0);
     --link-radius: 8px;
+    --open-duration: 0.3s;
+    // The flip eases as a whole and opacity lands at 53% of that eased progress, which is this curve's
+    // opening segment split out of '--open-timing-function', played over its share of '--open-duration'.
+    --open-fade-duration: 42ms;
+    --open-fade-timing-function: cubic-bezier(0.364, 0.42, 0.678, 0.746);
+    --open-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --open-transform: perspective(600px) rotateX(-20deg) scale(0.94);
     --pill-duration: 0.25s;
     --pill-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    --popup-background: var(--color-white-300);
+    --popup-box-shadow: 0 0 0 var(--border-width-400) oklch(from var(--color-black-300) l c h / 0.1), var(--box-shadow-300);
     --popup-duration: 0.2s;
     --popup-radius: 12px;
+    --popup-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     --title-font-size: 0.9375rem;
     --trigger-height: 36px;
     --trigger-padding: 12px;
@@ -20,5 +36,50 @@
 
     &--muted {
         --hover-background: var(--color-grey-400);
+    }
+
+
+    &-highlight.highlight {
+        --background-active: var(--hover-background);
+        --background-default: var(--hover-background);
+        --background-pressed: var(--hover-background);
+        --fade-duration: 0.15s;
+        --glide-duration: var(--pill-duration);
+        --glide-timing-function: var(--pill-timing-function);
+        --scale-hidden: 1;
+        --transition-timing-function: var(--pill-timing-function);
+    }
+
+    &-popup.card {
+        --background-default: var(--popup-background);
+        --border-radius: var(--popup-radius);
+        --box-shadow-default: var(--popup-box-shadow);
+        --morph-blur: 0px;
+        --morph-duration: var(--popup-duration);
+        --morph-enter-duration: var(--content-duration);
+        --morph-exit-duration: var(--content-duration);
+        --morph-fade-duration: var(--close-duration);
+        --morph-fade-timing-function: var(--close-timing-function);
+        --morph-shift: var(--content-shift);
+        --morph-swap-timing-function: var(--content-timing-function);
+        --morph-timing-function: var(--popup-timing-function);
+        --padding-horizontal: 4px;
+        --padding-vertical: 4px;
+
+        // Opening is the flip animation, which a fade transition would override.
+        @include tokens.state(active) {
+            --morph-fade-duration: 0s;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        --close-scale: 1;
+        --content-shift: 0px;
+        --open-fade-duration: 0.16s;
+        --open-fade-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --open-transform: none;
+        --pill-duration: 0s;
+        --popup-duration: 0s;
     }
 }

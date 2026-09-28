@@ -1,0 +1,46 @@
+.heatmap,
+.heatmap-legend {
+    --cell-radius: var(--border-radius-100);
+    --cell-size: 10px;
+    --color: var(--color-text-300);
+    --focus-color: var(--color-text-500);
+    --font-size: var(--font-size-300);
+    --hover-color: color-mix(in oklab, var(--color-text-500) 50%, transparent);
+    // One hue, light to dark. Level 0 stays faintly visible so empty days still read as part of the grid.
+    --level-0: color-mix(in oklab, var(--level-color) 7%, transparent);
+    --level-1: color-mix(in oklab, var(--level-color) 25%, transparent);
+    --level-2: color-mix(in oklab, var(--level-color) 45%, transparent);
+    --level-3: color-mix(in oklab, var(--level-color) 70%, transparent);
+    --level-4: var(--level-color);
+    --level-color: var(--color-text-500);
+    --months-height: 20px;
+    --pitch: 13px;
+    --ring-space: 3px;
+    --scrollbar-spacing: var(--size-300);
+    // Per column, so the whole year sweeps in under half a second and reads as one gesture.
+    --stagger: 8ms;
+    --transition-duration: 0.3s;
+    --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.heatmap--blue,
+.heatmap-legend--blue {
+    --level-color: var(--color-blue-400);
+}
+
+// Compact for a dense grid.
+.heatmap .tooltip-shared {
+    --padding: var(--size-100) var(--size-200);
+    --radius: var(--border-radius-300);
+    --spacer: 6px;
+}
+
+// A long glide lags behind a pointer sweeping across 13px cells, and the content keeps pace with it. Gated so
+// it can't undo the tooltip's reduced-motion override.
+@media (prefers-reduced-motion: no-preference) {
+    .heatmap .tooltip-shared {
+        --glide-duration: 0.15s;
+        --swap-duration: 0.15s;
+        --swap-fade-duration: 0.1s;
+    }
+}

@@ -18,4 +18,32 @@
     --toast-shrink: calc(1 - var(--toast-scale));
     --toast-swipe-x: 0px;
     --toast-swipe-y: 0px;
+
+    [data-position*='bottom'] & {
+        --toast-calc-offset-y: calc((var(--toast-offset-y, 0px) * -1) + (var(--toast-index, 0) * var(--toast-gap) * -1) + var(--toast-swipe-y, 0px));
+    }
+
+    &--error {
+        --toast-color: var(--color-red-400);
+    }
+
+    &--warning {
+        --toast-color: var(--color-yellow-400);
+    }
+
+    &--success {
+        --toast-color: var(--color-green-400);
+    }
+
+    &--info {
+        --toast-color: var(--color-blue-400);
+    }
+
+    &--loading {
+        --toast-color: var(--color-grey-500);
+    }
+
+    &--message {
+        --toast-color: var(--color-text-300);
+    }
 }

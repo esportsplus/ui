@@ -1,3 +1,16 @@
+// Registered so the two ends of the underline can transition independently.
+@property --sliding-tabs-left {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
+@property --sliding-tabs-right {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
 .sliding-tabs {
     --border-color: var(--color-border-300);
     --color: var(--color-text-300);
@@ -30,5 +43,16 @@
     &--snappy {
         --lead-duration: 0.2s;
         --tail-duration: 0.2s;
+    }
+
+
+    @media (max-width: 639px) {
+        --tab-padding: 10px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --hover-duration: 0s;
+        --lead-duration: 0s;
+        --tail-duration: 0s;
     }
 }

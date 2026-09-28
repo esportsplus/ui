@@ -1,6 +1,8 @@
 type Meta = {
     category: string;
     description: string;
+    // Display name, for slugs that don't read right capitalized (e.g. acronyms).
+    label?: string;
 };
 
 
@@ -22,35 +24,15 @@ const meta: Record<string, Meta> = {
         category: 'Layout',
         description: 'Compact in-page navigation list for jumping between document sections.'
     },
-    'announcement-banner': {
+    announcement: {
         category: 'Feedback',
-        description: 'Dismissible announcement strip that slides in from the top and folds its space away when closed.'
-    },
-    'back-to-top': {
-        category: 'Interactive',
-        description: 'Floating scroll-to-top button that appears past a threshold, rings its progress, and lifts its arrow on the trip up.'
+        description: 'Animated container that slides announcement content in from the top and folds its space away when state.active turns off.'
     },
     banner: {
         category: 'Display',
         description: 'Full-width promotional strip for announcements and notices.'
     },
-    'bento-grid': {
-        category: 'Layout',
-        description: 'Feature grid of cards whose text lifts on hover to reveal a call to action over decorative background art (Magic UI).'
-    },
-    'bento-grid-spotlight': {
-        category: 'Layout',
-        description: 'Feature grid whose cards spring in on scroll, glow under the pointer, trace a border beam, and optionally tilt (Spectrum UI).'
-    },
-    'bookmark-button': {
-        category: 'Interactive',
-        description: 'Save toggle whose ribbon fills from the bottom up and lands with a small squash.'
-    },
     breadcrumb: {
-        category: 'Layout',
-        description: 'Displays the path to the current resource using a hierarchy of links.'
-    },
-    breadcrumbs: {
         category: 'Layout',
         description: 'Path trail that folds middle segments into a menu as space runs out, sliding the rest to close the gap.'
     },
@@ -60,51 +42,32 @@ const meta: Record<string, Meta> = {
     },
     card: {
         category: 'Layout',
-        description: 'Rounded surface that groups related content and actions.'
+        description: 'Rounded surface that groups related content and actions, plus cards that morph into a detail dialog and fly back into their slot.'
     },
-    'card-input': {
+    cc: {
         category: 'Form Controls',
-        description: 'Payment card form with a live card preview that flips for the CVC, brand detection, auto-formatting and Luhn validation.'
-    },
-    'carousel-3d': {
-        category: 'Interactive',
-        description: 'Draggable 3D card ring that spins on a spring, throws with momentum, and flattens for reduced motion.'
+        description: 'Payment card form with a live card preview that flips for the CVC, brand detection, auto-formatting and Luhn validation.',
+        label: 'CC'
     },
     checkbox: {
         category: 'Form Controls',
-        description: 'Binary and grouped selection control with an optional label.'
-    },
-    'checkbox-group': {
-        category: 'Form Controls',
-        description: 'Checklist with a select-all parent that goes mixed, drawn checkmarks, and Shift-click range selection.'
+        description: 'Binary selection control, plus checklist groups with a select-all header that goes mixed and Shift-click range selection.'
     },
     clipboard: {
         category: 'Interactive',
         description: 'Copy-to-clipboard affordance with click and programmatic variants.'
     },
-    'code-morph': {
-        category: 'Display',
-        description: 'Stepped code walkthrough where tokens shared between steps glide to their new line and column, Magic Move style.'
-    },
-    'collapsible-sidebar': {
-        category: 'Layout',
-        description: 'Navigation rail that springs between labelled and icon-only widths, with a sliding highlight and tips while collapsed.'
-    },
     'color-picker': {
         category: 'Form Controls',
         description: 'Saturation pad, hue and opacity sliders, a hex field, and a recent-colors row that reorders as you commit.'
     },
-    'command-palette': {
+    command: {
         category: 'Overlay',
-        description: 'Keyboard-first ⌘K launcher with fuzzy search, highlighted matches, grouped results, and arrow-key navigation.'
+        description: 'Keyboard-first ⌘K command palette with fuzzy search, highlighted matches, grouped results, and arrow-key navigation.'
     },
     container: {
         category: 'Layout',
         description: 'Width-constrained wrapper that centers content within the page.'
-    },
-    'contribution-heatmap': {
-        category: 'Display',
-        description: 'GitHub-style year of activity squares that sweep in by column, with a hover label and arrow-key grid navigation.'
     },
     counter: {
         category: 'Display',
@@ -114,53 +77,29 @@ const meta: Record<string, Meta> = {
         category: 'Form Controls',
         description: 'Scroll-snapped wheel picker where the scroll position is the selection.'
     },
-    'date-range-picker': {
-        category: 'Form Controls',
-        description: 'Two-month calendar for picking a start and end date, with presets, a hover preview band, and full keyboard navigation.'
-    },
     dock: {
         category: 'Interactive',
         description: 'macOS-style dock whose icons swell toward the cursor and launch with a bounce and a running light.'
-    },
-    'dynamic-island': {
-        category: 'Display',
-        description: 'Morphing black pill that springs between idle, timer, music, and ringer states.'
-    },
-    'email-typo-fix': {
-        category: 'Form Controls',
-        description: 'Email field that spots common domain typos after a pause and fixes them in one click with a letter-morph animation.'
-    },
-    'expanding-card': {
-        category: 'Overlay',
-        description: 'List of cards that each morph into a modal detail view and fly back into their slot on close.'
-    },
-    'feature-spotlight': {
-        category: 'Display',
-        description: 'Scroll-driven product tour whose screenshot camera pans, zooms, and spotlights the feature being read.'
     },
     'file-tree': {
         category: 'Interactive',
         description: 'Collapsible file and folder tree with guide lines, locked items, natural sorting, and expand or collapse all (Magic UI).'
     },
-    'filter-grid': {
-        category: 'Display',
-        description: 'Filter chips over a card grid that rearranges with FLIP motion instead of blinking.'
-    },
-    'gradient-text': {
-        category: 'Display',
-        description: 'Text filled with a looping gradient that slides through the letters (Magic UI).'
+    filter: {
+        category: 'Interactive',
+        description: 'Headless filter controller: bring your own triggers and layout, and matching items shift, scale, and fade into place.'
     },
     grid: {
         category: 'Layout',
         description: 'Responsive auto-fit grid for arranging children.'
     },
+    heatmap: {
+        category: 'Display',
+        description: 'Calendar heatmap of daily values that sweeps in by column, with a templated floating tooltip, drag-to-scroll and arrow-key grid navigation.'
+    },
     highlight: {
         category: 'Interactive',
         description: 'Hover highlight that glides behind sibling items and rests on the active one.'
-    },
-    'hover-card': {
-        category: 'Overlay',
-        description: 'Delayed preview card for inline mentions that travels between triggers in a shared group and opens by hover, tap, or focus.'
     },
     icon: {
         category: 'Display',
@@ -168,7 +107,7 @@ const meta: Record<string, Meta> = {
     },
     image: {
         category: 'Display',
-        description: 'Blur-up image that develops from a low-quality placeholder into the full photo.'
+        description: 'Lazyloaded image that fades its placeholder out over the decoded full image, then removes it.'
     },
     'inline-edit': {
         category: 'Form Controls',
@@ -218,13 +157,13 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Async save button that morphs into a spinner, confirms with a check, and shakes when it fails.'
     },
-    'morphing-nav': {
-        category: 'Layout',
-        description: 'Navigation bar whose dropdown panel morphs size, position and caret between sections as the cursor moves.'
-    },
     'multi-step-form': {
         category: 'Form Controls',
         description: 'Stepped form card with a progress bar, directional step transitions, and a height that springs to fit.'
+    },
+    'navigation-menu': {
+        category: 'Layout',
+        description: 'Navigation bar with a hover pill whose dropdown panel morphs size and position between sections as the cursor moves (Kobra).'
     },
     'notification-bell': {
         category: 'Display',
@@ -264,23 +203,11 @@ const meta: Record<string, Meta> = {
     },
     radio: {
         category: 'Form Controls',
-        description: 'Single-choice selection from a grouped set of options.'
-    },
-    'radio-cards': {
-        category: 'Form Controls',
-        description: 'Native radio group laid out as cards, with a selection ring that glides to the option you pick.'
+        description: 'Single-choice selection from a grouped set of options, including option cards built from radio and card.'
     },
     range: {
         category: 'Form Controls',
-        description: 'Slider input for choosing a value along a track.'
-    },
-    'range-filter': {
-        category: 'Form Controls',
-        description: 'Dual-thumb price filter with rolling digits, a clear button, and a ghost preview of where a click would stretch the range (shadcn/space).'
-    },
-    'range-slider': {
-        category: 'Form Controls',
-        description: 'Dual-thumb slider for picking a min and max, with gliding thumbs, value tooltips, and editable fields.'
+        description: 'Slider input for choosing a value along a track, plus single and dual-thumb range filters with rolling digits, a ghost preview, and optional min/max fields.'
     },
     'reading-progress': {
         category: 'Display',
@@ -289,10 +216,6 @@ const meta: Record<string, Meta> = {
     'relative-time': {
         category: 'Display',
         description: 'Self-updating "5 min ago" time element that rolls its digits as they change, with the full date on hover.'
-    },
-    'scroll-fade': {
-        category: 'Layout',
-        description: 'Scroll panel whose edges wash and blur content as it leaves, with optional progressive blur and auto-hiding edges (componentry).'
     },
     'scroll-spine': {
         category: 'Layout',
@@ -304,7 +227,7 @@ const meta: Record<string, Meta> = {
     },
     scrollbar: {
         category: 'Layout',
-        description: 'Native scrollbar styling with thin, token-driven colors.'
+        description: 'Native scrollbar styling with thin, token-driven colors, plus edge fades and blurs that track the scroll position.'
     },
     'scrub-input': {
         category: 'Form Controls',
@@ -337,10 +260,6 @@ const meta: Record<string, Meta> = {
     'shortcut-recorder': {
         category: 'Form Controls',
         description: 'Records a keyboard shortcut from the keys you hold, rejecting combinations already in use.'
-    },
-    'shortcut-sheet': {
-        category: 'Overlay',
-        description: 'Searchable keyboard-shortcut reference opened with ?, lighting up each listed shortcut as it is pressed.'
     },
     sidebar: {
         category: 'Layout',
@@ -400,7 +319,7 @@ const meta: Record<string, Meta> = {
     },
     switch: {
         category: 'Form Controls',
-        description: 'Toggle control for binary on and off settings.'
+        description: 'Toggle control for binary on and off settings, plus switch groups with a select-all header and Shift-click ranges.'
     },
     tabs: {
         category: 'Layout',
@@ -440,15 +359,7 @@ const meta: Record<string, Meta> = {
     },
     tooltip: {
         category: 'Interactive',
-        description: 'Contextual popover for hints, menus, and hover details.'
-    },
-    tree: {
-        category: 'Interactive',
-        description: 'Keyboard-navigable hierarchy of expandable branches for files, folders, and nested data.'
-    },
-    'tree-view': {
-        category: 'Interactive',
-        description: 'Nested file tree whose folders unfold in place while the selection glides to the picked file.'
+        description: 'Contextual popover for hints, menus, and hover details, including one shared tooltip that glides between the triggers bound to it.'
     },
     truncate: {
         category: 'Display',
@@ -469,10 +380,6 @@ const meta: Record<string, Meta> = {
     'value-flash': {
         category: 'Display',
         description: 'Marks what just changed with a directional roll, tint, and arrow.'
-    },
-    'waitlist-join': {
-        category: 'Form Controls',
-        description: 'Waitlist signup that drops you into a visible queue, rolls up your spot, and moves you ahead when you share.'
     },
     'web-search': {
         category: 'Display',

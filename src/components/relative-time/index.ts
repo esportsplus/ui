@@ -1,15 +1,19 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
-import '~/components/tooltip/scss/index.scss';
+import tooltip from '~/components/tooltip';
 import './scss/index.scss';
 
 
 type A = Attributes & {
     [RELATIVE_TIME_TOOLTIP]?: Attributes;
     date: Value;
+    ondocumentkeydown?: never;
     ondocumentvisibilitychange?: never;
-    onpointerenter?: never;
-    onpointerleave?: never;
+    onfocusin?: never;
+    onfocusout?: never;
+    onmouseout?: never;
+    onmouseover?: never;
+    onpointermove?: never;
     state?: State;
 };
 
@@ -46,9 +50,6 @@ const MAX_TIMEOUT = 2 ** 31 - 1;
 
 const MIN = 60 * 1000;
 
-// The first tooltip waits so passing over text doesn't flash it; neighbours then open instantly while warm.
-const OPEN_DELAY = 400;
-
 const RELATIVE_TIME_TOOLTIP = Symbol.for('@esportsplus/ui/relative-time.tooltip');
 
 // Long enough to read as motion, short enough that a seconds counter never has two rolls overlapping.
@@ -59,7 +60,10 @@ const SEC = 1000;
 // Lands just past the boundary so floor() has definitely moved.
 const SETTLE = 20;
 
-const TOOLTIP = new Intl.DateTimeFormat(undefined, {
+// The first tooltip waits so passing over text doesn't flash it; neighbours then open instantly while warm.
+const TOOLTIP_DELAY = 400;
+
+const TOOLTIP_FORMAT = new Intl.DateTimeFormat(undefined, {
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
@@ -70,13 +74,10 @@ const TOOLTIP = new Intl.DateTimeFormat(undefined, {
 
 const VIEWPORT_GUTTER = 8;
 
-const WARM_FOR = 500;
-
 const WEEK = 7 * DAY;
 
 
-let closedAt = 0,
-    uid = 0;
+let uid = 0;
 
 
 function enter(element: HTMLElement, reduce: boolean) {
@@ -157,61 +158,31 @@ function untilChange(diff: number) {
 
 
 function template(this: { attributes?: Partial<A> } | void, { date, state = reactive({ date, now: null as number | null }), ...attributes }: A) {
-    let clock = reactive({ open: false, tick: 0 }),
+    let clock = reactive({ tick: 0 }),
         digits: HTMLElement | undefined,
         id = `relative-time-${++uid}`,
-        instant = false,
-        opener: ReturnType<typeof setTimeout> | undefined,
+        message: HTMLElement | undefined,
         rest: HTMLElement | undefined,
         shown: { digits: string; rest: string } | null = null,
         stopRender: VoidFunction | undefined,
         timer: ReturnType<typeof setTimeout> | undefined,
-        tooltip: HTMLElement | undefined;
-
-    function hide() {
-        clearTimeout(opener);
-
-        if (clock.open) {
-            closedAt = Date.now();
-        }
-
-        clock.open = false;
-    }
+        tip = reactive({ active: false });
 
     function nudge() {
-        if (!tooltip) {
+        if (!message) {
             return;
         }
 
-        tooltip.style.right = '';
+        message.style.right = '';
 
         // Starts centred on the text; nudged sideways only if that would poke past the viewport.
-        let box = tooltip.getBoundingClientRect(),
+        let box = message.getBoundingClientRect(),
             max = document.documentElement.clientWidth - VIEWPORT_GUTTER,
             shift = box.left < VIEWPORT_GUTTER ? VIEWPORT_GUTTER - box.left : box.right > max ? max - box.right : 0;
 
         if (shift) {
-            tooltip.style.right = `calc(50% - ${Math.round(shift)}px)`;
+            message.style.right = `calc(50% - ${Math.round(shift)}px)`;
         }
-    }
-
-    function open(delayed: boolean) {
-        clearTimeout(opener);
-
-        let warm = Date.now() - closedAt < WARM_FOR;
-
-        if (delayed && !warm) {
-            instant = false;
-            opener = setTimeout(() => {
-                nudge();
-                clock.open = true;
-            }, OPEN_DELAY);
-            return;
-        }
-
-        instant = warm;
-        nudge();
-        clock.open = true;
     }
 
     // Keyed from the right, so 9 -> 10 rolls the ones and brings a new tens digit in beside it.
@@ -314,32 +285,37 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
         return time === null ? null : label((state.now ?? Date.now()) - time, time);
     }
 
-    let stopSchedule = effect(() => {
-        state.date;
-        state.now;
-        schedule();
-    });
+    let stopNudge = effect(() => {
+            if (tip.active) {
+                nudge();
+            }
+        }),
+        stopSchedule = effect(() => {
+            state.date;
+            state.now;
+            schedule();
+        });
 
     onCleanup(() => {
-        clearTimeout(opener);
         clearTimeout(timer);
+        stopNudge();
         stopRender?.();
         stopSchedule();
     });
 
     return html`
         <time
-            class='relative-time tooltip ${() => clock.open && '--active'} ${() => instant && clock.open && '--instant'}'
+            class='relative-time tooltip'
             ${this?.attributes}
             ${attributes}
+            ${tooltip.onhover.trigger({ delay: { open: TOOLTIP_DELAY }, state: tip })}
             ${{
-                'aria-describedby': () => clock.open ? id : '',
+                'aria-describedby': () => tip.active ? id : '',
                 datetime: () => {
                     let time = timeOf(state.date);
 
                     return time === null ? '' : new Date(time).toISOString();
                 },
-                onblur: hide,
                 onconnect: (element: HTMLElement) => {
                     digits = element.querySelector<HTMLElement>('.relative-time-digits') ?? undefined;
                     rest = element.querySelector<HTMLElement>('.relative-time-rests') ?? undefined;
@@ -363,18 +339,6 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                     clock.tick++;
                     schedule();
                 },
-                onfocus: () => open(false),
-                onkeydown: (e: KeyboardEvent) => {
-                    if (e.key === 'Escape') {
-                        hide();
-                    }
-                },
-                onpointerenter: (e: PointerEvent) => {
-                    if (e.pointerType !== 'touch') {
-                        open(true);
-                    }
-                },
-                onpointerleave: hide,
                 tabindex: () => state.date === null ? '' : '0'
             }}
         >
@@ -391,14 +355,14 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                 ${attributes[RELATIVE_TIME_TOOLTIP]}
                 ${{
                     onrender: (element: HTMLElement) => {
-                        tooltip = element;
+                        message = element;
                     }
                 }}
             >
                 ${() => {
                     let time = timeOf(state.date);
 
-                    return time === null ? '' : TOOLTIP.format(time);
+                    return time === null ? '' : TOOLTIP_FORMAT.format(time);
                 }}
             </span>
         </time>
@@ -406,5 +370,5 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
 }
 
 
-export default Object.assign(template, { tooltip: RELATIVE_TIME_TOOLTIP } as const);
+export default component(template, { tooltip: RELATIVE_TIME_TOOLTIP });
 export type { State as RelativeTimeState, Value as RelativeTimeValue };

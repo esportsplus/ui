@@ -28,4 +28,8 @@
     --title-font-size: 15px;
     --title-font-weight: 500;
     --visual-height: 68px;
+
+    @media (prefers-reduced-motion: reduce) {
+        --focus-scale: 1;
+    }
 }

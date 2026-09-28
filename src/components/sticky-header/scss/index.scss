@@ -2,9 +2,6 @@
 @use 'variables';
 
 .sticky-header {
-    --lifted: clamp(0, var(--progress) / 0.12, 1);
-    --offset: calc(var(--travel) * var(--progress));
-
     background: var(--background);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
@@ -21,8 +18,6 @@
     }
 
     &-compact {
-        --reveal: clamp(0, (var(--progress) - 0.55) / 0.35, 1);
-
         color: var(--title-compact-color);
         font-size: var(--title-compact-font-size);
         font-weight: var(--font-weight-500);

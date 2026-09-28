@@ -1,6 +1,25 @@
+// Milliseconds the pointer rests on a trigger before it opens, and is away before it closes; either left out is instant.
+type Delay = {
+    close?: number,
+    open?: number
+};
+
+
 // Referenced by '.tooltip.--morphing' in CSS; a missing reference is ignored until this exists.
 const GOO = 'tooltip-morph-goo';
 
+// Just after a delayed tooltip closes, the next one skips its delay: the reader is browsing, not passing through.
+const WARM_FOR = 500;
+
+
+// Shared by every delayed tooltip, so the handoff works across separate triggers, groups and shared tooltips.
+let closedAt = 0;
+
+
+// Called when a delayed tooltip closes while open; starts the window 'warm()' reads.
+function cool() {
+    closedAt = Date.now();
+}
 
 function content(element: HTMLElement) {
     let candidates = element.querySelectorAll<HTMLElement>('.tooltip-content, .tooltip-message');
@@ -35,17 +54,20 @@ function goo() {
     );
 }
 
-// Seeds the '--morph' variant with the trigger's box, then calls 'open' once that start
-// shape has been painted; the returned function cancels a pending open.
+// Seeds the '--expand' and '--morph' variants with the trigger's box, then calls 'open' once
+// that start shape has been painted; the returned function cancels a pending open.
 function morph(element: HTMLElement, open: VoidFunction) {
     let tooltip = content(element);
 
-    if (!tooltip || !(tooltip.classList.contains('tooltip-content--morph') || tooltip.classList.contains('tooltip-message--morph'))) {
+    if (!tooltip?.matches('.tooltip-content--expand, .tooltip-content--morph, .tooltip-message--expand, .tooltip-message--morph')) {
         open();
         return;
     }
 
-    goo();
+    // '--expand' overlaps the trigger, so there's no gap for the goo to bridge.
+    if (tooltip.matches('.tooltip-content--morph, .tooltip-message--morph')) {
+        goo();
+    }
 
     let box = tooltip.getBoundingClientRect(),
         rect = element.getBoundingClientRect(),
@@ -99,5 +121,22 @@ function morphing(active: boolean) {
     };
 }
 
+// Runs 'open' after 'delay', or at once when there is none or while warm; returns a cancel for a pending open.
+function wait(delay: number, open: VoidFunction) {
+    if (!delay || warm()) {
+        open();
+        return;
+    }
 
-export { content, morph, morphing };
+    let timer = setTimeout(open, delay);
+
+    return () => clearTimeout(timer);
+}
+
+function warm() {
+    return Date.now() - closedAt < WARM_FOR;
+}
+
+
+export { content, cool, morph, morphing, wait, warm };
+export type { Delay };

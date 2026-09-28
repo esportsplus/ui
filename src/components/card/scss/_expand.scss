@@ -1,0 +1,246 @@
+@use '/tokens';
+@use 'variables';
+
+// Chained through '.card' so the base transition and padding, emitted after this file, can't override it.
+.card.card--expand {
+    align-items: flex-start;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    font: inherit;
+    gap: 6px;
+    outline: none;
+    text-align: left;
+    touch-action: manipulation;
+    transition: scale 0.15s ease-out;
+    user-select: none;
+
+    @include tokens.state(pressed) {
+        scale: var(--pressed-scale);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--focus-ring-color);
+        outline-offset: 2px;
+    }
+}
+
+.card-expand {
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    gap: var(--list-gap);
+    list-style: none;
+    margin: 0;
+    max-width: 100%;
+    padding: 0;
+    width: var(--max-width);
+
+    &-close {
+        flex-shrink: 0;
+        height: var(--size);
+        margin: -8px -8px 0 0;
+        width: var(--size);
+
+        @include tokens.state(pressed) {
+            scale: 0.96;
+        }
+
+        // Grows the hit area to 44px around the 32px circle.
+        &::before {
+            border-radius: inherit;
+            content: '';
+            inset: -6px;
+            position: absolute;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-ring-color);
+            outline-offset: 2px;
+        }
+
+        svg {
+            height: 18px;
+            width: 18px;
+        }
+    }
+
+    &-detail {
+        color: var(--muted-color);
+        font-size: 15px;
+        line-height: 24px;
+        margin: 10px 0 0;
+        text-wrap: pretty;
+    }
+
+    // Visible overflow keeps the card's '::after' shadow; the panel scrolls instead.
+    &-dialog {
+        overflow: visible;
+
+        // Held until the morph has visibly settled, so nothing shows while its box is still growing.
+        &.--active .card-expand-delayed {
+            animation: card-expand-reveal 0.25s var(--ease-out) 0.25s backwards;
+        }
+    }
+
+    &-header {
+        align-items: flex-start;
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+    }
+
+    &-heading {
+        align-items: flex-start;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    // Holds the slot at the card's exact size so the list never jumps, and marks where it returns to. Keyed off
+    // the dialog through ':has' because template classes land a frame late, after the view transition has
+    // already captured the new state.
+    &-item:has(> .card-expand-dialog.--active) > .card--expand {
+        --background: var(--slot-background);
+        --box-shadow: inset 0 0 0 var(--border-width-400) var(--slot-border-color);
+        cursor: default;
+        scale: 1;
+
+        > * {
+            visibility: hidden;
+        }
+    }
+
+    // The view transition is the only motion; the modal's own fade would play inside the snapshot.
+    &-item:has(> .--morphing) > .card-expand-dialog {
+        &,
+        &::backdrop {
+            transition: none;
+        }
+    }
+
+    &-meta {
+        color: var(--muted-color);
+        flex-shrink: 0;
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+        margin: 0;
+    }
+
+    &-panel {
+        border-radius: inherit;
+        max-height: calc(100dvh - (var(--margin-horizontal) * 2));
+        overflow: auto;
+        padding: var(--padding);
+    }
+
+    &-row {
+        align-items: baseline;
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    &-summary {
+        color: var(--muted-color);
+        font-size: 14px;
+        margin: 0;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-panel &-summary {
+        font-size: 15px;
+        line-height: 24px;
+        margin-top: 16px;
+        white-space: normal;
+    }
+
+    &-title {
+        color: var(--text-color);
+        font-size: 15px;
+        font-weight: 500;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    // Only the card on the move and its open dialog are named, so the rest of the list stays under the backdrop.
+    // Reduced motion leaves them unnamed and the whole page cross-fades instead.
+    @media (prefers-reduced-motion: no-preference) {
+        &-item:not(:has(> .card-expand-dialog.--active)) > .card--expand.--morphing,
+        &-item:has(> .--morphing) > .card-expand-dialog.--active {
+            view-transition-name: card-expand;
+
+            .card-expand-meta {
+                view-transition-name: card-expand-meta;
+            }
+
+            .card-expand-summary {
+                view-transition-name: card-expand-summary;
+            }
+
+            .card-expand-title {
+                view-transition-name: card-expand-title;
+            }
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &-close {
+            transition: none;
+        }
+
+        &-dialog.--active .card-expand-delayed {
+            animation: none;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .card.card--expand {
+        transition: none;
+    }
+}
+
+::view-transition-group(card-expand),
+::view-transition-group(card-expand-meta),
+::view-transition-group(card-expand-summary),
+::view-transition-group(card-expand-title) {
+    animation-duration: 0.35s;
+    // Critically damped spring: a card overshooting its own slot reads as a glitch, not play.
+    animation-timing-function: linear(0, 0.0575, 0.1803, 0.3208, 0.4551, 0.5729, 0.6711, 0.7501, 0.8122, 0.8601, 0.8966, 0.924, 0.9445, 0.9596, 0.9708, 0.9789, 0.9848, 0.9891, 0.9922, 0.9944, 0.996, 0.9972, 0.998, 0.9986, 1);
+}
+
+// The snapshots can't carry the shadow through a clip, so the box wears its own.
+::view-transition-group(card-expand) {
+    border-radius: variables.$expand-border-radius;
+    box-shadow: variables.$expand-box-shadow;
+    overflow: clip;
+}
+
+// Kept at natural size: the growing box uncovers the dialog, and text moves without its glyphs being squashed.
+::view-transition-new(card-expand),
+::view-transition-new(card-expand-meta),
+::view-transition-new(card-expand-summary),
+::view-transition-new(card-expand-title),
+::view-transition-old(card-expand),
+::view-transition-old(card-expand-meta),
+::view-transition-old(card-expand-summary),
+::view-transition-old(card-expand-title) {
+    inline-size: auto;
+}
+
+@keyframes card-expand-reveal {
+    from {
+        filter: blur(4px);
+        opacity: 0;
+        translate: 0 4px;
+    }
+}

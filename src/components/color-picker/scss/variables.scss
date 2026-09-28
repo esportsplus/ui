@@ -1,15 +1,9 @@
 .color-picker {
-    --background: var(--color-white-300);
-    --border-color: var(--color-border-300);
-    --border-radius: 20px;
-    --box-shadow:
-        0 0 0 1px oklch(from var(--color-black-500) l c h / 0.06),
-        0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
-        0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
     --checker: repeating-conic-gradient(var(--color-border-300) 0 25%, var(--color-white-300) 0 50%) 0 0 / 8px 8px;
     --color: var(--color-text-500);
     --color-invalid: var(--color-red-400);
     --color-muted: var(--color-text-300);
+    --control-border-color: var(--color-border-300);
     --control-border-radius: var(--border-radius-400);
     --control-height: 36px;
     --focus-width: var(--border-width-500);
@@ -17,8 +11,9 @@
     --font-size: calc(var(--font-size-400) * 0.875);
     --hairline: inset 0 0 0 1px color-mix(in oklch, var(--color) 10%, transparent);
     --pad-height: 176px;
-    --padding: 12px;
     --preview-size: 44px;
+    // Gap between a selected swatch and its ring; match it to the surface the picker sits on.
+    --ring-offset-color: var(--color-white-300);
     --spacing: 12px;
     --swatch-size: 28px;
     --thumb-border: 2px solid var(--color-white-300);
@@ -29,5 +24,36 @@
     --track-height: 12px;
     --transition-duration: 150ms;
     --transition-timing-function: ease-out;
-    --width: min(320px, 100%);
+
+    .color-picker-channel {
+        &--alpha {
+            --thumb: linear-gradient(rgb(var(--rgb) / var(--alpha)), rgb(var(--rgb) / var(--alpha))), var(--checker);
+            --track: linear-gradient(to right, rgb(var(--rgb) / 0), rgb(var(--rgb))), var(--checker);
+        }
+
+        // Pure hues on purpose: the rail is the color math, not a theme surface.
+        &--hue {
+            --thumb: hsl(var(--hue) 100% 50%);
+            --track: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+        }
+    }
+
+    // Qualified by the row so it wins over the reused input styles regardless of stylesheet order.
+    &-fields #{&}-hex {
+        --border-color-active: var(--control-border-color);
+        --border-color-default: var(--control-border-color);
+        --border-color-hover: var(--control-border-color);
+        --border-color-pressed: var(--control-border-color);
+        --border-radius: var(--control-border-radius);
+        --border-width: 1px;
+        --color-default: currentColor;
+        --font-size: inherit;
+        --padding-horizontal: 10px;
+        --padding-vertical: 0px;
+        --size: var(--control-height);
+
+        &[aria-invalid='true'] {
+            --control-border-color: var(--color-invalid);
+        }
+    }
 }

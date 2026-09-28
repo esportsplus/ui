@@ -25,6 +25,7 @@
         scrollbar-color: auto;
 
         &::-webkit-scrollbar {
+            height: var(--scrollbar-width);
             width: var(--scrollbar-width);
         }
         &::-webkit-scrollbar-button {
@@ -45,14 +46,87 @@
         overflow-y: hidden;
     }
 
+    // Sticky edges pin to the scrollport and cancel their own height with a negative margin; a flex or grid
+    // scroller still adds its row gap beside each edge.
+    &-blur {
+        &::after,
+        &::before {
+            backdrop-filter: blur(var(--scroll-blur));
+            content: '';
+            display: block;
+            flex-shrink: 0;
+            height: var(--scroll-blur-size);
+            pointer-events: none;
+            position: sticky;
+            z-index: 1;
+        }
+
+        &::after {
+            bottom: 0;
+            margin-top: calc(var(--scroll-blur-size) * -1);
+            mask-image: linear-gradient(to top, #000, transparent);
+            opacity: var(--scroll-overflow-bottom, 0);
+        }
+
+        &::before {
+            margin-bottom: calc(var(--scroll-blur-size) * -1);
+            mask-image: linear-gradient(to bottom, #000, transparent);
+            opacity: var(--scroll-overflow-top, 0);
+            top: 0;
+        }
+
+        // The scroller is the edges' nearest scroll container, so they follow its own scroll.
+        @supports (animation-timeline: scroll()) {
+            &::after {
+                animation: scrollbar-blur-bottom 1ms linear both;
+                animation-timeline: scroll(nearest);
+            }
+
+            &::before {
+                animation: scrollbar-blur-top 1ms linear both;
+                animation-timeline: scroll(nearest);
+            }
+        }
+
+        @keyframes scrollbar-blur-bottom {
+            0%, 95% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes scrollbar-blur-top {
+            0% {
+                opacity: 0;
+            }
+
+            5%, 100% {
+                opacity: 1;
+            }
+        }
+    }
+
+    // Toggled by scrollbar.drag(). Its writes track the pointer 1:1, so smooth scrolling and snapping would
+    // fight them.
+    &-drag.--dragging {
+        cursor: grabbing;
+        scroll-behavior: auto;
+        scroll-snap-type: none;
+        user-select: none;
+    }
+
+    // Unsupported browsers get --scroll-overflow-* from the scrollbar.fade() fallback instead of the timeline.
     &-fade {
-        overflow-y: auto;
+        --scroll-fade-bottom: calc(var(--scroll-fade-size) * var(--scroll-overflow-bottom, 0));
+        --scroll-fade-top: calc(var(--scroll-fade-size) * var(--scroll-overflow-top, 0));
+        mask-image: linear-gradient(to bottom, transparent, #000 var(--scroll-fade-top), #000 calc(100% - var(--scroll-fade-bottom)), transparent);
 
         @supports (animation-timeline: scroll()) {
-            animation: scrollbar-fade linear both;
+            animation: scrollbar-fade 1ms linear both;
             animation-timeline: scroll(self);
-            -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--scroll-fade-top), #000 calc(100% - var(--scroll-fade-bottom)), transparent);
-            mask-image: linear-gradient(to bottom, transparent, #000 var(--scroll-fade-top), #000 calc(100% - var(--scroll-fade-bottom)), transparent);
         }
 
         @keyframes scrollbar-fade {
@@ -79,6 +153,14 @@
         &::-webkit-scrollbar {
             display: none;
         }
+    }
+
+    // No vertical gutter held open, and vertical wheels chain through to the page.
+    &-horizontal {
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-y: auto;
+        scrollbar-gutter: auto;
     }
 
     &-snap {

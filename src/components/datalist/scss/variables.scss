@@ -8,8 +8,12 @@
     --font-weight: var(--font-weight-500);
     --height: calc(var(--item-height) * 5);
     --item-height: 40px;
+    --opacity-falloff: 0.55;
     --padding: var(--size-200);
     --perspective: 704px;
+    --rotate: 38deg;
+    --scale: 1.14;
+    --scale-falloff: 0.34;
     --width: 224px;
 
     &-lens {
@@ -18,9 +22,8 @@
     }
 
     &-option {
-        --opacity-falloff: 0.55;
-        --rotate: 38deg;
-        --scale: 1.14;
-        --scale-falloff: 0.34;
+        // Fallback without scroll-driven animations: JS writes `--offset` (scroll position) and `--half` (half viewport) in item units
+        --t: clamp(-1, calc((var(--index) - var(--offset, 0)) / var(--half, 2.5)), 1);
+        --t-abs: max(var(--t), var(--t) * -1);
     }
 }

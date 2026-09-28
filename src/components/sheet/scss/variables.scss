@@ -25,3 +25,16 @@
         --width: 100%;
     }
 }
+
+.sheet.modal {
+    --backdrop: var(--backdrop-color);
+    --margin-horizontal: 0px;
+    --max-width: var(--width);
+    --transition-duration: var(--open-duration);
+    --transition-timing-function: var(--ease);
+
+    // Exits get out of the way faster than entrances arrive.
+    &:not(.--active) {
+        --transition-duration: var(--close-duration);
+    }
+}

@@ -21,4 +21,16 @@
     --value-font-weight: var(--font-weight-600);
     --width: 600px;
     --wipe-duration: 0.5s;
+
+    // Qualified by the root so the roll timing beats the reused ticker's own.
+    & &-counter {
+        --font-weight: var(--value-font-weight);
+        --stagger: 0s;
+        --transition-duration: var(--count-duration);
+        --timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    &-card.--scrubbing &-counter {
+        --transition-duration: var(--scrub-duration);
+    }
 }

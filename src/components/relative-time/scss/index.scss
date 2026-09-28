@@ -68,7 +68,6 @@
             translate var(--transition-duration) var(--transition-timing-function);
 
         .relative-time.--active > & {
-            --transition-duration: 0.16s;
             filter: blur(0px);
         }
 
@@ -80,8 +79,6 @@
 
     @media (prefers-reduced-motion: reduce) {
         &-tooltip.tooltip-message {
-            --offset: 0px;
-            --scale: 1;
             filter: none;
         }
     }

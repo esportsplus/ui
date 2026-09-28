@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
 import './scss/index.scss';
@@ -495,5 +495,5 @@ function template(
 }
 
 
-export default Object.assign(template, { option: SELECT_MENU_OPTION, panel: SELECT_MENU_PANEL, trigger: SELECT_MENU_TRIGGER } as const);
+export default component(template, { option: SELECT_MENU_OPTION, panel: SELECT_MENU_PANEL, trigger: SELECT_MENU_TRIGGER });
 export type { Option };

@@ -1,5 +1,12 @@
 @use '/tokens';
 
+// Shared with the view transition pseudos, which hang off the root and can't read the card's own variables.
+$expand-border-radius: 18px;
+$expand-box-shadow:
+    0 0 0 var(--border-width-400) oklch(from var(--color-black-500) l c h / 0.06),
+    0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
+    0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
+
 .card {
     --background: var(--background-default);
     --background-active: var(--background-default);
@@ -31,5 +38,78 @@
     @include tokens.state(pressed) {
         --background: var(--background-pressed);
         --border-color: var(--border-color-pressed);
+    }
+
+
+    &--expand,
+    &-expand-dialog {
+        --background-default: var(--surface-background);
+        --border-radius: #{$expand-border-radius};
+        --border-width: 0px;
+        --box-shadow-default: #{$expand-box-shadow};
+    }
+
+    &--expand {
+        --padding-horizontal: 18px;
+        --padding-vertical: 16px;
+        --pressed-scale: 0.96;
+        --width: 100%;
+    }
+
+    &--morph {
+        --morph-blur: 4px;
+        --morph-duration: 0.3s;
+        // The outgoing layer clears out faster than the incoming one arrives, so the two never read as
+        // overlapping text.
+        --morph-enter-duration: 0.25s;
+        --morph-exit-duration: 0.18s;
+        --morph-fade-duration: var(--transition-duration);
+        --morph-fade-timing-function: var(--transition-timing-function);
+        --morph-shift: 48px;
+        --morph-swap-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        // Critically damped spring: an overshooting shell would uncover empty space.
+        --morph-timing-function: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
+
+
+        @media (prefers-reduced-motion: reduce) {
+            --morph-blur: 0px;
+            --morph-duration: 0s;
+            --morph-shift: 0px;
+        }
+    }
+
+    &-expand {
+        --dialog-backdrop: oklch(from var(--color-text-500) l c h / 0.15);
+        --dialog-width: 440px;
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        --focus-ring-color: oklch(from var(--color-text-500) l c h / 0.38);
+        --list-gap: 12px;
+        --max-width: 400px;
+        --muted-color: var(--color-text-300);
+        --slot-background: oklch(from var(--color-text-500) l c h / 0.03);
+        --slot-border-color: var(--color-border-300);
+        --surface-background: var(--color-grey-400);
+        --text-color: var(--color-text-500);
+
+        &-close {
+            --background-hover: var(--color-white-300);
+            --border-radius: 999px;
+            --border-width: 0px;
+            --color-default: var(--muted-color);
+            --color-hover: var(--text-color);
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
+            --size: 32px;
+        }
+
+        &-dialog.modal {
+            --backdrop: var(--dialog-backdrop);
+            --margin-horizontal: 1rem;
+            --max-width: var(--dialog-width);
+            --padding: 24px;
+            --transition-duration: 0.2s;
+            --transition-timing-function: var(--ease-out);
+            --width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
+        }
     }
 }

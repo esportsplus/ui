@@ -1,4 +1,3 @@
-@use '/tokens';
 // Before variables: the button sheet re-emits its defaults, which would otherwise override ours.
 @use '../../button/scss/index';
 @use 'variables';
@@ -18,19 +17,11 @@
 
     &-control {
         gap: var(--size-100);
-
-        .icon {
-            --size: var(--size-400);
-        }
     }
 
     &-page {
         font-variant: tabular-nums;
         min-width: var(--size);
-
-        @include tokens.state(active) {
-            --box-shadow: var(--box-shadow-100);
-        }
 
         &--dots {
             cursor: default;

@@ -1,5 +1,6 @@
 @use '/lib';
 @use '/tokens';
+@use 'expand';
 @use 'variables';
 
 .card {
@@ -29,5 +30,81 @@
             box-shadow var(--transition-duration) var(--transition-timing-function),
             opacity var(--transition-duration) var(--transition-timing-function);
         z-index: -1;
+    }
+
+
+    // A shell that morphs between stacked layers, one shown at a time. The consumer sizes it to the active
+    // layer through '--morph-width' and '--morph-height', marks that layer '--active' and every layer ahead
+    // of it '--before', so a swap slides the way the active index moved. Its own opacity and transform are
+    // the consumer's to animate for open and close; '--instant' snaps everything, for a fresh open.
+    // The viewport clips, not the card, so the '::after' shadow and whatever a consumer hangs off '::before'
+    // can still reach outside the box.
+    &--morph {
+        height: var(--morph-height, auto);
+        padding: 0;
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            border-color var(--transition-duration) var(--transition-timing-function),
+            border-radius var(--morph-duration) var(--morph-timing-function),
+            box-shadow var(--transition-duration) var(--transition-timing-function),
+            height var(--morph-duration) var(--morph-timing-function),
+            opacity var(--morph-fade-duration) var(--morph-fade-timing-function),
+            transform var(--morph-fade-duration) var(--morph-fade-timing-function),
+            translate var(--morph-duration) var(--morph-timing-function),
+            width var(--morph-duration) var(--morph-timing-function);
+        width: var(--morph-width, var(--width));
+
+        &.--instant {
+            &,
+            > .card-morph-viewport > .card-morph-layer {
+                transition: none;
+            }
+        }
+    }
+
+    // Pinned to its natural size, so text never reflows while the shell morphs around it. Waits out its exit
+    // before hiding, so the outgoing layer stays visible as it leaves.
+    &-morph-layer {
+        filter: blur(var(--morph-blur));
+        left: 0;
+        opacity: 0;
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        transition:
+            filter var(--morph-exit-duration) var(--morph-swap-timing-function),
+            opacity var(--morph-exit-duration) var(--morph-swap-timing-function),
+            translate var(--morph-exit-duration) var(--morph-swap-timing-function),
+            visibility 0s linear var(--morph-exit-duration);
+        translate: var(--morph-shift) 0;
+        visibility: hidden;
+        width: max-content;
+
+        // 'none' rather than 'blur(0)', which would still trap fixed-position descendants.
+        @include tokens.state(active) {
+            filter: none;
+            opacity: 1;
+            pointer-events: auto;
+            transition:
+                filter var(--morph-enter-duration) var(--morph-swap-timing-function),
+                opacity var(--morph-enter-duration) var(--morph-swap-timing-function),
+                translate var(--morph-enter-duration) var(--morph-swap-timing-function);
+            translate: 0 0;
+            visibility: visible;
+        }
+
+        &.--before {
+            translate: calc(var(--morph-shift) * -1) 0;
+        }
+    }
+
+    &-morph-viewport {
+        border-radius: inherit;
+        height: 100%;
+        overflow: clip;
+        position: relative;
+        width: 100%;
     }
 }

@@ -1,7 +1,7 @@
-import checkbox, { factory } from '~/components/checkbox';
+import options from '~/components/checkbox/options';
 
 
-const switchComponent: typeof checkbox = factory('switch');
+const switchComponent: typeof options.switch = options.switch;
 
 
 export default switchComponent;

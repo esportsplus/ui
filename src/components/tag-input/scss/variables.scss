@@ -27,4 +27,9 @@
     // Shared by a chip's text and the field, so a typed tag becomes a chip without its letters shifting.
     --text-inset: 10px;
     --width: min(440px, 100%);
+
+    // Qualified so it wins over the reused input styles regardless of stylesheet order.
+    &-entry > #{&}-field {
+        --color-default: currentColor;
+    }
 }

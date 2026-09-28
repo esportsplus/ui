@@ -7,7 +7,7 @@ let seeds = ['interior', 'harbor', 'canyon', 'atrium'];
 
 
 function photo(seed: string, bust = 0) {
-    return image({
+    return image.lazyload({
         alt: seed,
         height: 800,
         placeholder: `https://picsum.photos/seed/${seed}/24/16`,
@@ -43,27 +43,15 @@ export default {
                     </div>
                 `;
             },
-            title: 'develop'
+            title: 'lazyload'
         },
         {
             render: () => html`
                 <div style='max-width: 320px; width: 100%;'>
-                    ${image({
-                        alt: 'pending',
-                        height: 800,
-                        placeholder: 'https://picsum.photos/seed/harbor/24/16',
-                        width: 1200
-                    })}
-                </div>
-            `,
-            title: 'unresolved src'
-        },
-        {
-            render: () => html`
-                <div style='max-width: 320px; width: 100%;'>
-                    ${image({
+                    ${image.lazyload({
                         alt: 'broken',
                         height: 800,
+                        placeholder: 'https://picsum.photos/seed/harbor/24/16',
                         src: 'data:image/png;base64,broken',
                         width: 1200
                     })}

@@ -11,40 +11,6 @@
     width: var(--width);
 
 
-    &-action,
-    &-cancel {
-        // A label that fades in above after a beat, or at once for keyboard focus.
-        &::after {
-            background: var(--color-text-500);
-            border-radius: 6px;
-            bottom: calc(100% + 6px);
-            color: var(--color-white-300);
-            content: attr(data-tooltip);
-            font-size: 12px;
-            font-weight: var(--font-weight-500);
-            left: 50%;
-            opacity: 0;
-            padding: 4px 8px;
-            pointer-events: none;
-            position: absolute;
-            transition: opacity 0.1s ease-out, translate 0.1s ease-out;
-            translate: -50% 2px;
-            white-space: nowrap;
-            z-index: 1;
-        }
-
-        &:focus-visible::after,
-        &:hover::after {
-            opacity: 1;
-            transition-delay: 0.4s;
-            translate: -50% 0;
-        }
-
-        &:focus-visible::after {
-            transition-delay: 0s;
-        }
-    }
-
     &-action {
         align-items: center;
         background: transparent;

@@ -1,4 +1,4 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import input from '~/components/input';
 import { PASSWORD_INPUT } from './constants';
@@ -94,4 +94,4 @@ function template(
 }
 
 
-export default Object.assign(template, { input: PASSWORD_INPUT } as const);
+export default component(template, { input: PASSWORD_INPUT });

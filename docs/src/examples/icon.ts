@@ -1,7 +1,7 @@
 import { icon } from '@esportsplus/ui';
 import { html } from '@esportsplus/template';
-import bolt from '~/storage/svg/bolt.svg';
-import star from '~/storage/svg/star.svg';
+import bolt from '@esportsplus/ui/svg/bolt.svg';
+import star from '@esportsplus/ui/svg/star.svg';
 
 
 export default {

@@ -1,7 +1,7 @@
 import { html } from '../../app';
 import icon from '~/components/icon';
-import arrowLeft from '~/storage/svg/arrow-left.svg';
-import arrowRight from '~/storage/svg/arrow-right.svg';
+import arrowLeft from '@esportsplus/ui/svg/arrow-left.svg';
+import arrowRight from '@esportsplus/ui/svg/arrow-right.svg';
 import { sections } from '../../data/nav';
 import './index.scss';
 

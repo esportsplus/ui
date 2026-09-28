@@ -19,4 +19,44 @@
     --spring-duration: 446ms;
     --track: oklch(from var(--color-text-500) l c h / 0.15);
     --width: 420px;
+
+    &-back,
+    &-submit {
+        --padding-vertical: 0px;
+    }
+
+    &-back {
+        --color-default: var(--color-muted);
+        --color-hover: var(--foreground);
+        --background-hover: var(--field-background);
+        --padding-horizontal: 16px;
+    }
+
+    &-input {
+        --background-default: var(--field-background);
+        --color-default: var(--foreground);
+        --font-size: var(--font-size);
+        --padding-horizontal: 14px;
+        --padding-vertical: 0px;
+    }
+
+    &-radio {
+        --border-color-active: var(--accent);
+        --border-color-default: var(--color-border-400);
+        --border-color-hover: var(--color-muted);
+        --border-width: 1.5px;
+        --border-width-offset-hover: 0px;
+        --box-shadow-active: none;
+        --focus-width: 0px;
+        --indicator-color-default: var(--accent);
+        --size: 20px;
+        --transition-duration: 150ms;
+        --transition-timing-function: ease-out;
+    }
+
+    &-submit {
+        --background-default: var(--accent);
+        --color-default: var(--accent-contrast);
+        --padding-horizontal: 20px;
+    }
 }

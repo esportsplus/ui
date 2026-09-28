@@ -1,3 +1,5 @@
+@use '/tokens';
+
 .pagination {
     --gap: var(--size-300);
     --size: 32px;
@@ -22,6 +24,10 @@
         --background-default: var(--color-white-300);
         --box-shadow-default: var(--box-shadow-100);
         --color-default: var(--color-text-500);
+
+        .icon {
+            --size: var(--size-400);
+        }
     }
 
     &-page {
@@ -30,6 +36,10 @@
         --border-color-default: transparent;
         --color-active: var(--color-text-500);
         --padding-horizontal: 0px;
+
+        @include tokens.state(active) {
+            --box-shadow: var(--box-shadow-100);
+        }
 
         &--dots {
             --background-hover: transparent;

@@ -1,5 +1,7 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import highlight from '~/components/highlight';
+import '~/components/card/scss/index.scss';
 import './scss/index.scss';
 
 
@@ -32,10 +34,6 @@ const CLOSE_GRACE = 150;
 // Keeps the panel this far from the viewport edges.
 const COLLISION_PADDING = 16;
 
-const CONTENT_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
-
-const EASE_OUT = 'cubic-bezier(0.23, 1, 0.32, 1)';
-
 const FOCUSABLE = 'a[href], button:not([disabled])';
 
 const NAVIGATION_MENU_POPUP = Symbol.for('@esportsplus/ui/navigation-menu.popup');
@@ -47,45 +45,21 @@ const OPEN_INTENT = 50;
 
 const SIDE_OFFSET = 8;
 
-// How far the old and new content slide when the panel switches, in px.
-const SLIDE = 32;
-
 
 let uid = 0;
-
-
-function reduced() {
-    return matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
 
 
 const navigationMenu = ({ align = 'start', items, label = 'Main', state, ...attributes }: A) => {
     let closeTimer: ReturnType<typeof setTimeout> | undefined,
         current = -1,
-        hiding: Animation | undefined,
         id = `navigation-menu-${++uid}`,
-        // True while the pointer is over the bar; the pill then follows it rather than the open trigger.
-        inside = false,
         layers: (HTMLElement | undefined)[] = [],
-        list: HTMLElement | undefined,
         nav: HTMLElement | undefined,
         observer: ResizeObserver | undefined,
         openTimer: ReturnType<typeof setTimeout> | undefined,
-        pill: HTMLElement | undefined,
         popup: HTMLElement | undefined,
-        running = new Map<HTMLElement, Animation>(),
         s = state ?? reactive({ active: -1 }),
         triggers: HTMLElement[] = [];
-
-    function animate(element: HTMLElement, keyframes: Keyframe[], duration: number, easing = CONTENT_EASE) {
-        running.get(element)?.cancel();
-
-        let animation = element.animate(keyframes, { duration, easing });
-
-        running.set(element, animation);
-
-        return animation;
-    }
 
     function close(refocus = false) {
         clearTimeout(openTimer);
@@ -99,14 +73,17 @@ const navigationMenu = ({ align = 'start', items, label = 'Main', state, ...attr
 
         current = -1;
         s.active = -1;
-        hide();
+        popup?.classList.remove('--active');
 
         if (refocus) {
             triggers[previous]?.focus();
         }
 
-        if (!inside) {
-            settle();
+        // Stays shown while the panel fades out, but out of reach.
+        let layer = layers[previous];
+
+        if (layer) {
+            layer.inert = true;
         }
     }
 
@@ -116,78 +93,36 @@ const navigationMenu = ({ align = 'start', items, label = 'Main', state, ...attr
         return layer ? [...layer.querySelectorAll<HTMLElement>(FOCUSABLE)] : [];
     }
 
-    function hide() {
-        let element = popup;
-
-        if (!element) {
-            return;
-        }
-
-        hiding?.cancel();
-
-        let animation = element.animate(
-            [{}, reduced() ? { opacity: 0 } : { opacity: 0, transform: 'scale(0.96)' }],
-            { duration: 160, easing: EASE_OUT, fill: 'forwards' }
-        );
-
-        hiding = animation;
-        animation.finished.then(() => {
-            element.classList.remove('--active');
-            animation.cancel();
-
-            for (let layer of layers) {
-                if (layer) {
-                    layer.classList.remove('--active', '--leaving');
-                    layer.inert = true;
-                }
-            }
-        }, () => {});
-    }
-
     function open(index: number) {
         clearTimeout(openTimer);
         clearTimeout(closeTimer);
 
-        let previous = current;
-
-        if (previous === index || !layers[index]) {
+        if (current === index || !layers[index] || !popup) {
             return;
         }
+
+        let element = popup,
+            fresh = current === -1;
 
         current = index;
         s.active = index;
-        swap(previous, index);
-        place(previous === -1);
 
-        if (!inside) {
-            settle();
-        }
-    }
-
-    // Moves the hover pill onto an item. A fresh pill appears in place instead of sliding in from where it last
-    // left.
-    function pillTo(item: HTMLElement) {
-        if (!list || !pill) {
-            return;
+        // Each open starts where it lands, so reopening never slides over from a stale spot.
+        if (fresh) {
+            element.classList.add('--instant');
         }
 
-        let bounds = list.getBoundingClientRect(),
-            box = item.getBoundingClientRect(),
-            element = pill,
-            style = element.style;
+        select(index);
+        place();
 
-        style.height = `${box.height}px`;
-        style.top = `${box.top - bounds.top}px`;
-        style.translate = `${box.left - bounds.left}px 0`;
-        style.width = `${box.width}px`;
-
-        if (!element.classList.contains('--active')) {
+        if (fresh) {
             element.getBoundingClientRect();
+            element.classList.remove('--instant');
             element.classList.add('--active');
         }
     }
 
-    function place(fresh: boolean) {
+    function place() {
         if (!nav || !popup || current === -1) {
             return;
         }
@@ -200,8 +135,8 @@ const navigationMenu = ({ align = 'start', items, label = 'Main', state, ...attr
         }
 
         let box = trigger.getBoundingClientRect(),
-            height = layer.offsetHeight,
             rect = nav.getBoundingClientRect(),
+            style = popup.style,
             viewport = document.documentElement.clientWidth,
             width = layer.offsetWidth,
             x = align === 'start'
@@ -212,106 +147,25 @@ const navigationMenu = ({ align = 'start', items, label = 'Main', state, ...attr
 
         x = Math.max(COLLISION_PADDING, Math.min(x, viewport - COLLISION_PADDING - width));
 
-        let element = popup,
-            style = element.style,
-            update = () => {
-                style.height = `${height}px`;
-                // Grows out of the trigger it belongs to.
-                style.transformOrigin = `${box.left + box.width / 2 - x}px ${-SIDE_OFFSET}px`;
-                style.translate = `${x - rect.left}px ${box.bottom - rect.top + SIDE_OFFSET}px`;
-                style.width = `${width}px`;
-            };
-
-        if (!fresh) {
-            update();
-            return;
-        }
-
-        hiding?.cancel();
-        hiding = undefined;
-
-        // Each open starts where it lands, so reopening never slides over from a stale spot.
-        element.classList.add('--instant');
-        update();
-        element.getBoundingClientRect();
-        element.classList.remove('--instant');
-        element.classList.add('--active');
-
-        if (reduced()) {
-            animate(element, [{ opacity: 0 }, { opacity: 1 }], 160, EASE_OUT);
-            return;
-        }
-
-        running.get(element)?.cancel();
-        running.set(element, element.animate(
-            [
-                { opacity: 0, offset: 0, transform: 'perspective(600px) rotateX(-20deg) scale(0.94)' },
-                { opacity: 1, offset: 0.53 },
-                { opacity: 1, transform: 'none' }
-            ],
-            { duration: 300, easing: EASE_OUT }
-        ));
+        style.setProperty('--morph-height', `${layer.offsetHeight}px`);
+        style.setProperty('--morph-width', `${width}px`);
+        // Grows out of the trigger it belongs to.
+        style.transformOrigin = `${box.left + box.width / 2 - x}px ${-SIDE_OFFSET}px`;
+        style.translate = `${x - rect.left}px ${box.bottom - rect.top + SIDE_OFFSET}px`;
     }
 
-    // With the pointer gone, the pill rests on the open trigger, or fades out if nothing is open.
-    function settle() {
-        let trigger = current === -1 ? undefined : triggers[current];
-
-        if (trigger) {
-            pillTo(trigger);
-        }
-        else {
-            pill?.classList.remove('--active');
-        }
-    }
-
-    function swap(previous: number, next: number) {
-        let dir = next > previous ? 1 : -1,
-            incoming = layers[next],
-            outgoing = previous === -1 ? undefined : layers[previous],
-            reduce = reduced();
-
+    function select(index: number) {
         for (let i = 0, n = layers.length; i < n; i++) {
             let layer = layers[i];
 
-            if (!layer || layer === incoming || layer === outgoing) {
+            if (!layer) {
                 continue;
             }
 
-            running.get(layer)?.cancel();
-            layer.classList.remove('--active', '--leaving');
-            layer.inert = true;
+            layer.classList.toggle('--active', i === index);
+            layer.classList.toggle('--before', i < index);
+            layer.inert = i !== index;
         }
-
-        if (outgoing) {
-            let layer = outgoing;
-
-            layer.classList.remove('--active');
-            layer.classList.add('--leaving');
-            layer.inert = true;
-            animate(layer, [
-                { opacity: 1, translate: '0 0' },
-                { opacity: 0, translate: `${reduce ? 0 : -dir * SLIDE}px 0` }
-            ], 200).onfinish = () => layer.classList.remove('--leaving');
-        }
-
-        if (!incoming) {
-            return;
-        }
-
-        incoming.classList.remove('--leaving');
-        incoming.classList.add('--active');
-        incoming.inert = false;
-
-        if (!outgoing) {
-            running.get(incoming)?.cancel();
-            return;
-        }
-
-        animate(incoming, [
-            { opacity: 0, translate: `${reduce ? 0 : dir * SLIDE}px 0` },
-            { opacity: 1, translate: '0 0' }
-        ], 200);
     }
 
     function trigger(index: number, e: KeyboardEvent) {
@@ -366,13 +220,8 @@ const navigationMenu = ({ align = 'start', items, label = 'Main', state, ...attr
     onCleanup(() => {
         clearTimeout(closeTimer);
         clearTimeout(openTimer);
-        hiding?.cancel();
         observer?.disconnect();
         stop();
-
-        for (let animation of running.values()) {
-            animation.cancel();
-        }
     });
 
     return html`
@@ -389,7 +238,7 @@ const navigationMenu = ({ align = 'start', items, label = 'Main', state, ...attr
                 },
                 onconnect: (element: HTMLElement) => {
                     nav = element;
-                    observer = new ResizeObserver(() => place(false));
+                    observer = new ResizeObserver(place);
                     observer.observe(element);
 
                     for (let layer of layers) {
@@ -422,119 +271,103 @@ const navigationMenu = ({ align = 'start', items, label = 'Main', state, ...attr
                 }
             }}
         >
-            <ul
-                class='navigation-menu-list'
-                ${{
-                    onpointerleave: () => {
-                        inside = false;
-                        settle();
-                    },
-                    onrender: (element: HTMLElement) => {
-                        list = element;
-                    }
-                }}
-            >
-                <li aria-hidden='true' class='navigation-menu-pill' ${{ onrender: (element: HTMLElement) => { pill = element; } }}></li>
-                ${items.map((item, index) => html`
-                    <li class='navigation-menu-item'>
-                        ${item.content
-                            ? html`
-                                <button
-                                    class='navigation-menu-trigger'
-                                    type='button'
-                                    ${attributes[NAVIGATION_MENU_TRIGGER]}
-                                    ${{
-                                        'aria-controls': () => s.active === index && `${id}-popup`,
-                                        'aria-expanded': () => String(s.active === index),
-                                        class: () => s.active === index && '--active',
-                                        onclick: (e: MouseEvent) => {
-                                            // detail is 0 for Enter and Space; those toggle, like a tap.
-                                            if (current === index && (e.detail === 0 || (e as PointerEvent).pointerType === 'touch')) {
-                                                close();
-                                            }
-                                            else {
-                                                open(index);
-                                            }
-                                        },
-                                        onfocus: (e: FocusEvent) => {
-                                            pillTo(e.currentTarget as HTMLElement);
+            <div class='navigation-menu-bar'>
+                ${highlight({ class: 'navigation-menu-highlight', target: '.navigation-menu-trigger' })}
+                <ul class='navigation-menu-list'>
+                    ${items.map((item, index) => html`
+                        <li class='navigation-menu-item'>
+                            ${item.content
+                                ? html`
+                                    <button
+                                        class='navigation-menu-trigger'
+                                        type='button'
+                                        ${attributes[NAVIGATION_MENU_TRIGGER]}
+                                        ${{
+                                            'aria-controls': () => s.active === index && `${id}-popup`,
+                                            'aria-expanded': () => String(s.active === index),
+                                            class: () => s.active === index && '--active',
+                                            onclick: (e: MouseEvent) => {
+                                                // detail is 0 for Enter and Space; those toggle, like a tap.
+                                                if (current === index && (e.detail === 0 || (e as PointerEvent).pointerType === 'touch')) {
+                                                    close();
+                                                }
+                                                else {
+                                                    open(index);
+                                                }
+                                            },
+                                            onfocus: () => {
+                                                // With a panel open, focus moving along the list moves it too.
+                                                if (current !== -1 && current !== index) {
+                                                    open(index);
+                                                }
+                                            },
+                                            onkeydown: (e: KeyboardEvent) => trigger(index, e),
+                                            onpointerenter: (e: PointerEvent) => {
+                                                if (e.pointerType === 'touch') {
+                                                    return;
+                                                }
 
-                                            // With a panel open, focus moving along the list moves it too.
-                                            if (current !== -1 && current !== index) {
-                                                open(index);
-                                            }
-                                        },
-                                        onkeydown: (e: KeyboardEvent) => trigger(index, e),
-                                        onpointerenter: (e: PointerEvent) => {
-                                            if (e.pointerType === 'touch') {
-                                                return;
-                                            }
-
-                                            inside = true;
-                                            pillTo(e.currentTarget as HTMLElement);
-                                            clearTimeout(openTimer);
-
-                                            // Already open: follow the cursor at once. Closed: wait a beat to be sure it means it.
-                                            if (current !== -1) {
-                                                open(index);
-                                            }
-                                            else {
-                                                openTimer = setTimeout(() => open(index), OPEN_INTENT);
-                                            }
-                                        },
-                                        onpointerleave: () => {
-                                            if (current === -1) {
                                                 clearTimeout(openTimer);
-                                            }
-                                        },
-                                        onrender: (element: HTMLElement) => {
-                                            triggers[index] = element;
-                                        }
-                                    }}
-                                >
-                                    ${item.label}
-                                    <svg aria-hidden='true' class='navigation-menu-chevron' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
-                                        <path d='m8 9 4-4 4 4M16 15l-4 4-4-4' />
-                                    </svg>
-                                </button>
-                            `
-                            : html`
-                                <a
-                                    class='navigation-menu-trigger navigation-menu-trigger--link'
-                                    href='${item.href ?? '#'}'
-                                    ${attributes[NAVIGATION_MENU_TRIGGER]}
-                                    ${{
-                                        onfocus: (e: FocusEvent) => pillTo(e.currentTarget as HTMLElement),
-                                        onkeydown: (e: KeyboardEvent) => trigger(index, e),
-                                        onpointerenter: (e: PointerEvent) => {
-                                            if (e.pointerType === 'touch') {
-                                                return;
-                                            }
 
-                                            inside = true;
-                                            pillTo(e.currentTarget as HTMLElement);
-                                            clearTimeout(openTimer);
-
-                                            // A plain link has no panel; the open one belongs to someone else.
-                                            if (current !== -1) {
-                                                clearTimeout(closeTimer);
-                                                closeTimer = setTimeout(() => close(), CLOSE_GRACE);
+                                                // Already open: follow the cursor at once. Closed: wait a beat to be sure it means it.
+                                                if (current !== -1) {
+                                                    open(index);
+                                                }
+                                                else {
+                                                    openTimer = setTimeout(() => open(index), OPEN_INTENT);
+                                                }
+                                            },
+                                            onpointerleave: () => {
+                                                if (current === -1) {
+                                                    clearTimeout(openTimer);
+                                                }
+                                            },
+                                            onrender: (element: HTMLElement) => {
+                                                triggers[index] = element;
                                             }
-                                        },
-                                        onrender: (element: HTMLElement) => {
-                                            triggers[index] = element;
-                                        }
-                                    }}
-                                >
-                                    ${item.label}
-                                </a>
-                            `}
-                    </li>
-                `)}
-            </ul>
+                                        }}
+                                    >
+                                        ${item.label}
+                                        <svg aria-hidden='true' class='navigation-menu-chevron' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
+                                            <path d='m8 9 4-4 4 4M16 15l-4 4-4-4' />
+                                        </svg>
+                                    </button>
+                                `
+                                : html`
+                                    <a
+                                        class='navigation-menu-trigger navigation-menu-trigger--link'
+                                        href='${item.href ?? '#'}'
+                                        ${attributes[NAVIGATION_MENU_TRIGGER]}
+                                        ${{
+                                            onkeydown: (e: KeyboardEvent) => trigger(index, e),
+                                            onpointerenter: (e: PointerEvent) => {
+                                                if (e.pointerType === 'touch') {
+                                                    return;
+                                                }
+
+                                                clearTimeout(openTimer);
+
+                                                // A plain link has no panel; the open one belongs to someone else.
+                                                if (current !== -1) {
+                                                    clearTimeout(closeTimer);
+                                                    closeTimer = setTimeout(() => close(), CLOSE_GRACE);
+                                                }
+                                            },
+                                            onrender: (element: HTMLElement) => {
+                                                triggers[index] = element;
+                                            }
+                                        }}
+                                    >
+                                        ${item.label}
+                                    </a>
+                                `}
+                        </li>
+                    `)}
+                </ul>
+            </div>
 
             <div
-                class='navigation-menu-popup'
+                class='card card--morph navigation-menu-popup'
                 id='${id}-popup'
                 ${attributes[NAVIGATION_MENU_POPUP]}
                 ${{
@@ -583,10 +416,10 @@ const navigationMenu = ({ align = 'start', items, label = 'Main', state, ...attr
                     }
                 }}
             >
-                <div class='navigation-menu-viewport'>
+                <div class='card-morph-viewport'>
                     ${items.map((item, index) => item.content && html`
                         <div
-                            class='navigation-menu-content'
+                            class='card-morph-layer navigation-menu-content'
                             ${{
                                 onrender: (element: HTMLElement) => {
                                     element.inert = true;
@@ -604,5 +437,5 @@ const navigationMenu = ({ align = 'start', items, label = 'Main', state, ...attr
 };
 
 
-export default Object.assign(navigationMenu, { popup: NAVIGATION_MENU_POPUP, trigger: NAVIGATION_MENU_TRIGGER } as const);
+export default component(navigationMenu, { popup: NAVIGATION_MENU_POPUP, trigger: NAVIGATION_MENU_TRIGGER });
 export type { Align, Item, State };

@@ -20,4 +20,12 @@
     --tape-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     // Keep in sync with the component's TICK constant; the tape offset is computed against it.
     --tick: 6px;
+
+    // Qualified by the root so it wins over the reused input styles regardless of stylesheet order.
+    & > #{&}-field {
+        --color-default: currentColor;
+        --font-size: inherit;
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+    }
 }

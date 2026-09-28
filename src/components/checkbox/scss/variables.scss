@@ -59,8 +59,8 @@
         --scale-hover: 0;
 
         &::before {
-            --height: var(--size-200);
-            --width: var(--size-200);
+            --height: var(--size-100);
+            --width: var(--height);
         }
     }
 
@@ -70,21 +70,31 @@
         --focus-color: var(--background-active);
         --padding-horizontal: 2px;
         --padding-vertical: 2px;
+        --progress: 0;
+        --translateX-active: calc(var(--width-rail) - (var(--border-width) * 2) - var(--height) - (var(--padding-horizontal) * 2));
         --width: var(--width-rail);
         --width-rail: calc(var(--height) * 1.8);
 
         &::before {
-            --translateX: 0px;
+            --translateX: calc(var(--translateX-active) * var(--progress));
             --width: var(--height);
         }
 
-        &:has(input:checked)::before {
-            --translateX: calc(var(--width-rail) - (var(--border-width) * 2) - var(--height) - (var(--padding-horizontal) * 2));
+        &:has(input:checked) {
+            --progress: 1;
         }
     }
 
+    &-group {
+        --border-color: var(--color-border-300);
+        --color: var(--color-text-500);
+        --color-muted: var(--color-text-300);
+        --gap-horizontal: var(--size-300);
+        --gap-vertical: 0px;
+    }
 
-    &:not(:has(input:checked)) {
+
+    &:not(:has(input:checked, input:indeterminate)) {
         &:hover,
         label:hover & {
             --background: var(--background-hover);
@@ -105,7 +115,7 @@
         }
     }
 
-    &:has(input:checked) {
+    &:has(input:checked, input:indeterminate) {
         --background: var(--background-active);
         --border-color: var(--border-color-active);
         --box-shadow: var(--box-shadow-active);

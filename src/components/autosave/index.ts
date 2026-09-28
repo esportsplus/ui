@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import check from '@esportsplus/ui/svg/check.svg';
 import './scss/index.scss';
 
 
@@ -48,39 +49,36 @@ export default ({ state = reactive<State>({ savedAt: null, status: 'saved' }), .
         slots = [
             reactive({ phase: '', text: '' }),
             reactive({ phase: '', text: '' })
-        ],
-        stopLabel = effect(
-            () => text(state, clock.now),
-            (value, previous) => {
-                if (previous === undefined) {
-                    slots[current].text = value;
-                    return;
-                }
+        ];
 
-                if (value === previous) {
-                    return;
-                }
-
-                // Two stacked slots let the old words leave while the new ones arrive in the same spot.
-                slots[current].phase = 'exit';
-                current = current === 0 ? 1 : 0;
-                slots[current].phase = 'enter';
+    effect(
+        () => text(state, clock.now),
+        (value, previous) => {
+            if (previous === undefined) {
                 slots[current].text = value;
-            }
-        ),
-        stopTick = effect(() => {
-            if (state.status !== 'saved' || state.savedAt === null) {
                 return;
             }
 
-            let timer = setInterval(() => clock.now = Date.now(), MINUTE / 2);
+            if (value === previous) {
+                return;
+            }
 
-            onCleanup(() => clearInterval(timer));
-        });
+            // Two stacked slots let the old words leave while the new ones arrive in the same spot.
+            slots[current].phase = 'exit';
+            current = current === 0 ? 1 : 0;
+            slots[current].phase = 'enter';
+            slots[current].text = value;
+        }
+    );
 
-    onCleanup(() => {
-        stopLabel();
-        stopTick();
+    effect(() => {
+        if (state.status !== 'saved' || state.savedAt === null) {
+            return;
+        }
+
+        let timer = setInterval(() => clock.now = Date.now(), MINUTE / 2);
+
+        onCleanup(() => clearInterval(timer));
     });
 
     return html`
@@ -89,9 +87,7 @@ export default ({ state = reactive<State>({ savedAt: null, status: 'saved' }), .
                 <span class='autosave-dot' style='--i: 0;'></span>
                 <span class='autosave-dot' style='--i: 1;'></span>
                 <span class='autosave-dot' style='--i: 2;'></span>
-                <svg class='autosave-check' viewBox='0 0 16 16'>
-                    <path d='M3.75 8.25l2.75 2.75 5.75-6' pathLength='1' />
-                </svg>
+                <svg class='autosave-check'><use href='#${check}' /></svg>
             </span>
             <span class='autosave-label'>
                 ${slots.map((slot) => html`

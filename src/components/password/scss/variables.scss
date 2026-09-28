@@ -47,4 +47,9 @@
     &.--capslock {
         --key-light-color: var(--key-light-color-active);
     }
+
+    &-field .input {
+        --background: transparent;
+        --border-width: 0px;
+    }
 }

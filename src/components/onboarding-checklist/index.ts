@@ -1,7 +1,7 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive, untrack } from '@esportsplus/reactivity';
 import accordion from '~/components/accordion';
-import checkbox, { factory } from '~/components/checkbox';
+import checkbox from '~/components/checkbox';
 import './scss/index.scss';
 
 
@@ -119,7 +119,7 @@ function template(
                     <label class='onboarding-checklist-toggle'>
                         ${checkbox({
                             class: 'onboarding-checklist-checkbox',
-                            [factory.input]: {
+                            [checkbox.input]: {
                                 'aria-label': task.title,
                                 checked: () => state.done,
                                 onchange: (e: Event) => toggle(index, (e.target as HTMLInputElement).checked)
@@ -248,5 +248,5 @@ function template(
 }
 
 
-export default Object.assign(template, { task: ONBOARDING_CHECKLIST_TASK } as const);
+export default component(template, { task: ONBOARDING_CHECKLIST_TASK });
 export type { State, Task };

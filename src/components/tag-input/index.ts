@@ -1,4 +1,4 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
 import input from '~/components/input';
 import './scss/index.scss';
@@ -56,7 +56,7 @@ function key(tag: string) {
 }
 
 
-export default Object.assign(
+export default component(
     function(
         this: { attributes?: D } | void,
         {
@@ -411,5 +411,5 @@ export default Object.assign(
             </div>
         `;
     },
-    { field: TAG_INPUT_FIELD } as const
+    { field: TAG_INPUT_FIELD }
 );

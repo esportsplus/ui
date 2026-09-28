@@ -5,7 +5,7 @@ import icon from '~/components/icon';
 import { buildVisibleToastLayout, remove, state, toast } from './manager';
 import { toasts } from './manager';
 import type { Toast } from './manager';
-import check from './svg/check.svg';
+import check from '@esportsplus/ui/svg/check.svg';
 import close from './svg/close.svg';
 import copy from './svg/copy.svg';
 import error from './svg/error.svg';

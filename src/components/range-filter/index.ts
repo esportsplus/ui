@@ -1,9 +1,14 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
+import input from '~/components/input';
+import close from '@esportsplus/ui/svg/close.svg';
 import './scss/index.scss';
 
 
 type A = Attributes & {
+    disabled?: boolean;
+    // Editable fields under the scale for typing an exact bound.
+    fields?: boolean;
     format?: (value: number) => string;
     label?: string;
     max?: number;
@@ -13,7 +18,8 @@ type A = Attributes & {
     step?: number;
     // Number of evenly spaced scale labels under the track.
     ticks?: number;
-    value?: [number, number];
+    // A single number gives one thumb that fills from `min`; a pair gives a range.
+    value?: number | [number, number];
 };
 
 type Key = 'high' | 'low';
@@ -30,12 +36,15 @@ function clamp(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
 }
 
+// Rounded to the step's own precision, so fractional steps never drift into float noise.
 function snap(value: number, min: number, step: number) {
-    return Math.round((value - min) / step) * step + min;
+    return Number((Math.round((value - min) / step) * step + min).toFixed((String(step).split('.')[1] || '').length));
 }
 
 
 export default ({
+    disabled = false,
+    fields = false,
     format = (value: number) => value.toLocaleString('en-US'),
     label = 'Price Range',
     max = 1000,
@@ -47,16 +56,20 @@ export default ({
     value,
     ...attributes
 }: A) => {
-    let span = max - min || 1,
+    let single = typeof value === 'number',
+        span = max - min || 1,
         s = state ?? reactive({
-            high: value?.[1] ?? clamp(snap(min + span * 0.65, min, step), min, max),
-            low: value?.[0] ?? clamp(snap(min + span * 0.15, min, step), min, max)
+            high: typeof value === 'number' ? value : value?.[1] ?? clamp(snap(min + span * 0.65, min, step), min, max),
+            low: typeof value === 'number' ? min : value?.[0] ?? clamp(snap(min + span * 0.15, min, step), min, max)
         }),
         drag = -1,
+        indices = single ? [1] : [0, 1],
         labels: number[] = [],
         root: HTMLElement | undefined,
         thumbs: HTMLElement[] = [],
-        ui = reactive({ dragging: -1, preview: -1 });
+        ui = reactive({ dragging: -1, preview: -1 }),
+        // Negative and fractional values can outgrow `max`, so the digit columns size to the widest extreme.
+        width = Math.max(...[min, max, min + step, max - step].map((v) => format(snap(v, min, step)).length));
 
     for (let i = 0; i < ticks; i++) {
         let tick = snap(min + (i * span) / Math.max(1, ticks - 1), min, step);
@@ -82,6 +95,52 @@ export default ({
         let rect = root.getBoundingClientRect();
 
         return clamp(snap(((x - rect.left) / rect.width) * span + min, min, step), min, max);
+    }
+
+    function field(index: number) {
+        let draft = reactive({ value: null as string | null }),
+            key = KEYS[index];
+
+        function save() {
+            if (draft.value === null) {
+                return;
+            }
+
+            let parsed = Number(draft.value.replace(/[^\d.-]/g, ''));
+
+            if (draft.value.trim() !== '' && Number.isFinite(parsed)) {
+                commit(index, parsed);
+            }
+
+            draft.value = null;
+        }
+
+        return html`
+            <label class='range-filter-field'>
+                <span class='range-filter-field-label'>${single ? 'Value' : index === 0 ? 'Min' : 'Max'}</span>
+                ${prefix && html`<span aria-hidden='true' class='range-filter-field-prefix'>${prefix}</span>`}
+                ${input({
+                    'aria-label': single ? label : `${index === 0 ? 'Minimum' : 'Maximum'} ${label.toLowerCase()}`,
+                    autocomplete: 'off',
+                    class: 'range-filter-input',
+                    disabled,
+                    inputmode: 'decimal',
+                    onblur: save,
+                    oninput: (event: Event) => {
+                        draft.value = (event.target as HTMLInputElement).value;
+                    },
+                    onkeydown: (event: KeyboardEvent) => {
+                        if (event.key === 'Enter') {
+                            save();
+                        }
+                        else if (event.key === 'Escape') {
+                            draft.value = null;
+                        }
+                    },
+                    value: () => draft.value ?? String(s[key])
+                })}
+            </label>
+        `;
     }
 
     function keydown(index: number, event: KeyboardEvent) {
@@ -117,8 +176,6 @@ export default ({
     // Digits roll on their own columns, right-aligned so the ones place never moves; columns a smaller number
     // doesn't need fold away to nothing.
     function roll(key: Key) {
-        let width = format(max).length;
-
         function char(i: number) {
             let text = format(s[key]),
                 pad = width - text.length;
@@ -153,13 +210,15 @@ export default ({
     }
 
     return html`
-        <div class='range-filter' ${attributes}>
+        <div class='range-filter ${disabled && '--disabled'}' ${attributes}>
             <div class='range-filter-header'>
                 <div>
                     <p class='range-filter-label'>${label}</p>
                     <div class='range-filter-values'>
-                        <span class='range-filter-value'>${prefix}${roll('low')}</span>
-                        <span class='range-filter-dash'>–</span>
+                        ${!single && html`
+                            <span class='range-filter-value'>${prefix}${roll('low')}</span>
+                            <span class='range-filter-dash'>–</span>
+                        `}
                         <span class='range-filter-value'>${prefix}${roll('high')}</span>
                     </div>
                 </div>
@@ -168,14 +227,12 @@ export default ({
                     class='range-filter-clear'
                     onclick='${() => {
                         s.low = min;
-                        s.high = max;
+                        s.high = single ? min : max;
                     }}'
                     type='button'
-                    ${{ disabled: () => s.low === min && s.high === max }}
+                    ${{ disabled: () => disabled || (s.low === min && s.high === (single ? min : max)) }}
                 >
-                    <svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
-                        <path d='M18 6 6 18M6 6l12 12' />
-                    </svg>
+                    <svg aria-hidden='true'><use href='#${close}' /></svg>
                     Clear
                 </button>
             </div>
@@ -190,7 +247,7 @@ export default ({
                         onlostpointercapture: release,
                         onpointercancel: release,
                         onpointerdown: (event: PointerEvent) => {
-                            if (event.button !== 0 || !root) {
+                            if (disabled || event.button !== 0 || !root) {
                                 return;
                             }
 
@@ -200,6 +257,9 @@ export default ({
 
                             if (grabbed) {
                                 index = Number(grabbed.dataset.thumb);
+                            }
+                            else if (single) {
+                                index = 1;
                             }
                             else {
                                 let toHigh = Math.abs(v - s.high),
@@ -227,7 +287,7 @@ export default ({
                             }
 
                             // Touch has no hover, so there is nothing to preview.
-                            if (event.pointerType === 'mouse') {
+                            if (!disabled && event.pointerType === 'mouse') {
                                 ui.preview = at(event.clientX);
                             }
                         },
@@ -261,33 +321,48 @@ export default ({
                         }}
                     ></div>
 
-                    ${KEYS.map((key, index) => html`
-                        <div
-                            aria-label='${`${index === 0 ? 'Minimum' : 'Maximum'} ${label.toLowerCase()}`}'
-                            aria-valuemax='${max}'
-                            aria-valuemin='${min}'
-                            class='range-filter-thumb'
-                            data-thumb='${index}'
-                            role='slider'
-                            tabindex='0'
-                            ${{
-                                'aria-valuenow': () => s[key],
-                                'aria-valuetext': () => `${prefix}${format(s[key])}`,
-                                class: () => ui.dragging === index && '--active',
-                                onkeydown: (event: KeyboardEvent) => keydown(index, event),
-                                onrender: (element: HTMLElement) => {
-                                    thumbs[index] = element;
-                                },
-                                style: () => `--position: ${pct(s[key]) / 100}; z-index: ${ui.dragging === index || (index === 0 && s.low === max) ? 3 : 2};`
-                            }}
-                        ></div>
-                    `)}
+                    ${indices.map((index) => {
+                        let key = KEYS[index];
+
+                        return html`
+                            <div
+                                aria-disabled='${disabled}'
+                                aria-label='${single ? label : `${index === 0 ? 'Minimum' : 'Maximum'} ${label.toLowerCase()}`}'
+                                aria-valuemax='${max}'
+                                aria-valuemin='${min}'
+                                class='range-filter-thumb'
+                                data-thumb='${index}'
+                                role='slider'
+                                tabindex='${disabled ? -1 : 0}'
+                                ${{
+                                    'aria-valuenow': () => s[key],
+                                    'aria-valuetext': () => `${prefix}${format(s[key])}`,
+                                    class: () => ui.dragging === index && '--active',
+                                    onkeydown: (event: KeyboardEvent) => keydown(index, event),
+                                    onrender: (element: HTMLElement) => {
+                                        thumbs[index] = element;
+                                    },
+                                    style: () => `--position: ${pct(s[key]) / 100}; z-index: ${ui.dragging === index || (index === 0 && s.low === max) ? 3 : 2};`
+                                }}
+                            ></div>
+                        `;
+                    })}
                 </div>
 
                 <div aria-hidden='true' class='range-filter-ticks'>
                     ${labels.map((tick) => html`<span>${prefix}${format(tick)}</span>`)}
                 </div>
             </div>
+
+            ${fields && html`
+                <div class='range-filter-fields'>
+                    ${single ? field(1) : html`
+                        ${field(0)}
+                        <span aria-hidden='true' class='range-filter-separator'></span>
+                        ${field(1)}
+                    `}
+                </div>
+            `}
         </div>
     `;
 };

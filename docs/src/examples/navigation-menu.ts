@@ -1,11 +1,11 @@
 import { html } from '@esportsplus/template';
 import { navigationMenu } from '@esportsplus/ui';
-import type { Variant } from '../types';
+import type { Entry } from '../types';
 import './navigation-menu.scss';
 
 
 // Kobra's navigation menu (https://kobra.systems/components/navigation-menu), rebuilt on our template and
-// reactivity. Shown on the morphing-nav page so the two can be compared side by side.
+// reactivity.
 
 
 function demo({ align, modifier = '' }: { align?: 'center' | 'end' | 'start'; modifier?: string } = {}) {
@@ -117,19 +117,20 @@ function link(title: string, description: string) {
 }
 
 
-export function navigationMenuVariants(): Variant[] {
-    return [
+export default {
+    name: 'navigation-menu',
+    variants: [
         {
             render: () => demo(),
-            title: 'navigation-menu (kobra)'
+            title: 'default'
         },
         {
             render: () => demo({ align: 'center' }),
-            title: 'navigation-menu (kobra) · align center'
+            title: 'align center'
         },
         {
             render: () => demo({ modifier: 'navigation-menu--muted' }),
-            title: 'navigation-menu (kobra) · navigation-menu--muted'
+            title: 'navigation-menu--muted'
         }
-    ];
-}
+    ]
+} satisfies Entry;

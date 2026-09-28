@@ -1,6 +1,5 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { factory } from '~/components/checkbox';
 import form from '~/components/form';
 import input from '~/components/input';
 import radio from '~/components/radio';
@@ -45,7 +44,7 @@ function check() {
 
 function template(
     this: { attributes?: Partial<A> } | void,
-    { oncreate, plans = DEFAULT_PLANS, state, ...attributes }: A = {}
+    { oncreate, plans = DEFAULT_PLANS, state, ...attributes }: A
 ) {
     let body: HTMLElement | undefined,
         defaults = this?.attributes,
@@ -216,7 +215,7 @@ function template(
                         <label class='multi-step-form-plan' ${{ class: () => s.plan === plan.id && '--active' }}>
                             ${radio({
                                 class: 'multi-step-form-radio',
-                                [factory.input]: {
+                                [radio.input]: {
                                     checked: () => s.plan === plan.id,
                                     name: `${prefix}${ghost ? '-ghost' : ''}-plan`,
                                     onchange: () => {
@@ -364,5 +363,5 @@ function template(
 }
 
 
-export default Object.assign(template, { input: MULTI_STEP_FORM_INPUT } as const);
+export default component(template, { input: MULTI_STEP_FORM_INPUT });
 export type { Plan, State };

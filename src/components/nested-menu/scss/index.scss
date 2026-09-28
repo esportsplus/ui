@@ -206,14 +206,4 @@
     &-trigger {
         cursor: pointer;
     }
-
-    &.--instant {
-        --close-duration: 0s;
-        --open-duration: 0s;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        --close-duration: 0s;
-        --open-duration: 0s;
-    }
 }

@@ -1,11 +1,6 @@
 @use 'variables';
 
 .sheet.modal {
-    --backdrop: var(--backdrop-color);
-    --margin-horizontal: 0px;
-    --max-width: var(--width);
-    --transition-duration: var(--open-duration);
-    --transition-timing-function: var(--ease);
     background: var(--background);
     border-radius: var(--radius) var(--radius) 0 0;
     box-shadow: var(--box-shadow);
@@ -17,11 +12,6 @@
     padding: var(--padding-top) var(--padding-sides) var(--padding-bottom);
     touch-action: none;
     user-select: none;
-
-    // Exits get out of the way faster than entrances arrive.
-    &:not(.--active) {
-        --transition-duration: var(--close-duration);
-    }
 
     &.--active::backdrop {
         opacity: calc(1 - var(--progress, 0));

@@ -55,15 +55,31 @@
         --fill-color: var(--background);
     }
 
-    // The bottom shadow is the cap's side wall; pressing sinks the cap 1px into it.
+    // A hairline ring plus an inset bottom edge gives the keycap its depth; pressing drops the cap by that edge.
     &--kbd {
-        --box-shadow-default: 0 var(--kbd-depth) 0 var(--kbd-shadow-color);
-        --kbd-depth: 2px;
-        --kbd-shadow-color: color-mix(in srgb, var(--background-default) 60%, black);
+        --background-active: var(--color-text-500);
+        --background-default: var(--color-white-300);
+        --border-radius: var(--border-radius-300);
+        --box-shadow-default:
+            0 0 0 var(--border-width-400) var(--kbd-border-color),
+            inset 0 calc(var(--border-width-400) * -1) 0 var(--kbd-border-color);
+        --color-active: var(--color-white-300);
+        --color-default: var(--color-text-300);
+        --font-size: calc(var(--font-size-300) * 0.95);
+        --kbd-border-color: var(--color-border-300);
+        --kbd-size: 24px;
+        --line-height: 1;
+        --padding-horizontal: 6px;
+        --padding-vertical: 0px;
+        --transition-duration: 0.3s;
+        --transition-timing-function: ease-out;
 
+        // Lights instantly and releases with the slower fade.
         @include tokens.state(active pressed) {
             --background: var(--background-active);
-            --box-shadow: 0 calc(var(--kbd-depth) - 1px) 0 var(--kbd-shadow-color);
+            --box-shadow: none;
+            --color: var(--color-active);
+            --transition-duration: 0s;
         }
     }
 

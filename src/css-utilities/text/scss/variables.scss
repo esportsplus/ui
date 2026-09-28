@@ -1,0 +1,7 @@
+.--text-gradient {
+    --color-from: #ffaa40;
+    --color-to: #9c40ff;
+    --duration: 8s;
+    // Multiplies how far the gradient travels per loop; 2 sweeps twice the distance in the same time.
+    --speed: 1;
+}

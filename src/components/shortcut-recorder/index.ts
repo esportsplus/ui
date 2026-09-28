@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { mac as apple } from '~/lib/platform';
 import './scss/index.scss';
 
 
@@ -103,7 +104,7 @@ export default ({ label, taken, value = '', state = reactive({ value }), ...attr
         field: HTMLElement | undefined,
         keys = reactive([] as Key[]),
         listeners: AbortController | undefined,
-        mac = /Mac|iPhone|iPad/.test(navigator.platform),
+        mac = apple(),
         status = reactive({ error: '', recording: false, shake: 0 }),
         sync = effect(() => {
             let tokens = status.recording ? [] : parse(state.value);
