@@ -153,10 +153,6 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Locale-aware number formatting helper.'
     },
-    'onboarding-checklist': {
-        category: 'Display',
-        description: 'Setup checklist with a progress ring, expandable task details, and a celebration once every step is done.'
-    },
     overlay: {
         category: 'Overlay',
         description: 'Layered surface for modals, menus, and popovers.'

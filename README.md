@@ -107,7 +107,6 @@ html`
 | `truncate` | Text truncation |
 | `json` | JSON display |
 | `announcement` | Animated top-of-page container (`state.active`) that slides its content in and collapses the space it held; the content and close control are the consumer's |
-| `onboardingChecklist` | Setup checklist (`checkbox` rows, `accordion` details) with a spring progress ring, strike-through on done, and a celebration once every task is complete; `done`, `open`, `ondismiss`, `state.count` |
 | `undoToast` | List whose deletes wait behind an Undo toast (`toast.*` with a countdown ring) before committing |
 | `textProgress` | `progressbar` whose label fills with ink on a spring (`state.value`), with rolling digits and a drawn check on done |
 | `wordRotator` | Rotating word (`state.index`, `state.paused`) whose shared letters glide into place while the others blur out and in |

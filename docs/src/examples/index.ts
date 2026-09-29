@@ -36,7 +36,6 @@ import navigationMenu from './navigation-menu';
 import nestedMenu from './nested-menu';
 import notificationBell from './notification-bell';
 import number from './number';
-import onboardingChecklist from './onboarding-checklist';
 import overlay from './overlay';
 import page from './page';
 import pageDots from './page-dots';
@@ -129,7 +128,6 @@ const entries: Entry[] = [
     nestedMenu,
     notificationBell,
     number,
-    onboardingChecklist,
     overlay,
     page,
     pageDots,

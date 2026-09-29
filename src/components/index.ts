@@ -30,7 +30,6 @@ export { default as navigationMenu } from './navigation-menu';
 export { default as nestedMenu } from './nested-menu';
 export { default as notificationBell } from './notification-bell';
 export { default as number } from './number';
-export { default as onboardingChecklist } from './onboarding-checklist';
 export { default as overlay } from './overlay';
 export { default as pageDots } from './page-dots';
 export { default as pagination } from './pagination';
