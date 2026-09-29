@@ -6,13 +6,13 @@ import { buildVisibleToastLayout, remove, state, toast } from './manager';
 import { toasts } from './manager';
 import type { Toast } from './manager';
 import check from '@esportsplus/ui/svg/check.svg';
-import close from './svg/close.svg';
-import copy from './svg/copy.svg';
-import error from './svg/error.svg';
-import info from './svg/info.svg';
-import loading from './svg/loading.svg';
-import success from './svg/success.svg';
-import warning from './svg/warning.svg';
+import close from '@esportsplus/ui/svg/close.svg';
+import copy from '@esportsplus/ui/svg/copy.svg';
+import error from '@esportsplus/ui/svg/circle-alert.svg';
+import info from '@esportsplus/ui/svg/info.svg';
+import loading from '@esportsplus/ui/svg/spinner.svg';
+import success from '@esportsplus/ui/svg/circle-check.svg';
+import warning from '@esportsplus/ui/svg/warning.svg';
 import './scss/index.scss';
 
 

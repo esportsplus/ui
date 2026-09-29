@@ -2,8 +2,8 @@ import { effect, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import icon from '~/components/icon';
 import modal from '~/components/modal';
-import close from './svg/close.svg';
-import saved from './svg/saved.svg';
+import close from '@esportsplus/ui/svg/close.svg';
+import saved from '@esportsplus/ui/svg/circle-check.svg';
 import './scss/index.scss';
 
 

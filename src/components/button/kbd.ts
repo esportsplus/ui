@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import icon from '~/components/icon';
-import plus from './svg/plus.svg';
+import plus from '@esportsplus/ui/svg/plus.svg';
 
 
 const KBD_KEY = Symbol.for('@esportsplus/ui/button.kbd.key');

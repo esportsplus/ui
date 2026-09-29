@@ -7,7 +7,7 @@ import next from '@esportsplus/ui/svg/arrow-down.svg';
 import previous from '@esportsplus/ui/svg/arrow-up.svg';
 import contrast from '@esportsplus/ui/svg/contrast.svg';
 import docs from '@esportsplus/ui/svg/document.svg';
-import duplicate from '@esportsplus/ui/svg/duplicate.svg';
+import duplicate from '@esportsplus/ui/svg/copy.svg';
 import help from '@esportsplus/ui/svg/help.svg';
 import home from '@esportsplus/ui/svg/home.svg';
 import inbox from '@esportsplus/ui/svg/inbox.svg';

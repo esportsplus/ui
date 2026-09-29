@@ -69,14 +69,8 @@ export default defineConfig(() => {
                     {
                         name: '@esportsplus/ui-assets-copy',
                         writeBundle() {
-                            let directories = glob.sync('./src/components/*/svg/');
-
                             for (let license of glob.sync('./src/css-utilities/font/*/OFL.txt')) {
                                 shelljs.cp(license, license.replace('src', 'build'));
-                            }
-
-                            for (let dir of directories) {
-                                shelljs.cp('-rf', dir, dir.replace('src', 'build'));
                             }
                         }
                     }

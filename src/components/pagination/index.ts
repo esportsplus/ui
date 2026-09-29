@@ -1,8 +1,8 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import icon from '~/components/icon';
-import next from './svg/arrow-right.svg';
-import previous from './svg/arrow-left.svg';
+import next from '@esportsplus/ui/svg/arrow-right.svg';
+import previous from '@esportsplus/ui/svg/arrow-left.svg';
 import './scss/index.scss';
 
 
