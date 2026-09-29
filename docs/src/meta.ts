@@ -186,10 +186,6 @@ const meta: Record<string, Meta> = {
         category: 'Form Controls',
         description: 'Custom dropdown for choosing from a list of options, plus a macOS-style listbox that opens with the selected option over the trigger, with typeahead and hover scrolling.'
     },
-    settings: {
-        category: 'Overlay',
-        description: 'Application settings dialog with a grouped navigation rail, scrolling pages, and a saved confirmation.'
-    },
     'shortcut-recorder': {
         category: 'Form Controls',
         description: 'Records a keyboard shortcut from the keys you hold, rejecting combinations already in use.'

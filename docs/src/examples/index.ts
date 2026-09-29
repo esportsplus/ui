@@ -43,7 +43,6 @@ import range from './range';
 import relativeTime from './relative-time';
 import scrollbar from './scrollbar';
 import select from './select';
-import settings from './settings';
 import shortcutRecorder from './shortcut-recorder';
 import slider from './slider';
 import slidingTabs from './sliding-tabs';
@@ -121,7 +120,6 @@ const entries: Entry[] = [
     relativeTime,
     scrollbar,
     select,
-    settings,
     shortcutRecorder,
     slider,
     slidingTabs,
