@@ -8,13 +8,18 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
     position: relative;
     width: var(--width);
 
+    // The shared check carries no stroke of its own.
     &-check {
+        fill: none;
         filter: blur(4px);
         flex: 0 0 auto;
         height: 16px;
         opacity: 0;
         scale: 0.25;
-        stroke-width: 1.5;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.25;
         transition:
             filter 300ms $icon-swap,
             opacity 300ms $icon-swap,
@@ -32,7 +37,6 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
         color: var(--color-muted);
         flex: 0 0 auto;
         height: 16px;
-        stroke-width: 1.5;
         width: 16px;
     }
 
@@ -98,7 +102,6 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
 
         svg {
             height: 14px;
-            stroke-width: 1.5;
             width: 14px;
         }
 

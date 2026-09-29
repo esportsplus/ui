@@ -50,12 +50,7 @@
         svg {
             align-self: center;
             color: var(--key-color);
-            fill: none;
             height: 9px;
-            stroke: currentColor;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-width: 1.1;
             width: 11px;
         }
 
@@ -102,13 +97,8 @@
         }
 
         svg {
-            fill: none;
             grid-area: 1 / 1;
             height: 16px;
-            stroke: currentColor;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-width: 1.5;
             transition:
                 filter 300ms var(--transition-timing-function),
                 opacity 300ms var(--transition-timing-function),

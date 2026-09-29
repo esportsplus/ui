@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import triangle from '@esportsplus/ui/svg/triangle.svg';
 import './scss/index.scss';
 
 
@@ -109,9 +110,7 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
                 })}
             </span>
             <span aria-hidden='true' class='value-flash-arrow'>
-                <svg fill='currentColor' viewBox='0 0 256 256'>
-                    <path d='M128 68 L210 180 H46 Z' />
-                </svg>
+                <svg><use href='#${triangle}' /></svg>
             </span>
             <span aria-live='polite' class='value-flash-announcement'>
                 ${() => label ? `${label}: ${state.settled}` : state.settled}

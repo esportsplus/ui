@@ -1,6 +1,7 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import highlight from '~/components/highlight';
+import chevrons from '@esportsplus/ui/svg/chevrons-up-down.svg';
 import '~/components/card/scss/index.scss';
 import './scss/index.scss';
 
@@ -328,9 +329,7 @@ const navigationMenu = ({ align = 'start', items, label = 'Main', state, ...attr
                                         }}
                                     >
                                         ${item.label}
-                                        <svg aria-hidden='true' class='navigation-menu-chevron' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
-                                            <path d='m8 9 4-4 4 4M16 15l-4 4-4-4' />
-                                        </svg>
+                                        <svg aria-hidden='true' class='navigation-menu-chevron'><use href='#${chevrons}' /></svg>
                                     </button>
                                 `
                                 : html`

@@ -1,6 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import counter from '~/components/counter';
+import arrowUp from '@esportsplus/ui/svg/arrow-up.svg';
 import './scss/index.scss';
 
 
@@ -173,17 +174,7 @@ function template(this: { attributes?: Partial<A> } | void, { state, stats, ...a
                     </span>
                     <span aria-hidden='true' class='stat-counter-chips'>
                         <span class='stat-counter-chip stat-counter-trend ${() => up() !== ((current().goodWhen ?? 'up') === 'up') && '--bad'} ${() => !up() && '--down'} ${() => view.scrub !== null && '--hidden'}'>
-                            <svg
-                                class='stat-counter-arrow'
-                                fill='none'
-                                stroke='currentColor'
-                                stroke-linecap='round'
-                                stroke-linejoin='round'
-                                stroke-width='1.5'
-                                viewBox='0 0 12 12'
-                            >
-                                <path d='M6 9.5v-7M3 5.5l3-3 3 3' />
-                            </svg>
+                            <svg class='stat-counter-arrow'><use href='#${arrowUp}' /></svg>
                             <span ${{ onrender: (element: HTMLElement) => { text = element; } }}>
                                 ${() => TREND.format(trendOf(current()))}
                             </span>

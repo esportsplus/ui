@@ -34,12 +34,17 @@ $ease-out: cubic-bezier(0.23, 1, 0.32, 1);
         }
     }
 
+    // The shared check carries no stroke of its own.
     &-check {
         color: var(--color);
         display: none;
+        fill: none;
         flex: 0 0 auto;
         height: 16px;
-        stroke-width: 1.5;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.25;
         width: 16px;
 
         [aria-checked='true'] > & {
@@ -56,14 +61,9 @@ $ease-out: cubic-bezier(0.23, 1, 0.32, 1);
             fill: var(--away-color);
         }
 
+        // The bar is cut out of the disc, so it shows whatever the badge sits on.
         &--dnd {
-            circle {
-                fill: var(--dnd-color);
-            }
-
-            rect {
-                fill: var(--color-white-300);
-            }
+            fill: var(--dnd-color);
         }
 
         &--invisible {

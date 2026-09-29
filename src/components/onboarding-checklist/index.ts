@@ -2,6 +2,8 @@ import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive, untrack } from '@esportsplus/reactivity';
 import accordion from '~/components/accordion';
 import checkbox from '~/components/checkbox';
+import checkSvg from '@esportsplus/ui/svg/check.svg';
+import chevron from '@esportsplus/ui/svg/chevron-down.svg';
 import './scss/index.scss';
 
 
@@ -36,7 +38,7 @@ const DAMPING = 2 * Math.sqrt(STIFFNESS);
 
 
 function check() {
-    return html`<svg aria-hidden='true' class='onboarding-checklist-icon' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'><path d='m3.5 8.5 3 3 6-7' /></svg>`;
+    return html`<svg aria-hidden='true' class='onboarding-checklist-icon'><use href='#${checkSvg}' /></svg>`;
 }
 
 function template(
@@ -142,7 +144,7 @@ function template(
                             ${task.title}
                             <span class='onboarding-checklist-strike' aria-hidden='true'></span>
                         </span>
-                        <svg aria-hidden='true' class='onboarding-checklist-chevron' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'><path d='m4 6 4 4 4-4' /></svg>
+                        <svg aria-hidden='true' class='onboarding-checklist-chevron'><use href='#${chevron}' /></svg>
                     </button>
                 </div>
 

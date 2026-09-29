@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
+import check from '@esportsplus/ui/svg/check.svg';
 import './scss/index.scss';
 
 
@@ -141,17 +142,7 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
                     <span class='text-progress-ink' style='${`clip-path: ${clip(position)}`}'>${label}</span>
                 </span>
                 <span class='text-progress-done'>
-                    <svg class='text-progress-check' fill='none' viewBox='0 0 16 16'>
-                        <path
-                            d='m3.5 8.5 3 3 6-7'
-                            pathLength='1'
-                            stroke='currentColor'
-                            stroke-dasharray='1'
-                            stroke-linecap='round'
-                            stroke-linejoin='round'
-                            stroke-width='2'
-                        />
-                    </svg>
+                    <svg class='text-progress-check'><use href='#${check}' /></svg>
                     ${doneLabel}
                 </span>
             </span>

@@ -223,9 +223,15 @@
         position: absolute;
         width: 24px;
 
+        // Only the shared check takes these; it carries no stroke of its own and is drawn on a 24 unit grid.
         svg {
+            fill: none;
             grid-area: 1 / 1;
             height: var(--icon-size);
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 2.25;
             transition:
                 filter var(--icon-swap-duration) var(--icon-swap-timing-function),
                 opacity var(--icon-swap-duration) var(--icon-swap-timing-function),
@@ -352,13 +358,14 @@
         display: none;
     }
 
+    // Only the shared check takes the stroke; it carries none of its own and is drawn on a 24 unit grid.
     &-toolbar-icon {
         fill: none;
         height: var(--toolbar-icon-size);
         stroke: currentColor;
         stroke-linecap: round;
         stroke-linejoin: round;
-        stroke-width: 1.5;
+        stroke-width: 2.25;
         width: var(--toolbar-icon-size);
     }
 

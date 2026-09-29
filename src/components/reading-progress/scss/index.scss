@@ -5,20 +5,19 @@
     display: flex;
     gap: var(--gap);
 
+    // The shared check carries no stroke of its own; the dash values inherit into it, so it draws in.
     &-check {
+        fill: none;
         flex-shrink: 0;
         height: 12px;
+        stroke: currentColor;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
+        transition: stroke-dashoffset var(--draw-duration) var(--draw-timing-function) var(--draw-delay);
         width: 12px;
-
-        polyline {
-            stroke: currentColor;
-            stroke-dasharray: 1;
-            stroke-dashoffset: 1;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-width: 16;
-            transition: stroke-dashoffset var(--draw-duration) var(--draw-timing-function) var(--draw-delay);
-        }
     }
 
     &-done,
@@ -98,17 +97,17 @@
             opacity: 0;
         }
 
-        polyline {
+        .reading-progress-check {
             stroke-dashoffset: 0;
         }
     }
 
     @media (prefers-reduced-motion: reduce) {
+        &-check,
         &-done,
         &-fill,
         &-label,
-        &-remaining,
-        polyline {
+        &-remaining {
             transition: none;
         }
     }

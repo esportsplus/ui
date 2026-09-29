@@ -1,5 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
+import pause from '@esportsplus/ui/svg/pause.svg';
+import play from '@esportsplus/ui/svg/play.svg';
 import './scss/index.scss';
 
 
@@ -202,13 +204,8 @@ function template(this: { attributes?: Partial<A> } | void, { duration = DURATIO
                         onpointerup: () => {}
                     }}
                 >
-                    <svg aria-hidden='true' class='story-progress-pause' fill='currentColor' viewBox='0 0 16 16'>
-                        <rect height='10' rx='1' width='2.5' x='4' y='3' />
-                        <rect height='10' rx='1' width='2.5' x='9.5' y='3' />
-                    </svg>
-                    <svg aria-hidden='true' class='story-progress-play' fill='currentColor' viewBox='0 0 16 16'>
-                        <path d='M5.5 3.4v9.2a.6.6 0 0 0 .9.5l7-4.6a.6.6 0 0 0 0-1L6.4 2.9a.6.6 0 0 0-.9.5Z' />
-                    </svg>
+                    <svg aria-hidden='true' class='story-progress-pause'><use href='#${pause}' /></svg>
+                    <svg aria-hidden='true' class='story-progress-play'><use href='#${play}' /></svg>
                 </button>
             </div>
 

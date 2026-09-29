@@ -1,6 +1,10 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
+import check from '@esportsplus/ui/svg/check.svg';
+import chevronDown from '@esportsplus/ui/svg/chevron-down.svg';
+import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
+import chevrons from '@esportsplus/ui/svg/chevrons-up-down.svg';
 import './scss/index.scss';
 
 
@@ -373,9 +377,7 @@ function template(
                 >
                     ${() => options[selected()]?.label ?? ''}
                 </span>
-                <svg aria-hidden='true' class='select-menu-chevron' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'>
-                    <path d='m5 6.25 3-3 3 3M5 9.75l3 3 3-3' />
-                </svg>
+                <svg aria-hidden='true' class='select-menu-chevron'><use href='#${chevrons}' /></svg>
             </button>
             <input
                 class='select-menu-tag'
@@ -456,9 +458,7 @@ function template(
                                     }
                                 }}
                             >
-                                <svg aria-hidden='true' class='select-menu-check' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'>
-                                    <path d='m3.5 8.5 3 3 6-7' />
-                                </svg>
+                                <svg aria-hidden='true' class='select-menu-check'><use href='#${check}' /></svg>
                                 <span class='select-menu-option-label'>${option.label}</span>
                                 ${option.detail ? html`<span class='select-menu-option-detail'>${option.detail}</span>` : ''}
                             </div>
@@ -473,9 +473,7 @@ function template(
                         onpointerleave: stop
                     }}
                 >
-                    <svg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'>
-                        <path d='m4.5 9.5 3.5-3.5 3.5 3.5' />
-                    </svg>
+                    <svg><use href='#${chevronUp}' /></svg>
                 </div>
                 <div
                     aria-hidden='true'
@@ -485,9 +483,7 @@ function template(
                         onpointerleave: stop
                     }}
                 >
-                    <svg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'>
-                        <path d='m4.5 6.5 3.5 3.5 3.5-3.5' />
-                    </svg>
+                    <svg><use href='#${chevronDown}' /></svg>
                 </div>
             </div>
         </div>

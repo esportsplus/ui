@@ -1,5 +1,7 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import next from '@esportsplus/ui/svg/chevron-right.svg';
+import previous from '@esportsplus/ui/svg/chevron-left.svg';
 import './scss/index.scss';
 
 
@@ -41,10 +43,6 @@ const COAST = 280;
 
 // px/ms; a flick faster than this always moves at least one card, however short it was.
 const FLICK = 0.3;
-
-const NEXT = 'M6 3.5 10.5 8 6 12.5';
-
-const PREVIOUS = 'M10 3.5 5.5 8l4.5 4.5';
 
 // Only the last stretch of a drag says how fast the hand was moving at release.
 const SAMPLES = 80;
@@ -113,9 +111,7 @@ function template(this: { attributes?: Partial<A> } | void, { label = 'Carousel'
                     }
                 }}
             >
-                <svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
-                    <path d='${direction === -1 ? PREVIOUS : NEXT}' />
-                </svg>
+                <svg aria-hidden='true'><use href='#${direction === -1 ? previous : next}' /></svg>
             </button>
         `;
     }

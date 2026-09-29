@@ -3,6 +3,8 @@ import { reactive } from '@esportsplus/reactivity';
 import input from '~/components/input';
 import textarea from '~/components/textarea';
 import rich from './rich';
+import check from '@esportsplus/ui/svg/check.svg';
+import pencil from '@esportsplus/ui/svg/pencil.svg';
 import './scss/index.scss';
 
 
@@ -163,12 +165,8 @@ function template(
             </button>
             ${() => state.editing ? field() : ''}
             <span aria-hidden='true' class='inline-edit-icon'>
-                <svg class='inline-edit-icon-pencil' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
-                    <path d='M9.75 3.75 12.25 6.25M3.25 12.75l.6-2.6 6.9-6.9a1.25 1.25 0 0 1 1.77 0l.73.73a1.25 1.25 0 0 1 0 1.77l-6.9 6.9Z' />
-                </svg>
-                <svg class='inline-edit-icon-check' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
-                    <path d='m3.5 8.5 3 3 6-7' />
-                </svg>
+                <svg class='inline-edit-icon-pencil'><use href='#${pencil}' /></svg>
+                <svg class='inline-edit-icon-check'><use href='#${check}' /></svg>
             </span>
         </div>
     `;

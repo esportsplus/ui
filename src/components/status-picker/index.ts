@@ -1,5 +1,10 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import check from '@esportsplus/ui/svg/check.svg';
+import away from '@esportsplus/ui/svg/status-away.svg';
+import dnd from '@esportsplus/ui/svg/status-dnd.svg';
+import invisible from '@esportsplus/ui/svg/status-invisible.svg';
+import online from '@esportsplus/ui/svg/status-online.svg';
 import './scss/index.scss';
 
 
@@ -48,33 +53,17 @@ let uid = 0;
 
 
 // Each status has its own shape, not just its own colour, so it reads at a glance and for colour-blind eyes too.
+// SVG elements take no dynamic class, so every badge is its own static template.
 function badge(status: Status) {
     switch (status) {
         case 'away':
-            return html`
-                <svg aria-hidden='true' class='status-picker-icon status-picker-icon--away' viewBox='0 0 12 12'>
-                    <path d='M6.6 1.05A5 5 0 1 0 10.95 5.4 4 4 0 0 1 6.6 1.05Z' />
-                </svg>
-            `;
+            return html`<svg aria-hidden='true' class='status-picker-icon status-picker-icon--away'><use href='#${away}' /></svg>`;
         case 'dnd':
-            return html`
-                <svg aria-hidden='true' class='status-picker-icon status-picker-icon--dnd' viewBox='0 0 12 12'>
-                    <circle cx='6' cy='6' r='5' />
-                    <rect height='1.8' rx='0.9' width='6' x='3' y='5.1' />
-                </svg>
-            `;
+            return html`<svg aria-hidden='true' class='status-picker-icon status-picker-icon--dnd'><use href='#${dnd}' /></svg>`;
         case 'invisible':
-            return html`
-                <svg aria-hidden='true' class='status-picker-icon status-picker-icon--invisible' viewBox='0 0 12 12'>
-                    <circle cx='6' cy='6' r='3.9' />
-                </svg>
-            `;
+            return html`<svg aria-hidden='true' class='status-picker-icon status-picker-icon--invisible'><use href='#${invisible}' /></svg>`;
         default:
-            return html`
-                <svg aria-hidden='true' class='status-picker-icon status-picker-icon--online' viewBox='0 0 12 12'>
-                    <circle cx='6' cy='6' r='5' />
-                </svg>
-            `;
+            return html`<svg aria-hidden='true' class='status-picker-icon status-picker-icon--online'><use href='#${online}' /></svg>`;
     }
 }
 
@@ -308,9 +297,7 @@ function template(
                             <span class='status-picker-item-label'>${option.label}</span>
                             ${option.hint ? html`<span class='status-picker-item-hint'>${option.hint}</span>` : ''}
                         </span>
-                        <svg aria-hidden='true' class='status-picker-check' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'>
-                            <path d='M3.5 8.25l3 3 6-6.5' />
-                        </svg>
+                        <svg aria-hidden='true' class='status-picker-check'><use href='#${check}' /></svg>
                     </button>
                 `)}
             </div>

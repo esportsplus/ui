@@ -12,15 +12,19 @@
     line-height: var(--part-height);
     position: relative;
 
+    // The shared check carries no stroke of its own; the dash values inherit into it, so it draws in.
     &-check {
+        fill: none;
         flex-shrink: 0;
         height: var(--check-size);
+        stroke: currentColor;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 3;
+        transition: stroke-dashoffset 0s var(--ease-in-out) 150ms;
         width: var(--check-size);
-
-        path {
-            stroke-dashoffset: 1;
-            transition: stroke-dashoffset 0s var(--ease-in-out) 150ms;
-        }
     }
 
     &-done {
@@ -103,7 +107,7 @@
     }
 
     &.--done {
-        .text-progress-check path {
+        .text-progress-check {
             stroke-dashoffset: 0;
             transition-duration: 300ms;
         }
@@ -134,9 +138,9 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        &-check path,
+        &-check,
         &-strip,
-        &.--done &-check path {
+        &.--done &-check {
             transition: none;
         }
 

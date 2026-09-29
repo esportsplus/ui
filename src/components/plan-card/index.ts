@@ -2,6 +2,16 @@ import { component, html, type Attributes, type Renderable } from '@esportsplus/
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import { mac } from '~/lib/platform';
 import tooltip from '~/components/tooltip';
+import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
+import circleCheck from '@esportsplus/ui/svg/circle-check.svg';
+import circle from '@esportsplus/ui/svg/circle.svg';
+import close from '@esportsplus/ui/svg/close.svg';
+import dots from '@esportsplus/ui/svg/dots.svg';
+import download from '@esportsplus/ui/svg/download.svg';
+import enter from '@esportsplus/ui/svg/enter.svg';
+import expand from '@esportsplus/ui/svg/expand.svg';
+import listChecks from '@esportsplus/ui/svg/list-checks.svg';
+import map from '@esportsplus/ui/svg/map.svg';
 import './scss/index.scss';
 
 
@@ -210,27 +220,19 @@ const planCard = ({
         >
             <header class='plan-card-header'>
                 <span aria-hidden='true' class='plan-card-icon'>
-                    ${icon ?? html`
-                        <svg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
-                            <path d='M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3V7M9 4v13M15 7v13' />
-                        </svg>
-                    `}
+                    ${icon ?? html`<svg><use href='#${map}' /></svg>`}
                 </span>
                 <h3 class='plan-card-title' id='${id}-title'>${title}</h3>
                 ${(ondownload || onexpand) && html`
                     <span class='plan-card-actions'>
                         ${ondownload && html`
                             <button aria-label='Download the plan' class='plan-card-action' type='button' ${tip.bind('Download')} onclick='${ondownload}'>
-                                <svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
-                                    <path d='M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 11l5 5 5-5M12 4v12' />
-                                </svg>
+                                <svg aria-hidden='true'><use href='#${download}' /></svg>
                             </button>
                         `}
                         ${onexpand && html`
                             <button aria-label='Open the full plan' class='plan-card-action' type='button' ${tip.bind('Open')} onclick='${onexpand}'>
-                                <svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
-                                    <path d='M16 4h4v4M14 10l6-6M8 20H4v-4M4 20l6-6' />
-                                </svg>
+                                <svg aria-hidden='true'><use href='#${expand}' /></svg>
                             </button>
                         `}
                     </span>
@@ -241,9 +243,7 @@ const planCard = ({
 
             <div aria-labelledby='${id}-todos' class='plan-card-todos' role='group'>
                 <div class='plan-card-todos-header'>
-                    <svg aria-hidden='true' class='plan-card-todos-icon' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
-                        <path d='M3.5 5.5 5 7l2.5-2.5M3.5 11.5 5 13l2.5-2.5M3.5 17.5 5 19l2.5-2.5M11 6h9M11 12h9M11 18h9' />
-                    </svg>
+                    <svg aria-hidden='true' class='plan-card-todos-icon'><use href='#${listChecks}' /></svg>
                     <span class='plan-card-todos-label' id='${id}-todos'>To-dos</span>
                     <span class='plan-card-todos-count'>${todos.length}</span>
                 </div>
@@ -251,9 +251,7 @@ const planCard = ({
                     ${todos.map((todo, index) => {
                         let row = html`
                             <div class='plan-card-todo ${todo.done && '--done'}'>
-                                <svg aria-hidden='true' class='plan-card-todo-icon' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
-                                    <path d='${todo.done ? 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM8.5 12l2.5 2.5 4.5-5' : 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z'}' />
-                                </svg>
+                                <svg aria-hidden='true' class='plan-card-todo-icon'><use href='#${todo.done ? circleCheck : circle}' /></svg>
                                 <span class='plan-card-todo-label'>${todo.label}</span>
                             </div>
                         `;
@@ -290,14 +288,8 @@ const planCard = ({
                                 }}
                             >
                                 <span aria-hidden='true' class='plan-card-toggle-icon'>
-                                    <svg class='plan-card-toggle-more' fill='currentColor' viewBox='0 0 24 24'>
-                                        <circle cx='5' cy='12' r='1.75' />
-                                        <circle cx='12' cy='12' r='1.75' />
-                                        <circle cx='19' cy='12' r='1.75' />
-                                    </svg>
-                                    <svg class='plan-card-toggle-less' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
-                                        <path d='m6 15 6-6 6 6' />
-                                    </svg>
+                                    <svg class='plan-card-toggle-more'><use href='#${dots}' /></svg>
+                                    <svg class='plan-card-toggle-less'><use href='#${chevronUp}' /></svg>
                                 </span>
                                 <span class='plan-card-toggle-labels'>
                                     <span class='plan-card-toggle-label plan-card-toggle-label--more' ${{ 'aria-hidden': () => s.expanded && 'true' }}>${hidden} more</span>
@@ -319,9 +311,7 @@ const planCard = ({
                 >
                     ${() => s.approved
                         ? html`
-                            <svg aria-hidden='true' class='plan-card-status-icon' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
-                                <path d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM8.5 12l2.5 2.5 4.5-5' />
-                            </svg>
+                            <svg aria-hidden='true' class='plan-card-status-icon'><use href='#${circleCheck}' /></svg>
                             <span>${total > 0 && s.countdown === 0 ? 'Auto-approved' : 'Approved'}</span>
                         `
                         : total > 0 && html`
@@ -349,9 +339,7 @@ const planCard = ({
                                     />
                                 </svg>
                                 <span aria-hidden='true' class='plan-card-cancel-icon'>
-                                    <svg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' viewBox='0 0 24 24'>
-                                        <path d='M18 6 6 18M6 6l12 12' />
-                                    </svg>
+                                    <svg><use href='#${close}' /></svg>
                                 </span>
                             </button>
                             <span>
@@ -389,9 +377,7 @@ const planCard = ({
                         <kbd aria-hidden='true' class='plan-card-kbd'>
                             <kbd>${mac() ? '⌘' : 'Ctrl'}</kbd>
                             <kbd>
-                                <svg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'>
-                                    <path d='M18 6v6a3 3 0 0 1-3 3H5M9 11l-4 4 4 4' />
-                                </svg>
+                                <svg><use href='#${enter}' /></svg>
                             </kbd>
                         </kbd>
                     </button>

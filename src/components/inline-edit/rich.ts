@@ -11,6 +11,17 @@ import { mac } from '~/lib/platform';
 import { active, clear, kind, link, normalize, setBlock, toggle, units, type Kind } from './format';
 import { parse, serialize, type Block, type Feature, type Mark } from './markdown';
 import { closest, safe, same, select } from './utilities';
+import boldSvg from '@esportsplus/ui/svg/bold.svg';
+import checkSvg from '@esportsplus/ui/svg/check.svg';
+import clearSvg from '@esportsplus/ui/svg/clear-format.svg';
+import codeSvg from '@esportsplus/ui/svg/code.svg';
+import highlightSvg from '@esportsplus/ui/svg/highlight.svg';
+import italicSvg from '@esportsplus/ui/svg/italic.svg';
+import linkSvg from '@esportsplus/ui/svg/link.svg';
+import openSvg from '@esportsplus/ui/svg/external-link.svg';
+import pencilSvg from '@esportsplus/ui/svg/pencil.svg';
+import strikeSvg from '@esportsplus/ui/svg/strikethrough.svg';
+import unlinkSvg from '@esportsplus/ui/svg/unlink.svg';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
@@ -60,6 +71,19 @@ const COPIED_FOR = 1400;
 // Space between the selection and the toolbar, and between the toolbar and the viewport edge.
 const GAP = 8;
 
+const ICONS: Record<Exclude<Action, 'copy'> | 'apply' | 'open' | 'unlink', string> = {
+    apply: checkSvg,
+    bold: boldSvg,
+    clear: clearSvg,
+    code: codeSvg,
+    highlight: highlightSvg,
+    italic: italicSvg,
+    link: linkSvg,
+    open: openSvg,
+    strike: strikeSvg,
+    unlink: unlinkSvg
+};
+
 const INLINE_EDIT_RICH_EDITOR = Symbol.for('@esportsplus/ui/inline-edit.rich.editor');
 
 const INLINE_EDIT_RICH_TOOLBAR = Symbol.for('@esportsplus/ui/inline-edit.rich.toolbar');
@@ -94,69 +118,7 @@ function hint(label: string, shortcut?: string) {
 }
 
 function icon(action: Exclude<Action, 'copy'> | 'apply' | 'open' | 'unlink') {
-    switch (action) {
-        case 'apply':
-            return html`
-                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
-                    <path d='m3.5 8.5 3 3 6-7' />
-                </svg>
-            `;
-        case 'bold':
-            return html`
-                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
-                    <path d='M4.75 3.25h3.9a2.4 2.4 0 0 1 0 4.8h-3.9Zm0 4.8h4.6a2.35 2.35 0 0 1 0 4.7h-4.6Z' stroke-width='1.75' />
-                </svg>
-            `;
-        case 'clear':
-            return html`
-                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
-                    <path d='M4.25 3.25h7.5M8.5 3.25l-2 9.5M3 3l10 10' />
-                </svg>
-            `;
-        case 'code':
-            return html`
-                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
-                    <path d='M5.5 4.5 2 8l3.5 3.5M10.5 4.5 14 8l-3.5 3.5' />
-                </svg>
-            `;
-        case 'highlight':
-            return html`
-                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
-                    <path d='m9.75 2.75 3.5 3.5-5.5 5.5h-3.5v-3.5Z' />
-                    <path d='M2.75 14.25h10.5' />
-                </svg>
-            `;
-        case 'italic':
-            return html`
-                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
-                    <path d='M7 3.25h5M4 12.75h5M9.5 3.25l-3 9.5' />
-                </svg>
-            `;
-        case 'open':
-            return html`
-                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
-                    <path d='M9 2.75h4.25V7M13.25 2.75 7.5 8.5M11.5 9.5v3a.75.75 0 0 1-.75.75h-7.5a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 .75-.75h3' />
-                </svg>
-            `;
-        case 'strike':
-            return html`
-                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
-                    <path d='M2.75 8h10.5M10.75 5c-.3-1.1-1.4-1.75-2.75-1.75-1.6 0-2.75.9-2.75 2.1 0 .7.35 1.25 1 1.65M5.25 11c.3 1.1 1.4 1.75 2.75 1.75 1.6 0 2.75-.9 2.75-2.1 0-.35-.1-.65-.25-.9' />
-                </svg>
-            `;
-        case 'unlink':
-            return html`
-                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
-                    <path d='M7 9a2.5 2.5 0 0 0 3.54 0l2-2A2.5 2.5 0 0 0 9 3.46l-.5.5M9 7a2.5 2.5 0 0 0-3.54 0l-2 2A2.5 2.5 0 0 0 7 12.54l.5-.5M3 3l10 10' />
-                </svg>
-            `;
-        default:
-            return html`
-                <svg aria-hidden='true' class='inline-edit-toolbar-icon' viewBox='0 0 16 16'>
-                    <path d='M7 9a2.5 2.5 0 0 0 3.54 0l2-2A2.5 2.5 0 0 0 9 3.46l-.5.5M9 7a2.5 2.5 0 0 0-3.54 0l-2 2A2.5 2.5 0 0 0 7 12.54l.5-.5' />
-                </svg>
-            `;
-    }
+    return html`<svg aria-hidden='true' class='inline-edit-toolbar-icon'><use href='#${ICONS[action]}' /></svg>`;
 }
 
 // What was typed into the link field, as an address: a bare domain gets https, a bare email mailto.
@@ -1039,12 +1001,8 @@ export default component(
                     </div>
                 </div>
                 <span aria-hidden='true' class='inline-edit-icon'>
-                    <svg class='inline-edit-icon-pencil' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
-                        <path d='M9.75 3.75 12.25 6.25M3.25 12.75l.6-2.6 6.9-6.9a1.25 1.25 0 0 1 1.77 0l.73.73a1.25 1.25 0 0 1 0 1.77l-6.9 6.9Z' />
-                    </svg>
-                    <svg class='inline-edit-icon-check' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
-                        <path d='m3.5 8.5 3 3 6-7' />
-                    </svg>
+                    <svg class='inline-edit-icon-pencil'><use href='#${pencilSvg}' /></svg>
+                    <svg class='inline-edit-icon-check'><use href='#${checkSvg}' /></svg>
                 </span>
                 <span aria-live='polite' class='inline-edit-label'>${() => local.live}</span>
             </div>

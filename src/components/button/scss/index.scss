@@ -167,7 +167,7 @@
             opacity: 1;
             translate: 0;
 
-            .button-icon--draw path {
+            .button-icon--draw {
                 stroke-dashoffset: 0;
             }
         }
@@ -197,12 +197,19 @@
         pointer-events: none;
     }
 
+    // Sprite icons carry their own stroke; these reach the shared check, which carries none. The dash values inherit
+    // into the sprite, so '--draw' icons still draw in.
     &-icon {
+        fill: none;
         flex-shrink: 0;
         height: var(--icon-size);
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
         width: var(--icon-size);
 
-        &--draw path {
+        &--draw {
             stroke-dasharray: 1;
             stroke-dashoffset: 1;
             transition: stroke-dashoffset var(--draw-duration) var(--draw-timing-function);
@@ -229,7 +236,7 @@
         }
 
         &-face,
-        &-icon--draw path {
+        &-icon--draw {
             transition: none;
         }
 

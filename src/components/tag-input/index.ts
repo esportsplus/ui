@@ -1,6 +1,7 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
 import input from '~/components/input';
+import close from '@esportsplus/ui/svg/close.svg';
 import './scss/index.scss';
 
 
@@ -98,9 +99,7 @@ export default component(
                                 }
                             }}
                         >
-                            <svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-width='1.5' viewBox='0 0 16 16'>
-                                <path d='m4.5 4.5 7 7M11.5 4.5l-7 7' />
-                            </svg>
+                            <svg aria-hidden='true'><use href='#${close}' /></svg>
                         </button>
                     </span>
                     ${name ? html`<input name='${name}[]' type='hidden' value='${tag}' />` : ''}

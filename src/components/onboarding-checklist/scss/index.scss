@@ -227,8 +227,14 @@
         width: 1px;
     }
 
+    // The shared check carries no stroke of its own.
     &-icon {
+        fill: none;
         height: 16px;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.25;
         width: 16px;
     }
 

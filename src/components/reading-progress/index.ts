@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
+import check from '@esportsplus/ui/svg/check.svg';
 import './scss/index.scss';
 
 
@@ -146,9 +147,7 @@ export default ({ doneLabel = 'End', label = 'Reading progress', scroller, steps
                         ${() => minutes()} min left
                     </span>
                     <span class='reading-progress-done'>
-                        <svg class='reading-progress-check' fill='none' viewBox='0 0 256 256'>
-                            <polyline pathLength='1' points='216 72 104 184 48 128' />
-                        </svg>
+                        <svg class='reading-progress-check'><use href='#${check}' /></svg>
                         <span class='reading-progress-label'>
                             ${doneLabel} · ${total} min
                         </span>

@@ -89,9 +89,15 @@
         }
     }
 
+    // The shared check carries no stroke of its own.
     &-done-icon {
         color: var(--foreground);
+        fill: none;
         height: 24px;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.25;
         width: 24px;
 
         // One beat late, so the check lands after the panel has arrived.

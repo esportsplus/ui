@@ -2,6 +2,7 @@ import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import { toast } from '~/components/toast';
 import { mac } from '~/lib/platform';
+import trash from '@esportsplus/ui/svg/trash.svg';
 import './scss/index.scss';
 
 
@@ -324,9 +325,7 @@ export default component(
                                 type='button'
                                 onclick=${() => remove(item)}
                             >
-                                <svg aria-hidden='true' viewBox='0 0 16 16'>
-                                    <path d='M2.75 4.25h10.5M6.25 4.25v-1.5h3.5v1.5M4 4.25l.6 8.1a1 1 0 0 0 1 .9h4.8a1 1 0 0 0 1-.9l.6-8.1M6.75 7v3.75M9.25 7v3.75' />
-                                </svg>
+                                <svg aria-hidden='true'><use href='#${trash}' /></svg>
                             </button>
                         </li>
                     `)}

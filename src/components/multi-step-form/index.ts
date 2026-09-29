@@ -3,6 +3,7 @@ import { reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
 import input from '~/components/input';
 import radio from '~/components/radio';
+import checkSvg from '@esportsplus/ui/svg/check.svg';
 import './scss/index.scss';
 
 
@@ -39,7 +40,7 @@ const STEPS = ['Name', 'Plan', 'Review'];
 
 
 function check() {
-    return html`<svg aria-hidden='true' class='multi-step-form-done-icon' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'><path d='m3.5 8.5 3 3 6-7' /></svg>`;
+    return html`<svg aria-hidden='true' class='multi-step-form-done-icon'><use href='#${checkSvg}' /></svg>`;
 }
 
 function template(

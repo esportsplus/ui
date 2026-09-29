@@ -1,5 +1,8 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import check from '@esportsplus/ui/svg/check.svg';
+import close from '@esportsplus/ui/svg/close.svg';
+import undoSvg from '@esportsplus/ui/svg/undo.svg';
 import './scss/index.scss';
 
 
@@ -390,10 +393,7 @@ export default <T>(
                     type='button'
                     ${{ inert: () => state.index >= total }}
                 >
-                    <svg aria-hidden='true' fill='none' height='12' viewBox='0 0 256 256' width='12'>
-                        <line stroke='currentColor' stroke-linecap='round' stroke-width='16' x1='200' x2='56' y1='56' y2='200' />
-                        <line stroke='currentColor' stroke-linecap='round' stroke-width='16' x1='200' x2='56' y1='200' y2='56' />
-                    </svg>
+                    <svg aria-hidden='true' height='12' width='12'><use href='#${close}' /></svg>
                     <span>${leftLabel}</span>
                 </button>
 
@@ -409,10 +409,7 @@ export default <T>(
                         type='button'
                         ${{ inert: () => state.index === 0 }}
                     >
-                        <svg aria-hidden='true' fill='none' height='12' viewBox='0 0 256 256' width='12'>
-                            <polyline points='72 104 24 104 24 56' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='16' />
-                            <path d='M67.6,192.1a88,88,0,1,0,0-128.2L24,104' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='16' />
-                        </svg>
+                        <svg aria-hidden='true' height='12' width='12'><use href='#${undoSvg}' /></svg>
                         <span>${undoLabel}</span>
                     </button>
                 </span>
@@ -424,9 +421,7 @@ export default <T>(
                     ${{ inert: () => state.index >= total }}
                 >
                     <span>${rightLabel}</span>
-                    <svg aria-hidden='true' fill='none' height='12' viewBox='0 0 256 256' width='12'>
-                        <polyline points='216 72 104 184 48 128' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='16' />
-                    </svg>
+                    <svg aria-hidden='true' fill='none' height='12' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' width='12'><use href='#${check}' /></svg>
                 </button>
             </div>
 
