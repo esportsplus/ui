@@ -6,8 +6,8 @@ import './scss/index.scss';
 
 
 type A = Attributes & {
-    label: string;
-    state?: { value: string };
+    limit?: number;
+    state?: { error: string, value: string };
     taken?: (shortcut: string) => string | null | undefined;
     value?: string;
 };
@@ -32,8 +32,8 @@ const FUNCTION_KEY = /^F\d{1,2}$/;
 
 const MODIFIER_KEYS = new Set(['Alt', 'Control', 'Meta', 'OS', 'Shift']);
 
-// Tokens are joined with '+', so a trailing '+' is the Plus key itself.
-const SEPARATOR = /\+(?=.)/;
+// Tokens are joined with '+' and the Plus key is itself '+', so tokens sit at every other match.
+const TOKEN = /[^+]+|\+/g;
 
 
 function glyph(token: string, mac: boolean) {
@@ -96,17 +96,19 @@ function modifiers(e: KeyboardEvent, mac: boolean) {
 }
 
 function parse(value: string) {
-    return value ? value.split(SEPARATOR) : [];
+    return (value.match(TOKEN) ?? []).filter((_, i) => i % 2 === 0);
 }
 
 
-export default ({ label, taken, value = '', state = reactive({ value }), ...attributes }: A) => {
-    let connected = false,
+export default ({ limit, taken, value = '', state = reactive({ error: '', value }), ...attributes }: A) => {
+    let chord: string[] = [],
+        connected = false,
         field: HTMLElement | undefined,
         keys = reactive([] as Key[]),
         listeners: AbortController | undefined,
         mac = apple(),
-        status = reactive({ error: '', recording: false, shake: 0 }),
+        pressed: string[] = [],
+        status = reactive({ recording: false, shake: 0 }),
         sync = effect(() => {
             let tokens = status.recording ? [] : parse(state.value);
 
@@ -114,12 +116,29 @@ export default ({ label, taken, value = '', state = reactive({ value }), ...attr
         }),
         timer: ReturnType<typeof setTimeout> | undefined;
 
+    function commit(held: string[]) {
+        let shortcut = chord.join('+'),
+            owner = shortcut === state.value ? null : taken?.(shortcut);
+
+        chord = [];
+        pressed = [];
+
+        if (owner) {
+            fail(`Used by ${owner}`);
+            show(held, 'enter');
+            return;
+        }
+
+        state.value = shortcut;
+        stop();
+    }
+
     function fail(text: string) {
         clearTimeout(timer);
-        status.error = text;
+        state.error = text;
         // Alternating the parity swaps between identical keyframes, restarting the shake.
         status.shake = status.shake === 1 ? 2 : 1;
-        timer = setTimeout(() => status.error = '', ERROR_DURATION);
+        timer = setTimeout(() => state.error = '', ERROR_DURATION);
     }
 
     function onaway(e: Event) {
@@ -129,50 +148,73 @@ export default ({ label, taken, value = '', state = reactive({ value }), ...attr
     }
 
     // While recording every key belongs to the field, taken before the page's own shortcuts can act on it.
+    // Keys gather into one chord until a key is released, or until the chord reaches 'limit' when one is set.
     function onkeydown(e: KeyboardEvent) {
         e.preventDefault();
         e.stopImmediatePropagation();
 
+        if (e.repeat) {
+            return;
+        }
+
         let held = modifiers(e, mac);
 
-        if (MODIFIER_KEYS.has(e.key)) {
-            show(held, 'enter');
+        if (!MODIFIER_KEYS.has(e.key)) {
+            if (!held.length && !pressed.length && e.key === 'Escape') {
+                stop();
+                return;
+            }
+
+            if (!held.length && !pressed.length && (e.key === 'Backspace' || e.key === 'Delete')) {
+                state.value = '';
+                stop();
+                return;
+            }
+
+            let key = keyName(e);
+
+            if (!held.length && !FUNCTION_KEY.test(key) && !pressed.some((token) => FUNCTION_KEY.test(token))) {
+                fail(`Add ${mac ? '⌘, ⌥ or ⇧' : 'Ctrl, Alt or Shift'}`);
+                return;
+            }
+
+            if (limit && held.length + pressed.length >= limit) {
+                fail(`Up to ${limit} ${limit === 1 ? 'key' : 'keys'}`);
+                return;
+            }
+
+            if (!pressed.includes(key)) {
+                pressed.push(key);
+            }
+        }
+
+        let tokens = [...held, ...pressed];
+
+        show(tokens, 'enter');
+
+        if (!pressed.length) {
             return;
         }
 
-        if (!held.length && e.key === 'Escape') {
-            stop();
-            return;
+        chord = tokens;
+
+        if (tokens.length === limit) {
+            commit(held);
         }
-
-        if (!held.length && (e.key === 'Backspace' || e.key === 'Delete')) {
-            state.value = '';
-            stop();
-            return;
-        }
-
-        let key = keyName(e);
-
-        if (!held.length && !FUNCTION_KEY.test(key)) {
-            fail(`Add ${mac ? '⌘, ⌥ or ⇧' : 'Ctrl, Alt or Shift'}`);
-            return;
-        }
-
-        let shortcut = [...held, key].join('+'),
-            owner = shortcut === state.value ? null : taken?.(shortcut);
-
-        if (owner) {
-            fail(`Used by ${owner}`);
-            return;
-        }
-
-        state.value = shortcut;
-        stop();
     }
 
+    // macOS drops keyup for keys pressed while ⌘ is held, so releasing any key, modifiers included, ends the chord.
     function onkeyup(e: KeyboardEvent) {
         e.stopImmediatePropagation();
-        show(modifiers(e, mac), 'enter');
+
+        let held = modifiers(e, mac);
+
+        if (chord.length) {
+            commit(held);
+            return;
+        }
+
+        show(held, 'enter');
     }
 
     // Recording keeps caps that are still held in place so only the new ones animate in.
@@ -200,8 +242,10 @@ export default ({ label, taken, value = '', state = reactive({ value }), ...attr
     }
 
     function start() {
+        chord = [];
         clearTimeout(timer);
-        status.error = '';
+        pressed = [];
+        state.error = '';
         status.recording = true;
 
         listeners?.abort();
@@ -218,7 +262,7 @@ export default ({ label, taken, value = '', state = reactive({ value }), ...attr
     function stop() {
         clearTimeout(timer);
         listeners?.abort();
-        status.error = '';
+        state.error = '';
         status.recording = false;
     }
 
@@ -229,58 +273,50 @@ export default ({ label, taken, value = '', state = reactive({ value }), ...attr
     });
 
     return html`
-        <div class='shortcut-recorder' ${attributes}>
-            <div class='shortcut-recorder-label'>
-                ${label}
-                <div class='shortcut-recorder-status' role='status'>
-                    ${() => status.error && html`<span class='shortcut-recorder-error'>${status.error}</span>`}
-                </div>
-            </div>
-            <button
-                aria-label='${() => `${label} shortcut: ${state.value ? parse(state.value).map((token) => glyph(token, mac)).join(' ') : 'none'}. ${status.recording ? 'Recording, press the new keys, Escape to cancel, Backspace to clear.' : 'Press to change.'}`}'
-                aria-pressed='${() => status.recording ? 'true' : 'false'}'
-                class='shortcut-recorder-field'
-                data-shake='${() => status.shake}'
-                type='button'
-                ${{
-                    class: () => status.recording && '--active',
-                    onclick: function(this: HTMLElement) {
-                        field = this;
+        <button
+            aria-pressed='${() => status.recording ? 'true' : 'false'}'
+            class='shortcut-recorder'
+            data-shake='${() => status.shake}'
+            type='button'
+            ${attributes}
+            ${{
+                class: () => status.recording && '--active',
+                onclick: function(this: HTMLElement) {
+                    field = this;
 
-                        if (status.recording) {
-                            stop();
-                        }
-                        else {
-                            start();
-                        }
-                    },
-                    onconnect: () => {
-                        connected = true;
+                    if (status.recording) {
+                        stop();
                     }
-                }}
-            >
-                ${html.reactive(keys, (key) => html`
-                    <kbd
-                        class='button button--kbd shortcut-recorder-key ${key.animation && `shortcut-recorder-key--${key.animation}`}'
-                        style='--index: ${key.index}'
-                    >
-                        ${glyph(key.token, mac)}
-                    </kbd>
-                `)}
-                ${() => {
-                    if (keys.length) {
-                        return '';
+                    else {
+                        start();
                     }
+                },
+                onconnect: () => {
+                    connected = true;
+                }
+            }}
+        >
+            ${html.reactive(keys, (key) => html`
+                <kbd
+                    class='button button--kbd shortcut-recorder-key ${key.animation && `shortcut-recorder-key--${key.animation}`}'
+                    style='--index: ${key.index}'
+                >
+                    ${glyph(key.token, mac)}
+                </kbd>
+            `)}
+            ${() => {
+                if (keys.length) {
+                    return '';
+                }
 
-                    return html`
-                        <span class='shortcut-recorder-placeholder ${connected && 'shortcut-recorder-placeholder--fade'}'>
-                            ${status.recording
-                                ? html`<span class='shortcut-recorder-dot' aria-hidden='true'></span>Press keys`
-                                : 'None'}
-                        </span>
-                    `;
-                }}
-            </button>
-        </div>
+                return html`
+                    <span class='shortcut-recorder-placeholder ${connected && 'shortcut-recorder-placeholder--fade'}'>
+                        ${status.recording
+                            ? html`<span class='shortcut-recorder-dot' aria-hidden='true'></span>Press keys`
+                            : 'None'}
+                    </span>
+                `;
+            }}
+        </button>
     `;
 };
