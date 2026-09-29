@@ -90,7 +90,7 @@ export default {
             render: () => html`
                 <div class='heatmap-demo'>
                     <span class='heatmap-demo-summary'>
-                        <strong class='--tabular'>${NUMBER.format(COUNTS.reduce((sum, count) => sum + count, 0))}</strong>
+                        <strong>${NUMBER.format(COUNTS.reduce((sum, count) => sum + count, 0))}</strong>
                         contributions in the last year by
                         <a href='https://github.com/${USER}' rel='noreferrer' target='_blank'>@${USER}</a>
                     </span>
@@ -117,7 +117,7 @@ export default {
                 return html`
                     <div class='heatmap-demo'>
                         ${heatmap({ data, state, ...github })}
-                        <span class='heatmap-demo-status --tabular'>
+                        <span class='heatmap-demo-status'>
                             ${() => `tab stop: ${data[state.index].date} (${data[state.index].value})`}
                         </span>
                         <button class='button --background-blue --color-white' onclick=${() => {
