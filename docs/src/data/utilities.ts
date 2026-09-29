@@ -149,7 +149,7 @@ const utilities: Utility[] = [
     },
     {
         category: 'Surface',
-        description: 'Typography helpers for cropping, truncating, filling text with a looping gradient and hatching a drifting drop shadow; set --color-from, --color-to, --duration and --speed to tune --text-gradient, and give --text-line-shadow its text in data-text (--shadow-color, --line-size, --offset, --duration tune it).',
+        description: 'Typography helpers for cropping, truncating, filling text with a looping gradient, hatching a drifting drop shadow and sweeping a band of light across muted text; set --color-from, --color-to, --duration and --speed to tune --text-gradient, give --text-line-shadow its text in data-text (--shadow-color, --line-size, --offset, --duration tune it), and tune --text-shiny with --shine-color, --shine-duration, --shine-text-color and --shine-width.',
         name: 'text',
         variants: [
             {
@@ -167,6 +167,14 @@ const utilities: Utility[] = [
             {
                 render: () => html`<h1 class='--text-line-shadow' data-text='Colored' style='--shadow-color: var(--color-blue-400); font-size: clamp(48px, 9vw, 96px); font-weight: var(--font-weight-600); letter-spacing: -0.05em; line-height: 1; margin: 0;'>Colored</h1>`,
                 title: 'line shadow, custom color'
+            },
+            {
+                render: () => html`<p class='--text-shiny' style='font-size: 16px; margin: 0;'>✨ Introducing Magic UI</p>`,
+                title: 'shiny'
+            },
+            {
+                render: () => html`<p class='--text-shiny' style='--shine-width: 200px; font-size: 32px; font-weight: var(--font-weight-600); letter-spacing: -0.025em; margin: 0;'>Shimmering across a headline</p>`,
+                title: 'shiny, wide band'
             },
             {
                 render: () => html`<div class='--text-truncate' style='max-width: 240px;'>This sentence is intentionally long so it gets truncated with an ellipsis.</div>`,

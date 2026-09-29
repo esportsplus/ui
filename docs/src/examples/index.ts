@@ -46,7 +46,6 @@ import scrubInput from './scrub-input';
 import select from './select';
 import selectMenu from './select-menu';
 import settings from './settings';
-import shinyText from './shiny-text';
 import shortcutRecorder from './shortcut-recorder';
 import slider from './slider';
 import slidingTabs from './sliding-tabs';
@@ -127,7 +126,6 @@ const entries: Entry[] = [
     select,
     selectMenu,
     settings,
-    shinyText,
     shortcutRecorder,
     slider,
     slidingTabs,

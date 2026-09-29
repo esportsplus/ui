@@ -40,7 +40,6 @@ export { default as scrubInput } from './scrub-input';
 export { default as select } from './select';
 export { default as selectMenu } from './select-menu';
 export { default as settings } from './settings';
-export { default as shinyText } from './shiny-text';
 export { default as shortcutRecorder } from './shortcut-recorder';
 export { default as slider } from './slider';
 export { default as slidingTabs } from './sliding-tabs';

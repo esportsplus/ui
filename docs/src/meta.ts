@@ -193,10 +193,6 @@ const meta: Record<string, Meta> = {
         category: 'Overlay',
         description: 'Application settings dialog with a grouped navigation rail, scrolling pages, and a saved confirmation.'
     },
-    'shiny-text': {
-        category: 'Display',
-        description: 'Muted text with a band of light that sweeps across it and rests (Magic UI).'
-    },
     'shortcut-recorder': {
         category: 'Form Controls',
         description: 'Records a keyboard shortcut from the keys you hold, rejecting combinations already in use.'
