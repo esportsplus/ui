@@ -118,32 +118,45 @@ export default component(
     ) {
         let animations: Animation[] = [],
             cards: HTMLElement[] = [],
-            dots: HTMLElement[] = [],
             fills: HTMLElement[] = [],
-            frame = 0,
             last = items.length - 1,
-            layout: Layout | undefined,
             scroller: HTMLElement | undefined,
-            shades: HTMLElement[] = [];
+            shades: HTMLElement[] = [],
+            view = reactive({ layout: null as Layout | null, scroll: 0 });
+
+        // Scroll-driven timelines move the cards on the compositor when available; otherwise the scroll position does.
+        function card(i: number) {
+            let l = view.layout;
+
+            if (!l || animations.length || reduced()) {
+                return '';
+            }
+
+            return `transform: scale(${1 - depth(l, i, last, view.scroll) * l.scale})`;
+        }
+
+        function fill(i: number) {
+            let l = view.layout;
+
+            return `transform: scaleY(${i === 0 ? 1 : l && !animations.length ? covered(l, i - 1, view.scroll) : 0})`;
+        }
 
         function goTo(i: number) {
-            if (!layout || !scroller) {
+            let l = view.layout;
+
+            if (!l || !scroller) {
                 return;
             }
 
             scroller.scrollTo({
                 behavior: reduced() ? 'auto' : 'smooth',
-                top: i === 0 ? 0 : natural(layout, i) - top(layout, i)
+                top: i === 0 ? 0 : natural(l, i) - top(l, i)
             });
         }
 
-        function onscroll() {
-            if (!frame) {
-                frame = requestAnimationFrame(update);
-            }
-        }
-
         function scrollDriven() {
+            let layout = view.layout;
+
             if (!layout || !scroller || typeof ScrollTimeline !== 'function') {
                 return;
             }
@@ -192,11 +205,22 @@ export default component(
             }
         }
 
-        // One read and a batch of transform and opacity writes per frame, nothing that triggers layout.
-        function update() {
-            frame = 0;
+        function shade(i: number) {
+            let l = view.layout;
 
-            if (!layout || !scroller) {
+            if (!l || animations.length || reduced()) {
+                return '';
+            }
+
+            return `opacity: ${Math.min(depth(l, i, last, view.scroll) * l.dim, l.max)}`;
+        }
+
+        // Called straight from the scroll event rather than a frame callback: scroll events already fire once per frame,
+        // ahead of the frame callbacks the template flushes in, so the bindings still land in this frame.
+        function update() {
+            let l = view.layout;
+
+            if (!l || !scroller) {
                 return;
             }
 
@@ -204,31 +228,16 @@ export default component(
                 s = scroller.scrollTop;
 
             for (let i = 0; i < last; i++) {
-                if (covered(layout, i, s) >= 0.5) {
+                if (covered(l, i, s) >= 0.5) {
                     front++;
                 }
             }
 
             if (front !== state.active) {
-                dots[state.active]?.removeAttribute('aria-current');
                 state.active = front;
             }
 
-            dots[front]?.setAttribute('aria-current', 'step');
-
-            if (animations.length) {
-                return;
-            }
-
-            let motion = !reduced();
-
-            for (let i = 0; i <= last; i++) {
-                let d = depth(layout, i, last, s);
-
-                cards[i].style.transform = motion ? `scale(${1 - d * layout.scale})` : '';
-                fills[i].style.transform = `scaleY(${i === 0 ? 1 : covered(layout, i - 1, s)})`;
-                shades[i].style.opacity = motion ? String(Math.min(d * layout.dim, layout.max)) : '0';
-            }
+            view.scroll = s;
         }
 
         return html`
@@ -238,18 +247,11 @@ export default component(
                 ${attributes}
                 ${{
                     onconnect: (root: HTMLElement) => {
-                        cards = [...root.querySelectorAll<HTMLElement>('.sticky-stack-card')];
-                        dots = [...root.querySelectorAll<HTMLElement>('.sticky-stack-dot')];
-                        fills = [...root.querySelectorAll<HTMLElement>('.sticky-stack-fill')];
-                        layout = measure(root);
-                        shades = [...root.querySelectorAll<HTMLElement>('.sticky-stack-shade')];
-
+                        view.layout = measure(root);
                         scrollDriven();
                         update();
                     },
                     ondisconnect: () => {
-                        cancelAnimationFrame(frame);
-
                         for (let i = 0, n = animations.length; i < n; i++) {
                             animations[i].cancel();
                         }
@@ -267,7 +269,7 @@ export default component(
                         onrender: (el: HTMLElement) => {
                             scroller = el;
                         },
-                        onscroll
+                        onscroll: update
                     }}
                 >
                     <div class='sticky-stack-track' style='${`--last: ${last};`}'>
@@ -278,13 +280,28 @@ export default component(
                                 style='${`--index: ${i};`}'
                                 ${this?.attributes?.[STICKY_STACK_CARD]}
                                 ${attributes[STICKY_STACK_CARD]}
+                                ${{
+                                    onrender: (element: HTMLElement) => {
+                                        cards[i] = element;
+                                    },
+                                    style: () => card(i)
+                                }}
                             >
                                 <span class='sticky-stack-number'>${String(i + 1).padStart(2, '0')}</span>
                                 <div class='sticky-stack-body'>
                                     <h3 class='sticky-stack-title'>${item.title}</h3>
                                     <p class='sticky-stack-text'>${item.text}</p>
                                 </div>
-                                <div aria-hidden='true' class='sticky-stack-shade'></div>
+                                <div
+                                    aria-hidden='true'
+                                    class='sticky-stack-shade'
+                                    ${{
+                                        onrender: (element: HTMLElement) => {
+                                            shades[i] = element;
+                                        },
+                                        style: () => shade(i)
+                                    }}
+                                ></div>
                             </article>
                         `)}
                     </div>
@@ -298,9 +315,20 @@ export default component(
                             type='button'
                             ${this?.attributes?.[STICKY_STACK_DOT]}
                             ${attributes[STICKY_STACK_DOT]}
+                            ${{
+                                'aria-current': () => state.active === i && 'step'
+                            }}
                         >
                             <span class='sticky-stack-bar'>
-                                <span class='sticky-stack-fill' style='${`transform: scaleY(${i === 0 ? 1 : 0});`}'></span>
+                                <span
+                                    class='sticky-stack-fill'
+                                    style='${() => fill(i)}'
+                                    ${{
+                                        onrender: (element: HTMLElement) => {
+                                            fills[i] = element;
+                                        }
+                                    }}
+                                ></span>
                             </span>
                         </button>
                     `)}

@@ -36,6 +36,7 @@ type A = Attributes & {
     multiline?: boolean;
     ondisconnect?: never;
     ondocumentselectionchange?: never;
+    onfocusout?: never;
     onsave?: (value: string) => void;
     onwindowpointercancel?: never;
     onwindowpointerup?: never;
@@ -155,20 +156,24 @@ export default component(
         let features = new Set(multiline ? whitelist : whitelist.filter((feature) => !KINDS.some((k) => k.feature === feature))),
             actions = ACTIONS.filter(({ action }) => features.has(action)),
             block = reactive({ active: false, error: '', value: 'paragraph' }),
+            hyperlink = reactive({ existing: false, invalid: false }),
             // Declared so page-wide shortcuts (a command palette on Mod+K) leave these to the text.
             keyshortcuts = actions
                 .flatMap(({ shortcut }) => shortcut ? ['Control', 'Meta'].map((mod) => `${mod}+${shortcut}`) : [])
                 .concat(multiline ? ['Control+Enter', 'Meta+Enter'] : [])
                 .join(' '),
             kinds = KINDS.filter((k) => !k.feature || features.has(k.feature)),
-            local = reactive({ copied: 'idle' as 'error' | 'idle' | 'success', empty: value.trim() === '', live: '' }),
+            // 'focus' is the format control the arrow keys rove to, the toolbar's one tab stop.
+            local = reactive({ copied: 'idle' as 'error' | 'idle' | 'success', empty: value.trim() === '', focus: 0, live: '' }),
+            marks = actions.filter(({ action }) => action !== 'clear' && action !== 'copy'),
+            // Mark buttons by their mark, pressed while the selection carries it.
+            pressed = reactive(Object.fromEntries(marks.map(({ action }) => [action, false])) as Record<string, boolean>),
             tip = tooltip.shared({ delay: { open: TOOLTIP_DELAY } });
 
         let anchor: HTMLElement | undefined,
             copyTimer: ReturnType<typeof setTimeout> | undefined,
             dismissed = false,
             editor: HTMLElement | undefined,
-            focusIndex = 0,
             frame = 0,
             // Checklist boxes mounted into the text, each with the disposer of its component.
             boxes = new Map<HTMLElement, VoidFunction>(),
@@ -183,7 +188,6 @@ export default component(
             savedTimer: ReturnType<typeof setTimeout> | undefined,
             shown: Kind = 'paragraph',
             toolbar: HTMLElement | undefined,
-            unlink: HTMLElement | undefined,
             url: HTMLInputElement | undefined;
 
         // The select only reports a value; one that differs from the block under the selection is a choice.
@@ -206,7 +210,7 @@ export default component(
                 href = address(href);
 
                 if (!href) {
-                    url?.setAttribute('aria-invalid', 'true');
+                    hyperlink.invalid = true;
                     return;
                 }
             }
@@ -317,9 +321,8 @@ export default component(
         }
 
         function focus(index: number) {
-            focusIndex = (index + items.length) % items.length;
-            roving();
-            items[focusIndex]?.focus();
+            local.focus = (index + items.length) % items.length;
+            items[local.focus]?.focus();
         }
 
         function leave(e: FocusEvent) {
@@ -350,12 +353,8 @@ export default component(
 
             linking = true;
             url.value = existing?.getAttribute('href') ?? '';
-            url.removeAttribute('aria-invalid');
-
-            if (unlink) {
-                unlink.hidden = !existing;
-            }
-
+            hyperlink.existing = !!existing;
+            hyperlink.invalid = false;
             toolbar.classList.add('inline-edit-toolbar--link');
             place(saved!);
             url.focus({ preventScroll: true });
@@ -378,7 +377,7 @@ export default component(
 
             if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                 e.preventDefault();
-                focus(focusIndex + (e.key === 'ArrowRight' ? 1 : -1));
+                focus(local.focus + (e.key === 'ArrowRight' ? 1 : -1));
             }
             else if (e.key === 'Home' || e.key === 'End') {
                 e.preventDefault();
@@ -515,12 +514,6 @@ export default component(
             empty();
         }
 
-        function roving() {
-            for (let i = 0, n = items.length; i < n; i++) {
-                items[i].tabIndex = i === focusIndex ? 0 : -1;
-            }
-        }
-
         // Every transform returns the range to leave selected, or nothing when there was no selection to act on.
         function run(transform: () => Range | null) {
             let next = transform();
@@ -620,16 +613,17 @@ export default component(
             saved = range.cloneRange();
             place(range);
 
-            for (let button of toolbar.querySelectorAll<HTMLElement>('[data-mark]')) {
-                button.setAttribute('aria-pressed', active(editor, range, button.dataset.mark as Mark) ? 'true' : 'false');
+            for (let i = 0, n = marks.length; i < n; i++) {
+                let mark = marks[i].action as Mark;
+
+                pressed[mark] = active(editor, range, mark);
             }
 
             shown = kind(units(editor, range)[0]);
             block.value = shown;
 
             if (!open) {
-                focusIndex = 0;
-                roving();
+                local.focus = 0;
                 show(true);
             }
         }
@@ -757,19 +751,23 @@ export default component(
             return true;
         }
 
-        let button = ({ action, label, shortcut }: (typeof ACTIONS)[number], content: Renderable<unknown>) => html`
+        // 'index' is the button's place among the format controls the arrow keys rove.
+        let button = ({ action, label, shortcut }: (typeof ACTIONS)[number], content: Renderable<unknown>, index: number) => html`
             <button
                 aria-label='${label}'
                 class='button button--feedback inline-edit-toolbar-button'
                 data-tooltip='${action === 'copy' ? () => local.copied === 'success' ? 'Copied' : label : hint(label, shortcut)}'
-                tabindex='-1'
+                tabindex='${() => local.focus === index ? '0' : '-1'}'
                 type='button'
-                ${action === 'clear' || action === 'copy' ? {} : { 'aria-pressed': 'false', 'data-mark': action }}
+                ${action === 'clear' || action === 'copy' ? {} : { 'aria-pressed': () => pressed[action] ? 'true' : 'false' }}
                 ${{
                     onclick: () => {
                         if (current()) {
                             trigger(action);
                         }
+                    },
+                    onrender: (element: HTMLElement) => {
+                        items[index] = element;
                     }
                 }}
             >
@@ -777,7 +775,8 @@ export default component(
             </button>
         `;
 
-        let marks = actions.filter(({ action }) => action !== 'clear' && action !== 'copy'),
+        // The text style select leads the format controls when there is one.
+        let lead = kinds.length > 1 ? 1 : 0,
             tools = actions.filter(({ action }) => action === 'clear' || action === 'copy');
 
         return html`
@@ -800,6 +799,10 @@ export default component(
                         release?.();
                     },
                     ondocumentselectionchange: sync,
+                    onfocusout: leave,
+                    onrender: (element: HTMLElement) => {
+                        root = element;
+                    },
                     onwindowpointercancel: settle,
                     onwindowpointerup: settle
                 }}
@@ -895,16 +898,10 @@ export default component(
                     ${{
                         onconnect: (element: HTMLElement) => {
                             anchor = element;
-                            root = element.parentElement ?? undefined;
-                            toolbar = element.querySelector<HTMLElement>('.inline-edit-toolbar') ?? undefined;
-                            unlink = element.querySelector<HTMLElement>('.inline-edit-toolbar-unlink') ?? undefined;
-                            url = element.querySelector<HTMLInputElement>('.inline-edit-toolbar-url') ?? undefined;
-                            items = [...element.querySelectorAll<HTMLElement>('.inline-edit-toolbar-format .select-menu-trigger, .inline-edit-toolbar-format .inline-edit-toolbar-button')];
 
                             // Bound directly: delegated mousedown listeners are passive, and delegation only runs
                             // the nearest bound handler, which inside the toolbar belongs to the tooltip or select.
                             let bar = toolbar,
-                                host = root,
                                 prevent = (e: MouseEvent) => {
                                     // Keeps the text selected and focused when a button is clicked; the link field takes focus.
                                     if ((e.target as Element).tagName !== 'INPUT') {
@@ -914,19 +911,15 @@ export default component(
 
                             bar?.addEventListener('keydown', navigate);
                             bar?.addEventListener('mousedown', prevent);
-                            host?.addEventListener('focusout', leave);
                             release = () => {
                                 bar?.removeEventListener('keydown', navigate);
                                 bar?.removeEventListener('mousedown', prevent);
-                                host?.removeEventListener('focusout', leave);
                             };
 
                             if (root) {
                                 observer = new ResizeObserver(sync);
                                 observer.observe(root);
                             }
-
-                            roving();
                         }
                     }}
                 >
@@ -938,17 +931,33 @@ export default component(
                         role='toolbar'
                         ${this?.attributes?.[INLINE_EDIT_RICH_TOOLBAR]}
                         ${attributes[INLINE_EDIT_RICH_TOOLBAR]}
+                        ${{
+                            onrender: (element: HTMLElement) => {
+                                toolbar = element;
+                            }
+                        }}
                     >
                         <div class='inline-edit-toolbar-format' ${tip.delegate({ edge: true })}>
                             ${kinds.length > 1
                                 ? html`
-                                    ${selectMenu({ class: 'inline-edit-toolbar-block', label: 'Text style', options: kinds, state: block })}
+                                    ${selectMenu({
+                                        [selectMenu.trigger]: {
+                                            onrender: (element: HTMLElement) => {
+                                                items[0] = element;
+                                            },
+                                            tabindex: () => local.focus === 0 ? '0' : '-1'
+                                        },
+                                        class: 'inline-edit-toolbar-block',
+                                        label: 'Text style',
+                                        options: kinds,
+                                        state: block
+                                    })}
                                     ${marks.length || tools.length ? html`<span aria-hidden='true' class='inline-edit-toolbar-divider'></span>` : ''}
                                 `
                                 : ''}
-                            ${marks.map((item) => button(item, icon(item.action as Exclude<Action, 'copy'>)))}
+                            ${marks.map((item, i) => button(item, icon(item.action as Exclude<Action, 'copy'>), lead + i))}
                             ${marks.length && tools.length ? html`<span aria-hidden='true' class='inline-edit-toolbar-divider'></span>` : ''}
-                            ${tools.map((item) => button(
+                            ${tools.map((item, i) => button(
                                 item,
                                 item.action === 'copy'
                                     ? faces(() => local.copied, [
@@ -956,14 +965,24 @@ export default component(
                                         { content: '', icon: check, key: 'success', tone: 'success' },
                                         { content: '', icon: cross, key: 'error', tone: 'error' }
                                     ])
-                                    : icon(item.action as Exclude<Action, 'copy'>)
+                                    : icon(item.action as Exclude<Action, 'copy'>),
+                                lead + marks.length + i
                             ))}
                             ${tip.render()}
                         </div>
                         ${features.has('link')
                             ? html`
                                 <div class='inline-edit-toolbar-link'>
-                                    ${input({ 'aria-label': 'Link address', class: 'inline-edit-toolbar-url', placeholder: 'Paste or type a link', type: 'url' })}
+                                    ${input({
+                                        'aria-invalid': () => hyperlink.invalid && 'true',
+                                        'aria-label': 'Link address',
+                                        class: 'inline-edit-toolbar-url',
+                                        onconnect: (element: HTMLInputElement) => {
+                                            url = element;
+                                        },
+                                        placeholder: 'Paste or type a link',
+                                        type: 'url'
+                                    })}
                                     <button
                                         aria-label='Apply link'
                                         class='button button--feedback inline-edit-toolbar-button'
@@ -992,7 +1011,10 @@ export default component(
                                         aria-label='Remove link'
                                         class='button button--feedback inline-edit-toolbar-button inline-edit-toolbar-unlink'
                                         type='button'
-                                        ${{ onclick: () => apply(null) }}
+                                        ${{
+                                            hidden: () => !hyperlink.existing,
+                                            onclick: () => apply(null)
+                                        }}
                                     >
                                         ${icon('unlink')}
                                     </button>

@@ -17,12 +17,12 @@ export default component<Attributes & {
     title: string;
 }>(
     function({ actions, leading, subtitle, title, ...attributes }, content) {
-        let frame = 0,
+        let bar: HTMLElement | undefined,
+            frame = 0,
             last = 0,
             position = 0,
             range = 0,
-            root: HTMLElement | undefined,
-            state = reactive({ condensed: false }),
+            state = reactive({ condensed: false, progress: 0 }),
             target = 0,
             velocity = 0;
 
@@ -31,10 +31,6 @@ export default component<Attributes & {
 
             // Condense over at least 64px so short headers don't snap shut on the first wheel tick.
             range = Math.max(64, travel * 3);
-        }
-
-        function render(progress: number) {
-            root?.style.setProperty('--progress', `${progress}`);
         }
 
         function tick(now: number) {
@@ -57,7 +53,7 @@ export default component<Attributes & {
                 frame = requestAnimationFrame(tick);
             }
 
-            render(position);
+            state.progress = position;
         }
 
         return html`
@@ -66,14 +62,16 @@ export default component<Attributes & {
                 ${attributes}
                 ${{
                     class: () => state.condensed && '--condensed',
-                    onconnect: (element: HTMLElement) => {
-                        root = element;
-                        measure(element.querySelector('.sticky-header-bar') as HTMLElement);
+                    onconnect: () => {
+                        if (bar) {
+                            measure(bar);
+                        }
                     },
                     ondisconnect: () => {
                         cancelAnimationFrame(frame);
                         frame = 0;
-                    }
+                    },
+                    style: () => `--progress: ${state.progress}`
                 }}
             >
                 <div
@@ -88,7 +86,7 @@ export default component<Attributes & {
                         if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
                             position = target;
                             velocity = 0;
-                            render(position);
+                            state.progress = position;
                         }
                         else if (!frame) {
                             last = performance.now();
@@ -101,7 +99,14 @@ export default component<Attributes & {
                     <div aria-hidden='true' class='sticky-header-fade'></div>
                 </div>
 
-                <header class='sticky-header-bar'>
+                <header
+                    class='sticky-header-bar'
+                    ${{
+                        onrender: (element: HTMLElement) => {
+                            bar = element;
+                        }
+                    }}
+                >
                     <div aria-hidden='true' class='sticky-header-plate'></div>
                     <div aria-hidden='true' class='sticky-header-edge sticky-header-edge--shadow'></div>
                     <div aria-hidden='true' class='sticky-header-edge sticky-header-edge--fade'></div>

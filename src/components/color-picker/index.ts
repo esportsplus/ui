@@ -174,7 +174,8 @@ function template(
         parts: Parts = {},
         picker = reactive({ active: '', invalid: false }),
         pointer = { alpha: false, hue: false, pad: -1 },
-        recent = reactive(initial.map((hex) => hex.toUpperCase()));
+        recent = reactive(initial.map((hex) => hex.toUpperCase())),
+        swatches = new Map<string, HTMLElement>();
 
     state.value = toHex(color);
 
@@ -226,9 +227,8 @@ function template(
             kept = recent.filter((c) => c !== hex).slice(0, MAX_RECENT - 1);
 
         if (container) {
-            for (let element of container.querySelectorAll<HTMLElement>('.color-picker-swatch')) {
-                let key = element.dataset.hex ?? '',
-                    rect = element.getBoundingClientRect();
+            for (let [key, element] of swatches) {
+                let rect = element.getBoundingClientRect();
 
                 first.set(key, rect);
 
@@ -265,8 +265,8 @@ function template(
         let box = container.getBoundingClientRect(),
             still = reduced();
 
-        for (let element of container.querySelectorAll<HTMLElement>('.color-picker-swatch')) {
-            let previous = first.get(element.dataset.hex ?? '');
+        for (let [key, element] of swatches) {
+            let previous = first.get(key);
 
             if (!previous) {
                 element.animate(
@@ -615,7 +615,6 @@ function template(
                         <button
                             aria-label='Use ${hex}'
                             class='color-picker-swatch'
-                            data-hex='${hex}'
                             style='--swatch: ${hex};'
                             type='button'
                             ${this?.attributes?.[COLOR_PICKER_SWATCH]}
@@ -634,6 +633,14 @@ function template(
                                     update(next);
                                     picker.active = hex;
                                     picker.invalid = false;
+                                },
+                                ondisconnect: (element: HTMLElement) => {
+                                    if (swatches.get(hex) === element) {
+                                        swatches.delete(hex);
+                                    }
+                                },
+                                onrender: (element: HTMLElement) => {
+                                    swatches.set(hex, element);
                                 }
                             }}
                         ></button>

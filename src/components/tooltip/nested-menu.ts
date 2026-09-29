@@ -3,10 +3,9 @@ import { component, html, type Attributes, type Renderable } from '@esportsplus/
 
 
 type A = Attributes & {
-    [NESTED_MENU_TRIGGER]?: Attributes;
+    [NESTED_MENU_TRIGGER]?: Attributes & { onclick?: never };
     animate?: boolean;
     items: Item[];
-    onclick?: never;
     ondocumentclick?: never;
     onkeydown?: never;
     onselect?: (item: Item) => void;
@@ -51,13 +50,17 @@ function covered(node: MenuNode) {
 }
 
 function enabled(node: MenuNode) {
-    if (!node.panel) {
-        return [];
+    let nodes: MenuNode[] = [];
+
+    for (let i = 0, n = node.children.length; i < n; i++) {
+        let child = node.children[i];
+
+        if (child.button && !child.item?.disabled) {
+            nodes.push(child);
+        }
     }
 
-    return Array.from(
-        node.panel.querySelectorAll<HTMLElement>(':scope > .tooltip-nested-menu-entry > .tooltip-nested-menu-item:not(:disabled)')
-    );
+    return nodes;
 }
 
 // Class and attribute updates are applied on the next frame, so focus waits one more.
@@ -86,8 +89,7 @@ function tree(items: Item[], parent?: MenuNode) {
 
 export default component(
     ({ animate = true, items, onselect, state = reactive({ active: false }), ...attributes }: A, content) => {
-        let elements = new WeakMap<Element, MenuNode>(),
-            root: MenuNode = { children: [], state: reactive({ open: true, render: true, settled: true }) },
+        let root: MenuNode = { children: [], state: reactive({ open: true, render: true, settled: true }) },
             stack: MenuNode[] = [root],
             trigger: HTMLElement | undefined;
 
@@ -143,8 +145,15 @@ export default component(
                             'aria-expanded': branch ? () => String(node.state.open) : undefined,
                             'aria-haspopup': branch ? 'menu' : undefined,
                             disabled: disabled === true,
+                            onclick: () => {
+                                if (branch) {
+                                    drill(node);
+                                }
+                                else {
+                                    select(node);
+                                }
+                            },
                             onconnect: (element: HTMLElement) => {
-                                elements.set(element, node);
                                 node.button = element;
                             }
                         }}
@@ -165,7 +174,7 @@ export default component(
             node.state.settled = node.state.open || instant();
             node.state.open = true;
 
-            later(() => enabled(node)[0]?.focus());
+            later(() => enabled(node)[0]?.button?.focus());
         }
 
         function instant() {
@@ -177,7 +186,7 @@ export default component(
             state.active = true;
             shift();
 
-            later(() => enabled(root)[0]?.focus());
+            later(() => enabled(root)[0]?.button?.focus());
         }
 
         function panel(node: MenuNode): Renderable<unknown> {
@@ -194,8 +203,13 @@ export default component(
                             return `${active ? '--active' : ''} ${covered(node) ? '--covered' : ''} ${node.state.settled ? '--settled' : ''}`;
                         },
                         inert: () => node === root && !state.active,
+                        // A dimmed parent panel's scrim takes the click; return to that level
+                        onclick: () => {
+                            if (node !== stack[stack.length - 1]) {
+                                popTo(node);
+                            }
+                        },
                         onconnect: (element: HTMLElement) => {
-                            elements.set(element, node);
                             node.panel = element;
                         },
                         ontransitionend: (e: TransitionEvent) => {
@@ -217,7 +231,7 @@ export default component(
                     }}
                 >
                     ${item ? html`
-                        <div class='tooltip-nested-menu-header'>
+                        <div class='tooltip-nested-menu-header' onclick='${pop}'>
                             ${item.icon ? html`<span class='tooltip-nested-menu-icon'>${item.icon()}</span>` : ''}
                             <span class='tooltip-nested-menu-title'>
                                 <span class='tooltip-nested-menu-title-regular'>${item.label}</span>
@@ -310,50 +324,6 @@ export default component(
                 ${attributes}
                 ${{
                     class: () => state.active && '--active',
-                    onclick: (e: MouseEvent) => {
-                        let target = (e.target as HTMLElement).closest<HTMLElement>(
-                                '.tooltip-nested-menu-header, .tooltip-nested-menu-item, .tooltip-nested-menu-panel, .tooltip-nested-menu-trigger'
-                            );
-
-                        if (!target) {
-                            return;
-                        }
-
-                        if (target === trigger) {
-                            if (state.active) {
-                                close(false);
-                            }
-                            else {
-                                open();
-                            }
-
-                            return;
-                        }
-
-                        if (target.classList.contains('tooltip-nested-menu-header')) {
-                            pop();
-                            return;
-                        }
-
-                        let node = elements.get(target);
-
-                        if (!node) {
-                            return;
-                        }
-
-                        if (target.classList.contains('tooltip-nested-menu-item')) {
-                            if (node.children.length) {
-                                drill(node);
-                            }
-                            else {
-                                select(node);
-                            }
-                        }
-                        // A dimmed parent panel's scrim takes the click; return to that level
-                        else if (node !== stack[stack.length - 1]) {
-                            popTo(node);
-                        }
-                    },
                     ondocumentclick: function(this, e: MouseEvent) {
                         if (!state.active || !this?.isConnected) {
                             return;
@@ -373,32 +343,28 @@ export default component(
                             return;
                         }
 
-                        let top = stack[stack.length - 1],
-                            buttons = enabled(top),
-                            index = buttons.indexOf(document.activeElement as HTMLElement),
-                            n = buttons.length;
+                        let nodes = enabled(stack[stack.length - 1]),
+                            index = nodes.findIndex((node) => node.button === document.activeElement),
+                            n = nodes.length;
 
                         switch (e.key) {
                             case 'ArrowDown':
-                                buttons[(index + 1) % n]?.focus();
+                                nodes[(index + 1) % n]?.button?.focus();
                                 break;
                             case 'ArrowUp':
-                                buttons[index < 1 ? n - 1 : index - 1]?.focus();
+                                nodes[index < 1 ? n - 1 : index - 1]?.button?.focus();
                                 break;
                             case 'ArrowLeft':
                             case 'Backspace':
                                 pop();
                                 break;
-                            case 'ArrowRight': {
-                                let node = index === -1 ? undefined : elements.get(buttons[index]);
-
-                                if (node) {
-                                    drill(node);
+                            case 'ArrowRight':
+                                if (index !== -1) {
+                                    drill(nodes[index]);
                                 }
                                 break;
-                            }
                             case 'End':
-                                buttons[n - 1]?.focus();
+                                nodes[n - 1]?.button?.focus();
                                 break;
                             case 'Escape':
                                 if (stack.length > 1) {
@@ -409,7 +375,7 @@ export default component(
                                 }
                                 break;
                             case 'Home':
-                                buttons[0]?.focus();
+                                nodes[0]?.button?.focus();
                                 break;
                             case 'Tab':
                                 close(true);
@@ -430,6 +396,14 @@ export default component(
                     ${attributes[NESTED_MENU_TRIGGER]}
                     ${{
                         'aria-expanded': () => String(state.active),
+                        onclick: () => {
+                            if (state.active) {
+                                close(false);
+                            }
+                            else {
+                                open();
+                            }
+                        },
                         onconnect: (element: HTMLElement) => {
                             trigger = element;
                         }

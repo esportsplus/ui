@@ -74,19 +74,20 @@ const blur = () => attributes('--scrollbar-blur');
 // Mouse only: touch, pen and trackpads already scroll natively, with their own momentum. The pointer is
 // captured only once the press moves past the slop, so a plain click still reaches whatever it landed on.
 const drag = (axis: Axis = 'both') => {
-    let press: Press | null = null;
+    let press: Press | null = null,
+        state = reactive({ dragging: false });
 
-    function end(this: HTMLElement, e: PointerEvent) {
+    function end(e: PointerEvent) {
         if (press?.id !== e.pointerId) {
             return;
         }
 
         press = null;
-        this.classList.remove('--dragging');
+        state.dragging = false;
     }
 
     return {
-        class: '--scrollbar-drag',
+        class: ['--scrollbar-drag', () => state.dragging && '--dragging'],
         // Links and images would otherwise start a native drag-and-drop mid-scroll.
         ondragstart: (e: DragEvent) => {
             e.preventDefault();
@@ -106,7 +107,7 @@ const drag = (axis: Axis = 'both') => {
 
             // Released outside the window before the capture, so no pointerup arrived.
             if (!e.buttons) {
-                end.call(this, e);
+                end(e);
                 return;
             }
 
@@ -120,7 +121,7 @@ const drag = (axis: Axis = 'both') => {
 
                 press.moved = true;
                 getSelection()?.removeAllRanges();
-                this.classList.add('--dragging');
+                state.dragging = true;
                 this.setPointerCapture(e.pointerId);
             }
 

@@ -102,8 +102,8 @@ function morph(element: HTMLElement, open: VoidFunction) {
 // Trigger event handler for bubbled transition/animation events. The goo filter reshapes
 // everything it touches, so it's only on while the shape is moving; at rest the trigger and
 // tooltip keep their exact edges. Opening is a clip-path transition, closing the
-// 'tooltip-morph-close' animation.
-function morphing(active: boolean) {
+// 'tooltip-morph-close' animation. 'state.morphing' is bound to the trigger's '--morphing' class.
+function morphing(state: { morphing: boolean }, active: boolean) {
     return (e: AnimationEvent | TransitionEvent) => {
         let element = e.currentTarget as HTMLElement,
             tooltip = e.target as HTMLElement;
@@ -116,7 +116,7 @@ function morphing(active: boolean) {
         }
 
         if ('propertyName' in e ? e.propertyName === 'clip-path' : e.animationName === 'tooltip-morph-close') {
-            element.classList.toggle('--morphing', active);
+            state.morphing = active;
         }
     };
 }

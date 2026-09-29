@@ -13,8 +13,8 @@ type Task = {
 };
 
 
-function checked(item: Element) {
-    return (item.querySelector('.checkbox-tag') as HTMLInputElement).checked;
+function checked(rows: WeakMap<Element, Task>, item: Element) {
+    return !!rows.get(item)?.checked;
 }
 
 // Cancelling an animation rejects its finished promise and replaces it with one that never settles,
@@ -31,11 +31,11 @@ async function finished(animations: Animation[]) {
     }
 }
 
-function move(item: HTMLElement) {
+function move(rows: WeakMap<Element, Task>, item: HTMLElement) {
     let list = item.parentElement!,
         reference: Element | null = null;
 
-    if (!checked(item)) {
+    if (!checked(rows, item)) {
         let last: Element | null = null;
 
         // Rows still animating have not moved yet, so the open tasks end at the first checked row that has settled
@@ -44,7 +44,7 @@ function move(item: HTMLElement) {
                 return;
             }
 
-            if (!checked(child)) {
+            if (!checked(rows, child)) {
                 last = child;
             }
             else if (!pending(child)) {
@@ -112,7 +112,7 @@ function pending(item: Element) {
     return item.classList.contains('--checking') || item.classList.contains('--unchecking');
 }
 
-function row(task: Task, reorder: boolean, attributes?: CheckboxAttributes) {
+function row(rows: WeakMap<Element, Task>, task: Task, reorder: boolean, attributes?: CheckboxAttributes) {
     let sequence = 0;
 
     return html`
@@ -138,8 +138,11 @@ function row(task: Task, reorder: boolean, attributes?: CheckboxAttributes) {
                     this.classList.remove('--checking', '--unchecking');
 
                     if (reorder) {
-                        move(this);
+                        move(rows, this);
                     }
+                },
+                onrender: (element: HTMLElement) => {
+                    rows.set(element, task);
                 }
             }}
         >
@@ -158,12 +161,14 @@ function row(task: Task, reorder: boolean, attributes?: CheckboxAttributes) {
 
 export default component(
     function({ reorder = true, tasks, ...attributes }: Attributes & { [TASKLIST_CHECKBOX]?: CheckboxAttributes; reorder?: boolean; tasks: Task[] }) {
+        let rows = new WeakMap<Element, Task>();
+
         return html`
             <ul class='tasklist' ${attributes}>
                 ${(reorder ? [
                     ...tasks.filter((task) => !task.checked),
                     ...tasks.filter((task) => task.checked)
-                ] : tasks).map((task) => row(task, reorder, attributes[TASKLIST_CHECKBOX]))}
+                ] : tasks).map((task) => row(rows, task, reorder, attributes[TASKLIST_CHECKBOX]))}
             </ul>
         `;
     },

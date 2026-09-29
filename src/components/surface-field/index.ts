@@ -1,4 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
+import { reactive } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
 
@@ -152,7 +153,8 @@ function rgb(color: string) {
 const surface = component<Surface>(
     function(this, { bounded = true, height = 160, label = 'surface', minHeight = 72, minWidth = 120, state, width = 240, x = 0, y = 0, ...attributes }, content) {
         let element: HTMLElement | undefined,
-            start: { h: number, pointerX: number, pointerY: number, scale: number, w: number, x: number, y: number } | null = null;
+            start: { h: number, pointerX: number, pointerY: number, scale: number, w: number, x: number, y: number } | null = null,
+            view = reactive({ active: false });
 
         if (state) {
             ({ height, width, x, y } = state);
@@ -198,7 +200,7 @@ const surface = component<Surface>(
             }
 
             (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-            element.classList.add('--active');
+            view.active = true;
             element.style.zIndex = String(++z);
             // Inside a zoomed world the pointer travels in screen px; dividing by the rendered scale keeps the surface
             // under the cursor.
@@ -214,8 +216,8 @@ const surface = component<Surface>(
         }
 
         function end() {
-            element?.classList.remove('--active');
             start = null;
+            view.active = false;
         }
 
         function nudge(event: KeyboardEvent, resize: boolean) {
@@ -247,6 +249,7 @@ const surface = component<Surface>(
                 ${this?.attributes}
                 ${attributes}
                 ${{
+                    class: () => view.active && '--active',
                     onconnect: (el: HTMLElement) => {
                         element = el;
                         apply();
@@ -767,8 +770,7 @@ export default component(
                 ${{
                     onconnect: (element: HTMLElement) => {
                         host = element;
-                        canvas = element.querySelector('.surface-field-canvas') as HTMLCanvasElement;
-                        context = canvas.getContext('2d');
+                        context = canvas?.getContext('2d') ?? null;
                         observer = new IntersectionObserver((entries) => {
                             visible = entries[entries.length - 1].isIntersecting;
 
@@ -805,7 +807,15 @@ export default component(
                     onpointermove: track
                 }}
             >
-                <canvas aria-hidden='true' class='surface-field-canvas'></canvas>
+                <canvas
+                    aria-hidden='true'
+                    class='surface-field-canvas'
+                    ${{
+                        onrender: (element: HTMLCanvasElement) => {
+                            canvas = element;
+                        }
+                    }}
+                ></canvas>
                 <div class='surface-field-content'>${content}</div>
             </div>
         `;

@@ -1,5 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import '~/components/tabs/scss/index.scss';
 import './scss/index.scss';
 
@@ -50,16 +50,17 @@ const slidingTabs = ({ label, selected, state, tabs, ...attributes }: A) => {
     let applied = '',
         hover: HTMLElement | undefined,
         id = `sliding-tabs-${++uid}`,
-        initial = '',
+        leaving = reactive(
+            Object.fromEntries(tabs.map((tab) => [tab.id, false])) as Record<string, boolean>
+        ),
         list: HTMLElement | undefined,
         observer: ResizeObserver | undefined,
         panels = new Map<string, HTMLElement>(),
         running = new Map<HTMLElement, Animation>(),
         s = state ?? reactive({ selected: selected ?? tabs[0]?.id ?? '' }),
         tabRefs = new Map<string, HTMLElement>(),
-        underline: HTMLElement | undefined;
-
-    initial = untrack(() => s.selected);
+        underline: HTMLElement | undefined,
+        view = reactive({ ready: false });
 
     function animate(panel: HTMLElement, keyframes: Keyframe[], duration: number) {
         running.get(panel)?.cancel();
@@ -93,24 +94,19 @@ const slidingTabs = ({ label, selected, state, tabs, ...attributes }: A) => {
             outgoing = panels.get(previous);
 
         if (outgoing) {
-            outgoing.classList.remove('--active');
-            outgoing.classList.add('--leaving');
-            outgoing.inert = true;
+            leaving[previous] = true;
 
             // Softer and faster than the entrance, so the old panel is gone before the new one draws the eye.
             animate(outgoing, [
                 { opacity: 1, translate: '0 0' },
                 { opacity: 0, translate: `${reduce ? 0 : dir * -6}px 0` }
             ], 150).onfinish = () => {
-                outgoing.classList.remove('--leaving');
-                outgoing.inert = false;
+                leaving[previous] = false;
             };
         }
 
         if (incoming) {
-            incoming.classList.remove('--leaving');
-            incoming.classList.add('--active');
-            incoming.inert = false;
+            leaving[next] = false;
 
             animate(incoming, [
                 { filter: reduce ? 'blur(0px)' : 'blur(4px)', opacity: 0, translate: `${reduce ? 0 : dir * 8}px 0` },
@@ -181,6 +177,7 @@ const slidingTabs = ({ label, selected, state, tabs, ...attributes }: A) => {
                 role='tablist'
                 ${{
                     'aria-label': label,
+                    class: () => view.ready && '--ready',
                     onconnect: (element: HTMLElement) => {
                         let target = measure(s.selected);
 
@@ -191,7 +188,7 @@ const slidingTabs = ({ label, selected, state, tabs, ...attributes }: A) => {
                             instant(underline, () => place(target));
                         }
 
-                        element.classList.add('--ready');
+                        view.ready = true;
 
                         // Tabs change width with the viewport, so the underline re-fits without animating.
                         observer = new ResizeObserver(() => {
@@ -266,13 +263,14 @@ const slidingTabs = ({ label, selected, state, tabs, ...attributes }: A) => {
             <div class='sliding-tabs-panels tabs'>
                 ${tabs.map((tab) => html`
                     <div
-                        class='sliding-tabs-panel tabs-content ${tab.id === initial && '--active'}'
+                        class='sliding-tabs-panel tabs-content ${() => s.selected === tab.id && '--active'} ${() => leaving[tab.id] && '--leaving'}'
                         id='${id}-panel-${tab.id}'
                         role='tabpanel'
                         tabindex='0'
                         ${attributes[SLIDING_TABS_PANEL]}
                         ${{
                             'aria-labelledby': `${id}-tab-${tab.id}`,
+                            inert: () => leaving[tab.id],
                             onrender: (element: HTMLElement) => {
                                 panels.set(tab.id, element);
                             }

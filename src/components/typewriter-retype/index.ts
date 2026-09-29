@@ -1,11 +1,19 @@
 import { html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive, type Reactive } from '@esportsplus/reactivity';
 import './scss/index.scss';
 
 
 type A = Attributes & {
     prefix?: string;
     words: string[];
+};
+
+type View = {
+    index: number;
+    reduced: boolean;
+    retyped: boolean;
+    selecting: boolean;
+    typing: boolean;
 };
 
 
@@ -37,7 +45,7 @@ function jitter(word: number, char: number) {
     return wave * 0.7 + (n - Math.floor(n)) * 0.3;
 }
 
-function type(root: HTMLElement, text: HTMLElement, words: string[]) {
+function type(view: View, letters: Reactive<string[]>, words: string[]) {
     let length = words[0].length,
         timer: ReturnType<typeof setTimeout> | undefined,
         word = 0;
@@ -46,13 +54,13 @@ function type(root: HTMLElement, text: HTMLElement, words: string[]) {
         let target = words[word];
 
         if (length < target.length) {
-            strike(target[length++]);
+            letters.push(target[length++]);
         }
 
         let finished = length === target.length;
 
         // Solid while keys are moving, blinking while it waits.
-        root.classList.toggle('--typing', !finished);
+        view.typing = !finished;
         timer = finished
             ? setTimeout(select, HOLD)
             : setTimeout(key, TYPE_BASE + jitter(word, length) * TYPE_JITTER);
@@ -65,42 +73,38 @@ function type(root: HTMLElement, text: HTMLElement, words: string[]) {
             return;
         }
 
-        root.classList.add('--selecting');
+        view.selecting = true;
         timer = setTimeout(() => {
             length = 0;
-            text.textContent = '';
+            letters.clear();
+            view.retyped = true;
+            view.selecting = false;
             word = (word + 1) % words.length;
-            root.classList.remove('--selecting');
             key();
         }, SELECTED_FOR);
-    }
-
-    function strike(char: string) {
-        let letter = document.createElement('span');
-
-        letter.className = 'typewriter-retype-letter';
-        letter.textContent = char;
-        text.append(letter);
     }
 
     timer = setTimeout(select, HOLD);
 
     return () => {
         clearTimeout(timer);
-        root.classList.remove('--selecting', '--typing');
-        // Leaves the DOM as rendered, so a remount or motion change starts clean instead of from a half typed,
+        // Back to the word as rendered, so a remount or motion change starts clean instead of from a half typed,
         // selected word.
-        text.textContent = words[0];
+        letters.clear();
+        view.retyped = false;
+        view.selecting = false;
+        view.typing = false;
     };
 }
 
 
 export default ({ prefix = '', words, ...attributes }: A) => {
     let lead = prefix ? `${prefix} ` : '',
+        letters = reactive([] as string[]),
         longest = words.reduce((a, b) => b.length > a.length ? b : a, ''),
         media: MediaQueryList | undefined,
         stop: VoidFunction | undefined,
-        view = reactive({ index: 0, reduced: false });
+        view: View = reactive({ index: 0, reduced: false, retyped: false, selecting: false, typing: false });
 
     function change() {
         view.reduced = media?.matches ?? false;
@@ -108,23 +112,21 @@ export default ({ prefix = '', words, ...attributes }: A) => {
 
     return html`
         <span
-            class='typewriter-retype ${() => view.reduced && '--reduced'}'
+            class='typewriter-retype ${() => view.reduced && '--reduced'} ${() => view.selecting && '--selecting'} ${() => view.typing && '--typing'}'
             ${attributes}
             ${{
-                onconnect: (element: HTMLElement) => {
-                    let text = element.querySelector<HTMLElement>('.typewriter-retype-text');
-
+                onconnect: () => {
                     media = matchMedia(REDUCED);
                     media.addEventListener('change', change);
                     change();
 
-                    if (!text || words.length === 0) {
+                    if (words.length === 0) {
                         return;
                     }
 
                     stop = effect(() => {
                         if (!view.reduced) {
-                            onCleanup(type(element, text, words));
+                            onCleanup(type(view, letters, words));
                             return;
                         }
 
@@ -156,7 +158,7 @@ export default ({ prefix = '', words, ...attributes }: A) => {
                 </span>
                 <span class='typewriter-retype-word'>
                     <span class='typewriter-retype-selection'></span>
-                    <span class='typewriter-retype-text'>${words[0] ?? ''}</span>
+                    <span class='typewriter-retype-text'>${() => !view.retyped && (words[0] ?? '')}${html.reactive(letters, (char) => html`<span class='typewriter-retype-letter'>${char}</span>`)}</span>
                 </span>
             </span>
         </span>

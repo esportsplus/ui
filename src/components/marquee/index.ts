@@ -41,6 +41,14 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
     gap?: number;
     items: Item[];
     label?: string;
+    onfocusin?: never;
+    onfocusout?: never;
+    onpointercancel?: never;
+    onpointerdown?: never;
+    onpointerenter?: never;
+    onpointerleave?: never;
+    onpointerup?: never;
+    onwindowblur?: never;
     select?: (item: Item) => void;
     speed?: number;
     state?: { paused: boolean };
@@ -50,15 +58,19 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
     let cleanup: VoidFunction[] = [],
         copies = reactive(Array.from({ length: MIN_COPIES }, (_, i) => i)),
         frame = 0,
+        group: HTMLElement | undefined,
         held = false,
+        media = matchMedia('(prefers-reduced-motion: reduce)'),
         near = false,
         nudge = 0,
         offset = 0,
         rate = 0,
-        reduced = false,
         sign = direction === 'right' ? 1 : -1,
         span = 0,
-        tracker: scroll.Tracker | undefined;
+        stage = reactive({ reduced: false, x: 0 }),
+        track: HTMLElement | undefined,
+        tracker: scroll.Tracker | undefined,
+        viewport: HTMLElement | undefined;
 
     function face(item: Item) {
         if (!item.mark) {
@@ -83,9 +95,124 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
         return html`<span class='marquee-item'>${face(item)}</span>`;
     }
 
-    function listen<T extends EventTarget>(target: T, type: string, listener: (e: any) => void, options?: boolean | AddEventListenerOptions) {
-        target.addEventListener(type, listener, options);
-        cleanup.push(() => target.removeEventListener(type, listener, options));
+    function measure() {
+        if (!group || !track || !viewport) {
+            return;
+        }
+
+        // Read back the rendered gap so a CSS override of --item-gap still loops seamlessly.
+        let width = group.getBoundingClientRect().width,
+            loop = width > 0 ? width + parseFloat(getComputedStyle(track).columnGap) : 0,
+            room = viewport.getBoundingClientRect().width;
+
+        span = loop;
+        offset = loop > 0 ? clamp(offset, -loop, loop) : 0;
+        paint();
+
+        let next = stage.reduced || loop <= 0
+            ? MIN_COPIES
+            : clamp(Math.ceil(room / loop) + 3, MIN_COPIES, MAX_COPIES);
+
+        while (copies.length < next) {
+            copies.push(copies.length);
+        }
+
+        if (copies.length > next) {
+            copies.splice(next);
+        }
+    }
+
+    function motion() {
+        stage.reduced = media.matches;
+        measure();
+        run();
+    }
+
+    function paint() {
+        stage.x = stage.reduced ? 0 : offset - span;
+    }
+
+    // Nudges a focused item fully into view, keeping the track within one loop of rest.
+    function reveal(node: HTMLElement) {
+        let loop = span;
+
+        if (stage.reduced || loop <= 0 || !viewport || node === viewport) {
+            return;
+        }
+
+        let box = node.getBoundingClientRect(),
+            delta = 0,
+            pad = 12,
+            view = viewport.getBoundingClientRect();
+
+        if (box.left < view.left + pad) {
+            delta = view.left + pad - box.left;
+        }
+        else if (box.right > view.right - pad) {
+            delta = view.right - pad - box.right;
+        }
+
+        if (delta !== 0) {
+            nudge = clamp(offset + nudge + delta, -loop, loop) - offset;
+        }
+    }
+
+    function run() {
+        cancelAnimationFrame(frame);
+        frame = 0;
+
+        if (stage.reduced || !near) {
+            return;
+        }
+
+        let last = 0;
+
+        function tick(now: number) {
+            frame = requestAnimationFrame(tick);
+
+            let dt = last ? Math.min((now - last) / 1000, 0.05) : 0,
+                loop = span;
+
+            last = now;
+
+            if (loop <= 0) {
+                return;
+            }
+
+            rate += ((held || state.paused ? 0 : 1) - rate) * (1 - Math.exp(-dt / RAMP));
+
+            let pull = nudge * (1 - Math.exp(-dt / SETTLE));
+
+            nudge -= pull;
+
+            let boost = 0;
+
+            if (tracker) {
+                scroll.step(tracker, now, dt);
+                boost = Math.min(scroll.MAX_FACTOR, Math.abs(tracker.factor));
+
+                // A burst turns the marquee with the scroll; it keeps that heading once the scroll stops.
+                if (boost > 0.1) {
+                    sign = (direction === 'right' ? 1 : -1) * Math.sign(tracker.factor);
+                }
+            }
+
+            let x = offset + sign * speed * rate * (1 + boost) * dt + pull;
+
+            // Only wrap once a nudge has settled, otherwise the item being revealed would jump.
+            if (rate > 0.002 && Math.abs(nudge) < 0.25) {
+                nudge = 0;
+                x = fold(x, loop);
+            }
+            else {
+                x = clamp(x, -loop, loop);
+            }
+
+            offset = x;
+            paint();
+        }
+
+        frame = requestAnimationFrame(tick);
     }
 
     return html`
@@ -96,133 +223,8 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
             ${attributes}
             ${{
                 onconnect: (element: HTMLElement) => {
-                    let group = element.querySelector('.marquee-group:not(.marquee-group--copy)') as HTMLElement,
-                        media = matchMedia('(prefers-reduced-motion: reduce)'),
-                        track = element.querySelector('.marquee-track') as HTMLElement,
-                        viewport = element.querySelector('.marquee-viewport') as HTMLElement;
-
-                    function measure() {
-                        // Read back the rendered gap so a CSS override of --item-gap still loops seamlessly.
-                        let width = group.getBoundingClientRect().width,
-                            loop = width > 0 ? width + parseFloat(getComputedStyle(track).columnGap) : 0,
-                            room = viewport.getBoundingClientRect().width;
-
-                        span = loop;
-                        offset = loop > 0 ? clamp(offset, -loop, loop) : 0;
-                        paint();
-
-                        let next = reduced || loop <= 0
-                            ? MIN_COPIES
-                            : clamp(Math.ceil(room / loop) + 3, MIN_COPIES, MAX_COPIES);
-
-                        while (copies.length < next) {
-                            copies.push(copies.length);
-                        }
-
-                        if (copies.length > next) {
-                            copies.splice(next);
-                        }
-                    }
-
-                    function motion() {
-                        reduced = media.matches;
-
-                        if (reduced) {
-                            viewport.setAttribute('tabindex', '0');
-                        }
-                        else {
-                            viewport.removeAttribute('tabindex');
-                        }
-
-                        measure();
-                        run();
-                    }
-
-                    function paint() {
-                        track.style.transform = `translate3d(${(reduced ? 0 : offset - span).toFixed(2)}px, 0, 0)`;
-                    }
-
-                    // Nudges a focused item fully into view, keeping the track within one loop of rest.
-                    function reveal(node: HTMLElement) {
-                        let loop = span;
-
-                        if (reduced || loop <= 0 || node === viewport) {
-                            return;
-                        }
-
-                        let box = node.getBoundingClientRect(),
-                            delta = 0,
-                            pad = 12,
-                            view = viewport.getBoundingClientRect();
-
-                        if (box.left < view.left + pad) {
-                            delta = view.left + pad - box.left;
-                        }
-                        else if (box.right > view.right - pad) {
-                            delta = view.right - pad - box.right;
-                        }
-
-                        if (delta !== 0) {
-                            nudge = clamp(offset + nudge + delta, -loop, loop) - offset;
-                        }
-                    }
-
-                    function run() {
-                        cancelAnimationFrame(frame);
-                        frame = 0;
-
-                        if (reduced || !near) {
-                            return;
-                        }
-
-                        let last = 0;
-
-                        function tick(now: number) {
-                            frame = requestAnimationFrame(tick);
-
-                            let dt = last ? Math.min((now - last) / 1000, 0.05) : 0,
-                                loop = span;
-
-                            last = now;
-
-                            if (loop <= 0) {
-                                return;
-                            }
-
-                            rate += ((held || state.paused ? 0 : 1) - rate) * (1 - Math.exp(-dt / RAMP));
-
-                            let pull = nudge * (1 - Math.exp(-dt / SETTLE));
-
-                            nudge -= pull;
-
-                            let boost = 0;
-
-                            if (tracker) {
-                                scroll.step(tracker, now, dt);
-                                boost = Math.min(scroll.MAX_FACTOR, Math.abs(tracker.factor));
-
-                                // A burst turns the marquee with the scroll; it keeps that heading once the scroll stops.
-                                if (boost > 0.1) {
-                                    sign = (direction === 'right' ? 1 : -1) * Math.sign(tracker.factor);
-                                }
-                            }
-
-                            let x = offset + sign * speed * rate * (1 + boost) * dt + pull;
-
-                            // Only wrap once a nudge has settled, otherwise the item being revealed would jump.
-                            if (rate > 0.002 && Math.abs(nudge) < 0.25) {
-                                nudge = 0;
-                                x = fold(x, loop);
-                            }
-                            else {
-                                x = clamp(x, -loop, loop);
-                            }
-
-                            offset = x;
-                            paint();
-                        }
-
-                        frame = requestAnimationFrame(tick);
+                    if (!group || !viewport) {
+                        return;
                     }
 
                     let resize = new ResizeObserver(measure);
@@ -258,35 +260,9 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                         cleanup.push(() => intersection.disconnect());
                     }
 
-                    listen(element, 'blur', () => held = false, true);
-                    listen(element, 'focus', (e: FocusEvent) => {
-                        held = true;
-                        reveal(e.target as HTMLElement);
-                    }, true);
-                    listen(element, 'pointercancel', () => held = false);
-                    listen(element, 'pointerdown', () => held = true);
-                    listen(element, 'pointerenter', (e: PointerEvent) => {
-                        if (e.pointerType !== 'touch') {
-                            held = true;
-                        }
-                    });
-                    listen(element, 'pointerleave', () => held = false);
-                    listen(element, 'pointerup', (e: PointerEvent) => {
-                        if (e.pointerType === 'touch') {
-                            held = false;
-                        }
-                    });
-                    listen(media, 'change', motion);
-                    // Focus can scroll the clipped viewport natively; pin it so only the transform moves.
-                    listen(viewport, 'scroll', () => {
-                        if (reduced) {
-                            return;
-                        }
-
-                        viewport.scrollLeft = 0;
-                        viewport.scrollTop = 0;
-                    }, { passive: true });
-                    listen(window, 'blur', () => held = false);
+                    // A media query list is not an element, so the template can't bind its change event.
+                    media.addEventListener('change', motion);
+                    cleanup.push(() => media.removeEventListener('change', motion));
 
                     motion();
                 },
@@ -298,16 +274,77 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                     }
 
                     cleanup.length = 0;
+                },
+                onfocusin: (e: FocusEvent) => {
+                    held = true;
+                    reveal(e.target as HTMLElement);
+                },
+                onfocusout: () => {
+                    held = false;
+                },
+                onpointercancel: () => {
+                    held = false;
+                },
+                onpointerdown: () => {
+                    held = true;
+                },
+                onpointerenter: (e: PointerEvent) => {
+                    if (e.pointerType !== 'touch') {
+                        held = true;
+                    }
+                },
+                onpointerleave: () => {
+                    held = false;
+                },
+                onpointerup: (e: PointerEvent) => {
+                    if (e.pointerType === 'touch') {
+                        held = false;
+                    }
+                },
+                onwindowblur: () => {
+                    held = false;
                 }
             }}
         >
-            <div class='marquee-viewport'>
-                <div class='marquee-track'>
+            <div
+                class='marquee-viewport'
+                ${{
+                    onrender: (element: HTMLElement) => {
+                        viewport = element;
+                    },
+                    // Focus can scroll the clipped viewport natively; pin it so only the transform moves.
+                    onscroll: () => {
+                        if (stage.reduced || !viewport) {
+                            return;
+                        }
+
+                        viewport.scrollLeft = 0;
+                        viewport.scrollTop = 0;
+                    },
+                    tabindex: () => stage.reduced && '0'
+                }}
+            >
+                <div
+                    class='marquee-track'
+                    ${{
+                        onrender: (element: HTMLElement) => {
+                            track = element;
+                        },
+                        style: () => `transform: translate3d(${stage.x.toFixed(2)}px, 0, 0)`
+                    }}
+                >
                     ${html.reactive(copies, (copy) => {
                         // Copy 1 is the live group; copies are only ever trimmed from the end so it survives resizes.
                         if (copy === 1) {
                             return html`
-                                <ul class='marquee-group'>
+                                <ul
+                                    class='marquee-group'
+                                    ${{
+                                        onrender: (element: HTMLElement) => {
+                                            group = element;
+                                        }
+                                    }}
+                                >
                                     ${items.map((item) => html`<li>${link(item)}</li>`)}
                                 </ul>
                             `;

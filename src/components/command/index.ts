@@ -50,8 +50,12 @@ type Dialog = Attributes<HTMLDialogElement> & {
     onclose?: never;
     onconnect?: never;
     ondisconnect?: never;
+    onfocusin?: never;
+    onfocusout?: never;
     onpointercancel?: never;
     onpointerdown?: never;
+    onpointerenter?: never;
+    onpointerleave?: never;
     onpointermove?: never;
     onpointerup?: never;
 };
@@ -316,6 +320,8 @@ export default component(
                 label: command.label
             })),
             lookup = new Map(entries.map((entry) => [entry.id, entry])),
+            // Rendered option rows by element id, so keyboard moves scroll the row without looking it up.
+            options = new Map<string, HTMLElement>(),
             // Last pointer position, so a list scrolling under a still cursor (which browsers can report as
             // hover) never steals the active item from the keys.
             pointer: { x: number, y: number } | null = null,
@@ -559,7 +565,7 @@ export default component(
 
                                                 // 'nearest' only scrolls when the item is out of view; smooth so stepping past
                                                 // the edge glides the list along rather than jumping it.
-                                                document.getElementById(option(view, state.index) ?? '')?.scrollIntoView({
+                                                options.get(option(view, state.index) ?? '')?.scrollIntoView({
                                                     behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
                                                     block: 'nearest'
                                                 });
@@ -657,6 +663,14 @@ export default component(
                                                                             if (index !== selected()) {
                                                                                 state.index = index;
                                                                             }
+                                                                        },
+                                                                        ondisconnect: (element: HTMLElement) => {
+                                                                            if (options.get(`${id}-${view.id}-${entry.id}`) === element) {
+                                                                                options.delete(`${id}-${view.id}-${entry.id}`);
+                                                                            }
+                                                                        },
+                                                                        onrender: (element: HTMLElement) => {
+                                                                            options.set(`${id}-${view.id}-${entry.id}`, element);
                                                                         }
                                                                     }}
                                                                 >

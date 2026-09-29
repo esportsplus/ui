@@ -92,7 +92,9 @@ function shortcut() {
 
 export default component(
     function(this: { attributes?: Partial<A> } | void, { duration = 5000, emptyLabel = 'No files left', items, label = 'Files', ondelete, restoreLabel, state = reactive({ empty: false, pending: 0 }), ...attributes }: A) {
-        let gone = new Set<string>(),
+        let deletes = new Map<string, HTMLElement>(),
+            gone = new Set<string>(),
+            list: HTMLElement | undefined,
             live = reactive({ text: '' }),
             message: HTMLElement | undefined,
             pending: string[] = [],
@@ -129,11 +131,11 @@ export default component(
             }
 
             if (target === 'list') {
-                root.querySelector<HTMLElement>('.undo-toast-list')?.focus();
+                list?.focus();
                 return;
             }
 
-            rows.get(target)?.querySelector<HTMLElement>('.undo-toast-delete')?.focus();
+            deletes.get(target)?.focus();
         }
 
         function inside() {
@@ -142,9 +144,16 @@ export default component(
 
         function notify(text: string) {
             if (!message) {
-                message = document.createElement('span');
-                message.className = 'undo-toast-message';
-                toastId = toast.message(message, {
+                toastId = toast.message(html`
+                    <span
+                        class='undo-toast-message'
+                        ${{
+                            onrender: (element: HTMLElement) => {
+                                message = element;
+                            }
+                        }}
+                    ></span>
+                `, {
                     action: { label: 'Undo', onclick: undo },
                     countdown: true,
                     dismissible: false,
@@ -156,6 +165,10 @@ export default component(
                 // A second delete stacks into this batch and restarts its timer instead of
                 // replacing it, which would make the first delete permanent unseen.
                 toast.update(toastId, { duration });
+            }
+
+            if (!message) {
+                return;
             }
 
             let next = document.createElement('span');
@@ -278,10 +291,6 @@ export default component(
                 ${{
                     onconnect: (element: HTMLElement) => {
                         root = element;
-
-                        for (let row of element.querySelectorAll<HTMLElement>('.undo-toast-row')) {
-                            rows.set(row.dataset.id ?? '', row);
-                        }
                     },
                     ondisconnect: () => {
                         if (toastId) {
@@ -307,13 +316,26 @@ export default component(
                     }
                 }}
             >
-                <ul aria-label='${label}' class='undo-toast-list' tabindex='-1'>
+                <ul
+                    aria-label='${label}'
+                    class='undo-toast-list'
+                    tabindex='-1'
+                    ${{
+                        onrender: (element: HTMLElement) => {
+                            list = element;
+                        }
+                    }}
+                >
                     ${items.map((item) => html`
                         <li
                             class='undo-toast-row'
-                            data-id='${item.id}'
                             ${this?.attributes?.[UNDO_TOAST_ROW]}
                             ${attributes[UNDO_TOAST_ROW]}
+                            ${{
+                                onrender: (element: HTMLElement) => {
+                                    rows.set(item.id, element);
+                                }
+                            }}
                         >
                             <div class='undo-toast-row-text'>
                                 <span class='undo-toast-row-name'>${item.name}</span>
@@ -323,7 +345,12 @@ export default component(
                                 aria-label='Delete ${item.name}'
                                 class='button undo-toast-delete'
                                 type='button'
-                                onclick=${() => remove(item)}
+                                ${{
+                                    onclick: () => remove(item),
+                                    onrender: (element: HTMLElement) => {
+                                        deletes.set(item.id, element);
+                                    }
+                                }}
                             >
                                 <svg aria-hidden='true'><use href='#${trash}' /></svg>
                             </button>

@@ -1,4 +1,4 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, on, type Attributes, type Element, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import next from '@esportsplus/ui/svg/chevron-right.svg';
 import previous from '@esportsplus/ui/svg/chevron-left.svg';
@@ -88,7 +88,7 @@ function template(this: { attributes?: Partial<A> } | void, { label = 'Carousel'
         settle: VoidFunction | null = null,
         suppress = false,
         track: HTMLElement | null = null,
-        view = reactive({ visible: false });
+        view = reactive({ dragging: false, visible: false });
 
     function arrow(direction: -1 | 1) {
         let disabled = () => direction === -1 ? state.start : state.end;
@@ -130,7 +130,7 @@ function template(this: { attributes?: Partial<A> } | void, { label = 'Carousel'
                 : 0;
 
         drag = null;
-        element.classList.remove('--dragging');
+        view.dragging = false;
 
         let points = targets(element),
             from = nearest(points, startScroll),
@@ -149,12 +149,10 @@ function template(this: { attributes?: Partial<A> } | void, { label = 'Carousel'
         function restore() {
             settle = null;
             clearTimeout(fallback);
-            element.removeEventListener('scrollend', restore);
             element.style.scrollBehavior = '';
             element.style.scrollSnapType = '';
         }
 
-        element.addEventListener('scrollend', restore);
         settle = restore;
     }
 
@@ -227,6 +225,7 @@ function template(this: { attributes?: Partial<A> } | void, { label = 'Carousel'
                     role='region'
                     tabindex='0'
                     ${{
+                        class: () => view.dragging && '--dragging',
                         // A drag that moved is not a click on whatever sits under the pointer.
                         onclick: (e: MouseEvent) => {
                             if (!suppress) {
@@ -252,7 +251,7 @@ function template(this: { attributes?: Partial<A> } | void, { label = 'Carousel'
                             // Snap would yank the content to the nearest card on every scrollLeft write.
                             track.style.scrollBehavior = 'auto';
                             track.style.scrollSnapType = 'none';
-                            track.classList.add('--dragging');
+                            view.dragging = true;
 
                             drag = {
                                 id: e.pointerId,
@@ -281,8 +280,11 @@ function template(this: { attributes?: Partial<A> } | void, { label = 'Carousel'
                             }
                         },
                         onpointerup: release,
-                        onrender: (element: HTMLElement) => {
+                        onrender: (element: Element) => {
                             track = element;
+
+                            // `scrollend` does not bubble so it cannot be delegated
+                            on(element, 'scrollend', () => settle?.());
                         },
                         onscroll: sync
                     }}

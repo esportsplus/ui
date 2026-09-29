@@ -1,4 +1,4 @@
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { onCleanup, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import tooltip from '~/components/tooltip';
 import scrollbar from '~/css-utilities/scrollbar';
@@ -75,11 +75,11 @@ function summary(day: Day) {
 
 function template(this: { attributes?: Partial<A> } | void, { data, describe = summary, label, state = reactive({ index: data.length - 1 }), thresholds = THRESHOLDS, tooltip: content, ...attributes }: A) {
     let bound = this?.attributes,
-        focusable: HTMLElement | undefined,
-        grid: HTMLElement | undefined,
+        cells: HTMLElement[] = [],
         months: { column: number; name: string }[] = [],
         observer: IntersectionObserver | undefined,
         tip = tooltip.shared(),
+        view = reactive({ shown: false }),
         weeks = Math.ceil(data.length / 7);
 
     // A month is labelled at the column holding its 1st; labels closer than 3 columns would collide.
@@ -107,32 +107,11 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
         let index = Math.min(Math.max(next, 0), data.length - 1);
 
         state.index = index;
-        grid?.querySelector<HTMLElement>(`[data-index="${index}"]`)?.focus();
+        cells[index]?.focus();
     }
-
-    // Roving tabindex: the grid is one tab stop and only the two cells whose tabindex changed are touched.
-    function rove(index: number) {
-        let element = grid?.querySelector<HTMLElement>(`[data-index="${index}"]`);
-
-        if (!element || element === focusable) {
-            return;
-        }
-
-        if (focusable) {
-            focusable.tabIndex = -1;
-        }
-
-        element.tabIndex = 0;
-        focusable = element;
-    }
-
-    let stop = effect(() => {
-        rove(state.index);
-    });
 
     onCleanup(() => {
         observer?.disconnect();
-        stop();
     });
 
     // The tooltip stays out of the accessibility tree: each cell's label already says what it shows.
@@ -180,16 +159,15 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
                         role='grid'
                         ${{
                             'aria-label': label ?? `Activity over the last ${weeks} weeks`,
+                            class: () => view.shown && '--shown',
                             onconnect: (element: HTMLElement) => {
-                                grid = element;
-                                rove(state.index);
                                 observer = new IntersectionObserver((entries) => {
                                     if (!entries.some((entry) => entry.isIntersecting)) {
                                         return;
                                     }
 
                                     observer?.disconnect();
-                                    element.classList.add('--shown');
+                                    view.shown = true;
                                 }, { threshold: 0.4 });
                                 observer.observe(element);
                             },
@@ -244,9 +222,14 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
                                             data-level='${data[i].level ?? levelOf(data[i].value, thresholds)}'
                                             role='gridcell'
                                             style='--column: ${week}'
-                                            tabindex='-1'
+                                            tabindex='${() => state.index === i ? '0' : '-1'}'
                                             ${bound?.[HEATMAP_CELL]}
                                             ${attributes[HEATMAP_CELL]}
+                                            ${{
+                                                onrender: (element: HTMLElement) => {
+                                                    cells[i] = element;
+                                                }
+                                            }}
                                         ></div>
                                     `;
                                 })}

@@ -15,6 +15,12 @@ type A = Attributes & {
     tags?: string[];
 };
 
+type Chip = {
+    body?: HTMLElement;
+    element?: HTMLElement;
+    remove?: HTMLElement;
+};
+
 type D = Attributes & Pick<A, typeof TAG_INPUT_FIELD>;
 
 type Field = Parameters<typeof input>[0];
@@ -70,7 +76,9 @@ export default component(
             ...attributes
         }: A
     ) {
-        let flips = new Map<Element, Animation>(),
+        let chips = new Map<string, Chip>(),
+            field: HTMLInputElement | undefined,
+            flips = new Map<Element, Animation>(),
             id = `tag-input-${++uid}`,
             list: HTMLElement | undefined,
             local = reactive({ announcement: '', armed: '' }),
@@ -80,10 +88,35 @@ export default component(
                 <li
                     class='tag-input-chip ${() => local.armed === key(tag) && '--active'}'
                     data-key='${key(tag)}'
+                    ${{
+                        ondisconnect: (element: HTMLElement) => {
+                            if (chips.get(key(tag))?.element === element) {
+                                chips.delete(key(tag));
+                            }
+                        },
+                        onrender: (element: HTMLElement) => {
+                            chip(key(tag)).element = element;
+                        }
+                    }}
                 >
-                    <span aria-hidden='true' class='tag-input-chip-body'></span>
+                    <span
+                        aria-hidden='true'
+                        class='tag-input-chip-body'
+                        ${{
+                            onrender: (element: HTMLElement) => {
+                                chip(key(tag)).body = element;
+                            }
+                        }}
+                    ></span>
                     <span class='tag-input-chip-text'>${tag}</span>
-                    <span class='tag-input-chip-remove'>
+                    <span
+                        class='tag-input-chip-remove'
+                        ${{
+                            onrender: (element: HTMLElement) => {
+                                chip(key(tag)).remove = element;
+                            }
+                        }}
+                    >
                         <button
                             aria-label='Remove ${tag}'
                             class='tag-input-chip-button'
@@ -91,7 +124,7 @@ export default component(
                             ${{
                                 onclick: () => {
                                     remove(key(tag));
-                                    field()?.focus();
+                                    field?.focus();
                                 },
                                 // Keeps focus in the field, so typing carries straight on.
                                 onpointerdown: (e: PointerEvent) => {
@@ -129,10 +162,8 @@ export default component(
                 added.push(tag);
             }
 
-            let input = field();
-
-            if (input) {
-                input.value = '';
+            if (field) {
+                field.value = '';
             }
 
             local.armed = '';
@@ -144,39 +175,32 @@ export default component(
             // Only a single typed tag forms in place around its letters; pasted lists pop in, since most land away from the caret.
             let formed = typed && added.length === 1 ? key(added[0]) : '';
 
-            mutate(() => state.tags.push(...added), (chip) => {
-                if (chip.dataset.key === formed) {
-                    form(chip);
+            mutate(() => state.tags.push(...added), (element) => {
+                if (element.dataset.key === formed) {
+                    form(chips.get(formed));
                 }
                 else {
-                    pop(chip);
+                    pop(element);
                 }
             });
             local.announcement = `Added ${added.join(', ')}`;
         }
 
         function chip(k: string) {
-            let children = list?.children ?? [];
+            let parts = chips.get(k);
 
-            for (let i = 0, n = children.length; i < n; i++) {
-                let child = children[i] as HTMLElement;
-
-                if (child.dataset.key === k && !child.classList.contains('tag-input-ghost')) {
-                    return child;
-                }
+            if (!parts) {
+                parts = {};
+                chips.set(k, parts);
             }
 
-            return undefined;
-        }
-
-        function field() {
-            return list?.querySelector<HTMLInputElement>('.tag-input-field');
+            return parts;
         }
 
         // Its letters are already on screen where the field was, so only the chip's body and remove button form around them.
-        function form(chip: HTMLElement) {
-            let body = chip.querySelector('.tag-input-chip-body'),
-                remove = chip.querySelector('.tag-input-chip-remove');
+        function form(parts: Chip | undefined) {
+            let body = parts?.body,
+                remove = parts?.remove;
 
             if (reduced.matches) {
                 body?.animate({ opacity: [0, 1] }, POP);
@@ -244,7 +268,7 @@ export default component(
         }
 
         function nudge(k: string) {
-            let element = chip(k);
+            let element = chips.get(k)?.element;
 
             if (!element) {
                 return;
@@ -275,7 +299,7 @@ export default component(
                 return;
             }
 
-            let element = chip(k),
+            let element = chips.get(k)?.element,
                 tag = state.tags[index];
 
             // Leaves a ghost in its place to fade out, while the real chip leaves the flow at once and the rest close up.
@@ -331,7 +355,7 @@ export default component(
                             }
 
                             e.preventDefault();
-                            field()?.focus();
+                            field?.focus();
                         }
                     }}
                 >
@@ -353,6 +377,9 @@ export default component(
                                 id,
                                 onblur: () => {
                                     local.armed = '';
+                                },
+                                onconnect: (element: HTMLInputElement) => {
+                                    field = element;
                                 },
                                 oninput: (e: Event) => {
                                     let value = (e.currentTarget as HTMLInputElement).value;

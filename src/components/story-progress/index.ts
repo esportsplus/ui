@@ -99,9 +99,7 @@ function template(this: { attributes?: Partial<A> } | void, { duration = DURATIO
             ${bound}
             ${attributes}
             ${{
-                onconnect: (element: HTMLElement) => {
-                    fills = Array.from(element.querySelectorAll<HTMLElement>('.story-progress-fill'));
-
+                onconnect: () => {
                     // A compositor-driven fill is the timer itself: when it finishes the story advances,
                     // so the bar and the content can't drift.
                     stopTimer = effect(() => {
@@ -177,7 +175,15 @@ function template(this: { attributes?: Partial<A> } | void, { duration = DURATIO
             <div aria-hidden='true' class='story-progress-bars'>
                 ${stories.map((_, i) => html`
                     <span class='story-progress-bar'>
-                        <span class='story-progress-fill' style='${() => `transform: scaleX(${i < state.index ? 1 : 0})`}'></span>
+                        <span
+                            class='story-progress-fill'
+                            style='${() => `transform: scaleX(${i < state.index ? 1 : 0})`}'
+                            ${{
+                                onrender: (element: HTMLElement) => {
+                                    fills[i] = element;
+                                }
+                            }}
+                        ></span>
                     </span>
                 `)}
             </div>

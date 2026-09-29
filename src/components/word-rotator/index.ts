@@ -88,6 +88,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
     let box: HTMLElement | undefined,
         current = words[state.index] === undefined ? 0 : state.index,
         hovered = false,
+        leaving = new Set<HTMLSpanElement>(),
         letters: Letter[] = [],
         stop: VoidFunction | undefined,
         timer: ReturnType<typeof setTimeout> | undefined;
@@ -161,6 +162,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
             // Leaving letters stay where they stood, then float up and out.
             l.node.getAnimations().forEach((a) => a.cancel());
             l.node.classList.add('--exiting');
+            leaving.add(l.node);
             l.node.style.left = `${lefts.get(l) ?? 0}px`;
             l.node.animate(
                 motion
@@ -170,14 +172,17 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                     ]
                     : [{ opacity: 1 }, { opacity: 0 }],
                 { duration: EXIT_MS, easing: EASE_OUT, fill: 'forwards' }
-            ).onfinish = () => l.node.remove();
+            ).onfinish = () => {
+                leaving.delete(l.node);
+                l.node.remove();
+            };
         }
 
         for (let i = 0, n = next.length; i < n; i++) {
             box.appendChild(next[i].node);
         }
 
-        for (let node of box.querySelectorAll('.word-rotator-letter.--exiting')) {
+        for (let node of leaving) {
             box.appendChild(node);
         }
 
@@ -246,17 +251,10 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
             class='word-rotator'
             ${attributes}
             ${{
-                onconnect: (element: HTMLElement) => {
-                    box = element.querySelector<HTMLElement>('.word-rotator-box') ?? undefined;
-
+                onconnect: () => {
                     if (!box) {
                         return;
                     }
-
-                    letters = Array.from(box.querySelectorAll<HTMLSpanElement>('.word-rotator-letter')).map((node) => ({
-                        char: node.textContent ?? '',
-                        node
-                    }));
 
                     stop = effect(() => {
                         let index = state.index;
@@ -286,8 +284,27 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
             }}
         >
             <span class='word-rotator-sr'>${words.join(', ')}</span>
-            <span aria-hidden='true' class='word-rotator-box'>
-                ${[...words[current]].map((char) => html`<span class='word-rotator-letter'>${char}</span>`)}
+            <span
+                aria-hidden='true'
+                class='word-rotator-box'
+                ${{
+                    onrender: (element: HTMLElement) => {
+                        box = element;
+                    }
+                }}
+            >
+                ${[...words[current]].map((char, i) => html`
+                    <span
+                        class='word-rotator-letter'
+                        ${{
+                            onrender: (node: HTMLSpanElement) => {
+                                letters[i] = { char, node };
+                            }
+                        }}
+                    >
+                        ${char}
+                    </span>
+                `)}
             </span>
         </span>
     `;

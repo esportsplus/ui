@@ -1,5 +1,6 @@
 import { effect, peek, reactive, read, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { write as writeText } from '~/components/clipboard';
 import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
@@ -609,6 +610,8 @@ export default ({
         given = signal(typeof phrase === 'function' ? untrack(phrase) : phrase),
         // The search the rows show, empty while the find bar is closed.
         query = signal(''),
+        // The list's rows on screen; the rest are virtualized away.
+        rendered = new Map<Row, HTMLElement>(),
         // The rows a folder is opening onto, by place within it; emptied when the motion settles, so rows scrolled
         // back into view later arrive as they are.
         revealing = new Map<Row, number>(),
@@ -643,7 +646,6 @@ export default ({
         rows = reactive(visible(top)),
         cursor: Row | null = rows.find((row) => holds(row, (id) => id === chosen)) ?? rows[0] ?? null,
         dragging = drag && draggable<Row>(drag, {
-            find: lookup,
             // Pressing a selected row drags the whole selection, as in VS Code; any other row goes alone. Roots stay, and
             // a folder selected along with one folded above it in a compact row travels inside it.
             grab: (row) => (selection.has(row.id) ? [...selection.ids].map((id) => built.get(id)) : [row])
@@ -672,7 +674,6 @@ export default ({
         slot = html.virtual(rows, (row) => {
             if (row.notice) {
                 return placeholder(row.notice, {
-                    ...dragging?.row(row),
                     ...(revealing.has(row) ? { 'data-reveal': 'true' } : undefined),
                     'aria-level': String(row.depth + 1),
                     class: () => ui.focused === row.key && '--focused',
@@ -683,7 +684,7 @@ export default ({
                         retry(row);
                     },
                     style: `--depth: ${row.depth}; --guides: ${guides(row.depth)}; --reveal-index: ${revealing.get(row) ?? 0};`
-                });
+                }, dragging?.row(row) ?? {}, onscreen(row));
             }
 
             let mark = decorations ? track(row.id) : null,
@@ -704,6 +705,7 @@ export default ({
                     ${search ? { 'data-match': () => matched(row) } : undefined}
                     ${row.scope ? { 'data-scope': 'true', style: `--scope: ${row.scope}` } : undefined}
                     ${dragging?.row(row)}
+                    ${onscreen(row)}
                     ${{
                         'aria-label': mark ? () => read(mark).label : spoken({ ...row.element, name: caption(row), root: header(row) }),
                         'aria-posinset': () => position(row),
@@ -738,7 +740,7 @@ export default ({
                     ${contents(row, mark, true)}
                 </div>
             `;
-        }),
+        }, height),
         anchor: Row | null = null,
         detach: VoidFunction | undefined,
         // Made on connect rather than while building, where they would belong to whatever computation built the
@@ -1464,7 +1466,7 @@ export default ({
         settle();
 
         let container = root,
-            element = viewport?.querySelector<HTMLElement>(`#${id}-${row.key}`),
+            element = rendered.get(row),
             inner = visible(branch(row)),
             scroller = viewport;
 
@@ -1489,7 +1491,9 @@ export default ({
             frame: requestAnimationFrame(() => {
                 // A row still rendered rides the edge itself, so the highlight on it moves with it.
                 for (let clone of ghosts.querySelectorAll<HTMLElement>('[data-ghost]')) {
-                    if (scroller.querySelector(`[data-id="${CSS.escape(clone.dataset.ghost!)}"]`)) {
+                    let ghost = lookup(clone.dataset.ghost!);
+
+                    if (ghost && rendered.has(ghost)) {
                         clone.remove();
                     }
                 }
@@ -1540,6 +1544,15 @@ export default ({
     // A root's own row, heading its tree.
     function header(row: Row) {
         return roots && row.parent === null;
+    }
+
+    // Every row is the same height, so any row on screen measures them all.
+    function height() {
+        for (let element of rendered.values()) {
+            return element.offsetHeight;
+        }
+
+        return 0;
     }
 
     function insert(at: number, items: Row[]) {
@@ -1789,7 +1802,7 @@ export default ({
 
         focus(row);
 
-        let element = viewport.querySelector<HTMLElement>(`#${id}-${row.key}`);
+        let element = rendered.get(row);
 
         // Outside the rendered window; the slot scrolls it in and renders it straight away. Aligned to the top, it
         // starts the view at the rows its pinned folders will cover, one each.
@@ -1832,10 +1845,23 @@ export default ({
         };
     }
 
-    function page() {
-        let row = viewport?.querySelector<HTMLElement>('.file-tree-row');
+    function onscreen(row: Row): Attributes {
+        return {
+            ondisconnect: (element: HTMLElement) => {
+                if (rendered.get(row) === element) {
+                    rendered.delete(row);
+                }
+            },
+            onrender: (element: HTMLElement) => {
+                rendered.set(row, element);
+            }
+        };
+    }
 
-        return row && viewport ? Math.max(1, Math.floor(viewport.clientHeight / row.offsetHeight)) : 1;
+    function page() {
+        let size = height();
+
+        return size && viewport ? Math.max(1, Math.floor(viewport.clientHeight / size)) : 1;
     }
 
     // False when the tree has nothing to do with the command, leaving the key to the page.
@@ -1917,7 +1943,7 @@ export default ({
                     return false;
                 }
 
-                void navigator.clipboard.writeText(elements.map((element) => address(element, name === 'relative')).join('\n'));
+                void writeText(elements.map((element) => address(element, name === 'relative')).join('\n'));
                 return true;
             }
             case 'redo':
@@ -2462,13 +2488,14 @@ export default ({
         motion.element.removeAttribute('data-motion');
         motion.ghosts.remove();
         motion = null;
-        revealing.clear();
         root?.removeAttribute('data-motion');
         root?.style.removeProperty('--motion-rows');
 
-        for (let node of viewport?.querySelectorAll('[data-reveal]') ?? []) {
-            node.removeAttribute('data-reveal');
+        for (let row of revealing.keys()) {
+            rendered.get(row)?.removeAttribute('data-reveal');
         }
+
+        revealing.clear();
     }
 
     // Moves the rollup that 'ids' carry, their tones and their lines, from one chain of folders to another; null ends
@@ -2929,6 +2956,7 @@ export default ({
                 id='${id}'
                 role='tree'
                 tabindex='0'
+                ${dragging?.viewport}
                 ${{
                     'aria-activedescendant': () => ui.focused > 0 && `${id}-${ui.focused}`,
                     oncontextmenu: (event: MouseEvent) => {
@@ -2958,7 +2986,7 @@ export default ({
 
                         focus(row);
 
-                        let box = keyboard ? (viewport.querySelector(`#${id}-${row.key}`) ?? viewport).getBoundingClientRect() : null;
+                        let box = keyboard ? (rendered.get(row) ?? viewport).getBoundingClientRect() : null;
 
                         menu(targets(row, false), box ? { x: box.left, y: box.bottom } : { x: event.clientX, y: event.clientY }, header(row));
                     },
@@ -3106,6 +3134,7 @@ export default ({
                     onscroll: () => {
                         // The copies are laid out against the rows as they stood; once scrolled they no longer line up.
                         settle();
+                        pins.update();
 
                         if (snapshot) {
                             snapshot.scroll = viewport!.scrollTop;

@@ -75,7 +75,7 @@ class Loader {
 
 // Stands in the row under a folder while its children load, or says why they couldn't, or that a root holds
 // nothing; the error row retries.
-const placeholder = (notice: Notice, attributes: Attributes) => html`
+const placeholder = (notice: Notice, ...attributes: Attributes[]) => html`
     <div
         class='file-tree-row file-tree-notice'
         role='treeitem'

@@ -37,6 +37,10 @@ const SMOOTHING = 0.04;
 const THRESHOLD = 4;
 
 
+// Connected containers per group name, so a drag reaches every container it can drop into.
+let groups = new Map<string, Set<HTMLElement>>();
+
+
 function child(container: HTMLElement, node: Node | null) {
     while (node && node.parentNode !== container) {
         node = node.parentNode;
@@ -49,9 +53,7 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
     let animations = new Map<HTMLElement, Animation>(),
         baseLeft = 0,
         baseTop = 0,
-        containers = group
-            ? Array.from(document.querySelectorAll<HTMLElement>(`.sortable[data-sortable-group="${CSS.escape(group)}"]`))
-            : [container],
+        containers = group ? [...(groups.get(group) ?? [container])] : [container],
         cssText = '',
         frame = 0,
         from = index(item),
@@ -464,7 +466,27 @@ function swallow(e: Event) {
 
 export default ({ group, handle, onsort }: Options = {}): Attributes => ({
     class: 'sortable',
-    ...(group && { 'data-sortable-group': group }),
+    ...(group && {
+        onconnect: (element: HTMLElement) => {
+            let members = groups.get(group);
+
+            if (!members) {
+                members = new Set();
+                groups.set(group, members);
+            }
+
+            members.add(element);
+        },
+        ondisconnect: (element: HTMLElement) => {
+            let members = groups.get(group);
+
+            members?.delete(element);
+
+            if (members?.size === 0) {
+                groups.delete(group);
+            }
+        }
+    }),
     onpointerdown: (e: PointerEvent) => {
         let container = e.currentTarget as HTMLElement;
 

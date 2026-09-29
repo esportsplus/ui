@@ -86,7 +86,8 @@ function valueOf(stat: Stat) {
 function template(this: { attributes?: Partial<A> } | void, { state, stats, ...attributes }: A) {
     let inherited = this?.attributes,
         observer: IntersectionObserver | undefined,
-        s = state ?? reactive({ stats });
+        s = state ?? reactive({ stats }),
+        started = reactive({ value: false });
 
     function card(index: number) {
         let initial = s.stats[index],
@@ -304,6 +305,7 @@ function template(this: { attributes?: Partial<A> } | void, { state, stats, ...a
             <dl
                 class='stat-counter-list'
                 ${{
+                    class: () => started.value && '--started',
                     onconnect: (element: HTMLElement) => {
                         observer = new IntersectionObserver((entries) => {
                             if (!entries.some((entry) => entry.isIntersecting)) {
@@ -311,7 +313,7 @@ function template(this: { attributes?: Partial<A> } | void, { state, stats, ...a
                             }
 
                             observer?.disconnect();
-                            element.classList.add('--started');
+                            started.value = true;
                         }, { threshold: 0.5 });
                         observer.observe(element);
                     }

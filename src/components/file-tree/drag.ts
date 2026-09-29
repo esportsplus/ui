@@ -28,7 +28,6 @@ type Row<T> = {
 };
 
 type Tree<T> = {
-    find: (id: string) => T | undefined;
     // The rows a press on 'row' drags.
     grab: (row: T) => T[];
     // The row on screen standing for a folder, which differs for one shown as a segment of a compact row.
@@ -73,10 +72,14 @@ function swallow(e: Event) {
 export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: Tree<T>) => {
     let busy = false,
         ghost: HTMLElement | undefined,
+        // Rows and compact row segments on screen, which a drag aims at.
+        rows = new Map<HTMLElement, T>(),
+        segments = new Map<HTMLElement, T>(),
         sources: T[] = [],
         // 'target' is the key of the drop folder's row, -1 for the top level, and 'folder' the folder's own, which
-        // differs for a segment of a compact row; 'last' is the key of the last row in the target's box.
-        ui = reactive({ count: 0, effect: '' as Effect, folder: 0, label: '', last: 0, target: 0 });
+        // differs for a segment of a compact row; 'last' is the key of the last row in the target's box. 'depth' is the
+        // target box's depth and 'x'/'y' where the ghost sits.
+        ui = reactive({ count: 0, depth: null as number | null, effect: '' as Effect, folder: 0, label: '', last: 0, target: 0, x: 0, y: 0 });
 
     function drag(list: T[], e: PointerEvent) {
         let active = false,
@@ -129,19 +132,21 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                     found = false;
 
                 // By height alone: a nested row starts at its indent, and the space left of it is still that row.
-                for (let node of viewport.querySelectorAll<HTMLElement>('.file-tree-row[data-id]')) {
+                for (let [node, row] of rows) {
                     let rect = node.getBoundingClientRect();
 
                     if (y >= rect.top && y < rect.bottom) {
-                        let part = [...node.querySelectorAll<HTMLElement>('[data-segment]')].find((segment) => {
-                                let box = segment.getBoundingClientRect();
+                        for (let [element, folder] of segments) {
+                            let box = element.getBoundingClientRect();
 
-                                return x >= box.left && x < box.right;
-                            }),
-                            row = tree.find(part?.dataset.segment ?? node.dataset.id!);
+                            if (node.contains(element) && x >= box.left && x < box.right) {
+                                row = folder;
+                                break;
+                            }
+                        }
 
                         found = true;
-                        next = row && (row.open ? row : row.parent);
+                        next = row.open ? row : row.parent;
                         break;
                     }
 
@@ -174,7 +179,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             let box = next && tree.host(next);
 
             if (box) {
-                viewport.style.setProperty('--drop-depth', String(box.depth));
+                ui.depth = box.depth;
 
                 if (box.open && !peek(box.open)) {
                     opening = setTimeout(expand, HOVER);
@@ -283,7 +288,8 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
         }
 
         function place() {
-            ghost?.style.setProperty('translate', `${x}px ${y}px`);
+            ui.x = x;
+            ui.y = y;
         }
 
         async function release(e: PointerEvent) {
@@ -335,9 +341,9 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                 viewport.releasePointerCapture(pointer);
             }
 
-            viewport?.style.removeProperty('--drop-depth');
             sources = [];
             target = undefined;
+            ui.depth = null;
             ui.effect = '';
             ui.folder = 0;
             ui.last = 0;
@@ -422,7 +428,8 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                     'data-effect': () => ui.effect || false,
                     onrender: (element: HTMLElement) => {
                         ghost = element;
-                    }
+                    },
+                    style: () => `translate: ${ui.x}px ${ui.y}px`
                 }}
             >
                 <span class='file-tree-drag-name'>${() => ui.label}</span>
@@ -437,6 +444,9 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
         row: (row: T): Attributes => ({
             'data-dragged': () => ui.effect !== '' && sources.includes(row) ? 'true' : false,
             'data-drop': () => mark(row),
+            ondisconnect: (element: HTMLElement) => {
+                rows.delete(element);
+            },
             onpointerdown: (e: PointerEvent) => {
                 if (busy || row.locked || e.button !== 0 || !e.isPrimary) {
                     return;
@@ -461,12 +471,25 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                 if (list.length) {
                     drag(list, e);
                 }
+            },
+            onrender: (element: HTMLElement) => {
+                rows.set(element, row);
             }
         }),
         // Marks the segment of a compact row a drop lands in.
         segment: (row: T): Attributes => ({
-            'data-drop': () => ui.folder === row.key && 'true'
-        })
+            'data-drop': () => ui.folder === row.key && 'true',
+            ondisconnect: (element: HTMLElement) => {
+                segments.delete(element);
+            },
+            onrender: (element: HTMLElement) => {
+                segments.set(element, row);
+            }
+        }),
+        // The root carries the fold motion's inline styles, so the drop depth goes on the viewport instead.
+        viewport: {
+            style: () => ui.depth !== null && `--drop-depth: ${ui.depth}`
+        } as Attributes
     };
 };
 

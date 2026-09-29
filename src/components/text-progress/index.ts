@@ -53,8 +53,8 @@ function roll(strip: string[], index: () => number) {
 
 export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...attributes }: A) => {
     let frame = 0,
-        ink: HTMLElement | undefined,
-        position = clamp(state.value),
+        ink = reactive({ position: clamp(state.value) }),
+        position = ink.position,
         stop: VoidFunction | undefined,
         target = position,
         time = 0,
@@ -89,9 +89,7 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
             frame = requestAnimationFrame(step);
         }
 
-        if (ink) {
-            ink.style.clipPath = clip(position);
-        }
+        ink.position = position;
     }
 
     return html`
@@ -105,8 +103,7 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
             role='progressbar'
             ${attributes}
             ${{
-                onconnect: (element: HTMLElement) => {
-                    ink = element.querySelector<HTMLElement>('.text-progress-ink') ?? undefined;
+                onconnect: () => {
                     stop = effect(() => {
                         target = clamp(state.value);
 
@@ -115,10 +112,7 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
                             frame = 0;
                             position = target;
                             velocity = 0;
-
-                            if (ink) {
-                                ink.style.clipPath = clip(position);
-                            }
+                            ink.position = position;
 
                             return;
                         }
@@ -139,7 +133,9 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
             <span aria-hidden='true' class='text-progress-labels'>
                 <span class='text-progress-label'>
                     <span class='text-progress-track'>${label}</span>
-                    <span class='text-progress-ink' style='${`clip-path: ${clip(position)}`}'>${label}</span>
+                    <span class='text-progress-ink' style='${() => `clip-path: ${clip(ink.position)}`}'>
+                        ${label}
+                    </span>
                 </span>
                 <span class='text-progress-done'>
                     <svg class='text-progress-check'><use href='#${check}' /></svg>

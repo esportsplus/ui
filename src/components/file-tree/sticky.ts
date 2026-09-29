@@ -56,13 +56,14 @@ function pin<T extends Node<T>>(rows: T[], offset: number, size: number, max: nu
 
 
 // Pins the folders the top rows sit in over the viewport, as VS Code's sticky scroll does; 'limit' caps how many,
-// 'true' being five. Rendered as copies inside the viewport, so the wheel still scrolls over them.
-export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number, template: (row: T) => DocumentFragment | Text) => {
+// 'true' being five. Rendered as copies inside the viewport, so the wheel still scrolls over them. 'height' is the
+// rows' height, and the viewport calls 'update' as it scrolls.
+export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number, template: (row: T) => DocumentFragment | Text, height: () => number) => {
     let frame = 0,
-        height = 0,
         max = limit === true ? MAX : limit || 0,
         pinned: Reactive<T[]> = reactive([] as T[]),
-        push = 0,
+        push = reactive({ offset: 0 }),
+        room = 0,
         size = 0,
         stack: HTMLElement | undefined,
         stop: VoidFunction | undefined,
@@ -73,12 +74,12 @@ export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number,
     }
 
     function capacity() {
-        return size ? Math.min(max, Math.floor(height * COVER / size)) : 0;
+        return size ? Math.min(max, Math.floor(room * COVER / size)) : 0;
     }
 
     function measure() {
-        height = viewport!.clientHeight;
-        size = viewport!.querySelector<HTMLElement>('.file-tree-row')?.offsetHeight ?? 0;
+        room = viewport!.clientHeight;
+        size = height();
     }
 
     // Rows change in slices and the list moves its window on the next frame, so the stack follows once it has.
@@ -111,10 +112,7 @@ export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number,
             pinned.splice(same, pinned.length - same, ...next.rows.slice(same));
         }
 
-        if (next.push !== push) {
-            push = next.push;
-            stack.style.setProperty('--sticky-push', `${push}px`);
-        }
+        push.offset = next.push;
     }
 
     return {
@@ -132,13 +130,9 @@ export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number,
                                 update();
                             });
 
-                        host.addEventListener('scroll', update, { passive: true });
                         resize.observe(host);
                         stack = element;
-                        stop = () => {
-                            host.removeEventListener('scroll', update);
-                            resize.disconnect();
-                        };
+                        stop = () => resize.disconnect();
                         viewport = host;
                     },
                     ondisconnect: () => {
@@ -147,13 +141,15 @@ export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number,
                         stop?.();
                         stop = undefined;
                         stack = viewport = undefined;
-                    }
+                    },
+                    style: () => `--sticky-push: ${push.offset}px`
                 }}
             >
                 <div class='file-tree-sticky-rows'>
                     ${html.reactive(pinned, template)}
                 </div>
             </div>
-        `
+        `,
+        update
     };
 };

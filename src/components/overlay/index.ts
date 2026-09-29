@@ -12,8 +12,12 @@ type A = Attributes<HTMLDialogElement> & {
     onclose?: never;
     onconnect?: never;
     ondisconnect?: never;
+    onfocusin?: never;
+    onfocusout?: never;
     onpointercancel?: never;
     onpointerdown?: never;
+    onpointerenter?: never;
+    onpointerleave?: never;
     onpointermove?: never;
     onpointerup?: never;
     rail?: boolean;
@@ -65,49 +69,36 @@ function direction(element: HTMLElement) {
 
 // Rails expand while a mouse or pen rests on them or keyboard focus is inside. Touch has no hover, and a tap
 // would enter and leave at once; a click that leaves focus on a link shouldn't hold the rail open either.
-function expandable(element: HTMLElement, state: { active: boolean }) {
+function expandable(state: { active: boolean }): Attributes<HTMLDialogElement> {
     let hovered = false;
 
-    function enter(e: PointerEvent) {
-        if (e.pointerType === 'touch') {
-            return;
-        }
+    return {
+        onfocusin: (e: FocusEvent) => {
+            if ((e.target as HTMLElement).matches(':focus-visible')) {
+                state.active = true;
+            }
+        },
+        onfocusout: function(this: HTMLDialogElement, e: FocusEvent) {
+            if (!this.contains(e.relatedTarget as Node | null)) {
+                state.active = hovered;
+            }
+        },
+        onpointerenter: (e: PointerEvent) => {
+            if (e.pointerType === 'touch') {
+                return;
+            }
 
-        hovered = true;
-        state.active = true;
-    }
-
-    function focusin(e: FocusEvent) {
-        if ((e.target as HTMLElement).matches(':focus-visible')) {
+            hovered = true;
             state.active = true;
+        },
+        onpointerleave: function(this: HTMLDialogElement, e: PointerEvent) {
+            if (e.pointerType === 'touch') {
+                return;
+            }
+
+            hovered = false;
+            state.active = this.matches(':has(:focus-visible)');
         }
-    }
-
-    function focusout(e: FocusEvent) {
-        if (!element.contains(e.relatedTarget as Node | null)) {
-            state.active = hovered;
-        }
-    }
-
-    function leave(e: PointerEvent) {
-        if (e.pointerType === 'touch') {
-            return;
-        }
-
-        hovered = false;
-        state.active = element.matches(':has(:focus-visible)');
-    }
-
-    element.addEventListener('focusin', focusin);
-    element.addEventListener('focusout', focusout);
-    element.addEventListener('pointerenter', enter);
-    element.addEventListener('pointerleave', leave);
-
-    return () => {
-        element.removeEventListener('focusin', focusin);
-        element.removeEventListener('focusout', focusout);
-        element.removeEventListener('pointerenter', enter);
-        element.removeEventListener('pointerleave', leave);
     };
 }
 
@@ -140,7 +131,6 @@ export default component(
     function(this, { drag = false, modal = true, rail = false, state = reactive({ active: false }), ...attributes }: A, content) {
         let draggable = drag && !rail,
             dragging: Drag | null = null,
-            release: VoidFunction | undefined,
             stop: VoidFunction | undefined;
 
         function settle(element: HTMLElement, close: boolean) {
@@ -159,7 +149,7 @@ export default component(
             <dialog
                 class='overlay'
                 ${draggable ? { class: '--draggable', tabindex: -1 } : undefined}
-                ${rail ? { class: '--rail' } : undefined}
+                ${rail ? { class: ['--rail', () => state.active && '--active'], ...expandable(state) } : undefined}
                 ${this?.attributes}
                 ${attributes}
                 ${{
@@ -178,6 +168,7 @@ export default component(
                         state.active = false;
                     },
                     onconnect: (element: HTMLDialogElement) => {
+                        // A rail never closes; hover, focus or 'state.active' only expand it, through its bound class.
                         if (rail) {
                             let previous = document.activeElement;
 
@@ -190,16 +181,12 @@ export default component(
                                 previous.focus({ preventScroll: true });
                             }
 
-                            release = expandable(element, state);
+                            return;
                         }
 
+                        // '--active' is written here rather than bound: it has to land between 'showModal()' and the
+                        // style flush that starts the transition, and closing waits on the transitions it starts.
                         stop = effect(() => {
-                            // A rail never closes; hover, focus or 'state.active' only expand it.
-                            if (rail) {
-                                element.classList.toggle('--active', state.active);
-                                return;
-                            }
-
                             if (state.active) {
                                 if (!element.open) {
                                     if (modal) {
@@ -237,7 +224,6 @@ export default component(
                         });
                     },
                     ondisconnect: () => {
-                        release?.();
                         stop?.();
                     },
                     onpointercancel: (e: PointerEvent) => {

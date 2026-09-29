@@ -22,7 +22,8 @@ type A = Attributes & {
 
 export default component(
     ({ options, state = reactive({ active: false }), ...attributes }: A, content) => {
-        let menu: HTMLElement | undefined;
+        let menu: HTMLElement | undefined,
+            placement = reactive({ style: '' });
 
         return html`
             <div
@@ -52,10 +53,11 @@ export default component(
                             y -= menu.offsetHeight;
                         }
 
-                        menu.style.left = `${x - bounds.left - this.clientLeft + this.scrollLeft}px`;
-                        menu.style.top = `${y - bounds.top - this.clientTop + this.scrollTop}px`;
-                        menu.style.transformOrigin = `${xflip ? 'right' : 'left'} ${yflip ? 'bottom' : 'top'}`;
-
+                        placement.style = `
+                            left: ${x - bounds.left - this.clientLeft + this.scrollLeft}px;
+                            top: ${y - bounds.top - this.clientTop + this.scrollTop}px;
+                            transform-origin: ${xflip ? 'right' : 'left'} ${yflip ? 'bottom' : 'top'};
+                        `;
                         state.active = true;
                     },
                     ondocumentclick: () => {
@@ -84,7 +86,8 @@ export default component(
                         inert: () => !state.active,
                         onrender: (element: HTMLElement) => {
                             menu = element;
-                        }
+                        },
+                        style: () => placement.style
                     }}
                 >
                     ${render(options, attributes[CONTEXT_OPTION])}

@@ -19,17 +19,21 @@ type A = Attributes & {
 
 export default component<A>(
     ({ state = reactive({ active: false }), toggle = false, ...attributes }, content) => {
-        let cancel: VoidFunction | undefined;
+        let cancel: VoidFunction | undefined,
+            local = reactive({ morphing: false });
 
         return html`
             <div
                 class='tooltip'
                 ${attributes}
                 ${{
-                    class: () => state.active && '--active',
-                    onanimationcancel: morphing(false),
-                    onanimationend: morphing(false),
-                    onanimationstart: morphing(true),
+                    class: [
+                        () => state.active && '--active',
+                        () => local.morphing && '--morphing'
+                    ],
+                    onanimationcancel: morphing(local, false),
+                    onanimationend: morphing(local, false),
+                    onanimationstart: morphing(local, true),
                     onclick: function(e) {
                         let active = this === e.target || toggle ? !state.active : true;
 
@@ -55,9 +59,9 @@ export default component<A>(
                             state.active = false;
                         }
                     },
-                    ontransitioncancel: morphing(false),
-                    ontransitionend: morphing(false),
-                    ontransitionrun: morphing(true)
+                    ontransitioncancel: morphing(local, false),
+                    ontransitionend: morphing(local, false),
+                    ontransitionrun: morphing(local, true)
                 }}
             >
                 ${content}

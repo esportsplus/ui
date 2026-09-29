@@ -54,46 +54,15 @@ function separator(kind: Separator) {
  * into the menu from the left, so the nearest parents stay visible longest.
  */
 const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind = 'slash', state, ...attributes }: A) => {
-    let fold: HTMLElement | undefined,
-        folded = 1,
-        id = `breadcrumb-${++uid}`,
+    let id = `breadcrumb-${++uid}`,
         last = items.length - 1,
         observer: ResizeObserver | undefined,
         root: HTMLElement | undefined,
         ruler: HTMLElement | undefined,
         s = state ?? reactive({ active: false, hidden: 0 }),
-        segments: HTMLElement[] = [];
+        view = reactive({ instant: true });
 
-    function apply(next: number, animate: boolean) {
-        if (!root || !fold) {
-            return;
-        }
-
-        folded = next;
-        s.hidden = next - 1;
-
-        if (next <= 1) {
-            s.active = false;
-        }
-
-        // The first fit lands after the trail has been styled once, so without this it would play the fold.
-        if (!animate) {
-            root.classList.add('--instant');
-        }
-
-        for (let i = 1; i < last; i++) {
-            segments[i]?.classList.toggle('--hidden', i < next);
-        }
-
-        fold.classList.toggle('--hidden', next <= 1);
-
-        if (!animate) {
-            root.getBoundingClientRect();
-            root.classList.remove('--instant');
-        }
-    }
-
-    function fit(animate: boolean) {
+    function fit() {
         if (!root || !ruler) {
             return;
         }
@@ -126,8 +95,14 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
 
         next = Math.min(next, Math.max(last, 1));
 
-        if (next !== folded) {
-            apply(next, animate);
+        if (next === s.hidden + 1) {
+            return;
+        }
+
+        s.hidden = next - 1;
+
+        if (next <= 1) {
+            s.active = false;
         }
     }
 
@@ -150,12 +125,19 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
             ${attributes}
             ${{
                 'aria-label': label,
+                class: () => view.instant && '--instant',
                 onconnect: (element: HTMLElement) => {
                     root = element;
-                    fit(false);
+                    fit();
+
+                    // The first fit lands after the trail has been styled once, so '--instant' holds until that
+                    // fit has painted or it would play the fold. Bindings flush on a later frame than the write.
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        view.instant = false;
+                    }));
 
                     // Also catches webfonts landing late, since they resize the ruler.
-                    observer = new ResizeObserver(() => fit(true));
+                    observer = new ResizeObserver(fit);
                     observer.observe(element);
 
                     if (ruler) {
@@ -184,10 +166,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
 
             <ol class='breadcrumb-list'>
                 ${items.map((item, index) => html`
-                    <li
-                        class='breadcrumb-segment ${index === last && 'breadcrumb-segment--current'}'
-                        ${{ onrender: (element: HTMLElement) => { segments[index] = element; } }}
-                    >
+                    <li class='breadcrumb-segment ${index === last && 'breadcrumb-segment--current'} ${() => index > 0 && index < last && index <= s.hidden && '--hidden'}'>
                         <div class='breadcrumb-segment-body'>
                             ${index > 0 && separator(kind)}
                             ${index === last
@@ -209,10 +188,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                         </div>
                     </li>
                     ${index === 0 && html`
-                        <li
-                            class='breadcrumb-segment breadcrumb-fold --hidden'
-                            ${{ onrender: (element: HTMLElement) => { fold = element; } }}
-                        >
+                        <li class='breadcrumb-segment breadcrumb-fold ${() => s.hidden <= 0 && '--hidden'}'>
                             <div class='breadcrumb-segment-body'>
                                 ${separator(kind)}
                                 ${tooltip.menu(

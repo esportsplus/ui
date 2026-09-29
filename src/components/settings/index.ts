@@ -15,8 +15,12 @@ type A = Attributes<HTMLDialogElement> & {
     onclose?: never;
     onconnect?: never;
     ondisconnect?: never;
+    onfocusin?: never;
+    onfocusout?: never;
     onpointercancel?: never;
     onpointerdown?: never;
+    onpointerenter?: never;
+    onpointerleave?: never;
     onpointermove?: never;
     onpointerup?: never;
     state?: State;

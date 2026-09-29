@@ -270,7 +270,7 @@ export default component(
                 number: reactive({ active: false, error: '' })
             },
             id = `cc-${++uid}`,
-            local = reactive({ confirmed: false }),
+            local = reactive({ confirmed: false, ring: false }),
             parts = { ...this?.attributes?.[CC_FIELD], ...attributes[CC_FIELD] },
             reduced = matchMedia('(prefers-reduced-motion: reduce)'),
             regions: Partial<Record<Field, HTMLElement>> = {},
@@ -340,14 +340,15 @@ export default component(
             }
 
             if (!region) {
-                ring.classList.remove('--active');
+                local.ring = false;
                 return;
             }
 
             let style = `height: ${region.offsetHeight + 12}px; left: ${region.offsetLeft - 8}px; top: ${region.offsetTop - 6}px; width: ${region.offsetWidth + 16}px;`;
 
-            // Coming from nowhere it appears in place; only a move between fields slides.
-            if (!ring.classList.contains('--active') || reduced.matches) {
+            // Coming from nowhere it appears in place; only a move between fields slides. Written straight to the
+            // element because the transition has to be off for exactly one style flush.
+            if (!local.ring || reduced.matches) {
                 ring.style.cssText = `${style} transition-property: opacity;`;
                 ring.getBoundingClientRect();
                 ring.style.removeProperty('transition-property');
@@ -356,7 +357,7 @@ export default component(
                 ring.style.cssText = style;
             }
 
-            ring.classList.add('--active');
+            local.ring = true;
         }
 
         function set(field: Field, value: string) {
@@ -429,7 +430,10 @@ export default component(
                 <div aria-hidden='true' class='cc-preview'>
                     <div class='cc-card ${() => focused() === 'cvc' && '--flipped'}'>
                         <div class='cc-face cc-face--front'>
-                            <span class='cc-ring' ${{ onrender: (element: HTMLElement) => { ring = element; } }}></span>
+                            <span
+                                class='cc-ring ${() => local.ring && '--active'}'
+                                ${{ onrender: (element: HTMLElement) => { ring = element; } }}
+                            ></span>
                             <div class='cc-face-top'>
                                 <svg class='cc-chip'><use href='#${chip}' /></svg>
                                 ${mark(brand, 'large')}

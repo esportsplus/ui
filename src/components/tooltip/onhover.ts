@@ -79,18 +79,19 @@ function safe(element: HTMLElement, x: number, y: number) {
         left = Math.min(x, box.left),
         points = hull([[x, y], [box.left, box.top], [box.right, box.top], [box.right, box.bottom], [box.left, box.bottom]]),
         polygon = '',
-        style = element.style,
         top = Math.min(y, box.top);
 
     for (let i = 0, n = points.length; i < n; i++) {
         polygon += `${i ? ', ' : ''}${points[i][0] - left}px ${points[i][1] - top}px`;
     }
 
-    style.setProperty('--safe-area', `polygon(${polygon})`);
-    style.setProperty('--safe-height', `${Math.max(y, box.bottom) - top}px`);
-    style.setProperty('--safe-left', `${left - rect.left - element.clientLeft}px`);
-    style.setProperty('--safe-top', `${top - rect.top - element.clientTop}px`);
-    style.setProperty('--safe-width', `${Math.max(x, box.right) - left}px`);
+    return `
+        --safe-area: polygon(${polygon});
+        --safe-height: ${Math.max(y, box.bottom) - top}px;
+        --safe-left: ${left - rect.left - element.clientLeft}px;
+        --safe-top: ${top - rect.top - element.clientTop}px;
+        --safe-width: ${Math.max(x, box.right) - left}px;
+    `;
 }
 
 
@@ -98,10 +99,10 @@ function safe(element: HTMLElement, x: number, y: number) {
 // '.tooltip-content' or '.tooltip-message'.
 function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state = reactive({ active: false }) }: Options = {}) {
     let leaving: ReturnType<typeof setTimeout> | undefined,
-        local = reactive({ instant: false }),
+        local = reactive({ instant: false, morphing: false, safe: '' }),
         morphed: VoidFunction | undefined,
         pending: VoidFunction | undefined,
-        settled = morphing(false),
+        settled = morphing(local, false),
         x = 0,
         y = 0;
 
@@ -152,10 +153,13 @@ function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state 
     });
 
     return {
-        class: () => state.active && (local.instant ? '--active --instant' : '--active'),
+        class: [
+            () => state.active && (local.instant ? '--active --instant' : '--active'),
+            () => local.morphing && '--morphing'
+        ],
         onanimationcancel: settled,
         onanimationend: settled,
-        onanimationstart: morphing(true),
+        onanimationstart: morphing(local, true),
         // On the document, so Escape dismisses a hovered tooltip wherever focus is.
         ondocumentkeydown: (e: KeyboardEvent) => {
             if (e.key === 'Escape' && (state.active || pending)) {
@@ -207,7 +211,7 @@ function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state 
             y = e.clientY;
 
             if (state.active) {
-                safe(element, x, y);
+                local.safe = safe(element, x, y) ?? local.safe;
             }
         },
         ontransitioncancel: settled,
@@ -216,10 +220,11 @@ function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state 
             settled(e);
 
             if (state.active) {
-                safe(e.currentTarget as HTMLElement, x, y);
+                local.safe = safe(e.currentTarget as HTMLElement, x, y) ?? local.safe;
             }
         },
-        ontransitionrun: morphing(true)
+        ontransitionrun: morphing(local, true),
+        style: () => local.safe
     };
 }
 

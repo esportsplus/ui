@@ -79,9 +79,11 @@ export default component(
             active = reactive(
                 Object.fromEntries( keys.map(key => [key, false]) ) as Record<string, boolean>
             ),
+            drum = reactive({ half: 0, offset: 0 }),
             height = 0,
             id = `datalist-${++uid}`,
             observer: ResizeObserver | undefined,
+            option: HTMLElement | undefined,
             previous: string | undefined,
             scroller: HTMLElement | undefined,
             timeline = typeof CSS !== 'undefined' && CSS.supports('animation-timeline: view()'),
@@ -92,8 +94,6 @@ export default component(
         }
 
         function measure() {
-            let option = scroller?.querySelector<HTMLElement>('.datalist-option');
-
             if (!scroller || !option) {
                 return;
             }
@@ -110,7 +110,7 @@ export default component(
                 return;
             }
 
-            scroller.style.setProperty('--half', `${scroller.clientHeight / 2 / height}`);
+            drum.half = scroller.clientHeight / 2 / height;
             paint();
         }
 
@@ -139,7 +139,7 @@ export default component(
                 return;
             }
 
-            scroller!.style.setProperty('--offset', `${scroller!.scrollTop / height}`);
+            drum.offset = scroller!.scrollTop / height;
         }
 
         function scrollTo(index: number) {
@@ -225,7 +225,8 @@ export default component(
                             e.preventDefault();
                             scrollTo(index);
                         },
-                        onscroll
+                        onscroll,
+                        style: () => drum.half && `--half: ${drum.half}; --offset: ${drum.offset};`
                     }}
                 >
                     <div class='datalist-track'>
@@ -239,7 +240,10 @@ export default component(
                                 ${attributes[DATALIST_OPTION]}
                                 ${{
                                     'aria-selected': () => active[key] ? 'true' : 'false',
-                                    onclick: () => scrollTo(index)
+                                    onclick: () => scrollTo(index),
+                                    onrender: (element: HTMLElement) => {
+                                        option ??= element;
+                                    }
                                 }}
                             >
                                 ${options[key]}

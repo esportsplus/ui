@@ -32,6 +32,7 @@ type A = Attributes & {
 export default component(
     ({ options, state = reactive({ active: false }), ...attributes }: A, content) => {
         let { direction = 'nw', ...tooltipContent } = attributes[MENU_TOOLTIP_CONTENT] ?? {},
+            elements: HTMLElement[] = [],
             keyboard = false,
             menu: HTMLElement | undefined,
             trigger: HTMLElement | undefined;
@@ -52,7 +53,7 @@ export default component(
         }
 
         function items() {
-            return menu ? [...menu.querySelectorAll<HTMLElement>('[role="menuitem"]:not([hidden])')] : [];
+            return elements.filter((element) => !element.hidden);
         }
 
         function move(step: number) {
@@ -166,7 +167,7 @@ export default component(
                     }}
                 >
                     ${render(
-                        options.map(({ onclick, ...option }) => ({
+                        options.map(({ onclick, onrender, ...option }, index) => ({
                             ...option,
                             // Also keeps the click from reaching the tooltip's own toggle, which would reopen it.
                             onclick: function(this: HTMLElement, e: PointerEvent) {
@@ -179,6 +180,10 @@ export default component(
                                 if (e.pointerType !== 'touch' && document.activeElement !== element) {
                                     element.focus({ preventScroll: true });
                                 }
+                            },
+                            onrender: (element: HTMLElement) => {
+                                elements[index] = element;
+                                onrender?.(element);
                             },
                             role: 'menuitem',
                             tabindex: '-1'
