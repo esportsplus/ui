@@ -153,10 +153,6 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Scroll-linked page indicator whose active pill stretches between dots like a worm, with an optional autoplay countdown.'
     },
-    'plan-card': {
-        category: 'Display',
-        description: 'A plan an agent is asking to run: to-dos that fold behind "N more", and an auto-approve countdown you can cancel or beat with ⌘↵ (Kobra).'
-    },
     progress: {
         category: 'Display',
         description: 'Progress bar with an optional label, percentage, and a status line derived from the value.'
@@ -172,10 +168,6 @@ const meta: Record<string, Meta> = {
     range: {
         category: 'Form Controls',
         description: 'Slider input for choosing a value along a track, plus single and dual-thumb range filters with rolling digits, a ghost preview, and optional min/max fields.'
-    },
-    'reading-progress': {
-        category: 'Display',
-        description: 'Quantized scroll progress through an article with a minutes-remaining readout.'
     },
     'relative-time': {
         category: 'Display',

@@ -36,12 +36,10 @@ import overlay from './overlay';
 import page from './page';
 import pageDots from './page-dots';
 import pagination from './pagination';
-import planCard from './plan-card';
 import progress from './progress';
 import pullToRefresh from './pull-to-refresh';
 import radio from './radio';
 import range from './range';
-import readingProgress from './reading-progress';
 import relativeTime from './relative-time';
 import scrollbar from './scrollbar';
 import scrubInput from './scrub-input';
@@ -121,12 +119,10 @@ const entries: Entry[] = [
     page,
     pageDots,
     pagination,
-    planCard,
     progress,
     pullToRefresh,
     radio,
     range,
-    readingProgress,
     relativeTime,
     scrollbar,
     scrubInput,
