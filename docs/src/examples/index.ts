@@ -43,7 +43,6 @@ import radio from './radio';
 import range from './range';
 import readingProgress from './reading-progress';
 import relativeTime from './relative-time';
-import scrollSpine from './scroll-spine';
 import scrollbar from './scrollbar';
 import scrubInput from './scrub-input';
 import select from './select';
@@ -129,7 +128,6 @@ const entries: Entry[] = [
     range,
     readingProgress,
     relativeTime,
-    scrollSpine,
     scrollbar,
     scrubInput,
     select,

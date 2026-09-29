@@ -181,10 +181,6 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Self-updating "5 min ago" time element that rolls its digits as they change, with the full date on hover.'
     },
-    'scroll-spine': {
-        category: 'Layout',
-        description: 'Table of contents drawn to scale, with bands that fill as you read and a marker that stretches between sections.'
-    },
     scrollbar: {
         category: 'Layout',
         description: 'Native scrollbar styling with thin, token-driven colors, plus edge fades and blurs that track the scroll position.'
