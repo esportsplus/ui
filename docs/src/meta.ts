@@ -94,6 +94,10 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Headless filter controller: bring your own triggers and layout, and matching items shift, scale, and fade into place.'
     },
+    frame: {
+        category: 'Layout',
+        description: 'Sibling frames sharing one spot, one shown at a time: instant, horizontal slide, vertical scroll, or an in-place swap that drifts in from its side (the tooltip.shared swap), shareable by any component.'
+    },
     grid: {
         category: 'Layout',
         description: 'Responsive auto-fit grid for arranging children.'

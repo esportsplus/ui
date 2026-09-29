@@ -20,6 +20,7 @@ import datalist from './datalist';
 import dock from './dock';
 import fileTree from './file-tree';
 import filter from './filter';
+import frame from './frame';
 import grid from './grid';
 import heatmap from './heatmap';
 import highlight from './highlight';
@@ -96,6 +97,7 @@ const entries: Entry[] = [
     dock,
     fileTree,
     filter,
+    frame,
     grid,
     heatmap,
     highlight,
