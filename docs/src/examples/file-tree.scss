@@ -19,6 +19,80 @@
         margin: 0;
     }
 
+    &-history {
+        color: var(--color-text-300);
+        font-size: 13px;
+        margin: 0;
+        max-width: 100%;
+        min-height: 20px;
+        padding-left: 20px;
+        width: 384px;
+
+        .--undone {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+    }
+
+    // Classed as a tree so its samples take the tree's tones and badge styles.
+    &-legend {
+        display: grid;
+        gap: var(--size-400) var(--size-600);
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        width: 100%;
+
+        &.file-tree {
+            height: auto;
+        }
+
+        &-list {
+            align-items: center;
+            display: grid;
+            gap: var(--size-100) var(--size-200);
+            grid-template-columns: max-content 1fr;
+            margin: 0;
+
+            dd {
+                color: var(--color-text-300);
+                margin: 0;
+            }
+
+            dt {
+                display: flex;
+                justify-content: center;
+
+                // A row pushes its badge to the far end; here it sits centered in its column.
+                .file-tree-badge {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+        }
+
+        &-name[data-tone='deleted'] {
+            text-decoration: line-through;
+        }
+
+        &-title {
+            font-size: var(--font-size-300);
+            font-weight: var(--font-weight-500);
+            margin: 0 0 var(--size-100);
+        }
+    }
+
+    // Framed like the tree below it; the input itself is bare.
+    &-search.input {
+        --background-default: var(--color-white-300);
+        --border-color-default: var(--color-border-300);
+        --border-width: 1px;
+        --font-size: var(--font-size-300);
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-200);
+        flex: none;
+        max-width: 100%;
+        width: 384px;
+    }
+
     &-stack {
         align-items: center;
         display: flex;

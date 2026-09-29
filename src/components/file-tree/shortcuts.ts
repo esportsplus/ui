@@ -1,4 +1,4 @@
-type Command = 'all' | 'clear' | 'copy' | 'cut' | 'delete' | 'duplicate' | 'paste' | 'path' | 'relative' | 'toggle' | 'trash';
+type Command = 'all' | 'clear' | 'copy' | 'cut' | 'delete' | 'duplicate' | 'paste' | 'path' | 'redo' | 'relative' | 'toggle' | 'trash' | 'undo';
 
 
 const EXTEND = new Set(['ArrowDown', 'ArrowUp', 'End', 'Home', 'PageDown', 'PageUp']);
@@ -25,6 +25,10 @@ function command(event: KeyboardEvent): Command | null {
         return 'clear';
     }
 
+    if (mod && event.key.toLowerCase() === 'z') {
+        return event.shiftKey ? 'redo' : 'undo';
+    }
+
     if (!mod || event.shiftKey) {
         return null;
     }
@@ -42,6 +46,8 @@ function command(event: KeyboardEvent): Command | null {
             return 'paste';
         case 'x':
             return 'cut';
+        case 'y':
+            return 'redo';
     }
 
     return null;

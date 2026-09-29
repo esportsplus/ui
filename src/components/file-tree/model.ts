@@ -2,12 +2,21 @@ import type { FileTreeElement as Element } from '.';
 
 
 type Change = {
+    // The place among the folder's children the change is at: of the first element added, or where one was moved to,
+    // renamed or removed from.
+    at: number;
+    // The elements added, or the one moved, removed or renamed, as the store holds it now.
+    elements: Element[];
     // The folder a move left; null at the top level.
     from?: string | null;
     // Every id the change touched: the element's and all those inside it, whose paths a rename or move changes too.
     ids: string[];
+    // The place a move left among the children of 'from'.
+    origin?: number;
     // The folder whose children changed; null at the top level.
     parent: string | null;
+    // The name a rename replaced.
+    previous?: string;
     type: 'add' | 'move' | 'remove' | 'rename';
 };
 
@@ -115,6 +124,8 @@ class Elements {
             return false;
         }
 
+        let start = Math.min(at ?? list.length, list.length);
+
         // Pushed one by one when appending, since a loaded folder can hold more than a spread may pass.
         if (at === undefined) {
             for (let i = 0, n = added.length; i < n; i++) {
@@ -122,12 +133,12 @@ class Elements {
             }
         }
         else {
-            list.splice(at, 0, ...added);
+            list.splice(start, 0, ...added);
         }
 
         walk(added, parent, this.index);
 
-        return this.notify({ ids, parent, type: 'add' });
+        return this.notify({ at: start, elements: added, ids, parent, type: 'add' });
     }
 
     get(id: string) {
@@ -155,13 +166,17 @@ class Elements {
             return false;
         }
 
-        let source = this.list(from)!;
+        let source = this.list(from)!,
+            origin = source.indexOf(entry.element);
 
-        source.splice(source.indexOf(entry.element), 1);
-        target.splice(at ?? target.length, 0, entry.element);
+        source.splice(origin, 1);
+
+        let to = Math.min(at ?? target.length, target.length);
+
+        target.splice(to, 0, entry.element);
         entry.parent = parent;
 
-        return this.notify({ from, ids: collect(entry.element, []), parent, type: 'move' });
+        return this.notify({ at: to, elements: [entry.element], from, ids: collect(entry.element, []), origin, parent, type: 'move' });
     }
 
     remove(id: string) {
@@ -172,15 +187,16 @@ class Elements {
         }
 
         let ids = collect(entry.element, []),
-            list = this.list(entry.parent)!;
+            list = this.list(entry.parent)!,
+            at = list.indexOf(entry.element);
 
-        list.splice(list.indexOf(entry.element), 1);
+        list.splice(at, 1);
 
         for (let i = 0, n = ids.length; i < n; i++) {
             this.index.delete(ids[i]);
         }
 
-        return this.notify({ ids, parent: entry.parent, type: 'remove' });
+        return this.notify({ at, elements: [entry.element], ids, parent: entry.parent, type: 'remove' });
     }
 
     rename(id: string, name: string) {
@@ -191,12 +207,14 @@ class Elements {
         }
 
         let element = { ...entry.element, name },
-            list = this.list(entry.parent)!;
+            list = this.list(entry.parent)!,
+            at = list.indexOf(entry.element),
+            previous = entry.element.name;
 
-        list[list.indexOf(entry.element)] = element;
+        list[at] = element;
         entry.element = element;
 
-        return this.notify({ ids: collect(element, []), parent: entry.parent, type: 'rename' });
+        return this.notify({ at, elements: [element], ids: collect(element, []), parent: entry.parent, previous, type: 'rename' });
     }
 
     subscribe(listener: Listener) {

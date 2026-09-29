@@ -34,8 +34,24 @@
     --empty-color: var(--color-text-300);
     --error-color: var(--color-red-400);
     --expand-duration: 0.25s;
+    // The find bar over the tree's top corner; the offset keeps it clear of the scrollbar.
+    --find-background: var(--color-white-300);
+    --find-border-color: var(--color-border-300);
+    --find-button-size: var(--size-500);
+    --find-gap: 2px;
+    --find-input-width: calc(var(--size-900) * 2);
+    --find-note-color: var(--color-text-300);
+    --find-note-font-size: var(--font-size-200);
+    --find-offset: var(--size-300);
+    --find-padding: 3px;
+    --find-radius: var(--border-radius-300);
+    --find-shadow: var(--box-shadow-300);
     --focus-color: oklch(from var(--color-text-500) l c h / 0.38);
     --font-size: var(--font-size-300);
+    // Rows the find bar matches; the current one is outlined.
+    --found-background: color-mix(in srgb, var(--found-color) 14%, transparent);
+    --found-border-color: color-mix(in srgb, var(--found-color) 70%, transparent);
+    --found-color: oklch(from var(--color-yellow-500) 0.72 c calc(h - 35));
     --icon-size: var(--size-400);
     --ignored-color: var(--color-text-300);
     // Past '--padding' plus half '--twistie-size', so a nested row, and the highlight on it, starts clear of its
@@ -52,6 +68,11 @@
     // The symlink and read-only glyphs beside the name.
     --marker-color: var(--color-text-300);
     --marker-size: var(--size-300);
+    // Characters a fuzzy query matched: heavier, on a faint wash, in whatever color the name's git tone gives it.
+    --match-background: color-mix(in srgb, var(--color-primary-400) 18%, transparent);
+    --match-color: inherit;
+    --match-font-weight: var(--font-weight-600);
+    --match-radius: var(--border-radius-100);
     // Opaque, since it covers the rows below the input.
     --message-background: color-mix(in srgb, var(--error-color) 10%, var(--input-background));
     --message-font-size: var(--font-size-200);
@@ -63,10 +84,15 @@
     --padding: var(--size-100);
     --reveal-delay: 0.05s;
     --reveal-duration: 0.2s;
+    --root-font-size: var(--font-size-200);
+    --root-font-weight: var(--font-weight-600);
     --row-height: 22px;
     --row-radius: var(--border-radius-300);
     // How much of a scope's color tints its rows; faint, so git colors and the highlight still read over it.
     --scope-tint: 12%;
+    // The slash between a compact row's folders.
+    --separator-color: var(--color-text-300);
+    --separator-gap: 1px;
     --staged-padding: 3px;
     --staged-radius: var(--border-radius-100);
     --staged-tint: 18%;
@@ -89,6 +115,10 @@
         --background-hover: inherit;
         --glide-duration: 0.3s;
         --glide-duration-active: 0s;
+    }
+
+    &-find-icon.icon {
+        --size: var(--size-300);
     }
 
     &-icon.icon {

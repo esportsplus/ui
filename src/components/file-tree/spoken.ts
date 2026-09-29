@@ -4,6 +4,7 @@ import type { Decoration, Tone } from './decorations';
 type Subject = {
     name: string;
     readonly?: boolean;
+    root?: boolean;
     symlink?: boolean;
 };
 
@@ -29,6 +30,7 @@ export default (subject: Subject, decoration?: Decoration, lines: number[] = [0,
     let editor = decoration?.editor,
         words = [
             subject.name,
+            subject.root ? 'root folder' : '',
             subject.symlink ? 'symbolic link' : '',
             subject.readonly ? 'read-only' : '',
             decoration?.staged ? `staged ${decoration.staged}` : '',

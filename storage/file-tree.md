@@ -10,7 +10,7 @@ Tick to approve. Status: ✅ built · ◐ partial · — missing. Sources: VS Co
 - [✅] **Chevrons** — rotate on open; files keep the column for alignment.
 - [✅] **File & folder icons** — per-element icon function (by extension, open/closed).
 - [✅] **Named folder icons** — distinct icons for `src`, `test`, `.git`, `node_modules`, `docs`, `dist`, `public`, `assets`, `components`, `scripts`.
-- [ ] **Compact folders** — single-child folder chains shown as one row, `src/components` (VSC, Zed, JB). —
+- [✅] **Compact folders** — single-child folder chains shown as one row, `src/components`, each segment clickable and a drop target (VSC, Zed, JB).
 - [ ] **File nesting** — pattern rules tuck related files under a parent, `package-lock.json` under `package.json` (VSC). —
 - [✅] **Sticky scroll** — ancestor folders pin to the top while scrolling, pushed up by the next subtree (VSC, Zed).
 - [✅] **Expand/collapse animation** — accordion edge with fade; instant under reduced motion.
@@ -21,7 +21,7 @@ Tick to approve. Status: ✅ built · ◐ partial · — missing. Sources: VS Co
 - [✅] **Loading row** — spinner while a folder's children load.
 - [✅] **Error row** — folder that failed to read shows why; retry by reopening.
 - [✅] **Right-to-left** — mirrored layout and arrow keys.
-- [ ] **Multi-root** — several roots, each with a header row (VSC workspaces). —
+- [✅] **Multi-root** — `roots`: several roots, each with a collapsible header row (VSC workspaces).
 - [✅] **Scope colors** — tint rows by scope, e.g. tests green (JB).
 
 ## Sorting & filtering
@@ -32,8 +32,8 @@ Tick to approve. Status: ✅ built · ◐ partial · — missing. Sources: VS Co
 - [✅] **Hide dotfiles** toggle (Zed).
 - [✅] **Hide gitignored** toggle (Zed); dimmed otherwise.
 - [✅] **Exclude patterns** — glob list never shown (VSC `files.exclude`).
-- [ ] **Find/filter widget** — type to filter or highlight matches, keeps ancestors (VSC Ctrl+Alt+F). —
-- [ ] **Fuzzy match highlight** — matched characters bolded in names. —
+- [✅] **Find/filter widget** — Ctrl+Alt+F bar: highlight or filter matches, keeps ancestors, searches unopened folders (VSC).
+- [✅] **Fuzzy match highlight** — matched characters bolded in names; `highlight` prop or the find bar.
 
 ## Decorations
 
@@ -79,7 +79,7 @@ Tick to approve. Status: ✅ built · ◐ partial · — missing. Sources: VS Co
 - [✅] **Drag & drop** — move, Alt copies, folders open on hover, confirm hook.
 - [ ] **Drop from OS** — import files dragged in from the desktop. —
 - [ ] **Drag to editor/terminal** — drop a file into other panels. —
-- [ ] **Undo / redo** file operations (Zed). —
+- [✅] **Undo / redo** file operations — `FileTreeHistory` over the store, Ctrl+Z / Ctrl+Shift+Z (Zed).
 - [✅] **Copy path / relative path**.
 - [ ] **Compare two files** — diff selected pair (Zed). —
 - [✅] **Context menu hook** — right-click callback with selected elements.

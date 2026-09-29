@@ -31,9 +31,13 @@ type Tree<T> = {
     find: (id: string) => T | undefined;
     // The rows a press on 'row' drags.
     grab: (row: T) => T[];
+    // The row on screen standing for a folder, which differs for one shown as a segment of a compact row.
+    host: (row: T) => T;
     // The last row on screen inside a folder, or the folder itself when closed.
     last: (row: T) => T;
     open: (row: T) => void;
+    // Whether the space past the last row drops into the top level; a tree of roots holds nothing else there.
+    top: boolean;
     viewport: () => HTMLElement | undefined;
 };
 
@@ -70,8 +74,9 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
     let busy = false,
         ghost: HTMLElement | undefined,
         sources: T[] = [],
-        // 'target' is the drop folder's key, -1 for the top level; 'last' the key of the last row in its box.
-        ui = reactive({ count: 0, effect: '' as Effect, label: '', last: 0, target: 0 });
+        // 'target' is the key of the drop folder's row, -1 for the top level, and 'folder' the folder's own, which
+        // differs for a segment of a compact row; 'last' is the key of the last row in the target's box.
+        ui = reactive({ count: 0, effect: '' as Effect, folder: 0, label: '', last: 0, target: 0 });
 
     function drag(list: T[], e: PointerEvent) {
         let active = false,
@@ -128,7 +133,12 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                     let rect = node.getBoundingClientRect();
 
                     if (y >= rect.top && y < rect.bottom) {
-                        let row = tree.find(node.dataset.id!);
+                        let part = [...node.querySelectorAll<HTMLElement>('[data-segment]')].find((segment) => {
+                                let box = segment.getBoundingClientRect();
+
+                                return x >= box.left && x < box.right;
+                            }),
+                            row = tree.find(part?.dataset.segment ?? node.dataset.id!);
 
                         found = true;
                         next = row && (row.open ? row : row.parent);
@@ -161,20 +171,23 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             target = next;
             clearTimeout(opening);
 
-            if (next) {
-                viewport.style.setProperty('--drop-depth', String(next.depth));
+            let box = next && tree.host(next);
 
-                if (next.open && !peek(next.open)) {
+            if (box) {
+                viewport.style.setProperty('--drop-depth', String(box.depth));
+
+                if (box.open && !peek(box.open)) {
                     opening = setTimeout(expand, HOVER);
                 }
             }
 
-            ui.last = next ? tree.last(next).key : 0;
-            ui.target = next ? next.key : next === null ? -1 : 0;
+            ui.folder = next ? next.key : 0;
+            ui.last = box ? tree.last(box).key : 0;
+            ui.target = box ? box.key : next === null ? -1 : 0;
         }
 
         function allowed(folder: T | null) {
-            if (folder?.locked) {
+            if (folder === null ? !tree.top : folder.locked) {
                 return false;
             }
 
@@ -217,8 +230,10 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                 return;
             }
 
-            tree.open(target);
-            ui.last = tree.last(target).key;
+            let box = tree.host(target);
+
+            tree.open(box);
+            ui.last = tree.last(box).key;
         }
 
         function key(e: KeyboardEvent) {
@@ -324,6 +339,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             sources = [];
             target = undefined;
             ui.effect = '';
+            ui.folder = 0;
             ui.last = 0;
             ui.target = 0;
         }
@@ -446,6 +462,10 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                     drag(list, e);
                 }
             }
+        }),
+        // Marks the segment of a compact row a drop lands in.
+        segment: (row: T): Attributes => ({
+            'data-drop': () => ui.folder === row.key && 'true'
         })
     };
 };

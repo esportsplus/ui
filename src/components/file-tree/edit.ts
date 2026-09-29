@@ -14,9 +14,10 @@ type Draft<R> = {
     message: Signal<string>;
     // The folder the name lands in; null at the top level.
     parent: R | null;
+    // The characters selected as the input last left the page, restored when it's rendered again, as when its row
+    // scrolls back into view or is rebuilt; null until it first shows, when the stem is selected.
+    range: [number, number] | null;
     row: R;
-    // The stem is selected when the input first shows; the row scrolling back into view leaves the caret be.
-    selected: boolean;
     value: string;
 };
 
@@ -94,13 +95,14 @@ function field<R>(draft: Draft<R>, id: string, on: Handlers) {
                 // Shadows the row's own click, which would activate it.
                 onclick: () => {},
                 onconnect: (element: HTMLInputElement) => {
+                    let [start, end] = draft.range ?? [0, stem(draft.value, draft.kind)];
+
                     element.value = draft.value;
                     element.focus({ preventScroll: true });
-
-                    if (!draft.selected) {
-                        draft.selected = true;
-                        element.setSelectionRange(0, stem(draft.value, draft.kind));
-                    }
+                    element.setSelectionRange(start, end);
+                },
+                ondisconnect: (element: HTMLInputElement) => {
+                    draft.range = [element.selectionStart ?? 0, element.selectionEnd ?? 0];
                 },
                 oninput: (event: Event) => {
                     on.input((event.currentTarget as HTMLInputElement).value);

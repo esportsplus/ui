@@ -5,7 +5,8 @@ import type { FileTreeElement as Element } from '.';
 
 type Load = (element: Element) => Promise<Element[]>;
 
-type Notice = { reason: string; type: 'error' } | { type: 'loading' };
+// 'empty' stands under an open root holding nothing.
+type Notice = { reason: string; type: 'error' } | { type: 'empty' | 'loading' };
 
 type Settled = (id: string, children: Element[] | null) => void;
 
@@ -72,12 +73,13 @@ class Loader {
 }
 
 
-// Stands in the row under a folder while its children load, or says why they couldn't; the error row retries.
+// Stands in the row under a folder while its children load, or says why they couldn't, or that a root holds
+// nothing; the error row retries.
 const placeholder = (notice: Notice, attributes: Attributes) => html`
     <div
         class='file-tree-row file-tree-notice'
         role='treeitem'
-        ${notice.type === 'error' ? { 'data-tone': 'error' } : { 'aria-busy': 'true' }}
+        ${notice.type === 'error' ? { 'data-tone': 'error' } : notice.type === 'loading' ? { 'aria-busy': 'true' } : undefined}
         ${attributes}
     >
         <span aria-hidden='true' class='file-tree-twistie'></span>
@@ -86,10 +88,12 @@ const placeholder = (notice: Notice, attributes: Attributes) => html`
                 <span class='file-tree-name' title='${notice.reason}'>${notice.reason}</span>
                 <span class='file-tree-badge'>Retry</span>
             `
-            : html`
-                ${loading({ 'aria-hidden': 'true', class: 'file-tree-spinner' })}
-                <span class='file-tree-name'>Loading…</span>
-            `}
+            : notice.type === 'loading'
+                ? html`
+                    ${loading({ 'aria-hidden': 'true', class: 'file-tree-spinner' })}
+                    <span class='file-tree-name'>Loading…</span>
+                `
+                : html`<span class='file-tree-name'>No files</span>`}
     </div>
 `;
 

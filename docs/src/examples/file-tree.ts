@@ -1,14 +1,24 @@
 import { reactive } from '@esportsplus/reactivity';
-import { html } from '@esportsplus/template';
-import { fileTree, FileTreeDecorations, FileTreeEditor, FileTreeElements } from '@esportsplus/ui';
+import { html, type Renderable } from '@esportsplus/template';
+import { fileTree, FileTreeDecorations, FileTreeEditor, FileTreeElements, FileTreeHistory, icon, input } from '@esportsplus/ui';
+import symlink from '@esportsplus/ui/svg/corner-down-right.svg';
+import lock from '@esportsplus/ui/svg/lock.svg';
 import type {
     FileTreeController,
     FileTreeElement,
+    FileTreeHistoryOperation,
     FileTreeSnapshot,
     FileTreeSortCase,
     FileTreeSortOrder
 } from '~/components/file-tree';
 import './file-tree.scss';
+
+
+type Legend = {
+    label: string;
+    // Built per render, since a rendered sample can't be shown in two places at once.
+    sample: () => Renderable<unknown>;
+};
 
 
 const CASES: FileTreeSortCase[] = ['insensitive', 'upper', 'lower'];
@@ -55,6 +65,57 @@ const ELEMENTS: FileTreeElement[] = [
 
 
 const EXCLUDE = ['**/node_modules', '**/*.log'];
+
+// Samples drawn with the tree's own markup and tones, so the legend reads exactly as the rows do.
+const LEGEND: { entries: Legend[]; title: string }[] = [
+    {
+        entries: [
+            letter('U', 'Untracked', 'added'),
+            letter('A', 'Added', 'added'),
+            letter('M', 'Modified', 'modified'),
+            letter('D', 'Deleted', 'deleted'),
+            letter('R', 'Renamed', 'added'),
+            letter('!', 'Conflict', 'conflict'),
+            letter('S', 'Submodule', 'submodule'),
+            letter('M', 'Staged; beside the unstaged letter when both', 'modified', { staged: true })
+        ],
+        title: 'Git letters'
+    },
+    {
+        entries: [
+            letter('+12', 'Lines added; folders total their contents', 'additions'),
+            letter('−9', 'Lines removed', 'deletions'),
+            letter('64%', 'Custom badge, in its own color', undefined, { color: 'var(--color-purple-400)' })
+        ],
+        title: 'Counts and badges'
+    },
+    {
+        entries: [
+            letter('●', 'Folder: errors inside', 'error'),
+            letter('●', 'Folder: conflicts inside', 'conflict'),
+            letter('●', 'Folder: warnings inside', 'warning'),
+            letter('●', 'Folder: changes inside, deletions too', 'modified'),
+            letter('●', 'Folder: only new files inside', 'added'),
+            letter('●', 'Unsaved in the editor', 'unsaved'),
+            letter('○', 'Open in the editor', 'open'),
+            marker(symlink, 'Symbolic link'),
+            marker(lock, 'Read-only')
+        ],
+        title: 'Dots and markers'
+    },
+    {
+        entries: [
+            tint('error', 'Errors'),
+            tint('conflict', 'Conflict'),
+            tint('deleted', 'Deleted, when shown'),
+            tint('warning', 'Warnings'),
+            tint('modified', 'Modified'),
+            tint('added', 'Untracked or added'),
+            tint('ignored', 'Ignored by git')
+        ],
+        title: 'Name colors, most severe first'
+    }
+];
 
 const LOCKED: FileTreeElement[] = [
     {
@@ -165,6 +226,82 @@ const REPOSITORY: FileTreeElement[] = [
 ];
 
 
+// Names that test a matcher: camelCase humps, snake_case, dotfiles, numbers, capitals and one long enough to cut short.
+const SEARCHABLE: FileTreeElement[] = [
+    {
+        children: [
+            {
+                children: [
+                    { id: '.github/workflows/ci.yml', name: 'ci.yml' },
+                    { id: '.github/workflows/release-please.yml', name: 'release-please.yml' }
+                ],
+                id: '.github/workflows',
+                name: 'workflows',
+                type: 'folder'
+            }
+        ],
+        id: '.github',
+        name: '.github',
+        type: 'folder'
+    },
+    {
+        children: [
+            { id: 'migrations/001_create_users.sql', name: '001_create_users.sql' },
+            { id: 'migrations/002_add_session_tokens.sql', name: '002_add_session_tokens.sql' },
+            { id: 'migrations/v2_backfill_file_tree_state.sql', name: 'v2_backfill_file_tree_state.sql' }
+        ],
+        id: 'migrations',
+        name: 'migrations',
+        type: 'folder'
+    },
+    {
+        children: [
+            {
+                children: [
+                    {
+                        children: [
+                            { id: 'src/components/file-tree/fileTreeUtils.ts', name: 'fileTreeUtils.ts' },
+                            { id: 'src/components/file-tree/fuzzy.ts', name: 'fuzzy.ts' },
+                            { id: 'src/components/file-tree/index.ts', name: 'index.ts' },
+                            { id: 'src/components/file-tree/useFileTree.ts', name: 'useFileTree.ts' }
+                        ],
+                        id: 'src/components/file-tree',
+                        name: 'file-tree',
+                        type: 'folder'
+                    },
+                    { id: 'src/components/HTMLParser.ts', name: 'HTMLParser.ts' },
+                    { id: 'src/components/navigation-drawer-with-nested-sections.tsx', name: 'navigation-drawer-with-nested-sections.tsx' },
+                    { id: 'src/components/snake_case_helpers.py', name: 'snake_case_helpers.py' }
+                ],
+                id: 'src/components',
+                name: 'components',
+                type: 'folder'
+            }
+        ],
+        id: 'src',
+        name: 'src',
+        type: 'folder'
+    },
+    {
+        children: [
+            { id: 'tests/file10.test.ts', name: 'file10.test.ts' },
+            { id: 'tests/file2.test.ts', name: 'file2.test.ts' },
+            { id: 'tests/test_fuzzy_match.py', name: 'test_fuzzy_match.py' }
+        ],
+        id: 'tests',
+        name: 'tests',
+        type: 'folder'
+    },
+    { id: '.env.local', name: '.env.local' },
+    { id: '.eslintrc.json', name: '.eslintrc.json' },
+    { id: '.gitignore', name: '.gitignore' },
+    { id: 'CHANGELOG.md', name: 'CHANGELOG.md' },
+    { id: 'package.json', name: 'package.json' },
+    { id: 'README.md', name: 'README.md' },
+    { id: 'tsconfig.json', name: 'tsconfig.json' }
+];
+
+
 // Well-known folder names, with sizes and dates for the tooltip.
 const WORKSPACE: FileTreeElement[] = [
     { children: [{ id: '.git/HEAD', name: 'HEAD', size: 21 }], id: '.git', name: '.git', type: 'folder' },
@@ -243,6 +380,75 @@ function ago(days: number) {
     return Date.now() - days * 86_400_000;
 }
 
+// Folders nested one in the next, 'main/java/com' under 'src', the last holding what 'children' gives for its id.
+function chain(parent: string, names: string, children: (id: string) => FileTreeElement[]): FileTreeElement {
+    let parts = names.split('/'),
+        id = `${parent}/${names}`,
+        element: FileTreeElement = { children: children(id), id, name: parts[parts.length - 1], type: 'folder' };
+
+    for (let i = parts.length - 2; i >= 0; i--) {
+        element = { children: [element], id: `${parent}/${parts.slice(0, i + 1).join('/')}`, name: parts[i], type: 'folder' };
+    }
+
+    return element;
+}
+
+// Java packages and a deep web app, with ids as paths. Fresh per render, since the store changes it in place.
+function compacted(): FileTreeElement[] {
+    return [
+        {
+            children: [chain('.github', 'workflows', (id) => [{ id: `${id}/build.yml`, name: 'build.yml' }])],
+            id: '.github',
+            name: '.github',
+            type: 'folder'
+        },
+        {
+            children: [
+                chain('src', 'main/java/com/example/app', (id) => [
+                    {
+                        children: [
+                            { id: `${id}/controller/HealthController.java`, name: 'HealthController.java' },
+                            { id: `${id}/controller/UserController.java`, name: 'UserController.java' }
+                        ],
+                        id: `${id}/controller`,
+                        name: 'controller',
+                        type: 'folder'
+                    },
+                    chain(id, 'domain/user', (user) => [{ id: `${user}/User.java`, name: 'User.java' }]),
+                    { id: `${id}/Application.java`, name: 'Application.java' }
+                ]),
+                chain('src', 'test/java/com/example/app', (id) => [{ id: `${id}/ApplicationTests.java`, name: 'ApplicationTests.java' }])
+            ],
+            id: 'src',
+            name: 'src',
+            type: 'folder'
+        },
+        // No children given: fetched when opened, one folder at a time.
+        { id: 'vendor', name: 'vendor', type: 'folder' },
+        {
+            children: [
+                chain('web', 'src/components', (id) => [
+                    { id: `${id}/.gitkeep`, name: '.gitkeep' },
+                    {
+                        children: [
+                            { id: `${id}/ui/button.tsx`, name: 'button.tsx' },
+                            { id: `${id}/ui/dialog.tsx`, name: 'dialog.tsx' }
+                        ],
+                        id: `${id}/ui`,
+                        name: 'ui',
+                        type: 'folder'
+                    }
+                ])
+            ],
+            id: 'web',
+            name: 'web',
+            type: 'folder'
+        },
+        { id: 'pom.xml', name: 'pom.xml' },
+        { id: 'README.md', name: 'README.md' }
+    ];
+}
+
 // A pasted or dropped copy, named apart from what it copies.
 function copy(element: FileTreeElement, uid: number): FileTreeElement {
     return { ...duplicate(element, uid), name: element.name.replace(/(\.[^.]*)?$/, ' copy$1') };
@@ -253,6 +459,41 @@ function duplicate(element: FileTreeElement, uid: number): FileTreeElement {
         ...element,
         children: element.children?.map((child) => duplicate(child, uid)),
         id: `${element.id}~${uid}`
+    };
+}
+
+// What a history label calls them: one by name, several by count.
+function items(elements: FileTreeElement[]) {
+    return elements.length === 1 ? elements[0].name : `${elements.length} items`;
+}
+
+function legend() {
+    return html`
+        <div class='file-tree file-tree-demo-legend'>
+            ${LEGEND.map((group) => html`
+                <section>
+                    <h4 class='file-tree-demo-legend-title'>${group.title}</h4>
+                    <dl class='file-tree-demo-legend-list'>
+                        ${group.entries.map((entry) => html`
+                            <dt>${entry.sample()}</dt>
+                            <dd>${entry.label}</dd>
+                        `)}
+                    </dl>
+                </section>
+            `)}
+        </div>
+    `;
+}
+
+// A badge part as a row draws it: the tone colors it, a staged part sits in the tinted chip.
+function letter(text: string, label: string, tone?: string, options: { color?: string; staged?: boolean } = {}): Legend {
+    return {
+        label,
+        sample: () => html`
+            <span class='file-tree-badge'>
+                <span ${{ 'data-staged': options.staged && 'true', 'data-tone': tone, style: options.color && `color: ${options.color}` }}>${text}</span>
+            </span>
+        `
     };
 }
 
@@ -278,6 +519,13 @@ function live(): FileTreeElement[] {
         { id: 'flaky', name: 'flaky', type: 'folder' },
         { id: 'README.md', name: 'README.md' }
     ];
+}
+
+function marker(svg: string, label: string): Legend {
+    return {
+        label,
+        sample: () => icon({ 'aria-hidden': 'true', class: 'file-tree-marker' }, svg)
+    };
 }
 
 // Fresh per render, since drops change it in place.
@@ -327,6 +575,18 @@ function movable(): FileTreeElement[] {
     ];
 }
 
+// A history step's operation as an app mirroring it on disk would log it.
+function operation(value: FileTreeHistoryOperation) {
+    switch (value.type) {
+        case 'move':
+            return `move ${value.element.name} to ${value.to.parent ?? 'the root'}`;
+        case 'rename':
+            return `rename ${value.from} to ${value.to}`;
+        default:
+            return `${value.type} ${value.element.name}`;
+    }
+}
+
 function packages(): FileTreeElement[] {
     return Array.from({ length: 12 }, (_, p) => ({
         children: Array.from({ length: 30 }, (_, f) => ({ id: `package-${p}/file-${f}`, name: `file-${f}.ts` })),
@@ -334,6 +594,77 @@ function packages(): FileTreeElement[] {
         name: `package-${p}`,
         type: 'folder' as const
     }));
+}
+
+// Fresh per render, since the store changes the elements it's given in place. Each top-level folder is a root.
+function roots(): FileTreeElement[] {
+    return [
+        {
+            children: [
+                {
+                    children: [
+                        {
+                            children: [
+                                { id: 'app/src/components/button.tsx', name: 'button.tsx' },
+                                { id: 'app/src/components/header.tsx', name: 'header.tsx' }
+                            ],
+                            id: 'app/src/components',
+                            name: 'components',
+                            type: 'folder'
+                        },
+                        { id: 'app/src/index.ts', name: 'index.ts' }
+                    ],
+                    id: 'app/src',
+                    name: 'src',
+                    type: 'folder'
+                },
+                { id: 'app/.env', name: '.env' },
+                { id: 'app/package.json', name: 'package.json' }
+            ],
+            id: 'app',
+            name: 'app',
+            type: 'folder'
+        },
+        {
+            children: [
+                { children: [{ id: 'api/node_modules/hono', name: 'hono', type: 'folder' }], id: 'api/node_modules', name: 'node_modules', type: 'folder' },
+                {
+                    children: [
+                        { id: 'api/routes/auth.ts', name: 'auth.ts' },
+                        { id: 'api/routes/users.ts', name: 'users.ts' }
+                    ],
+                    id: 'api/routes',
+                    name: 'routes',
+                    type: 'folder'
+                },
+                { id: 'api/package.json', name: 'package.json' },
+                { id: 'api/server.ts', name: 'server.ts' }
+            ],
+            id: 'api',
+            name: 'api',
+            type: 'folder'
+        },
+        {
+            // A root heads its tree alone, while the chain below it shares one row.
+            children: [
+                chain('shared', 'src/lib', (id) => [
+                    { id: `${id}/types.ts`, name: 'types.ts' },
+                    { id: `${id}/utils.ts`, name: 'utils.ts' }
+                ])
+            ],
+            id: 'shared',
+            name: 'shared',
+            type: 'folder'
+        }
+    ];
+}
+
+// A name in the color a row takes from its most severe decoration.
+function tint(tone: string, label: string): Legend {
+    return {
+        label,
+        sample: () => html`<span class='file-tree-demo-legend-name' data-tone='${tone}' style='color: var(--${tone}-color)'>index.ts</span>`
+    };
 }
 
 // Fresh per render, since the store changes the elements it's given in place.
@@ -458,6 +789,7 @@ export default {
                                 Switch editor tab
                             </button>
                         </div>
+                        ${legend()}
                     </div>
                 `;
             },
@@ -478,6 +810,109 @@ export default {
                 </div>
             `,
             title: 'virtualized, 10,000 files'
+        },
+        {
+            render: () => {
+                let controller: FileTreeController | undefined;
+
+                return html`
+                    <div class='file-tree-demo-stack'>
+                        <div class='file-tree-demo'>
+                            ${fileTree({
+                                controller: (value) => {
+                                    controller = value;
+                                },
+                                elements: MONOREPO,
+                                expanded: ['package-0']
+                            })}
+                        </div>
+                        <div class='file-tree-demo-actions'>
+                            <button class='button' onclick='${() => controller?.find('file-42.')}' type='button'>
+                                Find file-42.
+                            </button>
+                        </div>
+                        <p class='file-tree-demo-caption'>
+                            <code>Ctrl+Alt+F</code> searches every folder, closed ones too. <code>Enter</code>,
+                            <code>F3</code> or the arrows step through the matches, opening their folders; the filter
+                            button leaves only the matches.
+                        </p>
+                    </div>
+                `;
+            },
+            title: 'find in 10,000 files, highlight mode'
+        },
+        {
+            render: () => {
+                let controller: FileTreeController | undefined,
+                    count = 0,
+                    decorations = new FileTreeDecorations(),
+                    files = new FileTreeElements([...structuredClone(REPOSITORY), { id: 'vendor', name: 'vendor', type: 'folder' }]);
+
+                decorations.replace([
+                    ['src/components/card/expand.ts', { status: 'untracked' }],
+                    ['src/components/file-tree/index.ts', { status: 'modified' }],
+                    ['src/components/heatmap/index.ts', { status: 'conflict' }]
+                ]);
+
+                // Loaded only once opened, so a search before then can't see inside it.
+                function load(element: FileTreeElement) {
+                    return new Promise<FileTreeElement[]>((resolve) => {
+                        setTimeout(() => {
+                            resolve([
+                                { id: `${element.id}/index.ts`, name: 'index.ts' },
+                                { id: `${element.id}/react.js`, name: 'react.js' }
+                            ]);
+                        }, 600);
+                    });
+                }
+
+                return html`
+                    <div class='file-tree-demo-stack'>
+                        <div class='file-tree-demo'>
+                            ${fileTree({
+                                controller: (value) => {
+                                    controller = value;
+                                },
+                                decorations,
+                                elements: files,
+                                find: 'filter',
+                                load,
+                                typing: 'find'
+                            })}
+                        </div>
+                        <div class='file-tree-demo-actions'>
+                            <button class='button' onclick='${() => controller?.find('index')}' type='button'>
+                                Find index
+                            </button>
+                            <button
+                                class='button'
+                                onclick='${() => {
+                                    files.add({ id: `src/components/card/index-${++count}.ts`, name: `index-${count}.ts` }, 'src/components/card');
+                                }}'
+                                type='button'
+                            >
+                                Add a matching file
+                            </button>
+                            <button
+                                class='button'
+                                onclick='${() => {
+                                    let id = 'src/components/tooltip/index.ts';
+
+                                    files.rename(id, files.get(id)?.name === 'index.ts' ? 'tooltip.ts' : 'index.ts');
+                                }}'
+                                type='button'
+                            >
+                                Rename tooltip index
+                            </button>
+                        </div>
+                        <p class='file-tree-demo-caption'>
+                            Typing in the tree filters it, opening the folders down to each match and closing them again
+                            once the search ends. Folder marks still count what's filtered out.
+                        </p>
+                    </div>
+                `;
+            },
+            title: 'find: filter mode, find on type, live and lazy folders'
         },
         {
             render: () => {
@@ -578,6 +1013,34 @@ export default {
         },
         {
             render: () => {
+                let search = reactive({ query: 'ftu' });
+
+                return html`
+                    <div class='file-tree-demo-stack'>
+                        ${input({
+                            'aria-label': 'Highlight matches',
+                            class: 'file-tree-demo-search',
+                            oninput: (event: Event) => {
+                                search.query = (event.target as HTMLInputElement).value;
+                            },
+                            placeholder: 'Fuzzy query',
+                            value: search.query
+                        })}
+                        <div class='file-tree-demo'>
+                            ${fileTree({
+                                elements: SEARCHABLE,
+                                expanded: ['.github', '.github/workflows', 'migrations', 'src', 'src/components', 'src/components/file-tree', 'tests'],
+                                highlight: () => search.query
+                            })}
+                        </div>
+                        <p class='file-tree-demo-caption'>Try <code>ftu</code>, <code>uft</code>, <code>env</code>, <code>001</code> or <code>HP</code>: lowercase matches either case, capitals only themselves.</p>
+                    </div>
+                `;
+            },
+            title: 'fuzzy match highlight'
+        },
+        {
+            render: () => {
                 let decorations = new FileTreeDecorations(),
                     removed = false;
 
@@ -640,6 +1103,148 @@ export default {
                 `;
             },
             title: 'sticky scroll, three folders deep'
+        },
+        {
+            render: () => {
+                let decorations = new FileTreeDecorations(),
+                    display = reactive({ dotfiles: true, stats: true }),
+                    files = new FileTreeElements(compacted()),
+                    history = new FileTreeHistory(files),
+                    log = reactive({ text: 'Click a segment to select its folder. F2 renames, Alt+N adds a file, drag onto a segment to move into it, Ctrl+Z undoes.' }),
+                    settings = reactive({ compact: true, resources: false }),
+                    state = reactive({ selected: '' });
+
+                decorations.replace([
+                    ['src/main/java/com/example/app/controller/UserController.java', { additions: 12, deletions: 3, status: 'modified' }],
+                    ['src/test/java/com/example/app/ApplicationTests.java', { additions: 40, status: 'untracked' }]
+                ]);
+
+                // Ctrl+Z and Ctrl+Y can bring src/main/resources back or take it away again.
+                history.subscribe(() => {
+                    settings.resources = !!files.get('src/main/resources');
+                });
+
+                // Each folder arrives holding one more, so the row grows a segment per load.
+                function load(element: FileTreeElement) {
+                    return new Promise<FileTreeElement[]>((resolve) => {
+                        setTimeout(() => {
+                            resolve(element.id === 'vendor/acme/sdk'
+                                ? [{ id: `${element.id}/client.ts`, name: 'client.ts' }, { id: `${element.id}/index.ts`, name: 'index.ts' }]
+                                : [{ id: `${element.id}/${element.id === 'vendor' ? 'acme' : 'sdk'}`, name: element.id === 'vendor' ? 'acme' : 'sdk', type: 'folder' }]);
+                        }, 400);
+                    });
+                }
+
+                return html`
+                    <div class='file-tree-demo-stack'>
+                        <div class='file-tree-demo'>
+                            ${() => fileTree({
+                                // A fresh tree per setting, on the same store.
+                                compact: settings.compact,
+                                // Stands in for the file system: the new item lands in the store, with the folders a
+                                // path like 'a/b.ts' names around it.
+                                create: (parent, parts, kind) => {
+                                    let id = parent?.id ?? '',
+                                        root: FileTreeElement | undefined,
+                                        tail: FileTreeElement | undefined;
+
+                                    for (let i = 0, n = parts.length; i < n; i++) {
+                                        id = id ? `${id}/${parts[i]}` : parts[i];
+
+                                        let element: FileTreeElement = i === n - 1 && kind === 'file'
+                                            ? { id, name: parts[i] }
+                                            : { children: [], id, name: parts[i], type: 'folder' };
+
+                                        if (tail) {
+                                            tail.children!.push(element);
+                                        }
+                                        else {
+                                            root = element;
+                                        }
+
+                                        tail = element;
+                                    }
+
+                                    history.transact(() => files.add(root!, parent?.id ?? null), `Create ${parts.join('/')}`);
+                                    log.text = `Created ${parts.join('/')} in ${parent?.id ?? 'the root'}`;
+                                    setTimeout(() => {
+                                        state.selected = id;
+                                    });
+                                },
+                                decorations,
+                                display,
+                                drag: {
+                                    drop: (drop) => {
+                                        history.transact(() => {
+                                            for (let element of drop.elements) {
+                                                files.move(element.id, drop.target?.id ?? null);
+                                            }
+                                        }, `Move ${items(drop.elements)}`);
+                                        log.text = `Moved ${list(drop.elements)} into ${drop.target?.id ?? 'the root'}`;
+                                    }
+                                },
+                                elements: files,
+                                expanded: ['src', 'src/main/java/com/example/app', 'web/src/components'],
+                                history,
+                                load,
+                                rename: (element, name) => {
+                                    history.transact(() => files.rename(element.id, name), `Rename ${element.name}`);
+                                    log.text = `Renamed ${element.name} to ${name}`;
+                                },
+                                shortcuts: true,
+                                state,
+                                toggle: true
+                            })}
+                        </div>
+                        <p class='file-tree-demo-caption'>Selected: <code>${() => state.selected || 'nothing'}</code></p>
+                        <div class='file-tree-demo-actions'>
+                            <button
+                                class='button'
+                                onclick='${() => {
+                                    // A second folder in src/main splits its row; taking it away joins it again.
+                                    history.transact(() => settings.resources
+                                        ? files.remove('src/main/resources')
+                                        : files.add(chain('src/main', 'resources', (id) => [{ id: `${id}/application.yml`, name: 'application.yml' }]), 'src/main'));
+                                    settings.resources = !!files.get('src/main/resources');
+                                }}'
+                                type='button'
+                            >
+                                ${() => settings.resources ? 'Remove src/main/resources' : 'Add src/main/resources'}
+                            </button>
+                            <button
+                                class='button'
+                                onclick='${() => {
+                                    display.dotfiles = !display.dotfiles;
+                                }}'
+                                type='button'
+                            >
+                                ${() => display.dotfiles ? 'Hide dotfiles' : 'Show dotfiles'}
+                            </button>
+                            <button
+                                class='button'
+                                onclick='${() => {
+                                    state.selected = 'src/main/java/com';
+                                }}'
+                                type='button'
+                            >
+                                Select com
+                            </button>
+                            <label>
+                                <input
+                                    checked
+                                    onchange='${() => {
+                                        settings.compact = !settings.compact;
+                                    }}'
+                                    type='checkbox'
+                                />
+                                Compact
+                            </label>
+                        </div>
+                        <p class='file-tree-demo-caption'>${() => log.text}</p>
+                    </div>
+                `;
+            },
+            title: 'compact folders, live split and join, lazy chains'
         },
         {
             render: () => {
@@ -709,7 +1314,8 @@ export default {
             render: () => {
                 let copies = 0,
                     files = new FileTreeElements(structuredClone(REPOSITORY)),
-                    log = reactive({ text: 'Ctrl/Shift+click, Shift+arrows, Ctrl+A, Ctrl+X then Ctrl+V, Delete, Shift+Alt+C, right-click' }),
+                    history = new FileTreeHistory(files),
+                    log = reactive({ text: 'Ctrl/Shift+click, Shift+arrows, Ctrl+A, Ctrl+X then Ctrl+V, Delete, Ctrl+Z, Shift+Alt+C, right-click' }),
                     state = reactive({ selected: 'src/components/file-tree/index.ts', selection: new Set<string>() });
 
                 return html`
@@ -717,6 +1323,7 @@ export default {
                         <div class='file-tree-demo'>
                             ${fileTree({
                                 elements: files,
+                                history,
                                 menu: (elements, position) => {
                                     log.text = `Menu at ${Math.round(position.x)}, ${Math.round(position.y)} for ${list(elements) || 'the background'}`;
                                 },
@@ -730,16 +1337,20 @@ export default {
                                         log.text = `Cut ${list(elements)}`;
                                     },
                                     delete: (elements, permanent) => {
-                                        for (let element of elements) {
-                                            files.remove(element.id);
-                                        }
+                                        history.transact(() => {
+                                            for (let element of elements) {
+                                                files.remove(element.id);
+                                            }
+                                        }, `Delete ${items(elements)}`);
 
                                         log.text = `${permanent ? 'Deleted' : 'Trashed'} ${list(elements)}`;
                                     },
                                     duplicate: (elements) => {
-                                        for (let element of elements) {
-                                            files.add(copy(element, ++copies), files.index.get(element.id)?.parent ?? null);
-                                        }
+                                        history.transact(() => {
+                                            for (let element of elements) {
+                                                files.add(copy(element, ++copies), files.index.get(element.id)?.parent ?? null);
+                                            }
+                                        }, `Duplicate ${items(elements)}`);
 
                                         log.text = `Duplicated ${list(elements)}`;
                                     },
@@ -747,14 +1358,16 @@ export default {
                                     paste: (elements, target, cut) => new Promise<void>((resolve) => {
                                         log.text = `${cut ? 'Moving' : 'Copying'} ${list(elements)} into ${target?.id ?? 'the root'}…`;
                                         setTimeout(() => {
-                                            for (let element of elements) {
-                                                if (cut) {
-                                                    files.move(element.id, target?.id ?? null);
+                                            history.transact(() => {
+                                                for (let element of elements) {
+                                                    if (cut) {
+                                                        files.move(element.id, target?.id ?? null);
+                                                    }
+                                                    else {
+                                                        files.add(copy(element, ++copies), target?.id ?? null);
+                                                    }
                                                 }
-                                                else {
-                                                    files.add(copy(element, ++copies), target?.id ?? null);
-                                                }
-                                            }
+                                            }, `${cut ? 'Move' : 'Paste'} ${items(elements)}`);
 
                                             log.text = `${cut ? 'Moved' : 'Copied'} ${list(elements)} into ${target?.id ?? 'the root'}`;
                                             resolve();
@@ -776,7 +1389,8 @@ export default {
             render: () => {
                 let editor = new FileTreeEditor(),
                     files = new FileTreeElements(workspace()),
-                    log = reactive({ message: 'F2 renames the focused row; Alt+N and Alt+Shift+N add a file or folder' }),
+                    history = new FileTreeHistory(files),
+                    log = reactive({ message: 'F2 renames the focused row; Alt+N and Alt+Shift+N add a file or folder; Ctrl+Z undoes' }),
                     next = 0,
                     state = reactive({ selected: 'index' });
 
@@ -812,7 +1426,7 @@ export default {
                                         tail = element;
                                     }
 
-                                    files.add(root!, parent?.id ?? null);
+                                    history.transact(() => files.add(root!, parent?.id ?? null), `Create ${parts.join('/')}`);
                                     log.message = `Created ${parts.join('/')} in ${parent?.name ?? 'the root'}`;
                                     // Once the input has closed, handing focus back to the row it opened from.
                                     setTimeout(() => {
@@ -822,11 +1436,12 @@ export default {
                                 editor,
                                 elements: files,
                                 expanded: ['src'],
+                                history,
                                 // Settles after a moment, as a disk write would; the input waits on it.
                                 rename: (element, name) => new Promise<boolean>((resolve) => {
                                     setTimeout(() => {
                                         log.message = `Renamed ${element.name} to ${name}`;
-                                        files.rename(element.id, name);
+                                        history.transact(() => files.rename(element.id, name), `Rename ${element.name}`);
                                         resolve(true);
                                     }, 400);
                                 }),
@@ -845,6 +1460,7 @@ export default {
             render: () => {
                 let drops = 0,
                     files = new FileTreeElements(movable()),
+                    history = new FileTreeHistory(files),
                     state = reactive({ selected: '' }),
                     ui = reactive({ ask: false, last: 'Drag a row onto a folder; hold Alt/Option to copy.' });
 
@@ -864,17 +1480,19 @@ export default {
 
                                         drops++;
 
-                                        for (let element of drop.elements) {
-                                            if (drop.copy) {
-                                                let clone = copy(element, drops);
+                                        history.transact(() => {
+                                            for (let element of drop.elements) {
+                                                if (drop.copy) {
+                                                    let clone = copy(element, drops);
 
-                                                files.add(clone, into);
-                                                landed.push(clone.id);
+                                                    files.add(clone, into);
+                                                    landed.push(clone.id);
+                                                }
+                                                else if (files.move(element.id, into)) {
+                                                    landed.push(element.id);
+                                                }
                                             }
-                                            else if (files.move(element.id, into)) {
-                                                landed.push(element.id);
-                                            }
-                                        }
+                                        }, `${drop.copy ? 'Copy' : 'Move'} ${items(drop.elements)}`);
 
                                         ui.last = `${drop.copy ? 'Copied' : 'Moved'} ${drop.elements.map((element) => element.name).join(', ')} into ${drop.target?.name ?? 'the top level'}.`;
 
@@ -885,6 +1503,7 @@ export default {
                                 },
                                 elements: files,
                                 expanded: ['components', 'src'],
+                                history,
                                 state
                             })}
                         </div>
@@ -910,6 +1529,7 @@ export default {
                 let count = 0,
                     failed = false,
                     files = new FileTreeElements(live()),
+                    history = new FileTreeHistory(files),
                     state = reactive({ selected: 'src/app.ts' });
 
                 // The folder to act in: the selected folder, or the selected file's.
@@ -944,7 +1564,7 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${fileTree({ elements: files, expanded: ['src'], load, state })}
+                            ${fileTree({ elements: files, expanded: ['src'], history, load, state })}
                         </div>
                         <p class='file-tree-demo-caption'>Selected: <code>${() => state.selected || 'nothing'}</code></p>
                         <div class='file-tree-demo-actions'>
@@ -953,7 +1573,7 @@ export default {
                                 onclick='${() => {
                                     let id = `new-${++count}`;
 
-                                    files.add({ id, name: `untitled-${count}.ts` }, folder());
+                                    history.transact(() => files.add({ id, name: `untitled-${count}.ts` }, folder()));
                                     state.selected = id;
                                 }}'
                                 type='button'
@@ -966,7 +1586,7 @@ export default {
                                     let element = files.get(state.selected);
 
                                     if (element) {
-                                        files.rename(element.id, `renamed-${element.name}`);
+                                        history.transact(() => files.rename(element.id, `renamed-${element.name}`));
                                     }
                                 }}'
                                 type='button'
@@ -979,7 +1599,7 @@ export default {
                                     let element = files.get(state.selected);
 
                                     if (element && element.id !== 'lib') {
-                                        files.move(element.id, files.index.get(element.id)!.parent === 'lib' ? 'src' : 'lib');
+                                        history.transact(() => files.move(element.id, files.index.get(element.id)!.parent === 'lib' ? 'src' : 'lib'));
                                     }
                                 }}'
                                 type='button'
@@ -990,18 +1610,171 @@ export default {
                                 class='button'
                                 onclick='${() => {
                                     if (files.get(state.selected)) {
-                                        files.remove(state.selected);
+                                        history.transact(() => files.remove(state.selected));
                                     }
                                 }}'
                                 type='button'
                             >
                                 Delete
                             </button>
+                            <button class='button' onclick='${() => history.undo()}' type='button'>Undo</button>
                         </div>
                     </div>
                 `;
             },
             title: 'live updates, lazy folders'
+        },
+        {
+            render: () => {
+                let copies = 0,
+                    decorations = new FileTreeDecorations(),
+                    editor = new FileTreeEditor(),
+                    files = new FileTreeElements(workspace()),
+                    next = 0,
+                    state = reactive({ selected: 'index', selection: new Set<string>() }),
+                    ui = reactive({ ask: false, mirrored: 'Delete, paste, duplicate, drag, F2 or Alt+N, then Ctrl+Z and Ctrl+Shift+Z' }),
+                    history = new FileTreeHistory(files, {
+                        // Undoing a delete recreates files; an app would ask first, or apply the step to disk and
+                        // refuse when that fails.
+                        confirm: (step) => {
+                            let added = step.operations.filter((value) => value.type === 'add');
+
+                            return !ui.ask || !added.length || window.confirm(
+                                `${step.direction === 'undo' ? 'Undo' : 'Redo'} "${step.label}"? It recreates ${added.map((value) => value.element.name).join(', ')}.`
+                            );
+                        },
+                        depth: 20
+                    });
+
+                decorations.replace([
+                    ['button', { additions: 12, deletions: 3, status: 'modified' }],
+                    ['env', { status: 'ignored' }],
+                    ['header', { additions: 40, status: 'untracked' }]
+                ]);
+
+                // What the store applied, in order, for the app to mirror on disk.
+                history.subscribe((step) => {
+                    ui.mirrored = `${step.direction === 'undo' ? 'Undid' : 'Redid'} ${step.label}: ${step.operations.map(operation).join(', ')}`;
+                });
+
+                return html`
+                    <div class='file-tree-demo-stack'>
+                        <div class='file-tree-demo-actions'>
+                            <button
+                                class='button ${() => !history.canUndo && '--disabled'}'
+                                onclick='${() => history.undo()}'
+                                type='button'
+                            >
+                                Undo
+                            </button>
+                            <button
+                                class='button ${() => !history.canRedo && '--disabled'}'
+                                onclick='${() => history.redo()}'
+                                type='button'
+                            >
+                                Redo
+                            </button>
+                            <button class='button' onclick='${() => editor.create('file')}' type='button'>New file</button>
+                            <button
+                                class='button'
+                                onclick='${() => {
+                                    ui.ask = !ui.ask;
+                                }}'
+                                type='button'
+                            >
+                                ${() => ui.ask ? 'Confirm restores: on' : 'Confirm restores: off'}
+                            </button>
+                        </div>
+                        <div class='file-tree-demo'>
+                            ${fileTree({
+                                create: (parent, parts, kind) => {
+                                    let root: FileTreeElement | undefined,
+                                        tail: FileTreeElement | undefined;
+
+                                    for (let i = 0, n = parts.length; i < n; i++) {
+                                        let element: FileTreeElement = i === n - 1 && kind === 'file'
+                                            ? { id: `created-${++next}`, name: parts[i] }
+                                            : { children: [], id: `created-${++next}`, name: parts[i], type: 'folder' };
+
+                                        if (tail) {
+                                            tail.children!.push(element);
+                                        }
+                                        else {
+                                            root = element;
+                                        }
+
+                                        tail = element;
+                                    }
+
+                                    history.transact(() => files.add(root!, parent?.id ?? null), `Create ${parts.join('/')}`);
+                                },
+                                decorations,
+                                display: { stats: true },
+                                drag: {
+                                    drop: (drop) => {
+                                        history.transact(() => {
+                                            for (let element of drop.elements) {
+                                                if (drop.copy) {
+                                                    files.add(copy(element, ++copies), drop.target?.id ?? null);
+                                                }
+                                                else {
+                                                    files.move(element.id, drop.target?.id ?? null);
+                                                }
+                                            }
+                                        }, `${drop.copy ? 'Copy' : 'Move'} ${items(drop.elements)}`);
+                                    }
+                                },
+                                editor,
+                                elements: files,
+                                expanded: ['components', 'src'],
+                                history,
+                                // Every operation is one transaction, however many items it takes.
+                                operations: {
+                                    delete: (elements) => {
+                                        history.transact(() => {
+                                            for (let element of elements) {
+                                                files.remove(element.id);
+                                            }
+                                        }, `Delete ${items(elements)}`);
+                                    },
+                                    duplicate: (elements) => {
+                                        history.transact(() => {
+                                            for (let element of elements) {
+                                                files.add(copy(element, ++copies), files.index.get(element.id)?.parent ?? null);
+                                            }
+                                        }, `Duplicate ${items(elements)}`);
+                                    },
+                                    paste: (elements, target, cut) => {
+                                        history.transact(() => {
+                                            for (let element of elements) {
+                                                if (cut) {
+                                                    files.move(element.id, target?.id ?? null);
+                                                }
+                                                else {
+                                                    files.add(copy(element, ++copies), target?.id ?? null);
+                                                }
+                                            }
+                                        }, `${cut ? 'Move' : 'Paste'} ${items(elements)}`);
+                                    }
+                                },
+                                rename: (element, name) => {
+                                    history.transact(() => files.rename(element.id, name), `Rename ${element.name}`);
+                                },
+                                shortcuts: true,
+                                state
+                            })}
+                        </div>
+                        <p class='file-tree-demo-caption'>${() => ui.mirrored}</p>
+                        <ol class='file-tree-demo-history'>
+                            ${() => html`
+                                ${history.undoable.map((entry) => html`<li>${entry.label}</li>`)}
+                                ${[...history.redoable].reverse().map((entry) => html`<li class='--undone'>${entry.label}</li>`)}
+                            `}
+                        </ol>
+                    </div>
+                `;
+            },
+            title: 'undo and redo, history list, mirrored steps'
         },
         {
             render: () => {
@@ -1056,6 +1829,99 @@ export default {
                 `;
             },
             title: 'persisted open folders and scroll, empty state'
+        },
+        {
+            render: () => {
+                let decorations = new FileTreeDecorations(),
+                    files = new FileTreeElements(roots()),
+                    state = reactive({ selected: 'app/src/index.ts' }),
+                    ui = reactive({ docs: false, log: 'Right-click a root, drag files between roots, Alt+N adds a file' });
+
+                decorations.replace([
+                    ['api/routes/users.ts', { additions: 24, deletions: 6, status: 'modified' }],
+                    ['api/server.ts', { errors: 1 }],
+                    ['app/src/components/header.tsx', { additions: 58, status: 'untracked' }],
+                    ['app/src/index.ts', { additions: 3, deletions: 1, status: 'modified' }],
+                    ['shared/src/lib/types.ts', { warnings: 2 }]
+                ]);
+
+                return html`
+                    <div class='file-tree-demo-stack'>
+                        <div class='file-tree-demo'>
+                            ${fileTree({
+                                // A path like 'a/b.ts' names the folders to make on the way; roots always hold it.
+                                create: (parent, parts, kind) => {
+                                    let at = parent!.id,
+                                        made = parts.map((name, i): FileTreeElement => {
+                                            at = `${at}/${name}`;
+
+                                            return i === parts.length - 1 && kind === 'file'
+                                                ? { id: at, name }
+                                                : { children: [], id: at, name, type: 'folder' };
+                                        });
+
+                                    for (let i = made.length - 1; i > 0; i--) {
+                                        made[i - 1].children!.push(made[i]);
+                                    }
+
+                                    files.add(made[0], parent!.id);
+                                    ui.log = `Created ${parts.join('/')} in ${parent!.name}`;
+                                },
+                                decorations,
+                                display: { stats: true },
+                                drag: {
+                                    drop: ({ elements, target }) => {
+                                        for (let element of elements) {
+                                            files.move(element.id, target!.id);
+                                        }
+
+                                        ui.log = `Moved ${list(elements)} into ${target!.name}`;
+                                    }
+                                },
+                                elements: files,
+                                // Matched within each root, so every root's own node_modules is hidden.
+                                exclude: ['node_modules'],
+                                menu: (elements, position, root) => {
+                                    ui.log = root
+                                        ? `Root menu at ${Math.round(position.x)}, ${Math.round(position.y)}: remove ${list(elements)} from the workspace`
+                                        : `Menu for ${list(elements) || 'the background'}`;
+                                },
+                                roots: true,
+                                shortcuts: true,
+                                state,
+                                toggle: true
+                            })}
+                        </div>
+                        <p class='file-tree-demo-caption'>${() => ui.log}</p>
+                        <div class='file-tree-demo-actions'>
+                            <button
+                                class='button'
+                                onclick='${() => {
+                                    if (ui.docs) {
+                                        files.remove('docs');
+                                    }
+                                    else {
+                                        files.add({ children: [], id: 'docs', name: 'docs', type: 'folder' });
+                                    }
+
+                                    ui.docs = !ui.docs;
+                                }}'
+                                type='button'
+                            >
+                                ${() => ui.docs ? 'Remove docs root' : 'Add docs root'}
+                            </button>
+                            <button
+                                class='button'
+                                onclick='${() => files.move(files.elements[files.elements.length - 1].id, null, 0)}'
+                                type='button'
+                            >
+                                Move last root first
+                            </button>
+                        </div>
+                    </div>
+                `;
+            },
+            title: 'multi-root workspace'
         }
     ]
 };

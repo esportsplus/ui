@@ -12,7 +12,7 @@ export { default as command } from './command';
 export { default as counter } from './counter';
 export { default as datalist } from './datalist';
 export { default as dock } from './dock';
-export { default as fileTree, FileTreeDecorations, FileTreeEditor, FileTreeElements } from './file-tree';
+export { default as fileTree, FileTreeDecorations, FileTreeEditor, FileTreeElements, FileTreeHistory } from './file-tree';
 export { default as filter } from './filter';
 export { default as form } from './form';
 export { default as heatmap } from './heatmap';
