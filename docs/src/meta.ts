@@ -305,10 +305,6 @@ const meta: Record<string, Meta> = {
         category: 'Layout',
         description: 'Persistent tab panels with instant switching, horizontal sliding, or vertical scrolling.'
     },
-    'task-list': {
-        category: 'Display',
-        description: 'Streaming log of what an agent did: tasks and steps reveal one unit at a time, shimmer while running, then settle.'
-    },
     text: {
         category: 'Display',
         description: 'Typographic primitives for headings, body copy, and captions.'
@@ -356,10 +352,6 @@ const meta: Record<string, Meta> = {
     'value-flash': {
         category: 'Display',
         description: 'Marks what just changed with a directional roll, tint, and arrow.'
-    },
-    'web-search': {
-        category: 'Display',
-        description: 'Research trail of the queries an agent ran and the pages it opened, with sources stacked as site marks.'
     },
     'word-rotator': {
         category: 'Display',

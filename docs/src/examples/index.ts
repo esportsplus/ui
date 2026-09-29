@@ -75,7 +75,6 @@ import surfaceField from './surface-field';
 import swipeDeck from './swipe-deck';
 import switchComponent from './switch';
 import tabs from './tabs';
-import taskList from './task-list';
 import tasklist from './tasklist';
 import text from './text';
 import textAnimate from './text-animate';
@@ -91,7 +90,6 @@ import undoToast from './undo-toast';
 import uptime from './uptime';
 import usageMeter from './usage-meter';
 import valueFlash from './value-flash';
-import webSearch from './web-search';
 import wordRotator from './word-rotator';
 
 
@@ -171,7 +169,6 @@ const entries: Entry[] = [
     swipeDeck,
     switchComponent,
     tabs,
-    taskList,
     tasklist,
     text,
     textAnimate,
@@ -187,7 +184,6 @@ const entries: Entry[] = [
     uptime,
     usageMeter,
     valueFlash,
-    webSearch,
     wordRotator
 ];
 

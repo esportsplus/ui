@@ -107,8 +107,6 @@ html`
 | `number` | Number formatting |
 | `truncate` | Text truncation |
 | `json` | JSON display |
-| `taskList` | Streaming log of an agent's tasks and steps |
-| `webSearch` | Streaming trail of an agent's searches and the sources it opened |
 | `announcement` | Animated top-of-page container (`state.active`) that slides its content in and collapses the space it held; the content and close control are the consumer's |
 | `onboardingChecklist` | Setup checklist (`checkbox` rows, `accordion` details) with a spring progress ring, strike-through on done, and a celebration once every task is complete; `done`, `open`, `ondismiss`, `state.count` |
 | `undoToast` | List whose deletes wait behind an Undo toast (`toast.*` with a countdown ring) before committing |
@@ -200,43 +198,6 @@ Combine up to one modifier of each kind:
   `settle`, `shimmy`, `sway`, `tremble`, `wiggle`; or set `--drag-animation`.
 
 The DOM is reordered directly; reactive lists should update their data in `onsort`.
-
-### Task List and Web Search
-
-Both stream an agent's work one unit at a time. A task is one unit for its
-header plus one per step; a search step is one unit, plus one more for its
-Sources row when it has `sources`. On their own they pace themselves
-(`startDelay`, `stepInterval`, and per-step `dwell` for web search) and call
-`onComplete` once the last unit lands. Pass `state` to drive them from real
-events instead; the internal timer switches off.
-
-```typescript
-import { taskList, webSearch } from '@esportsplus/ui';
-
-taskList({
-    collapseOnComplete: 'all',
-    onComplete: () => showAnswer(),
-    tasks: [
-        { runningTitle: 'Editing files', steps: [{ chips: [{ label: 'layout.tsx' }], label: 'Wired it into' }], title: 'Registered the toggle' }
-    ]
-});
-
-let state = reactive({ revealed: 0 });
-
-webSearch({
-    state,
-    steps: [
-        { brand: 'reddit', label: 'Searched Reddit for', meta: '12 threads', query: 'design tokens' },
-        { label: 'Opened the top results', sources: [{ brand: 'github', domain: 'github.com', href: 'https://github.com', title: 'Registry model' }] }
-    ]
-});
-
-// Advance as each tool call resolves.
-state.revealed++;
-```
-
-`working` relabels the trailing indicator, or `false` drops it. `brand` accepts
-any of the 24 built-in site marks; anything else takes an `icon`.
 
 ### Factory Pattern
 
