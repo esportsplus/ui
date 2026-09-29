@@ -1,0 +1,623 @@
+// Two identical keyframes keyed by 'data-hit' parity, so every failure restarts the animation.
+@mixin hit($name, $duration, $timing: ease-out) {
+    &[data-hit='a'] {
+        animation: #{$name}-a $duration $timing;
+    }
+
+    &[data-hit='b'] {
+        animation: #{$name}-b $duration $timing;
+    }
+}
+
+@mixin keyframes($name) {
+    @keyframes #{$name}-a {
+        @content;
+    }
+
+    @keyframes #{$name}-b {
+        @content;
+    }
+}
+
+
+.shortcut-recorder-demo {
+    --demo-red: var(--color-red-400);
+    --demo-red-tint: color-mix(in oklab, var(--color-red-400) 12%, var(--color-white-300));
+    --demo-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --demo-swap: cubic-bezier(0.22, 1, 0.36, 1);
+    display: grid;
+    width: min(100%, 420px);
+
+    &--panel {
+        background: var(--color-white-300);
+        border-radius: var(--border-radius-600);
+        box-shadow: inset 0 0 0 1px var(--color-border-300);
+        padding: 0 var(--size-400);
+    }
+
+    &-hint {
+        color: var(--color-text-300);
+        display: block;
+        font-size: var(--font-size-300);
+    }
+
+    // Trials only: undoes the recorder's own error morph, so each idea is judged alone. The '!important' width beats
+    // the recorder's glide animation, which would otherwise resize it for a message it no longer shows.
+    &-host {
+        display: inline-flex;
+        flex-shrink: 0;
+        position: relative;
+
+        .shortcut-recorder.shortcut-recorder-demo-bare {
+            --background-error: var(--background-active);
+            --border-color-error: var(--border-color-active);
+            animation: none;
+            justify-content: flex-end;
+            width: auto !important;
+
+            .shortcut-recorder-error {
+                display: none;
+            }
+
+            .shortcut-recorder-keys {
+                filter: none;
+                opacity: 1;
+                padding: 0;
+                position: static;
+                translate: none;
+            }
+        }
+
+        // Keeps the recorder's own shake and red border, still without its message.
+        .shortcut-recorder.shortcut-recorder-demo-bare--alert {
+            --border-color-error: var(--color-red-400);
+
+            &[data-shake='1'],
+            &[data-shake='1'] + .tooltip {
+                animation: shortcut-recorder-shake-1 320ms ease-out;
+            }
+
+            // The callout's stand-in shakes along, so its fill never shows past the field.
+            &[data-shake='2'],
+            &[data-shake='2'] + .tooltip {
+                animation: shortcut-recorder-shake-2 320ms ease-out;
+            }
+        }
+    }
+
+    &-label {
+        color: var(--color-text-500);
+        flex: 1 1 auto;
+        font-size: var(--font-size-400);
+        min-width: 0;
+        transition: color 200ms ease-out;
+    }
+
+    &-row {
+        align-items: center;
+        display: flex;
+        gap: var(--size-400);
+        justify-content: space-between;
+        padding: var(--size-400) 0;
+
+        &--border {
+            border-top: 1px solid var(--color-border-300);
+        }
+    }
+
+    // Shared by the label, hint and status line trials: the message rolls up over the text it replaces.
+    // A one-column track that can shrink, so a long message ends in an ellipsis instead of pushing the field away.
+    &-swap {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        overflow: hidden;
+
+        > * {
+            grid-area: 1 / 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition:
+                filter 320ms var(--demo-swap),
+                opacity 160ms linear,
+                translate 320ms var(--demo-swap);
+            white-space: nowrap;
+        }
+
+        &-error {
+            color: var(--demo-red);
+            filter: blur(2px);
+            opacity: 0;
+            translate: 0 100%;
+        }
+
+        &.--active {
+            .shortcut-recorder-demo-swap-base {
+                filter: blur(2px);
+                opacity: 0;
+                translate: 0 -100%;
+            }
+
+            .shortcut-recorder-demo-swap-error {
+                filter: blur(0);
+                opacity: 1;
+                translate: 0;
+            }
+        }
+    }
+
+
+    // 1. Callout. The stand-in sits behind the field, in its exact box, so the morph grows out from under it. Its dark
+    // fill never shows past the field; it is what the goo bridges from, so the neck reads as the tooltip leaving it.
+    &-host > .tooltip.shortcut-recorder-demo-stand-in {
+        background: var(--color-black-400);
+        border-radius: var(--border-radius-500);
+        cursor: auto;
+        inset: 0;
+        pointer-events: none;
+        position: absolute;
+        z-index: -1;
+    }
+
+    // Keeps the stand-in's negative z-index inside the host rather than behind the page.
+    &-host:has(> .shortcut-recorder-demo-stand-in) {
+        isolation: isolate;
+    }
+
+    // Long messages wrap instead of running off in one line.
+    &-morph.tooltip-content {
+        --background: var(--color-black-400);
+        --max-width: 240px;
+        --width: max-content;
+        color: var(--color-white-400);
+        font-size: var(--font-size-300);
+        padding: var(--size-300) var(--size-400);
+        white-space: normal;
+    }
+
+
+    // 3. Countdown
+    &-drain {
+        background: var(--demo-red);
+        border-radius: 1px;
+        display: block;
+        height: 2px;
+        margin-top: 3px;
+        opacity: 0;
+        scale: 0 1;
+        transform-origin: left;
+        transition: opacity 160ms linear;
+
+        &.--active {
+            opacity: 1;
+
+            @include hit(shortcut-recorder-demo-drain, 2200ms, linear);
+        }
+    }
+
+
+    // 4. Point at the conflict
+    &-owner {
+        border-radius: var(--border-radius-500);
+        margin: 0 calc(var(--size-300) * -1);
+        padding-inline: var(--size-300);
+        position: relative;
+
+        // Drawn inset rather than as a border, which the flash's rounded corners would bend.
+        &.shortcut-recorder-demo-row--border {
+            border-top: 0;
+
+            &::before {
+                border-top: 1px solid var(--color-border-300);
+                content: '';
+                inset: 0 var(--size-300) auto;
+                position: absolute;
+            }
+        }
+
+        &[data-flash='a'] {
+            animation: shortcut-recorder-demo-flash-a 1200ms ease-out;
+        }
+
+        &[data-flash='b'] {
+            animation: shortcut-recorder-demo-flash-b 1200ms ease-out;
+        }
+
+        &[data-flash='a'] .shortcut-recorder-demo-host .shortcut-recorder {
+            animation: shortcut-recorder-demo-ring-a 1200ms ease-out;
+        }
+
+        &[data-flash='b'] .shortcut-recorder-demo-host .shortcut-recorder {
+            animation: shortcut-recorder-demo-ring-b 1200ms ease-out;
+        }
+    }
+
+
+    // 5. Ghost keys
+    &-ghosts {
+        display: flex;
+        filter: blur(3px);
+        gap: 4px;
+        margin-right: 8px;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        right: 100%;
+        top: 50%;
+        transition:
+            filter 200ms ease-out,
+            opacity 200ms ease-out,
+            translate 200ms ease-out;
+        translate: 8px -50%;
+
+        &.--active {
+            filter: blur(0);
+            opacity: 1;
+            translate: 0 -50%;
+
+            .shortcut-recorder-demo-ghost {
+                animation:
+                    shortcut-recorder-demo-ghost-in 360ms var(--demo-spring) calc(var(--i) * 50ms) backwards,
+                    shortcut-recorder-demo-ghost-pulse 900ms ease-in-out 400ms infinite alternate;
+            }
+        }
+    }
+
+    &-ghost {
+        background: var(--color-white-300);
+        border: 1px dashed var(--demo-red);
+        border-radius: 6px;
+        color: var(--demo-red);
+        font: inherit;
+        font-size: var(--font-size-300);
+        max-width: 220px;
+        overflow: hidden;
+        padding: 2px 6px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+    // 6. Ping + badge
+    &-badge {
+        background: var(--demo-red);
+        border-radius: 50%;
+        color: var(--color-white-300);
+        display: grid;
+        font-size: 11px;
+        font-weight: 700;
+        height: 16px;
+        place-items: center;
+        pointer-events: auto;
+        position: absolute;
+        right: -6px;
+        scale: 0;
+        top: -6px;
+        transition: scale 280ms var(--demo-spring);
+        width: 16px;
+        z-index: 2;
+
+        &::after {
+            background: var(--color-black-400);
+            border-radius: var(--border-radius-400);
+            color: var(--color-white-400);
+            content: attr(data-text);
+            font-size: var(--font-size-300);
+            font-weight: 400;
+            max-width: 240px;
+            opacity: 0;
+            padding: 6px 10px;
+            pointer-events: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 6px);
+            transition: opacity 128ms ease-out;
+            width: max-content;
+        }
+
+        &.--active {
+            scale: 1;
+        }
+
+        &:hover::after {
+            opacity: 1;
+        }
+    }
+
+    &-ring {
+        animation: shortcut-recorder-demo-ring 700ms ease-out forwards;
+        border-radius: var(--border-radius-500);
+        inset: 0;
+        pointer-events: none;
+        position: absolute;
+
+        &--late {
+            animation-delay: 160ms;
+            animation-fill-mode: both;
+        }
+    }
+
+
+    // 7. Status bar
+    &-status {
+        align-items: center;
+        border-top: 1px solid var(--color-border-300);
+        display: flex;
+        font-size: var(--font-size-300);
+        height: 36px;
+
+        .shortcut-recorder-demo-swap-base {
+            color: var(--color-text-300);
+        }
+    }
+
+
+    // 8. Row flash
+    &-flash {
+        border-radius: var(--border-radius-500);
+        margin: 0 calc(var(--size-300) * -1);
+        padding-inline: var(--size-300);
+
+        @include hit(shortcut-recorder-demo-flash, 1200ms);
+
+        &.--active .shortcut-recorder-demo-label {
+            color: var(--demo-red);
+        }
+
+        // Only a live error flashes; the parity alone would replay it on first paint.
+        &:not(.--active) {
+            animation: none;
+        }
+    }
+
+
+    // 9. Border trace
+    &-trace {
+        height: 100%;
+        inset: 0;
+        overflow: visible;
+        pointer-events: none;
+        position: absolute;
+        width: 100%;
+
+        rect {
+            animation: shortcut-recorder-demo-trace 1400ms var(--demo-swap) forwards;
+            fill: none;
+            height: calc(100% - 2px);
+            rx: var(--border-radius-500);
+            stroke: var(--demo-red);
+            stroke-dasharray: 100;
+            stroke-linecap: round;
+            stroke-width: 2;
+            width: calc(100% - 2px);
+        }
+    }
+
+
+    // 10. Jelly
+    &-jelly {
+        &[data-hit='a'] {
+            animation: shortcut-recorder-demo-jelly-a 640ms ease-out;
+        }
+
+        &[data-hit='b'] {
+            animation: shortcut-recorder-demo-jelly-b 640ms ease-out;
+        }
+    }
+
+    &-caption {
+        color: var(--demo-red);
+        filter: blur(2px);
+        font-size: var(--font-size-300);
+        max-width: 260px;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+        position: absolute;
+        right: 2px;
+        text-overflow: ellipsis;
+        top: calc(100% + 4px);
+        transition:
+            filter 200ms ease-out,
+            opacity 200ms ease-out,
+            translate 200ms ease-out;
+        translate: 0 -4px;
+        white-space: nowrap;
+
+        &.--active {
+            filter: blur(0);
+            opacity: 1;
+            translate: 0;
+        }
+    }
+
+
+    // 11. Typewriter
+    &-typed {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: color 200ms ease-out;
+        white-space: nowrap;
+
+        &::after {
+            animation: shortcut-recorder-demo-caret 1s steps(2, jump-none) infinite;
+            background: currentColor;
+            content: '';
+            display: inline-block;
+            height: 1em;
+            margin-left: 2px;
+            vertical-align: -2px;
+            width: 1.5px;
+        }
+
+        &.--active {
+            color: var(--demo-red);
+        }
+    }
+
+
+    // 12. Flip
+    &-flip {
+        perspective: 600px;
+
+        .shortcut-recorder,
+        .shortcut-recorder-demo-face {
+            backface-visibility: hidden;
+            transition: transform 560ms cubic-bezier(0.3, 1.35, 0.5, 1);
+        }
+
+        &.--active {
+            .shortcut-recorder {
+                transform: rotateX(180deg);
+            }
+
+            .shortcut-recorder-demo-face {
+                transform: rotateX(0deg);
+            }
+        }
+    }
+
+    // A block with its line as tall as the field, so a long message can end in an ellipsis; flex text can't.
+    &-face {
+        background: var(--demo-red-tint);
+        border-radius: var(--border-radius-500);
+        bottom: 0;
+        box-shadow: inset 0 0 0 1.5px var(--demo-red);
+        color: var(--demo-red);
+        display: block;
+        font-size: var(--font-size-300);
+        font-weight: 600;
+        line-height: 36px;
+        max-width: 260px;
+        min-width: 100%;
+        overflow: hidden;
+        padding: 0 10px;
+        text-align: center;
+        text-overflow: ellipsis;
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transform: rotateX(-180deg);
+        white-space: nowrap;
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::after {
+            animation: none !important;
+            transition-property: opacity, color !important;
+        }
+    }
+}
+
+
+
+@include keyframes(shortcut-recorder-demo-drain) {
+    from {
+        scale: 1 1;
+    }
+
+    to {
+        scale: 0 1;
+    }
+}
+
+@include keyframes(shortcut-recorder-demo-flash) {
+    from {
+        background: color-mix(in oklab, var(--color-red-400) 16%, transparent);
+    }
+
+    to {
+        background: transparent;
+    }
+}
+
+@include keyframes(shortcut-recorder-demo-jelly) {
+    0% {
+        scale: 1 1;
+    }
+
+    20% {
+        scale: 1.14 0.84;
+    }
+
+    40% {
+        scale: 0.9 1.1;
+    }
+
+    60% {
+        scale: 1.05 0.96;
+    }
+
+    80% {
+        scale: 0.98 1.02;
+    }
+
+    100% {
+        scale: 1 1;
+    }
+}
+
+@include keyframes(shortcut-recorder-demo-ring) {
+    0% {
+        box-shadow:
+            inset 0 0 0 1.5px var(--color-red-400),
+            0 0 0 0 color-mix(in oklab, var(--color-red-400) 45%, transparent);
+    }
+
+    100% {
+        box-shadow:
+            inset 0 0 0 1px var(--border-color),
+            0 0 0 10px transparent;
+    }
+}
+
+@keyframes shortcut-recorder-demo-caret {
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes shortcut-recorder-demo-ghost-in {
+    from {
+        filter: blur(3px);
+        opacity: 0;
+        scale: 0.6;
+        translate: 16px 0;
+    }
+}
+
+@keyframes shortcut-recorder-demo-ghost-pulse {
+    to {
+        opacity: 0.5;
+    }
+}
+
+@keyframes shortcut-recorder-demo-ring {
+    from {
+        box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-red-400) 55%, transparent);
+    }
+
+    to {
+        box-shadow: 0 0 0 14px transparent;
+    }
+}
+
+@keyframes shortcut-recorder-demo-trace {
+    0% {
+        opacity: 1;
+        stroke-dashoffset: 100;
+    }
+
+    45% {
+        opacity: 1;
+        stroke-dashoffset: 0;
+    }
+
+    100% {
+        opacity: 0;
+        stroke-dashoffset: 0;
+    }
+}
