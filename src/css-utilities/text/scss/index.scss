@@ -67,6 +67,40 @@
         }
     }
 
+    // A copy of the text from 'data-text', nudged down-right and filled with fine diagonal hatching that drifts, like
+    // a printed drop shadow.
+    &-line-shadow {
+        display: inline-flex;
+        position: relative;
+        z-index: 0;
+
+        &::after {
+            animation: text-line-shadow var(--duration) linear infinite;
+            background-clip: text;
+            background-image: linear-gradient(
+                45deg,
+                transparent 45%,
+                var(--shadow-color) 45%,
+                var(--shadow-color) 55%,
+                transparent 0
+            );
+            background-size: var(--line-size) var(--line-size);
+            color: transparent;
+            content: attr(data-text);
+            left: var(--offset);
+            pointer-events: none;
+            position: absolute;
+            top: var(--offset);
+            z-index: -1;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            &::after {
+                animation: none;
+            }
+        }
+    }
+
     &-truncate {
         max-width: 100%;
         overflow: hidden;
@@ -78,5 +112,15 @@
 @keyframes text-gradient {
     to {
         background-position: var(--background-size) 0;
+    }
+}
+
+@keyframes text-line-shadow {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 100% -100%;
     }
 }

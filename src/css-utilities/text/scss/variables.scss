@@ -5,3 +5,10 @@
     // Multiplies how far the gradient travels per loop; 2 sweeps twice the distance in the same time.
     --speed: 1;
 }
+
+.--text-line-shadow {
+    --duration: 15s;
+    --line-size: 0.06em;
+    --offset: 0.04em;
+    --shadow-color: var(--color-text-500);
+}

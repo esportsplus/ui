@@ -125,10 +125,6 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Columns of cards you drag within and between lists, or move entirely from the keyboard.'
     },
-    'line-shadow-text': {
-        category: 'Display',
-        description: 'Text with an offset drop shadow drawn in drifting diagonal hatch lines (Magic UI).'
-    },
     link: {
         category: 'Layout',
         description: 'Inline and block navigation links with hover states.'

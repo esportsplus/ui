@@ -149,7 +149,7 @@ const utilities: Utility[] = [
     },
     {
         category: 'Surface',
-        description: 'Typography helpers for cropping, truncating and filling text with a looping gradient; set --color-from, --color-to, --duration and --speed to tune --text-gradient.',
+        description: 'Typography helpers for cropping, truncating, filling text with a looping gradient and hatching a drifting drop shadow; set --color-from, --color-to, --duration and --speed to tune --text-gradient, and give --text-line-shadow its text in data-text (--shadow-color, --line-size, --offset, --duration tune it).',
         name: 'text',
         variants: [
             {
@@ -159,6 +159,14 @@ const utilities: Utility[] = [
             {
                 render: () => html`<p class='--text-gradient' style='--color-from: #4ade80; --color-to: #06b6d4; --speed: 2; font-size: 36px; font-weight: var(--font-weight-600); letter-spacing: -0.025em; margin: 0;'>Fast Gradient</p>`,
                 title: 'gradient, custom colors, speed 2'
+            },
+            {
+                render: () => html`<h1 style='font-size: clamp(48px, 9vw, 96px); font-weight: var(--font-weight-600); letter-spacing: -0.05em; line-height: 1; margin: 0;'>Ship <span class='--text-line-shadow' data-text='Fast' style='font-style: italic;'>Fast</span></h1>`,
+                title: 'line shadow'
+            },
+            {
+                render: () => html`<h1 class='--text-line-shadow' data-text='Colored' style='--shadow-color: var(--color-blue-400); font-size: clamp(48px, 9vw, 96px); font-weight: var(--font-weight-600); letter-spacing: -0.05em; line-height: 1; margin: 0;'>Colored</h1>`,
+                title: 'line shadow, custom color'
             },
             {
                 render: () => html`<div class='--text-truncate' style='max-width: 240px;'>This sentence is intentionally long so it gets truncated with an ellipsis.</div>`,
