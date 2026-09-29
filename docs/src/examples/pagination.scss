@@ -1,4 +1,4 @@
-.page-dots-demo {
+.pagination-demo {
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -144,8 +144,8 @@
             color: var(--color-text-500);
         }
 
-        &.--active .page-dots-demo-icon--pause,
-        &:not(.--active) .page-dots-demo-icon--play {
+        &.--active .pagination-demo-icon--pause,
+        &:not(.--active) .pagination-demo-icon--play {
             filter: blur(0);
             opacity: 1;
             scale: 1;

@@ -3,6 +3,8 @@ import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import icon from '~/components/icon';
 import next from '@esportsplus/ui/svg/arrow-right.svg';
 import previous from '@esportsplus/ui/svg/arrow-left.svg';
+import dots from './dots';
+import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
 
@@ -44,7 +46,7 @@ function pages(page: number, siblings: number, total: number) {
 }
 
 
-export default ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), total, ...attributes }: Attributes & {
+const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), total, ...attributes }: Attributes & {
     onchange?: (page: number) => void;
     siblings?: number;
     state?: { page: number };
@@ -90,7 +92,7 @@ export default ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), to
         <nav aria-label='Pagination' class='pagination' ${attributes}>
             <button
                 aria-disabled='${() => String(api.page <= 1)}'
-                class='button pagination-control ${() => api.page <= 1 ? '--disabled' : ''}'
+                class='button pagination-control ${() => api.page <= 1 && '--disabled'}'
                 onclick='${() => go(api.page - 1)}'
                 type='button'
             >
@@ -104,7 +106,7 @@ export default ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), to
                         <button
                             aria-current='${() => cell.value === api.page ? 'page' : 'false'}'
                             aria-hidden='${() => String(cell.value === DOTS)}'
-                            class='button pagination-page ${() => cell.value === DOTS ? 'pagination-page--dots' : cell.value === api.page ? '--active' : ''}'
+                            class='button pagination-page ${() => cell.value === DOTS ? 'pagination-page--dots' : cell.value === api.page && '--active'}'
                             onclick='${() => cell.value !== DOTS && go(cell.value)}'
                             tabindex='${() => cell.value === DOTS ? -1 : 0}'
                             type='button'
@@ -117,7 +119,7 @@ export default ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), to
 
             <button
                 aria-disabled='${() => String(api.page >= total)}'
-                class='button pagination-control ${() => api.page >= total ? '--disabled' : ''}'
+                class='button pagination-control ${() => api.page >= total && '--disabled'}'
                 onclick='${() => go(api.page + 1)}'
                 type='button'
             >
@@ -127,3 +129,8 @@ export default ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), to
         </nav>
     `;
 };
+
+const pagination: typeof plain & { dots: typeof dots } = Object.assign(plain, { dots });
+
+
+export default pagination;

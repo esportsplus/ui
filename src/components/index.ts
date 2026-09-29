@@ -28,7 +28,6 @@ export { default as marquee } from './marquee';
 export { default as notificationBell } from './notification-bell';
 export { default as number } from './number';
 export { default as overlay } from './overlay';
-export { default as pageDots } from './page-dots';
 export { default as pagination } from './pagination';
 export { default as progress } from './progress';
 export { default as pullToRefresh } from './pull-to-refresh';

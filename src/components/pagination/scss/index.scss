@@ -1,5 +1,4 @@
-// Before variables: the button sheet re-emits its defaults, which would otherwise override ours.
-@use '../../button/scss/index';
+@use 'dots';
 @use 'variables';
 
 .pagination {

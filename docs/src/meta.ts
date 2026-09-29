@@ -154,9 +154,9 @@ const meta: Record<string, Meta> = {
         category: 'Layout',
         description: 'Vertical page scaffold with title, suptitle, and subtitle slots.'
     },
-    'page-dots': {
+    pagination: {
         category: 'Interactive',
-        description: 'Scroll-linked page indicator whose active pill stretches between dots like a worm, with an optional autoplay countdown.'
+        description: 'Numbered page navigation that folds overflow into ellipses, plus a scroll-linked dots indicator whose active pill stretches between dots like a worm, with an optional autoplay countdown.'
     },
     progress: {
         category: 'Display',

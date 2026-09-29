@@ -1,10 +1,9 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
-import './scss/index.scss';
 
 
 type A = Attributes & {
-    [PAGE_DOTS_DOT]?: Attributes;
+    [DOTS_DOT]?: Attributes;
     // Milliseconds the pill takes to fill while 'state.running'; omitted for plain dots.
     autoplay?: number;
     count: number;
@@ -21,7 +20,7 @@ type State = {
 };
 
 
-const PAGE_DOTS_DOT = Symbol.for('@esportsplus/ui/page-dots.dot');
+const DOTS_DOT = Symbol.for('@esportsplus/ui/pagination.dots.dot');
 
 // Paused partway, the fill eases back to full rather than snapping, so a paused pill reads as solid, not half done.
 const SETTLE: KeyframeAnimationOptions = { duration: 200, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' };
@@ -31,15 +30,12 @@ function template(
     this: { attributes?: Partial<A> } | void,
     { autoplay, count, onelapsed, onpage, state = reactive({ active: 0, progress: 0, running: false }), ...attributes }: A
 ) {
-    let element: HTMLElement | undefined,
-        fill: HTMLElement | undefined,
+    let fill: HTMLElement | undefined,
         local = reactive({ connected: false }),
         settle: Animation | undefined,
         stops = [
             effect(() => {
                 let active = Math.min(Math.max(Math.round(state.progress), 0), count - 1);
-
-                element?.style.setProperty('--progress', String(state.progress));
 
                 if (state.active !== active) {
                     state.active = active;
@@ -92,9 +88,9 @@ function template(
     return html`
         <div
             aria-label='Pages'
-            class='page-dots ${autoplay && 'page-dots--autoplay'}'
+            class='pagination pagination--dots ${autoplay && 'pagination--dots-autoplay'}'
             role='group'
-            style='${`--count: ${count}; --progress: ${state.progress};`}'
+            style='${() => `--count: ${count}; --progress: ${state.progress};`}'
             ${this?.attributes}
             ${attributes}
             ${{
@@ -103,9 +99,6 @@ function template(
                 },
                 ondisconnect: () => {
                     local.connected = false;
-                },
-                onrender: (el: HTMLElement) => {
-                    element = el;
                 }
             }}
         >
@@ -113,19 +106,19 @@ function template(
                 <button
                     aria-current='${() => state.active === i && 'page'}'
                     aria-label='${`Page ${i + 1} of ${count}`}'
-                    class='page-dots-dot'
+                    class='pagination-dot'
                     onclick='${() => onpage?.(i)}'
                     style='${`--index: ${i};`}'
                     type='button'
-                    ${this?.attributes?.[PAGE_DOTS_DOT]}
-                    ${attributes[PAGE_DOTS_DOT]}
+                    ${this?.attributes?.[DOTS_DOT]}
+                    ${attributes[DOTS_DOT]}
                 >
-                    <span class='page-dots-mark'></span>
+                    <span class='pagination-mark'></span>
                 </button>
             `)}
-            <span aria-hidden='true' class='page-dots-pill'>
+            <span aria-hidden='true' class='pagination-pill'>
                 ${autoplay && html`
-                    <span class='page-dots-fill' onrender='${(el: HTMLElement) => { fill = el; }}'></span>
+                    <span class='pagination-fill' onrender='${(el: HTMLElement) => { fill = el; }}'></span>
                 `}
             </span>
         </div>
@@ -133,5 +126,5 @@ function template(
 }
 
 
-export default component(template, { dot: PAGE_DOTS_DOT });
+export default component(template, { dot: DOTS_DOT });
 export type { State };

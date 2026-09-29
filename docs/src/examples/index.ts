@@ -35,7 +35,6 @@ import notificationBell from './notification-bell';
 import number from './number';
 import overlay from './overlay';
 import page from './page';
-import pageDots from './page-dots';
 import pagination from './pagination';
 import progress from './progress';
 import pullToRefresh from './pull-to-refresh';
@@ -114,7 +113,6 @@ const entries: Entry[] = [
     number,
     overlay,
     page,
-    pageDots,
     pagination,
     progress,
     pullToRefresh,

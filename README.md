@@ -78,7 +78,7 @@ html`
 | `alert` | Notifications | error, info, success types |
 | `dock` | macOS-style `card` shelf whose icons swell toward the cursor on a spring, with delayed `tooltip` labels (`group` shares one gliding `tooltip.shared` label) and a hop-and-squash launch that lights a running dot (per-item `state.running`, `onlaunch`) | `dock.button`, `dock--square` |
 | `card.expand` | List of `card--expand` cards that each morph into their own `card` `overlay` and fly back into their slot through a view transition (a plain `overlay` fade where unsupported, a cross-fade under reduced motion); `state.open` is two-way | `card.expand.trigger` |
-| `pageDots` | Page indicator driven by a continuous `state.progress`; the pill stretches between dots like a worm, with an optional autoplay countdown | `page-dots--large` |
+| `pagination.dots` | Page indicator driven by a continuous `state.progress`; the pill stretches between dots like a worm, with an optional autoplay countdown | `pagination.dots.dot`, `pagination--dots-large` |
 | `pullToRefresh` | Rubber-band pull gesture (touch and mouse) with a stepped tick spinner; new items above the old first one slide in | - |
 | `snapCarousel` | Native scroll-snap card carousel with mouse flick, scroll-driven focus scaling, and edge-aware arrows | `snapCarousel.arrow`, `snapCarousel.card` |
 | `sortable` | Drag-and-drop reordering of an element's children, across containers with `group` | `sortable--{effect}` modifiers |

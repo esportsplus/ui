@@ -4,6 +4,34 @@
     --gap: var(--size-300);
     --size: 32px;
 
+    &--dots {
+        --color: var(--color-text-500);
+        --dot-color: oklch(from var(--color) l c h / 0.2);
+        --dot-color-hover: oklch(from var(--color) l c h / 0.35);
+        --dot-gap: 6px;
+        --dot-size: 6px;
+        --focus-color: var(--color);
+        --height: 32px;
+        --pill-color: var(--color);
+        --pill-width: 20px;
+        --pressed-scale: 0.96;
+        --step: calc(var(--dot-size) + var(--dot-gap));
+        --track-color: var(--pill-color);
+        --transition-duration: 0.15s;
+        --transition-timing-function: ease-out;
+    }
+
+    // Twice the dots' tint, so the pill still reads as the active slot before its countdown fills it.
+    &--dots-autoplay {
+        --track-color: oklch(from var(--pill-color) l c h / 0.4);
+    }
+
+    &--dots-large {
+        --dot-gap: 8px;
+        --dot-size: 8px;
+        --pill-width: 28px;
+    }
+
     &-control,
     &-page {
         --background-hover: var(--color-grey-400);
@@ -30,6 +58,10 @@
         }
     }
 
+    &-dot {
+        --near: clamp(0, 1 - max(var(--progress) - var(--index), var(--index) - var(--progress)), 1);
+    }
+
     &-page {
         --background-active: var(--color-white-300);
         --border-color-active: var(--color-border-300);
@@ -46,5 +78,15 @@
             --background-pressed: transparent;
             --color-hover: var(--color-default);
         }
+    }
+
+    // The leading edge travels in the first 60% of the move and the trailing edge in the last 60%.
+    &-pill {
+        --k: clamp(0, round(down, var(--progress), 1), max(var(--count) - 2, 0));
+        --t: clamp(0, var(--progress) - var(--k), 1);
+        --lead-t: clamp(0, var(--t) / 0.6, 1);
+        --trail-t: clamp(0, (var(--t) - 0.4) / 0.6, 1);
+        --lead: calc(var(--lead-t) * var(--lead-t) * (3 - 2 * var(--lead-t)));
+        --trail: calc(var(--trail-t) * var(--trail-t) * (3 - 2 * var(--trail-t)));
     }
 }
