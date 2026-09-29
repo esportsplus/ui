@@ -22,7 +22,6 @@ export { default as image } from './image';
 export { default as inlineEdit } from './inline-edit';
 export { default as input } from './input';
 export { default as json } from './json';
-export { default as kanbanBoard } from './kanban-board';
 export { default as loading } from './loading';
 export { default as longPress } from './long-press';
 export { default as marquee } from './marquee';

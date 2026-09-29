@@ -82,7 +82,6 @@ html`
 | `alert` | Notifications | error, info, success types |
 | `dock` | macOS-style `card` shelf whose icons swell toward the cursor on a spring, with delayed `tooltip` labels (`group` shares one gliding `tooltip.shared` label) and a hop-and-squash launch that lights a running dot (per-item `state.running`, `onlaunch`) | `dock.button`, `dock--square` |
 | `card.expand` | List of `card--expand` cards that each morph into their own `card` `modal` and fly back into their slot through a view transition (a plain `modal` fade where unsupported, a cross-fade under reduced motion); `state.open` is two-way | `card.expand.trigger` |
-| `kanbanBoard` | Columns of cards dragged within and between lists (built on `sortable` groups), with keyboard moves | - |
 | `morphingButton` | Async save button that morphs into a spinner circle, confirms with a check, and shakes on failure | `morphing-button--blue` |
 | `pageDots` | Page indicator driven by a continuous `state.progress`; the pill stretches between dots like a worm, with an optional autoplay countdown | `page-dots--large` |
 | `pullToRefresh` | Rubber-band pull gesture (touch and mouse) with a stepped tick spinner; new items above the old first one slide in | - |
@@ -460,7 +459,7 @@ type State = {
 
 ## Credits
 
-Many interaction designs (kanban board, carousels, pickers, text effects and more) are ported from
+Many interaction designs (carousels, pickers, text effects and more) are ported from
 [ui-lab](https://github.com/xevrion/ui-lab) by Yash Bavadiya, MIT licensed, © 2026 Yash Bavadiya.
 
 ## License

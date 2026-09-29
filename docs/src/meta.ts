@@ -121,10 +121,6 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Structured JSON viewer with download support.'
     },
-    'kanban-board': {
-        category: 'Interactive',
-        description: 'Columns of cards you drag within and between lists, or move entirely from the keyboard.'
-    },
     link: {
         category: 'Layout',
         description: 'Inline and block navigation links with hover states.'

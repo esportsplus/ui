@@ -27,7 +27,6 @@ import image from './image';
 import inlineEdit from './inline-edit';
 import input from './input';
 import json from './json';
-import kanbanBoard from './kanban-board';
 import link from './link';
 import loading from './loading';
 import longPress from './long-press';
@@ -126,7 +125,6 @@ const entries: Entry[] = [
     inlineEdit,
     input,
     json,
-    kanbanBoard,
     link,
     loading,
     longPress,
