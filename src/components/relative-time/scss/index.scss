@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 // Qualified twice so it beats the reused tooltip's own cursor.
@@ -27,6 +28,20 @@
     &-rest {
         display: inline-block;
         white-space: pre;
+    }
+
+    &-digit,
+    &-rest,
+    &-slot {
+        &.--entering {
+            animation: relative-time-enter var(--roll-duration) var(--roll-timing-function);
+        }
+
+        // JS pins 'left' and 'top' to where it stood.
+        &.--exiting {
+            animation: relative-time-exit var(--roll-duration) var(--roll-timing-function) forwards;
+            position: absolute;
+        }
     }
 
     &-digits,
@@ -67,7 +82,7 @@
             scale var(--transition-duration) var(--transition-timing-function),
             translate var(--transition-duration) var(--transition-timing-function);
 
-        .relative-time.--active > & {
+        #{tokens.state(active, '.relative-time')} > & {
             filter: blur(0px);
         }
 
@@ -76,10 +91,25 @@
         }
     }
 
-
     @media (prefers-reduced-motion: reduce) {
         &-tooltip.tooltip-message {
             filter: none;
         }
+    }
+}
+
+@keyframes relative-time-enter {
+    from {
+        filter: blur(var(--roll-blur));
+        opacity: 0;
+        translate: 0 var(--roll-enter-offset);
+    }
+}
+
+@keyframes relative-time-exit {
+    to {
+        filter: blur(var(--roll-blur));
+        opacity: 0;
+        translate: 0 var(--roll-exit-offset);
     }
 }

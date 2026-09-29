@@ -1,7 +1,23 @@
+@use '/tokens';
+
 .relative-time {
     --color-hover: var(--color-text-500);
     --focus-color: var(--color-text-500);
     --placeholder: '0 min ago';
+    --roll-blur: 3px;
+    // Long enough to read as motion, short enough that a seconds counter never has two rolls overlapping.
+    --roll-duration: 0.3s;
+    --roll-enter-offset: 0.55em;
+    // Travels less than the entrance did: the exit shouldn't hold the eye.
+    --roll-exit-offset: -0.4em;
+    --roll-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+
+    // A plain crossfade: nothing travels.
+    @media (prefers-reduced-motion: reduce) {
+        --roll-blur: 0px;
+        --roll-enter-offset: 0;
+        --roll-exit-offset: 0;
+    }
 }
 
 .relative-time-tooltip.tooltip-message {
@@ -17,7 +33,7 @@
     --transition-duration: 0.1s;
     --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
-    .relative-time.--active > & {
+    #{tokens.state(active, '.relative-time')} > & {
         --transition-duration: 0.16s;
     }
 

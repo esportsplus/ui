@@ -1,5 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { computed, dispose, effect, onCleanup, reactive, read } from '@esportsplus/reactivity';
 import tooltip from '~/components/tooltip';
 import './scss/index.scss';
 
@@ -7,6 +7,9 @@ import './scss/index.scss';
 type A = Attributes & {
     [RELATIVE_TIME_TOOLTIP]?: Attributes;
     date: Value;
+    onanimationcancel?: never;
+    onanimationend?: never;
+    onanimationstart?: never;
     ondocumentkeydown?: never;
     ondocumentvisibilitychange?: never;
     onfocusin?: never;
@@ -14,6 +17,9 @@ type A = Attributes & {
     onmouseout?: never;
     onmouseover?: never;
     onpointermove?: never;
+    ontransitioncancel?: never;
+    ontransitionend?: never;
+    ontransitionrun?: never;
     state?: State;
 };
 
@@ -26,22 +32,9 @@ type State = {
 type Value = Date | number | string | null;
 
 
+const DATE_FORMAT = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
+
 const DAY = 24 * 60 * 60 * 1000;
-
-const ENTER: Keyframe[] = [
-    { filter: 'blur(3px)', opacity: 0, translate: '0 0.55em' },
-    { filter: 'blur(0px)', opacity: 1, translate: '0 0' }
-];
-
-// Travels less than the entrance did: the exit shouldn't hold the eye.
-const EXIT: Keyframe[] = [
-    { filter: 'blur(0px)', opacity: 1, translate: '0 0' },
-    { filter: 'blur(3px)', opacity: 0, translate: '0 -0.4em' }
-];
-
-const FADE_IN: Keyframe[] = [{ opacity: 0 }, { opacity: 1 }];
-
-const FADE_OUT: Keyframe[] = [{ opacity: 1 }, { opacity: 0 }];
 
 const HOUR = 60 * 60 * 1000;
 
@@ -51,9 +44,6 @@ const MAX_TIMEOUT = 2 ** 31 - 1;
 const MIN = 60 * 1000;
 
 const RELATIVE_TIME_TOOLTIP = Symbol.for('@esportsplus/ui/relative-time.tooltip');
-
-// Long enough to read as motion, short enough that a seconds counter never has two rolls overlapping.
-const ROLL: KeyframeAnimationOptions = { duration: 300, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' };
 
 const SEC = 1000;
 
@@ -80,18 +70,6 @@ const WEEK = 7 * DAY;
 let uid = 0;
 
 
-function enter(element: HTMLElement, reduce: boolean) {
-    element.animate(reduce ? FADE_IN : ENTER, ROLL);
-}
-
-function exit(element: HTMLElement, reduce: boolean) {
-    // Leaves the flow at once, so what replaces it takes its place while it rolls away.
-    element.style.left = `${element.offsetLeft}px`;
-    element.style.position = 'absolute';
-    element.style.top = `${element.offsetTop}px`;
-    element.animate(reduce ? FADE_OUT : EXIT, { ...ROLL, fill: 'forwards' }).onfinish = () => element.remove();
-}
-
 function label(diff: number, time: number) {
     if (diff < 10 * SEC) {
         return 'just now';
@@ -117,11 +95,75 @@ function label(diff: number, time: number) {
         return `${Math.floor(diff / DAY)} days ago`;
     }
 
-    return new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' }).format(time);
+    return DATE_FORMAT.format(time);
 }
 
-function reduced() {
-    return matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Takes elements out of the flow where they stand, so what replaces them takes their place while they roll away. All are
+// measured before any moves, so the batch costs one layout.
+function leave(elements: HTMLElement[]) {
+    let offsets = elements.map((element) => [element.offsetLeft, element.offsetTop]);
+
+    for (let i = 0, n = elements.length; i < n; i++) {
+        let style = elements[i].style;
+
+        style.left = `${offsets[i][0]}px`;
+        style.top = `${offsets[i][1]}px`;
+        elements[i].classList.add('--exiting');
+    }
+}
+
+// Keyed from the right, so 9 -> 10 rolls the ones and brings a new tens digit in beside it.
+function render(digits: HTMLElement, rest: HTMLElement, text: string) {
+    let match = text.match(/^(\d+)(.*)$/),
+        next = match ? match[1] : '',
+        suffix = match ? match[2] : text;
+
+    if (!rest.firstChild) {
+        digits.replaceChildren(...[...next].map((digit) => slot(digit, 'relative-time-slot')));
+        rest.replaceChildren(span(suffix, 'relative-time-rest'));
+        return;
+    }
+
+    let leaving: HTMLElement[] = [],
+        slots = settled(digits);
+
+    for (let key = 1, n = Math.max(slots.length, next.length); key <= n; key++) {
+        let digit = next[next.length - key],
+            element = slots[slots.length - key];
+
+        if (!element) {
+            digits.prepend(slot(digit, 'relative-time-slot --entering'));
+        }
+        else if (digit === undefined) {
+            leaving.push(element);
+        }
+        else {
+            swap(element, digit, 'relative-time-digit', leaving);
+        }
+    }
+
+    swap(rest, suffix, 'relative-time-rest', leaving);
+    leave(leaving);
+}
+
+// Cancelled too (an ancestor hidden mid-roll), or the element would linger out of the flow.
+function retire(e: AnimationEvent) {
+    if (e.animationName === 'relative-time-exit') {
+        (e.target as Element).remove();
+    }
+}
+
+// Children still in the flow; ones rolling away are on their way out.
+function settled(container: HTMLElement) {
+    return container.querySelectorAll<HTMLElement>(':scope > :not(.--exiting)');
+}
+
+function slot(digit: string, className: string) {
+    let element = span('', className);
+
+    element.append(span(digit, 'relative-time-digit'));
+
+    return element;
 }
 
 function span(text: string, className: string) {
@@ -131,6 +173,20 @@ function span(text: string, className: string) {
     element.textContent = text;
 
     return element;
+}
+
+function swap(container: HTMLElement, text: string, className: string, leaving: HTMLElement[]) {
+    let current = settled(container)[0];
+
+    if (current?.textContent === text) {
+        return;
+    }
+
+    if (current) {
+        leaving.push(current);
+    }
+
+    container.append(span(text, `${className} --entering`));
 }
 
 function timeOf(value: Value) {
@@ -162,9 +218,16 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
         digits: HTMLElement | undefined,
         id = `relative-time-${++uid}`,
         message: HTMLElement | undefined,
-        rest: HTMLElement | undefined,
-        shown: { digits: string; rest: string } | null = null,
+        rests: HTMLElement | undefined,
         stopRender: VoidFunction | undefined,
+        time = computed(() => timeOf(state.date)),
+        text = computed(() => {
+            let value = read(time);
+
+            clock.tick;
+
+            return value === null ? null : label((state.now ?? Date.now()) - value, value);
+        }),
         timer: ReturnType<typeof setTimeout> | undefined,
         tip = reactive({ active: false });
 
@@ -185,104 +248,21 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
         }
     }
 
-    // Keyed from the right, so 9 -> 10 rolls the ones and brings a new tens digit in beside it.
-    function render(text: string) {
-        let match = text.match(/^(\d+)(.*)$/),
-            next = { digits: match ? match[1] : '', rest: match ? match[2] : text },
-            previous = shown,
-            reduce = reduced();
-
-        shown = next;
-
-        if (!digits || !rest) {
-            return;
-        }
-
-        if (!previous) {
-            digits.replaceChildren(...[...next.digits].map((digit) => slot(digit)));
-            rest.replaceChildren(span(next.rest, 'relative-time-rest'));
-            return;
-        }
-
-        let slots = Array.from(digits.children as HTMLCollectionOf<HTMLElement>).filter((element) => !element.style.position);
-
-        for (let key = 1, n = Math.max(slots.length, next.digits.length); key <= n; key++) {
-            let digit = next.digits[next.digits.length - key],
-                element = slots[slots.length - key];
-
-            if (!element) {
-                let created = slot(digit);
-
-                digits.prepend(created);
-                enter(created, reduce);
-                continue;
-            }
-
-            if (digit === undefined) {
-                exit(element, reduce);
-                continue;
-            }
-
-            let current = Array.from(element.children as HTMLCollectionOf<HTMLElement>).find((child) => !child.style.position);
-
-            if (current?.textContent === digit) {
-                continue;
-            }
-
-            let created = span(digit, 'relative-time-digit');
-
-            if (current) {
-                exit(current, reduce);
-            }
-
-            element.append(created);
-            enter(created, reduce);
-        }
-
-        if (previous.rest === next.rest) {
-            return;
-        }
-
-        let created = span(next.rest, 'relative-time-rest'),
-            current = Array.from(rest.children as HTMLCollectionOf<HTMLElement>).find((child) => !child.style.position);
-
-        if (current) {
-            exit(current, reduce);
-        }
-
-        rest.append(created);
-        enter(created, reduce);
-    }
-
     function schedule() {
         clearTimeout(timer);
 
-        let time = timeOf(state.date);
+        let value = read(time);
 
-        if (time === null || state.now !== null) {
+        if (value === null || state.now !== null) {
             return;
         }
 
-        timer = setTimeout(() => {
-            clock.tick++;
-            schedule();
-        }, Math.min(untilChange(Date.now() - time) + SETTLE, MAX_TIMEOUT));
+        timer = setTimeout(tick, Math.min(untilChange(Date.now() - value) + SETTLE, MAX_TIMEOUT));
     }
 
-    function slot(digit: string) {
-        let element = span('', 'relative-time-slot');
-
-        element.append(span(digit, 'relative-time-digit'));
-
-        return element;
-    }
-
-    function text() {
-        let time = timeOf(state.date);
-
-        clock.tick;
-
-        return time === null ? null : label((state.now ?? Date.now()) - time, time);
+    function tick() {
+        clock.tick++;
+        schedule();
     }
 
     let stopNudge = effect(() => {
@@ -290,14 +270,12 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                 nudge();
             }
         }),
-        stopSchedule = effect(() => {
-            state.date;
-            state.now;
-            schedule();
-        });
+        stopSchedule = effect(schedule);
 
     onCleanup(() => {
         clearTimeout(timer);
+        dispose(text);
+        dispose(time);
         stopNudge();
         stopRender?.();
         stopSchedule();
@@ -312,18 +290,23 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
             ${{
                 'aria-describedby': () => tip.active ? id : '',
                 datetime: () => {
-                    let time = timeOf(state.date);
+                    let value = read(time);
 
-                    return time === null ? '' : new Date(time).toISOString();
+                    return value === null ? '' : new Date(value).toISOString();
                 },
-                onconnect: (element: HTMLElement) => {
-                    digits = element.querySelector<HTMLElement>('.relative-time-digits') ?? undefined;
-                    rest = element.querySelector<HTMLElement>('.relative-time-rests') ?? undefined;
+                onconnect: () => {
+                    let numbers = digits,
+                        rest = rests;
+
+                    if (!numbers || !rest) {
+                        return;
+                    }
+
                     stopRender = effect(() => {
-                        let value = text();
+                        let value = read(text);
 
                         if (value !== null) {
-                            render(value);
+                            render(numbers, rest, value);
                         }
                     });
                 },
@@ -332,20 +315,38 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                 },
                 // Background tabs throttle timers; catch up the moment the page is seen.
                 ondocumentvisibilitychange: () => {
-                    if (document.visibilityState !== 'visible') {
-                        return;
+                    if (document.visibilityState === 'visible') {
+                        tick();
                     }
-
-                    clock.tick++;
-                    schedule();
                 },
                 tabindex: () => state.date === null ? '' : '0'
             }}
         >
-            <span class='relative-time-sr'>${() => text() ?? ''}</span>
-            <span aria-hidden='true' class='relative-time-roll ${() => state.date === null && '--placeholder'}'>
-                <span class='relative-time-digits'></span>
-                <span class='relative-time-rests'></span>
+            <span class='relative-time-sr'>${() => read(text) ?? ''}</span>
+            <span
+                aria-hidden='true'
+                class='relative-time-roll ${() => state.date === null && '--placeholder'}'
+                ${{
+                    onanimationcancel: retire,
+                    onanimationend: retire
+                }}
+            >
+                <span
+                    class='relative-time-digits'
+                    ${{
+                        onrender: (element: HTMLElement) => {
+                            digits = element;
+                        }
+                    }}
+                ></span>
+                <span
+                    class='relative-time-rests'
+                    ${{
+                        onrender: (element: HTMLElement) => {
+                            rests = element;
+                        }
+                    }}
+                ></span>
             </span>
             <span
                 class='tooltip-message tooltip-message--n relative-time-tooltip'
@@ -360,9 +361,9 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                 }}
             >
                 ${() => {
-                    let time = timeOf(state.date);
+                    let value = read(time);
 
-                    return time === null ? '' : TOOLTIP_FORMAT.format(time);
+                    return value === null ? '' : TOOLTIP_FORMAT.format(value);
                 }}
             </span>
         </time>
