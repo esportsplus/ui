@@ -1,20 +1,12 @@
+// Before variables: the button sheet re-emits its defaults, which would otherwise override ours.
+@use '../../button/scss/index';
 @use 'variables';
 
 .notification-bell {
-    align-items: center;
-    background: var(--background);
     border: 0;
-    border-radius: var(--border-radius);
-    color: var(--color);
-    cursor: pointer;
     display: inline-flex;
     flex: 0 0 var(--size);
     height: var(--size);
-    justify-content: center;
-    padding: 0;
-    position: relative;
-    transition: background var(--transition-duration) var(--transition-timing-function);
-    width: var(--size);
 
     &:focus-visible {
         outline: var(--focus-width) solid var(--focus-color);

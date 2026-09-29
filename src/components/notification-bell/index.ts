@@ -5,7 +5,7 @@ import bell from '@esportsplus/ui/svg/bell.svg';
 import './scss/index.scss';
 
 
-const notificationBell = ({ 'aria-label': label = 'Notifications', count = 0, dot = false, max = 99, ring = false, state: api = reactive({ count }), ...attributes }: Attributes & {
+export default ({ 'aria-label': label = 'Notifications', count = 0, dot = false, max = 99, ring = false, state: api = reactive({ count }), ...attributes }: Attributes & {
     'aria-label'?: string;
     count?: number;
     dot?: boolean;
@@ -60,7 +60,7 @@ const notificationBell = ({ 'aria-label': label = 'Notifications', count = 0, do
 
     return html`
         <button
-            class='notification-bell'
+            class='button notification-bell'
             type='button'
             ${{
                 'aria-label': () => api.count > 0 ? `${label}, ${api.count} unread` : label,
@@ -97,6 +97,3 @@ const notificationBell = ({ 'aria-label': label = 'Notifications', count = 0, do
         </button>
     `;
 };
-
-
-export default notificationBell;
