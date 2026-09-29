@@ -88,11 +88,12 @@ function morph() {
                     }
                 }}
             >
-                <div class='card-morph-viewport'>
+                <div class='card-morph-viewport' style='${() => `--i: ${state.active}`}'>
                     ${layers.map((text, index) => html`
                         <div
-                            class='card-morph-layer ${() => state.active === index ? '--active' : state.active > index && '--before'}'
+                            class='card-morph-layer frame frame--swap ${() => state.active === index && '--active'}'
                             inert='${() => state.active !== index}'
+                            style='--n: ${index}'
                             ${{
                                 onrender: (element: HTMLElement) => {
                                     rendered[index] = element;

@@ -112,4 +112,15 @@ $expand-box-shadow:
             --width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
         }
     }
+
+    &-morph-layer.frame {
+        --swap-blur: var(--morph-blur);
+        --swap-duration: var(--morph-enter-duration);
+        --swap-exit-duration: var(--morph-exit-duration);
+        --swap-exit-fade-duration: var(--morph-exit-duration);
+        --swap-fade-duration: var(--morph-enter-duration);
+        --swap-fade-timing-function: var(--morph-swap-timing-function);
+        --swap-shift: var(--morph-shift);
+        --swap-timing-function: var(--morph-swap-timing-function);
+    }
 }
