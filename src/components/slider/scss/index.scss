@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 // Edge alignment: thumb centres travel from half a thumb in at one end to half a thumb in at the other, so a thumb
@@ -59,7 +60,7 @@ $travel: 'var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size))';
             box-shadow: 0 0 0 3px var(--ring);
         }
 
-        &.--active {
+        @include tokens.state(active) {
             box-shadow: none;
             cursor: grabbing;
             scale: 1.2;
@@ -167,7 +168,7 @@ $travel: 'var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size))';
         &-thumb {
             transition: box-shadow 150ms ease-out;
 
-            &.--active {
+            @include tokens.state(active) {
                 scale: 1;
             }
         }

@@ -1,3 +1,5 @@
+@use '/tokens';
+
 // 'tooltip.nestedMenu'; the root also carries '.tooltip', for its stacking and positioning.
 .tooltip--nested-menu {
     display: inline-block;
@@ -14,7 +16,7 @@
         visibility: hidden;
         z-index: 9;
 
-        &.--active {
+        @include tokens.state(active) {
             opacity: 1;
             transition: opacity var(--close-duration) var(--open-timing-function);
             visibility: visible;
@@ -161,7 +163,7 @@
         width: auto;
         z-index: 2;
 
-        &.--active {
+        @include tokens.state(active) {
             clip-path: inset(-48px round calc(var(--border-radius) + 48px));
             pointer-events: auto;
             transition: clip-path var(--open-duration) var(--open-timing-function);
@@ -192,7 +194,7 @@
         }
     }
 
-    &-panel.--active > &-header &-title {
+    #{tokens.state(active, '&-panel')} > &-header &-title {
         &-bold {
             opacity: 1;
         }

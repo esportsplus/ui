@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 // The canvas paints behind the content and never takes the pointer; the host listens instead, so the light keeps
@@ -35,7 +36,7 @@
         top: 0;
         transition: box-shadow var(--surface-lift-duration) ease, scale var(--surface-lift-duration) ease;
 
-        &.--active {
+        @include tokens.state(active) {
             box-shadow: 0 0 0 1px var(--surface-border-color), var(--surface-box-shadow-active);
             scale: 1.01;
         }
@@ -83,7 +84,7 @@
             }
         }
 
-        &.--active &-handle {
+        #{tokens.state(active)} &-handle {
             cursor: grabbing;
         }
 
@@ -107,7 +108,7 @@
         &-surface {
             transition: box-shadow var(--surface-lift-duration) ease;
 
-            &.--active {
+            @include tokens.state(active) {
                 scale: 1;
             }
         }

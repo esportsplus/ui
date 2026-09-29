@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 .cc {
@@ -41,7 +42,7 @@
                 scale var(--swap-duration) var(--spring);
             width: 100%;
 
-            &.--active {
+            @include tokens.state(active) {
                 filter: blur(0);
                 opacity: 1;
                 scale: 1;
@@ -309,7 +310,7 @@
             top var(--ring-duration) var(--spring),
             width var(--ring-duration) var(--spring);
 
-        &.--active {
+        @include tokens.state(active) {
             opacity: 1;
             transition:
                 height var(--ring-duration) var(--spring),

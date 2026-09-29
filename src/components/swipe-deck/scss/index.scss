@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 .swipe-deck {
@@ -42,7 +43,7 @@
             right: 12px;
         }
 
-        &.--active {
+        @include tokens.state(active) {
             border-color: var(--accent);
             color: var(--accent);
         }
@@ -76,7 +77,7 @@
         translate: calc(var(--swipe-deck-x) * 1px) calc(var(--swipe-deck-depth) * var(--offset));
         user-select: none;
 
-        &.--active {
+        @include tokens.state(active) {
             box-shadow: var(--box-shadow-active);
             cursor: grab;
             transition:
@@ -191,7 +192,7 @@
         transition: opacity var(--spring-crossfade);
         z-index: 0;
 
-        &.--active {
+        @include tokens.state(active) {
             opacity: 1;
         }
     }
@@ -244,7 +245,7 @@
     @media (prefers-reduced-motion: reduce) {
         &-badge,
         &-card,
-        &-card.--active,
+        #{tokens.state(active, '&-card')},
         &-card.--dragging,
         &-card.--dropping,
         &-card.--leaving,

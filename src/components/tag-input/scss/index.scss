@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 .tag-input {
@@ -33,7 +34,7 @@
         position: relative;
         transition: color var(--transition-duration) var(--transition-timing-function);
 
-        &.--active {
+        @include tokens.state(active) {
             color: var(--chip-color-active);
         }
 
@@ -47,7 +48,7 @@
                 background-color var(--transition-duration) var(--transition-timing-function),
                 box-shadow var(--transition-duration) var(--transition-timing-function);
 
-            .tag-input-chip.--active > & {
+            #{tokens.state(active, '.tag-input-chip')} > & {
                 background: var(--chip-background-active);
                 box-shadow: none;
             }
@@ -98,7 +99,7 @@
                 width: 14px;
             }
 
-            .tag-input-chip.--active & {
+            #{tokens.state(active, '.tag-input-chip')} & {
                 color: oklch(from var(--chip-color-active) l c h / 0.7);
 
                 &:hover {

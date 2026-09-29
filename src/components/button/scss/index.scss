@@ -163,7 +163,7 @@
             translate var(--face-duration) var(--face-timing-function);
         translate: 0 var(--face-offset);
 
-        &.--active {
+        @include tokens.state(active) {
             filter: blur(0);
             opacity: 1;
             translate: 0;

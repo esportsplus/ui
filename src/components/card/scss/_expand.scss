@@ -80,7 +80,7 @@
         overflow: visible;
 
         // Held until the morph has visibly settled, so nothing shows while its box is still growing.
-        &.--active .card-expand-delayed {
+        #{tokens.state(active)} .card-expand-delayed {
             animation: card-expand-reveal 0.25s var(--ease-out) 0.25s backwards;
         }
     }
@@ -102,7 +102,7 @@
     // Holds the slot at the card's exact size so the list never jumps, and marks where it returns to. Keyed off
     // the dialog through ':has' because template classes land a frame late, after the view transition has
     // already captured the new state.
-    &-item:has(> .card-expand-dialog.--active) > .card--expand {
+    &-item:has(> #{tokens.state(active, '.card-expand-dialog')}) > .card--expand {
         --background: var(--slot-background);
         --box-shadow: inset 0 0 0 var(--border-width-400) var(--slot-border-color);
         cursor: default;
@@ -174,8 +174,8 @@
     // Only the card on the move and its open dialog are named, so the rest of the list stays under the backdrop.
     // Reduced motion leaves them unnamed and the whole page cross-fades instead.
     @media (prefers-reduced-motion: no-preference) {
-        &-item:not(:has(> .card-expand-dialog.--active)) > .card--expand.--morphing,
-        &-item:has(> .--morphing) > .card-expand-dialog.--active {
+        &-item:not(:has(> #{tokens.state(active, '.card-expand-dialog')})) > .card--expand.--morphing,
+        &-item:has(> .--morphing) > #{tokens.state(active, '.card-expand-dialog')} {
             view-transition-name: card-expand;
 
             .card-expand-meta {
@@ -197,7 +197,7 @@
             transition: none;
         }
 
-        &-dialog.--active .card-expand-delayed {
+        #{tokens.state(active, '&-dialog')} .card-expand-delayed {
             animation: none;
         }
     }

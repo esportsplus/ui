@@ -1,3 +1,5 @@
+@use '/tokens';
+
 // The trigger also dresses page-level search buttons outside a palette, so it carries the shared shadow itself.
 .command,
 .command-trigger {
@@ -46,7 +48,7 @@
         --transition-duration: var(--open-duration);
         --transition-timing-function: var(--timing-function);
 
-        &:not(.--active) {
+        @include tokens.state(inactive) {
             --transition-duration: var(--close-duration);
         }
     }
@@ -72,7 +74,7 @@
     &-option-icon.icon {
         --color: var(--color-muted);
 
-        .--active > & {
+        #{tokens.state(active, '')} > & {
             --color: inherit;
         }
     }
@@ -88,7 +90,7 @@
         --padding-vertical: 0px;
         --width: var(--tab-size);
 
-        &.--active {
+        @include tokens.state(active) {
             --box-shadow-default: var(--raised);
         }
     }

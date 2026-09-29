@@ -229,7 +229,7 @@
         }
 
         &:hover,
-        .tooltip.--active > & {
+        #{tokens.state(active, '.tooltip')} > & {
             background: var(--hover-background);
             color: var(--color-active);
         }

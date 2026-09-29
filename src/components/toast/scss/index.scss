@@ -229,19 +229,19 @@
 
 
 // active (viewport hovered): everything fans out to its own measured offset.
-.toaster.--active .toast {
+#{tokens.state(active, '.toaster')} .toast {
     height: auto;
     scale: 1;
     translate: var(--toast-swipe-x) var(--toast-calc-offset-y);
 }
 
-.toaster.--active .toast-content {
+#{tokens.state(active, '.toaster')} .toast-content {
     opacity: 1;
 }
 
 
 // Hovering the stack pauses every timer, so the rings pause with them.
-.toaster.--active .toast-countdown-ring {
+#{tokens.state(active, '.toaster')} .toast-countdown-ring {
     animation-play-state: paused;
 }
 

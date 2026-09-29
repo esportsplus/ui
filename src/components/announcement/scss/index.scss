@@ -54,13 +54,13 @@
 
     @media (prefers-reduced-motion: reduce) {
         &,
-        &.--active {
+        #{tokens.state(active)} {
             transition: none;
         }
 
         .announcement-content,
-        &.--active .announcement-content,
-        &.--active.announcement--returning .announcement-content {
+        #{tokens.state(active)} .announcement-content,
+        #{tokens.state(active)}.announcement--returning .announcement-content {
             filter: none;
             transition: opacity 200ms var(--announcement-ease);
             translate: 0 0;

@@ -50,7 +50,7 @@
         padding: var(--panel-padding);
         text-wrap: pretty;
 
-        &.--active,
+        #{tokens.state(active)},
         &.--leaving {
             display: block;
         }
@@ -98,7 +98,7 @@
         }
 
         &:hover,
-        &.--active {
+        #{tokens.state(active)} {
             color: var(--color-active);
         }
     }
@@ -134,7 +134,7 @@
     }
 
     // Shown until the clipped underline has been measured.
-    &-list:not(.--ready) &-tab.--active::after {
+    &-list:not(.--ready) #{tokens.state(active, '&-tab')}::after {
         background: var(--underline-color);
         border-radius: 1px;
         bottom: calc(var(--border-width-400) * -1);

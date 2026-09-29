@@ -55,7 +55,7 @@ dialog.overlay {
     }
 
     // Fades with the drag, so the page shows through as the overlay leaves.
-    &.--active::backdrop {
+    #{tokens.state(active)}::backdrop {
         opacity: calc(1 - var(--progress, 0));
     }
 

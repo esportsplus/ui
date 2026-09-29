@@ -1,3 +1,5 @@
+@use '/tokens';
+
 // A popover, so it sits in the top layer; the UA popover styles are undone here. The padding on the anchor side is
 // the gap to the trigger, which also carries the pointer across to interactive content. 'tooltip.shared' sets the
 // '--shared-*' size and position.
@@ -35,7 +37,7 @@
         }
     }
 
-    &.--active > .tooltip-shared-box {
+    #{tokens.state(active)} > .tooltip-shared-box {
         filter: blur(0);
         opacity: 1;
         scale: 1;
@@ -60,7 +62,7 @@
         }
     }
 
-    &--interactive.--active {
+    #{tokens.state(active, '&--interactive')} {
         pointer-events: auto;
     }
 
@@ -126,7 +128,7 @@
         white-space: var(--white-space);
         width: max-content;
 
-        &.--active {
+        @include tokens.state(active) {
             --shift: 0px;
             filter: blur(0);
             opacity: 1;
@@ -137,7 +139,7 @@
         }
 
         // Kept content between opens: out of sight, out of reach and out of the accessibility tree.
-        &:not(.--active, .--leaving) {
+        #{tokens.state(inactive)}:not(.--leaving) {
             visibility: hidden;
         }
 

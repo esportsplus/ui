@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 .story-progress {
@@ -121,7 +122,7 @@
             filter 0.15s var(--ease-out),
             opacity 0.15s var(--ease-out);
 
-        &.--active {
+        @include tokens.state(active) {
             filter: blur(0);
             opacity: 1;
             transition:

@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 .snap-carousel {
@@ -136,7 +137,7 @@
         }
     }
 
-    &.--visible &-slide.--active &-visual * {
+    &.--visible #{tokens.state(active, '&-slide')} &-visual * {
         animation-play-state: running;
     }
 

@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 .sortable {
@@ -22,7 +23,7 @@
         }
     }
 
-    &.--active {
+    @include tokens.state(active) {
         user-select: none;
     }
 

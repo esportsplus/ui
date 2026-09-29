@@ -1,3 +1,5 @@
+@use '/tokens';
+
 .breadcrumb {
     --color: var(--color-text-300);
     --color-active: var(--color-text-500);
@@ -48,7 +50,7 @@
         --transition-duration: var(--menu-duration-out);
         --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
-        .tooltip.--active > & {
+        #{tokens.state(active, '.tooltip')} > & {
             --transition-duration: var(--menu-duration-in);
         }
     }

@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 @mixin thumb {
@@ -220,7 +221,7 @@
             outline-offset: 4px;
         }
 
-        &.--active {
+        @include tokens.state(active) {
             box-shadow:
                 var(--hairline),
                 0 0 0 2px var(--ring-offset-color),

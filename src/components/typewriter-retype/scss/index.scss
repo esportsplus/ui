@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 .typewriter-retype {
@@ -39,7 +40,7 @@
         opacity: 0;
         transition: opacity var(--swap-duration) ease-in-out;
 
-        &.--active {
+        @include tokens.state(active) {
             opacity: 1;
         }
     }
