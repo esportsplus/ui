@@ -2,6 +2,7 @@
 @use '/tokens';
 @use 'center' as *;
 @use 'east' as *;
+@use 'nested-menu';
 @use 'north' as *;
 @use 'shared';
 @use 'south' as *;
@@ -41,7 +42,8 @@
         z-index: 9;
     }
 
-    &--context {
+    &--context,
+    &--nested-menu {
         cursor: inherit;
     }
 

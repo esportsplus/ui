@@ -1,10 +1,28 @@
-@use '/tokens';
-@use 'variables';
-
-.nested-menu {
+// 'tooltip.nestedMenu'; the root also carries '.tooltip', for its stacking and positioning.
+.tooltip--nested-menu {
     display: inline-block;
-    position: relative;
 
+    // Root panel
+    > .tooltip-nested-menu-panel {
+        left: 0;
+        opacity: 0;
+        top: calc(100% + var(--offset));
+        transition:
+            opacity var(--close-duration) var(--open-timing-function),
+            visibility 0s linear var(--close-duration);
+        translate: var(--shift-x, 0px) 0;
+        visibility: hidden;
+        z-index: 9;
+
+        &.--active {
+            opacity: 1;
+            transition: opacity var(--close-duration) var(--open-timing-function);
+            visibility: visible;
+        }
+    }
+}
+
+.tooltip-nested-menu {
     &-chevron {
         border-color: currentColor;
         border-style: solid;
@@ -40,7 +58,7 @@
     &-header {
         cursor: pointer;
 
-        .nested-menu-chevron {
+        .tooltip-nested-menu-chevron {
             rotate: 45deg;
         }
     }
@@ -120,25 +138,6 @@
             cursor: pointer;
             opacity: 1;
             pointer-events: auto;
-        }
-    }
-
-    // Root panel
-    > .nested-menu-panel {
-        left: 0;
-        opacity: 0;
-        top: calc(100% + var(--offset));
-        transition:
-            opacity var(--close-duration) var(--open-timing-function),
-            visibility 0s linear var(--close-duration);
-        translate: var(--shift-x, 0px) 0;
-        visibility: hidden;
-        z-index: 9;
-
-        &.--active {
-            opacity: 1;
-            transition: opacity var(--close-duration) var(--open-timing-function);
-            visibility: visible;
         }
     }
 

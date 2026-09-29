@@ -37,6 +37,41 @@ let content = 'padding: var(--size-400) var(--size-500); --background: var(--col
         { icon: helpSvg, id: 'help', label: 'Get Help' },
         { icon: logOutSvg, id: 'logout', label: 'Logout' }
     ],
+    // 'nestedMenu' levels; a branch's 'items' drill into a panel of their own.
+    nested = [
+        { hint: '⌘N', label: 'New file' },
+        {
+            items: [
+                { label: 'Rename' },
+                { label: 'Duplicate' },
+                {
+                    items: [
+                        { label: 'Markdown' },
+                        { label: 'PDF' },
+                        {
+                            items: [
+                                { label: 'Letter' },
+                                { label: 'A4' },
+                                { disabled: true, label: 'Tabloid' }
+                            ],
+                            label: 'Paper size'
+                        }
+                    ],
+                    label: 'Export as'
+                }
+            ],
+            label: 'File actions'
+        },
+        {
+            items: [
+                { label: 'Invite members' },
+                { items: [{ label: 'Viewer' }, { label: 'Editor' }, { label: 'Owner' }], label: 'Default role' }
+            ],
+            label: 'Share'
+        },
+        { disabled: true, label: 'Archive' },
+        { danger: true, hint: '⌫', label: 'Delete' }
+    ],
     people: Record<'ava' | 'ben' | 'cara', Profile> = {
         ava: {
             avatar: ava,
@@ -297,6 +332,16 @@ export default {
             ),
             title: 'context'
         },
+        ...([
+            [true, 'nestedMenu (drill down)'],
+            [false, 'nestedMenu (instant)']
+        ] as const).map(([animate, title]) => ({
+            render: () => tooltip.nestedMenu(
+                { animate, items: nested, [tooltip.nestedMenu.trigger]: { class: trigger, style: '--width: auto;' } },
+                'open menu'
+            ),
+            title
+        })),
         ...[
             ['tooltip-content--scale', 'scale'],
             ['tooltip-content--scale-spring', 'scale + spring'],

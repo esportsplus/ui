@@ -31,7 +31,6 @@ import link from './link';
 import loading from './loading';
 import marquee from './marquee';
 import multiStepForm from './multi-step-form';
-import nestedMenu from './nested-menu';
 import notificationBell from './notification-bell';
 import number from './number';
 import overlay from './overlay';
@@ -119,7 +118,6 @@ const entries: Entry[] = [
     loading,
     marquee,
     multiStepForm,
-    nestedMenu,
     notificationBell,
     number,
     overlay,

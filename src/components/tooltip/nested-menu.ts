@@ -1,12 +1,14 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import './scss/index.scss';
 
 
 type A = Attributes & {
     [NESTED_MENU_TRIGGER]?: Attributes;
     animate?: boolean;
     items: Item[];
+    onclick?: never;
+    ondocumentclick?: never;
+    onkeydown?: never;
     onselect?: (item: Item) => void;
     state?: { active: boolean };
 };
@@ -32,7 +34,7 @@ type MenuNode = {
 };
 
 
-const NESTED_MENU_TRIGGER = Symbol.for('@esportsplus/ui/nested-menu.trigger');
+const NESTED_MENU_TRIGGER = Symbol.for('@esportsplus/ui/tooltip.nested-menu.trigger');
 
 // Keeps the shifted stack this far from the viewport edges.
 const VIEWPORT_MARGIN = 8;
@@ -54,7 +56,7 @@ function enabled(node: MenuNode) {
     }
 
     return Array.from(
-        node.panel.querySelectorAll<HTMLElement>(':scope > .nested-menu-entry > .nested-menu-item:not(:disabled)')
+        node.panel.querySelectorAll<HTMLElement>(':scope > .tooltip-nested-menu-entry > .tooltip-nested-menu-item:not(:disabled)')
     );
 }
 
@@ -131,9 +133,9 @@ export default component(
                 { danger, disabled, hint, icon, label } = node.item!;
 
             return html`
-                <div class='nested-menu-entry' ${{ class: () => node.state.open && '--open' }}>
+                <div class='tooltip-nested-menu-entry' ${{ class: () => node.state.open && '--open' }}>
                     <button
-                        class='nested-menu-item ${danger ? '--danger' : ''}'
+                        class='tooltip-nested-menu-item ${danger ? '--danger' : ''}'
                         role='menuitem'
                         tabindex='-1'
                         type='button'
@@ -147,10 +149,10 @@ export default component(
                             }
                         }}
                     >
-                        ${icon ? html`<span class='nested-menu-icon'>${icon()}</span>` : ''}
-                        <span class='nested-menu-label'>${label}</span>
-                        ${hint ? html`<span class='nested-menu-hint'>${hint}</span>` : ''}
-                        ${branch ? html`<span class='nested-menu-chevron'></span>` : ''}
+                        ${icon ? html`<span class='tooltip-nested-menu-icon'>${icon()}</span>` : ''}
+                        <span class='tooltip-nested-menu-label'>${label}</span>
+                        ${hint ? html`<span class='tooltip-nested-menu-hint'>${hint}</span>` : ''}
+                        ${branch ? html`<span class='tooltip-nested-menu-chevron'></span>` : ''}
                     </button>
 
                     ${() => branch && node.state.render ? panel(node) : ''}
@@ -183,7 +185,7 @@ export default component(
 
             return html`
                 <div
-                    class='nested-menu-panel'
+                    class='tooltip-nested-menu-panel'
                     role='menu'
                     ${{
                         class: () => {
@@ -215,13 +217,13 @@ export default component(
                     }}
                 >
                     ${item ? html`
-                        <div class='nested-menu-header'>
-                            ${item.icon ? html`<span class='nested-menu-icon'>${item.icon()}</span>` : ''}
-                            <span class='nested-menu-title'>
-                                <span class='nested-menu-title-regular'>${item.label}</span>
-                                <span aria-hidden='true' class='nested-menu-title-bold'>${item.label}</span>
+                        <div class='tooltip-nested-menu-header'>
+                            ${item.icon ? html`<span class='tooltip-nested-menu-icon'>${item.icon()}</span>` : ''}
+                            <span class='tooltip-nested-menu-title'>
+                                <span class='tooltip-nested-menu-title-regular'>${item.label}</span>
+                                <span aria-hidden='true' class='tooltip-nested-menu-title-bold'>${item.label}</span>
                             </span>
-                            <span class='nested-menu-chevron'></span>
+                            <span class='tooltip-nested-menu-chevron'></span>
                         </div>
                     ` : ''}
 
@@ -304,13 +306,13 @@ export default component(
 
         return html`
             <div
-                class='nested-menu ${animate ? '' : '--instant'}'
+                class='tooltip tooltip--nested-menu ${animate ? '' : '--instant'}'
                 ${attributes}
                 ${{
                     class: () => state.active && '--active',
                     onclick: (e: MouseEvent) => {
                         let target = (e.target as HTMLElement).closest<HTMLElement>(
-                                '.nested-menu-header, .nested-menu-item, .nested-menu-panel, .nested-menu-trigger'
+                                '.tooltip-nested-menu-header, .tooltip-nested-menu-item, .tooltip-nested-menu-panel, .tooltip-nested-menu-trigger'
                             );
 
                         if (!target) {
@@ -328,7 +330,7 @@ export default component(
                             return;
                         }
 
-                        if (target.classList.contains('nested-menu-header')) {
+                        if (target.classList.contains('tooltip-nested-menu-header')) {
                             pop();
                             return;
                         }
@@ -339,7 +341,7 @@ export default component(
                             return;
                         }
 
-                        if (target.classList.contains('nested-menu-item')) {
+                        if (target.classList.contains('tooltip-nested-menu-item')) {
                             if (node.children.length) {
                                 drill(node);
                             }
@@ -423,7 +425,7 @@ export default component(
             >
                 <button
                     aria-haspopup='menu'
-                    class='nested-menu-trigger'
+                    class='tooltip-nested-menu-trigger'
                     type='button'
                     ${attributes[NESTED_MENU_TRIGGER]}
                     ${{
