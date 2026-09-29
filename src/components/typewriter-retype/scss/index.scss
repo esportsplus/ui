@@ -1,4 +1,3 @@
-@use '/tokens';
 @use 'variables';
 
 .typewriter-retype {
@@ -32,16 +31,6 @@
 
         &::after {
             animation: typewriter-retype--blink var(--caret-duration) var(--caret-timing-function) infinite;
-        }
-    }
-
-    &-option {
-        grid-area: 1 / 1;
-        opacity: 0;
-        transition: opacity var(--swap-duration) ease-in-out;
-
-        @include tokens.state(active) {
-            opacity: 1;
         }
     }
 

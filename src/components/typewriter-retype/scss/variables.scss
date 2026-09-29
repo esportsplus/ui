@@ -12,10 +12,10 @@
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
     --glow: 0 0 0 transparent;
     --ink-duration: 140ms;
+    --option-duration: 500ms;
     --select-duration: 220ms;
     --selection-color: oklch(from var(--color-text-500) l c h / 0.15);
     --selection-radius: 3px;
-    --swap-duration: 500ms;
 
     &--block {
         --caret-align: bottom;
@@ -42,5 +42,13 @@
         --caret-offset: 0.04em;
         --caret-radius: 0;
         --caret-width: auto;
+    }
+
+    // The reduced-motion fallback: the words only crossfade in place.
+    &-option.frame {
+        --swap-blur: 0px;
+        --swap-fade-duration: var(--option-duration);
+        --swap-fade-timing-function: ease-in-out;
+        --swap-shift: 0%;
     }
 }

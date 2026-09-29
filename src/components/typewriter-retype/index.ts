@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, type Reactive } from '@esportsplus/reactivity';
+import '~/components/frame/scss/index.scss';
 import './scss/index.scss';
 
 
@@ -153,7 +154,7 @@ export default ({ prefix = '', words, ...attributes }: A) => {
                 <span class='typewriter-retype-prefix'>${lead}</span>
                 <span class='typewriter-retype-swap'>
                     ${words.map((word, i) => html`
-                        <span class='typewriter-retype-option ${() => view.index === i && '--active'}'>${word}</span>
+                        <span class='typewriter-retype-option frame frame--swap ${() => view.index === i && '--active'}'>${word}</span>
                     `)}
                 </span>
                 <span class='typewriter-retype-word'>
