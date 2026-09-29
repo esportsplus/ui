@@ -1,12 +1,11 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import input from '~/components/input';
-import './scss/index.scss';
+import input from './field';
 
 
 type A = Attributes & {
-    [SCRUB_INPUT_FIELD]?: Field;
-    [SCRUB_INPUT_LABEL]?: Attributes;
+    [INPUT_SCRUB_FIELD]?: Field;
+    [INPUT_SCRUB_LABEL]?: Attributes;
     label: string;
     // Browsers announce pointer lock with a banner, which is too loud for a quick nudge but worth it for long scrubs.
     lockPointer?: boolean;
@@ -20,7 +19,7 @@ type A = Attributes & {
     value?: number;
 };
 
-type D = Attributes & Pick<A, typeof SCRUB_INPUT_FIELD | typeof SCRUB_INPUT_LABEL>;
+type D = Attributes & Pick<A, typeof INPUT_SCRUB_FIELD | typeof INPUT_SCRUB_LABEL>;
 
 type Field = Parameters<typeof input>[0];
 
@@ -45,9 +44,9 @@ type State = {
 // Below this the press is a click on the label (which focuses the field), not the start of a scrub.
 const DRAG_THRESHOLD = 3;
 
-const SCRUB_INPUT_FIELD = Symbol.for('@esportsplus/ui/scrub-input.field');
+const INPUT_SCRUB_FIELD = Symbol.for('@esportsplus/ui/input.scrub.field');
 
-const SCRUB_INPUT_LABEL = Symbol.for('@esportsplus/ui/scrub-input.label');
+const INPUT_SCRUB_LABEL = Symbol.for('@esportsplus/ui/input.scrub.label');
 
 // Spacing of the tape's minor ticks; majors land every fifth.
 const TICK = 6;
@@ -84,7 +83,8 @@ export default component(
         }: A,
         content: Renderable<unknown>
     ) {
-        let local = reactive({ draft: null as string | null, scrubbing: false }),
+        let field: HTMLInputElement | undefined,
+            local = reactive({ draft: null as string | null, scrubbing: false }),
             period = TICK * 5,
             scrub: Scrub | null = null,
             skip = false,
@@ -143,7 +143,7 @@ export default component(
 
         return html`
             <div
-                class='scrub-input'
+                class='input-scrub'
                 ${this?.attributes}
                 ${attributes}
                 ${{
@@ -163,9 +163,9 @@ export default component(
                     }
                 }}
             >
-                <span aria-hidden='true' class='scrub-input-tape'>
+                <span aria-hidden='true' class='input-scrub-tape'>
                     <span
-                        class='scrub-input-ticks'
+                        class='input-scrub-ticks'
                         style=${() => {
                             // The pattern repeats every major tick, so only the remainder matters, which also keeps huge values precise.
                             let offset = ((((state.value / step) * pixelsPerStep) % period) + period) % period;
@@ -173,14 +173,14 @@ export default component(
                             return `--offset: ${offset}px`;
                         }}
                     ></span>
-                    <span class='scrub-input-needle'></span>
+                    <span class='input-scrub-needle'></span>
                 </span>
                 <span
-                    class='scrub-input-label'
-                    ${this?.attributes?.[SCRUB_INPUT_LABEL]}
-                    ${attributes[SCRUB_INPUT_LABEL]}
+                    class='input-scrub-label'
+                    ${this?.attributes?.[INPUT_SCRUB_LABEL]}
+                    ${attributes[INPUT_SCRUB_LABEL]}
                     ${{
-                        onclick: (e: MouseEvent) => {
+                        onclick: () => {
                             let s = suppress;
 
                             suppress = false;
@@ -190,7 +190,7 @@ export default component(
                                 return;
                             }
 
-                            (e.currentTarget as HTMLElement).parentElement?.querySelector<HTMLInputElement>('.scrub-input-field')?.focus();
+                            field?.focus();
                         },
                         onlostpointercapture: (e: PointerEvent) => {
                             if (scrub?.id === e.pointerId) {
@@ -211,7 +211,6 @@ export default component(
                             e.preventDefault();
 
                             let element = e.currentTarget as HTMLElement,
-                                field = element.parentElement?.querySelector<HTMLInputElement>('.scrub-input-field'),
                                 start = state.value;
 
                             if (field && document.activeElement === field) {
@@ -280,14 +279,14 @@ export default component(
                 >
                     ${content}
                 </span>
-                ${input.call({ attributes: { ...this?.attributes?.[SCRUB_INPUT_FIELD], ...attributes[SCRUB_INPUT_FIELD] } }, {
+                ${input.call({ attributes: { ...this?.attributes?.[INPUT_SCRUB_FIELD], ...attributes[INPUT_SCRUB_FIELD] } }, {
                     'aria-label': label,
                     'aria-valuemax': Number.isFinite(max) ? max : undefined,
                     'aria-valuemin': Number.isFinite(min) ? min : undefined,
                     'aria-valuenow': () => state.value,
                     'aria-valuetext': () => format(state.value),
                     autocomplete: 'off',
-                    class: 'scrub-input-field',
+                    class: 'input-scrub-field',
                     inputmode: 'decimal',
                     onblur: () => {
                         if (!skip) {
@@ -296,6 +295,9 @@ export default component(
 
                         skip = false;
                         local.draft = null;
+                    },
+                    onconnect: (element: HTMLInputElement) => {
+                        field = element;
                     },
                     onfocus: (e: FocusEvent) => {
                         show(e.currentTarget as HTMLInputElement, format(state.value));
@@ -336,5 +338,5 @@ export default component(
             </div>
         `;
     },
-    { field: SCRUB_INPUT_FIELD, label: SCRUB_INPUT_LABEL }
+    { field: INPUT_SCRUB_FIELD, label: INPUT_SCRUB_LABEL }
 );

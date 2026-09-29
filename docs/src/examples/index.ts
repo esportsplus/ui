@@ -43,7 +43,6 @@ import radio from './radio';
 import range from './range';
 import relativeTime from './relative-time';
 import scrollbar from './scrollbar';
-import scrubInput from './scrub-input';
 import select from './select';
 import settings from './settings';
 import shortcutRecorder from './shortcut-recorder';
@@ -123,7 +122,6 @@ const entries: Entry[] = [
     range,
     relativeTime,
     scrollbar,
-    scrubInput,
     select,
     settings,
     shortcutRecorder,

@@ -36,7 +36,6 @@ export { default as radio } from './radio';
 export { default as range } from './range';
 export { default as rangeFilter } from './range-filter';
 export { default as relativeTime } from './relative-time';
-export { default as scrubInput } from './scrub-input';
 export { default as select } from './select';
 export { default as settings } from './settings';
 export { default as shortcutRecorder } from './shortcut-recorder';

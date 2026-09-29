@@ -120,7 +120,7 @@ const meta: Record<string, Meta> = {
     },
     input: {
         category: 'Form Controls',
-        description: 'Single-line text field with focus and validation states, plus a chip field that turns typed or pasted text into tags.'
+        description: 'Single-line text field with focus and validation states, a chip field that turns typed or pasted text into tags, and a numeric field whose label scrubs the value on drag.'
     },
     json: {
         category: 'Display',
@@ -181,10 +181,6 @@ const meta: Record<string, Meta> = {
     scrollbar: {
         category: 'Layout',
         description: 'Native scrollbar styling with thin, token-driven colors, plus edge fades and blurs that track the scroll position.'
-    },
-    'scrub-input': {
-        category: 'Form Controls',
-        description: 'Numeric field whose label scrubs the value on drag, with a tape measure, coarse and fine gears, and keyboard stepping.'
     },
     select: {
         category: 'Form Controls',

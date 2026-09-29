@@ -1,7 +1,7 @@
 import input from '~/components/input';
 
 
-export default input.bind({
+const themed: typeof input = Object.assign(input.bind({
     attributes: {
         class: 'input--primary --border --border-black --color-white',
         style: `
@@ -9,4 +9,7 @@ export default input.bind({
             --border-color-default: var(--color-black-300);
         `
     }
-});
+}), { scrub: input.scrub });
+
+
+export default themed;

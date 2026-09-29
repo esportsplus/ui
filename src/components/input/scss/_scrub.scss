@@ -1,6 +1,6 @@
-@use 'variables';
+@use '/tokens';
 
-.scrub-input {
+.input-scrub {
     align-items: center;
     background: var(--background);
     border-radius: var(--border-radius);
@@ -10,7 +10,7 @@
     overflow: hidden;
     position: relative;
 
-    &:has(.scrub-input-field:focus-visible) {
+    &:has(.input-scrub-field:focus-visible) {
         outline: var(--outline-width) solid var(--outline-color);
     }
 
@@ -44,7 +44,7 @@
         }
 
         &:hover,
-        .scrub-input.--active & {
+        #{tokens.state(active, '.input-scrub')} & {
             color: var(--label-color-active);
         }
     }
@@ -74,7 +74,7 @@
             translate var(--tape-leave-duration) var(--tape-timing-function);
         translate: 0 4px;
 
-        .scrub-input.--active > & {
+        #{tokens.state(active, '.input-scrub')} > & {
             opacity: 1;
             transition-duration: var(--tape-enter-duration);
             translate: 0 0;
@@ -95,7 +95,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .scrub-input-tape {
+    .input-scrub-tape {
         translate: 0 0;
     }
 }
