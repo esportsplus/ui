@@ -29,7 +29,6 @@ import input from './input';
 import json from './json';
 import link from './link';
 import loading from './loading';
-import longPress from './long-press';
 import marquee from './marquee';
 import modal from './modal';
 import morphingButton from './morphing-button';
@@ -127,7 +126,6 @@ const entries: Entry[] = [
     json,
     link,
     loading,
-    longPress,
     marquee,
     modal,
     morphingButton,

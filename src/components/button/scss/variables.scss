@@ -55,6 +55,12 @@
         --fill-color: var(--background);
     }
 
+    // Leaves the surface alone and sweeps colour through the label only.
+    &--hold-text {
+        --fill-background: transparent;
+        --fill-color: var(--color-primary-400);
+    }
+
     // A hairline ring plus an inset bottom edge gives the keycap its depth; pressing drops the cap by that edge.
     &--kbd {
         --background-active: var(--color-text-500);

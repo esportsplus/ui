@@ -150,6 +150,15 @@ export default {
         {
             render: () => html`
                 <div style='${row}'>
+                    ${button.hold({ action: () => toast.success('Archived'), class: `${trigger} button--hold-text`, duration: 550, style: border, success: 'Archived' }, 'Hold to archive')}
+                    ${button.hold({ action: () => toast.error('Deleted'), class: `${trigger} button--hold-text`, duration: 1500, style: `--fill-color: var(--color-red-400); ${border}`, success: 'Deleted' }, 'Hold to delete')}
+                </div>
+            `,
+            title: 'hold text'
+        },
+        {
+            render: () => html`
+                <div style='${row}'>
                     ${button.loading({ action: () => wait(1200), class: trigger, pending: 'Saving', style: border, success: 'Saved' }, 'Save changes')}
                     ${button.loading({ action: () => wait(1200).then(() => { throw new Error('Docs: request failed'); }), class: trigger, pending: 'Sending', style: border }, 'Send request')}
                 </div>

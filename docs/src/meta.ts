@@ -38,7 +38,7 @@ const meta: Record<string, Meta> = {
     },
     button: {
         category: 'Interactive',
-        description: 'Trigger actions with color and modifier variants, plus copy, loading, and hold-to-confirm feedback.'
+        description: 'Trigger actions with color and modifier variants, plus copy, loading, and hold-to-confirm feedback that fills the whole button or just its label.'
     },
     card: {
         category: 'Layout',
@@ -128,10 +128,6 @@ const meta: Record<string, Meta> = {
     loading: {
         category: 'Display',
         description: 'Border-based loading indicator for surfaces.'
-    },
-    'long-press': {
-        category: 'Interactive',
-        description: 'Hold-to-confirm gesture that fires on time and cancels on release, drift, or blur.'
     },
     marquee: {
         category: 'Display',
