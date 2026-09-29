@@ -5,6 +5,14 @@ import { cool, wait, warm, type Delay } from './utilities';
 
 type Anchor = () => DOMRect;
 
+// A trigger spread with 'bind()', registered while it is rendered.
+type Bound = {
+    content: Content,
+    index: number,
+    // Mounted on the first open and kept between opens while 'keep' is set.
+    layer: Layer | null
+};
+
 // Rendered afresh on every open, so templates come as a function; a node would only render once.
 type Content = (() => Renderable<unknown>) | number | string;
 
@@ -21,16 +29,32 @@ type Direction = 'e' | 'n' | 's' | 'w';
 
 type Layer = {
     dispose: VoidFunction,
-    element: HTMLElement
+    element: HTMLElement,
+    // A bound trigger's content under 'keep': hidden between opens rather than disposed.
+    kept: boolean
 };
 
 type Options = {
     delay?: Delay,
     // The preferred side; it flips to the opposite one when that has more room.
     direction?: Direction,
+    // Clicking anything inside that matches this selector closes it; 'a[href]', so following a link leaves nothing
+    // open behind it.
+    dismiss?: string,
     // Content the pointer can move into and use: taps and keys toggle it, and Tab walks into it.
     interactive?: boolean,
-    state?: { active: boolean }
+    // Mounts each bound trigger's content on its first open and keeps it until the trigger goes, so reopening renders
+    // nothing and the content keeps its state. Held per rendered trigger, so it never outgrows the page; delegated
+    // and requested content, which can come from any number of triggers, still renders on every open.
+    keep?: boolean,
+    state?: State
+};
+
+type State = {
+    active: boolean,
+    // The open trigger, numbered in 'bind()' order; -1 while closed or open on a trigger that isn't bound. Setting it
+    // opens that trigger.
+    index: number
 };
 
 type Target = {
@@ -57,11 +81,33 @@ function clamp(value: number, min: number, max: number) {
     return Math.max(min, Math.min(value, max));
 }
 
+function create(parent: HTMLElement, content: Content, kept: boolean): Layer {
+    let element = document.createElement('span');
+
+    element.className = 'tooltip-shared-layer';
+
+    let layer = { dispose: mount(element, content), element, kept };
+
+    parent.append(element);
+
+    return layer;
+}
+
+// Done with a layer for now: a kept one is only hidden until its next open.
 function drop(layer: Layer | null) {
     if (!layer) {
         return;
     }
 
+    if (layer.kept) {
+        layer.element.classList.remove('--active', '--leaving');
+        return;
+    }
+
+    free(layer);
+}
+
+function free(layer: Layer) {
     layer.dispose();
     layer.element.remove();
 }
@@ -129,9 +175,11 @@ function travel(element: HTMLElement, x: number, y: number) {
 // them while its content slides over. 'bind()' makes one element a trigger, 'delegate()' every matching descendant of
 // a container. 'render()' places the surface; it lives in the top layer, so no ancestor clips it, but still inherits
 // custom properties from wherever it is rendered.
-const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, direction = 'n', interactive = false, state = reactive({ active: false }) }: Options = {}) => {
+const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, direction = 'n', dismiss, interactive = false, keep = false, state = reactive({ active: false, index: -1 }) }: Options = {}) => {
     let active: Layer | null = null,
+        bound = new Map<HTMLElement, Bound>(),
         box: HTMLElement | undefined,
+        count = 0,
         current: Target | null = null,
         element: HTMLElement | undefined,
         // Bumped by every open and close, so a close that finishes late can't hide a tooltip opened since.
@@ -147,12 +195,33 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         timer: ReturnType<typeof setTimeout> | undefined,
         waiting: VoidFunction | undefined;
 
+    // One trigger per call: its number, for 'state.index', is the order 'bind()' was called in.
     function bind(content: Content): Attributes {
+        let index = count++;
+
         let attributes: Attributes = {
             ondisconnect: (trigger: HTMLElement) => {
+                let layer = bound.get(trigger)?.layer;
+
                 if (current?.trigger === trigger || next?.trigger === trigger) {
                     close();
                 }
+
+                bound.delete(trigger);
+
+                if (!layer) {
+                    return;
+                }
+
+                if (active === layer) {
+                    active = null;
+                }
+
+                if (leaving === layer) {
+                    leaving = null;
+                }
+
+                free(layer);
             },
             // Keyboard focus only; a click focuses too, and hover already covers the pointer.
             onfocusin: (e: FocusEvent) => {
@@ -184,6 +253,9 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 }
 
                 request(trigger, content);
+            },
+            onrender: (trigger: HTMLElement) => {
+                bound.set(trigger, { content, index, layer: null });
             }
         };
 
@@ -207,7 +279,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             },
             // The surface is rendered elsewhere in the document, so Tab is carried into it from its trigger.
             onkeydown: (e: KeyboardEvent) => {
-                let first = current?.trigger === e.currentTarget ? element?.querySelector<HTMLElement>(FOCUSABLE) : null;
+                let first = current?.trigger === e.currentTarget ? active?.element.querySelector<HTMLElement>(FOCUSABLE) : null;
 
                 if (e.key !== 'Tab' || e.shiftKey || !first) {
                     return;
@@ -246,6 +318,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         describe(current.trigger, false);
         current = null;
         state.active = false;
+        state.index = -1;
         element.classList.remove('--active', '--instant');
 
         settle(box, () => {
@@ -336,6 +409,10 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 trigger.removeAttribute('aria-describedby');
             }
         }
+    }
+
+    function indexOf(trigger: HTMLElement) {
+        return bound.get(trigger)?.index ?? -1;
     }
 
     // Once the close has played out: drops the content and leaves the top layer.
@@ -460,11 +537,11 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 // Tab past either end hands focus back to the trigger; going forward, the browser then carries on to
                 // whatever follows it.
                 onkeydown: (e: KeyboardEvent) => {
-                    if (e.key !== 'Tab' || !current || !element) {
+                    if (e.key !== 'Tab' || !active || !current) {
                         return;
                     }
 
-                    let focusable = element.querySelectorAll<HTMLElement>(FOCUSABLE);
+                    let focusable = active.element.querySelectorAll<HTMLElement>(FOCUSABLE);
 
                     if (document.activeElement !== focusable[e.shiftKey ? 0 : focusable.length - 1]) {
                         return;
@@ -484,7 +561,18 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 onpointerover: () => {
                     clearTimeout(timer);
                     timer = undefined;
-                }
+                },
+                ...(dismiss && {
+                    // On the document: a click handler on the clicked element itself would keep a delegated one here
+                    // from ever running.
+                    ondocumentclick: (e: MouseEvent) => {
+                        let match = (e.target as Element | null)?.closest?.(dismiss);
+
+                        if (current && match && element?.contains(match)) {
+                            close();
+                        }
+                    }
+                })
             }
             : { role: 'tooltip' };
 
@@ -499,6 +587,13 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                     ondisconnect: () => {
                         close();
                         hide();
+
+                        for (let entry of bound.values()) {
+                            if (entry.layer) {
+                                free(entry.layer);
+                                entry.layer = null;
+                            }
+                        }
                     },
                     // On the document, so Escape dismisses a hovered tooltip wherever focus is.
                     ondocumentkeydown: (e: KeyboardEvent) => {
@@ -587,7 +682,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
         // Reopened on the same trigger before its close finished: the content is still there.
         if (!same || !active) {
-            swap(target.content, from, target.anchor(), glide);
+            swap(target, from, glide);
         }
 
         measure();
@@ -599,18 +694,20 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         }
 
         element.classList.add('--active');
+        state.index = indexOf(target.trigger);
         state.active = true;
         describe(target.trigger, true);
     }
 
     // Content moves with the trip between triggers, in any direction: the incoming layer starts displaced along it
     // and settles into place while the outgoing one carries on out the far side. No trip, as on a reopen, just fades.
-    function swap(content: Content, from: DOMRect | undefined, to: DOMRect, animate: boolean) {
+    function swap(target: Target, from: DOMRect | undefined, animate: boolean) {
         if (!box) {
             return;
         }
 
-        let layer = document.createElement('span'),
+        let entry = keep ? bound.get(target.trigger) : undefined,
+            to = target.anchor(),
             x = 0,
             y = 0;
 
@@ -648,31 +745,59 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             drop(active);
         }
 
-        layer.className = 'tooltip-shared-layer';
-        active = { dispose: mount(layer, content), element: layer };
-        box.append(layer);
+        let layer = entry ? (entry.layer ??= create(box, entry.content, true)) : create(box, target.content, false),
+            node = layer.element;
+
+        active = layer;
 
         if (animate) {
-            travel(layer, x, y);
+            travel(node, x, y);
 
             // Commits the start position, so the layer slides in from it.
-            layer.getBoundingClientRect();
+            node.getBoundingClientRect();
         }
 
-        layer.classList.add('--active');
+        node.classList.add('--active');
 
         // Content that changes size while showing (a live count, an image loading) resizes the box with it.
         observer ??= new ResizeObserver(measure);
         observer.disconnect();
-        observer.observe(layer);
+        observer.observe(node);
     }
 
-    // Closing through 'state' from outside. Returns nothing on purpose: an effect's value is a dependency of whatever
-    // renders this, which would re-render on every open and close.
+    // Driven through 'state' from outside. Both return nothing on purpose: an effect's value is a dependency of
+    // whatever renders this, which would re-render on every open and close.
     effect(() => {
         if (!state.active && current) {
             untrack(close);
         }
+    });
+
+    effect(() => {
+        let index = state.index;
+
+        untrack(() => {
+            let showing = current ? indexOf(current.trigger) : -1;
+
+            if (index === showing) {
+                return;
+            }
+
+            if (index === -1) {
+                close();
+                return;
+            }
+
+            for (let [trigger, entry] of bound) {
+                if (entry.index === index) {
+                    open(trigger, entry.content);
+                    return;
+                }
+            }
+
+            // No such trigger rendered: back to what is showing.
+            state.index = showing;
+        });
     });
 
     return { bind, close, delegate, open, release, render, request };
@@ -680,4 +805,4 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
 
 export default shared;
-export type { Content, Delegate, Direction, Options };
+export type { Content, Delegate, Direction, Options, State };

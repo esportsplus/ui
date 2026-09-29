@@ -63,6 +63,27 @@ let content = 'padding: var(--size-400) var(--size-500); --background: var(--col
             name: 'Cara Nwosu'
         }
     },
+    // Each panel of the navigation bar, as its label and links.
+    sections: [string, [string, string][]][] = [
+        ['Products', [
+            ['Hosting', 'Deploy any framework to a global edge network in seconds.'],
+            ['SQL Database', 'A fully managed Postgres database that scales with you.'],
+            ['CDN', 'Cache and serve assets from hundreds of locations worldwide.'],
+            ['Storage', 'Store files and media close to your users.']
+        ]],
+        ['Solutions', [
+            ['Startups', 'Everything you need to ship fast and scale when it matters.'],
+            ['AI features', 'Add search, chat and recommendations powered by AI.'],
+            ['Enterprise', 'Advanced security, SSO and SLAs for larger organizations.'],
+            ['Security', 'Block threats early with built-in WAF and bot protection.'],
+            ['Agencies', 'Manage unlimited client projects from a single dashboard.'],
+            ['Performance', 'Speed up every page with smart caching and compression.']
+        ]],
+        ['Resources', [
+            ['Documentation', 'Guides, references and examples for every feature.'],
+            ['Blog', 'Product news, engineering deep dives and best practices.']
+        ]]
+    ],
     trigger = 'button --background-black --color-white';
 
 
@@ -146,6 +167,55 @@ function mention(profile: Profile, tip: ReturnType<typeof tooltip.shared>) {
         >
             ${profile.handle}
         </button>
+    `;
+}
+
+// 'keep' renders each panel once, on its first open, 'dismiss' closes the panel as a link is followed,
+// and 'state.index' rests the highlight on the open section.
+function navigation() {
+    let state = reactive({ active: false, index: -1 }),
+        stop: VoidFunction | undefined,
+        tip = tooltip.shared({ delay: { close: 150, open: 50 }, direction: 's', dismiss: 'a[href]', interactive: true, keep: true, state });
+
+    return html`
+        <nav
+            aria-label='Main'
+            class='tooltip-nav-demo'
+            ${{
+                // The docs router would follow the placeholder links.
+                onconnect: (element: HTMLElement) => {
+                    let prevent = (e: Event) => e.preventDefault();
+
+                    element.addEventListener('click', prevent);
+                    stop = () => element.removeEventListener('click', prevent);
+                },
+                ondisconnect: () => {
+                    stop?.();
+                }
+            }}
+        >
+            ${highlight({ class: 'tooltip-nav-demo-highlight', target: '.tooltip-nav-demo-trigger' })}
+            ${sections.map(([label, links], index) => html`
+                <button
+                    class='tooltip-nav-demo-trigger ${() => state.index === index && '--active'}'
+                    type='button'
+                    ${tip.bind(() => html`
+                        <span class='tooltip-nav-demo-panel'>
+                            ${links.map(([title, description]) => html`
+                                <a class='tooltip-nav-demo-link' href='#'>
+                                    <span class='tooltip-nav-demo-title'>${title}</span>
+                                    <span class='tooltip-nav-demo-description'>${description}</span>
+                                </a>
+                            `)}
+                        </span>
+                    `)}
+                >
+                    ${label}
+                </button>
+            `)}
+            <a class='tooltip-nav-demo-trigger' href='#'>Pricing</a>
+            ${tip.render({ class: 'tooltip-nav-demo-surface' })}
+        </nav>
     `;
 }
 
@@ -389,6 +459,10 @@ export default {
                 `;
             },
             title: 'shared (interactive cards, open + close delay)'
+        },
+        {
+            render: () => navigation(),
+            title: 'shared (navigation: keep, dismiss, state.index)'
         }
     ]
 };

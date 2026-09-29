@@ -137,10 +137,6 @@ const meta: Record<string, Meta> = {
         category: 'Form Controls',
         description: 'Stepped form card with a progress bar, directional step transitions, and a height that springs to fit.'
     },
-    'navigation-menu': {
-        category: 'Layout',
-        description: 'Navigation bar with a hover pill whose dropdown panel morphs size and position between sections as the cursor moves (Kobra).'
-    },
     'notification-bell': {
         category: 'Display',
         description: 'Bell button that swings on new notifications with a rolling unread badge.'
@@ -311,7 +307,7 @@ const meta: Record<string, Meta> = {
     },
     tooltip: {
         category: 'Interactive',
-        description: 'Contextual popover for hints, menus, and hover details, including one shared tooltip that glides between the triggers bound to it.'
+        description: 'Contextual popover for hints, menus, and hover details, including one shared tooltip that glides between the triggers bound to it, down to a navigation bar of dropdown panels.'
     },
     truncate: {
         category: 'Display',

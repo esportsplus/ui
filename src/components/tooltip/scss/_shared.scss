@@ -136,6 +136,11 @@
             --shift: calc(var(--swap-shift) * -1);
         }
 
+        // Kept content between opens: out of sight, out of reach and out of the accessibility tree.
+        &:not(.--active, .--leaving) {
+            visibility: hidden;
+        }
+
         // Root styles give 'strong' its own page text color, unreadable on the bubble.
         strong {
             --color: inherit;

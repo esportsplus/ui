@@ -269,6 +269,102 @@
     }
 }
 
+// A navigation bar whose dropdown panels are one interactive shared tooltip. The height is reserved so the open
+// panel never covers the next example.
+.tooltip-nav-demo {
+    --demo-hover: oklch(0.945 0 0);
+    align-items: flex-start;
+    display: flex;
+    font-size: calc(var(--font-size-400) * 0.875);
+    gap: 8px;
+    height: 360px;
+
+    &-description {
+        color: var(--color-text-300);
+        font-size: calc(var(--font-size-400) * 0.8125);
+        line-height: 1.5;
+    }
+
+    &-highlight.highlight {
+        --background-active: var(--demo-hover);
+        --background-default: var(--demo-hover);
+        --background-pressed: var(--demo-hover);
+    }
+
+    &-link {
+        border-radius: 8px;
+        color: var(--color-text-500);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        outline: none;
+        padding: 8px 12px;
+        text-decoration: none;
+        transition: background-color 0.15s ease-out;
+
+        &:focus-visible {
+            outline: 2px solid var(--color-text-500);
+            outline-offset: -2px;
+        }
+
+        &:hover,
+        &:focus-visible {
+            background: var(--demo-hover);
+        }
+    }
+
+    &-panel {
+        display: grid;
+        gap: 4px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-width: calc(100vw - 40px);
+        width: 32rem;
+    }
+
+    &-surface.tooltip-shared {
+        --background: var(--color-white-300);
+        --box-shadow: 0 0 0 1px oklch(from var(--color-black-300) l c h / 0.1), var(--box-shadow-300);
+        --color: var(--color-text-500);
+        --font-size: calc(var(--font-size-400) * 0.875);
+        --padding: 6px;
+        --radius: 12px;
+        --scale: 0.96;
+        --spacer: 8px;
+    }
+
+    &-title {
+        font-weight: var(--font-weight-600, var(--font-weight-500));
+    }
+
+    &-trigger {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+        color: var(--color-text-500);
+        cursor: pointer;
+        display: inline-flex;
+        font: inherit;
+        font-weight: var(--font-weight-500);
+        height: 36px;
+        outline: none;
+        padding-inline: 12px;
+        text-decoration: none;
+        white-space: nowrap;
+
+        &:focus-visible {
+            outline: 2px solid var(--color-text-500);
+        }
+    }
+
+
+    @media (max-width: 639px) {
+        &-panel {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+}
+
 // Scattered triggers sharing one label.
 .tooltip-shared-demo {
     display: flex;
