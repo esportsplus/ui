@@ -1,0 +1,63 @@
+@use '/tokens';
+@use 'variables';
+
+.capslock {
+    filter: blur(2px);
+    opacity: 0;
+    transition:
+        filter var(--transition-duration) var(--transition-timing-function),
+        opacity var(--transition-duration) var(--transition-timing-function);
+    user-select: none;
+
+    @include tokens.state(active) {
+        filter: none;
+        opacity: 1;
+        transition-duration: 200ms;
+
+        // Lit hardware reads as "on" in any theme, like a real keyboard light
+        .capslock-key-light {
+            box-shadow: 0 0 4px 1px color-mix(in oklch, var(--light-color) 55%, transparent);
+        }
+    }
+
+    @include tokens.state(inactive) {
+        height: 0px;
+    }
+
+    // A legend, not a control, so it takes no hover or press
+    &-key {
+        pointer-events: none;
+
+        svg {
+            height: var(--icon-height);
+            width: var(--icon-width);
+        }
+
+        // Pinned to the corner so the icon stays centered on the cap
+        &-light {
+            background: var(--light-color);
+            border-radius: 50%;
+            height: var(--light-size);
+            left: var(--light-inset);
+            position: absolute;
+            top: var(--light-inset);
+            transition:
+                background-color 300ms ease-out,
+                box-shadow 300ms ease-out;
+            width: var(--light-size);
+        }
+    }
+
+    &-live {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition-property: opacity;
+    }
+}

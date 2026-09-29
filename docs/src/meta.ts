@@ -40,6 +40,11 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Trigger actions with color and modifier variants, plus copy, loading, and hold-to-confirm feedback that fills the whole button or just its label, and an async save that morphs into a spinner, confirms with a check, and shakes on failure.'
     },
+    capslock: {
+        category: 'Feedback',
+        description: 'Keycap warning that fades in beside "Caps Lock is on" while the lock is engaged, read from any key or pointer event on the page.',
+        label: 'Caps Lock'
+    },
     card: {
         category: 'Layout',
         description: 'Rounded surface that groups related content and actions, plus cards that morph into a detail dialog and fly back into their slot.'

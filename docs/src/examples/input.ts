@@ -1,4 +1,4 @@
-import { form, password, tagInput } from '@esportsplus/ui';
+import { form, tagInput } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { boardInputVariations, boardOtpVariations } from './board-fields';
@@ -11,17 +11,6 @@ import './input.scss';
 const TAG_HINT = 'Press Enter or comma to add. Backspace twice removes the last tag.';
 
 
-let instance = 0,
-    style = `
-        --border-color-active: color-mix(in oklch, var(--color-text-500) 40%, transparent);
-        --border-color-default: var(--color-border-400);
-        --border-radius: var(--border-radius-500);
-        --border-width: var(--border-width-400);
-        --box-shadow-active: 0 0 0 3px color-mix(in oklch, var(--color-text-500) 10%, transparent);
-        --box-shadow-default: 0 1px 2px oklch(0 0 0 / 0.04);
-    `;
-
-
 export default {
     name: 'input',
     variants: [
@@ -30,19 +19,6 @@ export default {
         ...boardInputVariations(),
         ...boardOtpVariations(),
         ...inputPatternVariations(),
-        {
-            render: () => {
-                let id = `password-${++instance}`;
-
-                return html`
-                    <div class='form-prototype'>
-                        <label for='${id}'>Password</label>
-                        ${password({ style, [password.input]: { id, name: 'password' } })}
-                    </div>
-                `;
-            },
-            title: 'password · caps lock warning'
-        },
         {
             render: () => tagInput({ hint: TAG_HINT, label: 'Topics', tags: ['motion', 'design', 'react'] }),
             title: 'tag input · topics'

@@ -7,6 +7,7 @@ import autosave from './autosave';
 import banner from './banner';
 import breadcrumb from './breadcrumb';
 import button from './button';
+import capslock from './capslock';
 import card from './card';
 import cc from './cc';
 import checkbox from './checkbox';
@@ -87,6 +88,7 @@ const entries: Entry[] = [
     banner,
     breadcrumb,
     button,
+    capslock,
     card,
     cc,
     checkbox,
