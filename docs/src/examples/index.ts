@@ -79,7 +79,6 @@ import surfaceField from './surface-field';
 import swipeDeck from './swipe-deck';
 import switchComponent from './switch';
 import tabs from './tabs';
-import tagInput from './tag-input';
 import taskList from './task-list';
 import tasklist from './tasklist';
 import text from './text';
@@ -180,7 +179,6 @@ const entries: Entry[] = [
     swipeDeck,
     switchComponent,
     tabs,
-    tagInput,
     taskList,
     tasklist,
     text,

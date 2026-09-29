@@ -115,7 +115,7 @@ const meta: Record<string, Meta> = {
     },
     input: {
         category: 'Form Controls',
-        description: 'Single-line text field with focus and validation states.'
+        description: 'Single-line text field with focus and validation states, plus a chip field that turns typed or pasted text into tags.'
     },
     json: {
         category: 'Display',
@@ -320,10 +320,6 @@ const meta: Record<string, Meta> = {
     tabs: {
         category: 'Layout',
         description: 'Persistent tab panels with instant switching, horizontal sliding, or vertical scrolling.'
-    },
-    'tag-input': {
-        category: 'Form Controls',
-        description: 'Chip field that turns typed or pasted text into removable tags, with duplicate nudges and double-Backspace removal.'
     },
     'task-list': {
         category: 'Display',
