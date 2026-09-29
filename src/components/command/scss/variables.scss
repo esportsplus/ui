@@ -31,10 +31,8 @@
     --option-border-radius: var(--border-radius-400);
     --option-height: 36px;
     --search-height: 48px;
-    --sidebar-background: var(--color-grey-400);
-    --tab-size: 40px;
+    --tab-height: 32px;
     --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-    --view-duration: 0.4s;
 
     &--centered {
         --dialog-offset: auto;
@@ -79,20 +77,21 @@
         }
     }
 
-    // The selected tab lifts onto the dialog surface, like a card sitting on the rail.
+    // The highlight paints the tab backgrounds, so the buttons only carry colour.
     &-tab.button {
-        --background-active: var(--dialog-background);
         --border-radius: var(--border-radius-400);
         --color-active: var(--color);
         --color-default: var(--color-muted);
         --color-hover: var(--color);
-        --padding-horizontal: 0px;
+        --font-size: calc(var(--font-size-400) * 0.875);
+        --font-weight: var(--font-weight-500);
+        --padding-horizontal: var(--size-300);
         --padding-vertical: 0px;
-        --width: var(--tab-size);
+    }
 
-        @include tokens.state(active) {
-            --box-shadow-default: var(--raised);
-        }
+    &-tabs-highlight.highlight {
+        --background-active: var(--option-background);
+        --glide-duration: 0.4s;
     }
 
     // One 24px keycap line plus 6px either side makes the 36px trigger.
@@ -110,12 +109,6 @@
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;
         --width: 240px;
-    }
-
-    &-views .tabs {
-        --gap-vertical: 0px;
-        --transition-duration: var(--view-duration);
-        --transition-timing-function: var(--timing-function);
     }
 
     @media (prefers-reduced-motion: reduce) {

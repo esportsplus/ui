@@ -116,13 +116,6 @@
         }
     }
 
-    &-main {
-        display: flex;
-        flex: 1 1 auto;
-        flex-direction: column;
-        min-width: 0;
-    }
-
     &-match {
         color: var(--color);
     }
@@ -147,11 +140,11 @@
 
     &-panel {
         display: flex;
+        flex-direction: column;
     }
 
     &-search {
         align-items: center;
-        border-bottom: var(--border-width-400) solid var(--divider-color);
         color: var(--color-muted);
         display: flex;
         flex-shrink: 0;
@@ -160,18 +153,20 @@
         padding-inline: var(--size-400);
     }
 
-    &-sidebar {
-        background: var(--sidebar-background);
-        border-right: var(--border-width-400) solid var(--divider-color);
-        display: flex;
-        flex-direction: column;
+    &-tab.button {
         flex-shrink: 0;
-        gap: var(--size-100);
-        padding: var(--size-200);
+        height: var(--tab-height);
+        user-select: none;
     }
 
-    &-tab.button {
-        height: var(--tab-size);
+    // Lines up with the search icon above; a long row scrolls sideways rather than wrapping.
+    &-tabs {
+        display: flex;
+        flex-shrink: 0;
+        gap: var(--size-100);
+        overflow-x: auto;
+        padding: 0 var(--size-400) var(--size-300);
+        scrollbar-width: none;
     }
 
     &-trigger.button {
@@ -204,16 +199,17 @@
         white-space: nowrap;
     }
 
-    &-view.tabs-content {
+    &-view {
+        display: flex;
         flex-direction: column;
-        flex-wrap: nowrap;
     }
 
     &-views {
+        border-top: var(--border-width-400) solid var(--divider-color);
         overflow: hidden;
 
-        // Scrolling views translate by their own height, so the viewport needs a definite one.
-        &:has(> .tabs--scroll) {
+        // Every view keeps the same height, so swapping between them never resizes the dialog.
+        &:has(> .frame--swap) {
             height: var(--list-max-height);
         }
     }

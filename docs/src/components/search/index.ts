@@ -8,7 +8,7 @@ import type { Tab } from '~/components/command';
 import './scss/index.scss';
 
 
-const search = reactive({ active: false, index: 0, query: '', tab: 'home' as Tab });
+const search = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
 
 
 // The palette keeps its query after closing, so the sidebar only filters while it is open.

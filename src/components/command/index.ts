@@ -7,12 +7,10 @@ import overlay from '~/components/overlay';
 import { mac } from '~/lib/platform';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import up from '@esportsplus/ui/svg/arrow-up.svg';
-import all from '@esportsplus/ui/svg/command.svg';
 import enter from '@esportsplus/ui/svg/enter.svg';
-import home from '@esportsplus/ui/svg/home.svg';
-import keyboard from '@esportsplus/ui/svg/keyboard.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
-import '~/components/tabs/scss/index.scss';
+import '~/components/frame/scss/index.scss';
+import '~/css-utilities/scrollbar/scss/index.scss';
 import './scss/index.scss';
 
 
@@ -25,13 +23,13 @@ type A = Attributes & {
     label?: Renderable<unknown>;
     onrun?: (command: Command) => void;
     placeholder?: string;
-    // Listed under the sidebar's keyboard tab.
+    // Listed under their own tab.
     shortcuts?: Shortcut[];
-    // Adds the tab rail; Home then lists recently run commands and the Commands tab lists every command.
-    sidebar?: boolean;
     state?: State;
     // Persists recent commands; without one they last until the page unloads.
     store?: Store;
+    // Adds the tab row under the search: All leads with recently run commands, then a tab per command group.
+    tabs?: boolean;
 };
 
 type Command = {
@@ -110,13 +108,15 @@ type Store = {
     set<T>(key: string, value: T): Promise<void> | void;
 };
 
-type Tab = 'commands' | 'home' | 'shortcuts';
+// A command group's name opens that group's tab.
+type Tab = 'all' | 'shortcuts' | (string & {});
 
 type View = {
     empty: string;
     entries: () => Entry[];
-    icon: string;
     id: Tab;
+    // Element id prefix; group names can hold characters an id can't.
+    key: string;
     label: string;
     placeholder: string;
     results: ReturnType<typeof computed<ReturnType<typeof filter>>>;
@@ -296,9 +296,9 @@ export default component(
             onrun,
             placeholder = 'Type a command or search',
             shortcuts,
-            sidebar = false,
-            state = reactive({ active: false, index: 0, query: '', tab: 'home' as Tab }),
+            state = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab }),
             store,
+            tabs = false,
             ...attributes
         }: A
     ) {
@@ -328,14 +328,13 @@ export default component(
             release: VoidFunction | undefined,
             trigger: HTMLElement | undefined,
             // A Set keeps insertion order, most recent first, and replacing it is what re-runs the list.
-            ui = reactive({ recent: new Set<string>() }),
+            ui = reactive({ moving: false, recent: new Set<string>() }),
             views: View[] = ([
-                { empty: 'No recent commands', entries: recent, icon: home, id: 'home', label: 'Home', placeholder, search: 'Search commands' },
-                { empty: 'No commands', entries: () => entries, icon: all, id: 'commands', label: 'Commands', placeholder, search: 'Search commands' },
-                { empty: 'No shortcuts', entries: () => bindings, icon: keyboard, id: 'shortcuts', label: 'Keyboard shortcuts', placeholder: 'Search shortcuts', search: 'Search shortcuts' }
-            ] satisfies Omit<View, 'results'>[])
-                .filter((view) => sidebar ? view.id !== 'shortcuts' || bindings.length > 0 : view.id === 'commands')
-                .map((view) => ({ ...view, results: computed(() => filter(view.entries(), state.query.trim())) }));
+                { empty: 'No commands', entries: everything, id: 'all', label: 'All', placeholder, search: 'Search commands' },
+                ...(tabs ? groups() : []),
+                ...(tabs && bindings.length ? [{ empty: 'No shortcuts', entries: () => bindings, id: 'shortcuts', label: 'Shortcuts', placeholder: 'Search shortcuts', search: 'Search shortcuts' }] : [])
+            ] satisfies Omit<View, 'key' | 'results'>[])
+                .map((view, i) => ({ ...view, key: `${id}-${i}`, results: computed(() => filter(view.entries(), state.query.trim())) }));
 
         if (store) {
             void Promise.resolve(store.get<string[]>(RECENT_KEY)).then((ids) => {
@@ -346,7 +345,7 @@ export default component(
             });
         }
 
-        // Opening or switching views starts a fresh search, whether the trigger, the rail, the Tab key or the
+        // Opening or switching views starts a fresh search, whether the trigger, a tab, the Tab key or the
         // caller's state moved it.
         onCleanup(effect(() => state.active && state.tab, (open) => {
             if (open) {
@@ -358,7 +357,7 @@ export default component(
             state.active = false;
         }
 
-        // A tab the palette doesn't show (no shortcuts given, or no sidebar) falls back to the first view.
+        // A tab the palette doesn't show (no shortcuts given, or no tabs) falls back to All.
         function current() {
             return views.find((view) => view.id === state.tab) ?? views[0];
         }
@@ -367,15 +366,9 @@ export default component(
             return state.query.trim() ? 'No results' : view.empty;
         }
 
-        function option(view: View, index: number) {
-            let item = read(view.results).flat[index];
-
-            return item ? `${id}-${view.id}-${item.entry.id}` : undefined;
-        }
-
-        // Home lists what was run last; typing there searches every command.
-        function recent() {
-            if (state.query.trim()) {
+        // All leads with what was run last; typing there searches every command once.
+        function everything() {
+            if (!tabs || state.query.trim()) {
                 return entries;
             }
 
@@ -385,11 +378,48 @@ export default component(
                 let found = lookup.get(key);
 
                 if (found) {
-                    list.push({ ...found, group: 'Recent' });
+                    list.push({ ...found, group: 'Recents' });
                 }
             }
 
-            return list;
+            return list.concat(entries);
+        }
+
+        function groups() {
+            let lists = new Map<string, Entry[]>();
+
+            for (let i = 0, n = entries.length; i < n; i++) {
+                let entry = entries[i],
+                    list = lists.get(entry.group);
+
+                if (!list) {
+                    list = [];
+                    lists.set(entry.group, list);
+                }
+
+                list.push(entry);
+            }
+
+            return [...lists].map(([group, list]) => ({
+                empty: 'No commands',
+                entries: () => list,
+                id: group,
+                label: group,
+                placeholder,
+                search: `Search ${group}`
+            }));
+        }
+
+        // The incoming view's own translate spans the swap; transitions inside the views bubble up here too.
+        function incoming(e: TransitionEvent, parent: HTMLElement) {
+            let target = e.target as HTMLElement;
+
+            return e.propertyName === 'translate' && target.parentElement === parent && target.classList.contains('--active');
+        }
+
+        // All lists a recent command twice, so rows go by position rather than command id.
+        function option(view: View, index: number) {
+            return read(view.results).flat[index] ? `${view.key}-${index}` : undefined;
         }
 
         function remember(command: Command) {
@@ -401,6 +431,8 @@ export default component(
             pointer = null;
             state.index = 0;
             state.query = '';
+            // A swap cut short by closing may never report its end.
+            ui.moving = false;
         }
 
         // Shortcut rows are a reference list; only commands run.
@@ -505,16 +537,92 @@ export default component(
                                 }
                             }}
                         >
-                            ${sidebar && html`
-                                <div aria-label='Views' aria-orientation='vertical' class='command-sidebar' role='tablist'>
+                            <div class='command-search'>
+                                ${sprite(magnifier)}
+                                ${input({
+                                    'aria-activedescendant': () => option(current(), selected()),
+                                    'aria-autocomplete': 'list',
+                                    'aria-controls': () => `${current().key}-listbox`,
+                                    'aria-expanded': 'true',
+                                    'aria-label': () => current().search,
+                                    autocomplete: 'off',
+                                    autofocus: true,
+                                    class: 'command-input',
+                                    oninput: (e: Event) => {
+                                        state.index = 0;
+                                        state.query = (e.target as HTMLInputElement).value;
+                                    },
+                                    onkeydown: (e: KeyboardEvent) => {
+                                        if (e.isComposing) {
+                                            return;
+                                        }
+
+                                        let view = current(),
+                                            items = read(view.results).flat;
+
+                                        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                                            e.preventDefault();
+
+                                            if (!items.length) {
+                                                return;
+                                            }
+
+                                            state.index = (selected() + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+
+                                            // 'nearest' only scrolls when the item is out of view; smooth so stepping past
+                                            // the edge glides the list along rather than jumping it.
+                                            options.get(option(view, state.index) ?? '')?.scrollIntoView({
+                                                behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+                                                block: 'nearest'
+                                            });
+                                        }
+                                        else if (e.key === 'Enter') {
+                                            e.preventDefault();
+
+                                            let item = items[selected()];
+
+                                            if (item) {
+                                                run(item.entry);
+                                            }
+                                        }
+                                        else if (e.key === 'Escape') {
+                                            e.preventDefault();
+                                            close();
+                                        }
+                                        else if (e.key === 'Tab') {
+                                            // The input is the dialog's only tab stop, so Tab moves between views instead.
+                                            e.preventDefault();
+                                            step(e.shiftKey ? -1 : 1);
+                                        }
+                                    },
+                                    placeholder: () => current().placeholder,
+                                    role: 'combobox',
+                                    spellcheck: false,
+                                    value: () => state.query,
+                                    ...this?.attributes?.[COMMAND_INPUT],
+                                    ...attributes[COMMAND_INPUT]
+                                })}
+                                ${() => state.query.trim() && html`
+                                    <span aria-hidden='true' class='command-count'>
+                                        ${() => {
+                                            let count = read(current().results).flat.length;
+
+                                            return `${count} ${count === 1 ? 'result' : 'results'}`;
+                                        }}
+                                    </span>
+                                `}
+                            </div>
+
+                            ${views.length > 1 && html`
+                                <div aria-label='Views' class='command-tabs' role='tablist'>
+                                    ${highlight({ class: 'command-tabs-highlight' })}
                                     ${views.map((view) => html`
                                         <button
-                                            aria-controls='${id}-${view.id}'
-                                            aria-label='${view.label}'
+                                            aria-controls='${view.key}'
                                             class='button command-tab'
-                                            id='${id}-tab-${view.id}'
+                                            id='${view.key}-tab'
                                             role='tab'
-                                            title='${view.label}'
+                                            tabindex='-1'
                                             type='button'
                                             ${{
                                                 'aria-selected': () => current() === view ? 'true' : 'false',
@@ -524,179 +632,117 @@ export default component(
                                                 }
                                             }}
                                         >
-                                            ${sprite(view.icon)}
+                                            ${view.label}
                                         </button>
                                     `)}
                                 </div>
                             `}
 
-                            <div class='command-main'>
-                                <div class='command-search'>
-                                    ${sprite(magnifier)}
-                                    ${input({
-                                        'aria-activedescendant': () => option(current(), selected()),
-                                        'aria-autocomplete': 'list',
-                                        'aria-controls': () => `${id}-${current().id}-listbox`,
-                                        'aria-expanded': 'true',
-                                        'aria-label': () => current().search,
-                                        autocomplete: 'off',
-                                        autofocus: true,
-                                        class: 'command-input',
-                                        oninput: (e: Event) => {
-                                            state.index = 0;
-                                            state.query = (e.target as HTMLInputElement).value;
-                                        },
-                                        onkeydown: (e: KeyboardEvent) => {
-                                            if (e.isComposing) {
-                                                return;
-                                            }
-
-                                            let view = current(),
-                                                items = read(view.results).flat;
-
-                                            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                                                e.preventDefault();
-
-                                                if (!items.length) {
-                                                    return;
-                                                }
-
-                                                state.index = (selected() + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
-
-                                                // 'nearest' only scrolls when the item is out of view; smooth so stepping past
-                                                // the edge glides the list along rather than jumping it.
-                                                options.get(option(view, state.index) ?? '')?.scrollIntoView({
-                                                    behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-                                                    block: 'nearest'
-                                                });
-                                            }
-                                            else if (e.key === 'Enter') {
-                                                e.preventDefault();
-
-                                                let item = items[selected()];
-
-                                                if (item) {
-                                                    run(item.entry);
-                                                }
-                                            }
-                                            else if (e.key === 'Escape') {
-                                                e.preventDefault();
-                                                close();
-                                            }
-                                            else if (e.key === 'Tab') {
-                                                // The input is the dialog's only tab stop, so Tab moves between views instead.
-                                                e.preventDefault();
-                                                step(e.shiftKey ? -1 : 1);
-                                            }
-                                        },
-                                        placeholder: () => current().placeholder,
-                                        role: 'combobox',
-                                        spellcheck: false,
-                                        value: () => state.query,
-                                        ...this?.attributes?.[COMMAND_INPUT],
-                                        ...attributes[COMMAND_INPUT]
-                                    })}
-                                    ${() => state.query.trim() && html`
-                                        <span aria-hidden='true' class='command-count'>
-                                            ${() => {
-                                                let count = read(current().results).flat.length;
-
-                                                return `${count} ${count === 1 ? 'result' : 'results'}`;
-                                            }}
-                                        </span>
-                                    `}
-                                </div>
-
-                                <div class='command-views'>
+                            <div
+                                class='command-views'
+                                ${{
+                                    ontransitioncancel: function(this: HTMLElement, e: TransitionEvent) {
+                                        if (incoming(e, this)) {
+                                            ui.moving = false;
+                                        }
+                                    },
+                                    ontransitionend: function(this: HTMLElement, e: TransitionEvent) {
+                                        if (incoming(e, this)) {
+                                            ui.moving = false;
+                                        }
+                                    },
+                                    ontransitionrun: function(this: HTMLElement, e: TransitionEvent) {
+                                        if (incoming(e, this)) {
+                                            ui.moving = true;
+                                        }
+                                    },
+                                    style: () => `--i: ${views.indexOf(current())}`
+                                }}
+                            >
+                                ${views.map((view, i) => html`
                                     <div
-                                        class='tabs ${sidebar && 'tabs--scroll'}'
-                                        ${{ style: () => `--i: ${-views.indexOf(current())}` }}
+                                        class='command-view frame ${views.length > 1 && 'frame--swap'}'
+                                        id='${view.key}'
+                                        style='--n: ${i}'
+                                        ${views.length > 1 ? { 'aria-labelledby': `${view.key}-tab`, role: 'tabpanel' } : undefined}
+                                        ${{
+                                            class: () => current() === view && (ui.moving ? '--active --moving' : '--active'),
+                                            inert: () => current() !== view
+                                        }}
                                     >
-                                        ${views.map((view) => html`
-                                            <div
-                                                class='command-view tabs-content'
-                                                id='${id}-${view.id}'
-                                                ${sidebar ? { 'aria-labelledby': `${id}-tab-${view.id}`, role: 'tabpanel' } : undefined}
-                                                ${{
-                                                    class: () => current() === view && '--active',
-                                                    inert: () => current() !== view
-                                                }}
-                                            >
-                                                <div
-                                                    aria-label='${view.label}'
-                                                    class='command-list'
-                                                    id='${id}-${view.id}-listbox'
-                                                    role='listbox'
-                                                    ${{
-                                                        class: () => !read(view.results).flat.length && '--empty',
-                                                        onmouseleave: () => {
-                                                            pointer = null;
-                                                        }
-                                                    }}
-                                                >
-                                                    ${highlight({ class: 'command-highlight', hover: false, target: '.command-option' })}
-                                                    ${() => read(view.results).groups.map(({ group, items }, g) => html`
-                                                        <div aria-labelledby='${id}-${view.id}-group-${g}' class='command-group' role='group'>
-                                                            <div class='command-group-label' id='${id}-${view.id}-group-${g}'>${group}</div>
-                                                            ${items.map(({ entry, index, ranges }) => html`
-                                                                <div
-                                                                    class='command-option ${!entry.command && 'command-option--inert'}'
-                                                                    id='${id}-${view.id}-${entry.id}'
-                                                                    role='option'
-                                                                    ${this?.attributes?.[COMMAND_OPTION]}
-                                                                    ${attributes[COMMAND_OPTION]}
-                                                                    ${{
-                                                                        'aria-selected': () => current() === view && selected() === index ? 'true' : 'false',
-                                                                        class: () => current() === view && selected() === index && '--active',
-                                                                        onclick: () => run(entry),
-                                                                        onpointermove: (e: PointerEvent) => {
-                                                                            if (e.pointerType === 'touch') {
-                                                                                return;
-                                                                            }
+                                        <div
+                                            aria-label='${view.label}'
+                                            class='command-list --scrollbar'
+                                            id='${view.key}-listbox'
+                                            role='listbox'
+                                            ${{
+                                                class: () => !read(view.results).flat.length && '--empty',
+                                                onmouseleave: () => {
+                                                    pointer = null;
+                                                }
+                                            }}
+                                        >
+                                            ${highlight({ class: 'command-highlight', hover: false, target: '.command-option' })}
+                                            ${() => read(view.results).groups.map(({ group, items }, g) => html`
+                                                <div aria-labelledby='${view.key}-group-${g}' class='command-group' role='group'>
+                                                    <div class='command-group-label' id='${view.key}-group-${g}'>${group}</div>
+                                                    ${items.map(({ entry, index, ranges }) => html`
+                                                        <div
+                                                            class='command-option ${!entry.command && 'command-option--inert'}'
+                                                            id='${view.key}-${index}'
+                                                            role='option'
+                                                            ${this?.attributes?.[COMMAND_OPTION]}
+                                                            ${attributes[COMMAND_OPTION]}
+                                                            ${{
+                                                                'aria-selected': () => current() === view && selected() === index ? 'true' : 'false',
+                                                                class: () => current() === view && selected() === index && '--active',
+                                                                onclick: () => run(entry),
+                                                                onpointermove: (e: PointerEvent) => {
+                                                                    if (e.pointerType === 'touch') {
+                                                                        return;
+                                                                    }
 
-                                                                            if (pointer && pointer.x === e.clientX && pointer.y === e.clientY) {
-                                                                                return;
-                                                                            }
+                                                                    if (pointer && pointer.x === e.clientX && pointer.y === e.clientY) {
+                                                                        return;
+                                                                    }
 
-                                                                            pointer = { x: e.clientX, y: e.clientY };
+                                                                    pointer = { x: e.clientX, y: e.clientY };
 
-                                                                            if (index !== selected()) {
-                                                                                state.index = index;
-                                                                            }
-                                                                        },
-                                                                        ondisconnect: (element: HTMLElement) => {
-                                                                            if (options.get(`${id}-${view.id}-${entry.id}`) === element) {
-                                                                                options.delete(`${id}-${view.id}-${entry.id}`);
-                                                                            }
-                                                                        },
-                                                                        onrender: (element: HTMLElement) => {
-                                                                            options.set(`${id}-${view.id}-${entry.id}`, element);
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    ${entry.icon && sprite(entry.icon, 'command-option-icon')}
-                                                                    ${mark(entry.label, ranges)}
-                                                                    ${entry.keys && kbd(entry.keys)}
-                                                                </div>
-                                                            `)}
+                                                                    if (index !== selected()) {
+                                                                        state.index = index;
+                                                                    }
+                                                                },
+                                                                ondisconnect: (element: HTMLElement) => {
+                                                                    if (options.get(`${view.key}-${index}`) === element) {
+                                                                        options.delete(`${view.key}-${index}`);
+                                                                    }
+                                                                },
+                                                                onrender: (element: HTMLElement) => {
+                                                                    options.set(`${view.key}-${index}`, element);
+                                                                }
+                                                            }}
+                                                        >
+                                                            ${entry.icon && sprite(entry.icon, 'command-option-icon')}
+                                                            ${mark(entry.label, ranges)}
+                                                            ${entry.keys && kbd(entry.keys)}
                                                         </div>
                                                     `)}
                                                 </div>
+                                            `)}
+                                        </div>
 
-                                                ${() => !read(view.results).flat.length && html`
-                                                    <p class='command-empty' role='status'>${empty(view)}</p>
-                                                `}
-                                            </div>
-                                        `)}
+                                        ${() => !read(view.results).flat.length && html`
+                                            <p class='command-empty' role='status'>${empty(view)}</p>
+                                        `}
                                     </div>
-                                </div>
+                                `)}
+                            </div>
 
-                                <div aria-hidden='true' class='command-footer'>
-                                    ${hint(['esc'], 'Close')}
-                                    ${views.length > 1 && hint(['tab'], 'Switch')}
-                                    ${hint([sprite(up, 'command-kbd-icon'), sprite(down, 'command-kbd-icon')], 'Navigate')}
-                                    ${hint([sprite(enter, 'command-kbd-icon')], 'Select')}
-                                </div>
+                            <div aria-hidden='true' class='command-footer'>
+                                ${hint(['esc'], 'Close')}
+                                ${views.length > 1 && hint(['tab'], 'Switch')}
+                                ${hint([sprite(up, 'command-kbd-icon'), sprite(down, 'command-kbd-icon')], 'Navigate')}
+                                ${hint([sprite(enter, 'command-kbd-icon')], 'Select')}
                             </div>
                         </div>
                     `

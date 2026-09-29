@@ -77,7 +77,7 @@ function demo(attributes: Partial<Parameters<typeof command>[0]> = {}) {
 
 function hub() {
     let ran = reactive({ label: '' }),
-        state = reactive({ active: false, index: 0, query: '', tab: 'home' as Tab });
+        state = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
 
     return html`
         <div class='command-demo'>
@@ -88,9 +88,9 @@ function hub() {
                     ran.label = entry.label;
                 },
                 shortcuts,
-                sidebar: true,
                 state,
-                store: local('docs-command')
+                store: local('docs-command'),
+                tabs: true
             })}
             <button
                 class='button button--tertiary'
@@ -137,7 +137,7 @@ export default {
         },
         {
             render: () => hub(),
-            title: 'sidebar: recent commands, all commands + keyboard shortcuts'
+            title: 'tabs: recents + every command, a tab per group + keyboard shortcuts'
         }
     ]
 };
