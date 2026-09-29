@@ -94,7 +94,7 @@ html`
 | `loading` | Border loading indicator |
 | `typewriter` | Animated typing effect |
 | `typewriterRetype` | Headline word that is selected and typed over with a jittered, human rhythm; shares the `typewriter` caret variables and `--block`/`--glow`/`--hard`/`--underscore` modifiers, crossfades under reduced motion |
-| `highlight` | Viewport intersection highlight |
+| `highlight` | Layer that glides behind its parent's children on hover and focus and rests on the `--active` one (`target` for nested items, `hover: false` for the active layer only); `line: 'bottom' \| 'left' \| 'right' \| 'top'` adds an edge line to the active layer with both fills kept `--line-inset` clear of it, `fill: false` drops the active background, `--glide-tail-duration-active` longer than `--glide-duration-active` stretches it toward the next item, `--inset-block` / `--inset-inline` pull the fill in from the item |
 | `ellipsis` | Animated dots |
 | `icon` | SVG sprite wrapper |
 | `number` | Number formatting |

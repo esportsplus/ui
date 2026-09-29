@@ -104,7 +104,7 @@ const meta: Record<string, Meta> = {
     },
     highlight: {
         category: 'Interactive',
-        description: 'Hover highlight that glides behind sibling items and rests on the active one.'
+        description: 'Hover highlight that glides behind sibling items and rests on the active one, as a fill or a line along one edge that can stretch toward the next item.'
     },
     icon: {
         category: 'Display',

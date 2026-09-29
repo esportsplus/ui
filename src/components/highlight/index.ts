@@ -4,7 +4,11 @@ import './scss/index.scss';
 
 
 type A = Attributes & {
+    // Whether the active layer fills its item; off leaves only the line, if any.
+    fill?: boolean;
     hover?: boolean;
+    // Draws a line along one edge of the active item, over the fill or on its own.
+    line?: 'bottom' | 'left' | 'right' | 'top';
     onconnect?: never;
     ondisconnect?: never;
     ondocumentanimationstart?: never;
@@ -22,10 +26,8 @@ type A = Attributes & {
 
 
 type Glide = {
-    animation: Animation | null;
-    // Offset the glide set out from, as x, y, width, height; it eases back to nothing.
-    from: number[];
     item: Element | null;
+    slides: Slide[];
 };
 
 type Layer = {
@@ -39,6 +41,12 @@ type Layer = {
 };
 
 type Name = 'active' | 'pointer';
+
+type Slide = {
+    animation: Animation;
+    // Offset the slide set out from, as x, y, width, height; it eases back to nothing.
+    from: number[];
+};
 
 
 function active(parent: Element, self: Element[], target?: string) {
@@ -75,7 +83,15 @@ function empty(): Layer {
 }
 
 function glide(): Glide {
-    return { animation: null, from: [0, 0, 0, 0], item: null };
+    return { item: null, slides: [] };
+}
+
+function halt(glide: Glide) {
+    for (let i = 0, n = glide.slides.length; i < n; i++) {
+        glide.slides[i].animation.cancel();
+    }
+
+    glide.slides = [];
 }
 
 function milliseconds(value: string) {
@@ -84,16 +100,40 @@ function milliseconds(value: string) {
     return isNaN(n) ? 0 : value.trim().endsWith('ms') ? n : n * 1000;
 }
 
-// What is left of a glide's offset, eased: the layer shows at its target plus this.
-function remaining(glide: Glide) {
-    let animation = glide.animation,
-        progress = animation?.playState === 'running' ? animation.effect?.getComputedTiming().progress : null;
-
-    if (progress === null || progress === undefined) {
-        return [0, 0, 0, 0];
+// Written straight to the layer: the template applies bindings a frame late, and a glide starting now would spend
+// that frame added onto the item the layer is leaving, throwing it past that item for a frame.
+function paint(node: HTMLElement | null, layer: Layer) {
+    if (!node) {
+        return;
     }
 
-    return glide.from.map((value) => value * (1 - progress));
+    let style = node.style;
+
+    style.setProperty('--border-radius', layer.radius);
+    style.setProperty('--height', `${layer.height}px`);
+    style.setProperty('--width', `${layer.width}px`);
+    style.setProperty('--x', `${layer.x}px`);
+    style.setProperty('--y', `${layer.y}px`);
+}
+
+// What is left of a glide's offset, eased: the layer shows at its target plus this.
+function remaining(glide: Glide) {
+    let left = [0, 0, 0, 0];
+
+    for (let i = 0, n = glide.slides.length; i < n; i++) {
+        let { animation, from } = glide.slides[i],
+            progress = animation.playState === 'running' ? animation.effect?.getComputedTiming().progress : null;
+
+        if (progress === null || progress === undefined) {
+            continue;
+        }
+
+        for (let j = 0; j < 4; j++) {
+            left[j] += from[j] * (1 - progress);
+        }
+    }
+
+    return left;
 }
 
 function sibling(parent: Element, self: Element[], node: EventTarget | null, target?: string) {
@@ -119,16 +159,6 @@ function sibling(parent: Element, self: Element[], node: EventTarget | null, tar
     return element;
 }
 
-function style(layer: Layer) {
-    return `
-        --border-radius: ${layer.radius};
-        --height: ${layer.height}px;
-        --width: ${layer.width}px;
-        --x: ${layer.x}px;
-        --y: ${layer.y}px;
-    `;
-}
-
 
 // Two layers: one rests on the '--active' item in '--background-active', the other follows hover and keyboard focus
 // in '--background-hover' ('--background-pressed' while held), so the pointer never takes the selection's place.
@@ -136,9 +166,14 @@ function style(layer: Layer) {
 // Items may differ in size and sit at any depth, so one highlight can serve nested rows. Moving to another item
 // glides; the same item moving or resizing under it, like rows shifting as a folder above opens, is followed frame
 // by frame, and a glide still under way carries on toward the item where it now is.
+//
+// Each edge glides on its own: the edge facing the move leads with '--glide' and the one behind trails with
+// '--glide-tail', so a longer tail stretches the layer toward the new item before it gathers there.
 export default component<A>(
-    ({ hover = true, target, ...attributes }) => {
-        let focused: Element | null = null,
+    ({ fill = true, hover = true, line, target, ...attributes }) => {
+        // Both layers know the line's edge, so the hover fill keeps clear of it just as the active fill does.
+        let edge = line ? ` --line-${line}` : '',
+            focused: Element | null = null,
             frame = 0,
             glides = { active: glide(), pointer: glide() },
             hovered: Element | null = null,
@@ -198,8 +233,7 @@ export default component<A>(
 
             // Entering from hidden snaps into place, so a glide left over from before it hid is dropped.
             if (!layer.visible) {
-                glide.animation?.cancel();
-                glide.animation = null;
+                halt(glide);
             }
             else if (glide.item && glide.item !== item) {
                 let left = remaining(glide);
@@ -215,6 +249,8 @@ export default component<A>(
             layer.width = width;
             layer.x = x;
             layer.y = y;
+
+            paint(nodes[name], layer);
         }
 
         // The layer's box always sits on its item; a glide is an offset added on top, easing to nothing, so the item
@@ -223,28 +259,60 @@ export default component<A>(
             let glide = glides[name],
                 node = nodes[name];
 
-            glide.animation?.cancel();
-            glide.animation = null;
+            halt(glide);
 
             if (!node || from.every((value) => Math.abs(value) < 0.5) || matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 return;
             }
 
-            let style = getComputedStyle(node),
-                duration = milliseconds(style.getPropertyValue('--glide'));
+            let lead = [0, 0, 0, 0],
+                style = getComputedStyle(node),
+                tail = [0, 0, 0, 0];
 
-            if (!duration) {
-                return;
+            // Per axis the start edge (left, top) is offset by the position and the end edge by position plus size;
+            // the offset points back to where the layer was, so a negative one is a move toward the end.
+            for (let axis = 0; axis < 2; axis++) {
+                let start = from[axis],
+                    end = start + from[axis + 2],
+                    forward = start + end < 0,
+                    a = forward ? tail : lead,
+                    b = forward ? lead : tail;
+
+                // The start edge moves by shifting the layer and giving the size back, so the end edge stays put.
+                a[axis] += start;
+                a[axis + 2] -= start;
+                b[axis + 2] += end;
             }
 
-            glide.from = from;
-            glide.animation = node.animate(
-                [
-                    { height: `${from[3]}px`, translate: `${from[0]}px ${from[1]}px`, width: `${from[2]}px` },
-                    { height: '0px', translate: '0px 0px', width: '0px' }
-                ],
-                { composite: 'add', duration, easing: style.getPropertyValue('--glide-timing-function').trim() || 'ease' }
-            );
+            let easing = style.getPropertyValue('--glide-timing-function').trim() || 'ease',
+                slides = [
+                    [lead, milliseconds(style.getPropertyValue('--glide'))],
+                    [tail, milliseconds(style.getPropertyValue('--glide-tail'))]
+                ] as const;
+
+            for (let i = 0, n = slides.length; i < n; i++) {
+                let [offset, duration] = slides[i];
+
+                if (!duration || offset.every((value) => Math.abs(value) < 0.5)) {
+                    continue;
+                }
+
+                glide.slides.push({
+                    animation: node.animate(
+                        [
+                            {
+                                '--slide-height': `${offset[3]}px`,
+                                '--slide-width': `${offset[2]}px`,
+                                '--slide-x': `${offset[0]}px`,
+                                '--slide-y': `${offset[1]}px`
+                            },
+                            { '--slide-height': '0px', '--slide-width': '0px', '--slide-x': '0px', '--slide-y': '0px' }
+                        ],
+                        { composite: 'add', duration, easing }
+                    ),
+                    from: offset
+                });
+            }
         }
 
         function tick() {
@@ -287,22 +355,36 @@ export default component<A>(
                 item = hovered || focused;
 
             place('active', current, box, '--active');
-            // Over the active item the full layer already shows; the pointer layer only returns to show a press.
+            // The pointer layer sits beneath the active one, so over the active item it stays put under it instead
+            // of leaving.
             place(
                 'pointer',
-                item && (item !== current || (pressed && item === hovered)) ? item : null,
+                item,
                 box,
                 pressed && item === hovered ? '--pressed' : '--hover'
             );
         }
 
+        // Both layers sit at the same z-index, so the pointer layer comes first to paint beneath the active one.
         return html`
             <div
                 aria-hidden='true'
                 class='highlight'
                 ${attributes}
                 ${{
-                    class: () => `${layers.active.variant}${layers.active.visible ? ' --visible' : ''}`,
+                    class: () => `${layers.pointer.variant}${edge}${layers.pointer.visible ? ' --visible' : ''}`,
+                    onrender: (element: HTMLElement) => {
+                        nodes.pointer = element;
+                        self.push(element);
+                    }
+                }}
+            ></div>
+            <div
+                aria-hidden='true'
+                class='highlight'
+                ${attributes}
+                ${{
+                    class: () => `${layers.active.variant}${fill ? '' : ' --unfilled'}${line ? ` --line${edge}` : ''}${layers.active.visible ? ' --visible' : ''}`,
                     onconnect: (element: HTMLElement) => {
                         let container = element.parentElement;
 
@@ -365,7 +447,7 @@ export default component<A>(
                         frame = 0;
 
                         for (let name of ['active', 'pointer'] as const) {
-                            glides[name].animation?.cancel();
+                            halt(glides[name]);
                             glides[name] = glide();
                         }
 
@@ -427,21 +509,7 @@ export default component<A>(
                     onrender: (element: HTMLElement) => {
                         nodes.active = element;
                         self.push(element);
-                    },
-                    style: () => style(layers.active)
-                }}
-            ></div>
-            <div
-                aria-hidden='true'
-                class='highlight'
-                ${attributes}
-                ${{
-                    class: () => `${layers.pointer.variant}${layers.pointer.visible ? ' --visible' : ''}`,
-                    onrender: (element: HTMLElement) => {
-                        nodes.pointer = element;
-                        self.push(element);
-                    },
-                    style: () => style(layers.pointer)
+                    }
                 }}
             ></div>
         `;

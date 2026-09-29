@@ -4,7 +4,7 @@
     background: var(--background);
     border-radius: var(--border-radius);
     display: none;
-    height: var(--height);
+    height: calc(var(--height) - var(--inset-block) * 2 + var(--slide-height));
     left: 0;
     opacity: 0;
     pointer-events: none;
@@ -18,9 +18,45 @@
         display var(--fade-duration) allow-discrete,
         opacity var(--fade-duration) var(--transition-timing-function),
         scale var(--fade-duration) var(--transition-timing-function);
-    translate: var(--x) var(--y);
-    width: var(--width);
+    translate: calc(var(--x) + var(--inset-inline) + var(--slide-x)) calc(var(--y) + var(--inset-block) + var(--slide-y));
+    width: calc(var(--width) - var(--inset-inline) * 2 + var(--slide-width));
     z-index: -1;
+
+    &.--line::after {
+        background: var(--line-color);
+        border-radius: var(--line-radius);
+        content: '';
+        position: absolute;
+    }
+
+    &.--unfilled {
+        background: transparent;
+    }
+
+    // The line runs along the item's own edge, so it reaches back out past the inset.
+    &.--line-bottom::after {
+        bottom: calc(var(--line-offset) - var(--inset-block));
+        height: var(--line-width);
+        inset-inline: calc(var(--inset-inline) * -1);
+    }
+
+    &.--line-left::after {
+        inset-block: calc(var(--inset-block) * -1);
+        left: calc(var(--line-offset) - var(--inset-inline));
+        width: var(--line-width);
+    }
+
+    &.--line-right::after {
+        inset-block: calc(var(--inset-block) * -1);
+        right: calc(var(--line-offset) - var(--inset-inline));
+        width: var(--line-width);
+    }
+
+    &.--line-top::after {
+        height: var(--line-width);
+        inset-inline: calc(var(--inset-inline) * -1);
+        top: calc(var(--line-offset) - var(--inset-block));
+    }
 
     &.--visible {
         display: block;

@@ -2,12 +2,39 @@ import { highlight } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import type { Entry } from '../types';
+import './highlight.scss';
 
 
 let column = 'display: flex; flex-direction: column; gap: var(--size-100); width: 240px;',
     labels = ['Overview', 'Matches', 'Teams', 'Players', 'Settings'],
     radii = ['var(--border-radius-300)', '999px', '0px', 'var(--border-radius-500)', '999px', 'var(--border-radius-300)'],
     row = 'display: flex; flex-wrap: wrap; gap: var(--size-200); align-items: center;';
+
+
+function tabs(line: 'bottom' | 'left', fill: boolean) {
+    let state = reactive({ active: 0 });
+
+    return html`
+        <div
+            aria-orientation='${line === 'left' ? 'vertical' : 'horizontal'}'
+            class='highlight-demo-tabs ${line === 'left' ? '--vertical' : ''}'
+            role='tablist'
+        >
+            ${highlight({ class: 'highlight-demo-highlight', fill, line })}
+            ${labels.map((label, index) => html`
+                <button
+                    class='highlight-demo-tab ${() => state.active === index ? '--active' : ''}'
+                    onclick='${() => state.active = index}'
+                    role='tab'
+                    type='button'
+                    ${{ 'aria-selected': () => String(state.active === index) }}
+                >
+                    ${label}
+                </button>
+            `)}
+        </div>
+    `;
+}
 
 
 export default {
@@ -94,6 +121,18 @@ export default {
                 `;
             },
             title: '--background-blue utility'
+        },
+        {
+            render: () => tabs('bottom', true),
+            title: 'tabs · background + line'
+        },
+        {
+            render: () => tabs('bottom', false),
+            title: 'tabs · line only'
+        },
+        {
+            render: () => tabs('left', true),
+            title: 'vertical tabs · background + line'
         },
         {
             render: () => html`
