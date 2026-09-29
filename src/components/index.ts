@@ -24,7 +24,6 @@ export { default as input } from './input';
 export { default as json } from './json';
 export { default as loading } from './loading';
 export { default as marquee } from './marquee';
-export { default as multiStepForm } from './multi-step-form';
 export { default as notificationBell } from './notification-bell';
 export { default as number } from './number';
 export { default as overlay } from './overlay';

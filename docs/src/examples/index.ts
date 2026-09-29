@@ -30,7 +30,6 @@ import json from './json';
 import link from './link';
 import loading from './loading';
 import marquee from './marquee';
-import multiStepForm from './multi-step-form';
 import notificationBell from './notification-bell';
 import number from './number';
 import overlay from './overlay';
@@ -117,7 +116,6 @@ const entries: Entry[] = [
     link,
     loading,
     marquee,
-    multiStepForm,
     notificationBell,
     number,
     overlay,

@@ -133,10 +133,6 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Infinitely scrolling logo strip that eases to a stop on hover or focus, and can speed up and reverse with the page scroll.'
     },
-    'multi-step-form': {
-        category: 'Form Controls',
-        description: 'Stepped form card with a progress bar, directional step transitions, and a height that springs to fit.'
-    },
     'notification-bell': {
         category: 'Display',
         description: 'Bell button that swings on new notifications with a rolling unread badge.'
