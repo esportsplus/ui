@@ -1,38 +1,53 @@
 @use 'variables';
 
-// JS writes only '--y' (feed offset in px, unitless), '--pull' (0 to 1 toward the threshold) and '--reveal' (share of ticks
-// drawn); everything else is derived here.
+// JS writes only '--pull-to-refresh-y' (feed offset in px, unitless), '--reveal' (share of ticks drawn) and '--threshold'
+// (px to pull before letting go refreshes); everything else is derived here, and the springs between targets are
+// transitions.
 .pull-to-refresh {
     height: var(--height);
     min-height: 0;
     position: relative;
+    transition: --pull-to-refresh-y var(--settle-duration) var(--spring);
+
+    // Following the hand, or shifting the feed without a visible move.
+    &[data-motion='instant'] {
+        transition: none;
+    }
+
+    &[data-motion='landing'] {
+        transition-duration: var(--slide-in-duration);
+    }
 
     &-content {
         background: var(--background);
         min-height: 100%;
-        translate: 0 calc(var(--y) * 1px);
+        translate: 0 calc(var(--pull-to-refresh-y) * 1px);
         user-select: none;
+
+        > .--fresh {
+            animation: pull-to-refresh-fresh var(--fresh-duration) var(--fresh-timing-function);
+        }
     }
 
-    // Dropped to 0 when a refresh ends, so the spinner fades rather than shrinking tick by tick as the feed retracts.
     &-glyph {
         display: flex;
-        rotate: calc(var(--y) * 3deg);
+        rotate: calc(var(--pull-to-refresh-y) * 3deg);
+    }
 
-        &.--fading {
-            opacity: 0;
-            transition: opacity var(--fade-duration) var(--fade-timing-function);
-        }
+    // Faded when a refresh ends, so the spinner goes out rather than shrinking tick by tick as the feed retracts.
+    &[data-motion='landing'] &-glyph {
+        opacity: 0;
+        transition: opacity var(--fade-duration) var(--fade-timing-function);
     }
 
     &-indicator {
         align-items: center;
         color: var(--color);
         display: flex;
-        height: var(--indicator-height);
+        height: calc(var(--threshold) * 1px);
         inset: 0 0 auto;
         justify-content: center;
-        opacity: var(--pull);
+        opacity: clamp(0, var(--pull-to-refresh-y) / var(--threshold), 1);
         pointer-events: none;
         position: absolute;
     }
@@ -62,7 +77,14 @@
     // Graded like the system spinner: the leading tick is solid and each one behind it fades, so the stepped rotation reads
     // as a sweep. Ticks are drawn in clockwise from the top as the pull grows.
     &-tick {
-        opacity: calc(clamp(0, (var(--reveal) * 8 - var(--order)) * 1000, 1) * (1 - var(--index) * 0.1));
+        transform-origin: 12px 12px;
+
+        @for $i from 0 through 7 {
+            &:nth-child(#{$i + 1}) {
+                opacity: calc(clamp(0, (var(--reveal) * 8 - #{$i}) * 1000, 1) * #{1 - ((8 - $i) % 8) * 0.1});
+                rotate: $i * 45deg;
+            }
+        }
     }
 
     // The indeterminate spin is a stepped rotation of graded ticks, like the system activity indicator.
@@ -71,13 +93,21 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+        &,
+        &[data-motion='landing'] &-glyph {
+            transition: none;
+        }
+
         &.--refreshing &-spinner {
             animation: none;
         }
+    }
+}
 
-        &-glyph.--fading {
-            transition: none;
-        }
+@keyframes pull-to-refresh-fresh {
+    from {
+        filter: blur(var(--fresh-blur));
+        opacity: 0;
     }
 }
 
