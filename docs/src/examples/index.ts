@@ -57,7 +57,6 @@ import storyProgress from './story-progress';
 import surfaceField from './surface-field';
 import swipeDeck from './swipe-deck';
 import switchComponent from './switch';
-import tabs from './tabs';
 import tasklist from './tasklist';
 import text from './text';
 import textAnimate from './text-animate';
@@ -134,7 +133,6 @@ const entries: Entry[] = [
     surfaceField,
     swipeDeck,
     switchComponent,
-    tabs,
     tasklist,
     text,
     textAnimate,

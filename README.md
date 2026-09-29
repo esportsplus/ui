@@ -114,8 +114,7 @@ html`
 |-----------|-------------|
 | `scrollbar` | Native scrollbar styling; `--scrollbar-horizontal` scrolls x only; `--scrollbar-fade` / `--scrollbar-blur` edges driven by scroll timelines, with `scrollbar.fade()` / `scrollbar.blur()` (`@esportsplus/ui/css-utilities/scrollbar`) adding a JS fallback only where those are unsupported; `scrollbar.drag('horizontal' \| 'vertical' \| 'both')` adds mouse drag-to-scroll (`--scrollbar-drag`) |
 | `card.scss` | Surface (background, radius, shadow and padding variables); `card--morph` makes it a shell that morphs between stacked `card-morph-layer`s inside a clipping `card-morph-viewport`: size it through `--morph-width`/`--morph-height`, each layer is a `frame frame--swap` (mark the shown one `--active`, set `--i` on the viewport and `--n` on each layer), `--instant` snaps; `--morph-*` variables tune the motion |
-| `tabs.scss` | Tab panels: instant by default, `tabs--slide` for horizontal motion, `tabs--scroll` for vertical motion |
-| `frame.scss` | Sibling frames sharing one spot, the `--active` one shown: instant by default, `frame--slide` / `frame--scroll` move them like a horizontal / vertical track, `frame--swap` crossfades in place with a directional drift and blur (the `tooltip.shared` swap) |
+| `frame.scss` | Sibling frames sharing one spot, the `--active` one shown: instant by default, `frame--slide` / `frame--scroll` move them like a horizontal / vertical track, `frame--swap` crossfades in place with a directional drift and blur (the `tooltip.shared` swap); shared by `command`, `tooltip.shared`, `card--morph` and `typewriterRetype` |
 | `overlay` | Native `<dialog>` driven by `state.active` (Esc and backdrop click close it), placed by `overlay--c` (default), `overlay--n`, `overlay--s`, `overlay--w` or `overlay--e`; edges slide in from their side on the iOS drawer curve and square the corners they touch unless `overlay--floating`. `drag: true` dismisses toward the edge past 25% or on a flick, rubber-bands inward and fades the backdrop with the drag (`overlay.handle`); `modal: false` opens without a backdrop, leaves the page interactive and sits in its positioned container; `rail: true` keeps it open non-modal and widens it while a mouse hovers or keyboard focus is inside (or `state.active` is set) from `--width-closed` to `--max-width`, clipping rows rather than reflowing them. Motion: `overlay--fade`, `overlay--scale`, `overlay--spring`, `overlay--alert`, `overlay--blur` |
 | `breadcrumb` | Path trail that folds middle segments into a `tooltip.menu` as space runs out, the rest sliding over as each one closes; `onnavigate` intercepts links; `separator: 'chevron' \| 'slash'` (default `'slash'`) |
 | `stickyStack` | Sticky cards that scale and dim as the next one slides over (scroll-driven animations, with a scroll-listener fallback) |
@@ -129,25 +128,35 @@ html`
 
 ## Component Patterns
 
-### Tabs
+### Frame
 
-Import `@esportsplus/ui/tabs.scss`. Put `.tabs-content` panels inside `.tabs`
-and apply `.--active` to the selected panel. The default switch is instant.
-For motion, add `.tabs--slide` (horizontal) or `.tabs--scroll` (vertical),
-and set `--i` to the negative selected index: `0`, `-1`, `-2`, etc.
+Import `@esportsplus/ui/frame.scss`. Give sibling elements the `.frame` class
+and mark the shown one `.--active`; without a modifier the switch is instant.
+Set `--n`, its own index, on each frame and `--i`, the active index (`0`, `1`,
+`2`, …), once on the parent. The modifiers animate the switch, stacking the
+frames in one grid cell so the tallest sets the height:
+
+- `.frame--slide` / `.frame--scroll` move the frames together like a
+  horizontal / vertical track.
+- `.frame--swap` crossfades in place, like `tooltip.shared` content: a waiting
+  frame sits one `--swap-shift` off to its side, faded and blurred, so the
+  incoming frame drifts in while the outgoing one carries on out the other way.
+  Frames without an index set the direction themselves through `--travel-x` /
+  `--travel-y` and mark the outgoing frame `--leaving`. `--swap-*` variables
+  tune it, with `--swap-exit-*` for the outgoing frame.
 
 ```html
-<div style="overflow: hidden; height: 300px;">
-    <div class="tabs tabs--scroll" style="--i: -1;">
-        <div class="tabs-content" inert aria-hidden="true">First panel</div>
-        <div class="tabs-content --active">Second panel</div>
-    </div>
+<div style="overflow: hidden; --i: 1;">
+    <div class="frame frame--swap" style="--n: 0;" inert>First frame</div>
+    <div class="frame frame--swap --active" style="--n: 1;">Second frame</div>
 </div>
 ```
 
-Animated tracks need a clipping parent; vertical tracks also need a definite
-parent height. Keep inactive panels `inert` and update tab/panel ARIA attributes
-alongside the active class. The docs include reactive switching examples.
+Moving frames need a clipping parent. Keep inactive frames `inert` and update
+tab/panel ARIA attributes alongside the active class. `--scrollbar` thumbs clear
+on inactive frames, and on the incoming frame while it carries `.--moving` (set
+it on the frame's `translate` transitionrun, clear it on its
+transitionend/transitioncancel). The docs include reactive switching examples.
 
 ### Sortable
 

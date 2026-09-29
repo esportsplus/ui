@@ -242,10 +242,6 @@ const meta: Record<string, Meta> = {
         category: 'Form Controls',
         description: 'Toggle control for binary on and off settings, plus switch groups with a select-all header and Shift-click ranges.'
     },
-    tabs: {
-        category: 'Layout',
-        description: 'Persistent tab panels with instant switching, horizontal sliding, or vertical scrolling.'
-    },
     text: {
         category: 'Display',
         description: 'Typographic primitives for headings, body copy, and captions.'
