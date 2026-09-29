@@ -38,14 +38,13 @@
         --dialog-offset: auto;
     }
 
-    &-dialog.modal {
+    &-dialog.overlay {
         --backdrop: var(--dialog-backdrop);
         --margin-horizontal: var(--size-400);
         --max-width: var(--dialog-width);
         --scale: var(--dialog-scale);
         --transition-duration: var(--open-duration);
         --transition-timing-function: var(--timing-function);
-        --translateY: 0px;
 
         &:not(.--active) {
             --transition-duration: var(--close-duration);
@@ -118,7 +117,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        &-dialog.modal {
+        &-dialog.overlay {
             --scale: 1;
         }
     }

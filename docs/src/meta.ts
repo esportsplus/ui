@@ -133,10 +133,6 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Infinitely scrolling logo strip that eases to a stop on hover or focus, and can speed up and reverse with the page scroll.'
     },
-    modal: {
-        category: 'Overlay',
-        description: 'Centered dialog surface for focused tasks and confirmations.'
-    },
     'multi-step-form': {
         category: 'Form Controls',
         description: 'Stepped form card with a progress bar, directional step transitions, and a height that springs to fit.'
@@ -155,7 +151,7 @@ const meta: Record<string, Meta> = {
     },
     overlay: {
         category: 'Overlay',
-        description: 'Layered surface for modals, menus, and popovers.'
+        description: 'Native dialog that centers or docks to any edge, covering modals, sheets, and drawers, with drag to dismiss.'
     },
     page: {
         category: 'Layout',
@@ -221,10 +217,6 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Share pill that reshapes into copy-link, X, email, and native share targets.'
     },
-    sheet: {
-        category: 'Overlay',
-        description: 'Bottom sheet that drags to dismiss, with flick detection, rubber-band resistance, and a fading backdrop.'
-    },
     'shiny-text': {
         category: 'Display',
         description: 'Muted text with a band of light that sweeps across it and rests (Magic UI).'
@@ -232,10 +224,6 @@ const meta: Record<string, Meta> = {
     'shortcut-recorder': {
         category: 'Form Controls',
         description: 'Records a keyboard shortcut from the keys you hold, rejecting combinations already in use.'
-    },
-    sidebar: {
-        category: 'Layout',
-        description: 'Floating side panel for navigation or filters.'
     },
     slider: {
         category: 'Form Controls',

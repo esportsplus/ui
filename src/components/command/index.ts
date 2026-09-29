@@ -3,7 +3,7 @@ import { component, html, type Attributes, type Renderable } from '@esportsplus/
 import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import input from '~/components/input';
-import modal from '~/components/modal';
+import overlay from '~/components/overlay';
 import { mac } from '~/lib/platform';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import up from '@esportsplus/ui/svg/arrow-up.svg';
@@ -43,13 +43,17 @@ type Command = {
     shortcut?: string[];
 };
 
-// What 'modal' and 'input' leave open to callers; they own the rest.
+// What 'overlay' and 'input' leave open to callers; they own the rest.
 type Dialog = Attributes<HTMLDialogElement> & {
     oncancel?: never;
     onclick?: never;
     onclose?: never;
     onconnect?: never;
     ondisconnect?: never;
+    onpointercancel?: never;
+    onpointerdown?: never;
+    onpointermove?: never;
+    onpointerup?: never;
 };
 
 // Commands and shortcuts share one row shape, so both render through the same list.
@@ -473,7 +477,7 @@ export default component(
                     ${kbd([glyph('Mod', apple), 'K'])}
                 </button>
 
-                ${modal(
+                ${overlay(
                     {
                         'aria-label': 'Command palette',
                         state,

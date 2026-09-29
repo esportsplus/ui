@@ -113,7 +113,7 @@
         }
     }
 
-    // The view transition is the only motion; the modal's own fade would play inside the snapshot.
+    // The view transition is the only motion; the overlay's own fade would play inside the snapshot.
     &-item:has(> .--morphing) > .card-expand-dialog {
         &,
         &::backdrop {

@@ -1,7 +1,7 @@
 import { effect, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import icon from '~/components/icon';
-import modal from '~/components/modal';
+import overlay from '~/components/overlay';
 import close from '@esportsplus/ui/svg/close.svg';
 import saved from '@esportsplus/ui/svg/circle-check.svg';
 import './scss/index.scss';
@@ -15,6 +15,10 @@ type A = Attributes<HTMLDialogElement> & {
     onclose?: never;
     onconnect?: never;
     ondisconnect?: never;
+    onpointercancel?: never;
+    onpointerdown?: never;
+    onpointermove?: never;
+    onpointerup?: never;
     state?: State;
 };
 
@@ -65,7 +69,7 @@ export default component<A>(
             timer: ReturnType<typeof setTimeout> | undefined,
             title = labels.title ?? 'Settings';
 
-        return modal.call(
+        return overlay.call(
             { attributes: { class: 'settings' } },
             { 'aria-label': title, ...attributes, state: s },
             html`

@@ -1,6 +1,6 @@
 import { effect, flush, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import modal from '~/components/modal';
+import overlay from '~/components/overlay';
 import close from '@esportsplus/ui/svg/close.svg';
 import '~/components/button/scss/index.scss';
 
@@ -31,7 +31,7 @@ export default component(
         let id = `card-expand-${++uid}`,
             view = reactive({ morph: null as string | null, open: state.open });
 
-        // Clicks, the modal's own dismissals and callers all write 'state.open'; only this effect moves the view.
+        // Clicks, the overlay's own dismissals and callers all write 'state.open'; only this effect moves the view.
         effect(() => state.open, (next) => {
             if (next === view.open) {
                 return;
@@ -54,7 +54,7 @@ export default component(
             view.morph = key;
 
             // Rendering is paused until the update resolves, so the template's frame-batched writes can't be
-            // awaited; the modal's effect opens or dims its dialog synchronously on flush instead.
+            // awaited; the overlay's effect opens or dims its dialog synchronously on flush instead.
             void document.startViewTransition(() => {
                 view.open = next;
                 flush();
@@ -85,7 +85,7 @@ export default component(
                             <span class='card-expand-summary'>${item.summary}</span>
                         </button>
 
-                        ${modal(
+                        ${overlay(
                             {
                                 'aria-labelledby': `${id}-${i}`,
                                 class: 'card card-expand-dialog',

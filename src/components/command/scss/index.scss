@@ -13,7 +13,7 @@
         white-space: nowrap;
     }
 
-    &-dialog.modal {
+    &-dialog.overlay {
         background: var(--dialog-background);
         border-radius: var(--dialog-border-radius);
         box-shadow: var(--raised);
@@ -219,7 +219,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        &-dialog.modal {
+        &-dialog.overlay {
             transition: opacity var(--transition-duration) var(--transition-timing-function);
 
             &::backdrop {

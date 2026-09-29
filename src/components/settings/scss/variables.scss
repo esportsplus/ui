@@ -21,7 +21,6 @@
     --text-muted: var(--color-text-300);
     --transition-duration: 0.3s;
     --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-    --translateY: 0px;
 
     // The dialog's open/close timing must not leak into the controls it hosts.
     &-panel {

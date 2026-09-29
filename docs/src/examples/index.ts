@@ -30,7 +30,6 @@ import json from './json';
 import link from './link';
 import loading from './loading';
 import marquee from './marquee';
-import modal from './modal';
 import multiStepForm from './multi-step-form';
 import navigationMenu from './navigation-menu';
 import nestedMenu from './nested-menu';
@@ -54,10 +53,8 @@ import select from './select';
 import selectMenu from './select-menu';
 import settings from './settings';
 import shareButton from './share-button';
-import sheet from './sheet';
 import shinyText from './shiny-text';
 import shortcutRecorder from './shortcut-recorder';
-import sidebar from './sidebar';
 import slider from './slider';
 import slidingTabs from './sliding-tabs';
 import snapCarousel from './snap-carousel';
@@ -122,7 +119,6 @@ const entries: Entry[] = [
     link,
     loading,
     marquee,
-    modal,
     multiStepForm,
     navigationMenu,
     nestedMenu,
@@ -146,10 +142,8 @@ const entries: Entry[] = [
     selectMenu,
     settings,
     shareButton,
-    sheet,
     shinyText,
     shortcutRecorder,
-    sidebar,
     slider,
     slidingTabs,
     snapCarousel,

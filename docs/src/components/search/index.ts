@@ -23,7 +23,7 @@ const modal = () => {
     let links = new Map(sections().flatMap((section) => section.groups.flatMap((group) => group.links.map((link) => [link.href, link] as const))));
 
     return command({
-        [command.dialog]: { class: 'modal--blur' },
+        [command.dialog]: { class: 'overlay--blur' },
         [command.trigger]: { hidden: true },
         commands: sections().flatMap((section) => section.groups.flatMap((group) => group.links.map(({ href, label }) => ({ group: section.label, id: href, label })))),
         onrun: (entry) => {

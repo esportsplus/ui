@@ -1,18 +1,241 @@
 @use '/lib';
 @use '/tokens';
+@use 'variables';
+
+// Zero specificity so paired classes (e.g. '.card') still win over the dialog UA reset.
+:where(dialog.overlay) {
+    background: transparent;
+    border: 0;
+    color: inherit;
+    inset: 0;
+    max-height: calc(100% - (var(--margin-vertical) * 2));
+    max-width: 100%;
+    padding: 0;
+    // Only non-modal overlays stay out of the top layer and need it.
+    z-index: 9;
+}
+
+// Outranks pairings like '.card { position: relative }'. Modal overlays pin to the viewport; non-modal ones
+// sit in their positioned container, which may be the viewport too via an inline 'position: fixed'.
+dialog.overlay {
+    position: fixed;
+
+    &:not(:modal) {
+        position: absolute;
+    }
+}
 
 .overlay {
-    @include lib.position(fixed, full);
-    cursor: default;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    z-index: 9;
-
+    margin: auto;
+    transition:
+        opacity var(--transition-duration) var(--transition-timing-function),
+        scale var(--transition-duration) var(--transition-timing-function),
+        translate var(--transition-duration) var(--transition-timing-function);
+    transform-origin: center;
+    width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
 
     @include tokens.state(inactive) {
+        opacity: var(--opacity);
+        pointer-events: none;
+        scale: var(--scale);
+        translate: var(--translate);
+
+        &::backdrop {
+            opacity: 0;
+        }
+
         input[type='password'] {
             display: none;
+        }
+    }
+
+    &::backdrop {
+        background: var(--backdrop);
+        transition: opacity var(--transition-duration) var(--transition-timing-function);
+    }
+
+    // Fades with the drag, so the page shows through as the overlay leaves.
+    &.--active::backdrop {
+        opacity: calc(1 - var(--progress, 0));
+    }
+
+
+    &--alert::backdrop,
+    &--blur::backdrop {
+        backdrop-filter: blur(var(--blur));
+    }
+
+    &--e,
+    &--w {
+        height: calc(100% - (var(--margin-vertical) * 2));
+    }
+
+    &--e {
+        margin-inline-end: var(--margin-horizontal);
+        transform-origin: right;
+
+        &:not(.overlay--floating) {
+            border-end-end-radius: 0;
+            border-start-end-radius: 0;
+        }
+    }
+
+    &--n {
+        margin-block-start: var(--margin-vertical);
+        transform-origin: top;
+
+        &:not(.overlay--floating) {
+            border-start-end-radius: 0;
+            border-start-start-radius: 0;
+        }
+    }
+
+    &--s {
+        margin-block-end: var(--margin-vertical);
+        transform-origin: bottom;
+
+        &:not(.overlay--floating) {
+            border-end-end-radius: 0;
+            border-end-start-radius: 0;
+        }
+    }
+
+    &--w {
+        margin-inline-start: var(--margin-horizontal);
+        transform-origin: left;
+
+        &:not(.overlay--floating) {
+            border-end-start-radius: 0;
+            border-start-start-radius: 0;
+        }
+    }
+
+
+    &.--draggable {
+        cursor: grab;
+        outline: none;
+        // The surface continues past the screen edge, so pulling the overlay inward reveals more of it.
+        overflow: visible;
+        touch-action: none;
+        user-select: none;
+
+        &::after {
+            background: inherit;
+            content: '';
+            pointer-events: none;
+            position: absolute;
+        }
+
+        &.overlay--e::after {
+            inset-block: 0;
+            left: 100%;
+            width: 50vw;
+        }
+
+        &.overlay--n::after {
+            bottom: 100%;
+            height: 50vh;
+            inset-inline: 0;
+        }
+
+        &.overlay--s::after {
+            height: 50vh;
+            inset-inline: 0;
+            top: 100%;
+        }
+
+        &.overlay--w::after {
+            inset-block: 0;
+            right: 100%;
+            width: 50vw;
+        }
+    }
+
+    // Always open; '--active' expands it. Rows keep their width and are clipped rather than reflowed, so the
+    // collapsed rail shows whatever leads each row (usually an icon).
+    &.--rail {
+        overflow: hidden;
+        transition: width var(--transition-duration) var(--transition-timing-function);
+        white-space: nowrap;
+        width: min(var(--width-closed), calc(100% - (var(--margin-horizontal) * 2)));
+
+        @include tokens.state(active) {
+            width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
+        }
+
+        @include tokens.state(inactive) {
+            opacity: 1;
+            pointer-events: auto;
+            scale: 1;
+            translate: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    &.--dragging {
+        cursor: grabbing;
+
+        &,
+        &::backdrop {
+            transition: none;
+        }
+    }
+
+
+    &-handle {
+        background: var(--handle-color);
+        border-radius: var(--handle-thickness);
+        height: var(--handle-thickness);
+        position: absolute;
+        width: var(--handle-length);
+
+        .overlay:not(.overlay--e, .overlay--n, .overlay--s, .overlay--w) > & {
+            display: none;
+        }
+
+        .overlay--e > &,
+        .overlay--w > & {
+            height: var(--handle-length);
+            top: 50%;
+            translate: 0 -50%;
+            width: var(--handle-thickness);
+        }
+
+        .overlay--e > & {
+            left: var(--handle-offset);
+        }
+
+        .overlay--n > &,
+        .overlay--s > & {
+            left: 50%;
+            translate: -50% 0;
+        }
+
+        .overlay--n > & {
+            bottom: var(--handle-offset);
+        }
+
+        .overlay--s > & {
+            top: var(--handle-offset);
+        }
+
+        .overlay--w > & {
+            right: var(--handle-offset);
+        }
+    }
+
+    // Every placement fades in place instead of travelling.
+    @media (prefers-reduced-motion: reduce) {
+        --opacity: 0;
+        --scale: 1;
+        --translate: 0px;
+
+        &,
+        &::backdrop {
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
         }
     }
 }

@@ -102,7 +102,7 @@ $expand-box-shadow:
             --size: 32px;
         }
 
-        &-dialog.modal {
+        &-dialog.overlay {
             --backdrop: var(--dialog-backdrop);
             --margin-horizontal: 1rem;
             --max-width: var(--dialog-width);

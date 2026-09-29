@@ -132,7 +132,7 @@ export default {
             title: 'default (⌘K / Ctrl+K)'
         },
         {
-            render: () => demo({ [command.dialog]: { class: 'modal--blur' }, class: 'command--centered', label: 'Centered, blurred' }),
+            render: () => demo({ [command.dialog]: { class: 'overlay--blur' }, class: 'command--centered', label: 'Centered, blurred' }),
             title: 'centered + blur'
         },
         {
