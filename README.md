@@ -117,7 +117,6 @@ html`
 | `tabs.scss` | Tab panels: instant by default, `tabs--slide` for horizontal motion, `tabs--scroll` for vertical motion |
 | `overlay` | Native `<dialog>` driven by `state.active` (Esc and backdrop click close it), placed by `overlay--c` (default), `overlay--n`, `overlay--s`, `overlay--w` or `overlay--e`; edges slide in from their side on the iOS drawer curve and square the corners they touch unless `overlay--floating`. `drag: true` dismisses toward the edge past 25% or on a flick, rubber-bands inward and fades the backdrop with the drag (`overlay.handle`); `modal: false` opens without a backdrop, leaves the page interactive and sits in its positioned container; `rail: true` keeps it open non-modal and widens it while a mouse hovers or keyboard focus is inside (or `state.active` is set) from `--width-closed` to `--max-width`, clipping rows rather than reflowing them. Motion: `overlay--fade`, `overlay--scale`, `overlay--spring`, `overlay--alert`, `overlay--blur` |
 | `breadcrumb` | Path trail that folds middle segments into a `tooltip.menu` as space runs out, the rest sliding over as each one closes; `onnavigate` intercepts links; `separator: 'chevron' \| 'slash'` (default `'slash'`) |
-| `slidingTabs` | Tab list whose underline stretches toward the new tab and gathers under it, with a hover pill and cross-sliding `tabs.scss` panels (`state.selected`) |
 | `stickyStack` | Sticky cards that scale and dim as the next one slides over (scroll-driven animations, with a scroll-listener fallback) |
 
 ### Utility

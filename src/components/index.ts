@@ -37,7 +37,6 @@ export { default as relativeTime } from './relative-time';
 export { default as select } from './select';
 export { default as shortcutRecorder } from './shortcut-recorder';
 export { default as slider } from './slider';
-export { default as slidingTabs } from './sliding-tabs';
 export { default as snapCarousel } from './snap-carousel';
 export { default as sortable } from './sortable';
 export { default as sparkline } from './sparkline';

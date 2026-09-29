@@ -194,10 +194,6 @@ const meta: Record<string, Meta> = {
         category: 'Form Controls',
         description: 'Single or range slider with edge-aligned thumbs, vertical orientation, value output, and hidden form fields (coss ui).'
     },
-    'sliding-tabs': {
-        category: 'Layout',
-        description: 'Tab list whose underline stretches toward the new tab and gathers under it, with a hover pill and cross-sliding panels.'
-    },
     'snap-carousel': {
         category: 'Interactive',
         description: 'Native scroll-snap card carousel with mouse flick, focus scaling, and edge-aware arrows.'
