@@ -1,10 +1,11 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { reactive, root } from '@esportsplus/reactivity';
 import form from '~/components/form';
+import filter from './filter';
 import './scss/index.scss';
 
 
-export default function(
+function plain(
     this: { attributes?: Attributes } | void,
     attributes: Attributes & { max: number, min: number, state?: { active: boolean, error: string, value: number } }
 ) {
@@ -42,4 +43,11 @@ export default function(
             }}
         />
     `;
-};
+}
+
+
+const range: typeof plain & { filter: typeof filter } = Object.assign(plain, { filter });
+
+
+export default range;
+export type { RangeFilterState } from './filter';

@@ -2,7 +2,6 @@ import { reactive } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
 import input from '~/components/input';
 import close from '@esportsplus/ui/svg/close.svg';
-import './scss/index.scss';
 
 
 type A = Attributes & {

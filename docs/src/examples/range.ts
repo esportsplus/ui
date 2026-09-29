@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { rangeFilter } from '@esportsplus/ui';
+import { range } from '@esportsplus/ui';
 import { rangeVariations } from './form-prototypes';
 
 
@@ -9,19 +9,19 @@ export default {
     variants: [
         ...rangeVariations(),
         {
-            render: () => rangeFilter({ label: 'Price', max: 1000, min: 0, step: 50, value: [200, 800] }),
+            render: () => range.filter({ label: 'Price', max: 1000, min: 0, step: 50, value: [200, 800] }),
             title: 'stepped price range'
         },
         {
-            render: () => rangeFilter({ format: (value: number) => `${value}%`, label: 'Brightness', max: 100, min: 0, prefix: '', step: 1, value: 36 }),
+            render: () => range.filter({ format: (value: number) => `${value}%`, label: 'Brightness', max: 100, min: 0, prefix: '', step: 1, value: 36 }),
             title: 'single value'
         },
         {
-            render: () => rangeFilter({ disabled: true, label: 'Allocation', max: 100, min: 0, prefix: '', step: 1, value: [20, 70] }),
+            render: () => range.filter({ disabled: true, label: 'Allocation', max: 100, min: 0, prefix: '', step: 1, value: [20, 70] }),
             title: 'disabled'
         },
         {
-            render: () => rangeFilter({ fields: true, label: 'Price', max: 1000, min: 0, step: 10, value: [200, 750] }),
+            render: () => range.filter({ fields: true, label: 'Price', max: 1000, min: 0, step: 10, value: [200, 750] }),
             title: 'min and max fields'
         },
         {
@@ -30,7 +30,7 @@ export default {
 
                 return html`
                     <div style='display: grid; gap: 12px; justify-items: center; width: 100%;'>
-                        ${rangeFilter({
+                        ${range.filter({
                             fields: true,
                             format: (value: number) => `${value}°C`,
                             label: 'Temperature',
@@ -48,7 +48,7 @@ export default {
             title: 'fields, controlled state, fractional step'
         },
         {
-            render: () => rangeFilter({
+            render: () => range.filter({
                 fields: true,
                 label: 'Volume',
                 max: 100,
@@ -61,7 +61,7 @@ export default {
             title: 'fields, custom colors'
         },
         {
-            render: () => rangeFilter({}),
+            render: () => range.filter({}),
             title: 'price range (hover outside the selection)'
         },
         {
@@ -70,7 +70,7 @@ export default {
 
                 return html`
                     <div style='display: grid; gap: 12px; justify-items: center; width: 100%;'>
-                        ${rangeFilter({ label: 'Distance', max: 50, min: 0, prefix: '', state, step: 1, ticks: 6, format: (value: number) => `${value} km` })}
+                        ${range.filter({ label: 'Distance', max: 50, min: 0, prefix: '', state, step: 1, ticks: 6, format: (value: number) => `${value} km` })}
                         <code style='color: var(--color-text-300); font-size: 13px;'>${() => `${state.low}–${state.high} km`}</code>
                     </div>
                 `;
@@ -78,7 +78,7 @@ export default {
             title: 'custom unit, shared state'
         },
         {
-            render: () => rangeFilter({ label: 'Budget', max: 25000, min: 0, step: 250, ticks: 3, value: [2500, 18000] }),
+            render: () => range.filter({ label: 'Budget', max: 25000, min: 0, step: 250, ticks: 3, value: [2500, 18000] }),
             title: 'larger numbers'
         }
     ]

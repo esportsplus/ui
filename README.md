@@ -56,7 +56,7 @@ html`
 | `textarea` | Multi-line text input | - |
 | `checkbox` | Checkbox with label; `checkbox.group` builds a checklist with a select-all header (mixed state), optional counter, and Shift-click ranges | `checkbox.group` |
 | `radio` | Radio button group | - |
-| `range` | Range slider | - |
+| `range` | Range slider; `range.filter` is a range filter with rolling-digit values, a Clear button, a ghost preview of where a click would stretch the selection, and scale ticks; a number `value` gives one thumb, a pair gives two that stop at each other; `fields` adds editable min/max `input` fields, `disabled`; `state.low`/`state.high`, `format`, `prefix`, `step`, `ticks` | `range.filter` |
 | `datalist` | Inertial wheel picker (scroll-snapped listbox) | - |
 | `select` | Dropdown with custom options; `select.menu` is a macOS-style listbox opening with the selected option over the trigger, with typeahead and hover scrolling | `select.menu` |
 | `switch` | Toggle switch; `switch.group` builds the same group as `checkbox.group` with switches, the select-all knob resting midway when mixed | `switch.group` |
@@ -65,7 +65,6 @@ html`
 | `cc` | Payment card form (`input` fields) with a live card preview that flips for the CVC, brand detection, caret-safe formatting and Luhn/expiry validation; `onvalid` receives brand, last 4, expiry and name | `cc.field`, `cc.submit` |
 | `colorPicker` | Saturation pad, hue/opacity sliders (`range`), hex field (`input`), and an animated recent-colors row (hidden while empty); `value` is required, no surface of its own, so place it in a `card` | `colorPicker.swatch` |
 | `inlineEdit` | Click-to-edit text that swaps in an `input` (or `textarea` with `multiline`) without moving a glyph; Enter/blur saves, Escape cancels, `onsave` fires. `inlineEdit.rich` edits markdown in place: `features` whitelists what each field allows (bold, italic, strike, code, highlight, link, heading, quote, codeblock, bullet, ordered, task, clear, copy), and only those appear in its selection toolbar, shortcuts, pastes and saved markdown | `inlineEdit.display`, `inlineEdit.field`, `inlineEdit.rich.editor`, `inlineEdit.rich.toolbar`, `inline-edit--seamless` |
-| `rangeFilter` | Range filter with rolling-digit values, a Clear button, a ghost preview of where a click would stretch the selection, and scale ticks; a number `value` gives one thumb, a pair gives two that stop at each other; `fields` adds editable min/max `input` fields, `disabled`; `state.low`/`state.high`, `format`, `prefix`, `step`, `ticks` | - |
 | `tagInput` | Chip field (`input`) turning typed or pasted text into tags that form in place, nudge on duplicates, and go on a double Backspace; `name` submits `name[]` | `tagInput.field` |
 
 ### Interactive

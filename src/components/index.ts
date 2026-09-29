@@ -34,7 +34,6 @@ export { default as progress } from './progress';
 export { default as pullToRefresh } from './pull-to-refresh';
 export { default as radio } from './radio';
 export { default as range } from './range';
-export { default as rangeFilter } from './range-filter';
 export { default as relativeTime } from './relative-time';
 export { default as select } from './select';
 export { default as settings } from './settings';

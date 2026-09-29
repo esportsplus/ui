@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 .range-filter {
@@ -168,7 +169,7 @@
         translate: 0 -50%;
         z-index: 1;
 
-        &.--active {
+        @include tokens.state(active) {
             opacity: 1;
         }
     }
@@ -263,7 +264,7 @@
         }
 
         &:hover,
-        &.--active {
+        #{tokens.state(active)} {
             scale: 1.25;
         }
     }
@@ -323,7 +324,7 @@
         }
 
         &-thumb:hover,
-        &-thumb.--active {
+        #{tokens.state(active, '&-thumb')} {
             scale: 1;
         }
     }
