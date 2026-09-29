@@ -46,7 +46,6 @@ import scrubInput from './scrub-input';
 import select from './select';
 import selectMenu from './select-menu';
 import settings from './settings';
-import shareButton from './share-button';
 import shinyText from './shiny-text';
 import shortcutRecorder from './shortcut-recorder';
 import slider from './slider';
@@ -56,7 +55,6 @@ import sortable from './sortable';
 import sparkline from './sparkline';
 import stackedDrawer from './stacked-drawer';
 import statCounter from './stat-counter';
-import statusPicker from './status-picker';
 import stickyHeader from './sticky-header';
 import stickyStack from './sticky-stack';
 import storyProgress from './story-progress';
@@ -129,7 +127,6 @@ const entries: Entry[] = [
     select,
     selectMenu,
     settings,
-    shareButton,
     shinyText,
     shortcutRecorder,
     slider,
@@ -139,7 +136,6 @@ const entries: Entry[] = [
     sparkline,
     stackedDrawer,
     statCounter,
-    statusPicker,
     stickyHeader,
     stickyStack,
     storyProgress,

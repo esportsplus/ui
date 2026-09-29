@@ -193,10 +193,6 @@ const meta: Record<string, Meta> = {
         category: 'Overlay',
         description: 'Application settings dialog with a grouped navigation rail, scrolling pages, and a saved confirmation.'
     },
-    'share-button': {
-        category: 'Interactive',
-        description: 'Share pill that reshapes into copy-link, X, email, and native share targets.'
-    },
     'shiny-text': {
         category: 'Display',
         description: 'Muted text with a band of light that sweeps across it and rests (Magic UI).'
@@ -232,10 +228,6 @@ const meta: Record<string, Meta> = {
     'stat-counter': {
         category: 'Display',
         description: 'Metric cards whose numbers roll to their value, with trend chips and sparklines you can scrub back through time.'
-    },
-    'status-picker': {
-        category: 'Interactive',
-        description: 'Avatar presence menu whose shaped status badge spins into the next one as you change it.'
     },
     'sticky-header': {
         category: 'Layout',
