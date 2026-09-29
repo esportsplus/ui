@@ -23,7 +23,6 @@ export { default as inlineEdit } from './inline-edit';
 export { default as input } from './input';
 export { default as json } from './json';
 export { default as kanbanBoard } from './kanban-board';
-export { default as lightbox } from './lightbox';
 export { default as lineShadowText } from './line-shadow-text';
 export { default as loading } from './loading';
 export { default as longPress } from './long-press';

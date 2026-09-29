@@ -28,7 +28,6 @@ import inlineEdit from './inline-edit';
 import input from './input';
 import json from './json';
 import kanbanBoard from './kanban-board';
-import lightbox from './lightbox';
 import lineShadowText from './line-shadow-text';
 import link from './link';
 import loading from './loading';
@@ -130,7 +129,6 @@ const entries: Entry[] = [
     input,
     json,
     kanbanBoard,
-    lightbox,
     lineShadowText,
     link,
     loading,

@@ -125,10 +125,6 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Columns of cards you drag within and between lists, or move entirely from the keyboard.'
     },
-    lightbox: {
-        category: 'Overlay',
-        description: 'Gesture-driven image viewer that zooms toward the pointer and flies back to its thumbnail on close.'
-    },
     'line-shadow-text': {
         category: 'Display',
         description: 'Text with an offset drop shadow drawn in drifting diagonal hatch lines (Magic UI).'
