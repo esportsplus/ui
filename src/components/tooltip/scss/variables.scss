@@ -184,14 +184,6 @@
     --rise: 4px;
     --scale: 0.94;
     --spacer: var(--size-300);
-    --swap-blur: 2px;
-    // Rides the glide rather than finishing ahead of it, so the content visibly travels with the box.
-    --swap-duration: 0.32s;
-    // Shorter than the slide, so the two layers barely overlap and never read as doubled text.
-    --swap-fade-duration: 0.16s;
-    // A share of the content's own size, so short labels and wide cards travel alike; the box clips the rest.
-    --swap-shift: 60%;
-    --swap-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     --white-space: nowrap;
 
@@ -208,7 +200,5 @@
         --glide-duration: 0s;
         --rise: 0px;
         --scale: 1;
-        --swap-blur: 0px;
-        --swap-shift: 0%;
     }
 }

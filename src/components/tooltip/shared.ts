@@ -1,6 +1,7 @@
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { html, render as mount, type Attributes, type Renderable } from '@esportsplus/template';
 import { cool, wait, warm, type Delay } from './utilities';
+import '~/components/frame/scss/index.scss';
 
 
 type Anchor = () => DOMRect;
@@ -84,7 +85,7 @@ function clamp(value: number, min: number, max: number) {
 function create(parent: HTMLElement, content: Content, kept: boolean): Layer {
     let element = document.createElement('span');
 
-    element.className = 'tooltip-shared-layer';
+    element.className = 'tooltip-shared-layer frame frame--swap';
 
     let layer = { dispose: mount(element, content), element, kept };
 
@@ -164,7 +165,7 @@ function settle(element: HTMLElement, done: VoidFunction) {
     void last.finished.then(done, done);
 }
 
-// The unit vector a layer moves along; the CSS scales it by '--swap-shift'.
+// The unit vector a layer moves along; 'frame--swap' scales it by '--swap-shift'.
 function travel(element: HTMLElement, x: number, y: number) {
     element.style.setProperty('--travel-x', `${x}`);
     element.style.setProperty('--travel-y', `${y}`);

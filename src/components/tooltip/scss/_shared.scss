@@ -28,13 +28,10 @@
             height var(--glide-duration) var(--glide-timing-function),
             translate var(--glide-duration) var(--glide-timing-function),
             width var(--glide-duration) var(--glide-timing-function);
+    }
 
-        .tooltip-shared-layer {
-            transition:
-                filter var(--swap-duration) var(--swap-timing-function),
-                opacity var(--swap-fade-duration) linear,
-                translate var(--swap-duration) var(--swap-timing-function);
-        }
+    &:not(.--gliding) .tooltip-shared-layer {
+        transition: none;
     }
 
     #{tokens.state(active)} > .tooltip-shared-box {
@@ -109,39 +106,18 @@
             translate var(--close-duration) var(--timing-function);
     }
 
-    // Centered in the box, so the box can resize around it. '--travel-x' and '--travel-y' are the unit vector of the
-    // trip between triggers, set by 'tooltip.shared': incoming content waits one shift along it, then settles to the
-    // middle, while outgoing content carries on one shift the other way. The shift is a percentage, so it scales with
-    // the layer's own width and height.
+    // A 'frame--swap', centered in the box so the box can resize around it; centering takes 'transform', leaving
+    // 'translate' to the frame. 'tooltip.shared' sets '--travel-x' and '--travel-y' to the unit vector of the trip
+    // between triggers, so incoming content drifts in along it and outgoing content carries on out the far side.
     &-layer {
-        --shift: var(--swap-shift);
-        filter: blur(var(--swap-blur));
         left: 50%;
         max-width: var(--max-width);
-        opacity: 0;
         padding: var(--padding);
         position: absolute;
         top: 50%;
-        translate:
-            calc(-50% + var(--shift) * var(--travel-x, 0))
-            calc(-50% + var(--shift) * var(--travel-y, 0));
+        transform: translate(-50%, -50%);
         white-space: var(--white-space);
         width: max-content;
-
-        @include tokens.state(active) {
-            --shift: 0px;
-            filter: blur(0);
-            opacity: 1;
-        }
-
-        &.--leaving {
-            --shift: calc(var(--swap-shift) * -1);
-        }
-
-        // Kept content between opens: out of sight, out of reach and out of the accessibility tree.
-        #{tokens.state(inactive)}:not(.--leaving) {
-            visibility: hidden;
-        }
 
         // Root styles give 'strong' its own page text color, unreadable on the bubble.
         strong {
