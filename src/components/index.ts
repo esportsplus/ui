@@ -25,7 +25,6 @@ export { default as json } from './json';
 export { default as loading } from './loading';
 export { default as marquee } from './marquee';
 export { default as modal } from './modal';
-export { default as morphingButton } from './morphing-button';
 export { default as multiStepForm } from './multi-step-form';
 export { default as navigationMenu } from './navigation-menu';
 export { default as nestedMenu } from './nested-menu';

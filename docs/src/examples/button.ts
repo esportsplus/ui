@@ -164,6 +164,32 @@ export default {
                 </div>
             `,
             title: 'loading'
+        },
+        {
+            render: () => {
+                let saves = 0;
+
+                // Every other save fails, so both endings are one click apart.
+                return button.morph({ onsave: () => wait(1200).then(() => {
+                    if (saves++ % 2 === 1) {
+                        throw new Error('Docs: save failed');
+                    }
+                }) });
+            },
+            title: 'morph'
+        },
+        {
+            render: () => {
+                let state = reactive({ status: 'idle' as 'error' | 'idle' | 'loading' | 'success' });
+
+                return html`
+                    <div style='${row}'>
+                        ${button.morph({ label: 'Publish', onsave: () => wait(1200), state, style: '--morph-background: var(--color-blue-400);', successFor: 2400 })}
+                        <span style='color: var(--color-text-300); font-size: 14px;'>${() => state.status}</span>
+                    </div>
+                `;
+            },
+            title: 'morph, observed state'
         }
     ]
 };

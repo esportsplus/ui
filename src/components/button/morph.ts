@@ -1,10 +1,11 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
-import './scss/index.scss';
+import check from '@esportsplus/ui/svg/check.svg';
+import spinner from '@esportsplus/ui/svg/spinner.svg';
 
 
 type A = Attributes & {
-    [MORPHING_BUTTON_CONTENT]?: Attributes;
+    [BUTTON_MORPH_CONTENT]?: Attributes;
     label?: string;
     onclick?: never;
     onconnect?: never;
@@ -27,7 +28,7 @@ const ANNOUNCE: Record<Status, string> = {
     success: 'Changes saved'
 };
 
-const MORPHING_BUTTON_CONTENT = Symbol.for('@esportsplus/ui/morphing-button.content');
+const BUTTON_MORPH_CONTENT = Symbol.for('@esportsplus/ui/button.morph.content');
 
 // Swings that die away, like a head shaking no.
 const SHAKE: Keyframe[] = [
@@ -63,7 +64,7 @@ export default component(
             let from = getComputedStyle(element).width;
 
             morph?.cancel();
-            element.style.width = compact ? 'var(--morphing-button-height)' : '';
+            element.style.width = compact ? 'var(--morph-height)' : '';
 
             if (reduced()) {
                 return;
@@ -117,7 +118,7 @@ export default component(
 
         return html`
             <button
-                class='button morphing-button'
+                class='button button--morph'
                 type='button'
                 ${this?.attributes}
                 ${attributes}
@@ -135,13 +136,13 @@ export default component(
                                 return label;
                         }
                     },
-                    class: () => `morphing-button--${state.status}`,
+                    class: () => `button--morph-${state.status}`,
                     onclick: save,
                     onconnect: (element: HTMLElement) => {
                         let compact = busy(state.status);
 
                         if (compact) {
-                            element.style.width = 'var(--morphing-button-height)';
+                            element.style.width = 'var(--morph-height)';
                         }
 
                         stop = effect(() => {
@@ -164,25 +165,18 @@ export default component(
             >
                 <span
                     aria-hidden='true'
-                    class='morphing-button-content'
-                    ${this?.attributes?.[MORPHING_BUTTON_CONTENT]}
-                    ${attributes[MORPHING_BUTTON_CONTENT]}
+                    class='button-morph-content'
+                    ${this?.attributes?.[BUTTON_MORPH_CONTENT]}
+                    ${attributes[BUTTON_MORPH_CONTENT]}
                 >
-                    <span class='morphing-button-text morphing-button-text--idle'>${label}</span>
-                    <span class='morphing-button-text morphing-button-text--error'>${retryLabel}</span>
-                    <svg class='morphing-button-icon morphing-button-icon--loading' viewBox='0 0 16 16'>
-                        <g class='morphing-button-spinner'>
-                            <circle cx='8' cy='8' r='6' opacity='0.25' />
-                            <path d='M8 2a6 6 0 0 1 6 6' />
-                        </g>
-                    </svg>
-                    <svg class='morphing-button-icon morphing-button-icon--success' viewBox='0 0 16 16'>
-                        <path d='m3.5 8.5 3 3 6-7' />
-                    </svg>
+                    <span class='button-morph-text button-morph-text--idle'>${label}</span>
+                    <span class='button-morph-text button-morph-text--error'>${retryLabel}</span>
+                    <svg class='button-morph-icon button-morph-icon--loading'><use class='button-morph-spinner' href='#${spinner}' /></svg>
+                    <svg class='button-morph-icon button-morph-icon--success'><use href='#${check}' /></svg>
                 </span>
-                <span aria-live='polite' class='morphing-button-live'>${() => ANNOUNCE[state.status]}</span>
+                <span aria-live='polite' class='button-morph-live'>${() => ANNOUNCE[state.status]}</span>
             </button>
         `;
     },
-    { content: MORPHING_BUTTON_CONTENT }
+    { content: BUTTON_MORPH_CONTENT }
 );

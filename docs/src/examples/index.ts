@@ -31,7 +31,6 @@ import link from './link';
 import loading from './loading';
 import marquee from './marquee';
 import modal from './modal';
-import morphingButton from './morphing-button';
 import multiStepForm from './multi-step-form';
 import navigationMenu from './navigation-menu';
 import nestedMenu from './nested-menu';
@@ -125,7 +124,6 @@ const entries: Entry[] = [
     loading,
     marquee,
     modal,
-    morphingButton,
     multiStepForm,
     navigationMenu,
     nestedMenu,

@@ -1,0 +1,121 @@
+// Compound selector so these win over `.button`, whose rules follow this partial.
+.button.button--morph {
+    border: 0;
+    display: inline-flex;
+    height: var(--morph-height);
+    outline: none;
+    overflow: hidden;
+    touch-action: manipulation;
+    transition:
+        background-color 200ms ease-out,
+        color 200ms ease-out,
+        scale 200ms ease-out;
+    user-select: none;
+
+    &:active:not([aria-disabled='true']) {
+        scale: var(--morph-scale-pressed);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--morph-focus-color);
+        outline-offset: 2px;
+    }
+
+    &[aria-disabled='true'] {
+        cursor: default;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition:
+            background-color 200ms ease-out,
+            color 200ms ease-out;
+
+        &:active:not([aria-disabled='true']) {
+            scale: 1;
+        }
+    }
+}
+
+.button--morph {
+    &-error .button-morph-text--error,
+    &-idle .button-morph-text--idle {
+        filter: blur(0px);
+        opacity: 1;
+        transition-duration: 200ms;
+    }
+
+    &-loading .button-morph-icon--loading,
+    &-success .button-morph-icon--success {
+        filter: blur(0px);
+        opacity: 1;
+        scale: 1;
+    }
+}
+
+.button-morph {
+    // Every layer shares one grid cell, so the idle width is the widest label;
+    // in the circle the cell overflows both sides equally and the button clips it.
+    &-content {
+        display: grid;
+        flex-shrink: 0;
+        place-items: center;
+    }
+
+    &-icon {
+        fill: none;
+        filter: blur(4px);
+        grid-area: 1 / 1;
+        height: var(--morph-icon-size);
+        opacity: 0;
+        scale: 0.25;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
+        transition:
+            filter 300ms var(--morph-spring),
+            opacity 300ms var(--morph-spring),
+            scale 300ms var(--morph-spring);
+        width: var(--morph-icon-size);
+
+        @media (prefers-reduced-motion: reduce) {
+            filter: none;
+            scale: 1;
+            transition-property: opacity;
+        }
+    }
+
+    &-live {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    // Turns about the icon box: the arc alone is off-centre, so its own box would wobble.
+    &-spinner {
+        animation: button-morph-spin 700ms linear infinite;
+        transform-box: view-box;
+        transform-origin: center;
+    }
+
+    // Leaves in 150ms, before the width has closed on it; arrives in 200ms as it opens.
+    &-text {
+        filter: blur(4px);
+        grid-area: 1 / 1;
+        opacity: 0;
+        transition:
+            filter 150ms ease-out,
+            opacity 150ms ease-out;
+        white-space: nowrap;
+    }
+}
+
+
+@keyframes button-morph-spin {
+    to {
+        rotate: 360deg;
+    }
+}

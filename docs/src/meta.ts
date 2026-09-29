@@ -38,7 +38,7 @@ const meta: Record<string, Meta> = {
     },
     button: {
         category: 'Interactive',
-        description: 'Trigger actions with color and modifier variants, plus copy, loading, and hold-to-confirm feedback that fills the whole button or just its label.'
+        description: 'Trigger actions with color and modifier variants, plus copy, loading, and hold-to-confirm feedback that fills the whole button or just its label, and an async save that morphs into a spinner, confirms with a check, and shakes on failure.'
     },
     card: {
         category: 'Layout',
@@ -136,10 +136,6 @@ const meta: Record<string, Meta> = {
     modal: {
         category: 'Overlay',
         description: 'Centered dialog surface for focused tasks and confirmations.'
-    },
-    'morphing-button': {
-        category: 'Interactive',
-        description: 'Async save button that morphs into a spinner, confirms with a check, and shakes when it fails.'
     },
     'multi-step-form': {
         category: 'Form Controls',
