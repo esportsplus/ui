@@ -2,6 +2,7 @@ import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import icon from '~/components/icon';
 import bell from '@esportsplus/ui/svg/bell.svg';
+import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
 
