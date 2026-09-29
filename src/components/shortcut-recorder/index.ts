@@ -1,6 +1,7 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import { mac as apple } from '~/lib/platform';
+import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
 
@@ -260,7 +261,7 @@ export default ({ label, taken, value = '', state = reactive({ value }), ...attr
             >
                 ${html.reactive(keys, (key) => html`
                     <kbd
-                        class='shortcut-recorder-key ${key.animation && `shortcut-recorder-key--${key.animation}`}'
+                        class='button button--kbd shortcut-recorder-key ${key.animation && `shortcut-recorder-key--${key.animation}`}'
                         style='--index: ${key.index}'
                     >
                         ${glyph(key.token, mac)}

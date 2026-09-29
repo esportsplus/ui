@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 .shortcut-recorder {
@@ -48,7 +49,7 @@
             box-shadow var(--transition-duration) var(--timing-function-out);
 
         // Recording already draws a dark edge, a focus ring on top of it would double up.
-        &:not(.--active):focus-visible {
+        #{tokens.state(inactive)}:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: var(--focus-offset);
         }
@@ -62,20 +63,9 @@
         }
     }
 
+    // A legend inside the field, not a control, so it takes no hover or press
     &-key {
-        background: var(--background);
-        border-radius: var(--border-radius);
-        box-shadow:
-            inset 0 0 0 1px var(--border-color),
-            0 1px 0 var(--border-color);
-        display: grid;
-        font-family: inherit;
-        font-size: var(--font-size-small);
-        font-weight: var(--font-weight-500);
-        height: var(--size);
-        min-width: var(--size);
-        padding: 0 var(--padding-horizontal);
-        place-items: center;
+        pointer-events: none;
 
         &--enter {
             animation: shortcut-recorder-enter 300ms var(--timing-function-spring) backwards;
