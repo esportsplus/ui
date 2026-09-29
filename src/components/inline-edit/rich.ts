@@ -5,7 +5,7 @@ import checkbox from '~/components/checkbox';
 import { check, copy as copyIcon, cross } from '~/components/button/icons';
 import write from '~/components/clipboard/write';
 import input from '~/components/input';
-import selectMenu from '~/components/select-menu';
+import selectMenu from '~/components/select/menu';
 import tooltip from '~/components/tooltip';
 import { mac } from '~/lib/platform';
 import { active, clear, kind, link, normalize, setBlock, toggle, units, type Kind } from './format';
@@ -23,6 +23,7 @@ import pencilSvg from '@esportsplus/ui/svg/pencil.svg';
 import strikeSvg from '@esportsplus/ui/svg/strikethrough.svg';
 import unlinkSvg from '@esportsplus/ui/svg/unlink.svg';
 import '~/components/button/scss/index.scss';
+import '~/components/select/scss/index.scss';
 import './scss/index.scss';
 
 

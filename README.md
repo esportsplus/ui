@@ -58,7 +58,7 @@ html`
 | `radio` | Radio button group | - |
 | `range` | Range slider | - |
 | `datalist` | Inertial wheel picker (scroll-snapped listbox) | - |
-| `select` | Dropdown with custom options | - |
+| `select` | Dropdown with custom options; `select.menu` is a macOS-style listbox opening with the selected option over the trigger, with typeahead and hover scrolling | `select.menu` |
 | `switch` | Toggle switch; `switch.group` builds the same group as `checkbox.group` with switches, the select-all knob resting midway when mixed | `switch.group` |
 | `tasklist` | Checklist that strikes through checked tasks and moves them below the open ones | `tasklist.checkbox` |
 | `form` | Form wrapper | `form.action`, `form.input` |
@@ -67,7 +67,6 @@ html`
 | `inlineEdit` | Click-to-edit text that swaps in an `input` (or `textarea` with `multiline`) without moving a glyph; Enter/blur saves, Escape cancels, `onsave` fires. `inlineEdit.rich` edits markdown in place: `features` whitelists what each field allows (bold, italic, strike, code, highlight, link, heading, quote, codeblock, bullet, ordered, task, clear, copy), and only those appear in its selection toolbar, shortcuts, pastes and saved markdown | `inlineEdit.display`, `inlineEdit.field`, `inlineEdit.rich.editor`, `inlineEdit.rich.toolbar`, `inline-edit--seamless` |
 | `rangeFilter` | Range filter with rolling-digit values, a Clear button, a ghost preview of where a click would stretch the selection, and scale ticks; a number `value` gives one thumb, a pair gives two that stop at each other; `fields` adds editable min/max `input` fields, `disabled`; `state.low`/`state.high`, `format`, `prefix`, `step`, `ticks` | - |
 | `scrubInput` | Numeric `input` whose label scrubs the value on drag (Shift ×10, Alt ×0.1, optional pointer lock) over a tape measure; arrows step, Escape restores | `scrubInput.field`, `scrubInput.label` |
-| `selectMenu` | macOS-style listbox opening with the selected option over the trigger, with typeahead and hover scrolling | - |
 | `tagInput` | Chip field (`input`) turning typed or pasted text into tags that form in place, nudge on duplicates, and go on a double Backspace; `name` submits `name[]` | `tagInput.field` |
 
 ### Interactive

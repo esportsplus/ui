@@ -45,7 +45,6 @@ import relativeTime from './relative-time';
 import scrollbar from './scrollbar';
 import scrubInput from './scrub-input';
 import select from './select';
-import selectMenu from './select-menu';
 import settings from './settings';
 import shortcutRecorder from './shortcut-recorder';
 import slider from './slider';
@@ -126,7 +125,6 @@ const entries: Entry[] = [
     scrollbar,
     scrubInput,
     select,
-    selectMenu,
     settings,
     shortcutRecorder,
     slider,

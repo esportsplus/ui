@@ -1,6 +1,7 @@
 import { component, html, type Renderable, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
+import menu from './menu';
 import './scss/index.scss';
 
 
@@ -35,7 +36,7 @@ type A = {
 type D = Attributes & Pick<A, typeof SELECT_ARROW | typeof SELECT_OPTION | typeof SELECT_TOOLTIP_CONTENT>;
 
 
-export default component(
+const plain = component(
     function(
         this: { attributes?: D },
         {
@@ -179,3 +180,8 @@ export default component(
     },
     { arrow: SELECT_ARROW, option: SELECT_OPTION, tooltipContent: SELECT_TOOLTIP_CONTENT }
 );
+
+const select: typeof plain & { menu: typeof menu } = Object.assign(plain, { menu });
+
+
+export default select;

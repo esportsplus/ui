@@ -5,7 +5,6 @@ import check from '@esportsplus/ui/svg/check.svg';
 import chevronDown from '@esportsplus/ui/svg/chevron-down.svg';
 import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
 import chevrons from '@esportsplus/ui/svg/chevrons-up-down.svg';
-import './scss/index.scss';
 
 
 type A = Attributes & {
@@ -26,6 +25,9 @@ type Option = {
 };
 
 type Parts = {
+    // The first option and its label; every option shares their size and inset.
+    label?: HTMLElement;
+    option?: HTMLElement;
     panel?: HTMLElement;
     scroller?: HTMLElement;
     trigger?: HTMLElement;
@@ -41,11 +43,11 @@ const ROWS = 8;
 // Scroll-button speed while hovered, in px per second.
 const SCROLL_SPEED = 280;
 
-const SELECT_MENU_OPTION = Symbol.for('@esportsplus/ui/select-menu.option');
+const SELECT_MENU_OPTION = Symbol.for('@esportsplus/ui/select.menu.option');
 
-const SELECT_MENU_PANEL = Symbol.for('@esportsplus/ui/select-menu.panel');
+const SELECT_MENU_PANEL = Symbol.for('@esportsplus/ui/select.menu.panel');
 
-const SELECT_MENU_TRIGGER = Symbol.for('@esportsplus/ui/select-menu.trigger');
+const SELECT_MENU_TRIGGER = Symbol.for('@esportsplus/ui/select.menu.trigger');
 
 // Letters typed within this window extend the search instead of restarting it.
 const TYPEAHEAD_RESET = 500;
@@ -58,16 +60,15 @@ function clamp(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
 }
 
+function edges(menu: { down: boolean; up: boolean }, scroller: HTMLElement) {
+    menu.down = scroller.scrollTop < scroller.scrollHeight - scroller.clientHeight - 1;
+    menu.up = scroller.scrollTop > 1;
+}
+
 // Puts the selected option exactly over the trigger, the way macOS does, then trades list position for scroll
 // position if that runs off screen.
-function place({ panel, scroller, trigger, value }: Required<Parts>, count: number, selected: number) {
-    let box = trigger.getBoundingClientRect(),
-        label = scroller.querySelector<HTMLElement>('.select-menu-option-label'),
-        option = scroller.querySelector<HTMLElement>('.select-menu-option');
-
-    if (!label || !option) {
-        return 0;
-    }
+function place({ label, option, panel, scroller, trigger, value }: Required<Parts>, count: number, selected: number) {
+    let box = trigger.getBoundingClientRect();
 
     // Demo previews may scale the component down; work in the element's own pixels.
     let scale = box.height / trigger.offsetHeight || 1,
@@ -104,24 +105,16 @@ function place({ panel, scroller, trigger, value }: Required<Parts>, count: numb
             Math.min(trigger.offsetLeft - shift, trigger.offsetLeft + (innerWidth - MARGIN - box.left) / scale - width)
         );
 
-    panel.style.left = `${left}px`;
-    panel.style.top = `${top}px`;
-    // Grows out of the trigger itself, wherever it ended up in the panel.
-    panel.style.transformOrigin = `${trigger.offsetLeft + trigger.offsetWidth / 2 - left}px ${trigger.offsetTop + trigger.offsetHeight / 2 - top}px`;
-    panel.style.width = `${width}px`;
-
-    return scroll;
-}
-
-// Edge fades and scroll buttons follow the scroll position through the DOM directly, so scrolling never
-// touches reactive state.
-function edges(panel: HTMLElement, scroller: HTMLElement) {
-    let down = scroller.scrollTop < scroller.scrollHeight - scroller.clientHeight - 1,
-        up = scroller.scrollTop > 1;
-
-    panel.toggleAttribute('data-down', down);
-    panel.toggleAttribute('data-up', up);
-    scroller.style.maskImage = `linear-gradient(to bottom, transparent, black ${up ? 'var(--fade)' : '0px'}, black calc(100% - ${down ? 'var(--fade)' : '0px'}), transparent)`;
+    return {
+        scroll,
+        // Grows out of the trigger itself, wherever it ended up in the panel.
+        style: `
+            left: ${left}px;
+            top: ${top}px;
+            transform-origin: ${trigger.offsetLeft + trigger.offsetWidth / 2 - left}px ${trigger.offsetTop + trigger.offsetHeight / 2 - top}px;
+            width: ${width}px;
+        `
+    };
 }
 
 function template(
@@ -138,7 +131,7 @@ function template(
     let frame = 0,
         id = `select-menu-${++uid}`,
         last = { x: -1, y: -1 },
-        menu = reactive({ highlight: 0 }),
+        menu = reactive({ down: false, highlight: 0, hover: false, placement: '', up: false }),
         parts: Parts = {},
         pressing = false,
         query = '',
@@ -166,7 +159,7 @@ function template(
             return;
         }
 
-        let item = scroller.querySelector<HTMLElement>('.select-menu-option')?.offsetHeight ?? 0,
+        let item = parts.option?.offsetHeight ?? 0,
             pad = parseFloat(getComputedStyle(scroller).paddingTop) || 0,
             top = pad + next * item;
 
@@ -238,18 +231,21 @@ function template(
     }
 
     function open() {
-        let { panel, scroller, trigger, value } = parts,
+        let { label, option, panel, scroller, trigger, value } = parts,
             index = selected();
 
         menu.highlight = index;
         state.active = true;
 
-        if (!panel || !scroller || !trigger || !value) {
+        if (!label || !option || !panel || !scroller || !trigger || !value) {
             return;
         }
 
-        scroller.scrollTop = place({ panel, scroller, trigger, value }, options.length, index);
-        edges(panel, scroller);
+        let placed = place({ label, option, panel, scroller, trigger, value }, options.length, index);
+
+        menu.placement = placed.style;
+        scroller.scrollTop = placed.scroll;
+        edges(menu, scroller);
     }
 
     function scroll(direction: 1 | -1, e: PointerEvent) {
@@ -393,17 +389,20 @@ function template(
                 ${this?.attributes?.[SELECT_MENU_PANEL]}
                 ${attributes[SELECT_MENU_PANEL]}
                 ${{
+                    'data-down': () => menu.down && 'true',
+                    'data-hover': () => menu.hover && 'true',
+                    'data-up': () => menu.up && 'true',
                     inert: () => !state.active,
                     onpointerdown: () => {
                         pressing = true;
                     },
-                    onpointerenter: function(this: HTMLElement, e: PointerEvent) {
+                    onpointerenter: (e: PointerEvent) => {
                         if (e.pointerType !== 'touch') {
-                            this.setAttribute('data-hover', '');
+                            menu.hover = true;
                         }
                     },
-                    onpointerleave: function(this: HTMLElement) {
-                        this.removeAttribute('data-hover');
+                    onpointerleave: () => {
+                        menu.hover = false;
                         stop();
                     },
                     onpointerup: () => {
@@ -412,7 +411,8 @@ function template(
                     },
                     onrender: (element: HTMLElement) => {
                         parts.panel = element;
-                    }
+                    },
+                    style: () => menu.placement
                 }}
             >
                 <div
@@ -422,10 +422,9 @@ function template(
                             parts.scroller = element;
                         },
                         onscroll: function(this: HTMLElement) {
-                            if (parts.panel) {
-                                edges(parts.panel, this);
-                            }
-                        }
+                            edges(menu, this);
+                        },
+                        style: () => `mask-image: linear-gradient(to bottom, transparent, black ${menu.up ? 'var(--fade)' : '0px'}, black calc(100% - ${menu.down ? 'var(--fade)' : '0px'}), transparent)`
                     }}
                 >
                     <div aria-labelledby='${id}-label' id='${id}-list' role='listbox'>
@@ -455,11 +454,23 @@ function template(
                                         if (menu.highlight !== index) {
                                             menu.highlight = index;
                                         }
+                                    },
+                                    onrender: (element: HTMLElement) => {
+                                        parts.option ??= element;
                                     }
                                 }}
                             >
                                 <svg aria-hidden='true' class='select-menu-check'><use href='#${check}' /></svg>
-                                <span class='select-menu-option-label'>${option.label}</span>
+                                <span
+                                    class='select-menu-option-label'
+                                    ${{
+                                        onrender: (element: HTMLElement) => {
+                                            parts.label ??= element;
+                                        }
+                                    }}
+                                >
+                                    ${option.label}
+                                </span>
                                 ${option.detail ? html`<span class='select-menu-option-detail'>${option.detail}</span>` : ''}
                             </div>
                         `)}

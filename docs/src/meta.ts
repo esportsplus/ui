@@ -188,11 +188,7 @@ const meta: Record<string, Meta> = {
     },
     select: {
         category: 'Form Controls',
-        description: 'Custom dropdown for choosing from a list of options.'
-    },
-    'select-menu': {
-        category: 'Form Controls',
-        description: 'macOS-style listbox that opens with the selected option over the trigger, with typeahead and hover scrolling.'
+        description: 'Custom dropdown for choosing from a list of options, plus a macOS-style listbox that opens with the selected option over the trigger, with typeahead and hover scrolling.'
     },
     settings: {
         category: 'Overlay',
