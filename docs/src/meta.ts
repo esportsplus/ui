@@ -131,7 +131,7 @@ const meta: Record<string, Meta> = {
     },
     marquee: {
         category: 'Display',
-        description: 'Infinitely scrolling logo strip that eases to a stop on hover or focus.'
+        description: 'Infinitely scrolling logo strip that eases to a stop on hover or focus, and can speed up and reverse with the page scroll.'
     },
     modal: {
         category: 'Overlay',
@@ -204,10 +204,6 @@ const meta: Record<string, Meta> = {
     'scroll-spine': {
         category: 'Layout',
         description: 'Table of contents drawn to scale, with bands that fill as you read and a marker that stretches between sections.'
-    },
-    'scroll-velocity': {
-        category: 'Display',
-        description: 'Looping rows of text or images that speed up and reverse with the page scroll (Magic UI).'
     },
     scrollbar: {
         category: 'Layout',

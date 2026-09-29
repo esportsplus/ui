@@ -50,7 +50,6 @@ import range from './range';
 import readingProgress from './reading-progress';
 import relativeTime from './relative-time';
 import scrollSpine from './scroll-spine';
-import scrollVelocity from './scroll-velocity';
 import scrollbar from './scrollbar';
 import scrubInput from './scrub-input';
 import select from './select';
@@ -147,7 +146,6 @@ const entries: Entry[] = [
     readingProgress,
     relativeTime,
     scrollSpine,
-    scrollVelocity,
     scrollbar,
     scrubInput,
     select,

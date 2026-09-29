@@ -1,5 +1,6 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import * as scroll from './velocity';
 import './scss/index.scss';
 
 
@@ -35,7 +36,7 @@ function fold(x: number, loop: number) {
 }
 
 
-export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, speed = 44, state = reactive({ paused: false }), ...attributes }: Attributes & {
+export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, speed = 44, state = reactive({ paused: false }), velocity = false, ...attributes }: Attributes & {
     direction?: 'left' | 'right';
     gap?: number;
     items: Item[];
@@ -43,6 +44,8 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
     select?: (item: Item) => void;
     speed?: number;
     state?: { paused: boolean };
+    // Scrolling the page speeds the marquee up and turns it with the scroll direction.
+    velocity?: boolean;
 }) => {
     let cleanup: VoidFunction[] = [],
         copies = reactive(Array.from({ length: MIN_COPIES }, (_, i) => i)),
@@ -54,7 +57,8 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
         rate = 0,
         reduced = false,
         sign = direction === 'right' ? 1 : -1,
-        span = 0;
+        span = 0,
+        tracker: scroll.Tracker | undefined;
 
     function face(item: Item) {
         if (!item.mark) {
@@ -191,7 +195,19 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
 
                             nudge -= pull;
 
-                            let x = offset + sign * speed * rate * dt + pull;
+                            let boost = 0;
+
+                            if (tracker) {
+                                scroll.step(tracker, now, dt);
+                                boost = Math.min(scroll.MAX_FACTOR, Math.abs(tracker.factor));
+
+                                // A burst turns the marquee with the scroll; it keeps that heading once the scroll stops.
+                                if (boost > 0.1) {
+                                    sign = (direction === 'right' ? 1 : -1) * Math.sign(tracker.factor);
+                                }
+                            }
+
+                            let x = offset + sign * speed * rate * (1 + boost) * dt + pull;
 
                             // Only wrap once a nudge has settled, otherwise the item being revealed would jump.
                             if (rate > 0.002 && Math.abs(nudge) < 0.25) {
@@ -214,6 +230,16 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                     resize.observe(viewport);
                     resize.observe(group);
                     cleanup.push(() => resize.disconnect());
+
+                    if (velocity) {
+                        let t = scroll.track(element);
+
+                        tracker = t;
+                        cleanup.push(() => {
+                            t.release();
+                            tracker = undefined;
+                        });
+                    }
 
                     if (typeof IntersectionObserver === 'undefined') {
                         near = true;

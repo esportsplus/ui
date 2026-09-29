@@ -45,7 +45,6 @@ export { default as rangeFilter } from './range-filter';
 export { default as readingProgress } from './reading-progress';
 export { default as relativeTime } from './relative-time';
 export { default as scrollSpine } from './scroll-spine';
-export { default as scrollVelocity } from './scroll-velocity';
 export { default as scrubInput } from './scrub-input';
 export { default as select } from './select';
 export { default as selectMenu } from './select-menu';

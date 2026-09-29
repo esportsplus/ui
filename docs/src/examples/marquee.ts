@@ -1,6 +1,7 @@
 import { marquee } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
+import './marquee.scss';
 
 
 let customers = [
@@ -61,6 +62,17 @@ export default {
         {
             render: () => toggle(),
             title: 'paused state'
+        },
+        {
+            render: () => marquee({ items: customers, label: 'Customers', velocity: true }),
+            title: 'velocity (scroll the page to speed it up)'
+        },
+        {
+            render: () => html`
+                ${marquee({ class: 'marquee-demo-headline', items: [{ label: 'Velocity Scroll' }], label: 'Headline', speed: 120, velocity: true })}
+                ${marquee({ class: 'marquee-demo-headline', direction: 'right', items: [{ label: 'Velocity Scroll' }], label: 'Headline', speed: 120, velocity: true })}
+            `,
+            title: 'velocity headline'
         }
     ]
 };
