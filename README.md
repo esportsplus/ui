@@ -82,7 +82,6 @@ html`
 | `pullToRefresh` | Rubber-band pull gesture (touch and mouse) with a stepped tick spinner; new items above the old first one slide in | - |
 | `sortable` | Drag-and-drop reordering of an element's children, across containers with `group` | `sortable--{effect}` modifiers |
 | `story` | Auto-advancing stories, each any `Renderable`, on a `frame--slide` track with segmented progress bars whose CSS fill is the timer (`--duration`, or `duration` in ms); tap the left third to go back (replaying the first story) and the rest to advance, drag or flick between stories (rubber-banding at the ends), press-and-hold or Space to pause; links and controls inside a story keep their own clicks | `story.toggle` |
-| `swipeDeck` | Card stack decided by swipe, arrow keys, or buttons, with undo | - |
 
 ### Display
 | Component | Description |

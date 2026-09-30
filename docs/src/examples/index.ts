@@ -52,7 +52,6 @@ import sortable from './sortable';
 import stickyHeader from './sticky-header';
 import story from './story';
 import surfaceField from './surface-field';
-import swipeDeck from './swipe-deck';
 import switchComponent from './switch';
 import tasklist from './tasklist';
 import text from './text';
@@ -125,7 +124,6 @@ const entries: Entry[] = [
     stickyHeader,
     story,
     surfaceField,
-    swipeDeck,
     switchComponent,
     tasklist,
     text,

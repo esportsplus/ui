@@ -43,7 +43,6 @@ export { default as sortable } from './sortable';
 export { default as stickyHeader } from './sticky-header';
 export { default as story } from './story';
 export { default as surfaceField } from './surface-field';
-export { default as swipeDeck } from './swipe-deck';
 export { default as switch } from './switch';
 export { default as tagInput } from './tag-input';
 export { default as tasklist } from './tasklist';

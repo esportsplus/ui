@@ -222,10 +222,6 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Canvas field of dots and lines lit by the pointer, rippling on click and bending around draggable, resizable surfaces (Surface Field).'
     },
-    'swipe-deck': {
-        category: 'Interactive',
-        description: 'Card stack decided by swiping, arrow keys, or buttons, with undo.'
-    },
     switch: {
         category: 'Form Controls',
         description: 'Toggle control for binary on and off settings, plus switch groups with a select-all header and Shift-click ranges.'
