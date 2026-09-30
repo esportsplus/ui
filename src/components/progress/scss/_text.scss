@@ -1,8 +1,6 @@
-@use 'variables';
-
 // Every part is exactly one line tall, so centring lines them up; baseline alignment breaks on the clipped digit
 // columns.
-.text-progress {
+.progress-text {
     align-items: center;
     color: var(--color);
     display: inline-flex;
@@ -107,12 +105,12 @@
     }
 
     &.--done {
-        .text-progress-check {
+        .progress-text-check {
             stroke-dashoffset: 0;
             transition-duration: 300ms;
         }
 
-        .text-progress-done {
+        .progress-text-done {
             filter: none;
             opacity: 1;
             pointer-events: auto;
@@ -123,14 +121,14 @@
             translate: 0 0;
         }
 
-        .text-progress-label {
+        .progress-text-label {
             filter: blur(4px);
             opacity: 0;
             transition-duration: 200ms;
             translate: 0 -4px;
         }
 
-        .text-progress-percent {
+        .progress-text-percent {
             filter: blur(4px);
             opacity: 0;
             transition-duration: 200ms;

@@ -172,7 +172,7 @@ const meta: Record<string, Meta> = {
     },
     progress: {
         category: 'Display',
-        description: 'Progress bar with an optional label, percentage, and a status line derived from the value.'
+        description: 'Progress bar with an optional label, percentage, and a status line derived from the value, plus progress shown in the label itself: ink fills the letters, digits roll, and a drawn check lands when done.'
     },
     'pull-to-refresh': {
         category: 'Interactive',
@@ -233,10 +233,6 @@ const meta: Record<string, Meta> = {
     'text-animate': {
         category: 'Display',
         description: 'Text that enters by character, word, line, or whole with fade, blur, slide, and spring scale presets (Magic UI).'
-    },
-    'text-progress': {
-        category: 'Display',
-        description: 'Progress shown in the label itself: ink fills the letters, digits roll, and a drawn check lands when done.'
     },
     textarea: {
         category: 'Form Controls',

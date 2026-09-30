@@ -1,5 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
+import text from './text';
 import './scss/index.scss';
 
 
@@ -23,7 +24,7 @@ function clamp(value: number) {
 }
 
 
-export default ({ label, percent = true, state, status, value = 0, ...attributes }: A) => {
+function bar({ label, percent = true, state, status, value = 0, ...attributes }: A) {
     state ??= reactive({ value });
 
     return html`
@@ -52,6 +53,12 @@ export default ({ label, percent = true, state, status, value = 0, ...attributes
             ${status && html`<div class='progress-status'>${() => status(clamp(state.value))}</div>`}
         </div>
     `;
-};
+}
 
+
+const progress: typeof bar & { text: typeof text } = Object.assign(bar, { text });
+
+
+export default progress;
 export type { State as ProgressState };
+export type { ProgressTextState } from './text';

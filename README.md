@@ -99,7 +99,7 @@ html`
 | `json` | JSON display |
 | `announcement` | Animated top-of-page container (`state.active`) that slides its content in and collapses the space it held; the content and close control are the consumer's |
 | `undoToast` | List whose deletes wait behind an Undo toast (`toast.*` with a countdown ring) before committing |
-| `textProgress` | `progressbar` whose label fills with ink on a spring (`state.value`), with rolling digits and a drawn check on done |
+| `progress` | Progress bar (`state.value`) with an optional label, percentage and a `status` line derived from the value; `progress.text` is a `progressbar` whose label fills with ink on a spring (`state.value`), with rolling digits and a drawn check on done |
 | `wordRotator` | Rotating word (`state.index`, `state.paused`) whose shared letters glide into place while the others blur out and in |
 | `heatmap` | Calendar of daily values that sweeps in by column; one `tooltip.shared` delegated across the cells renders each day through your `tooltip(day, index)` template (`describe(day)` names the cell), drag-to-scroll via `scrollbar.drag`, roving-tabindex grid keys and `heatmap.legend`; `heatmap--blue` |
 | `relativeTime` | Self-updating `<time>` ("4 min ago") that wakes once per visible change and rolls its digits; full date in a `tooltip` on hover/focus; `state.now` pins the clock |

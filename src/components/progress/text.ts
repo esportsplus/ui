@@ -1,7 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
 import check from '@esportsplus/ui/svg/check.svg';
-import './scss/index.scss';
 
 
 type A = Attributes & {
@@ -42,8 +41,8 @@ function reduced() {
 
 function roll(strip: string[], index: () => number) {
     return html`
-        <span class='text-progress-roll'>
-            <span class='text-progress-strip' style='${() => `translate: 0 ${-index() * 10}%`}'>
+        <span class='progress-text-roll'>
+            <span class='progress-text-strip' style='${() => `translate: 0 ${-index() * 10}%`}'>
                 ${strip.map((digit) => html`<span>${digit}</span>`)}
             </span>
         </span>
@@ -99,7 +98,7 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
             aria-valuemin='0'
             aria-valuenow='${percent}'
             aria-valuetext='${() => done() ? doneLabel : `${percent()}%`}'
-            class='text-progress ${() => done() && '--done'}'
+            class='progress-text ${() => done() && '--done'}'
             role='progressbar'
             ${attributes}
             ${{
@@ -130,28 +129,28 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
                 }
             }}
         >
-            <span aria-hidden='true' class='text-progress-labels'>
-                <span class='text-progress-label'>
-                    <span class='text-progress-track'>${label}</span>
-                    <span class='text-progress-ink' style='${() => `clip-path: ${clip(ink.position)}`}'>
+            <span aria-hidden='true' class='progress-text-labels'>
+                <span class='progress-text-label'>
+                    <span class='progress-text-track'>${label}</span>
+                    <span class='progress-text-ink' style='${() => `clip-path: ${clip(ink.position)}`}'>
                         ${label}
                     </span>
                 </span>
-                <span class='text-progress-done'>
-                    <svg class='text-progress-check'><use href='#${check}' /></svg>
+                <span class='progress-text-done'>
+                    <svg class='progress-text-check'><use href='#${check}' /></svg>
                     ${doneLabel}
                 </span>
             </span>
 
-            <span aria-hidden='true' class='text-progress-percent'>
+            <span aria-hidden='true' class='progress-text-percent'>
                 ${roll(TENS, () => Math.floor((percent() % 100) / 10))}
                 ${roll(DIGITS, () => percent() % 10)}
                 <span>%</span>
             </span>
 
-            <span aria-live='polite' class='text-progress-sr'>${() => done() ? doneLabel : ''}</span>
+            <span aria-live='polite' class='progress-text-sr'>${() => done() ? doneLabel : ''}</span>
         </div>
     `;
 };
 
-export type { State as TextProgressState };
+export type { State as ProgressTextState };
