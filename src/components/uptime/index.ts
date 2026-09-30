@@ -1,5 +1,6 @@
 import { batch, computed, dispose, onCleanup, reactive, read, type Computed } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
+import tooltip from '~/components/tooltip';
 import './scss/index.scss';
 
 
@@ -25,10 +26,16 @@ const DAYS = 60;
 
 const DAYS_COMPACT = 30;
 
-// Caption keys: a day index names an incident, HEALTHY any clean day, SUMMARY the resting uptime figure.
+// Caption keys: a day index names an incident, HEALTHY any clean day, IDLE no day selected.
 const HEALTHY = -1;
 
-const SUMMARY = -2;
+const IDLE = -2;
+
+const STATUS = {
+    degraded: 'Degraded',
+    operational: 'Operational',
+    outage: 'Outage'
+};
 
 
 function ago(day: number) {
@@ -78,10 +85,9 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
 }) => {
     let layout = reactive({ days: DAYS }),
         nodes: Computed<number>[] = [],
-        observer: ResizeObserver | undefined,
-        operational = services.every((service) => !find(service, 0));
+        observer: ResizeObserver | undefined;
 
-    function bars(service: Service, index: number) {
+    function bars(day: () => number, service: Service) {
         let days = layout.days,
             render = [];
 
@@ -90,7 +96,7 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
                 incident = find(service, value);
 
             render.push(html`
-                <span class='uptime-bar ${incident ? `uptime-bar--${incident.level}` : ''} ${() => api.row === index && api.day === value && '--active'}'></span>
+                <span class='uptime-bar ${incident ? `uptime-bar--${incident.level}` : ''} ${() => day() === value && '--active'}'></span>
             `);
         }
 
@@ -102,8 +108,8 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
     }
 
     function message(service: Service, key: number) {
-        if (key === SUMMARY) {
-            return html`<span class='uptime-service-message'>${percentage(service, layout.days)}% uptime</span>`;
+        if (key === IDLE) {
+            return '';
         }
 
         let incident = key === HEALTHY ? undefined : find(service, key);
@@ -125,18 +131,30 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
                 let value = read(day);
 
                 if (value === -1) {
-                    return SUMMARY;
+                    return IDLE;
                 }
 
                 return find(service, value) ? value : HEALTHY;
-            });
+            }),
+            status: keyof typeof STATUS = find(service, 0)?.level ?? 'operational';
 
         nodes.push(caption, day);
 
         return html`
             <div class='uptime-service'>
                 <div class='uptime-service-header'>
-                    <span class='uptime-service-name'>${service.name}</span>
+                    <span class='uptime-service-name'>
+                        <span class='uptime-service-label'>${service.name}</span>
+
+                        ${tooltip.onhover(
+                            { class: `uptime-service-status uptime-service-status--${status}` },
+                            html`
+                                <span aria-hidden='true' class='uptime-service-tooltip tooltip-message tooltip-message--e tooltip-message--morph'>
+                                    ${STATUS[status]}
+                                </span>
+                            `
+                        )}
+                    </span>
 
                     <span class='uptime-service-caption'>
                         ${() => {
@@ -149,9 +167,10 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
                 </div>
 
                 <div
-                    aria-label='${() => `${service.name}: ${percentage(service, layout.days)}% uptime over ${layout.days} days. Arrow keys step through days.`}'
+                    aria-label='${() => `${service.name}: ${STATUS[status]}, ${percentage(service, layout.days)}% uptime over ${layout.days} days. Arrow keys step through days.`}'
                     class='uptime-bars ${() => api.row === index && '--active'}'
                     role='group'
+                    style='${() => `--days: ${layout.days}`}'
                     tabindex='0'
                     ${{
                         onblur: clear,
@@ -193,7 +212,13 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
                         }
                     }}
                 >
-                    ${() => bars(service, index)}
+                    ${() => bars(() => read(day), service)}
+                </div>
+
+                <div class='uptime-service-axis'>
+                    <span>${() => layout.days} days ago</span>
+                    <span class='uptime-service-percentage'>${() => percentage(service, layout.days)}% uptime</span>
+                    <span>Today</span>
                 </div>
             </div>
         `;
@@ -232,22 +257,7 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
                 }
             }}
         >
-            <div class='uptime-header'>
-                <span class='uptime-status ${operational ? '' : 'uptime-status--degraded'}'>
-                    ${operational ? 'All systems operational' : 'Some systems degraded'}
-                </span>
-
-                <span class='uptime-range'>Last ${() => layout.days} days</span>
-            </div>
-
-            <div class='uptime-services'>
-                ${services.map(row)}
-            </div>
-
-            <div class='uptime-axis'>
-                <span>${() => layout.days} days ago</span>
-                <span>Today</span>
-            </div>
+            ${services.map(row)}
 
             <p aria-live='polite' class='uptime-live'>
                 ${() => {

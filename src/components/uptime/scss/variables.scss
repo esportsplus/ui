@@ -1,4 +1,6 @@
 .uptime {
+    --axis-gap: var(--size-300);
+    --axis-line-color: color-mix(in oklch, var(--color-muted) 40%, transparent);
     --bar-active-scale: 1.15;
     --bar-border-radius: var(--border-radius-100);
     --bar-dim: 0.35;
@@ -45,12 +47,38 @@
         }
     }
 
-    &-status {
-        --dot: var(--color-ok);
-        --dot-size: 8px;
+    // Shared by the label's mask and the dot, so the hole and the dot line up.
+    &-service-name {
+        --status-gap: var(--border-width-500);
+        // How far the dot reaches past the text; the rest of it overlaps the last glyph.
+        --status-inset: calc(var(--status-size) * 0.4);
+        --status-mask: radial-gradient(
+            circle at calc(100% - var(--status-size) / 2) calc(var(--status-top) + var(--status-size) / 2),
+            #000 calc(var(--status-size) / 2 - 0.5px),
+            transparent calc(var(--status-size) / 2 + 0.5px) calc(var(--status-size) / 2 + var(--status-gap) - 0.5px),
+            #000 calc(var(--status-size) / 2 + var(--status-gap) + 0.5px)
+        );
+        --status-size: 8px;
+        // Centers the dot on the cap line, so it bites the corner of the last glyph.
+        --status-top: max(0px, calc((1lh - 1cap - var(--status-size)) / 2));
+    }
+
+    &-service-status {
+        --status-color: var(--color-ok);
 
         &--degraded {
-            --dot: var(--color-degraded);
+            --status-color: var(--color-degraded);
         }
+
+        &--outage {
+            --status-color: var(--color-outage);
+        }
+    }
+
+    // A pill, so it reads as the dot stretched out.
+    &-service-tooltip.tooltip-message {
+        --border-radius: 999px;
+        --padding-horizontal: 8px;
+        --padding-vertical: 4px;
     }
 }

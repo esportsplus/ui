@@ -3,31 +3,23 @@
 
 .uptime {
     color: var(--color);
+    display: flex;
+    flex-direction: column;
     font-size: var(--font-size);
+    gap: var(--service-gap);
     position: relative;
     width: var(--width);
 
-    &-axis,
-    &-header,
-    &-service-header {
-        align-items: center;
-        display: flex;
-        justify-content: space-between;
-    }
-
-    &-axis {
-        color: var(--color-muted);
-        margin-top: var(--size-300);
-    }
-
+    // Whole-pixel ticks: flex-sharing fractional widths lets pixel snapping round some bars a pixel wider than
+    // the rest. The leftover width spreads through the gaps instead.
     &-bar {
         background: var(--bar-color);
         border-radius: var(--bar-border-radius);
-        flex: 1;
-        min-width: 0;
+        flex-shrink: 0;
         transition:
             opacity var(--transition-duration) var(--timing-function),
             scale var(--transition-duration) var(--timing-function);
+        width: round(down, (100% - (var(--days) - 1) * var(--bar-gap)) / var(--days), 1px);
 
         @include tokens.state(active) {
             scale: 1 var(--bar-active-scale);
@@ -38,8 +30,8 @@
         border-radius: var(--border-radius-200);
         cursor: default;
         display: flex;
-        gap: var(--bar-gap);
         height: var(--bar-height);
+        justify-content: space-between;
         outline: none;
 
         &:focus-visible {
@@ -61,11 +53,13 @@
         width: 1px;
     }
 
-    &-range,
-    &-service-day {
+    &-service-axis {
+        align-items: center;
         color: var(--color-muted);
-        flex-shrink: 0;
-        font-variant-numeric: tabular-nums;
+        display: flex;
+        gap: var(--axis-gap);
+        margin-top: var(--size-300);
+        white-space: nowrap;
     }
 
     &-service-caption {
@@ -77,9 +71,22 @@
         min-width: 0;
     }
 
+    &-service-day,
+    &-service-percentage {
+        font-variant-numeric: tabular-nums;
+    }
+
+    &-service-day {
+        color: var(--color-muted);
+        flex-shrink: 0;
+    }
+
     &-service-header {
+        align-items: center;
+        display: flex;
         gap: var(--size-400);
         height: var(--size-500);
+        justify-content: space-between;
         margin-bottom: var(--size-300);
     }
 
@@ -112,32 +119,46 @@
         }
     }
 
+    // Same cut-out as 'thumbnail--status', anchored top right: the mask punches a ring out of the text, and
+    // the status dot, a sibling so the mask can't clip its tooltip, sits in the hole.
+    &-service-label {
+        display: block;
+        mask-clip: no-clip;
+        mask-image: var(--status-mask);
+        padding-inline-end: var(--status-inset);
+    }
+
     &-service-name {
         flex-shrink: 0;
         font-weight: var(--font-weight-500);
+        position: relative;
     }
 
-    &-services {
-        display: flex;
-        flex-direction: column;
-        gap: var(--service-gap);
-        margin-top: var(--service-gap);
-    }
-
-    &-status {
+    &-service-percentage {
         align-items: center;
         display: flex;
-        font-size: var(--font-size-400);
-        font-weight: var(--font-weight-500);
-        gap: var(--size-200);
+        flex: 1;
+        gap: var(--axis-gap);
 
+        &::after,
         &::before {
-            background: var(--dot);
-            border-radius: 50%;
+            border-top: 1px solid var(--axis-line-color);
             content: '';
-            height: var(--dot-size);
-            width: var(--dot-size);
+            flex: 1;
         }
+    }
+
+    // Qualified twice so it beats the reused tooltip's own cursor and position. The morph grows out of the dot's
+    // box and seeds its corners from the radius, so the radius is in pixels: a percentage would squash the start.
+    &-service-status.tooltip {
+        background: var(--status-color);
+        border-radius: calc(var(--status-size) / 2);
+        cursor: default;
+        height: var(--status-size);
+        position: absolute;
+        right: 0;
+        top: var(--status-top);
+        width: var(--status-size);
     }
 
     @media (prefers-reduced-motion: reduce) {
