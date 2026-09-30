@@ -146,6 +146,10 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Infinitely scrolling logo strip that eases to a stop on hover or focus, and can speed up and reverse with the page scroll.'
     },
+    metric: {
+        category: 'Display',
+        description: 'Metric card with a line chart that draws itself in and redraws to fit its container, with a scrubbable readout for pointer, touch, and arrow keys.'
+    },
     'notification-bell': {
         category: 'Display',
         description: 'Bell button that swings on new notifications with a rolling unread badge.'
@@ -205,14 +209,6 @@ const meta: Record<string, Meta> = {
     sortable: {
         category: 'Interactive',
         description: 'Drag-and-drop reordering of an element\'s children, within one container or across a group.'
-    },
-    sparkline: {
-        category: 'Display',
-        description: 'Inline line chart that draws itself in, with a scrubbable readout for pointer, touch, and arrow keys.'
-    },
-    'stat-counter': {
-        category: 'Display',
-        description: 'Metric cards whose numbers roll to their value, with trend chips and sparklines you can scrub back through time.'
     },
     'sticky-header': {
         category: 'Layout',

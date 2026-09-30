@@ -105,8 +105,7 @@ html`
 | `wordRotator` | Rotating word (`state.index`, `state.paused`) whose shared letters glide into place while the others blur out and in |
 | `heatmap` | Calendar of daily values that sweeps in by column; one `tooltip.shared` delegated across the cells renders each day through your `tooltip(day, index)` template (`describe(day)` names the cell), drag-to-scroll via `scrollbar.drag`, roving-tabindex grid keys and `heatmap.legend`; `heatmap--blue` |
 | `relativeTime` | Self-updating `<time>` ("4 min ago") that wakes once per visible change and rolls its digits; full date in a `tooltip` on hover/focus; `state.now` pins the clock |
-| `sparkline` | Inline SVG line chart that draws itself in, with a scrub readout for pointer, touch and arrow keys (`state.active`, `state.index`); `sparkline--accent` |
-| `statCounter` | Metric cards whose numbers roll via `counter--ticker`, with trend chips and scrubbable mini sparklines; update through `state.stats` |
+| `metric` | Card with a title, value, delta and an SVG line chart that draws itself in, with a scrub readout for pointer, touch and arrow keys (`state.active`, `state.index`). Fills its container (`--width: 100%`) and redraws at its measured size on every resize, so the stroke, dot and tip keep their size; the plot height tracks the card width between `--plot-height` bounds, and the delta wraps under the value in narrow cards. A `ReactiveArray` as `data` is live: every mutation (`push`/`shift` for a sliding window, `splice` to replace) redraws the card, which rests on the newest point unless it is being read. Lay cards out with `grid`; `metric--accent` |
 
 ### Layout
 | Component | Description |

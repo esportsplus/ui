@@ -1,0 +1,31 @@
+.metric-demo {
+    max-width: 560px;
+    width: 100%;
+
+    &--controlled {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--size-400);
+    }
+
+    &--grid {
+        --min-width: 180px;
+        max-width: 800px;
+    }
+
+    // Drag the corner to watch the chart redraw at every width.
+    &--resizable {
+        border: 1px dashed var(--color-border-300);
+        border-radius: var(--border-radius-700);
+        min-width: 160px;
+        overflow: hidden;
+        padding: var(--size-300);
+        resize: horizontal;
+    }
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+}

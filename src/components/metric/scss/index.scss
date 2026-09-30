@@ -1,10 +1,16 @@
 @use '/tokens';
 @use 'variables';
 
-.sparkline {
+.metric {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
     color: var(--color);
+    container-type: inline-size;
     font-size: var(--font-size);
     max-width: 100%;
+    min-width: 0;
+    padding: var(--padding);
     width: var(--width);
 
 
@@ -45,10 +51,12 @@
         width: var(--dot-size);
     }
 
+    // The delta wraps under the value once the card is too narrow for both on one line.
     &-header {
         align-items: baseline;
         display: flex;
-        gap: var(--size-400);
+        flex-wrap: wrap;
+        gap: var(--size-200) var(--size-400);
         justify-content: space-between;
     }
 
@@ -75,8 +83,8 @@
     }
 
     &-plot {
-        aspect-ratio: 520 / 160;
         border-radius: var(--border-radius-100);
+        height: var(--plot-height);
         margin-top: var(--plot-offset);
         outline: none;
         position: relative;
@@ -89,18 +97,18 @@
             outline-offset: 4px;
         }
 
-        #{tokens.state(active)} .sparkline-overlay {
+        #{tokens.state(active)} .metric-overlay {
             opacity: 1;
             transition-duration: 0.1s;
         }
 
         &.--shown {
-            .sparkline-area,
-            .sparkline-line {
+            .metric-area,
+            .metric-line {
                 opacity: 1;
             }
 
-            .sparkline-line {
+            .metric-line {
                 stroke-dashoffset: 0;
             }
         }
@@ -117,7 +125,7 @@
 
     &-svg {
         display: block;
-        height: auto;
+        height: 100%;
         overflow: visible;
         width: 100%;
     }
@@ -159,6 +167,12 @@
         line-height: 1.2;
     }
 
+
+    @container (width < 320px) {
+        &-value {
+            font-size: var(--value-font-size-compact);
+        }
+    }
 
     // Skips the draw and keeps only a fade.
     @media (prefers-reduced-motion: reduce) {

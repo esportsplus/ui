@@ -33,6 +33,7 @@ import json from './json';
 import link from './link';
 import loading from './loading';
 import marquee from './marquee';
+import metric from './metric';
 import notificationBell from './notification-bell';
 import number from './number';
 import overlay from './overlay';
@@ -48,8 +49,6 @@ import select from './select';
 import shortcutRecorder from './shortcut-recorder';
 import slider from './slider';
 import sortable from './sortable';
-import sparkline from './sparkline';
-import statCounter from './stat-counter';
 import stickyHeader from './sticky-header';
 import stickyStack from './sticky-stack';
 import storyProgress from './story-progress';
@@ -108,6 +107,7 @@ const entries: Entry[] = [
     link,
     loading,
     marquee,
+    metric,
     notificationBell,
     number,
     overlay,
@@ -123,8 +123,6 @@ const entries: Entry[] = [
     shortcutRecorder,
     slider,
     sortable,
-    sparkline,
-    statCounter,
     stickyHeader,
     stickyStack,
     storyProgress,
