@@ -1,3 +1,5 @@
+@use '../../../css-utilities/hidden/scss/index' as hidden;
+
 // Compound selector so these win over `.button`, whose rules follow this partial.
 .button.button--morph {
     border: 0;
@@ -86,12 +88,7 @@
     }
 
     &-live {
-        clip-path: inset(50%);
-        height: 1px;
-        overflow: hidden;
-        position: absolute;
-        white-space: nowrap;
-        width: 1px;
+        @extend .--hidden-visually;
     }
 
     // Turns about the icon box: the arc alone is off-centre, so its own box would wobble.

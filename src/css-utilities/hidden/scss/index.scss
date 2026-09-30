@@ -17,12 +17,25 @@
     }
 
     &-offcanvas {
-        @include lib.position(absolute, 0 null null 0);
         appearance: none;
         height: 0px;
+        left: 0;
         opacity: 0;
         pointer-events: none;
+        position: absolute;
+        top: 0;
         width: 0px;
         z-index: -1;
+    }
+
+    // Out of sight but still read by screen readers: live regions, and labels that name something drawn another way.
+    // Components extend it, so each stylesheet shares one rule; it can't be extended from inside @media.
+    &-visually {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
     }
 }

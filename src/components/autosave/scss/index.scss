@@ -1,4 +1,5 @@
 @use 'variables';
+@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 // One set of three dots throughout: a single dot means there are changes, it splits into three
 // that pulse while saving, and the three gather back into the middle as the check draws.
@@ -13,11 +14,7 @@
     width: var(--width);
 
     &-announcement {
-        clip-path: inset(50%);
-        height: 1px;
-        overflow: hidden;
-        position: absolute;
-        width: 1px;
+        @extend .--hidden-visually;
     }
 
     &-check {

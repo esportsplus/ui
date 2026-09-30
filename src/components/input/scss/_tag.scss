@@ -1,4 +1,5 @@
 @use '/tokens';
+@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 .input-tag {
     color: var(--color);
@@ -169,12 +170,7 @@
     }
 
     &-live {
-        clip-path: inset(50%);
-        height: 1px;
-        overflow: hidden;
-        position: absolute;
-        white-space: nowrap;
-        width: 1px;
+        @extend .--hidden-visually;
     }
 }
 

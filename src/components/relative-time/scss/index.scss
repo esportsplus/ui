@@ -1,5 +1,6 @@
 @use '/tokens';
 @use 'variables';
+@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 // Qualified twice so it beats the reused tooltip's own cursor.
 .relative-time.relative-time {
@@ -64,12 +65,7 @@
     }
 
     &-sr {
-        clip-path: inset(50%);
-        height: 1px;
-        overflow: hidden;
-        position: absolute;
-        white-space: nowrap;
-        width: 1px;
+        @extend .--hidden-visually;
     }
 
     // Opens from slightly below, smaller and blurred; closes faster than it opens.

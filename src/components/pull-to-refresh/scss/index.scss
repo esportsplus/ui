@@ -1,4 +1,5 @@
 @use 'variables';
+@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 // JS writes only '--pull-to-refresh-y' (feed offset in px, unitless), '--reveal' (share of ticks drawn) and '--threshold'
 // (px to pull before letting go refreshes); everything else is derived here, and the springs between targets are
@@ -65,13 +66,8 @@
     }
 
     &-status {
+        @extend .--hidden-visually;
         border: 0;
-        clip-path: inset(50%);
-        height: 1px;
-        overflow: hidden;
-        position: absolute;
-        white-space: nowrap;
-        width: 1px;
     }
 
     // Graded like the system spinner: the leading tick is solid and each one behind it fades, so the stepped rotation reads
