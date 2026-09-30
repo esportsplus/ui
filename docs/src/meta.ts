@@ -220,7 +220,7 @@ const meta: Record<string, Meta> = {
     },
     'surface-field': {
         category: 'Display',
-        description: 'Canvas field of dots and lines lit by the pointer, rippling on click and bending around draggable, resizable surfaces (Surface Field).'
+        description: 'Canvas field of dots and lines lit by the pointer, rippling on press and bending around draggable, resizable, inline-editable surfaces of any shape, with links drawn through the field, a camera it follows as a parallax floor, and an optional worker to draw in (Surface Field).'
     },
     switch: {
         category: 'Form Controls',

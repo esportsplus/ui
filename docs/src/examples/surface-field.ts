@@ -1,6 +1,7 @@
-import { reactive } from '@esportsplus/reactivity';
+import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { surfaceField, switch as toggle } from '@esportsplus/ui';
+import { colorPicker, select, slider, surfaceField, switch as toggle, tooltip } from '@esportsplus/ui';
+import worker from '@esportsplus/ui/surface-field/worker?worker&url';
 import editor from './surface-field-editor';
 import './surface-field.scss';
 
@@ -24,7 +25,7 @@ type Settings = {
 
 const PRESETS: Record<string, Settings> = {
     Workspace: {
-        accent: '#6683e8',
+        accent: '#6683E8',
         breathe: 0,
         brightness: 0.2,
         connected: true,
@@ -39,7 +40,7 @@ const PRESETS: Record<string, Settings> = {
         wander: false
     },
     Aurora: {
-        accent: '#8b5cf6',
+        accent: '#8B5CF6',
         breathe: 0.35,
         brightness: 0.35,
         connected: true,
@@ -54,7 +55,7 @@ const PRESETS: Record<string, Settings> = {
         wander: true
     },
     Blueprint: {
-        accent: '#3b82f6',
+        accent: '#3B82F6',
         breathe: 0,
         brightness: 0.45,
         connected: true,
@@ -69,7 +70,7 @@ const PRESETS: Record<string, Settings> = {
         wander: false
     },
     Dust: {
-        accent: '#6683e8',
+        accent: '#6683E8',
         breathe: 0.6,
         brightness: 0.3,
         connected: false,
@@ -86,8 +87,79 @@ const PRESETS: Record<string, Settings> = {
 };
 
 
+function accent(settings: Settings) {
+    let picker = reactive({ error: '', value: settings.accent });
+
+    // Two-way: a preset repaints the picker, the picker repaints the field. Each side only tracks its own source, or
+    // the two would undo each other.
+    effect(() => {
+        let value = settings.accent;
+
+        untrack(() => {
+            if (value.toUpperCase() !== picker.value.toUpperCase()) {
+                picker.value = value;
+            }
+        });
+    });
+
+    effect(() => {
+        let value = picker.value;
+
+        untrack(() => {
+            if (value && value.toUpperCase() !== settings.accent.toUpperCase()) {
+                settings.accent = value;
+            }
+        });
+    });
+
+    return html`
+        <div class='surface-field-demo-row --inline'>
+            <span class='surface-field-demo-label'>Accent color</span>
+            ${tooltip.onclick(
+                { class: 'surface-field-demo-accent' },
+                html`
+                    <button
+                        aria-label='Accent color'
+                        class='surface-field-demo-swatch'
+                        style='${() => `--swatch: ${settings.accent};`}'
+                        type='button'
+                    ></button>
+                    <div class='tooltip-content tooltip-content--se surface-field-demo-picker'>
+                        ${colorPicker({ state: picker, value: settings.accent })}
+                    </div>
+                `
+            )}
+        </div>
+    `;
+}
+
+function control(settings: Settings, key: keyof Settings, label: string, min: number, max: number, step: number, unit: 'px' | '%') {
+    return slider({
+        class: 'surface-field-demo-slider',
+        format: (value: number) => unit === '%' ? `${Math.round(value * 100)}%` : `${value} px`,
+        label,
+        max,
+        min,
+        output: true,
+        // Reads and writes the setting itself, so a preset moves the thumb.
+        state: {
+            get value() {
+                return settings[key] as number;
+            },
+            set value(value: number) {
+                (settings[key] as number) = value;
+            }
+        },
+        step
+    });
+}
+
 function panel(settings: Settings, intro: string) {
-    let ui = reactive({ preset: 'Workspace' });
+    let preset = reactive({ active: false, error: '', render: false, selected: 'Workspace' as number | string });
+
+    effect(() => {
+        Object.assign(settings, PRESETS[preset.selected]);
+    });
 
     return html`
         <aside class='surface-field-demo-panel --scrollbar'>
@@ -96,24 +168,18 @@ function panel(settings: Settings, intro: string) {
             <div class='surface-field-demo-group'>
                 <h4>Preset</h4>
                 <div class='surface-field-demo-preset'>
-                    <select
-                        aria-label='Field preset'
-                        ${{
-                            onchange: (event: Event) => {
-                                ui.preset = (event.target as HTMLSelectElement).value;
-                                Object.assign(settings, PRESETS[ui.preset]);
-                            },
-                            value: () => ui.preset
-                        }}
-                    >
-                        ${Object.keys(PRESETS).map((name) => html`<option value='${name}'>${name}</option>`)}
-                    </select>
+                    ${select({
+                        'aria-label': 'Field preset',
+                        class: 'surface-field-demo-select',
+                        options: Object.fromEntries(Object.keys(PRESETS).map((name) => [name, name])),
+                        state: preset
+                    })}
                     <button
-                        class='surface-field-demo-reset'
+                        class='button surface-field-demo-reset'
                         type='button'
                         ${{
                             onclick: () => {
-                                Object.assign(settings, PRESETS[ui.preset]);
+                                Object.assign(settings, PRESETS[preset.selected]);
                             }
                         }}
                     >
@@ -124,69 +190,30 @@ function panel(settings: Settings, intro: string) {
 
             <div class='surface-field-demo-group'>
                 <h4>Dots & lines</h4>
-                ${slider(settings, 'gap', 'Spacing', 10, 48, 1, 'px')}
-                ${slider(settings, 'radius', 'Light radius', 0, 800, 10, 'px')}
-                ${slider(settings, 'brightness', 'Brightness', 0, 1, 0.01, '%')}
+                ${control(settings, 'gap', 'Spacing', 10, 48, 1, 'px')}
+                ${control(settings, 'radius', 'Light radius', 0, 800, 10, 'px')}
+                ${control(settings, 'brightness', 'Brightness', 0, 1, 0.01, '%')}
                 ${switchRow(settings, 'connected', 'Connected lines')}
-                ${slider(settings, 'lineRadius', 'Line reach', 0, 600, 10, 'px')}
+                ${control(settings, 'lineRadius', 'Line reach', 0, 600, 10, 'px')}
             </div>
 
             <div class='surface-field-demo-group'>
                 <h4>Interaction</h4>
-                ${slider(settings, 'pointerPush', 'Cursor distortion', 0, 20, 1, 'px')}
-                ${slider(settings, 'ripplePush', 'Ripple displacement', 0, 30, 1, 'px')}
-                ${slider(settings, 'surfacePadding', 'Surface spacing', -16, 40, 1, 'px')}
+                ${control(settings, 'pointerPush', 'Cursor distortion', 0, 20, 1, 'px')}
+                ${control(settings, 'ripplePush', 'Ripple displacement', 0, 30, 1, 'px')}
+                ${control(settings, 'surfacePadding', 'Surface spacing', -16, 40, 1, 'px')}
             </div>
 
             <div class='surface-field-demo-group'>
                 <h4>Color & motion</h4>
-                <label class='surface-field-demo-row --inline'>
-                    <span class='surface-field-demo-label'>Accent color</span>
-                    <input
-                        aria-label='Accent color'
-                        type='color'
-                        ${{
-                            oninput: (event: Event) => {
-                                settings.accent = (event.target as HTMLInputElement).value;
-                            },
-                            value: () => settings.accent
-                        }}
-                    >
-                </label>
-                ${slider(settings, 'tint', 'Accent blend', 0, 1, 0.01, '%')}
+                ${accent(settings)}
+                ${control(settings, 'tint', 'Accent blend', 0, 1, 0.01, '%')}
                 ${switchRow(settings, 'wander', 'Wandering light', 'Let the light drift when idle')}
-                ${slider(settings, 'breathe', 'Breathing dots', 0, 1, 0.01, '%')}
+                ${control(settings, 'breathe', 'Breathing dots', 0, 1, 0.01, '%')}
                 ${switchRow(settings, 'still', 'Still field', 'Render a static texture')}
             </div>
         </aside>
     `;
-}
-
-function slider(settings: Settings, key: keyof Settings, label: string, min: number, max: number, step: number, unit: 'px' | '%') {
-    return html`
-        <label class='surface-field-demo-row'>
-            <span class='surface-field-demo-label'>
-                ${label}
-                <b>${() => unit === '%' ? `${Math.round((settings[key] as number) * 100)}%` : `${settings[key]} px`}</b>
-            </span>
-            <input
-                max='${max}'
-                min='${min}'
-                step='${step}'
-                type='range'
-                ${{
-                    oninput: (event: Event) => {
-                        (settings[key] as number) = Number((event.target as HTMLInputElement).value);
-                    },
-                    value: () => settings[key] as number
-                }}
-            >
-        </label>
-    `;
-}
-
-function swatch(label: string, x: number, y: number, width: number, height: number, content: string) {
-    return surfaceField.surface({ height, label, width, x, y }, html`<p class='surface-field-demo-note'>${content}</p>`);
 }
 
 function switchRow(settings: Settings, key: 'connected' | 'still' | 'wander', label: string, hint?: string) {
@@ -219,13 +246,38 @@ export default {
 
                 return html`
                     <div class='surface-field-demo'>
-                        ${panel(settings, 'Move your cursor, click the canvas, or drag and resize a surface.')}
+                        ${panel(settings, 'Move your cursor, press the canvas, or drag and resize a surface. Click a title or note to edit it.')}
 
-                        ${surfaceField({ class: 'surface-field-demo-stage', state: settings }, [
-                            swatch('note', 32, 96, 220, 150, 'Drag the bar to move me. The grid bends around my edges.'),
-                            swatch('label', 280, 40, 160, 96, 'Resize from the corner.'),
-                            swatch('swatch', 200, 350, 200, 110, 'Click the empty canvas for a ripple.')
-                        ])}
+                        ${surfaceField(
+                            {
+                                class: 'surface-field-demo-stage',
+                                links: [
+                                    { from: 'note', motion: 'loop', to: 'pill' },
+                                    { from: 'note', to: 'orb' }
+                                ],
+                                state: settings
+                            },
+                            [
+                                surfaceField.surface({
+                                    body: 'Drag the header to move me; a channel in the field runs to the pill.',
+                                    editable: true,
+                                    height: 150,
+                                    name: 'note',
+                                    title: 'Note',
+                                    width: 240,
+                                    x: 32,
+                                    y: 32
+                                }),
+                                surfaceField.surface(
+                                    { class: 'surface-field-demo-pill', height: 64, label: 'pill', name: 'pill', width: 190, x: 48, y: 260 },
+                                    html`<p class='surface-field-demo-note'>Rounded and turned: the clearing follows both.</p>`
+                                ),
+                                surfaceField.surface(
+                                    { class: 'surface-field-demo-orb', height: 140, label: 'orb', minWidth: 96, name: 'orb', width: 140, x: 200, y: 390 },
+                                    html`<p class='surface-field-demo-note'>A circle clears a circle.</p>`
+                                )
+                            ]
+                        )}
                     </div>
                 `;
             },
@@ -237,7 +289,7 @@ export default {
 
                 return html`
                     <div class='surface-field-demo --stacked'>
-                        ${panel(settings, 'The field as a node canvas background. Pan, zoom, move or resize a card: the grid follows the camera and every card carves its clearing.')}
+                        ${panel(settings, 'The field as a node canvas background. Pan, zoom, move or resize a card, or rename one: the grid follows the camera as a floor below it, and the links run through the field.')}
                         ${editor(settings)}
                     </div>
                 `;
@@ -246,17 +298,17 @@ export default {
         },
         {
             render: () => surfaceField(
-                { class: 'surface-field-demo-backdrop', radius: 320, wander: true },
+                { class: 'surface-field-demo-backdrop', radius: 320, wander: true, worker },
                 html`
                     <div class='surface-field-demo-hero'>
                         <div class='surface-field-demo-card' data-surface-field>
                             <h3>Any element can be a surface</h3>
-                            <p>Mark it with <code>data-surface-field</code> and the field clears a space around it.</p>
+                            <p>Mark it with <code>data-surface-field</code> and the field clears a space around it. This one draws in a worker.</p>
                         </div>
                     </div>
                 `
             ),
-            title: 'backdrop with wandering light'
+            title: 'backdrop drawn in a worker'
         }
     ]
 };

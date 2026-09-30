@@ -2,12 +2,13 @@
 @use 'variables';
 
 // The canvas paints behind the content and never takes the pointer; the host listens instead, so the light keeps
-// following over surfaces and content.
+// following over surfaces and content. Its `color` and `accent-color` are what the field reads to draw.
 .surface-field {
     isolation: isolate;
     position: relative;
 
     &-canvas {
+        accent-color: var(--accent);
         color: var(--color);
         height: 100%;
         inset: 0;
@@ -24,7 +25,8 @@
         z-index: 1;
     }
 
-    // Geometry is written every pointer move, so only the lift eases.
+    // Geometry is written every pointer move, so only the lift eases: a scale and the fade of a second shadow, both
+    // composited rather than repainted per frame.
     &-surface {
         background: var(--surface-background);
         border-radius: var(--surface-border-radius);
@@ -34,15 +36,25 @@
         left: 0;
         position: absolute;
         top: 0;
-        transition: box-shadow var(--surface-lift-duration) ease, scale var(--surface-lift-duration) ease;
+        transition: scale var(--surface-lift-duration) ease;
 
         @include tokens.state(active) {
-            box-shadow: 0 0 0 1px var(--surface-border-color), var(--surface-box-shadow-active);
             scale: 1.01;
         }
 
+        &-body {
+            color: var(--surface-body-color);
+            font-size: var(--surface-body-font-size);
+            line-height: 1.5;
+            margin: 0;
+            overflow-wrap: break-word;
+        }
+
         &-content {
+            display: flex;
             flex: 1;
+            flex-direction: column;
+            gap: 8px;
             min-height: 0;
             overflow: hidden;
             padding: 0 16px 16px;
@@ -62,13 +74,44 @@
             }
         }
 
-        &-handle {
-            border-radius: var(--surface-border-radius) var(--surface-border-radius) 0 0;
+        // Carries the surface from anywhere but an editable title; the grip is its keyboard handle.
+        &-header {
+            align-items: center;
             cursor: grab;
+            display: flex;
             flex-shrink: 0;
-            height: var(--surface-handle-height);
+            gap: 4px;
+            min-height: var(--surface-handle-height);
+            padding-inline-start: 16px;
+            touch-action: none;
+        }
+
+        #{tokens.state(active)} &-header {
+            cursor: grabbing;
+        }
+
+        // An element rather than a pseudo-element, so both of those stay free for the surface's own decoration.
+        &-lift {
+            border-radius: inherit;
+            box-shadow: var(--surface-box-shadow-active);
+            inset: 0;
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+            transition: opacity var(--surface-lift-duration) ease;
+        }
+
+        #{tokens.state(active)} > &-lift {
+            opacity: 1;
+        }
+
+        &-handle {
+            align-self: stretch;
+            border-radius: 0 var(--surface-border-radius) 0 0;
+            cursor: inherit;
+            flex-shrink: 0;
             position: relative;
-            width: 100%;
+            width: var(--surface-grip-width);
 
             &::before {
                 background: currentColor;
@@ -82,10 +125,13 @@
                 translate: -50% -50%;
                 width: 18px;
             }
-        }
 
-        #{tokens.state(active)} &-handle {
-            cursor: grabbing;
+            // Alone in the header it is the whole bar, grip centred.
+            &:only-child {
+                border-radius: var(--surface-border-radius) var(--surface-border-radius) 0 0;
+                flex: 1;
+                margin-inline-start: -16px;
+            }
         }
 
         // Two diagonal ticks in the corner, drawn with a gradient so no icon is needed.
@@ -102,11 +148,26 @@
             right: 0;
             width: 22px;
         }
+
+        // Sized to its text, so the rest of the header stays free to carry the surface.
+        &-title {
+            color: var(--surface-title-color);
+            flex: 0 1 auto;
+            font-weight: 600;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        &-header > &-title + &-handle {
+            margin-inline-start: auto;
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
         &-surface {
-            transition: box-shadow var(--surface-lift-duration) ease;
+            transition: none;
 
             @include tokens.state(active) {
                 scale: 1;

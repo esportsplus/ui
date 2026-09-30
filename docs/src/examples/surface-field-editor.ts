@@ -5,9 +5,9 @@ import { surfaceField } from '@esportsplus/ui';
 
 type Camera = { x: number, y: number, zoom: number };
 
-type Geometry = { height: number, width: number, x: number, y: number };
+type Geometry = { height: number, title: string, width: number, x: number, y: number };
 
-type Node = { id: string, kind: string, state: Geometry, title: string };
+type Node = { id: string, kind: string, state: Geometry };
 
 
 // [id, kind, title, x, y] in world px.
@@ -21,20 +21,20 @@ const NODES: [string, string, string, number, number][] = [
     ['notify', 'Alert', 'Notify team', 630, 250]
 ];
 
-// [from, to, dashed]
-const EDGES: [string, string, boolean][] = [
-    ['fetch', 'parse', false],
-    ['fetch', 'validate', true],
-    ['parse', 'merge', false],
-    ['validate', 'merge', false],
-    ['merge', 'render', false],
-    ['merge', 'cache', true],
-    ['merge', 'notify', false]
+// Drawn by the field itself; the live ones send a crest along the way data flows.
+const LINKS: { from: string, motion?: 'loop', to: string }[] = [
+    { from: 'fetch', to: 'parse' },
+    { from: 'fetch', motion: 'loop', to: 'validate' },
+    { from: 'parse', to: 'merge' },
+    { from: 'validate', to: 'merge' },
+    { from: 'merge', to: 'render' },
+    { from: 'merge', motion: 'loop', to: 'cache' },
+    { from: 'merge', to: 'notify' }
 ];
 
-const NODE_HEIGHT = 64;
+const NODE_HEIGHT = 72;
 
-const NODE_WIDTH = 140;
+const NODE_WIDTH = 164;
 
 // World area the minimap shows: the starting layout with room to spare around it.
 const MAP = { height: 660, width: 1200, x: -215, y: -170 };
@@ -46,26 +46,6 @@ const ZOOM_MIN = 0.35;
 
 function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
-}
-
-// Right-angle connector from a's right edge to b's left edge, with softened corners.
-function connector(a: Geometry, b: Geometry) {
-    let x1 = a.x + a.width,
-        y1 = a.y + a.height / 2,
-        x2 = b.x,
-        y2 = b.y + b.height / 2,
-        mx = (x1 + x2) / 2,
-        dy = y2 - y1;
-
-    if (Math.abs(dy) < 1) {
-        return `M${x1} ${y1}H${x2}`;
-    }
-
-    let sx = Math.sign(x2 - x1) || 1,
-        sy = Math.sign(dy),
-        r = Math.min(10, Math.abs(dy) / 2, Math.abs(mx - x1));
-
-    return `M${x1} ${y1}H${mx - sx * r}Q${mx} ${y1} ${mx} ${y1 + sy * r}V${y2 - sy * r}Q${mx} ${y2} ${mx + sx * r} ${y2}H${x2}`;
 }
 
 function percent(value: number, total: number) {
@@ -84,19 +64,7 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
         world: HTMLElement | undefined;
 
     for (let [id, kind, title, x, y] of NODES) {
-        nodes[id] = { id, kind, state: reactive({ height: NODE_HEIGHT, width: NODE_WIDTH, x, y }), title };
-    }
-
-    function edges(dashed: boolean) {
-        let d = '';
-
-        for (let [from, to, style] of EDGES) {
-            if (style === dashed) {
-                d += connector(nodes[from].state, nodes[to].state);
-            }
-        }
-
-        return d;
+        nodes[id] = { id, kind, state: reactive({ height: NODE_HEIGHT, title, width: NODE_WIDTH, x, y }) };
     }
 
     // Written straight to the elements: the field reads the same camera object on its next frame, and a reactive
@@ -201,7 +169,7 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
         zoomAt(Math.exp(-event.deltaY * (event.ctrlKey ? 0.01 : 0.0015)), event.clientX - bounds.left, event.clientY - bounds.top);
     };
 
-    return surfaceField({ camera, class: 'surface-field-demo-stage', state: settings }, html`
+    return surfaceField({ camera, class: 'surface-field-demo-stage', links: LINKS, state: settings }, html`
         <div
             aria-label='Node canvas: drag the background or use the arrow keys to pan, plus and minus to zoom'
             class='surface-field-editor'
@@ -285,16 +253,17 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
             }}
         >
             <div class='surface-field-editor-world'>
-                <svg aria-hidden='true' class='surface-field-editor-edges' height='1' width='1'>
-                    <path d='${() => edges(false)}' />
-                    <path class='--dashed' d='${() => edges(true)}' />
-                </svg>
                 ${Object.values(nodes).map((node) => surfaceField.surface(
-                    { bounded: false, class: 'surface-field-editor-node', label: node.title, minHeight: 56, minWidth: 120, state: node.state },
-                    html`
-                        <small>${node.kind}</small>
-                        <b>${node.title}</b>
-                    `
+                    {
+                        bounded: false,
+                        class: 'surface-field-editor-node',
+                        editable: true,
+                        minHeight: 64,
+                        minWidth: 120,
+                        name: node.id,
+                        state: node.state
+                    },
+                    html`<small>${node.kind}</small>`
                 ))}
             </div>
         </div>

@@ -20,6 +20,9 @@ importers:
       '@esportsplus/utilities':
         specifier: ^0.28.6
         version: 0.28.6
+      '@esportsplus/workers':
+        specifier: ^0.11.3
+        version: 0.11.3
       modern-normalize:
         specifier: ^3.0.1
         version: 3.0.1
@@ -129,6 +132,9 @@ packages:
   '@esportsplus/vite@0.14.8':
     resolution: {integrity: sha512-eKinLfD21N8keKrthVM/cHpOdm5wH0VsHyvGoODq+HVjYj7RSTwHWcoueGsJ/zdPKxBjrbCfu0C0h12yyZB6Bw==}
     hasBin: true
+
+  '@esportsplus/workers@0.11.3':
+    resolution: {integrity: sha512-vKDV2QLIJtMlh+S580CTLn+qkXQAoVP6/0l4+nfRCqlXanQ1F4WFndJ/PWxB+uAqXARrtnKXCD6isWqpm8OzaA==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -2204,6 +2210,10 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  '@esportsplus/workers@0.11.3':
+    dependencies:
+      '@esportsplus/queue': 0.4.6
 
   '@img/colour@1.1.0': {}
 
