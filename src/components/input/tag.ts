@@ -1,12 +1,11 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
-import input from '~/components/input';
 import close from '@esportsplus/ui/svg/close.svg';
-import './scss/index.scss';
+import input from './field';
 
 
 type A = Attributes & {
-    [TAG_INPUT_FIELD]?: Field;
+    [INPUT_TAG_FIELD]?: Field;
     hint?: Renderable<unknown>;
     label: string;
     name?: string;
@@ -21,7 +20,7 @@ type Chip = {
     remove?: HTMLElement;
 };
 
-type D = Attributes & Pick<A, typeof TAG_INPUT_FIELD>;
+type D = Attributes & Pick<A, typeof INPUT_TAG_FIELD>;
 
 type Field = Parameters<typeof input>[0];
 
@@ -52,7 +51,7 @@ const SLIDE: KeyframeAnimationOptions = {
 
 const SWAP: KeyframeAnimationOptions = { ...SLIDE, delay: 60, duration: 300, fill: 'backwards' };
 
-const TAG_INPUT_FIELD = Symbol.for('@esportsplus/ui/tag-input.field');
+const INPUT_TAG_FIELD = Symbol.for('@esportsplus/ui/input.tag.field');
 
 
 let uid = 0;
@@ -79,14 +78,14 @@ export default component(
         let chips = new Map<string, Chip>(),
             field: HTMLInputElement | undefined,
             flips = new Map<Element, Animation>(),
-            id = `tag-input-${++uid}`,
+            id = `input-tag-${++uid}`,
             list: HTMLElement | undefined,
             local = reactive({ announcement: '', armed: '' }),
             reduced = matchMedia('(prefers-reduced-motion: reduce)'),
             shakes = new Map<Element, Animation>(),
             slot = html.reactive(state.tags, (tag) => html`
                 <li
-                    class='tag-input-chip ${() => local.armed === key(tag) && '--active'}'
+                    class='input-tag-chip ${() => local.armed === key(tag) && '--active'}'
                     data-key='${key(tag)}'
                     ${{
                         ondisconnect: (element: HTMLElement) => {
@@ -101,16 +100,16 @@ export default component(
                 >
                     <span
                         aria-hidden='true'
-                        class='tag-input-chip-body'
+                        class='input-tag-chip-body'
                         ${{
                             onrender: (element: HTMLElement) => {
                                 chip(key(tag)).body = element;
                             }
                         }}
                     ></span>
-                    <span class='tag-input-chip-text'>${tag}</span>
+                    <span class='input-tag-chip-text'>${tag}</span>
                     <span
-                        class='tag-input-chip-remove'
+                        class='input-tag-chip-remove'
                         ${{
                             onrender: (element: HTMLElement) => {
                                 chip(key(tag)).remove = element;
@@ -119,7 +118,7 @@ export default component(
                     >
                         <button
                             aria-label='Remove ${tag}'
-                            class='tag-input-chip-button'
+                            class='input-tag-chip-button'
                             type='button'
                             ${{
                                 onclick: () => {
@@ -237,7 +236,7 @@ export default component(
             for (let i = 0, n = children.length; i < n; i++) {
                 let child = children[i] as HTMLElement;
 
-                if (child.classList.contains('tag-input-ghost')) {
+                if (child.classList.contains('input-tag-ghost')) {
                     continue;
                 }
 
@@ -308,7 +307,7 @@ export default component(
                     origin = list.getBoundingClientRect(),
                     rect = element.getBoundingClientRect();
 
-                ghost.classList.add('tag-input-ghost');
+                ghost.classList.add('input-tag-ghost');
                 ghost.classList.remove('--active');
                 ghost.inert = true;
                 ghost.removeAttribute('data-key');
@@ -329,7 +328,7 @@ export default component(
 
         return html`
             <div
-                class='tag-input'
+                class='input-tag'
                 ${this?.attributes}
                 ${attributes}
                 ${{
@@ -342,9 +341,9 @@ export default component(
                     }
                 }}
             >
-                <label class='tag-input-label' for='${id}'>${label}</label>
+                <label class='input-tag-label' for='${id}'>${label}</label>
                 <div
-                    class='tag-input-box'
+                    class='input-tag-box'
                     ${{
                         // Pressing the field's empty space types into it, like a real input.
                         onpointerdown: (e: PointerEvent) => {
@@ -360,7 +359,7 @@ export default component(
                     }}
                 >
                     <ul
-                        class='tag-input-list'
+                        class='input-tag-list'
                         ${{
                             'aria-label': () => `${label}, ${slot.length} added`,
                             onrender: (element: HTMLElement) => {
@@ -369,10 +368,10 @@ export default component(
                         }}
                     >
                         ${slot}
-                        <li class='tag-input-entry' role='none'>
-                            ${input.call({ attributes: { ...this?.attributes?.[TAG_INPUT_FIELD], ...attributes[TAG_INPUT_FIELD] } }, {
+                        <li class='input-tag-entry' role='none'>
+                            ${input.call({ attributes: { ...this?.attributes?.[INPUT_TAG_FIELD], ...attributes[INPUT_TAG_FIELD] } }, {
                                 autocomplete: 'off',
-                                class: 'tag-input-field',
+                                class: 'input-tag-field',
                                 enterkeyhint: 'enter',
                                 id,
                                 onblur: () => {
@@ -432,10 +431,10 @@ export default component(
                         </li>
                     </ul>
                 </div>
-                ${hint ? html`<p class='tag-input-hint'>${hint}</p>` : ''}
-                <span aria-live='polite' class='tag-input-live'>${() => local.announcement}</span>
+                ${hint ? html`<p class='input-tag-hint'>${hint}</p>` : ''}
+                <span aria-live='polite' class='input-tag-live'>${() => local.announcement}</span>
             </div>
         `;
     },
-    { field: TAG_INPUT_FIELD }
+    { field: INPUT_TAG_FIELD }
 );

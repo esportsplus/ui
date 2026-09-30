@@ -44,7 +44,6 @@ export { default as stickyHeader } from './sticky-header';
 export { default as story } from './story';
 export { default as surfaceField } from './surface-field';
 export { default as switch } from './switch';
-export { default as tagInput } from './tag-input';
 export { default as tasklist } from './tasklist';
 export { default as textAnimate } from './text-animate';
 export { default as textProgress } from './text-progress';

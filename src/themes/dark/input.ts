@@ -9,7 +9,7 @@ const themed: typeof input = Object.assign(input.bind({
             --border-color-default: var(--color-black-300);
         `
     }
-}), { scrub: input.scrub });
+}), { scrub: input.scrub, tag: input.tag });
 
 
 export default themed;

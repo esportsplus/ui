@@ -1,7 +1,6 @@
 @use '/tokens';
-@use 'variables';
 
-.tag-input {
+.input-tag {
     color: var(--color);
     display: flex;
     flex-direction: column;
@@ -17,7 +16,7 @@
         outline-offset: 2px;
         padding: var(--box-padding);
 
-        &:has(.tag-input-field:focus-visible) {
+        &:has(.input-tag-field:focus-visible) {
             outline: var(--border-width-500) solid var(--outline-color);
         }
     }
@@ -48,7 +47,7 @@
                 background-color var(--transition-duration) var(--transition-timing-function),
                 box-shadow var(--transition-duration) var(--transition-timing-function);
 
-            #{tokens.state(active, '.tag-input-chip')} > & {
+            #{tokens.state(active, '.input-tag-chip')} > & {
                 background: var(--chip-background-active);
                 box-shadow: none;
             }
@@ -99,7 +98,7 @@
                 width: 14px;
             }
 
-            #{tokens.state(active, '.tag-input-chip')} & {
+            #{tokens.state(active, '.input-tag-chip')} & {
                 color: oklch(from var(--chip-color-active) l c h / 0.7);
 
                 &:hover {
@@ -180,7 +179,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .tag-input-chip-button:active {
+    .input-tag-chip-button:active {
         scale: 1;
     }
 }
