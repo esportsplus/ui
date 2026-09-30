@@ -16,57 +16,54 @@ $open: ':is(:hover, :focus-within)';
 
 // Sized to the stack so the gaps between expanded toasts still count as hovering it.
 .toaster {
-    height: max(0px, calc(var(--toast-frontmost-height) + (min(var(--toast-count), var(--toast-limit)) - 1) * var(--toast-peek) + min(1, var(--toast-hidden)) * var(--toast-overflow-peek)));
-    inset: var(--toast-inset) var(--toast-inset) auto auto;
+    height: max(0px, calc(var(--toast-frontmost-height) + (min(var(--toast-count), var(--toast-limit)) - 1) * var(--stack-peek) + min(1, var(--toast-hidden)) * var(--toast-overflow-peek)));
+    inset: var(--margin-vertical) var(--margin-horizontal) auto auto;
     position: fixed;
     transition: translate var(--toast-transition-duration) var(--toast-transition-timing-function);
-    width: min(var(--toast-width), calc(100% - (var(--toast-inset) * 2)));
+    width: min(var(--toast-width), calc(100% - (var(--margin-horizontal) * 2)));
     z-index: 9999;
 
-    &#{$open} {
-        height: max(0px, calc(var(--toast-stack-height) + (var(--toast-count) - 1) * var(--toast-gap)));
-    }
 
-
-    // Side placements center the front toast on the edge and grow the stack downward from it.
+    // Side placements center the newest toast on the edge; the list grows downward from it when open.
     &--e {
-        inset: 50% var(--toast-inset) auto auto;
-        translate: 0 calc(var(--toast-frontmost-height) / -2);
+        inset: 50% var(--margin-horizontal) auto auto;
+        translate: 0 calc(var(--toast-anchor-height) / -2);
     }
 
     &--n {
-        inset: var(--toast-inset) auto auto 50%;
+        inset: var(--margin-vertical) auto auto 50%;
         translate: -50% 0;
     }
 
     &--ne {
-        inset: var(--toast-inset) var(--toast-inset) auto auto;
+        inset: var(--margin-vertical) var(--margin-horizontal) auto auto;
     }
 
     &--nw {
-        inset: var(--toast-inset) auto auto var(--toast-inset);
+        inset: var(--margin-vertical) auto auto var(--margin-horizontal);
     }
 
     &--s {
-        inset: auto auto var(--toast-inset) 50%;
+        inset: auto auto var(--margin-vertical) 50%;
         translate: -50% 0;
     }
 
     &--se {
-        inset: auto var(--toast-inset) var(--toast-inset) auto;
+        inset: auto var(--margin-horizontal) var(--margin-vertical) auto;
     }
 
     &--sw {
-        inset: auto auto var(--toast-inset) var(--toast-inset);
+        inset: auto auto var(--margin-vertical) var(--margin-horizontal);
     }
 
     &--w {
-        inset: 50% auto auto var(--toast-inset);
-        translate: 0 calc(var(--toast-frontmost-height) / -2);
+        inset: 50% auto auto var(--margin-horizontal);
+        translate: 0 calc(var(--toast-anchor-height) / -2);
     }
 
 
-    // Scoped under the toaster to outrank consumer pairings like '.card { position: relative }'.
+    // Scoped under the toaster to outrank consumer pairings like '.card { position: relative }'. The slot it stands
+    // in is its 'translate', a swipe (and the way in or out) its 'transform', so the two compose.
     > .toast {
         clip-path: inset(calc(var(--toast-bleed) * -1));
         inset-inline: 0;
@@ -74,13 +71,15 @@ $open: ':is(:hover, :focus-within)';
         scale: var(--toast-scale);
         top: 0;
         touch-action: none;
+        transform: translate(var(--toast-swipe-x), var(--toast-swipe-y));
         transform-origin: top;
         transition:
             clip-path var(--toast-transition-duration) var(--toast-transition-timing-function),
             opacity var(--toast-transition-duration) var(--toast-transition-timing-function),
             scale var(--toast-transition-duration) var(--toast-transition-timing-function),
+            transform var(--toast-transition-duration) var(--toast-transition-timing-function),
             translate var(--toast-transition-duration) var(--toast-transition-timing-function);
-        translate: var(--toast-swipe-x) calc(var(--toast-swipe-y) + var(--toast-y));
+        translate: var(--stack-translate);
         user-select: none;
         z-index: calc(9999 - var(--toast-index));
     }
@@ -104,7 +103,7 @@ $open: ':is(:hover, :focus-within)';
         align-items: flex-end;
         display: flex;
         height: var(--toast-frontmost-height);
-        inset-inline: calc(var(--toast-limit) * var(--toast-scale-step) * 50%);
+        inset-inline: calc((1 - pow(var(--stack-scale), var(--toast-limit))) * 50%);
         justify-content: center;
         line-height: var(--toast-overflow-peek);
         opacity: min(1, var(--toast-hidden));
@@ -114,7 +113,7 @@ $open: ':is(:hover, :focus-within)';
         transition:
             opacity var(--toast-transition-duration) var(--toast-transition-timing-function),
             translate var(--toast-transition-duration) var(--toast-transition-timing-function);
-        translate: 0 calc(((var(--toast-limit) - 1) * var(--toast-peek) + var(--toast-overflow-peek)) * var(--toast-direction));
+        translate: 0 calc(((var(--toast-limit) - 1) * var(--stack-peek) + var(--toast-overflow-peek)) * var(--toast-direction));
         z-index: calc(9999 - var(--toast-limit));
     }
 
@@ -122,6 +121,7 @@ $open: ':is(:hover, :focus-within)';
     &--se,
     &--sw {
         > .toast {
+            --stack-translate: 0 calc(var(--stack-shift) * -1);
             bottom: 0;
             top: auto;
             transform-origin: bottom;
@@ -138,6 +138,56 @@ $open: ':is(:hover, :focus-within)';
         }
     }
 
+    // Side stacks recede sideways, back from their edge, the way overlay's do: every toast is as wide as the
+    // next, so the overlay's own shift applies, and back toasts are centered on the front one and trimmed to its
+    // height.
+    &--e,
+    &--w {
+        height: var(--toast-frontmost-height);
+
+        > .toast {
+            --stack-shift: calc(var(--depth) * var(--stack-peek) + (1 - var(--toast-scale)) * var(--stack-span));
+        }
+
+        > .toast[data-behind] {
+            clip-path: inset(calc((100% - var(--toast-frontmost-height)) / 2) calc(var(--toast-bleed) * -1));
+        }
+
+        // Its count runs down the strip it shows beside the stack. Physical sides: in vertical writing its logical
+        // ones turn with the text.
+        > .toaster-overflow {
+            bottom: auto;
+            height: calc(var(--toast-frontmost-height) * pow(var(--stack-scale), var(--toast-limit)));
+            left: 0;
+            right: 0;
+            top: calc(var(--toast-frontmost-height) * (1 - pow(var(--stack-scale), var(--toast-limit))) / 2);
+            writing-mode: vertical-rl;
+        }
+    }
+
+    &--e {
+        > .toast {
+            --stack-translate: calc(var(--stack-shift) * -1) calc((var(--toast-frontmost-height) - var(--toast-height)) / 2);
+            transform-origin: right;
+        }
+
+        > .toaster-overflow {
+            translate: calc(((var(--toast-limit) - 1) * var(--stack-peek) + var(--toast-overflow-peek)) * -1) 0;
+        }
+    }
+
+    &--w {
+        > .toast {
+            --stack-translate: var(--stack-shift) calc((var(--toast-frontmost-height) - var(--toast-height)) / 2);
+            transform-origin: left;
+        }
+
+        > .toaster-overflow {
+            align-items: flex-start;
+            translate: calc((var(--toast-limit) - 1) * var(--stack-peek) + var(--toast-overflow-peek)) 0;
+        }
+    }
+
     > .toast[data-timed] {
         animation: toast-timer var(--toast-duration) linear forwards;
     }
@@ -149,60 +199,53 @@ $open: ':is(:hover, :focus-within)';
         animation-play-state: paused;
     }
 
-    &#{$open} > .toast {
-        --toast-y: var(--toast-expanded-y);
-        opacity: 1;
-        scale: 1;
+    &#{$open} {
+        height: max(0px, calc(var(--toast-stack-height) + (var(--toast-count) - 1) * var(--toast-gap)));
 
-        &,
-        &[data-behind] {
-            clip-path: inset(calc(var(--toast-bleed) * -1));
-        }
-
-        > * {
+        > .toast {
             opacity: 1;
-        }
-    }
+            scale: 1;
+            translate: 0 var(--toast-expanded-y);
 
-    &#{$open} > .toaster-overflow {
-        opacity: 0;
+            &,
+            &[data-behind] {
+                clip-path: inset(calc(var(--toast-bleed) * -1));
+            }
+
+            > * {
+                opacity: 1;
+            }
+        }
+
+        > .toaster-overflow {
+            opacity: 0;
+        }
     }
 
     > .toast.toast--swiping {
         transition: none;
     }
 
-    // Leaving plays out from wherever the toast stands, toward its edge or the way it was swiped; its clock stays
-    // stopped where it ended so anything counting down on it holds still as it goes.
+    // Leaving plays out from wherever the toast stands, toward its edge; its clock stays stopped where it ended so
+    // anything counting down on it holds still as it goes.
     > .toast.toast--ending {
-        animation: toast-exit var(--toast-exit-duration) var(--toast-transition-timing-function) forwards;
+        animation: toast-exit var(--toast-exit-duration) var(--toast-exit-timing-function) forwards;
         pointer-events: none;
     }
 
     > .toast.toast--ending[data-timed] {
         animation:
             toast-timer var(--toast-duration) linear forwards paused,
-            toast-exit var(--toast-exit-duration) var(--toast-transition-timing-function) forwards;
+            toast-exit var(--toast-exit-duration) var(--toast-exit-timing-function) forwards;
     }
 
-    > .toast[data-swipe-direction='down'] {
-        --toast-exit-x: 0px;
-        --toast-exit-y: calc(100% + var(--toast-inset));
+    // Swiped away, it is thrown on until it has left the screen, whole, rather than fading out on the way.
+    > .toast.toast--ending[data-flung] {
+        animation-name: toast-fling;
     }
 
-    > .toast[data-swipe-direction='left'] {
-        --toast-exit-x: calc(-100% - var(--toast-inset));
-        --toast-exit-y: 0px;
-    }
-
-    > .toast[data-swipe-direction='right'] {
-        --toast-exit-x: calc(100% + var(--toast-inset));
-        --toast-exit-y: 0px;
-    }
-
-    > .toast[data-swipe-direction='up'] {
-        --toast-exit-x: 0px;
-        --toast-exit-y: calc(-100% - var(--toast-inset));
+    > .toast.toast--ending[data-flung][data-timed] {
+        animation-name: toast-timer, toast-fling;
     }
 }
 
@@ -211,7 +254,7 @@ $open: ':is(:hover, :focus-within)';
     .toaster > .toast {
         opacity: 0;
         scale: 1;
-        translate: calc(var(--toast-edge-x) * 120%) calc(var(--toast-edge-y) * 120%);
+        transform: translate(var(--translate-x), var(--translate-y));
     }
 }
 
@@ -241,16 +284,22 @@ $open: ':is(:hover, :focus-within)';
 }
 
 
+// Every placement fades in place instead of travelling.
 @media (prefers-reduced-motion: reduce) {
-    .toaster > .toast {
-        transition: none;
+    .toaster {
+        --translate-x: 0px;
+        --translate-y: 0px;
 
-        &.toast--ending {
-            animation-name: toast-fade;
-        }
+        > .toast {
+            transition: none;
 
-        &.toast--ending[data-timed] {
-            animation-name: toast-timer, toast-fade;
+            &.toast--ending {
+                animation-name: toast-fade;
+            }
+
+            &.toast--ending[data-timed] {
+                animation-name: toast-timer, toast-fade;
+            }
         }
     }
 }
@@ -259,13 +308,19 @@ $open: ':is(:hover, :focus-within)';
 @keyframes toast-exit {
     to {
         opacity: 0;
-        translate: calc(var(--toast-swipe-x) + var(--toast-exit-x)) calc(var(--toast-swipe-y) + var(--toast-y) + var(--toast-exit-y));
+        transform: translate(calc(var(--toast-swipe-x) + var(--translate-x)), calc(var(--toast-swipe-y) + var(--translate-y)));
     }
 }
 
 @keyframes toast-fade {
     to {
         opacity: 0;
+    }
+}
+
+@keyframes toast-fling {
+    to {
+        transform: translate(calc(var(--toast-swipe-x) + var(--translate-x)), calc(var(--toast-swipe-y) + var(--translate-y)));
     }
 }
 

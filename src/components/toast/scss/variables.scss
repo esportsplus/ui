@@ -1,69 +1,73 @@
-// Placements name the edge or corner the toaster is pinned to, like overlay's: 'n' is top center, 'ne' top right.
-// '--toast-direction' is the way the stack grows, '--toast-edge-*' the edge toasts enter from and leave toward.
+@use '../../anchor/scss/index' as anchor;
+
+
+// Placed like overlay, extending the same anchor placements and stack variables: 'toaster--n' is top center,
+// 'toaster--ne' top right, and so on round; unplaced, it sits top right.
 .toaster {
-    // Written by the toaster: live toasts, the front one's height, how many the limit keeps out of the collapsed
-    // stack, the limit itself, and every live toast's height summed.
+    @extend .anchor;
+    --margin-horizontal: var(--size-500);
+    --margin-vertical: var(--size-500);
+    --stack-peek: var(--size-300);
+    --stack-scale: 0.94;
+    // Written by the toaster: the newest toast's height, live toasts, the front one's height, how many the limit
+    // keeps out of the collapsed stack, the limit itself, and every live toast's height summed.
+    --toast-anchor-height: 0px;
     --toast-count: 0;
+    // The way the expanded list grows from the front toast.
     --toast-direction: 1;
-    --toast-edge-x: 0;
-    --toast-edge-y: -1;
     --toast-frontmost-height: 0px;
     --toast-gap: var(--size-300);
     --toast-hidden: 0;
-    --toast-inset: var(--size-500);
     --toast-limit: 3;
     // How far the overflow card reaches past the last visible layer: room for its line of text.
     --toast-overflow-peek: 24px;
-    --toast-peek: var(--size-300);
-    // Each layer back is this much narrower.
-    --toast-scale-step: 0.06;
     --toast-stack-height: 0px;
     --toast-transition-duration: 0.4s;
     --toast-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     --toast-width: 360px;
 
-    &--e {
-        --toast-edge-x: 1;
-        --toast-edge-y: 0;
+    // Unplaced, it sits top right; only then, so any placement still wins.
+    &:not([class*='toaster--']) {
+        @extend .anchor--ne;
+    }
+
+    @each $placement in anchor.$placements {
+        &--#{$placement} {
+            @extend .anchor--#{$placement};
+        }
     }
 
     &--s,
     &--se,
     &--sw {
         --toast-direction: -1;
-        --toast-edge-y: 1;
-    }
-
-    &--w {
-        --toast-edge-x: -1;
-        --toast-edge-y: 0;
     }
 }
 
 
-// Prefixed throughout: the consumer's own classes (e.g. '.card') share the element and its variable names.
+// Prefixed where it is the toast's own: the consumer's classes (e.g. '.card') share the element and its variables.
 .toast {
+    // Collapsed layer: toasts past the limit wait, unseen, in the last visible one.
+    --depth: min(var(--toast-index), var(--toast-limit) - 1);
+    // Each layer's far edge sits one peek past the layer in front of it, measured from the front toast's height so
+    // a taller toast behind never shows more of itself.
+    --stack-shift: calc(var(--toast-frontmost-height) + var(--depth) * var(--stack-peek) - var(--toast-scale) * var(--toast-height));
+    --stack-translate: 0 var(--stack-shift);
     // Room past the box for shadows and the close button, which the collapsed clip would otherwise cut.
     --toast-bleed: 32px;
-    // Collapsed, each layer's far edge sits one peek past the layer in front of it, whatever its own height.
-    --toast-collapsed-y: calc((var(--toast-frontmost-height) + var(--toast-depth) * var(--toast-peek) - var(--toast-scale) * var(--toast-height)) * var(--toast-direction));
     --toast-content-gap: var(--size-300);
-    // Collapsed layer: toasts past the limit wait, unseen, in the last visible one.
-    --toast-depth: min(var(--toast-index), var(--toast-limit) - 1);
     // Written by the toast: its duration, and the same in whole seconds for a countdown in its content.
     --toast-duration: 0ms;
     --toast-exit-duration: 0.3s;
-    --toast-exit-x: calc(var(--toast-edge-x) * (100% + var(--toast-inset)));
-    --toast-exit-y: calc(var(--toast-edge-y) * (100% + var(--toast-inset)));
+    --toast-exit-timing-function: var(--toast-transition-timing-function);
     --toast-expanded-y: calc((var(--toast-offset-y) + var(--toast-index) * var(--toast-gap)) * var(--toast-direction));
     --toast-height: 0px;
     --toast-index: 0;
     --toast-offset-y: 0px;
-    --toast-scale: max(0, 1 - var(--toast-depth) * var(--toast-scale-step));
+    --toast-scale: pow(var(--stack-scale), var(--depth));
     --toast-seconds: 0;
     --toast-swipe-x: 0px;
     --toast-swipe-y: 0px;
-    --toast-y: var(--toast-collapsed-y);
 
     &-close.button {
         --background-default: var(--color-white-300);
