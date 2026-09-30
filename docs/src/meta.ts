@@ -20,10 +20,6 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Vertically stacked, collapsible panels for revealing sections of content on demand.'
     },
-    anchor: {
-        category: 'Layout',
-        description: 'Compact in-page navigation list for jumping between document sections.'
-    },
     announcement: {
         category: 'Feedback',
         description: 'Animated container that slides announcement content in from the top and folds its space away when state.active turns off.'

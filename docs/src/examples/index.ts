@@ -1,7 +1,6 @@
 import type { Entry } from '../types';
 
 import accordion from './accordion';
-import anchor from './anchor';
 import announcement from './announcement';
 import autosave from './autosave';
 import banner from './banner';
@@ -69,7 +68,6 @@ import wordRotator from './word-rotator';
 
 const entries: Entry[] = [
     accordion,
-    anchor,
     announcement,
     autosave,
     banner,

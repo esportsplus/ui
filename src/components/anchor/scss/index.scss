@@ -1,56 +1,63 @@
-@use '/tokens';
-@use 'variables';
+// Anchor placements name the edge or corner an element is pinned to: 'n' is top center, 'ne' top right and so on
+// round; unplaced, it is centered. Blocks extend them ('.overlay' extends '.anchor', '.overlay--n' '.anchor--n', and
+// so on), so every placed block shares these variables:
+//   '--translate' ('--translate-x' '--translate-y'): where it enters from and leaves toward, clear of its edge;
+//   '--stack-translate': the way the layers it covers recede, back from its edge;
+//   '--stack-span': the share of its size a covered layer's far edge gives up by scaling about its anchor;
+//   '--opacity': edges travel in whole; centered, it fades.
+// Corners enter from, and leave toward, their top or bottom edge. Every placement sets each variable outright, so none
+// inherits part of another. Their script half is 'anchor/edge'.
+
+
+$placements: ('e', 'n', 'ne', 'nw', 's', 'se', 'sw', 'w');
+
 
 .anchor {
-    max-height: calc(var(--max-height, 100%) - (var(--margin-vertical) * 2));
-    max-width: calc(var(--max-width, 100%) - (var(--margin-horizontal) * 2));
-    position: absolute;
-    transition:
-        opacity var(--transition-duration) var(--transition-timing-function),
-        translate var(--transition-duration) var(--transition-timing-function);
-    z-index: 9;
+    --opacity: 0;
+    --stack-span: 50%;
+    --stack-translate: 0 calc(var(--stack-shift) * -1);
+    --translate: var(--translate-x) var(--translate-y);
+    --translate-x: 0px;
+    --translate-y: 0px;
 
 
-    @include tokens.state(inactive) {
-        opacity: 0;
-
-        &, * {
-            pointer-events: none;
-        }
+    &--e,
+    &--n,
+    &--ne,
+    &--nw,
+    &--s,
+    &--se,
+    &--sw,
+    &--w {
+        --opacity: 1;
+        --stack-span: 100%;
     }
 
+    &--e {
+        --stack-translate: calc(var(--stack-shift) * -1) 0;
+        --translate-x: calc(100% + var(--margin-horizontal));
+        --translate-y: 0px;
+    }
 
     &--n,
-    &--s {
-        right: 50%;
-        translate: 50%;
-    }
-
     &--ne,
     &--nw {
-        top: var(--margin-vertical);
+        --stack-translate: 0 var(--stack-shift);
+        --translate-x: 0px;
+        --translate-y: calc(-100% - var(--margin-vertical));
     }
 
+    &--s,
     &--se,
     &--sw {
-        bottom: var(--margin-vertical);
+        --stack-translate: 0 calc(var(--stack-shift) * -1);
+        --translate-x: 0px;
+        --translate-y: calc(100% + var(--margin-vertical));
     }
 
-    &--ne,
-    &--se {
-        right: var(--margin-horizontal);
-    }
-
-    &--nw,
-    &--sw {
-        left: var(--margin-horizontal);
-    }
-
-    &--n {
-        top: var(--margin-vertical);
-    }
-
-    &--s {
-        bottom: var(--margin-vertical);
+    &--w {
+        --stack-translate: var(--stack-shift) 0;
+        --translate-x: calc(-100% - var(--margin-horizontal));
+        --translate-y: 0px;
     }
 }
