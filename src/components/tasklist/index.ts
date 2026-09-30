@@ -1,10 +1,28 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import checkbox from '~/components/checkbox';
-import { TASKLIST_CHECKBOX } from './constants';
+import sortable from '~/components/sortable';
 import './scss/index.scss';
 
 
+type A = Attributes & {
+    [TASKLIST_CHECKBOX]?: CheckboxAttributes;
+    [TASKLIST_CONTENT]?: Attributes;
+    [TASKLIST_DESCRIPTION]?: Attributes;
+    [TASKLIST_ITEM]?: Attributes;
+    [TASKLIST_LABEL]?: Attributes;
+    [TASKLIST_ROW]?: Attributes;
+    ordered?: boolean;
+    reorder?: boolean;
+    sortable?: boolean;
+    tasks: Task[];
+};
+
 type CheckboxAttributes = NonNullable<Parameters<typeof checkbox>[0]>;
+
+type Row = {
+    index: number;
+    task: Task;
+};
 
 type Task = {
     checked?: boolean;
@@ -13,8 +31,54 @@ type Task = {
 };
 
 
-function checked(rows: WeakMap<Element, Task>, item: Element) {
-    return !!rows.get(item)?.checked;
+const TASKLIST_CHECKBOX = Symbol.for('@esportsplus/ui/tasklist.checkbox');
+
+const TASKLIST_CONTENT = Symbol.for('@esportsplus/ui/tasklist.content');
+
+const TASKLIST_DESCRIPTION = Symbol.for('@esportsplus/ui/tasklist.description');
+
+const TASKLIST_ITEM = Symbol.for('@esportsplus/ui/tasklist.item');
+
+const TASKLIST_LABEL = Symbol.for('@esportsplus/ui/tasklist.label');
+
+const TASKLIST_ROW = Symbol.for('@esportsplus/ui/tasklist.row');
+
+
+function checked(rows: WeakMap<Element, Row>, item: Element) {
+    return !!rows.get(item)?.task.checked;
+}
+
+// Where a row settles: the open rows come first, then the checked ones; 'ordered' keeps each group in task order.
+// null appends to the end of the list.
+function destination(rows: WeakMap<Element, Row>, item: HTMLElement, ordered: boolean) {
+    let index = rows.get(item)!.index,
+        value = checked(rows, item);
+
+    for (let child of item.parentElement!.children) {
+        if (child === item) {
+            continue;
+        }
+
+        let section = done(rows, child);
+
+        if (section === value) {
+            if (ordered && rows.get(child)!.index > index) {
+                return child;
+            }
+        }
+        else if (section) {
+            return child;
+        }
+    }
+
+    return null;
+}
+
+// Rows still animating have not moved yet, so they sit in the group they are leaving
+function done(rows: WeakMap<Element, Row>, item: Element) {
+    let value = checked(rows, item);
+
+    return pending(item) ? !value : value;
 }
 
 // Cancelling an animation rejects its finished promise and replaces it with one that never settles,
@@ -31,35 +95,13 @@ async function finished(animations: Animation[]) {
     }
 }
 
-function move(rows: WeakMap<Element, Task>, item: HTMLElement) {
-    let list = item.parentElement!,
-        reference: Element | null = null;
-
-    if (!checked(rows, item)) {
-        let last: Element | null = null;
-
-        // Rows still animating have not moved yet, so the open tasks end at the first checked row that has settled
-        for (let child of list.children) {
-            if (child === item) {
-                return;
-            }
-
-            if (!checked(rows, child)) {
-                last = child;
-            }
-            else if (!pending(child)) {
-                break;
-            }
-        }
-
-        reference = last ? last.nextElementSibling : list.firstElementChild;
-    }
-
-    if (reference === item || (reference === null && list.lastElementChild === item)) {
+function move(item: HTMLElement, reference: Element | null) {
+    if (reference === item.nextElementSibling) {
         return;
     }
 
-    let items = [...list.children] as HTMLElement[],
+    let list = item.parentElement!,
+        items = [...list.children] as HTMLElement[],
         first = items.map((element) => element.getBoundingClientRect().top);
 
     // moveBefore keeps focus on the input; insertBefore drops it
@@ -112,12 +154,23 @@ function pending(item: Element) {
     return item.classList.contains('--checking') || item.classList.contains('--unchecking');
 }
 
-function row(rows: WeakMap<Element, Task>, task: Task, reorder: boolean, attributes?: CheckboxAttributes) {
-    let sequence = 0;
+function row(
+    rows: WeakMap<Element, Row>,
+    entry: Row,
+    options: { ordered: boolean; reorder: boolean },
+    context: Partial<A> | undefined,
+    attributes: Partial<A>
+) {
+    let box = attributes[TASKLIST_CHECKBOX],
+        sequence = 0,
+        task = entry.task;
 
     return html`
         <li
             class='tasklist-item'
+            style='--index: ${entry.index + 1};'
+            ${context?.[TASKLIST_ITEM]}
+            ${attributes[TASKLIST_ITEM]}
             ${{
                 onchange: async function(this: HTMLElement, event: Event) {
                     let id = ++sequence,
@@ -137,21 +190,32 @@ function row(rows: WeakMap<Element, Task>, task: Task, reorder: boolean, attribu
 
                     this.classList.remove('--checking', '--unchecking');
 
-                    if (reorder) {
-                        move(rows, this);
+                    if (options.reorder) {
+                        move(this, destination(rows, this, options.ordered));
                     }
                 },
                 onrender: (element: HTMLElement) => {
-                    rows.set(element, task);
+                    rows.set(element, entry);
                 }
             }}
         >
-            <label class='tasklist-row'>
-                ${checkbox.call({ attributes }, { class: 'tasklist-checkbox', [checkbox.input]: { checked: !!task.checked } })}
+            <label class='tasklist-row' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
+                ${checkbox.call(
+                    { attributes: context?.[TASKLIST_CHECKBOX] },
+                    {
+                        ...box,
+                        class: ['tasklist-checkbox', box?.class ?? []].flat(),
+                        [checkbox.input]: { ...box?.[checkbox.input], checked: !!task.checked }
+                    }
+                )}
 
-                <span class='tasklist-content'>
-                    <span class='tasklist-label'>${task.label}</span>
-                    ${task.description && html`<span class='tasklist-description'>${task.description}</span>`}
+                <span class='tasklist-content' ${context?.[TASKLIST_CONTENT]} ${attributes[TASKLIST_CONTENT]}>
+                    <span class='tasklist-label' ${context?.[TASKLIST_LABEL]} ${attributes[TASKLIST_LABEL]}>${task.label}</span>
+                    ${task.description && html`
+                        <span class='tasklist-description' ${context?.[TASKLIST_DESCRIPTION]} ${attributes[TASKLIST_DESCRIPTION]}>
+                            ${task.description}
+                        </span>
+                    `}
                 </span>
             </label>
         </li>
@@ -160,19 +224,60 @@ function row(rows: WeakMap<Element, Task>, task: Task, reorder: boolean, attribu
 
 
 export default component(
-    function({ reorder = true, tasks, ...attributes }: Attributes & { [TASKLIST_CHECKBOX]?: CheckboxAttributes; reorder?: boolean; tasks: Task[] }) {
-        let rows = new WeakMap<Element, Task>();
+    function(
+        this: { attributes?: Partial<A> } | void,
+        { ordered = false, reorder = true, sortable: sorts = false, tasks, ...attributes }: A
+    ) {
+        let context = this?.attributes,
+            entries = tasks.map((task, index) => ({ index, task })),
+            options = { ordered, reorder },
+            rows = new WeakMap<Element, Row>();
 
         return html`
-            <ul class='tasklist' ${attributes}>
+            <ul
+                class='tasklist'
+                ${context}
+                ${attributes}
+                ${sorts && sortable({
+                    // A row dropped among the other group returns to the edge of its own
+                    onsort: (item) => {
+                        if (!reorder) {
+                            return;
+                        }
+
+                        let next = item.nextElementSibling,
+                            previous = item.previousElementSibling;
+
+                        if (checked(rows, item) ? next && !done(rows, next) : previous && done(rows, previous)) {
+                            let boundary: Element | null = null;
+
+                            for (let child of item.parentElement!.children) {
+                                if (child !== item && done(rows, child)) {
+                                    boundary = child;
+                                    break;
+                                }
+                            }
+
+                            move(item, boundary);
+                        }
+                    }
+                })}
+            >
                 ${(reorder ? [
-                    ...tasks.filter((task) => !task.checked),
-                    ...tasks.filter((task) => task.checked)
-                ] : tasks).map((task) => row(rows, task, reorder, attributes[TASKLIST_CHECKBOX]))}
+                    ...entries.filter((entry) => !entry.task.checked),
+                    ...entries.filter((entry) => entry.task.checked)
+                ] : entries).map((entry) => row(rows, entry, options, context, attributes))}
             </ul>
         `;
     },
-    { checkbox: TASKLIST_CHECKBOX }
+    {
+        checkbox: TASKLIST_CHECKBOX,
+        content: TASKLIST_CONTENT,
+        description: TASKLIST_DESCRIPTION,
+        item: TASKLIST_ITEM,
+        label: TASKLIST_LABEL,
+        row: TASKLIST_ROW
+    }
 );
 
 

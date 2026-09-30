@@ -10,35 +10,36 @@
     padding: 0;
 
 
+    // '--line-height' comes from the row, so the box centers on the first line of the label
+    &-checkbox {
+        margin-top: calc((var(--line-height) - var(--size)) / 2);
+    }
+
     &-content {
         min-width: 0;
+        opacity: var(--opacity);
+        transition: opacity var(--strike-duration) var(--timing-function);
     }
 
     &-description {
-        color: var(--description-color);
+        color: var(--color);
         display: block;
-        font-size: var(--description-font-size);
-        transition: color var(--strike-duration) var(--ease-in-out);
+        font-size: var(--font-size);
+        margin-top: 2px;
     }
 
     &-item {
         background: var(--background);
         border-radius: var(--border-radius);
         position: relative;
-        transition: transform var(--move-duration) var(--move-timing-function);
+        transition:
+            background-color var(--transition-duration) var(--timing-function),
+            transform var(--transform-duration) var(--transform-timing-function);
 
         &.--checking {
-            .tasklist-checkbox {
-                animation: tasklist-pop var(--pop-duration) var(--ease-out);
-            }
-
-            .tasklist-description,
+            .tasklist-content,
             .tasklist-label {
                 transition-delay: var(--check-duration);
-            }
-
-            .tasklist-row {
-                animation: tasklist-nudge var(--nudge-duration) var(--ease-out) calc(var(--check-duration) + var(--strike-duration));
             }
         }
 
@@ -53,15 +54,8 @@
             }
         }
 
-        &:has(.checkbox-tag:checked) {
-            .tasklist-description {
-                color: var(--description-color-checked);
-            }
-
-            .tasklist-label {
-                background-size: 100% var(--strike-width);
-                color: var(--label-color-checked);
-            }
+        &:has(.checkbox-tag:checked) .tasklist-label {
+            background-size: 100% var(--strike-width);
         }
     }
 
@@ -73,10 +67,9 @@
         background-repeat: no-repeat;
         background-size: 0% var(--strike-width);
         box-decoration-break: clone;
-        color: var(--label-color);
-        transition:
-            background-size var(--strike-duration) var(--ease-in-out),
-            color var(--strike-duration) var(--ease-in-out);
+        color: var(--color);
+        font-weight: var(--font-weight);
+        transition: background-size var(--strike-duration) var(--timing-function);
     }
 
     &-row {
@@ -84,97 +77,38 @@
         cursor: pointer;
         display: flex;
         font-size: var(--font-size);
-        gap: var(--gap-horizontal);
+        gap: var(--gap);
         line-height: var(--line-height);
         padding: var(--padding-vertical) var(--padding-horizontal);
         user-select: none;
     }
 
-    // Checked means the step stays in the plan, so the strike marks unchecked rows instead
+    // Numbered by task position, not DOM position, so a step keeps its number after moving
     &--plan {
-        counter-reset: tasklist;
-
-        .tasklist-description {
-            margin-top: 2px;
-        }
-
         .tasklist-item {
-            counter-increment: tasklist;
-            transition:
-                background-color var(--hover-duration) var(--ease-in-out),
-                opacity var(--strike-duration) var(--ease-in-out),
-                transform var(--move-duration) var(--move-timing-function);
-
-            &:has(.checkbox-tag:checked) {
-                .tasklist-description {
-                    color: var(--description-color);
-                }
-
-                .tasklist-label {
-                    background-size: 0% var(--strike-width);
-                    color: var(--label-color);
-                }
-            }
-
-            &:not(:has(.checkbox-tag:checked)) {
-                opacity: var(--off-opacity);
-
-                .tasklist-label {
-                    background-size: 100% var(--strike-width);
-                }
-            }
+            counter-set: tasklist var(--index);
         }
 
-        .tasklist-label {
-            font-weight: var(--label-font-weight);
-
-            &::before {
-                color: var(--index-color);
-                content: counter(tasklist, decimal-leading-zero);
-                font-family: var(--index-font-family);
-                font-size: var(--index-font-size);
-                font-variant-numeric: tabular-nums;
-                font-weight: var(--font-weight-400);
-                margin-right: 6px;
-            }
-        }
-
-        .tasklist-row {
-            &::before {
-                background: var(--grip-color);
-                content: '';
-                flex: 0 0 var(--grip-size);
-                height: var(--grip-size);
-                margin-top: calc((var(--line-height) - var(--grip-size)) / 2);
-                mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='5' r='1.5'/%3E%3Ccircle cx='9' cy='12' r='1.5'/%3E%3Ccircle cx='9' cy='19' r='1.5'/%3E%3Ccircle cx='15' cy='5' r='1.5'/%3E%3Ccircle cx='15' cy='12' r='1.5'/%3E%3Ccircle cx='15' cy='19' r='1.5'/%3E%3C/svg%3E") center / contain no-repeat;
-                opacity: 0;
-                transition: opacity var(--hover-duration) var(--ease-in-out);
-            }
-
-            @media (hover: hover) {
-                &:hover::before {
-                    opacity: 1;
-                }
-            }
-        }
-
-        .tasklist-checkbox {
-            margin-top: calc((var(--line-height) - var(--size)) / 2);
+        .tasklist-label::before {
+            color: var(--color);
+            content: counter(tasklist, decimal-leading-zero);
+            font-family: var(--font-family);
+            font-size: var(--font-size);
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight);
+            margin-right: var(--gap);
         }
     }
-}
 
-@keyframes tasklist-nudge {
-    35% {
-        transform: translateX(var(--nudge-distance));
-    }
-    70% {
-        transform: translateX(calc(var(--nudge-distance) / -4));
-    }
-}
-
-@keyframes tasklist-pop {
-    40% {
-        transform: scale(var(--pop-scale));
+    // Drag grip, shown while the row is hovered
+    &.sortable .tasklist-row::before {
+        background: var(--background);
+        content: '';
+        flex: 0 0 var(--size);
+        height: var(--size);
+        margin-top: calc((var(--line-height) - var(--size)) / 2);
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='5' r='1.5'/%3E%3Ccircle cx='9' cy='12' r='1.5'/%3E%3Ccircle cx='9' cy='19' r='1.5'/%3E%3Ccircle cx='15' cy='5' r='1.5'/%3E%3Ccircle cx='15' cy='12' r='1.5'/%3E%3Ccircle cx='15' cy='19' r='1.5'/%3E%3C/svg%3E") center / contain no-repeat;
+        opacity: var(--opacity);
+        transition: opacity var(--transition-duration) var(--timing-function);
     }
 }

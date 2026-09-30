@@ -60,7 +60,7 @@ html`
 | `datalist` | Inertial wheel picker (scroll-snapped listbox) | - |
 | `select` | Dropdown with custom options; `select.menu` is a macOS-style listbox opening with the selected option over the trigger, with typeahead and hover scrolling | `select.menu` |
 | `switch` | Toggle switch; `switch.group` builds the same group as `checkbox.group` with switches, the select-all knob resting midway when mixed | `switch.group` |
-| `tasklist` | Checklist that strikes through checked tasks and moves them below the open ones | `tasklist.checkbox` |
+| `tasklist` | Checklist that strikes through checked tasks and moves them below the open ones; `ordered` keeps both groups in task order, `sortable` lets rows be dragged within their group | `tasklist.checkbox`, `tasklist.content`, `tasklist.description`, `tasklist.item`, `tasklist.label`, `tasklist.row` |
 | `form` | Form wrapper | `form.action`, `form.input` |
 | `cc` | Payment card form (`input` fields) with a live card preview that flips for the CVC, brand detection, caret-safe formatting and Luhn/expiry validation; `onvalid` receives brand, last 4, expiry and name | `cc.field`, `cc.submit` |
 | `colorPicker` | Saturation pad, hue/opacity sliders (`range`), hex field (`input`), and an animated recent-colors row (hidden while empty); `value` is required, no surface of its own, so place it in a `card` | `colorPicker.swatch` |
