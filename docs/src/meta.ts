@@ -144,7 +144,7 @@ const meta: Record<string, Meta> = {
     },
     metric: {
         category: 'Display',
-        description: 'Metric card with a line chart that draws itself in and redraws to fit its container, with a scrubbable readout for pointer, touch, and arrow keys.'
+        description: 'Metric card with a line chart that draws itself in and redraws to fit its container, with a scrubbable readout for pointer, touch, and arrow keys, plus a live value that marks each change with a directional roll, tint, and arrow.'
     },
     'notification-bell': {
         category: 'Display',
@@ -249,10 +249,6 @@ const meta: Record<string, Meta> = {
     typewriter: {
         category: 'Display',
         description: 'Sequenced typing animation for headline text, plus a headline word that gets selected and typed over with a human rhythm, like a person editing a text field.'
-    },
-    'value-flash': {
-        category: 'Display',
-        description: 'Marks what just changed with a directional roll, tint, and arrow.'
     },
     'word-rotator': {
         category: 'Display',

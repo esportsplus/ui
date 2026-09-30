@@ -62,7 +62,6 @@ import truncate from './truncate';
 import typewriter from './typewriter';
 import uptime from './uptime';
 import usageMeter from './usage-meter';
-import valueFlash from './value-flash';
 import wordRotator from './word-rotator';
 
 
@@ -129,7 +128,6 @@ const entries: Entry[] = [
     typewriter,
     uptime,
     usageMeter,
-    valueFlash,
     wordRotator
 ];
 

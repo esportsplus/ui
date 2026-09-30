@@ -1,5 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { batch, computed, dispose, onCleanup, reactive, ReactiveArray, read } from '@esportsplus/reactivity';
+import flash from './flash';
 import './scss/index.scss';
 
 
@@ -345,5 +346,5 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
 }
 
 
-export default component(template, { plot: METRIC_PLOT });
+export default component(template, { flash, plot: METRIC_PLOT });
 export type { Point as MetricPoint, State as MetricState };

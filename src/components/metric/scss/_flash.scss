@@ -1,6 +1,6 @@
-@use 'variables';
+@use '../../../css-utilities/hidden/scss/index' as hidden;
 
-.value-flash {
+.metric-flash {
     align-items: center;
     border-radius: var(--border-radius);
     display: inline-grid;
@@ -22,31 +22,26 @@
             color var(--tone-duration) var(--transition-timing-function),
             scale var(--lift-duration) var(--lift);
 
-        .value-flash-tint {
+        .metric-flash-tint {
             opacity: 1;
             transition: opacity var(--cell-duration) var(--cell);
         }
     }
 
-    &[data-flash='even'] .value-flash-arrow svg {
-        animation-name: value-flash-pop-2;
+    &[data-flash='even'] .metric-flash-arrow svg {
+        animation-name: metric-flash-pop-2;
     }
 
-    &[data-flash='odd'] .value-flash-arrow svg {
-        animation-name: value-flash-pop-1;
+    &[data-flash='odd'] .metric-flash-arrow svg {
+        animation-name: metric-flash-pop-1;
     }
 
-    &[data-flash='off'] .value-flash-arrow svg {
-        animation: value-flash-clear var(--clear-duration) var(--clear) both;
+    &[data-flash='off'] .metric-flash-arrow svg {
+        animation: metric-flash-clear var(--clear-duration) var(--clear) both;
     }
 
     &-announcement {
-        clip-path: inset(50%);
-        height: 1px;
-        overflow: hidden;
-        position: absolute;
-        white-space: nowrap;
-        width: 1px;
+        @extend .--hidden-visually;
     }
 
     &-arrow {
@@ -74,12 +69,12 @@
 
         &--down,
         &--up {
-            animation: value-flash-roll var(--roll-duration) var(--roll) both;
+            animation: metric-flash-roll var(--roll-duration) var(--roll) both;
         }
 
         // Pulled out of flow so the incoming text alone sizes the value.
         &--leaving {
-            animation: value-flash-drop var(--drop-duration) var(--clear) both;
+            animation: metric-flash-drop var(--drop-duration) var(--clear) both;
             inset-inline-start: 0;
             position: absolute;
         }
@@ -102,7 +97,7 @@
     }
 }
 
-@keyframes value-flash-clear {
+@keyframes metric-flash-clear {
     from {
         opacity: 1;
         scale: 1;
@@ -114,7 +109,7 @@
     }
 }
 
-@keyframes value-flash-drop {
+@keyframes metric-flash-drop {
     from {
         filter: blur(0);
         opacity: 1;
@@ -128,7 +123,7 @@
     }
 }
 
-@keyframes value-flash-pop-1 {
+@keyframes metric-flash-pop-1 {
     from {
         opacity: 0;
         scale: 0.4;
@@ -142,7 +137,7 @@
     }
 }
 
-@keyframes value-flash-pop-2 {
+@keyframes metric-flash-pop-2 {
     from {
         opacity: 0;
         scale: 0.4;
@@ -156,7 +151,7 @@
     }
 }
 
-@keyframes value-flash-roll {
+@keyframes metric-flash-roll {
     from {
         filter: blur(var(--roll-blur));
         opacity: 0;

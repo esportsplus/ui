@@ -23,6 +23,8 @@ const DAY = new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short' })
 
 const DAYS = 30;
 
+const PRICE = new Intl.NumberFormat('en-US', { currency: 'USD', style: 'currency' });
+
 const RESPONSE: Walk = { floor: 80, format: (value) => `${value} ms`, seed: 7, start: 128, swing: 0.14, title: 'Response time' };
 
 const WALKS: Walk[] = [
@@ -32,6 +34,28 @@ const WALKS: Walk[] = [
     { floor: 120, format: (value) => `${value} ms`, seed: 11, start: 184, swing: 0.1, title: 'Latency' }
 ];
 
+
+function controls(state: { value: number }, step: number, render: ReturnType<typeof metric.flash>) {
+    return html`
+        ${render}
+
+        <div style='display: flex; gap: var(--size-200); margin-top: var(--size-400);'>
+            <div class='button button--tertiary' style='--width: auto;' onclick='${() => state.value -= step}'>
+                decrease
+            </div>
+            <div class='button button--tertiary' style='--width: auto;' onclick='${() => state.value += step}'>
+                increase
+            </div>
+            <div
+                class='button button--tertiary'
+                style='--width: auto;'
+                onclick='${() => state.value += Math.round((Math.random() - 0.5) * step * 400) / 100}'
+            >
+                random
+            </div>
+        </div>
+    `;
+}
 
 function days(walk: Walk) {
     let points: MetricPoint[] = [],
@@ -179,6 +203,30 @@ export default {
                 `;
             },
             title: 'controlled state'
+        },
+        {
+            render: () => {
+                let state = reactive({ value: 184.32 });
+
+                return controls(state, 1.25, metric.flash({ format: (value) => PRICE.format(value), label: 'Price', state }));
+            },
+            title: 'flash, price'
+        },
+        {
+            render: () => {
+                let state = reactive({ value: 1240 });
+
+                return controls(state, 1, metric.flash({ format: (value) => `${Math.round(value).toLocaleString()} req/s`, label: 'Requests', state }));
+            },
+            title: 'flash, request rate'
+        },
+        {
+            render: () => {
+                let state = reactive({ value: 42 });
+
+                return controls(state, 1, metric.flash({ hold: 2000, state, style: '--font-size: var(--font-size-600);' }));
+            },
+            title: 'flash, large, long hold'
         }
     ]
 } satisfies Entry;

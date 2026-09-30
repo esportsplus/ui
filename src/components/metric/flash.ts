@@ -1,7 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import triangle from '@esportsplus/ui/svg/triangle.svg';
-import './scss/index.scss';
 
 
 type Direction = 'down' | 'up';
@@ -84,7 +83,7 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
 
     return html`
         <span
-            class='value-flash'
+            class='metric-flash'
             ${attributes}
             ${{
                 'data-direction': () => state.direction,
@@ -92,12 +91,12 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
                 'data-flash': () => state.flashing ? (state.changes % 2 ? 'odd' : 'even') : state.changes ? 'off' : ''
             }}
         >
-            <span aria-hidden='true' class='value-flash-tint'></span>
-            <span aria-hidden='true' class='value-flash-value'>
+            <span aria-hidden='true' class='metric-flash-tint'></span>
+            <span aria-hidden='true' class='metric-flash-value'>
                 ${html.reactive(render, function (entry) {
                     return html`
                         <span
-                            class='${() => `value-flash-text${entry.direction ? ` value-flash-text--${entry.direction}` : ''}${entry.leaving ? ' value-flash-text--leaving' : ''}`}'
+                            class='${() => `metric-flash-text${entry.direction ? ` metric-flash-text--${entry.direction}` : ''}${entry.leaving ? ' metric-flash-text--leaving' : ''}`}'
                             onanimationend='${() => {
                                 if (entry.leaving) {
                                     remove(entry);
@@ -109,10 +108,10 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
                     `;
                 })}
             </span>
-            <span aria-hidden='true' class='value-flash-arrow'>
+            <span aria-hidden='true' class='metric-flash-arrow'>
                 <svg><use href='#${triangle}' /></svg>
             </span>
-            <span aria-live='polite' class='value-flash-announcement'>
+            <span aria-live='polite' class='metric-flash-announcement'>
                 ${() => label ? `${label}: ${state.settled}` : state.settled}
             </span>
         </span>
