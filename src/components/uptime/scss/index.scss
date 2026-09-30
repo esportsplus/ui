@@ -125,7 +125,6 @@
         display: block;
         mask-clip: no-clip;
         mask-image: var(--status-mask);
-        padding-inline-end: var(--status-inset);
     }
 
     &-service-name {
@@ -156,7 +155,7 @@
         cursor: default;
         height: var(--status-size);
         position: absolute;
-        right: 0;
+        right: var(--status-right);
         top: var(--status-top);
         width: var(--status-size);
     }

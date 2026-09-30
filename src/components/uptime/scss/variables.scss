@@ -50,17 +50,15 @@
     // Shared by the label's mask and the dot, so the hole and the dot line up.
     &-service-name {
         --status-gap: var(--border-width-500);
-        // How far the dot reaches past the text; the rest of it overlaps the last glyph.
-        --status-inset: calc(var(--status-size) * 0.4);
         --status-mask: radial-gradient(
-            circle at calc(100% - var(--status-size) / 2) calc(var(--status-top) + var(--status-size) / 2),
+            circle at calc(100% - var(--status-right) - var(--status-size) / 2) calc(var(--status-top) + var(--status-size) / 2),
             #000 calc(var(--status-size) / 2 - 0.5px),
             transparent calc(var(--status-size) / 2 + 0.5px) calc(var(--status-size) / 2 + var(--status-gap) - 0.5px),
             #000 calc(var(--status-size) / 2 + var(--status-gap) + 0.5px)
         );
-        --status-size: 8px;
-        // Centers the dot on the cap line, so it bites the corner of the last glyph.
-        --status-top: max(0px, calc((1lh - 1cap - var(--status-size)) / 2));
+        --status-right: calc(var(--status-size) * -1);
+        --status-size: 6px;
+        --status-top: 0px;
     }
 
     &-service-status {
@@ -75,9 +73,10 @@
         }
     }
 
-    // A pill, so it reads as the dot stretched out.
     &-service-tooltip.tooltip-message {
-        --border-radius: 999px;
+        --background-default: var(--color-grey-400);
+        --border-radius: var(--border-radius-400);
+        --color: var(--color-text-400);
         --padding-horizontal: 8px;
         --padding-vertical: 4px;
     }
