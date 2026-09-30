@@ -1,5 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
+import { reduced } from '~/lib/animation';
 import check from '@esportsplus/ui/svg/check.svg';
 import spinner from '@esportsplus/ui/svg/spinner.svg';
 
@@ -45,10 +46,6 @@ const SPRING = 'linear(0, 0.057, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 
 
 function busy(status: Status) {
     return status === 'loading' || status === 'success';
-}
-
-function reduced() {
-    return matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 

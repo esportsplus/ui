@@ -5,6 +5,7 @@ import icon from '~/components/icon';
 import input from '~/components/input';
 import overlay from '~/components/overlay';
 import { mac } from '~/lib/platform';
+import { reduced } from '~/lib/animation';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import up from '@esportsplus/ui/svg/arrow-up.svg';
 import enter from '@esportsplus/ui/svg/enter.svg';
@@ -572,7 +573,7 @@ export default component(
                                             // 'nearest' only scrolls when the item is out of view; smooth so stepping past
                                             // the edge glides the list along rather than jumping it.
                                             options.get(option(view, state.index) ?? '')?.scrollIntoView({
-                                                behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+                                                behavior: reduced() ? 'instant' : 'smooth',
                                                 block: 'nearest'
                                             });
                                         }

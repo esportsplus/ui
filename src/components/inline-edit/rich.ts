@@ -8,6 +8,7 @@ import input from '~/components/input';
 import selectMenu from '~/components/select/menu';
 import tooltip from '~/components/tooltip';
 import { mac } from '~/lib/platform';
+import { reduced } from '~/lib/animation';
 import { active, clear, kind, link, normalize, setBlock, toggle, units, type Kind } from './format';
 import { parse, serialize, type Block, type Feature, type Mark } from './markdown';
 import { closest, safe, same, select } from './utilities';
@@ -132,10 +133,6 @@ function address(value: string) {
     }
 
     return href && safe(href) ? href : '';
-}
-
-function reduced() {
-    return matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 

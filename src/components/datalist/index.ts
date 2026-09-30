@@ -2,6 +2,7 @@ import { component, html, on, type Attributes, type Element, type Renderable } f
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import form from '~/components/form';
 import scrollbar from '~/css-utilities/scrollbar';
+import { reduced } from '~/lib/animation';
 import './scss/index.scss';
 
 
@@ -144,7 +145,7 @@ export default component(
 
         function scrollTo(index: number) {
             scroller?.scrollTo({
-                behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                behavior: reduced() ? 'auto' : 'smooth',
                 top: clamp(index) * height
             });
         }

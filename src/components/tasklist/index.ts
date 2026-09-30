@@ -1,4 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import { finished } from '~/lib/animation';
 import checkbox from '~/components/checkbox';
 import sortable from '~/components/sortable';
 import './scss/index.scss';
@@ -81,20 +82,6 @@ function done(rows: WeakMap<Element, Row>, item: Element) {
     return pending(item) ? !value : value;
 }
 
-// Cancelling an animation rejects its finished promise and replaces it with one that never settles,
-// so every promise is taken before awaiting; rejections only mean the animation stopped running
-async function finished(animations: Animation[]) {
-    let promises: Promise<unknown>[] = [];
-
-    for (let i = 0, n = animations.length; i < n; i++) {
-        promises.push(animations[i].finished.catch(() => {}));
-    }
-
-    for (let i = 0, n = promises.length; i < n; i++) {
-        await promises[i];
-    }
-}
-
 function move(item: HTMLElement, reference: Element | null) {
     if (reference === item.nextElementSibling) {
         return;
@@ -143,7 +130,7 @@ function move(item: HTMLElement, reference: Element | null) {
 
     item.classList.add('--moving');
 
-    void finished(item.getAnimations()).then(() => {
+    void finished(item).then(() => {
         if (!item.getAnimations().length) {
             item.classList.remove('--moving');
         }
@@ -182,7 +169,7 @@ function row(
                     this.classList.remove('--checking', '--unchecking');
                     this.classList.add(value ? '--checking' : '--unchecking');
 
-                    await finished(this.getAnimations({ subtree: true }));
+                    await finished(this, { subtree: true });
 
                     if (id !== sequence) {
                         return;

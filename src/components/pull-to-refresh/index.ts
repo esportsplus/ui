@@ -1,5 +1,6 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
+import { reduced } from '~/lib/animation';
 import './scss/index.scss';
 
 
@@ -211,7 +212,7 @@ export default component(
             }
 
             scroller?.scrollTo({
-                behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                behavior: reduced() ? 'auto' : 'smooth',
                 top: 0
             });
             refresh();

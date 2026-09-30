@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import { reduced } from '~/lib/animation';
 
 
 type A = Attributes & {
@@ -10,8 +11,6 @@ type A = Attributes & {
 
 // Long enough to read the finished sentence once.
 const HOLD = 1800;
-
-const REDUCED = '(prefers-reduced-motion: reduce)';
 
 // How long the word sits selected before the first key replaces it: the beat where a person decides on the new
 // word. Includes the selection sweep.
@@ -55,7 +54,7 @@ export default ({ prefix = '', words, ...attributes }: A) => {
                 // Reduced motion lands the whole word in one key, fading in without the blur.
                 function key() {
                     let target = words[word],
-                        end = matchMedia(REDUCED).matches ? target.length : length + 1;
+                        end = reduced() ? target.length : length + 1;
 
                     letters.push(...target.slice(length, end));
                     length = end;

@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
+import { reduced } from '~/lib/animation';
 import check from '@esportsplus/ui/svg/check.svg';
 
 
@@ -33,10 +34,6 @@ function clamp(value: number) {
 
 function clip(value: number) {
     return `inset(0 ${Math.max(0, 100 - value).toFixed(2)}% 0 0)`;
-}
-
-function reduced() {
-    return matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 function roll(strip: string[], index: () => number) {

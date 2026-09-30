@@ -1,5 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { reduced } from '~/lib/animation';
 import input from '~/components/input';
 import range from '~/components/range';
 import './scss/index.scss';
@@ -102,10 +103,6 @@ function parse(value: string) {
         g: byte(2),
         r: byte(0)
     };
-}
-
-function reduced() {
-    return matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 function rgb({ h, s, v }: Hsva) {

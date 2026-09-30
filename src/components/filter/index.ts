@@ -1,4 +1,5 @@
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { reduced } from '~/lib/animation';
 import type { Attributes } from '@esportsplus/template';
 
 
@@ -43,10 +44,6 @@ function near(rect: DOMRect) {
         && rect.right > -OVERSCAN
         && rect.left < innerWidth + OVERSCAN
         && rect.top < innerHeight + OVERSCAN;
-}
-
-function reduced() {
-    return matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 
