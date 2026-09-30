@@ -47,7 +47,6 @@ import scrollbar from './scrollbar';
 import select from './select';
 import shortcutRecorder from './shortcut-recorder';
 import slider from './slider';
-import snapCarousel from './snap-carousel';
 import sortable from './sortable';
 import sparkline from './sparkline';
 import stackedDrawer from './stacked-drawer';
@@ -124,7 +123,6 @@ const entries: Entry[] = [
     select,
     shortcutRecorder,
     slider,
-    snapCarousel,
     sortable,
     sparkline,
     stackedDrawer,

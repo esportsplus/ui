@@ -202,10 +202,6 @@ const meta: Record<string, Meta> = {
         category: 'Form Controls',
         description: 'Single or range slider with edge-aligned thumbs, vertical orientation, value output, and hidden form fields (coss ui).'
     },
-    'snap-carousel': {
-        category: 'Interactive',
-        description: 'Native scroll-snap card carousel with mouse flick, focus scaling, and edge-aware arrows.'
-    },
     sortable: {
         category: 'Interactive',
         description: 'Drag-and-drop reordering of an element\'s children, within one container or across a group.'
