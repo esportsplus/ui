@@ -9,16 +9,21 @@ const REST = 0.0005;
 const STEP = 1 / 120;
 const STIFFNESS = 240;
 
+// Past the midpoint the sides swap which one is inert, so the faded one can't be focused, clicked or read twice.
+const SWAP = 0.5;
+
+
+let uid = 0;
+
 
 export default component<Attributes & {
-    actions?: Renderable<unknown>;
-    leading?: Renderable<unknown>;
-    subtitle?: string;
-    title: string;
+    after: Renderable<unknown>;
+    before: Renderable<unknown>;
 }>(
-    function({ actions, leading, subtitle, title, ...attributes }, content) {
+    function({ after, before, ...attributes }, content) {
         let bar: HTMLElement | undefined,
             frame = 0,
+            id = `sticky-header-${++uid}`,
             last = 0,
             position = 0,
             range = 0,
@@ -75,7 +80,7 @@ export default component<Attributes & {
                 }}
             >
                 <div
-                    aria-label='${title}'
+                    aria-labelledby='${id}'
                     class='sticky-header-scroll'
                     role='region'
                     tabindex='0'
@@ -112,18 +117,11 @@ export default component<Attributes & {
                     <div aria-hidden='true' class='sticky-header-edge sticky-header-edge--fade'></div>
                     <div aria-hidden='true' class='sticky-header-edge sticky-header-edge--line'></div>
 
-                    <div class='sticky-header-row'>
-                        ${leading ? html`<div class='sticky-header-slot'>${leading}</div>` : ''}
-
-                        <div class='sticky-header-titles'>
-                            <div class='sticky-header-expanded'>
-                                <h2 class='sticky-header-title'>${title}</h2>
-                                ${subtitle ? html`<p class='sticky-header-subtitle'>${subtitle}</p>` : ''}
-                            </div>
-                            <span aria-hidden='true' class='sticky-header-compact'>${title}</span>
-                        </div>
-
-                        ${actions ? html`<div class='sticky-header-slot sticky-header-slot--actions'>${actions}</div>` : ''}
+                    <div class='sticky-header-before' id='${id}' ${{ inert: () => state.progress >= SWAP }}>
+                        ${before}
+                    </div>
+                    <div class='sticky-header-after' ${{ inert: () => state.progress < SWAP }}>
+                        ${after}
                     </div>
                 </header>
             </div>

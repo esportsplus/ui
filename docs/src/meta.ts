@@ -220,7 +220,7 @@ const meta: Record<string, Meta> = {
     },
     'sticky-header': {
         category: 'Layout',
-        description: 'Scroll panel whose header condenses from title and subtitle into a compact bar.'
+        description: 'Scroll panel whose header condenses from its before content into its after content as a compact bar.'
     },
     'sticky-stack': {
         category: 'Layout',

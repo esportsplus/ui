@@ -13,16 +13,9 @@
     --padding-horizontal: var(--size-400);
     --padding-top: 12px;
     --progress: 0;
-    --slot-height: 24px;
-    --subtitle-color: var(--color-text-300);
-    --subtitle-font-size: 11.5px;
-    --title-color: var(--color-text-500);
-    --title-compact-color: var(--color-text-400);
-    --title-compact-font-size: 13px;
-    --title-font-size: 20px;
     --travel: calc(var(--expanded-height) - var(--compact-height));
 
-    &-compact {
+    &-after {
         --reveal: clamp(0, (var(--progress) - 0.55) / 0.35, 1);
     }
 }

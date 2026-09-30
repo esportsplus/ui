@@ -8,7 +8,10 @@ let invoices = Array.from({ length: 14 }, (_, i) => ({
         id: `INV-${1042 + i}`,
         paid: i % 3 === 0
     })),
-    row = 'align-items: center; display: flex; gap: var(--size-300); justify-content: space-between; padding: var(--size-200) var(--size-400);';
+    compact = 'color: var(--color-text-400); font-size: 13px; font-weight: var(--font-weight-500); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;',
+    row = 'align-items: center; display: flex; gap: var(--size-300); justify-content: space-between; padding: var(--size-200) var(--size-400);',
+    subtitle = 'color: var(--color-text-300); font-size: 11.5px; line-height: 1.35; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;',
+    title = 'color: var(--color-text-500); font-size: 20px; font-weight: var(--font-weight-500); letter-spacing: -0.03em; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
 
 function list() {
     return html`
@@ -36,8 +39,11 @@ export default {
             render: () => html`
                 <div style='width: min(100%, 360px);'>
                     ${stickyHeader({
-                        subtitle: `${invoices.filter((invoice) => !invoice.paid).length} awaiting payment`,
-                        title: 'Invoices'
+                        after: html`<div class='text' style='${compact}'>Invoices</div>`,
+                        before: html`
+                            <div class='text' style='${title}'>Invoices</div>
+                            <div class='text' style='${subtitle}'>${invoices.filter((invoice) => !invoice.paid).length} awaiting payment</div>
+                        `
                     }, list())}
                 </div>
             `,
@@ -47,15 +53,27 @@ export default {
             render: () => html`
                 <div style='width: min(100%, 360px);'>
                     ${stickyHeader({
-                        actions: html`<div class='button button--tertiary' style='--width: auto;'>new</div>`,
-                        leading: html`<div class='button button--tertiary' style='--width: auto;'>back</div>`,
-                        style: '--max-height: 420px;',
-                        subtitle: 'Billing',
-                        title: 'Invoices'
+                        after: html`
+                            <div style='align-items: center; display: flex; gap: var(--size-300); width: 100%;'>
+                                <div class='button button--tertiary' style='--width: auto;' tabindex='0'>back</div>
+                                <div class='text' style='${compact} flex: 1;'>Invoices</div>
+                                <div class='button button--tertiary' style='--width: auto;' tabindex='0'>new</div>
+                            </div>
+                        `,
+                        before: html`
+                            <div style='align-items: flex-start; display: flex; gap: var(--size-300);'>
+                                <div style='flex: 1; min-width: 0;'>
+                                    <div class='text' style='${subtitle}'>Billing</div>
+                                    <div class='text' style='${title}'>Invoices</div>
+                                </div>
+                                <div class='button button--tertiary' style='--width: auto;' tabindex='0'>new</div>
+                            </div>
+                        `,
+                        style: '--expanded-height: 76px; --max-height: 420px;'
                     }, list())}
                 </div>
             `,
-            title: 'leading and actions'
+            title: 'custom content'
         }
     ]
 };
