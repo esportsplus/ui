@@ -214,10 +214,6 @@ const meta: Record<string, Meta> = {
         category: 'Layout',
         description: 'Scroll panel whose header condenses from its before content into its after content as a compact bar.'
     },
-    'sticky-stack': {
-        category: 'Layout',
-        description: 'Scroll-driven stack of sticky cards that scale down and dim as the next card slides over them.'
-    },
     'story-progress': {
         category: 'Interactive',
         description: 'Auto-advancing stories with segmented progress bars, tap-to-navigate, and press-and-hold to pause.'

@@ -50,7 +50,6 @@ import shortcutRecorder from './shortcut-recorder';
 import slider from './slider';
 import sortable from './sortable';
 import stickyHeader from './sticky-header';
-import stickyStack from './sticky-stack';
 import storyProgress from './story-progress';
 import surfaceField from './surface-field';
 import swipeDeck from './swipe-deck';
@@ -124,7 +123,6 @@ const entries: Entry[] = [
     slider,
     sortable,
     stickyHeader,
-    stickyStack,
     storyProgress,
     surfaceField,
     swipeDeck,
