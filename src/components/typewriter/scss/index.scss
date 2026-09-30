@@ -1,4 +1,5 @@
 @use 'retype';
+@use 'rotate';
 @use 'variables';
 
 // A macOS-length blink with short fades rather than a hard flash. The retype sizer carries a caret too, so the space

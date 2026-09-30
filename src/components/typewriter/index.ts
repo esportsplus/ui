@@ -1,6 +1,7 @@
 import { component, html } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import retype from './retype';
+import rotate from './rotate';
 import './scss/index.scss';
 
 
@@ -59,5 +60,5 @@ export default component(
             </div>
         `;
     },
-    { retype }
+    { retype, rotate }
 );

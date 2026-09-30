@@ -248,11 +248,7 @@ const meta: Record<string, Meta> = {
     },
     typewriter: {
         category: 'Display',
-        description: 'Sequenced typing animation for headline text, plus a headline word that gets selected and typed over with a human rhythm, like a person editing a text field.'
-    },
-    'word-rotator': {
-        category: 'Display',
-        description: 'Rotating headline word whose shared letters glide into place while the rest blur out and in.'
+        description: 'Sequenced typing animation for headline text, plus a headline word that gets selected and typed over with a human rhythm, like a person editing a text field, and a rotating word whose shared letters glide into place while the rest blur out and in.'
     }
 };
 

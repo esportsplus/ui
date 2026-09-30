@@ -49,3 +49,11 @@
         --select-duration: 0s;
     }
 }
+
+.typewriter-rotate {
+    --color: inherit;
+
+    &--accent {
+        --color: var(--color-blue-400);
+    }
+}

@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
+import { reduced } from '~/lib/animation';
 import './scss/index.scss';
 
 
@@ -44,7 +45,7 @@ const STAGGER_MS = 28;
 function letter(char: string) {
     let node = document.createElement('span');
 
-    node.className = 'word-rotator-letter';
+    node.className = 'typewriter-rotate-letter';
     node.textContent = char;
 
     return { char, node };
@@ -77,10 +78,6 @@ function match(prev: string[], next: string[]) {
     }
 
     return pairs;
-}
-
-function reduced() {
-    return matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 
@@ -248,7 +245,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
 
     return html`
         <span
-            class='word-rotator'
+            class='typewriter-rotate'
             ${attributes}
             ${{
                 onconnect: () => {
@@ -283,10 +280,10 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                 }
             }}
         >
-            <span class='word-rotator-sr'>${words.join(', ')}</span>
+            <span class='typewriter-rotate-sr'>${words.join(', ')}</span>
             <span
                 aria-hidden='true'
-                class='word-rotator-box'
+                class='typewriter-rotate-box'
                 ${{
                     onrender: (element: HTMLElement) => {
                         box = element;
@@ -295,7 +292,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
             >
                 ${[...words[current]].map((char, i) => html`
                     <span
-                        class='word-rotator-letter'
+                        class='typewriter-rotate-letter'
                         ${{
                             onrender: (node: HTMLSpanElement) => {
                                 letters[i] = { char, node };
@@ -310,4 +307,4 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
     `;
 };
 
-export type { State as WordRotatorState };
+export type { State as TypewriterRotateState };

@@ -62,7 +62,6 @@ import truncate from './truncate';
 import typewriter from './typewriter';
 import uptime from './uptime';
 import usageMeter from './usage-meter';
-import wordRotator from './word-rotator';
 
 
 const entries: Entry[] = [
@@ -127,8 +126,7 @@ const entries: Entry[] = [
     truncate,
     typewriter,
     uptime,
-    usageMeter,
-    wordRotator
+    usageMeter
 ];
 
 

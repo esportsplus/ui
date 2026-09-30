@@ -52,4 +52,3 @@ export { default as truncate } from './truncate';
 export { default as typewriter } from './typewriter';
 export { default as uptime } from './uptime';
 export { default as usageMeter } from './usage-meter';
-export { default as wordRotator } from './word-rotator';

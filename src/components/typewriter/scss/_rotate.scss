@@ -1,6 +1,6 @@
-@use 'variables';
+@use '../../../css-utilities/hidden/scss/index' as hidden;
 
-.word-rotator {
+.typewriter-rotate {
     color: var(--color);
     display: inline-block;
     position: relative;
@@ -23,11 +23,6 @@
     }
 
     &-sr {
-        clip-path: inset(50%);
-        height: 1px;
-        overflow: hidden;
-        position: absolute;
-        white-space: nowrap;
-        width: 1px;
+        @extend .--hidden-visually;
     }
 }
