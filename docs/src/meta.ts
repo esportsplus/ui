@@ -252,11 +252,7 @@ const meta: Record<string, Meta> = {
     },
     typewriter: {
         category: 'Display',
-        description: 'Sequenced typing animation for headline text.'
-    },
-    'typewriter-retype': {
-        category: 'Display',
-        description: 'Headline word that gets selected and typed over with a human rhythm, like a person editing a text field.'
+        description: 'Sequenced typing animation for headline text, plus a headline word that gets selected and typed over with a human rhythm, like a person editing a text field.'
     },
     'value-flash': {
         category: 'Display',

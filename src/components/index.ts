@@ -50,7 +50,6 @@ export { default as toaster, toast } from './toast';
 export { default as tooltip } from './tooltip';
 export { default as truncate } from './truncate';
 export { default as typewriter } from './typewriter';
-export { default as typewriterRetype } from './typewriter-retype';
 export { default as uptime } from './uptime';
 export { default as usageMeter } from './usage-meter';
 export { default as valueFlash } from './value-flash';

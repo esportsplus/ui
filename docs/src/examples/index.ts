@@ -61,7 +61,6 @@ import toast from './toast';
 import tooltip from './tooltip';
 import truncate from './truncate';
 import typewriter from './typewriter';
-import typewriterRetype from './typewriter-retype';
 import uptime from './uptime';
 import usageMeter from './usage-meter';
 import valueFlash from './value-flash';
@@ -130,7 +129,6 @@ const entries: Entry[] = [
     tooltip,
     truncate,
     typewriter,
-    typewriterRetype,
     uptime,
     usageMeter,
     valueFlash,

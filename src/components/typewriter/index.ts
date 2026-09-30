@@ -1,5 +1,6 @@
 import { component, html } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import retype from './retype';
 import './scss/index.scss';
 
 
@@ -57,5 +58,6 @@ export default component(
                 ${() => state.text || EMPTY_NODE}
             </div>
         `;
-    }
+    },
+    { retype }
 );

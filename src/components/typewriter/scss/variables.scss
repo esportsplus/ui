@@ -1,16 +1,22 @@
-.typewriter {
-    --caret: '|';
+.typewriter,
+.typewriter-retype {
+    --caret: '';
+    --caret-align: -0.18em;
+    --caret-background: var(--caret-color);
     --caret-color: currentColor;
-    --caret-duration: 0.64s;
-    --caret-timing-function: ease-in-out;
-    --glow: 0 0 0 transparent;
+    --caret-duration: 1.06s;
+    --caret-height: 1.1em;
+    --caret-offset: 2px;
+    --caret-radius: 999px;
+    --caret-timing-function: linear;
+    --caret-width: 2px;
 
     &--block {
-        --caret: '';
-    }
-
-    &--glow {
-        --glow: 0 0 0.4em var(--caret-color);
+        --caret-align: bottom;
+        --caret-height: 1lh;
+        --caret-offset: 0.08em;
+        --caret-radius: 0;
+        --caret-width: 0.56em;
     }
 
     &--hard {
@@ -20,5 +26,26 @@
 
     &--underscore {
         --caret: '_';
+        --caret-align: baseline;
+        --caret-background: transparent;
+        --caret-height: auto;
+        --caret-offset: 0.04em;
+        --caret-radius: 0;
+        --caret-width: auto;
+    }
+}
+
+.typewriter-retype {
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ink-blur: 2px;
+    --ink-duration: 140ms;
+    --select-duration: 220ms;
+    --selection-color: oklch(from var(--color-text-500) l c h / 0.15);
+    --selection-radius: 3px;
+
+    // Words still fade in and get selected, without the blur or the sweep.
+    @media (prefers-reduced-motion: reduce) {
+        --ink-blur: 0px;
+        --select-duration: 0s;
     }
 }
