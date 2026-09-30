@@ -55,7 +55,6 @@ import surfaceField from './surface-field';
 import switchComponent from './switch';
 import tasklist from './tasklist';
 import text from './text';
-import textAnimate from './text-animate';
 import textarea from './textarea';
 import thumbnail from './thumbnail';
 import toast from './toast';
@@ -126,7 +125,6 @@ const entries: Entry[] = [
     switchComponent,
     tasklist,
     text,
-    textAnimate,
     textarea,
     thumbnail,
     toast,

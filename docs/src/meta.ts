@@ -230,10 +230,6 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Typographic primitives for headings, body copy, and captions.'
     },
-    'text-animate': {
-        category: 'Display',
-        description: 'Text that enters by character, word, line, or whole with fade, blur, slide, and spring scale presets (Magic UI).'
-    },
     textarea: {
         category: 'Form Controls',
         description: 'Multi-line text field for longer form input.'
