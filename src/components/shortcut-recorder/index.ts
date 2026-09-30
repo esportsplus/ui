@@ -1,11 +1,14 @@
 import { html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { effect, flush, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import error, { type Direction } from '~/components/error';
 import { mac as apple } from '~/lib/platform';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
 
 type A = Attributes & {
+    // Where the error message opens, as a tooltip direction.
+    direction?: Direction;
     limit?: number;
     state?: { error: string, value: string };
     taken?: (shortcut: string) => string | null | undefined;
@@ -29,9 +32,6 @@ const ARROWS: Record<string, string> = {
 const ERROR_DURATION = 2200;
 
 const FUNCTION_KEY = /^F\d{1,2}$/;
-
-// The shared tooltip's glide, so the field resizes around its content the way the tooltip does between triggers.
-const GLIDE: KeyframeAnimationOptions = { duration: 400, easing: 'cubic-bezier(0.22, 1.12, 0.36, 1)' };
 
 const MODIFIER_KEYS = new Set(['Alt', 'Control', 'Meta', 'OS', 'Shift']);
 
@@ -102,47 +102,21 @@ function parse(value: string) {
     return (value.match(TOKEN) ?? []).filter((_, i) => i % 2 === 0);
 }
 
-function reduced() {
-    return matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
 
-// The shared tooltip's content swap: the incoming layer snaps to wait one shift along 'travel' and settles in, while
-// the outgoing one carries on a shift the other way and stays there, hidden, until its next turn.
-function swap(incoming: HTMLElement, outgoing: HTMLElement, travel: number) {
-    incoming.style.setProperty('--travel', `${travel}`);
-    outgoing.style.setProperty('--travel', `${travel}`);
-
-    incoming.classList.add('--instant');
-    incoming.classList.remove('--active', '--leaving');
-    // Commits the waiting spot before the transition starts from it.
-    void incoming.offsetWidth;
-    incoming.classList.remove('--instant');
-    incoming.classList.add('--active');
-
-    outgoing.classList.remove('--active');
-    outgoing.classList.add('--leaving');
-}
-
-
-export default ({ limit, taken, value = '', state = reactive({ error: '', value }), ...attributes }: A) => {
+export default ({ direction = 'ne', limit, taken, value = '', state = reactive({ error: '', value }), ...attributes }: A) => {
     let chord: string[] = [],
         connected = false,
         field: HTMLElement | undefined,
         keys = reactive([] as Key[]),
-        layers: { error: HTMLElement, keys: HTMLElement } | undefined,
         listeners: AbortController | undefined,
         mac = apple(),
-        observer: ResizeObserver | undefined,
         pressed: string[] = [],
-        resize: Animation | undefined,
-        status = reactive({ recording: false, shake: 0 }),
+        status = reactive({ recording: false }),
         sync = effect(() => {
             let tokens = status.recording ? [] : parse(state.value);
 
             untrack(() => show(tokens, connected ? 'settle' : ''));
-        }),
-        timer: ReturnType<typeof setTimeout> | undefined,
-        width: number | undefined;
+        });
 
     function commit(held: string[]) {
         let shortcut = chord.join('+'),
@@ -161,65 +135,14 @@ export default ({ limit, taken, value = '', state = reactive({ error: '', value 
         stop();
     }
 
-    function error(text: string) {
-        if (text === state.error) {
-            return;
+    // A repeat is cleared and flushed first, so the error sees a new failure and shakes the field again.
+    function fail(text: string) {
+        if (state.error === text) {
+            state.error = '';
+            flush();
         }
 
         state.error = text;
-
-        if (!layers) {
-            return;
-        }
-
-        // The message follows the field's growing left edge in and pushes the keys out right; going back retraces it.
-        // Written straight in, as the template's own writes land a frame later. The text outlives the error, so it is
-        // still there to slide out.
-        if (text) {
-            layers.error.textContent = text;
-            swap(layers.error, layers.keys, -1);
-            observer?.unobserve(layers.keys);
-            observer?.observe(layers.error);
-        }
-        else {
-            swap(layers.keys, layers.error, 1);
-            observer?.unobserve(layers.error);
-            observer?.observe(layers.keys);
-        }
-    }
-
-    function fail(text: string) {
-        clearTimeout(timer);
-        error(text);
-        // Alternating the parity swaps between identical keyframes, restarting the shake.
-        status.shake = status.shake === 1 ? 2 : 1;
-        timer = setTimeout(() => error(''), ERROR_DURATION);
-    }
-
-    // Watches the shown layer, which is in flow and sized by its content alone, so the field glides to fit however
-    // that content changes: a swap, keys coming and going, or the placeholder. It runs after layout and before paint,
-    // so the glide starts from the width still on screen.
-    function glide(entries: ResizeObserverEntry[]) {
-        let entry = entries[entries.length - 1];
-
-        if (!field || !entry.target.classList.contains('--active')) {
-            return;
-        }
-
-        let style = getComputedStyle(field),
-            padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight),
-            min = parseFloat(style.minWidth) || 0,
-            next = Math.max(style.boxSizing === 'border-box' ? min : min + padding, entry.borderBoxSize[0].inlineSize + padding),
-            shown = resize?.playState === 'running' ? field.getBoundingClientRect().width : width;
-
-        width = next;
-
-        if (shown === undefined || Math.abs(shown - next) < 0.5 || reduced()) {
-            return;
-        }
-
-        resize?.cancel();
-        resize = field.animate([{ width: `${shown}px` }, { width: `${next}px` }], GLIDE);
     }
 
     function onaway(e: Event) {
@@ -239,10 +162,7 @@ export default ({ limit, taken, value = '', state = reactive({ error: '', value 
         }
 
         // The next attempt takes the field back, so an error never sits over keys being pressed.
-        if (state.error) {
-            clearTimeout(timer);
-            error('');
-        }
+        state.error = '';
 
         let held = modifiers(e, mac);
 
@@ -330,10 +250,9 @@ export default ({ limit, taken, value = '', state = reactive({ error: '', value 
 
     function start() {
         chord = [];
-        clearTimeout(timer);
         pressed = [];
         status.recording = true;
-        error('');
+        state.error = '';
 
         listeners?.abort();
         listeners = new AbortController();
@@ -347,29 +266,24 @@ export default ({ limit, taken, value = '', state = reactive({ error: '', value 
     }
 
     function stop() {
-        clearTimeout(timer);
         listeners?.abort();
         status.recording = false;
-        error('');
+        state.error = '';
     }
 
     onCleanup(() => {
-        clearTimeout(timer);
         listeners?.abort();
-        observer?.disconnect();
-        resize?.cancel();
         sync();
     });
 
-    return html`
+    return error({ direction, duration: ERROR_DURATION, state }, html`
         <button
             aria-pressed='${() => status.recording ? 'true' : 'false'}'
             class='shortcut-recorder'
-            data-shake='${() => status.shake}'
             type='button'
             ${attributes}
             ${{
-                class: () => `${status.recording ? '--active' : ''} ${state.error ? '--error' : ''}`,
+                class: () => status.recording && '--active',
                 onclick: () => {
                     if (status.recording) {
                         stop();
@@ -381,40 +295,30 @@ export default ({ limit, taken, value = '', state = reactive({ error: '', value 
                 onconnect: (element: HTMLElement) => {
                     connected = true;
                     field = element;
-                    layers = {
-                        error: element.querySelector('.shortcut-recorder-error') as HTMLElement,
-                        keys: element.querySelector('.shortcut-recorder-keys') as HTMLElement
-                    };
-                    observer = new ResizeObserver(glide);
-                    observer.observe(layers.keys);
                 }
             }}
         >
-            <span class='shortcut-recorder-keys --active'>
-                ${html.reactive(keys, (key) => html`
-                    <kbd
-                        class='button button--kbd shortcut-recorder-key ${key.animation && `shortcut-recorder-key--${key.animation}`}'
-                        style='--index: ${key.index}'
-                    >
-                        ${glyph(key.token, mac)}
-                    </kbd>
-                `)}
-                ${() => {
-                    if (keys.length) {
-                        return '';
-                    }
+            ${html.reactive(keys, (key) => html`
+                <kbd
+                    class='button button--kbd shortcut-recorder-key ${key.animation && `shortcut-recorder-key--${key.animation}`}'
+                    style='--index: ${key.index}'
+                >
+                    ${glyph(key.token, mac)}
+                </kbd>
+            `)}
+            ${() => {
+                if (keys.length) {
+                    return '';
+                }
 
-                    return html`
-                        <span class='shortcut-recorder-placeholder ${connected && 'shortcut-recorder-placeholder--fade'}'>
-                            ${status.recording
-                                ? html`<span class='shortcut-recorder-dot' aria-hidden='true'></span>Press keys`
-                                : 'None'}
-                        </span>
-                    `;
-                }}
-            </span>
-            <span aria-hidden='true' class='shortcut-recorder-error'></span>
-            <span aria-live='polite' class='shortcut-recorder-live'>${() => state.error}</span>
+                return html`
+                    <span class='shortcut-recorder-placeholder ${connected && 'shortcut-recorder-placeholder--fade'}'>
+                        ${status.recording
+                            ? html`<span class='shortcut-recorder-dot' aria-hidden='true'></span>Press keys`
+                            : 'None'}
+                    </span>
+                `;
+            }}
         </button>
-    `;
+    `);
 };

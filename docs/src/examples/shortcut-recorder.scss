@@ -18,117 +18,11 @@
         font-size: var(--font-size-300);
     }
 
-    &-host {
-        display: inline-flex;
-        flex-shrink: 0;
-        // Keeps the stand-in's negative z-index inside the host rather than behind the page.
-        isolation: isolate;
-        position: relative;
-
-        // Trial 1: the field keeps only its red border and a shake of its keys; the message is the tooltip's alone.
-        // The '!important' width beats the recorder's glide, which would otherwise resize it for a message it no
-        // longer shows.
-        .shortcut-recorder.shortcut-recorder-demo-bare {
-            --background-error: var(--background-active);
-            animation: none;
-            justify-content: flex-end;
-            width: auto !important;
-
-            .shortcut-recorder-error {
-                display: none;
-            }
-
-            .shortcut-recorder-keys {
-                filter: none;
-                opacity: 1;
-                padding: 0;
-                position: static;
-                translate: none;
-            }
-
-            .shortcut-recorder-placeholder {
-                transition: color 150ms ease-out;
-            }
-
-            &.--error .shortcut-recorder-keys {
-                --color-muted: var(--color-red-400);
-            }
-
-            &[data-shake='1'] .shortcut-recorder-keys {
-                animation: shortcut-recorder-shake-1 320ms ease-out;
-            }
-
-            &[data-shake='2'] .shortcut-recorder-keys {
-                animation: shortcut-recorder-shake-2 320ms ease-out;
-            }
-        }
-
-        // Trial 2: the recorder's own swap, the keys sliding out as the message slides in blurred, saying only
-        // "ERROR!". The text is hidden and the word drawn in its place, so the field still measures and glides to what
-        // shows. The shake moves onto the message, so the field and the tooltip behind it hold still; it runs on
-        // 'transform', since the swap already animates 'translate'.
-        .shortcut-recorder.shortcut-recorder-demo-shout {
-            animation: none;
-
-            // The swap travels along the host's '--demo-dx' and '--demo-dy', the way toward the tooltip, in place of
-            // the recorder's own sideways trip: out of the field as the tooltip grows, back in as it shrinks home.
-            .shortcut-recorder-error,
-            .shortcut-recorder-keys {
-                translate:
-                    calc(var(--shift) * var(--travel, 1) * var(--demo-dx, 1))
-                    calc(var(--shift) * var(--travel, 1) * var(--demo-dy, 0));
-            }
-
-            .shortcut-recorder-error {
-                font-size: 0;
-
-                &::before {
-                    content: 'ERROR!';
-                    font-size: var(--font-size-small);
-                    font-weight: 700;
-                    letter-spacing: 0.04em;
-                }
-            }
-
-            &[data-shake='1'] .shortcut-recorder-error {
-                animation: shortcut-recorder-demo-shake-1 320ms ease-out;
-            }
-
-            &[data-shake='2'] .shortcut-recorder-error {
-                animation: shortcut-recorder-demo-shake-2 320ms ease-out;
-            }
-        }
-
-        // The stand-in sits behind the field, in its exact box, so the morph grows out from under it. Its dark fill
-        // never shows past the field; it is what the goo bridges from, so the neck reads as the tooltip leaving it.
-        > .tooltip.shortcut-recorder-demo-stand-in {
-            background: var(--color-black-400);
-            border-radius: var(--border-radius-500);
-            cursor: auto;
-            inset: 0;
-            pointer-events: none;
-            position: absolute;
-            z-index: -1;
-        }
-    }
-
     &-label {
         color: var(--color-text-500);
         flex: 1 1 auto;
         font-size: var(--font-size-400);
         min-width: 0;
-    }
-
-    // Tucked close to the field, and long messages wrap instead of running off in one line.
-    &-morph.tooltip-content {
-        --background: var(--color-black-400);
-        --max-width: 240px;
-        --spacer: 4px;
-        --width: max-content;
-        color: var(--color-white-400);
-        font-size: var(--font-size-300);
-        padding: var(--size-300) var(--size-400);
-        white-space: normal;
     }
 
     &-row {
@@ -141,50 +35,5 @@
         &--border {
             border-top: 1px solid var(--color-border-300);
         }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &-host .shortcut-recorder .shortcut-recorder-error {
-            animation: none;
-        }
-    }
-}
-
-
-// The recorder's shake on 'transform', to compose with the swap's 'translate'. Two copies, keyed by 'data-shake'
-// parity, so every failure restarts it.
-@keyframes shortcut-recorder-demo-shake-1 {
-    20% {
-        transform: translateX(-4px);
-    }
-
-    40% {
-        transform: translateX(4px);
-    }
-
-    60% {
-        transform: translateX(-3px);
-    }
-
-    80% {
-        transform: translateX(3px);
-    }
-}
-
-@keyframes shortcut-recorder-demo-shake-2 {
-    20% {
-        transform: translateX(-4px);
-    }
-
-    40% {
-        transform: translateX(4px);
-    }
-
-    60% {
-        transform: translateX(-3px);
-    }
-
-    80% {
-        transform: translateX(3px);
     }
 }
