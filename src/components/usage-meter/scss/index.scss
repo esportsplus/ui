@@ -25,6 +25,7 @@
         font-size: var(--meta-font-size);
     }
 
+    // Full width and slid in from the left, so it moves on the compositor instead of re-laying out
     &-fill {
         background: var(--fill);
         border-radius: inherit;
@@ -32,8 +33,8 @@
         height: 100%;
         transition:
             background-color var(--transition-duration) var(--transition-timing-function),
-            width var(--transition-duration) var(--transition-timing-function);
-        width: calc(var(--ratio) * 100%);
+            translate var(--transition-duration) var(--transition-timing-function);
+        width: 100%;
     }
 
     &-footer {

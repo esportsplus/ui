@@ -12,7 +12,7 @@
     --label-font-weight: var(--font-weight-500);
     --max-width: 380px;
     --meta-color: var(--color-text-300);
-    --meta-color-muted: var(--color-border-500);
+    --meta-color-muted: color-mix(in oklch, var(--color-text-300) 70%, transparent);
     --meta-font-size: var(--font-size-100);
     --track-background: color-mix(in oklch, var(--color-text-500) 6%, transparent);
     --track-height: 6px;

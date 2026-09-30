@@ -1,4 +1,6 @@
+import { computed, dispose, onCleanup, read } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
+import number from '../number';
 import './scss/index.scss';
 
 
@@ -10,48 +12,53 @@ type Usage = {
 };
 
 
-function format(count: number) {
-    return count < 1000 ? `${count}` : `${(count / 1000).toFixed(1)}k`;
-}
-
-
 // Reads 'usage' inside bindings so a reactive object keeps the meter live
 export default component(
     function({ label = 'Context window', usage, ...attributes }: Attributes & { label?: string; usage: Usage }) {
-        let ratio = () => Math.min(1, (usage.prompt + usage.completion) / usage.context);
+        let costed = computed(() => usage.cost !== undefined),
+            used = computed(() => usage.prompt + usage.completion),
+            ratio = computed(() => Math.min(1, read(used) / usage.context));
+
+        onCleanup(() => {
+            dispose(costed);
+            dispose(ratio);
+            dispose(used);
+        });
 
         return html`
             <div
                 class='usage-meter'
-                data-level='${() => ratio() > 0.9 ? 'critical' : ratio() > 0.75 ? 'warning' : 'normal'}'
-                style='${() => `--ratio: ${ratio()}`}'
+                data-level='${() => read(ratio) > 0.9 ? 'critical' : read(ratio) > 0.75 ? 'warning' : 'normal'}'
                 ${attributes}
             >
                 <div class='usage-meter-header'>
                     <span class='usage-meter-label'>${label}</span>
                     <span class='usage-meter-count'>
-                        ${() => `${format(usage.prompt + usage.completion)} / ${format(usage.context)}`}
-                        <span class='usage-meter-percent'>${() => ` · ${Math.round(ratio() * 100)}%`}</span>
+                        ${() => `${number.abbreviate(read(used))} / ${number.abbreviate(usage.context)}`}
+                        <span class='usage-meter-percent'>${() => ` · ${Math.round(read(ratio) * 100)}%`}</span>
                     </span>
                 </div>
 
                 <div
                     aria-label='${label}'
-                    aria-valuemax='${() => usage.context}'
                     aria-valuemin='0'
-                    aria-valuenow='${() => usage.prompt + usage.completion}'
                     class='usage-meter-track'
                     role='meter'
+                    ${{
+                        'aria-valuemax': () => usage.context,
+                        'aria-valuenow': () => read(used),
+                        'aria-valuetext': () => `${number.abbreviate(read(used))} of ${number.abbreviate(usage.context)} tokens, ${Math.round(read(ratio) * 100)}%`
+                    }}
                 >
-                    <span class='usage-meter-fill'></span>
+                    <span class='usage-meter-fill' style='${() => `translate: ${(read(ratio) - 1) * 100}% 0`}'></span>
                 </div>
 
                 <div class='usage-meter-footer'>
                     <span class='usage-meter-breakdown'>
-                        ${() => `prompt ${format(usage.prompt)} · completion ${format(usage.completion)}`}
+                        ${() => `prompt ${number.abbreviate(usage.prompt)} · completion ${number.abbreviate(usage.completion)}`}
                     </span>
-                    ${() => usage.cost !== undefined && html`
-                        <span class='usage-meter-cost'>${`$${usage.cost.toFixed(4)}`}</span>
+                    ${() => read(costed) && html`
+                        <span class='usage-meter-cost'>${() => `$${usage.cost!.toFixed(4)}`}</span>
                     `}
                 </div>
             </div>
