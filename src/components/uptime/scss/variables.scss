@@ -56,7 +56,7 @@
             transparent calc(var(--status-size) / 2 + 0.5px) calc(var(--status-size) / 2 + var(--status-gap) - 0.5px),
             #000 calc(var(--status-size) / 2 + var(--status-gap) + 0.5px)
         );
-        --status-right: calc(var(--status-size) * -1);
+        --status-right: calc((var(--status-size) + 2px) * -1);
         --status-size: 6px;
         --status-top: 0px;
     }
