@@ -1,5 +1,8 @@
 import { effect, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
+import { edge } from '~/components/anchor';
+import { finished } from '~/lib/animation';
+import { drag, fling, INTERACTIVE, toward, type Direction, type Drag } from '~/lib/drag';
 import './scss/index.scss';
 
 
@@ -23,19 +26,6 @@ type A = Attributes<HTMLDialogElement> & {
     state?: { active: boolean };
 };
 
-type Direction = {
-    axis: 'x' | 'y';
-    sign: 1 | -1;
-};
-
-type Drag = Direction & {
-    captured: boolean;
-    distance: number;
-    origin: number;
-    pointer: number;
-    start: number;
-};
-
 type Layer = {
     dragging: boolean;
     element: HTMLDialogElement;
@@ -45,44 +35,16 @@ type Layer = {
 };
 
 
-// Centered overlays dismiss downward, like a card being put away.
+// Centered overlays dismiss downward, like a card being put away; placed ones back toward the edges they touch.
 const CENTER: Direction = { axis: 'y', sign: 1 };
 
-// Edge placements dismiss by dragging back toward their edge.
-const DIRECTIONS: Record<string, Direction> = {
-    'overlay--e': { axis: 'x', sign: 1 },
-    'overlay--n': { axis: 'y', sign: -1 },
-    'overlay--s': { axis: 'y', sign: 1 },
-    'overlay--w': { axis: 'x', sign: -1 }
-};
-
-// Otherwise the overlay must be dragged past this share of its size.
-const DISMISS_DISTANCE = 0.25;
-
-// A release faster than this (px per ms) dismisses however short the drag, so a quick flick is enough.
-const FLICK_VELOCITY = 0.11;
-
-const INTERACTIVE = 'a, button, input, label, select, summary, textarea, [contenteditable], [role="button"], [role="option"]';
-
 const OVERLAY_HANDLE = Symbol.for('@esportsplus/ui/overlay.handle');
-
-const THRESHOLD = 4;
 
 
 // Open overlays in the order they opened. It is global because the top layer they stack in is.
 let layers: Layer[] = [],
     overlaid = new Set<HTMLElement>();
 
-
-function direction(element: HTMLElement) {
-    for (let key in DIRECTIONS) {
-        if (element.classList.contains(key)) {
-            return DIRECTIONS[key];
-        }
-    }
-
-    return CENTER;
-}
 
 // Rails expand while a mouse or pen rests on them or keyboard focus is inside. Touch has no hover, and a tap
 // would enter and leave at once; a click that leaves focus on a link shouldn't hold the rail open either.
@@ -119,15 +81,6 @@ function expandable(state: { active: boolean }): Attributes<HTMLDialogElement> {
     };
 }
 
-async function finished(element: HTMLElement) {
-    let animations = element.getAnimations();
-
-    for (let i = 0, n = animations.length; i < n; i++) {
-        // Reopening mid-close cancels the transition, which rejects 'finished'.
-        await animations[i].finished.catch(() => {});
-    }
-}
-
 function layer(element: HTMLDialogElement) {
     for (let i = 0, n = layers.length; i < n; i++) {
         if (layers[i].element === element) {
@@ -156,8 +109,11 @@ function outside(element: HTMLElement, e: MouseEvent) {
 // Clears what a drag dismissal left behind, once the overlay has closed or is opening again.
 function reset(element: HTMLElement) {
     element.style.removeProperty('--opacity');
+    element.style.removeProperty('--scale');
+    element.style.removeProperty('--transition-duration');
+    element.style.removeProperty('--transition-timing-function');
+    element.style.removeProperty('--translate');
     element.style.removeProperty('transform');
-    element.style.removeProperty('transform-origin');
 }
 
 // Each layer recedes by how much of every layer above it in the same host is still open, so dragging the top
@@ -209,15 +165,6 @@ function restack() {
     overlaid = new Set(hosts.keys());
 }
 
-function size(element: HTMLElement, axis: Direction['axis']) {
-    return axis === 'x' ? element.offsetWidth : element.offsetHeight;
-}
-
-function swallow(e: Event) {
-    e.preventDefault();
-    e.stopPropagation();
-}
-
 function unstack(element: HTMLDialogElement) {
     let current = layer(element);
 
@@ -235,25 +182,29 @@ function unstack(element: HTMLDialogElement) {
 
 export default component(
     function(this, { modal = true, rail = false, state = reactive({ active: false }), ...attributes }: A, content) {
-        let dragging: Drag | null = null,
-            observer: ResizeObserver | undefined,
+        let observer: ResizeObserver | undefined,
             stop: VoidFunction | undefined;
 
-        function settle(element: HTMLDialogElement, close: boolean, { axis, distance, sign }: Drag) {
-            let current = layer(element);
+        function settle(element: HTMLDialogElement, close: boolean, drag: Drag) {
+            let current = layer(element),
+                thrown = close ? fling(element, drag) : null;
 
             element.classList.remove('--dragging');
             element.style.removeProperty('--progress');
 
-            // Snapping back, the drag's transform eases home. Dismissing, it holds where the finger let go and
-            // the overlay plays its own exit from there, fading even where that exit would leave it opaque; the
-            // origin moves with it so an exit that scales does so in place.
-            if (close) {
-                let [x, y] = getComputedStyle(element).transformOrigin.split(' ').map(parseFloat),
-                    offset = distance * sign;
-
+            // Snapping back, the drag's transform eases home. Dismissing, it is thrown on the way it was dragged
+            // until it has left the screen, still fading as the drag faded it; its own exit stands down so the path
+            // neither bends nor shrinks. Under reduced motion it fades where it was let go instead.
+            if (thrown) {
                 element.style.setProperty('--opacity', '0');
-                element.style.transformOrigin = axis === 'x' ? `${x + offset}px ${y}px` : `${x}px ${y + offset}px`;
+                element.style.setProperty('--scale', '1');
+                element.style.setProperty('--transition-duration', `${thrown.duration}ms`);
+                element.style.setProperty('--transition-timing-function', thrown.easing);
+                element.style.setProperty('--translate', '0px');
+                element.style.transform = `translate(${drag.x + thrown.x}px, ${drag.y + thrown.y}px)`;
+            }
+            else if (close) {
+                element.style.setProperty('--opacity', '0');
             }
             else {
                 element.style.removeProperty('transform');
@@ -270,6 +221,46 @@ export default component(
             }
         }
 
+        let gesture = drag({
+            begin: (e, element) => {
+                if (rail || e.button !== 0 || !state.active) {
+                    return null;
+                }
+
+                let target = e.target as HTMLElement;
+
+                // Only the top layer drags, and a press past the target's client box is on its scrollbar.
+                if (
+                    element.classList.contains('--covered') ||
+                    outside(element, e) ||
+                    target.closest(INTERACTIVE) ||
+                    (target.clientWidth > 0 && (e.offsetX > target.clientWidth || e.offsetY > target.clientHeight))
+                ) {
+                    return null;
+                }
+
+                let placement = edge(element, 'overlay');
+
+                return placement ? toward(placement) : [CENTER];
+            },
+            capture: (element) => {
+                element.classList.add('--dragging');
+            },
+            move: (element, { x, y }, progress) => {
+                let current = layer(element as HTMLDialogElement);
+
+                element.style.setProperty('--progress', String(progress));
+                element.style.transform = `translate(${x}px, ${y}px)`;
+
+                if (current) {
+                    current.dragging = true;
+                    current.progress = progress;
+                    restack();
+                }
+            },
+            release: (element, drag, dismiss) => settle(element as HTMLDialogElement, dismiss, drag)
+        });
+
         return html`
             <dialog
                 class='overlay'
@@ -279,12 +270,19 @@ export default component(
                 ${this?.attributes}
                 ${attributes}
                 ${{
+                    ...gesture,
                     oncancel: (e) => {
                         e.preventDefault();
                         state.active = false;
                     },
                     onclick: (e) => {
                         let element = e.currentTarget as HTMLDialogElement;
+
+                        gesture.onclick(e);
+
+                        if (e.defaultPrevented) {
+                            return;
+                        }
 
                         if (e.target === element && outside(element, e)) {
                             state.active = false;
@@ -380,112 +378,6 @@ export default component(
                         observer?.disconnect();
                         stop?.();
                         unstack(element);
-                    },
-                    onpointercancel: (e: PointerEvent) => {
-                        if (!dragging || e.pointerId !== dragging.pointer) {
-                            return;
-                        }
-
-                        let drag = dragging;
-
-                        dragging = null;
-
-                        if (drag.captured) {
-                            settle(e.currentTarget as HTMLDialogElement, false, drag);
-                        }
-                    },
-                    onpointerdown: (e: PointerEvent) => {
-                        if (rail || e.button !== 0 || !state.active) {
-                            return;
-                        }
-
-                        let element = e.currentTarget as HTMLDialogElement,
-                            target = e.target as HTMLElement;
-
-                        // Only the top layer drags, and a press past the target's client box is on its scrollbar.
-                        if (
-                            element.classList.contains('--covered') ||
-                            outside(element, e) ||
-                            target.closest(INTERACTIVE) ||
-                            (target.clientWidth > 0 && (e.offsetX > target.clientWidth || e.offsetY > target.clientHeight))
-                        ) {
-                            return;
-                        }
-
-                        let d = direction(element);
-
-                        dragging = {
-                            ...d,
-                            captured: false,
-                            distance: 0,
-                            origin: d.axis === 'x' ? e.clientX : e.clientY,
-                            pointer: e.pointerId,
-                            start: performance.now()
-                        };
-                    },
-                    onpointermove: (e: PointerEvent) => {
-                        if (!dragging || e.pointerId !== dragging.pointer) {
-                            return;
-                        }
-
-                        let element = e.currentTarget as HTMLDialogElement,
-                            { axis, origin, sign } = dragging,
-                            current = layer(element),
-                            distance = ((axis === 'x' ? e.clientX : e.clientY) - origin) * sign;
-
-                        // Capture only once it is clearly a drag; capturing on press would retarget the click
-                        // of a plain tap to the dialog, away from the control under the finger.
-                        if (!dragging.captured) {
-                            if (Math.abs(distance) <= THRESHOLD) {
-                                return;
-                            }
-
-                            dragging.captured = true;
-                            element.setPointerCapture(e.pointerId);
-                            element.classList.add('--dragging');
-                            getSelection()?.removeAllRanges();
-                        }
-
-                        // Away from the edge it still gives, but less the further you pull, like stretching
-                        // something that wants to snap back.
-                        if (distance < 0) {
-                            distance = -Math.pow(-distance, 0.7);
-                        }
-
-                        let progress = Math.min(Math.max(distance, 0) / size(element, axis), 1);
-
-                        dragging.distance = distance;
-                        element.style.setProperty('--progress', String(progress));
-                        element.style.transform = axis === 'x' ? `translateX(${distance * sign}px)` : `translateY(${distance * sign}px)`;
-
-                        if (current) {
-                            current.dragging = true;
-                            current.progress = progress;
-                            restack();
-                        }
-                    },
-                    onpointerup: (e: PointerEvent) => {
-                        if (!dragging || e.pointerId !== dragging.pointer) {
-                            return;
-                        }
-
-                        let element = e.currentTarget as HTMLDialogElement,
-                            drag = dragging,
-                            { axis, distance } = drag,
-                            velocity = distance / (performance.now() - drag.start);
-
-                        dragging = null;
-
-                        if (!drag.captured) {
-                            return;
-                        }
-
-                        // The click that follows lands on the dialog, and beyond the overlay it would read as
-                        // a backdrop click.
-                        addEventListener('click', swallow, true);
-                        setTimeout(() => removeEventListener('click', swallow, true));
-
-                        settle(element, distance > size(element, axis) * DISMISS_DISTANCE || velocity > FLICK_VELOCITY, drag);
                     }
                 }}
             >

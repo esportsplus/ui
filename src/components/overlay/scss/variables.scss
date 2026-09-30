@@ -1,3 +1,5 @@
+@use '../../anchor/scss/index' as anchor;
+
 // The same curve run backwards, so an exit plays its entrance in reverse.
 @function reversed($x1, $y1, $x2, $y2) {
     @return cubic-bezier(1 - $x2, 1 - $y2, 1 - $x1, 1 - $y1);
@@ -5,6 +7,7 @@
 
 
 .overlay {
+    @extend .anchor;
     --backdrop: color-mix(in srgb, var(--color-black-500) 64%, transparent);
     --handle-color: var(--color-border-300);
     --handle-length: 40px;
@@ -13,17 +16,13 @@
     --margin-horizontal: 0px;
     --margin-vertical: 0px;
     --max-width: 480px;
-    --opacity: 0;
     --scale: 1;
     --stack-dim: 0.2;
     --stack-peek: 18px;
     --stack-scale: 0.94;
-    // Covered layers scale about their anchor, so the far edge moves back by this share of the size before it
-    // peeks: half from the center, all of it from an edge.
-    --stack-span: 50%;
+    // Covered layers scale about their anchor, so the far edge moves back by '--stack-span' of the size before it
+    // peeks.
     --stack-shift: calc(var(--depth, 0) * var(--stack-peek) + (1 - pow(var(--stack-scale), var(--depth, 0))) * var(--stack-span));
-    --stack-translate: 0 calc(var(--stack-shift) * -1);
-    --translate: 0px;
     --width-closed: 64px;
 
     // The root curve, reversed.
@@ -31,16 +30,24 @@
         --transition-timing-function: #{reversed(0.4, 0, 0.2, 1)};
     }
 
+    @each $placement in anchor.$placements {
+        &--#{$placement} {
+            @extend .anchor--#{$placement};
+        }
+    }
+
     &--e,
     &--n,
+    &--ne,
+    &--nw,
     &--s,
+    &--se,
+    &--sw,
     &--w {
         --close-duration: 0.3s;
         // The iOS drawer curve: fast out of the gate, long gentle settle.
         --ease: cubic-bezier(0.32, 0.72, 0, 1);
         --open-duration: 0.5s;
-        --opacity: 1;
-        --stack-span: 100%;
         --transition-duration: var(--open-duration);
         --transition-timing-function: var(--ease);
 
@@ -53,25 +60,6 @@
     &--e,
     &--w {
         --max-width: 320px;
-    }
-
-    &--e {
-        --stack-translate: calc(var(--stack-shift) * -1) 0;
-        --translate: calc(100% + var(--margin-horizontal)) 0;
-    }
-
-    &--n {
-        --stack-translate: 0 var(--stack-shift);
-        --translate: 0 calc(-100% - var(--margin-vertical));
-    }
-
-    &--s {
-        --translate: 0 calc(100% + var(--margin-vertical));
-    }
-
-    &--w {
-        --stack-translate: var(--stack-shift) 0;
-        --translate: calc(-100% - var(--margin-horizontal)) 0;
     }
 
     &--floating {

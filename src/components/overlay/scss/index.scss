@@ -77,44 +77,82 @@ dialog.overlay {
         height: calc(100% - (var(--margin-vertical) * 2));
     }
 
-    &--e {
+    // Pinned to the edges its placement names, squaring the corners that meet them unless floating; a corner
+    // placement meets two.
+    &--e,
+    &--ne,
+    &--se {
         margin-inline-end: var(--margin-horizontal);
-        transform-origin: right;
 
         &:not(.overlay--floating) {
             border-end-end-radius: 0;
             border-start-end-radius: 0;
         }
+    }
+
+    &--n,
+    &--ne,
+    &--nw {
+        margin-block-start: var(--margin-vertical);
+
+        &:not(.overlay--floating) {
+            border-start-end-radius: 0;
+            border-start-start-radius: 0;
+        }
+    }
+
+    &--s,
+    &--se,
+    &--sw {
+        margin-block-end: var(--margin-vertical);
+
+        &:not(.overlay--floating) {
+            border-end-end-radius: 0;
+            border-end-start-radius: 0;
+        }
+    }
+
+    &--w,
+    &--nw,
+    &--sw {
+        margin-inline-start: var(--margin-horizontal);
+
+        &:not(.overlay--floating) {
+            border-end-start-radius: 0;
+            border-start-start-radius: 0;
+        }
+    }
+
+    &--e {
+        transform-origin: right;
     }
 
     &--n {
-        margin-block-start: var(--margin-vertical);
         transform-origin: top;
+    }
 
-        &:not(.overlay--floating) {
-            border-start-end-radius: 0;
-            border-start-start-radius: 0;
-        }
+    &--ne {
+        transform-origin: top right;
+    }
+
+    &--nw {
+        transform-origin: top left;
     }
 
     &--s {
-        margin-block-end: var(--margin-vertical);
         transform-origin: bottom;
+    }
 
-        &:not(.overlay--floating) {
-            border-end-end-radius: 0;
-            border-end-start-radius: 0;
-        }
+    &--se {
+        transform-origin: bottom right;
+    }
+
+    &--sw {
+        transform-origin: bottom left;
     }
 
     &--w {
-        margin-inline-start: var(--margin-horizontal);
         transform-origin: left;
-
-        &:not(.overlay--floating) {
-            border-end-start-radius: 0;
-            border-start-start-radius: 0;
-        }
     }
 
 
@@ -137,8 +175,9 @@ dialog.overlay {
         }
 
         // The surface continues past the screen edge, so pulling the overlay inward reveals more of it. Content
-        // that scrolls has to be clipped instead.
-        &:not(.--scrollable):is(.overlay--e, .overlay--n, .overlay--s, .overlay--w) {
+        // that scrolls has to be clipped instead. Each extension releases the side facing into the page, which a
+        // paired class may pin (e.g. '.card::after' at 'inset: 0').
+        &:not(.--scrollable):is(.overlay--e, .overlay--n, .overlay--ne, .overlay--nw, .overlay--s, .overlay--se, .overlay--sw, .overlay--w) {
             overflow: visible;
 
             &::after {
@@ -152,16 +191,19 @@ dialog.overlay {
         &.overlay--e::after {
             inset-block: 0;
             left: 100%;
+            right: auto;
             width: 50vw;
         }
 
-        &.overlay--n::after {
+        &:is(.overlay--n, .overlay--ne, .overlay--nw)::after {
             bottom: 100%;
             height: 50vh;
             inset-inline: 0;
+            top: auto;
         }
 
-        &.overlay--s::after {
+        &:is(.overlay--s, .overlay--se, .overlay--sw)::after {
+            bottom: auto;
             height: 50vh;
             inset-inline: 0;
             top: 100%;
@@ -169,6 +211,7 @@ dialog.overlay {
 
         &.overlay--w::after {
             inset-block: 0;
+            left: auto;
             right: 100%;
             width: 50vw;
         }
@@ -226,7 +269,7 @@ dialog.overlay {
         touch-action: none;
         width: var(--handle-length);
 
-        .overlay:not(.overlay--e, .overlay--n, .overlay--s, .overlay--w) > & {
+        .overlay:not(.overlay--e, .overlay--n, .overlay--ne, .overlay--nw, .overlay--s, .overlay--se, .overlay--sw, .overlay--w) > & {
             display: none;
         }
 
@@ -243,16 +286,24 @@ dialog.overlay {
         }
 
         .overlay--n > &,
-        .overlay--s > & {
+        .overlay--ne > &,
+        .overlay--nw > &,
+        .overlay--s > &,
+        .overlay--se > &,
+        .overlay--sw > & {
             left: 50%;
             translate: -50% 0;
         }
 
-        .overlay--n > & {
+        .overlay--n > &,
+        .overlay--ne > &,
+        .overlay--nw > & {
             bottom: var(--handle-offset);
         }
 
-        .overlay--s > & {
+        .overlay--s > &,
+        .overlay--se > &,
+        .overlay--sw > & {
             top: var(--handle-offset);
         }
 

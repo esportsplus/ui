@@ -203,6 +203,14 @@ export default {
             title: 'east'
         },
         {
+            render: () => demo('overlay--ne overlay--floating', 'Pinned to the top right corner. Drag it back up to close.'),
+            title: 'north-east'
+        },
+        {
+            render: () => demo('overlay--sw', 'Flush in the bottom left corner, squared where it meets both edges. Drag it back down to close.'),
+            title: 'south-west'
+        },
+        {
             render: () => stacked(true),
             title: 'stacked'
         },
