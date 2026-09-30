@@ -1,5 +1,6 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import { drag, INTERACTIVE, type Direction } from '~/lib/drag';
 import pause from '@esportsplus/ui/svg/pause.svg';
 import play from '@esportsplus/ui/svg/play.svg';
 import '~/components/frame/scss/index.scss';
@@ -18,12 +19,10 @@ type A = Attributes & {
     stories: Renderable<unknown>[];
 };
 
-type Drag = {
-    locked: boolean;
+// A press: whether it has moved off the spot, which rules out a tap.
+type Press = {
     moved: boolean;
     pointer: number;
-    samples: [number, number][];
-    width: number;
     x: number;
     y: number;
 };
@@ -34,38 +33,60 @@ type State = {
 };
 
 
-// Share of the card a drag must cover to change story.
-const DISTANCE = 0.25;
-
-// Pixels per second that change story on release, however short the drag.
-const FLICK = 500;
-
 // Shorter presses are taps that navigate; longer ones are holds that pause.
 const HOLD = 200;
 
-const INTERACTIVE = '.story-slide :is(a, button, input, label, select, textarea, [contenteditable], [tabindex])';
+// Controls inside a story keep their own clicks.
+const CONTROLS = `.story-slide :is(${INTERACTIVE}, [tabindex])`;
 
-// Movement that commits a press to a drag, or hands a vertical one to the page scroll.
+// Movement past this is no longer a tap.
 const LOCK = 6;
-
-// Drag past the first or last story moves the track this share of the pointer's travel.
-const RESIST = 0.3;
-
-const SAMPLE = 100;
 
 
 function template(this: { attributes?: Partial<A> } | void, { duration, label = 'Stories', state = reactive({ index: 0, paused: false }), stories, ...attributes }: A) {
     let bound = this?.attributes,
         count = stories.length,
-        drag: Drag | null = null,
+        dragged = false,
         fills: HTMLElement[] = [],
         hold: ReturnType<typeof setTimeout> | undefined,
+        press: Press | null = null,
         // Auto-advancing stays silent; only stories the user moved to are announced.
         view = reactive({ dragging: false, held: false, hidden: false, manual: false, offset: 0, pressing: false });
 
-    function edge(step: number) {
-        return step < 0 ? state.index === 0 : state.index === count - 1;
-    }
+    // The stories on either side are the ways a drag may leave by: toward the next is leftward, the previous
+    // rightward. Dragged toward one that isn't there, it rubber-bands. Vertical movement is the page's to scroll.
+    let gesture = drag({
+        begin: () => {
+            let ways: Direction[] = [];
+
+            if (state.index < count - 1) {
+                ways.push({ axis: 'x', sign: -1 });
+            }
+
+            if (state.index > 0) {
+                ways.push({ axis: 'x', sign: 1 });
+            }
+
+            return ways;
+        },
+        capture: () => {
+            clearTimeout(hold);
+            dragged = true;
+            view.dragging = true;
+            view.held = false;
+        },
+        move: (element, { x }) => {
+            view.offset = x / element.offsetWidth;
+        },
+        release: (_, { x }, dismiss) => {
+            view.dragging = false;
+            view.offset = 0;
+
+            if (dismiss) {
+                go(x < 0 ? 1 : -1);
+            }
+        }
+    });
 
     function go(step: number) {
         view.manual = true;
@@ -99,46 +120,10 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
         e.preventDefault();
     }
 
-    function release(e: PointerEvent, navigate: boolean) {
-        let gesture = drag;
-
+    function settle() {
         clearTimeout(hold);
-        drag = null;
+        press = null;
         view.pressing = false;
-
-        if (!gesture || gesture.pointer !== e.pointerId) {
-            return;
-        }
-
-        if (gesture.locked) {
-            let dx = e.clientX - gesture.x,
-                [time, x] = gesture.samples[0],
-                elapsed = e.timeStamp - time,
-                step = dx < 0 ? 1 : -1,
-                vx = elapsed > 0 ? ((dx - x) / elapsed) * 1000 : 0;
-
-            view.dragging = false;
-            view.offset = 0;
-
-            if (navigate && !edge(step) && (Math.abs(dx) >= gesture.width * DISTANCE || Math.abs(vx) >= FLICK)) {
-                go(step);
-            }
-
-            return;
-        }
-
-        if (view.held) {
-            view.held = false;
-            return;
-        }
-
-        if (!navigate || gesture.moved) {
-            return;
-        }
-
-        let box = (e.currentTarget as HTMLElement).getBoundingClientRect();
-
-        go(e.clientX < box.left + box.width / 3 ? -1 : 1);
     }
 
     return html`
@@ -162,24 +147,22 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                     view.hidden = document.hidden;
                 },
                 onkeydown: keydown,
-                onpointercancel: (e: PointerEvent) => release(e, false),
+                onpointercancel: (e: PointerEvent) => {
+                    gesture.onpointercancel(e);
+                    settle();
+                    view.held = false;
+                },
                 onpointerdown: (e: PointerEvent) => {
-                    // Controls inside a story keep their own clicks.
-                    if (e.button !== 0 || (e.target as Element).closest(INTERACTIVE)) {
+                    if (e.button !== 0 || (e.target as Element).closest(CONTROLS)) {
                         return;
                     }
 
-                    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+                    dragged = false;
+                    gesture.onpointerdown(e);
 
-                    drag = {
-                        locked: false,
-                        moved: false,
-                        pointer: e.pointerId,
-                        samples: [[e.timeStamp, 0]],
-                        width: (e.currentTarget as HTMLElement).offsetWidth,
-                        x: e.clientX,
-                        y: e.clientY
-                    };
+                    // Held from the press, so a tap or hold that ends beyond the story still reaches it.
+                    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+                    press = { moved: false, pointer: e.pointerId, x: e.clientX, y: e.clientY };
 
                     // The fill freezes the moment you press; the dim waits until it is clearly a hold, so
                     // quick taps don't flicker.
@@ -189,39 +172,35 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                     }, HOLD);
                 },
                 onpointermove: (e: PointerEvent) => {
-                    if (!drag || drag.pointer !== e.pointerId || drag.moved) {
+                    gesture.onpointermove(e);
+
+                    if (press && press.pointer === e.pointerId && Math.hypot(e.clientX - press.x, e.clientY - press.y) >= LOCK) {
+                        press.moved = true;
+                    }
+                },
+                onpointerup: (e: PointerEvent) => {
+                    let current = press;
+
+                    gesture.onpointerup(e);
+                    settle();
+
+                    if (!current || current.pointer !== e.pointerId || dragged) {
                         return;
                     }
 
-                    let dx = e.clientX - drag.x,
-                        dy = e.clientY - drag.y;
-
-                    if (!drag.locked) {
-                        if (Math.hypot(dx, dy) < LOCK) {
-                            return;
-                        }
-
-                        // Vertical intent belongs to the page scroll.
-                        if (Math.abs(dy) > Math.abs(dx)) {
-                            drag.moved = true;
-                            return;
-                        }
-
-                        clearTimeout(hold);
-                        drag.locked = true;
-                        view.dragging = true;
+                    if (view.held) {
                         view.held = false;
+                        return;
                     }
 
-                    drag.samples.push([e.timeStamp, dx]);
-
-                    while (drag.samples.length > 2 && e.timeStamp - drag.samples[0][0] > SAMPLE) {
-                        drag.samples.shift();
+                    if (current.moved) {
+                        return;
                     }
 
-                    view.offset = (edge(dx < 0 ? 1 : -1) ? dx * RESIST : dx) / drag.width;
+                    let box = (e.currentTarget as HTMLElement).getBoundingClientRect();
+
+                    go(e.clientX < box.left + box.width / 3 ? -1 : 1);
                 },
-                onpointerup: (e: PointerEvent) => release(e, true),
                 style: duration === undefined ? undefined : `--duration: ${duration}ms`
             }}
         >
