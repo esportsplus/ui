@@ -49,7 +49,6 @@ import shortcutRecorder from './shortcut-recorder';
 import slider from './slider';
 import sortable from './sortable';
 import sparkline from './sparkline';
-import stackedDrawer from './stacked-drawer';
 import statCounter from './stat-counter';
 import stickyHeader from './sticky-header';
 import stickyStack from './sticky-stack';
@@ -125,7 +124,6 @@ const entries: Entry[] = [
     slider,
     sortable,
     sparkline,
-    stackedDrawer,
     statCounter,
     stickyHeader,
     stickyStack,

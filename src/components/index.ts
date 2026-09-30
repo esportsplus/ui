@@ -40,7 +40,6 @@ export { default as shortcutRecorder } from './shortcut-recorder';
 export { default as slider } from './slider';
 export { default as sortable } from './sortable';
 export { default as sparkline } from './sparkline';
-export { default as stackedDrawer } from './stacked-drawer';
 export { default as statCounter } from './stat-counter';
 export { default as stickyHeader } from './sticky-header';
 export { default as stickyStack } from './sticky-stack';

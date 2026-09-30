@@ -7,14 +7,16 @@ import home from '@esportsplus/ui/svg/home.svg';
 import inbox from '@esportsplus/ui/svg/inbox.svg';
 
 
-type Options = {
-    drag?: boolean;
-    style?: string;
+type Sheet = {
+    description: string;
+    title: string;
 };
 
 
 // Padding, icon and gap add up to '--width-closed', so a collapsed rail clips each label at its first letter.
 const ICON = '--size: 20px;';
+
+const BUTTON = '--width: auto; margin-top: var(--size-500);';
 
 const ROWS = [
     { icon: home, label: 'Home' },
@@ -26,6 +28,12 @@ const ROWS = [
 const ROW = 'all: unset; align-items: center; box-sizing: border-box; cursor: pointer; display: flex; gap: 22px; padding: var(--size-300) 22px; width: 100%;';
 
 const STAGE = 'border: 1px dashed var(--color-border-400); border-radius: var(--border-radius-400); height: 280px; overflow: hidden; position: relative; width: 100%;';
+
+const SHEETS: Sheet[] = [
+    { description: 'Anyone with the link can view. Invite people to let them edit.', title: 'Share draft' },
+    { description: "They'll get an email and can edit right away.", title: 'Invite people' },
+    { description: 'Links stop working after the date you choose. Drag down or press Esc to go back.', title: 'Expiry' }
+];
 
 const SURFACE = 'background: var(--color-card-500, var(--color-grey-300)); box-shadow: var(--box-shadow-400);';
 
@@ -46,7 +54,7 @@ function contained(description: string) {
                     <div class='text'>${description}</div>
                     <div
                         class='button button--tertiary'
-                        style='--width: auto; margin-top: var(--size-500);'
+                        style='${BUTTON}'
                         onclick='${() => state.active = false}'
                     >
                         close
@@ -89,7 +97,7 @@ function rail() {
     `;
 }
 
-function demo(variant: string, description: string, { drag, style = '' }: Options = {}) {
+function demo(variant: string, description: string, style = '') {
     let state = reactive({ active: false });
 
     return html`
@@ -100,7 +108,6 @@ function demo(variant: string, description: string, { drag, style = '' }: Option
         ${overlay(
             {
                 class: `card ${variant}`,
-                drag,
                 state,
                 style: `--padding-horizontal: var(--size-600); --padding-vertical: var(--size-600); ${SURFACE} ${style}`
             },
@@ -109,7 +116,7 @@ function demo(variant: string, description: string, { drag, style = '' }: Option
                 <div class='text'>${description}</div>
                 <div
                     class='button button--tertiary'
-                    style='--width: auto; margin-top: var(--size-500);'
+                    style='${BUTTON}'
                     onclick='${() => state.active = false}'
                 >
                     close
@@ -120,36 +127,88 @@ function demo(variant: string, description: string, { drag, style = '' }: Option
 }
 
 
+// Each sheet opens the next over itself; 'modal: false' keeps them, and the page they push back, inside the stage.
+function stacked(modal: boolean) {
+    let states = SHEETS.map(() => reactive({ active: false })),
+        sheets = SHEETS.map(({ description, title }, i) => overlay(
+            {
+                'aria-label': title,
+                class: 'card overlay--s',
+                modal,
+                state: states[i],
+                style: `--padding-horizontal: var(--size-600); --padding-vertical: var(--size-600); ${SURFACE}`
+            },
+            html`
+                <h3 style='margin: var(--size-300) 0 var(--size-400);'>${title}</h3>
+                <div class='text'>${description}</div>
+                <div style='display: flex; gap: var(--size-300); margin-top: var(--size-500);'>
+                    ${i + 1 < SHEETS.length && html`
+                        <div class='button button--primary' style='--width: auto;' onclick='${() => states[i + 1].active = true}'>
+                            ${SHEETS[i + 1].title}
+                        </div>
+                    `}
+                    <div class='button button--tertiary' style='--width: auto;' onclick='${() => states[i].active = false}'>
+                        done
+                    </div>
+                </div>
+            `
+        ));
+
+    if (modal) {
+        return html`
+            <div class='button button--primary' style='--width: auto;' onclick='${() => states[0].active = true}'>
+                share
+            </div>
+            ${sheets}
+        `;
+    }
+
+    return html`
+        <div style='${STAGE} background: var(--color-border-400); height: 480px; max-width: 360px;'>
+            <div class='overlay-page card' style='${SURFACE} inset: 0; padding: var(--size-600); position: absolute;'>
+                <div class='text' style='color: var(--color-text-300);'>Drafts</div>
+                <h3 style='margin: var(--size-200) 0 var(--size-400);'>Launch notes</h3>
+                <div class='text'>Three fixes, one new component, and a faster index. Ship Thursday after review.</div>
+                <div class='button button--primary' style='${BUTTON}' onclick='${() => states[0].active = true}'>
+                    share
+                </div>
+            </div>
+            ${sheets}
+        </div>
+    `;
+}
+
+
 export default {
     name: 'overlay',
     variants: [
         {
-            render: () => demo('overlay--c', 'Centered. Click the backdrop, press Esc, or use the button below to close.'),
+            render: () => demo('overlay--c', 'Centered. Drag it down, click the backdrop, press Esc, or use the button below to close.'),
             title: 'center'
         },
         {
-            render: () => demo('overlay--n', 'Slides down from the top edge.'),
+            render: () => demo('overlay--n', 'Slides down from the top edge. Drag it back up to close.'),
             title: 'north'
         },
         {
-            render: () => demo('overlay--s', 'Slides up from the bottom edge.'),
+            render: () => demo('overlay--s', 'Slides up from the bottom edge. Drag it back down to close; a quick flick works too, and dragging it up pushes back.'),
             title: 'south'
         },
         {
-            render: () => demo('overlay--w', 'Slides in from the left edge.'),
+            render: () => demo('overlay--w', 'Slides in from the left edge. Drag it back to the left to close.'),
             title: 'west'
         },
         {
-            render: () => demo('overlay--e', 'Slides in from the right edge.'),
+            render: () => demo('overlay--e', 'Slides in from the right edge. Drag it back to the right to close.'),
             title: 'east'
         },
         {
-            render: () => demo('overlay--s', 'Drag it back down to close. A quick flick works too, and dragging it up pushes back.', { drag: true }),
-            title: 'drag to dismiss'
+            render: () => stacked(true),
+            title: 'stacked'
         },
         {
-            render: () => demo('overlay--e', 'Drag it back to the right to close.', { drag: true }),
-            title: 'drag to dismiss, east'
+            render: () => stacked(false),
+            title: 'stacked, pushing back the page'
         },
         {
             render: () => demo('overlay--w overlay--floating', 'Inset from the edges, with every corner rounded.'),
@@ -164,7 +223,7 @@ export default {
             title: 'rail'
         },
         {
-            render: () => demo('overlay--c', 'Slides a short distance while fading.', { style: '--translate: 0 var(--size-400);' }),
+            render: () => demo('overlay--c', 'Slides a short distance while fading.', '--translate: 0 var(--size-400);'),
             title: 'slide'
         },
         {

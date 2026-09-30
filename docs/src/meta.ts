@@ -156,7 +156,7 @@ const meta: Record<string, Meta> = {
     },
     overlay: {
         category: 'Overlay',
-        description: 'Native dialog that centers or docks to any edge, covering modals, sheets, and drawers, with drag to dismiss.'
+        description: 'Native dialog that centers or docks to any edge, covering modals, sheets, and drawers; every one drags to dismiss, and stacked ones push back the layers beneath them.'
     },
     page: {
         category: 'Layout',
@@ -209,10 +209,6 @@ const meta: Record<string, Meta> = {
     sparkline: {
         category: 'Display',
         description: 'Inline line chart that draws itself in, with a scrubbable readout for pointer, touch, and arrow keys.'
-    },
-    'stacked-drawer': {
-        category: 'Overlay',
-        description: 'Stacked iOS-style sheets that push the page back and drag down to dismiss.'
     },
     'stat-counter': {
         category: 'Display',
