@@ -86,6 +86,10 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'macOS-style dock whose icons swell toward the cursor and launch with a bounce and a running light.'
     },
+    error: {
+        category: 'Form Controls',
+        description: 'Wraps any control that keeps its error in state.error: the control shakes and turns red, and the message grows out of it in the morph tooltip on any side.'
+    },
     'file-tree': {
         category: 'Interactive',
         description: 'Collapsible file and folder tree with guide lines, locked items, natural sorting, and expand or collapse all (Magic UI).'

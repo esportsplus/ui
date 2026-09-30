@@ -18,6 +18,7 @@ import container from './container';
 import counter from './counter';
 import datalist from './datalist';
 import dock from './dock';
+import error from './error';
 import fileTree from './file-tree';
 import filter from './filter';
 import frame from './frame';
@@ -94,6 +95,7 @@ const entries: Entry[] = [
     counter,
     datalist,
     dock,
+    error,
     fileTree,
     filter,
     frame,

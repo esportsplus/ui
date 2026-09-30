@@ -1,0 +1,13 @@
+// Prefixed, unlike most components: the wrapper's custom properties inherit into the control it wraps, and a plain
+// '--color' or '--background' there would restyle it.
+.error {
+    --error-background: var(--color-black-400);
+    --error-color: var(--color-red-400);
+    --error-font-size: var(--font-size-300);
+    --error-max-width: 240px;
+    --error-padding: var(--size-300) var(--size-400);
+    // How far the shake swings each way; the fill behind the control is pulled in by as much.
+    --error-reach: 4px;
+    --error-spacer: 4px;
+    --error-text: var(--color-white-400);
+}

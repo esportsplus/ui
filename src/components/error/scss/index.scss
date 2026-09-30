@@ -1,0 +1,93 @@
+@use 'variables';
+
+.error {
+    cursor: auto;
+    display: inline-flex;
+    vertical-align: middle;
+
+    // The control draws its edge from '--border-color', as the form controls do. Doubled, so it outranks the control's
+    // own hover and active states whatever order the sheets load in.
+    &.--invalid.--invalid > :not(.error-live, .error-message) {
+        --border-color: var(--error-color);
+    }
+
+    &[data-shake='1'] > :not(.error-live, .error-message) {
+        animation: error-shake-1 320ms ease-out;
+    }
+
+    &[data-shake='2'] > :not(.error-live, .error-message) {
+        animation: error-shake-2 320ms ease-out;
+    }
+
+    // The tooltip's repaint behind its trigger, which the goo bridges from while the morph runs, so the neck reads as
+    // the tooltip leaving the control. Pulled in by the shake's reach, so it stays hidden under the control at full swing.
+    &.tooltip:has(> .tooltip-content--morph)::after {
+        background: var(--error-background);
+        inset: 0 var(--error-reach);
+    }
+
+    &-live {
+        clip-path: inset(50%);
+        height: 1px;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    // Long messages wrap instead of running off in one line.
+    &-message.tooltip-content {
+        --background: var(--error-background);
+        --max-width: var(--error-max-width);
+        --spacer: var(--error-spacer);
+        --width: max-content;
+        color: var(--error-text);
+        font-size: var(--error-font-size);
+        padding: var(--error-padding);
+        white-space: normal;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &[data-shake] > * {
+            animation: none;
+        }
+    }
+}
+
+
+// Two copies, keyed by 'data-shake' parity, so every failure restarts it.
+@keyframes error-shake-1 {
+    20% {
+        translate: calc(var(--error-reach) * -1);
+    }
+
+    40% {
+        translate: var(--error-reach);
+    }
+
+    60% {
+        translate: calc(var(--error-reach) * -0.75);
+    }
+
+    80% {
+        translate: calc(var(--error-reach) * 0.75);
+    }
+}
+
+@keyframes error-shake-2 {
+    20% {
+        translate: calc(var(--error-reach) * -1);
+    }
+
+    40% {
+        translate: var(--error-reach);
+    }
+
+    60% {
+        translate: calc(var(--error-reach) * -0.75);
+    }
+
+    80% {
+        translate: calc(var(--error-reach) * 0.75);
+    }
+}
