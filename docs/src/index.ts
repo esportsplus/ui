@@ -1,7 +1,7 @@
 import './ui';
-import { toaster } from '@esportsplus/ui';
 import { fallback, html, middleware, render } from './app';
 import header from './components/header';
+import { notifications } from './components/notify';
 import sidebar from './components/sidebar';
 
 
@@ -13,7 +13,7 @@ render(
     middleware(
         (request, next) => html`
             ${header(request)}
-            ${toaster({ position: 'bottom-right' })}
+            ${notifications.content}
 
             <div class='viewer-body'>
                 ${sidebar(request)}

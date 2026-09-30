@@ -1,0 +1,88 @@
+.notify {
+    background: var(--color-white-300);
+    border: 1px solid var(--color-border-400);
+    border-radius: var(--border-radius-500);
+    box-shadow: var(--box-shadow-300);
+    color: var(--color-text-400);
+    padding: var(--size-400);
+
+    &--dark {
+        background: var(--color-text-500);
+        border-color: var(--color-text-500);
+        color: var(--color-white-300);
+    }
+
+    &-action.button {
+        --background-default: var(--color-text-500);
+        --border-radius: 999px;
+        --color-default: var(--color-white-300);
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-200);
+        flex-shrink: 0;
+    }
+
+    &-description {
+        color: var(--color-text-300);
+    }
+
+    // The same surface, shown as the card peeking out behind the stack with its count.
+    &-overflow {
+        background: var(--color-white-300);
+        border: 1px solid var(--color-border-400);
+        border-radius: var(--border-radius-500);
+        box-shadow: var(--box-shadow-300);
+        color: var(--color-text-300);
+        font-size: var(--font-size-200);
+
+        &--dark {
+            background: var(--color-text-500);
+            border-color: var(--color-text-500);
+            color: var(--color-white-300);
+        }
+    }
+
+    // Drawn from the toast's clock ('--toast-progress'), so it drains, pauses and holds exactly as the toast does.
+    &-ring {
+        flex-shrink: 0;
+        height: 20px;
+        rotate: -90deg;
+        width: 20px;
+
+        circle {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+
+        circle + circle {
+            stroke-dasharray: 50.27px;
+            stroke-dashoffset: calc(50.27px * var(--toast-progress));
+            stroke-linecap: round;
+        }
+
+        circle:first-child {
+            opacity: 0.2;
+        }
+    }
+
+    // Whole seconds left on the toast's clock.
+    &-seconds {
+        counter-reset: notify-seconds round(up, calc(var(--toast-seconds) * (1 - var(--toast-progress))), 1);
+
+        &::before {
+            content: counter(notify-seconds);
+        }
+    }
+
+    &-text {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: var(--size-100);
+        min-width: 0;
+    }
+
+    &-title {
+        font-weight: var(--font-weight-500);
+    }
+}

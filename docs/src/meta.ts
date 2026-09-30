@@ -240,7 +240,7 @@ const meta: Record<string, Meta> = {
     },
     toast: {
         category: 'Feedback',
-        description: 'Stacked, auto-dismissing notifications with variants, actions, and swipe-to-dismiss.'
+        description: 'Independent toasters that stack your content: a close button, swipe-to-dismiss, a capped stack that fans out on hover, and a CSS clock that runs only on the front toast.'
     },
     tooltip: {
         category: 'Interactive',

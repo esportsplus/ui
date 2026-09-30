@@ -1,6 +1,7 @@
-import { button, toast } from '@esportsplus/ui';
+import { button } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
+import notify from '../components/notify';
 
 
 let colors = ['primary', 'secondary', 'tertiary'],
@@ -23,9 +24,9 @@ let icons = {
 };
 
 let options = () => [
-    { 'aria-label': 'Copy link', content: icons.link(), onclick: () => toast.success('Link copied.') },
-    { 'aria-label': 'Email', content: icons.mail(), onclick: () => toast.info('Email selected.') },
-    { 'aria-label': 'Message', content: icons.message(), onclick: () => toast.info('Message selected.') }
+    { 'aria-label': 'Copy link', content: icons.link(), onclick: () => notify(() => 'Link copied.') },
+    { 'aria-label': 'Email', content: icons.mail(), onclick: () => notify(() => 'Email selected.') },
+    { 'aria-label': 'Message', content: icons.message(), onclick: () => notify(() => 'Message selected.') }
 ];
 
 let swap = (open: Renderable<unknown>) => html`
@@ -120,9 +121,9 @@ export default {
                     [button.fan.trigger]: { class: surface, style: `${border} --width: auto;` },
                     closeOnSelect: false,
                     options: [
-                        { content: 'Edit', onclick: () => toast.info('Edit selected.') },
-                        { content: 'Duplicate', onclick: () => toast.info('Duplicate selected.') },
-                        { content: 'Archive', onclick: () => toast.info('Archive selected.') }
+                        { content: 'Edit', onclick: () => notify(() => 'Edit selected.') },
+                        { content: 'Duplicate', onclick: () => notify(() => 'Duplicate selected.') },
+                        { content: 'Archive', onclick: () => notify(() => 'Archive selected.') }
                     ]
                 },
                 'actions'
@@ -150,8 +151,8 @@ export default {
         {
             render: () => html`
                 <div style='${row}'>
-                    ${button.hold({ action: () => toast.success('Archived'), class: `${trigger} button--hold-text`, duration: 550, style: border, success: 'Archived' }, 'Hold to archive')}
-                    ${button.hold({ action: () => toast.error('Deleted'), class: `${trigger} button--hold-text`, duration: 1500, style: `--fill-color: var(--color-red-400); ${border}`, success: 'Deleted' }, 'Hold to delete')}
+                    ${button.hold({ action: () => notify(() => 'Archived'), class: `${trigger} button--hold-text`, duration: 550, style: border, success: 'Archived' }, 'Hold to archive')}
+                    ${button.hold({ action: () => notify(() => 'Deleted'), class: `${trigger} button--hold-text`, duration: 1500, style: `--fill-color: var(--color-red-400); ${border}`, success: 'Deleted' }, 'Hold to delete')}
                 </div>
             `,
             title: 'hold text'

@@ -2,319 +2,279 @@
 @use '/tokens';
 @use 'variables';
 
+// Hovered or holding focus, the stack fans out and every clock stops.
+$open: ':is(:hover, :focus-within)';
+
+
+// The toast's clock: 0 to 1 over its duration. Inherited, so anything in its content can count down on it.
+@property --toast-progress {
+    inherits: true;
+    initial-value: 0;
+    syntax: '<number>';
+}
+
+
+// Sized to the stack so the gaps between expanded toasts still count as hovering it.
 .toaster {
-    bottom: auto;
-    left: auto;
+    height: max(0px, calc(var(--toast-frontmost-height) + (min(var(--toast-count), var(--toast-limit)) - 1) * var(--toast-peek) + min(1, var(--toast-hidden)) * var(--toast-overflow-peek)));
+    inset: var(--toast-inset) var(--toast-inset) auto auto;
     position: fixed;
-    right: auto;
-    top: auto;
-    width: min(360px, calc(100% - (var(--toast-inset) * 2)));
+    transition: translate var(--toast-transition-duration) var(--toast-transition-timing-function);
+    width: min(var(--toast-width), calc(100% - (var(--toast-inset) * 2)));
     z-index: 9999;
 
-    &[data-position^='top'] {
-        top: var(--toast-inset);
+    &#{$open} {
+        height: max(0px, calc(var(--toast-stack-height) + (var(--toast-count) - 1) * var(--toast-gap)));
     }
 
-    &[data-position^='bottom'] {
-        bottom: var(--toast-inset);
+
+    // Side placements center the front toast on the edge and grow the stack downward from it.
+    &--e {
+        inset: 50% var(--toast-inset) auto auto;
+        translate: 0 calc(var(--toast-frontmost-height) / -2);
     }
 
-    &[data-position$='left'] {
-        left: var(--toast-inset);
+    &--n {
+        inset: var(--toast-inset) auto auto 50%;
+        translate: -50% 0;
     }
 
-    &[data-position$='right'] {
-        right: var(--toast-inset);
+    &--ne {
+        inset: var(--toast-inset) var(--toast-inset) auto auto;
     }
 
-    &[data-position$='center'] {
-        left: 50%;
-        translate: -50%;
+    &--nw {
+        inset: var(--toast-inset) auto auto var(--toast-inset);
+    }
+
+    &--s {
+        inset: auto auto var(--toast-inset) 50%;
+        translate: -50% 0;
+    }
+
+    &--se {
+        inset: auto var(--toast-inset) var(--toast-inset) auto;
+    }
+
+    &--sw {
+        inset: auto auto var(--toast-inset) var(--toast-inset);
+    }
+
+    &--w {
+        inset: 50% auto auto var(--toast-inset);
+        translate: 0 calc(var(--toast-frontmost-height) / -2);
+    }
+
+
+    // Scoped under the toaster to outrank consumer pairings like '.card { position: relative }'.
+    > .toast {
+        clip-path: inset(calc(var(--toast-bleed) * -1));
+        inset-inline: 0;
+        position: absolute;
+        scale: var(--toast-scale);
+        top: 0;
+        touch-action: none;
+        transform-origin: top;
+        transition:
+            clip-path var(--toast-transition-duration) var(--toast-transition-timing-function),
+            opacity var(--toast-transition-duration) var(--toast-transition-timing-function),
+            scale var(--toast-transition-duration) var(--toast-transition-timing-function),
+            translate var(--toast-transition-duration) var(--toast-transition-timing-function);
+        translate: var(--toast-swipe-x) calc(var(--toast-swipe-y) + var(--toast-y));
+        user-select: none;
+        z-index: calc(9999 - var(--toast-index));
+    }
+
+    // Collapsed back toasts show only the front toast's height; the rest would hang past the stack.
+    > .toast[data-behind] {
+        clip-path: inset(calc(100% - var(--toast-frontmost-height)) calc(var(--toast-bleed) * -1) calc(var(--toast-bleed) * -1));
+
+        > * {
+            opacity: 0;
+        }
+    }
+
+    > .toast[data-hidden] {
+        opacity: 0;
+    }
+
+    // Stands one card further back than the limit, reaching past the last visible layer far enough for its count.
+    // Unscaled so its text stays legible: narrowed by the scale that depth would have instead.
+    > .toaster-overflow {
+        align-items: flex-end;
+        display: flex;
+        height: var(--toast-frontmost-height);
+        inset-inline: calc(var(--toast-limit) * var(--toast-scale-step) * 50%);
+        justify-content: center;
+        line-height: var(--toast-overflow-peek);
+        opacity: min(1, var(--toast-hidden));
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        transition:
+            opacity var(--toast-transition-duration) var(--toast-transition-timing-function),
+            translate var(--toast-transition-duration) var(--toast-transition-timing-function);
+        translate: 0 calc(((var(--toast-limit) - 1) * var(--toast-peek) + var(--toast-overflow-peek)) * var(--toast-direction));
+        z-index: calc(9999 - var(--toast-limit));
+    }
+
+    &--s,
+    &--se,
+    &--sw {
+        > .toast {
+            bottom: 0;
+            top: auto;
+            transform-origin: bottom;
+        }
+
+        > .toast[data-behind] {
+            clip-path: inset(calc(var(--toast-bleed) * -1) calc(var(--toast-bleed) * -1) calc(100% - var(--toast-frontmost-height)));
+        }
+
+        > .toaster-overflow {
+            align-items: flex-start;
+            bottom: 0;
+            top: auto;
+        }
+    }
+
+    > .toast[data-timed] {
+        animation: toast-timer var(--toast-duration) linear forwards;
+    }
+
+    // Only the front toast's clock runs, and none while the stack is open or a toast is being swiped.
+    &#{$open} > .toast,
+    > .toast[data-behind],
+    > .toast.toast--swiping {
+        animation-play-state: paused;
+    }
+
+    &#{$open} > .toast {
+        --toast-y: var(--toast-expanded-y);
+        opacity: 1;
+        scale: 1;
+
+        &,
+        &[data-behind] {
+            clip-path: inset(calc(var(--toast-bleed) * -1));
+        }
+
+        > * {
+            opacity: 1;
+        }
+    }
+
+    &#{$open} > .toaster-overflow {
+        opacity: 0;
+    }
+
+    > .toast.toast--swiping {
+        transition: none;
+    }
+
+    // Leaving plays out from wherever the toast stands, toward its edge or the way it was swiped; its clock stays
+    // stopped where it ended so anything counting down on it holds still as it goes.
+    > .toast.toast--ending {
+        animation: toast-exit var(--toast-exit-duration) var(--toast-transition-timing-function) forwards;
+        pointer-events: none;
+    }
+
+    > .toast.toast--ending[data-timed] {
+        animation:
+            toast-timer var(--toast-duration) linear forwards paused,
+            toast-exit var(--toast-exit-duration) var(--toast-transition-timing-function) forwards;
+    }
+
+    > .toast[data-swipe-direction='down'] {
+        --toast-exit-x: 0px;
+        --toast-exit-y: calc(100% + var(--toast-inset));
+    }
+
+    > .toast[data-swipe-direction='left'] {
+        --toast-exit-x: calc(-100% - var(--toast-inset));
+        --toast-exit-y: 0px;
+    }
+
+    > .toast[data-swipe-direction='right'] {
+        --toast-exit-x: calc(100% + var(--toast-inset));
+        --toast-exit-y: 0px;
+    }
+
+    > .toast[data-swipe-direction='up'] {
+        --toast-exit-x: 0px;
+        --toast-exit-y: calc(-100% - var(--toast-inset));
+    }
+}
+
+// Entering, from beyond the edge the toaster is pinned to.
+@starting-style {
+    .toaster > .toast {
+        opacity: 0;
+        scale: 1;
+        translate: calc(var(--toast-edge-x) * 120%) calc(var(--toast-edge-y) * 120%);
     }
 }
 
 
 .toast {
-    background: var(--background);
-    border: 1px solid var(--color-border-400);
-    border-radius: var(--border-radius-500);
-    box-shadow: var(--box-shadow-300);
-    color: var(--color-text-400);
-    inset-inline: 0;
-    overflow: visible;
-    position: absolute;
-    scale: var(--toast-scale);
-    transition:
-        translate 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-        scale 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-        opacity 0.3s,
-        height 0.2s;
-    translate: var(--toast-swipe-x) calc(var(--toast-swipe-y) + (var(--toast-index) * var(--toast-peek)) + (var(--toast-shrink) * var(--toast-calc-height)));
-    user-select: none;
-    width: 100%;
-    z-index: calc(9999 - var(--toast-index, 0));
-
-
-    [data-position*='top'] & {
-        bottom: auto;
-        top: 0;
-        transform-origin: top;
-    }
-
-    [data-position*='bottom'] & {
-        bottom: 0;
-        top: auto;
-        transform-origin: bottom;
-        translate: var(--toast-swipe-x) calc(var(--toast-swipe-y) - (var(--toast-index) * var(--toast-peek)) - (var(--toast-shrink) * var(--toast-calc-height)));
-    }
-
-
-    // Invisible hit-area bridging the gap between stacked toasts while collapsed.
-    &::after {
-        content: '';
-        height: calc(var(--toast-gap) + 1px);
-        left: 0;
+    // Pinned over the toast's corner; scoped to outrank the '.button' layout it pairs with.
+    > .toast-close {
+        height: var(--size);
+        inset-inline-end: var(--offset);
         position: absolute;
-        width: 100%;
-    }
-
-    [data-position*='top'] &::after {
-        top: 100%;
-    }
-
-    [data-position*='bottom'] &::after {
-        bottom: 100%;
-    }
-
-
-    &-action {
-        flex-shrink: 0;
-    }
-
-    &-close {
-        align-items: center;
-        background: var(--background);
-        border: 1px solid var(--color-border-400);
-        border-radius: 100%;
-        color: var(--color-text-500);
-        display: flex;
-        height: var(--size-500);
-        justify-content: center;
-        inset-inline-end: calc(var(--size-200) * -1);
-        position: absolute;
-        top: calc(var(--size-200) * -1);
-        width: var(--size-500);
+        top: var(--offset);
+        width: var(--size);
         z-index: 1;
+
+        svg {
+            height: var(--icon-size);
+            width: var(--icon-size);
+        }
     }
 
     &-content {
         align-items: center;
         display: flex;
-        gap: var(--size-300);
-        justify-content: space-between;
-        min-height: 0;
-        opacity: max(0, 1 - var(--toast-index, 0));
-        overflow-x: clip;
-        overflow-y: visible;
-        padding: var(--size-400);
-        transition: opacity 0.3s;
+        gap: var(--toast-content-gap);
+        min-width: 0;
     }
-
-    &-copy {
-        align-items: center;
-        display: inline-flex;
-        justify-content: center;
-
-        // The shared check carries no stroke of its own; the copy glyph brings its own and ignores these.
-        .icon svg {
-            fill: none;
-            stroke: currentColor;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-width: 2;
-        }
-    }
-
-    // The ring is the timer itself: linear because it is a clock.
-    &-countdown {
-        flex-shrink: 0;
-        height: 20px;
-        rotate: -90deg;
-        width: 20px;
-
-        circle {
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-        }
-
-        &-ring {
-            animation: toast-countdown linear forwards;
-            stroke-dasharray: var(--toast-countdown-length);
-            stroke-linecap: round;
-        }
-
-        &-track {
-            opacity: 0.2;
-        }
-    }
-
-    &-description {
-        color: var(--color-text-300);
-        overflow-wrap: anywhere;
-
-        &--clamp {
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 4;
-            display: -webkit-box;
-            line-clamp: 4;
-            overflow: hidden;
-        }
-    }
-
-    &-details {
-        margin-block-start: var(--size-200);
-        max-height: 160px;
-        overflow-y: auto;
-    }
-
-    &-details-toggle {
-        align-items: center;
-        cursor: pointer;
-        display: flex;
-        gap: var(--size-200);
-    }
-
-    &-icon {
-        color: var(--toast-color);
-        flex-shrink: 0;
-        height: 18px;
-        width: 18px;
-    }
-
-    &-title {
-        font-weight: var(--font-weight-400);
-        overflow-wrap: anywhere;
-    }
-
-
-    &--error {
-        border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
-    }
-
-    &--warning {
-        border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
-    }
-
-    &--success {
-        border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
-    }
-
-    &--info {
-        border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
-    }
-
-    &--loading {
-        border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
-
-        .toast-icon {
-            animation: toast-spin 1s linear infinite;
-        }
-    }
-
-    &--message {
-        border-color: color-mix(in oklab, var(--toast-color) 30%, var(--color-border-400));
-    }
-}
-
-
-// active (viewport hovered): everything fans out to its own measured offset.
-#{tokens.state(active, '.toaster')} .toast {
-    height: auto;
-    scale: 1;
-    translate: var(--toast-swipe-x) var(--toast-calc-offset-y);
-}
-
-#{tokens.state(active, '.toaster')} .toast-content {
-    opacity: 1;
-}
-
-
-// Hovering the stack pauses every timer, so the rings pause with them.
-#{tokens.state(active, '.toaster')} .toast-countdown-ring {
-    animation-play-state: paused;
-}
-
-
-// Entering: start off-screen (faded) and let the base transform animate in.
-.toaster .toast.toast--starting {
-    opacity: 0;
-    scale: 1;
-}
-
-.toaster[data-position*='top'] .toast.toast--starting {
-    translate: 0 -120%;
-}
-
-.toaster[data-position*='bottom'] .toast.toast--starting {
-    translate: 0 120%;
-}
-
-
-// Leaving: fade, then slide toward the matching viewport edge (or the swipe
-// direction the gesture reported).
-.toaster .toast.toast--ending {
-    opacity: 0;
-    scale: 1;
-}
-
-.toaster[data-position*='top'] .toast.toast--ending {
-    translate: 0 calc(-100% - var(--toast-inset));
-}
-
-.toaster[data-position*='bottom'] .toast.toast--ending {
-    translate: 0 calc(100% + var(--toast-inset));
-}
-
-.toaster .toast.toast--ending[data-swipe-direction='left'] {
-    translate: calc(var(--toast-swipe-x) - 100% - var(--toast-inset)) var(--toast-calc-offset-y);
-}
-
-.toaster .toast.toast--ending[data-swipe-direction='right'] {
-    translate: calc(var(--toast-swipe-x) + 100% + var(--toast-inset)) var(--toast-calc-offset-y);
-}
-
-.toaster .toast.toast--ending[data-swipe-direction='up'] {
-    translate: 0 calc(var(--toast-swipe-y) - 100% - var(--toast-inset));
-}
-
-.toaster .toast.toast--ending[data-swipe-direction='down'] {
-    translate: 0 calc(var(--toast-swipe-y) + 100% + var(--toast-inset));
-}
-
-
-// Following the finger: never ease the transform during a swipe.
-.toast--swiping {
-    transition: none;
 }
 
 
 @media (prefers-reduced-motion: reduce) {
-    .toast,
-    .toast-content {
+    .toaster > .toast {
         transition: none;
+
+        &.toast--ending {
+            animation-name: toast-fade;
+        }
+
+        &.toast--ending[data-timed] {
+            animation-name: toast-timer, toast-fade;
+        }
     }
 }
 
 
-@keyframes toast-countdown {
+@keyframes toast-exit {
     to {
-        stroke-dashoffset: var(--toast-countdown-length);
+        opacity: 0;
+        translate: calc(var(--toast-swipe-x) + var(--toast-exit-x)) calc(var(--toast-swipe-y) + var(--toast-y) + var(--toast-exit-y));
     }
 }
 
-@keyframes toast-spin {
+@keyframes toast-fade {
     to {
-        rotate: 360deg;
+        opacity: 0;
+    }
+}
+
+@keyframes toast-timer {
+    from {
+        --toast-progress: 0;
+    }
+
+    to {
+        --toast-progress: 1;
     }
 }

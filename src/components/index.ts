@@ -46,7 +46,7 @@ export { default as surfaceField } from './surface-field';
 export { default as switch } from './switch';
 export { default as tasklist } from './tasklist';
 export { default as textarea } from './textarea';
-export { default as toaster, toast } from './toast';
+export { default as toaster } from './toast';
 export { default as tooltip } from './tooltip';
 export { default as truncate } from './truncate';
 export { default as typewriter } from './typewriter';
