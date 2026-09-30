@@ -214,9 +214,9 @@ const meta: Record<string, Meta> = {
         category: 'Layout',
         description: 'Scroll panel whose header condenses from its before content into its after content as a compact bar.'
     },
-    'story-progress': {
+    story: {
         category: 'Interactive',
-        description: 'Auto-advancing stories with segmented progress bars, tap-to-navigate, and press-and-hold to pause.'
+        description: 'Auto-advancing stories of any content with segmented progress bars, tap or drag to navigate, and press-and-hold to pause.'
     },
     'surface-field': {
         category: 'Display',

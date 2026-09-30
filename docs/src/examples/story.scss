@@ -1,0 +1,31 @@
+.story-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+    justify-content: flex-end;
+    padding: 24px;
+
+    &--gradient {
+        background: linear-gradient(160deg, var(--color-primary-400), var(--color-primary-500));
+        color: var(--color-white-500);
+
+        .story-demo-caption {
+            color: inherit;
+        }
+    }
+
+    &-caption {
+        color: var(--color-text-300);
+        font-size: 15px;
+        text-wrap: pretty;
+    }
+
+    &-value {
+        font-size: 72px;
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+        letter-spacing: -0.025em;
+        line-height: 1;
+    }
+}

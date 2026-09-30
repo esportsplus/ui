@@ -1,7 +1,7 @@
 @use '/tokens';
 @use 'variables';
 
-.story-progress {
+.story {
     background: var(--background);
     border-radius: var(--radius);
     box-shadow: var(--box-shadow);
@@ -12,7 +12,8 @@
     outline: none;
     overflow: hidden;
     position: relative;
-    touch-action: manipulation;
+    // Horizontal drags change story; vertical ones still scroll the page.
+    touch-action: pan-y;
     user-select: none;
     width: min(var(--max-width), 100%);
 
@@ -21,24 +22,33 @@
         outline-offset: 2px;
     }
 
+    &.--paused {
+        --play-state: paused;
+    }
+
     &-bar {
         background: var(--bar-color);
         border-radius: 999px;
         flex: 1;
         height: var(--bar-height);
         overflow: hidden;
+
+        &.--done {
+            --scale: 1;
+        }
+
+        // The fill is the timer: its 'animationend' advances the story, so the bar and the content can't drift.
+        @include tokens.state(active) {
+            .story-fill {
+                animation: story-fill var(--duration) linear forwards var(--play-state, running);
+            }
+        }
     }
 
     &-bars {
         display: flex;
         gap: 4px;
         padding: 12px 12px 0;
-    }
-
-    &-caption {
-        color: var(--muted-color);
-        font-size: 15px;
-        text-wrap: pretty;
     }
 
     &-count {
@@ -52,6 +62,7 @@
         border-radius: 999px;
         display: block;
         height: 100%;
+        transform: scaleX(var(--scale, 0));
         transform-origin: left;
     }
 
@@ -88,6 +99,11 @@
         scale: 1;
     }
 
+    &-slide {
+        min-height: 0;
+        overflow: hidden;
+    }
+
     &-sr {
         clip-path: inset(50%);
         height: 1px;
@@ -96,39 +112,6 @@
         position: absolute;
         white-space: nowrap;
         width: 1px;
-    }
-
-    &-stories {
-        flex: 1;
-        position: relative;
-        transition: opacity 0.2s ease-out;
-
-        &.--dimmed {
-            opacity: var(--dim-opacity);
-        }
-    }
-
-    &-story {
-        display: flex;
-        filter: blur(4px);
-        flex-direction: column;
-        gap: 8px;
-        inset: 0;
-        justify-content: flex-end;
-        opacity: 0;
-        padding: 24px;
-        position: absolute;
-        transition:
-            filter 0.15s var(--ease-out),
-            opacity 0.15s var(--ease-out);
-
-        @include tokens.state(active) {
-            filter: blur(0);
-            opacity: 1;
-            transition:
-                filter 0.25s var(--ease-out),
-                opacity 0.25s var(--ease-out);
-        }
     }
 
     &-toggle {
@@ -161,15 +144,26 @@
         }
     }
 
-    &-value {
-        font-size: var(--value-font-size);
-        font-variant-numeric: tabular-nums;
-        font-weight: 500;
-        letter-spacing: -0.025em;
-        line-height: 1;
+    // A 'frame--slide' track: '--i' is the shown story, fractional while a drag carries it between two. It sits
+    // above the zones so interactive story content stays clickable.
+    &-track {
+        flex: 1;
+        min-height: 0;
+        position: relative;
+        transition: opacity 0.2s ease-out;
+        z-index: 1;
+
+        &.--dimmed {
+            opacity: var(--dim-opacity);
+        }
+
+        &.--dragging .story-slide {
+            transition: none;
+        }
     }
 
-    // Reachable by screen readers; pointer taps are handled by the card itself.
+    // Reachable by screen readers; pointer taps and drags are handled by the card itself. Back is the left third,
+    // matching the tap split in the component.
     &-zones {
         bottom: 0;
         display: flex;
@@ -184,13 +178,16 @@
             flex: 1;
             outline: none;
             padding: 0;
+
+            &:last-child {
+                flex: 2;
+            }
         }
     }
 
     @media (prefers-reduced-motion: reduce) {
         &-play,
-        &-toggle.--paused &-pause,
-        &-story {
+        &-toggle.--paused &-pause {
             filter: none;
         }
 
@@ -202,5 +199,15 @@
         &-toggle {
             transition: color 0.15s ease-out;
         }
+    }
+}
+
+@keyframes story-fill {
+    from {
+        transform: scaleX(0);
+    }
+
+    to {
+        transform: scaleX(1);
     }
 }

@@ -41,7 +41,7 @@ export { default as shortcutRecorder } from './shortcut-recorder';
 export { default as slider } from './slider';
 export { default as sortable } from './sortable';
 export { default as stickyHeader } from './sticky-header';
-export { default as storyProgress } from './story-progress';
+export { default as story } from './story';
 export { default as surfaceField } from './surface-field';
 export { default as swipeDeck } from './swipe-deck';
 export { default as switch } from './switch';
