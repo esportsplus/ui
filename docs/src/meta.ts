@@ -258,10 +258,6 @@ const meta: Record<string, Meta> = {
         category: 'Display',
         description: 'Headline word that gets selected and typed over with a human rhythm, like a person editing a text field.'
     },
-    'undo-toast': {
-        category: 'Feedback',
-        description: 'Deletes that wait behind an Undo toast with a countdown ring before they commit.'
-    },
     'value-flash': {
         category: 'Display',
         description: 'Marks what just changed with a directional roll, tint, and arrow.'
