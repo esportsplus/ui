@@ -1,23 +1,7 @@
-@use 'list';
 @use 'sass:meta';
 @use 'sass:string';
 
 @forward 'sass:string';
-
-@function contains($needles, $haystack) {
-    $haystack: string.quote($haystack);
-    $needles: list.to-list($needles);
-
-    @each $needle in $needles {
-        $needle: string.quote($needle);
-
-        @if string.index($haystack, $needle) != null {
-            @return true;
-        }
-    }
-
-    @return false;
-}
 
 @function replace($find, $replace, $haystack) {
     @if meta.type-of($haystack) != string {

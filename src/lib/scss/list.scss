@@ -4,19 +4,6 @@
 
 @forward 'sass:list';
 
-@function contains($needles, $haystack) {
-    $haystack: to-list($haystack);
-    $needles: to-list($needles);
-
-    @each $needle in $needles {
-        @if list.index($haystack, $needle) {
-            @return true;
-        }
-    }
-
-    @return false;
-}
-
 @function implode($glue, $list) {
     $list: unique($list);
     $output: null;
