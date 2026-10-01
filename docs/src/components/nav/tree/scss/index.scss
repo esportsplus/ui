@@ -1,4 +1,12 @@
 .nav-tree {
+    &-group,
+    &-link,
+    &-links {
+        &.--hidden {
+            display: none;
+        }
+    }
+
     &-indicator {
         background: var(--color-blue-400);
         height: 0;

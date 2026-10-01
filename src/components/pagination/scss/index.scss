@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'dots';
 @use 'variables';
 
@@ -16,6 +17,11 @@
 
     &-control {
         gap: var(--size-100);
+
+        @include tokens.state(disabled) {
+            opacity: 0.64;
+            pointer-events: none;
+        }
     }
 
     &-page {

@@ -306,7 +306,7 @@ Located in `tokens.scss`:
 <p class="--text-uppercase --color-grey-400">
 
 <!-- States -->
-<div class="--skeleton --disabled --hidden">
+<div class="--skeleton">
 ```
 
 ### Component Variables

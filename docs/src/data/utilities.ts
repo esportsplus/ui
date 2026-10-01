@@ -35,10 +35,6 @@ function gap(key: number) {
     return `--gap-horizontal: var(--size-${key}); --gap-vertical: var(--size-${key});`;
 }
 
-function note(text: string) {
-    return html`<p class='docs-page-note'>${text}</p>`;
-}
-
 
 const utilities: Utility[] = [
     {
@@ -179,45 +175,6 @@ const utilities: Utility[] = [
             {
                 render: () => html`<div class='--text-truncate' style='max-width: 240px;'>This sentence is intentionally long so it gets truncated with an ellipsis.</div>`,
                 title: 'truncate'
-            }
-        ]
-    },
-    {
-        category: 'State',
-        description: 'Dim an element and block interaction to signal a disabled state.',
-        name: 'disabled',
-        variants: [
-            {
-                render: () => html`<div class='button button--primary --disabled' style='--width: auto;'>Disabled</div>`,
-                title: 'disabled'
-            }
-        ]
-    },
-    {
-        category: 'State',
-        description: 'Hide elements from layout and assistive technology with --hidden.',
-        name: 'hidden',
-        variants: [
-            {
-                render: () => html`
-                    <div class='--flex-center' style='${gap(400)}'>
-                        ${box('visible')}
-                        <div class='--hidden' style='${boxStyle()}'>hidden</div>
-                        ${note('The second box uses --hidden and is removed from layout.')}
-                    </div>
-                `,
-                title: 'hidden'
-            }
-        ]
-    },
-    {
-        category: 'State',
-        description: 'Set the not-allowed cursor to communicate a blocked interaction.',
-        name: 'not-allowed',
-        variants: [
-            {
-                render: () => html`<div class='button button--tertiary --not-allowed' style='--width: auto;'>Hover me</div>`,
-                title: 'not-allowed'
             }
         ]
     },
