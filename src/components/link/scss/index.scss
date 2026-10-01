@@ -1,10 +1,9 @@
-@use '/lib';
-@use '/tokens';
+@use '/shared';
 @use 'variables';
 @use '../../text/scss/index';
 
 .link {
-    @extend .text;
+    @extend %background-state, %border-state, %color-state, .text;
     align-content: center;
     background: var(--background);
     cursor: pointer;

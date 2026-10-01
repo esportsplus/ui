@@ -1,5 +1,5 @@
+@use '/shared';
 @use '/tokens';
-@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 .input-tag {
     color: var(--color);
@@ -115,10 +115,8 @@
         }
 
         &-text {
-            overflow: hidden;
+            @extend %text-truncate;
             position: relative;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
     }
 
@@ -170,7 +168,7 @@
     }
 
     &-live {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 }
 

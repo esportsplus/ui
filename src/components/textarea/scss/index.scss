@@ -1,6 +1,8 @@
+@use '/shared';
 @use 'variables';
 
 .textarea {
+    @extend %background-state, %border-state, %color-state;
     background: var(--background);
     border: var(--border-width) var(--border-style) var(--border-color);
     border-radius: var(--border-radius);

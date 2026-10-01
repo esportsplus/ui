@@ -1,7 +1,9 @@
+@use '/shared';
 @use 'filter';
 @use 'variables';
 
 .range {
+    @extend %background-state, %border-state;
     background: var(--background);
     border-radius: 240px;
     border: 0px;

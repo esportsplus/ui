@@ -1,6 +1,6 @@
+@use '/shared';
 @use '/tokens';
 @use 'variables';
-@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 .story {
     background: var(--background);
@@ -106,7 +106,7 @@
     }
 
     &-sr {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
         margin: 0;
     }
 

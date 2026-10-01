@@ -1,4 +1,4 @@
-@use '../../../css-utilities/hidden/scss/index' as hidden;
+@use '/shared';
 
 // Every part is exactly one line tall, so centring lines them up; baseline alignment breaks on the clipped digit
 // columns.
@@ -80,7 +80,7 @@
     }
 
     &-sr {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 
     &-strip {

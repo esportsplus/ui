@@ -1,5 +1,5 @@
+@use '/shared';
 @use 'variables';
-@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 .error {
     cursor: auto;
@@ -28,7 +28,7 @@
     }
 
     &-live {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 
     // Long messages wrap instead of running off in one line.

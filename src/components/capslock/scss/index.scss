@@ -1,6 +1,6 @@
+@use '/shared';
 @use '/tokens';
 @use 'variables';
-@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 .capslock {
     filter: blur(2px);
@@ -50,7 +50,7 @@
     }
 
     &-live {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 
     @media (prefers-reduced-motion: reduce) {

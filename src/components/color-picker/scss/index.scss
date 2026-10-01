@@ -1,6 +1,6 @@
+@use '/shared';
 @use '/tokens';
 @use 'variables';
-@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 @mixin thumb {
     background: var(--thumb);
@@ -175,7 +175,7 @@
     }
 
     &-status {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 
     &-swatch {

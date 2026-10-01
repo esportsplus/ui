@@ -1,6 +1,6 @@
+@use '/shared';
 @use '/tokens';
 @use 'variables';
-@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 // Pulled out by its own padding, so the text lines up with the surrounding content while the tint still has room.
 .inline-edit {
@@ -276,7 +276,7 @@
     }
 
     &-label {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 
     // Visible overflow lets the block select's list hang outside the bar.

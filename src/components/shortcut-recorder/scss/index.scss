@@ -1,7 +1,9 @@
+@use '/shared';
 @use '/tokens';
 @use 'variables';
 
 .shortcut-recorder {
+    @extend %background-state, %border-state;
     align-items: center;
     background: var(--background);
     border: 0;

@@ -1,3 +1,4 @@
+@use '/shared';
 @use '/tokens';
 @use 'variables';
 
@@ -145,13 +146,10 @@
     }
 
     &-summary {
+        @extend %text-truncate;
         color: var(--muted-color);
         font-size: 14px;
         margin: 0;
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
     }
 
     &-panel &-summary {
@@ -162,13 +160,11 @@
     }
 
     &-title {
+        @extend %text-truncate;
         color: var(--text-color);
         font-size: 15px;
         font-weight: 500;
         margin: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
     }
 
     // Only the card on the move and its open dialog are named, so the rest of the list stays under the backdrop.

@@ -1,11 +1,5 @@
-@use '/tokens';
-
 .range {
-    --background: var(--background-default);
-    --background-active: var(--background-default);
     --background-default: linear-gradient(to right, var(--thumb-background) var(--thumb-position), var(--color-black-300) var(--thumb-position));
-    --background-hover: var(--background-default);
-    --background-pressed: var(--background-default);
     --border-width: var(--border-width-700);
     --height: var(--size-200);
     --margin-horizontal: 0px;
@@ -13,21 +7,6 @@
     --thumb-background: var(--color-white-400);
     --thumb-size: var(--size-400);
     --width: 100%;
-
-    #{tokens.state(inactive, 'label')},
-    #{tokens.state(inactive)} {
-        @include tokens.state(hover) {
-            --background: var(--background-hover);
-        }
-
-        @include tokens.state(pressed) {
-            --background: var(--background-pressed);
-        }
-    }
-
-    #{tokens.state(active)} {
-        --background: var(--background-active);
-    }
 
     &-filter {
         --clear-background: var(--color-white-300);

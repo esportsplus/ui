@@ -1,6 +1,6 @@
+@use '/shared';
 @use '/tokens';
 @use 'variables';
-@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 .cc {
     color: var(--color);
@@ -129,15 +129,13 @@
 
     // Shares the label's row, so showing it never shifts the fields below.
     &-error {
+        @extend %text-truncate;
         color: var(--error-color);
         font-size: 13px;
-        overflow: hidden;
-        text-overflow: ellipsis;
         transition:
             filter 200ms cubic-bezier(0.23, 1, 0.32, 1),
             opacity 200ms cubic-bezier(0.23, 1, 0.32, 1),
             translate 200ms cubic-bezier(0.23, 1, 0.32, 1);
-        white-space: nowrap;
 
         @starting-style {
             filter: blur(4px);
@@ -239,12 +237,10 @@
         min-width: 0;
 
         &-value {
+            @extend %text-truncate;
             font-size: 15px;
             font-weight: var(--font-weight-500);
-            overflow: hidden;
-            text-overflow: ellipsis;
             text-transform: uppercase;
-            white-space: nowrap;
         }
     }
 
@@ -255,7 +251,7 @@
     }
 
     &-live {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 
     &-note {

@@ -1,14 +1,13 @@
-@use '/lib';
+@use '/shared';
 @use '/tokens';
 @use 'fan';
 @use 'kbd';
 @use 'morph';
 @use 'variables';
 @use '../../text/scss/index';
-@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 .button {
-    @extend .text;
+    @extend %background-state, %border-state, %color-state, .text;
     align-content: center;
     align-items: center;
     background: var(--background);
@@ -25,7 +24,7 @@
 
     // Pseudo Element Box Shadow
     &::after {
-        @include lib.position(absolute, full);
+        @extend %absolute-full;
         border-radius: inherit;
         box-shadow: var(--box-shadow);
         content: '';
@@ -78,7 +77,7 @@
         pointer-events: none;
 
         &::before {
-            @include lib.position(absolute, center);
+            @extend %absolute-center;
             animation: button--processing var(--animation-duration) infinite linear;
             border: var(--border-width) solid color-mix(in srgb, var(--processing-color), transparent 90%);
             border-left-color: var(--processing-color);
@@ -189,7 +188,7 @@
     }
 
     &-fill {
-        @include lib.position(absolute, full);
+        @extend %absolute-full;
         background: var(--fill-background);
         border-radius: inherit;
         clip-path: inset(0 100% 0 0);
@@ -223,7 +222,7 @@
     }
 
     &-status {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 
     @media (prefers-reduced-motion: reduce) {

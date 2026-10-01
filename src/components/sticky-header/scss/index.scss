@@ -1,4 +1,4 @@
-@use '/lib';
+@use '/shared';
 @use 'variables';
 
 // The scroller's timeline is scoped to the whole header so the bar, its sibling, can run on it.
@@ -9,14 +9,14 @@
     // Covers the whole card and clips to its corners, since the card itself can't clip without losing its shadow;
     // the plate slides up past the top and the edges hang below the header.
     &-bar {
-        @include lib.position(absolute, full);
+        @extend %absolute-full;
         border-radius: inherit;
         overflow: clip;
         pointer-events: none;
     }
 
     &-after {
-        @include lib.position(absolute, top);
+        @extend %absolute-top;
         align-items: center;
         display: flex;
         height: var(--compact-height);
@@ -34,7 +34,7 @@
     }
 
     &-before {
-        @include lib.position(absolute, top);
+        @extend %absolute-top;
         opacity: clamp(0, 1 - var(--sticky-header-progress) / 0.45, 1);
         padding: var(--padding-top) var(--gutter) 0;
         scale: calc(1 - 0.05 * var(--sticky-header-progress));
@@ -44,7 +44,7 @@
 
     // Edges ride the bottom of the shrinking bar and only appear once content slides underneath.
     &-edge {
-        @include lib.position(absolute, top);
+        @extend %absolute-top;
         opacity: var(--lifted);
         translate: 0 calc(var(--expanded-height) - var(--offset));
 
@@ -66,7 +66,7 @@
 
     // Sliding a solid plate up reads the same as scaling it, without the per-frame raster.
     &-plate {
-        @include lib.position(absolute, top);
+        @extend %absolute-top;
         background: var(--background);
         height: var(--expanded-height);
         translate: 0 calc(var(--offset) * -1);

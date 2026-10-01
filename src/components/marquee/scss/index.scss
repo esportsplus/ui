@@ -1,5 +1,5 @@
+@use '/shared';
 @use 'variables';
-@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 .marquee {
     color: var(--color);
@@ -60,7 +60,7 @@
     }
 
     &-label {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 
     // Lets the mark's children join the item's flex layout, matching the unwrapped aria-hidden copies.

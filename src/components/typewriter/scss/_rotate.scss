@@ -1,4 +1,4 @@
-@use '../../../css-utilities/hidden/scss/index' as hidden;
+@use '/shared';
 
 .typewriter-rotate {
     color: var(--color);
@@ -23,6 +23,6 @@
     }
 
     &-sr {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 }

@@ -1,5 +1,5 @@
+@use '/shared';
 @use 'variables';
-@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 .counter {
     color: var(--color);
@@ -85,7 +85,7 @@
     }
 
     &-sr {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 
     &--ticker {

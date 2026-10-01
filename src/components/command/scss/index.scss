@@ -1,3 +1,4 @@
+@use '/shared';
 @use 'variables';
 
 .command {
@@ -90,12 +91,10 @@
     }
 
     &-label {
+        @extend %text-truncate;
         color: var(--color);
         flex: 1 1 auto;
         min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
 
         &--filtered {
             color: var(--color-muted);
@@ -192,11 +191,9 @@
     }
 
     &-trigger-label {
+        @extend %text-truncate;
         flex: 1 1 auto;
-        overflow: hidden;
         text-align: left;
-        text-overflow: ellipsis;
-        white-space: nowrap;
     }
 
     &-view {

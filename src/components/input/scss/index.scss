@@ -1,8 +1,10 @@
+@use '/shared';
 @use 'scrub';
 @use 'tag';
 @use 'variables';
 
 .input {
+    @extend %background-state, %border-state, %color-state;
     align-items: center;
     background: var(--background);
     border: var(--border-width) var(--border-style) var(--border-color);

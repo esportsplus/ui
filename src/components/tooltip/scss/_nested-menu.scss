@@ -1,3 +1,4 @@
+@use '/shared';
 @use '/tokens';
 
 // 'tooltip.nestedMenu'; the root also carries '.tooltip', for its stacking and positioning.
@@ -105,11 +106,9 @@
 
     &-label,
     &-title {
+        @extend %text-truncate;
         flex: 1;
         min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
     }
 
     &-panel {

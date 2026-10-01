@@ -1,9 +1,11 @@
 @use '/lib';
+@use '/shared';
 @use '/tokens';
 @use 'menu';
 @use 'variables';
 
 .select {
+    @extend %background-state, %border-state, %color-state;
     background: var(--background);
     border-radius: var(--border-radius);
     color: var(--color);

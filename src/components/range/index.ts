@@ -22,7 +22,7 @@ function plain(
 
     return html`
         <input
-            class='range --border-state --border-black'
+            class='range --border-black'
             style='${() => `--thumb-position: ${((state.value - min) / (max - min)) * 100}%`}'
             type='range'
             ${this?.attributes}

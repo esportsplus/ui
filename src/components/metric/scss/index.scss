@@ -1,7 +1,7 @@
+@use '/shared';
 @use '/tokens';
 @use 'flash';
 @use 'variables';
-@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 .metric {
     background: var(--background);
@@ -117,7 +117,7 @@
     }
 
     &-sr {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 
     &-svg {

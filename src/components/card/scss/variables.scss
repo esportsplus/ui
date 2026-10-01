@@ -1,5 +1,3 @@
-@use '/tokens';
-
 // Shared with the view transition pseudos, which hang off the root and can't read the card's own variables.
 $expand-border-radius: 18px;
 $expand-box-shadow:
@@ -8,37 +6,12 @@ $expand-box-shadow:
     0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
 
 .card {
-    --background: var(--background-default);
-    --background-active: var(--background-default);
-    --background-default: transparent;
-    --background-hover: var(--background-default);
-    --background-pressed: var(--background-default);
-    --border-color: var(--border-color-default);
-    --border-color-active: var(--border-color-default);
     --border-color-default: var(--background);
-    --border-color-hover: var(--border-color-default);
-    --border-color-pressed: var(--border-color-default);
     --box-shadow: var(--box-shadow-default);
     --box-shadow-default: none;
     --padding-horizontal: 0px;
     --padding-vertical: 0px;
     --width: auto;
-
-
-    @include tokens.state(active) {
-        --background: var(--background-active);
-        --border-color: var(--border-color-active);
-    }
-
-    @include tokens.state(hover) {
-        --background: var(--background-hover);
-        --border-color: var(--border-color-hover);
-    }
-
-    @include tokens.state(pressed) {
-        --background: var(--background-pressed);
-        --border-color: var(--border-color-pressed);
-    }
 
 
     &--expand,

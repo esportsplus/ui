@@ -1,3 +1,4 @@
+@use '/shared';
 @use '/tokens';
 @use 'variables';
 
@@ -151,13 +152,11 @@
 
         // Sized to its text, so the rest of the header stays free to carry the surface.
         &-title {
+            @extend %text-truncate;
             color: var(--surface-title-color);
             flex: 0 1 auto;
             font-weight: 600;
             min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
         &-header > &-title + &-handle {

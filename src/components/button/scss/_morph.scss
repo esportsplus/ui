@@ -1,4 +1,4 @@
-@use '../../../css-utilities/hidden/scss/index' as hidden;
+@use '/shared';
 
 // Compound selector so these win over `.button`, whose rules follow this partial.
 .button.button--morph {
@@ -88,7 +88,7 @@
     }
 
     &-live {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
     }
 
     // Turns about the icon box: the arc alone is off-centre, so its own box would wobble.

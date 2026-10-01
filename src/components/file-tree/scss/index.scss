@@ -1,3 +1,4 @@
+@use '/shared';
 @use '/tokens';
 @use 'variables';
 
@@ -357,11 +358,9 @@
     }
 
     &-name {
+        @extend %text-truncate;
         color: var(--tone, inherit);
         min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
 
         [data-tone='deleted'] > & {
             text-decoration: line-through;

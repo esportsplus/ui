@@ -1,5 +1,5 @@
+@use '/shared';
 @use 'variables';
-@use '../../../css-utilities/hidden/scss/index' as hidden;
 
 // JS writes only '--pull-to-refresh-y' (feed offset in px, unitless), '--reveal' (share of ticks drawn) and '--threshold'
 // (px to pull before letting go refreshes); everything else is derived here, and the springs between targets are
@@ -66,7 +66,7 @@
     }
 
     &-status {
-        @extend .--hidden-visually;
+        @extend %hidden-visually;
         border: 0;
     }
 

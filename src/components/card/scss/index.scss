@@ -1,9 +1,10 @@
-@use '/lib';
+@use '/shared';
 @use 'expand';
 @use 'variables';
 @use '../../frame/scss/index';
 
 .card {
+    @extend %background-state, %border-state;
     background: var(--background);
     border-radius: var(--border-radius);
     padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
@@ -21,7 +22,7 @@
 
     // Pseudo Element Box Shadow
     &::after {
-        @include lib.position(absolute, full);
+        @extend %absolute-full;
         border-radius: inherit;
         box-shadow: var(--box-shadow);
         content: '';

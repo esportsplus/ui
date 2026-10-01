@@ -1,4 +1,4 @@
-@use '@esportsplus/ui/lib.scss';
+@use '@esportsplus/ui/shared.scss';
 
 
 .preview {
@@ -24,7 +24,7 @@
         padding: var(--size-600) var(--size-500);
 
         &::after {
-            @include lib.position(absolute, full);
+            @extend %absolute-full;
             background-image: radial-gradient(var(--color-border-400) 1px, transparent 1px);
             background-position: center;
             background-size: 16px 16px;
