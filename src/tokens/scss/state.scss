@@ -19,7 +19,7 @@
  */
 
 @use 'sass:meta';
-@use '../../lib';
+@use '/lib';
 
 $state: (
     active: '&.--active',
