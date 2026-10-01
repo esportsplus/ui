@@ -1,10 +1,6 @@
-@use '../../anchor/scss/index' as anchor;
-
-
 // Placed like overlay, extending the same anchor placements and stack variables: 'toaster--n' is top center,
 // 'toaster--ne' top right, and so on round; unplaced, it sits top right.
 .toaster {
-    @extend .anchor;
     --margin-horizontal: var(--size-500);
     --margin-vertical: var(--size-500);
     --stack-peek: var(--size-300);
@@ -26,16 +22,6 @@
     --toast-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     --toast-width: 360px;
 
-    // Unplaced, it sits top right; only then, so any placement still wins.
-    &:not([class*='toaster--']) {
-        @extend .anchor--ne;
-    }
-
-    @each $placement in anchor.$placements {
-        &--#{$placement} {
-            @extend .anchor--#{$placement};
-        }
-    }
 
     &--s,
     &--se,

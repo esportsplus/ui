@@ -1,18 +1,18 @@
 // Anchor placements name the edge or corner an element is pinned to: 'n' is top center, 'ne' top right and so on
-// round; unplaced, it is centered. Blocks extend them ('.overlay' extends '.anchor', '.overlay--n' '.anchor--n', and
+// round; unplaced, it is centered. Blocks extend them ('.overlay' extends '%anchor', '.overlay--n' '%anchor--n', and
 // so on), so every placed block shares these variables:
 //   '--translate' ('--translate-x' '--translate-y'): where it enters from and leaves toward, clear of its edge;
 //   '--stack-translate': the way the layers it covers recede, back from its edge;
 //   '--stack-span': the share of its size a covered layer's far edge gives up by scaling about its anchor;
 //   '--opacity': edges travel in whole; centered, it fades.
 // Corners enter from, and leave toward, their top or bottom edge. Every placement sets each variable outright, so none
-// inherits part of another. Their script half is 'anchor/edge'.
+// inherits part of another. Their script half is 'shared/anchor'.
 
 
 $placements: ('e', 'n', 'ne', 'nw', 's', 'se', 'sw', 'w');
 
 
-.anchor {
+%anchor {
     --opacity: 0;
     --stack-span: 50%;
     --stack-translate: 0 calc(var(--stack-shift) * -1);

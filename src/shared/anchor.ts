@@ -1,5 +1,5 @@
 // The anchor placements ('n' top center, 'ne' top right, ...) an element can be pinned by, as the signs of the edges
-// each touches. Their stylesheet half is 'anchor/scss'.
+// each touches. Their stylesheet half is 'shared/scss/anchor'.
 
 
 type Edge = {

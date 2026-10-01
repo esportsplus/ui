@@ -1,6 +1,6 @@
 import { computed, effect, reactive, read } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import { edge, type Edge } from '~/components/anchor';
+import { edge, type Edge } from '~/shared/anchor';
 import { drag, fling, toward } from '~/shared/drag';
 import close from '@esportsplus/ui/svg/close.svg';
 import '~/components/button/scss/index.scss';
