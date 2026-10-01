@@ -8,7 +8,7 @@ import shelljs from 'shelljs';
 // Every stylesheet compiled from the library's source sits in the cascade layer its top-level folder names, in the
 // order 'layer.scss' declares. Wrapped as it compiles rather than once bundled, so the docs, which build from source,
 // layer exactly as the published files do; their own styles, outside it, stay unlayered and override the library.
-const LAYERS = ['components', 'css-utilities', 'normalize', 'shared', 'themes'];
+const LAYERS = ['components', 'css-utilities', 'normalize', 'themes'];
 
 // Minification only keeps '/*! ... */' license comments at the top level, so they stay outside the layer.
 const LICENSE = /^(?:\s*\/\*![\s\S]*?\*\/)+/;
@@ -50,7 +50,6 @@ export default defineConfig(() => {
             rollupOptions: {
                 input: [
                     ...glob.sync('./src/normalize/scss/index.scss'),
-                    ...glob.sync('./src/shared/scss/index.scss'),
                     ...glob.sync('./src/{components,css-utilities,themes/dark,themes/light}/*/scss/index.scss'),
                     ...glob.sync('./src/css-utilities/font/*/scss/index.scss'),
                     ...glob.sync('./src/css-utilities/index.scss')
