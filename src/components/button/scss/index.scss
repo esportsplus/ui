@@ -4,10 +4,9 @@
 @use 'kbd';
 @use 'morph';
 @use 'variables';
-@use '../../text/scss/index';
 
 .button {
-    @extend %background-state, %border-state, %color-state, .text;
+    @extend %background-state, %border-state, %color-state, %text;
     align-content: center;
     align-items: center;
     background: var(--background);

@@ -1,3 +1,27 @@
+%text {
+    --border-width: 0px;
+    --color: var(--color-default, inherit);
+    --color-active: var(--color-default);
+    --color-default: var(--color-text-400);
+    --color-hover: var(--color-default);
+    --color-pressed: var(--color-default);
+    --width: auto;
+    color: var(--color);
+    display: flex;
+    font-size: var(--font-size);
+    font-weight: var(--font-weight);
+    gap: var(--gap-vertical) var(--gap-horizontal);
+    line-height: var(--line-height);
+    position: relative;
+    transition: color var(--transition-duration) var(--transition-timing-function);
+    width: var(--width);
+
+
+    &.--text-truncate {
+        display: block;
+    }
+}
+
 %text-truncate {
     max-width: 100%;
     overflow: hidden;

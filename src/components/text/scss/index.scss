@@ -1,18 +1,5 @@
-@use 'variables';
+@use '/shared';
 
 .text {
-    color: var(--color);
-    display: flex;
-    font-size: var(--font-size);
-    font-weight: var(--font-weight);
-    line-height: var(--line-height);
-    gap: var(--gap-vertical) var(--gap-horizontal);
-    position: relative;
-    transition: color var(--transition-duration) var(--transition-timing-function);
-    width: var(--width);
-
-
-    &.--text-truncate {
-        display: block;
-    }
+    @extend %text;
 }
