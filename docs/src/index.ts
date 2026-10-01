@@ -1,3 +1,5 @@
+// Declares the library's layer order before any layered stylesheet can claim a place in it.
+import '@esportsplus/ui/layer.scss';
 import './ui';
 import { fallback, html, middleware, render } from './app';
 import header from './components/header';

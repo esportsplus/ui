@@ -1,3 +1,5 @@
+import '@esportsplus/ui/layer.scss';
+
 import '@esportsplus/ui/css-utilities/font/montserrat.scss';
 import '@esportsplus/ui/css-utilities/font/geist.scss';
 
@@ -10,8 +12,8 @@ import './components/spec/scss/index.scss';
 
 
 // Vite hoists this eager glob above the explicit imports, so every component's
-// source SCSS is injected first; the theme and utility sheets that follow win
-// by source order. In dev the library resolves to `src`, whose SCSS has no
-// `@layer` wrapper (that is added at build), so the cascade is plain source
-// order rather than layers — hence the deliberate ordering here.
+// source SCSS is injected first. Where it lands doesn't matter: each library
+// sheet is wrapped in its cascade layer as it compiles (the vite.config layers
+// plugin), and the order of those layers is declared ahead of everything in
+// index.ts.
 import.meta.glob('../../src/components/*/scss/index.scss', { eager: true });

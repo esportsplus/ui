@@ -1,6 +1,7 @@
 import { config } from '@esportsplus/vite';
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
+import { layers } from '../vite.config';
 import template from '@esportsplus/template/compiler/vite';
 
 
@@ -9,6 +10,7 @@ export default defineConfig((env) => {
         appType: 'spa',
         mode: env.mode,
         plugins: [
+            layers,
             template()
         ],
         resolve: {

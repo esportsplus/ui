@@ -1,7 +1,44 @@
 import { glob } from 'glob';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
+import { resolve } from 'path';
 import autoprefixer from 'autoprefixer';
 import shelljs from 'shelljs';
+
+
+// Every stylesheet compiled from the library's source sits in the cascade layer its top-level folder names, in the
+// order 'layer.scss' declares. Wrapped as it compiles rather than once bundled, so the docs, which build from source,
+// layer exactly as the published files do; their own styles, outside it, stay unlayered and override the library.
+const LAYERS = ['components', 'css-utilities', 'normalize', 'shared', 'themes'];
+
+// Minification only keeps '/*! ... */' license comments at the top level, so they stay outside the layer.
+const LICENSE = /^(?:\s*\/\*![\s\S]*?\*\/)+/;
+
+// These imports get the file's source or address as a module (the docs show source with '?raw'), not compiled CSS.
+const NOT_CSS = /[?&](?:raw|sharedworker|url|worker)\b/;
+
+const SOURCE = resolve(import.meta.dirname, 'src').replace(/\\/g, '/') + '/';
+
+
+const layers: Plugin = {
+    name: '@esportsplus/ui-layers',
+    transform(code, id) {
+        let path = id.split('?')[0].replace(/\\/g, '/');
+
+        if (!path.endsWith('.scss') || !path.startsWith(SOURCE) || NOT_CSS.test(id)) {
+            return;
+        }
+
+        let layer = path.slice(SOURCE.length).split('/')[0];
+
+        if (!LAYERS.includes(layer)) {
+            return;
+        }
+
+        let license = code.match(LICENSE)?.[0] ?? '';
+
+        return { code: `${license}@layer ${layer} {${code.slice(license.length)}}`, map: null };
+    }
+};
 
 
 export default defineConfig(() => {
@@ -13,6 +50,7 @@ export default defineConfig(() => {
             rollupOptions: {
                 input: [
                     ...glob.sync('./src/normalize/scss/index.scss'),
+                    ...glob.sync('./src/shared/scss/index.scss'),
                     ...glob.sync('./src/{components,css-utilities,themes/dark,themes/light}/*/scss/index.scss'),
                     ...glob.sync('./src/css-utilities/font/*/scss/index.scss'),
                     ...glob.sync('./src/css-utilities/index.scss')
@@ -27,45 +65,6 @@ export default defineConfig(() => {
                     },
                 },
                 plugins: [
-                    {
-                        name: '@esportsplus/ui-layers',
-                        generateBundle(_, bundle) {
-                            for (let filename in bundle) {
-                                let file = bundle[filename];
-
-                                if (
-                                    !filename.endsWith('.scss') ||
-                                    file.type !== 'asset' ||
-                                    typeof file.source !== 'string'
-                                ) {
-                                    continue;
-                                }
-
-                                let layer: string,
-                                    segments = file.source.split('\n'),
-                                    // Vite appends a value on bundle
-                                    vite = segments.pop();
-
-                                if (filename.startsWith('css-utilities')) {
-                                    layer = 'css-utilities';
-                                }
-                                else if (filename.startsWith('components')) {
-                                    layer = 'components';
-                                }
-                                else if (filename.startsWith('themes')) {
-                                    layer = 'themes';
-                                }
-                                else if (filename.startsWith('normalize')) {
-                                    layer = 'normalize';
-                                }
-                                else {
-                                    continue;
-                                }
-
-                                file.source = `@layer ${layer} {${segments.join('\n')}}\n${vite}`;
-                            }
-                        }
-                    },
                     {
                         name: '@esportsplus/ui-assets-copy',
                         writeBundle() {
@@ -85,5 +84,11 @@ export default defineConfig(() => {
             },
             transformer: 'lightningcss'
         },
+        plugins: [
+            layers
+        ]
     };
 });
+
+
+export { layers };
