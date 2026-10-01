@@ -71,7 +71,7 @@
         transition: transform var(--flip-duration) var(--flip-timing-function);
         width: 100%;
 
-        &.--flipped {
+        &.cc-card--flipped {
             transform: rotateY(180deg);
         }
     }
@@ -94,7 +94,7 @@
             transition: color var(--transition-duration) var(--transition-timing-function);
             translate: 0 -50%;
 
-            &.--known {
+            &.cc-control-brand--known {
                 color: var(--color);
             }
         }
@@ -103,11 +103,11 @@
     &-digit {
         display: inline-block;
 
-        &.--gap {
+        &.cc-digit--gap {
             margin-inline-start: 0.6em;
         }
 
-        &.--placeholder {
+        &.cc-digit--placeholder {
             opacity: 0.45;
         }
 
@@ -402,7 +402,7 @@
         scale: 1 !important;
     }
 
-    .cc-card.--flipped {
+    .cc-card.cc-card--flipped {
         transform: none;
     }
 
@@ -422,11 +422,11 @@
         transform: none;
     }
 
-    .cc-card.--flipped .cc-face--back {
+    .cc-card.cc-card--flipped .cc-face--back {
         opacity: 1;
     }
 
-    .cc-card.--flipped .cc-face--front {
+    .cc-card.cc-card--flipped .cc-face--front {
         opacity: 0;
     }
 

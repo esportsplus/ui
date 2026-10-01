@@ -50,7 +50,7 @@ export default component(
                 }
             };
 
-            // '--morphing' names the moving card; it lands on the next frame, just before the old state is captured.
+            // 'card--morphing' names the moving card; it lands on the next frame, just before the old state is captured.
             view.morph = key;
 
             // Rendering is paused until the update resolves, so the template's frame-batched writes can't be
@@ -72,7 +72,7 @@ export default component(
                             ${this?.attributes?.[EXPAND_TRIGGER]}
                             ${attributes[EXPAND_TRIGGER]}
                             ${{
-                                class: () => view.morph === item.id && '--morphing',
+                                class: () => view.morph === item.id && 'card--morphing',
                                 onclick: () => {
                                     state.open = item.id;
                                 }

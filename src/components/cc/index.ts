@@ -428,7 +428,7 @@ export default component(
                 ${{ onsubmit: check }}
             >
                 <div aria-hidden='true' class='cc-preview'>
-                    <div class='cc-card ${() => focused() === 'cvc' && '--flipped'}'>
+                    <div class='cc-card ${() => focused() === 'cvc' && 'cc-card--flipped'}'>
                         <div class='cc-face cc-face--front'>
                             <span
                                 class='cc-ring ${() => local.ring && '--active'}'
@@ -441,7 +441,7 @@ export default component(
                             <div class='cc-number' ${{ onrender: (element: HTMLElement) => { regions.number = element; } }}>
                                 ${html.reactive(slots, (slot) => html`
                                     <span
-                                        class='cc-digit ${() => slot.gap && '--gap'} ${() => slot.char === '•' && '--placeholder'}'
+                                        class='cc-digit ${() => slot.gap && 'cc-digit--gap'} ${() => slot.char === '•' && 'cc-digit--placeholder'}'
                                         data-roll='${() => slot.roll}'
                                     >${() => slot.char}</span>
                                 `)}
@@ -488,7 +488,7 @@ export default component(
                                 onkeydown: skip,
                                 placeholder: '1234 5678 9012 3456'
                             })}
-                            <span class='cc-control-brand ${() => brand() !== 'unknown' && '--known'}'>${mark(brand, 'small')}</span>
+                            <span class='cc-control-brand ${() => brand() !== 'unknown' && 'cc-control-brand--known'}'>${mark(brand, 'small')}</span>
                         </div>
                     `)}
                     <div class='cc-row'>

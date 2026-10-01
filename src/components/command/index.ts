@@ -667,7 +667,7 @@ export default component(
                                         style='--n: ${i}'
                                         ${views.length > 1 ? { 'aria-labelledby': `${view.key}-tab`, role: 'tabpanel' } : undefined}
                                         ${{
-                                            class: () => current() === view && (ui.moving ? '--active --moving' : '--active'),
+                                            class: () => current() === view && (ui.moving ? '--active frame--moving' : '--active'),
                                             inert: () => current() !== view
                                         }}
                                     >
@@ -677,7 +677,7 @@ export default component(
                                             id='${view.key}-listbox'
                                             role='listbox'
                                             ${{
-                                                class: () => !read(view.results).flat.length && '--empty',
+                                                class: () => !read(view.results).flat.length && 'command-list--empty',
                                                 onmouseleave: () => {
                                                     pointer = null;
                                                 }

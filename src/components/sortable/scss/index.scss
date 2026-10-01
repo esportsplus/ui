@@ -8,7 +8,7 @@
 
     // Stays in the container (so selectors like '.toolbar > button' keep matching) but is lifted out of
     // flow with 'position: fixed'; the placeholder holds its slot.
-    > .--dragging {
+    > .sortable-item--dragging {
         cursor: grabbing;
         transition:
             box-shadow var(--transition-duration) var(--transition-timing-function),
@@ -16,7 +16,7 @@
         will-change: transform;
         z-index: var(--drag-z-index);
 
-        &:not(.--dropping) {
+        &:not(.sortable-item--dropping) {
             animation: var(--drag-animation);
             box-shadow: var(--drag-box-shadow);
             scale: var(--drag-scale);
@@ -45,7 +45,7 @@
             opacity var(--overlay-transition-duration) var(--transition-timing-function);
         z-index: 1;
 
-        .sortable > .--dragging & {
+        .sortable > .sortable-item--dragging & {
             display: flex;
             opacity: 1;
 
@@ -54,7 +54,7 @@
             }
         }
 
-        .sortable > .--dropping & {
+        .sortable > .sortable-item--dropping & {
             opacity: 0;
         }
     }
@@ -277,7 +277,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .sortable > .--dragging:not(.--dropping) {
+    .sortable > .sortable-item--dragging:not(.sortable-item--dropping) {
         animation: none;
     }
 }

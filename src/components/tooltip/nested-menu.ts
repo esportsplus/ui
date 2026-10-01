@@ -135,9 +135,9 @@ export default component(
                 { danger, disabled, hint, icon, label } = node.item!;
 
             return html`
-                <div class='tooltip-nested-menu-entry' ${{ class: () => node.state.open && '--open' }}>
+                <div class='tooltip-nested-menu-entry' ${{ class: () => node.state.open && 'tooltip-nested-menu-entry--open' }}>
                     <button
-                        class='tooltip-nested-menu-item ${danger ? '--danger' : ''}'
+                        class='tooltip-nested-menu-item ${danger ? 'tooltip-nested-menu-item--danger' : ''}'
                         role='menuitem'
                         tabindex='-1'
                         type='button'
@@ -200,7 +200,7 @@ export default component(
                         class: () => {
                             let active = node === root ? state.active : node.state.open;
 
-                            return `${active ? '--active' : ''} ${covered(node) ? '--covered' : ''} ${node.state.settled ? '--settled' : ''}`;
+                            return `${active ? '--active' : ''} ${covered(node) ? 'tooltip-nested-menu-panel--covered' : ''} ${node.state.settled ? 'tooltip-nested-menu-panel--settled' : ''}`;
                         },
                         inert: () => node === root && !state.active,
                         // A dimmed parent panel's scrim takes the click; return to that level
@@ -320,7 +320,7 @@ export default component(
 
         return html`
             <div
-                class='tooltip tooltip--nested-menu ${animate ? '' : '--instant'}'
+                class='tooltip tooltip--nested-menu ${animate ? '' : 'tooltip--instant'}'
                 ${attributes}
                 ${{
                     class: () => state.active && '--active',

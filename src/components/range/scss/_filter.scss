@@ -73,23 +73,23 @@
             opacity var(--roll-duration) var(--roll-ease);
         vertical-align: bottom;
 
-        &.--digit {
+        &.range-filter-column--digit {
             width: 1ch;
         }
 
         // Letters and separators are often wider than a digit, and a lone space must keep its width.
-        &.--symbol {
+        &.range-filter-column--symbol {
             max-width: 1.5em;
             white-space: pre;
         }
 
-        &.--empty {
+        &.range-filter-column--empty {
             max-width: 0;
             opacity: 0;
         }
 
-        &.--symbol .range-filter-strip,
-        &:not(.--symbol) .range-filter-symbol {
+        &.range-filter-column--symbol .range-filter-strip,
+        &:not(.range-filter-column--symbol) .range-filter-symbol {
             display: none;
         }
     }

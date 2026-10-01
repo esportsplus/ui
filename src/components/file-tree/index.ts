@@ -676,7 +676,7 @@ export default ({
                 return placeholder(row.notice, {
                     ...(revealing.has(row) ? { 'data-reveal': 'true' } : undefined),
                     'aria-level': String(row.depth + 1),
-                    class: () => ui.focused === row.key && '--focused',
+                    class: () => ui.focused === row.key && 'file-tree-row--focused',
                     'data-id': row.id,
                     id: `${id}-${row.key}`,
                     onclick: () => {
@@ -693,7 +693,7 @@ export default ({
             return html`
                 <div
                     aria-level='${row.depth + 1}'
-                    class='file-tree-row ${row.locked ? '--disabled' : ''} ${header(row) ? '--root' : ''} ${() => active(row) && '--active'} ${() => holds(row, (id) => clipboard.marked.read(id)) && '--cut'} ${() => holds(row, (id) => selection.read(id)) && !active(row) && '--selected'}'
+                    class='file-tree-row ${row.locked ? '--disabled' : ''} ${header(row) ? 'file-tree-row--root' : ''} ${() => active(row) && '--active'} ${() => holds(row, (id) => clipboard.marked.read(id)) && 'file-tree-row--cut'} ${() => holds(row, (id) => selection.read(id)) && !active(row) && 'file-tree-row--selected'}'
                     data-id='${row.id}'
                     id='${id}-${row.key}'
                     role='treeitem'
@@ -711,7 +711,7 @@ export default ({
                         'aria-posinset': () => position(row),
                         'aria-selected': () => holds(row, (id) => selection.read(id)) ? 'true' : 'false',
                         'aria-setsize': () => row.size - read(row.gaps),
-                        class: () => ui.focused === row.key && '--focused',
+                        class: () => ui.focused === row.key && 'file-tree-row--focused',
                         onauxclick: (event: MouseEvent) => press(row, event),
                         onclick: (event: MouseEvent) => press(row, event),
                         ondblclick: (event: MouseEvent) => press(row, event)
@@ -729,11 +729,11 @@ export default ({
             return html`
                 <div
                     aria-expanded='true'
-                    class='file-tree-row ${row.locked ? '--disabled' : ''} ${header(row) ? '--root' : ''} ${() => active(row) && '--selected'}'
+                    class='file-tree-row ${row.locked ? '--disabled' : ''} ${header(row) ? 'file-tree-row--root' : ''} ${() => active(row) && 'file-tree-row--selected'}'
                     style='--depth: ${row.depth}; --guides: ${guides(row.depth)};'
                     ${mark ? { 'data-tone': () => read(mark).tone || false } : undefined}
                     ${{
-                        class: () => ui.focused === row.key && '--focused',
+                        class: () => ui.focused === row.key && 'file-tree-row--focused',
                         onclick: () => unpin(row)
                     }}
                 >

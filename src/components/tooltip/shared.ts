@@ -101,7 +101,7 @@ function drop(layer: Layer | null) {
     }
 
     if (layer.kept) {
-        layer.element.classList.remove('--active', '--leaving');
+        layer.element.classList.remove('--active', 'frame--leaving');
         return;
     }
 
@@ -320,7 +320,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         current = null;
         state.active = false;
         state.index = -1;
-        element.classList.remove('--active', '--instant');
+        element.classList.remove('--active', 'tooltip-shared--instant');
 
         settle(box, () => {
             if (closed === generation) {
@@ -520,7 +520,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         }
 
         // Follows the trigger exactly; a glide would trail behind the scroll.
-        element.classList.remove('--gliding');
+        element.classList.remove('tooltip-shared--gliding');
         measure();
     }
 
@@ -678,8 +678,8 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         }
 
         current = last = target;
-        element.classList.toggle('--gliding', glide);
-        element.classList.toggle('--instant', !glide && opening > 0 && warm());
+        element.classList.toggle('tooltip-shared--gliding', glide);
+        element.classList.toggle('tooltip-shared--instant', !glide && opening > 0 && warm());
 
         // Reopened on the same trigger before its close finished: the content is still there.
         if (!same || !active) {
@@ -732,7 +732,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
             travel(outgoing.element, x, y);
             outgoing.element.classList.remove('--active');
-            outgoing.element.classList.add('--leaving');
+            outgoing.element.classList.add('frame--leaving');
             leaving = outgoing;
 
             settle(outgoing.element, () => {

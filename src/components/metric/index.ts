@@ -213,7 +213,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
                 ${attributes[METRIC_PLOT]}
                 ${{
                     'aria-label': () => `${title}, ${read(series).points.length} points. Use arrow keys to read values.`,
-                    class: () => `${state.active ? '--active' : ''} ${view.shown ? '--shown' : ''}`,
+                    class: () => `${state.active ? '--active' : ''} ${view.shown ? 'metric-plot--shown' : ''}`,
                     onblur: () => {
                         state.active = false;
                     },

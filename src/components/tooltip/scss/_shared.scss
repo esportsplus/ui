@@ -23,14 +23,14 @@
     width: var(--shared-width);
 
     // Only while moving between triggers; a fresh open appears in place.
-    &.--gliding {
+    &.tooltip-shared--gliding {
         transition:
             height var(--glide-duration) var(--glide-timing-function),
             translate var(--glide-duration) var(--glide-timing-function),
             width var(--glide-duration) var(--glide-timing-function);
     }
 
-    &:not(.--gliding) .tooltip-shared-layer {
+    &:not(.tooltip-shared--gliding) .tooltip-shared-layer {
         transition: none;
     }
 
@@ -47,7 +47,7 @@
     }
 
     // A warm handoff from another delayed tooltip swaps straight in.
-    &.--instant > .tooltip-shared-box {
+    &.tooltip-shared--instant > .tooltip-shared-box {
         transition: none;
     }
 

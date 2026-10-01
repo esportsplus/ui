@@ -115,7 +115,7 @@
     }
 
     // The view transition is the only motion; the overlay's own fade would play inside the snapshot.
-    &-item:has(> .--morphing) > .card-expand-dialog {
+    &-item:has(> .card--morphing) > .card-expand-dialog {
         &,
         &::backdrop {
             transition: none;
@@ -170,8 +170,8 @@
     // Only the card on the move and its open dialog are named, so the rest of the list stays under the backdrop.
     // Reduced motion leaves them unnamed and the whole page cross-fades instead.
     @media (prefers-reduced-motion: no-preference) {
-        &-item:not(:has(> #{tokens.state(active, '.card-expand-dialog')})) > .card--expand.--morphing,
-        &-item:has(> .--morphing) > #{tokens.state(active, '.card-expand-dialog')} {
+        &-item:not(:has(> #{tokens.state(active, '.card-expand-dialog')})) > .card--expand.card--morphing,
+        &-item:has(> .card--morphing) > #{tokens.state(active, '.card-expand-dialog')} {
             view-transition-name: card-expand;
 
             .card-expand-meta {

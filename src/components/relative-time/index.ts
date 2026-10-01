@@ -108,7 +108,8 @@ function leave(elements: HTMLElement[]) {
 
         style.left = `${offsets[i][0]}px`;
         style.top = `${offsets[i][1]}px`;
-        elements[i].classList.add('--exiting');
+        // Each is a slot, digit or rest, named by its first class.
+        elements[i].classList.add(`${elements[i].classList[0]}--exiting`);
     }
 }
 
@@ -132,7 +133,7 @@ function render(digits: HTMLElement, rest: HTMLElement, text: string) {
             element = slots[slots.length - key];
 
         if (!element) {
-            digits.prepend(slot(digit, 'relative-time-slot --entering'));
+            digits.prepend(slot(digit, 'relative-time-slot relative-time-slot--entering'));
         }
         else if (digit === undefined) {
             leaving.push(element);
@@ -155,7 +156,7 @@ function retire(e: AnimationEvent) {
 
 // Children still in the flow; ones rolling away are on their way out.
 function settled(container: HTMLElement) {
-    return container.querySelectorAll<HTMLElement>(':scope > :not(.--exiting)');
+    return container.querySelectorAll<HTMLElement>(':scope > :not(.relative-time-digit--exiting, .relative-time-rest--exiting, .relative-time-slot--exiting)');
 }
 
 function slot(digit: string, className: string) {
@@ -186,7 +187,7 @@ function swap(container: HTMLElement, text: string, className: string, leaving: 
         leaving.push(current);
     }
 
-    container.append(span(text, `${className} --entering`));
+    container.append(span(text, `${className} ${className}--entering`));
 }
 
 function timeOf(value: Value) {
@@ -325,7 +326,7 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
             <span class='relative-time-sr'>${() => read(text) ?? ''}</span>
             <span
                 aria-hidden='true'
-                class='relative-time-roll ${() => state.date === null && '--placeholder'}'
+                class='relative-time-roll ${() => state.date === null && 'relative-time-roll--placeholder'}'
                 ${{
                     onanimationcancel: retire,
                     onanimationend: retire

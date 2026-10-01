@@ -136,7 +136,7 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
             ${bound}
             ${attributes}
             ${{
-                class: () => (view.pressing || state.paused || view.hidden) && '--paused',
+                class: () => (view.pressing || state.paused || view.hidden) && 'story--paused',
                 oncontextmenu: (e: MouseEvent) => {
                     e.preventDefault();
                 },
@@ -206,7 +206,7 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
         >
             <div aria-hidden='true' class='story-bars'>
                 ${stories.map((_, i) => html`
-                    <span class='story-bar ${() => i < state.index && '--done'} ${() => i === state.index && '--active'}'>
+                    <span class='story-bar ${() => i < state.index && 'story-bar--done'} ${() => i === state.index && '--active'}'>
                         <span
                             class='story-fill'
                             ${{
@@ -231,7 +231,7 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                 <span class='story-count'>${() => `${state.index + 1} / ${count}`}</span>
                 <button
                     aria-label='${() => state.paused ? 'Play' : 'Pause'}'
-                    class='story-toggle ${() => (view.held || state.paused) && '--paused'}'
+                    class='story-toggle ${() => (view.held || state.paused) && 'story-toggle--paused'}'
                     type='button'
                     ${bound?.[STORY_TOGGLE]}
                     ${attributes[STORY_TOGGLE]}
@@ -255,7 +255,7 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
             </div>
 
             <div
-                class='story-track ${() => (view.held || state.paused) && '--dimmed'} ${() => view.dragging && '--dragging'}'
+                class='story-track ${() => (view.held || state.paused) && 'story-track--dimmed'} ${() => view.dragging && 'story-track--dragging'}'
                 style='${() => `--i: ${state.index - view.offset}`}'
             >
                 ${stories.map((story, i) => html`

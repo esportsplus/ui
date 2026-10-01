@@ -35,7 +35,7 @@ export default ({ alt, crossorigin, fetchpriority, height, loading = 'lazy', pla
             style='${`--aspect-ratio: ${width} / ${height}`}'
             ${attributes}
             ${{
-                class: () => `--${state.status}`
+                class: () => `image-lazyload--${state.status}`
             }}
         >
             <img

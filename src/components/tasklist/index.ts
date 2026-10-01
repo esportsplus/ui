@@ -128,17 +128,17 @@ function move(item: HTMLElement, reference: Element | null) {
         items[i].style.transition = '';
     }
 
-    item.classList.add('--moving');
+    item.classList.add('tasklist-item--moving');
 
     void finished(item).then(() => {
         if (!item.getAnimations().length) {
-            item.classList.remove('--moving');
+            item.classList.remove('tasklist-item--moving');
         }
     });
 }
 
 function pending(item: Element) {
-    return item.classList.contains('--checking') || item.classList.contains('--unchecking');
+    return item.classList.contains('tasklist-item--checking') || item.classList.contains('tasklist-item--unchecking');
 }
 
 function row(
@@ -166,8 +166,8 @@ function row(
                     task.checked = value;
 
                     // Must land in the same style flush as the checked change so the stage delays apply
-                    this.classList.remove('--checking', '--unchecking');
-                    this.classList.add(value ? '--checking' : '--unchecking');
+                    this.classList.remove('tasklist-item--checking', 'tasklist-item--unchecking');
+                    this.classList.add(value ? 'tasklist-item--checking' : 'tasklist-item--unchecking');
 
                     await finished(this, { subtree: true });
 
@@ -175,7 +175,7 @@ function row(
                         return;
                     }
 
-                    this.classList.remove('--checking', '--unchecking');
+                    this.classList.remove('tasklist-item--checking', 'tasklist-item--unchecking');
 
                     if (options.reorder) {
                         move(this, destination(rows, this, options.ordered));

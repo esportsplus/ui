@@ -29,7 +29,7 @@ export default component<A>(
                 ${{
                     class: [
                         () => state.active && '--active',
-                        () => local.morphing && '--morphing'
+                        () => local.morphing && 'tooltip--morphing'
                     ],
                     onanimationcancel: morphing(local, false),
                     onanimationend: morphing(local, false),

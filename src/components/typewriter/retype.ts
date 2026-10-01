@@ -38,7 +38,7 @@ export default ({ prefix = '', words, ...attributes }: A) => {
         letters = reactive([] as string[]),
         longest = words.reduce((a, b) => b.length > a.length ? b : a, ''),
         timer: ReturnType<typeof setTimeout> | undefined,
-        // '--selecting' while the word is selected, '--typing' while keys are moving.
+        // 'typewriter-retype--selecting' while the word is selected, 'typewriter-retype--typing' while keys are moving.
         view = reactive({ retyped: false, state: '' });
 
     return html`
@@ -62,7 +62,7 @@ export default ({ prefix = '', words, ...attributes }: A) => {
                     let finished = length >= target.length;
 
                     // Solid while keys are moving, blinking while it waits.
-                    view.state = finished ? '' : '--typing';
+                    view.state = finished ? '' : 'typewriter-retype--typing';
                     timer = finished
                         ? setTimeout(select, HOLD)
                         : setTimeout(key, TYPE_BASE + jitter(word, length) * TYPE_JITTER);
@@ -71,7 +71,7 @@ export default ({ prefix = '', words, ...attributes }: A) => {
                 // Rewrites the way people do: select the word, then type over it. The first key replaces the whole
                 // selection at once.
                 function select() {
-                    view.state = '--selecting';
+                    view.state = 'typewriter-retype--selecting';
                     timer = setTimeout(() => {
                         length = 0;
                         letters.clear();

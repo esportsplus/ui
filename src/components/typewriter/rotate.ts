@@ -158,7 +158,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
 
             // Leaving letters stay where they stood, then float up and out.
             l.node.getAnimations().forEach((a) => a.cancel());
-            l.node.classList.add('--exiting');
+            l.node.classList.add('typewriter-rotate-letter--exiting');
             leaving.add(l.node);
             l.node.style.left = `${lefts.get(l) ?? 0}px`;
             l.node.animate(

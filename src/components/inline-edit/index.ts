@@ -129,8 +129,8 @@ function template(
                 class: [
                     multiline && 'inline-edit--multiline',
                     () => state.editing && '--active',
-                    () => state.saved && '--saved',
-                    () => state.value.trim() === '' && '--empty'
+                    () => state.saved && 'inline-edit--saved',
+                    () => state.value.trim() === '' && 'inline-edit--empty'
                 ],
                 ondisconnect: () => {
                     clearTimeout(timer);

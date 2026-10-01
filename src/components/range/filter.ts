@@ -193,7 +193,7 @@ export default ({
                                 class: () => {
                                     let c = char(i);
 
-                                    return c === '' ? '--empty' : DIGITS.includes(c) ? '--digit' : '--symbol';
+                                    return c === '' ? 'range-filter-column--empty' : DIGITS.includes(c) ? 'range-filter-column--digit' : 'range-filter-column--symbol';
                                 }
                             }}
                         >
@@ -242,7 +242,7 @@ export default ({
                     class='range-filter-root'
                     role='group'
                     ${{
-                        class: () => ui.dragging !== -1 && '--dragging',
+                        class: () => ui.dragging !== -1 && 'range-filter-root--dragging',
                         onlostpointercapture: release,
                         onpointercancel: release,
                         onpointerdown: (event: PointerEvent) => {

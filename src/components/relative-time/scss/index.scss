@@ -31,18 +31,18 @@
         white-space: pre;
     }
 
-    &-digit,
-    &-rest,
-    &-slot {
-        &.--entering {
-            animation: relative-time-enter var(--roll-duration) var(--roll-timing-function);
-        }
+    &-digit.relative-time-digit--entering,
+    &-rest.relative-time-rest--entering,
+    &-slot.relative-time-slot--entering {
+        animation: relative-time-enter var(--roll-duration) var(--roll-timing-function);
+    }
 
-        // JS pins 'left' and 'top' to where it stood.
-        &.--exiting {
-            animation: relative-time-exit var(--roll-duration) var(--roll-timing-function) forwards;
-            position: absolute;
-        }
+    // JS pins 'left' and 'top' to where it stood.
+    &-digit.relative-time-digit--exiting,
+    &-rest.relative-time-rest--exiting,
+    &-slot.relative-time-slot--exiting {
+        animation: relative-time-exit var(--roll-duration) var(--roll-timing-function) forwards;
+        position: absolute;
     }
 
     &-digits,
@@ -59,7 +59,7 @@
     }
 
     // Holds roughly the right width so the line doesn't reflow once the moment is known.
-    &-roll.--placeholder::before {
+    &-roll.relative-time-roll--placeholder::before {
         content: var(--placeholder);
         visibility: hidden;
     }
@@ -82,7 +82,7 @@
             filter: blur(0px);
         }
 
-        .relative-time.--instant > & {
+        .relative-time.tooltip--instant > & {
             transition: none;
         }
     }

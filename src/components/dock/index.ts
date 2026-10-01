@@ -39,7 +39,7 @@ const dock = ({ group, items, label = 'Dock', onlaunch, ...attributes }: A) => {
                 ${attributes[DOCK_BUTTON]}
                 ${{
                     'aria-label': () => state.running ? `${item.label}, running` : item.label,
-                    class: () => local.launching && '--launching',
+                    class: () => local.launching && 'dock-button--launching',
                     onanimationend: () => {
                         local.launching = false;
                     },

@@ -36,18 +36,18 @@
             background-color var(--transition-duration) var(--timing-function),
             transform var(--transform-duration) var(--transform-timing-function);
 
-        &.--checking {
+        &.tasklist-item--checking {
             .tasklist-content,
             .tasklist-label {
                 transition-delay: var(--check-duration);
             }
         }
 
-        &.--moving {
+        &.tasklist-item--moving {
             z-index: 1;
         }
 
-        &.--unchecking {
+        &.tasklist-item--unchecking {
             .checkbox-check svg,
             .tasklist-checkbox {
                 transition-delay: var(--strike-duration);

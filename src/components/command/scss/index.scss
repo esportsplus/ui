@@ -110,7 +110,7 @@
         scroll-padding-block: calc(var(--size-100) / 2);
         width: 100%;
 
-        &.--empty {
+        &.command-list--empty {
             display: none;
         }
     }

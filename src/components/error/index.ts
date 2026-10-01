@@ -156,8 +156,8 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
             ${{
                 class: [
                     () => local.active && '--active',
-                    () => state.error && '--invalid',
-                    () => local.morphing && '--morphing'
+                    () => state.error && 'error--invalid',
+                    () => local.morphing && 'tooltip--morphing'
                 ],
                 onanimationcancel: morphing(local, false),
                 onanimationend: morphing(local, false),

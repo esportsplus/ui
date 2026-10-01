@@ -25,7 +25,7 @@
         translate: 0 calc(var(--pull-to-refresh-y) * 1px);
         user-select: none;
 
-        > .--fresh {
+        > .pull-to-refresh-item--fresh {
             animation: pull-to-refresh-fresh var(--fresh-duration) var(--fresh-timing-function);
         }
     }
@@ -84,7 +84,7 @@
     }
 
     // The indeterminate spin is a stepped rotation of graded ticks, like the system activity indicator.
-    &.--refreshing &-spinner {
+    &.pull-to-refresh--refreshing &-spinner {
         animation: pull-to-refresh-spin var(--spin-duration) steps(8) infinite;
     }
 
@@ -94,7 +94,7 @@
             transition: none;
         }
 
-        &.--refreshing &-spinner {
+        &.pull-to-refresh--refreshing &-spinner {
             animation: none;
         }
     }

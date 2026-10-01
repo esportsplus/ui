@@ -154,8 +154,8 @@ function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state 
 
     return {
         class: [
-            () => state.active && (local.instant ? '--active --instant' : '--active'),
-            () => local.morphing && '--morphing'
+            () => state.active && (local.instant ? '--active tooltip--instant' : '--active'),
+            () => local.morphing && 'tooltip--morphing'
         ],
         onanimationcancel: settled,
         onanimationend: settled,

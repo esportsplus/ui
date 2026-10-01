@@ -43,7 +43,7 @@
         position: relative;
 
         // Above the parent's scrim, so the open child panel stays undimmed
-        &.--open {
+        &.tooltip-nested-menu-entry--open {
             z-index: 2;
         }
     }
@@ -93,7 +93,7 @@
             background: var(--background-hover);
         }
 
-        &.--danger {
+        &.tooltip-nested-menu-item--danger {
             color: var(--color-danger);
         }
 
@@ -135,7 +135,7 @@
             z-index: 1;
         }
 
-        &.--covered::after {
+        &.tooltip-nested-menu-panel--covered::after {
             cursor: pointer;
             opacity: 1;
             pointer-events: auto;
@@ -168,7 +168,7 @@
             transition: clip-path var(--open-duration) var(--open-timing-function);
             visibility: visible;
 
-            &.--settled {
+            &.tooltip-nested-menu-panel--settled {
                 clip-path: none;
             }
         }

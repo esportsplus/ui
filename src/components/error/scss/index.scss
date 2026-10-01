@@ -8,7 +8,7 @@
 
     // The control draws its edge from '--border-color', as the form controls do. Doubled, so it outranks the control's
     // own hover and active states whatever order the sheets load in.
-    &.--invalid.--invalid > :not(.error-live, .error-message) {
+    &.error--invalid.error--invalid > :not(.error-live, .error-message) {
         --border-color: var(--error-color);
     }
 

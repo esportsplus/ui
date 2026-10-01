@@ -159,7 +159,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
                         role='grid'
                         ${{
                             'aria-label': label ?? `Activity over the last ${weeks} weeks`,
-                            class: () => view.shown && '--shown',
+                            class: () => view.shown && 'heatmap-grid--shown',
                             onconnect: (element: HTMLElement) => {
                                 observer = new IntersectionObserver((entries) => {
                                     if (!entries.some((entry) => entry.isIntersecting)) {

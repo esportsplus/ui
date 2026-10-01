@@ -30,13 +30,13 @@
         z-index: 0;
     }
 
-    &.--error {
+    &.image-lazyload--error {
         .image-lazyload-source {
             visibility: hidden;
         }
     }
 
-    &.--ready {
+    &.image-lazyload--ready {
         .image-lazyload-placeholder {
             opacity: 0;
         }

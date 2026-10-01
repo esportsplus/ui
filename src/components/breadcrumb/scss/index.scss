@@ -148,7 +148,7 @@
                 opacity var(--enter-duration) var(--ease-out);
 
             // Blur only matters on the way in, so it switches on after the fade out.
-            &.--hidden {
+            &.breadcrumb-segment--hidden {
                 filter: blur(4px);
                 grid-template-columns: 0fr;
                 opacity: 0;
@@ -170,7 +170,7 @@
             transition: overflow 0s linear var(--slide-duration);
             transition-behavior: allow-discrete;
 
-            .--hidden > & {
+            .breadcrumb-segment--hidden > & {
                 overflow: hidden;
                 transition: none;
             }
@@ -243,7 +243,7 @@
             filter: none;
             transition: opacity var(--enter-duration) var(--ease-out);
 
-            &.--hidden {
+            &.breadcrumb-segment--hidden {
                 transition:
                     opacity var(--exit-duration) var(--ease-out),
                     visibility 0s linear var(--exit-duration);
@@ -267,8 +267,8 @@
         }
     }
 
-    // After the motion rules so it also beats their '.--hidden' variants.
-    &.--instant {
+    // After the motion rules so it also beats their '.breadcrumb-segment--hidden' variants.
+    &.breadcrumb--instant {
         .breadcrumb-list > .breadcrumb-segment,
         .breadcrumb-segment-body {
             transition: none;

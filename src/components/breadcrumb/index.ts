@@ -125,12 +125,12 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
             ${attributes}
             ${{
                 'aria-label': label,
-                class: () => view.instant && '--instant',
+                class: () => view.instant && 'breadcrumb--instant',
                 onconnect: (element: HTMLElement) => {
                     root = element;
                     fit();
 
-                    // The first fit lands after the trail has been styled once, so '--instant' holds until that
+                    // The first fit lands after the trail has been styled once, so 'breadcrumb--instant' holds until that
                     // fit has painted or it would play the fold. Bindings flush on a later frame than the write.
                     requestAnimationFrame(() => requestAnimationFrame(() => {
                         view.instant = false;
@@ -166,7 +166,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
 
             <ol class='breadcrumb-list'>
                 ${items.map((item, index) => html`
-                    <li class='breadcrumb-segment ${index === last && 'breadcrumb-segment--current'} ${() => index > 0 && index < last && index <= s.hidden && '--hidden'}'>
+                    <li class='breadcrumb-segment ${index === last && 'breadcrumb-segment--current'} ${() => index > 0 && index < last && index <= s.hidden && 'breadcrumb-segment--hidden'}'>
                         <div class='breadcrumb-segment-body'>
                             ${index > 0 && separator(kind)}
                             ${index === last
@@ -188,7 +188,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                         </div>
                     </li>
                     ${index === 0 && html`
-                        <li class='breadcrumb-segment breadcrumb-fold ${() => s.hidden <= 0 && '--hidden'}'>
+                        <li class='breadcrumb-segment breadcrumb-fold ${() => s.hidden <= 0 && 'breadcrumb-segment--hidden'}'>
                             <div class='breadcrumb-segment-body'>
                                 ${separator(kind)}
                                 ${tooltip.menu(

@@ -283,7 +283,7 @@ function template(
         }
 
         for (let { node, rect } of dropped) {
-            node.classList.add('--leaving');
+            node.classList.add('color-picker-swatch--leaving');
             node.removeAttribute('aria-pressed');
             node.setAttribute('aria-hidden', 'true');
             node.style.left = `${rect.left - box.left}px`;

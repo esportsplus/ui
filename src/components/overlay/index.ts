@@ -92,12 +92,12 @@ function layer(element: HTMLDialogElement) {
 // Touch can only drag what the browser won't pan, so an overlay whose own content scrolls gives touch-drag up
 // to its handle. The surface extension past the edge would count as overflow, so it is hidden while measuring.
 function measure(element: HTMLElement) {
-    element.classList.add('--measuring');
+    element.classList.add('overlay--measuring');
 
     let scrollable = element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
 
-    element.classList.remove('--measuring');
-    element.classList.toggle('--scrollable', scrollable);
+    element.classList.remove('overlay--measuring');
+    element.classList.toggle('overlay--scrollable', scrollable);
 }
 
 function outside(element: HTMLElement, e: MouseEvent) {
@@ -126,8 +126,8 @@ function restack() {
         let { dragging, element, host, progress } = layers[i],
             entry = hosts.get(host) ?? { depth: 0, tracking: false };
 
-        element.classList.toggle('--covered', entry.depth > 0);
-        element.classList.toggle('--tracking', entry.depth > 0 && entry.tracking);
+        element.classList.toggle('overlay--covered', entry.depth > 0);
+        element.classList.toggle('overlay--tracking', entry.depth > 0 && entry.tracking);
         element.inert = entry.depth > 0;
 
         if (entry.depth > 0) {
@@ -146,19 +146,19 @@ function restack() {
     for (let i = 0, n = layers.length; i < n; i++) {
         let { element, host } = layers[i];
 
-        element.classList.toggle('--stacked', layers.findIndex((layer) => layer.host === host) < i);
+        element.classList.toggle('overlay--stacked', layers.findIndex((layer) => layer.host === host) < i);
     }
 
     for (let host of overlaid) {
         if (!hosts.has(host)) {
-            host.classList.remove('--overlaid', '--overlay-dragging');
+            host.classList.remove('overlay-host--active', 'overlay-host--dragging');
             host.style.removeProperty('--overlay-depth');
         }
     }
 
     for (let [host, entry] of hosts) {
-        host.classList.add('--overlaid');
-        host.classList.toggle('--overlay-dragging', entry.tracking);
+        host.classList.add('overlay-host--active');
+        host.classList.toggle('overlay-host--dragging', entry.tracking);
         host.style.setProperty('--overlay-depth', String(entry.depth));
     }
 
@@ -173,7 +173,7 @@ function unstack(element: HTMLDialogElement) {
     }
 
     layers.splice(layers.indexOf(current), 1);
-    element.classList.remove('--covered', '--stacked', '--tracking');
+    element.classList.remove('overlay--covered', 'overlay--stacked', 'overlay--tracking');
     element.inert = false;
     element.style.removeProperty('--depth');
     restack();
@@ -189,7 +189,7 @@ export default component(
             let current = layer(element),
                 thrown = close ? fling(element, drag) : null;
 
-            element.classList.remove('--dragging');
+            element.classList.remove('overlay--dragging');
             element.style.removeProperty('--progress');
 
             // Snapping back, the drag's transform eases home. Dismissing, it is thrown on the way it was dragged
@@ -231,7 +231,7 @@ export default component(
 
                 // Only the top layer drags, and a press past the target's client box is on its scrollbar.
                 if (
-                    element.classList.contains('--covered') ||
+                    element.classList.contains('overlay--covered') ||
                     outside(element, e) ||
                     target.closest(INTERACTIVE) ||
                     (target.clientWidth > 0 && (e.offsetX > target.clientWidth || e.offsetY > target.clientHeight))
@@ -244,7 +244,7 @@ export default component(
                 return placement ? toward(placement) : [CENTER];
             },
             capture: (element) => {
-                element.classList.add('--dragging');
+                element.classList.add('overlay--dragging');
             },
             move: (element, { x, y }, progress) => {
                 let current = layer(element as HTMLDialogElement);
@@ -265,8 +265,8 @@ export default component(
             <dialog
                 class='overlay'
                 ${rail
-                    ? { class: ['--rail', () => state.active && '--active'], ...expandable(state) }
-                    : { class: '--draggable', tabindex: -1 }}
+                    ? { class: ['overlay--rail', () => state.active && '--active'], ...expandable(state) }
+                    : { class: 'overlay--draggable', tabindex: -1 }}
                 ${this?.attributes}
                 ${attributes}
                 ${{

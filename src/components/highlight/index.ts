@@ -173,7 +173,7 @@ function sibling(parent: Element, self: Element[], node: EventTarget | null, tar
 export default component<A>(
     ({ fill = true, hover = true, line, target, ...attributes }) => {
         // Both layers know the line's edge, so the hover fill keeps clear of it just as the active fill does.
-        let edge = line ? ` --line-${line}` : '',
+        let edge = line ? ` highlight--line-${line}` : '',
             focused: Element | null = null,
             frame = 0,
             glides = { active: glide(), pointer: glide() },
@@ -362,7 +362,7 @@ export default component<A>(
                 'pointer',
                 item,
                 box,
-                pressed && item === hovered ? '--pressed' : '--hover'
+                pressed && item === hovered ? 'highlight--pressed' : 'highlight--hover'
             );
         }
 
@@ -373,7 +373,7 @@ export default component<A>(
                 class='highlight'
                 ${attributes}
                 ${{
-                    class: () => `${layers.pointer.variant}${edge}${layers.pointer.visible ? ' --visible' : ''}`,
+                    class: () => `${layers.pointer.variant}${edge}${layers.pointer.visible ? ' highlight--visible' : ''}`,
                     onrender: (element: HTMLElement) => {
                         nodes.pointer = element;
                         self.push(element);
@@ -385,7 +385,7 @@ export default component<A>(
                 class='highlight'
                 ${attributes}
                 ${{
-                    class: () => `${layers.active.variant}${fill ? '' : ' --unfilled'}${line ? ` --line${edge}` : ''}${layers.active.visible ? ' --visible' : ''}`,
+                    class: () => `${layers.active.variant}${fill ? '' : ' highlight--unfilled'}${line ? ` highlight--line${edge}` : ''}${layers.active.visible ? ' highlight--visible' : ''}`,
                     onconnect: (element: HTMLElement) => {
                         let container = element.parentElement;
 

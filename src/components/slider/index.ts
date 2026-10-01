@@ -132,7 +132,7 @@ export default ({
             class='slider slider--${orientation} ${disabled && '--disabled'}'
             ${attributes}
             ${{
-                class: () => ui.dragging !== -1 && '--dragging'
+                class: () => ui.dragging !== -1 && 'slider--dragging'
             }}
         >
             ${(label || output) && html`

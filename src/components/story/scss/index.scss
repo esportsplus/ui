@@ -23,7 +23,7 @@
         outline-offset: 2px;
     }
 
-    &.--paused {
+    &.story--paused {
         --play-state: paused;
     }
 
@@ -34,7 +34,7 @@
         height: var(--bar-height);
         overflow: hidden;
 
-        &.--done {
+        &.story-bar--done {
             --scale: 1;
         }
 
@@ -88,13 +88,13 @@
     }
 
     &-play,
-    &-toggle.--paused &-pause {
+    &-toggle.story-toggle--paused &-pause {
         filter: blur(4px);
         opacity: 0;
         scale: 0.25;
     }
 
-    &-toggle.--paused &-play {
+    &-toggle.story-toggle--paused &-play {
         filter: blur(0);
         opacity: 1;
         scale: 1;
@@ -149,11 +149,11 @@
         transition: opacity 0.2s ease-out;
         z-index: 1;
 
-        &.--dimmed {
+        &.story-track--dimmed {
             opacity: var(--dim-opacity);
         }
 
-        &.--dragging .story-slide {
+        &.story-track--dragging .story-slide {
             transition: none;
         }
     }
@@ -183,7 +183,7 @@
 
     @media (prefers-reduced-motion: reduce) {
         &-play,
-        &-toggle.--paused &-pause {
+        &-toggle.story-toggle--paused &-pause {
             filter: none;
         }
 

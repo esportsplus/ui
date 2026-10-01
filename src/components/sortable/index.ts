@@ -118,7 +118,7 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
                 containers[i].classList.add('--active');
             }
 
-            item.classList.add('--dragging');
+            item.classList.add('sortable-item--dragging');
         });
 
         getSelection()?.removeAllRanges();
@@ -148,7 +148,7 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
         let { rotate, scale, translate } = getComputedStyle(item),
             target = slot.getBoundingClientRect();
 
-        item.classList.add('--dropping');
+        item.classList.add('sortable-item--dropping');
 
         let animation = item.animate([
             { rotate, scale, transform: style.transform, translate },
@@ -160,7 +160,7 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
             // drag classes can't trigger its own transitions (e.g. on 'transform').
             style.cssText = cssText;
             slot.replaceWith(item);
-            item.classList.remove('--dragging', '--dropping');
+            item.classList.remove('sortable-item--dragging', 'sortable-item--dropping');
             animation.cancel();
 
             for (let i = 0, n = containers.length; i < n; i++) {

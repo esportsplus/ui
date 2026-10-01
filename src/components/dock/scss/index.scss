@@ -36,7 +36,7 @@
             outline-offset: 2px;
         }
 
-        &.--launching {
+        &.dock-button--launching {
             animation:
                 dock-hop var(--hop-duration),
                 dock-squash var(--hop-duration) ease-in-out;

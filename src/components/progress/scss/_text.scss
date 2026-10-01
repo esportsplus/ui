@@ -101,7 +101,7 @@
         color: var(--track-color);
     }
 
-    &.--done {
+    &.progress-text--done {
         .progress-text-check {
             stroke-dashoffset: 0;
             transition-duration: 300ms;
@@ -135,12 +135,12 @@
     @media (prefers-reduced-motion: reduce) {
         &-check,
         &-strip,
-        &.--done &-check {
+        &.progress-text--done &-check {
             transition: none;
         }
 
         &-done,
-        &.--done &-label {
+        &.progress-text--done &-label {
             translate: 0 0;
         }
     }

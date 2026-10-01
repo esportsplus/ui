@@ -437,7 +437,7 @@ function template(
                                 ${attributes[SELECT_MENU_OPTION]}
                                 ${{
                                     'aria-selected': () => state.value === option.value ? 'true' : 'false',
-                                    class: () => menu.highlight === index && '--highlighted',
+                                    class: () => menu.highlight === index && 'select-menu-option--highlighted',
                                     onclick: () => {
                                         choose(index);
                                         parts.trigger?.focus({ preventScroll: true });

@@ -62,22 +62,22 @@
         --glide-tail: var(--glide-tail-duration-active);
     }
 
-    &.--hover {
+    &.highlight--hover {
         --background: var(--background-hover);
     }
 
     // Horizontal and vertical lines look alike: the fills stop short of the line, which runs along the item's edge.
-    &.--line-bottom,
-    &.--line-top {
+    &.highlight--line-bottom,
+    &.highlight--line-top {
         --inset-block: var(--line-inset);
     }
 
-    &.--line-left,
-    &.--line-right {
+    &.highlight--line-left,
+    &.highlight--line-right {
         --inset-inline: var(--line-inset);
     }
 
-    &.--pressed {
+    &.highlight--pressed {
         --background: var(--background-pressed);
     }
 }

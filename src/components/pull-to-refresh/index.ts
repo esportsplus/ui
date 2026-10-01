@@ -102,7 +102,7 @@ export default component(
 
                 for (let node: Element | null = head; node && node !== first; node = node.nextElementSibling) {
                     count++;
-                    node.classList.add('--fresh');
+                    node.classList.add('pull-to-refresh-item--fresh');
                 }
             }
 
@@ -220,7 +220,7 @@ export default component(
 
         return html`
             <div
-                class='pull-to-refresh ${() => state.refreshing && '--refreshing'}'
+                class='pull-to-refresh ${() => state.refreshing && 'pull-to-refresh--refreshing'}'
                 style='--threshold: ${THRESHOLD};'
                 ${this?.attributes}
                 ${attributes}
@@ -320,7 +320,7 @@ export default component(
                         ${{
                             onanimationend: (e: AnimationEvent) => {
                                 if (e.animationName === 'pull-to-refresh-fresh') {
-                                    (e.target as Element).classList.remove('--fresh');
+                                    (e.target as Element).classList.remove('pull-to-refresh-item--fresh');
                                 }
                             },
                             onrender: (element: HTMLElement) => {

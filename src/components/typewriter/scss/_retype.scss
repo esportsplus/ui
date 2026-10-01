@@ -45,7 +45,7 @@
         }
     }
 
-    &.--selecting {
+    &.typewriter-retype--selecting {
         .typewriter-retype-line::after {
             visibility: hidden;
         }
@@ -56,7 +56,7 @@
         }
     }
 
-    &.--typing .typewriter-retype-line::after {
+    &.typewriter-retype--typing .typewriter-retype-line::after {
         animation: none;
     }
 }

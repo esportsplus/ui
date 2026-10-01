@@ -56,7 +56,7 @@
             visibility: hidden;
         }
 
-        #{tokens.state(inactive, '.inline-edit.--empty')} > & {
+        #{tokens.state(inactive, '.inline-edit.inline-edit--empty')} > & {
             color: var(--placeholder-color);
         }
     }
@@ -88,7 +88,7 @@
             text-overflow: clip;
         }
 
-        .inline-edit.--empty > &::before {
+        .inline-edit.inline-edit--empty > &::before {
             color: var(--placeholder-color);
             content: attr(data-placeholder);
             pointer-events: none;
@@ -258,13 +258,13 @@
             opacity: 1;
         }
 
-        .inline-edit.--saved &-check {
+        .inline-edit.inline-edit--saved &-check {
             filter: blur(0);
             opacity: 1;
             scale: 1;
         }
 
-        .inline-edit.--saved &-pencil {
+        .inline-edit.inline-edit--saved &-pencil {
             filter: blur(4px);
             opacity: 0;
             scale: 0.25;

@@ -70,7 +70,7 @@
         flex-direction: column;
         gap: calc(var(--pitch) - var(--cell-size));
 
-        &.--shown .heatmap-cell {
+        &.heatmap-grid--shown .heatmap-cell {
             opacity: 1;
             scale: 1;
         }

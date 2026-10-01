@@ -52,7 +52,7 @@
     // Shares '.button::after' (its shadow layer) when the trigger is a button.
     // Gooey join between trigger and tooltip while the morph runs; 'morph()' injects the filter
     // and toggles the class.
-    &.--morphing {
+    &.tooltip--morphing {
         filter: url(#tooltip-morph-goo);
     }
 
@@ -108,7 +108,7 @@
 
         // A warm handoff between delayed tooltips ('delay') swaps straight in. Single-class specificity and
         // ahead of the '--expand' and '--morph' variants, so those keep their own motion.
-        &:where(.tooltip.--instant > *, .tooltip.--instant :not(.tooltip) > *) {
+        &:where(.tooltip.tooltip--instant > *, .tooltip.tooltip--instant :not(.tooltip) > *) {
             transition: none;
         }
 

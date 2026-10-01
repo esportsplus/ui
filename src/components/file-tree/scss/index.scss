@@ -387,7 +387,7 @@
         user-select: none;
 
         // The contents alone, so the guide and a selection behind the row keep their strength.
-        &.--cut > * {
+        &.file-tree-row--cut > * {
             opacity: var(--cut-opacity);
         }
 
@@ -397,7 +397,7 @@
         }
 
         // A root's header, set apart from the folders under it as VS Code sets its workspace folders.
-        &.--root {
+        &.file-tree-row--root {
             font-size: var(--root-font-size);
             font-weight: var(--root-font-weight);
             text-transform: uppercase;
@@ -439,7 +439,7 @@
         }
 
         // Selected rows besides the primary, which the highlight covers.
-        &.--selected {
+        &.file-tree-row--selected {
             background: var(--background-selected);
         }
 
@@ -469,7 +469,7 @@
             }
         }
 
-        .file-tree-viewport:focus-visible > &.--focused {
+        .file-tree-viewport:focus-visible > &.file-tree-row--focused {
             outline-width: 1px;
         }
     }
@@ -519,11 +519,11 @@
             }
 
             > .file-tree-row {
-                &.--selected {
+                &.file-tree-row--selected {
                     background: var(--background-active);
                 }
 
-                &:not(.--disabled, .--selected):hover {
+                &:not(.--disabled, .file-tree-row--selected):hover {
                     background: var(--background-hover);
                 }
 
@@ -533,7 +533,7 @@
                     margin-block-start: calc(var(--sticky-push, 0px) * -1);
                 }
 
-                .file-tree-viewport:focus-visible &.--focused {
+                .file-tree-viewport:focus-visible &.file-tree-row--focused {
                     outline-width: 1px;
                 }
             }
@@ -681,7 +681,7 @@
                 display: none;
             }
 
-            .file-tree-viewport:focus-visible > &.--focused {
+            .file-tree-viewport:focus-visible > &.file-tree-row--focused {
                 outline: 1px solid CanvasText;
             }
         }

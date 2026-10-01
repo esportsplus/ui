@@ -785,8 +785,8 @@ export default component(
                     class: [
                         multiline && 'inline-edit--multiline',
                         () => state.editing && '--active',
-                        () => state.saved && '--saved',
-                        () => local.empty && '--empty'
+                        () => state.saved && 'inline-edit--saved',
+                        () => local.empty && 'inline-edit--empty'
                     ],
                     ondisconnect: () => {
                         cancelAnimationFrame(frame);

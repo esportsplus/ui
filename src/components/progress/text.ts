@@ -95,7 +95,7 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
             aria-valuemin='0'
             aria-valuenow='${percent}'
             aria-valuetext='${() => done() ? doneLabel : `${percent()}%`}'
-            class='progress-text ${() => done() && '--done'}'
+            class='progress-text ${() => done() && 'progress-text--done'}'
             role='progressbar'
             ${attributes}
             ${{

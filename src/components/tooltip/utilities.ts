@@ -5,7 +5,7 @@ type Delay = {
 };
 
 
-// Referenced by '.tooltip.--morphing' in CSS; a missing reference is ignored until this exists.
+// Referenced by '.tooltip.tooltip--morphing' in CSS; a missing reference is ignored until this exists.
 const GOO = 'tooltip-morph-goo';
 
 // Just after a delayed tooltip closes, the next one skips its delay: the reader is browsing, not passing through.
@@ -102,7 +102,7 @@ function morph(element: HTMLElement, open: VoidFunction) {
 // Trigger event handler for bubbled transition/animation events. The goo filter reshapes
 // everything it touches, so it's only on while the shape is moving; at rest the trigger and
 // tooltip keep their exact edges. Opening is a clip-path transition, closing the
-// 'tooltip-morph-close' animation. 'state.morphing' is bound to the trigger's '--morphing' class.
+// 'tooltip-morph-close' animation. 'state.morphing' is bound to the trigger's 'tooltip--morphing' class.
 function morphing(state: { morphing: boolean }, active: boolean) {
     return (e: AnimationEvent | TransitionEvent) => {
         let element = e.currentTarget as HTMLElement,

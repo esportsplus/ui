@@ -64,7 +64,7 @@ dialog.overlay {
     }
 
     // Only the lowest modal backdrop dims the page; the layers above it dim what they cover themselves.
-    &.--stacked::backdrop {
+    &.overlay--stacked::backdrop {
         opacity: 0;
     }
 
@@ -165,27 +165,27 @@ dialog.overlay {
 
 
     // '--depth' is how many layers are open above this one, fractional while the top one is dragged away.
-    &.--covered {
+    &.overlay--covered {
         filter: brightness(calc(1 - min(var(--depth), 1) * var(--stack-dim)));
         scale: pow(var(--stack-scale), var(--depth));
         translate: var(--stack-translate);
     }
 
-    &.--draggable {
+    &.overlay--draggable {
         cursor: grab;
         outline: none;
         touch-action: none;
         user-select: none;
 
         // Touch scrolls the content, so only the handle drags.
-        &.--scrollable {
+        &.overlay--scrollable {
             touch-action: auto;
         }
 
         // The surface continues past the screen edge, so pulling the overlay inward reveals more of it. Content
         // that scrolls has to be clipped instead. Each extension releases the side facing into the page, which a
         // paired class may pin (e.g. '.card::after' at 'inset: 0').
-        &:not(.--scrollable):is(.overlay--e, .overlay--n, .overlay--ne, .overlay--nw, .overlay--s, .overlay--se, .overlay--sw, .overlay--w) {
+        &:not(.overlay--scrollable):is(.overlay--e, .overlay--n, .overlay--ne, .overlay--nw, .overlay--s, .overlay--se, .overlay--sw, .overlay--w) {
             overflow: visible;
 
             &::after {
@@ -225,13 +225,13 @@ dialog.overlay {
         }
     }
 
-    &.--measuring::after {
+    &.overlay--measuring::after {
         display: none;
     }
 
     // Always open; '--active' expands it. Rows keep their width and are clipped rather than reflowed, so the
     // collapsed rail shows whatever leads each row (usually an icon).
-    &.--rail {
+    &.overlay--rail {
         overflow: hidden;
         transition: width var(--transition-duration) var(--transition-timing-function);
         white-space: nowrap;
@@ -254,14 +254,14 @@ dialog.overlay {
     }
 
     // Fades with the drag, in step with its backdrop.
-    &.--dragging {
+    &.overlay--dragging {
         cursor: grabbing;
         opacity: calc(1 - var(--progress, 0));
     }
 
     // Following the finger: the layers beneath the dragged one track it too, so neither may ease.
-    &.--dragging,
-    &.--tracking {
+    &.overlay--dragging,
+    &.overlay--tracking {
         &,
         &::backdrop {
             transition: none;
@@ -336,7 +336,7 @@ dialog.overlay {
             transition: opacity var(--transition-duration) var(--transition-timing-function);
         }
 
-        &.--covered {
+        &.overlay--covered {
             scale: none;
             translate: none;
         }
@@ -352,18 +352,18 @@ dialog.overlay {
         scale var(--transition-duration) var(--transition-timing-function),
         translate var(--transition-duration) var(--transition-timing-function);
 
-    .--overlaid > & {
+    .overlay-host--active > & {
         filter: brightness(calc(1 - min(var(--overlay-depth), 1) * var(--dim)));
         scale: calc(1 - min(var(--overlay-depth), 1) * (1 - var(--scale)));
         translate: 0 calc(min(var(--overlay-depth), 1) * var(--peek));
     }
 
-    .--overlay-dragging > & {
+    .overlay-host--dragging > & {
         transition: none;
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .--overlaid > & {
+        .overlay-host--active > & {
             scale: none;
             translate: none;
         }
