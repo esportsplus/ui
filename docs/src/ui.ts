@@ -1,5 +1,7 @@
 import '@esportsplus/ui/layer.scss';
 
+import '~/normalize/scss/index.scss';
+
 import '@esportsplus/ui/css-utilities/font/montserrat.scss';
 import '@esportsplus/ui/css-utilities/font/geist.scss';
 
