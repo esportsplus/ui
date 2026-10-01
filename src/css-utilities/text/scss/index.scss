@@ -1,5 +1,4 @@
-@use '/lib';
-@use '/tokens';
+@use '/shared';
 @use './variables';
 
 .--text {
@@ -118,10 +117,7 @@
     }
 
     &-truncate {
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        @extend %text-truncate;
     }
 }
 

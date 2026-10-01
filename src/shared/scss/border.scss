@@ -1,0 +1,21 @@
+@use '/tokens';
+
+%border-state {
+    --border-color: var(--border-color-default);
+    --border-color-active: var(--border-color-default);
+    --border-color-default: transparent;
+    --border-color-hover: var(--border-color-default);
+    --border-color-pressed: var(--border-color-default);
+
+    @include tokens.state(active) {
+        --border-color: var(--border-color-active);
+    }
+
+    @include tokens.state(hover) {
+        --border-color: var(--border-color-hover);
+    }
+
+    @include tokens.state(pressed) {
+        --border-color: var(--border-color-pressed);
+    }
+}

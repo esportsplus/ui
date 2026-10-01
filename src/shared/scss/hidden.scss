@@ -1,0 +1,10 @@
+// Out of sight but still read by screen readers: live regions, and labels that name something drawn another way. It
+// can't be extended from inside @media.
+%hidden-visually {
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}

@@ -1,0 +1,7 @@
+@use '/lib';
+
+@each $direction in 'bottom' 'center' 'full' 'left' 'right' 'top' {
+    %absolute-#{$direction} {
+        @include lib.position(absolute, $direction);
+    }
+}

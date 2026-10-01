@@ -1,14 +1,9 @@
 @use '/lib';
+@use '/shared';
 @use '/tokens';
 
 .--border {
     @include tokens.state-utility('border-color', tokens.$colors);
-
-    &-radius {
-        &-responsive {
-            --border-radius: #{"calc( progress((100vi - 100cqi) / 2, 0px, var(--gap-horizontal)) * var(--border-radius) )"};
-        }
-    }
 
     &-default {
         --border-color: var(--border-color-default);
@@ -17,23 +12,13 @@
         --border-color-pressed: var(--border-color-default);
     }
 
+    &-radius {
+        &-responsive {
+            --border-radius: #{"calc( progress((100vi - 100cqi) / 2, 0px, var(--gap-horizontal)) * var(--border-radius) )"};
+        }
+    }
+
     &-state {
-        --border-color: var(--border-color-default);
-        --border-color-active: var(--border-color-default);
-        --border-color-default: transparent;
-        --border-color-hover: var(--border-color-default);
-        --border-color-pressed: var(--border-color-default);
-
-        @include tokens.state(active) {
-            --border-color: var(--border-color-active);
-        }
-
-        @include tokens.state(hover) {
-            --border-color: var(--border-color-hover);
-        }
-
-        @include tokens.state(pressed) {
-            --border-color: var(--border-color-pressed);
-        }
+        @extend %border-state;
     }
 }

@@ -244,6 +244,7 @@ Styles are organized into layers for proper cascade:
 
 ```
 @layer normalize
+@layer shared
 @layer components
 @layer themes
 @layer css-utilities
