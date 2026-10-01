@@ -1,4 +1,4 @@
-import { reduced } from '~/lib/animation';
+import { reduced } from '~/shared/animation';
 
 
 // Drag-to-dismiss: capture past a small threshold, follow the pointer out by any of the ways the element may leave,

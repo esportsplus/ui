@@ -1,6 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { reduced } from '~/lib/animation';
+import { reduced } from '~/shared/animation';
 
 
 type A = Attributes & {

@@ -1,7 +1,7 @@
 import icon from '~/components/icon';
 import searchSvg from '@esportsplus/ui/svg/search.svg';
 import { command } from '@esportsplus/ui';
-import { mac } from '~/lib/platform';
+import { mac } from '~/shared/platform';
 import { html, reactive, redirect } from '../../app';
 import { sections } from '../../data/nav';
 import type { Tab } from '~/components/command';

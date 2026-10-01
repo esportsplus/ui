@@ -1,8 +1,8 @@
 import { effect, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import { edge } from '~/components/anchor';
-import { finished } from '~/lib/animation';
-import { drag, fling, INTERACTIVE, toward, type Direction, type Drag } from '~/lib/drag';
+import { finished } from '~/shared/animation';
+import { drag, fling, INTERACTIVE, toward, type Direction, type Drag } from '~/shared/drag';
 import './scss/index.scss';
 
 

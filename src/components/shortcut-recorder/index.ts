@@ -1,7 +1,7 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, flush, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import error, { type Direction } from '~/components/error';
-import { mac as apple } from '~/lib/platform';
+import { mac as apple } from '~/shared/platform';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 

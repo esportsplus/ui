@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import { drag, fling, INTERACTIVE } from '~/lib/drag';
+import { drag, fling, INTERACTIVE } from '~/shared/drag';
 import './scss/index.scss';
 
 

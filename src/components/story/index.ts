@@ -1,6 +1,6 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { drag, INTERACTIVE, type Direction } from '~/lib/drag';
+import { drag, INTERACTIVE, type Direction } from '~/shared/drag';
 import pause from '@esportsplus/ui/svg/pause.svg';
 import play from '@esportsplus/ui/svg/play.svg';
 import '~/components/frame/scss/index.scss';

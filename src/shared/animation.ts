@@ -2,7 +2,7 @@
 // running (reopening mid-close, say). Every 'finished' is taken up front, since cancelling one replaces it with a
 // promise that never settles.
 const finished = (element: HTMLElement, options?: GetAnimationsOptions) => {
-    return Promise.allSettled(element.getAnimations(options).map((animation) => animation.finished));
+    return Promise.allSettled( element.getAnimations(options).map((animation) => animation.finished) );
 };
 
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;

@@ -1,6 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
-import { reduced } from '~/lib/animation';
+import { reduced } from '~/shared/animation';
 import input from '~/components/input';
 import range from '~/components/range';
 import './scss/index.scss';

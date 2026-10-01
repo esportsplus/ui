@@ -2,7 +2,7 @@ import { component, html, on, type Attributes, type Element, type Renderable } f
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import form from '~/components/form';
 import scrollbar from '~/css-utilities/scrollbar';
-import { reduced } from '~/lib/animation';
+import { reduced } from '~/shared/animation';
 import './scss/index.scss';
 
 

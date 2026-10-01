@@ -1,5 +1,5 @@
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
-import { reduced } from '~/lib/animation';
+import { reduced } from '~/shared/animation';
 import type { Attributes } from '@esportsplus/template';
 
 

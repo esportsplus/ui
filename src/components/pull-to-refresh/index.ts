@@ -1,6 +1,6 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
-import { reduced } from '~/lib/animation';
+import { reduced } from '~/shared/animation';
 import './scss/index.scss';
 
 

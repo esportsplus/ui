@@ -10,8 +10,8 @@
             "~/css-utilities/*": [
                 "../src/css-utilities/*"
             ],
-            "~/lib/*": [
-                "../src/lib/*"
+            "~/shared/*": [
+                "../src/shared/*"
             ],
             "~/*": [
                 "./src/*"
