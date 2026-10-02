@@ -25,6 +25,11 @@ type Key = 'high' | 'low' | 'value';
 
 type State = { value: number } | { high: number; low: number };
 
+type Thumb = HTMLElement & { [INDEX]: number };
+
+
+const INDEX = Symbol();
+
 
 function clamp(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
@@ -153,11 +158,11 @@ export default ({
                         }
 
                         let f = fraction(event),
-                            grabbed = (event.target as HTMLElement).closest<HTMLElement>('[data-thumb]'),
+                            grabbed = (event.target as HTMLElement).closest<Thumb>('.slider-thumb'),
                             index = 0;
 
                         if (grabbed) {
-                            index = Number(grabbed.dataset.thumb);
+                            index = grabbed[INDEX];
                         }
                         else if (range) {
                             let high = percent('high'),
@@ -202,7 +207,6 @@ export default ({
                             aria-valuemax='${max}'
                             aria-valuemin='${min}'
                             class='slider-thumb'
-                            data-thumb='${index}'
                             role='slider'
                             tabindex='${disabled ? -1 : 0}'
                             ${{
@@ -214,7 +218,8 @@ export default ({
                                         keydown(index, event);
                                     }
                                 },
-                                onrender: (element: HTMLElement) => {
+                                onrender: (element: Thumb) => {
+                                    element[INDEX] = index;
                                     thumbs[index] = element;
                                 },
                                 style: () => `--position: ${percent(key)}`

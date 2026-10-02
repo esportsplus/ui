@@ -25,8 +25,12 @@ type Key = 'high' | 'low';
 
 type State = { high: number; low: number };
 
+type Thumb = HTMLElement & { [INDEX]: number };
+
 
 const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+const INDEX = Symbol();
 
 const KEYS: Key[] = ['low', 'high'];
 
@@ -250,12 +254,12 @@ export default ({
                                 return;
                             }
 
-                            let grabbed = (event.target as HTMLElement).closest<HTMLElement>('[data-thumb]'),
+                            let grabbed = (event.target as HTMLElement).closest<Thumb>('.range-filter-thumb'),
                                 v = at(event.clientX),
                                 index: number;
 
                             if (grabbed) {
-                                index = Number(grabbed.dataset.thumb);
+                                index = grabbed[INDEX];
                             }
                             else if (single) {
                                 index = 1;
@@ -330,7 +334,6 @@ export default ({
                                 aria-valuemax='${max}'
                                 aria-valuemin='${min}'
                                 class='range-filter-thumb'
-                                data-thumb='${index}'
                                 role='slider'
                                 tabindex='${disabled ? -1 : 0}'
                                 ${{
@@ -338,7 +341,8 @@ export default ({
                                     'aria-valuetext': () => `${prefix}${format(s[key])}`,
                                     class: () => ui.dragging === index && '--active',
                                     onkeydown: (event: KeyboardEvent) => keydown(index, event),
-                                    onrender: (element: HTMLElement) => {
+                                    onrender: (element: Thumb) => {
+                                        element[INDEX] = index;
                                         thumbs[index] = element;
                                     },
                                     style: () => `--position: ${pct(s[key]) / 100}; z-index: ${ui.dragging === index || (index === 0 && s.low === max) ? 3 : 2};`
