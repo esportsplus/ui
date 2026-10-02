@@ -1,4 +1,4 @@
-import { reactive } from '@esportsplus/reactivity';
+import { flush, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 
 
@@ -41,13 +41,10 @@ export default component(
             trigger?.focus();
         }
 
+        // The options stay inert until the state write lands.
         function focus() {
-            // Options stay inert until the attribute frame scheduled after the state write runs
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    items[0]?.focus();
-                });
-            });
+            flush();
+            items[0]?.focus();
         }
 
         return html`

@@ -139,7 +139,7 @@ export default component<A, string>(
                     { content, key: 'idle' },
                     { content: success, icon: check, key: 'success' }
                 ])}
-                <span aria-hidden='true' class='button-fill' ${{ onconnect: (element: HTMLElement) => fill = element }}>
+                <span aria-hidden='true' class='button-fill' ${{ onrender: (element: HTMLElement) => fill = element }}>
                     ${faces(() => state.status === 'success' ? 'success' : 'idle', [
                         { content, key: 'idle' },
                         { content: success, icon: check, key: 'success' }

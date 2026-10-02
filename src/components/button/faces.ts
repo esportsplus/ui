@@ -16,8 +16,7 @@ export default (status: () => string, faces: Face[]) => html`
         ${faces.map(({ content, icon, key, tone }, index) => html`
             <span
                 aria-hidden='${index === 0 ? 'false' : 'true'}'
-                class='button-face'
-                data-tone='${tone}'
+                class='button-face ${tone && `button-face--${tone}`}'
                 ${{ class: () => status() === key && '--active' }}
             >
                 ${icon?.()}
