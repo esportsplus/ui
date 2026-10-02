@@ -83,6 +83,10 @@ function empty(): Layer {
     return { height: 0, radius: '0px', variant: '', visible: false, width: 0, x: 0, y: 0 };
 }
 
+function geometry(layer: Layer) {
+    return `--border-radius: ${layer.radius}; --height: ${layer.height}px; --width: ${layer.width}px; --x: ${layer.x}px; --y: ${layer.y}px;`;
+}
+
 function glide(): Glide {
     return { item: null, slides: [] };
 }
@@ -99,22 +103,6 @@ function milliseconds(value: string) {
     let n = parseFloat(value);
 
     return isNaN(n) ? 0 : value.trim().endsWith('ms') ? n : n * 1000;
-}
-
-// Written straight to the layer: the template applies bindings a frame late, and a glide starting now would spend
-// that frame added onto the item the layer is leaving, throwing it past that item for a frame.
-function paint(node: HTMLElement | null, layer: Layer) {
-    if (!node) {
-        return;
-    }
-
-    let style = node.style;
-
-    style.setProperty('--border-radius', layer.radius);
-    style.setProperty('--height', `${layer.height}px`);
-    style.setProperty('--width', `${layer.width}px`);
-    style.setProperty('--x', `${layer.x}px`);
-    style.setProperty('--y', `${layer.y}px`);
 }
 
 // What is left of a glide's offset, eased: the layer shows at its target plus this.
@@ -250,8 +238,6 @@ export default component<A>(
             layer.width = width;
             layer.x = x;
             layer.y = y;
-
-            paint(nodes[name], layer);
         }
 
         // The layer's box always sits on its item; a glide is an offset added on top, easing to nothing, so the item
@@ -377,7 +363,8 @@ export default component<A>(
                     onrender: (element: HTMLElement) => {
                         nodes.pointer = element;
                         self.push(element);
-                    }
+                    },
+                    style: () => geometry(layers.pointer)
                 }}
             ></div>
             <div
@@ -510,7 +497,8 @@ export default component<A>(
                     onrender: (element: HTMLElement) => {
                         nodes.active = element;
                         self.push(element);
-                    }
+                    },
+                    style: () => geometry(layers.active)
                 }}
             ></div>
         `;
