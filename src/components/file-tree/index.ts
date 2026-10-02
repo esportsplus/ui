@@ -1,4 +1,4 @@
-import { effect, peek, reactive, read, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
+import { effect, flush, peek, reactive, read, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { write as writeText } from '~/components/clipboard';
 import highlight from '~/components/highlight';
@@ -11,7 +11,7 @@ import folderOpen from '@esportsplus/ui/svg/folder-open.svg';
 import folderClosed from '@esportsplus/ui/svg/folder.svg';
 import lock from '@esportsplus/ui/svg/lock.svg';
 import Clipboard from './clipboard';
-import segments, { ancestors, caption, holds, lineage, same, sole } from './compact';
+import segments, { ancestors, caption, holds, lineage, same, SEGMENT, sole, type Segment } from './compact';
 import Decorations, { merge, type Badge, type Decoration, type Status, type Tone } from './decorations';
 import draggable, { type Drag, type Drop } from './drag';
 import Editor, { field, resolve, type Draft, type Kind, type Result } from './edit';
@@ -166,7 +166,6 @@ type Mark = {
 };
 
 type Motion = {
-    element: HTMLElement;
     frame: number;
     ghosts: HTMLElement;
 };
@@ -201,6 +200,8 @@ type Part = {
     title?: string;
     tone?: Tone | 'additions' | 'deletions' | 'open' | 'submodule' | 'unsaved';
 };
+
+type Rendered = HTMLElement & { [ROW]?: Row };
 
 type Row = {
     // Built the first time the folder opens, so a closed folder costs nothing however large.
@@ -272,6 +273,8 @@ const RANK: Tone[] = ['ignored', 'added', 'modified', 'warning', 'deleted', 'con
 
 // Long enough that holding an arrow key down opens only the file it stops on.
 const REST = 200;
+
+const ROW = Symbol();
 
 const TONES: Record<Status, Tone> = {
     added: 'added',
@@ -360,7 +363,8 @@ function bytes(value: number) {
 function chip(part: Part) {
     return html`
         <span
-            ${{ 'data-staged': part.staged && 'true', 'data-tone': part.tone, style: part.color && `color: ${part.color}` }}
+            class='file-tree-badge-part ${part.staged && 'file-tree-badge-part--staged'} ${part.tone && `file-tree-badge-part--${part.tone}`}'
+            ${{ style: part.color && `color: ${part.color}` }}
             ${part.title ? { title: part.title } : undefined}
         >
             ${part.text}
@@ -401,6 +405,11 @@ function emphasis(name: string, query: string) {
     }
 
     return out;
+}
+
+// A search mark as classes on 'block': every match tinted, the current one outlined as well.
+function found(block: string, mark: string | false) {
+    return mark && `${block}--match${mark === 'current' ? ` ${block}--match-current` : ''}`;
 }
 
 function folder(element: Element) {
@@ -462,9 +471,7 @@ function path(row: Row) {
 
 // The folder whose segment of a compact row was pressed, or the row's own.
 function pick(row: Row, event: MouseEvent) {
-    let id = (event.target as HTMLElement).closest<HTMLElement>('[data-segment]')?.dataset.segment;
-
-    return row.segments?.find((node) => node.id === id) ?? row;
+    return (event.target as HTMLElement).closest<Segment<Row>>('.file-tree-segment')?.[SEGMENT] ?? row;
 }
 
 function place(row: Row) {
@@ -630,7 +637,10 @@ export default ({
 
                 return !!row && !hidden.has(id) && shown(row) === row;
             },
-            sift
+            sift: (folders) => {
+                sift(folders);
+                slot.flush();
+            }
         }),
         // The store's version this tree last caught up with.
         seen = model.version,
@@ -667,17 +677,19 @@ export default ({
         tip =tooltip.shared({ delay: { open: TOOLTIP }, direction: 'e' }),
         typed = '',
         typedAt = 0,
-        ui = reactive({ any: opened > 0, focused: cursor?.key ?? 0 }),
+        // 'folder' is the key of the row a fold motion runs from, 'motion' its direction.
+        ui = reactive({ any: opened > 0, focused: cursor?.key ?? 0, folder: 0, motion: '' as '' | 'close' | 'open', motionRows: 0 }),
         selection = new Selection((ids) => {
             state.selection = ids;
         }),
         slot = html.virtual(rows, (row) => {
             if (row.notice) {
                 return placeholder(row.notice, {
-                    ...(revealing.has(row) ? { 'data-reveal': 'true' } : undefined),
                     'aria-level': String(row.depth + 1),
-                    class: () => ui.focused === row.key && 'file-tree-row--focused',
-                    'data-id': row.id,
+                    class: [
+                        () => ui.focused === row.key && 'file-tree-row--focused',
+                        () => ui.motion === 'open' && revealing.has(row) && 'file-tree-row--reveal'
+                    ],
                     id: `${id}-${row.key}`,
                     onclick: () => {
                         focus(row);
@@ -694,16 +706,14 @@ export default ({
                 <div
                     aria-level='${row.depth + 1}'
                     class='file-tree-row ${row.locked ? '--disabled' : ''} ${header(row) ? 'file-tree-row--root' : ''} ${() => active(row) && '--active'} ${() => holds(row, (id) => clipboard.marked.read(id)) && 'file-tree-row--cut'} ${() => holds(row, (id) => selection.read(id)) && !active(row) && 'file-tree-row--selected'}'
-                    data-id='${row.id}'
                     id='${id}-${row.key}'
                     role='treeitem'
                     style='--depth: ${row.depth}; --guides: ${guides(row.depth)}; --reveal-index: ${revealing.get(row) ?? 0};'
                     ${row.locked ? { 'aria-disabled': 'true' } : undefined}
-                    ${revealing.has(row) ? { 'data-reveal': 'true' } : undefined}
                     ${open ? { 'aria-expanded': () => read(open) ? 'true' : 'false' } : undefined}
-                    ${mark ? { 'data-tone': () => read(mark).tone || false } : undefined}
-                    ${search ? { 'data-match': () => matched(row) } : undefined}
-                    ${row.scope ? { 'data-scope': 'true', style: `--scope: ${row.scope}` } : undefined}
+                    ${mark ? { class: () => read(mark).tone && `file-tree-row--${read(mark).tone}` } : undefined}
+                    ${search ? { class: () => found('file-tree-row', matched(row)) } : undefined}
+                    ${row.scope ? { class: 'file-tree-row--scope', style: `--scope: ${row.scope}` } : undefined}
                     ${dragging?.row(row)}
                     ${onscreen(row)}
                     ${{
@@ -711,7 +721,11 @@ export default ({
                         'aria-posinset': () => position(row),
                         'aria-selected': () => holds(row, (id) => selection.read(id)) ? 'true' : 'false',
                         'aria-setsize': () => row.size - read(row.gaps),
-                        class: () => ui.focused === row.key && 'file-tree-row--focused',
+                        class: [
+                            () => ui.focused === row.key && 'file-tree-row--focused',
+                            () => ui.folder === row.key && ui.motion && 'file-tree-row--motion',
+                            () => ui.motion === 'open' && revealing.has(row) && 'file-tree-row--reveal'
+                        ],
                         onauxclick: (event: MouseEvent) => press(row, event),
                         onclick: (event: MouseEvent) => press(row, event),
                         ondblclick: (event: MouseEvent) => press(row, event)
@@ -731,7 +745,7 @@ export default ({
                     aria-expanded='true'
                     class='file-tree-row ${row.locked ? '--disabled' : ''} ${header(row) ? 'file-tree-row--root' : ''} ${() => active(row) && 'file-tree-row--selected'}'
                     style='--depth: ${row.depth}; --guides: ${guides(row.depth)};'
-                    ${mark ? { 'data-tone': () => read(mark).tone || false } : undefined}
+                    ${mark ? { class: () => read(mark).tone && `file-tree-row--${read(mark).tone}` } : undefined}
                     ${{
                         class: () => ui.focused === row.key && 'file-tree-row--focused',
                         onclick: () => unpin(row)
@@ -1194,11 +1208,15 @@ export default ({
 
                 if (pinned || edit?.row !== row) {
                     return row.segments
-                        ? segments(row, (node) => ({
-                            class: () => node !== row && state.selected === node.id && '--active',
-                            ...(search ? { 'data-match': () => search.mark(node.id) } : undefined),
-                            ...dragging?.segment(node)
-                        }), (node) => () => emphasis(node.element.name, read(query) || read(given)))
+                        ? segments(row, (node) => [
+                            {
+                                class: [
+                                    () => node !== row && state.selected === node.id && '--active',
+                                    search && (() => found('file-tree-segment', search.mark(node.id)))
+                                ]
+                            },
+                            dragging?.segment(node) ?? {}
+                        ], (node) => () => emphasis(node.element.name, read(query) || read(given)))
                         : html`<span class='file-tree-name'>${() => emphasis(element.name, read(query) || read(given))}</span>`;
                 }
 
@@ -1359,10 +1377,9 @@ export default ({
                 break;
             }
 
-            let clone = node.cloneNode(true) as HTMLElement;
+            let clone = node.cloneNode(true) as Rendered;
 
-            clone.dataset.ghost = node.dataset.id;
-            clone.removeAttribute('data-id');
+            clone[ROW] = (node as Rendered)[ROW];
             clone.removeAttribute('id');
             clone.removeAttribute('role');
             // Laid out by its measured box, so the depth margin would count twice.
@@ -1486,12 +1503,11 @@ export default ({
         expand(row, value);
 
         motion = {
-            element,
-            // Queued after the list's own frame, so the rows are already swapped when the motion starts.
+            // Started once the list has rendered the swapped rows, ahead of their first paint.
             frame: requestAnimationFrame(() => {
                 // A row still rendered rides the edge itself, so the highlight on it moves with it.
-                for (let clone of ghosts.querySelectorAll<HTMLElement>('[data-ghost]')) {
-                    let ghost = lookup(clone.dataset.ghost!);
+                for (let clone of ghosts.querySelectorAll<Rendered>('.file-tree-row')) {
+                    let ghost = lookup(clone[ROW]!.id);
 
                     if (ghost && rendered.has(ghost)) {
                         clone.remove();
@@ -1499,9 +1515,9 @@ export default ({
                 }
 
                 scroller.after(ghosts);
-                container.style.setProperty('--motion-rows', String(inner.length));
-                container.dataset.motion = value ? 'open' : 'close';
-                element.dataset.motion = '';
+                ui.folder = row.key;
+                ui.motion = value ? 'open' : 'close';
+                ui.motionRows = inner.length;
             }),
             ghosts
         };
@@ -1852,10 +1868,18 @@ export default ({
                     rendered.delete(row);
                 }
             },
-            onrender: (element: HTMLElement) => {
+            onrender: (element: Rendered) => {
+                element[ROW] = row;
                 rendered.set(row, element);
             }
         };
+    }
+
+    // The row 'element' draws, among the built ones: notices stand in for rows and pinned copies draw none.
+    function owner(element: Rendered | null) {
+        let row = element?.[ROW];
+
+        return row && !row.notice ? row : null;
     }
 
     function page() {
@@ -2485,17 +2509,13 @@ export default ({
         }
 
         cancelAnimationFrame(motion.frame);
-        motion.element.removeAttribute('data-motion');
         motion.ghosts.remove();
         motion = null;
-        root?.removeAttribute('data-motion');
-        root?.style.removeProperty('--motion-rows');
-
-        for (let row of revealing.keys()) {
-            rendered.get(row)?.removeAttribute('data-reveal');
-        }
-
         revealing.clear();
+        ui.folder = 0;
+        ui.motion = '';
+        // Off now, before a fold that follows measures its rows, so its own motion restarts the animation.
+        flush();
     }
 
     // Moves the rollup that 'ids' carry, their tones and their lines, from one chain of folders to another; null ends
@@ -2834,6 +2854,7 @@ export default ({
             ${attributes}
             ${dragging?.root}
             ${{
+                class: () => ui.motion && `file-tree--motion file-tree--motion-${ui.motion}`,
                 onanimationend: (event: AnimationEvent) => {
                     if (event.target === root) {
                         settle();
@@ -2946,7 +2967,8 @@ export default ({
                 },
                 onrender: (element: HTMLElement) => {
                     root = element;
-                }
+                },
+                style: () => ui.motion && `--motion-rows: ${ui.motionRows}`
             }}
         >
             <div
@@ -2966,10 +2988,10 @@ export default ({
 
                         event.preventDefault();
 
-                        let item = (event.target as HTMLElement).closest<HTMLElement>('.file-tree-row'),
+                        let item = (event.target as HTMLElement).closest<Rendered>('.file-tree-row'),
                             // Shift+F10 and the menu key fire on the tree itself, with no pointer to place the menu at.
                             keyboard = !item && event.button !== 2,
-                            row = keyboard ? cursor : item && built.get(item.dataset.id!);
+                            row = keyboard ? cursor : owner(item);
 
                         if (!row) {
                             menu([], { x: event.clientX, y: event.clientY }, false);
@@ -3149,8 +3171,8 @@ export default ({
                     },
                     onpointerover: (event: PointerEvent) => {
                         let scroller = event.currentTarget as HTMLElement,
-                            target = (event.target as HTMLElement).closest<HTMLElement>('.file-tree-row'),
-                            row = target && built.get(target.dataset.id!);
+                            target = (event.target as HTMLElement).closest<Rendered>('.file-tree-row'),
+                            row = owner(target);
 
                         // Between rows, in the space beside a nested one, the tooltip stays on the last row.
                         if (!target || !row) {

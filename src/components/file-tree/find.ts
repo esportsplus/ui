@@ -33,7 +33,8 @@ type Host = {
     leave: VoidFunction;
     // Whether the row is on screen now, with every folder above it open.
     shows: (id: string) => boolean;
-    // Filter mode's view: the folders down to the matches, in tree order, to open; null ends it.
+    // Filter mode's view: the folders down to the matches, in tree order, to open; null ends it. The rows are on
+    // screen by the time it returns, so a match can be scrolled to straight after.
     sift: (folders: string[] | null) => void;
 };
 
@@ -119,7 +120,6 @@ function search(query: string, host: Host) {
 // The find bar laid over the tree, as VS Code's explorer has: 'highlight' marks the matches among every row,
 // 'filter' leaves only them and the folders they sit in.
 class Finder {
-    private frame = 0;
     private host: Host;
     private input: HTMLInputElement | undefined;
     // Filter mode's rows: the matches and the folders above them; null while nothing is filtered.
@@ -176,7 +176,6 @@ class Finder {
     }
 
     private run(jump: boolean) {
-        cancelAnimationFrame(this.frame);
         clearTimeout(this.timer);
 
         let state = this.state,
@@ -200,16 +199,7 @@ class Finder {
         // Once filtering ends, the row the reader is on is brought back into view among the rows returning.
         let target = this.land(jump) || (sifted && !filter ? this.host.cursor() : '');
 
-        if (!target) {
-            return;
-        }
-
-        // The rows were swapped wholesale, and the list lays them out on its next frame; measured before then, the
-        // match would be found where it sat among the old ones.
-        if (sifted) {
-            this.frame = requestAnimationFrame(() => this.host.go(target));
-        }
-        else {
+        if (target) {
             this.host.go(target);
         }
     }
@@ -229,7 +219,6 @@ class Finder {
     }
 
     dispose() {
-        cancelAnimationFrame(this.frame);
         clearTimeout(this.timer);
     }
 
@@ -336,7 +325,6 @@ class Finder {
                             ${{
                                 'aria-invalid': () => read(this.query) !== '' && !state.count ? 'true' : 'false',
                                 onconnect: (element: HTMLInputElement) => {
-                                    this.input = element;
                                     element.value = state.text;
                                     element.focus({ preventScroll: true });
 
@@ -378,6 +366,9 @@ class Finder {
                                     }
 
                                     event.preventDefault();
+                                },
+                                onrender: (element: HTMLInputElement) => {
+                                    this.input = element;
                                 }
                             }}
                         />

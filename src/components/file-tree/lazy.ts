@@ -79,7 +79,7 @@ const placeholder = (notice: Notice, ...attributes: Attributes[]) => html`
     <div
         class='file-tree-row file-tree-notice'
         role='treeitem'
-        ${notice.type === 'error' ? { 'data-tone': 'error' } : notice.type === 'loading' ? { 'aria-busy': 'true' } : undefined}
+        ${notice.type === 'error' ? { class: 'file-tree-row--error' } : notice.type === 'loading' ? { 'aria-busy': 'true' } : undefined}
         ${attributes}
     >
         <span aria-hidden='true' class='file-tree-twistie'></span>

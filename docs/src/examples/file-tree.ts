@@ -491,7 +491,10 @@ function letter(text: string, label: string, tone?: string, options: { color?: s
         label,
         sample: () => html`
             <span class='file-tree-badge'>
-                <span ${{ 'data-staged': options.staged && 'true', 'data-tone': tone, style: options.color && `color: ${options.color}` }}>${text}</span>
+                <span
+                    class='file-tree-badge-part ${options.staged && 'file-tree-badge-part--staged'} ${tone && `file-tree-badge-part--${tone}`}'
+                    ${{ style: options.color && `color: ${options.color}` }}
+                >${text}</span>
             </span>
         `
     };
@@ -663,7 +666,7 @@ function roots(): FileTreeElement[] {
 function tint(tone: string, label: string): Legend {
     return {
         label,
-        sample: () => html`<span class='file-tree-demo-legend-name' data-tone='${tone}' style='color: var(--${tone}-color)'>index.ts</span>`
+        sample: () => html`<span class='file-tree-demo-legend-name file-tree-demo-legend-name--${tone}' style='color: var(--${tone}-color)'>index.ts</span>`
     };
 }
 

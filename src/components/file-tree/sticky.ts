@@ -82,7 +82,7 @@ export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number,
         size = height();
     }
 
-    // Rows change in slices and the list moves its window on the next frame, so the stack follows once it has.
+    // Rows change in slices, so the stack follows once a frame, after the list has moved its window for all of them.
     function schedule() {
         frame ||= requestAnimationFrame(() => {
             frame = 0;
@@ -131,7 +131,6 @@ export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number,
                             });
 
                         resize.observe(host);
-                        stack = element;
                         stop = () => resize.disconnect();
                         viewport = host;
                     },
@@ -141,6 +140,9 @@ export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number,
                         stop?.();
                         stop = undefined;
                         stack = viewport = undefined;
+                    },
+                    onrender: (element: HTMLElement) => {
+                        stack = element;
                     },
                     style: () => `--sticky-push: ${push.offset}px`
                 }}

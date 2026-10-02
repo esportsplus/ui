@@ -12,6 +12,11 @@ type Node<T> = {
     segments?: T[];
 };
 
+type Segment<T> = HTMLElement & { [SEGMENT]: T };
+
+
+const SEGMENT = Symbol();
+
 
 // Every folder above 'row', outermost first, the segments before it in its compact row included.
 function ancestors<T extends Node<T>>(row: T) {
@@ -78,10 +83,11 @@ function sole(element: Element, hidden: Set<string>, folder: (element: Element) 
 
 // A compact row's name, 'src/components/ui', one segment per folder, each hovered, pressed and dropped on alone;
 // 'name' renders a segment's name, as with the characters a search matched marked.
-export default <T extends Node<T>>(row: T, part: (node: T) => Attributes, name: (node: T) => Renderable<unknown>) => html`
+export default <T extends Node<T>>(row: T, part: (node: T) => Attributes[], name: (node: T) => Renderable<unknown>) => html`
     <span class='file-tree-name'>
-        ${lineage(row).map((node, i) => html`${i ? html`<span aria-hidden='true' class='file-tree-separator'>/</span>` : ''}<span class='file-tree-segment' data-segment='${node.id}' ${part(node)}>${name(node)}</span>`)}
+        ${lineage(row).map((node, i) => html`${i ? html`<span aria-hidden='true' class='file-tree-separator'>/</span>` : ''}<span class='file-tree-segment' ${part(node)} ${{ onrender: (element: Segment<T>) => { element[SEGMENT] = node; } }}>${name(node)}</span>`)}
     </span>
 `;
 
-export { ancestors, caption, holds, lineage, same, sole };
+export { ancestors, caption, holds, lineage, same, SEGMENT, sole };
+export type { Segment };

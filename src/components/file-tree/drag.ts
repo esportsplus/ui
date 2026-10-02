@@ -399,7 +399,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
         document.addEventListener('touchmove', scroll, { passive: false });
     }
 
-    // Where 'row' sits in the box drawn around the target folder and its open contents.
+    // Where 'row' sits in the box drawn around the target folder and its open contents, as its classes.
     function mark(row: T) {
         let target = ui.target;
 
@@ -411,7 +411,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             if (node.key === target) {
                 let end = row.key === ui.last;
 
-                return node === row ? (end ? 'only' : 'start') : (end ? 'end' : 'middle');
+                return `file-tree-row--drop file-tree-row--drop-${node === row ? (end ? 'only' : 'start') : (end ? 'end' : 'middle')}`;
             }
         }
 
@@ -425,7 +425,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                 class='file-tree-drag'
                 popover='manual'
                 ${{
-                    'data-effect': () => ui.effect || false,
+                    class: () => ui.effect && `file-tree-drag--${ui.effect}`,
                     onrender: (element: HTMLElement) => {
                         ghost = element;
                     },
@@ -438,12 +438,16 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             </div>
         `,
         root: {
-            'data-drag': () => ui.effect || false,
-            'data-drop': () => ui.target === -1 ? 'root' : false
+            class: [
+                () => ui.effect && `file-tree--drag file-tree--drag-${ui.effect}`,
+                () => ui.target === -1 && 'file-tree--drop'
+            ]
         } as Attributes,
         row: (row: T): Attributes => ({
-            'data-dragged': () => ui.effect !== '' && sources.includes(row) ? 'true' : false,
-            'data-drop': () => mark(row),
+            class: [
+                () => ui.effect !== '' && sources.includes(row) && 'file-tree-row--dragged',
+                () => mark(row)
+            ],
             ondisconnect: (element: HTMLElement) => {
                 rows.delete(element);
             },
@@ -478,7 +482,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
         }),
         // Marks the segment of a compact row a drop lands in.
         segment: (row: T): Attributes => ({
-            'data-drop': () => ui.folder === row.key && 'true',
+            class: () => ui.folder === row.key && 'file-tree-segment--drop',
             ondisconnect: (element: HTMLElement) => {
                 segments.delete(element);
             },
