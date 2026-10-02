@@ -292,8 +292,10 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
                         start();
                     }
                 },
-                onconnect: (element: HTMLElement) => {
+                onconnect: () => {
                     connected = true;
+                },
+                onrender: (element: HTMLElement) => {
                     field = element;
                 }
             }}
