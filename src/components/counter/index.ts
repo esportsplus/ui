@@ -132,8 +132,7 @@ export default ({ currency = 'USD', decimals = 2, delay, max, prefix, startOnVie
                     return html`
                         <div aria-hidden='true' class='counter-character'>
                             <div
-                                class='counter-character-track'
-                                data-roll='${() => character.roll}'
+                                class='counter-character-track ${() => character.roll && `counter-character-track--roll-${character.roll}`}'
                                 style='${() => `--index: ${character.index}; --value: ${character.value}`}'
                             >
                                 <span>9</span>

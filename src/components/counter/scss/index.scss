@@ -73,11 +73,11 @@
             .counter-character-track {
                 animation: var(--transition-duration) ease-out calc(var(--index) * var(--stagger));
 
-                &[data-roll='1'] {
+                &.counter-character-track--roll-1 {
                     animation-name: counter-blur-1;
                 }
 
-                &[data-roll='2'] {
+                &.counter-character-track--roll-2 {
                     animation-name: counter-blur-2;
                 }
             }
