@@ -46,7 +46,7 @@
         }
 
         @for $level from 1 through 4 {
-            &[data-level='#{$level}'] {
+            &.heatmap-cell--level-#{$level} {
                 background: var(--level-#{$level});
             }
         }
@@ -131,7 +131,7 @@
     width: var(--cell-size);
 
     @for $level from 0 through 4 {
-        &[data-level='#{$level}'] {
+        &.heatmap-swatch--level-#{$level} {
             background: var(--level-#{$level});
         }
     }

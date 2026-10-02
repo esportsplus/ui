@@ -20,6 +20,8 @@ type A = Attributes & {
     tooltip: (day: Day, index: number) => Renderable<unknown>;
 };
 
+type Cell = HTMLElement & { [INDEX]: number };
+
 // `level` (0 to 4) overrides the thresholds, for data that arrives already bucketed, like GitHub's own graph.
 type Day = {
     date: string;
@@ -36,6 +38,8 @@ const DAYS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
 
 const HEATMAP_CELL = Symbol.for('@esportsplus/ui/heatmap.cell');
 
+const INDEX = Symbol();
+
 const LEVELS = [0, 1, 2, 3, 4];
 
 const LONG_DATE = new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'long', timeZone: 'UTC', weekday: 'long', year: 'numeric' });
@@ -51,7 +55,7 @@ function legend(attributes: Attributes = {}) {
     return html`
         <div aria-hidden='true' class='heatmap-legend' ${attributes}>
             <span>Less</span>
-            ${LEVELS.map((level) => html`<span class='heatmap-swatch' data-level='${level}'></span>`)}
+            ${LEVELS.map((level) => html`<span class='heatmap-swatch heatmap-swatch--level-${level}'></span>`)}
             <span>More</span>
         </div>
     `;
@@ -75,7 +79,7 @@ function summary(day: Day) {
 
 function template(this: { attributes?: Partial<A> } | void, { data, describe = summary, label, state = reactive({ index: data.length - 1 }), thresholds = THRESHOLDS, tooltip: content, ...attributes }: A) {
     let bound = this?.attributes,
-        cells: HTMLElement[] = [],
+        cells: Cell[] = [],
         months: { column: number; name: string }[] = [],
         observer: IntersectionObserver | undefined,
         tip = tooltip.shared(),
@@ -100,7 +104,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
     }
 
     function cellFrom(target: EventTarget | null) {
-        return (target as HTMLElement | null)?.closest<HTMLElement>('[data-index]') ?? null;
+        return (target as HTMLElement | null)?.closest<Cell>('.heatmap-cell') ?? null;
     }
 
     function move(next: number) {
@@ -122,11 +126,11 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
             ${attributes}
             ${tip.delegate({
                 content: (cell) => {
-                    let index = Number(cell.dataset.index);
+                    let index = (cell as Cell)[INDEX];
 
                     return content(data[index], index);
                 },
-                selector: '.heatmap-cell[data-index]'
+                selector: '.heatmap-cell:not(.heatmap-cell--empty)'
             })}
         >
             <div aria-hidden='true' class='heatmap-days'>
@@ -175,7 +179,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
                                 let element = cellFrom(e.target);
 
                                 if (element) {
-                                    state.index = Number(element.dataset.index);
+                                    state.index = element[INDEX];
                                 }
                             },
                             onkeydown: (e: KeyboardEvent) => {
@@ -185,7 +189,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
                                     return;
                                 }
 
-                                let i = Number(element.dataset.index),
+                                let i = element[INDEX],
                                     day = i % 7,
                                     next = ({
                                         ArrowDown: day < 6 ? i + 1 : i,
@@ -217,16 +221,15 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
                                     return html`
                                         <div
                                             aria-label='${describe(data[i])}'
-                                            class='heatmap-cell'
-                                            data-index='${i}'
-                                            data-level='${data[i].level ?? levelOf(data[i].value, thresholds)}'
+                                            class='heatmap-cell heatmap-cell--level-${data[i].level ?? levelOf(data[i].value, thresholds)}'
                                             role='gridcell'
                                             style='--column: ${week}'
                                             tabindex='${() => state.index === i ? '0' : '-1'}'
                                             ${bound?.[HEATMAP_CELL]}
                                             ${attributes[HEATMAP_CELL]}
                                             ${{
-                                                onrender: (element: HTMLElement) => {
+                                                onrender: (element: Cell) => {
+                                                    element[INDEX] = i;
                                                     cells[i] = element;
                                                 }
                                             }}
