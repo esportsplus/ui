@@ -65,7 +65,7 @@ export default ({ 'aria-label': label = 'Notifications', count = 0, dot = false,
             type='button'
             ${{
                 'aria-label': () => api.count > 0 ? `${label}, ${api.count} unread` : label,
-                'data-ring': () => state.ring || '',
+                class: () => state.ring && `notification-bell--ring-${state.ring}`,
                 onanimationend: (e: AnimationEvent) => {
                     if (e.animationName.startsWith('notification-bell-ring')) {
                         state.ring = 0;

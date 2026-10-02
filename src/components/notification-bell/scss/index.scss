@@ -13,7 +13,7 @@
     }
 
     @each $i in 1, 2 {
-        &[data-ring='#{$i}'] .notification-bell-icon {
+        &.notification-bell--ring-#{$i} .notification-bell-icon {
             animation: notification-bell-ring-#{$i} var(--ring-duration) ease-in-out;
         }
     }
@@ -89,7 +89,7 @@
         }
 
         @each $i in 1, 2 {
-            &[data-ring='#{$i}'] .notification-bell-icon {
+            &.notification-bell--ring-#{$i} .notification-bell-icon {
                 animation: none;
             }
         }
