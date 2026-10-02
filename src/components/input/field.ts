@@ -6,7 +6,6 @@ import form from '~/components/form';
 type A = Attributes & {
     onfocusin?: never;
     onfocusout?: never;
-    onrender?: never;
 };
 
 

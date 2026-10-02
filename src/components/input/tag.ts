@@ -22,6 +22,16 @@ type Chip = {
 
 type D = Attributes & Pick<A, typeof INPUT_TAG_FIELD>;
 
+// A removed chip's stand-in, laid where the chip stood while it fades out.
+type Ghost = {
+    element?: HTMLElement;
+    height: number;
+    left: number;
+    tag: string;
+    top: number;
+    width: number;
+};
+
 type Field = Parameters<typeof input>[0];
 
 type State = {
@@ -78,6 +88,7 @@ export default component(
         let chips = new Map<string, Chip>(),
             field: HTMLInputElement | undefined,
             flips = new Map<Element, Animation>(),
+            ghosts = new ReactiveArray<Ghost>(),
             id = `input-tag-${++uid}`,
             list: HTMLElement | undefined,
             local = reactive({ announcement: '', armed: '' }),
@@ -86,7 +97,6 @@ export default component(
             slot = html.reactive(state.tags, (tag) => html`
                 <li
                     class='input-tag-chip ${() => local.armed === key(tag) && '--active'}'
-                    data-key='${key(tag)}'
                     ${{
                         ondisconnect: (element: HTMLElement) => {
                             if (chips.get(key(tag))?.element === element) {
@@ -136,6 +146,25 @@ export default component(
                     </span>
                     ${name ? html`<input name='${name}[]' type='hidden' value='${tag}' />` : ''}
                 </li>
+            `),
+            stand = html.reactive(ghosts, (ghost) => html`
+                <li
+                    aria-hidden='true'
+                    class='input-tag-chip input-tag-ghost'
+                    inert
+                    style='height: ${ghost.height}px; left: ${ghost.left}px; top: ${ghost.top}px; width: ${ghost.width}px;'
+                    ${{
+                        onrender: (element: HTMLElement) => {
+                            ghost.element = element;
+                        }
+                    }}
+                >
+                    <span aria-hidden='true' class='input-tag-chip-body'></span>
+                    <span class='input-tag-chip-text'>${ghost.tag}</span>
+                    <span class='input-tag-chip-remove'>
+                        <span class='input-tag-chip-button'><svg aria-hidden='true'><use href='#${close}' /></svg></span>
+                    </span>
+                </li>
             `);
 
         function add(raw: string[], typed: boolean) {
@@ -175,7 +204,7 @@ export default component(
             let formed = typed && added.length === 1 ? key(added[0]) : '';
 
             mutate(() => state.tags.push(...added), (element) => {
-                if (element.dataset.key === formed) {
+                if (element === chips.get(formed)?.element) {
                     form(chips.get(formed));
                 }
                 else {
@@ -303,22 +332,27 @@ export default component(
 
             // Leaves a ghost in its place to fade out, while the real chip leaves the flow at once and the rest close up.
             if (element && list) {
-                let ghost = element.cloneNode(true) as HTMLElement,
-                    origin = list.getBoundingClientRect(),
+                let origin = list.getBoundingClientRect(),
                     rect = element.getBoundingClientRect();
 
-                ghost.classList.add('input-tag-ghost');
-                ghost.classList.remove('--active');
-                ghost.inert = true;
-                ghost.removeAttribute('data-key');
-                ghost.style.cssText = `height: ${rect.height}px; left: ${rect.left - origin.left}px; top: ${rect.top - origin.top}px; width: ${rect.width}px;`;
-                list.append(ghost);
-                ghost.animate(
+                let ghost: Ghost = { height: rect.height, left: rect.left - origin.left, tag, top: rect.top - origin.top, width: rect.width };
+
+                ghosts.push(ghost);
+                // Animated once in the document: before then its node belongs to the template's own, whose clock
+                // never runs.
+                stand.flush();
+                ghost.element?.animate(
                     reduced.matches
                         ? { opacity: [1, 0] }
                         : { filter: ['blur(0)', 'blur(2px)'], opacity: [1, 0], scale: [1, 0.9] },
                     { ...LEAVE, fill: 'forwards' }
-                ).onfinish = () => ghost.remove();
+                ).finished.then(() => {
+                    let at = ghosts.indexOf(ghost);
+
+                    if (at !== -1) {
+                        ghosts.splice(at, 1);
+                    }
+                }, () => {});
             }
 
             mutate(() => state.tags.splice(index, 1));
@@ -368,6 +402,7 @@ export default component(
                         }}
                     >
                         ${slot}
+                        ${stand}
                         <li class='input-tag-entry' role='none'>
                             ${input.call({ attributes: { ...this?.attributes?.[INPUT_TAG_FIELD], ...attributes[INPUT_TAG_FIELD] } }, {
                                 autocomplete: 'off',
@@ -376,9 +411,6 @@ export default component(
                                 id,
                                 onblur: () => {
                                     local.armed = '';
-                                },
-                                onconnect: (element: HTMLInputElement) => {
-                                    field = element;
                                 },
                                 oninput: (e: Event) => {
                                     let value = (e.currentTarget as HTMLInputElement).value;
@@ -424,6 +456,9 @@ export default component(
 
                                     e.preventDefault();
                                     add(((e.currentTarget as HTMLInputElement).value + text).split(/[,\n]/), false);
+                                },
+                                onrender: (element: HTMLInputElement) => {
+                                    field = element;
                                 },
                                 placeholder,
                                 state
