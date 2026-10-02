@@ -1,19 +1,72 @@
-import type { Attributes } from '@esportsplus/template';
+import { flush, reactive, read, signal, write, type ReactiveArray, type Signal } from '@esportsplus/reactivity';
+import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { finished } from '~/shared/animation';
 import './scss/index.scss';
 
 
-type Options = {
-    // Containers sharing a group name trade items; the container the drag started in receives 'onsort'.
+// The drag a list started, from press to release; its container's document listeners hand events to it.
+type Drag = {
+    cancel: VoidFunction;
+    move: (e: PointerEvent) => void;
+    prevent: (e: Event) => void;
+    release: (e: PointerEvent) => void;
+    scroll: (e: TouchEvent) => void;
+};
+
+// An item's element, carrying the item it renders.
+type Keyed = HTMLElement & { [SORTABLE_ITEM]?: unknown };
+
+// One container's list. A drag only moves the placeholder; the items change once, on drop.
+type List<T> = {
+    active: Signal<boolean>;
+    container?: HTMLElement;
+    drag?: Drag;
+    // The item the placeholder sits before, null past the last; undefined while it shows in another list or nowhere.
+    gap: Signal<T | null | undefined>;
+    // The item picked up from this list, until it is back in the flow.
+    held: Signal<T | null>;
+    items: ReactiveArray<T>;
+    motion: Motion;
+    // The dragged item's box, so the placeholder holds its slot.
+    shape: Signal<string>;
+    slot?: { flush(): void };
+};
+
+// Where the held item is drawn: the box it was picked up from, then the pointer's offset from there and the swing.
+type Motion = {
+    angle: number;
+    height: number;
+    left: number;
+    origin: string;
+    phase: Phase;
+    top: number;
+    width: number;
+    x: number;
+    y: number;
+};
+
+type Options<T> = {
+    // Containers sharing a group name trade items; the list the drag started in receives 'onsort'.
     group?: string;
     // Selector for the part of an item that starts a drag; the whole item when omitted.
     handle?: string;
-    onsort?: (item: HTMLElement, from: number, to: number, source: HTMLElement, target: HTMLElement) => void;
+    onsort?: (item: T, from: number, to: number, source: ReactiveArray<T>, target: ReactiveArray<T>) => void;
 };
 
+// Its box before a reflow, so it can slide from there.
+type Measured = Element & { [FIRST]?: DOMRect };
+
+// 'lifting' places it out of flow, measured before the lift's scale and animation apply; 'settling' has it back in
+// the flow with transitions off.
+type Phase = '' | 'dragging' | 'dropping' | 'lifting' | 'settling';
+
+// 'index' is the item's place in its list; -1 for the placeholder.
 type Rect = {
     bottom: number;
-    container: HTMLElement;
+    element: HTMLElement;
+    index: number;
     left: number;
+    list: List<unknown>;
     right: number;
     top: number;
 };
@@ -22,14 +75,14 @@ type Rect = {
 // Touch has to hold still briefly before a drag starts, otherwise swiping across the items could never scroll.
 const DELAY = 180;
 
-const DROP: KeyframeAnimationOptions = { duration: 260, easing: 'cubic-bezier(0.34, 1.3, 0.64, 1)', fill: 'forwards' };
-
 const ENTER = 0.15;
+
+const FIRST = Symbol();
 
 // Treats the item as hanging below the grab point, so a centered grab still swings.
 const HANG = 0.5;
 
-const SHIFT: KeyframeAnimationOptions = { composite: 'add', duration: 220, easing: 'cubic-bezier(0.2, 0, 0, 1)' };
+const SORTABLE_ITEM = Symbol();
 
 // Seconds; low-pass on pointer velocity so uneven pointer/frame timing doesn't jolt the swing.
 const SMOOTHING = 0.04;
@@ -37,8 +90,8 @@ const SMOOTHING = 0.04;
 const THRESHOLD = 4;
 
 
-// Connected containers per group name, so a drag reaches every container it can drop into.
-let groups = new Map<string, Set<HTMLElement>>();
+// Connected lists per group name, so a drag reaches every list it can drop into.
+let groups = new Map<string, Set<List<unknown>>>();
 
 
 function child(container: HTMLElement, node: Node | null) {
@@ -49,26 +102,32 @@ function child(container: HTMLElement, node: Node | null) {
     return node instanceof HTMLElement ? node : null;
 }
 
-function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { group, onsort }: Options) {
-    let animations = new Map<HTMLElement, Animation>(),
+function drag(source: List<unknown>, item: Keyed, e: PointerEvent, { group, onsort }: Options<unknown>) {
+    let animations: Animation[] = [],
         baseLeft = 0,
         baseTop = 0,
-        containers = group ? [...(groups.get(group) ?? [container])] : [container],
-        cssText = '',
         frame = 0,
-        from = index(item),
-        layout = new Map<HTMLElement, Rect>(),
+        from = source.items.indexOf(item[SORTABLE_ITEM]),
+        held = false,
+        hole: Rect | null = null,
+        // The pointer in the hovered list's own coordinates when it was last hit-tested.
+        lastLeft = NaN,
+        lastTop = NaN,
+        layout: Rect[] = [],
+        lists = group ? [...(groups.get(group) ?? [source])] : [source],
+        motion = source.motion,
+        // From the container's CSS, read on lift; no duration is no slide.
+        shift: KeyframeAnimationOptions | null = null,
         originX = e.clientX,
         originY = e.clientY,
-        placeholder: HTMLElement | null = null,
         pointer = e.pointerId,
         previousX = e.clientX,
         previousY = e.clientY,
-        reduced = matchMedia('(prefers-reduced-motion: reduce)').matches,
         swing: ReturnType<typeof inertia> | null = null,
         time = 0,
         touch = e.pointerType === 'touch',
         timer = touch ? setTimeout(activate, DELAY) : undefined,
+        value = item[SORTABLE_ITEM],
         x = e.clientX,
         y = e.clientY;
 
@@ -77,48 +136,50 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
 
         let rect = item.getBoundingClientRect(),
             computed = getComputedStyle(item),
-            style = item.style;
+            shape = `--radius: ${computed.borderRadius}; grid-column: ${computed.gridColumn}; grid-row: ${computed.gridRow}; height: ${rect.height}px; margin: ${computed.margin}; width: ${rect.width}px;`;
 
-        placeholder = document.createElement('div');
-        placeholder.className = 'sortable-placeholder';
-        placeholder.style.cssText = `
-            --radius: ${computed.borderRadius};
-            grid-column: ${computed.gridColumn};
-            grid-row: ${computed.gridRow};
-            height: ${rect.height}px;
-            margin: ${computed.margin};
-            width: ${rect.width}px;
-        `;
+        let duration = computed.getPropertyValue('--shift-duration').trim();
 
         baseLeft = rect.left;
         baseTop = rect.top;
-        cssText = style.cssText;
-        swing = reduced ? null : inertia(computed, rect, originX - rect.left, originY - rect.top);
+        held = true;
+        shift = parseFloat(duration)
+            ? {
+                composite: 'add',
+                duration: parseFloat(duration) * (duration.endsWith('ms') ? 1 : 1000),
+                easing: computed.getPropertyValue('--shift-easing').trim()
+            }
+            : null;
+        swing = inertia(computed, rect, originX - rect.left, originY - rect.top);
 
         reflow(() => {
-            item.before(placeholder!);
-
-            style.boxSizing = 'border-box';
-            style.height = `${rect.height}px`;
-            style.left = `${rect.left}px`;
-            style.margin = '0';
-            style.position = 'fixed';
-            style.top = `${rect.top}px`;
-            style.transformOrigin = `${originX - rect.left}px ${originY - rect.top}px`;
-            style.width = `${rect.width}px`;
-
-            // A transformed or filtered ancestor becomes the containing block for 'position: fixed'; correct
-            // by the offset it introduced, measured before the lift/swing transforms apply.
-            let moved = item.getBoundingClientRect();
-
-            style.left = `${rect.left * 2 - moved.left}px`;
-            style.top = `${rect.top * 2 - moved.top}px`;
-
-            for (let i = 0, n = containers.length; i < n; i++) {
-                containers[i].classList.add('--active');
+            for (let i = 0, n = lists.length; i < n; i++) {
+                write(lists[i].active, true);
+                write(lists[i].shape, shape);
             }
 
-            item.classList.add('sortable-item--dragging');
+            // The placeholder takes the item's slot, before it in the list, in the same pass the item leaves the
+            // flow: a layout between them would lay out a shorter page and clamp its scroll.
+            write(source.gap, value);
+            write(source.held, value);
+            motion.angle = 0;
+            motion.height = rect.height;
+            motion.left = rect.left;
+            motion.origin = `${originX - rect.left}px ${originY - rect.top}px`;
+            motion.phase = 'lifting';
+            motion.top = rect.top;
+            motion.width = rect.width;
+            motion.x = 0;
+            motion.y = 0;
+            flush();
+
+            // A transformed or filtered ancestor becomes the containing block for 'position: fixed'; correct
+            // by the offset it introduced.
+            let moved = item.getBoundingClientRect();
+
+            motion.left = rect.left * 2 - moved.left;
+            motion.phase = 'dragging';
+            motion.top = rect.top * 2 - moved.top;
         });
 
         getSelection()?.removeAllRanges();
@@ -128,52 +189,79 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
     function cleanup() {
         cancelAnimationFrame(frame);
         clearTimeout(timer);
+        source.drag = undefined;
+    }
 
-        document.removeEventListener('contextmenu', prevent);
-        document.removeEventListener('dragstart', prevent);
-        document.removeEventListener('pointercancel', release);
-        document.removeEventListener('pointermove', move);
-        document.removeEventListener('pointerup', release);
-        document.removeEventListener('selectstart', prevent);
-        document.removeEventListener('touchmove', scroll);
+    // The items change once the item has landed on the placeholder: a move within the list sorts it, so its node
+    // and whatever it holds stay; a move between lists takes it out of one and renders it in the other.
+    function commit(target: List<unknown>) {
+        let gap = read(target.gap),
+            to: number;
+
+        for (let i = 0, n = lists.length; i < n; i++) {
+            write(lists[i].active, false);
+            write(lists[i].gap, undefined);
+        }
+
+        if (target === source) {
+            let rest = source.items.filter((v) => v !== value);
+
+            to = gap === value ? from : gap === null ? rest.length : rest.indexOf(gap);
+
+            if (to !== from) {
+                rest.splice(to, 0, value);
+
+                let rank = new Map(rest.map((v, i) => [v, i]));
+
+                source.items.sort((a, b) => rank.get(a)! - rank.get(b)!);
+            }
+        }
+        else {
+            to = gap === null || gap === undefined ? target.items.length : target.items.indexOf(gap);
+            source.items.splice(from, 1);
+            target.items.splice(to, 0, value);
+        }
+
+        source.slot?.flush();
+        target.slot?.flush();
+        flush();
+
+        if (onsort && (to !== from || target !== source)) {
+            onsort(value, from, to, source.items, target.items);
+        }
     }
 
     function drop() {
-        let slot = placeholder!,
-            style = item.style;
+        let slot = hole?.element,
+            target = hole?.list ?? source;
 
         cleanup();
-        animations.get(slot)?.finish();
 
-        let { rotate, scale, translate } = getComputedStyle(item),
-            target = slot.getBoundingClientRect();
-
-        item.classList.add('sortable-item--dropping');
-
-        let animation = item.animate([
-            { rotate, scale, transform: style.transform, translate },
-            { rotate: '0deg', scale: '1', transform: `translate3d(${target.left - baseLeft}px, ${target.top - baseTop}px, 0)`, translate: '0px 0px' }
-        ], DROP);
-
-        animation.onfinish = () => {
-            // Reinserting the item gives it a fresh style, so restoring its inline styles and dropping the
-            // drag classes can't trigger its own transitions (e.g. on 'transform').
-            style.cssText = cssText;
-            slot.replaceWith(item);
-            item.classList.remove('sortable-item--dragging', 'sortable-item--dropping');
-            animation.cancel();
-
-            for (let i = 0, n = containers.length; i < n; i++) {
-                containers[i].classList.remove('--active');
+        // Its box where the item lands, not partway through a shift.
+        if (slot) {
+            for (let animation of slot.getAnimations()) {
+                animation.finish();
             }
+        }
 
-            let target = item.parentElement!,
-                to = index(item);
+        let box = slot?.getBoundingClientRect() ?? { left: baseLeft, top: baseTop };
 
-            if (onsort && (to !== from || target !== container)) {
-                onsort(item, from, to, container, target);
-            }
-        };
+        // CSS carries it onto the placeholder.
+        motion.angle = 0;
+        motion.phase = 'dropping';
+        motion.x = box.left - baseLeft;
+        motion.y = box.top - baseTop;
+        flush();
+
+        void finished(item).then(() => {
+            motion.phase = 'settling';
+            flush();
+            item.getBoundingClientRect();
+            commit(target);
+            motion.phase = '';
+            write(source.held, null);
+            flush();
+        });
 
         // The pointerup that ended the drag is followed by a click on whatever sits under the pointer.
         addEventListener('click', swallow, true);
@@ -182,51 +270,60 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
 
     // Slots the placeholder beside the target's item nearest the pointer, on the side the pointer is on:
     // left/right when that item shares a row with a sibling, above/below otherwise.
-    function enter(target: HTMLElement) {
-        let distance = Infinity,
-            nearest: Element | null = null;
+    function enter(target: List<unknown>) {
+        for (let i = 0, n = lists.length; i < n; i++) {
+            if (lists[i] !== target) {
+                write(lists[i].gap, undefined);
+            }
+        }
 
-        for (let element of target.children) {
-            if (element === item || element === placeholder) {
+        // The layout is still the last reflow's, in the list's own coordinates.
+        let bounds = target.container!.getBoundingClientRect(),
+            distance = Infinity,
+            left = x - bounds.left + target.container!.scrollLeft,
+            nearest: Rect | null = null,
+            top = y - bounds.top + target.container!.scrollTop;
+
+        for (let i = 0, n = layout.length; i < n; i++) {
+            let rect = layout[i];
+
+            if (rect.list !== target || rect.index === -1) {
                 continue;
             }
 
-            let rect = element.getBoundingClientRect(),
-                d = Math.hypot(Math.max(rect.left - x, 0, x - rect.right), Math.max(rect.top - y, 0, y - rect.bottom));
+            let d = Math.hypot(Math.max(rect.left - left, 0, left - rect.right), Math.max(rect.top - top, 0, top - rect.bottom));
 
             if (d < distance) {
                 distance = d;
-                nearest = element;
+                nearest = rect;
             }
         }
 
         if (!nearest) {
-            target.append(placeholder!);
+            write(target.gap, null);
             return;
         }
 
-        let rect = nearest.getBoundingClientRect(),
-            row = false;
+        let row = false;
 
-        for (let element of target.children) {
-            if (element === item || element === nearest || element === placeholder) {
+        for (let i = 0, n = layout.length; i < n; i++) {
+            let other = layout[i];
+
+            if (other === nearest || other.list !== target || other.index === -1) {
                 continue;
             }
 
-            let other = element.getBoundingClientRect();
-
-            if (other.top < rect.bottom && other.bottom > rect.top) {
+            if (other.top < nearest.bottom && other.bottom > nearest.top) {
                 row = true;
                 break;
             }
         }
 
-        if (row ? x > rect.left + rect.width / 2 : y > rect.top + rect.height / 2) {
-            nearest.after(placeholder!);
-        }
-        else {
-            nearest.before(placeholder!);
-        }
+        place(
+            target,
+            nearest.index,
+            row ? left > (nearest.left + nearest.right) / 2 : top > (nearest.top + nearest.bottom) / 2
+        );
     }
 
     function move(e: PointerEvent) {
@@ -237,7 +334,7 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
         x = e.clientX;
         y = e.clientY;
 
-        if (placeholder || Math.hypot(x - originX, y - originY) < THRESHOLD) {
+        if (held || Math.hypot(x - originX, y - originY) < THRESHOLD) {
             return;
         }
 
@@ -250,71 +347,99 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
     }
 
     function over() {
-        if (containers.length === 1) {
-            return container;
+        if (lists.length === 1) {
+            return source;
         }
 
-        for (let i = 0, n = containers.length; i < n; i++) {
-            let rect = containers[i].getBoundingClientRect();
+        for (let i = 0, n = lists.length; i < n; i++) {
+            let rect = lists[i].container?.getBoundingClientRect();
 
-            if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-                return containers[i];
+            if (rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                return lists[i];
             }
         }
 
         return null;
     }
 
-    function reflow(mutate: VoidFunction) {
-        let first = new Map<Element, DOMRect>();
+    function place(list: List<unknown>, index: number, after: boolean) {
+        write(list.gap, after ? (index + 1 < list.items.length ? list.items[index + 1] : null) : list.items[index]);
+    }
 
-        for (let i = 0, n = containers.length; i < n; i++) {
-            for (let element of containers[i].children) {
+    function reflow(mutate: VoidFunction) {
+        for (let i = 0, n = lists.length; i < n; i++) {
+            for (let element of lists[i].container?.children ?? []) {
                 if (element !== item) {
-                    first.set(element, element.getBoundingClientRect());
+                    (element as Measured)[FIRST] = element.getBoundingClientRect();
                 }
             }
         }
 
         mutate();
+        flush();
 
-        for (let animation of animations.values()) {
-            animation.cancel();
+        for (let i = 0, n = animations.length; i < n; i++) {
+            animations[i].cancel();
         }
 
-        animations.clear();
-        layout.clear();
+        animations.length = 0;
+        hole = null;
+        lastLeft = NaN;
+        layout.length = 0;
 
-        for (let i = 0, n = containers.length; i < n; i++) {
-            let parent = containers[i],
-                bounds = parent.getBoundingClientRect(),
+        for (let i = 0, n = lists.length; i < n; i++) {
+            let list = lists[i],
+                parent = list.container;
+
+            if (!parent) {
+                continue;
+            }
+
+            let bounds = parent.getBoundingClientRect(),
+                index = 0,
                 left = bounds.left - parent.scrollLeft,
                 top = bounds.top - parent.scrollTop;
 
             for (let element of parent.children) {
-                if (element === item || !(element instanceof HTMLElement)) {
+                if (!(element instanceof HTMLElement)) {
+                    continue;
+                }
+
+                let placeholder = element.classList.contains('sortable-placeholder'),
+                    position = placeholder ? -1 : index++;
+
+                if (element === item) {
                     continue;
                 }
 
                 let rect = element.getBoundingClientRect(),
-                    start = first.get(element);
+                    start = (element as Measured)[FIRST],
+                    entry = {
+                        bottom: rect.bottom - top,
+                        element,
+                        index: position,
+                        left: rect.left - left,
+                        list,
+                        right: rect.right - left,
+                        top: rect.top - top
+                    };
 
-                layout.set(element, {
-                    bottom: rect.bottom - top,
-                    container: parent,
-                    left: rect.left - left,
-                    right: rect.right - left,
-                    top: rect.top - top
-                });
+                (element as Measured)[FIRST] = undefined;
 
-                if (!start || reduced || (start.left === rect.left && start.top === rect.top)) {
+                if (placeholder) {
+                    hole = entry;
+                }
+
+                layout.push(entry);
+
+                if (!start || !shift || (start.left === rect.left && start.top === rect.top)) {
                     continue;
                 }
 
-                animations.set(element, element.animate([
+                animations.push(element.animate([
                     { translate: `${start.left - rect.left}px ${start.top - rect.top}px` },
                     { translate: '0px 0px' }
-                ], SHIFT));
+                ], shift));
             }
         }
     }
@@ -324,7 +449,7 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
             return;
         }
 
-        if (placeholder) {
+        if (held) {
             drop();
         }
         else {
@@ -333,32 +458,45 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
     }
 
     function scroll(e: TouchEvent) {
-        if (placeholder) {
+        if (held) {
             e.preventDefault();
         }
     }
 
     function sort() {
-        let slot = layout.get(placeholder!),
+        let slot = hole,
             target = over();
 
         if (!slot || !target) {
             return;
         }
 
-        if (target !== slot.container) {
+        if (target !== slot.list) {
             reflow(() => enter(target));
             return;
         }
 
-        let bounds = target.getBoundingClientRect(),
-            left = x - bounds.left + target.scrollLeft,
-            top = y - bounds.top + target.scrollTop;
+        let bounds = target.container!.getBoundingClientRect(),
+            left = x - bounds.left + target.container!.scrollLeft,
+            top = y - bounds.top + target.container!.scrollTop;
 
-        for (let [element, rect] of layout) {
+        // Nothing moved under the pointer: not the pointer, the page or the list's own scroll.
+        if (left === lastLeft && top === lastTop) {
+            return;
+        }
+
+        lastLeft = left;
+        lastTop = top;
+
+        let gap = read(target.gap),
+            at = gap === null ? target.items.length : target.items.indexOf(gap);
+
+        for (let i = 0, n = layout.length; i < n; i++) {
+            let rect = layout[i];
+
             if (
-                element === placeholder ||
-                rect.container !== target ||
+                rect === slot ||
+                rect.list !== target ||
                 left < rect.left ||
                 left > rect.right ||
                 top < rect.top ||
@@ -377,14 +515,7 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
             // before they swap. Same-size items swap almost on entry; a larger item needs half its surplus
             // over the placeholder, which leaves the pointer short of the swap-back point afterwards.
             if (depth > Math.max(0, (size - (row ? slot.right - slot.left : slot.bottom - slot.top)) / 2) + size * ENTER) {
-                reflow(() => {
-                    if (placeholder!.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING) {
-                        element.after(placeholder!);
-                    }
-                    else {
-                        element.before(placeholder!);
-                    }
-                });
+                reflow(() => place(target, rect.index, rect.index >= at));
             }
 
             return;
@@ -401,22 +532,14 @@ function drag(container: HTMLElement, item: HTMLElement, e: PointerEvent, { grou
         previousX = x;
         previousY = y;
         time = now;
-        item.style.transform = `translate3d(${x - originX}px, ${y - originY}px, 0) rotate(${angle}deg)`;
+        motion.angle = angle;
+        motion.x = x - originX;
+        motion.y = y - originY;
 
         sort();
     }
 
-    document.addEventListener('contextmenu', prevent);
-    document.addEventListener('dragstart', prevent);
-    document.addEventListener('pointercancel', release);
-    document.addEventListener('pointermove', move);
-    document.addEventListener('pointerup', release);
-    document.addEventListener('selectstart', prevent);
-    document.addEventListener('touchmove', scroll, { passive: false });
-}
-
-function index(element: Element) {
-    return Array.prototype.indexOf.call(element.parentElement!.children, element);
+    source.drag = { cancel: cleanup, move, prevent, release, scroll };
 }
 
 // Under-damped spring pulling the item's angle toward a lean set by pointer velocity: it swings while
@@ -464,42 +587,107 @@ function swallow(e: Event) {
 }
 
 
-export default ({ group, handle, onsort }: Options = {}): Attributes => ({
-    class: 'sortable',
-    ...(group && {
-        onconnect: (element: HTMLElement) => {
-            let members = groups.get(group);
+// Spread 'attributes' on the container and render the items inside it; each item renders one element, with the
+// attributes its template is handed spread on it. Dropping
+// reorders 'items', or moves an item between the lists of a group. A move between lists splices it out of one array
+// and into the other, so a reactive object moved that way is disposed with its old place.
+export default <T>(items: ReactiveArray<T>, template: (item: T, attributes: Attributes) => Renderable<unknown>, { group, handle, onsort }: Options<T> = {}) => {
+    let list: List<T> = {
+            active: signal(false),
+            gap: signal<T | null | undefined>(undefined),
+            held: signal<T | null>(null),
+            items,
+            motion: reactive({ angle: 0, height: 0, left: 0, origin: '', phase: '' as Phase, top: 0, width: 0, x: 0, y: 0 }),
+            shape: signal('')
+        };
 
-            if (!members) {
-                members = new Set();
-                groups.set(group, members);
-            }
+    // Spread on the item's element. Only the held item reads the motion, so a frame of it restyles that item alone.
+    function hold(item: T): Attributes {
+        let motion = list.motion;
 
-            members.add(element);
-        },
-        ondisconnect: (element: HTMLElement) => {
-            let members = groups.get(group);
-
-            members?.delete(element);
-
-            if (members?.size === 0) {
-                groups.delete(group);
-            }
-        }
-    }),
-    onpointerdown: (e: PointerEvent) => {
-        let container = e.currentTarget as HTMLElement;
-
-        if (e.button !== 0 || !e.isPrimary || container.classList.contains('--active')) {
-            return;
-        }
-
-        let item = child(container, e.target as Node);
-
-        if (!item || (handle && !item.contains((e.target as Element).closest(handle)))) {
-            return;
-        }
-
-        drag(container, item, e, { group, onsort });
+        return {
+            class: () => signal.selector(list.held, item) && motion.phase && `sortable-item--${motion.phase}`,
+            onconnect: (element: Keyed) => {
+                element[SORTABLE_ITEM] = item;
+            },
+            style: [
+                () => signal.selector(list.held, item) && `--sortable-height: ${motion.height}px; --sortable-left: ${motion.left}px; --sortable-origin: ${motion.origin}; --sortable-top: ${motion.top}px; --sortable-width: ${motion.width}px;`,
+                () => signal.selector(list.held, item) && `--sortable-angle: ${motion.angle}deg; --sortable-x: ${motion.x}px; --sortable-y: ${motion.y}px;`
+            ]
+        };
     }
-});
+
+    function placeholder() {
+        return html`<div class='sortable-placeholder' style='${() => read(list.shape)}'></div>`;
+    }
+
+    return {
+        attributes: {
+            class: ['sortable', () => read(list.active) && '--active'],
+            // Stops the page scrolling under a touch drag; cancelable only while a touch on the list lasts.
+            onactivetouchmove: (e: TouchEvent) => list.drag?.scroll(e),
+            onconnect: (element: HTMLElement) => {
+                list.container = element;
+
+                if (!group) {
+                    return;
+                }
+
+                let joined = groups.get(group);
+
+                if (!joined) {
+                    joined = new Set();
+                    groups.set(group, joined);
+                }
+
+                joined.add(list as List<unknown>);
+            },
+            ondisconnect: () => {
+                list.drag?.cancel();
+
+                if (!group) {
+                    return;
+                }
+
+                let joined = groups.get(group);
+
+                joined?.delete(list as List<unknown>);
+
+                if (joined?.size === 0) {
+                    groups.delete(group);
+                }
+            },
+            ondocumentcontextmenu: (e: Event) => list.drag?.prevent(e),
+            ondocumentdragstart: (e: Event) => list.drag?.prevent(e),
+            ondocumentpointercancel: (e: PointerEvent) => list.drag?.release(e),
+            ondocumentpointermove: (e: PointerEvent) => list.drag?.move(e),
+            ondocumentpointerup: (e: PointerEvent) => list.drag?.release(e),
+            ondocumentselectstart: (e: Event) => list.drag?.prevent(e),
+            onpointerdown: (e: PointerEvent) => {
+                let container = e.currentTarget as HTMLElement;
+
+                if (e.button !== 0 || !e.isPrimary || list.drag || read(list.active)) {
+                    return;
+                }
+
+                let item = child(container, e.target as Node) as Keyed | null;
+
+                if (!item || !(SORTABLE_ITEM in item) || (handle && !item.contains((e.target as Element).closest(handle)))) {
+                    return;
+                }
+
+                drag(list as List<unknown>, item, e, { group, onsort: onsort as Options<unknown>['onsort'] });
+            }
+        },
+        // Lands changes made to 'items' this task now, for a caller that measures the list straight after.
+        flush: () => list.slot?.flush(),
+        render: () => {
+            let slot = html.reactive(items, (item) => html`${() => read(list.gap) === item && placeholder()}${template(item, hold(item))}`);
+
+            list.slot = slot;
+
+            return html`${slot}${() => read(list.gap) === null && placeholder()}`;
+        }
+    };
+};
+export type { Options as SortableOptions };

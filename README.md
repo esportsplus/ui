@@ -79,7 +79,7 @@ html`
 | `card.expand` | List of `card--expand` cards that each morph into their own `card` `overlay` and fly back into their slot through a view transition (a plain `overlay` fade where unsupported, a cross-fade under reduced motion); `state.open` is two-way | `card.expand.trigger` |
 | `pagination.dots` | Page indicator driven by a continuous `state.progress`; the pill stretches between dots like a worm, with an optional autoplay countdown | `pagination.dots.dot`, `pagination--dots-large` |
 | `pullToRefresh` | Rubber-band pull gesture (touch and mouse) with a stepped tick spinner; new items above the old first one slide in | - |
-| `sortable` | Drag-and-drop reordering of an element's children, across containers with `group` | `sortable--{effect}` modifiers |
+| `sortable` | Drag-and-drop reordering of a reactive list's items, across lists with `group` | `sortable--{effect}` modifiers |
 | `story` | Auto-advancing stories, each any `Renderable`, on a `frame--slide` track with segmented progress bars whose CSS fill is the timer (`--duration`, or `duration` in ms); tap the left third to go back (replaying the first story) and the rest to advance, drag or flick between stories (rubber-banding at the ends), press-and-hold or Space to pause; links and controls inside a story keep their own clicks | `story.toggle` |
 
 ### Display
@@ -154,29 +154,44 @@ transitionend/transitioncancel). The docs include reactive switching examples.
 
 ### Sortable
 
-Spread `sortable()` onto any element to make its immediate children draggable.
-A dashed `.sortable-placeholder` holds the slot while siblings shift around it,
-and the held item swings with the drag's momentum, pivoting on the grab point.
-Anything with `.sortable-overlay` inside an item only shows while it is held.
+`sortable(items, template, options)` renders a `ReactiveArray` and lets its
+items be dragged: spread `attributes` on the container and render the items
+inside it with `render()`. Each item renders one element and spreads the
+attributes its template is handed on it, which bind the held item's
+`sortable-item--{phase}` class and `--sortable-*` position. A dashed
+`.sortable-placeholder` holds the slot while siblings shift around it, and the
+held item swings with the drag's momentum, pivoting on the grab point. Anything
+with `.sortable-overlay` inside an item only shows while it is held. Dropping
+sorts `items`, so the item keeps its node, and `onsort` receives the move.
 
 ```typescript
+let tools = new ReactiveArray([{ label: 'Reload' }, { label: 'Share' }]),
+    list = sortable(tools, (tool, attributes) => html`<button ${attributes}>…<span class='sortable-overlay'>${tool.label}</span></button>`, {
+        handle: '.grip',
+        onsort: (tool, from, to) => {}
+    });
+
 html`
-    <div class='toolbar sortable--bouncy sortable--jiggle' ${sortable({ handle: '.grip', onsort: (item, from, to) => {} })}>
-        <button>…<span class='sortable-overlay'>Reload</span></button>
+    <div class='toolbar sortable--bouncy sortable--jiggle' ${list.attributes}>
+        ${list.render()}
     </div>
 `;
 ```
 
-Give several containers the same `group` to let items move between them. The
-placeholder follows the pointer into whichever group container it is over, and
-the `onsort` of the container the drag started in receives the source and target:
+Give several lists the same `group` to let items move between them. The
+placeholder follows the pointer into whichever list it is over, and the
+`onsort` of the list the drag started in receives both arrays. A move between
+lists splices the item out of one and into the other, which renders it afresh
+and disposes a reactive object moved that way:
 
 ```typescript
-let options = { group: 'board', onsort: (item, from, to, source, target) => {} };
+let options = { group: 'board', onsort: (item, from, to, source, target) => {} },
+    todo = sortable(todoItems, card, options),
+    done = sortable(doneItems, card, options);
 
 html`
-    <ul ${sortable(options)}>…</ul>
-    <ul ${sortable(options)}>…</ul>
+    <ul ${todo.attributes}>${todo.render()}</ul>
+    <ul ${done.attributes}>${done.render()}</ul>
 `;
 ```
 

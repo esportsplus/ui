@@ -1,4 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import { flush, reactive, ReactiveArray } from '@esportsplus/reactivity';
 import { finished } from '~/shared/animation';
 import checkbox from '~/components/checkbox';
 import sortable from '~/components/sortable';
@@ -20,10 +21,10 @@ type A = Attributes & {
 
 type CheckboxAttributes = NonNullable<Parameters<typeof checkbox>[0]>;
 
-type Item = Element & { [ROW]?: Row };
-
+// 'offset' holds a row where it was drawn while the list reorders under it, transitions off; null lets it slide home.
 type Row = {
     index: number;
+    state: { moving: boolean, offset: number | null, stage: '' | 'checking' | 'unchecking' };
     task: Task;
 };
 
@@ -33,8 +34,6 @@ type Task = {
     label: Renderable<unknown>;
 };
 
-
-const ROW = Symbol();
 
 const TASKLIST_CHECKBOX = Symbol.for('@esportsplus/ui/tasklist.checkbox');
 
@@ -49,30 +48,27 @@ const TASKLIST_LABEL = Symbol.for('@esportsplus/ui/tasklist.label');
 const TASKLIST_ROW = Symbol.for('@esportsplus/ui/tasklist.row');
 
 
-function checked(item: Item) {
-    return !!item[ROW]?.task.checked;
-}
-
 // Where a row settles: the open rows come first, then the checked ones; 'ordered' keeps each group in task order.
-// null appends to the end of the list.
-function destination(item: HTMLElement & Item, ordered: boolean) {
-    let index = item[ROW]!.index,
-        value = checked(item);
+// The row it goes before; null for the end of the list.
+function destination(rows: Row[], entry: Row, ordered: boolean) {
+    let value = !!entry.task.checked;
 
-    for (let child of item.parentElement!.children as HTMLCollectionOf<Item>) {
-        if (child === item) {
+    for (let i = 0, n = rows.length; i < n; i++) {
+        let row = rows[i];
+
+        if (row === entry) {
             continue;
         }
 
-        let section = done(child);
+        let section = done(row);
 
         if (section === value) {
-            if (ordered && child[ROW]!.index > index) {
-                return child;
+            if (ordered && row.index > entry.index) {
+                return row;
             }
         }
         else if (section) {
-            return child;
+            return row;
         }
     }
 
@@ -80,136 +76,10 @@ function destination(item: HTMLElement & Item, ordered: boolean) {
 }
 
 // Rows still animating have not moved yet, so they sit in the group they are leaving
-function done(item: Item) {
-    let value = checked(item);
+function done(row: Row) {
+    let value = !!row.task.checked;
 
-    return pending(item) ? !value : value;
-}
-
-function move(item: HTMLElement, reference: Element | null) {
-    if (reference === item.nextElementSibling) {
-        return;
-    }
-
-    let list = item.parentElement!,
-        items = [...list.children] as HTMLElement[],
-        first = items.map((element) => element.getBoundingClientRect().top);
-
-    // moveBefore keeps focus on the input; insertBefore drops it
-    if (typeof list.moveBefore === 'function') {
-        list.moveBefore(item, reference);
-    }
-    else {
-        let focused = document.activeElement as HTMLElement | null;
-
-        list.insertBefore(item, reference);
-
-        if (focused && item.contains(focused)) {
-            focused.focus({ preventScroll: true });
-        }
-    }
-
-    // Measure untransformed positions so a move that interrupts another starts from where rows are drawn
-    for (let i = 0, n = items.length; i < n; i++) {
-        items[i].style.transform = '';
-        items[i].style.transition = 'none';
-    }
-
-    let last = items.map((element) => element.getBoundingClientRect().top);
-
-    for (let i = 0, n = items.length; i < n; i++) {
-        let offset = first[i] - last[i];
-
-        if (offset) {
-            items[i].style.transform = `translateY(${offset}px)`;
-        }
-    }
-
-    list.getBoundingClientRect();
-
-    for (let i = 0, n = items.length; i < n; i++) {
-        items[i].style.transform = '';
-        items[i].style.transition = '';
-    }
-
-    item.classList.add('tasklist-item--moving');
-
-    void finished(item).then(() => {
-        if (!item.getAnimations().length) {
-            item.classList.remove('tasklist-item--moving');
-        }
-    });
-}
-
-function pending(item: Element) {
-    return item.classList.contains('tasklist-item--checking') || item.classList.contains('tasklist-item--unchecking');
-}
-
-function row(
-    entry: Row,
-    options: { ordered: boolean; reorder: boolean },
-    context: Partial<A> | undefined,
-    attributes: Partial<A>
-) {
-    let box = attributes[TASKLIST_CHECKBOX],
-        sequence = 0,
-        task = entry.task;
-
-    return html`
-        <li
-            class='tasklist-item'
-            style='--index: ${entry.index + 1};'
-            ${context?.[TASKLIST_ITEM]}
-            ${attributes[TASKLIST_ITEM]}
-            ${{
-                onchange: async function(this: HTMLElement, event: Event) {
-                    let id = ++sequence,
-                        value = (event.target as HTMLInputElement).checked;
-
-                    task.checked = value;
-
-                    // Must land in the same style flush as the checked change so the stage delays apply
-                    this.classList.remove('tasklist-item--checking', 'tasklist-item--unchecking');
-                    this.classList.add(value ? 'tasklist-item--checking' : 'tasklist-item--unchecking');
-
-                    await finished(this, { subtree: true });
-
-                    if (id !== sequence) {
-                        return;
-                    }
-
-                    this.classList.remove('tasklist-item--checking', 'tasklist-item--unchecking');
-
-                    if (options.reorder) {
-                        move(this, destination(this, options.ordered));
-                    }
-                },
-                onconnect: (element: Item) => {
-                    element[ROW] = entry;
-                }
-            }}
-        >
-            <label class='tasklist-row' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
-                ${checkbox.call(
-                    { attributes: context?.[TASKLIST_CHECKBOX] },
-                    {
-                        ...box,
-                        class: ['tasklist-checkbox', box?.class ?? []].flat(),
-                        [checkbox.input]: { ...box?.[checkbox.input], checked: !!task.checked }
-                    }
-                )}
-
-                <span class='tasklist-content' ${context?.[TASKLIST_CONTENT]} ${attributes[TASKLIST_CONTENT]}>
-                    <span class='tasklist-label' ${context?.[TASKLIST_LABEL]} ${attributes[TASKLIST_LABEL]}>${task.label}</span>
-                    ${task.description && html`
-                        <span class='tasklist-description' ${context?.[TASKLIST_DESCRIPTION]} ${attributes[TASKLIST_DESCRIPTION]}>
-                            ${task.description}
-                        </span>
-                    `}
-                </span>
-            </label>
-        </li>
-    `;
+    return row.state.stage ? !value : value;
 }
 
 
@@ -219,43 +89,172 @@ export default component(
         { ordered = false, reorder = true, sortable: sorts = false, tasks, ...attributes }: A
     ) {
         let context = this?.attributes,
-            entries = tasks.map((task, index) => ({ index, task })),
-            options = { ordered, reorder };
+            entries: Row[] = tasks.map((task, index) => ({ index, state: reactive({ moving: false, offset: null as number | null, stage: '' as Row['state']['stage'] }), task })),
+            list: HTMLElement | undefined,
+            rows = new ReactiveArray<Row>(reorder ? [
+                ...entries.filter((entry) => !entry.task.checked),
+                ...entries.filter((entry) => entry.task.checked)
+            ] : entries),
+            view = sorts
+                ? sortable(rows, row, {
+                    // A row dropped among the other group returns to the edge of its own
+                    onsort: (entry) => {
+                        if (!reorder) {
+                            return;
+                        }
+
+                        let at = rows.indexOf(entry),
+                            next = rows[at + 1],
+                            previous = rows[at - 1];
+
+                        if (entry.task.checked ? next && !done(next) : previous && done(previous)) {
+                            move(entry, rows.find((r) => r !== entry && done(r)) ?? null);
+                        }
+                    }
+                })
+                : null,
+            slot = view ? null : html.reactive(rows, (entry) => row(entry));
+
+        // Reorders the rows, then slides each from where it was drawn to its new place.
+        function move(entry: Row, before: Row | null) {
+            let at = rows.indexOf(entry);
+
+            if (!list || before === (rows[at + 1] ?? null)) {
+                return;
+            }
+
+            let first = new Map<Row, number>(),
+                items = list.children;
+
+            for (let i = 0, n = rows.length; i < n; i++) {
+                first.set(rows[i], items[i].getBoundingClientRect().top);
+            }
+
+            let rest = rows.filter((r) => r !== entry);
+
+            rest.splice(before ? rest.indexOf(before) : rest.length, 0, entry);
+
+            let rank = new Map(rest.map((r, i) => [r, i]));
+
+            // A sort moves the rows' own nodes, so focus stays on the checkbox.
+            rows.sort((a, b) => rank.get(a)! - rank.get(b)!);
+
+            if (view) {
+                view.flush();
+            }
+            else {
+                slot!.flush();
+            }
+
+            // Measure untransformed positions so a move that interrupts another starts from where rows are drawn
+            for (let i = 0, n = rows.length; i < n; i++) {
+                rows[i].state.offset = 0;
+            }
+
+            flush();
+
+            for (let i = 0, n = rows.length; i < n; i++) {
+                rows[i].state.offset = first.get(rows[i])! - items[i].getBoundingClientRect().top;
+            }
+
+            flush();
+            list.getBoundingClientRect();
+
+            for (let i = 0, n = rows.length; i < n; i++) {
+                rows[i].state.offset = null;
+            }
+
+            entry.state.moving = true;
+            flush();
+
+            let element = items[rows.indexOf(entry)] as HTMLElement;
+
+            void finished(element).then(() => {
+                if (!element.getAnimations().length) {
+                    entry.state.moving = false;
+                }
+            });
+        }
+
+        function row(entry: Row, sorting?: Attributes) {
+            let box = attributes[TASKLIST_CHECKBOX],
+                sequence = 0,
+                state = entry.state,
+                task = entry.task;
+
+            return html`
+                <li
+                    class='tasklist-item'
+                    style='--index: ${entry.index + 1};'
+                    ${context?.[TASKLIST_ITEM]}
+                    ${attributes[TASKLIST_ITEM]}
+                    ${sorting}
+                    ${{
+                        class: [
+                            () => state.moving && 'tasklist-item--moving',
+                            () => state.stage && `tasklist-item--${state.stage}`
+                        ],
+                        onchange: async function(this: HTMLElement, event: Event) {
+                            let id = ++sequence,
+                                value = (event.target as HTMLInputElement).checked;
+
+                            task.checked = value;
+                            state.stage = value ? 'checking' : 'unchecking';
+
+                            // Must land in the same style flush as the checked change so the stage delays apply
+                            flush();
+
+                            await finished(this, { subtree: true });
+
+                            if (id !== sequence) {
+                                return;
+                            }
+
+                            state.stage = '';
+
+                            if (reorder) {
+                                move(entry, destination(rows, entry, ordered));
+                            }
+                        },
+                        style: () => state.offset !== null && `transform: translateY(${state.offset}px); transition: none;`
+                    }}
+                >
+                    <label class='tasklist-row' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
+                        ${checkbox.call(
+                            { attributes: context?.[TASKLIST_CHECKBOX] },
+                            {
+                                ...box,
+                                class: ['tasklist-checkbox', box?.class ?? []].flat(),
+                                [checkbox.input]: { ...box?.[checkbox.input], checked: !!task.checked }
+                            }
+                        )}
+
+                        <span class='tasklist-content' ${context?.[TASKLIST_CONTENT]} ${attributes[TASKLIST_CONTENT]}>
+                            <span class='tasklist-label' ${context?.[TASKLIST_LABEL]} ${attributes[TASKLIST_LABEL]}>${task.label}</span>
+                            ${task.description && html`
+                                <span class='tasklist-description' ${context?.[TASKLIST_DESCRIPTION]} ${attributes[TASKLIST_DESCRIPTION]}>
+                                    ${task.description}
+                                </span>
+                            `}
+                        </span>
+                    </label>
+                </li>
+            `;
+        }
 
         return html`
             <ul
                 class='tasklist'
                 ${context}
                 ${attributes}
-                ${sorts && sortable({
-                    // A row dropped among the other group returns to the edge of its own
-                    onsort: (item) => {
-                        if (!reorder) {
-                            return;
-                        }
-
-                        let next = item.nextElementSibling,
-                            previous = item.previousElementSibling;
-
-                        if (checked(item) ? next && !done(next) : previous && done(previous)) {
-                            let boundary: Element | null = null;
-
-                            for (let child of item.parentElement!.children) {
-                                if (child !== item && done(child)) {
-                                    boundary = child;
-                                    break;
-                                }
-                            }
-
-                            move(item, boundary);
-                        }
+                ${view?.attributes}
+                ${{
+                    onconnect: (element: HTMLElement) => {
+                        list = element;
                     }
-                })}
+                }}
             >
-                ${(reorder ? [
-                    ...entries.filter((entry) => !entry.task.checked),
-                    ...entries.filter((entry) => entry.task.checked)
-                ] : entries).map((entry) => row(entry, options, context, attributes))}
+                ${view ? view.render() : slot}
             </ul>
         `;
     },

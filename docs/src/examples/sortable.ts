@@ -1,4 +1,4 @@
-import { reactive } from '@esportsplus/reactivity';
+import { reactive, ReactiveArray } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { select, sortable } from '@esportsplus/ui';
 import './sortable.scss';
@@ -96,39 +96,37 @@ export default {
         },
         {
             render: () => {
-                let state = reactive({ last: 'drag any control' });
+                let state = reactive({ last: 'drag any control' }),
+                    tools = new ReactiveArray([
+                        { icon: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`, label: 'Back', name: 'back' },
+                        { icon: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`, label: 'Fwd', name: 'forward' },
+                        { icon: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`, label: 'Search', name: 'search' },
+                        { icon: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>`, label: 'Reload', name: 'refresh' },
+                        { icon: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`, label: 'More', name: 'more' }
+                    ]),
+                    list = sortable(tools, (tool, attributes) => tool.name === 'search'
+                        ? html`
+                            <label class='sortable-demo-tool sortable-demo-tool--search' ${attributes}>
+                                ${tool.icon()}
+                                <input placeholder='Search' type='text' />
+                                <span class='sortable-overlay'>${tool.label}</span>
+                            </label>
+                        `
+                        : html`
+                            <button class='sortable-demo-tool' type='button' ${attributes}>
+                                ${tool.icon()}
+                                <span class='sortable-overlay'>${tool.label}</span>
+                            </button>
+                        `, {
+                        onsort: (tool, from, to) => {
+                            state.last = `${tool.name}: ${from} → ${to}`;
+                        }
+                    });
 
                 return html`
                     <div class='sortable-demo'>
-                        <div
-                            class='sortable-demo-toolbar ${modifiers}'
-                            ${sortable({
-                                onsort: (item, from, to) => {
-                                    state.last = `${item.dataset.name}: ${from} → ${to}`;
-                                }
-                            })}
-                        >
-                            <button class='sortable-demo-tool' data-name='back' type='button'>
-                                <svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
-                                <span class='sortable-overlay'>Back</span>
-                            </button>
-                            <button class='sortable-demo-tool' data-name='forward' type='button'>
-                                <svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                                <span class='sortable-overlay'>Fwd</span>
-                            </button>
-                            <label class='sortable-demo-tool sortable-demo-tool--search' data-name='search'>
-                                <svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                                <input placeholder='Search' type='text' />
-                                <span class='sortable-overlay'>Search</span>
-                            </label>
-                            <button class='sortable-demo-tool' data-name='refresh' type='button'>
-                                <svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
-                                <span class='sortable-overlay'>Reload</span>
-                            </button>
-                            <button class='sortable-demo-tool' data-name='more' type='button'>
-                                <svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-                                <span class='sortable-overlay'>More</span>
-                            </button>
+                        <div class='sortable-demo-toolbar ${modifiers}' ${list.attributes}>
+                            ${list.render()}
                         </div>
                         <span class='sortable-demo-status'>${() => state.last}</span>
                     </div>
@@ -137,63 +135,77 @@ export default {
             title: 'toolbar'
         },
         {
-            render: () => html`
-                <div class='sortable-demo'>
-                    <div class='sortable-demo-grid ${modifiers}' ${sortable()}>
-                        ${apps.map(([name, color]) => html`
-                            <div class='sortable-demo-app'>
-                                <div class='sortable-demo-app-icon' style='background: ${color};'>
-                                    <span class='sortable-overlay'>${name[0]}</span>
-                                </div>
-                                <span>${name}</span>
-                            </div>
-                        `)}
+            render: () => {
+                let list = sortable(new ReactiveArray(apps.map(([name, color]) => ({ color, name }))), (app, attributes) => html`
+                    <div class='sortable-demo-app' ${attributes}>
+                        <div class='sortable-demo-app-icon' style='background: ${app.color};'>
+                            <span class='sortable-overlay'>${app.name[0]}</span>
+                        </div>
+                        <span>${app.name}</span>
                     </div>
-                </div>
-            `,
+                `);
+
+                return html`
+                    <div class='sortable-demo'>
+                        <div class='sortable-demo-grid ${modifiers}' ${list.attributes}>
+                            ${list.render()}
+                        </div>
+                    </div>
+                `;
+            },
             title: 'app grid'
         },
         {
-            render: () => html`
-                <div class='sortable-demo'>
-                    <div class='sortable-demo-list ${modifiers}' ${sortable({ handle: '.sortable-demo-handle' })}>
-                        ${tasks.map((task, i) => html`
-                            <div class='sortable-demo-row'>
-                                <span class='sortable-demo-handle'>⋮⋮</span>
-                                <span>${task}</span>
-                                <span class='sortable-demo-row-meta'>#${i + 1}</span>
-                                <div class='sortable-overlay'>${task}</div>
-                            </div>
-                        `)}
+            render: () => {
+                let list = sortable(new ReactiveArray(tasks.map((label, i) => ({ label, number: i + 1 }))), (task, attributes) => html`
+                    <div class='sortable-demo-row' ${attributes}>
+                        <span class='sortable-demo-handle'>⋮⋮</span>
+                        <span>${task.label}</span>
+                        <span class='sortable-demo-row-meta'>#${task.number}</span>
+                        <div class='sortable-overlay'>${task.label}</div>
                     </div>
-                </div>
-            `,
+                `, { handle: '.sortable-demo-handle' });
+
+                return html`
+                    <div class='sortable-demo'>
+                        <div class='sortable-demo-list ${modifiers}' ${list.attributes}>
+                            ${list.render()}
+                        </div>
+                    </div>
+                `;
+            },
             title: 'list (handle)'
         },
         {
             render: () => {
-                let state = reactive({ last: 'drag a task into the other list' });
+                let backlog = new ReactiveArray(tasks.slice(0, 3).map((label) => ({ label }))),
+                    sprint = new ReactiveArray(tasks.slice(3).map((label) => ({ label }))),
+                    state = reactive({ last: 'drag a task into the other list' });
+
+                function name(items: typeof backlog) {
+                    return items === backlog ? 'Backlog' : 'Sprint';
+                }
 
                 return html`
                     <div class='sortable-demo'>
                         <div class='sortable-demo-lists'>
-                            ${[['Backlog', tasks.slice(0, 3)], ['Sprint', tasks.slice(3)]].map(([title, items]) => html`
-                                <div class='sortable-demo-lists-column'>
-                                    <span class='sortable-demo-status'>${title}</span>
-                                    <div
-                                        class='sortable-demo-list sortable-demo-list--group ${modifiers}'
-                                        data-name='${title}'
-                                        ${sortable({
-                                            group: 'sortable-demo',
-                                            onsort: (item, from, to, source, target) => {
-                                                state.last = `${item.textContent?.trim()}: ${source.dataset.name} #${from + 1} → ${target.dataset.name} #${to + 1}`;
-                                            }
-                                        })}
-                                    >
-                                        ${(items as string[]).map((task) => html`<div class='sortable-demo-row'>${task}</div>`)}
+                            ${[backlog, sprint].map((items) => {
+                                let list = sortable(items, (task, attributes) => html`<div class='sortable-demo-row' ${attributes}>${task.label}</div>`, {
+                                    group: 'sortable-demo',
+                                    onsort: (task, from, to, source, target) => {
+                                        state.last = `${task.label}: ${name(source)} #${from + 1} → ${name(target)} #${to + 1}`;
+                                    }
+                                });
+
+                                return html`
+                                    <div class='sortable-demo-lists-column'>
+                                        <span class='sortable-demo-status'>${name(items)}</span>
+                                        <div class='sortable-demo-list sortable-demo-list--group ${modifiers}' ${list.attributes}>
+                                            ${list.render()}
+                                        </div>
                                     </div>
-                                </div>
-                            `)}
+                                `;
+                            })}
                         </div>
                         <span class='sortable-demo-status'>${() => state.last}</span>
                     </div>

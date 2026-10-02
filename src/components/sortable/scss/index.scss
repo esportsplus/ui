@@ -1,26 +1,75 @@
 @use '/tokens';
 @use 'variables';
 
+// Typed, so the drop can transition them; not inherited, so a write per frame restyles the held item alone.
+@property --sortable-angle {
+    inherits: false;
+    initial-value: 0deg;
+    syntax: '<angle>';
+}
+
+@property --sortable-x {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
+@property --sortable-y {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
 .sortable {
     > * {
         -webkit-touch-callout: none;
     }
 
-    // Stays in the container (so selectors like '.toolbar > button' keep matching) but is lifted out of
-    // flow with 'position: fixed'; the placeholder holds its slot.
+    // A held item stays in the container (so selectors like '.toolbar > button' keep matching) but is lifted out
+    // of flow with 'position: fixed', at the box it was picked up from; the placeholder holds its slot. JS writes
+    // the box once and the pointer's offset and swing every frame.
+    > .sortable-item--dragging,
+    > .sortable-item--dropping,
+    > .sortable-item--lifting {
+        box-sizing: border-box;
+        height: var(--sortable-height);
+        left: var(--sortable-left);
+        margin: 0;
+        position: fixed;
+        top: var(--sortable-top);
+        transform: translate3d(var(--sortable-x), var(--sortable-y), 0) rotate(var(--sortable-angle));
+        transform-origin: var(--sortable-origin);
+        width: var(--sortable-width);
+        will-change: transform;
+        z-index: var(--drag-z-index);
+    }
+
     > .sortable-item--dragging {
+        animation: var(--drag-animation);
+        box-shadow: var(--drag-box-shadow);
         cursor: grabbing;
+        scale: var(--drag-scale);
         transition:
             box-shadow var(--transition-duration) var(--transition-timing-function),
             scale var(--transition-duration) var(--transition-timing-function);
-        will-change: transform;
-        z-index: var(--drag-z-index);
+    }
 
-        &:not(.sortable-item--dropping) {
-            animation: var(--drag-animation);
-            box-shadow: var(--drag-box-shadow);
-            scale: var(--drag-scale);
-        }
+    // Lands on the placeholder, settling the lift, the swing and any animation on the way.
+    > .sortable-item--dropping {
+        transition:
+            --sortable-angle var(--drop-duration) var(--drop-easing),
+            --sortable-x var(--drop-duration) var(--drop-easing),
+            --sortable-y var(--drop-duration) var(--drop-easing),
+            box-shadow var(--drop-duration) var(--drop-easing),
+            rotate var(--drop-duration) var(--drop-easing),
+            scale var(--drop-duration) var(--drop-easing),
+            translate var(--drop-duration) var(--drop-easing);
+    }
+
+    // Back in the flow at its new place; the item's own transitions (e.g. on 'transform') would otherwise run from
+    // where the drop left it.
+    > .sortable-item--settling {
+        transition: none;
     }
 
     @include tokens.state(active) {
@@ -45,7 +94,8 @@
             opacity var(--overlay-transition-duration) var(--transition-timing-function);
         z-index: 1;
 
-        .sortable > .sortable-item--dragging & {
+        .sortable > .sortable-item--dragging &,
+        .sortable > .sortable-item--dropping & {
             display: flex;
             opacity: 1;
 
@@ -277,7 +327,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .sortable > .sortable-item--dragging:not(.sortable-item--dropping) {
+    // Doubled to outrank the swing presets, which set the same variables on the same element.
+    .sortable.sortable {
+        --shift-duration: 0s;
+        --swing-angle: 0deg;
+    }
+
+    .sortable > .sortable-item--dragging {
         animation: none;
     }
 }

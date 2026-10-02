@@ -204,7 +204,7 @@ const meta: Record<string, Meta> = {
     },
     sortable: {
         category: 'Interactive',
-        description: 'Drag-and-drop reordering of an element\'s children, within one container or across a group.'
+        description: 'Drag-and-drop reordering of a reactive list\'s items, within one list or across a group.'
     },
     'sticky-header': {
         category: 'Layout',
