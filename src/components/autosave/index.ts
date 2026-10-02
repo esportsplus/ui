@@ -82,7 +82,7 @@ export default ({ state = reactive<State>({ savedAt: null, status: 'saved' }), .
     });
 
     return html`
-        <div class='autosave' ${attributes} ${{ 'data-status': () => state.status }}>
+        <div class='autosave' ${attributes} ${{ class: () => `autosave--${state.status}` }}>
             <span aria-hidden='true' class='autosave-icon'>
                 <span class='autosave-dot' style='--i: 0;'></span>
                 <span class='autosave-dot' style='--i: 1;'></span>
@@ -93,7 +93,7 @@ export default ({ state = reactive<State>({ savedAt: null, status: 'saved' }), .
                 ${slots.map((slot) => html`
                     <span
                         aria-hidden='${() => slot.phase === 'exit' ? 'true' : 'false'}'
-                        data-phase='${() => slot.phase}'
+                        class='autosave-label-text ${() => slot.phase && `autosave-label-text--${slot.phase}`}'
                     >
                         ${() => slot.text}
                     </span>

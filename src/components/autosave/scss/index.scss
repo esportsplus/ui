@@ -70,21 +70,21 @@
         flex: 1;
         min-width: 0;
 
-        [data-phase='enter'] {
-            animation: autosave-enter var(--enter-duration) var(--timing-function) both;
-        }
-
-        [data-phase='exit'] {
-            animation: autosave-exit var(--exit-duration) var(--timing-function) both;
-            opacity: 0;
-        }
-
-        span {
+        &-text {
             grid-area: 1 / 1;
+
+            &--enter {
+                animation: autosave-enter var(--enter-duration) var(--timing-function) both;
+            }
+
+            &--exit {
+                animation: autosave-exit var(--exit-duration) var(--timing-function) both;
+                opacity: 0;
+            }
         }
     }
 
-    &[data-status='saved'] .autosave-check {
+    &.autosave--saved .autosave-check {
         opacity: 1;
         stroke-dashoffset: 0;
         transition:
@@ -92,7 +92,7 @@
             stroke-dashoffset var(--check-duration) var(--timing-function) var(--check-delay);
     }
 
-    &[data-status='saving'] .autosave-dot {
+    &.autosave--saving .autosave-dot {
         opacity: 1;
         scale: 1;
         translate: calc((var(--i) - 1) * var(--dot-gap));
@@ -102,7 +102,7 @@
         }
     }
 
-    &[data-status='unsaved'] .autosave-dot:nth-child(2) {
+    &.autosave--unsaved .autosave-dot:nth-child(2) {
         opacity: 1;
         scale: 1.5;
     }
@@ -110,12 +110,12 @@
     @media (prefers-reduced-motion: reduce) {
         &-check,
         &-dot,
-        &[data-status='saved'] .autosave-check {
+        &.autosave--saved .autosave-check {
             transition: none;
         }
 
-        &-label [data-phase],
-        &[data-status='saving'] .autosave-dot::before {
+        &-label-text,
+        &.autosave--saving .autosave-dot::before {
             animation: none;
         }
     }
