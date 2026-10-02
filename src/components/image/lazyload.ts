@@ -49,6 +49,14 @@ export default ({ alt, crossorigin, fetchpriority, height, loading = 'lazy', pla
                 width='${width}'
                 ${source}
                 ${{
+                    onconnect: (img: HTMLImageElement) => {
+                        // Memory-cached images have dimensions synchronously; drop the placeholder without a fade.
+                        // Deferred lazy images also report complete, so naturalWidth is the only reliable signal.
+                        if (img.complete && img.naturalWidth > 0) {
+                            state.covered = false;
+                            state.status = 'ready';
+                        }
+                    },
                     onerror: () => {
                         state.status = 'error';
                     },
@@ -65,14 +73,6 @@ export default ({ alt, crossorigin, fetchpriority, height, loading = 'lazy', pla
                                 state.status = 'error';
                             }
                         );
-                    },
-                    onrender: (img: HTMLImageElement) => {
-                        // Memory-cached images have dimensions synchronously; drop the placeholder without a fade.
-                        // Deferred lazy images also report complete, so naturalWidth is the only reliable signal.
-                        if (img.complete && img.naturalWidth > 0) {
-                            state.covered = false;
-                            state.status = 'ready';
-                        }
                     }
                 }}
             />

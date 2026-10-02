@@ -142,7 +142,7 @@ export default component(
                                     select(node);
                                 }
                             },
-                            onrender: (element: HTMLElement) => {
+                            onconnect: (element: HTMLElement) => {
                                 node.button = element;
                             }
                         }}
@@ -198,13 +198,13 @@ export default component(
                                 popTo(node);
                             }
                         },
+                        onconnect: (element: HTMLElement) => {
+                            node.panel = element;
+                        },
                         onfirstpaint: () => {
                             if (node !== root && stack.includes(node)) {
                                 expand(node);
                             }
-                        },
-                        onrender: (element: HTMLElement) => {
-                            node.panel = element;
                         },
                         ontransitionend: (e: TransitionEvent) => {
                             if (e.target !== node.panel) {
@@ -398,7 +398,7 @@ export default component(
                                 open();
                             }
                         },
-                        onrender: (element: HTMLElement) => {
+                        onconnect: (element: HTMLElement) => {
                             trigger = element;
                         }
                     }}

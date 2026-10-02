@@ -171,8 +171,6 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
                 onanimationstart: morphing(local, true),
                 onconnect: (el: HTMLElement) => {
                     control = el.firstElementChild;
-                },
-                onrender: (el: HTMLElement) => {
                     element = el;
                 },
                 ontransitioncancel: morphing(local, false),
@@ -184,7 +182,7 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
             <div
                 aria-hidden='true'
                 class='error-message tooltip-content tooltip-content--${direction} tooltip-content--morph'
-                ${{ onrender: (el: HTMLElement) => { tooltip = el; } }}
+                ${{ onconnect: (el: HTMLElement) => { tooltip = el; } }}
             >
                 <span>${() => local.message}</span>
             </div>

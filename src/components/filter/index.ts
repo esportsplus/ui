@@ -355,6 +355,13 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         } as Attributes,
         counts,
         item: (index: number): Attributes => ({
+            onconnect: (element: HTMLElement) => {
+                elements[index] = element;
+
+                if (!shown[index]) {
+                    element.style.display = 'none';
+                }
+            },
             ondisconnect: (element: HTMLElement) => {
                 if (elements[index] !== element) {
                     return;
@@ -363,25 +370,17 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
                 cancel(element);
                 release(element);
                 elements[index] = undefined;
-            },
-            onrender: (element: HTMLElement) => {
-                elements[index] = element;
-
-                if (!shown[index]) {
-                    element.style.display = 'none';
-                }
             }
         }),
         list: {
             id,
             onconnect: (element: HTMLElement) => {
+                list = element;
+
                 // Leaving items are positioned against the nearest positioned ancestor.
                 if (getComputedStyle(element).position === 'static') {
                     element.style.position = 'relative';
                 }
-            },
-            onrender: (element: HTMLElement) => {
-                list = element;
             },
             tabindex: '-1'
         } as Attributes,
@@ -393,10 +392,10 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             'aria-label': `${filter.label}, ${counts[filter.id]} of ${items.length}`,
             class: () => state.active === filter.id && '--active',
             onclick: () => select(filter.id),
-            onkeydown: (event: KeyboardEvent) => keydown(event, index),
-            onrender: (element: HTMLElement) => {
+            onconnect: (element: HTMLElement) => {
                 buttons[index] = element;
             },
+            onkeydown: (event: KeyboardEvent) => keydown(event, index),
             role: 'radio',
             tabindex: () => state.active === filter.id ? '0' : '-1',
             type: 'button'

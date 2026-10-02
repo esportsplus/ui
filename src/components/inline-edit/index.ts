@@ -149,7 +149,7 @@ function template(
                         local.draft = draft;
                         state.editing = true;
                     },
-                    onrender: (element: HTMLElement) => {
+                    onconnect: (element: HTMLElement) => {
                         display = element;
                     }
                 }}

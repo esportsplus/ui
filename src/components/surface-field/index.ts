@@ -755,7 +755,7 @@ export default component(
                     aria-hidden='true'
                     class='surface-field-canvas'
                     ${{
-                        onrender: (element: HTMLCanvasElement) => {
+                        onconnect: (element: HTMLCanvasElement) => {
                             canvas = element;
                         }
                     }}

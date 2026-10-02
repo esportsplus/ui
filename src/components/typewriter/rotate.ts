@@ -13,7 +13,6 @@ type A = Attributes & {
 // 'left' is where it stood before a swap, measured; a letter without one is new to the word.
 type Letter = {
     char: string;
-    element?: HTMLElement;
     left?: number;
 };
 
@@ -84,8 +83,8 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
         stop: VoidFunction | undefined,
         timer: ReturnType<typeof setTimeout> | undefined;
 
-    let leaving = html.reactive(exits, (l) => html`<span class='typewriter-rotate-letter typewriter-rotate-letter--exiting' style='left: ${l.left ?? 0}px;' ${{ onrender: (element: HTMLElement) => { l.element = element; } }}>${l.char}</span>`),
-        word = html.reactive(letters, (l) => html`<span class='typewriter-rotate-letter' ${{ onrender: (element: HTMLElement) => { l.element = element; } }}>${l.char}</span>`);
+    let leaving = html.reactive(exits, (l) => html`<span class='typewriter-rotate-letter typewriter-rotate-letter--exiting' style='left: ${l.left ?? 0}px;'>${l.char}</span>`),
+        word = html.reactive(letters, (l) => html`<span class='typewriter-rotate-letter'>${l.char}</span>`);
 
     function schedule() {
         clearTimeout(timer);
@@ -114,15 +113,17 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
             return;
         }
 
+        // Every swap flushes, so the box always holds the word's letters in order, then the exits.
         let from = box.getBoundingClientRect(),
             motion = !reduced(),
+            nodes = box.children,
             // Rects are post-transform; a scaled ancestor would otherwise have every offset applied twice.
             s = from.width / box.offsetWidth || 1;
 
         // Visual position, mid-animation included, so a swap that lands during a glide continues from where the
         // letter really is.
         for (let i = 0, n = letters.length; i < n; i++) {
-            letters[i].left = ((letters[i].element?.getBoundingClientRect().left ?? from.left) - from.left) / s;
+            letters[i].left = ((nodes[i]?.getBoundingClientRect().left ?? from.left) - from.left) / s;
         }
 
         let chars = [...words[index]],
@@ -157,7 +158,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
         for (let i = out, n = exits.length; i < n; i++) {
             let l = exits[i];
 
-            l.element?.animate(
+            nodes[letters.length + i]?.animate(
                 motion
                     ? [
                         { filter: 'blur(0px)', opacity: 1, transform: 'translateY(0)' },
@@ -196,7 +197,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                 was = l.left;
 
             if (was === undefined) {
-                l.element?.animate(
+                nodes[i]?.animate(
                     motion
                         ? [
                             { filter: 'blur(4px)', opacity: 0, transform: 'translateY(0.4em)' },
@@ -214,13 +215,13 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                 continue;
             }
 
-            let now = ((l.element?.getBoundingClientRect().left ?? to.left) - to.left) / scale;
+            let now = ((nodes[i]?.getBoundingClientRect().left ?? to.left) - to.left) / scale;
 
             if (Math.abs(was - now) < 0.5) {
                 continue;
             }
 
-            l.element?.animate(
+            nodes[i]?.animate(
                 [{ transform: `translateX(${was - now}px)` }, { transform: 'translateX(0)' }],
                 { duration: GLIDE_MS, easing: EASE_IN_OUT }
             );
@@ -269,7 +270,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                 aria-hidden='true'
                 class='typewriter-rotate-box'
                 ${{
-                    onrender: (element: HTMLElement) => {
+                    onconnect: (element: HTMLElement) => {
                         box = element;
                     }
                 }}

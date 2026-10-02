@@ -150,6 +150,9 @@ export default ({
             <div
                 class='slider-control'
                 ${{
+                    onconnect: (element: HTMLElement) => {
+                        control = element;
+                    },
                     onlostpointercapture: release,
                     onpointercancel: release,
                     onpointerdown: (event: PointerEvent) => {
@@ -186,10 +189,7 @@ export default ({
 
                         commit(drag, min + fraction(event) * span);
                     },
-                    onpointerup: release,
-                    onrender: (element: HTMLElement) => {
-                        control = element;
-                    }
+                    onpointerup: release
                 }}
             >
                 <div class='slider-track'>
@@ -213,14 +213,14 @@ export default ({
                                 'aria-valuenow': () => s[key],
                                 'aria-valuetext': () => format(s[key]),
                                 class: () => ui.dragging === index && '--active',
+                                onconnect: (element: Thumb) => {
+                                    element[INDEX] = index;
+                                    thumbs[index] = element;
+                                },
                                 onkeydown: (event: KeyboardEvent) => {
                                     if (!disabled) {
                                         keydown(index, event);
                                     }
-                                },
-                                onrender: (element: Thumb) => {
-                                    element[INDEX] = index;
-                                    thumbs[index] = element;
                                 },
                                 style: () => `--position: ${percent(key)}`
                             }}

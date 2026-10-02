@@ -247,6 +247,9 @@ export default ({
                     role='group'
                     ${{
                         class: () => ui.dragging !== -1 && 'range-filter-root--dragging',
+                        onconnect: (element: HTMLElement) => {
+                            root = element;
+                        },
                         onlostpointercapture: release,
                         onpointercancel: release,
                         onpointerdown: (event: PointerEvent) => {
@@ -294,10 +297,7 @@ export default ({
                                 ui.preview = at(event.clientX);
                             }
                         },
-                        onpointerup: release,
-                        onrender: (element: HTMLElement) => {
-                            root = element;
-                        }
+                        onpointerup: release
                     }}
                 >
                     <div class='range-filter-track'>
@@ -340,11 +340,11 @@ export default ({
                                     'aria-valuenow': () => s[key],
                                     'aria-valuetext': () => `${prefix}${format(s[key])}`,
                                     class: () => ui.dragging === index && '--active',
-                                    onkeydown: (event: KeyboardEvent) => keydown(index, event),
-                                    onrender: (element: Thumb) => {
+                                    onconnect: (element: Thumb) => {
                                         element[INDEX] = index;
                                         thumbs[index] = element;
                                     },
+                                    onkeydown: (event: KeyboardEvent) => keydown(index, event),
                                     style: () => `--position: ${pct(s[key]) / 100}; z-index: ${ui.dragging === index || (index === 0 && s.low === max) ? 3 : 2};`
                                 }}
                             ></div>

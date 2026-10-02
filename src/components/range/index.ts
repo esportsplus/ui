@@ -29,6 +29,7 @@ function plain(
             ${attributes}
             ${{
                 class: () => state.active && '--active',
+                onconnect: form.input.onconnect(state),
                 onfocusin: () => {
                     state.active = true;
                 },
@@ -38,7 +39,6 @@ function plain(
                 oninput: (e) => {
                     state.value = Number((e.target as HTMLInputElement).value);
                 },
-                onrender: form.input.onrender(state),
                 value: root(() => (attributes?.value as number) || state.value || 0)
             }}
         />

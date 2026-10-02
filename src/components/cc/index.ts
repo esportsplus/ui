@@ -432,13 +432,13 @@ export default component(
                         <div class='cc-face cc-face--front'>
                             <span
                                 class='cc-ring ${() => local.ring && '--active'}'
-                                ${{ onrender: (element: HTMLElement) => { ring = element; } }}
+                                ${{ onconnect: (element: HTMLElement) => { ring = element; } }}
                             ></span>
                             <div class='cc-face-top'>
                                 <svg class='cc-chip'><use href='#${chip}' /></svg>
                                 ${mark(brand, 'large')}
                             </div>
-                            <div class='cc-number' ${{ onrender: (element: HTMLElement) => { regions.number = element; } }}>
+                            <div class='cc-number' ${{ onconnect: (element: HTMLElement) => { regions.number = element; } }}>
                                 ${html.reactive(slots, (slot) => html`
                                     <span
                                         class='cc-digit ${() => slot.gap && 'cc-digit--gap'} ${() => slot.char === '•' && 'cc-digit--placeholder'} ${() => slot.roll && `cc-digit--roll-${slot.roll}`}'
@@ -446,11 +446,11 @@ export default component(
                                 `)}
                             </div>
                             <div class='cc-face-bottom'>
-                                <div class='cc-holder' ${{ onrender: (element: HTMLElement) => { regions.name = element; } }}>
+                                <div class='cc-holder' ${{ onconnect: (element: HTMLElement) => { regions.name = element; } }}>
                                     <span class='cc-caption'>Card holder</span>
                                     <span class='cc-holder-value'>${() => state.name.trim() || 'Your name'}</span>
                                 </div>
-                                <div class='cc-expires' ${{ onrender: (element: HTMLElement) => { regions.expiry = element; } }}>
+                                <div class='cc-expires' ${{ onconnect: (element: HTMLElement) => { regions.expiry = element; } }}>
                                     <span class='cc-caption'>Expires</span>
                                     <span class='cc-expires-value'>${() => state.expiry || 'MM/YY'}</span>
                                 </div>

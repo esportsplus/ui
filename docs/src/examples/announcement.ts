@@ -86,12 +86,12 @@ export default {
                     <div
                         class='announcement-demo'
                         ${{
+                            onconnect: (element: HTMLElement) => {
+                                frame = element;
+                            },
                             // Opens once it has painted closed, so the entrance is a real transition.
                             onfirstpaint: () => {
                                 state.active = !dismissed();
-                            },
-                            onrender: (element: HTMLElement) => {
-                                frame = element;
                             }
                         }}
                     >

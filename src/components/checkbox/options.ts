@@ -7,7 +7,7 @@ import { group } from './group';
 import './scss/index.scss';
 
 
-type A = Attributes & { onrender?: never, type?: never };
+type A = Attributes & { type?: never };
 
 type Attr = A & { [CHECKBOX_INPUT]?: A };
 
@@ -30,7 +30,7 @@ function factory<const P extends Record<PropertyKey, unknown> = {}>(type: 'check
                 >
                     <input
                         class='checkbox-tag'
-                        onrender=${form.input.onrender(state)}
+                        onconnect=${form.input.onconnect(state)}
                         type=${type === 'radio' ? 'radio' : 'checkbox'}
                         value='1'
                         ${this?.attributes?.[CHECKBOX_INPUT]}

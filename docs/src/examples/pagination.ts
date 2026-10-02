@@ -100,6 +100,9 @@ function carousel(autoplay: boolean) {
         <div
             class='pagination-demo'
             ${{
+                onconnect: (el: HTMLElement) => {
+                    region = el;
+                },
                 ondisconnect: () => {
                     cancelAnimationFrame(frame);
                     clearTimeout(quiet);
@@ -126,9 +129,6 @@ function carousel(autoplay: boolean) {
                     if (e.pointerType !== 'touch') {
                         demo.hovered = inside(e.target);
                     }
-                },
-                onrender: (el: HTMLElement) => {
-                    region = el;
                 }
             }}
         >
@@ -140,7 +140,7 @@ function carousel(autoplay: boolean) {
                 role='region'
                 tabindex='0'
                 ${{
-                    onrender: (el: HTMLElement) => {
+                    onconnect: (el: HTMLElement) => {
                         scroller = el;
                     },
                     onscroll: () => {
@@ -205,7 +205,7 @@ function carousel(autoplay: boolean) {
                                 onclick: () => {
                                     demo.choice = !(demo.choice ?? !reduced);
                                 },
-                                onrender: (el: HTMLElement) => {
+                                onconnect: (el: HTMLElement) => {
                                     toggle = el;
                                 }
                             }}

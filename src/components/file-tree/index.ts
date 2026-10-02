@@ -617,8 +617,6 @@ export default ({
         given = signal(typeof phrase === 'function' ? untrack(phrase) : phrase),
         // The search the rows show, empty while the find bar is closed.
         query = signal(''),
-        // The list's rows on screen; the rest are virtualized away.
-        rendered = new Map<Row, HTMLElement>(),
         // The rows a folder is opening onto, by place within it; emptied when the motion settles, so rows scrolled
         // back into view later arrive as they are.
         revealing = new Map<Row, number>(),
@@ -1483,7 +1481,7 @@ export default ({
         settle();
 
         let container = root,
-            element = rendered.get(row),
+            element = node(row),
             inner = visible(branch(row)),
             scroller = viewport;
 
@@ -1509,7 +1507,7 @@ export default ({
                 for (let clone of ghosts.querySelectorAll<Rendered>('.file-tree-row')) {
                     let ghost = lookup(clone[ROW]!.id);
 
-                    if (ghost && rendered.has(ghost)) {
+                    if (ghost && node(ghost)) {
                         clone.remove();
                     }
                 }
@@ -1564,11 +1562,7 @@ export default ({
 
     // Every row is the same height, so any row on screen measures them all.
     function height() {
-        for (let element of rendered.values()) {
-            return element.offsetHeight;
-        }
-
-        return 0;
+        return viewport?.querySelector<HTMLElement>('.file-tree-row')?.offsetHeight ?? 0;
     }
 
     function insert(at: number, items: Row[]) {
@@ -1818,7 +1812,7 @@ export default ({
 
         focus(row);
 
-        let element = rendered.get(row);
+        let element = node(row);
 
         // Outside the rendered window; the slot scrolls it in and renders it straight away. Aligned to the top, it
         // starts the view at the rows its pinned folders will cover, one each.
@@ -1861,16 +1855,16 @@ export default ({
         };
     }
 
+    // A row's element while it is rendered; the rest are virtualized away. Found by id, so a row rendered by a flush
+    // earlier in this task is found before its onconnect has run.
+    function node(row: Row) {
+        return document.getElementById(`${id}-${row.key}`);
+    }
+
     function onscreen(row: Row): Attributes {
         return {
-            ondisconnect: (element: HTMLElement) => {
-                if (rendered.get(row) === element) {
-                    rendered.delete(row);
-                }
-            },
-            onrender: (element: Rendered) => {
+            onconnect: (element: Rendered) => {
                 element[ROW] = row;
-                rendered.set(row, element);
             }
         };
     }
@@ -2860,7 +2854,8 @@ export default ({
                         settle();
                     }
                 },
-                onconnect: () => {
+                onconnect: (element: HTMLElement) => {
+                    root = element;
                     forget = history?.subscribe(retrace);
                     unwatch = model.subscribe(restructure);
 
@@ -2965,9 +2960,6 @@ export default ({
                     unwatch?.();
                     unwatch = undefined;
                 },
-                onrender: (element: HTMLElement) => {
-                    root = element;
-                },
                 style: () => ui.motion && `--motion-rows: ${ui.motionRows}`
             }}
         >
@@ -2981,6 +2973,13 @@ export default ({
                 ${dragging?.viewport}
                 ${{
                     'aria-activedescendant': () => ui.focused > 0 && `${id}-${ui.focused}`,
+                    onconnect: (element: HTMLElement) => {
+                        viewport = element;
+
+                        // Delegated mousedown is passive, so bind directly.
+                        element.addEventListener('mousedown', middle);
+                        release = () => element.removeEventListener('mousedown', middle);
+                    },
                     oncontextmenu: (event: MouseEvent) => {
                         if (!menu || !viewport) {
                             return;
@@ -3008,9 +3007,12 @@ export default ({
 
                         focus(row);
 
-                        let box = keyboard ? (rendered.get(row) ?? viewport).getBoundingClientRect() : null;
+                        let box = keyboard ? (node(row) ?? viewport).getBoundingClientRect() : null;
 
                         menu(targets(row, false), box ? { x: box.left, y: box.bottom } : { x: event.clientX, y: event.clientY }, header(row));
+                    },
+                    ondisconnect: () => {
+                        release?.();
                     },
                     onkeydown: (event: KeyboardEvent) => {
                         if (search?.key(event)) {
@@ -3143,15 +3145,6 @@ export default ({
                                 follow(cursor);
                             }
                         }
-                    },
-                    ondisconnect: () => {
-                        release?.();
-                    },
-                    onrender: (element: HTMLElement) => {
-                        viewport = element;
-                        // Delegated mousedown is passive, so bind directly.
-                        element.addEventListener('mousedown', middle);
-                        release = () => element.removeEventListener('mousedown', middle);
                     },
                     onscroll: () => {
                         // The copies are laid out against the rows as they stood; once scrolled they no longer line up.

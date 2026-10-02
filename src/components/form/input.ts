@@ -13,11 +13,11 @@ const get = <T extends { error: string }>(element?: Element) => {
     return undefined;
 };
 
-const onrender = <T extends { error: string }>(reactive: T) => {
+const onconnect = <T extends { error: string }>(reactive: T) => {
     return (element: Element) => {
         element[KEY] = reactive;
     };
 };
 
 
-export default { get, onrender };
+export default { get, onconnect };

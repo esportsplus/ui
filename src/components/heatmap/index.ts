@@ -228,7 +228,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
                                             ${bound?.[HEATMAP_CELL]}
                                             ${attributes[HEATMAP_CELL]}
                                             ${{
-                                                onrender: (element: Cell) => {
+                                                onconnect: (element: Cell) => {
                                                     element[INDEX] = i;
                                                     cells[i] = element;
                                                 }

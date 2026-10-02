@@ -28,13 +28,13 @@ export default function (
             ${attributes}
             ${{
                 class: () => state.active && '--active',
+                onconnect: form.input.onconnect(state),
                 onfocusin: () => {
                     state.active = true;
                 },
                 onfocusout: () => {
                     state.active = false;
-                },
-                onrender: form.input.onrender(state),
+                }
             }}
         />
     `;

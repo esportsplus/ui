@@ -756,7 +756,7 @@ export default component(
                             trigger(action);
                         }
                     },
-                    onrender: (element: Tool) => {
+                    onconnect: (element: Tool) => {
                         element[HINT] = action === 'copy' ? () => local.copied === 'success' ? 'Copied' : label : hint(label, shortcut);
                         items[index] = element;
                     }
@@ -782,6 +782,9 @@ export default component(
                         () => state.saved && 'inline-edit--saved',
                         () => local.empty && 'inline-edit--empty'
                     ],
+                    onconnect: (element: HTMLElement) => {
+                        root = element;
+                    },
                     ondisconnect: () => {
                         cancelAnimationFrame(frame);
                         clearTimeout(copyTimer);
@@ -791,9 +794,6 @@ export default component(
                     },
                     ondocumentselectionchange: sync,
                     onfocusout: leave,
-                    onrender: (element: HTMLElement) => {
-                        root = element;
-                    },
                     onwindowpointercancel: settle,
                     onwindowpointerup: settle
                 }}
@@ -810,6 +810,10 @@ export default component(
                     ${this?.attributes?.[INLINE_EDIT_RICH_EDITOR]}
                     ${attributes[INLINE_EDIT_RICH_EDITOR]}
                     ${{
+                        onconnect: (element: HTMLElement) => {
+                            editor = element;
+                            render(state.value);
+                        },
                         oncopy: (e: ClipboardEvent) => clip(e, false),
                         oncut: (e: ClipboardEvent) => clip(e, true),
                         onfocus: () => {
@@ -874,10 +878,6 @@ export default component(
                             if (e.button === 0) {
                                 pressing = true;
                             }
-                        },
-                        onrender: (element: HTMLElement) => {
-                            editor = element;
-                            render(state.value);
                         }
                     }}
                 ></div>
@@ -920,7 +920,7 @@ export default component(
                             'aria-hidden': () => panel.open ? 'false' : 'true',
                             class: () => panel.link && 'inline-edit-toolbar--link',
                             inert: () => !panel.open,
-                            onrender: (element: HTMLElement) => {
+                            onconnect: (element: HTMLElement) => {
                                 toolbar = element;
                             },
                             style: () => `transform-origin: ${panel.origin}; translate: ${panel.x}px ${panel.y}px;${panel.instant ? ' transition: none;' : ''}`
@@ -931,7 +931,7 @@ export default component(
                                 ? html`
                                     ${selectMenu({
                                         [selectMenu.trigger]: {
-                                            onrender: (element: HTMLElement) => {
+                                            onconnect: (element: HTMLElement) => {
                                                 items[0] = element;
                                             },
                                             tabindex: () => local.focus === 0 ? '0' : '-1'
@@ -966,7 +966,7 @@ export default component(
                                         'aria-invalid': () => hyperlink.invalid && 'true',
                                         'aria-label': 'Link address',
                                         class: 'inline-edit-toolbar-url',
-                                        onrender: (element: HTMLInputElement) => {
+                                        onconnect: (element: HTMLInputElement) => {
                                             url = element;
                                         },
                                         placeholder: 'Paste or type a link',

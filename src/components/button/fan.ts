@@ -105,7 +105,7 @@ export default component(
                                 focus();
                             }
                         },
-                        onrender: (element: HTMLElement) => {
+                        onconnect: (element: HTMLElement) => {
                             trigger = element;
                         }
                     }}
@@ -132,7 +132,7 @@ export default component(
 
                                     setTimeout(close, CLOSE_DELAY);
                                 },
-                                onrender: (element: HTMLElement) => {
+                                onconnect: (element: HTMLElement) => {
                                     items[i] = element;
                                 }
                             },

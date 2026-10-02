@@ -198,6 +198,7 @@ export default component(
                             return index !== -1 && `${id}-${index}`;
                         },
                         onconnect: (element: Element) => {
+                            scroller = element as HTMLElement;
                             measure();
 
                             // `scrollend` does not bubble so it cannot be delegated
@@ -225,9 +226,6 @@ export default component(
                             e.preventDefault();
                             scrollTo(index);
                         },
-                        onrender: (element: HTMLElement) => {
-                            scroller = element;
-                        },
                         onscroll,
                         style: () => drum.half && `--half: ${drum.half}; --offset: ${drum.offset};`
                     }}
@@ -244,7 +242,7 @@ export default component(
                                 ${{
                                     'aria-selected': () => active[key] ? 'true' : 'false',
                                     onclick: () => scrollTo(index),
-                                    onrender: (element: HTMLElement) => {
+                                    onconnect: (element: HTMLElement) => {
                                         option ??= element;
                                     }
                                 }}
@@ -258,7 +256,7 @@ export default component(
                 <input class='datalist-tag'
                     ${{
                         name: attributes.name,
-                        onrender: form.input.onrender(state),
+                        onconnect: form.input.onconnect(state),
                         value: () => state.selected
                     }}
                 />

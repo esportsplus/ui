@@ -426,7 +426,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                 popover='manual'
                 ${{
                     class: () => ui.effect && `file-tree-drag--${ui.effect}`,
-                    onrender: (element: HTMLElement) => {
+                    onconnect: (element: HTMLElement) => {
                         ghost = element;
                     },
                     style: () => `translate: ${ui.x}px ${ui.y}px`
@@ -448,6 +448,9 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                 () => ui.effect !== '' && sources.includes(row) && 'file-tree-row--dragged',
                 () => mark(row)
             ],
+            onconnect: (element: HTMLElement) => {
+                rows.set(element, row);
+            },
             ondisconnect: (element: HTMLElement) => {
                 rows.delete(element);
             },
@@ -475,19 +478,16 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                 if (list.length) {
                     drag(list, e);
                 }
-            },
-            onrender: (element: HTMLElement) => {
-                rows.set(element, row);
             }
         }),
         // Marks the segment of a compact row a drop lands in.
         segment: (row: T): Attributes => ({
             class: () => ui.folder === row.key && 'file-tree-segment--drop',
+            onconnect: (element: HTMLElement) => {
+                segments.set(element, row);
+            },
             ondisconnect: (element: HTMLElement) => {
                 segments.delete(element);
-            },
-            onrender: (element: HTMLElement) => {
-                segments.set(element, row);
             }
         }),
         // The root carries the fold motion's inline styles, so the drop depth goes on the viewport instead.

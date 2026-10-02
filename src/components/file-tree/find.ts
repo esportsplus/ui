@@ -325,6 +325,7 @@ class Finder {
                             ${{
                                 'aria-invalid': () => read(this.query) !== '' && !state.count ? 'true' : 'false',
                                 onconnect: (element: HTMLInputElement) => {
+                                    this.input = element;
                                     element.value = state.text;
                                     element.focus({ preventScroll: true });
 
@@ -366,9 +367,6 @@ class Finder {
                                     }
 
                                     event.preventDefault();
-                                },
-                                onrender: (element: HTMLInputElement) => {
-                                    this.input = element;
                                 }
                             }}
                         />

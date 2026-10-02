@@ -84,7 +84,7 @@ export default component(
                     ${attributes[CONTEXT_TOOLTIP_CONTENT]}
                     ${{
                         inert: () => !state.active,
-                        onrender: (element: HTMLElement) => {
+                        onconnect: (element: HTMLElement) => {
                             menu = element;
                         },
                         style: () => placement.style

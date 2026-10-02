@@ -356,17 +356,17 @@ function template(
                             open();
                         }
                     },
-                    onkeydown,
-                    onrender: (element: HTMLElement) => {
+                    onconnect: (element: HTMLElement) => {
                         parts.trigger = element;
-                    }
+                    },
+                    onkeydown
                 }}
             >
                 <span
                     class='select-menu-value'
                     id='${id}-value'
                     ${{
-                        onrender: (element: HTMLElement) => {
+                        onconnect: (element: HTMLElement) => {
                             parts.value = element;
                         }
                     }}
@@ -380,7 +380,7 @@ function template(
                 type='hidden'
                 ${{
                     name,
-                    onrender: form.input.onrender(state),
+                    onconnect: form.input.onconnect(state),
                     value: () => state.value
                 }}
             />
@@ -395,6 +395,9 @@ function template(
                         () => menu.up && 'select-menu-panel--up'
                     ],
                     inert: () => !state.active,
+                    onconnect: (element: HTMLElement) => {
+                        parts.panel = element;
+                    },
                     onpointerdown: () => {
                         pressing = true;
                     },
@@ -411,16 +414,13 @@ function template(
                         pressing = false;
                         parts.trigger?.focus({ preventScroll: true });
                     },
-                    onrender: (element: HTMLElement) => {
-                        parts.panel = element;
-                    },
                     style: () => menu.placement
                 }}
             >
                 <div
                     class='select-menu-scroller'
                     ${{
-                        onrender: (element: HTMLElement) => {
+                        onconnect: (element: HTMLElement) => {
                             parts.scroller = element;
                         },
                         onscroll: function(this: HTMLElement) {
@@ -444,6 +444,9 @@ function template(
                                         choose(index);
                                         parts.trigger?.focus({ preventScroll: true });
                                     },
+                                    onconnect: (element: HTMLElement) => {
+                                        parts.option ??= element;
+                                    },
                                     onpointermove: (e: PointerEvent) => {
                                         // Scrolling under a still cursor can fire synthetic moves; only real movement
                                         // takes the highlight.
@@ -456,9 +459,6 @@ function template(
                                         if (menu.highlight !== index) {
                                             menu.highlight = index;
                                         }
-                                    },
-                                    onrender: (element: HTMLElement) => {
-                                        parts.option ??= element;
                                     }
                                 }}
                             >
@@ -466,7 +466,7 @@ function template(
                                 <span
                                     class='select-menu-option-label'
                                     ${{
-                                        onrender: (element: HTMLElement) => {
+                                        onconnect: (element: HTMLElement) => {
                                             parts.label ??= element;
                                         }
                                     }}

@@ -45,8 +45,8 @@ function resizable({ modifier = '', plain = false, separator, status }: { modifi
     }
 
     return html`
-        <div class='breadcrumb-demo' ${{ onrender: (element: HTMLElement) => { wrap = element; } }}>
-            <div class='breadcrumb-demo-frame ${plain && 'breadcrumb-demo-frame--plain'}' ${{ onrender: (element: HTMLElement) => { frame = element; } }}>
+        <div class='breadcrumb-demo' ${{ onconnect: (element: HTMLElement) => { wrap = element; } }}>
+            <div class='breadcrumb-demo-frame ${plain && 'breadcrumb-demo-frame--plain'}' ${{ onconnect: (element: HTMLElement) => { frame = element; } }}>
                 ${breadcrumb({
                     class: modifier,
                     items: path,

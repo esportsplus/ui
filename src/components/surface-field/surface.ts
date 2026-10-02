@@ -186,9 +186,9 @@ export default component<Surface>(
                 ${{
                     class: () => view.active && '--active',
                     'data-surface-field': name,
-                    onconnect: apply,
-                    onrender: (el: HTMLElement) => {
+                    onconnect: (el: HTMLElement) => {
                         element = el;
+                        apply();
                     },
                     style: () => `height: ${view.height}px; translate: ${view.x}px ${view.y}px; width: ${view.width}px;${view.z ? ` z-index: ${view.z};` : ''}`
                 }}

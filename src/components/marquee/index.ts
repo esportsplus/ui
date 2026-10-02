@@ -309,7 +309,7 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
             <div
                 class='marquee-viewport'
                 ${{
-                    onrender: (element: HTMLElement) => {
+                    onconnect: (element: HTMLElement) => {
                         viewport = element;
                     },
                     // Focus can scroll the clipped viewport natively; pin it so only the transform moves.
@@ -327,7 +327,7 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                 <div
                     class='marquee-track'
                     ${{
-                        onrender: (element: HTMLElement) => {
+                        onconnect: (element: HTMLElement) => {
                             track = element;
                         },
                         style: () => `transform: translate3d(${stage.x.toFixed(2)}px, 0, 0)`
@@ -340,7 +340,7 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                                 <ul
                                     class='marquee-group'
                                     ${{
-                                        onrender: (element: HTMLElement) => {
+                                        onconnect: (element: HTMLElement) => {
                                             group = element;
                                         }
                                     }}

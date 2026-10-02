@@ -74,7 +74,7 @@ const dock = ({ group, items, label = 'Dock', onlaunch, ...attributes }: A) => {
                 ? html`
                     <div class='dock-group' ${tip.delegate({ content: (trigger) => (trigger as Slot)[LABEL], edge: true, selector: '.dock-item' })}>
                         ${items.map((item, i) => html`
-                            <div class='dock-item' ${{ onrender: (element: Slot) => { element[LABEL] = item.label; } }}>${buttons[i]}</div>
+                            <div class='dock-item' ${{ onconnect: (element: Slot) => { element[LABEL] = item.label; } }}>${buttons[i]}</div>
                         `)}
                     </div>
                     ${tip.render({ 'aria-hidden': 'true', class: 'dock-label' })}

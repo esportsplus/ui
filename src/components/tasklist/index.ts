@@ -184,7 +184,7 @@ function row(
                         move(this, destination(this, options.ordered));
                     }
                 },
-                onrender: (element: Item) => {
+                onconnect: (element: Item) => {
                     element[ROW] = entry;
                 }
             }}

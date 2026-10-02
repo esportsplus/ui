@@ -169,12 +169,11 @@ function template(
         hue: Channel = reactive({ active: false, error: '', value: Math.round(start.h) }),
         id = `color-picker-${++uid}`,
         // Stand-ins for swatches pushed out of the recent list, fading out where they stood.
-        leaving = reactive([] as { element?: HTMLElement, hex: string, left: number, top: number }[]),
+        leaving = reactive([] as { hex: string, left: number, top: number }[]),
         parts: Parts = {},
         picker = reactive({ active: '', invalid: false }),
         pointer = { alpha: false, hue: false, pad: -1 },
-        recent = reactive(initial.map((hex) => hex.toUpperCase())),
-        swatches = new Map<string, HTMLElement>();
+        recent = reactive(initial.map((hex) => hex.toUpperCase()));
 
     let fading = html.reactive(leaving, (ghost) => html`
         <span
@@ -182,8 +181,21 @@ function template(
             class='color-picker-swatch color-picker-swatch--leaving'
             style='--swatch: ${ghost.hex}; left: ${ghost.left}px; top: ${ghost.top}px;'
             ${{
-                onrender: (element: HTMLElement) => {
-                    ghost.element = element;
+                // Not before: until it is in the document its node belongs to the template's own, whose clock never
+                // runs.
+                onconnect: (element: HTMLElement) => {
+                    element.animate(
+                        reduced()
+                            ? [{ opacity: 1 }, { opacity: 0 }]
+                            : [{ filter: 'blur(0px)', opacity: 1, scale: '1' }, { filter: 'blur(4px)', opacity: 0, scale: '0.6' }],
+                        SWATCH_EXIT
+                    ).finished.then(() => {
+                        let at = leaving.indexOf(ghost);
+
+                        if (at !== -1) {
+                            leaving.splice(at, 1);
+                        }
+                    }, () => {});
                 }
             }}
         ></span>
@@ -238,9 +250,11 @@ function template(
             index = recent.indexOf(hex),
             kept = recent.filter((c) => c !== hex).slice(0, MAX_RECENT - 1);
 
+        // Swatches lead the container in 'recent' order, ghosts after them.
         if (container) {
-            for (let [key, element] of swatches) {
-                let rect = element.getBoundingClientRect();
+            for (let i = 0, n = recent.length; i < n; i++) {
+                let key = recent[i],
+                    rect = container.children[i].getBoundingClientRect();
 
                 first.set(key, rect);
 
@@ -277,8 +291,9 @@ function template(
         let box = container.getBoundingClientRect(),
             still = reduced();
 
-        for (let [key, element] of swatches) {
-            let previous = first.get(key);
+        for (let i = 0, n = recent.length; i < n; i++) {
+            let element = container.children[i],
+                previous = first.get(recent[i]);
 
             if (!previous) {
                 element.animate(
@@ -297,30 +312,8 @@ function template(
             }
         }
 
-        let out = leaving.length;
-
         for (let { hex, rect } of dropped) {
             leaving.push({ hex, left: rect.left - box.left, top: rect.top - box.top });
-        }
-
-        // Animated once in the document: before then their nodes belong to the template's own, whose clock never runs.
-        fading.flush();
-
-        for (let i = out, n = leaving.length; i < n; i++) {
-            let ghost = leaving[i];
-
-            ghost.element?.animate(
-                still
-                    ? [{ opacity: 1 }, { opacity: 0 }]
-                    : [{ filter: 'blur(0px)', opacity: 1, scale: '1' }, { filter: 'blur(4px)', opacity: 0, scale: '0.6' }],
-                SWATCH_EXIT
-            ).finished.then(() => {
-                let at = leaving.indexOf(ghost);
-
-                if (at !== -1) {
-                    leaving.splice(at, 1);
-                }
-            }, () => {});
         }
     }
 
@@ -546,12 +539,12 @@ function template(
                                 commit();
                             }
                         },
+                        onconnect: (element: HTMLInputElement) => {
+                            parts.hue = element;
+                        },
                         onkeydown: (e: KeyboardEvent) => slide('hue', e),
                         onpointerdown: () => {
                             pointer.hue = true;
-                        },
-                        onrender: (element: HTMLInputElement) => {
-                            parts.hue = element;
                         },
                         state: hue,
                         step: 1
@@ -574,12 +567,12 @@ function template(
                                 commit();
                             }
                         },
+                        onconnect: (element: HTMLInputElement) => {
+                            parts.alpha = element;
+                        },
                         onkeydown: (e: KeyboardEvent) => slide('alpha', e),
                         onpointerdown: () => {
                             pointer.alpha = true;
-                        },
-                        onrender: (element: HTMLInputElement) => {
-                            parts.alpha = element;
                         },
                         state: alpha,
                         step: 1
@@ -597,6 +590,10 @@ function template(
                     class: 'color-picker-hex',
                     maxlength: 9,
                     onblur: () => apply(true),
+                    onconnect: (element: HTMLInputElement) => {
+                        parts.hex = element;
+                        element.value = toHex(read());
+                    },
                     onfocus: function(this: HTMLInputElement) {
                         this.select();
                     },
@@ -612,10 +609,6 @@ function template(
                             picker.invalid = false;
                         }
                     },
-                    onrender: (element: HTMLInputElement) => {
-                        parts.hex = element;
-                        element.value = toHex(read());
-                    },
                     spellcheck: false
                 })}
                 <span aria-hidden='true' class='color-picker-alpha'>${() => `${Math.round(color.a * 100)}%`}</span>
@@ -629,7 +622,7 @@ function template(
                     class='color-picker-swatches'
                     role='group'
                     ${{
-                        onrender: (element: HTMLElement) => {
+                        onconnect: (element: HTMLElement) => {
                             parts.swatches = element;
                         }
                     }}
@@ -656,14 +649,6 @@ function template(
                                     update(next);
                                     picker.active = hex;
                                     picker.invalid = false;
-                                },
-                                ondisconnect: (element: HTMLElement) => {
-                                    if (swatches.get(hex) === element) {
-                                        swatches.delete(hex);
-                                    }
-                                },
-                                onrender: (element: HTMLElement) => {
-                                    swatches.set(hex, element);
                                 }
                             }}
                         ></button>

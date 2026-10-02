@@ -218,6 +218,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
                         state.active = false;
                     },
                     onconnect: (element: HTMLElement) => {
+                        plot = element;
                         observe(element);
                         visible = new IntersectionObserver((entries) => {
                             if (!entries.some((entry) => entry.isIntersecting)) {
@@ -280,9 +281,6 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
                         if (e.pointerType === 'touch') {
                             state.active = false;
                         }
-                    },
-                    onrender: (element: HTMLElement) => {
-                        plot = element;
                     }
                 }}
             >
@@ -308,10 +306,8 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
                         }}'
                         ${{
                             onconnect: (element: HTMLElement) => {
-                                observe(element);
-                            },
-                            onrender: (element: HTMLElement) => {
                                 tip = element;
+                                observe(element);
                             }
                         }}
                     >

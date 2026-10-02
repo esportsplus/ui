@@ -213,7 +213,9 @@ export default component(
                 ${attributes}
                 ${{
                     class: () => view.motion && `pull-to-refresh--${view.motion}`,
-                    onconnect: () => {
+                    onconnect: (el: HTMLElement) => {
+                        root = el;
+
                         if (!scroller) {
                             return;
                         }
@@ -231,9 +233,6 @@ export default component(
                     },
                     ondisconnect: () => {
                         listeners?.abort();
-                    },
-                    onrender: (el: HTMLElement) => {
-                        root = el;
                     },
                     style: () => `--pull-to-refresh-y: ${view.y}; --reveal: ${view.reveal};`
                 }}
@@ -265,6 +264,9 @@ export default component(
                     ${this?.attributes?.[PULL_TO_REFRESH_SCROLLER]}
                     ${attributes[PULL_TO_REFRESH_SCROLLER]}
                     ${{
+                        onconnect: (element: HTMLElement) => {
+                            scroller = element;
+                        },
                         onpointercancel: release,
                         onpointerdown: (e: PointerEvent) => {
                             if (e.pointerType === 'mouse' && e.button === 0 && ready()) {
@@ -299,10 +301,7 @@ export default component(
 
                             pull(e.clientY - p.y);
                         },
-                        onpointerup: release,
-                        onrender: (element: HTMLElement) => {
-                            scroller = element;
-                        }
+                        onpointerup: release
                     }}
                 >
                     <div
@@ -313,7 +312,7 @@ export default component(
                                     (e.target as Element).classList.remove('pull-to-refresh-item--fresh');
                                 }
                             },
-                            onrender: (element: HTMLElement) => {
+                            onconnect: (element: HTMLElement) => {
                                 feed = element;
                             }
                         }}

@@ -99,7 +99,7 @@ const plain = component(
                     ${{
                         name: attributes.name,
                         onclick: () => { /* Prevent double click events from firing */ },
-                        onrender: form.input.onrender(state),
+                        onconnect: form.input.onconnect(state),
                         value: () => state.selected
                     }}
                 />

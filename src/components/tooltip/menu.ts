@@ -160,19 +160,23 @@ export default component(
                     tabindex='-1'
                     ${tooltipContent}
                     ${{
-                        onrender: (element: HTMLElement) => {
+                        onconnect: (element: HTMLElement) => {
                             element.inert = !state.active;
                             menu = element;
                         }
                     }}
                 >
                     ${render(
-                        options.map(({ onclick, onrender, ...option }, index) => ({
+                        options.map(({ onclick, onconnect, ...option }, index) => ({
                             ...option,
                             // Also keeps the click from reaching the tooltip's own toggle, which would reopen it.
                             onclick: function(this: HTMLElement, e: PointerEvent) {
                                 onclick?.call(this, e);
                                 close(true);
+                            },
+                            onconnect: (element: HTMLElement) => {
+                                elements[index] = element;
+                                onconnect?.(element);
                             },
                             onpointermove: (e: PointerEvent) => {
                                 let element = e.currentTarget as HTMLElement;
@@ -180,10 +184,6 @@ export default component(
                                 if (e.pointerType !== 'touch' && document.activeElement !== element) {
                                     element.focus({ preventScroll: true });
                                 }
-                            },
-                            onrender: (element: HTMLElement) => {
-                                elements[index] = element;
-                                onrender?.(element);
                             },
                             role: 'menuitem',
                             tabindex: '-1'

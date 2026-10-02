@@ -218,7 +218,7 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                                     view.manual = false;
                                     state.index = (i + 1) % count;
                                 },
-                                onrender: (element: HTMLElement) => {
+                                onconnect: (element: HTMLElement) => {
                                     fills[i] = element;
                                 }
                             }}

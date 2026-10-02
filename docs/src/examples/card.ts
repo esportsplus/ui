@@ -95,7 +95,7 @@ function morph() {
                             inert='${() => state.active !== index}'
                             style='--n: ${index}'
                             ${{
-                                onrender: (element: HTMLElement) => {
+                                onconnect: (element: HTMLElement) => {
                                     rendered[index] = element;
                                 }
                             }}

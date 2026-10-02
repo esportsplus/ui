@@ -85,7 +85,7 @@ function sole(element: Element, hidden: Set<string>, folder: (element: Element) 
 // 'name' renders a segment's name, as with the characters a search matched marked.
 export default <T extends Node<T>>(row: T, part: (node: T) => Attributes[], name: (node: T) => Renderable<unknown>) => html`
     <span class='file-tree-name'>
-        ${lineage(row).map((node, i) => html`${i ? html`<span aria-hidden='true' class='file-tree-separator'>/</span>` : ''}<span class='file-tree-segment' ${part(node)} ${{ onrender: (element: Segment<T>) => { element[SEGMENT] = node; } }}>${name(node)}</span>`)}
+        ${lineage(row).map((node, i) => html`${i ? html`<span aria-hidden='true' class='file-tree-separator'>/</span>` : ''}<span class='file-tree-segment' ${part(node)} ${{ onconnect: (element: Segment<T>) => { element[SEGMENT] = node; } }}>${name(node)}</span>`)}
     </span>
 `;
 

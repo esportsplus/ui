@@ -131,6 +131,7 @@ export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number,
                             });
 
                         resize.observe(host);
+                        stack = element;
                         stop = () => resize.disconnect();
                         viewport = host;
                     },
@@ -140,9 +141,6 @@ export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number,
                         stop?.();
                         stop = undefined;
                         stack = viewport = undefined;
-                    },
-                    onrender: (element: HTMLElement) => {
-                        stack = element;
                     },
                     style: () => `--sticky-push: ${push.offset}px`
                 }}

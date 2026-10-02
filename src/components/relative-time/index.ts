@@ -88,7 +88,7 @@ let uid = 0;
 function bind(item: Item, block: string): Attributes {
     return {
         class: () => item.state.exiting && `${block}--exiting`,
-        onrender: (element: Rendered) => {
+        onconnect: (element: Rendered) => {
             element[ITEM] = item;
             item.element = element;
         },
@@ -374,7 +374,7 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                 ${this?.attributes?.[RELATIVE_TIME_TOOLTIP]}
                 ${attributes[RELATIVE_TIME_TOOLTIP]}
                 ${{
-                    onrender: (element: HTMLElement) => {
+                    onconnect: (element: HTMLElement) => {
                         message = element;
                     }
                 }}

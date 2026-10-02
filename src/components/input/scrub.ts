@@ -296,6 +296,9 @@ export default component(
                         skip = false;
                         local.draft = null;
                     },
+                    onconnect: (element: HTMLInputElement) => {
+                        field = element;
+                    },
                     onfocus: (e: FocusEvent) => {
                         show(e.currentTarget as HTMLInputElement, format(state.value));
                     },
@@ -326,9 +329,6 @@ export default component(
 
                             show(field, format(next));
                         }
-                    },
-                    onrender: (element: HTMLInputElement) => {
-                        field = element;
                     },
                     role: 'spinbutton',
                     spellcheck: false,

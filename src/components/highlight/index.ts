@@ -360,7 +360,7 @@ export default component<A>(
                 ${attributes}
                 ${{
                     class: () => `${layers.pointer.variant}${edge}${layers.pointer.visible ? ' highlight--visible' : ''}`,
-                    onrender: (element: HTMLElement) => {
+                    onconnect: (element: HTMLElement) => {
                         nodes.pointer = element;
                         self.push(element);
                     },
@@ -375,6 +375,9 @@ export default component<A>(
                     class: () => `${layers.active.variant}${fill ? '' : ' highlight--unfilled'}${line ? ` highlight--line${edge}` : ''}${layers.active.visible ? ' highlight--visible' : ''}`,
                     onconnect: (element: HTMLElement) => {
                         let container = element.parentElement;
+
+                        nodes.active = element;
+                        self.push(element);
 
                         if (!container) {
                             return;
@@ -494,10 +497,6 @@ export default component<A>(
                     },
                     ondocumentpointerup: release,
                     ondocumenttransitionrun: follow,
-                    onrender: (element: HTMLElement) => {
-                        nodes.active = element;
-                        self.push(element);
-                    },
                     style: () => geometry(layers.active)
                 }}
             ></div>

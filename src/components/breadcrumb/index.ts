@@ -127,6 +127,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                 'aria-label': label,
                 class: () => view.instant && 'breadcrumb--instant',
                 onconnect: (element: HTMLElement) => {
+                    root = element;
                     fit();
 
                     // Also catches webfonts landing late, since they resize the ruler.
@@ -141,9 +142,6 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                 // fit has painted or it would play the fold.
                 onfirstpaint: () => {
                     view.instant = false;
-                },
-                onrender: (element: HTMLElement) => {
-                    root = element;
                 }
             }}
         >
@@ -151,7 +149,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                 aria-hidden='true'
                 class='breadcrumb-ruler'
                 inert
-                ${{ onrender: (element: HTMLElement) => { ruler = element; } }}
+                ${{ onconnect: (element: HTMLElement) => { ruler = element; } }}
             >
                 ${items.map((item, index) => html`
                     <li class='breadcrumb-segment'>
@@ -178,7 +176,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                         href='${item.href}'
                                         ${attributes[BREADCRUMB_LINK]}
                                         ${{
-                                            onrender: (element: Element) => {
+                                            onconnect: (element: Element) => {
                                                 on(element, 'click', (e) => navigate(e, item, index));
                                             }
                                         }}
@@ -202,7 +200,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                             `,
                                             hidden: () => i >= s.hidden,
                                             href: item.href,
-                                            onrender: (element: Element) => {
+                                            onconnect: (element: Element) => {
                                                 on(element, 'click', (e) => navigate(e, item, i + 1));
                                             },
                                             target: '_self'

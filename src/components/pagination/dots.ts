@@ -118,7 +118,7 @@ function template(
             `)}
             <span aria-hidden='true' class='pagination-pill'>
                 ${autoplay && html`
-                    <span class='pagination-fill' onrender='${(el: HTMLElement) => { fill = el; }}'></span>
+                    <span class='pagination-fill' onconnect='${(el: HTMLElement) => { fill = el; }}'></span>
                 `}
             </span>
         </div>

@@ -171,9 +171,6 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                     () => layer.state.active && '--active',
                     () => layer.state.leaving && 'frame--leaving'
                 ],
-                onrender: (element: HTMLElement) => {
-                    layer.element = element;
-                },
                 style: () => layer.state.travel && `--travel-x: ${layer.state.travel.x}; --travel-y: ${layer.state.travel.y};`
             }}
         >
@@ -186,6 +183,9 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         let index = count++;
 
         let attributes: Attributes = {
+            onconnect: (trigger: HTMLElement) => {
+                bound.set(trigger, { content, index, layer: null });
+            },
             ondisconnect: (trigger: HTMLElement) => {
                 let layer = bound.get(trigger)?.layer;
 
@@ -239,9 +239,6 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 }
 
                 request(trigger, content);
-            },
-            onrender: (trigger: HTMLElement) => {
-                bound.set(trigger, { content, index, layer: null });
             }
         };
 
@@ -315,11 +312,13 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
     }
 
     // Rendered at once, so the caller can measure it; a layer that slides in starts out displaced by 'travel'.
-    function create(content: Content, kept: boolean, travel: Layer['state']['travel']) {
+    function create(box: HTMLElement, content: Content, kept: boolean, travel: Layer['state']['travel']) {
         let layer: Layer = { content, kept, state: reactive({ active: false, leaving: false, travel }) };
 
         layers.push(layer);
         stack.flush();
+        // The box holds only the stack, so a pushed layer is its last child.
+        layer.element = box.lastElementChild as HTMLElement;
 
         return layer;
     }
@@ -603,6 +602,9 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 ${attributes}
                 ${mode}
                 ${{
+                    onconnect: (el: HTMLElement) => {
+                        element = el;
+                    },
                     ondisconnect: () => {
                         close();
                         hide();
@@ -634,13 +636,10 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                         if (current && !inside(e.target as Node | null)) {
                             close();
                         }
-                    },
-                    onrender: (el: HTMLElement) => {
-                        element = el;
                     }
                 }}
             >
-                <span class='tooltip-shared-box' ${{ onrender: (el: HTMLElement) => { box = el; } }}>${stack}</span>
+                <span class='tooltip-shared-box' ${{ onconnect: (el: HTMLElement) => { box = el; } }}>${stack}</span>
             </span>
         `;
     }
@@ -771,8 +770,8 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
         let travel = animate ? { x, y } : null,
             layer = entry
-                ? (entry.layer ??= create(entry.content, true, travel))
-                : create(target.content, false, travel),
+                ? (entry.layer ??= create(box, entry.content, true, travel))
+                : create(box, target.content, false, travel),
             node = layer.element;
 
         active = layer;

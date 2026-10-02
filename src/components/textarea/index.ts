@@ -60,13 +60,13 @@ export default component(function(
             ${resize && autoresize(resize, attributes.oninput ?? this?.attributes?.oninput)}
             ${{
                 class: () => state.active && '--active',
+                onconnect: form.input.onconnect(state),
                 onfocusin: () => {
                     state.active = true;
                 },
                 onfocusout: () => {
                     state.active = false;
-                },
-                onrender: form.input.onrender(state)
+                }
             }}
         ></textarea>
     `;

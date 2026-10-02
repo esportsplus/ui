@@ -72,7 +72,6 @@ type Entry = {
 type Field = Attributes & {
     onfocusin?: never;
     onfocusout?: never;
-    onrender?: never;
 };
 
 type Group = {
@@ -501,15 +500,14 @@ export default component(
                     ${{
                         'aria-expanded': () => state.active ? 'true' : 'false',
                         onclick: show,
-                        onconnect: () => {
+                        onconnect: (element: HTMLElement) => {
+                            trigger = element;
+
                             // Capture, so it runs before the site's search, which listens later.
                             addEventListener('keydown', shortcut, true);
                         },
                         ondisconnect: () => {
                             removeEventListener('keydown', shortcut, true);
-                        },
-                        onrender: (element: HTMLElement) => {
-                            trigger = element;
                         }
                     }}
                 >
@@ -700,6 +698,14 @@ export default component(
                                                                 'aria-selected': () => current() === view && selected() === index ? 'true' : 'false',
                                                                 class: () => current() === view && selected() === index && '--active',
                                                                 onclick: () => run(entry),
+                                                                onconnect: (element: HTMLElement) => {
+                                                                    options.set(`${view.key}-${index}`, element);
+                                                                },
+                                                                ondisconnect: (element: HTMLElement) => {
+                                                                    if (options.get(`${view.key}-${index}`) === element) {
+                                                                        options.delete(`${view.key}-${index}`);
+                                                                    }
+                                                                },
                                                                 onpointermove: (e: PointerEvent) => {
                                                                     if (e.pointerType === 'touch') {
                                                                         return;
@@ -714,14 +720,6 @@ export default component(
                                                                     if (index !== selected()) {
                                                                         state.index = index;
                                                                     }
-                                                                },
-                                                                ondisconnect: (element: HTMLElement) => {
-                                                                    if (options.get(`${view.key}-${index}`) === element) {
-                                                                        options.delete(`${view.key}-${index}`);
-                                                                    }
-                                                                },
-                                                                onrender: (element: HTMLElement) => {
-                                                                    options.set(`${view.key}-${index}`, element);
                                                                 }
                                                             }}
                                                         >

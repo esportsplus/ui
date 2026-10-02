@@ -136,6 +136,8 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
                     }
                 },
                 onconnect: (el: HTMLElement) => {
+                    element = el;
+
                     // Layout height, unaffected by the collapsed scale.
                     observer = new ResizeObserver(() => {
                         toast.measured.height = el.offsetHeight;
@@ -144,9 +146,6 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
                 },
                 ondisconnect: () => {
                     observer?.disconnect();
-                },
-                onrender: (el: HTMLElement) => {
-                    element = el;
                 },
                 style: () => {
                     let { active, duration } = toast.state,
