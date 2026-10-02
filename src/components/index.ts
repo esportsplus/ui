@@ -1,6 +1,5 @@
 export { default as accordion } from './accordion';
 export { default as announcement } from './announcement';
-export { default as autosave } from './autosave';
 export { default as breadcrumb } from './breadcrumb';
 export { default as button } from './button';
 export { default as capslock } from './capslock';

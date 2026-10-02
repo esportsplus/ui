@@ -2,7 +2,6 @@ import type { Entry } from '../types';
 
 import accordion from './accordion';
 import announcement from './announcement';
-import autosave from './autosave';
 import banner from './banner';
 import breadcrumb from './breadcrumb';
 import button from './button';
@@ -67,7 +66,6 @@ import usageMeter from './usage-meter';
 const entries: Entry[] = [
     accordion,
     announcement,
-    autosave,
     banner,
     breadcrumb,
     button,

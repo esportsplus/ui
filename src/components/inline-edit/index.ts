@@ -3,6 +3,7 @@ import { flush, reactive } from '@esportsplus/reactivity';
 import input from '~/components/input';
 import textarea from '~/components/textarea';
 import rich from './rich';
+import status, { INLINE_EDIT_STATUS, type Status } from './status';
 import check from '@esportsplus/ui/svg/check.svg';
 import pencil from '@esportsplus/ui/svg/pencil.svg';
 import './scss/index.scss';
@@ -11,15 +12,19 @@ import './scss/index.scss';
 type A = Attributes & {
     [INLINE_EDIT_DISPLAY]?: Attributes;
     [INLINE_EDIT_FIELD]?: Field;
+    [INLINE_EDIT_STATUS]?: Attributes;
     label: string;
     multiline?: boolean;
-    onsave?: (value: string) => void;
+    // A returned promise holds the status at saving until it settles.
+    onsave?: (value: string) => unknown;
     placeholder?: string;
     state?: State;
+    // Shows the save status under the field; pass a Status to read or drive it from outside.
+    status?: boolean | Status;
     value?: string;
 };
 
-type D = Attributes & Pick<A, typeof INLINE_EDIT_DISPLAY | typeof INLINE_EDIT_FIELD>;
+type D = Attributes & Pick<A, typeof INLINE_EDIT_DISPLAY | typeof INLINE_EDIT_FIELD | typeof INLINE_EDIT_STATUS>;
 
 type Field = Parameters<typeof input>[0];
 
@@ -45,6 +50,7 @@ function template(
         multiline = false,
         onsave,
         placeholder = '',
+        status: shown = false,
         value = '',
         state = reactive({ editing: false, saved: false, value }),
         ...attributes
@@ -54,7 +60,13 @@ function template(
         draft = '',
         local = reactive({ draft: '' }),
         parts = { ...this?.attributes?.[INLINE_EDIT_FIELD], ...attributes[INLINE_EDIT_FIELD] },
+        saving = shown ? (shown === true ? reactive<Status>({ phase: 'saved', savedAt: null }) : shown) : null,
+        report = saving ? status.track(saving, () => state.editing && clean(local.draft) !== state.value) : null,
         timer: ReturnType<typeof setTimeout> | undefined;
+
+    function clean(value: string) {
+        return multiline ? value.trim() : value.replace(/\s+/g, ' ').trim();
+    }
 
     function field() {
         let own = {
@@ -105,7 +117,7 @@ function template(
             display?.focus();
         }
 
-        let next = multiline ? local.draft.trim() : local.draft.replace(/\s+/g, ' ').trim();
+        let next = clean(local.draft);
 
         if (!commit || next === state.value) {
             return;
@@ -113,8 +125,10 @@ function template(
 
         state.value = next;
         state.saved = true;
-        onsave?.(next);
 
+        let result = onsave?.(next);
+
+        report?.(result);
         clearTimeout(timer);
         timer = setTimeout(() => {
             state.saved = false;
@@ -169,14 +183,16 @@ function template(
                 <svg class='inline-edit-icon-pencil'><use href='#${pencil}' /></svg>
                 <svg class='inline-edit-icon-check'><use href='#${check}' /></svg>
             </span>
+            ${saving && status.render(saving, this?.attributes?.[INLINE_EDIT_STATUS], attributes[INLINE_EDIT_STATUS])}
         </div>
     `;
 }
 
 
-const plain = component(template, { display: INLINE_EDIT_DISPLAY, field: INLINE_EDIT_FIELD });
+const plain = component(template, { display: INLINE_EDIT_DISPLAY, field: INLINE_EDIT_FIELD, status: INLINE_EDIT_STATUS });
 
 const inlineEdit: typeof plain & { rich: typeof rich } = Object.assign(plain, { rich });
 
 
 export default inlineEdit;
+export type { Status };

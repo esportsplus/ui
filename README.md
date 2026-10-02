@@ -64,7 +64,7 @@ html`
 | `form` | Form wrapper | `form.action`, `form.input` |
 | `cc` | Payment card form (`input` fields) with a live card preview that flips for the CVC, brand detection, caret-safe formatting and Luhn/expiry validation; `onvalid` receives brand, last 4, expiry and name | `cc.field`, `cc.submit` |
 | `colorPicker` | Saturation pad, hue/opacity sliders (`range`), hex field (`input`), and an animated recent-colors row (hidden while empty); `value` is required, no surface of its own, so place it in a `card` | `colorPicker.swatch` |
-| `inlineEdit` | Click-to-edit text that swaps in an `input` (or `textarea` with `multiline`) without moving a glyph; Enter/blur saves, Escape cancels, `onsave` fires. `inlineEdit.rich` edits markdown in place: `features` whitelists what each field allows (bold, italic, strike, code, highlight, link, heading, quote, codeblock, bullet, ordered, task, clear, copy), and only those appear in its selection toolbar, shortcuts, pastes and saved markdown | `inlineEdit.display`, `inlineEdit.field`, `inlineEdit.rich.editor`, `inlineEdit.rich.toolbar`, `inline-edit--seamless` |
+| `inlineEdit` | Click-to-edit text that swaps in an `input` (or `textarea` with `multiline`) without moving a glyph; Enter/blur saves, Escape cancels, `onsave` fires. `inlineEdit.rich` edits markdown in place as a controlled editor: the text is a document of blocks and marks rendered by the template, every input (typing, deleting, Enter, formatting, paste, drop, an input method's composition) changes that document rather than the DOM, and it keeps its own undo/redo (Mod+Z, Mod+Shift+Z/Mod+Y). `features` whitelists what each field allows (bold, italic, strike, code, highlight, link, heading, quote, codeblock, bullet, ordered, task, clear, copy), and only those appear in its selection toolbar, shortcuts, pastes and saved markdown. `status: true` (or a `{ phase, savedAt }` object to read or drive it) shows the save status under either field: unsaved while the edit differs, saving while a promise returned by `onsave` is pending, then saved, rolling to "Saved 3 min ago" | `inlineEdit.display`, `inlineEdit.field`, `inlineEdit.status`, `inlineEdit.rich.editor`, `inlineEdit.rich.status`, `inlineEdit.rich.toolbar`, `inline-edit--seamless` |
 
 ### Interactive
 | Component | Description | Variants |
@@ -85,7 +85,6 @@ html`
 ### Display
 | Component | Description |
 |-----------|-------------|
-| `autosave` | Save status driven by `state.status` (`unsaved`, `saving`, `saved`) and `state.savedAt` |
 | `counter` | Rolling-digit number with locale-aware currency formatting, sized by the surrounding `font-size`; `--color` sets the digits (`counter--inherit` takes the text color) and a `--fill` gradient replaces it (`counter--shade`); screen readers get the formatted value |
 | `loader` | Loading spinner |
 | `loading` | Border loading indicator |

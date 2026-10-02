@@ -1,10 +1,19 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { inlineEdit } from '@esportsplus/ui';
+import type { Status } from '~/components/inline-edit';
 import './inline-edit.scss';
 
 
 const SAVED_FOR = 1600;
+
+
+// Stands in for the request, which never takes the same time twice.
+function request() {
+    return new Promise<void>((resolve) => {
+        setTimeout(resolve, 650 + Math.random() * 350);
+    });
+}
 
 
 export default {
@@ -132,6 +141,44 @@ export default {
                 `;
             },
             title: 'one line, bold + italic only'
+        },
+        {
+            render: () => html`
+                <article aria-label='Trip notes' class='inline-edit-demo inline-edit-demo--page'>
+                    ${inlineEdit({
+                        class: 'inline-edit--seamless inline-edit-demo-title',
+                        label: 'Title',
+                        onsave: request,
+                        placeholder: 'Untitled',
+                        value: 'Trip notes'
+                    })}
+                    ${inlineEdit.rich({
+                        class: 'inline-edit--seamless inline-edit-demo-bio',
+                        features: ['bold', 'italic', 'link', 'bullet', 'task'],
+                        label: 'Note',
+                        multiline: true,
+                        onsave: request,
+                        placeholder: 'Start writing',
+                        status: true,
+                        value: [
+                            'Pack light this time. Two shirts, the **grey jacket**, and the charger that actually works.',
+                            '- [x] Book the train',
+                            '- [ ] Print the tickets'
+                        ].join('\n\n')
+                    })}
+                </article>
+            `,
+            title: 'save status'
+        },
+        {
+            render: () => html`
+                <div class='inline-edit-demo inline-edit-demo--plain'>
+                    ${inlineEdit({ label: 'Unsaved', status: reactive<Status>({ phase: 'unsaved', savedAt: null }), value: 'Edited, not saved yet' })}
+                    ${inlineEdit({ label: 'Saving', status: reactive<Status>({ phase: 'saving', savedAt: null }), value: 'On its way' })}
+                    ${inlineEdit({ label: 'Saved', status: reactive<Status>({ phase: 'saved', savedAt: Date.now() - 12 * 60_000 }), value: 'Saved a while ago' })}
+                </div>
+            `,
+            title: 'save status states'
         }
     ]
 };

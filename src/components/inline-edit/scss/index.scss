@@ -186,6 +186,116 @@
         }
     }
 
+    // One set of three dots throughout: a single dot means there are changes, it splits into three that pulse while
+    // saving, and the three gather back into the middle as the check draws.
+    &-status {
+        align-items: center;
+        color: var(--color);
+        display: flex;
+        flex-shrink: 0;
+        font-size: var(--font-size);
+        gap: var(--gap);
+        grid-area: 2 / 1;
+        margin-top: var(--status-margin-top);
+        padding-inline-start: var(--box-padding-start);
+        white-space: nowrap;
+        width: var(--width);
+
+        &-announcement {
+            @extend %hidden-visually;
+        }
+
+        &-check {
+            fill: none;
+            height: 100%;
+            inset: 0;
+            opacity: 0;
+            position: absolute;
+            stroke: var(--check-color);
+            stroke-dasharray: 1;
+            stroke-dashoffset: 1;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: var(--check-stroke-width);
+            transition:
+                opacity var(--exit-duration) var(--timing-function),
+                stroke-dashoffset var(--exit-duration) var(--timing-function);
+            width: 100%;
+        }
+
+        &-dot {
+            height: var(--dot-size);
+            opacity: 0;
+            position: absolute;
+            scale: 0.5;
+            transition:
+                opacity var(--move-duration) var(--timing-function),
+                scale var(--move-duration) var(--timing-function),
+                translate var(--move-duration) var(--timing-function);
+            width: var(--dot-size);
+
+            &::before {
+                background: currentColor;
+                border-radius: 100%;
+                content: '';
+                display: block;
+                height: 100%;
+                width: 100%;
+            }
+        }
+
+        &-icon {
+            display: grid;
+            flex-shrink: 0;
+            height: var(--icon-size);
+            place-items: center;
+            position: relative;
+            width: var(--icon-size);
+        }
+
+        &-label {
+            display: grid;
+            flex: 1;
+            min-width: 0;
+
+            &-text {
+                grid-area: 1 / 1;
+
+                &--enter {
+                    animation: inline-edit-status-enter var(--enter-duration) var(--timing-function) both;
+                }
+
+                &--exit {
+                    animation: inline-edit-status-exit var(--exit-duration) var(--timing-function) both;
+                    opacity: 0;
+                }
+            }
+        }
+
+        &.inline-edit-status--saved .inline-edit-status-check {
+            opacity: 1;
+            stroke-dashoffset: 0;
+            transition:
+                opacity var(--check-duration) var(--timing-function) var(--check-delay),
+                stroke-dashoffset var(--check-duration) var(--timing-function) var(--check-delay);
+        }
+
+        &.inline-edit-status--saving .inline-edit-status-dot {
+            opacity: 1;
+            scale: 1;
+            translate: calc((var(--i) - 1) * var(--dot-gap));
+
+            &::before {
+                animation: inline-edit-status-pulse var(--pulse-duration) ease-in-out calc(var(--i) * var(--pulse-stagger)) infinite;
+            }
+        }
+
+        &.inline-edit-status--unsaved .inline-edit-status-dot:nth-child(2) {
+            opacity: 1;
+            scale: 1.5;
+        }
+    }
+
     // The checklist box: an atomic inline, so the done item's strike-through doesn't run across it.
     &-task {
         display: inline-flex;
@@ -279,12 +389,20 @@
         @extend %hidden-visually;
     }
 
+    // Placed over the selection through '--toolbar-x'/'--toolbar-y', scaling out of it from '--toolbar-origin'.
     // Visible overflow lets the block select's list hang outside the bar.
     & #{&}-toolbar {
         left: 0;
         overflow: visible;
         padding: 4px;
         top: 0;
+        transform-origin: var(--toolbar-origin);
+        translate: var(--toolbar-x) var(--toolbar-y);
+    }
+
+    // Shown afresh, it jumps to the selection rather than gliding from where it last was.
+    & #{&}-toolbar--instant {
+        transition: none;
     }
 
     // The block select is a bare trigger here; its own list still opens as a panel.
@@ -310,9 +428,9 @@
         height: var(--toolbar-button-size);
         outline: none;
         transition:
-            background-color 150ms ease-out,
-            color 150ms ease-out,
-            scale 150ms ease-out;
+            background-color var(--toolbar-button-duration) ease-out,
+            color var(--toolbar-button-duration) ease-out,
+            scale var(--toolbar-button-duration) ease-out;
         width: var(--toolbar-button-size);
 
         &:active {
@@ -383,7 +501,57 @@
     }
 }
 
+@keyframes inline-edit-status-enter {
+    from {
+        filter: blur(var(--blur));
+        opacity: 0;
+        translate: 0 var(--shift);
+    }
+}
+
+@keyframes inline-edit-status-exit {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        filter: blur(var(--blur));
+        opacity: 0;
+        translate: 0 calc(var(--shift) * -1);
+    }
+}
+
+@keyframes inline-edit-status-pulse {
+    0%, 100% {
+        opacity: 0.25;
+    }
+
+    40% {
+        opacity: 1;
+    }
+}
+
+// Every motion runs on these durations, so zeroing them stills the component.
 @media (prefers-reduced-motion: reduce) {
+    .inline-edit {
+        --icon-swap-duration: 0s;
+        --toolbar-button-duration: 0s;
+
+        & #{&}-status {
+            --check-delay: 0s;
+            --check-duration: 0s;
+            --enter-duration: 0s;
+            --exit-duration: 0s;
+            --move-duration: 0s;
+            --pulse-duration: 0s;
+            --pulse-stagger: 0s;
+        }
+
+        & #{&}-toolbar {
+            --transition-duration: 0s;
+        }
+    }
+
     .inline-edit-icon svg {
         filter: none !important;
         scale: 1 !important;

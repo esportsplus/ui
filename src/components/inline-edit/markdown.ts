@@ -1,11 +1,10 @@
+import { block, list, nest, sort, text, type Block, type Doc, type Kind, type Mark, type Run, type Tree } from './model';
 import { safe } from './utilities';
 
 
-type Feature = Block | Mark | 'clear' | 'copy';
+type Feature = Group | Mark | 'clear' | 'copy';
 
-type Block = 'bullet' | 'codeblock' | 'heading' | 'ordered' | 'quote' | 'task';
-
-type Mark = 'bold' | 'code' | 'highlight' | 'italic' | 'link' | 'strike';
+type Group = 'bullet' | 'codeblock' | 'heading' | 'ordered' | 'quote' | 'task';
 
 type Rule = {
     mark: Mark;
@@ -13,10 +12,8 @@ type Rule = {
 };
 
 
-const BLOCKS = new Set(['BLOCKQUOTE', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'OL', 'P', 'PRE', 'UL']);
-
 // Escaped ASCII punctuation is parked on the private use area while marks are matched, so it can't delimit one.
-const PARKED = /[\uE000-\uE07F]/g;
+const PARKED = /[-]/g;
 
 // Earliest match wins; on a tie the rule listed first does, so '**' is read as bold before italic sees a '*'.
 const RULES: Rule[] = [
@@ -30,131 +27,6 @@ const RULES: Rule[] = [
     { mark: 'italic', pattern: /(?<![\w\\])_(?=\S)([^\n]*?\S)_(?!\w)|(?<!\*)\*(?=[^\s*])([^\n]*?[^\s*])\*(?!\*)/ }
 ];
 
-const TAGS: Record<Mark, string> = {
-    bold: 'strong',
-    code: 'code',
-    highlight: 'mark',
-    italic: 'em',
-    link: 'a',
-    strike: 's'
-};
-
-// Aliases the browser or a paste can leave behind.
-const MARKS: Record<string, Mark> = {
-    A: 'link',
-    B: 'bold',
-    CODE: 'code',
-    DEL: 'strike',
-    EM: 'italic',
-    I: 'italic',
-    MARK: 'highlight',
-    S: 'strike',
-    STRIKE: 'strike',
-    STRONG: 'bold'
-};
-
-
-function append(parent: Node, text: string) {
-    let lines = text.split('\n');
-
-    for (let i = 0, n = lines.length; i < n; i++) {
-        if (i > 0) {
-            parent.appendChild(document.createElement('br'));
-        }
-
-        if (lines[i]) {
-            parent.appendChild(document.createTextNode(lines[i]));
-        }
-    }
-}
-
-function block(element: HTMLElement, features: Set<Feature>): string {
-    let tag = element.tagName;
-
-    if (tag[0] === 'H' && tag.length === 2) {
-        let text = paragraph([...element.childNodes], features);
-
-        return features.has('heading') && text ? `${'#'.repeat(Math.min(Number(tag[1]), 3))} ${text.replace(/\n/g, ' ')}` : text;
-    }
-
-    if (tag === 'BLOCKQUOTE') {
-        let text = paragraph(flatten(element), features);
-
-        return features.has('quote') && text ? text.split('\n').map((line) => `> ${line}`).join('\n') : text;
-    }
-
-    if (tag === 'PRE') {
-        let text = plain(element).replace(/\n+$/, '');
-
-        return features.has('codeblock') ? `\`\`\`\n${text}\n\`\`\`` : paragraph([document.createTextNode(text)], features);
-    }
-
-    if (tag === 'UL' || tag === 'OL') {
-        let items = [...element.children].filter((child) => child.tagName === 'LI') as HTMLElement[],
-            kind: Block = tag === 'OL' ? 'ordered' : element.hasAttribute('data-task') || items.some((item) => item.hasAttribute('data-checked')) ? 'task' : 'bullet',
-            lines: string[] = [];
-
-        for (let i = 0, n = items.length; i < n; i++) {
-            let text = paragraph(flatten(items[i]), features).replace(/\n/g, ' ');
-
-            if (!features.has(kind)) {
-                lines.push(text);
-            }
-            else if (kind === 'ordered') {
-                lines.push(`${i + 1}. ${text}`);
-            }
-            else if (kind === 'task') {
-                lines.push(`- [${items[i].getAttribute('data-checked') === 'true' ? 'x' : ' '}] ${text}`);
-            }
-            else {
-                lines.push(`- ${text}`);
-            }
-        }
-
-        return lines.filter(Boolean).join(features.has(kind) ? '\n' : '\n\n');
-    }
-
-    // A div the browser wrapped around blocks of its own.
-    if ([...element.children].some((child) => BLOCKS.has(child.tagName))) {
-        return blocks(element, features);
-    }
-
-    return paragraph([...element.childNodes], features);
-}
-
-function blocks(root: Node, features: Set<Feature>) {
-    let out: string[] = [],
-        run: Node[] = [];
-
-    let flush = () => {
-        let text = paragraph(run, features);
-
-        if (text) {
-            out.push(text);
-        }
-
-        run = [];
-    };
-
-    for (let node of root.childNodes) {
-        if (node.nodeType === Node.ELEMENT_NODE && BLOCKS.has((node as Element).tagName)) {
-            flush();
-
-            let text = block(node as HTMLElement, features);
-
-            if (text) {
-                out.push(text);
-            }
-        }
-        else {
-            run.push(node);
-        }
-    }
-
-    flush();
-
-    return out.join('\n\n');
-}
 
 // Only characters that could open or close enabled formatting are escaped, so prose like 'snake_case' or 'a == b'
 // stays readable in the saved markdown.
@@ -194,96 +66,65 @@ function escape(text: string, features: Set<Feature>) {
     return text;
 }
 
-// Nested blocks inside a quote or list item are read as lines of it.
-function flatten(element: HTMLElement) {
-    let nodes: Node[] = [];
-
-    for (let node of element.childNodes) {
-        if (node.nodeType === Node.ELEMENT_NODE && BLOCKS.has((node as Element).tagName)) {
-            if (nodes.length) {
-                nodes.push(document.createElement('br'));
-            }
-
-            nodes.push(...flatten(node as HTMLElement));
-        }
-        else {
-            nodes.push(node);
-        }
+// The first character a tree writes, to choose an italic delimiter that can't join the text after it.
+function first(tree: Tree | undefined): string {
+    if (!tree) {
+        return '';
     }
 
-    return nodes;
+    return 'text' in tree ? tree.text[0] ?? '' : first(tree.children[0]);
 }
 
-function inline(nodes: Iterable<Node>, features: Set<Feature>): string {
+function inline(trees: Tree[], features: Set<Feature>): string {
     let out = '';
 
-    for (let node of nodes) {
-        if (node.nodeType === Node.TEXT_NODE) {
-            out += escape((node as Text).data.replace(/\u00A0/g, ' '), features);
+    for (let i = 0, n = trees.length; i < n; i++) {
+        let tree = trees[i];
+
+        if ('text' in tree) {
+            out += escape(tree.text.replace(/ /g, ' '), features);
             continue;
         }
 
-        if (node.nodeType !== Node.ELEMENT_NODE) {
+        if (!features.has(tree.mark)) {
+            out += inline(tree.children, features);
             continue;
         }
 
-        let element = node as HTMLElement,
-            mark = MARKS[element.tagName];
+        if (tree.mark === 'code') {
+            let value = plain(tree).replace(/\n/g, ' ');
 
-        // Non-editable islands are interface (a checklist box), not content.
-        if (element.getAttribute('contenteditable') === 'false') {
+            out += value.includes('`') ? `\`\` ${value} \`\`` : `\`${value}\``;
             continue;
         }
 
-        if (element.tagName === 'BR') {
-            out += '\n';
-            continue;
-        }
-
-        if (!mark || !features.has(mark)) {
-            out += inline(element.childNodes, features);
-            continue;
-        }
-
-        if (mark === 'code') {
-            let text = plain(element).replace(/\n/g, ' ');
-
-            if (text) {
-                out += text.includes('`') ? `\`\` ${text} \`\`` : `\`${text}\``;
-            }
-
-            continue;
-        }
-
-        let text = inline(element.childNodes, features),
-            core = text.trim();
+        let value = inline(tree.children, features),
+            core = value.trim();
 
         if (!core) {
-            out += text;
+            out += value;
             continue;
         }
 
         // Delimiters only bind to text, so surrounding spaces move outside them.
-        let lead = text.slice(0, text.indexOf(core)),
-            trail = text.slice(text.indexOf(core) + core.length);
+        let lead = value.slice(0, value.indexOf(core)),
+            trail = value.slice(value.indexOf(core) + core.length);
 
-        if (mark === 'link') {
-            let href = element.getAttribute('href') ?? '';
-
+        if (tree.mark === 'link') {
             // encodeURIComponent leaves parentheses alone, and an unbalanced one would end the address early.
-            out += lead + (safe(href) ? `[${core}](${href.replace(/[()\s]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`)})` : core) + trail;
+            out += lead + (safe(tree.href) ? `[${core}](${tree.href.replace(/[()\s]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`)})` : core) + trail;
         }
         else {
-            out += lead + wrap(mark, core, (out + lead).slice(-1), trail[0] ?? element.nextSibling?.textContent?.[0] ?? '') + trail;
+            out += lead + wrap(tree.mark, core, (out + lead).slice(-1), trail[0] ?? first(trees[i + 1])) + trail;
         }
     }
 
     return out;
 }
 
-// Inline markdown into 'parent'; '\n' becomes a line break.
-function marks(text: string, features: Set<Feature>, parent: Node) {
-    while (text) {
+// Inline markdown as runs styled on top of 'style'.
+function marks(value: string, features: Set<Feature>, style: Run, out: Run[]) {
+    while (value) {
         let found: { match: RegExpExecArray, rule: Rule } | null = null;
 
         for (let i = 0, n = RULES.length; i < n; i++) {
@@ -293,7 +134,7 @@ function marks(text: string, features: Set<Feature>, parent: Node) {
                 continue;
             }
 
-            let match = rule.pattern.exec(text);
+            let match = rule.pattern.exec(value);
 
             if (match && (!found || match.index < found.match.index)) {
                 found = { match, rule };
@@ -301,45 +142,42 @@ function marks(text: string, features: Set<Feature>, parent: Node) {
         }
 
         if (!found) {
-            append(parent, unpark(text));
+            out.push({ ...style, text: unpark(value) });
             return;
         }
 
         let { match, rule } = found;
 
         if (match.index > 0) {
-            append(parent, unpark(text.slice(0, match.index)));
+            out.push({ ...style, text: unpark(value.slice(0, match.index)) });
         }
 
-        text = text.slice(match.index + match[0].length);
-
-        let element = document.createElement(TAGS[rule.mark]);
+        value = value.slice(match.index + match[0].length);
 
         if (rule.mark === 'code') {
-            element.textContent = unpark(match[1], true);
+            out.push({ href: style.href, marks: sort([...style.marks, 'code']), text: unpark(match[1], true) });
         }
         else if (rule.mark === 'link') {
             let href = unpark(match[2]);
 
-            if (!safe(href)) {
-                marks(match[1], features, parent);
-                continue;
-            }
-
-            element.setAttribute('href', href);
-            marks(match[1], features, element);
+            marks(match[1], features, safe(href) ? { ...style, href } : style, out);
         }
         else {
-            marks(match[1] ?? match[2], features, element);
+            marks(match[1] ?? match[2], features, { ...style, marks: sort([...style.marks, rule.mark]) }, out);
         }
-
-        parent.appendChild(element);
     }
 }
 
+// A doubled '=' or '~' delimits only when it touches text on one side.
+function pairs(text: string, c: string) {
+    return text.replace(new RegExp(`\\${c}\\${c}`, 'g'), (pair: string, i: number, s: string) =>
+        /\S/.test(s[i - 1] ?? '') || /\S/.test(s[i + 2] ?? '') ? `\\${c}\\${c}` : pair
+    );
+}
+
 // Paragraph text, with a line that would open an enabled block escaped so it reads back as text.
-function paragraph(nodes: Node[], features: Set<Feature>) {
-    return inline(nodes, features)
+function paragraph(runs: Run[], features: Set<Feature>) {
+    return inline(nest(runs), features)
         .split('\n')
         .map((line) => {
             line = line.trim();
@@ -366,31 +204,18 @@ function paragraph(nodes: Node[], features: Set<Feature>) {
         .replace(/^\n+|\n+$/g, '');
 }
 
-// A doubled '=' or '~' delimits only when it touches text on one side.
-function pairs(text: string, c: string) {
-    return text.replace(new RegExp(`\\${c}\\${c}`, 'g'), (pair: string, i: number, s: string) =>
-        /\S/.test(s[i - 1] ?? '') || /\S/.test(s[i + 2] ?? '') ? `\\${c}\\${c}` : pair
-    );
-}
-
 function park(text: string) {
     return text.replace(/\\([!-/:-@[-`{-~])/g, (_, c: string) => String.fromCharCode(0xE000 + c.charCodeAt(0)));
 }
 
-function plain(element: Node): string {
-    let out = '';
+function plain(tree: Tree): string {
+    return 'text' in tree ? tree.text : tree.children.map(plain).join('');
+}
 
-    for (let node of element.childNodes) {
-        if (node.nodeType === Node.TEXT_NODE) {
-            out += (node as Text).data;
-        }
-        else if ((node as Element).tagName === 'BR') {
-            out += '\n';
-        }
-        else if ((node as Element).getAttribute?.('contenteditable') !== 'false') {
-            out += plain(node);
-        }
-    }
+function runs(value: string, features: Set<Feature>) {
+    let out: Run[] = [];
+
+    marks(park(value), features, { href: '', marks: [], text: '' }, out);
 
     return out;
 }
@@ -414,18 +239,61 @@ function wrap(mark: Mark, text: string, before: string, after: string) {
     }
 }
 
+function write(group: Block[], features: Set<Feature>): string {
+    let { kind, runs } = group[0];
 
+    if (list(kind)) {
+        let enabled = features.has(kind as Group),
+            lines: string[] = [];
 
-// Builds nodes directly rather than through innerHTML, so nothing in the text is ever read as markup.
-const parse = (markdown: string, features: Set<Feature>, multiline: boolean) => {
-    let fragment = document.createDocumentFragment();
+        for (let i = 0, n = group.length; i < n; i++) {
+            let value = paragraph(group[i].runs, features).replace(/\n/g, ' ');
 
-    if (!multiline) {
-        marks(park(markdown.replace(/\s+/g, ' ').trim()), features, fragment);
-        return fragment;
+            if (!enabled) {
+                lines.push(value);
+            }
+            else if (kind === 'ordered') {
+                lines.push(`${i + 1}. ${value}`);
+            }
+            else if (kind === 'task') {
+                lines.push(`- [${group[i].checked ? 'x' : ' '}] ${value}`);
+            }
+            else {
+                lines.push(`- ${value}`);
+            }
+        }
+
+        return lines.filter(Boolean).join(enabled ? '\n' : '\n\n');
     }
 
-    let lines = markdown.replace(/\r\n?/g, '\n').split('\n'),
+    if (kind === 'codeblock') {
+        let value = text(runs).replace(/\n+$/, '');
+
+        return features.has('codeblock') ? `\`\`\`\n${value}\n\`\`\`` : paragraph([{ href: '', marks: [], text: value }], features);
+    }
+
+    let value = paragraph(runs, features);
+
+    if (kind === 'quote') {
+        return features.has('quote') && value ? value.split('\n').map((line) => `> ${line}`).join('\n') : value;
+    }
+
+    if (kind[0] === 'h') {
+        return features.has('heading') && value ? `${'#'.repeat(Number(kind[1]))} ${value.replace(/\n/g, ' ')}` : value;
+    }
+
+    return value;
+}
+
+
+// Always at least one block, so there is a line to put the caret on.
+const parse = (markdown: string, features: Set<Feature>, multiline: boolean): Doc => {
+    if (!multiline) {
+        return [block('paragraph', runs(markdown.replace(/\s+/g, ' ').trim(), features))];
+    }
+
+    let doc: Doc = [],
+        lines = markdown.replace(/\r\n?/g, '\n').split('\n'),
         n = lines.length;
 
     let opens = (line: string) =>
@@ -445,92 +313,95 @@ const parse = (markdown: string, features: Set<Feature>, multiline: boolean) => 
         }
 
         if (features.has('codeblock') && line.startsWith('```')) {
-            let body: string[] = [],
-                pre = document.createElement('pre');
+            let body: string[] = [];
 
             for (i++; i < n && !lines[i].startsWith('```'); i++) {
                 body.push(lines[i]);
             }
 
-            pre.textContent = body.join('\n');
-            fragment.appendChild(pre);
+            doc.push(block('codeblock', body.length && body.join('\n') ? [{ href: '', marks: [], text: body.join('\n') }] : []));
             i++;
             continue;
         }
 
         if (features.has('heading') && (match = line.match(/^(#{1,3})\s+(.*)$/))) {
-            let heading = document.createElement(`h${match[1].length}`);
-
-            marks(park(match[2].trim()), features, heading);
-            fragment.appendChild(heading);
+            doc.push(block(`h${match[1].length}` as Kind, runs(match[2].trim(), features)));
             i++;
             continue;
         }
 
         if (features.has('quote') && line.startsWith('>')) {
-            let body: string[] = [],
-                quote = document.createElement('blockquote');
+            let body: string[] = [];
 
             for (; i < n && lines[i].startsWith('>'); i++) {
                 body.push(lines[i].replace(/^>\s?/, ''));
             }
 
-            marks(park(body.join('\n')), features, quote);
-            fragment.appendChild(quote);
+            doc.push(block('quote', runs(body.join('\n'), features)));
             continue;
         }
 
-        let list = (
+        let kind = (
             (features.has('task') && /^[-*+]\s+\[[ xX]\]\s/.test(line) && 'task') ||
             (features.has('bullet') && /^[-*+]\s/.test(line) && 'bullet') ||
             (features.has('ordered') && /^\d+[.)]\s/.test(line) && 'ordered')
-        ) as Block | false;
+        ) as Kind | false;
 
-        if (list) {
-            let element = document.createElement(list === 'ordered' ? 'ol' : 'ul'),
-                pattern = list === 'task' ? /^[-*+]\s+\[([ xX])\]\s+(.*)$/ : list === 'bullet' ? /^[-*+]\s+()(.*)$/ : /^\d+[.)]\s+()(.*)$/;
-
-            if (list === 'task') {
-                element.setAttribute('data-task', '');
-            }
+        if (kind) {
+            let pattern = kind === 'task' ? /^[-*+]\s+\[([ xX])\]\s+(.*)$/ : kind === 'bullet' ? /^[-*+]\s+()(.*)$/ : /^\d+[.)]\s+()(.*)$/;
 
             for (; i < n && (match = lines[i].match(pattern)); i++) {
-                let item = document.createElement('li');
-
-                if (list === 'task') {
-                    item.setAttribute('data-checked', match[1] === ' ' ? 'false' : 'true');
-                }
-
-                marks(park(match[2].trim()), features, item);
-                element.appendChild(item);
+                doc.push(block(kind, runs(match[2].trim(), features), kind === 'task' && match[1] !== ' '));
             }
 
-            fragment.appendChild(element);
             continue;
         }
 
-        let body: string[] = [],
-            p = document.createElement('p');
+        let body: string[] = [];
 
         for (; i < n && lines[i].trim() && (!body.length || !opens(lines[i])); i++) {
             body.push(lines[i].trim());
         }
 
-        marks(park(body.join('\n')), features, p);
-        fragment.appendChild(p);
+        doc.push(block('paragraph', runs(body.join('\n'), features)));
     }
 
-    return fragment;
+    if (!doc.length) {
+        doc.push(block('paragraph', []));
+    }
+
+    return doc;
 };
 
-const serialize = (root: Node, features: Set<Feature>, multiline: boolean) => {
+const serialize = (doc: Doc, features: Set<Feature>, multiline: boolean) => {
     if (!multiline) {
-        return inline(root.childNodes, features).replace(/\s*\n\s*/g, ' ').trim();
+        return doc.map((b) => inline(nest(b.runs), features)).join(' ').replace(/\s*\n\s*/g, ' ').trim();
     }
 
-    return blocks(root, features).trim();
+    let out: string[] = [];
+
+    // Consecutive items of one kind of list are one list.
+    for (let i = 0, n = doc.length; i < n;) {
+        let j = i + 1;
+
+        if (list(doc[i].kind)) {
+            while (j < n && doc[j].kind === doc[i].kind) {
+                j++;
+            }
+        }
+
+        let value = write(doc.slice(i, j), features);
+
+        if (value) {
+            out.push(value);
+        }
+
+        i = j;
+    }
+
+    return out.join('\n\n').trim();
 };
 
 
-export { BLOCKS, MARKS, TAGS, parse, plain, serialize };
-export type { Block, Feature, Mark };
+export { parse, serialize };
+export type { Feature, Group };

@@ -24,6 +24,7 @@
     --placeholder-color: var(--color-text-300);
     --quote-border-color: var(--color-border-300);
     --quote-color: var(--color-text-400);
+    --status-margin-top: 4px;
     --task-border-color: var(--color-text-300);
     --task-check-color: var(--color-white-300);
     --task-checked-color: var(--color-text-500);
@@ -33,6 +34,7 @@
         0 0 0 1px color-mix(in oklab, var(--color-black-300) 6%, transparent),
         0 1px 2px color-mix(in oklab, var(--color-black-300) 6%, transparent),
         0 6px 16px -6px color-mix(in oklab, var(--color-black-300) 12%, transparent);
+    --toolbar-button-duration: 150ms;
     --toolbar-button-size: 36px;
     --toolbar-color: var(--color-text-500);
     --toolbar-color-muted: var(--color-text-300);
@@ -42,6 +44,29 @@
     --toolbar-icon-size: 16px;
     --toolbar-select-width: 132px;
     --toolbar-url-width: 220px;
+
+    // The save status, as wide as its longest label so the icon never shifts and old and new words cross in one spot.
+    & #{&}-status {
+        --blur: 3px;
+        --check-color: var(--color-text-500);
+        --check-delay: 0.12s;
+        --check-duration: 0.35s;
+        --check-stroke-width: 2.4;
+        --color: var(--color-text-300);
+        --dot-gap: calc(var(--icon-size) * 0.3125);
+        --dot-size: calc(var(--icon-size) / 4);
+        --enter-duration: 0.22s;
+        --exit-duration: 0.12s;
+        --font-size: var(--font-size-300);
+        --gap: 0.5rem;
+        --icon-size: 1.25em;
+        --move-duration: 0.4s;
+        --pulse-duration: 1s;
+        --pulse-stagger: 0.16s;
+        --shift: 3px;
+        --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --width: 11em;
+    }
 
     // Feeds the reused tooltip content; qualified so it wins over the tooltip defaults regardless of stylesheet order.
     & #{&}-toolbar {
