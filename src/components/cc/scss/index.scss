@@ -111,11 +111,11 @@
             opacity: 0.45;
         }
 
-        &[data-roll='1'] {
+        &.cc-digit--roll-1 {
             animation: cc-digit-1 var(--digit-duration) ease-out;
         }
 
-        &[data-roll='2'] {
+        &.cc-digit--roll-2 {
             animation: cc-digit-2 var(--digit-duration) ease-out;
         }
     }
@@ -406,7 +406,7 @@
         transform: none;
     }
 
-    .cc-digit[data-roll] {
+    .cc-digit:is(.cc-digit--roll-1, .cc-digit--roll-2) {
         animation-name: cc-fade;
     }
 

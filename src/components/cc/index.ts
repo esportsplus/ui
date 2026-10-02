@@ -441,8 +441,7 @@ export default component(
                             <div class='cc-number' ${{ onrender: (element: HTMLElement) => { regions.number = element; } }}>
                                 ${html.reactive(slots, (slot) => html`
                                     <span
-                                        class='cc-digit ${() => slot.gap && 'cc-digit--gap'} ${() => slot.char === '•' && 'cc-digit--placeholder'}'
-                                        data-roll='${() => slot.roll}'
+                                        class='cc-digit ${() => slot.gap && 'cc-digit--gap'} ${() => slot.char === '•' && 'cc-digit--placeholder'} ${() => slot.roll && `cc-digit--roll-${slot.roll}`}'
                                     >${() => slot.char}</span>
                                 `)}
                             </div>
