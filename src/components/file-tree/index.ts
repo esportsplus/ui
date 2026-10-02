@@ -1,4 +1,4 @@
-import { effect, flush, peek, reactive, read, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
+import { effect, flush, peek, reactive, ReactiveArray, read, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { write as writeText } from '~/components/clipboard';
 import highlight from '~/components/highlight';
@@ -153,6 +153,14 @@ type Element = {
 };
 
 // Where guides show: always, only while the pointer is over the tree, or never.
+// A row below a folder that folds, where it sat before the list swapped rows; drawn while the edge travels.
+type Ghost = {
+    left: number;
+    row: Row;
+    top: number;
+    width: number;
+};
+
 type Indicator = 'always' | 'hover' | 'never';
 
 type Layout = Pick<Row, 'depth' | 'element' | 'gaps' | 'parent' | 'position' | 'scope' | 'segments' | 'size'>;
@@ -163,11 +171,6 @@ type Mark = {
     label: string;
     parts: Part[];
     tone: Tone | '';
-};
-
-type Motion = {
-    frame: number;
-    ghosts: HTMLElement;
 };
 
 // How a file asked to be opened; the viewer decides what that means for its tabs.
@@ -596,6 +599,7 @@ export default ({
         excluded = glob(exclude),
         model = elements instanceof Elements ? elements : new Elements(elements),
         filtered = untrack(() => filter(model.elements, display.dotfiles !== false, excluded, roots)),
+        ghosts = new ReactiveArray<Ghost>(),
         hidden = untrack(() => new Set([...filtered, ...(decorations?.keys() ?? [])].filter(gone))),
         id = `file-tree-${++uid}`,
         index = model.index,
@@ -646,6 +650,8 @@ export default ({
         settings = untrack(modes),
         // A folder kept out of its compact row while a name input is open in it or on it.
         split: string | null = null,
+        // Where a fold motion's layer sits over the viewport, and the folder's bottom edge within it.
+        stage = reactive({ edge: 0, height: 0, left: 0, top: 0, width: 0 }),
         top = build(model.elements, 0, null),
         totals = new Map<string, number[]>(),
         // The folders filtering has reached, and whether it opened them, so ending it closes those alone.
@@ -759,7 +765,8 @@ export default ({
         // tree and rerun it; disposed on disconnect.
         effects: VoidFunction[] = [],
         forget: VoidFunction | undefined,
-        motion: Motion | null = null,
+        // The frame a fold motion starts on; 0 while none runs.
+        motion = 0,
         release: VoidFunction | undefined,
         root: HTMLElement | undefined,
         timer: ReturnType<typeof setTimeout> | undefined,
@@ -1346,51 +1353,37 @@ export default ({
         return (decoration?.status ?? decoration?.staged) === 'deleted';
     }
 
-    // Copies of the rows below 'element' that are on screen, laid where they sit now, to stand in for rows the list
-    // is about to swap out.
+    // The rows below 'element' that are on screen, measured where they sit now, to stand in for rows the list is about
+    // to swap out; places the motion layer over the viewport.
     function copy(element: HTMLElement, limit: number, container: HTMLElement, scroller: HTMLElement) {
         let edge = element.getBoundingClientRect().bottom,
             frame = container.getBoundingClientRect(),
-            ghosts = document.createElement('div'),
-            layer = document.createElement('div'),
+            out: Ghost[] = [],
             view = scroller.getBoundingClientRect(),
             left = view.left + scroller.clientLeft,
             top = view.top + scroller.clientTop,
             bottom = top + scroller.clientHeight;
 
-        ghosts.className = 'file-tree-motion';
-        ghosts.inert = true;
-        ghosts.setAttribute('aria-hidden', 'true');
-        ghosts.style.height = `${scroller.clientHeight}px`;
-        ghosts.style.left = `${left - frame.left - container.clientLeft}px`;
-        ghosts.style.top = `${top - frame.top - container.clientTop}px`;
-        ghosts.style.width = `${scroller.clientWidth}px`;
-        layer.className = 'file-tree-motion-layer';
-        layer.style.top = `${edge - top}px`;
+        stage.edge = edge - top;
+        stage.height = scroller.clientHeight;
+        stage.left = left - frame.left - container.clientLeft;
+        stage.top = top - frame.top - container.clientTop;
+        stage.width = scroller.clientWidth;
 
-        for (let i = 0, node = element.nextElementSibling; i < limit && node instanceof HTMLElement && node.classList.contains('file-tree-row'); i++, node = node.nextElementSibling) {
-            let rect = node.getBoundingClientRect();
+        for (let i = 0, node = element.nextElementSibling as Rendered | null; i < limit && node?.classList.contains('file-tree-row'); i++, node = node.nextElementSibling as Rendered | null) {
+            let rect = node.getBoundingClientRect(),
+                row = node[ROW];
 
             if (rect.top >= bottom) {
                 break;
             }
 
-            let clone = node.cloneNode(true) as Rendered;
-
-            clone[ROW] = (node as Rendered)[ROW];
-            clone.removeAttribute('id');
-            clone.removeAttribute('role');
-            // Laid out by its measured box, so the depth margin would count twice.
-            clone.style.margin = '0';
-            clone.style.left = `${rect.left - left}px`;
-            clone.style.top = `${rect.top - edge}px`;
-            clone.style.width = `${rect.width}px`;
-            layer.append(clone);
+            if (row) {
+                out.push({ left: rect.left - left, row, top: rect.top - edge, width: rect.width });
+            }
         }
 
-        ghosts.append(layer);
-
-        return ghosts;
+        return out;
     }
 
     // Where a paste lands: the focused folder, or the folder holding the focused file; null for the top level.
@@ -1496,29 +1489,28 @@ export default ({
             }
         }
 
-        let ghosts = copy(element, value ? Infinity : inner.length, container, scroller);
+        let measured = copy(element, value ? Infinity : inner.length, container, scroller);
 
         expand(row, value);
 
-        motion = {
-            // Started once the list has rendered the swapped rows, ahead of their first paint.
-            frame: requestAnimationFrame(() => {
-                // A row still rendered rides the edge itself, so the highlight on it moves with it.
-                for (let clone of ghosts.querySelectorAll<Rendered>('.file-tree-row')) {
-                    let ghost = lookup(clone[ROW]!.id);
+        // Started once the list has rendered the swapped rows, ahead of their first paint.
+        motion = requestAnimationFrame(() => {
+            let out: Ghost[] = [];
 
-                    if (ghost && node(ghost)) {
-                        clone.remove();
-                    }
+            // A row still rendered rides the edge itself, so the highlight on it moves with it.
+            for (let i = 0, n = measured.length; i < n; i++) {
+                let current = lookup(measured[i].row.id);
+
+                if (!current || !node(current)) {
+                    out.push(measured[i]);
                 }
+            }
 
-                scroller.after(ghosts);
-                ui.folder = row.key;
-                ui.motion = value ? 'open' : 'close';
-                ui.motionRows = inner.length;
-            }),
-            ghosts
-        };
+            ghosts.push(...out);
+            ui.folder = row.key;
+            ui.motion = value ? 'open' : 'close';
+            ui.motionRows = inner.length;
+        });
     }
 
     function focus(row: Row) {
@@ -1532,6 +1524,33 @@ export default ({
         if (preview && !row.open && !row.locked) {
             timer = setTimeout(() => activate(row, PREVIEW), REST);
         }
+    }
+
+    // Drawn like the row it stands in for, its marks kept live; laid out by its measured box, so the depth margin
+    // would count twice.
+    function ghost({ left, row, top, width }: Ghost) {
+        let style = `--depth: ${row.depth}; --guides: ${guides(row.depth)}; left: ${left}px; margin: 0; top: ${top}px; width: ${width}px;`;
+
+        if (row.notice) {
+            return placeholder(row.notice, { style });
+        }
+
+        let mark = decorations ? track(row.id) : null,
+            open = row.open;
+
+        return html`
+            <div
+                class='file-tree-row ${row.locked ? '--disabled' : ''} ${header(row) ? 'file-tree-row--root' : ''} ${() => active(row) && '--active'} ${() => holds(row, (id) => clipboard.marked.read(id)) && 'file-tree-row--cut'} ${() => holds(row, (id) => selection.read(id)) && !active(row) && 'file-tree-row--selected'}'
+                style='${style}'
+                ${open ? { 'aria-expanded': () => read(open) ? 'true' : 'false' } : undefined}
+                ${mark ? { class: () => read(mark).tone && `file-tree-row--${read(mark).tone}` } : undefined}
+                ${search ? { class: () => found('file-tree-row', matched(row)) } : undefined}
+                ${row.scope ? { class: 'file-tree-row--scope', style: `--scope: ${row.scope}` } : undefined}
+                ${{ class: () => ui.focused === row.key && 'file-tree-row--focused' }}
+            >
+                ${contents(row, mark, true)}
+            </div>
+        `;
     }
 
     function gone(id: string) {
@@ -2502,9 +2521,9 @@ export default ({
             return;
         }
 
-        cancelAnimationFrame(motion.frame);
-        motion.ghosts.remove();
-        motion = null;
+        cancelAnimationFrame(motion);
+        motion = 0;
+        ghosts.splice(0, ghosts.length);
         revealing.clear();
         ui.folder = 0;
         ui.motion = '';
@@ -3185,6 +3204,17 @@ export default ({
                 ${highlight({ class: 'file-tree-highlight', target: '.file-tree-row' })}
                 ${pins.render()}
                 ${slot.fragment}
+            </div>
+
+            <div
+                aria-hidden='true'
+                class='file-tree-motion'
+                inert
+                style='${() => `height: ${stage.height}px; left: ${stage.left}px; top: ${stage.top}px; width: ${stage.width}px;`}'
+            >
+                <div class='file-tree-motion-layer' style='${() => `top: ${stage.edge}px;`}'>
+                    ${html.reactive(ghosts, ghost)}
+                </div>
             </div>
 
             ${() => empty && !rows.length && !search?.filtering() && html`<div class='file-tree-empty'>${empty()}</div>`}
