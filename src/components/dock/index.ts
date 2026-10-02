@@ -20,8 +20,12 @@ type Item = {
     state?: { running: boolean };
 };
 
+type Slot = HTMLElement & { [LABEL]: string };
+
 
 const DOCK_BUTTON = Symbol.for('@esportsplus/ui/dock.button');
+
+const LABEL = Symbol();
 
 // The first label waits so a cursor passing through doesn't flash one; neighbours then open at once.
 const TOOLTIP_DELAY = 300;
@@ -68,9 +72,9 @@ const dock = ({ group, items, label = 'Dock', onlaunch, ...attributes }: A) => {
         <nav class='card dock' ${attributes} ${{ 'aria-label': label }}>
             ${tip
                 ? html`
-                    <div class='dock-group' ${tip.delegate({ edge: true })}>
+                    <div class='dock-group' ${tip.delegate({ content: (trigger) => (trigger as Slot)[LABEL], edge: true, selector: '.dock-item' })}>
                         ${items.map((item, i) => html`
-                            <div class='dock-item' data-tooltip='${item.label}'>${buttons[i]}</div>
+                            <div class='dock-item' ${{ onrender: (element: Slot) => { element[LABEL] = item.label; } }}>${buttons[i]}</div>
                         `)}
                     </div>
                     ${tip.render({ 'aria-hidden': 'true', class: 'dock-label' })}
