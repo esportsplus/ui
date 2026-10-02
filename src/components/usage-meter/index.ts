@@ -27,8 +27,7 @@ export default component(
 
         return html`
             <div
-                class='usage-meter'
-                data-level='${() => read(ratio) > 0.9 ? 'critical' : read(ratio) > 0.75 ? 'warning' : 'normal'}'
+                class='usage-meter ${() => read(ratio) > 0.9 ? 'usage-meter--critical' : read(ratio) > 0.75 && 'usage-meter--warning'}'
                 ${attributes}
             >
                 <div class='usage-meter-header'>

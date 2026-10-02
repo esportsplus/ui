@@ -29,11 +29,11 @@
         --track-width: 64px;
     }
 
-    &[data-level='critical'] {
+    &.usage-meter--critical {
         --fill: var(--fill-critical);
     }
 
-    &[data-level='warning'] {
+    &.usage-meter--warning {
         --fill: var(--fill-warning);
     }
 
