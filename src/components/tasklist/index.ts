@@ -20,6 +20,8 @@ type A = Attributes & {
 
 type CheckboxAttributes = NonNullable<Parameters<typeof checkbox>[0]>;
 
+type Item = Element & { [ROW]?: Row };
+
 type Row = {
     index: number;
     task: Task;
@@ -31,6 +33,8 @@ type Task = {
     label: Renderable<unknown>;
 };
 
+
+const ROW = Symbol();
 
 const TASKLIST_CHECKBOX = Symbol.for('@esportsplus/ui/tasklist.checkbox');
 
@@ -45,25 +49,25 @@ const TASKLIST_LABEL = Symbol.for('@esportsplus/ui/tasklist.label');
 const TASKLIST_ROW = Symbol.for('@esportsplus/ui/tasklist.row');
 
 
-function checked(rows: WeakMap<Element, Row>, item: Element) {
-    return !!rows.get(item)?.task.checked;
+function checked(item: Item) {
+    return !!item[ROW]?.task.checked;
 }
 
 // Where a row settles: the open rows come first, then the checked ones; 'ordered' keeps each group in task order.
 // null appends to the end of the list.
-function destination(rows: WeakMap<Element, Row>, item: HTMLElement, ordered: boolean) {
-    let index = rows.get(item)!.index,
-        value = checked(rows, item);
+function destination(item: HTMLElement & Item, ordered: boolean) {
+    let index = item[ROW]!.index,
+        value = checked(item);
 
-    for (let child of item.parentElement!.children) {
+    for (let child of item.parentElement!.children as HTMLCollectionOf<Item>) {
         if (child === item) {
             continue;
         }
 
-        let section = done(rows, child);
+        let section = done(child);
 
         if (section === value) {
-            if (ordered && rows.get(child)!.index > index) {
+            if (ordered && child[ROW]!.index > index) {
                 return child;
             }
         }
@@ -76,8 +80,8 @@ function destination(rows: WeakMap<Element, Row>, item: HTMLElement, ordered: bo
 }
 
 // Rows still animating have not moved yet, so they sit in the group they are leaving
-function done(rows: WeakMap<Element, Row>, item: Element) {
-    let value = checked(rows, item);
+function done(item: Item) {
+    let value = checked(item);
 
     return pending(item) ? !value : value;
 }
@@ -142,7 +146,6 @@ function pending(item: Element) {
 }
 
 function row(
-    rows: WeakMap<Element, Row>,
     entry: Row,
     options: { ordered: boolean; reorder: boolean },
     context: Partial<A> | undefined,
@@ -178,11 +181,11 @@ function row(
                     this.classList.remove('tasklist-item--checking', 'tasklist-item--unchecking');
 
                     if (options.reorder) {
-                        move(this, destination(rows, this, options.ordered));
+                        move(this, destination(this, options.ordered));
                     }
                 },
-                onrender: (element: HTMLElement) => {
-                    rows.set(element, entry);
+                onrender: (element: Item) => {
+                    element[ROW] = entry;
                 }
             }}
         >
@@ -217,8 +220,7 @@ export default component(
     ) {
         let context = this?.attributes,
             entries = tasks.map((task, index) => ({ index, task })),
-            options = { ordered, reorder },
-            rows = new WeakMap<Element, Row>();
+            options = { ordered, reorder };
 
         return html`
             <ul
@@ -235,11 +237,11 @@ export default component(
                         let next = item.nextElementSibling,
                             previous = item.previousElementSibling;
 
-                        if (checked(rows, item) ? next && !done(rows, next) : previous && done(rows, previous)) {
+                        if (checked(item) ? next && !done(next) : previous && done(previous)) {
                             let boundary: Element | null = null;
 
                             for (let child of item.parentElement!.children) {
-                                if (child !== item && done(rows, child)) {
+                                if (child !== item && done(child)) {
                                     boundary = child;
                                     break;
                                 }
@@ -253,7 +255,7 @@ export default component(
                 ${(reorder ? [
                     ...entries.filter((entry) => !entry.task.checked),
                     ...entries.filter((entry) => entry.task.checked)
-                ] : entries).map((entry) => row(rows, entry, options, context, attributes))}
+                ] : entries).map((entry) => row(entry, options, context, attributes))}
             </ul>
         `;
     },
