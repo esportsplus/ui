@@ -501,13 +501,15 @@ export default component(
                     ${{
                         'aria-expanded': () => state.active ? 'true' : 'false',
                         onclick: show,
-                        onconnect: (element: HTMLElement) => {
-                            trigger = element;
+                        onconnect: () => {
                             // Capture, so it runs before the site's search, which listens later.
                             addEventListener('keydown', shortcut, true);
                         },
                         ondisconnect: () => {
                             removeEventListener('keydown', shortcut, true);
+                        },
+                        onrender: (element: HTMLElement) => {
+                            trigger = element;
                         }
                     }}
                 >
