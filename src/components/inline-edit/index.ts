@@ -1,5 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { reactive } from '@esportsplus/reactivity';
+import { flush, reactive } from '@esportsplus/reactivity';
 import input from '~/components/input';
 import textarea from '~/components/textarea';
 import rich from './rich';
@@ -98,10 +98,11 @@ function template(
 
         state.editing = false;
 
-        // Keyboard exits hand focus back to the text; a click elsewhere keeps focus wherever the click put it.
-        // Deferred until the display is visible again; class updates are batched onto the next frame.
+        // Keyboard exits hand focus back to the text; a click elsewhere keeps focus wherever the click put it, once the
+        // display is visible again.
         if (keyboard) {
-            requestAnimationFrame(() => requestAnimationFrame(() => display?.focus()));
+            flush();
+            display?.focus();
         }
 
         let next = multiline ? local.draft.trim() : local.draft.replace(/\s+/g, ' ').trim();

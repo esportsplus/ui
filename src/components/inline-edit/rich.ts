@@ -1,5 +1,5 @@
 import { component, html, render as mount, type Attributes, type Renderable } from '@esportsplus/template';
-import { effect, reactive, untrack } from '@esportsplus/reactivity';
+import { effect, flush, reactive, untrack } from '@esportsplus/reactivity';
 import faces from '~/components/button/faces';
 import checkbox from '~/components/checkbox';
 import { check, copy as copyIcon, cross } from '~/components/button/icons';
@@ -54,6 +54,8 @@ type State = {
     value: string;
 };
 
+type Tool = HTMLElement & { [HINT]: Renderable<unknown> };
+
 
 const ACTIONS: { action: Action, label: string, shortcut?: string }[] = [
     { action: 'bold', label: 'Bold', shortcut: 'B' },
@@ -73,6 +75,8 @@ const COPIED_FOR = 1400;
 
 // Space between the selection and the toolbar, and between the toolbar and the viewport edge.
 const GAP = 8;
+
+const HINT = Symbol();
 
 const ICONS: Record<Exclude<Action, 'copy'> | 'apply' | 'open' | 'unlink', string> = {
     apply: checkSvg,
@@ -163,21 +167,21 @@ export default component(
             // 'focus' is the format control the arrow keys rove to, the toolbar's one tab stop.
             local = reactive({ copied: 'idle' as 'error' | 'idle' | 'success', empty: value.trim() === '', focus: 0, live: '' }),
             marks = actions.filter(({ action }) => action !== 'clear' && action !== 'copy'),
+            // The toolbar: 'link' swaps its buttons for the link field, 'instant' holds its moves still, 'origin' and
+            // 'x'/'y' place it over the selection.
+            panel = reactive({ instant: false, link: false, open: false, origin: '', x: 0, y: 0 }),
             // Mark buttons by their mark, pressed while the selection carries it.
             pressed = reactive(Object.fromEntries(marks.map(({ action }) => [action, false])) as Record<string, boolean>),
             tip = tooltip.shared({ delay: { open: TOOLTIP_DELAY } });
 
-        let anchor: HTMLElement | undefined,
-            copyTimer: ReturnType<typeof setTimeout> | undefined,
+        let copyTimer: ReturnType<typeof setTimeout> | undefined,
             dismissed = false,
             editor: HTMLElement | undefined,
             frame = 0,
             // Checklist boxes mounted into the text, each with the disposer of its component.
             boxes = new Map<HTMLElement, VoidFunction>(),
             items: HTMLElement[] = [],
-            linking = false,
             observer: ResizeObserver | undefined,
-            open = false,
             pressing = false,
             release: VoidFunction | undefined,
             root: HTMLElement | undefined,
@@ -219,8 +223,7 @@ export default component(
 
         // Leaves the link field for the buttons, handing focus and the selection back to the text.
         function back() {
-            linking = false;
-            toolbar?.classList.remove('inline-edit-toolbar--link');
+            panel.link = false;
             editor?.focus({ preventScroll: true });
 
             let range = current();
@@ -301,8 +304,7 @@ export default component(
             }
 
             state.editing = false;
-            linking = false;
-            toolbar?.classList.remove('inline-edit-toolbar--link');
+            panel.link = false;
             show(false);
 
             if (commit) {
@@ -348,12 +350,13 @@ export default component(
                 existing = null;
             }
 
-            linking = true;
+            panel.link = true;
             url.value = existing?.getAttribute('href') ?? '';
             hyperlink.existing = !!existing;
             hyperlink.invalid = false;
-            toolbar.classList.add('inline-edit-toolbar--link');
             place(saved!);
+            // The field shows once the link mode lands.
+            flush();
             url.focus({ preventScroll: true });
             url.select();
         }
@@ -483,16 +486,16 @@ export default component(
                 top = below ? last.bottom - box.top + GAP : first.top - box.top - h - GAP;
 
             // Scales out of the selection itself, even when clamped to the edge.
-            toolbar.style.transformOrigin = `${center - x}px ${below ? 0 : h}px`;
+            panel.origin = `${center - x}px ${below ? 0 : h}px`;
+            panel.x = left;
+            panel.y = top;
 
-            if (!open || reduced()) {
-                toolbar.style.transition = 'none';
-                toolbar.style.translate = `${left}px ${top}px`;
+            // Shown afresh it jumps there, committed before its moves glide again; once open it glides along.
+            if (!panel.open || reduced()) {
+                panel.instant = true;
+                flush();
                 void toolbar.offsetWidth;
-                toolbar.style.removeProperty('transition');
-            }
-            else {
-                toolbar.style.translate = `${left}px ${top}px`;
+                panel.instant = false;
             }
         }
 
@@ -556,21 +559,12 @@ export default component(
             frame = requestAnimationFrame(sync);
         }
 
-        // Imperative rather than bound: bound classes land a frame late, after the position has jumped.
         function show(next: boolean, instant = false) {
-            open = next;
-
-            if (!anchor || !toolbar) {
-                return;
-            }
+            panel.open = next;
 
             if (instant) {
-                toolbar.style.transition = 'none';
+                panel.instant = true;
             }
-
-            anchor.classList.toggle('--active', next);
-            toolbar.inert = !next;
-            toolbar.setAttribute('aria-hidden', next ? 'false' : 'true');
         }
 
         function sync() {
@@ -582,12 +576,12 @@ export default component(
                 range = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
 
             // Focus in the toolbar (its buttons, the select, the link field) keeps it where it is.
-            if (toolbar.contains(document.activeElement) || linking) {
+            if (toolbar.contains(document.activeElement) || panel.link) {
                 return;
             }
 
             if (!range || range.collapsed || !editor.contains(range.commonAncestorContainer)) {
-                if (open) {
+                if (panel.open) {
                     show(false);
                 }
 
@@ -619,7 +613,7 @@ export default component(
             shown = kind(units(editor, range)[0]);
             block.value = shown;
 
-            if (!open) {
+            if (!panel.open) {
                 local.focus = 0;
                 show(true);
             }
@@ -753,7 +747,6 @@ export default component(
             <button
                 aria-label='${label}'
                 class='button button--feedback inline-edit-toolbar-button'
-                data-tooltip='${action === 'copy' ? () => local.copied === 'success' ? 'Copied' : label : hint(label, shortcut)}'
                 tabindex='${() => local.focus === index ? '0' : '-1'}'
                 type='button'
                 ${action === 'clear' || action === 'copy' ? {} : { 'aria-pressed': () => pressed[action] ? 'true' : 'false' }}
@@ -763,7 +756,8 @@ export default component(
                             trigger(action);
                         }
                     },
-                    onrender: (element: HTMLElement) => {
+                    onrender: (element: Tool) => {
+                        element[HINT] = action === 'copy' ? () => local.copied === 'success' ? 'Copied' : label : hint(label, shortcut);
                         items[index] = element;
                     }
                 }}
@@ -822,10 +816,7 @@ export default component(
                             state.editing = true;
 
                             // Clicking back into the text leaves the link field.
-                            if (linking) {
-                                linking = false;
-                                toolbar?.classList.remove('inline-edit-toolbar--link');
-                            }
+                            panel.link = false;
                         },
                         oninput: () => {
                             tasks(true);
@@ -857,7 +848,7 @@ export default component(
                             if (e.key === 'Escape') {
                                 e.preventDefault();
 
-                                if (open) {
+                                if (panel.open) {
                                     dismiss();
                                 }
                                 else {
@@ -874,7 +865,7 @@ export default component(
                                 return;
                             }
 
-                            if (open && !mod && (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Enter')) {
+                            if (panel.open && !mod && (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Enter')) {
                                 show(false, true);
                             }
                         },
@@ -893,9 +884,8 @@ export default component(
                 <div
                     class='tooltip tooltip--context inline-edit-anchor'
                     ${{
-                        onconnect: (element: HTMLElement) => {
-                            anchor = element;
-
+                        class: () => panel.open && '--active',
+                        onconnect: () => {
                             // Bound directly: delegated mousedown listeners are passive, and delegation only runs
                             // the nearest bound handler, which inside the toolbar belongs to the tooltip or select.
                             let bar = toolbar,
@@ -921,20 +911,22 @@ export default component(
                     }}
                 >
                     <div
-                        aria-hidden='true'
                         aria-label='Formatting'
                         class='tooltip-content tooltip-content--context inline-edit-toolbar'
-                        inert
                         role='toolbar'
                         ${this?.attributes?.[INLINE_EDIT_RICH_TOOLBAR]}
                         ${attributes[INLINE_EDIT_RICH_TOOLBAR]}
                         ${{
+                            'aria-hidden': () => panel.open ? 'false' : 'true',
+                            class: () => panel.link && 'inline-edit-toolbar--link',
+                            inert: () => !panel.open,
                             onrender: (element: HTMLElement) => {
                                 toolbar = element;
-                            }
+                            },
+                            style: () => `transform-origin: ${panel.origin}; translate: ${panel.x}px ${panel.y}px;${panel.instant ? ' transition: none;' : ''}`
                         }}
                     >
-                        <div class='inline-edit-toolbar-format' ${tip.delegate({ edge: true })}>
+                        <div class='inline-edit-toolbar-format' ${tip.delegate({ content: (trigger) => (trigger as Tool)[HINT], edge: true, selector: '.inline-edit-toolbar-button' })}>
                             ${kinds.length > 1
                                 ? html`
                                     ${selectMenu({
@@ -974,7 +966,7 @@ export default component(
                                         'aria-invalid': () => hyperlink.invalid && 'true',
                                         'aria-label': 'Link address',
                                         class: 'inline-edit-toolbar-url',
-                                        onconnect: (element: HTMLInputElement) => {
+                                        onrender: (element: HTMLInputElement) => {
                                             url = element;
                                         },
                                         placeholder: 'Paste or type a link',
