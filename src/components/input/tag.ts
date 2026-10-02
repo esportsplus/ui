@@ -1,6 +1,7 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
 import close from '@esportsplus/ui/svg/close.svg';
+import { measure, slide } from '~/shared/animation';
 import input from './field';
 
 
@@ -80,7 +81,6 @@ export default component(
     ) {
         let chips = new Map<string, HTMLElement>(),
             field: HTMLInputElement | undefined,
-            flips = new Map<Element, Animation>(),
             ghosts = new ReactiveArray<Ghost>(),
             id = `input-tag-${++uid}`,
             list: HTMLElement | undefined,
@@ -221,51 +221,18 @@ export default component(
                 return;
             }
 
-            let before = new Map<Element, DOMRect>(),
-                children = list.children;
+            let children = list.children;
 
-            for (let i = 0, n = children.length; i < n; i++) {
-                before.set(children[i], children[i].getBoundingClientRect());
-            }
-
+            measure(children);
             change();
             slot.flush();
-
-            for (let [element, animation] of flips) {
-                animation.cancel();
-                flips.delete(element);
-            }
 
             for (let i = 0, n = children.length; i < n; i++) {
                 let child = children[i] as HTMLElement;
 
-                if (child.classList.contains('input-tag-ghost')) {
-                    continue;
-                }
-
-                let first = before.get(child);
-
-                if (!first) {
+                if (!child.classList.contains('input-tag-ghost') && !slide(child, reduced.matches ? null : SLIDE)) {
                     enter?.(child);
-                    continue;
                 }
-
-                if (reduced.matches) {
-                    continue;
-                }
-
-                let last = child.getBoundingClientRect(),
-                    dx = first.left - last.left,
-                    dy = first.top - last.top;
-
-                if (!dx && !dy) {
-                    continue;
-                }
-
-                let animation = child.animate({ transform: [`translate(${dx}px, ${dy}px)`, 'none'] }, SLIDE);
-
-                animation.onfinish = () => flips.delete(child);
-                flips.set(child, animation);
             }
         }
 

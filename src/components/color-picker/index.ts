@@ -1,6 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
-import { reduced } from '~/shared/animation';
+import { measure, reduced, slide as shift } from '~/shared/animation';
 import input from '~/components/input';
 import range from '~/components/range';
 import './scss/index.scss';
@@ -246,20 +246,16 @@ function template(
 
         let container = parts.swatches,
             dropped: { hex: string, rect: DOMRect }[] = [],
-            first = new Map<string, DOMRect>(),
             index = recent.indexOf(hex),
             kept = recent.filter((c) => c !== hex).slice(0, MAX_RECENT - 1);
 
         // Swatches lead the container in 'recent' order, ghosts after them.
         if (container) {
+            measure(container.children);
+
             for (let i = 0, n = recent.length; i < n; i++) {
-                let key = recent[i],
-                    rect = container.children[i].getBoundingClientRect();
-
-                first.set(key, rect);
-
-                if (key !== hex && !kept.includes(key)) {
-                    dropped.push({ hex: key, rect });
+                if (recent[i] !== hex && !kept.includes(recent[i])) {
+                    dropped.push({ hex: recent[i], rect: container.children[i].getBoundingClientRect() });
                 }
             }
         }
@@ -275,7 +271,7 @@ function template(
         }
 
         if (container) {
-            requestAnimationFrame(() => flip(container, first, dropped));
+            requestAnimationFrame(() => flip(container, dropped));
         }
     }
 
@@ -287,28 +283,20 @@ function template(
 
     // Runs after the swatch list has re-rendered: survivors slide from where they were, newcomers grow in and
     // the dropped ones fade out from a stand-in, since their own nodes are already gone.
-    function flip(container: HTMLElement, first: Map<string, DOMRect>, dropped: { hex: string, rect: DOMRect }[]) {
+    function flip(container: HTMLElement, dropped: { hex: string, rect: DOMRect }[]) {
         let box = container.getBoundingClientRect(),
             still = reduced();
 
         for (let i = 0, n = recent.length; i < n; i++) {
-            let element = container.children[i],
-                previous = first.get(recent[i]);
+            let element = container.children[i];
 
-            if (!previous) {
+            if (!shift(element, still ? null : SWATCH)) {
                 element.animate(
                     still
                         ? [{ opacity: 0 }, { opacity: 1 }]
                         : [{ filter: 'blur(4px)', opacity: 0, scale: '0.6' }, { filter: 'blur(0px)', opacity: 1, scale: '1' }],
                     SWATCH
                 );
-                continue;
-            }
-
-            let x = previous.left - element.getBoundingClientRect().left;
-
-            if (x !== 0 && !still) {
-                element.animate([{ translate: `${x}px 0` }, { translate: '0 0' }], SWATCH);
             }
         }
 
