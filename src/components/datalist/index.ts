@@ -198,14 +198,13 @@ export default component(
                             return index !== -1 && `${id}-${index}`;
                         },
                         onconnect: (element: Element) => {
-                            scroller = element;
                             measure();
 
                             // `scrollend` does not bubble so it cannot be delegated
                             on(element, 'scrollend', settle);
 
                             observer = new ResizeObserver(measure);
-                            observer.observe(scroller);
+                            observer.observe(element);
                         },
                         onkeydown: (e: KeyboardEvent) => {
                             let index = keys.indexOf(String(state.selected));
@@ -225,6 +224,9 @@ export default component(
 
                             e.preventDefault();
                             scrollTo(index);
+                        },
+                        onrender: (element: HTMLElement) => {
+                            scroller = element;
                         },
                         onscroll,
                         style: () => drum.half && `--half: ${drum.half}; --offset: ${drum.offset};`
