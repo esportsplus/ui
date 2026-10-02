@@ -57,7 +57,7 @@ export default component<Surface>(
     }, content) {
         let element: HTMLElement | undefined,
             start: Start | null = null,
-            view = reactive({ active: false });
+            view = reactive({ active: false, height, width, x, y, z: 0 });
 
         if (state) {
             ({ height, width, x, y } = state);
@@ -67,8 +67,6 @@ export default component<Surface>(
 
         let called = label ?? title ? `${label ?? title} surface` : 'surface';
 
-        // Written straight to the element: the field reads this geometry on its next frame, so a reactive binding
-        // would leave the grid a frame behind the drag.
         function apply() {
             if (!element) {
                 return;
@@ -89,9 +87,10 @@ export default component<Surface>(
                 y = Math.min(Math.max(y, 0), Math.max(0, ph - height));
             }
 
-            element.style.height = `${height}px`;
-            element.style.translate = `${x}px ${y}px`;
-            element.style.width = `${width}px`;
+            view.height = height;
+            view.width = width;
+            view.x = x;
+            view.y = y;
 
             if (state && (state.height !== height || state.width !== width || state.x !== x || state.y !== y)) {
                 state.height = height;
@@ -108,7 +107,7 @@ export default component<Surface>(
 
             (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
             view.active = true;
-            element.style.zIndex = String(++z);
+            view.z = ++z;
             // Inside a zoomed world the pointer travels in screen px; dividing by the rendered scale keeps the surface
             // under the cursor.
             start = {
@@ -187,10 +186,11 @@ export default component<Surface>(
                 ${{
                     class: () => view.active && '--active',
                     'data-surface-field': name,
-                    onconnect: (el: HTMLElement) => {
+                    onconnect: apply,
+                    onrender: (el: HTMLElement) => {
                         element = el;
-                        apply();
-                    }
+                    },
+                    style: () => `height: ${view.height}px; translate: ${view.x}px ${view.y}px; width: ${view.width}px;${view.z ? ` z-index: ${view.z};` : ''}`
                 }}
             >
                 <span aria-hidden='true' class='surface-field-surface-lift'></span>
