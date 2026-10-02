@@ -1,3 +1,6 @@
+import { html, render } from '@esportsplus/template';
+
+
 // Milliseconds the pointer rests on a trigger before it opens, and is away before it closes; either left out is instant.
 type Delay = {
     close?: number,
@@ -42,16 +45,15 @@ function goo() {
         return;
     }
 
-    document.body.insertAdjacentHTML(
-        'beforeend',
-        `<svg aria-hidden='true' height='0' style='position: absolute;' width='0'>
+    render(document.body, html`
+        <svg aria-hidden='true' height='0' style='position: absolute;' width='0'>
             <filter color-interpolation-filters='sRGB' filterUnits='userSpaceOnUse' height='4000' id='${GOO}' width='4000' x='-2000' y='-2000'>
                 <feGaussianBlur in='SourceGraphic' result='blur' stdDeviation='8' />
                 <feColorMatrix in='blur' result='goo' type='matrix' values='1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -12' />
                 <feComposite in='SourceGraphic' in2='goo' operator='over' />
             </filter>
-        </svg>`
-    );
+        </svg>
+    `);
 }
 
 // Seeds the '--expand' and '--morph' variants with the trigger's box, then calls 'open' once

@@ -1,4 +1,4 @@
-import { reactive } from '@esportsplus/reactivity';
+import { flush, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 
 
@@ -63,11 +63,6 @@ function enabled(node: MenuNode) {
     return nodes;
 }
 
-// Class and attribute updates are applied on the next frame, so focus waits one more.
-function later(fn: VoidFunction) {
-    requestAnimationFrame(() => requestAnimationFrame(fn));
-}
-
 function tree(items: Item[], parent?: MenuNode) {
     let nodes: MenuNode[] = [];
 
@@ -120,14 +115,8 @@ export default component(
             }
 
             // A panel created already open has no closed state to transition from, so it would never
-            // animate or settle; paint it closed first.
+            // animate or settle; it renders closed and opens once that has painted.
             node.state.render = true;
-
-            later(() => {
-                if (stack.includes(node)) {
-                    expand(node);
-                }
-            });
         }
 
         function entry(node: MenuNode): Renderable<unknown> {
@@ -153,7 +142,7 @@ export default component(
                                     select(node);
                                 }
                             },
-                            onconnect: (element: HTMLElement) => {
+                            onrender: (element: HTMLElement) => {
                                 node.button = element;
                             }
                         }}
@@ -173,8 +162,8 @@ export default component(
             // No transitionend will settle it: either still open from a pending close, or motion is off
             node.state.settled = node.state.open || instant();
             node.state.open = true;
-
-            later(() => enabled(node)[0]?.button?.focus());
+            flush();
+            enabled(node)[0]?.button?.focus();
         }
 
         function instant() {
@@ -185,8 +174,8 @@ export default component(
             reset();
             state.active = true;
             shift();
-
-            later(() => enabled(root)[0]?.button?.focus());
+            flush();
+            enabled(root)[0]?.button?.focus();
         }
 
         function panel(node: MenuNode): Renderable<unknown> {
@@ -209,7 +198,12 @@ export default component(
                                 popTo(node);
                             }
                         },
-                        onconnect: (element: HTMLElement) => {
+                        onfirstpaint: () => {
+                            if (node !== root && stack.includes(node)) {
+                                expand(node);
+                            }
+                        },
+                        onrender: (element: HTMLElement) => {
                             node.panel = element;
                         },
                         ontransitionend: (e: TransitionEvent) => {
@@ -258,7 +252,7 @@ export default component(
 
             // Restore the clip before closing: 'none' can't interpolate, so closing straight from
             // the settled state would snap shut instead of animating.
-            later(() => {
+            requestAnimationFrame(() => {
                 if (!stack.includes(node)) {
                     node.state.open = false;
                 }
@@ -404,7 +398,7 @@ export default component(
                                 open();
                             }
                         },
-                        onconnect: (element: HTMLElement) => {
+                        onrender: (element: HTMLElement) => {
                             trigger = element;
                         }
                     }}

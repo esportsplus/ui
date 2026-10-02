@@ -1,5 +1,5 @@
-import { effect, reactive, untrack } from '@esportsplus/reactivity';
-import { html, render as mount, type Attributes, type Renderable } from '@esportsplus/template';
+import { effect, flush, reactive, ReactiveArray, untrack } from '@esportsplus/reactivity';
+import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { cool, wait, warm, type Delay } from './utilities';
 import '~/components/frame/scss/index.scss';
 
@@ -28,11 +28,13 @@ type Delegate = {
 
 type Direction = 'e' | 'n' | 's' | 'w';
 
+// 'travel' is the way it slides in or out; left unset, the frame's own default applies.
 type Layer = {
-    dispose: VoidFunction,
-    element: HTMLElement,
+    content: Content,
+    element?: HTMLElement,
     // A bound trigger's content under 'keep': hidden between opens rather than disposed.
-    kept: boolean
+    kept: boolean,
+    state: { active: boolean, leaving: boolean, travel: { x: number, y: number } | null }
 };
 
 type Options = {
@@ -80,37 +82,6 @@ let uid = 0;
 
 function clamp(value: number, min: number, max: number) {
     return Math.max(min, Math.min(value, max));
-}
-
-function create(parent: HTMLElement, content: Content, kept: boolean): Layer {
-    let element = document.createElement('span');
-
-    element.className = 'tooltip-shared-layer frame frame--swap';
-
-    let layer = { dispose: mount(element, content), element, kept };
-
-    parent.append(element);
-
-    return layer;
-}
-
-// Done with a layer for now: a kept one is only hidden until its next open.
-function drop(layer: Layer | null) {
-    if (!layer) {
-        return;
-    }
-
-    if (layer.kept) {
-        layer.element.classList.remove('--active', 'frame--leaving');
-        return;
-    }
-
-    free(layer);
-}
-
-function free(layer: Layer) {
-    layer.dispose();
-    layer.element.remove();
 }
 
 // 'gap' is the surface's padding on the anchor side; x and y place the surface, padding included.
@@ -166,11 +137,6 @@ function settle(element: HTMLElement, done: VoidFunction) {
 }
 
 // The unit vector a layer moves along; 'frame--swap' scales it by '--swap-shift'.
-function travel(element: HTMLElement, x: number, y: number) {
-    element.style.setProperty('--travel-x', `${x}`);
-    element.style.setProperty('--travel-y', `${y}`);
-}
-
 
 // One tooltip shared by every trigger bound to it: it opens on the first after the open delay, then glides between
 // them while its content slides over. 'bind()' makes one element a trigger, 'delegate()' every matching descendant of
@@ -188,6 +154,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         id = `tooltip-shared-${++uid}`,
         last: Target | null = null,
         leaving: Layer | null = null,
+        layers = new ReactiveArray<Layer>(),
         next: Target | null = null,
         observer: ResizeObserver | undefined,
         pointer = 'mouse',
@@ -195,6 +162,24 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         shown = false,
         timer: ReturnType<typeof setTimeout> | undefined,
         waiting: VoidFunction | undefined;
+
+    let stack = html.reactive(layers, (layer) => html`
+        <span
+            class='tooltip-shared-layer frame frame--swap'
+            ${{
+                class: [
+                    () => layer.state.active && '--active',
+                    () => layer.state.leaving && 'frame--leaving'
+                ],
+                onrender: (element: HTMLElement) => {
+                    layer.element = element;
+                },
+                style: () => layer.state.travel && `--travel-x: ${layer.state.travel.x}; --travel-y: ${layer.state.travel.y};`
+            }}
+        >
+            ${layer.content}
+        </span>
+    `);
 
     // One trigger per call: its number, for 'state.index', is the order 'bind()' was called in.
     function bind(content: Content): Attributes {
@@ -280,7 +265,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             },
             // The surface is rendered elsewhere in the document, so Tab is carried into it from its trigger.
             onkeydown: (e: KeyboardEvent) => {
-                let first = current?.trigger === e.currentTarget ? active?.element.querySelector<HTMLElement>(FOCUSABLE) : null;
+                let first = current?.trigger === e.currentTarget ? active?.element?.querySelector<HTMLElement>(FOCUSABLE) : null;
 
                 if (e.key !== 'Tab' || e.shiftKey || !first) {
                     return;
@@ -327,6 +312,16 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 hide();
             }
         });
+    }
+
+    // Rendered at once, so the caller can measure it; a layer that slides in starts out displaced by 'travel'.
+    function create(content: Content, kept: boolean, travel: Layer['state']['travel']) {
+        let layer: Layer = { content, kept, state: reactive({ active: false, leaving: false, travel }) };
+
+        layers.push(layer);
+        stack.flush();
+
+        return layer;
     }
 
     // Spread on a container: every descendant matching 'selector' is a trigger, found as the pointer or focus reaches
@@ -412,6 +407,29 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         }
     }
 
+    // Done with a layer for now: a kept one is only hidden until its next open.
+    function drop(layer: Layer | null) {
+        if (!layer) {
+            return;
+        }
+
+        if (layer.kept) {
+            layer.state.active = false;
+            layer.state.leaving = false;
+            return;
+        }
+
+        free(layer);
+    }
+
+    function free(layer: Layer) {
+        let index = layers.indexOf(layer);
+
+        if (index !== -1) {
+            layers.splice(index, 1);
+        }
+    }
+
     function indexOf(trigger: HTMLElement) {
         return bound.get(trigger)?.index ?? -1;
     }
@@ -449,7 +467,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
     // Sizes the box to the content and places it against the anchor.
     function measure() {
-        if (!active || !box || !current || !element) {
+        if (!active?.element || !box || !current || !element) {
             return;
         }
 
@@ -538,7 +556,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 // Tab past either end hands focus back to the trigger; going forward, the browser then carries on to
                 // whatever follows it.
                 onkeydown: (e: KeyboardEvent) => {
-                    if (e.key !== 'Tab' || !active || !current) {
+                    if (e.key !== 'Tab' || !active?.element || !current) {
                         return;
                     }
 
@@ -622,7 +640,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                     }
                 }}
             >
-                <span class='tooltip-shared-box' ${{ onrender: (el: HTMLElement) => { box = el; } }}></span>
+                <span class='tooltip-shared-box' ${{ onrender: (el: HTMLElement) => { box = el; } }}>${stack}</span>
             </span>
         `;
     }
@@ -730,15 +748,20 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         if (active && animate) {
             let outgoing = active;
 
-            travel(outgoing.element, x, y);
-            outgoing.element.classList.remove('--active');
-            outgoing.element.classList.add('frame--leaving');
+            outgoing.state.active = false;
+            outgoing.state.leaving = true;
+            outgoing.state.travel = { x, y };
             leaving = outgoing;
 
-            settle(outgoing.element, () => {
-                if (leaving === outgoing) {
-                    drop(outgoing);
-                    leaving = null;
+            // Once its classes have landed and started the exit.
+            queueMicrotask(() => {
+                if (outgoing.element) {
+                    settle(outgoing.element, () => {
+                        if (leaving === outgoing) {
+                            drop(outgoing);
+                            leaving = null;
+                        }
+                    });
                 }
             });
         }
@@ -746,19 +769,28 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             drop(active);
         }
 
-        let layer = entry ? (entry.layer ??= create(box, entry.content, true)) : create(box, target.content, false),
+        let travel = animate ? { x, y } : null,
+            layer = entry
+                ? (entry.layer ??= create(entry.content, true, travel))
+                : create(target.content, false, travel),
             node = layer.element;
 
         active = layer;
 
+        if (!node) {
+            return;
+        }
+
         if (animate) {
-            travel(node, x, y);
+            layer.state.travel = travel;
+            flush();
 
             // Commits the start position, so the layer slides in from it.
             node.getBoundingClientRect();
         }
 
-        node.classList.add('--active');
+        layer.state.active = true;
+        flush();
 
         // Content that changes size while showing (a live count, an image loading) resizes the box with it.
         observer ??= new ResizeObserver(measure);
@@ -791,7 +823,8 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
             for (let [trigger, entry] of bound) {
                 if (entry.index === index) {
-                    open(trigger, entry.content);
+                    // After this pass, so the content's start position commits before it slides in.
+                    queueMicrotask(() => open(trigger, entry.content));
                     return;
                 }
             }
