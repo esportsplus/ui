@@ -59,7 +59,13 @@
         overscroll-behavior: contain;
         perspective: var(--perspective);
         position: relative;
+        // Picking an item glides the drum to it; re-centring on a new item size jumps.
+        scroll-behavior: smooth;
         scroll-snap-type: y mandatory;
+
+        @media (prefers-reduced-motion: reduce) {
+            scroll-behavior: auto;
+        }
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);

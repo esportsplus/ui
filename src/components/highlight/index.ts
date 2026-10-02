@@ -1,6 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import { reduced } from '~/shared/animation';
 import './scss/index.scss';
 
 
@@ -248,7 +247,7 @@ export default component<A>(
 
             halt(glide);
 
-            if (!node || from.every((value) => Math.abs(value) < 0.5) || reduced()) {
+            if (!node || from.every((value) => Math.abs(value) < 0.5)) {
                 return;
             }
 

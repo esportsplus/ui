@@ -57,17 +57,18 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
 }) => {
     let cleanup: VoidFunction[] = [],
         copies = reactive(Array.from({ length: MIN_COPIES }, (_, i) => i)),
+        // The share of 'speed' it drifts at, from the CSS; none holds it still, to scroll by hand.
+        drift = 0,
         frame = 0,
         group: HTMLElement | undefined,
         held = false,
-        media = matchMedia('(prefers-reduced-motion: reduce)'),
         near = false,
         nudge = 0,
         offset = 0,
         rate = 0,
         sign = direction === 'right' ? 1 : -1,
         span = 0,
-        stage = reactive({ reduced: false, x: 0 }),
+        stage = reactive({ still: false, x: 0 }),
         track: HTMLElement | undefined,
         tracker: scroll.Tracker | undefined,
         viewport: HTMLElement | undefined;
@@ -109,7 +110,7 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
         offset = loop > 0 ? clamp(offset, -loop, loop) : 0;
         paint();
 
-        let next = stage.reduced || loop <= 0
+        let next = stage.still || loop <= 0
             ? MIN_COPIES
             : clamp(Math.ceil(room / loop) + 3, MIN_COPIES, MAX_COPIES);
 
@@ -123,20 +124,25 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
     }
 
     function motion() {
-        stage.reduced = media.matches;
+        if (!track) {
+            return;
+        }
+
+        drift = parseFloat(getComputedStyle(track).getPropertyValue('--drift')) || 0;
+        stage.still = drift <= 0;
         measure();
         run();
     }
 
     function paint() {
-        stage.x = stage.reduced ? 0 : offset - span;
+        stage.x = stage.still ? 0 : offset - span;
     }
 
     // Nudges a focused item fully into view, keeping the track within one loop of rest.
     function reveal(node: HTMLElement) {
         let loop = span;
 
-        if (stage.reduced || loop <= 0 || !viewport || node === viewport) {
+        if (stage.still || loop <= 0 || !viewport || node === viewport) {
             return;
         }
 
@@ -161,7 +167,7 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
         cancelAnimationFrame(frame);
         frame = 0;
 
-        if (stage.reduced || !near) {
+        if (stage.still || !near) {
             return;
         }
 
@@ -197,7 +203,7 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                 }
             }
 
-            let x = offset + sign * speed * rate * (1 + boost) * dt + pull;
+            let x = offset + sign * speed * drift * rate * (1 + boost) * dt + pull;
 
             // Only wrap once a nudge has settled, otherwise the item being revealed would jump.
             if (rate > 0.002 && Math.abs(nudge) < 0.25) {
@@ -222,6 +228,7 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
             style='--item-gap: ${gap}px'
             ${attributes}
             ${{
+                class: () => stage.still && 'marquee--still',
                 onconnect: (element: HTMLElement) => {
                     if (!group || !viewport) {
                         return;
@@ -259,10 +266,6 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                         intersection.observe(viewport);
                         cleanup.push(() => intersection.disconnect());
                     }
-
-                    // A media query list is not an element, so the template can't bind its change event.
-                    media.addEventListener('change', motion);
-                    cleanup.push(() => media.removeEventListener('change', motion));
 
                     motion();
                 },
@@ -314,14 +317,14 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                     },
                     // Focus can scroll the clipped viewport natively; pin it so only the transform moves.
                     onscroll: () => {
-                        if (stage.reduced || !viewport) {
+                        if (stage.still || !viewport) {
                             return;
                         }
 
                         viewport.scrollLeft = 0;
                         viewport.scrollTop = 0;
                     },
-                    tabindex: () => stage.reduced && '0'
+                    tabindex: () => stage.still && '0'
                 }}
             >
                 <div
@@ -329,6 +332,12 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                     ${{
                         onconnect: (element: HTMLElement) => {
                             track = element;
+                        },
+                        // Its CSS transitions '--drift' alone, so a change to it (reduced motion, say) is heard here.
+                        ontransitionend: (e: TransitionEvent) => {
+                            if (e.target === e.currentTarget && e.propertyName === '--drift') {
+                                motion();
+                            }
                         },
                         style: () => `transform: translate3d(${stage.x.toFixed(2)}px, 0, 0)`
                     }}

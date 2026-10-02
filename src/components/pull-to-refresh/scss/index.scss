@@ -57,6 +57,12 @@
         overflow-y: auto;
         overscroll-behavior: contain;
         position: relative;
+        // Refreshing glides back to the top.
+        scroll-behavior: smooth;
+
+        @media (prefers-reduced-motion: reduce) {
+            scroll-behavior: auto;
+        }
     }
 
     &-spinner {

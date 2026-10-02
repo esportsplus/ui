@@ -1,6 +1,13 @@
 @use '/shared';
 @use 'variables';
 
+// Typed, so the track can transition it and JS hears it change.
+@property --drift {
+    inherits: true;
+    initial-value: 1;
+    syntax: '<number>';
+}
+
 .marquee {
     color: var(--color);
     font-size: var(--font-size);
@@ -70,8 +77,9 @@
         align-items: center;
         display: flex;
         gap: var(--item-gap);
-        // Root transitions transform on every element; that would lag each frame and animate the loop wrap.
-        transition: none;
+        // Root transitions transform on every element; that would lag each frame and animate the loop wrap. Only
+        // '--drift' transitions, for its end to tell JS it changed.
+        transition: --drift 1ms;
         width: max-content;
         will-change: transform;
     }
@@ -87,17 +95,16 @@
         }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        &-group--copy {
-            display: none;
-        }
+    // Holding still, it is a strip to scroll by hand.
+    &--still &-group--copy {
+        display: none;
+    }
 
-        &-track {
-            will-change: auto;
-        }
+    &--still &-track {
+        will-change: auto;
+    }
 
-        &-viewport {
-            overflow-x: auto;
-        }
+    &--still &-viewport {
+        overflow-x: auto;
     }
 }

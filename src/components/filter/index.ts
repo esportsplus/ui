@@ -1,6 +1,7 @@
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
-import { reduced } from '~/shared/animation';
+import { timing } from '~/shared/animation';
 import type { Attributes } from '@esportsplus/template';
+import './scss/index.scss';
 
 
 type Filter<T> = {
@@ -22,13 +23,6 @@ type Origin = {
     top: number;
 };
 
-
-const ENTER: KeyframeAnimationOptions = { duration: 200, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' };
-
-const LEAVE: KeyframeAnimationOptions = { duration: 140, easing: 'cubic-bezier(0.4, 0, 1, 1)' };
-
-// Same duration and curve as accordion.more's height transition.
-const MOVE: KeyframeAnimationOptions = { duration: 480, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' };
 
 const OFFSCREEN = 'clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; white-space: nowrap; width: 1px;';
 
@@ -52,10 +46,14 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         buttons: (HTMLElement | undefined)[] = [],
         counts: Record<string, number> = {},
         elements: (HTMLElement | undefined)[] = [],
+        // How items come, go and move, from the list's CSS; null where it has no duration.
+        enter: KeyframeAnimationOptions | null = null,
         heldFocus = false,
         id = `filter-${++instance}`,
+        leave: KeyframeAnimationOptions | null = null,
         leaving = new Map<HTMLElement, string>(),
         list: HTMLElement | undefined,
+        move: KeyframeAnimationOptions | null = null,
         resize: Animation | undefined,
         shown: boolean[] = [],
         status = reactive({ visible: 0 });
@@ -236,7 +234,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             let origin = lifts.get(element),
                 rect = first.get(element);
 
-            if (!origin || !rect || !near(rect)) {
+            if (!leave || !origin || !rect || !near(rect)) {
                 element.style.display = 'none';
                 continue;
             }
@@ -252,7 +250,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             element.style.top = `${rect.top - origin.top}px`;
             element.style.width = `${rect.width}px`;
 
-            play(element, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(0.98)' }], LEAVE).onfinish = () => {
+            play(element, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(0.98)' }], leave).onfinish = () => {
                 animations.delete(element);
                 release(element);
                 element.style.display = 'none';
@@ -273,7 +271,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             return;
         }
 
-        if (height) {
+        if (height && move) {
             resize?.cancel();
 
             let to = list.getBoundingClientRect().height;
@@ -288,7 +286,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
                     keyframes[0].overflow = keyframes[1].overflow = 'hidden';
                 }
 
-                resize = list.animate(keyframes, MOVE);
+                resize = list.animate(keyframes, move);
             }
         }
 
@@ -303,14 +301,14 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
                 rect = first.get(element);
 
             if (!rect) {
-                if (near(last)) {
-                    play(element, [{ opacity: 0, transform: 'scale(0.97)' }, { opacity: 1, transform: 'scale(1)' }], ENTER);
+                if (enter && near(last)) {
+                    play(element, [{ opacity: 0, transform: 'scale(0.97)' }, { opacity: 1, transform: 'scale(1)' }], enter);
                 }
 
                 continue;
             }
 
-            if (!near(last) && !near(rect)) {
+            if (!move || (!near(last) && !near(rect))) {
                 continue;
             }
 
@@ -326,7 +324,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             play(element, [
                 { transform: `translate(${x}px, ${y}px) scale(${w}, ${h})`, transformOrigin: '0 0' },
                 { transform: 'none', transformOrigin: '0 0' }
-            ], MOVE);
+            ], move);
         }
     }
 
@@ -334,7 +332,12 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         state.active;
 
         untrack(() => {
-            update(!reduced());
+            let computed = list && getComputedStyle(list);
+
+            enter = computed ? timing(computed, 'enter') : null;
+            leave = computed ? timing(computed, 'leave') : null;
+            move = computed ? timing(computed, 'move') : null;
+            update(!!(enter || leave || move));
         });
     });
 
@@ -373,6 +376,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             }
         }),
         list: {
+            class: 'filter',
             id,
             onconnect: (element: HTMLElement) => {
                 list = element;

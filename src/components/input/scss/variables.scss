@@ -68,6 +68,8 @@
     --box-shadow: var(--box-shadow-200);
     --chip-background: var(--color-white-300);
     --chip-background-active: var(--color-text-500);
+    // Read by JS: how far a chip blurs as it comes and goes; half that leaving.
+    --chip-blur: 4px;
     // 8px inside 6px of box padding keeps the 14px box concentric.
     --chip-border-radius: var(--border-radius-400);
     --chip-color: var(--color-text-500);
@@ -76,7 +78,15 @@
     --chip-remove-color: var(--color-text-300);
     --chip-remove-color-hover: var(--color-text-500);
     --chip-remove-hover-background: oklch(from var(--color-text-500) l c h / 0.06);
+    // Read by JS: what a formed chip's remove button grows from, what a chip grows from and shrinks to, how far a
+    // repeated tag's chip shakes and how dim it goes, and how the row slides (no bounce: closing up reads as settled).
+    --chip-remove-scale: 0.25;
+    --chip-scale: 0.9;
     --chip-shadow: var(--box-shadow-100);
+    --chip-shake: 4px;
+    --chip-shake-opacity: 1;
+    --chip-slide-duration: 410ms;
+    --chip-slide-easing: linear(0, 0.038, 0.116, 0.219, 0.326, 0.43, 0.518, 0.602, 0.674, 0.731, 0.782, 0.825, 0.858, 0.886, 0.91, 0.928, 0.942, 0.955, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
     --color: var(--color-text-500);
     --entry-min-width: 120px;
     --font-size: var(--font-size-300);
@@ -90,6 +100,16 @@
     // Shared by a chip's text and the field, so a typed tag becomes a chip without its letters shifting.
     --text-inset: 10px;
     --width: min(440px, 100%);
+
+    // Chips fade where they stand, and a repeated tag's chip dims instead of shaking.
+    @media (prefers-reduced-motion: reduce) {
+        --chip-blur: 0px;
+        --chip-remove-scale: 1;
+        --chip-scale: 1;
+        --chip-shake: 0px;
+        --chip-shake-opacity: 0.4;
+        --chip-slide-duration: 0s;
+    }
 
     // Qualified so it wins over the reused input styles regardless of stylesheet order.
     &-entry > #{&}-field {

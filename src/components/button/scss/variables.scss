@@ -76,10 +76,20 @@
         --morph-font-size: 14px;
         --morph-height: 40px;
         --morph-icon-size: 16px;
+        // Read by JS when the width morphs and when a failed save shakes.
+        --morph-resize-duration: 300ms;
+        --morph-resize-easing: var(--morph-spring);
         --morph-scale-pressed: 0.96;
+        --morph-shake-duration: 350ms;
+        --morph-shake-easing: ease-in-out;
         --morph-spring: linear(0, 0.057, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.896, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
         --padding-horizontal: 20px;
         --padding-vertical: 0px;
+
+        @media (prefers-reduced-motion: reduce) {
+            --morph-resize-duration: 0s;
+            --morph-shake-duration: 0s;
+        }
     }
 
     &--morph-error {

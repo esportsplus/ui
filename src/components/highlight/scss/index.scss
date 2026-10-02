@@ -70,8 +70,14 @@
         }
     }
 
+    // The layer jumps to its item. Doubled to outrank the active state's own glide.
     @media (prefers-reduced-motion: reduce) {
         transition: background var(--transition-duration) var(--transition-timing-function);
+
+        &.highlight {
+            --glide: 0s;
+            --glide-tail: 0s;
+        }
     }
 }
 

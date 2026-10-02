@@ -2,7 +2,6 @@ import { component, html, on, type Attributes, type Element, type Renderable } f
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import form from '~/components/form';
 import scrollbar from '~/css-utilities/scrollbar';
-import { reduced } from '~/shared/animation';
 import './scss/index.scss';
 
 
@@ -104,7 +103,7 @@ export default component(
             // Measured while hidden (0) or at another item size, the scroller no longer sits on the selection
             if (next !== height) {
                 height = next;
-                scroller.scrollTop = clamp(keys.indexOf(String(state.selected))) * height;
+                scroller.scrollTo({ behavior: 'instant', top: clamp(keys.indexOf(String(state.selected))) * height });
             }
 
             if (!height || timeline) {
@@ -144,10 +143,7 @@ export default component(
         }
 
         function scrollTo(index: number) {
-            scroller?.scrollTo({
-                behavior: reduced() ? 'auto' : 'smooth',
-                top: clamp(index) * height
-            });
+            scroller?.scrollTo({ top: clamp(index) * height });
         }
 
         function settle() {

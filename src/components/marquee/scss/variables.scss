@@ -1,6 +1,8 @@
 .marquee {
     --color: var(--color-text-300);
     --color-hover: var(--color-text-400);
+    // Read by JS: the share of its speed it drifts at. None holds it still, as a strip to scroll by hand.
+    --drift: 1;
     --fade: var(--size-700);
     --focus-color: var(--color-blue-400);
     --font-size: var(--font-size-300);
@@ -10,6 +12,10 @@
     --item-height: 40px;
     --item-padding-horizontal: var(--size-300);
     --transition-duration: 0.15s;
+
+    @media (prefers-reduced-motion: reduce) {
+        --drift: 0;
+    }
 
     // Children re-declare --padding-* via root's `*` rule, so it has to be set here rather than inherited.
     &-viewport {

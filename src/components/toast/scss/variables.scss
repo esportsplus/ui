@@ -35,6 +35,8 @@
 .toast {
     // Collapsed layer: toasts past the limit wait, unseen, in the last visible one.
     --depth: min(var(--toast-index), var(--toast-limit) - 1);
+    // Read by JS: the longest a swiped-away toast is thrown for.
+    --fling-duration: 500ms;
     // Each layer's far edge sits one peek past the layer in front of it, measured from the front toast's height so
     // a taller toast behind never shows more of itself.
     --stack-shift: calc(var(--toast-frontmost-height) + var(--depth) * var(--stack-peek) - var(--toast-scale) * var(--toast-height));
@@ -54,6 +56,11 @@
     --toast-seconds: 0;
     --toast-swipe-x: 0px;
     --toast-swipe-y: 0px;
+
+    // Swiped away, it fades where it was let go.
+    @media (prefers-reduced-motion: reduce) {
+        --fling-duration: 0s;
+    }
 
     &-close.button {
         --background-default: var(--color-white-300);

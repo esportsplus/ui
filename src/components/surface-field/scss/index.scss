@@ -2,6 +2,13 @@
 @use '/tokens';
 @use 'variables';
 
+// Typed, so the canvas can transition it and JS hears it change.
+@property --still {
+    inherits: true;
+    initial-value: 0;
+    syntax: '<number>';
+}
+
 // The canvas paints behind the content and never takes the pointer; the host listens instead, so the light keeps
 // following over surfaces and content. Its `color` and `accent-color` are what the field reads to draw.
 .surface-field {
@@ -14,7 +21,8 @@
         color: var(--color);
         height: 100%;
         pointer-events: none;
-        transition: none;
+        // Only '--still' transitions, for its end to tell JS it changed.
+        transition: --still 1ms;
         width: 100%;
         z-index: 0;
     }

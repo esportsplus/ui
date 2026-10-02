@@ -1,6 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
-import { reduced } from '~/shared/animation';
+import { timing } from '~/shared/animation';
 import check from '@esportsplus/ui/svg/check.svg';
 
 
@@ -16,13 +16,12 @@ type State = {
 };
 
 
-const DAMPING = 20;
-
 const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-const REST = 0.01;
+// Damping ratio: just past critical, so the ink never pours past its mark.
+const RATIO = 1.054;
 
-const STIFFNESS = 90;
+const REST = 0.01;
 
 // The tens column starts blank, so 7% never reads as 07%.
 const TENS = [' ', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -48,9 +47,11 @@ function roll(strip: string[], index: () => number) {
 
 
 export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...attributes }: A) => {
-    let frame = 0,
+    let damping = 0,
+        frame = 0,
         ink = reactive({ position: clamp(state.value) }),
         position = ink.position,
+        stiffness = 0,
         stop: VoidFunction | undefined,
         target = position,
         time = 0,
@@ -72,7 +73,7 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
         time = now;
 
         for (let i = 0; i < elapsed; i++) {
-            velocity += (STIFFNESS * (target - position) - DAMPING * velocity) / 1000;
+            velocity += (stiffness * (target - position) - damping * velocity) / 1000;
             position += velocity / 1000;
         }
 
@@ -99,11 +100,13 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
             role='progressbar'
             ${attributes}
             ${{
-                onconnect: () => {
+                onconnect: (element: HTMLElement) => {
                     stop = effect(() => {
+                        let pour = timing(getComputedStyle(element), 'pour');
+
                         target = clamp(state.value);
 
-                        if (reduced()) {
+                        if (!pour) {
                             cancelAnimationFrame(frame);
                             frame = 0;
                             position = target;
@@ -112,6 +115,10 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
 
                             return;
                         }
+
+                        // At this ratio the spring is all but at rest after 8 / damping seconds.
+                        damping = 8000 / (pour.duration as number);
+                        stiffness = (damping / (2 * RATIO)) ** 2;
 
                         if (!frame) {
                             time = performance.now();

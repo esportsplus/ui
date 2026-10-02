@@ -235,7 +235,6 @@ export default component(
             host: HTMLElement | undefined,
             last = { accent: '', camera: null as Camera | null, color: '', shapes: [] as Shape[], size: '' },
             measuring = 0,
-            reduced = matchMedia('(prefers-reduced-motion: reduce)'),
             relink = true,
             resizer: ResizeObserver | undefined,
             running = 0,
@@ -519,7 +518,8 @@ export default component(
                 (snapshot as Record<string, unknown>)[key] = read(key);
             }
 
-            snapshot.still ||= reduced.matches;
+            // Or held still by the CSS, under reduced motion say.
+            snapshot.still ||= !!canvas && parseFloat(getComputedStyle(canvas).getPropertyValue('--still')) > 0;
 
             return snapshot;
         }
@@ -613,7 +613,6 @@ export default component(
                                 shown = entries[entries.length - 1].isIntersecting && !document.hidden;
                                 field?.visible(shown);
                             }),
-                            motion = () => field?.configure(settings()),
                             // Surfaces are followed through the writes that move them, not by polling layout.
                             mutation = new MutationObserver((records) => {
                                 for (let i = 0, n = records.length; i < n; i++) {
@@ -662,7 +661,6 @@ export default component(
 
                         element.addEventListener('scroll', viewport, { capture: true, passive: true });
                         document.addEventListener('visibilitychange', page);
-                        reduced.addEventListener('change', motion);
                         scheme.addEventListener('change', recolor);
                         window.addEventListener('resize', viewport, { passive: true });
                         window.addEventListener('scroll', blur, { capture: true, passive: true });
@@ -676,7 +674,6 @@ export default component(
                             document.removeEventListener('visibilitychange', page);
                             intersection.disconnect();
                             mutation.disconnect();
-                            reduced.removeEventListener('change', motion);
                             resizer?.disconnect();
                             scheme.removeEventListener('change', recolor);
                             theme.disconnect();
@@ -757,6 +754,12 @@ export default component(
                     ${{
                         onconnect: (element: HTMLCanvasElement) => {
                             canvas = element;
+                        },
+                        // Its CSS transitions '--still' alone, so a change to it is heard here.
+                        ontransitionend: (e: TransitionEvent) => {
+                            if (e.propertyName === '--still') {
+                                field?.configure(settings());
+                            }
                         }
                     }}
                 ></canvas>

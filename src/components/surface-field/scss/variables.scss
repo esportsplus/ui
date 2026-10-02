@@ -1,6 +1,8 @@
 .surface-field {
     --accent: #6683e8;
     --color: var(--color-text-500);
+    // Read by JS: 1 draws a still texture, as the 'still' option does.
+    --still: 0;
     --surface-background: var(--color-white-300);
     --surface-body-color: var(--color-text-300);
     --surface-body-font-size: calc(var(--font-size-400) * 0.8125);
@@ -13,4 +15,8 @@
     --surface-handle-height: 28px;
     --surface-lift-duration: 200ms;
     --surface-title-color: var(--color-text-500);
+
+    @media (prefers-reduced-motion: reduce) {
+        --still: 1;
+    }
 }

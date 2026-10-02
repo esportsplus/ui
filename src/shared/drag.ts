@@ -1,4 +1,4 @@
-import { reduced } from '~/shared/animation';
+import { timing } from '~/shared/animation';
 
 
 // Drag-to-dismiss: capture past a small threshold, follow the pointer out by any of the ways the element may leave,
@@ -61,8 +61,6 @@ const FLICK_VELOCITY = 0.11;
 // Ease-out cubic: it leaves at three times its average speed, so a fling lasting 3 * distance / velocity leaves at
 // exactly the speed it was let go at.
 const FLING_EASING = 'cubic-bezier(0.33, 1, 0.68, 1)';
-
-const FLING_MAX = 500;
 
 const FLING_MIN = 150;
 
@@ -278,9 +276,12 @@ const drag = ({ begin, capture, move, release }: Options) => {
 
 // Carries a dismissed drag on until the element has cleared the viewport: the way the pointer was last moving (only
 // its parts heading out), or where it had been dragged when the pointer stopped, leaving at the speed it was let go
-// at. Null under reduced motion, where it should fade where it stands instead.
+// at, for no longer than the element's '--fling-duration'. Null without one (reduced motion zeroes it), where it should
+// fade where it stands instead.
 const fling = (element: HTMLElement, { directions, time, vx, vy, x, y }: Drag): Fling | null => {
-    if (reduced()) {
+    let longest = timing(getComputedStyle(element), 'fling')?.duration as number | undefined;
+
+    if (!longest) {
         return null;
     }
 
@@ -324,7 +325,7 @@ const fling = (element: HTMLElement, { directions, time, vx, vy, x, y }: Drag): 
     travel = Math.max(travel, 0);
 
     return {
-        duration: speed > 0 ? Math.min(Math.max((3 * travel) / speed, FLING_MIN), FLING_MAX) : FLING_MAX,
+        duration: speed > 0 ? Math.min(Math.max((3 * travel) / speed, FLING_MIN), longest) : longest,
         easing: FLING_EASING,
         x: ux * travel,
         y: uy * travel

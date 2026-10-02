@@ -1,7 +1,7 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
 import close from '@esportsplus/ui/svg/close.svg';
-import { measure, slide } from '~/shared/animation';
+import { measure, slide, timing } from '~/shared/animation';
 import input from './field';
 
 
@@ -47,13 +47,8 @@ const POP: KeyframeAnimationOptions = {
 // Decaying swings say "already here" without reading as an error.
 const SHAKE: KeyframeAnimationOptions = { duration: 300, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' };
 
-// No bounce on the slide: the row closing up should read as settled.
-const SLIDE: KeyframeAnimationOptions = {
-    duration: 410,
-    easing: 'linear(0, 0.038, 0.116, 0.219, 0.326, 0.43, 0.518, 0.602, 0.674, 0.731, 0.782, 0.825, 0.858, 0.886, 0.91, 0.928, 0.942, 0.955, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1)'
-};
-
-const SWAP: KeyframeAnimationOptions = { ...SLIDE, delay: 60, duration: 300, fill: 'backwards' };
+// Eases like the row's slide.
+const SWAP: KeyframeAnimationOptions = { delay: 60, duration: 300, fill: 'backwards' };
 
 const INPUT_TAG_FIELD = Symbol.for('@esportsplus/ui/input.tag.field');
 
@@ -63,6 +58,22 @@ let uid = 0;
 
 function key(tag: string) {
     return tag.toLowerCase();
+}
+
+// How chips move, from the CSS: how far they blur, shrink and shake, how dim a shake goes, what the remove button grows
+// from, and the row's slide.
+function motion(element: Element) {
+    let computed = getComputedStyle(element);
+
+    return {
+        blur: parseFloat(computed.getPropertyValue('--chip-blur')) || 0,
+        dim: parseFloat(computed.getPropertyValue('--chip-shake-opacity')) || 1,
+        grow: parseFloat(computed.getPropertyValue('--chip-remove-scale')) || 1,
+        scale: parseFloat(computed.getPropertyValue('--chip-scale')) || 1,
+        settle: computed.getPropertyValue('--chip-slide-easing').trim() || 'ease',
+        shake: parseFloat(computed.getPropertyValue('--chip-shake')) || 0,
+        slide: timing(computed, 'chip-slide')
+    };
 }
 
 
@@ -85,7 +96,6 @@ export default component(
             id = `input-tag-${++uid}`,
             list: HTMLElement | undefined,
             local = reactive({ announcement: '', armed: '' }),
-            reduced = matchMedia('(prefers-reduced-motion: reduce)'),
             shakes = new Map<Element, Animation>(),
             slot = html.reactive(state.tags, (tag) => html`
                 <li
@@ -135,10 +145,10 @@ export default component(
                         // Not before: until it is in the document its node belongs to the template's own, whose clock
                         // never runs.
                         onconnect: (element: HTMLElement) => {
+                            let { blur, scale } = motion(element);
+
                             element.animate(
-                                reduced.matches
-                                    ? { opacity: [1, 0] }
-                                    : { filter: ['blur(0)', 'blur(2px)'], opacity: [1, 0], scale: [1, 0.9] },
+                                { filter: ['blur(0)', `blur(${blur / 2}px)`], opacity: [1, 0], scale: [1, scale] },
                                 { ...LEAVE, fill: 'forwards' }
                             ).finished.then(() => {
                                 let at = ghosts.indexOf(ghost);
@@ -202,16 +212,11 @@ export default component(
         // Its letters are already on screen where the field was, so only the chip's body and remove button form around them.
         function form(chip: HTMLElement) {
             let body = chip.querySelector('.input-tag-chip-body'),
-                remove = chip.querySelector('.input-tag-chip-remove');
+                remove = chip.querySelector('.input-tag-chip-remove'),
+                { blur, grow, scale, settle } = motion(chip);
 
-            if (reduced.matches) {
-                body?.animate({ opacity: [0, 1] }, POP);
-                remove?.animate({ opacity: [0, 1] }, SWAP);
-                return;
-            }
-
-            body?.animate({ opacity: [0, 1], scale: [0.9, 1] }, POP);
-            remove?.animate({ filter: ['blur(4px)', 'blur(0)'], opacity: [0, 1], scale: [0.25, 1] }, SWAP);
+            body?.animate({ opacity: [0, 1], scale: [scale, 1] }, POP);
+            remove?.animate({ filter: [`blur(${blur}px)`, 'blur(0)'], opacity: [0, 1], scale: [grow, 1] }, { ...SWAP, easing: settle });
         }
 
         // Records every item's box, applies the change, then slides each survivor from its old box to its new one.
@@ -221,7 +226,8 @@ export default component(
                 return;
             }
 
-            let children = list.children;
+            let children = list.children,
+                shift = motion(list).slide;
 
             measure(children);
             change();
@@ -230,7 +236,7 @@ export default component(
             for (let i = 0, n = children.length; i < n; i++) {
                 let child = children[i] as HTMLElement;
 
-                if (!child.classList.contains('input-tag-ghost') && !slide(child, reduced.matches ? null : SLIDE)) {
+                if (!child.classList.contains('input-tag-ghost') && !slide(child, shift)) {
                     enter?.(child);
                 }
             }
@@ -243,22 +249,22 @@ export default component(
                 return;
             }
 
+            let { dim, shake } = motion(element);
+
             shakes.get(element)?.cancel();
             shakes.set(
                 element,
-                reduced.matches
-                    ? element.animate({ opacity: [1, 0.4, 1] }, SHAKE)
-                    : element.animate({ translate: ['0', '-4px', '4px', '-3px', '2px', '0'] }, SHAKE)
+                element.animate(
+                    { opacity: [1, dim, 1], translate: ['0', `${-shake}px`, `${shake}px`, `${shake * -0.75}px`, `${shake / 2}px`, '0'] },
+                    SHAKE
+                )
             );
         }
 
         function pop(chip: HTMLElement) {
-            if (reduced.matches) {
-                chip.animate({ opacity: [0, 1] }, POP);
-                return;
-            }
+            let { blur, scale } = motion(chip);
 
-            chip.animate({ filter: ['blur(4px)', 'blur(0)'], opacity: [0, 1], scale: [0.9, 1] }, POP);
+            chip.animate({ filter: [`blur(${blur}px)`, 'blur(0)'], opacity: [0, 1], scale: [scale, 1] }, POP);
         }
 
         function remove(k: string) {

@@ -1,6 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { reduced } from '~/shared/animation';
+import { timing } from '~/shared/animation';
 
 
 type A = Attributes & {
@@ -15,12 +15,6 @@ const HOLD = 1800;
 // How long the word sits selected before the first key replaces it: the beat where a person decides on the new
 // word. Includes the selection sweep.
 const SELECTED_FOR = 620;
-
-// Per-character typing delay: a base plus up to this much jitter, which lands around 8 to 14 keys a second, the pace
-// of someone who knows the word.
-const TYPE_BASE = 62;
-
-const TYPE_JITTER = 64;
 
 
 // Deterministic, and smooth from key to key: a slow wave carries a rhythm through the word and a small hash roughens
@@ -43,7 +37,7 @@ export default ({ prefix = '', words, ...attributes }: A) => {
 
     return html`
         <span class='typewriter-retype ${() => view.state}' ${attributes} ${{
-            onconnect: () => {
+            onconnect: (element: HTMLElement) => {
                 if (words.length < 2) {
                     return;
                 }
@@ -51,10 +45,13 @@ export default ({ prefix = '', words, ...attributes }: A) => {
                 let length = words[0].length,
                     word = 0;
 
-                // Reduced motion lands the whole word in one key, fading in without the blur.
+                // A key that takes no time, under reduced motion say, lands the whole word at once.
                 function key() {
-                    let target = words[word],
-                        end = reduced() ? target.length : length + 1;
+                    let computed = getComputedStyle(element),
+                        pace = timing(computed, 'key'),
+                        spread = timing(computed, 'key-jitter'),
+                        target = words[word],
+                        end = pace ? length + 1 : target.length;
 
                     letters.push(...target.slice(length, end));
                     length = end;
@@ -65,7 +62,7 @@ export default ({ prefix = '', words, ...attributes }: A) => {
                     view.state = finished ? '' : 'typewriter-retype--typing';
                     timer = finished
                         ? setTimeout(select, HOLD)
-                        : setTimeout(key, TYPE_BASE + jitter(word, length) * TYPE_JITTER);
+                        : setTimeout(key, (pace?.duration as number) + jitter(word, length) * ((spread?.duration as number) || 0));
                 }
 
                 // Rewrites the way people do: select the word, then type over it. The first key replaces the whole

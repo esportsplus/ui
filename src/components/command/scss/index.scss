@@ -107,8 +107,14 @@
         overscroll-behavior: contain;
         // Padding plus the option radius equals the dialog radius; the sides take 2px more to clear the highlight off the edges.
         padding: calc(var(--size-100) / 2) calc(var(--size-100) / 2 + 2px);
+        // Stepping past the edge glides the list along rather than jumping it.
+        scroll-behavior: smooth;
         scroll-padding-block: calc(var(--size-100) / 2);
         width: 100%;
+
+        @media (prefers-reduced-motion: reduce) {
+            scroll-behavior: auto;
+        }
 
         &.command-list--empty {
             display: none;

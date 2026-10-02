@@ -1,6 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, flush, reactive } from '@esportsplus/reactivity';
-import { reduced } from '~/shared/animation';
 import './scss/index.scss';
 
 
@@ -198,10 +197,7 @@ export default component(
                 return;
             }
 
-            scroller?.scrollTo({
-                behavior: reduced() ? 'auto' : 'smooth',
-                top: 0
-            });
+            scroller?.scrollTo({ top: 0 });
             refresh();
         });
 

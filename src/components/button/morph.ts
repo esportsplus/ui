@@ -1,6 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
-import { reduced } from '~/shared/animation';
+import { timing } from '~/shared/animation';
 import check from '@esportsplus/ui/svg/check.svg';
 import spinner from '@esportsplus/ui/svg/spinner.svg';
 
@@ -41,8 +41,6 @@ const SHAKE: Keyframe[] = [
     { translate: '0' }
 ];
 
-const SPRING = 'linear(0, 0.057, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.896, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1)';
-
 
 function busy(status: Status) {
     return status === 'loading' || status === 'success';
@@ -58,19 +56,18 @@ export default component(
             stop: VoidFunction | undefined;
 
         function resize(element: HTMLElement, compact: boolean) {
-            let from = getComputedStyle(element).width;
+            let computed = getComputedStyle(element),
+                from = computed.width,
+                resize = timing(computed, 'morph-resize');
 
             morph?.cancel();
             element.style.width = compact ? 'var(--morph-height)' : '';
 
-            if (reduced()) {
+            if (!resize) {
                 return;
             }
 
-            morph = element.animate(
-                [{ width: from }, { width: getComputedStyle(element).width }],
-                { duration: 300, easing: SPRING }
-            );
+            morph = element.animate([{ width: from }, { width: computed.width }], resize);
         }
 
         async function save(this: HTMLElement) {
@@ -104,12 +101,14 @@ export default component(
 
                 state.status = 'error';
 
-                if (reduced()) {
+                let timed = timing(getComputedStyle(element), 'morph-shake');
+
+                if (!timed) {
                     return;
                 }
 
                 // Waits for the width to mostly open so it shakes the settled shape.
-                shake = element.animate(SHAKE, { delay: 150, duration: 350, easing: 'ease-in-out' });
+                shake = element.animate(SHAKE, { ...timed, delay: 150 });
             }
         }
 

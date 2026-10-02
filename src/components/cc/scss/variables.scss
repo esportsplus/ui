@@ -27,6 +27,11 @@
     --swap-duration: 300ms;
     --width: min(400px, 100%);
 
+    // The ring jumps between fields, still fading in and out.
+    @media (prefers-reduced-motion: reduce) {
+        --ring-duration: 0s;
+    }
+
     // Qualified so it wins over the shared button styles regardless of stylesheet order.
     &-actions #{&}-submit {
         --background-default: var(--submit-background);

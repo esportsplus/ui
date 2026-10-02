@@ -272,7 +272,6 @@ export default component(
             id = `cc-${++uid}`,
             local = reactive({ confirmed: false, ring: false }),
             parts = { ...this?.attributes?.[CC_FIELD], ...attributes[CC_FIELD] },
-            reduced = matchMedia('(prefers-reduced-motion: reduce)'),
             regions: Partial<Record<Field, HTMLElement>> = {},
             ring: HTMLElement | undefined,
             slots = reactive([] as Slot[]),
@@ -348,7 +347,7 @@ export default component(
 
             // Coming from nowhere it appears in place; only a move between fields slides. Written straight to the
             // element because the transition has to be off for exactly one style flush.
-            if (!local.ring || reduced.matches) {
+            if (!local.ring) {
                 ring.style.cssText = `${style} transition-property: opacity;`;
                 ring.getBoundingClientRect();
                 ring.style.removeProperty('transition-property');

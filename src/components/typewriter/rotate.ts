@@ -1,6 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive, ReactiveArray } from '@esportsplus/reactivity';
-import { reduced } from '~/shared/animation';
+import { timing } from '~/shared/animation';
 import './scss/index.scss';
 
 
@@ -23,8 +23,6 @@ type State = {
 };
 
 
-const EASE_IN_OUT = 'cubic-bezier(0.77, 0, 0.175, 1)';
-
 const EASE_OUT = 'cubic-bezier(0.23, 1, 0.32, 1)';
 
 const ENTER_MS = 320;
@@ -32,10 +30,6 @@ const ENTER_MS = 320;
 // Leaving letters are gone before the glide lands, so the eye follows the letters that stay rather than the ones
 // that go.
 const EXIT_MS = 200;
-
-// Shared letters can travel most of a word across, so they get longer than a typical UI tween; any shorter and the
-// glide reads as a jump.
-const GLIDE_MS = 440;
 
 // Long enough to read the whole sentence once per word.
 const INTERVAL = 2600;
@@ -115,7 +109,8 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
 
         // Every swap flushes, so the box always holds the word's letters in order, then the exits.
         let from = box.getBoundingClientRect(),
-            motion = !reduced(),
+            // From the CSS; without one the swap is a plain crossfade, nothing travelling.
+            glide = timing(getComputedStyle(box), 'glide'),
             nodes = box.children,
             // Rects are post-transform; a scaled ancestor would otherwise have every offset applied twice.
             s = from.width / box.offsetWidth || 1;
@@ -128,8 +123,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
 
         let chars = [...words[index]],
             kept: boolean[] = [],
-            // Reduced motion is a plain crossfade: nothing travels.
-            pairs = motion ? match(letters.map((l) => l.char), chars) : new Map<number, number>(),
+            pairs = glide ? match(letters.map((l) => l.char), chars) : new Map<number, number>(),
             next = chars.map((char, j): Letter => {
                 let p = pairs.get(j);
 
@@ -159,7 +153,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
             let l = exits[i];
 
             nodes[letters.length + i]?.animate(
-                motion
+                glide
                     ? [
                         { filter: 'blur(0px)', opacity: 1, transform: 'translateY(0)' },
                         { filter: 'blur(4px)', opacity: 0, transform: 'translateY(-0.35em)' }
@@ -185,11 +179,8 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
             width = to.width / scale;
 
         // Width, not scale: the sentence needs real layout space so the words around it slide instead of snapping.
-        if (motion && Math.abs(width - from.width / s) > 0.5) {
-            box.animate([{ width: `${from.width / s}px` }, { width: `${width}px` }], {
-                duration: GLIDE_MS,
-                easing: EASE_IN_OUT
-            });
+        if (glide && Math.abs(width - from.width / s) > 0.5) {
+            box.animate([{ width: `${from.width / s}px` }, { width: `${width}px` }], glide);
         }
 
         for (let i = 0, n = letters.length; i < n; i++) {
@@ -198,7 +189,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
 
             if (was === undefined) {
                 nodes[i]?.animate(
-                    motion
+                    glide
                         ? [
                             { filter: 'blur(4px)', opacity: 0, transform: 'translateY(0.4em)' },
                             { filter: 'blur(0px)', opacity: 1, transform: 'translateY(0)' }
@@ -206,7 +197,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                         : [{ opacity: 0 }, { opacity: 1 }],
                     {
                         // A beat for the leaving letters to clear the space, then a small left-to-right cascade.
-                        delay: motion ? 90 + order++ * STAGGER_MS : 0,
+                        delay: glide ? 90 + order++ * STAGGER_MS : 0,
                         duration: ENTER_MS,
                         easing: EASE_OUT,
                         fill: 'backwards'
@@ -217,13 +208,13 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
 
             let now = ((nodes[i]?.getBoundingClientRect().left ?? to.left) - to.left) / scale;
 
-            if (Math.abs(was - now) < 0.5) {
+            if (!glide || Math.abs(was - now) < 0.5) {
                 continue;
             }
 
             nodes[i]?.animate(
                 [{ transform: `translateX(${was - now}px)` }, { transform: 'translateX(0)' }],
-                { duration: GLIDE_MS, easing: EASE_IN_OUT }
+                glide
             );
         }
     }

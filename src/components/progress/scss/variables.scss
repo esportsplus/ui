@@ -22,7 +22,13 @@
     --muted-color: var(--color-text-300);
     --part-gap: 10px;
     --part-height: 24px;
+    // Read by JS: about how long the ink takes to pour to a new value.
+    --pour-duration: 0.4s;
     --track-color: oklch(from var(--color-text-500) l c h / 0.2);
+
+    @media (prefers-reduced-motion: reduce) {
+        --pour-duration: 0s;
+    }
 
     &--blue {
         --color: var(--color-blue-400);

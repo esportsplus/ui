@@ -21,8 +21,6 @@ const measure = (elements: Iterable<Element>) => {
     }
 };
 
-const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-
 // Slides an element from the box 'measure' recorded to where the change put it, replacing a slide still running on it,
 // and returns that new box; undefined for an element 'measure' never saw, which is new to the layout. Added onto its
 // translate, so a shake or nudge of its own still plays.
@@ -61,4 +59,4 @@ const timing = (computed: CSSStyleDeclaration, name: string): KeyframeAnimationO
 };
 
 
-export { finished, measure, reduced, slide, timing };
+export { finished, measure, slide, timing };

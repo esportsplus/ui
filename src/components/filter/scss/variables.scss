@@ -1,0 +1,17 @@
+// On the list; read by JS when a filter changes which items show.
+.filter {
+    --enter-duration: 200ms;
+    --enter-easing: cubic-bezier(0.23, 1, 0.32, 1);
+    --leave-duration: 140ms;
+    --leave-easing: cubic-bezier(0.4, 0, 1, 1);
+    // Same duration and curve as accordion.more's height transition.
+    --move-duration: 480ms;
+    --move-easing: cubic-bezier(0.22, 1, 0.36, 1);
+
+    // Items appear and go in place.
+    @media (prefers-reduced-motion: reduce) {
+        --enter-duration: 0s;
+        --leave-duration: 0s;
+        --move-duration: 0s;
+    }
+}

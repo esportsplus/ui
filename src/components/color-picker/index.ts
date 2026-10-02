@@ -1,6 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
-import { measure, reduced, slide as shift } from '~/shared/animation';
+import { measure, slide as shift, timing } from '~/shared/animation';
 import input from '~/components/input';
 import range from '~/components/range';
 import './scss/index.scss';
@@ -29,17 +29,6 @@ const COLOR_PICKER_SWATCH = Symbol.for('@esportsplus/ui/color-picker.swatch');
 
 // Wide enough for a useful history, narrow enough to stay one row at 320px.
 const MAX_RECENT = 8;
-
-const SWATCH: KeyframeAnimationOptions = {
-    duration: 300,
-    easing: 'linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.897, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1)'
-};
-
-const SWATCH_EXIT: KeyframeAnimationOptions = {
-    duration: 150,
-    easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
-    fill: 'forwards'
-};
 
 
 let uid = 0;
@@ -181,21 +170,12 @@ function template(
             class='color-picker-swatch color-picker-swatch--leaving'
             style='--swatch: ${ghost.hex}; left: ${ghost.left}px; top: ${ghost.top}px;'
             ${{
-                // Not before: until it is in the document its node belongs to the template's own, whose clock never
-                // runs.
-                onconnect: (element: HTMLElement) => {
-                    element.animate(
-                        reduced()
-                            ? [{ opacity: 1 }, { opacity: 0 }]
-                            : [{ filter: 'blur(0px)', opacity: 1, scale: '1' }, { filter: 'blur(4px)', opacity: 0, scale: '0.6' }],
-                        SWATCH_EXIT
-                    ).finished.then(() => {
-                        let at = leaving.indexOf(ghost);
+                onanimationend: () => {
+                    let at = leaving.indexOf(ghost);
 
-                        if (at !== -1) {
-                            leaving.splice(at, 1);
-                        }
-                    }, () => {});
+                    if (at !== -1) {
+                        leaving.splice(at, 1);
+                    }
                 }
             }}
         ></span>
@@ -285,18 +265,20 @@ function template(
     // the dropped ones fade out from a stand-in, since their own nodes are already gone.
     function flip(container: HTMLElement, dropped: { hex: string, rect: DOMRect }[]) {
         let box = container.getBoundingClientRect(),
-            still = reduced();
+            computed = getComputedStyle(container),
+            enter = timing(computed, 'swatch'),
+            from = {
+                filter: `blur(${computed.getPropertyValue('--swatch-blur').trim()})`,
+                opacity: 0,
+                scale: computed.getPropertyValue('--swatch-scale').trim()
+            },
+            move = timing(computed, 'swatch-shift');
 
         for (let i = 0, n = recent.length; i < n; i++) {
             let element = container.children[i];
 
-            if (!shift(element, still ? null : SWATCH)) {
-                element.animate(
-                    still
-                        ? [{ opacity: 0 }, { opacity: 1 }]
-                        : [{ filter: 'blur(4px)', opacity: 0, scale: '0.6' }, { filter: 'blur(0px)', opacity: 1, scale: '1' }],
-                    SWATCH
-                );
+            if (!shift(element, move) && enter) {
+                element.animate([from, { filter: 'blur(0px)', opacity: 1, scale: '1' }], enter);
             }
         }
 

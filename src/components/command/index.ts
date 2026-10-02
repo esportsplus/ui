@@ -4,7 +4,6 @@ import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import input from '~/components/input';
 import overlay from '~/components/overlay';
-import { reduced } from '~/shared/animation';
 import { mac } from '~/shared/platform';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import up from '@esportsplus/ui/svg/arrow-up.svg';
@@ -570,12 +569,8 @@ export default component(
 
                                             state.index = (selected() + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
 
-                                            // 'nearest' only scrolls when the item is out of view; smooth so stepping past
-                                            // the edge glides the list along rather than jumping it.
-                                            options.get(option(view, state.index) ?? '')?.scrollIntoView({
-                                                behavior: reduced() ? 'instant' : 'smooth',
-                                                block: 'nearest'
-                                            });
+                                            // 'nearest' only scrolls when the item is out of view.
+                                            options.get(option(view, state.index) ?? '')?.scrollIntoView({ block: 'nearest' });
                                         }
                                         else if (e.key === 'Enter') {
                                             e.preventDefault();

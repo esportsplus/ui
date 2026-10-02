@@ -221,7 +221,9 @@
                 0 0 0 4px var(--color);
         }
 
+        // A stand-in for a dropped swatch, whose own node is already gone.
         &.color-picker-swatch--leaving {
+            animation: color-picker-swatch-leave var(--swatch-exit-duration) var(--swatch-exit-easing) forwards;
             pointer-events: none;
             position: absolute;
         }
@@ -280,5 +282,14 @@
         &-thumb {
             transition: none;
         }
+    }
+}
+
+
+@keyframes color-picker-swatch-leave {
+    to {
+        filter: blur(var(--swatch-blur));
+        opacity: 0;
+        scale: var(--swatch-scale);
     }
 }
