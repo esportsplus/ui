@@ -56,29 +56,28 @@ function percent(value: number, total: number) {
 export default function editor(settings: Parameters<typeof surfaceField>[0]['state']) {
     let camera: Camera = { x: 0, y: 0, zoom: 1 },
         glide = 0,
-        lens: HTMLElement | undefined,
         nodes: Record<string, Node> = {},
         pan: { pointerX: number, pointerY: number, x: number, y: number } | null = null,
         release: VoidFunction | undefined,
-        viewport: HTMLElement | undefined,
-        world: HTMLElement | undefined;
+        // What the world and the minimap's lens draw: the camera, and the viewport it looks through.
+        view = reactive({ height: 0, panning: false, width: 0, x: 0, y: 0, zoom: 1 }),
+        viewport: HTMLElement | undefined;
 
     for (let [id, kind, title, x, y] of NODES) {
         nodes[id] = { id, kind, state: reactive({ height: NODE_HEIGHT, title, width: NODE_WIDTH, x, y }) };
     }
 
-    // Written straight to the elements: the field reads the same camera object on its next frame, and a reactive
-    // binding would land a frame later, letting the cards drift off the grid mid-pan.
+    // The field reads the camera object itself; the world and the lens follow it through 'view'.
     function update() {
-        if (!lens || !viewport || !world) {
+        if (!viewport) {
             return;
         }
 
-        world.style.transform = `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})`;
-        lens.style.height = percent(viewport.clientHeight / camera.zoom, MAP.height);
-        lens.style.left = percent(-camera.x / camera.zoom - MAP.x, MAP.width);
-        lens.style.top = percent(-camera.y / camera.zoom - MAP.y, MAP.height);
-        lens.style.width = percent(viewport.clientWidth / camera.zoom, MAP.width);
+        view.height = viewport.clientHeight;
+        view.width = viewport.clientWidth;
+        view.x = camera.x;
+        view.y = camera.y;
+        view.zoom = camera.zoom;
     }
 
     function animate(to: Camera, instant = false) {
@@ -176,10 +175,9 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
             role='application'
             tabindex='0'
             ${{
+                class: () => view.panning && '--panning',
                 onconnect: (element: HTMLElement) => {
                     viewport = element;
-                    world = element.querySelector('.surface-field-editor-world') as HTMLElement;
-                    lens = element.parentElement!.querySelector('.surface-field-editor-lens') as HTMLElement;
                     // Delegated wheel listeners are passive, so bind directly to be able to stop the page scrolling.
                     element.addEventListener('wheel', wheel, { passive: false });
                     release = () => element.removeEventListener('wheel', wheel);
@@ -225,21 +223,19 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
 
                     event.preventDefault();
                 },
-                onlostpointercapture: (event: PointerEvent) => {
-                    (event.currentTarget as HTMLElement).classList.remove('--panning');
+                onlostpointercapture: () => {
                     pan = null;
+                    view.panning = false;
                 },
                 onpointerdown: (event: PointerEvent) => {
                     if (event.button !== 0 || (event.target as Element).closest('.surface-field-surface')) {
                         return;
                     }
 
-                    let element = event.currentTarget as HTMLElement;
-
                     cancelAnimationFrame(glide);
-                    element.classList.add('--panning');
-                    element.setPointerCapture(event.pointerId);
+                    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
                     pan = { pointerX: event.clientX, pointerY: event.clientY, x: camera.x, y: camera.y };
+                    view.panning = true;
                 },
                 onpointermove: (event: PointerEvent) => {
                     if (!pan) {
@@ -252,7 +248,10 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
                 }
             }}
         >
-            <div class='surface-field-editor-world'>
+            <div
+                class='surface-field-editor-world'
+                style='${() => `transform: translate(${view.x}px, ${view.y}px) scale(${view.zoom})`}'
+            >
                 ${Object.values(nodes).map((node) => surfaceField.surface(
                     {
                         bounded: false,
@@ -296,7 +295,10 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
                     style='${() => `height: ${percent(state.height, MAP.height)}; left: ${percent(state.x - MAP.x, MAP.width)}; top: ${percent(state.y - MAP.y, MAP.height)}; width: ${percent(state.width, MAP.width)};`}'
                 ></span>
             `)}
-            <span class='surface-field-editor-lens'></span>
+            <span
+                class='surface-field-editor-lens'
+                style='${() => view.width ? `height: ${percent(view.height / view.zoom, MAP.height)}; left: ${percent(-view.x / view.zoom - MAP.x, MAP.width)}; top: ${percent(-view.y / view.zoom - MAP.y, MAP.height)}; width: ${percent(view.width / view.zoom, MAP.width)};` : ''}'
+            ></span>
         </div>
 
         <div class='surface-field-editor-controls'>

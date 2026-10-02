@@ -1,4 +1,4 @@
-import { reactive } from '@esportsplus/reactivity';
+import { flush, reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import { announcement } from '@esportsplus/ui';
 import './announcement.scss';
@@ -53,11 +53,10 @@ function dismissed() {
     }
 }
 
-// Reactive attributes such as inert are written on the next frame, so focus waits one frame beyond that.
+// The state written just before lands first, so the target is no longer inert.
 function focus(frame: HTMLElement | undefined, selector: string) {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-        frame?.querySelector<HTMLElement>(selector)?.focus({ preventScroll: true });
-    }));
+    flush();
+    frame?.querySelector<HTMLElement>(selector)?.focus({ preventScroll: true });
 }
 
 function remember(value: boolean) {
@@ -87,13 +86,12 @@ export default {
                     <div
                         class='announcement-demo'
                         ${{
-                            onconnect: (element: HTMLElement) => {
+                            // Opens once it has painted closed, so the entrance is a real transition.
+                            onfirstpaint: () => {
+                                state.active = !dismissed();
+                            },
+                            onrender: (element: HTMLElement) => {
                                 frame = element;
-
-                                // Opens a frame after mount, so the entrance is a real transition.
-                                requestAnimationFrame(() => {
-                                    state.active = !dismissed();
-                                });
                             }
                         }}
                     >

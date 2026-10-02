@@ -10,19 +10,12 @@ const commands = { pnpm: 'pnpm add @esportsplus/ui', npm: 'npm install @esportsp
 const example = "import { html } from '@esportsplus/template';\n\nhtml`<button class='button button--primary'>\n  Save changes\n</button>`;";
 const styles = "@use '@esportsplus/ui/button.scss';\n@use '@esportsplus/ui/themes/dark/button.scss';";
 
-// Preserve source whitespace: the template compiler collapses static HTML text.
-const sourceCode = (source: string) => html`<code ${{ onconnect: (element: HTMLElement) => {
-    const fragments = source.split(/('[^']*'|@use|\bimport\b|\bfrom\b)/g);
-    element.replaceChildren(...fragments.map((fragment) => {
-        if (fragment.startsWith("'") || /^(?:@use|import|from)$/.test(fragment)) {
-            const span = document.createElement('span');
-            span.className = fragment.startsWith("'") ? 'code-string' : 'code-keyword';
-            span.textContent = fragment;
-            return span;
-        }
-        return document.createTextNode(fragment);
-    }));
-} }}></code>`;
+// Source goes in through slots, which keep its whitespace; the template compiler collapses static HTML text.
+const sourceCode = (source: string) => html`<code>${source.split(/('[^']*'|@use|\bimport\b|\bfrom\b)/g).map((fragment) =>
+    fragment.startsWith("'") || /^(?:@use|import|from)$/.test(fragment)
+        ? html`<span class='${fragment.startsWith("'") ? 'code-string' : 'code-keyword'}'>${fragment}</span>`
+        : fragment
+)}</code>`;
 
 export default () => {
     const state = reactive({ manager: 'pnpm' as typeof managers[number], copied: '', saved: false });
