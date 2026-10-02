@@ -54,7 +54,7 @@ export default {
                     </section>
                 `;
             },
-            title: 'profile'
+            title: 'profile - without rich editor'
         },
         {
             render: () => {
