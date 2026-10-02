@@ -349,4 +349,4 @@ const toward = ({ x, y }: { x: -1 | 0 | 1; y: -1 | 0 | 1 }) => {
 
 
 export { drag, fling, INTERACTIVE, toward };
-export type { Direction, Drag };
+export type { Direction, Drag, Fling };

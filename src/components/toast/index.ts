@@ -1,7 +1,7 @@
-import { computed, effect, reactive, read } from '@esportsplus/reactivity';
+import { computed, reactive, read } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { edge, type Edge } from '~/shared/anchor';
-import { drag, fling, toward } from '~/shared/drag';
+import { drag, fling, toward, type Fling } from '~/shared/drag';
 import close from '@esportsplus/ui/svg/close.svg';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
@@ -79,41 +79,31 @@ const UNPLACED: Edge = { x: 1, y: -1 };
 function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void) {
     let element: HTMLElement | undefined,
         frontmost = 0,
-        observer: ResizeObserver | undefined,
-        stop: VoidFunction | undefined;
+        // 'swipe' is where a swipe holds it, 'thrown' the way a dismissing swipe flings it on.
+        local = reactive({ swipe: null as { x: number, y: number } | null, swiping: false, thrown: null as Fling | null }),
+        observer: ResizeObserver | undefined;
 
     let gesture = drag({
         // Swiped back toward the edges the stack is pinned to.
         begin: (e, element) => e.button === 0 ? toward(edge(element.closest('.toaster') ?? element, 'toaster') ?? UNPLACED) : null,
-        capture: (element) => {
-            element.classList.add('toast--swiping');
+        capture: () => {
+            local.swiping = true;
         },
-        move: (element, { x, y }) => {
-            element.style.setProperty('--toast-swipe-x', `${x}px`);
-            element.style.setProperty('--toast-swipe-y', `${y}px`);
+        move: (_, { x, y }) => {
+            local.swipe = { x, y };
         },
         // Dismissing, it is thrown on from where the pointer let go until it has left the screen; under reduced
         // motion it fades there like any other exit.
         release: (element, drag, dismiss) => {
-            let thrown = dismiss ? fling(element, drag) : null;
-
-            element.classList.remove('toast--swiping');
-
-            if (thrown) {
-                element.style.setProperty('--toast-exit-duration', `${thrown.duration}ms`);
-                element.style.setProperty('--toast-exit-timing-function', thrown.easing);
-                element.style.setProperty('--translate-x', `${thrown.x}px`);
-                element.style.setProperty('--translate-y', `${thrown.y}px`);
-                element.toggleAttribute('data-flung', true);
-            }
+            local.swiping = false;
+            local.thrown = dismiss ? fling(element, drag) : null;
 
             if (dismiss) {
                 toast.state.active = false;
                 return;
             }
 
-            element.style.removeProperty('--toast-swipe-x');
-            element.style.removeProperty('--toast-swipe-y');
+            local.swipe = null;
         }
     });
 
@@ -124,7 +114,14 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
             ${toast.attributes}
             ${{
                 ...gesture,
-                class: () => !toast.state.active && 'toast--ending',
+                class: [
+                    () => !toast.state.active && 'toast--ending',
+                    () => (layout().slots.get(toast)?.index ?? 0) > 0 && 'toast--behind',
+                    () => layout().slots.get(toast)?.hidden && 'toast--hidden',
+                    () => toast.state.duration > 0 && 'toast--timed',
+                    () => local.swiping && 'toast--swiping',
+                    () => local.thrown && 'toast--flung'
+                ],
                 // The toast's own clock is a CSS animation, so it pauses and resumes wherever the stylesheet says.
                 onanimationend: (e: AnimationEvent) => {
                     if (e.target !== element) {
@@ -139,43 +136,43 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
                     }
                 },
                 onconnect: (el: HTMLElement) => {
-                    element = el;
-
                     // Layout height, unaffected by the collapsed scale.
                     observer = new ResizeObserver(() => {
                         toast.measured.height = el.offsetHeight;
                     });
                     observer.observe(el);
-
-                    // Written directly rather than bound, so a swipe's own properties on the element survive.
-                    stop = effect(() => {
-                        let { active, duration } = toast.state,
-                            stack = layout(),
-                            slot = stack.slots.get(toast);
-
-                        // Leaving, it keeps the front height it stood against: the stack closing up behind it would
-                        // otherwise move its slot, bending its exit off the line it was thrown along.
-                        if (active) {
-                            frontmost = stack.frontmost;
-                            el.style.removeProperty('--toast-frontmost-height');
-                        }
-                        else {
-                            el.style.setProperty('--toast-frontmost-height', `${frontmost}px`);
-                        }
-
-                        el.style.setProperty('--toast-duration', `${duration}ms`);
-                        el.style.setProperty('--toast-height', `${toast.measured.height}px`);
-                        el.style.setProperty('--toast-index', String(slot?.index ?? 0));
-                        el.style.setProperty('--toast-offset-y', `${slot?.offset ?? 0}px`);
-                        el.style.setProperty('--toast-seconds', String(Math.ceil(duration / 1000)));
-                        el.toggleAttribute('data-behind', (slot?.index ?? 0) > 0);
-                        el.toggleAttribute('data-hidden', slot?.hidden ?? false);
-                        el.toggleAttribute('data-timed', duration > 0);
-                    });
                 },
                 ondisconnect: () => {
                     observer?.disconnect();
-                    stop?.();
+                },
+                onrender: (el: HTMLElement) => {
+                    element = el;
+                },
+                style: () => {
+                    let { active, duration } = toast.state,
+                        { swipe, thrown } = local,
+                        stack = layout(),
+                        slot = stack.slots.get(toast),
+                        style = `--toast-duration: ${duration}ms; --toast-height: ${toast.measured.height}px; --toast-index: ${slot?.index ?? 0}; --toast-offset-y: ${slot?.offset ?? 0}px; --toast-seconds: ${Math.ceil(duration / 1000)};`;
+
+                    // Leaving, it keeps the front height it stood against: the stack closing up behind it would
+                    // otherwise move its slot, bending its exit off the line it was thrown along.
+                    if (active) {
+                        frontmost = stack.frontmost;
+                    }
+                    else {
+                        style += ` --toast-frontmost-height: ${frontmost}px;`;
+                    }
+
+                    if (swipe) {
+                        style += ` --toast-swipe-x: ${swipe.x}px; --toast-swipe-y: ${swipe.y}px;`;
+                    }
+
+                    if (thrown) {
+                        style += ` --toast-exit-duration: ${thrown.duration}ms; --toast-exit-timing-function: ${thrown.easing}; --translate-x: ${thrown.x}px; --translate-y: ${thrown.y}px;`;
+                    }
+
+                    return style;
                 }
             }}
         >

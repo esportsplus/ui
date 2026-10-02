@@ -98,7 +98,7 @@ $open: ':is(:hover, :focus-within)';
     }
 
     // Collapsed back toasts show only the front toast's height; the rest would hang past the stack.
-    > .toast[data-behind] {
+    > .toast.toast--behind {
         clip-path: inset(calc(100% - var(--toast-frontmost-height)) calc(var(--toast-bleed) * -1) calc(var(--toast-bleed) * -1));
 
         > * {
@@ -106,7 +106,7 @@ $open: ':is(:hover, :focus-within)';
         }
     }
 
-    > .toast[data-hidden] {
+    > .toast.toast--hidden {
         opacity: 0;
     }
 
@@ -140,7 +140,7 @@ $open: ':is(:hover, :focus-within)';
             transform-origin: bottom;
         }
 
-        > .toast[data-behind] {
+        > .toast.toast--behind {
             clip-path: inset(calc(var(--toast-bleed) * -1) calc(var(--toast-bleed) * -1) calc(100% - var(--toast-frontmost-height)));
         }
 
@@ -162,7 +162,7 @@ $open: ':is(:hover, :focus-within)';
             --stack-shift: calc(var(--depth) * var(--stack-peek) + (1 - var(--toast-scale)) * var(--stack-span));
         }
 
-        > .toast[data-behind] {
+        > .toast.toast--behind {
             clip-path: inset(calc((100% - var(--toast-frontmost-height)) / 2) calc(var(--toast-bleed) * -1));
         }
 
@@ -201,13 +201,13 @@ $open: ':is(:hover, :focus-within)';
         }
     }
 
-    > .toast[data-timed] {
+    > .toast.toast--timed {
         animation: toast-timer var(--toast-duration) linear forwards;
     }
 
     // Only the front toast's clock runs, and none while the stack is open or a toast is being swiped.
     &#{$open} > .toast,
-    > .toast[data-behind],
+    > .toast.toast--behind,
     > .toast.toast--swiping {
         animation-play-state: paused;
     }
@@ -221,7 +221,7 @@ $open: ':is(:hover, :focus-within)';
             translate: 0 var(--toast-expanded-y);
 
             &,
-            &[data-behind] {
+            &.toast--behind {
                 clip-path: inset(calc(var(--toast-bleed) * -1));
             }
 
@@ -246,18 +246,18 @@ $open: ':is(:hover, :focus-within)';
         pointer-events: none;
     }
 
-    > .toast.toast--ending[data-timed] {
+    > .toast.toast--ending.toast--timed {
         animation:
             toast-timer var(--toast-duration) linear forwards paused,
             toast-exit var(--toast-exit-duration) var(--toast-exit-timing-function) forwards;
     }
 
     // Swiped away, it is thrown on until it has left the screen, whole, rather than fading out on the way.
-    > .toast.toast--ending[data-flung] {
+    > .toast.toast--ending.toast--flung {
         animation-name: toast-fling;
     }
 
-    > .toast.toast--ending[data-flung][data-timed] {
+    > .toast.toast--ending.toast--flung.toast--timed {
         animation-name: toast-timer, toast-fling;
     }
 }
@@ -310,7 +310,7 @@ $open: ':is(:hover, :focus-within)';
                 animation-name: toast-fade;
             }
 
-            &.toast--ending[data-timed] {
+            &.toast--ending.toast--timed {
                 animation-name: toast-timer, toast-fade;
             }
         }
