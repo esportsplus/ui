@@ -1,5 +1,6 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import { swallow } from '~/shared/press';
 import input from './field';
 
 
@@ -87,8 +88,7 @@ export default component(
             local = reactive({ draft: null as string | null, scrubbing: false }),
             period = TICK * 5,
             scrub: Scrub | null = null,
-            skip = false,
-            suppress = false;
+            skip = false;
 
         function clamp(n: number) {
             return Math.min(Math.max(n, min), max);
@@ -114,7 +114,12 @@ export default component(
             }
 
             document.documentElement.style.removeProperty('cursor');
-            suppress = scrub?.moved ?? false;
+
+            // The click that ends a scrub shouldn't also drop you into typing.
+            if (scrub?.moved) {
+                swallow();
+            }
+
             scrub = null;
             local.scrubbing = false;
         }
@@ -181,15 +186,6 @@ export default component(
                     ${attributes[INPUT_SCRUB_LABEL]}
                     ${{
                         onclick: () => {
-                            let s = suppress;
-
-                            suppress = false;
-
-                            // The click that ends a scrub shouldn't also drop you into typing.
-                            if (s) {
-                                return;
-                            }
-
                             field?.focus();
                         },
                         onlostpointercapture: (e: PointerEvent) => {

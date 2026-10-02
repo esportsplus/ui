@@ -3,6 +3,9 @@ import { html, type Attributes } from '@esportsplus/template';
 import press from '~/shared/press';
 
 
+// A row or compact row segment on screen, carrying the row it stands for, which a drag aims at.
+type Aimed<T> = HTMLElement & { [AIM]?: T };
+
 type Drag<E> = {
     // Asked before 'drop', like VS Code's 'explorer.confirmDragAndDrop'; false cancels it.
     confirm?: (drop: Drop<E>) => boolean | Promise<boolean>;
@@ -42,6 +45,8 @@ type Tree<T> = {
 };
 
 
+const AIM = Symbol();
+
 // Touch has to hold still this long before a drag starts, so a swipe across the rows still scrolls them.
 const DELAY = 300;
 
@@ -61,9 +66,6 @@ const SPEED = 600;
 export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: Tree<T>) => {
     let gesture = press(DELAY),
         ghost: HTMLElement | undefined,
-        // Rows and compact row segments on screen, which a drag aims at.
-        rows = new Map<HTMLElement, T>(),
-        segments = new Map<HTMLElement, T>(),
         sources: T[] = [],
         // 'target' is the key of the drop folder's row, -1 for the top level, and 'folder' the folder's own, which
         // differs for a segment of a compact row; 'last' is the key of the last row in the target's box. 'depth' is the
@@ -116,15 +118,20 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                     found = false;
 
                 // By height alone: a nested row starts at its indent, and the space left of it is still that row.
-                for (let [node, row] of rows) {
-                    let rect = node.getBoundingClientRect();
+                for (let node of viewport.querySelectorAll<Aimed<T>>('.file-tree-row')) {
+                    let rect = node.getBoundingClientRect(),
+                        row = node[AIM];
+
+                    if (!row) {
+                        continue;
+                    }
 
                     if (y >= rect.top && y < rect.bottom) {
-                        for (let [element, folder] of segments) {
+                        for (let element of node.querySelectorAll<Aimed<T>>('.file-tree-segment')) {
                             let box = element.getBoundingClientRect();
 
-                            if (node.contains(element) && x >= box.left && x < box.right) {
-                                row = folder;
+                            if (element[AIM] && x >= box.left && x < box.right) {
+                                row = element[AIM];
                                 break;
                             }
                         }
@@ -383,11 +390,8 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                 () => ui.effect !== '' && sources.includes(row) && 'file-tree-row--dragged',
                 () => mark(row)
             ],
-            onconnect: (element: HTMLElement) => {
-                rows.set(element, row);
-            },
-            ondisconnect: (element: HTMLElement) => {
-                rows.delete(element);
+            onconnect: (element: Aimed<T>) => {
+                element[AIM] = row;
             },
             onpointerdown: (e: PointerEvent) => {
                 if (gesture.busy() || row.locked || e.button !== 0 || !e.isPrimary) {
@@ -418,11 +422,8 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
         // Marks the segment of a compact row a drop lands in.
         segment: (row: T): Attributes => ({
             class: () => ui.folder === row.key && 'file-tree-segment--drop',
-            onconnect: (element: HTMLElement) => {
-                segments.set(element, row);
-            },
-            ondisconnect: (element: HTMLElement) => {
-                segments.delete(element);
+            onconnect: (element: Aimed<T>) => {
+                element[AIM] = row;
             }
         }),
         // The root carries the fold motion's inline styles, so the drop depth goes on the viewport instead.

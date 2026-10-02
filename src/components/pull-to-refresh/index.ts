@@ -64,7 +64,6 @@ export default component(
         let base = 0,
             busy = false,
             feed: HTMLElement | undefined,
-            listeners: AbortController | undefined,
             press: Press | null = null,
             root: HTMLElement | undefined,
             scroller: HTMLElement | undefined,
@@ -211,24 +210,6 @@ export default component(
                     class: () => view.motion && `pull-to-refresh--${view.motion}`,
                     onconnect: (el: HTMLElement) => {
                         root = el;
-
-                        if (!scroller) {
-                            return;
-                        }
-
-                        listeners = new AbortController();
-
-                        let signal = listeners.signal;
-
-                        // Attached by hand because the pull has to cancel the browser's own scroll, which the template's
-                        // passive touch listeners can't do.
-                        scroller.addEventListener('touchcancel', release, { signal });
-                        scroller.addEventListener('touchend', release, { signal });
-                        scroller.addEventListener('touchmove', touchmove, { passive: false, signal });
-                        scroller.addEventListener('touchstart', touchstart, { passive: true, signal });
-                    },
-                    ondisconnect: () => {
-                        listeners?.abort();
                     },
                     style: () => `--pull-to-refresh-y: ${view.y}; --reveal: ${view.reveal};`
                 }}
@@ -260,6 +241,8 @@ export default component(
                     ${this?.attributes?.[PULL_TO_REFRESH_SCROLLER]}
                     ${attributes[PULL_TO_REFRESH_SCROLLER]}
                     ${{
+                        // Cancelable for the length of a touch, so a pull can hold the browser's own scroll.
+                        onactivetouchmove: touchmove,
                         onconnect: (element: HTMLElement) => {
                             scroller = element;
                         },
@@ -297,7 +280,10 @@ export default component(
 
                             pull(e.clientY - p.y);
                         },
-                        onpointerup: release
+                        onpointerup: release,
+                        ontouchcancel: release,
+                        ontouchend: release,
+                        ontouchstart: touchstart
                     }}
                 >
                     <div

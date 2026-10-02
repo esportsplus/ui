@@ -278,12 +278,6 @@ export default component(
                     onclick: (e) => {
                         let element = e.currentTarget as HTMLDialogElement;
 
-                        gesture.onclick(e);
-
-                        if (e.defaultPrevented) {
-                            return;
-                        }
-
                         if (e.target === element && outside(element, e)) {
                             state.active = false;
                         }

@@ -1,5 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import dismiss from '~/shared/dismiss';
 import { morph, morphing } from './utilities';
 
 
@@ -50,15 +51,9 @@ export default component<A>(
 
                         state.active = active;
                     },
-                    ondocumentclick: function(this, event) {
-                        if (!this?.isConnected || !state.active) {
-                            return;
-                        }
-
-                        if (!this.contains(event.target as Node | null)) {
-                            state.active = false;
-                        }
-                    },
+                    ondocumentclick: dismiss(() => state.active, () => {
+                        state.active = false;
+                    }),
                     ontransitioncancel: morphing(local, false),
                     ontransitionend: morphing(local, false),
                     ontransitionrun: morphing(local, true)

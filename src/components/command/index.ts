@@ -318,13 +318,12 @@ export default component(
                 keys: command.shortcut,
                 label: command.label
             })),
+            // Ends the Mod+K listener with the trigger.
+            listening: AbortController | undefined,
             lookup = new Map(entries.map((entry) => [entry.id, entry])),
-            // Rendered option rows by element id, so keyboard moves scroll the row without looking it up.
-            options = new Map<string, HTMLElement>(),
             // Last pointer position, so a list scrolling under a still cursor (which browsers can report as
             // hover) never steals the active item from the keys.
             pointer: { x: number, y: number } | null = null,
-            release: VoidFunction | undefined,
             trigger: HTMLElement | undefined,
             // A Set keeps insertion order, most recent first, and replacing it is what re-runs the list.
             ui = reactive({ moving: false, recent: new Set<string>() }),
@@ -500,13 +499,14 @@ export default component(
                         'aria-expanded': () => state.active ? 'true' : 'false',
                         onclick: show,
                         onconnect: (element: HTMLElement) => {
+                            listening = new AbortController();
                             trigger = element;
 
                             // Capture, so it runs before the site's search, which listens later.
-                            addEventListener('keydown', shortcut, true);
+                            addEventListener('keydown', shortcut, { capture: true, signal: listening.signal });
                         },
                         ondisconnect: () => {
-                            removeEventListener('keydown', shortcut, true);
+                            listening?.abort();
                         }
                     }}
                 >
@@ -524,19 +524,7 @@ export default component(
                         class: ['command-dialog', this?.attributes?.[COMMAND_DIALOG]?.class, attributes[COMMAND_DIALOG]?.class].flat()
                     },
                     html`
-                        <div
-                            class='command-panel'
-                            ${{
-                                // Delegated mousedown is passive, so bind directly.
-                                onconnect: (element: HTMLElement) => {
-                                    element.addEventListener('mousedown', keep);
-                                    release = () => element.removeEventListener('mousedown', keep);
-                                },
-                                ondisconnect: () => {
-                                    release?.();
-                                }
-                            }}
-                        >
+                        <div class='command-panel' ${{ onmousedown: keep }}>
                             <div class='command-search'>
                                 ${sprite(magnifier)}
                                 ${input({
@@ -570,7 +558,7 @@ export default component(
                                             state.index = (selected() + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
 
                                             // 'nearest' only scrolls when the item is out of view.
-                                            options.get(option(view, state.index) ?? '')?.scrollIntoView({ block: 'nearest' });
+                                            document.getElementById(option(view, state.index) ?? '')?.scrollIntoView({ block: 'nearest' });
                                         }
                                         else if (e.key === 'Enter') {
                                             e.preventDefault();
@@ -693,14 +681,6 @@ export default component(
                                                                 'aria-selected': () => current() === view && selected() === index ? 'true' : 'false',
                                                                 class: () => current() === view && selected() === index && '--active',
                                                                 onclick: () => run(entry),
-                                                                onconnect: (element: HTMLElement) => {
-                                                                    options.set(`${view.key}-${index}`, element);
-                                                                },
-                                                                ondisconnect: (element: HTMLElement) => {
-                                                                    if (options.get(`${view.key}-${index}`) === element) {
-                                                                        options.delete(`${view.key}-${index}`);
-                                                                    }
-                                                                },
                                                                 onpointermove: (e: PointerEvent) => {
                                                                     if (e.pointerType === 'touch') {
                                                                         return;

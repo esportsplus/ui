@@ -15,6 +15,9 @@ type A = Attributes & {
     tags?: string[];
 };
 
+// A chip's element, carrying the shake still running on it.
+type Chip = HTMLElement & { [SHAKING]?: Animation };
+
 type D = Attributes & Pick<A, typeof INPUT_TAG_FIELD>;
 
 // A removed chip's stand-in, laid where the chip stood while it fades out.
@@ -46,6 +49,8 @@ const POP: KeyframeAnimationOptions = {
 
 // Decaying swings say "already here" without reading as an error.
 const SHAKE: KeyframeAnimationOptions = { duration: 300, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' };
+
+const SHAKING = Symbol();
 
 // Eases like the row's slide.
 const SWAP: KeyframeAnimationOptions = { delay: 60, duration: 300, fill: 'backwards' };
@@ -90,13 +95,12 @@ export default component(
             ...attributes
         }: A
     ) {
-        let chips = new Map<string, HTMLElement>(),
+        let chips = new Map<string, Chip>(),
             field: HTMLInputElement | undefined,
             ghosts = new ReactiveArray<Ghost>(),
             id = `input-tag-${++uid}`,
             list: HTMLElement | undefined,
             local = reactive({ announcement: '', armed: '' }),
-            shakes = new Map<Element, Animation>(),
             slot = html.reactive(state.tags, (tag) => html`
                 <li
                     class='input-tag-chip ${() => local.armed === key(tag) && '--active'}'
@@ -251,13 +255,10 @@ export default component(
 
             let { dim, shake } = motion(element);
 
-            shakes.get(element)?.cancel();
-            shakes.set(
-                element,
-                element.animate(
-                    { opacity: [1, dim, 1], translate: ['0', `${-shake}px`, `${shake}px`, `${shake * -0.75}px`, `${shake / 2}px`, '0'] },
-                    SHAKE
-                )
+            element[SHAKING]?.cancel();
+            element[SHAKING] = element.animate(
+                { opacity: [1, dim, 1], translate: ['0', `${-shake}px`, `${shake}px`, `${shake * -0.75}px`, `${shake / 2}px`, '0'] },
+                SHAKE
             );
         }
 
@@ -295,15 +296,6 @@ export default component(
                 class='input-tag'
                 ${this?.attributes}
                 ${attributes}
-                ${{
-                    ondisconnect: () => {
-                        for (let [, animation] of shakes) {
-                            animation.cancel();
-                        }
-
-                        shakes.clear();
-                    }
-                }}
             >
                 <label class='input-tag-label' for='${id}'>${label}</label>
                 <div

@@ -1,5 +1,6 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import dismiss from '~/shared/dismiss';
 
 
 type A = Attributes & {
@@ -318,15 +319,7 @@ export default component(
                 ${attributes}
                 ${{
                     class: () => state.active && '--active',
-                    ondocumentclick: function(this, e: MouseEvent) {
-                        if (!state.active || !this?.isConnected) {
-                            return;
-                        }
-
-                        if (!this.contains(e.target as Node | null)) {
-                            close(false);
-                        }
-                    },
+                    ondocumentclick: dismiss(() => state.active, () => close(false)),
                     onkeydown: (e: KeyboardEvent) => {
                         if (!state.active) {
                             if (e.key === 'ArrowDown' && e.target === trigger) {

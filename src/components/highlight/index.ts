@@ -1,5 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
+import { ms } from '~/shared/animation';
 import './scss/index.scss';
 
 
@@ -96,12 +97,6 @@ function halt(glide: Glide) {
     }
 
     glide.slides = [];
-}
-
-function milliseconds(value: string) {
-    let n = parseFloat(value);
-
-    return isNaN(n) ? 0 : value.trim().endsWith('ms') ? n : n * 1000;
 }
 
 // What is left of a glide's offset, eased: the layer shows at its target plus this.
@@ -272,8 +267,8 @@ export default component<A>(
 
             let easing = style.getPropertyValue('--glide-timing-function').trim() || 'ease',
                 slides = [
-                    [lead, milliseconds(style.getPropertyValue('--glide'))],
-                    [tail, milliseconds(style.getPropertyValue('--glide-tail'))]
+                    [lead, ms(style.getPropertyValue('--glide'))],
+                    [tail, ms(style.getPropertyValue('--glide-tail'))]
                 ] as const;
 
             for (let i = 0, n = slides.length; i < n; i++) {

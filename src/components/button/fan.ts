@@ -1,5 +1,6 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import dismiss from '~/shared/dismiss';
 
 
 const FAN_OPTION = Symbol.for('@esportsplus/ui/button.fan.option');
@@ -53,15 +54,9 @@ export default component(
                 ${attributes}
                 ${{
                     class: () => state.active && '--active',
-                    ondocumentclick: function(this, event) {
-                        if (!this?.isConnected || !state.active) {
-                            return;
-                        }
-
-                        if (!this.contains(event.target as Node | null)) {
-                            state.active = false;
-                        }
-                    },
+                    ondocumentclick: dismiss(() => state.active, () => {
+                        state.active = false;
+                    }),
                     onkeydown: (event) => {
                         if (!state.active) {
                             return;

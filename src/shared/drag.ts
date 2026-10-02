@@ -1,4 +1,5 @@
 import { timing } from '~/shared/animation';
+import { swallow } from '~/shared/press';
 
 
 // Drag-to-dismiss: capture past a small threshold, follow the pointer out by any of the ways the element may leave,
@@ -155,22 +156,9 @@ function outward(directions: Direction[], axis: Direction['axis'], value: number
 
 
 const drag = ({ begin, capture, move, release }: Options) => {
-    let current: Drag | null = null,
-        dragged = false;
+    let current: Drag | null = null;
 
     return {
-        // The pointerup that ends a drag is followed by a click, which lands on the dragged element since it holds the
-        // pointer; it would otherwise read as a press on it (or, beyond an overlay, on its backdrop). Paired handlers
-        // on the same element call this first and stand down when it has taken the click.
-        onclick: (e: MouseEvent) => {
-            if (!dragged) {
-                return;
-            }
-
-            dragged = false;
-            e.preventDefault();
-            e.stopPropagation();
-        },
         onpointercancel: (e: PointerEvent) => {
             if (!current || e.pointerId !== current.pointer) {
                 return;
@@ -264,11 +252,8 @@ const drag = ({ begin, capture, move, release }: Options) => {
                 return;
             }
 
-            // Touch sends no click after a drag, so the flag can't wait for one.
-            dragged = true;
-            setTimeout(() => {
-                dragged = false;
-            });
+            // Its click would otherwise read as a press on the element (or, beyond an overlay, on its backdrop).
+            swallow();
             release(element, state, dismissed(element, state));
         }
     };

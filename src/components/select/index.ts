@@ -1,6 +1,7 @@
 import { component, html, type Renderable, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
+import dismiss from '~/shared/dismiss';
 import menu from './menu';
 import './scss/index.scss';
 
@@ -68,15 +69,9 @@ const plain = component(
 
                         state.render = true;
                     },
-                    ondocumentclick: function (this, event: MouseEvent) {
-                        if (!state.active || !this?.isConnected) {
-                            return;
-                        }
-
-                        if (!this.contains(event.target as Node | null)) {
-                            state.active = false;
-                        }
-                    }
+                    ondocumentclick: dismiss(() => state.active, () => {
+                        state.active = false;
+                    })
                 }}
             >
                 ${content ? (() => content(state)) : (() => {

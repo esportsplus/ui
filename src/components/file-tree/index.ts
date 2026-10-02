@@ -767,7 +767,6 @@ export default ({
         forget: VoidFunction | undefined,
         // The frame a fold motion starts on; 0 while none runs.
         motion = 0,
-        release: VoidFunction | undefined,
         root: HTMLElement | undefined,
         timer: ReturnType<typeof setTimeout> | undefined,
         unsubscribe: VoidFunction | undefined,
@@ -2994,10 +2993,6 @@ export default ({
                     'aria-activedescendant': () => ui.focused > 0 && `${id}-${ui.focused}`,
                     onconnect: (element: HTMLElement) => {
                         viewport = element;
-
-                        // Delegated mousedown is passive, so bind directly.
-                        element.addEventListener('mousedown', middle);
-                        release = () => element.removeEventListener('mousedown', middle);
                     },
                     oncontextmenu: (event: MouseEvent) => {
                         if (!menu || !viewport) {
@@ -3029,9 +3024,6 @@ export default ({
                         let box = keyboard ? (node(row) ?? viewport).getBoundingClientRect() : null;
 
                         menu(targets(row, false), box ? { x: box.left, y: box.bottom } : { x: event.clientX, y: event.clientY }, header(row));
-                    },
-                    ondisconnect: () => {
-                        release?.();
                     },
                     onkeydown: (event: KeyboardEvent) => {
                         if (search?.key(event)) {
@@ -3165,6 +3157,7 @@ export default ({
                             }
                         }
                     },
+                    onmousedown: middle,
                     onscroll: () => {
                         // The copies are laid out against the rows as they stood; once scrolled they no longer line up.
                         settle();

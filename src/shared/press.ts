@@ -31,7 +31,7 @@ type Session = Handlers & {
 const THRESHOLD = 4;
 
 
-function swallow(e: Event) {
+function stop(e: Event) {
     e.preventDefault();
     e.stopPropagation();
 }
@@ -49,10 +49,8 @@ export default (delay: number) => {
         clearTimeout(current.timer);
         current.listening?.abort();
 
-        // The pointerup that ended a drag is followed by a click on whatever sits under the pointer.
         if (current.started && e) {
-            addEventListener('click', swallow, true);
-            setTimeout(() => removeEventListener('click', swallow, true));
+            swallow();
         }
 
         current.end(e, current.started);
@@ -135,3 +133,12 @@ export default (delay: number) => {
         }
     };
 };
+
+// The pointerup that ends a drag is followed by a click on whatever sits under the pointer; touch sends none, so it
+// lapses with the task.
+const swallow = () => {
+    addEventListener('click', stop, { capture: true, once: true, signal: AbortSignal.timeout(0) });
+};
+
+
+export { swallow };

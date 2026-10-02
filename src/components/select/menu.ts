@@ -1,6 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
+import dismiss from '~/shared/dismiss';
 import check from '@esportsplus/ui/svg/check.svg';
 import chevronDown from '@esportsplus/ui/svg/chevron-down.svg';
 import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
@@ -133,7 +134,6 @@ function template(
         last = { x: -1, y: -1 },
         menu = reactive({ down: false, highlight: 0, hover: false, placement: '', up: false }),
         parts: Parts = {},
-        pressing = false,
         query = '',
         timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -144,7 +144,6 @@ function template(
 
     function close() {
         cancelAnimationFrame(frame);
-        pressing = false;
         state.active = false;
     }
 
@@ -322,11 +321,7 @@ function template(
             ${attributes}
             ${{
                 class: () => state.active && '--active',
-                ondocumentclick: function(this: HTMLElement, e: MouseEvent) {
-                    if (state.active && this.isConnected && !this.contains(e.target as Node | null)) {
-                        close();
-                    }
-                }
+                ondocumentclick: dismiss(() => state.active, close)
             }}
         >
             <span class='select-menu-label' id='${id}-label'>${label}</span>
@@ -342,12 +337,8 @@ function template(
                 ${{
                     'aria-activedescendant': () => state.active ? `${id}-option-${menu.highlight}` : '',
                     'aria-expanded': () => state.active ? 'true' : 'false',
-                    // A press inside the panel moves focus off the trigger; the trigger takes it back on release.
-                    onblur: () => {
-                        if (!pressing) {
-                            close();
-                        }
-                    },
+                    // A press inside the panel keeps focus here, so losing it is leaving the menu.
+                    onblur: close,
                     onclick: () => {
                         if (state.active) {
                             close();
@@ -398,8 +389,9 @@ function template(
                     onconnect: (element: HTMLElement) => {
                         parts.panel = element;
                     },
-                    onpointerdown: () => {
-                        pressing = true;
+                    // The trigger keeps focus through a press in here, so the keys still drive the menu.
+                    onmousedown: (e: MouseEvent) => {
+                        e.preventDefault();
                     },
                     onpointerenter: (e: PointerEvent) => {
                         if (e.pointerType !== 'touch') {
@@ -409,10 +401,6 @@ function template(
                     onpointerleave: () => {
                         menu.hover = false;
                         stop();
-                    },
-                    onpointerup: () => {
-                        pressing = false;
-                        parts.trigger?.focus({ preventScroll: true });
                     },
                     style: () => menu.placement
                 }}
@@ -440,10 +428,7 @@ function template(
                                 ${{
                                     'aria-selected': () => state.value === option.value ? 'true' : 'false',
                                     class: () => menu.highlight === index && 'select-menu-option--highlighted',
-                                    onclick: () => {
-                                        choose(index);
-                                        parts.trigger?.focus({ preventScroll: true });
-                                    },
+                                    onclick: () => choose(index),
                                     onconnect: (element: HTMLElement) => {
                                         parts.option ??= element;
                                     },

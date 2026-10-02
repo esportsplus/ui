@@ -21,6 +21,13 @@ const measure = (elements: Iterable<Element>) => {
     }
 };
 
+// A CSS time ('0.2s', '150ms') in milliseconds; 0 for anything else.
+const ms = (value: string) => {
+    let n = parseFloat(value);
+
+    return isNaN(n) ? 0 : value.trim().endsWith('ms') ? n : n * 1000;
+};
+
 // Slides an element from the box 'measure' recorded to where the change put it, replacing a slide still running on it,
 // and returns that new box; undefined for an element 'measure' never saw, which is new to the layout. Added onto its
 // translate, so a shake or nudge of its own still plays.
@@ -52,11 +59,10 @@ const slide = (element: Element, timing: KeyframeAnimationOptions | null) => {
 // A slide's timing from the CSS variables '--{name}-duration' and '--{name}-easing'; null without a duration, so
 // reduced motion is a CSS rule.
 const timing = (computed: CSSStyleDeclaration, name: string): KeyframeAnimationOptions | null => {
-    let duration = computed.getPropertyValue(`--${name}-duration`).trim(),
-        ms = (parseFloat(duration) || 0) * (duration.endsWith('ms') ? 1 : 1000);
+    let duration = ms(computed.getPropertyValue(`--${name}-duration`));
 
-    return ms ? { duration: ms, easing: computed.getPropertyValue(`--${name}-easing`).trim() || 'ease' } : null;
+    return duration ? { duration, easing: computed.getPropertyValue(`--${name}-easing`).trim() || 'ease' } : null;
 };
 
 
-export { finished, measure, slide, timing };
+export { finished, measure, ms, slide, timing };
