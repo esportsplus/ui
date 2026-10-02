@@ -15,7 +15,7 @@
         color var(--tone-duration) var(--transition-timing-function),
         scale var(--settle-duration) var(--settle);
 
-    &:is([data-flash='even'], [data-flash='odd']) {
+    &:is(.metric-flash--even, .metric-flash--odd) {
         color: var(--tone);
         scale: var(--lift-scale);
         transition:
@@ -28,15 +28,15 @@
         }
     }
 
-    &[data-flash='even'] .metric-flash-arrow svg {
+    &.metric-flash--even .metric-flash-arrow svg {
         animation-name: metric-flash-pop-2;
     }
 
-    &[data-flash='odd'] .metric-flash-arrow svg {
+    &.metric-flash--odd .metric-flash-arrow svg {
         animation-name: metric-flash-pop-1;
     }
 
-    &[data-flash='off'] .metric-flash-arrow svg {
+    &.metric-flash--off .metric-flash-arrow svg {
         animation: metric-flash-clear var(--clear-duration) var(--clear) both;
     }
 
@@ -60,7 +60,7 @@
         }
     }
 
-    &[data-direction='down'] &-arrow svg {
+    &.metric-flash--down &-arrow svg {
         rotate: 180deg;
     }
 

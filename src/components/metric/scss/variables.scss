@@ -69,11 +69,11 @@
     --tint-opacity: 14%;
     --tone-duration: 200ms;
 
-    &[data-direction='down'] {
+    &.metric-flash--down {
         --tone: var(--color-down);
     }
 
-    &[data-direction='up'] {
+    &.metric-flash--up {
         --tone: var(--color-up);
     }
 
@@ -81,7 +81,7 @@
         --from: var(--arrow-offset);
     }
 
-    &[data-direction='down'] &-arrow svg {
+    &.metric-flash--down &-arrow svg {
         --from: calc(var(--arrow-offset) * -1);
     }
 

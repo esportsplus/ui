@@ -86,9 +86,11 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
             class='metric-flash'
             ${attributes}
             ${{
-                'data-direction': () => state.direction,
-                // Alternating parity swaps between identical keyframes, restarting the arrow pop per change.
-                'data-flash': () => state.flashing ? (state.changes % 2 ? 'odd' : 'even') : state.changes ? 'off' : ''
+                class: [
+                    () => state.direction && `metric-flash--${state.direction}`,
+                    // Alternating parity swaps between identical keyframes, restarting the arrow pop per change.
+                    () => state.flashing ? (state.changes % 2 ? 'metric-flash--odd' : 'metric-flash--even') : state.changes ? 'metric-flash--off' : ''
+                ]
             }}
         >
             <span aria-hidden='true' class='metric-flash-tint'></span>
