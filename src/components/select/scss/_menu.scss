@@ -101,7 +101,7 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
         &--down {
             bottom: 0;
 
-            .select-menu-panel[data-hover][data-down] & {
+            .select-menu-panel.select-menu-panel--hover.select-menu-panel--down & {
                 opacity: 1;
                 pointer-events: auto;
             }
@@ -110,7 +110,7 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
         &--up {
             top: 0;
 
-            .select-menu-panel[data-hover][data-up] & {
+            .select-menu-panel.select-menu-panel--hover.select-menu-panel--up & {
                 opacity: 1;
                 pointer-events: auto;
             }

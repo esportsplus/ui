@@ -121,35 +121,8 @@ const plain = component(
                             ${tooltipContent}
                             ${{
                                 inert: () => !state.active,
-                                onclick: (e: Event) => {
-                                    let element = e.target as HTMLElement,
-                                        key = element.dataset?.key;
-
-                                    if (key === undefined) {
-                                        let parent;
-
-                                        while (parent = element.parentElement) {
-                                            key = parent.dataset?.key;
-
-                                            if (key !== undefined) {
-                                                break;
-                                            }
-                                        }
-                                    }
-
-                                    if (key === undefined) {
-                                        return;
-                                    }
-
-                                    let previous = state.selected!;
-
-                                    state.active = false;
-                                    state.selected = key;
-
-                                    selected[key] = true;
-                                    selected[previous] = false;
-                                },
-                                onconnect: () => {
+                                // Rendered closed on the first open, then opened once that has painted, so it animates.
+                                onfirstpaint: () => {
                                     state.active = true;
                                 }
                             }}
@@ -164,9 +137,19 @@ const plain = component(
                                 return html`
                                     <div
                                         class='link select-option ${() => selected[key] && '--active'}'
+                                        ${{
+                                            onclick: () => {
+                                                let previous = state.selected!;
+
+                                                state.active = false;
+                                                state.selected = key;
+
+                                                selected[key] = true;
+                                                selected[previous] = false;
+                                            }
+                                        }}
                                         ${this?.attributes?.[SELECT_OPTION]}
                                         ${attributes[SELECT_OPTION]}
-                                        data-key='${key}'
                                     >
                                         ${content}
                                     </div>

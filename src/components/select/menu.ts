@@ -389,9 +389,11 @@ function template(
                 ${this?.attributes?.[SELECT_MENU_PANEL]}
                 ${attributes[SELECT_MENU_PANEL]}
                 ${{
-                    'data-down': () => menu.down && 'true',
-                    'data-hover': () => menu.hover && 'true',
-                    'data-up': () => menu.up && 'true',
+                    class: [
+                        () => menu.down && 'select-menu-panel--down',
+                        () => menu.hover && 'select-menu-panel--hover',
+                        () => menu.up && 'select-menu-panel--up'
+                    ],
                     inert: () => !state.active,
                     onpointerdown: () => {
                         pressing = true;
