@@ -1,5 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { computed, dispose, effect, onCleanup, reactive, read } from '@esportsplus/reactivity';
+import { computed, dispose, effect, onCleanup, reactive, ReactiveArray, read, untrack } from '@esportsplus/reactivity';
 import tooltip from '~/components/tooltip';
 import './scss/index.scss';
 
@@ -23,6 +23,18 @@ type A = Attributes & {
     state?: State;
 };
 
+// A digit slot (holding its digits), a digit or the rest of the text; one rolling away keeps where it stood.
+type Item = {
+    element?: HTMLElement;
+    entering: boolean;
+    glyphs?: ReactiveArray<Item>;
+    list: ReactiveArray<Item>;
+    state: { exiting: boolean, left: number, top: number };
+    text: string;
+};
+
+type Rendered = HTMLElement & { [ITEM]?: Item };
+
 type State = {
     date: Value;
     // Pins "now" to this moment instead of the live clock (tests, replays); null follows the clock.
@@ -37,6 +49,8 @@ const DATE_FORMAT = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 
 const DAY = 24 * 60 * 60 * 1000;
 
 const HOUR = 60 * 60 * 1000;
+
+const ITEM = Symbol();
 
 // setTimeout overflows past ~24.8 days and fires immediately.
 const MAX_TIMEOUT = 2 ** 31 - 1;
@@ -70,6 +84,36 @@ const WEEK = 7 * DAY;
 let uid = 0;
 
 
+// What an item renders as: rolling in when it arrives, and once leaving, out of the flow where it stood.
+function bind(item: Item, block: string): Attributes {
+    return {
+        class: () => item.state.exiting && `${block}--exiting`,
+        onrender: (element: Rendered) => {
+            element[ITEM] = item;
+            item.element = element;
+        },
+        style: () => item.state.exiting && `left: ${item.state.left}px; top: ${item.state.top}px;`
+    };
+}
+
+function digit(text: string, entering: boolean, slots: ReactiveArray<Item>) {
+    let glyphs = new ReactiveArray<Item>(),
+        slot = item('', entering, slots);
+
+    glyphs.push(item(text, false, glyphs));
+    slot.glyphs = glyphs;
+
+    return slot;
+}
+
+function glyph(item: Item, block: string) {
+    return html`<span class='${block} ${item.entering && `${block}--entering`}' ${bind(item, block)}>${item.text}</span>`;
+}
+
+function item(text: string, entering: boolean, list: ReactiveArray<Item>): Item {
+    return { entering, list, state: reactive({ exiting: false, left: 0, top: 0 }), text };
+}
+
 function label(diff: number, time: number) {
     if (diff < 10 * SEC) {
         return 'just now';
@@ -98,88 +142,89 @@ function label(diff: number, time: number) {
     return DATE_FORMAT.format(time);
 }
 
-// Takes elements out of the flow where they stand, so what replaces them takes their place while they roll away. All are
+// Takes items out of the flow where they stand, so what replaces them takes their place while they roll away. All are
 // measured before any moves, so the batch costs one layout.
-function leave(elements: HTMLElement[]) {
-    let offsets = elements.map((element) => [element.offsetLeft, element.offsetTop]);
+function leave(items: Item[]) {
+    let offsets = items.map(({ element }) => [element?.offsetLeft ?? 0, element?.offsetTop ?? 0]);
 
-    for (let i = 0, n = elements.length; i < n; i++) {
-        let style = elements[i].style;
+    for (let i = 0, n = items.length; i < n; i++) {
+        let state = items[i].state;
 
-        style.left = `${offsets[i][0]}px`;
-        style.top = `${offsets[i][1]}px`;
-        // Each is a slot, digit or rest, named by its first class.
-        elements[i].classList.add(`${elements[i].classList[0]}--exiting`);
+        state.exiting = true;
+        state.left = offsets[i][0];
+        state.top = offsets[i][1];
     }
 }
 
 // Keyed from the right, so 9 -> 10 rolls the ones and brings a new tens digit in beside it.
-function render(digits: HTMLElement, rest: HTMLElement, text: string) {
+function render(slots: ReactiveArray<Item>, rests: ReactiveArray<Item>, text: string) {
     let match = text.match(/^(\d+)(.*)$/),
         next = match ? match[1] : '',
         suffix = match ? match[2] : text;
 
-    if (!rest.firstChild) {
-        digits.replaceChildren(...[...next].map((digit) => slot(digit, 'relative-time-slot')));
-        rest.replaceChildren(span(suffix, 'relative-time-rest'));
+    if (!rests.length) {
+        for (let i = 0, n = next.length; i < n; i++) {
+            slots.push(digit(next[i], false, slots));
+        }
+
+        rests.push(item(suffix, false, rests));
         return;
     }
 
-    let leaving: HTMLElement[] = [],
-        slots = settled(digits);
+    let current = settled(slots),
+        leaving: Item[] = [];
 
-    for (let key = 1, n = Math.max(slots.length, next.length); key <= n; key++) {
-        let digit = next[next.length - key],
-            element = slots[slots.length - key];
+    for (let key = 1, n = Math.max(current.length, next.length); key <= n; key++) {
+        let char = next[next.length - key],
+            slot = current[current.length - key];
 
-        if (!element) {
-            digits.prepend(slot(digit, 'relative-time-slot relative-time-slot--entering'));
+        if (!slot) {
+            slots.unshift(digit(char, true, slots));
         }
-        else if (digit === undefined) {
-            leaving.push(element);
+        else if (char === undefined) {
+            leaving.push(slot);
         }
         else {
-            swap(element, digit, 'relative-time-digit', leaving);
+            swap(slot.glyphs!, char, leaving);
         }
     }
 
-    swap(rest, suffix, 'relative-time-rest', leaving);
+    swap(rests, suffix, leaving);
     leave(leaving);
 }
 
-// Cancelled too (an ancestor hidden mid-roll), or the element would linger out of the flow.
+// Cancelled too (an ancestor hidden mid-roll), or the item would linger out of the flow.
 function retire(e: AnimationEvent) {
-    if (e.animationName === 'relative-time-exit') {
-        (e.target as Element).remove();
+    let item = (e.target as Rendered)[ITEM];
+
+    if (e.animationName !== 'relative-time-exit' || !item) {
+        return;
+    }
+
+    let index = item.list.indexOf(item);
+
+    if (index !== -1) {
+        item.list.splice(index, 1);
     }
 }
 
-// Children still in the flow; ones rolling away are on their way out.
-function settled(container: HTMLElement) {
-    return container.querySelectorAll<HTMLElement>(':scope > :not(.relative-time-digit--exiting, .relative-time-rest--exiting, .relative-time-slot--exiting)');
+// Items still in the flow; ones rolling away are on their way out.
+function settled(list: ReactiveArray<Item>) {
+    let out: Item[] = [];
+
+    for (let i = 0, n = list.length; i < n; i++) {
+        if (!list[i].state.exiting) {
+            out.push(list[i]);
+        }
+    }
+
+    return out;
 }
 
-function slot(digit: string, className: string) {
-    let element = span('', className);
+function swap(list: ReactiveArray<Item>, text: string, leaving: Item[]) {
+    let current = settled(list)[0];
 
-    element.append(span(digit, 'relative-time-digit'));
-
-    return element;
-}
-
-function span(text: string, className: string) {
-    let element = document.createElement('span');
-
-    element.className = className;
-    element.textContent = text;
-
-    return element;
-}
-
-function swap(container: HTMLElement, text: string, className: string, leaving: HTMLElement[]) {
-    let current = settled(container)[0];
-
-    if (current?.textContent === text) {
+    if (current?.text === text) {
         return;
     }
 
@@ -187,7 +232,7 @@ function swap(container: HTMLElement, text: string, className: string, leaving: 
         leaving.push(current);
     }
 
-    container.append(span(text, `${className} ${className}--entering`));
+    list.push(item(text, true, list));
 }
 
 function timeOf(value: Value) {
@@ -216,11 +261,10 @@ function untilChange(diff: number) {
 
 function template(this: { attributes?: Partial<A> } | void, { date, state = reactive({ date, now: null as number | null }), ...attributes }: A) {
     let clock = reactive({ tick: 0 }),
-        digits: HTMLElement | undefined,
         id = `relative-time-${++uid}`,
         message: HTMLElement | undefined,
-        rests: HTMLElement | undefined,
-        stopRender: VoidFunction | undefined,
+        rests = new ReactiveArray<Item>(),
+        slots = new ReactiveArray<Item>(),
         time = computed(() => timeOf(state.date)),
         text = computed(() => {
             let value = read(time);
@@ -271,6 +315,13 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                 nudge();
             }
         }),
+        stopRender = effect(() => {
+            let value = read(text);
+
+            if (value !== null) {
+                untrack(() => render(slots, rests, value));
+            }
+        }),
         stopSchedule = effect(schedule);
 
     onCleanup(() => {
@@ -278,7 +329,7 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
         dispose(text);
         dispose(time);
         stopNudge();
-        stopRender?.();
+        stopRender();
         stopSchedule();
     });
 
@@ -294,25 +345,6 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                     let value = read(time);
 
                     return value === null ? '' : new Date(value).toISOString();
-                },
-                onconnect: () => {
-                    let numbers = digits,
-                        rest = rests;
-
-                    if (!numbers || !rest) {
-                        return;
-                    }
-
-                    stopRender = effect(() => {
-                        let value = read(text);
-
-                        if (value !== null) {
-                            render(numbers, rest, value);
-                        }
-                    });
-                },
-                ondisconnect: () => {
-                    stopRender?.();
                 },
                 // Background tabs throttle timers; catch up the moment the page is seen.
                 ondocumentvisibilitychange: () => {
@@ -332,22 +364,8 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                     onanimationend: retire
                 }}
             >
-                <span
-                    class='relative-time-digits'
-                    ${{
-                        onrender: (element: HTMLElement) => {
-                            digits = element;
-                        }
-                    }}
-                ></span>
-                <span
-                    class='relative-time-rests'
-                    ${{
-                        onrender: (element: HTMLElement) => {
-                            rests = element;
-                        }
-                    }}
-                ></span>
+                <span class='relative-time-digits'>${html.reactive(slots, (slot) => html`<span class='relative-time-slot ${slot.entering && 'relative-time-slot--entering'}' ${bind(slot, 'relative-time-slot')}>${html.reactive(slot.glyphs!, (item) => glyph(item, 'relative-time-digit'))}</span>`)}</span>
+                <span class='relative-time-rests'>${html.reactive(rests, (item) => glyph(item, 'relative-time-rest'))}</span>
             </span>
             <span
                 class='tooltip-message tooltip-message--n relative-time-tooltip'
