@@ -62,6 +62,8 @@ export default ({
         control: HTMLElement | undefined,
         decimals = (String(step).split('.')[1] || '').length,
         drag = -1,
+        // The pointer dragging; another finger's moves are ignored.
+        pointer = -1,
         span = max - min || 1,
         thumbs: HTMLElement[] = [],
         ui = reactive({ dragging: -1 }),
@@ -126,8 +128,13 @@ export default ({
         return keys.map((key) => format(s[key])).join(' – ');
     }
 
-    function release() {
+    function release(event: PointerEvent) {
+        if (event.pointerId !== pointer) {
+            return;
+        }
+
         drag = -1;
+        pointer = -1;
         ui.dragging = -1;
     }
 
@@ -156,7 +163,7 @@ export default ({
                     onlostpointercapture: release,
                     onpointercancel: release,
                     onpointerdown: (event: PointerEvent) => {
-                        if (disabled || event.button !== 0 || !control) {
+                        if (disabled || event.button !== 0 || !control || pointer !== -1) {
                             return;
                         }
 
@@ -179,11 +186,12 @@ export default ({
                         thumbs[index]?.focus({ preventScroll: true });
                         control.setPointerCapture(event.pointerId);
                         drag = index;
+                        pointer = event.pointerId;
                         ui.dragging = index;
                         commit(index, min + f * span);
                     },
                     onpointermove: (event: PointerEvent) => {
-                        if (drag === -1) {
+                        if (drag === -1 || event.pointerId !== pointer) {
                             return;
                         }
 

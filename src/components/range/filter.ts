@@ -68,6 +68,8 @@ export default ({
         drag = -1,
         indices = single ? [1] : [0, 1],
         labels: number[] = [],
+        // The pointer dragging; another finger's moves are ignored.
+        pointer = -1,
         root: HTMLElement | undefined,
         thumbs: HTMLElement[] = [],
         ui = reactive({ dragging: -1, preview: -1 }),
@@ -171,8 +173,13 @@ export default ({
         return ((value - min) / span) * 100;
     }
 
-    function release() {
+    function release(event: PointerEvent) {
+        if (event.pointerId !== pointer) {
+            return;
+        }
+
         drag = -1;
+        pointer = -1;
         ui.dragging = -1;
     }
 
@@ -253,7 +260,7 @@ export default ({
                         onlostpointercapture: release,
                         onpointercancel: release,
                         onpointerdown: (event: PointerEvent) => {
-                            if (disabled || event.button !== 0 || !root) {
+                            if (disabled || event.button !== 0 || !root || pointer !== -1) {
                                 return;
                             }
 
@@ -279,6 +286,7 @@ export default ({
                             thumbs[index]?.focus({ preventScroll: true });
                             root.setPointerCapture(event.pointerId);
                             drag = index;
+                            pointer = event.pointerId;
                             ui.dragging = index;
                             ui.preview = -1;
                             commit(index, v);
@@ -288,7 +296,10 @@ export default ({
                         },
                         onpointermove: (event: PointerEvent) => {
                             if (drag !== -1) {
-                                commit(drag, at(event.clientX));
+                                if (event.pointerId === pointer) {
+                                    commit(drag, at(event.clientX));
+                                }
+
                                 return;
                             }
 
