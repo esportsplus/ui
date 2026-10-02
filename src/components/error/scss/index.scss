@@ -12,11 +12,11 @@
         --border-color: var(--error-color);
     }
 
-    &[data-shake='1'] > :not(.error-live, .error-message) {
+    &.error--shake-1 > :not(.error-live, .error-message) {
         animation: error-shake-1 320ms ease-out;
     }
 
-    &[data-shake='2'] > :not(.error-live, .error-message) {
+    &.error--shake-2 > :not(.error-live, .error-message) {
         animation: error-shake-2 320ms ease-out;
     }
 
@@ -44,14 +44,14 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        &[data-shake] > * {
+        &:is(.error--shake-1, .error--shake-2) > * {
             animation: none;
         }
     }
 }
 
 
-// Two copies, keyed by 'data-shake' parity, so every failure restarts it.
+// Two copies, keyed by the shake class parity, so every failure restarts it.
 @keyframes error-shake-1 {
     20% {
         translate: calc(var(--error-reach) * -1);

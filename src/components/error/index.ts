@@ -1,5 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { effect, flush, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import { morph, morphing } from '~/components/tooltip/utilities';
 import '~/components/tooltip/scss/index.scss';
 import './scss/index.scss';
@@ -33,11 +33,11 @@ const CLOSE = 180;
 // and then the message, flushed in between, which shakes the control again without closing the tooltip.
 export default component<A>(({ direction = 'ne', duration, state, ...attributes }, content) => {
     let control: Element | null = null,
+        disposed = false,
         element: HTMLElement | undefined,
         expire: ReturnType<typeof setTimeout> | undefined,
         frame = 0,
-        local = reactive({ active: false, morphing: false, shake: 0 }),
-        message: HTMLElement | undefined,
+        local = reactive({ active: false, message: '', morphing: false, shake: 0 }),
         opening: VoidFunction | undefined,
         pending = 0,
         reopen: ReturnType<typeof setTimeout> | undefined,
@@ -79,16 +79,17 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
         })();
     }
 
-    // The message is written straight in, since the open measures the tooltip's box and the template's own write lands
-    // a frame later. The morph starts from the wrapper's corners, so the wrapper takes the control's.
+    // Flushed before the open measures the tooltip's box, which the message sizes. The morph starts from the wrapper's
+    // corners, so the wrapper takes the control's.
     function open(text: string) {
-        if (!element || !message) {
+        if (!element) {
             return;
         }
 
         cancelAnimationFrame(frame);
         shown = text;
-        message.textContent = text;
+        local.message = text;
+        flush();
 
         if (control) {
             element.style.borderRadius = getComputedStyle(control).borderRadius;
@@ -123,7 +124,12 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
             control?.setAttribute('aria-invalid', text ? 'true' : 'false');
 
             if (text) {
-                show(text);
+                // After the pass running this effect, where the open's flush would be a no-op.
+                queueMicrotask(() => {
+                    if (!disposed && state.error === text) {
+                        show(text);
+                    }
+                });
 
                 if (duration) {
                     expire = setTimeout(() => {
@@ -141,6 +147,7 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
     }));
 
     onCleanup(() => {
+        disposed = true;
         cancelAnimationFrame(frame);
         cancelAnimationFrame(pending);
         clearTimeout(expire);
@@ -151,20 +158,22 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
     return html`
         <div
             class='error tooltip'
-            data-shake='${() => local.shake}'
             ${attributes}
             ${{
                 class: [
                     () => local.active && '--active',
                     () => state.error && 'error--invalid',
-                    () => local.morphing && 'tooltip--morphing'
+                    () => local.morphing && 'tooltip--morphing',
+                    () => local.shake && `error--shake-${local.shake}`
                 ],
                 onanimationcancel: morphing(local, false),
                 onanimationend: morphing(local, false),
                 onanimationstart: morphing(local, true),
                 onconnect: (el: HTMLElement) => {
-                    element = el;
                     control = el.firstElementChild;
+                },
+                onrender: (el: HTMLElement) => {
+                    element = el;
                 },
                 ontransitioncancel: morphing(local, false),
                 ontransitionend: morphing(local, false),
@@ -177,7 +186,7 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
                 class='error-message tooltip-content tooltip-content--${direction} tooltip-content--morph'
                 ${{ onrender: (el: HTMLElement) => { tooltip = el; } }}
             >
-                <span ${{ onrender: (el: HTMLElement) => { message = el; } }}></span>
+                <span>${() => local.message}</span>
             </div>
             <span aria-live='polite' class='error-live'>${() => state.error}</span>
         </div>
