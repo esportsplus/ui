@@ -1,19 +1,5 @@
-// The halves of a pointer drag that CSS owns; its script half is 'shared/press'.
+// The half of a pointer drag that CSS owns; its script half is 'shared/press'.
 
-
-// The copy that follows the pointer: a popover, so it rides the top layer clear of any clipping or transformed
-// ancestor, with what the browser gives a popover undone. Placed by the block that extends it.
-%drag-copy {
-    background: none;
-    border: 0;
-    color: inherit;
-    inset: auto;
-    margin: 0;
-    overflow: visible;
-    padding: 0;
-    pointer-events: none;
-    position: fixed;
-}
 
 // What a press can pick up. iOS's long-press callout isn't a contextmenu, so the press can't cancel it.
 %drag-item {

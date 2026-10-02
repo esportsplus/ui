@@ -16,7 +16,7 @@ export default defineConfig((env) => {
         resolve: {
             alias: [
                 // Library SCSS imports its partials from the package root
-                { find: /^\/(lib|shared|tokens)$/, replacement: resolve(import.meta.dirname, '../$1.scss') }
+                { find: /^\/(shared|tokens)$/, replacement: resolve(import.meta.dirname, '../$1.scss') }
             ]
         }
     });

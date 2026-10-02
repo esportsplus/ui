@@ -64,16 +64,12 @@
     }
 
     &-icon {
-        fill: none;
+        @extend %icon-stroke;
         filter: blur(4px);
         grid-area: 1 / 1;
         height: var(--morph-icon-size);
         opacity: 0;
         scale: 0.25;
-        stroke: currentColor;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-width: 2;
         transition:
             filter 300ms var(--morph-spring),
             opacity 300ms var(--morph-spring),

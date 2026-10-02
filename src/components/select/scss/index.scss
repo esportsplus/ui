@@ -1,4 +1,3 @@
-@use '/lib';
 @use '/shared';
 @use '/tokens';
 @use 'menu';
@@ -49,13 +48,7 @@
         width: var(--arrow-size);
     }
 
-    // Hide HTML Field Element
     &-tag {
-        @include lib.position(absolute, 0 null null 0);
-        height: 0px;
-        opacity: 0;
-        pointer-events: none;
-        width: 0px;
-        z-index: 0;
+        @extend %hidden-field;
     }
 }

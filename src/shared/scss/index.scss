@@ -3,6 +3,14 @@
 @forward 'background';
 @forward 'border';
 @forward 'color';
+@forward 'css-variables';
 @forward 'drag';
 @forward 'hidden';
+@forward 'icon';
+@forward 'layer';
+@forward 'list' as list-*;
+@forward 'map' as map-*;
+@forward 'position';
+@forward 'reset';
+@forward 'string' as string-*;
 @forward 'text';

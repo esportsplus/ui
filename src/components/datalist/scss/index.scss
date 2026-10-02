@@ -1,4 +1,4 @@
-@use '/lib';
+@use '/shared';
 @use 'variables';
 
 .datalist {
@@ -12,7 +12,7 @@
     width: min(100%, var(--width));
 
     &-lens {
-        @include lib.position(absolute, 50% var(--padding) null var(--padding));
+        @include shared.position(absolute, 50% var(--padding) null var(--padding));
         background: var(--background);
         border-radius: var(--border-radius);
         height: var(--item-height);
@@ -72,14 +72,8 @@
         padding-block: calc((var(--height) - var(--item-height)) / 2);
     }
 
-    // Hide HTML Field Element
     &-tag {
-        @include lib.position(absolute, 0 null null 0);
-        height: 0px;
-        opacity: 0;
-        pointer-events: none;
-        width: 0px;
-        z-index: 0;
+        @extend %hidden-field;
     }
 }
 

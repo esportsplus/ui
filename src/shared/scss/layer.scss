@@ -1,0 +1,20 @@
+@use 'absolute';
+
+
+// Covers its parent and follows its corners, without taking the pointer.
+%layer {
+    @extend %absolute-full;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+// A surface's shadow on a layer of its own, beneath it.
+%layer-box-shadow {
+    @extend %layer;
+    box-shadow: var(--box-shadow);
+    content: '';
+    transition:
+        box-shadow var(--transition-duration) var(--transition-timing-function),
+        opacity var(--transition-duration) var(--transition-timing-function);
+    z-index: -1;
+}

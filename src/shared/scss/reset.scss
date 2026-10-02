@@ -1,0 +1,21 @@
+// What the browser gives an element undone, for blocks that style it from nothing.
+
+
+%reset-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+// A popover in the top layer, clear of any clipping or transformed ancestor; placed by the block that extends it.
+%reset-popover {
+    background: none;
+    border: 0;
+    color: inherit;
+    inset: auto;
+    margin: 0;
+    overflow: visible;
+    padding: 0;
+    pointer-events: none;
+    position: fixed;
+}

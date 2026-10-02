@@ -18,8 +18,10 @@
  *
  */
 
+@use 'sass:map';
 @use 'sass:meta';
-@use '/lib';
+@use '../../shared/scss/list';
+@use '../../shared/scss/string';
 
 $state: (
     active: '&.--active',
@@ -35,16 +37,16 @@ $state: (
 
 
 @function state($key, $replace: null) {
-    $selector: lib.map-get($state, $key);
+    $selector: map.get($state, $key);
 
     // To Avoid Overcomplicating The Responsibility Of This Function Limit
     // Replace Parameter To String Values Only
     @if $replace {
         @if meta.type-of($replace) != 'string' or meta.type-of($selector) != 'string' {
-            @error "'lib.string-replace' Cannot Be Used On A List!";
+            @error "'string.replace' Cannot Be Used On A List!";
         }
 
-        $selector: lib.string-replace('&', $replace, $selector);
+        $selector: string.replace('&', $replace, $selector);
     }
 
     @return $selector;
@@ -54,15 +56,15 @@ $state: (
 @mixin state($states) {
     $selector: ();
 
-    @each $s in lib.list-to-list($states) {
+    @each $s in list.to-list($states) {
         $section: state($s);
 
         @if $section {
-            $selector: lib.list-append($selector, $section);
+            $selector: list.append($selector, $section);
         }
     }
 
-    #{lib.list-implode(',', lib.list-unique($selector))} {
+    #{list.implode(',', list.unique($selector))} {
         @content;
     }
 }
@@ -71,7 +73,7 @@ $state: (
     $keys: $values;
 
     @if meta.type-of($keys) == 'map' {
-        $keys: lib.map-keys($keys);
+        $keys: map.keys($keys);
     }
 
     @each $key in $keys {

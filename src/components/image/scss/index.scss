@@ -1,3 +1,4 @@
+@use '/shared';
 @use 'variables';
 
 .image-lazyload {
@@ -11,10 +12,9 @@
 
     &-placeholder,
     &-source {
+        @extend %absolute-full;
         height: 100%;
-        inset: 0;
         object-fit: cover;
-        position: absolute;
         user-select: none;
         width: 100%;
     }

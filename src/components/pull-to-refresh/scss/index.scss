@@ -42,15 +42,14 @@
     }
 
     &-indicator {
+        @extend %absolute-top;
         align-items: center;
         color: var(--color);
         display: flex;
         height: calc(var(--threshold) * 1px);
-        inset: 0 0 auto;
         justify-content: center;
         opacity: clamp(0, var(--pull-to-refresh-y) / var(--threshold), 1);
         pointer-events: none;
-        position: absolute;
     }
 
     &-scroller {

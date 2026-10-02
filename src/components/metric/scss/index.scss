@@ -64,10 +64,9 @@
 
     // The round cap would show as a dot before the draw starts, so the line also starts hidden.
     &-line {
+        @extend %icon-stroke-draw;
         opacity: 0;
         stroke: var(--line-color);
-        stroke-dasharray: 1;
-        stroke-dashoffset: 1;
         stroke-linecap: round;
         stroke-linejoin: round;
         stroke-width: var(--line-width);
@@ -77,10 +76,9 @@
     }
 
     &-overlay {
-        inset: 0;
+        @extend %absolute-full;
         opacity: 0;
         pointer-events: none;
-        position: absolute;
         transition: opacity 0.15s ease-out;
     }
 

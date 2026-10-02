@@ -14,14 +14,9 @@
 
     // The shared check carries no stroke of its own; the dash values inherit into it, so it draws in.
     &-check {
-        fill: none;
+        @extend %icon-stroke, %icon-stroke-draw;
         flex-shrink: 0;
         height: var(--check-size);
-        stroke: currentColor;
-        stroke-dasharray: 1;
-        stroke-dashoffset: 1;
-        stroke-linecap: round;
-        stroke-linejoin: round;
         stroke-width: 3;
         transition: stroke-dashoffset 0s var(--ease-in-out) 150ms;
         width: var(--check-size);
@@ -44,8 +39,7 @@
     }
 
     &-ink {
-        inset: 0;
-        position: absolute;
+        @extend %absolute-full;
     }
 
     &-label {
@@ -84,11 +78,9 @@
     }
 
     &-strip {
+        @extend %absolute-top;
         display: flex;
         flex-direction: column;
-        inset-inline: 0;
-        position: absolute;
-        top: 0;
         transition: translate 300ms var(--ease-out);
         white-space: pre;
 

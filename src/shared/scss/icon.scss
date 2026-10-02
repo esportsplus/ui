@@ -1,0 +1,14 @@
+// A line icon in the text color; the shared svgs carry no stroke of their own.
+%icon-stroke {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+// A stroke that draws itself in: with its path length 1, it shows as the offset eases from 1 to 0.
+%icon-stroke-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+}

@@ -9,12 +9,11 @@
     position: relative;
 
     &-canvas {
+        @extend %absolute-full;
         accent-color: var(--accent);
         color: var(--color);
         height: 100%;
-        inset: 0;
         pointer-events: none;
-        position: absolute;
         transition: none;
         width: 100%;
         z-index: 0;
@@ -93,12 +92,9 @@
 
         // An element rather than a pseudo-element, so both of those stay free for the surface's own decoration.
         &-lift {
-            border-radius: inherit;
+            @extend %layer;
             box-shadow: var(--surface-box-shadow-active);
-            inset: 0;
             opacity: 0;
-            pointer-events: none;
-            position: absolute;
             transition: opacity var(--surface-lift-duration) ease;
         }
 

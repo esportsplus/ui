@@ -10,15 +10,12 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
 
     // The shared check carries no stroke of its own.
     &-check {
-        fill: none;
+        @extend %icon-stroke;
         filter: blur(4px);
         flex: 0 0 auto;
         height: 16px;
         opacity: 0;
         scale: 0.25;
-        stroke: currentColor;
-        stroke-linecap: round;
-        stroke-linejoin: round;
         stroke-width: 2.25;
         transition:
             filter 300ms $icon-swap,

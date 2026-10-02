@@ -1,4 +1,4 @@
-@use '/lib';
+@use '/shared';
 
 
 @font-face {
@@ -85,7 +85,7 @@
 .--font-montserrat {
     --font-family: 'Montserrat', sans-serif;
 
-    @include lib.css-variables(font-weight, (
+    @include shared.css-variables(font-weight, (
         300: 400,
         400: 500,
         500: 600,

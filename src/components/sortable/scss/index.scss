@@ -55,7 +55,7 @@
     // The copy following the pointer, a popover in the top layer: fixed at the box the item was picked up from,
     // then moved by the pointer's offset and the swing, which JS writes every frame.
     &-drag {
-        @extend %drag-copy;
+        @extend %reset-popover;
         animation: var(--drag-animation);
         border-radius: var(--sortable-radius);
         box-shadow: var(--drag-box-shadow);
@@ -111,15 +111,12 @@
 
     // Nested anywhere inside an item; shown only in the copy, which it covers.
     &-overlay {
+        @extend %layer;
         align-items: center;
         background: inherit;
-        border-radius: inherit;
         display: none;
-        inset: 0;
         justify-content: center;
         opacity: 0;
-        pointer-events: none;
-        position: absolute;
         transition:
             display var(--overlay-transition-duration) allow-discrete,
             opacity var(--overlay-transition-duration) var(--transition-timing-function);

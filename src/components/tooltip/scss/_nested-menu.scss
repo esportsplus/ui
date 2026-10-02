@@ -124,13 +124,10 @@
 
         // Scrim over parent panels while a child is open; it also takes clicks meant to pop back here
         &::after {
+            @extend %layer;
             background: var(--scrim);
-            border-radius: inherit;
             content: '';
-            inset: 0;
             opacity: 0;
-            pointer-events: none;
-            position: absolute;
             transition: opacity var(--open-duration) var(--open-timing-function);
             z-index: 1;
         }

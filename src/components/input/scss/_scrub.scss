@@ -1,3 +1,4 @@
+@use '/shared';
 @use '/tokens';
 
 .input-scrub {
@@ -61,14 +62,12 @@
 
     // Runs under a fixed needle while scrubbing: one step is one pixel of tape, so the ticks travel exactly as far as the pointer.
     &-tape {
-        bottom: 0;
+        @extend %absolute-bottom;
         color: var(--tape-color);
         height: var(--tape-height);
-        inset-inline: 0;
         mask-image: linear-gradient(to right, transparent, #000 30%, #000 70%, transparent);
         opacity: 0;
         pointer-events: none;
-        position: absolute;
         transition:
             opacity var(--tape-leave-duration) var(--tape-timing-function),
             translate var(--tape-leave-duration) var(--tape-timing-function);
@@ -82,6 +81,7 @@
     }
 
     &-ticks {
+        @extend %absolute-full;
         background-image:
             linear-gradient(to right, currentColor 1px, transparent 1px),
             linear-gradient(to right, currentColor 1px, transparent 1px);
@@ -89,8 +89,6 @@
         background-position-y: bottom;
         background-repeat: repeat-x;
         background-size: var(--tick) var(--tape-minor-height), calc(var(--tick) * 5) var(--tape-major-height);
-        inset: 0;
-        position: absolute;
     }
 }
 

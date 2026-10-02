@@ -9,10 +9,8 @@
     // Covers the whole card and clips to its corners, since the card itself can't clip without losing its shadow;
     // the plate slides up past the top and the edges hang below the header.
     &-bar {
-        @extend %absolute-full;
-        border-radius: inherit;
+        @extend %layer;
         overflow: clip;
-        pointer-events: none;
     }
 
     &-after {

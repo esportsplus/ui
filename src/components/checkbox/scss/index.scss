@@ -1,4 +1,3 @@
-@use '/lib';
 @use '/shared';
 @use '/tokens';
 @use 'variables';
@@ -40,18 +39,17 @@
 
     &--radio {
         &::before {
+            @extend %absolute-full;
             border-radius: calc(var(--border-radius) - (var(--height) / 2));
             height: var(--height);
-            inset: 0;
             margin: auto;
-            position: absolute;
             scale: var(--scale);
         }
     }
 
     &--switch {
         &::before {
-            @include lib.position(absolute, var(--padding-vertical) null null var(--padding-horizontal));
+            @include shared.position(absolute, var(--padding-vertical) null null var(--padding-horizontal));
             border-radius: calc(var(--border-radius) - var(--padding-vertical) / 1.5);
             height: calc(var(--height) - (var(--border-width) * 2) - (var(--padding-vertical) * 2));
             scale: var(--scale);
@@ -78,13 +76,12 @@
         width: var(--check-size);
 
         svg {
+            @extend %icon-stroke-draw;
             fill: none;
             stroke: var(--indicator-color);
             stroke-width: var(--check-stroke-width);
             stroke-linecap: var(--check-linecap);
             stroke-linejoin: var(--check-linejoin);
-            stroke-dasharray: 1;
-            stroke-dashoffset: 1;
             transition: stroke-dashoffset var(--transition-duration) var(--check-timing-function);
         }
     }
@@ -133,18 +130,16 @@
 
         // Lives inside the checkbox, so it draws with the same variables and timing as the checkmark it replaces.
         .checkbox &-dash {
+            @extend %absolute-full;
             height: var(--check-size);
-            inset: 0;
             margin: auto;
             pointer-events: none;
-            position: absolute;
             width: var(--check-size);
 
             svg {
+                @extend %icon-stroke-draw;
                 fill: none;
                 stroke: var(--indicator-color);
-                stroke-dasharray: 1;
-                stroke-dashoffset: 1;
                 stroke-linecap: var(--check-linecap);
                 stroke-width: var(--check-stroke-width);
                 transition: stroke-dashoffset var(--transition-duration) var(--check-timing-function);

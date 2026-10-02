@@ -225,12 +225,9 @@
     }
 
     &-strip {
+        @extend %absolute-top;
         display: flex;
         flex-direction: column;
-        left: 0;
-        position: absolute;
-        right: 0;
-        top: 0;
         transition: translate var(--roll-duration) var(--roll-ease);
         translate: 0 calc(var(--digit, 0) * -10%);
 

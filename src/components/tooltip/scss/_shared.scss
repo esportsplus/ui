@@ -1,23 +1,17 @@
+@use '/shared';
 @use '/tokens';
 
 // A popover, so it sits in the top layer; the UA popover styles are undone here. The padding on the anchor side is
 // the gap to the trigger, which also carries the pointer across to interactive content. 'tooltip.shared' sets the
 // '--shared-*' size and position.
 .tooltip-shared {
-    background: none;
-    border: 0;
+    @extend %reset-popover;
     box-sizing: content-box;
     color: var(--color);
     font-size: var(--font-size);
     font-weight: var(--font-weight);
     height: var(--shared-height);
-    inset: auto;
     left: 0;
-    margin: 0;
-    overflow: visible;
-    padding: 0;
-    pointer-events: none;
-    position: fixed;
     top: 0;
     translate: var(--shared-x) var(--shared-y);
     width: var(--shared-width);

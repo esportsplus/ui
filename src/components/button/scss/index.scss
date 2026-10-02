@@ -23,15 +23,7 @@
 
     // Pseudo Element Box Shadow
     &::after {
-        @extend %absolute-full;
-        border-radius: inherit;
-        box-shadow: var(--box-shadow);
-        content: '';
-        pointer-events: none;
-        transition:
-            box-shadow var(--transition-duration) var(--transition-timing-function),
-            opacity var(--transition-duration) var(--transition-timing-function);
-        z-index: -1;
+        @extend %layer-box-shadow;
     }
 
 
@@ -187,31 +179,24 @@
     }
 
     &-fill {
-        @extend %absolute-full;
+        @extend %layer;
         background: var(--fill-background);
-        border-radius: inherit;
         clip-path: inset(0 100% 0 0);
         color: var(--fill-color);
         display: grid;
         place-items: center;
-        pointer-events: none;
     }
 
     // Sprite icons carry their own stroke; these reach the shared check, which carries none. The dash values inherit
     // into the sprite, so '--draw' icons still draw in.
     &-icon {
-        fill: none;
+        @extend %icon-stroke;
         flex-shrink: 0;
         height: var(--icon-size);
-        stroke: currentColor;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-width: 2;
         width: var(--icon-size);
 
         &--draw {
-            stroke-dasharray: 1;
-            stroke-dashoffset: 1;
+            @extend %icon-stroke-draw;
             transition: stroke-dashoffset var(--draw-duration) var(--draw-timing-function);
         }
 

@@ -22,15 +22,7 @@
 
     // Pseudo Element Box Shadow
     &::after {
-        @extend %absolute-full;
-        border-radius: inherit;
-        box-shadow: var(--box-shadow);
-        content: '';
-        pointer-events: none;
-        transition:
-            box-shadow var(--transition-duration) var(--transition-timing-function),
-            opacity var(--transition-duration) var(--transition-timing-function);
-        z-index: -1;
+        @extend %layer-box-shadow;
     }
 
 

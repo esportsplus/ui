@@ -1,10 +1,10 @@
-@use '/lib';
+@use '/shared';
 @use '/tokens';
 @use 'center' as *;
 @use 'east' as *;
 @use 'nested-menu';
 @use 'north' as *;
-@use 'shared';
+@use 'shared' as tooltip-shared;
 @use 'south' as *;
 @use 'west' as *;
 @use 'variables';
@@ -57,13 +57,10 @@
     }
 
     &:has(> .tooltip-content--morph, > .tooltip-message--morph, > :not(.tooltip) > .tooltip-content--morph, > :not(.tooltip) > .tooltip-message--morph)::after {
+        @extend %layer;
         background: inherit;
-        border-radius: inherit;
         content: '';
         display: block;
-        inset: 0;
-        pointer-events: none;
-        position: absolute;
         z-index: -1;
     }
 

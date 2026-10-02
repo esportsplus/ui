@@ -8,3 +8,15 @@
     white-space: nowrap;
     width: 1px;
 }
+
+// A native field kept for forms and autofill while the component draws its own control.
+%hidden-field {
+    height: 0px;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 0px;
+    z-index: 0;
+}

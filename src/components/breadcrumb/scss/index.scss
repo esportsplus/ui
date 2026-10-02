@@ -51,13 +51,11 @@
     }
 
     &-list {
+        @extend %reset-list;
         align-items: center;
         display: flex;
         height: var(--height);
-        list-style: none;
-        margin: 0;
         min-width: 0;
-        padding: 0;
         position: relative;
     }
 
@@ -116,11 +114,9 @@
     }
 
     &-ruler {
+        @extend %reset-list;
         display: flex;
         left: 0;
-        list-style: none;
-        margin: 0;
-        padding: 0;
         pointer-events: none;
         position: absolute;
         top: 0;

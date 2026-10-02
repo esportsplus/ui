@@ -39,11 +39,10 @@
         }
 
         &-body {
+            @extend %absolute-full;
             background: var(--chip-background);
             border-radius: var(--chip-border-radius);
             box-shadow: var(--chip-shadow);
-            inset: 0;
-            position: absolute;
             transition:
                 background-color var(--transition-duration) var(--transition-timing-function),
                 box-shadow var(--transition-duration) var(--transition-timing-function);
@@ -158,12 +157,10 @@
     }
 
     &-list {
+        @extend %reset-list;
         display: flex;
         flex-wrap: wrap;
         gap: var(--gap);
-        list-style: none;
-        margin: 0;
-        padding: 0;
         position: relative;
     }
 

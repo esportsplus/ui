@@ -39,29 +39,6 @@ function gap(key: number) {
 const utilities: Utility[] = [
     {
         category: 'Layout',
-        description: 'Absolutely position an element and pin it to an edge or center it within its nearest positioned ancestor.',
-        name: 'absolute',
-        variants: [
-            {
-                render: () => html`
-                    <div style='background: var(--color-grey-500); border-radius: var(--border-radius-400); height: var(--size-900); position: relative; width: 100%;'>
-                        <div class='--absolute-center' style='${boxStyle()}'>center</div>
-                    </div>
-                `,
-                title: 'center'
-            },
-            {
-                render: () => html`
-                    <div style='background: var(--color-grey-500); border-radius: var(--border-radius-400); height: var(--size-900); position: relative; width: 100%;'>
-                        <div class='--absolute-top' style='${boxStyle()}'>top</div>
-                    </div>
-                `,
-                title: 'top'
-            }
-        ]
-    },
-    {
-        category: 'Layout',
         description: 'Flexbox layouts with alignment and direction modifiers; set --gap-horizontal and --gap-vertical to space children.',
         name: 'flex',
         variants: [

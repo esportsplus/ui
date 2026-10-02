@@ -127,12 +127,9 @@
         user-select: none;
 
         &::after {
-            border-radius: inherit;
+            @extend %layer;
             box-shadow: var(--hairline);
             content: '';
-            inset: 0;
-            pointer-events: none;
-            position: absolute;
         }
 
         &:focus-visible {

@@ -13,12 +13,10 @@
     width: 100%;
 
     &-group {
+        @extend %reset-list;
         align-items: center;
         display: flex;
         gap: var(--item-gap);
-        list-style: none;
-        margin: 0;
-        padding: 0;
         width: max-content;
 
         li {

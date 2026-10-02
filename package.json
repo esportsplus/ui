@@ -31,7 +31,6 @@
             "default": "./build/css-utilities/index.js"
         },
         "./layer.scss": "./layer.scss",
-        "./lib.scss": "./lib.scss",
         "./normalize.scss": "./build/normalize/scss/index.scss",
         "./shared.scss": "./shared.scss",
         "./svg/*.svg": "./storage/svg/*.svg",

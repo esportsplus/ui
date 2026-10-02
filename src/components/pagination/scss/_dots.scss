@@ -1,3 +1,4 @@
+@use '/shared';
 @use 'variables';
 
 // Geometry is derived from '--progress' alone, so a scroll or drag only rewrites one custom property per frame.
@@ -48,9 +49,8 @@
     }
 
     &-fill {
+        @extend %absolute-full;
         background: var(--pill-color);
-        inset: 0;
-        position: absolute;
         transform-origin: left;
     }
 

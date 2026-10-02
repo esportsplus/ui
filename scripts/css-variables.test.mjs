@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import { compileString } from 'sass';
 
-const loadPaths = [fileURLToPath(new URL('../src/lib/scss/', import.meta.url))];
+const loadPaths = [fileURLToPath(new URL('../src/shared/scss/', import.meta.url))];
 const compile = source => compileString(`@use 'css-variables' as lib; ${source}`, {
     loadPaths,
     style: 'compressed'

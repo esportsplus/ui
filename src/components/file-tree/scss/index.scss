@@ -136,7 +136,7 @@
 
     // The drag moves it to the pointer by its 'translate'.
     &-drag {
-        @extend %drag-copy;
+        @extend %reset-popover;
         background: var(--drag-background);
         border-radius: var(--drag-radius);
         box-shadow: var(--drag-box-shadow);
@@ -323,15 +323,14 @@
     // Laid over the viewport's visible box; the layer starts at the folder's bottom edge.
     // Laid over the viewport, which stays the tree's one tab stop.
     &-empty {
+        @extend %absolute-full;
         align-items: center;
         color: var(--empty-color);
         display: flex;
         flex-direction: column;
         gap: var(--size-200);
-        inset: 0;
         justify-content: center;
         padding: var(--size-400);
-        position: absolute;
         text-align: center;
     }
 
