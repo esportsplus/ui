@@ -1,5 +1,5 @@
 import { html, type Attributes } from '@esportsplus/template';
-import { effect, reactive } from '@esportsplus/reactivity';
+import { effect, reactive, ReactiveArray } from '@esportsplus/reactivity';
 import { reduced } from '~/shared/animation';
 import './scss/index.scss';
 
@@ -10,9 +10,11 @@ type A = Attributes & {
     words: string[];
 };
 
+// 'left' is where it stood before a swap, measured; a letter without one is new to the word.
 type Letter = {
     char: string;
-    node: HTMLSpanElement;
+    element?: HTMLElement;
+    left?: number;
 };
 
 type State = {
@@ -41,15 +43,6 @@ const INTERVAL = 2600;
 
 const STAGGER_MS = 28;
 
-
-function letter(char: string) {
-    let node = document.createElement('span');
-
-    node.className = 'typewriter-rotate-letter';
-    node.textContent = char;
-
-    return { char, node };
-}
 
 // Longest common subsequence, so the most letters possible survive the swap while keeping their order ("fast" to
 // "honest" keeps both s and t). Maps next index to previous index.
@@ -84,11 +77,15 @@ function match(prev: string[], next: string[]) {
 export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: false }), words, ...attributes }: A) => {
     let box: HTMLElement | undefined,
         current = words[state.index] === undefined ? 0 : state.index,
+        // Letters on their way out, kept apart so a swap that rebuilds the word leaves their exits running.
+        exits = new ReactiveArray<Letter>(),
         hovered = false,
-        leaving = new Set<HTMLSpanElement>(),
-        letters: Letter[] = [],
+        letters = new ReactiveArray<Letter>([...words[current]].map((char) => ({ char }))),
         stop: VoidFunction | undefined,
         timer: ReturnType<typeof setTimeout> | undefined;
+
+    let leaving = html.reactive(exits, (l) => html`<span class='typewriter-rotate-letter typewriter-rotate-letter--exiting' style='left: ${l.left ?? 0}px;' ${{ onrender: (element: HTMLElement) => { l.element = element; } }}>${l.char}</span>`),
+        word = html.reactive(letters, (l) => html`<span class='typewriter-rotate-letter' ${{ onrender: (element: HTMLElement) => { l.element = element; } }}>${l.char}</span>`);
 
     function schedule() {
         clearTimeout(timer);
@@ -118,7 +115,6 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
         }
 
         let from = box.getBoundingClientRect(),
-            lefts = new Map<Letter, number>(),
             motion = !reduced(),
             // Rects are post-transform; a scaled ancestor would otherwise have every offset applied twice.
             s = from.width / box.offsetWidth || 1;
@@ -126,42 +122,42 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
         // Visual position, mid-animation included, so a swap that lands during a glide continues from where the
         // letter really is.
         for (let i = 0, n = letters.length; i < n; i++) {
-            lefts.set(letters[i], (letters[i].node.getBoundingClientRect().left - from.left) / s);
+            letters[i].left = ((letters[i].element?.getBoundingClientRect().left ?? from.left) - from.left) / s;
         }
 
         let chars = [...words[index]],
-            entering = new Set<Letter>(),
-            kept = new Set<Letter>(),
+            kept: boolean[] = [],
             // Reduced motion is a plain crossfade: nothing travels.
             pairs = motion ? match(letters.map((l) => l.char), chars) : new Map<number, number>(),
-            next = chars.map((char, j) => {
+            next = chars.map((char, j): Letter => {
                 let p = pairs.get(j);
 
-                if (p !== undefined) {
-                    kept.add(letters[p]);
-                    return letters[p];
+                if (p === undefined) {
+                    return { char };
                 }
 
-                let l = letter(char);
+                kept[p] = true;
 
-                entering.add(l);
+                return letters[p];
+            }),
+            out = exits.length;
 
-                return l;
-            });
-
+        // Leaving letters stay where they stood, then float up and out.
         for (let i = 0, n = letters.length; i < n; i++) {
-            let l = letters[i];
-
-            if (kept.has(l)) {
-                continue;
+            if (!kept[i]) {
+                exits.push({ char: letters[i].char, left: letters[i].left });
             }
+        }
 
-            // Leaving letters stay where they stood, then float up and out.
-            l.node.getAnimations().forEach((a) => a.cancel());
-            l.node.classList.add('typewriter-rotate-letter--exiting');
-            leaving.add(l.node);
-            l.node.style.left = `${lefts.get(l) ?? 0}px`;
-            l.node.animate(
+        letters.splice(0, letters.length, ...next);
+        word.flush();
+        leaving.flush();
+        current = index;
+
+        for (let i = out, n = exits.length; i < n; i++) {
+            let l = exits[i];
+
+            l.element?.animate(
                 motion
                     ? [
                         { filter: 'blur(0px)', opacity: 1, transform: 'translateY(0)' },
@@ -169,30 +165,18 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                     ]
                     : [{ opacity: 1 }, { opacity: 0 }],
                 { duration: EXIT_MS, easing: EASE_OUT, fill: 'forwards' }
-            ).onfinish = () => {
-                leaving.delete(l.node);
-                l.node.remove();
-            };
+            ).finished.then(() => {
+                let at = exits.indexOf(l);
+
+                if (at !== -1) {
+                    exits.splice(at, 1);
+                }
+            }, () => {});
         }
 
-        for (let i = 0, n = next.length; i < n; i++) {
-            box.appendChild(next[i].node);
-        }
-
-        for (let node of leaving) {
-            box.appendChild(node);
-        }
-
-        letters = next;
-        current = index;
-
-        // Settle everything first so the measurements below are the final layout, then animate from the old
+        // Settle the width first so the measurements below are the final layout, then animate from the old
         // picture to it.
         box.getAnimations().forEach((a) => a.cancel());
-
-        for (let i = 0, n = letters.length; i < n; i++) {
-            letters[i].node.getAnimations().forEach((a) => a.cancel());
-        }
 
         let to = box.getBoundingClientRect(),
             order = 0,
@@ -208,10 +192,11 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
         }
 
         for (let i = 0, n = letters.length; i < n; i++) {
-            let l = letters[i];
+            let l = letters[i],
+                was = l.left;
 
-            if (entering.has(l)) {
-                l.node.animate(
+            if (was === undefined) {
+                l.element?.animate(
                     motion
                         ? [
                             { filter: 'blur(4px)', opacity: 0, transform: 'translateY(0.4em)' },
@@ -229,14 +214,13 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                 continue;
             }
 
-            let now = (l.node.getBoundingClientRect().left - to.left) / scale,
-                was = lefts.get(l);
+            let now = ((l.element?.getBoundingClientRect().left ?? to.left) - to.left) / scale;
 
-            if (was === undefined || Math.abs(was - now) < 0.5) {
+            if (Math.abs(was - now) < 0.5) {
                 continue;
             }
 
-            l.node.animate(
+            l.element?.animate(
                 [{ transform: `translateX(${was - now}px)` }, { transform: 'translateX(0)' }],
                 { duration: GLIDE_MS, easing: EASE_IN_OUT }
             );
@@ -290,18 +274,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                     }
                 }}
             >
-                ${[...words[current]].map((char, i) => html`
-                    <span
-                        class='typewriter-rotate-letter'
-                        ${{
-                            onrender: (node: HTMLSpanElement) => {
-                                letters[i] = { char, node };
-                            }
-                        }}
-                    >
-                        ${char}
-                    </span>
-                `)}
+                ${word}${leaving}
             </span>
         </span>
     `;
