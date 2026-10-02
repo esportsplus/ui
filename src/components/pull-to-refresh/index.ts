@@ -1,5 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import { effect, reactive } from '@esportsplus/reactivity';
+import { effect, flush, reactive } from '@esportsplus/reactivity';
 import { reduced } from '~/shared/animation';
 import './scss/index.scss';
 
@@ -13,7 +13,7 @@ type A = Attributes & {
     state?: State;
 };
 
-type Motion = 'instant' | 'landing' | null;
+type Motion = '' | 'instant' | 'landing';
 
 type Press = {
     pulling: boolean;
@@ -69,22 +69,22 @@ export default component(
             press: Press | null = null,
             root: HTMLElement | undefined,
             scroller: HTMLElement | undefined,
-            view = reactive({ status: '' }),
-            y = 0;
+            // 'reveal' is the share of ticks drawn, 'y' the feed's offset in px.
+            view = reactive({ motion: '' as Motion, reveal: 0, status: '', y: 0 });
 
         // One code path for touch and mouse, so both look alike.
         function begin() {
             base = unband(Math.max(position(), 0));
-            motion('instant');
+            view.motion = 'instant';
         }
 
         function end() {
-            if (y >= THRESHOLD) {
+            if (view.y >= THRESHOLD) {
                 refresh();
             }
             else {
-                motion(null);
-                write(0);
+                view.motion = '';
+                view.y = 0;
             }
         }
 
@@ -112,22 +112,14 @@ export default component(
 
             let offset = position() - height;
 
-            motion('instant');
-            write(offset);
-            // Commits the shifted offset, so the slide in starts from it rather than from the threshold.
+            view.motion = 'instant';
+            view.y = offset;
+            // Commits the shifted offset with the spring off, so the slide in starts from it rather than from the
+            // threshold.
+            flush();
             position();
-            motion('landing');
-            write(0);
-        }
-
-        // Set on the element directly: the template applies class changes a frame late, and a transition has to switch now.
-        function motion(value: Motion) {
-            if (value) {
-                root?.setAttribute('data-motion', value);
-            }
-            else {
-                root?.removeAttribute('data-motion');
-            }
+            view.motion = 'landing';
+            view.y = 0;
         }
 
         // Where the feed is on screen, partway through a transition included.
@@ -138,8 +130,8 @@ export default component(
         function pull(distance: number) {
             let offset = rubberband(Math.max(base + distance, 0));
 
-            root?.style.setProperty('--reveal', String(Math.min(offset / THRESHOLD, 1)));
-            write(offset);
+            view.reveal = Math.min(offset / THRESHOLD, 1);
+            view.y = offset;
         }
 
         // Only from the very top, and never while a refresh or the slide in is still running.
@@ -152,12 +144,12 @@ export default component(
 
             busy = true;
             state.refreshing = true;
-            root?.style.setProperty('--reveal', '1');
+            view.motion = '';
+            view.reveal = 1;
             view.status = '';
-            motion(null);
-            write(THRESHOLD);
+            view.y = THRESHOLD;
 
-            // Array slots render on the next frame, so measure after the caller's update has reached the DOM.
+            // The caller's own lists render at the end of a task this can't flush, so it measures a frame later.
             void Promise.resolve()
                 .then(onrefresh)
                 .finally(() => requestAnimationFrame(() => land(first)));
@@ -201,11 +193,6 @@ export default component(
             press = e.touches.length === 1 && ready() ? { pulling: false, y: e.touches[0].clientY } : null;
         }
 
-        function write(value: number) {
-            y = value;
-            root?.style.setProperty('--pull-to-refresh-y', String(value));
-        }
-
         effect(() => {
             if (!state.refreshing || busy) {
                 return;
@@ -225,9 +212,8 @@ export default component(
                 ${this?.attributes}
                 ${attributes}
                 ${{
-                    onconnect: (el: HTMLElement) => {
-                        root = el;
-
+                    class: () => view.motion && `pull-to-refresh--${view.motion}`,
+                    onconnect: () => {
                         if (!scroller) {
                             return;
                         }
@@ -245,7 +231,11 @@ export default component(
                     },
                     ondisconnect: () => {
                         listeners?.abort();
-                    }
+                    },
+                    onrender: (el: HTMLElement) => {
+                        root = el;
+                    },
+                    style: () => `--pull-to-refresh-y: ${view.y}; --reveal: ${view.reveal};`
                 }}
             >
                 <div aria-hidden='true' class='pull-to-refresh-indicator'>

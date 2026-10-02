@@ -11,11 +11,11 @@
     transition: --pull-to-refresh-y var(--settle-duration) var(--spring);
 
     // Following the hand, or shifting the feed without a visible move.
-    &[data-motion='instant'] {
+    &.pull-to-refresh--instant {
         transition: none;
     }
 
-    &[data-motion='landing'] {
+    &.pull-to-refresh--landing {
         transition-duration: var(--slide-in-duration);
     }
 
@@ -36,7 +36,7 @@
     }
 
     // Faded when a refresh ends, so the spinner goes out rather than shrinking tick by tick as the feed retracts.
-    &[data-motion='landing'] &-glyph {
+    &.pull-to-refresh--landing &-glyph {
         opacity: 0;
         transition: opacity var(--fade-duration) var(--fade-timing-function);
     }
@@ -90,7 +90,7 @@
 
     @media (prefers-reduced-motion: reduce) {
         &,
-        &[data-motion='landing'] &-glyph {
+        &.pull-to-refresh--landing &-glyph {
             transition: none;
         }
 
