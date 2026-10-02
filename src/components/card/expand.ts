@@ -50,11 +50,10 @@ export default component(
                 }
             };
 
-            // 'card--morphing' names the moving card; it lands on the next frame, just before the old state is captured.
+            // 'card--morphing' names the moving card; it lands at the end of this task, before the old state is captured.
             view.morph = key;
 
-            // Rendering is paused until the update resolves, so the template's frame-batched writes can't be
-            // awaited; the overlay's effect opens or dims its dialog synchronously on flush instead.
+            // Flushed so the new state, its bindings and the overlay's dialog included, is in place before it's captured.
             void document.startViewTransition(() => {
                 view.open = next;
                 flush();
