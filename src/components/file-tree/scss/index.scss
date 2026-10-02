@@ -134,23 +134,18 @@
         }
     }
 
-    // A popover, so it rides the top layer clear of any clipping or transformed ancestor; the UA popover styles are
-    // undone here. The drag moves it to the pointer by its 'translate'.
+    // The drag moves it to the pointer by its 'translate'.
     &-drag {
+        @extend %drag-copy;
         background: var(--drag-background);
-        border: 0;
         border-radius: var(--drag-radius);
         box-shadow: var(--drag-box-shadow);
         color: var(--color);
         font-size: var(--font-size);
         gap: var(--item-gap);
-        inset: auto;
         left: 0;
         margin: var(--drag-offset) 0 0 var(--drag-offset);
-        overflow: visible;
         padding: var(--drag-padding);
-        pointer-events: none;
-        position: fixed;
         top: 0;
         white-space: nowrap;
 
@@ -372,6 +367,7 @@
     }
 
     &-row {
+        @extend %drag-item;
         align-items: center;
         border-radius: var(--row-radius);
         cursor: pointer;

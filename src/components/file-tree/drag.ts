@@ -1,5 +1,6 @@
 import { peek, reactive, type Signal } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
+import press from '~/shared/press';
 
 
 type Drag<E> = {
@@ -53,24 +54,12 @@ const HOVER = 500;
 // Pixels per second at the edge itself.
 const SPEED = 600;
 
-const THRESHOLD = 4;
-
-
-function prevent(e: Event) {
-    e.preventDefault();
-}
-
-function swallow(e: Event) {
-    e.preventDefault();
-    e.stopPropagation();
-}
-
 
 // Pointer events rather than native drag and drop: the rows are virtualized, so the pressed row can scroll out of
 // the DOM mid-drag, taking a native drag's source and events with it; the viewport holds the pointer instead, and
 // the feedback, Alt copy, auto-scroll and touch all stay in the tree's hands.
 export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: Tree<T>) => {
-    let busy = false,
+    let gesture = press(DELAY),
         ghost: HTMLElement | undefined,
         // Rows and compact row segments on screen, which a drag aims at.
         rows = new Map<HTMLElement, T>(),
@@ -87,27 +76,22 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             carry = 0,
             copy = e.altKey,
             frame = 0,
+            // Captured, ahead of the tree's own keys; only while this press lasts.
+            keys = new AbortController(),
             opening: ReturnType<typeof setTimeout> | undefined,
-            originX = e.clientX,
-            originY = e.clientY,
             pointer = e.pointerId,
             // A folder, null for the top level, undefined when a release would drop nothing.
             target: T | null | undefined,
             time = 0,
-            touch = e.pointerType === 'touch',
-            timer = touch ? setTimeout(activate, DELAY) : undefined,
             x = e.clientX,
             y = e.clientY;
 
         function activate() {
-            clearTimeout(timer);
-
             active = true;
             sources = list;
             ui.count = list.length;
             ui.label = list[0].element.name;
 
-            getSelection()?.removeAllRanges();
             // Held by the viewport, so the pointer stays with the drag once the pressed row scrolls out of the DOM.
             tree.viewport()?.setPointerCapture(pointer);
             ghost?.showPopover();
@@ -215,19 +199,22 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             return copy || moves;
         }
 
-        function cleanup() {
-            stop();
-            busy = false;
+        // Drops on the target it was released over, unless it was cancelled or never got going.
+        async function end(e: PointerEvent | null) {
+            let folder = active && e?.type === 'pointerup' ? target : undefined;
 
-            document.removeEventListener('contextmenu', prevent);
-            document.removeEventListener('dragstart', prevent);
-            document.removeEventListener('keydown', key, true);
-            document.removeEventListener('keyup', key, true);
-            document.removeEventListener('pointercancel', release);
-            document.removeEventListener('pointermove', move);
-            document.removeEventListener('pointerup', release);
-            document.removeEventListener('selectstart', prevent);
-            document.removeEventListener('touchmove', scroll);
+            keys.abort();
+            stop();
+
+            if (folder === undefined) {
+                return;
+            }
+
+            let result = { copy, elements: list.map((row) => row.element), target: folder?.element ?? null };
+
+            if (!confirm || await confirm(result)) {
+                drop(result);
+            }
         }
 
         function expand() {
@@ -261,7 +248,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
         }
 
         function move(e: PointerEvent) {
-            if (e.pointerId !== pointer || cancelled) {
+            if (cancelled) {
                 return;
             }
 
@@ -272,18 +259,6 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             if (active) {
                 place();
                 aim();
-                return;
-            }
-
-            if (Math.hypot(x - originX, y - originY) < THRESHOLD) {
-                return;
-            }
-
-            if (touch) {
-                cleanup();
-            }
-            else {
-                activate();
             }
         }
 
@@ -292,46 +267,12 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             ui.y = y;
         }
 
-        async function release(e: PointerEvent) {
-            if (e.pointerId !== pointer) {
-                return;
-            }
-
-            let folder = active && e.type === 'pointerup' ? target : undefined,
-                moved = active || cancelled;
-
-            cleanup();
-
-            if (moved) {
-                // The pointerup that ended the drag is followed by a click on whatever sits under the pointer.
-                addEventListener('click', swallow, true);
-                setTimeout(() => removeEventListener('click', swallow, true));
-            }
-
-            if (folder === undefined) {
-                return;
-            }
-
-            let result = { copy, elements: list.map((row) => row.element), target: folder?.element ?? null };
-
-            if (!confirm || await confirm(result)) {
-                drop(result);
-            }
-        }
-
-        function scroll(e: TouchEvent) {
-            if (active) {
-                e.preventDefault();
-            }
-        }
-
         function stop() {
             let viewport = tree.viewport();
 
             active = false;
             cancelAnimationFrame(frame);
             clearTimeout(opening);
-            clearTimeout(timer);
 
             if (ghost?.matches(':popover-open')) {
                 ghost.hidePopover();
@@ -386,17 +327,9 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             aim();
         }
 
-        busy = true;
-
-        document.addEventListener('contextmenu', prevent);
-        document.addEventListener('dragstart', prevent);
-        document.addEventListener('keydown', key, true);
-        document.addEventListener('keyup', key, true);
-        document.addEventListener('pointercancel', release);
-        document.addEventListener('pointermove', move);
-        document.addEventListener('pointerup', release);
-        document.addEventListener('selectstart', prevent);
-        document.addEventListener('touchmove', scroll, { passive: false });
+        gesture.begin(e, { end, move, start: activate });
+        document.addEventListener('keydown', key, { capture: true, signal: keys.signal });
+        document.addEventListener('keyup', key, { capture: true, signal: keys.signal });
     }
 
     // Where 'row' sits in the box drawn around the target folder and its open contents, as its classes.
@@ -438,10 +371,12 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             </div>
         `,
         root: {
+            ...gesture.attributes,
             class: [
                 () => ui.effect && `file-tree--drag file-tree--drag-${ui.effect}`,
                 () => ui.target === -1 && 'file-tree--drop'
-            ]
+            ],
+            ondisconnect: () => gesture.cancel()
         } as Attributes,
         row: (row: T): Attributes => ({
             class: [
@@ -455,7 +390,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                 rows.delete(element);
             },
             onpointerdown: (e: PointerEvent) => {
-                if (busy || row.locked || e.button !== 0 || !e.isPrimary) {
+                if (gesture.busy() || row.locked || e.button !== 0 || !e.isPrimary) {
                     return;
                 }
 
