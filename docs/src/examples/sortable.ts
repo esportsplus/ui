@@ -164,7 +164,17 @@ export default {
                         <span class='sortable-demo-row-meta'>#${task.number}</span>
                         <div class='sortable-overlay'>${task.label}</div>
                     </div>
-                `, { handle: '.sortable-demo-handle' });
+                `, {
+                    // A different look while it is carried: the row stays as the placeholder underneath.
+                    drag: (task) => html`
+                        <div class='sortable-demo-card'>
+                            <span>⋮⋮</span>
+                            <span>${task.label}</span>
+                            <span class='sortable-demo-card-badge'>Moving</span>
+                        </div>
+                    `,
+                    handle: '.sortable-demo-handle'
+                });
 
                 return html`
                     <div class='sortable-demo'>
@@ -174,7 +184,7 @@ export default {
                     </div>
                 `;
             },
-            title: 'list (handle)'
+            title: 'list (handle, custom drag template)'
         },
         {
             render: () => {

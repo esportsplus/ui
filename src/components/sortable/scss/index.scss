@@ -1,7 +1,7 @@
-@use '/tokens';
+@use '/shared';
 @use 'variables';
 
-// Typed, so the drop can transition them; not inherited, so a write per frame restyles the held item alone.
+// Typed, so the drop can transition them; not inherited, so a write per frame restyles the copy alone.
 @property --sortable-angle {
     inherits: false;
     initial-value: 0deg;
@@ -22,63 +22,94 @@
 
 .sortable {
     > * {
-        -webkit-touch-callout: none;
+        @extend %drag-item;
     }
 
-    // A held item stays in the container (so selectors like '.toolbar > button' keep matching) but is lifted out
-    // of flow with 'position: fixed', at the box it was picked up from; the placeholder holds its slot. JS writes
-    // the box once and the pointer's offset and swing every frame.
-    > .sortable-item--dragging,
-    > .sortable-item--dropping,
-    > .sortable-item--lifting {
+    // The dragged item stays in the list as its own placeholder: its contents fade out behind a dashed outline while
+    // it moves through the list. Leaving the class drops the transition, so they are back at once on landing.
+    > .sortable-item--held {
+        background: var(--placeholder-background);
+        border-color: transparent;
+        box-shadow: none;
+        color: transparent;
+        outline: var(--placeholder-border-width) dashed var(--placeholder-border-color);
+        outline-offset: calc(var(--placeholder-border-width) * -1);
+        transition:
+            background-color var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
+
+        > * {
+            opacity: 0;
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+        }
+    }
+
+    // Shows again at once under the fading copy: its own transitions, or ones it inherits, would ease it back in after
+    // the copy has gone. Important, since they can come from any rule.
+    > .sortable-item--revealing,
+    > .sortable-item--revealing * {
+        transition: none !important;
+    }
+
+
+    // The copy following the pointer, a popover in the top layer: fixed at the box the item was picked up from,
+    // then moved by the pointer's offset and the swing, which JS writes every frame.
+    &-drag {
+        @extend %drag-copy;
+        animation: var(--drag-animation);
+        border-radius: var(--sortable-radius);
+        box-shadow: var(--drag-box-shadow);
         box-sizing: border-box;
         height: var(--sortable-height);
         left: var(--sortable-left);
-        margin: 0;
-        position: fixed;
+        scale: var(--drag-scale);
         top: var(--sortable-top);
         transform: translate3d(var(--sortable-x), var(--sortable-y), 0) rotate(var(--sortable-angle));
         transform-origin: var(--sortable-origin);
-        width: var(--sortable-width);
-        will-change: transform;
-        z-index: var(--drag-z-index);
-    }
-
-    > .sortable-item--dragging {
-        animation: var(--drag-animation);
-        box-shadow: var(--drag-box-shadow);
-        cursor: grabbing;
-        scale: var(--drag-scale);
         transition:
             box-shadow var(--transition-duration) var(--transition-timing-function),
             scale var(--transition-duration) var(--transition-timing-function);
+        width: var(--sortable-width);
+        will-change: transform;
+
+        @starting-style {
+            box-shadow: none;
+            scale: 1;
+        }
+
+        // The copy takes the box the item was picked up from.
+        > * {
+            box-sizing: border-box;
+            height: 100%;
+            margin: 0;
+            width: 100%;
+        }
+
+        // Shrinks onto the item, settling the lift, the swing and any animation on the way, then blurs and fades out
+        // over it for the last quarter, as the item shows again under it. The fade eases plainly: the drop's
+        // overshoot would clamp it at 0.
+        &--dropping {
+            animation: none;
+            box-shadow: none;
+            filter: blur(var(--drop-blur));
+            opacity: 0;
+            scale: 1;
+            transition:
+                --sortable-angle var(--drop-duration) var(--drop-easing),
+                --sortable-x var(--drop-duration) var(--drop-easing),
+                --sortable-y var(--drop-duration) var(--drop-easing),
+                box-shadow var(--drop-duration) var(--drop-easing),
+                filter calc(var(--drop-duration) / 4) ease-out calc(var(--drop-duration) * 0.75),
+                height var(--drop-duration) var(--drop-easing),
+                opacity calc(var(--drop-duration) / 4) ease-out calc(var(--drop-duration) * 0.75),
+                rotate var(--drop-duration) var(--drop-easing),
+                scale var(--drop-duration) var(--drop-easing),
+                translate var(--drop-duration) var(--drop-easing),
+                width var(--drop-duration) var(--drop-easing);
+        }
     }
 
-    // Lands on the placeholder, settling the lift, the swing and any animation on the way.
-    > .sortable-item--dropping {
-        transition:
-            --sortable-angle var(--drop-duration) var(--drop-easing),
-            --sortable-x var(--drop-duration) var(--drop-easing),
-            --sortable-y var(--drop-duration) var(--drop-easing),
-            box-shadow var(--drop-duration) var(--drop-easing),
-            rotate var(--drop-duration) var(--drop-easing),
-            scale var(--drop-duration) var(--drop-easing),
-            translate var(--drop-duration) var(--drop-easing);
-    }
-
-    // Back in the flow at its new place; the item's own transitions (e.g. on 'transform') would otherwise run from
-    // where the drop left it.
-    > .sortable-item--settling {
-        transition: none;
-    }
-
-    @include tokens.state(active) {
-        user-select: none;
-    }
-
-
-    // Nested anywhere inside an item; only rendered while that item is held. The dragged item is
-    // 'position: fixed', so this covers it without the item needing its own positioning.
+    // Nested anywhere inside an item; shown only in the copy, which it covers.
     &-overlay {
         align-items: center;
         background: inherit;
@@ -94,8 +125,7 @@
             opacity var(--overlay-transition-duration) var(--transition-timing-function);
         z-index: 1;
 
-        .sortable > .sortable-item--dragging &,
-        .sortable > .sortable-item--dropping & {
+        .sortable-drag & {
             display: flex;
             opacity: 1;
 
@@ -104,27 +134,18 @@
             }
         }
 
-        .sortable > .sortable-item--dropping & {
+        .sortable-drag--dropping & {
             opacity: 0;
         }
     }
+}
 
-    &-placeholder {
-        background: var(--placeholder-background);
-        border: var(--placeholder-border-width) dashed var(--placeholder-border-color);
-        border-radius: var(--radius);
-        box-sizing: border-box;
-        flex: none;
-        pointer-events: none;
-        transition:
-            opacity var(--transition-duration) var(--transition-timing-function),
-            scale var(--transition-duration) var(--transition-timing-function);
 
-        @starting-style {
-            opacity: 0;
-            scale: 0.9;
-        }
-    }
+// Grabbing wherever the pointer goes while an item is carried, over whatever sets its own cursor; released as it
+// drops.
+:root:has(.sortable-drag:not(.sortable-drag--dropping)),
+:root:has(.sortable-drag:not(.sortable-drag--dropping)) * {
+    cursor: grabbing !important;
 }
 
 
@@ -333,7 +354,7 @@
         --swing-angle: 0deg;
     }
 
-    .sortable > .sortable-item--dragging {
+    .sortable-drag {
         animation: none;
     }
 }

@@ -157,16 +157,24 @@ transitionend/transitioncancel). The docs include reactive switching examples.
 `sortable(items, template, options)` renders a `ReactiveArray` and lets its
 items be dragged: spread `attributes` on the container and render the items
 inside it with `render()`. Each item renders one element and spreads the
-attributes its template is handed on it, which bind the held item's
-`sortable-item--{phase}` class and `--sortable-*` position. A dashed
-`.sortable-placeholder` holds the slot while siblings shift around it, and the
-held item swings with the drag's momentum, pivoting on the grab point. Anything
-with `.sortable-overlay` inside an item only shows while it is held. Dropping
-sorts `items`, so the item keeps its node, and `onsort` receives the move.
+attributes its template is handed on it; they own its `onpointerdown`. A control
+inside an item with an `onpointerdown` of its own keeps its presses, and an item
+of a list nested in another's drags in its own list alone.
+
+A dragged item stays in its list as its own placeholder (`.sortable-item--held`:
+its contents fade out behind a dashed outline) and moves through the list as the
+pointer does, sorting `items` live so it keeps its node; the siblings slide
+around it. A copy follows the pointer from the top layer, swinging with the
+drag's momentum and pivoting on the grab point, then lands on the item. The copy
+renders the `drag` template when given one, the item's own template otherwise;
+anything with `.sortable-overlay` inside it shows only in the copy. `onsort`
+receives the move once the item has landed.
 
 ```typescript
 let tools = new ReactiveArray([{ label: 'Reload' }, { label: 'Share' }]),
     list = sortable(tools, (tool, attributes) => html`<button ${attributes}>…<span class='sortable-overlay'>${tool.label}</span></button>`, {
+        // Optional: a different look while it is carried.
+        drag: (tool) => html`<div class='toolbar-chip'>${tool.label}</div>`,
         handle: '.grip',
         onsort: (tool, from, to) => {}
     });
@@ -178,11 +186,11 @@ html`
 `;
 ```
 
-Give several lists the same `group` to let items move between them. The
-placeholder follows the pointer into whichever list it is over, and the
-`onsort` of the list the drag started in receives both arrays. A move between
-lists splices the item out of one and into the other, which renders it afresh
-and disposes a reactive object moved that way:
+Give several lists the same `group` to let items move between them. The item
+follows the pointer into whichever list it is over, and the `onsort` of the list
+the drag started in receives both arrays. A move between lists splices the item
+out of one and into the other as it happens, which renders it afresh and
+disposes a reactive object moved that way:
 
 ```typescript
 let options = { group: 'board', onsort: (item, from, to, source, target) => {} },
