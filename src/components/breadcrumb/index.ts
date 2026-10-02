@@ -127,14 +127,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                 'aria-label': label,
                 class: () => view.instant && 'breadcrumb--instant',
                 onconnect: (element: HTMLElement) => {
-                    root = element;
                     fit();
-
-                    // The first fit lands after the trail has been styled once, so 'breadcrumb--instant' holds until that
-                    // fit has painted or it would play the fold. Bindings flush on a later frame than the write.
-                    requestAnimationFrame(() => requestAnimationFrame(() => {
-                        view.instant = false;
-                    }));
 
                     // Also catches webfonts landing late, since they resize the ruler.
                     observer = new ResizeObserver(fit);
@@ -143,6 +136,14 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                     if (ruler) {
                         observer.observe(ruler);
                     }
+                },
+                // The first fit lands after the trail has been styled once, so 'breadcrumb--instant' holds until that
+                // fit has painted or it would play the fold.
+                onfirstpaint: () => {
+                    view.instant = false;
+                },
+                onrender: (element: HTMLElement) => {
+                    root = element;
                 }
             }}
         >
