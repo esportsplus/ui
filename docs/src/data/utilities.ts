@@ -108,7 +108,7 @@ const utilities: Utility[] = [
     },
     {
         category: 'Surface',
-        description: 'Progressive frosted glass using seven masked blur layers; glass() adds the overlay and --blur sets its strongest radius.',
+        description: 'Uniform or progressive backdrop blur; glass() adds a uniform overlay, glass(\'progressive\') adds seven masked layers, and --blur sets the blur radius.',
         name: 'glass',
         variants: [
             {
@@ -117,7 +117,15 @@ const utilities: Utility[] = [
                         <div ${glass()} style='border-radius: var(--border-radius-400); color: var(--color-white-400); padding: var(--size-500);'>Frosted glass</div>
                     </div>
                 `,
-                title: 'glass'
+                title: 'uniform'
+            },
+            {
+                render: () => html`
+                    <div style='background: linear-gradient(120deg, var(--color-blue-400), var(--color-purple-400)); border-radius: var(--border-radius-500); padding: var(--size-700);'>
+                        <div ${glass('progressive')} style='border-radius: var(--border-radius-400); color: var(--color-white-400); padding: var(--size-500);'>Progressive frosted glass</div>
+                    </div>
+                `,
+                title: 'progressive'
             }
         ]
     },

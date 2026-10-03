@@ -1,12 +1,5 @@
-@use '/shared';
+@use '../../glass/scss';
 @use 'variables';
-
-// Animate layer opacity without making their overlay a backdrop root.
-@property --frost-opacity {
-    inherits: true;
-    initial-value: 0.9;
-    syntax: '<number>';
-}
 
 // Registered so the length custom properties can be interpolated by the
 // scroll-driven animation below.
@@ -49,16 +42,15 @@
     // Sticky edges pin to the scrollport and cancel their own height with a negative margin.
     &-blur {
         &-bottom {
-            --frost-direction: to bottom;
-            --frost-opacity: calc(var(--scroll-overflow-bottom, 0) * 0.9);
-            bottom: 0;
+            --glass-direction: to bottom;
+            --glass-opacity: calc(var(--scroll-overflow-bottom, 0) * 0.9);
+            inset: auto 0 0;
             margin-top: calc(var(--scroll-blur-size) * -1);
             translate: 0 var(--scroll-blur-offset-bottom);
         }
 
         &-edge {
-            @extend %frost-blur;
-            --frost-blur: var(--scroll-blur);
+            --blur: var(--scroll-blur);
             flex-shrink: 0;
             height: var(--scroll-blur-size);
             position: sticky;
@@ -66,124 +58,58 @@
         }
 
         &-top {
-            --frost-direction: to top;
-            --frost-opacity: calc(var(--scroll-overflow-top, 0) * 0.9);
+            --glass-direction: to top;
+            --glass-opacity: calc(var(--scroll-overflow-top, 0) * 0.9);
+            inset: 0 0 auto;
             margin-bottom: calc(var(--scroll-blur-size) * -1);
-            top: 0;
-            translate: 0 var(--scroll-blur-offset-top);
-        }
-
-        &::after {
-            bottom: 0;
-            margin-top: calc(var(--scroll-blur-size) * -1);
-            mask-image: linear-gradient(to top, #000, transparent);
-            opacity: var(--scroll-overflow-bottom, 0);
-            translate: 0 var(--scroll-blur-offset-bottom);
-        }
-
-        &::after,
-        &::before {
-            backdrop-filter: blur(var(--scroll-blur));
-            content: '';
-            display: block;
-            flex-shrink: 0;
-            height: var(--scroll-blur-size);
-            pointer-events: none;
-            position: sticky;
-            z-index: 1;
-        }
-
-        &::before {
-            margin-bottom: calc(var(--scroll-blur-size) * -1);
-            mask-image: linear-gradient(to bottom, #000, transparent);
-            opacity: var(--scroll-overflow-top, 0);
-            top: 0;
             translate: 0 var(--scroll-blur-offset-top);
         }
 
         // The column utility adds a gap beside each edge, even when its height is cancelled.
         &.--flex-column {
-            &::after,
             > .--scrollbar-blur-bottom {
                 margin-top: calc((var(--scroll-blur-size) + var(--gap-vertical)) * -1);
             }
 
-            &::before,
             > .--scrollbar-blur-top {
                 margin-bottom: calc((var(--scroll-blur-size) + var(--gap-vertical)) * -1);
             }
         }
 
-        &:has(> .--scrollbar-blur-edge) {
-            &::after,
-            &::before {
-                content: none;
-            }
-        }
-
         // The scroller is the edges' nearest scroll container, so they follow its own scroll.
         @supports (animation-timeline: scroll()) {
-            &::after {
+            > .--scrollbar-blur-bottom {
                 animation: scrollbar-blur-bottom 1ms linear both;
                 animation-timeline: scroll(nearest);
             }
 
-            &::before {
+            > .--scrollbar-blur-top {
                 animation: scrollbar-blur-top 1ms linear both;
                 animation-timeline: scroll(nearest);
-            }
-
-            > .--scrollbar-blur-bottom {
-                animation: scrollbar-frost-bottom 1ms linear both;
-                animation-timeline: scroll(nearest);
-            }
-
-            > .--scrollbar-blur-top {
-                animation: scrollbar-frost-top 1ms linear both;
-                animation-timeline: scroll(nearest);
-            }
-        }
-
-        @keyframes scrollbar-frost-bottom {
-            0%, 95% {
-                --frost-opacity: 0.9;
-            }
-
-            100% {
-                --frost-opacity: 0;
-            }
-        }
-
-        @keyframes scrollbar-frost-top {
-            0% {
-                --frost-opacity: 0;
-            }
-
-            5%, 100% {
-                --frost-opacity: 0.9;
             }
         }
 
         @keyframes scrollbar-blur-bottom {
             0%, 95% {
-                opacity: 1;
+                --glass-opacity: 0.9;
             }
 
             100% {
-                opacity: 0;
+                --glass-opacity: 0;
             }
         }
 
         @keyframes scrollbar-blur-top {
             0% {
-                opacity: 0;
+                --glass-opacity: 0;
             }
 
             5%, 100% {
-                opacity: 1;
+                --glass-opacity: 0.9;
             }
         }
     }
+
     // Toggled by scrollbar.drag(). Its writes track the pointer 1:1, so smooth scrolling and snapping would
     // fight them.
     &-drag.--dragging {

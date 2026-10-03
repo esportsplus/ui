@@ -1,3 +1,8 @@
 .--glass {
     --blur: 24px;
+    --glass-opacity: 1;
+
+    &-progressive {
+        --glass-opacity: 0.9;
+    }
 }

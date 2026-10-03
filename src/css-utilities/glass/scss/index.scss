@@ -1,16 +1,64 @@
-@use '/shared';
+@use 'sass:list';
+@use 'sass:math';
 @use './variables';
+
+// Animate each layer's opacity without making the overlay a backdrop root.
+@property --glass-opacity {
+    inherits: true;
+    initial-value: 1;
+    syntax: '<number>';
+}
 
 .--glass {
     backdrop-filter: blur(var(--blur));
 
     &-blur {
-        @extend %frost-blur;
-        --frost-blur: var(--blur);
         border-radius: inherit;
         inset: 0;
+        overflow: hidden;
+        pointer-events: none;
         position: absolute;
+        user-select: none;
         z-index: -1;
+
+        // Seven overlapping masks and blur steps from https://www.spaceui.one/components/frost-blurred.
+        // --blur is the uniform radius or the strongest progressive radius.
+        &.--glass-blur-progressive {
+            $steps: 0.084, 0.125, 0.214, 0.386, 0.664, 0.986, 1.15;
+            $count: list.length($steps);
+
+            @for $layer from 1 through $count {
+                $start: math.percentage(math.div($layer - 1, $count));
+                $peak: math.percentage(math.div($layer, $count));
+                $plateau: math.percentage(math.div($layer + 1, $count));
+                $end: math.percentage(math.div($layer + 2, $count));
+                $mask: linear-gradient(var(--glass-direction, to bottom), transparent $start, #000 $peak, #000 $plateau, transparent $end);
+
+                @if $layer == $count {
+                    $mask: linear-gradient(var(--glass-direction, to bottom), transparent $start, #000 100%);
+                }
+                @else if $layer == $count - 1 {
+                    $mask: linear-gradient(var(--glass-direction, to bottom), transparent $start, #000 $peak, #000 100%, transparent 100%);
+                }
+
+                > span:nth-child(#{$layer}) {
+                    -webkit-backdrop-filter: blur(calc(var(--blur, 24px) * #{math.div(list.nth($steps, $layer), 1.15)}));
+                    -webkit-mask-image: $mask;
+                    backdrop-filter: blur(calc(var(--blur, 24px) * #{math.div(list.nth($steps, $layer), 1.15)}));
+                    mask-image: $mask;
+                    z-index: $layer;
+                }
+            }
+        }
+
+        > span {
+            -webkit-backdrop-filter: blur(var(--blur, 24px));
+            backdrop-filter: blur(var(--blur, 24px));
+            border-radius: inherit;
+            inset: 0;
+            opacity: var(--glass-opacity, 1);
+            position: absolute;
+        }
     }
 
     &:has(> .--glass-blur) {

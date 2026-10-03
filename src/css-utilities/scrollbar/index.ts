@@ -1,5 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
-import frostBlur from '../../shared/frost-blur';
+import { createOverlay } from '../glass';
 import './scss/index.scss';
 
 
@@ -76,9 +76,12 @@ const blur = () => {
     return {
         ...scroll,
         onconnect: (element: HTMLElement) => {
-            if (!element.querySelector(':scope > .--scrollbar-blur-edge')) {
-                element.prepend(frostBlur(element, '--scrollbar-blur-edge --scrollbar-blur-top'));
-                element.appendChild(frostBlur(element, '--scrollbar-blur-edge --scrollbar-blur-bottom'));
+            if (!element.querySelector(':scope > .--scrollbar-blur-top')) {
+                element.prepend(createOverlay(element, 'progressive', '--scrollbar-blur-edge --scrollbar-blur-top'));
+            }
+
+            if (!element.querySelector(':scope > .--scrollbar-blur-bottom')) {
+                element.appendChild(createOverlay(element, 'progressive', '--scrollbar-blur-edge --scrollbar-blur-bottom'));
             }
 
             scroll.onconnect?.(element);
