@@ -1,0 +1,113 @@
+@use 'sass:list';
+@use 'sass:math';
+@use '../../shared/scss/form';
+
+
+@function range-ticks($count, $color, $height) {
+    $layers: ();
+
+    @for $i from 0 through $count {
+        $layers: list.append($layers, linear-gradient($color, $color) math.percentage(math.div($i, $count)) 50% / 1px $height no-repeat, comma);
+    }
+
+    @return $layers;
+}
+
+.range-surface {
+    --surface-background: color-mix(in srgb, var(--color-text-400) 8%, transparent);
+    --surface-height: 32px;
+    --surface-radius: var(--border-radius-400);
+    --surface-thumb: 16px;
+    --surface-travel: calc(100% - var(--surface-thumb));
+    display: grid;
+    gap: var(--size-200);
+
+    &-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-size: var(--font-size-300);
+        color: var(--color-text-300);
+        output { font-variant-numeric: tabular-nums; }
+    }
+    &-control {
+        position: relative;
+        height: var(--surface-height);
+        border-radius: var(--surface-radius);
+        background: var(--surface-background);
+        isolation: isolate;
+    }
+    &-fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: calc(var(--surface-thumb) + var(--surface-travel) * var(--fraction));
+        border-radius: inherit;
+        background: var(--color-white-400);
+        box-shadow: var(--box-shadow-200);
+        pointer-events: none;
+    }
+    &-handle {
+        position: absolute;
+        top: 50%;
+        left: calc(var(--surface-thumb) / 2 + var(--surface-travel) * var(--fraction));
+        width: 2px;
+        height: 40%;
+        border-radius: var(--border-radius-200);
+        background: var(--color-text-400);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 1;
+    }
+    &-label, &-value {
+        position: absolute;
+        top: 50%;
+        z-index: 1;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+    &-label { left: var(--size-400); color: var(--color-text-300); }
+    &-value {
+        right: var(--size-400);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--font-weight-500);
+        span { margin-left: calc(var(--size-100) * 0.5); color: var(--color-text-300); font-weight: normal; }
+    }
+    input {
+        appearance: none;
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        border-radius: inherit;
+        background: transparent;
+        cursor: ew-resize;
+        z-index: 2;
+        &::-webkit-slider-thumb { appearance: none; width: var(--surface-thumb); height: var(--surface-height); border: 0; background: transparent; }
+        &::-moz-range-thumb { width: var(--surface-thumb); height: var(--surface-height); border: 0; background: transparent; }
+        &:focus-visible { outline: var(--border-width-500) solid var(--demo-accent); outline-offset: 4px; }
+    }
+
+    &--inline {
+        --surface-height: 40px;
+        --surface-radius: var(--border-radius-500);
+        --surface-thumb: 2px;
+        .range-surface-fill { background: color-mix(in srgb, var(--color-text-400) 20%, var(--color-white-400)); box-shadow: none; }
+    }
+
+    &--ticks-major, &--ticks-all {
+        --tick-major: color-mix(in srgb, var(--color-text-400) 40%, transparent);
+        --tick-minor: color-mix(in srgb, var(--color-text-400) 20%, transparent);
+        .range-surface-control::before {
+            content: '';
+            position: absolute;
+            inset: 0 auto 0 calc(var(--surface-thumb) / 2 - 0.5px);
+            width: calc(var(--surface-travel) + 1px);
+            background: range-ticks(10, var(--tick-major), 10px);
+            pointer-events: none;
+        }
+    }
+    &--ticks-all .range-surface-control::before {
+        background: range-ticks(10, var(--tick-major), 10px), range-ticks(50, var(--tick-minor), 5px);
+    }
+}

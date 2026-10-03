@@ -36,43 +36,36 @@ export default {
     name: 'sticky-header',
     variants: [
         {
-            render: () => html`
-                <div style='width: min(100%, 360px);'>
-                    ${stickyHeader({
-                        after: html`<div class='text' style='${compact}'>Invoices</div>`,
-                        before: html`
-                            <div class='text' style='${title}'>Invoices</div>
-                            <div class='text' style='${subtitle}'>${invoices.filter((invoice) => !invoice.paid).length} awaiting payment</div>
-                        `
-                    }, list())}
-                </div>
-            `,
+            render: () => stickyHeader({
+                style: 'width: min(100%, 360px);',
+                after: html`<div class='text' style='${compact}'>Invoices</div>`,
+                before: html`
+                    <div class='text' style='${title}'>Invoices</div>
+                    <div class='text' style='${subtitle}'>${invoices.filter((invoice) => !invoice.paid).length} awaiting payment</div>
+                `
+            }, list()),
             title: 'title and subtitle'
         },
         {
-            render: () => html`
-                <div style='width: min(100%, 360px);'>
-                    ${stickyHeader({
-                        after: html`
-                            <div style='align-items: center; display: flex; gap: var(--size-300); width: 100%;'>
-                                <div class='button button--tertiary' style='--width: auto;' tabindex='0'>back</div>
-                                <div class='text' style='${compact} flex: 1;'>Invoices</div>
-                                <div class='button button--tertiary' style='--width: auto;' tabindex='0'>new</div>
-                            </div>
-                        `,
-                        before: html`
-                            <div style='align-items: flex-start; display: flex; gap: var(--size-300);'>
-                                <div style='flex: 1; min-width: 0;'>
-                                    <div class='text' style='${subtitle}'>Billing</div>
-                                    <div class='text' style='${title}'>Invoices</div>
-                                </div>
-                                <div class='button button--tertiary' style='--width: auto;' tabindex='0'>new</div>
-                            </div>
-                        `,
-                        style: '--expanded-height: 76px; --max-height: 420px;'
-                    }, list())}
-                </div>
-            `,
+            render: () => stickyHeader({
+                after: html`
+                    <div style='align-items: center; display: flex; gap: var(--size-300); width: 100%;'>
+                        <div class='button button--tertiary' style='--width: auto;' tabindex='0'>back</div>
+                        <div class='text' style='${compact} flex: 1;'>Invoices</div>
+                        <div class='button button--tertiary' style='--width: auto;' tabindex='0'>new</div>
+                    </div>
+                `,
+                before: html`
+                    <div style='align-items: flex-start; display: flex; gap: var(--size-300);'>
+                        <div style='flex: 1; min-width: 0;'>
+                            <div class='text' style='${subtitle}'>Billing</div>
+                            <div class='text' style='${title}'>Invoices</div>
+                        </div>
+                        <div class='button button--tertiary' style='--width: auto;' tabindex='0'>new</div>
+                    </div>
+                `,
+                style: '--expanded-height: 76px; --max-height: 420px; width: min(100%, 360px);'
+            }, list()),
             title: 'custom content'
         }
     ]

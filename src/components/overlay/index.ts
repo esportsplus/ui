@@ -1,13 +1,14 @@
 import { effect, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import { edge } from '~/shared/anchor';
-import { finished } from '~/shared/animation';
+import { finished, ms } from '~/shared/animation';
 import { drag, fling, INTERACTIVE, toward, type Direction, type Drag } from '~/shared/drag';
 import './scss/index.scss';
 
 
 type A = Attributes<HTMLDialogElement> & {
     [OVERLAY_HANDLE]?: Attributes;
+    flow?: boolean;
     modal?: boolean;
     oncancel?: never;
     onclick?: never;
@@ -180,14 +181,27 @@ function unstack(element: HTMLDialogElement) {
 
 
 export default component(
-    function(this, { modal = true, rail = false, state = reactive({ active: false }), ...attributes }: A, content) {
+    function(this, { flow = false, modal = !flow, rail = false, state = reactive({ active: false }), ...attributes }: A, content) {
         let observer: ResizeObserver | undefined,
             fill = 0,
+            height = 0,
+            space: HTMLElement | undefined,
+            motion: Animation | undefined,
             stop: VoidFunction | undefined;
+
+        // Flow overlays give their space back as they are dragged out, without moving the page into a layer stack.
+        function resetSpace() {
+            let previous = motion;
+
+            motion = undefined;
+            previous?.cancel();
+            space?.style.removeProperty('height');
+            space = undefined;
+        }
 
         function settle(element: HTMLDialogElement, close: boolean, drag: Drag) {
             let current = layer(element),
-                thrown = close ? fling(element, drag) : null;
+                thrown = close && !flow ? fling(element, drag) : null;
 
             element.classList.remove('overlay--dragging');
             element.style.removeProperty('--progress');
@@ -205,6 +219,10 @@ export default component(
             }
             else if (close) {
                 element.style.setProperty('--opacity', '0');
+
+                if (flow) {
+                    element.style.removeProperty('transform');
+                }
             }
             else {
                 element.style.removeProperty('transform');
@@ -218,6 +236,26 @@ export default component(
 
             if (close) {
                 state.active = false;
+            }
+
+            if (space) {
+                let start = space.style.height,
+                    end = `${close ? 0 : height}px`,
+                    computed = getComputedStyle(element);
+
+                space.style.height = end;
+                motion = space.animate([{ height: start }, { height: end }], {
+                    duration: ms(computed.getPropertyValue(close ? '--close-duration' : '--open-duration')),
+                    easing: computed.getPropertyValue('--ease').trim() || 'ease'
+                });
+
+                let current = motion;
+
+                void current.finished.then(() => {
+                    if (motion === current) {
+                        resetSpace();
+                    }
+                }, () => {});
             }
 
             if (element.classList.contains('overlay--edge-fill')) {
@@ -258,9 +296,31 @@ export default component(
             capture: (element) => {
                 element.classList.add('overlay--dragging');
 
+                if (flow) {
+                    resetSpace();
+                    space = element.parentElement!;
+                    height = element.offsetHeight;
+                    space.style.height = `${height}px`;
+                }
+
                 if (edge(element, 'overlay') && !element.classList.contains('overlay--floating')) {
+                    let surface: Element = element,
+                        background = getComputedStyle(surface).backgroundColor;
+
+                    // Containers such as announcement leave the surface to their content.
+                    while (background === 'transparent' || background.endsWith(', 0)') || background.endsWith('/ 0)')) {
+                        let child = surface.querySelector(':scope > :not([hidden]):not(.overlay-handle)');
+
+                        if (!child) {
+                            break;
+                        }
+
+                        surface = child;
+                        background = getComputedStyle(surface).backgroundColor;
+                    }
+
                     fill++;
-                    element.style.setProperty('--edge-background', getComputedStyle(element).backgroundColor);
+                    element.style.setProperty('--edge-background', background);
                     element.classList.add('overlay--edge-fill');
                 }
             },
@@ -269,6 +329,12 @@ export default component(
 
                 element.style.setProperty('--progress', String(progress));
                 element.style.transform = `translate(${x}px, ${y}px)`;
+
+                if (space) {
+                    let sign = edge(element, 'overlay')?.y || 1;
+
+                    space.style.height = `${Math.max(0, height - Math.max(y * sign, 0))}px`;
+                }
 
                 if (current) {
                     current.dragging = true;
@@ -282,6 +348,7 @@ export default component(
         return html`
             <dialog
                 class='overlay'
+                ${flow && { class: 'overlay--flow' }}
                 ${rail
                     ? { class: ['overlay--rail', () => state.active && '--active'], ...expandable(state) }
                     : { class: 'overlay--draggable', tabindex: -1 }}
@@ -324,16 +391,19 @@ export default component(
                         // style flush that starts the transition, and closing waits on the transitions it starts.
                         stop = effect(() => {
                             if (state.active) {
+                                resetSpace();
                                 reset(element);
 
                                 if (!element.open) {
+                                    let previous = flow ? document.activeElement : null;
+
                                     // Opening focuses the first control, scrolling a contained overlay's container
                                     // toward where it starts its transition and raising the on-screen keyboard
                                     // for inputs. Inert through the call it focuses nothing; the overlay takes
                                     // focus itself unless its content asks for it.
                                     element.inert = true;
 
-                                    if (modal) {
+                                    if (modal && !flow) {
                                         element.showModal();
                                     }
                                     else {
@@ -341,7 +411,14 @@ export default component(
                                     }
 
                                     element.inert = false;
-                                    (element.querySelector<HTMLElement>('[autofocus]') ?? element).focus({ preventScroll: true });
+                                    if (flow) {
+                                        if (previous instanceof HTMLElement && previous !== document.activeElement) {
+                                            previous.focus({ preventScroll: true });
+                                        }
+                                    }
+                                    else {
+                                        (element.querySelector<HTMLElement>('[autofocus]') ?? element).focus({ preventScroll: true });
+                                    }
 
                                     observer = new ResizeObserver(() => measure(element));
                                     observer.observe(element);
@@ -354,7 +431,7 @@ export default component(
                                     element.getBoundingClientRect();
                                 }
 
-                                if (!layer(element)) {
+                                if (!flow && !layer(element)) {
                                     layers.push({
                                         dragging: false,
                                         element,
@@ -382,6 +459,7 @@ export default component(
 
                                 observer?.disconnect();
                                 element.close();
+                                resetSpace();
                                 reset(element);
                             });
                         });
@@ -389,6 +467,8 @@ export default component(
                     ondisconnect: (element: HTMLDialogElement) => {
                         observer?.disconnect();
                         stop?.();
+                        resetSpace();
+                        reset(element);
                         unstack(element);
                     }
                 }}

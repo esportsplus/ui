@@ -2,6 +2,7 @@ import icon from '~/components/icon';
 import glass from '~/css-utilities/glass';
 import githubSvg from '@esportsplus/ui/svg/github.svg';
 import sidebarSvg from '@esportsplus/ui/svg/sidebar.svg';
+import sidebarFilledSvg from '@esportsplus/ui/svg/sidebar-filled.svg';
 import { html, uri } from '../../app';
 import { modal, searchTrigger } from '../search';
 import { state as sidebar } from '../sidebar';
@@ -22,47 +23,48 @@ let tabs: { label: string; name: 'components' | 'css-utilities' | 'docs' | 'toke
 
 export default (request: Request) => html`
     <header class='header' ${glass()}>
-        <div class='header-inner'>
-            <button
-                aria-controls='docs-navigation'
-                aria-expanded='${() => sidebar.active ? 'true' : 'false'}'
-                aria-label='${() => sidebar.active ? 'Close documentation navigation' : 'Open documentation navigation'}'
-                class='header-sidebar button --background-grey'
-                type='button'
-                onclick='${() => sidebar.active = !sidebar.active}'
-            >${icon({ 'aria-hidden': 'true' }, sidebarSvg)}</button>
-            <a class='header-brand' href='${uri('docs')}' aria-label='Esportsplus UI home'>
-                esportsplus<span class='header-brand-ui'> / ui</span>
-            </a>
+        <button
+            aria-controls='docs-navigation'
+            aria-expanded='${() => sidebar.active ? 'true' : 'false'}'
+            aria-label='${() => sidebar.active ? 'Close documentation navigation' : 'Open documentation navigation'}'
+            class='header-sidebar button'
+            type='button'
+            onclick='${() => sidebar.active = !sidebar.active}'
+        >
+            ${() => icon({ 'aria-hidden': 'true' }, sidebar.active ? sidebarFilledSvg : sidebarSvg)}
+        </button>
 
-            <span
-                class='header-version button button--flat'
-                title='v${version}'
-            >
-                v${release}
-            </span>
+        <a class='header-brand' href='${uri('docs')}' aria-label='Esportsplus UI home'>
+            esportsplus<span class='header-brand-ui'> / ui</span>
+        </a>
 
-            <nav class='header-nav'>
-                ${tabs.map((tab) => html`
-                    <a
-                        class='header-link ${() => request.data.route?.name?.startsWith(tab.name) && '--active'}'
-                        href='${uri(tab.name)}'
-                    >${tab.label}</a>
-                `)}
-            </nav>
+        <span
+            class='header-version button button--flat'
+            title='v${version}'
+        >
+            v${release}
+        </span>
 
-            <div class='header-actions --flex-start'>
-                ${searchTrigger('Quick search')}
+        <nav class='header-nav'>
+            ${tabs.map((tab) => html`
                 <a
-                    aria-label='GitHub'
-                    class='header-icon button --background-grey'
-                    href='https://github.com/esportsplus/ui'
-                    rel='noreferrer'
-                    target='_blank'
-                >
-                    ${icon({ 'aria-hidden': 'true' }, githubSvg)}
-                </a>
-            </div>
+                    class='header-link ${() => request.data.route?.name?.startsWith(tab.name) && '--active'}'
+                    href='${uri(tab.name)}'
+                >${tab.label}</a>
+            `)}
+        </nav>
+
+        <div class='header-actions --flex-start'>
+            ${searchTrigger('Quick search')}
+            <a
+                aria-label='GitHub'
+                class='header-icon button --background-grey'
+                href='https://github.com/esportsplus/ui'
+                rel='noreferrer'
+                target='_blank'
+            >
+                ${icon({ 'aria-hidden': 'true' }, githubSvg)}
+            </a>
         </div>
     </header>
 

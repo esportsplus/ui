@@ -1,0 +1,17 @@
+.form-prototype {
+    --demo-accent: var(--color-primary-400);
+    --demo-border: var(--color-border-500);
+    --demo-tint: color-mix(in srgb, var(--demo-accent) 12%, transparent);
+    --demo-ring: color-mix(in srgb, var(--demo-accent) 24%, transparent);
+    --demo-duration: 280ms;
+    --demo-spring: cubic-bezier(.34, 1.56, .64, 1);
+    color: var(--color-text-400);
+    width: min(100%, 400px);
+
+    small { color: var(--color-text-300); font-size: var(--font-size-300); }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .form-prototype *, .form-prototype *::before, .form-prototype *::after { transition: none !important; }
+}

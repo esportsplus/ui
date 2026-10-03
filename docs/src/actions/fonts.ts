@@ -17,7 +17,6 @@ type Family = {
     faces: Face[];
     family: string;
     id: string;
-    name: string;
     weights: string[];
 };
 
@@ -76,7 +75,7 @@ function families(): Family[] {
                 }
             }
 
-            return { faces: parsed, family, id, name: font.name, weights };
+            return { faces: parsed, family, id, weights };
         });
     });
 }

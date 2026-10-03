@@ -20,7 +20,6 @@ type TocItem = {
 
 
 type Utility = {
-    category: string;
     description: string;
     name: string;
     variants: Variant[];

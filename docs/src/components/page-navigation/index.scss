@@ -37,10 +37,11 @@
 
 .title-row {
     align-items: center;
-    display: flex;
-    gap: var(--size-400);
-    justify-content: space-between;
+    display: grid;
+    column-gap: var(--size-400);
+    grid-template-columns: minmax(0, 1fr) auto;
     width: 100%;
 
     > h1 { min-width: 0; width: auto; }
+    > p { grid-column: 1 / -1; }
 }

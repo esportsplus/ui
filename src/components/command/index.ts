@@ -656,7 +656,7 @@ export default component(
                                     >
                                         <div
                                             aria-label='${view.label}'
-                                            class='command-list --scrollbar'
+                                            class='command-list --scrollbar --scrollbar-no-arrows'
                                             id='${view.key}-listbox'
                                             role='listbox'
                                             ${{

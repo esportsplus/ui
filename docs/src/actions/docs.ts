@@ -1,4 +1,3 @@
-import { html } from '../app';
 import { layout } from '../components/layout';
 import installation from '../components/installation';
 import type { Router } from '../app';
@@ -6,9 +5,7 @@ import type { Page } from '../types';
 
 
 const page = (): Page => ({
-    render: () => html`
-        <div class='page'>${installation()}</div>
-    `,
+    render: installation,
     toc: [
         { id: 'setup-package', label: 'Install the package' },
         { id: 'setup-styles', label: 'Import the styles' },

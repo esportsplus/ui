@@ -70,8 +70,10 @@ function indicator(element: HTMLElement, links: TreeLink[]) {
     };
 }
 
+function visible (link: TreeLink) {
+    return link.visible?.() ?? true;
+}
 
-const visible = (link: TreeLink) => link.visible?.() ?? true;
 
 const navTree = (sections: TreeSection[], current: 'location' | 'page' = 'page') => html`
     <nav class='nav-tree --flex-column ${current === 'page' && 'nav-tree--highlight'}'>

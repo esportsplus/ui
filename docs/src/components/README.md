@@ -27,8 +27,10 @@ layout or presentation.
 
 Shell classes use component names such as `.header`, `.page`, and `.sidebar`.
 The sidebar and routed content share the viewer shell and one open state. The
-sidebar starts open on desktop and closed on small screens; the header toggle is
-available everywhere. On small screens the content keeps its width as it shifts.
+sidebar starts open on desktop and closed on small screens. An effect watches
+the request path and closes the sidebar after route changes on small screens;
+desktop navigation preserves its open state. CSS media queries control the
+layout; on small screens the content keeps its width as it shifts.
 Scope documentation page styles under `.main > .page` so library pages in live
 examples keep their own presentation.
 

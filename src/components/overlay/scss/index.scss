@@ -23,6 +23,25 @@ dialog.overlay {
     &:not(:modal) {
         position: absolute;
     }
+
+    // A flow overlay occupies a row in its parent instead of covering that parent's content.
+    &.overlay--flow:not(:modal) {
+        align-self: start;
+        inset: auto;
+        margin: 0;
+        max-height: none;
+        max-width: none;
+        min-height: 0;
+        position: relative;
+        width: 100%;
+        z-index: auto;
+
+        // Keep its natural height available to the parent's collapsing grid while it is closed.
+        &:not([open]) {
+            display: block;
+            visibility: hidden;
+        }
+    }
 }
 
 .overlay {

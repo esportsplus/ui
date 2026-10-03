@@ -22,7 +22,6 @@ type Section = {
     href: string;
     index: boolean;
     label: string;
-    name: RouteName;
 };
 
 
@@ -48,8 +47,7 @@ const sections = (): Section[] => [
         ],
         href: uri('docs'),
         index: false,
-        label: 'Getting Started',
-        name: 'docs'
+        label: 'Getting Started'
     },
     {
         groups: [
@@ -57,8 +55,7 @@ const sections = (): Section[] => [
         ],
         href: uri('components'),
         index: true,
-        label: 'Components',
-        name: 'components'
+        label: 'Components'
     },
     {
         groups: [
@@ -66,11 +63,9 @@ const sections = (): Section[] => [
         ],
         href: uri('css-utilities'),
         index: true,
-        label: 'CSS Utilities',
-        name: 'css-utilities'
+        label: 'CSS Utilities'
     }
 ];
 
 
 export { sections };
-export type { Link, Group, Section };

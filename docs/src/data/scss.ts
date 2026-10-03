@@ -1,6 +1,3 @@
-import rootSource from '~/components/root/scss/variables.scss?raw';
-
-
 type Node = Record<string, string | Record<string, string>>;
 
 
@@ -121,8 +118,7 @@ function unquote(value: string) {
 
 const cssValue = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-const fonts = () => Object.entries(fontSources).map(([path, source]) => ({
-    name: basename(path, 'font'),
+const fonts = () => Object.values(fontSources).map((source) => ({
     source
 }));
 
@@ -156,5 +152,4 @@ const themes = () => Object.entries(themeSources).map(([path, source]) => ({
 }));
 
 
-export { cssValue, fonts, map, rootSource, themes, tokenSources };
-export type { Node };
+export { cssValue, fonts, map, themes, tokenSources };

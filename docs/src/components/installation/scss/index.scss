@@ -13,12 +13,13 @@
     --docs-string: #356d5c;
     --docs-keyword: #7958b8;
     --docs-radius: var(--border-radius-400);
+    display: block;
     font-family: var(--docs-font);
     font-weight: var(--font-weight-300);
     min-width: 0;
     width: 100%;
 
- .setup-breadcrumb { display: flex; align-items: center; gap: var(--size-200); font-size: var(--font-size-300); color: var(--docs-muted); margin-bottom: var(--size-500); }
+ .setup-breadcrumb { display: flex; align-items: center; gap: var(--size-200); grid-column: 1 / -1; font-size: var(--font-size-300); color: var(--docs-muted); margin-bottom: var(--size-500); }
  .setup-breadcrumb a { color: var(--docs-muted); }
  .setup-breadcrumb > span:last-child { color: var(--docs-accent); }
  .setup-heading h1 { color: var(--docs-ink); font-family: var(--docs-heading); font-size: var(--font-size-800); font-weight: var(--font-weight-500); margin: 0; }
@@ -26,14 +27,13 @@
  .setup-notice { display: flex; gap: var(--size-300); align-items: start; border: var(--border-width-400) solid var(--docs-line); border-radius: var(--border-radius-400); padding: var(--size-400) var(--size-400); margin: var(--size-600) 0 var(--size-700); color: var(--docs-muted); font-size: var(--font-size-300); }
  .setup-notice-icon { --size: var(--size-400); --color: var(--docs-accent); flex: 0 0 var(--size-400); margin-top: calc(var(--size-100) * 0.25); }
  .setup-step { display: block; width: 100%; padding-left: var(--size-900); position: relative; scroll-margin-top: calc(var(--header-height) + var(--size-600)); margin-top: var(--size-700); }
- .setup-explanation { position: relative; }
- .setup-step-number { position: absolute; left: calc(var(--size-900) * -1); top: 1px; width: var(--size-600); height: var(--size-600); display: grid; place-items: center; font-family: var(--docs-mono); font-size: var(--font-size-200); color: var(--docs-ink); }
+ .setup-step-number { position: absolute; left: 0; top: 1px; width: var(--size-600); height: var(--size-600); display: grid; place-items: center; font-family: var(--docs-mono); font-size: var(--font-size-200); color: var(--docs-ink); }
  .setup-step-number::before, .setup-step-number::after { content: ''; position: absolute; top: 0; bottom: 0; width: calc(var(--size-100) * 0.5); border-block: var(--border-width-400) solid var(--color-text-300); }
  .setup-step-number::before { left: 0; border-left: var(--border-width-400) solid var(--color-text-300); }
  .setup-step-number::after { right: 0; border-right: var(--border-width-400) solid var(--color-text-300); }
- .setup-explanation h2 { font-family: var(--docs-heading); font-size: var(--font-size-500); font-weight: var(--font-weight-500); color: var(--docs-ink); margin: 0 0 var(--size-200); }
- .setup-explanation p { color: var(--docs-muted); font-size: var(--font-size-400); max-width: 68ch; }
- .setup-explanation a { color: var(--docs-ink); text-decoration: underline; text-underline-offset: 3px; }
+ .setup-step > h2 { font-family: var(--docs-heading); font-size: var(--font-size-500); font-weight: var(--font-weight-500); color: var(--docs-ink); margin: 0 0 var(--size-200); }
+ .setup-step > p { color: var(--docs-muted); font-size: var(--font-size-400); max-width: 68ch; }
+ .setup-step > p a { color: var(--docs-ink); text-decoration: underline; text-underline-offset: 3px; }
  .setup-code { border: var(--border-width-400) solid var(--docs-line); background: var(--docs-code); border-radius: var(--docs-radius); overflow: hidden; margin-top: var(--size-400); min-width: 0; }
  .setup-code-bar { display: flex; justify-content: space-between; align-items: center; min-height: var(--size-800); border-bottom: var(--border-width-400) solid var(--docs-line); padding: 0 var(--size-300); gap: var(--size-200); font-size: var(--font-size-300); color: var(--docs-muted); }
  .package-options { display: flex; align-self: stretch; gap: var(--size-400); }
@@ -68,8 +68,7 @@
         .setup-heading h1 { font-size: var(--font-size-700); }
         .setup-heading > p { font-size: var(--font-size-400); }
         .setup-step { padding-left: var(--size-800); }
-        .setup-step-number { left: calc(var(--size-800) * -1); }
-        .setup-explanation h2 { font-size: var(--font-size-500); }
+        .setup-step > h2 { font-size: var(--font-size-500); }
         .setup-code pre { font-size: var(--font-size-300); padding: var(--size-300); }
         .setup-code-bar { padding-inline: var(--size-100); }
         .package-options { gap: var(--size-200); }

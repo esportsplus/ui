@@ -7,49 +7,36 @@
     overflow: hidden;
     transition: grid-template-rows 240ms var(--announcement-drawer);
 
+    & > &-content {
+        --close-duration: 240ms;
+        --ease: var(--announcement-drawer);
+        --open-duration: 280ms;
 
-    // Keeps its natural height while the row collapses under it, so -100% is always a full-height slide.
-    &-content {
-        align-self: start;
         filter: blur(2px);
-        min-height: 0;
-        opacity: 0;
         transition:
             filter 120ms var(--announcement-ease),
-            opacity 120ms var(--announcement-ease);
-        translate: 0 -100%;
-    }
+            opacity 120ms var(--announcement-ease),
+            transform var(--transition-duration) var(--announcement-drawer),
+            translate var(--transition-duration) var(--announcement-drawer);
 
+        @include tokens.state(active) {
+            filter: blur(0px);
+            transition:
+                filter 200ms var(--announcement-ease),
+                opacity 200ms var(--announcement-ease),
+                transform var(--transition-duration) var(--announcement-drawer),
+                translate var(--transition-duration) var(--announcement-drawer);
+        }
 
-    &--returning {
-        .announcement-content {
-            translate: 0 0;
+        &.overlay--dragging {
+            transition: none;
         }
     }
-
 
     @include tokens.state(active) {
         grid-template-rows: 1fr;
         transition: grid-template-rows 280ms var(--announcement-drawer);
-
-        .announcement-content {
-            filter: blur(0px);
-            opacity: 1;
-            transition:
-                filter 200ms var(--announcement-ease),
-                opacity 200ms var(--announcement-ease),
-                translate 280ms var(--announcement-drawer);
-            translate: 0 0;
-        }
-
-        // Starts once the space has mostly opened.
-        &.announcement--returning .announcement-content {
-            transition:
-                filter 200ms var(--announcement-ease) 120ms,
-                opacity 200ms var(--announcement-ease) 120ms;
-        }
     }
-
 
     @media (prefers-reduced-motion: reduce) {
         &,
@@ -57,12 +44,15 @@
             transition: none;
         }
 
-        .announcement-content,
-        #{tokens.state(active)} .announcement-content,
-        #{tokens.state(active)}.announcement--returning .announcement-content {
-            filter: none;
-            transition: opacity 200ms var(--announcement-ease);
-            translate: 0 0;
+        & > &-content {
+            --close-duration: 0s;
+            --open-duration: 0s;
+
+            &,
+            #{tokens.state(active)} {
+                filter: none;
+                transition: opacity 200ms var(--announcement-ease);
+            }
         }
     }
 }

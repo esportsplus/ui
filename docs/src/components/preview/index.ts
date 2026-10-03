@@ -73,9 +73,7 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string) =
             }}
         >
             ${title !== null && html`
-                <div class='preview-bar'>
-                    <span class='preview-title'>${title}</span>
-                </div>
+                <div class='preview-title'>${title}</div>
             `}
 
             <div

@@ -1,27 +1,23 @@
 $box-shadow: (
-    100: 0 1px 2px 0 oklch(from var(--color-black-300) l c h / 0.2),
+    100: 0 1px 2px 0 oklch(from var(--color-black-300) l c h / 0.04),
     200: #{
-        0 1px 3px 0 oklch(from var(--color-black-300) l c h / 0.2),
-        0 1px 2px -1px oklch(from var(--color-black-300) l c h / 0.2)
+        0 1px 2px 0 oklch(from var(--color-black-300) l c h / 0.04),
+        0 2px 6px -2px oklch(from var(--color-black-300) l c h / 0.05)
     },
     300: #{
-        0 4px 6px -1px oklch(from var(--color-black-300) l c h / 0.2),
-        0 2px 4px -2px oklch(from var(--color-black-300) l c h / 0.2)
+        0 2px 3px -2px oklch(from var(--color-black-300) l c h / 0.06),
+        0 4px 12px -4px oklch(from var(--color-black-300) l c h / 0.06)
     },
     400: #{
-        0 10px 15px -3px oklch(from var(--color-black-300) l c h / 0.2),
-        0 10px 15px -3px oklch(from var(--color-black-300) l c h / 0.2),
-        0 4px 6px -4px oklch(from var(--color-black-300) l c h / 0.2)
+        0 4px 8px -4px oklch(from var(--color-black-300) l c h / 0.07),
+        0 8px 24px -8px oklch(from var(--color-black-300) l c h / 0.07)
     },
     500: #{
-        0 20px 25px -5px oklch(from var(--color-black-300) l c h / 0.2),
-        0 8px 10px -6px oklch(from var(--color-black-300) l c h / 0.2)
+        0 8px 16px -8px oklch(from var(--color-black-300) l c h / 0.08),
+        0 12px 32px -12px oklch(from var(--color-black-300) l c h / 0.08)
     },
-    600: 0 25px 50px -12px oklch(from var(--color-black-500) l c h / 0.2),
-
-    glow: #{
-        0px 0px 128px 32px var(--box-shadow-color, #fff),
-        0px 0px 32px 8px var(--box-shadow-color, #fff),
-        0px 0px 8px 0px var(--box-shadow-color, #fff)
+    600: #{
+        0 12px 24px -12px oklch(from var(--color-black-300) l c h / 0.09),
+        0 24px 48px -16px oklch(from var(--color-black-300) l c h / 0.09)
     }
 );

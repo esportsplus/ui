@@ -6,14 +6,6 @@ import type { Utility } from '../types';
 
 const COLORS = ['blue', 'green', 'purple', 'red', 'grey', 'yellow'];
 
-const order = [
-    'Layout',
-    'Surface',
-    'State',
-    'Scroll'
-];
-
-
 function boxStyle() {
     return 'align-items: center; background: var(--color-blue-400); border-radius: var(--border-radius-300); color: var(--color-white-400); display: flex; justify-content: center; min-height: var(--size-700); min-width: var(--size-700); padding: var(--size-300);';
 }
@@ -39,7 +31,6 @@ function gap(key: number) {
 
 const utilities: Utility[] = [
     {
-        category: 'Layout',
         description: 'Flexbox layouts with alignment and direction modifiers; set --gap-horizontal and --gap-vertical to space children.',
         name: 'flex',
         variants: [
@@ -58,7 +49,6 @@ const utilities: Utility[] = [
         ]
     },
     {
-        category: 'Layout',
         description: 'Inline and inline-flex display helpers for laying elements out along the text baseline.',
         name: 'inline',
         variants: [
@@ -69,7 +59,6 @@ const utilities: Utility[] = [
         ]
     },
     {
-        category: 'Surface',
         description: 'Apply token background colors to any surface via --background-* classes.',
         name: 'background',
         variants: [
@@ -85,7 +74,6 @@ const utilities: Utility[] = [
         ]
     },
     {
-        category: 'Surface',
         description: 'Border color helpers built from the color tokens via --border-* classes.',
         name: 'border',
         variants: [
@@ -96,7 +84,6 @@ const utilities: Utility[] = [
         ]
     },
     {
-        category: 'Surface',
         description: 'Apply token text colors to any element via --color-* classes.',
         name: 'color',
         variants: [
@@ -107,7 +94,6 @@ const utilities: Utility[] = [
         ]
     },
     {
-        category: 'Surface',
         description: 'Uniform or progressive backdrop blur; glass() adds a uniform overlay, glass(\'progressive\') adds seven masked layers, and --blur sets the blur radius.',
         name: 'glass',
         variants: [
@@ -130,7 +116,6 @@ const utilities: Utility[] = [
         ]
     },
     {
-        category: 'Surface',
         description: 'Typography helpers for cropping, truncating, filling text with a looping gradient, hatching a drifting drop shadow and sweeping a band of light across muted text; set --color-from, --color-to, --duration and --speed to tune --text-gradient, give --text-line-shadow its text in data-text (--shadow-color, --line-size, --offset, --duration tune it), and tune --text-shiny with --shine-color, --shine-duration, --shine-text-color and --shine-width.',
         name: 'text',
         variants: [
@@ -165,7 +150,6 @@ const utilities: Utility[] = [
         ]
     },
     {
-        category: 'State',
         description: 'Animated shimmer placeholder for loading and skeleton states.',
         name: 'skeleton',
         variants: [
@@ -176,7 +160,6 @@ const utilities: Utility[] = [
         ]
     },
     {
-        category: 'Scroll',
         description: 'Thin, token-colored scrollbar styling for scrollable containers.',
         name: 'scrollbar',
         variants: [
@@ -193,4 +176,4 @@ const utilities: Utility[] = [
 ];
 
 
-export { order, utilities };
+export { utilities };

@@ -90,17 +90,14 @@ export default {
             title: 'lazyload'
         },
         {
-            render: () => html`
-                <div style='max-width: 320px; width: 100%;'>
-                    ${image.lazyload({
-                        alt: 'broken',
-                        height: 800,
-                        placeholder: 'https://picsum.photos/seed/harbor/24/16',
-                        src: 'data:image/png;base64,broken',
-                        width: 1200
-                    })}
-                </div>
-            `,
+            render: () => image.lazyload({
+                alt: 'broken',
+                height: 800,
+                placeholder: 'https://picsum.photos/seed/harbor/24/16',
+                style: 'max-width: 320px; width: 100%;',
+                src: 'data:image/png;base64,broken',
+                width: 1200
+            }),
             title: 'error'
         }
     ]
