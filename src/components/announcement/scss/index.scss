@@ -5,8 +5,7 @@
     display: grid;
     grid-template-rows: 0fr;
     overflow: hidden;
-    // Waits for the content to mostly fade, so it never gets squeezed while readable.
-    transition: grid-template-rows 240ms var(--announcement-drawer) 80ms;
+    transition: grid-template-rows 240ms var(--announcement-drawer);
 
 
     // Keeps its natural height while the row collapses under it, so -100% is always a full-height slide.
