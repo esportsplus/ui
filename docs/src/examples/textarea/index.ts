@@ -1,7 +1,7 @@
 import { textarea } from '@esportsplus/ui';
-import { boardTextareaVariations } from '../board-fields';
-import { fieldVariations } from '../form-prototypes';
-import { moreFieldVariations } from '../form-options';
+import { boardTextareaVariations } from '~/examples/board-fields';
+import { fieldVariations } from '~/examples/form-prototypes';
+import { moreFieldVariations } from '~/examples/form-options';
 
 
 export default {

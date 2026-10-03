@@ -1,8 +1,8 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { relativeTime } from '@esportsplus/ui';
-import type { Entry } from '../../types';
-import './scss/index.scss';
+import type { Entry } from '~/types';
+import '~/examples/relative-time/scss/index.scss';
 
 
 const DAY = 24 * 60 * 60 * 1000;

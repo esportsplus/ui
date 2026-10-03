@@ -1,4 +1,4 @@
-import { reactive } from '../../../app';
+import { reactive } from '~/app';
 
 
 type Mode = 'current' | 'visible';

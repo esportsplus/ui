@@ -35,6 +35,9 @@ type State = {
 };
 
 
+const WHITESPACE = /\s+/g;
+
+
 const INLINE_EDIT_DISPLAY = Symbol.for('@esportsplus/ui/inline-edit.display');
 
 const INLINE_EDIT_FIELD = Symbol.for('@esportsplus/ui/inline-edit.field');
@@ -65,7 +68,7 @@ function template(
         timer: ReturnType<typeof setTimeout> | undefined;
 
     function clean(value: string) {
-        return multiline ? value.trim() : value.replace(/\s+/g, ' ').trim();
+        return multiline ? value.trim() : value.replace(WHITESPACE, ' ').trim();
     }
 
     function field() {

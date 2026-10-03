@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { story } from '@esportsplus/ui';
-import './scss/index.scss';
+import '~/examples/story/scss/index.scss';
 
 
 const STATS = [

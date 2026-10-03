@@ -1,8 +1,8 @@
 import { input, textarea } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import type { Variant } from '../../types';
-import './scss/index.scss';
+import type { Variant } from '~/types';
+import '~/examples/board-fields/scss/index.scss';
 
 
 type Field = {
@@ -33,6 +33,13 @@ type Notes = {
     size?: 'medium' | 'small';
     value?: string;
 };
+
+
+const NON_DIGITS = /\D/g;
+
+const DIGIT = /^\d$/;
+
+const NON_PHONE_CHARACTERS = /[^\d ]/g;
 
 
 const COUNTRIES = [
@@ -145,7 +152,7 @@ function otp({ disabled, group, invalid, length = 6, value = '' }: Otp = {}) {
             state.status = state.code.length === length ? `Complete · ${state.code}` : '';
         },
         write = (target: HTMLInputElement, index: number, digits: string) => {
-            let clean = digits.replace(/\D/g, ''),
+            let clean = digits.replace(NON_DIGITS, ''),
                 list = boxes(target);
 
             if (!clean) {
@@ -175,7 +182,7 @@ function otp({ disabled, group, invalid, length = 6, value = '' }: Otp = {}) {
                             onclick: (event: MouseEvent) => (event.target as HTMLInputElement).select(),
                             oninput: (event: Event) => {
                                 let target = event.target as HTMLInputElement,
-                                    digits = target.value.replace(/\D/g, '');
+                                    digits = target.value.replace(NON_DIGITS, '');
 
                                 target.value = '';
 
@@ -206,7 +213,7 @@ function otp({ disabled, group, invalid, length = 6, value = '' }: Otp = {}) {
 
                                     sync(target);
                                 }
-                                else if (/^\d$/.test(event.key) && !event.ctrlKey && !event.metaKey) {
+                                else if (DIGIT.test(event.key) && !event.ctrlKey && !event.metaKey) {
                                     event.preventDefault();
                                     write(target, index, event.key);
                                 }
@@ -250,7 +257,7 @@ function phone(value = '') {
                     oninput: (event: Event) => {
                         let target = event.target as HTMLInputElement;
 
-                        target.value = state.country === 0 ? format(target.value) : target.value.replace(/[^\d ]/g, '');
+                        target.value = state.country === 0 ? format(target.value) : target.value.replace(NON_PHONE_CHARACTERS, '');
                     },
                     placeholder: '(123) 000-0000',
                     required: true,
@@ -265,7 +272,7 @@ function phone(value = '') {
 }
 
 function format(value: string) {
-    let digits = value.replace(/\D/g, '').slice(0, 10);
+    let digits = value.replace(NON_DIGITS, '').slice(0, 10);
 
     if (digits.length < 4) {
         return digits;

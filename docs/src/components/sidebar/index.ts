@@ -1,8 +1,8 @@
 import { effect, html, reactive } from '~/app';
 import { sections } from '~/data/nav';
-import { navTree } from '../nav/tree';
+import { navTree } from '~/docs-components/nav/tree';
 import type { Request } from '~/app';
-import './scss/index.scss';
+import '~/docs-components/sidebar/scss/index.scss';
 
 
 const state = reactive({ active: !matchMedia('(max-width: 1024px)').matches });

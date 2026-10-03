@@ -20,6 +20,11 @@ type Order = 'files' | 'folders' | 'mixed' | 'modified' | 'type';
 type Sort = Comparator | Options | Order | 'none';
 
 
+const LOWERCASE = /^\p{Ll}/u;
+
+const UPPERCASE = /^\p{Lu}/u;
+
+
 function extension(name: string) {
     let dot = name.lastIndexOf('.');
 
@@ -29,7 +34,7 @@ function extension(name: string) {
 
 function names(options: Options) {
     // Names starting in the other case go after the rest.
-    let late = options.case === 'upper' ? /^\p{Ll}/u : options.case === 'lower' ? /^\p{Lu}/u : null,
+    let late = options.case === 'upper' ? LOWERCASE : options.case === 'lower' ? UPPERCASE : null,
         compare = options.unicode
             ? (late ? points : (a: string, b: string) => points(a.toLowerCase(), b.toLowerCase()) || points(a, b))
             : new Intl.Collator('en', {

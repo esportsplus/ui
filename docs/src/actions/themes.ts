@@ -1,10 +1,10 @@
-import { pageHead } from '../components/page/head';
-import { html } from '../app';
-import { themes } from '../data/scss';
-import { layout } from '../components/layout';
-import { preview } from '../components/preview';
-import type { Renderable, Router } from '../app';
-import type { Page, TocItem } from '../types';
+import { pageHead } from '~/docs-components/page/head';
+import { html } from '~/app';
+import { themes } from '~/data/scss';
+import { layout } from '~/docs-components/layout';
+import { preview } from '~/docs-components/preview';
+import type { Renderable, Router } from '~/app';
+import type { Page, TocItem } from '~/types';
 
 
 type Entry = {
@@ -19,6 +19,9 @@ type Variable = {
     name: string;
     value: string;
 };
+
+
+const CSS_VARIABLE = /(--[\w-]+)\s*:\s*([^;]+);/g;
 
 
 function demo(component: string): Renderable<unknown> | null {
@@ -50,7 +53,7 @@ function entries(): Entry[] {
 }
 
 function variables(source: string): Variable[] {
-    let matches = [...source.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)],
+    let matches = [...source.matchAll(CSS_VARIABLE)],
         out: Variable[] = [],
         seen = new Set<string>();
 

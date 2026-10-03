@@ -1,13 +1,16 @@
-import { html } from '../../app';
+import { html } from '~/app';
 import { clipboard, icon } from '@esportsplus/ui';
-import type { Renderable } from '../../app';
+import type { Renderable } from '~/app';
 import check from '@esportsplus/ui/svg/check.svg';
 import copy from '@esportsplus/ui/svg/copy.svg';
-import notify from '../notify';
-import './scss/index.scss';
+import notify from '~/docs-components/notify';
+import '~/docs-components/color-palette/scss/index.scss';
 
 
 type ColorToken = { label: string; name: string; value: string };
+
+
+const SHADE_SUFFIX = /-\d+$/;
 
 const cssValue = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -40,7 +43,7 @@ function colorPalette(values: ColorToken[]): Renderable<unknown> {
         contrast = colorContrast();
 
     for (let token of values) {
-        let family = token.label.replace(/-\d+$/, '');
+        let family = token.label.replace(SHADE_SUFFIX, '');
         families.set(family, [...(families.get(family) ?? []), token]);
     }
 

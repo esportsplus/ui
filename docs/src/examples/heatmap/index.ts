@@ -2,8 +2,8 @@ import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { heatmap } from '@esportsplus/ui';
 import type { HeatmapDay } from '~/components/heatmap';
-import type { Entry } from '../../types';
-import './scss/index.scss';
+import type { Entry } from '~/types';
+import '~/examples/heatmap/scss/index.scss';
 
 
 // A trimmed, fixed copy of the lab's sample: 52 weeks of @xevrion's public graph, starting on a Sunday.

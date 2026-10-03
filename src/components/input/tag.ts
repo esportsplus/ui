@@ -38,6 +38,9 @@ type State = {
 };
 
 
+const TAG_SEPARATORS = /[,\n]/;
+
+
 // Exits are quicker than the pop, so removing never holds the eye.
 const LEAVE: KeyframeAnimationOptions = { duration: 150, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' };
 
@@ -375,12 +378,12 @@ export default component(
                                 onpaste: (e: ClipboardEvent) => {
                                     let text = e.clipboardData?.getData('text') ?? '';
 
-                                    if (!/[,\n]/.test(text)) {
+                                    if (!TAG_SEPARATORS.test(text)) {
                                         return;
                                     }
 
                                     e.preventDefault();
-                                    add(((e.currentTarget as HTMLInputElement).value + text).split(/[,\n]/), false);
+                                    add(((e.currentTarget as HTMLInputElement).value + text).split(TAG_SEPARATORS), false);
                                 },
                                 placeholder,
                                 state

@@ -1,5 +1,8 @@
+const REGEXP_CHARACTERS = /[$()*+.?[\\\]^{|}]/g;
+
+
 function escape(text: string) {
-    return text.replace(/[$()*+.?[\\\]^{|}]/g, '\\$&');
+    return text.replace(REGEXP_CHARACTERS, '\\$&');
 }
 
 // One pattern as an expression: '*' and '?' stay within a path segment, '**' as a whole segment spans any number of

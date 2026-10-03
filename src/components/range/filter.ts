@@ -29,6 +29,9 @@ type State = { high: number; low: number };
 type Thumb = HTMLElement & { [INDEX]: number };
 
 
+const NON_NUMERIC_CHARACTERS = /[^\d.-]/g;
+
+
 const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
 const INDEX = Symbol();
@@ -118,7 +121,7 @@ export default ({
                 return;
             }
 
-            let parsed = Number(draft.value.replace(/[^\d.-]/g, ''));
+            let parsed = Number(draft.value.replace(NON_NUMERIC_CHARACTERS, ''));
 
             if (draft.value.trim() !== '' && Number.isFinite(parsed)) {
                 commit(index, parsed);

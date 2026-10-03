@@ -1,7 +1,7 @@
-import { html } from '../../app';
-import type { Renderable } from '../../app';
-import '../spec/scss/index.scss';
-import './scss/index.scss';
+import { html } from '~/app';
+import type { Renderable } from '~/app';
+import '~/docs-components/spec/scss/index.scss';
+import '~/docs-components/prose/scss/index.scss';
 
 
 const HEADING = /^(#{1,4})\s+(.*)$/;

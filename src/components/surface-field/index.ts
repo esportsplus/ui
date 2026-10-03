@@ -62,6 +62,9 @@ type Options = {
 type Style = { ellipse: boolean, radius: number, rotation: number };
 
 
+const ANGLE = /(-?[\d.]+)(deg|grad|rad|turn)\s*$/;
+
+
 const DEFAULTS: Required<Options> = {
     accent: '',
     base: 0.14,
@@ -127,7 +130,7 @@ let colors = new Map<string, Rgb>(),
 
 
 function angle(value: string) {
-    let match = /(-?[\d.]+)(deg|grad|rad|turn)\s*$/.exec(value);
+    let match = ANGLE.exec(value);
 
     return match ? parseFloat(match[1]) * UNITS[match[2]] : 0;
 }

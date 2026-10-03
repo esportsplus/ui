@@ -1,9 +1,14 @@
 import icon from '~/components/icon';
 import infoSvg from '@esportsplus/ui/svg/info.svg';
-import { html, reactive } from '../../app';
-import { pageNavigation } from '../page-navigation';
+import { html, reactive } from '~/app';
+import { pageNavigation } from '~/docs-components/page-navigation';
 
-import './scss/index.scss';
+import '~/docs-components/installation/scss/index.scss';
+
+
+const SOURCE_TOKENS = /('[^']*'|@use|\bimport\b|\bfrom\b)/g;
+
+const SOURCE_KEYWORD = /^(?:@use|import|from)$/;
 
 const managers = ['pnpm', 'npm', 'yarn', 'bun'] as const;
 const commands = { pnpm: 'pnpm add @esportsplus/ui', npm: 'npm install @esportsplus/ui', yarn: 'yarn add @esportsplus/ui', bun: 'bun add @esportsplus/ui' };
@@ -11,8 +16,8 @@ const example = "import { html } from '@esportsplus/template';\n\nhtml`<button c
 const styles = "@use '@esportsplus/ui/button.scss';\n@use '@esportsplus/ui/themes/dark/button.scss';";
 
 // Source goes in through slots, which keep its whitespace; the template compiler collapses static HTML text.
-const sourceCode = (source: string) => html`<code>${source.split(/('[^']*'|@use|\bimport\b|\bfrom\b)/g).map((fragment) =>
-    fragment.startsWith("'") || /^(?:@use|import|from)$/.test(fragment)
+const sourceCode = (source: string) => html`<code>${source.split(SOURCE_TOKENS).map((fragment) =>
+    fragment.startsWith("'") || SOURCE_KEYWORD.test(fragment)
         ? html`<span class='${fragment.startsWith("'") ? 'code-string' : 'code-keyword'}'>${fragment}</span>`
         : fragment
 )}</code>`;

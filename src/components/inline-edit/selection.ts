@@ -1,6 +1,9 @@
 import type { Pos, Selection, Span } from './model';
 
 
+const NON_BREAKING_SPACES = / /g;
+
+
 // Every block the editor renders carries it; their order is the document's.
 const BLOCK = '[data-block]';
 
@@ -175,7 +178,7 @@ const written = (block: HTMLElement) => {
         out += leaf.nodeType === Node.TEXT_NODE ? (leaf as Text).data : '\n';
     }
 
-    return out.replace(/ /g, ' ');
+    return out.replace(NON_BREAKING_SPACES, ' ');
 };
 
 

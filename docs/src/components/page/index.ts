@@ -1,10 +1,10 @@
-import { pageHead } from './head';
-import { html } from '../../app';
-import { docCard } from '../doc-card';
-import { preview } from '../preview';
-import type { Card } from '../doc-card';
-import type { Page, TocItem, Variant } from '../../types';
-import './scss/index.scss';
+import { pageHead } from '~/docs-components/page/head';
+import { html } from '~/app';
+import { docCard } from '~/docs-components/doc-card';
+import { preview } from '~/docs-components/preview';
+import type { Card } from '~/docs-components/doc-card';
+import type { Page, TocItem, Variant } from '~/types';
+import '~/docs-components/page/scss/index.scss';
 
 
 type Detail = {

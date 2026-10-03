@@ -1,18 +1,27 @@
 type Node = Record<string, string | Record<string, string>>;
 
 
-const fontSources = import.meta.glob('../../../src/css-utilities/font/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
+const SURROUNDING_QUOTES = /^['"]|['"]$/g;
 
-const themeSources = import.meta.glob('../../../src/themes/*/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
+const BASENAME = {
+    dark: /\/dark\/([^/]+)\//,
+    font: /\/font\/([^/]+)\//,
+    light: /\/light\/([^/]+)\//
+};
+
+
+const fontSources = import.meta.glob('~/css-utilities/font/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
+
+const themeSources = import.meta.glob('~/themes/*/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
 
 const tokenSources = Object.fromEntries(
-    Object.entries(import.meta.glob('../../../src/tokens/scss/*.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>)
+    Object.entries(import.meta.glob('~/tokens/scss/*.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>)
         .map(([path, source]) => [path.slice(path.lastIndexOf('/') + 1, -'.scss'.length), source])
 );
 
 
-function basename(path: string, from: string) {
-    let match = path.match(new RegExp(`/${from}/([^/]+)/`));
+function basename(path: string, from: keyof typeof BASENAME) {
+    let match = path.match(BASENAME[from]);
 
     return match ? match[1] : path;
 }
@@ -112,7 +121,7 @@ function pairs(body: string) {
 }
 
 function unquote(value: string) {
-    return value.replace(/^['"]|['"]$/g, '');
+    return value.replace(SURROUNDING_QUOTES, '');
 }
 
 

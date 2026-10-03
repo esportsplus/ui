@@ -25,6 +25,11 @@ type Parts = {
 };
 
 
+const HEX_PREFIX = /^#/;
+
+const HEX_COLOR = /^([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
+
 const COLOR_PICKER_SWATCH = Symbol.for('@esportsplus/ui/color-picker.swatch');
 
 // Wide enough for a useful history, narrow enough to stay one row at 320px.
@@ -74,9 +79,9 @@ function keystep(e: KeyboardEvent, step: number) {
 }
 
 function parse(value: string) {
-    let hex = value.trim().replace(/^#/, '');
+    let hex = value.trim().replace(HEX_PREFIX, '');
 
-    if (!/^([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(hex)) {
+    if (!HEX_COLOR.test(hex)) {
         return null;
     }
 

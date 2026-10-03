@@ -57,6 +57,15 @@ type Spec = {
 type State = Record<Field, string>;
 
 
+const DIGIT = /\d/;
+
+const NON_DIGITS = /\D/g;
+
+const NON_DIGIT = /\D/;
+
+const INVALID_MONTH_START = /^[2-9]/;
+
+
 const BRANDS: Record<Brand, Spec> = {
     // Amex groups 4-6-5 and puts a 4 digit code on the front.
     amex: { cvc: 4, gaps: [4, 10], icon: amex, lengths: [15], name: 'American Express', test: /^3[47]/ },
@@ -90,7 +99,7 @@ function caret(value: string, count: number) {
     let seen = 0;
 
     for (let i = 0, n = value.length; i < n; i++) {
-        if (/\d/.test(value[i]) && ++seen === count) {
+        if (DIGIT.test(value[i]) && ++seen === count) {
             return i + 1;
         }
     }
@@ -105,7 +114,7 @@ function detect(value: string): Brand {
 }
 
 function digitsOf(value: string) {
-    return value.replace(/\D/g, '');
+    return value.replace(NON_DIGITS, '');
 }
 
 function expiry(digits: string) {
@@ -196,11 +205,11 @@ function skip(e: KeyboardEvent) {
         return;
     }
 
-    if (e.key === 'Backspace' && at > 0 && /\D/.test(element.value[at - 1])) {
+    if (e.key === 'Backspace' && at > 0 && NON_DIGIT.test(element.value[at - 1])) {
         element.setSelectionRange(at - 1, at - 1);
     }
 
-    if (e.key === 'Delete' && at < element.value.length && /\D/.test(element.value[at])) {
+    if (e.key === 'Delete' && at < element.value.length && NON_DIGIT.test(element.value[at])) {
         element.setSelectionRange(at + 1, at + 1);
     }
 }
@@ -495,7 +504,7 @@ export default component(
                             inputmode: 'numeric',
                             oninput: (e: Event) => {
                                 // A first digit of 2 to 9 can only be a single digit month.
-                                set('expiry', reformat(e.currentTarget as HTMLInputElement, 4, expiry, (d) => /^[2-9]/.test(d) ? `0${d}`.slice(0, 4) : d));
+                                set('expiry', reformat(e.currentTarget as HTMLInputElement, 4, expiry, (d) => INVALID_MONTH_START.test(d) ? `0${d}`.slice(0, 4) : d));
                             },
                             onkeydown: skip,
                             placeholder: 'MM/YY'

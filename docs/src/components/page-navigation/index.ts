@@ -1,9 +1,12 @@
-import { html } from '../../app';
+import { html } from '~/app';
 import icon from '~/components/icon';
 import arrowLeft from '@esportsplus/ui/svg/arrow-left.svg';
 import arrowRight from '@esportsplus/ui/svg/arrow-right.svg';
-import { sections } from '../../data/nav';
-import './index.scss';
+import { sections } from '~/data/nav';
+import '~/docs-components/page-navigation/index.scss';
+
+
+const TRAILING_SLASH = /\/$/;
 
 
 const pageNavigation = () => {
@@ -11,7 +14,7 @@ const pageNavigation = () => {
         ...(section.index ? [{ href: section.href, label: section.label }] : []),
         ...section.groups.flatMap((group) => group.links)
     ]);
-    const path = location.pathname.replace(/\/$/, '') || '/docs';
+    const path = location.pathname.replace(TRAILING_SLASH, '') || '/docs';
     const index = pages.findIndex((page) => page.href === path);
     const directions = [
         { name: 'Previous', page: index > 0 ? pages[index - 1] : undefined, svg: arrowLeft },

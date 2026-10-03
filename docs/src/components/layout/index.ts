@@ -1,7 +1,7 @@
-import { html } from '../../app';
-import { navTree, scrollSpy } from '../nav/tree';
-import type { Page } from '../../types';
-import './scss/index.scss';
+import { html } from '~/app';
+import { navTree, scrollSpy } from '~/docs-components/nav/tree';
+import type { Page } from '~/types';
+import '~/docs-components/layout/scss/index.scss';
 
 
 const layout = (page: Page) => {
