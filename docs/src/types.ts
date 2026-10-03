@@ -27,9 +27,20 @@ type Utility = {
 
 
 type Variant = {
+    id?: string;
+    options?: PreviewOption[];
     render: () => Renderable<unknown>;
+    source?: () => Promise<string>;
     title: string;
 };
 
 
-export type { Entry, Page, TocItem, Utility, Variant };
+type PreviewOption = {
+    id: string;
+    label: string;
+    render: () => Renderable<unknown>;
+    source?: () => Promise<string>;
+};
+
+
+export type { Entry, Page, PreviewOption, TocItem, Utility, Variant };

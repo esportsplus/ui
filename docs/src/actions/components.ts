@@ -1,5 +1,6 @@
 import { uri } from '~/app';
 import { entries } from '~/examples';
+import { groupVariants } from '~/examples/groups';
 import { meta } from '~/meta';
 import { cardGrid, detailPage, missing } from '~/docs-components/page';
 import { layout } from '~/docs-components/layout';
@@ -35,9 +36,13 @@ function page(slug: string = ''): Page {
     }
 
     return detailPage({
+        breadcrumb: [
+            { href: uri('components'), label: 'Components' },
+            { href: uri('components.detail', { slug }), label: meta[slug]?.label ?? entry.name }
+        ],
         description: meta[slug]?.description ?? '',
         name: meta[slug]?.label ?? entry.name,
-        variants: entry.variants
+        variants: groupVariants(slug, entry.variants)
     });
 }
 

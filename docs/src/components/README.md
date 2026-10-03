@@ -6,7 +6,9 @@ these components; they should not own shared component styles.
 | Component | Owns |
 | --- | --- |
 | `color-palette` | Color families, contrast, clipboard feedback, and swatch styles |
+| `code` | TypeScript syntax colors, line numbers, preserved source whitespace, scrolling, and a floating copy control |
 | `doc-card` | Documentation links built on the library card |
+| `example-view` | Compact Preview/Code button group above each component preview card with a library highlight for the active selection |
 | `header` | Site header and primary navigation |
 | `layout` | Main content placement and composition with the TOC |
 | `nav/tree` | Shared navigation groups, links, titles, and states for the sidebar and in-page navigation |
@@ -38,3 +40,13 @@ Detail pages pass `variant.render` to `preview` so offscreen examples are not co
 Pre-rendered theme content still mounts immediately. Focus and hash navigation mount a targeted
 example before scrolling to it; visited examples retain their state while the browser skips
 rendering their offscreen contents.
+
+Component detail routes group related states explicitly in `examples/groups.ts`. The preview
+title stays fixed and the library's `select.menu` swaps the render factory. Original variant
+anchors still select their corresponding state. Each card owns its Preview/Code selection,
+keeps its live example mounted, and lazily loads the selected variant's TypeScript snippet.
+`docs/example-source.mjs` captures the original render factory, its imports and helper
+dependencies before template compilation; generated examples include their selected closure
+values. Changing a variant while viewing Code loads its matching snippet. In-page navigation
+and hash links return the targeted card to Preview. Detail page breadcrumbs use the library component directly,
+without the example's background or resize handle.
