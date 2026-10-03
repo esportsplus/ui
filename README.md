@@ -121,6 +121,25 @@ html`
 
 ## Component Patterns
 
+### Overlay popups
+
+`overlay.popup({ state, target, popover })` returns attributes to spread on a
+popup host. Dialog overlays and these popup attributes share the open/close
+lifecycle, including waiting for finite exit animations and cancelling an old
+close when reopened. Popup attributes handle outside pointer dismissal, Escape,
+inert content, and template-managed event cleanup. `target` finds the animated
+surface inside the host; `popover: true` opens it in the native top layer.
+`dismissOn` closes on matching content clicks after their handlers run.
+
+Tooltip variants and select menus use this lifecycle while retaining their
+placement, hover delays, menu keys, and existing styles. Add `--select-menu` to
+a tooltip host to use the select-menu surface, options, checkmarks, and trigger
+styles. On `tooltip.menu`, it also aligns the checked or selected option over
+the trigger and grows from the field, recalculating when the selection changes.
+Use `tooltip-select-menu-trigger`, `tooltip-select-menu-value`, and
+`tooltip-select-menu-option-label` for the measured parts; the tooltip examples
+include a font picker using this modifier.
+
 ### Frame
 
 Import `@esportsplus/ui/frame.scss`. Give sibling elements the `.frame` class

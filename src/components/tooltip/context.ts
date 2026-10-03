@@ -1,5 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import overlay from '~/components/overlay';
+import { content as surface } from './utilities';
 import render, { type Option } from './options';
 
 
@@ -30,7 +32,7 @@ export default component(
                 class='tooltip tooltip--context'
                 ${attributes}
                 ${{
-                    class: () => state.active && '--active',
+                    ...overlay.popup({ dismissOn: '*', state, target: surface }),
                     oncontextmenu: function(this: HTMLElement, event: MouseEvent) {
                         if (!menu) {
                             return;
@@ -59,21 +61,6 @@ export default component(
                             transform-origin: ${xflip ? 'right' : 'left'} ${yflip ? 'bottom' : 'top'};
                         `;
                         state.active = true;
-                    },
-                    ondocumentclick: () => {
-                        state.active = false;
-                    },
-                    ondocumentcontextmenu: function(this: HTMLElement, event: MouseEvent) {
-                        if (!state.active || this.contains(event.target as Node | null)) {
-                            return;
-                        }
-
-                        state.active = false;
-                    },
-                    ondocumentkeydown: (event: KeyboardEvent) => {
-                        if (event.key === 'Escape') {
-                            state.active = false;
-                        }
                     }
                 }}
             >

@@ -1,7 +1,8 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { effect, reactive } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import onclick from './onclick';
 import render, { type Option } from './options';
+import place from './select-menu';
 
 
 const MENU_OPTION = Symbol.for('@esportsplus/ui/tooltip.menu.option');
@@ -34,8 +35,42 @@ export default component(
         let { direction = 'nw', ...tooltipContent } = attributes[MENU_TOOLTIP_CONTENT] ?? {},
             elements: HTMLElement[] = [],
             keyboard = false,
+            layout = reactive({ placement: '' }),
             menu: HTMLElement | undefined,
+            observer: MutationObserver | undefined,
             trigger: HTMLElement | undefined;
+
+        function selection() {
+            return Math.max(0, items().findIndex((element) => element.matches('[aria-checked="true"], [aria-selected="true"]')));
+        }
+
+        function selectMenu() {
+            return menu?.parentElement?.classList.contains('--select-menu');
+        }
+
+        function position() {
+            if (!menu || !selectMenu()) {
+                return;
+            }
+
+            trigger ??= menu.parentElement?.querySelector<HTMLElement>('.tooltip-select-menu-trigger') ?? undefined;
+
+            let visible = items(),
+                option = visible[0],
+                label = option?.querySelector<HTMLElement>('.tooltip-select-menu-option-label'),
+                value = trigger?.querySelector<HTMLElement>('.tooltip-select-menu-value');
+
+            if (!trigger || !option || !label || !value) {
+                return;
+            }
+
+            let placed = place({ label, option, panel: menu, scroller: menu, trigger, value }, visible.length, selection());
+
+            layout.placement = placed.style;
+            menu.scrollTo({ top: placed.scroll, behavior: 'instant' });
+        }
+
+        onCleanup(() => observer?.disconnect());
 
         function close(refocus: boolean) {
             state.active = false;
@@ -47,9 +82,22 @@ export default component(
 
         function focus(index: number) {
             let visible = items(),
-                n = visible.length;
+                n = visible.length,
+                element = visible[((index % n) + n) % n];
 
-            visible[((index % n) + n) % n]?.focus({ preventScroll: true });
+            element?.focus({ preventScroll: true });
+
+            if (element && menu && selectMenu()) {
+                let pad = parseFloat(getComputedStyle(menu).paddingTop) || 0,
+                    top = element.offsetTop;
+
+                if (top < menu.scrollTop + pad) {
+                    menu.scrollTo({ top: top - pad, behavior: 'instant' });
+                }
+                else if (top + element.offsetHeight > menu.scrollTop + menu.clientHeight - pad) {
+                    menu.scrollTo({ top: top + element.offsetHeight - menu.clientHeight + pad, behavior: 'instant' });
+                }
+            }
         }
 
         function items() {
@@ -83,8 +131,13 @@ export default component(
                 return;
             }
 
-            // Keyboard and assistive tech opens want the first item; pointer opens focus the menu itself.
-            if (keyboard) {
+            position();
+
+            // Select menus start on their selection; other menus use the first item or the panel.
+            if (selectMenu()) {
+                focus(selection());
+            }
+            else if (keyboard) {
                 focus(0);
             }
             else {
@@ -154,6 +207,11 @@ export default component(
                     keyboard = false;
                     source(e);
                 },
+                onwindowresize: () => {
+                    if (state.active) {
+                        position();
+                    }
+                },
                 state
             },
             html`
@@ -165,9 +223,28 @@ export default component(
                     tabindex='-1'
                     ${tooltipContent}
                     ${{
+                        style: [tooltipContent.style, () => layout.placement].flat(),
                         onconnect: (element: HTMLElement) => {
                             element.inert = !state.active;
                             menu = element;
+
+                            if (selectMenu()) {
+                                observer = new MutationObserver(() => {
+                                    if (state.active) {
+                                        position();
+
+                                        if (menu?.contains(document.activeElement)) {
+                                            focus(selection());
+                                        }
+                                    }
+                                });
+                                observer.observe(element, {
+                                    attributeFilter: ['aria-checked', 'aria-selected', 'hidden'],
+                                    attributes: true,
+                                    subtree: true
+                                });
+                                position();
+                            }
                         }
                     }}
                 >

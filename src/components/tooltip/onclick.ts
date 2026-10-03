@@ -1,7 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { reactive } from '@esportsplus/reactivity';
-import dismiss from '~/shared/dismiss';
-import { morph, morphing } from './utilities';
+import { onCleanup, reactive } from '@esportsplus/reactivity';
+import overlay from '~/components/overlay';
+import { content as surface, morph, morphing } from './utilities';
 
 
 type A = Attributes & {
@@ -25,15 +25,28 @@ export default component<A>(
         let cancel: VoidFunction | undefined,
             local = reactive({ morphing: false });
 
+        onCleanup(() => cancel?.());
+
+        let popup = overlay.popup({
+            canDismiss: () => !!cancel,
+            ondismiss: () => {
+                cancel?.();
+                cancel = undefined;
+            },
+            state,
+            target: surface
+        });
+
         return html`
             <div
                 class='tooltip'
                 ${attributes}
                 ${{
+                    ...popup,
                     class: [
-                        () => state.active && '--active',
+                        popup.class,
                         () => local.morphing && 'tooltip--morphing'
-                    ],
+                    ].flat(),
                     onanimationcancel: morphing(local, false),
                     onanimationend: morphing(local, false),
                     onanimationstart: morphing(local, true),
@@ -53,9 +66,6 @@ export default component<A>(
 
                         state.active = active;
                     } }),
-                    ondocumentclick: dismiss(() => state.active, () => {
-                        state.active = false;
-                    }),
                     ontransitioncancel: morphing(local, false),
                     ontransitionend: morphing(local, false),
                     ontransitionrun: morphing(local, true)

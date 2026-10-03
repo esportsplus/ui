@@ -1,6 +1,6 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import dismiss from '~/shared/dismiss';
+import overlay from '~/components/overlay';
 
 
 type A = Attributes & {
@@ -318,8 +318,11 @@ export default component(
                 class='tooltip tooltip--nested-menu ${!animate && 'tooltip--instant'}'
                 ${attributes}
                 ${{
-                    class: () => state.active && '--active',
-                    ondocumentclick: dismiss(() => state.active, () => close(false)),
+                    ...overlay.popup({
+                        ondismiss: (reason) => close(reason === 'escape'),
+                        state,
+                        target: (root) => root.querySelector<HTMLElement>(':scope > .tooltip-nested-menu-panel') ?? undefined
+                    }),
                     onkeydown: (e: KeyboardEvent) => {
                         if (!state.active) {
                             if (e.key === 'ArrowDown' && e.target === trigger) {

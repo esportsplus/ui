@@ -1,5 +1,7 @@
 import { effect, flush, reactive, ReactiveArray, untrack } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import overlay from '~/components/overlay';
+import { finished } from '~/shared/animation';
 import { cool, wait, warm, type Delay } from './utilities';
 import '~/components/frame/scss/index.scss';
 
@@ -113,29 +115,6 @@ function place(anchor: DOMRect, direction: Direction, gap: number, height: numbe
     };
 }
 
-// Calls 'done' once the transitions running on 'element' end or are cancelled, straight away when there are none.
-function settle(element: HTMLElement, done: VoidFunction) {
-    let animations = element.getAnimations(),
-        end = 0,
-        last: Animation | undefined;
-
-    for (let i = 0, n = animations.length; i < n; i++) {
-        let time = Number(animations[i].effect?.getComputedTiming().endTime ?? 0);
-
-        if (!last || time > end) {
-            end = time;
-            last = animations[i];
-        }
-    }
-
-    if (!last) {
-        done();
-        return;
-    }
-
-    void last.finished.then(done, done);
-}
-
 // The unit vector a layer moves along; 'frame--swap' scales it by '--swap-shift'.
 
 // One tooltip shared by every trigger bound to it: it opens on the first after the open delay, then glides between
@@ -149,8 +128,6 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         count = 0,
         current: Target | null = null,
         element: HTMLElement | undefined,
-        // Bumped by every open and close, so a close that finishes late can't hide a tooltip opened since.
-        generation = 0,
         id = `tooltip-shared-${++uid}`,
         last: Target | null = null,
         leaving: Layer | null = null,
@@ -158,6 +135,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         next: Target | null = null,
         observer: ResizeObserver | undefined,
         pointer = 'mouse',
+        presentation = reactive({ active: false }),
         // The surface is in the top layer: open, or still playing its close.
         shown = false,
         timer: ReturnType<typeof setTimeout> | undefined,
@@ -292,8 +270,6 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             return;
         }
 
-        let closed = ++generation;
-
         if (opening) {
             cool();
         }
@@ -302,13 +278,8 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         current = null;
         state.active = false;
         state.index = -1;
-        element.classList.remove('--active', 'tooltip-shared--instant');
-
-        settle(box, () => {
-            if (closed === generation) {
-                hide();
-            }
-        });
+        element.classList.remove('tooltip-shared--instant');
+        presentation.active = false;
     }
 
     // Rendered at once, so the caller can measure it; a layer that slides in starts out displaced by 'travel'.
@@ -442,10 +413,6 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         observer?.disconnect();
         listen(false);
         shown = false;
-
-        if (element?.matches(':popover-open')) {
-            element.hidePopover();
-        }
     }
 
     function inside(node: Node | null) {
@@ -541,6 +508,25 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
     // Spans, so it can be rendered inside running text.
     function render(attributes?: Attributes) {
+        let popup = overlay.popup({
+            contains: (_, node) => inside(node),
+            dismissOn: interactive ? dismiss : undefined,
+            ondismiss: (reason) => {
+                let trigger = current?.trigger,
+                    within = !!element?.contains(document.activeElement);
+
+                if (reason === 'escape' && within) {
+                    trigger?.focus();
+                }
+
+                // Return focus while this trigger is still current, so its focus handler cannot reopen the popup.
+                close();
+            },
+            onclosed: hide,
+            onopen: measure,
+            popover: true,
+            state: presentation
+        });
         // Interactive content names itself (its trigger points at it through 'aria-controls') and takes the pointer
         // and focus. Kept out of the literal below, which compiles each handler to a listener even when unset.
         let mode: Attributes = interactive
@@ -577,18 +563,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 onpointerover: () => {
                     clearTimeout(timer);
                     timer = undefined;
-                },
-                ...(dismiss && {
-                    // On the document: a click handler on the clicked element itself would keep a delegated one here
-                    // from ever running.
-                    ondocumentclick: (e: MouseEvent) => {
-                        let match = (e.target as Element | null)?.closest?.(dismiss);
-
-                        if (current && match && element?.contains(match)) {
-                            close();
-                        }
-                    }
-                })
+                }
             }
             : { role: 'tooltip' };
 
@@ -600,12 +575,14 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 ${attributes}
                 ${mode}
                 ${{
+                    ...popup,
                     onconnect: (el: HTMLElement) => {
                         element = el;
+                        popup.onconnect?.(el);
                     },
-                    ondisconnect: () => {
+                    ondisconnect: (el: HTMLElement) => {
                         close();
-                        hide();
+                        popup.ondisconnect?.(el);
 
                         for (let entry of bound.values()) {
                             if (entry.layer) {
@@ -614,26 +591,14 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                             }
                         }
                     },
-                    // On the document, so Escape dismisses a hovered tooltip wherever focus is.
-                    ondocumentkeydown: (e: KeyboardEvent) => {
-                        if (e.key !== 'Escape' || !(current || waiting)) {
+                    // A hover delay has no showing overlay yet, but Escape still cancels the request.
+                    ondocumentkeydown: function(this: HTMLElement, e: KeyboardEvent) {
+                        if (e.key === 'Escape' && waiting && !current) {
+                            close();
                             return;
                         }
 
-                        let trigger = current?.trigger,
-                            within = !!element?.contains(document.activeElement);
-
-                        close();
-
-                        if (within) {
-                            trigger?.focus();
-                        }
-                    },
-                    // Taps have no hover to leave, so a tap anywhere else closes it.
-                    ondocumentpointerdown: (e: PointerEvent) => {
-                        if (current && !inside(e.target as Node | null)) {
-                            close();
-                        }
+                        popup.ondocumentkeydown?.call(this, e);
                     },
                     onwindowresize: () => {
                         if (shown) {
@@ -685,14 +650,12 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             same = last?.trigger === target.trigger;
 
         cancel();
-        generation++;
 
         if (previous) {
             describe(previous.trigger, false);
         }
 
         if (!shown) {
-            element.showPopover();
             listen(true);
             shown = true;
         }
@@ -706,15 +669,14 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             swap(target, from, glide);
         }
 
-        measure();
-
-        // A fresh open starts from a surface that was just hidden; commit its closed state first so the box
-        // transitions out of it instead of appearing at rest.
-        if (!glide) {
-            box.getBoundingClientRect();
+        if (!presentation.active) {
+            presentation.active = true;
+            // Overlay shows and places the popover before committing its closed styles and starting the entrance.
+            flush();
         }
-
-        element.classList.add('--active');
+        else {
+            measure();
+        }
         state.index = indexOf(target.trigger);
         state.active = true;
         describe(target.trigger, true);
@@ -758,7 +720,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             // Once its classes have landed and started the exit.
             queueMicrotask(() => {
                 if (outgoing.element) {
-                    settle(outgoing.element, () => {
+                    void finished(outgoing.element).then(() => {
                         if (leaving === outgoing) {
                             drop(outgoing);
                             leaving = null;

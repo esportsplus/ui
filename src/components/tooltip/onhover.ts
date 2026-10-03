@@ -1,5 +1,6 @@
 import { component, html, Attributes } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
+import overlay from '~/components/overlay';
 import { content, cool, morph, morphing, wait, warm, type Delay } from './utilities';
 
 
@@ -149,23 +150,22 @@ function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state 
 
     onCleanup(() => {
         clearTimeout(leaving);
+        morphed?.();
         pending?.();
     });
 
+    let popup = overlay.popup({ canDismiss: () => !!(pending || morphed), ondismiss: close, state, target: content });
+
     return {
+        ...popup,
         class: [
-            () => state.active && (local.instant ? '--active tooltip--instant' : '--active'),
+            popup.class,
+            () => state.active && local.instant && 'tooltip--instant',
             () => local.morphing && 'tooltip--morphing'
-        ],
+        ].flat(),
         onanimationcancel: settled,
         onanimationend: settled,
         onanimationstart: morphing(local, true),
-        // On the document, so Escape dismisses a hovered tooltip wherever focus is.
-        ondocumentkeydown: (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && (state.active || pending)) {
-                close();
-            }
-        },
         onfocusin: (e: FocusEvent) => {
             stay();
 

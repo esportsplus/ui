@@ -16,7 +16,6 @@ export default {
         let menu = tooltip.menu({
             class: '--select-menu',
             [tooltip.menu.option]: { class: 'tooltip-select-menu-option', role: 'menuitemradio' },
-            [tooltip.menu.tooltipContent]: { direction: 's', style: '--spacer: 4px; --offset: 0px; width: 100%;' },
             options: choices.map((value) => ({
                 'aria-checked': () => selected.value === value ? 'true' : 'false',
                 onclick: () => {

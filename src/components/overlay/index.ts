@@ -1,8 +1,9 @@
-import { effect, reactive } from '@esportsplus/reactivity';
+import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import { edge } from '~/shared/anchor';
 import { finished, ms } from '~/shared/animation';
 import { drag, fling, INTERACTIVE, toward, type Direction, type Drag } from '~/shared/drag';
+import popup, { lifecycle } from './popup';
 import './scss/index.scss';
 
 
@@ -389,8 +390,9 @@ export default component(
 
                         // '--active' is written here rather than bound: it has to land between 'showModal()' and the
                         // style flush that starts the transition, and closing waits on the transitions it starts.
-                        stop = effect(() => {
-                            if (state.active) {
+                        stop = lifecycle(element, {
+                            state,
+                            open: () => {
                                 resetSpace();
                                 reset(element);
 
@@ -440,28 +442,14 @@ export default component(
                                     });
                                     restack();
                                 }
-
-                                element.classList.add('--active');
-                                return;
-                            }
-
-                            element.classList.remove('--active');
-                            unstack(element);
-
-                            if (!element.open) {
-                                return;
-                            }
-
-                            void finished(element).then(() => {
-                                if (state.active) {
-                                    return;
-                                }
-
+                            },
+                            close: () => unstack(element),
+                            closed: () => {
                                 observer?.disconnect();
                                 element.close();
                                 resetSpace();
                                 reset(element);
-                            });
+                            }
                         });
                     },
                     ondisconnect: (element: HTMLDialogElement) => {
@@ -485,5 +473,5 @@ export default component(
             </dialog>
         `;
     },
-    { handle: OVERLAY_HANDLE }
+    { handle: OVERLAY_HANDLE, popup }
 );

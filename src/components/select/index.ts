@@ -1,7 +1,8 @@
 import { component, html, type Renderable, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
-import dismiss from '~/shared/dismiss';
+import overlay from '~/components/overlay';
+import { content as surface } from '~/components/tooltip/utilities';
 import menu from './menu';
 import './scss/index.scss';
 
@@ -58,20 +59,18 @@ const plain = component(
 
         return html`
             <div
-                class='select tooltip ${() => state.active && '--active'}'
+                class='select tooltip'
                 ${this?.attributes}
                 ${attributes}
                 ${{
+                    ...overlay.popup({ state, target: surface }),
                     onclick: () => {
                         if (state.render) {
                             state.active = !state.active;
                         }
 
                         state.render = true;
-                    },
-                    ondocumentclick: dismiss(() => state.active, () => {
-                        state.active = false;
-                    })
+                    }
                 }}
             >
                 ${content ? (() => content(state)) : (() => {

@@ -165,14 +165,24 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
     }
 
     .tooltip-content[role='menu'] {
+        bottom: auto;
         color: var(--color);
         font: inherit;
+        left: 0;
+        max-height: calc(var(--rows) * var(--item-height) + var(--pad) * 2);
+        overflow-y: auto;
+        overscroll-behavior: contain;
         padding: var(--pad);
+        position: absolute;
+        right: auto;
+        top: 0;
+        translate: none;
 
         > .tooltip-select-menu-option {
             background: transparent;
             font: inherit;
             outline: none;
+            position: static;
             text-decoration: none;
 
             &:focus {
