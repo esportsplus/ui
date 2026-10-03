@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import { drag, fling, INTERACTIVE } from '~/shared/drag';
+import { drag, INTERACTIVE } from '~/shared/drag';
 import './scss/index.scss';
 
 
@@ -12,46 +12,61 @@ export default component<Attributes & { state?: { active: boolean } }>(
     function(this, { state = reactive({ active: true }), ...attributes }, content) {
         let opened = false,
             returning = false,
-            thrown: Animation | undefined;
+            height = 0,
+            motion: Animation[] = [],
+            frame: HTMLElement | undefined;
 
-        // Swiped up, the content leaves the way it went and the space closes behind it; any other way, it
-        // rubber-bands. Thrown, it carries on until it has left the screen before the announcement closes.
+        const reset = () => {
+            for (let animation of motion) {
+                animation.cancel();
+            }
+
+            motion = [];
+            frame?.style.removeProperty('height');
+            (frame?.firstElementChild as HTMLElement | undefined)?.style.removeProperty('transform');
+        };
+
+        // The layout follows the same offset as the content, including the settle after release.
         let gesture = drag({
             begin: (e) => {
-                if (e.button !== 0 || !state.active || (e.target as Element).closest(INTERACTIVE)) {
+                if (e.button !== 0 || !state.active || motion.length || (e.target as Element).closest(INTERACTIVE)) {
                     return null;
                 }
 
                 return [{ axis: 'y', sign: -1 }];
             },
+            capture: (element) => {
+                frame = element.parentElement!;
+                height = element.offsetHeight;
+                frame.style.height = `${height}px`;
+            },
             move: (element, { y }) => {
                 element.style.transform = `translateY(${y}px)`;
+                frame!.style.height = `${Math.max(0, height + Math.min(y, 0))}px`;
             },
-            release: (element, drag, dismiss) => {
+            release: (element, _, dismiss) => {
                 let from = element.style.transform,
-                    flung = dismiss ? fling(element, drag) : null;
+                    space = frame!,
+                    start = space.style.height,
+                    end = dismiss ? 0 : height,
+                    timing = matchMedia('(prefers-reduced-motion: reduce)').matches ? { duration: 0 } : SETTLE;
 
                 element.style.removeProperty('transform');
+                space.style.height = `${end}px`;
 
-                if (!flung) {
-                    if (dismiss) {
-                        state.active = false;
-                    }
-                    else {
-                        element.animate([{ transform: from }, { transform: 'none' }], SETTLE);
-                    }
-
-                    return;
+                if (dismiss) {
+                    state.active = false;
                 }
 
-                // Gone from sight, it closes. The throw holds it out there until it opens again: a dismissed
-                // announcement's hidden state rests in place, where dropping the throw would flash it back.
-                thrown = element.animate(
-                    [{ transform: from }, { transform: `translateY(${drag.y + flung.y}px)` }],
-                    { duration: flung.duration, easing: flung.easing, fill: 'forwards' }
-                );
-                void thrown.finished.then(() => {
-                    state.active = false;
+                motion = [
+                    element.animate(
+                        [{ transform: from }, { transform: dismiss ? `translateY(${-height}px)` : 'none' }],
+                        timing
+                    ),
+                    space.animate([{ height: start }, { height: `${end}px` }], timing)
+                ];
+                void motion[1]!.finished.then(() => {
+                    reset();
                 }, () => {});
             }
         });
@@ -65,8 +80,7 @@ export default component<Attributes & { state?: { active: boolean } }>(
                     class: () => {
                         if (state.active) {
                             opened = true;
-                            thrown?.cancel();
-                            thrown = undefined;
+                            reset();
                         }
                         // After a dismissal, showing again reverses it instead of sliding in.
                         else if (opened) {
@@ -75,7 +89,8 @@ export default component<Attributes & { state?: { active: boolean } }>(
 
                         return [state.active && '--active', returning && 'announcement--returning'].filter(Boolean).join(' ');
                     },
-                    inert: () => !state.active
+                    inert: () => !state.active,
+                    ondisconnect: reset
                 }}
             >
                 <div class='announcement-content' ${gesture}>${content}</div>
