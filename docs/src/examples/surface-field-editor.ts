@@ -58,7 +58,6 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
         glide = 0,
         nodes: Record<string, Node> = {},
         pan: { pointerX: number, pointerY: number, x: number, y: number } | null = null,
-        release: VoidFunction | undefined,
         // What the world and the minimap's lens draw: the camera, and the viewport it looks through.
         view = reactive({ height: 0, panning: false, width: 0, x: 0, y: 0, zoom: 1 }),
         viewport: HTMLElement | undefined;
@@ -176,16 +175,13 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
             tabindex='0'
             ${{
                 class: () => view.panning && '--panning',
+                onactivewheel: wheel,
                 onconnect: (element: HTMLElement) => {
                     viewport = element;
-                    // Delegated wheel listeners are passive, so bind directly to be able to stop the page scrolling.
-                    element.addEventListener('wheel', wheel, { passive: false });
-                    release = () => element.removeEventListener('wheel', wheel);
                     requestAnimationFrame(() => fit(true));
                 },
                 ondisconnect: () => {
                     cancelAnimationFrame(glide);
-                    release?.();
                 },
                 onkeydown: (event: KeyboardEvent) => {
                     if (event.target !== event.currentTarget) {

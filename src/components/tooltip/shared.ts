@@ -454,12 +454,10 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
     function listen(on: boolean) {
         if (on) {
-            window.addEventListener('resize', reposition);
             // Captured, so scrolling any container the trigger sits in moves the tooltip along with it.
             window.addEventListener('scroll', reposition, { capture: true, passive: true });
         }
         else {
-            window.removeEventListener('resize', reposition);
             window.removeEventListener('scroll', reposition, { capture: true });
         }
     }
@@ -635,6 +633,11 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                     ondocumentpointerdown: (e: PointerEvent) => {
                         if (current && !inside(e.target as Node | null)) {
                             close();
+                        }
+                    },
+                    onwindowresize: () => {
+                        if (shown) {
+                            reposition();
                         }
                     }
                 }}

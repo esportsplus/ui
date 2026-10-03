@@ -7,11 +7,15 @@ const FROM = Symbol();
 const SLIDE = Symbol();
 
 
-// Settles once every animation on the element has, however each ended: a rejection only means the animation stopped
-// running (reopening mid-close, say). Every 'finished' is taken up front, since cancelling one replaces it with a
-// promise that never settles.
+// Settles once every finite animation on the element has, however each ended: a rejection only means the animation
+// stopped running (reopening mid-close, say). Looping decoration must not keep a closing dialog modal forever.
+// Every 'finished' is taken up front, since cancelling one replaces it with a promise that never settles.
 const finished = (element: HTMLElement, options?: GetAnimationsOptions) => {
-    return Promise.allSettled( element.getAnimations(options).map((animation) => animation.finished) );
+    return Promise.allSettled(
+        element.getAnimations(options)
+            .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity)
+            .map((animation) => animation.finished)
+    );
 };
 
 // Records where each element is drawn now, a slide still running included, ahead of a change to the layout.

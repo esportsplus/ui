@@ -236,6 +236,7 @@ export default component(
             last = { accent: '', camera: null as Camera | null, color: '', shapes: [] as Shape[], size: '' },
             measuring = 0,
             relink = true,
+            releases = new AbortController(),
             resizer: ResizeObserver | undefined,
             running = 0,
             settle = 0,
@@ -422,6 +423,11 @@ export default component(
             return result;
         }
 
+        function page() {
+            shown = !document.hidden;
+            field?.visible(shown);
+        }
+
         function read<K extends keyof Options>(key: K): Required<Options>[K] {
             return (state?.[key] ?? given[key] ?? DEFAULTS[key]) as Required<Options>[K];
         }
@@ -538,6 +544,11 @@ export default component(
             measure();
         }
 
+        function viewport() {
+            bounds = null;
+            schedule();
+        }
+
         let disposers = [
             effect(() => {
                 let next = settings();
@@ -630,20 +641,12 @@ export default component(
 
                                 schedule();
                             }),
-                            page = () => {
-                                shown = !document.hidden;
-                                field?.visible(shown);
-                            },
                             scheme = matchMedia('(prefers-color-scheme: dark)'),
                             theme = new MutationObserver(() => {
                                 styles = new WeakMap();
                                 recolor();
                                 schedule();
-                            }),
-                            viewport = () => {
-                                bounds = null;
-                                schedule();
-                            };
+                            });
 
                         resizer = new ResizeObserver(() => schedule());
                         intersection.observe(element);
@@ -655,14 +658,13 @@ export default component(
                         });
                         theme.observe(document.documentElement, { attributes: true });
 
+                        // Hear every descendant's motion, including events with their own template handler.
                         for (let type of ['animationcancel', 'animationend', 'animationstart', 'transitioncancel', 'transitionend', 'transitionrun']) {
                             element.addEventListener(type, done);
                         }
 
                         element.addEventListener('scroll', viewport, { capture: true, passive: true });
-                        document.addEventListener('visibilitychange', page);
                         scheme.addEventListener('change', recolor);
-                        window.addEventListener('resize', viewport, { passive: true });
                         window.addEventListener('scroll', blur, { capture: true, passive: true });
 
                         cleanup.push(() => {
@@ -671,13 +673,11 @@ export default component(
                             }
 
                             element.removeEventListener('scroll', viewport, { capture: true });
-                            document.removeEventListener('visibilitychange', page);
                             intersection.disconnect();
                             mutation.disconnect();
                             resizer?.disconnect();
                             scheme.removeEventListener('change', recolor);
                             theme.disconnect();
-                            window.removeEventListener('resize', viewport);
                             window.removeEventListener('scroll', blur, { capture: true });
                         });
 
@@ -685,6 +685,7 @@ export default component(
                         sync();
                     },
                     ondisconnect: () => {
+                        releases.abort();
                         cancelAnimationFrame(measuring);
                         measuring = 0;
 
@@ -697,6 +698,7 @@ export default component(
                         field = null;
                         host = undefined;
                     },
+                    ondocumentvisibilitychange: page,
                     onpointerdown: (event: PointerEvent) => {
                         if (!field || !host) {
                             return;
@@ -731,8 +733,8 @@ export default component(
                         };
 
                         field.press(id, x, y);
-                        window.addEventListener('pointercancel', finish);
-                        window.addEventListener('pointerup', finish);
+                        window.addEventListener('pointercancel', finish, { signal: releases.signal });
+                        window.addEventListener('pointerup', finish, { signal: releases.signal });
                     },
                     onpointerleave: (event: PointerEvent) => {
                         field?.pointer(event.pointerId, 0, 0, false);
@@ -745,7 +747,8 @@ export default component(
                         let b = box();
 
                         field.pointer(event.pointerId, event.clientX - b.left, event.clientY - b.top, true);
-                    }
+                    },
+                    onwindowresize: viewport
                 }}
             >
                 <canvas

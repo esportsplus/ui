@@ -146,7 +146,7 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
     }
 
     function onaway(e: Event) {
-        if (e.type === 'blur' || !field?.contains(e.target as Node | null)) {
+        if (status.recording && (e.type === 'blur' || !field?.contains(e.target as Node | null))) {
             stop();
         }
     }
@@ -259,8 +259,6 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
 
         let signal = listeners.signal;
 
-        document.addEventListener('pointerdown', onaway, { signal });
-        window.addEventListener('blur', onaway, { signal });
         window.addEventListener('keydown', onkeydown, { capture: true, signal });
         window.addEventListener('keyup', onkeyup, { capture: true, signal });
     }
@@ -295,7 +293,9 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
                 onconnect: (element: HTMLElement) => {
                     connected = true;
                     field = element;
-                }
+                },
+                ondocumentpointerdown: onaway,
+                onwindowblur: onaway
             }}
         >
             ${html.reactive(keys, (key) => html`
