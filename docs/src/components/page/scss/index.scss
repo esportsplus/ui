@@ -1,6 +1,15 @@
 .main > .page {
     max-width: 680px;
 
+    > .page-breadcrumb {
+        --link-padding: 0px;
+        margin-bottom: var(--size-400);
+
+        .breadcrumb-separator {
+            margin-inline: var(--size-200);
+        }
+    }
+
     > .page-grid {
         --min-width: 220px;
     }
@@ -12,7 +21,7 @@
         max-width: 64ch;
     }
 
-    > .page-note {
+    .page-note {
         color: var(--color-text-300);
         font-size: var(--font-size-300);
     }
