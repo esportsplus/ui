@@ -1,12 +1,13 @@
 import { html } from '~/app';
-import { navTree, scrollSpy } from '~/docs-components/nav/tree';
+import { pageNavTree } from '~/docs-components/nav/page';
+import { scrollSpy } from '~/docs-components/nav/tree/spy';
 import type { Page } from '~/types';
 import '~/docs-components/layout/scss/index.scss';
 
 
 const layout = (page: Page) => {
     let disconnect = () => {},
-        spy = scrollSpy(page.toc.map((item) => item.id), 'visible');
+        spy = scrollSpy(page.toc.map((item) => item.id));
 
     return html`
         <main class='main'>
@@ -21,20 +22,15 @@ const layout = (page: Page) => {
                 ondisconnect: () => disconnect()
             }}
         >
-            ${navTree([{
-                label: 'On This Page',
-                groups: [{
-                    links: page.toc.map((item, index) => ({
-                        label: item.label,
-                        href: `#${item.id}`,
-                        active: () => spy.active(index),
-                        onclick: (event: Event) => {
-                            event.preventDefault();
-                            spy.navigate(index);
-                        }
-                    }))
-                }]
-            }], 'location')}
+            ${pageNavTree(page.toc.map((item, index) => ({
+                label: item.label,
+                href: `#${item.id}`,
+                active: () => spy.active(index),
+                onclick: (event: Event) => {
+                    event.preventDefault();
+                    spy.navigate(index);
+                }
+            })))}
         </aside>
     `;
 };
