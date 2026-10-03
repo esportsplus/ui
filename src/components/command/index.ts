@@ -648,7 +648,7 @@ export default component(
                                         class='command-view frame ${views.length > 1 && 'frame--swap'}'
                                         id='${view.key}'
                                         style='--n: ${i}'
-                                        ${views.length > 1 ? { 'aria-labelledby': `${view.key}-tab`, role: 'tabpanel' } : undefined}
+                                        ${views.length > 1 && { 'aria-labelledby': `${view.key}-tab`, role: 'tabpanel' }}
                                         ${{
                                             class: () => current() === view && (ui.moving ? '--active frame--moving' : '--active'),
                                             inert: () => current() !== view

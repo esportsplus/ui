@@ -4,26 +4,28 @@ import './ui';
 import { fallback, html, middleware, render } from './app';
 import header from './components/header';
 import { notifications } from './components/notify';
-import sidebar from './components/sidebar';
+import sidebar, { state as sidebarState } from './components/sidebar';
 
 
 render(
     document.body,
     {
-        class: `--font-montserrat --scrollbar`
+        class: `--font-montserrat --scrollbar --scrollbar-scope`
     },
     middleware(
         (request, next) => html`
             ${header(request)}
             ${notifications.content}
 
-            <div class='viewer-body'>
+            <div class='viewer-body ${() => sidebarState.active && '--sidebar-open'}'>
                 ${sidebar(request)}
-                ${() => {
-                    document.body.scrollTop = 0;
+                <div class='viewer-content'>
+                    ${() => {
+                        document.body.scrollTop = 0;
 
-                    return next(request);
-                }}
+                        return next(request);
+                    }}
+                </div>
             </div>
         `,
         middleware.match(fallback),

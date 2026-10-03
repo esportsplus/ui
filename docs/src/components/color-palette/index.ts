@@ -75,7 +75,7 @@ function colorPalette(values: ColorToken[]): Renderable<unknown> {
                             timeout: 3000,
                             value: token.value
                         }, (state) => html`
-                                <span class='token-colors-value ${state.copied ? '--copied' : ''}'>
+                                <span class='token-colors-value ${state.copied && '--copied'}'>
                                     ${icon({ class: 'token-colors-copy', 'aria-hidden': 'true' }, state.copied ? check : copy)}
                                     <span>${token.value}</span>
                                 </span>

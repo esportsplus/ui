@@ -75,7 +75,7 @@ function field({ disabled, invalid, size = 'medium', value }: Field = {}) {
                 ${ICONS.smile()}
                 ${input.call({}, {
                     'aria-describedby': `${id}-hint`,
-                    'aria-invalid': invalid ? 'true' : undefined,
+                    'aria-invalid': invalid && 'true',
                     disabled,
                     id,
                     placeholder: 'Enter your email',
@@ -116,11 +116,11 @@ function notes({ autoresize, count, disabled, hint, invalid, label: text, placeh
             <div class='board-input-field'>
                 ${textarea.call({}, {
                     'aria-describedby': `${id}-hint`,
-                    'aria-invalid': invalid ? 'true' : undefined,
-                    autoresize: autoresize ? { height: { max: '160px', min: '20px' } } : undefined,
+                    'aria-invalid': invalid && 'true',
+                    ...(autoresize && { autoresize: { height: { max: '160px', min: '20px' } } }),
                     disabled,
                     id,
-                    maxlength: count ? 160 : undefined,
+                    ...(count && { maxlength: 160 }),
                     oninput: (event: Event) => {
                         state.length = (event.target as HTMLTextAreaElement).value.length;
                     },
@@ -166,7 +166,7 @@ function otp({ disabled, group, invalid, length = 6, value = '' }: Otp = {}) {
                 ${Array.from({ length }, (_, index) => html`
                     <span class='board-otp-box ${group && index > 0 && index % group === 0 && 'board-otp-box--gap'}'>
                         ${input.call({}, {
-                            'aria-invalid': invalid ? 'true' : undefined,
+                            'aria-invalid': invalid && 'true',
                             'aria-label': `Digit ${index + 1} of ${length}`,
                             autocomplete: 'one-time-code',
                             disabled,

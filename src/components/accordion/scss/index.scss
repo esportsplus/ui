@@ -2,10 +2,19 @@
 @use 'variables';
 
 .accordion {
+    --scrollbar-overflow: hidden;
+    // Reserve the gutter throughout so enabling the bar cannot reflow and remeasure content.
+    --scrollbar-gutter: stable;
     display: grid;
     grid-template-rows: 1fr;
     overflow: var(--scrollbar-overflow, hidden);
     transition: grid-template-rows .3s;
+
+    @include tokens.state(active) {
+        &.accordion--scrollable {
+            --scrollbar-overflow: auto;
+        }
+    }
 
     @include tokens.state(inactive) {
         grid-template-rows: 0fr;

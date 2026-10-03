@@ -1,4 +1,5 @@
 import { html, type Renderable } from '@esportsplus/template';
+import glass from '~/css-utilities/glass';
 
 import type { Utility } from '../types';
 
@@ -107,13 +108,13 @@ const utilities: Utility[] = [
     },
     {
         category: 'Surface',
-        description: 'Frosted glass surface with backdrop blur and a translucent background.',
+        description: 'Progressive frosted glass using seven masked blur layers; glass() adds the overlay and --blur sets its strongest radius.',
         name: 'glass',
         variants: [
             {
                 render: () => html`
                     <div style='background: linear-gradient(120deg, var(--color-blue-400), var(--color-purple-400)); border-radius: var(--border-radius-500); padding: var(--size-700);'>
-                        <div class='--glass' style='border-radius: var(--border-radius-400); color: var(--color-white-400); padding: var(--size-500);'>Frosted glass</div>
+                        <div ${glass()} style='border-radius: var(--border-radius-400); color: var(--color-white-400); padding: var(--size-500);'>Frosted glass</div>
                     </div>
                 `,
                 title: 'glass'

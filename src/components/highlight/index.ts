@@ -43,11 +43,55 @@ type Layer = {
 
 type Name = 'active' | 'pointer';
 
+type Placement = {
+    from?: number[];
+    item: Element;
+    layer: Layer;
+    timing?: Timing;
+};
+
+type Timing = {
+    easing: string;
+    lead: number;
+    tail: number;
+};
+
 type Slide = {
     animation: Animation;
     // Offset the slide set out from, as x, y, width, height; it eases back to nothing.
     from: number[];
 };
+
+// Measure every queued highlight before any of them writes styles or starts a glide.
+const pending = new Set<() => VoidFunction | undefined>();
+
+let frame = 0;
+
+function enqueue(measure: () => VoidFunction | undefined) {
+    pending.add(measure);
+    frame ||= requestAnimationFrame(() => {
+        frame = 0;
+
+        let reads = [...pending];
+
+        pending.clear();
+
+        let writes = reads.map((read) => read());
+
+        for (let write of writes) {
+            write?.();
+        }
+    });
+}
+
+function dequeue(measure: () => VoidFunction | undefined) {
+    pending.delete(measure);
+
+    if (!pending.size) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+    }
+}
 
 
 function active(parent: Element, self: Element[], target?: string) {
@@ -155,12 +199,12 @@ function sibling(parent: Element, self: Element[], node: EventTarget | null, tar
 export default component<A>(
     ({ fill = true, hover = true, line, target, ...attributes }) => {
         // Both layers know the line's edge, so the hover fill keeps clear of it just as the active fill does.
-        let edge = line ? ` highlight--line-${line}` : '',
-            focused: Element | null = null,
-            frame = 0,
+        let focused: Element | null = null,
+            following = false,
             glides = { active: glide(), pointer: glide() },
             hovered: Element | null = null,
             layers = { active: reactive(empty()), pointer: reactive(empty()) },
+            motions = new Set<Animation>(),
             mutations: MutationObserver | undefined,
             nodes: Record<Name, HTMLElement | null> = { active: null, pointer: null },
             parent: HTMLElement | null = null,
@@ -171,39 +215,43 @@ export default component<A>(
         // Animations and transitions near the items, a folder opening or a dialog scaling in, can move them without
         // resizing anything observed, so the layers are re-placed every frame until they finish.
         function follow(e: Event) {
-            if (!frame && parent && e.target instanceof Element && near(e.target)) {
-                frame = requestAnimationFrame(tick);
+            if (parent && e.target instanceof Element && near(e.target)) {
+                for (let animation of e.target.getAnimations()) {
+                    motions.add(animation);
+                }
+
+                following = true;
+                schedule();
             }
         }
 
         function moving() {
-            let animations = document.getAnimations();
+            let running = false;
 
-            for (let i = 0, n = animations.length; i < n; i++) {
-                let animation = animations[i],
-                    target = (animation.effect as KeyframeEffect | null)?.target;
-
-                if (animation.playState === 'running' && target && near(target)) {
-                    return true;
+            // Animation lookup forces style recalculation. Remember the animations when they start instead.
+            for (let animation of motions) {
+                if (animation.playState === 'running' || animation.pending) {
+                    running = true;
+                }
+                else {
+                    motions.delete(animation);
                 }
             }
 
-            return false;
+            return running;
         }
 
         function near(element: Element) {
             return !!parent && !self.includes(element) && (parent.contains(element) || element.contains(parent));
         }
 
-        function place(name: Name, item: Element | null, box: DOMRect, variant: string) {
+        function measure(name: Name, item: Element | null, box: DOMRect, variant: string): Placement | null {
             let glide = glides[name],
                 layer = layers[name];
 
             // An unrendered container (a closed dialog) has nothing to measure; staying hidden lets it enter in place.
             if (!item || !parent || !box.width || concealed(item, parent)) {
-                glide.item = null;
-                layer.visible = false;
-                return;
+                return null;
             }
 
             let rect = item.getBoundingClientRect(),
@@ -212,31 +260,62 @@ export default component<A>(
                 height = rect.height * scale,
                 width = rect.width * scale,
                 x = (rect.left - box.left) * scale - parent.clientLeft + parent.scrollLeft,
-                y = (rect.top - box.top) * scale - parent.clientTop + parent.scrollTop;
+                y = (rect.top - box.top) * scale - parent.clientTop + parent.scrollTop,
+                from: number[] | undefined,
+                timing: Timing | undefined;
+
+            if (layer.visible && glide.item && glide.item !== item) {
+                let left = remaining(glide);
+
+                from = [layer.x + left[0] - x, layer.y + left[1] - y, layer.width + left[2] - width, layer.height + left[3] - height];
+
+                let node = nodes[name];
+
+                if (node) {
+                    let style = getComputedStyle(node);
+
+                    timing = {
+                        easing: style.getPropertyValue('--glide-timing-function').trim() || 'ease',
+                        lead: ms(style.getPropertyValue('--glide')),
+                        tail: ms(style.getPropertyValue('--glide-tail'))
+                    };
+                }
+            }
+
+            return {
+                from,
+                item,
+                layer: { height, radius: getComputedStyle(item).borderRadius, variant, visible: true, width, x, y },
+                timing
+            };
+        }
+
+        function place(name: Name, measured: Placement | null) {
+            let glide = glides[name],
+                layer = layers[name];
+
+            if (!measured) {
+                halt(glide);
+                glide.item = null;
+                layer.visible = false;
+                return;
+            }
 
             // Entering from hidden snaps into place, so a glide left over from before it hid is dropped.
             if (!layer.visible) {
                 halt(glide);
             }
-            else if (glide.item && glide.item !== item) {
-                let left = remaining(glide);
-
-                slide(name, [layer.x + left[0] - x, layer.y + left[1] - y, layer.width + left[2] - width, layer.height + left[3] - height]);
+            else if (measured.from && measured.timing) {
+                slide(name, measured.from, measured.timing);
             }
 
-            glide.item = item;
-            layer.height = height;
-            layer.radius = getComputedStyle(item).borderRadius;
-            layer.variant = variant;
-            layer.visible = true;
-            layer.width = width;
-            layer.x = x;
-            layer.y = y;
+            glide.item = measured.item;
+            Object.assign(layer, measured.layer);
         }
 
         // The layer's box always sits on its item; a glide is an offset added on top, easing to nothing, so the item
         // can keep moving underneath without restarting it.
-        function slide(name: Name, from: number[]) {
+        function slide(name: Name, from: number[], timing: Timing) {
             let glide = glides[name],
                 node = nodes[name];
 
@@ -247,7 +326,6 @@ export default component<A>(
             }
 
             let lead = [0, 0, 0, 0],
-                style = getComputedStyle(node),
                 tail = [0, 0, 0, 0];
 
             // Per axis the start edge (left, top) is offset by the position and the end edge by position plus size;
@@ -265,11 +343,7 @@ export default component<A>(
                 b[axis + 2] += end;
             }
 
-            let easing = style.getPropertyValue('--glide-timing-function').trim() || 'ease',
-                slides = [
-                    [lead, ms(style.getPropertyValue('--glide'))],
-                    [tail, ms(style.getPropertyValue('--glide-tail'))]
-                ] as const;
+            let slides = [[lead, timing.lead], [tail, timing.tail]] as const;
 
             for (let i = 0, n = slides.length; i < n; i++) {
                 let [offset, duration] = slides[i];
@@ -289,31 +363,21 @@ export default component<A>(
                             },
                             { '--slide-height': '0px', '--slide-width': '0px', '--slide-x': '0px', '--slide-y': '0px' }
                         ],
-                        { composite: 'add', duration, easing }
+                        { composite: 'add', duration, easing: timing.easing }
                     ),
                     from: offset
                 });
             }
         }
 
-        function tick() {
-            frame = 0;
-
-            if (!parent) {
-                return;
-            }
-
-            update();
-
-            if (moving()) {
-                frame = requestAnimationFrame(tick);
-            }
+        function schedule() {
+            enqueue(update);
         }
 
         function release() {
             if (pressed) {
                 pressed = false;
-                update();
+                schedule();
             }
         }
 
@@ -331,19 +395,29 @@ export default component<A>(
                 focused = null;
             }
 
-            let box = parent.getBoundingClientRect(),
-                current = active(parent, self, target),
-                item = hovered || focused;
+            // Animation inspection and both layers' geometry belong to the read phase too.
+            following = following && moving();
 
-            place('active', current, box, '--active');
-            // The pointer layer sits beneath the active one, so over the active item it stays put under it instead
-            // of leaving.
-            place(
-                'pointer',
-                item,
-                box,
-                pressed && item === hovered ? 'highlight--pressed' : 'highlight--hover'
-            );
+            let container = parent,
+                box = parent.getBoundingClientRect(),
+                current = active(parent, self, target),
+                item = hovered || focused,
+                selected = measure('active', current, box, '--active'),
+                pointer = measure('pointer', item, box, pressed && item === hovered ? 'highlight--pressed' : 'highlight--hover');
+
+            return () => {
+                if (parent !== container) {
+                    return;
+                }
+
+                place('active', selected);
+                // The pointer layer sits beneath the active one, so over the active item it stays put under it.
+                place('pointer', pointer);
+
+                if (following) {
+                    schedule();
+                }
+            };
         }
 
         // Both layers sit at the same z-index, so the pointer layer comes first to paint beneath the active one.
@@ -353,7 +427,11 @@ export default component<A>(
                 class='highlight'
                 ${attributes}
                 ${{
-                    class: () => `${layers.pointer.variant}${edge}${layers.pointer.visible ? ' highlight--visible' : ''}`,
+                    class: [
+                        () => layers.pointer.variant,
+                        line && `highlight--line-${line}`,
+                        () => layers.pointer.visible && 'highlight--visible'
+                    ],
                     onconnect: (element: HTMLElement) => {
                         nodes.pointer = element;
                         self.push(element);
@@ -366,7 +444,13 @@ export default component<A>(
                 class='highlight'
                 ${attributes}
                 ${{
-                    class: () => `${layers.active.variant}${fill ? '' : ' highlight--unfilled'}${line ? ` highlight--line${edge}` : ''}${layers.active.visible ? ' highlight--visible' : ''}`,
+                    class: [
+                        () => layers.active.variant,
+                        !fill && 'highlight--unfilled',
+                        line && 'highlight--line',
+                        line && `highlight--line-${line}`,
+                        () => layers.active.visible && 'highlight--visible'
+                    ],
                     onconnect: (element: HTMLElement) => {
                         let container = element.parentElement;
 
@@ -406,12 +490,12 @@ export default component<A>(
                             }
 
                             if (changed) {
-                                update();
+                                schedule();
                             }
                         });
                         mutations.observe(container, { attributeFilter: ['class', 'inert'], attributes: true, childList: true, subtree: true });
 
-                        resize = new ResizeObserver(update);
+                        resize = new ResizeObserver(schedule);
                         resize.observe(container);
 
                         for (let child of container.children) {
@@ -420,7 +504,7 @@ export default component<A>(
                             }
                         }
 
-                        update();
+                        schedule();
                     },
                     ondisconnect: () => {
                         mutations?.disconnect();
@@ -428,8 +512,9 @@ export default component<A>(
                         resize?.disconnect();
                         resize = undefined;
 
-                        cancelAnimationFrame(frame);
-                        frame = 0;
+                        dequeue(update);
+                        following = false;
+                        motions.clear();
 
                         for (let name of ['active', 'pointer'] as const) {
                             halt(glides[name]);
@@ -447,7 +532,7 @@ export default component<A>(
                         }
 
                         focused = (e.target as Element).matches(':focus-visible') ? sibling(parent, self, e.target, target) : null;
-                        update();
+                        schedule();
                     },
                     ondocumentfocusout: (e: FocusEvent) => {
                         if (!parent?.contains(e.target as Node | null) || parent.contains(e.relatedTarget as Node | null)) {
@@ -455,7 +540,7 @@ export default component<A>(
                         }
 
                         focused = null;
-                        update();
+                        schedule();
                     },
                     ondocumentpointercancel: release,
                     ondocumentpointerdown: (e: PointerEvent) => {
@@ -467,7 +552,7 @@ export default component<A>(
 
                         hovered = item;
                         pressed = true;
-                        update();
+                        schedule();
                     },
                     // Crossing gaps between siblings keeps the last one so the highlight glides instead of snapping back.
                     ondocumentpointerout: (e: PointerEvent) => {
@@ -477,7 +562,7 @@ export default component<A>(
 
                         hovered = null;
                         pressed = false;
-                        update();
+                        schedule();
                     },
                     ondocumentpointerover: (e: PointerEvent) => {
                         let item = hover && parent ? sibling(parent, self, e.target, target) : null;
@@ -487,7 +572,7 @@ export default component<A>(
                         }
 
                         hovered = item;
-                        update();
+                        schedule();
                     },
                     ondocumentpointerup: release,
                     ondocumenttransitionrun: follow,
@@ -497,5 +582,3 @@ export default component<A>(
         `;
     }
 );
-
-

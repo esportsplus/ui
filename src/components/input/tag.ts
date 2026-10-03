@@ -136,7 +136,7 @@ export default component(
                             <svg aria-hidden='true'><use href='#${close}' /></svg>
                         </button>
                     </span>
-                    ${name ? html`<input name='${name}[]' type='hidden' value='${tag}' />` : ''}
+                    ${name && html`<input name='${name}[]' type='hidden' value='${tag}' />`}
                 </li>
             `),
             stand = html.reactive(ghosts, (ghost) => html`
@@ -388,7 +388,7 @@ export default component(
                         </li>
                     </ul>
                 </div>
-                ${hint ? html`<p class='input-tag-hint'>${hint}</p>` : ''}
+                ${!!hint && html`<p class='input-tag-hint'>${hint}</p>`}
                 <span aria-live='polite' class='input-tag-live'>${() => local.announcement}</span>
             </div>
         `;

@@ -368,7 +368,7 @@ function chip(part: Part) {
         <span
             class='file-tree-badge-part ${part.staged && 'file-tree-badge-part--staged'} ${part.tone && `file-tree-badge-part--${part.tone}`}'
             ${{ style: part.color && `color: ${part.color}` }}
-            ${part.title ? { title: part.title } : undefined}
+            ${!!part.title && { title: part.title }}
         >
             ${part.text}
         </span>
@@ -412,7 +412,7 @@ function emphasis(name: string, query: string) {
 
 // A search mark as classes on 'block': every match tinted, the current one outlined as well.
 function found(block: string, mark: string | false) {
-    return mark && `${block}--match${mark === 'current' ? ` ${block}--match-current` : ''}`;
+    return mark && [`${block}--match`, mark === 'current' && `${block}--match-current`].filter(Boolean).join(' ');
 }
 
 function folder(element: Element) {
@@ -709,15 +709,15 @@ export default ({
             return html`
                 <div
                     aria-level='${row.depth + 1}'
-                    class='file-tree-row ${row.locked ? '--disabled' : ''} ${header(row) ? 'file-tree-row--root' : ''} ${() => active(row) && '--active'} ${() => holds(row, (id) => clipboard.marked.read(id)) && 'file-tree-row--cut'} ${() => holds(row, (id) => selection.read(id)) && !active(row) && 'file-tree-row--selected'}'
+                    class='file-tree-row ${row.locked && '--disabled'} ${header(row) && 'file-tree-row--root'} ${() => active(row) && '--active'} ${() => holds(row, (id) => clipboard.marked.read(id)) && 'file-tree-row--cut'} ${() => holds(row, (id) => selection.read(id)) && !active(row) && 'file-tree-row--selected'}'
                     id='${id}-${row.key}'
                     role='treeitem'
                     style='--depth: ${row.depth}; --guides: ${guides(row.depth)}; --reveal-index: ${revealing.get(row) ?? 0};'
-                    ${row.locked ? { 'aria-disabled': 'true' } : undefined}
-                    ${open ? { 'aria-expanded': () => read(open) ? 'true' : 'false' } : undefined}
-                    ${mark ? { class: () => read(mark).tone && `file-tree-row--${read(mark).tone}` } : undefined}
-                    ${search ? { class: () => found('file-tree-row', matched(row)) } : undefined}
-                    ${row.scope ? { class: 'file-tree-row--scope', style: `--scope: ${row.scope}` } : undefined}
+                    ${row.locked && { 'aria-disabled': 'true' }}
+                    ${open && { 'aria-expanded': () => read(open) ? 'true' : 'false' }}
+                    ${mark && { class: () => read(mark).tone && `file-tree-row--${read(mark).tone}` }}
+                    ${search && { class: () => found('file-tree-row', matched(row)) }}
+                    ${!!row.scope && { class: 'file-tree-row--scope', style: `--scope: ${row.scope}` }}
                     ${dragging?.row(row)}
                     ${onscreen(row)}
                     ${{
@@ -747,9 +747,9 @@ export default ({
             return html`
                 <div
                     aria-expanded='true'
-                    class='file-tree-row ${row.locked ? '--disabled' : ''} ${header(row) ? 'file-tree-row--root' : ''} ${() => active(row) && 'file-tree-row--selected'}'
+                    class='file-tree-row ${row.locked && '--disabled'} ${header(row) && 'file-tree-row--root'} ${() => active(row) && 'file-tree-row--selected'}'
                     style='--depth: ${row.depth}; --guides: ${guides(row.depth)};'
-                    ${mark ? { class: () => read(mark).tone && `file-tree-row--${read(mark).tone}` } : undefined}
+                    ${mark && { class: () => read(mark).tone && `file-tree-row--${read(mark).tone}` }}
                     ${{
                         class: () => ui.focused === row.key && 'file-tree-row--focused',
                         onclick: () => unpin(row)
@@ -793,7 +793,7 @@ export default ({
 
         return () => html`
             <span class='file-tree-tooltip-path'>${full.slice(0, full.length - element.name.length)}<strong>${element.name}</strong></span>
-            ${meta.length ? html`<span class='file-tree-tooltip-meta'>${meta.join(' · ')}</span>` : ''}
+            ${meta.length > 0 && html`<span class='file-tree-tooltip-meta'>${meta.join(' · ')}</span>`}
         `;
     }
 
@@ -1539,12 +1539,12 @@ export default ({
 
         return html`
             <div
-                class='file-tree-row ${row.locked ? '--disabled' : ''} ${header(row) ? 'file-tree-row--root' : ''} ${() => active(row) && '--active'} ${() => holds(row, (id) => clipboard.marked.read(id)) && 'file-tree-row--cut'} ${() => holds(row, (id) => selection.read(id)) && !active(row) && 'file-tree-row--selected'}'
+                class='file-tree-row ${row.locked && '--disabled'} ${header(row) && 'file-tree-row--root'} ${() => active(row) && '--active'} ${() => holds(row, (id) => clipboard.marked.read(id)) && 'file-tree-row--cut'} ${() => holds(row, (id) => selection.read(id)) && !active(row) && 'file-tree-row--selected'}'
                 style='${style}'
-                ${open ? { 'aria-expanded': () => read(open) ? 'true' : 'false' } : undefined}
-                ${mark ? { class: () => read(mark).tone && `file-tree-row--${read(mark).tone}` } : undefined}
-                ${search ? { class: () => found('file-tree-row', matched(row)) } : undefined}
-                ${row.scope ? { class: 'file-tree-row--scope', style: `--scope: ${row.scope}` } : undefined}
+                ${open && { 'aria-expanded': () => read(open) ? 'true' : 'false' }}
+                ${mark && { class: () => read(mark).tone && `file-tree-row--${read(mark).tone}` }}
+                ${search && { class: () => found('file-tree-row', matched(row)) }}
+                ${!!row.scope && { class: 'file-tree-row--scope', style: `--scope: ${row.scope}` }}
                 ${{ class: () => ui.focused === row.key && 'file-tree-row--focused' }}
             >
                 ${contents(row, mark, true)}
@@ -3168,7 +3168,7 @@ export default ({
                         }
                     }
                 }}
-                ${hint ? {
+                ${hint && {
                     onpointerleave: (event: PointerEvent) => {
                         if (event.pointerType !== 'touch') {
                             tip.release();
@@ -3192,7 +3192,7 @@ export default ({
                             return new DOMRect(box.left, rect.top, box.width, rect.height);
                         });
                     }
-                } : undefined}
+                }}
             >
                 ${highlight({ class: 'file-tree-highlight', target: '.file-tree-row' })}
                 ${pins.render()}

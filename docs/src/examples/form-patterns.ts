@@ -116,7 +116,7 @@ const inlineValidation = (): Variant => ({
         }
 
         return html`
-            <div class='${() => `form-prototype field-pattern validation-pattern ${state.error ? '--invalid' : ''} ${state.valid ? '--valid' : ''}`}'>
+            <div class='form-prototype field-pattern validation-pattern ${() => state.error && '--invalid'} ${() => state.valid && '--valid'}'>
                 <label for='${id}'>Email</label>
                 <div class='field-pattern-surface'>
                     ${input.call({}, {
@@ -339,7 +339,7 @@ const passwordStrength = (): Variant => ({
                 </div>
                 <div class='strength-pattern-meter' aria-hidden='true'>
                     ${PASSWORD_RULES.map((_, index) => html`
-                        <span class='${() => `strength-pattern-segment ${index < score() ? '--filled' : ''}`}' style='${`--index: ${index};`}'></span>
+                        <span class='strength-pattern-segment ${() => index < score() && '--filled'}' style='${`--index: ${index};`}'></span>
                     `)}
                 </div>
                 <div class='strength-pattern-status' id='${`${id}-strength`}' aria-live='polite'>
@@ -348,7 +348,7 @@ const passwordStrength = (): Variant => ({
                 </div>
                 <ul class='strength-pattern-rules'>
                     ${PASSWORD_RULES.map(([label, test]) => html`
-                        <li class='${() => test(state.value) ? '--met' : ''}'>
+                        <li class='${() => test(state.value) && '--met'}'>
                             <span class='strength-pattern-check' aria-hidden='true'>
                                 <svg viewBox='0 0 16 16'><path d='M3.5 8.5l3 3 6-7' /></svg>
                             </span>
@@ -477,7 +477,7 @@ const tags = (): Variant => ({
                     (event.currentTarget as HTMLElement).querySelector<HTMLInputElement>('.tag-pattern-draft')?.focus();
                 }}'>
                     ${html.reactive(list, (tag) => html`
-                        <span class='${() => `tag-pattern-chip ${state.armed === tag.value ? '--armed' : ''} ${state.duplicate === tag.value.toLowerCase() ? '--duplicate' : ''}`}'>
+                        <span class='tag-pattern-chip ${() => state.armed === tag.value && '--armed'} ${() => state.duplicate === tag.value.toLowerCase() && '--duplicate'}'>
                             <span class='tag-pattern-label'>${tag.value}</span>
                             <button
                                 aria-label='${`Remove ${tag.value}`}'
@@ -515,7 +515,7 @@ const tags = (): Variant => ({
                         }}'
                     />
                 </div>
-                <div class='${() => `tag-pattern-message ${state.message ? '--rejected' : ''}`}' id='${`${id}-message`}' aria-live='polite'>
+                <div class='tag-pattern-message ${() => state.message && '--rejected'}' id='${`${id}-message`}' aria-live='polite'>
                     <small class='tag-pattern-hint'>Enter adds · Backspace removes</small>
                     <small class='tag-pattern-rejection'>${() => state.message}</small>
                 </div>

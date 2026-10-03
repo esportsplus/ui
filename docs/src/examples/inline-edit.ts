@@ -42,7 +42,7 @@ export default {
                                 </svg>
                                 Saved
                             </span>
-                            <span aria-live='polite' class='inline-edit-demo-live'>${() => status.saved ? 'Saved' : ''}</span>
+                            <span aria-live='polite' class='inline-edit-demo-live'>${() => status.saved && 'Saved'}</span>
                         </div>
                         ${inlineEdit({
                             class: 'inline-edit-demo-name',

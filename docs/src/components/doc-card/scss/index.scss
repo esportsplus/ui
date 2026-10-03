@@ -1,4 +1,8 @@
 .doc-card {
+    --padding-horizontal: var(--size-400);
+    --padding-vertical: var(--size-400);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-500);
     color: var(--color-text-400);
     display: block;
     text-decoration: none;

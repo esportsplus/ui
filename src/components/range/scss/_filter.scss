@@ -251,6 +251,12 @@
         transition: scale 150ms ease-out;
         translate: -50% -50%;
         width: var(--thumb-size);
+        z-index: 2;
+
+        &--stacked,
+        #{tokens.state(active)} {
+            z-index: 3;
+        }
 
         &:focus-visible {
             outline-width: 3px;

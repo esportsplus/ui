@@ -1,23 +1,27 @@
-.docs-page {
+.main > .page {
     max-width: 680px;
 
-    &-lede {
+    > .page-grid {
+        --min-width: 220px;
+    }
+
+    > .page-head .page-lede {
         color: var(--color-text-300);
         font-size: var(--font-size-400);
         margin-top: var(--size-400);
         max-width: 64ch;
     }
 
-    &-note {
+    > .page-note {
         color: var(--color-text-300);
         font-size: var(--font-size-300);
     }
 
-    &-section-title {
+    .page-section-title {
         margin: var(--size-800) 0 var(--size-400);
     }
 
-    &-title {
+    > .page-head .page-title {
         text-transform: capitalize;
 
         @media (max-width: 720px) {

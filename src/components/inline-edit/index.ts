@@ -178,7 +178,7 @@ function template(
                     return state.value.trim() === '' ? placeholder : state.value;
                 }}
             </button>
-            ${() => state.editing ? field() : ''}
+            ${() => state.editing && field()}
             <span aria-hidden='true' class='inline-edit-icon'>
                 <svg class='inline-edit-icon-pencil'><use href='#${pencil}' /></svg>
                 <svg class='inline-edit-icon-check'><use href='#${check}' /></svg>

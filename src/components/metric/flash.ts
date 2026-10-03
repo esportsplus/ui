@@ -89,7 +89,7 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
                 class: [
                     () => state.direction && `metric-flash--${state.direction}`,
                     // Alternating parity swaps between identical keyframes, restarting the arrow pop per change.
-                    () => state.flashing ? (state.changes % 2 ? 'metric-flash--odd' : 'metric-flash--even') : state.changes ? 'metric-flash--off' : ''
+                    () => state.flashing ? (state.changes % 2 ? 'metric-flash--odd' : 'metric-flash--even') : state.changes > 0 && 'metric-flash--off'
                 ]
             }}
         >
@@ -98,7 +98,7 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
                 ${html.reactive(render, function (entry) {
                     return html`
                         <span
-                            class='${() => `metric-flash-text${entry.direction ? ` metric-flash-text--${entry.direction}` : ''}${entry.leaving ? ' metric-flash-text--leaving' : ''}`}'
+                            class='metric-flash-text ${() => entry.direction && `metric-flash-text--${entry.direction}`} ${() => entry.leaving && 'metric-flash-text--leaving'}'
                             onanimationend='${() => {
                                 if (entry.leaving) {
                                     remove(entry);

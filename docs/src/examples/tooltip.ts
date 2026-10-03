@@ -134,7 +134,7 @@ function dropdown(direction: string) {
                 ${items.map((item) => item
                     ? html`
                         <div
-                            class='link tooltip-demo-item ${item.id === 'logout' ? 'tooltip-demo-logout' : ''} ${() => selected.id === item.id && '--active'}'
+                            class='link tooltip-demo-item ${item.id === 'logout' && 'tooltip-demo-logout'} ${() => selected.id === item.id && '--active'}'
                             onclick='${() => {
                                 selected.id = item.id;
 
@@ -259,7 +259,7 @@ function toolbar(direction: 'e' | 'n' | 's' | 'w', buttons: [string, string][], 
 
     return html`
         <div
-            class='tooltip-toolbar-demo ${column ? 'tooltip-toolbar-demo--column' : ''}'
+            class='tooltip-toolbar-demo ${column && 'tooltip-toolbar-demo--column'}'
             ${tip.delegate({ edge: true })}
         >
             ${buttons.map(([label, hint]) => html`

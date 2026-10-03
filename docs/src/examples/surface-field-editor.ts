@@ -297,7 +297,7 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
             `)}
             <span
                 class='surface-field-editor-lens'
-                style='${() => view.width ? `height: ${percent(view.height / view.zoom, MAP.height)}; left: ${percent(-view.x / view.zoom - MAP.x, MAP.width)}; top: ${percent(-view.y / view.zoom - MAP.y, MAP.height)}; width: ${percent(view.width / view.zoom, MAP.width)};` : ''}'
+                style='${() => !!view.width && `height: ${percent(view.height / view.zoom, MAP.height)}; left: ${percent(-view.x / view.zoom - MAP.x, MAP.width)}; top: ${percent(-view.y / view.zoom - MAP.y, MAP.height)}; width: ${percent(view.width / view.zoom, MAP.width)};`}'
             ></span>
         </div>
 

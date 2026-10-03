@@ -1,15 +1,35 @@
-.--scrollbar {
+// Scoped descendants inherit defaults and root overrides, even when they also carry the base utility.
+.--scrollbar:not(:where(.--scrollbar-scope *)),
+.--scrollbar-scope {
+    --scrollbar-behavior: smooth;
     --scrollbar-border-radius: 3px;
     --scrollbar-border-width: 1px;
     --scrollbar-color: var(--color-black-300);
-    --scrollbar-width: auto;
+    --scrollbar-overscroll: contain;
+    --scrollbar-size: 6px;
+    --scrollbar-width: thin;
+}
+
+.--scrollbar {
+    &-auto {
+        --scrollbar-size: auto;
+        --scrollbar-width: auto;
+    }
 
     &-blur {
         --scroll-blur: 4px;
+        // Move the painted edges over scrollport padding without changing the sticky constraints or layout.
+        --scroll-blur-offset-bottom: 0px;
+        --scroll-blur-offset-top: 0px;
         --scroll-blur-size: 3lh;
     }
 
     &-fade {
         --scroll-fade-size: 2lh;
+    }
+
+    &-thin {
+        --scrollbar-size: 8px;
+        --scrollbar-width: thin;
     }
 }

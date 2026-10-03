@@ -127,13 +127,13 @@ export default component(
             return html`
                 <div class='tooltip-nested-menu-entry' ${{ class: () => node.state.open && 'tooltip-nested-menu-entry--open' }}>
                     <button
-                        class='tooltip-nested-menu-item ${danger ? 'tooltip-nested-menu-item--danger' : ''}'
+                        class='tooltip-nested-menu-item ${danger && 'tooltip-nested-menu-item--danger'}'
                         role='menuitem'
                         tabindex='-1'
                         type='button'
                         ${{
-                            'aria-expanded': branch ? () => String(node.state.open) : undefined,
-                            'aria-haspopup': branch ? 'menu' : undefined,
+                            'aria-expanded': branch && (() => String(node.state.open)),
+                            'aria-haspopup': branch && 'menu',
                             disabled: disabled === true,
                             onclick: () => {
                                 if (branch) {
@@ -148,13 +148,13 @@ export default component(
                             }
                         }}
                     >
-                        ${icon ? html`<span class='tooltip-nested-menu-icon'>${icon()}</span>` : ''}
+                        ${icon && html`<span class='tooltip-nested-menu-icon'>${icon()}</span>`}
                         <span class='tooltip-nested-menu-label'>${label}</span>
-                        ${hint ? html`<span class='tooltip-nested-menu-hint'>${hint}</span>` : ''}
-                        ${branch ? html`<span class='tooltip-nested-menu-chevron'></span>` : ''}
+                        ${hint && html`<span class='tooltip-nested-menu-hint'>${hint}</span>`}
+                        ${branch && html`<span class='tooltip-nested-menu-chevron'></span>`}
                     </button>
 
-                    ${() => branch && node.state.render ? panel(node) : ''}
+                    ${() => branch && node.state.render && panel(node)}
                 </div>
             `;
         }
@@ -187,11 +187,11 @@ export default component(
                     class='tooltip-nested-menu-panel'
                     role='menu'
                     ${{
-                        class: () => {
-                            let active = node === root ? state.active : node.state.open;
-
-                            return `${active ? '--active' : ''} ${covered(node) ? 'tooltip-nested-menu-panel--covered' : ''} ${node.state.settled ? 'tooltip-nested-menu-panel--settled' : ''}`;
-                        },
+                        class: [
+                            () => (node === root ? state.active : node.state.open) && '--active',
+                            () => covered(node) && 'tooltip-nested-menu-panel--covered',
+                            () => node.state.settled && 'tooltip-nested-menu-panel--settled'
+                        ],
                         inert: () => node === root && !state.active,
                         // A dimmed parent panel's scrim takes the click; return to that level
                         onclick: () => {
@@ -225,16 +225,16 @@ export default component(
                         }
                     }}
                 >
-                    ${item ? html`
+                    ${item && html`
                         <div class='tooltip-nested-menu-header' onclick='${pop}'>
-                            ${item.icon ? html`<span class='tooltip-nested-menu-icon'>${item.icon()}</span>` : ''}
+                            ${item.icon && html`<span class='tooltip-nested-menu-icon'>${item.icon()}</span>`}
                             <span class='tooltip-nested-menu-title'>
                                 <span class='tooltip-nested-menu-title-regular'>${item.label}</span>
                                 <span aria-hidden='true' class='tooltip-nested-menu-title-bold'>${item.label}</span>
                             </span>
                             <span class='tooltip-nested-menu-chevron'></span>
                         </div>
-                    ` : ''}
+                    `}
 
                     ${node.children.map(entry)}
                 </div>
@@ -315,7 +315,7 @@ export default component(
 
         return html`
             <div
-                class='tooltip tooltip--nested-menu ${animate ? '' : 'tooltip--instant'}'
+                class='tooltip tooltip--nested-menu ${!animate && 'tooltip--instant'}'
                 ${attributes}
                 ${{
                     class: () => state.active && '--active',

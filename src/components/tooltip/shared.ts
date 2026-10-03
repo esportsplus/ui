@@ -596,7 +596,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
         return html`
             <span
-                class='tooltip-shared ${`tooltip-shared--${direction}`} ${interactive ? 'tooltip-shared--interactive' : ''}'
+                class='tooltip-shared ${`tooltip-shared--${direction}`} ${interactive && 'tooltip-shared--interactive'}'
                 id='${id}'
                 popover='manual'
                 ${attributes}

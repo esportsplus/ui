@@ -99,14 +99,14 @@ const page = (): Page => {
 
     return {
         render: () => html`
-            <div class='page docs-page'>
+            <div class='page'>
                 ${pageHead('Tokens', 'The design tokens that every component and utility is built from, read directly from the source SCSS with their current resolved values.')}
 
-                <p class='docs-page-note'>Font weights are defined per font family. See the <a href='/fonts'>Fonts reference</a> for available families and weights.</p>
+                <p class='page-note'>Font weights are defined per font family. See the <a href='/fonts'>Fonts reference</a> for available families and weights.</p>
 
                 ${rendered.map((entry) => html`
                     <section id='${entry.group.id}'>
-                        <h2 class='docs-page-section-title'>${entry.group.title}</h2>
+                        <h2 class='page-section-title'>${entry.group.title}</h2>
 
                         ${entry.group.kind === 'color' ? colorPalette(entry.tokens) : html`<div class='spec-table-scroll'><table class='spec-table'>
                             <thead class='table-head'>

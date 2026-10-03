@@ -1,19 +1,42 @@
 .viewer-body {
+    --sidebar-duration: 300ms;
+    --sidebar-ease: cubic-bezier(0.32, 0.72, 0, 1);
+    --sidebar-space: 0px;
+    --sidebar-width: 280px;
     display: grid;
-    gap: 0 var(--size-700);
-    grid-template-columns: 240px minmax(0, 1fr) 220px;
-    padding: 0 var(--size-600);
+    grid-template-columns: var(--sidebar-space) minmax(0, 1fr);
+    overflow-x: clip;
+    padding-top: var(--header-height);
+    transition: grid-template-columns var(--sidebar-duration) var(--sidebar-ease);
     width: 100%;
 
-    @media (max-width: 1280px) {
-        grid-template-columns: 240px minmax(0, 1fr);
+    &.--sidebar-open {
+        --sidebar-space: var(--sidebar-width);
     }
 
+    // Keep the page readable on small screens while the navigation pushes it aside.
     @media (max-width: 1024px) {
+        grid-template-columns: var(--sidebar-space) 100%;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --sidebar-duration: 0s;
+    }
+}
+
+.viewer-content {
+    display: grid;
+    gap: 0 var(--size-700);
+    grid-column: 2;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    min-width: 0;
+    padding-inline: var(--size-600);
+
+    @media (max-width: 1280px) {
         grid-template-columns: minmax(0, 1fr);
     }
 
     @media (max-width: 720px) {
-        padding: 0 var(--size-400);
+        padding-inline: var(--size-400);
     }
 }

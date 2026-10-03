@@ -277,8 +277,8 @@ export default component(
                 </span>
                 ${input.call({ attributes: { ...this?.attributes?.[INPUT_SCRUB_FIELD], ...attributes[INPUT_SCRUB_FIELD] } }, {
                     'aria-label': label,
-                    'aria-valuemax': Number.isFinite(max) ? max : undefined,
-                    'aria-valuemin': Number.isFinite(min) ? min : undefined,
+                    'aria-valuemax': Number.isFinite(max) && max,
+                    'aria-valuemin': Number.isFinite(min) && min,
                     'aria-valuenow': () => state.value,
                     'aria-valuetext': () => format(state.value),
                     autocomplete: 'off',

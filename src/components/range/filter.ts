@@ -222,7 +222,7 @@ export default ({
                             <span class='range-filter-strip' style='${() => `--digit: ${DIGITS.includes(char(i)) ? char(i) : 0}`}'>
                                 ${DIGITS.map((digit) => html`<span>${digit}</span>`)}
                             </span>
-                            <span class='range-filter-symbol'>${() => DIGITS.includes(char(i)) ? '' : char(i)}</span>
+                            <span class='range-filter-symbol'>${() => !DIGITS.includes(char(i)) && char(i)}</span>
                         </span>
                     `)}
                 </span>
@@ -367,13 +367,16 @@ export default ({
                                 ${{
                                     'aria-valuenow': () => s[key],
                                     'aria-valuetext': () => `${prefix}${format(s[key])}`,
-                                    class: () => ui.dragging === index && '--active',
+                                    class: [
+                                        () => ui.dragging === index && '--active',
+                                        () => index === 0 && s.low === max && 'range-filter-thumb--stacked'
+                                    ],
                                     onconnect: (element: Thumb) => {
                                         element[INDEX] = index;
                                         thumbs[index] = element;
                                     },
                                     onkeydown: (event: KeyboardEvent) => keydown(index, event),
-                                    style: () => `--position: ${pct(s[key]) / 100}; z-index: ${ui.dragging === index || (index === 0 && s.low === max) ? 3 : 2};`
+                                    style: () => `--position: ${pct(s[key]) / 100};`
                                 }}
                             ></div>
                         `;

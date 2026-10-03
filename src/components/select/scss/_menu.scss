@@ -115,10 +115,21 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
     }
 
     &-scroller {
+        --fade-top: 0px;
+        --fade-bottom: 0px;
+        mask-image: linear-gradient(to bottom, transparent, black var(--fade-top), black calc(100% - var(--fade-bottom)), transparent);
         max-height: calc(var(--rows) * var(--item-height) + var(--pad) * 2);
         overflow-y: auto;
         overscroll-behavior: contain;
         padding: var(--pad);
+
+        &--up {
+            --fade-top: var(--fade);
+        }
+
+        &--down {
+            --fade-bottom: var(--fade);
+        }
     }
 
     &-tag {

@@ -152,7 +152,7 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
                 <span>%</span>
             </span>
 
-            <span aria-live='polite' class='progress-text-sr'>${() => done() ? doneLabel : ''}</span>
+            <span aria-live='polite' class='progress-text-sr'>${() => done() && doneLabel}</span>
         </div>
     `;
 };

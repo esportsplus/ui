@@ -340,11 +340,11 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
             ${attributes}
             ${tooltip.onhover.trigger({ delay: { open: TOOLTIP_DELAY }, state: tip })}
             ${{
-                'aria-describedby': () => tip.active ? id : '',
+                'aria-describedby': () => tip.active && id,
                 datetime: () => {
                     let value = read(time);
 
-                    return value === null ? '' : new Date(value).toISOString();
+                    return value !== null && new Date(value).toISOString();
                 },
                 // Background tabs throttle timers; catch up the moment the page is seen.
                 ondocumentvisibilitychange: () => {
@@ -352,7 +352,7 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                         tick();
                     }
                 },
-                tabindex: () => state.date === null ? '' : '0'
+                tabindex: () => state.date !== null && '0'
             }}
         >
             <span class='relative-time-sr'>${() => read(text) ?? ''}</span>
@@ -382,7 +382,7 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                 ${() => {
                     let value = read(time);
 
-                    return value === null ? '' : TOOLTIP_FORMAT.format(value);
+                    return value !== null && TOOLTIP_FORMAT.format(value);
                 }}
             </span>
         </time>

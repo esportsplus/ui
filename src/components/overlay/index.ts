@@ -90,13 +90,10 @@ function layer(element: HTMLDialogElement) {
 }
 
 // Touch can only drag what the browser won't pan, so an overlay whose own content scrolls gives touch-drag up
-// to its handle. The surface extension past the edge would count as overflow, so it is hidden while measuring.
+// to its handle. The edge fill is border paint and does not contribute to scrollable overflow.
 function measure(element: HTMLElement) {
-    element.classList.add('overlay--measuring');
-
     let scrollable = element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
 
-    element.classList.remove('overlay--measuring');
     element.classList.toggle('overlay--scrollable', scrollable);
 }
 
@@ -108,6 +105,8 @@ function outside(element: HTMLElement, e: MouseEvent) {
 
 // Clears what a drag dismissal left behind, once the overlay has closed or is opening again.
 function reset(element: HTMLElement) {
+    element.classList.remove('overlay--edge-fill');
+    element.style.removeProperty('--edge-background');
     element.style.removeProperty('--opacity');
     element.style.removeProperty('--scale');
     element.style.removeProperty('--transition-duration');
@@ -183,6 +182,7 @@ function unstack(element: HTMLDialogElement) {
 export default component(
     function(this, { modal = true, rail = false, state = reactive({ active: false }), ...attributes }: A, content) {
         let observer: ResizeObserver | undefined,
+            fill = 0,
             stop: VoidFunction | undefined;
 
         function settle(element: HTMLDialogElement, close: boolean, drag: Drag) {
@@ -219,6 +219,18 @@ export default component(
             if (close) {
                 state.active = false;
             }
+
+            if (element.classList.contains('overlay--edge-fill')) {
+                let generation = fill;
+
+                // Keep the fill attached through the snap-back; a new drag owns its own cleanup.
+                void finished(element).then(() => {
+                    if (generation === fill) {
+                        element.classList.remove('overlay--edge-fill');
+                        element.style.removeProperty('--edge-background');
+                    }
+                });
+            }
         }
 
         let gesture = drag({
@@ -245,6 +257,12 @@ export default component(
             },
             capture: (element) => {
                 element.classList.add('overlay--dragging');
+
+                if (edge(element, 'overlay') && !element.classList.contains('overlay--floating')) {
+                    fill++;
+                    element.style.setProperty('--edge-background', getComputedStyle(element).backgroundColor);
+                    element.classList.add('overlay--edge-fill');
+                }
             },
             move: (element, { x, y }, progress) => {
                 let current = layer(element as HTMLDialogElement);

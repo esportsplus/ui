@@ -83,7 +83,10 @@ export default component<Attributes & {
                 ${attributes}
                 ${a}
                 ${{
-                    class: () => state.active && '--active',
+                    class: [
+                        () => state.active && '--active',
+                        () => state.active && ui.scrollable && 'accordion--scrollable'
+                    ],
                     inert: () => lines === undefined && !state.active,
                     onconnect: (element: HTMLElement) => {
                         viewport = element;
@@ -111,9 +114,7 @@ export default component<Attributes & {
                         if (incoming(event)) {
                             ui.scrollable = false;
                         }
-                    },
-                    // Reserve the gutter throughout so enabling the bar cannot reflow and remeasure content.
-                    style: () => `--scrollbar-overflow: ${state.active && ui.scrollable ? 'auto' : 'hidden'}; --scrollbar-gutter: stable;`
+                    }
                 }}
             >
                 <div class='accordion-content' ${c}>${content}</div>

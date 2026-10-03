@@ -74,7 +74,7 @@ export default {
                             ${select.menu({ label: 'Font', name: 'font', options: fonts, state })}
                         </div>
                         <span class='select-menu-demo-status'>
-                            ${() => `value: ${state.value}${state.active ? ' (open)' : ''}`}
+                            value: ${() => state.value}${() => state.active && ' (open)'}
                         </span>
                     </div>
                 `;

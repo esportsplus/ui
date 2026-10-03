@@ -16,10 +16,10 @@ type Detail = {
 
 const cardGrid = (lede: string, title: string, cards: Card[]): Page => ({
     render: () => html`
-        <div class='page docs-page'>
+        <div class='page'>
             ${pageHead(title, lede)}
 
-            <div class='grid' style='--min-width: 220px;'>
+            <div class='grid page-grid'>
                 ${cards.map(docCard)}
             </div>
         </div>
@@ -32,12 +32,12 @@ const detailPage = (detail: Detail): Page => {
 
     return {
         render: () => html`
-            <div class='page docs-page'>
+            <div class='page'>
                 ${pageHead(detail.name, detail.description)}
 
                 ${detail.variants.length === 0
-                    ? html`<p class='docs-page-note'>No examples yet.</p>`
-                    : detail.variants.map((variant, index) => preview(variant.title, variant.render(), `v-${index}`))}
+                    ? html`<p class='page-note'>No examples yet.</p>`
+                    : detail.variants.map((variant, index) => preview(variant.title, variant.render, `v-${index}`))}
             </div>
         `,
         toc
@@ -46,7 +46,7 @@ const detailPage = (detail: Detail): Page => {
 
 const missing = (title: string): Page => ({
     render: () => html`
-        <div class='page docs-page'>
+        <div class='page'>
             ${pageHead('Not found', title)}
         </div>
     `,

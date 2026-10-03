@@ -18,7 +18,7 @@ const matches = (label: string) => {
     return !search.active || query === '' || label.toLowerCase().includes(query);
 };
 
-// The palette handles Cmd/Ctrl+K itself; the sidebar and header open it through `searchTrigger` instead of its own button.
+// The palette handles Cmd/Ctrl+K itself; the header opens it through `searchTrigger` instead of its own button.
 const modal = () => {
     let links = new Map(sections().flatMap((section) => section.groups.flatMap((group) => group.links.map((link) => [link.href, link] as const))));
 

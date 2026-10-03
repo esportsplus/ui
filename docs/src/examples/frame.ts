@@ -23,7 +23,7 @@ function demo(option: typeof options[number]) {
                 ${labels.map((label, index) => html`
                     <div
                         type='button'
-                        class='frame-trigger button button--secondary ${() => state.active === index ? '--active' : ''}'
+                        class='frame-trigger button button--secondary ${() => state.active === index && '--active'}'
                         id='${id}-tab-${index}'
                         role='tab'
                         aria-controls='${id}-panel-${index}'
@@ -37,7 +37,7 @@ function demo(option: typeof options[number]) {
             <div style='${() => `--i: ${state.active}; overflow: hidden;`}'>
                 ${labels.map((_, index) => html`
                     <div
-                        class='frame ${option.mode !== 'instant' && `frame--${option.mode}`} ${() => state.active === index ? '--active' : ''}'
+                        class='frame ${option.mode !== 'instant' && `frame--${option.mode}`} ${() => state.active === index && '--active'}'
                         id='${id}-panel-${index}'
                         role='tabpanel'
                         style='--n: ${index}'

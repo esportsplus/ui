@@ -1,11 +1,32 @@
-.docs-sidebar {
-    align-self: start;
-    max-height: calc(100svh - var(--header-height));
-    padding: var(--size-800) var(--size-200) var(--spacer-100) 0;
-    position: sticky;
+.sidebar {
+    --scrollbar-color: var(--color-border-400);
+    background: var(--color-white-400);
+    bottom: 0;
+    left: 0;
+    overflow: hidden auto;
+    position: fixed;
     top: var(--header-height);
+    transition:
+        translate var(--sidebar-duration) var(--sidebar-ease),
+        visibility 0s var(--sidebar-duration);
+    translate: -100% 0;
+    visibility: hidden;
+    width: min(var(--sidebar-width), 100%);
 
-    @media (max-width: 1024px) {
-        display: none;
+    .viewer-body.--sidebar-open > & {
+        transition-delay: 0s;
+        translate: 0 0;
+        visibility: visible;
+    }
+
+    // Keep the scrollport unpadded so its blur edges span the entire navigation surface.
+    &-content {
+        padding: var(--size-800) var(--size-600) var(--spacer-100);
+    }
+
+    @media (max-width: 720px) {
+        &-content {
+            padding: var(--size-400) var(--size-400) var(--spacer-100);
+        }
     }
 }

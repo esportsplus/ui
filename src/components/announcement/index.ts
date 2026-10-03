@@ -73,7 +73,7 @@ export default component<Attributes & { state?: { active: boolean } }>(
                             returning = true;
                         }
 
-                        return `${state.active ? '--active' : ''} ${returning ? 'announcement--returning' : ''}`;
+                        return [state.active && '--active', returning && 'announcement--returning'].filter(Boolean).join(' ');
                     },
                     inert: () => !state.active
                 }}

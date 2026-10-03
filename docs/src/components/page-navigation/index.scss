@@ -18,12 +18,24 @@
     padding: 0;
     width: var(--size-600);
 
+    .icon {
+        --size: var(--size-400);
+    }
+
+    &:first-child .icon {
+        margin-left: -4px;
+    }
+
+    &:last-child .icon {
+        margin-right: -4px;
+    }
+
     &:hover { background: var(--color-grey-500); }
     &:focus-visible { outline: var(--border-width-500) solid var(--color-blue-400); outline-offset: 3px; }
     &.--disabled { cursor: default; opacity: 0.4; }
 }
 
-.docs-title-row {
+.title-row {
     align-items: center;
     display: flex;
     gap: var(--size-400);

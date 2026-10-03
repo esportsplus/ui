@@ -747,7 +747,7 @@ export default component(
         function item(view: View) {
             let { kind, runs } = view.block,
                 characters = text(runs),
-                body = [inline(nest(runs)), !characters || characters.endsWith('\n') ? html`<br data-filler>` : ''];
+                body = [inline(nest(runs)), (!characters || characters.endsWith('\n')) && html`<br data-filler>`];
 
             switch (kind) {
                 case 'bullet':
@@ -1420,25 +1420,23 @@ export default component(
                         }}
                     >
                         <div class='inline-edit-toolbar-format' ${tip.delegate({ content: (trigger) => (trigger as Tool)[HINT], edge: true, selector: '.inline-edit-toolbar-button' })}>
-                            ${kinds.length > 1
-                                ? html`
-                                    ${selectMenu({
-                                        [selectMenu.trigger]: {
-                                            onconnect: (element: HTMLElement) => {
-                                                items[0] = element;
-                                            },
-                                            tabindex: () => local.focus === 0 ? '0' : '-1'
+                            ${kinds.length > 1 && html`
+                                ${selectMenu({
+                                    [selectMenu.trigger]: {
+                                        onconnect: (element: HTMLElement) => {
+                                            items[0] = element;
                                         },
-                                        class: 'inline-edit-toolbar-block',
-                                        label: 'Text style',
-                                        options: kinds,
-                                        state: block
-                                    })}
-                                    ${marks.length || tools.length ? html`<span aria-hidden='true' class='inline-edit-toolbar-divider'></span>` : ''}
-                                `
-                                : ''}
+                                        tabindex: () => local.focus === 0 ? '0' : '-1'
+                                    },
+                                    class: 'inline-edit-toolbar-block',
+                                    label: 'Text style',
+                                    options: kinds,
+                                    state: block
+                                })}
+                                ${(marks.length > 0 || tools.length > 0) && html`<span aria-hidden='true' class='inline-edit-toolbar-divider'></span>`}
+                            `}
                             ${marks.map((item, i) => button(item, icon(item.action as Exclude<Action, 'copy'>), lead + i))}
-                            ${marks.length && tools.length ? html`<span aria-hidden='true' class='inline-edit-toolbar-divider'></span>` : ''}
+                            ${marks.length > 0 && tools.length > 0 && html`<span aria-hidden='true' class='inline-edit-toolbar-divider'></span>`}
                             ${tools.map((item, i) => button(
                                 item,
                                 item.action === 'copy'
@@ -1452,61 +1450,59 @@ export default component(
                             ))}
                             ${tip.render()}
                         </div>
-                        ${features.has('link')
-                            ? html`
-                                <div class='inline-edit-toolbar-link'>
-                                    ${input({
-                                        'aria-invalid': () => hyperlink.invalid && 'true',
-                                        'aria-label': 'Link address',
-                                        class: 'inline-edit-toolbar-url',
-                                        onconnect: (element: HTMLInputElement) => {
-                                            url = element;
-                                        },
-                                        oninput: (e: Event) => {
-                                            hyperlink.url = (e.currentTarget as HTMLInputElement).value;
-                                        },
-                                        placeholder: 'Paste or type a link',
-                                        type: 'url',
-                                        value: () => hyperlink.url
-                                    })}
-                                    <button
-                                        aria-label='Apply link'
-                                        class='button button--feedback inline-edit-toolbar-button'
-                                        type='button'
-                                        ${{ onclick: () => apply(hyperlink.url) }}
-                                    >
-                                        ${icon('apply')}
-                                    </button>
-                                    <button
-                                        aria-label='Open link in a new tab'
-                                        class='button button--feedback inline-edit-toolbar-button'
-                                        type='button'
-                                        ${{
-                                            onclick: () => {
-                                                let href = address(hyperlink.url);
+                        ${features.has('link') && html`
+                            <div class='inline-edit-toolbar-link'>
+                                ${input({
+                                    'aria-invalid': () => hyperlink.invalid && 'true',
+                                    'aria-label': 'Link address',
+                                    class: 'inline-edit-toolbar-url',
+                                    onconnect: (element: HTMLInputElement) => {
+                                        url = element;
+                                    },
+                                    oninput: (e: Event) => {
+                                        hyperlink.url = (e.currentTarget as HTMLInputElement).value;
+                                    },
+                                    placeholder: 'Paste or type a link',
+                                    type: 'url',
+                                    value: () => hyperlink.url
+                                })}
+                                <button
+                                    aria-label='Apply link'
+                                    class='button button--feedback inline-edit-toolbar-button'
+                                    type='button'
+                                    ${{ onclick: () => apply(hyperlink.url) }}
+                                >
+                                    ${icon('apply')}
+                                </button>
+                                <button
+                                    aria-label='Open link in a new tab'
+                                    class='button button--feedback inline-edit-toolbar-button'
+                                    type='button'
+                                    ${{
+                                        onclick: () => {
+                                            let href = address(hyperlink.url);
 
-                                                if (href) {
-                                                    window.open(href, '_blank', 'noopener');
-                                                }
+                                            if (href) {
+                                                window.open(href, '_blank', 'noopener');
                                             }
-                                        }}
-                                    >
-                                        ${icon('open')}
-                                    </button>
-                                    <button
-                                        aria-label='Remove link'
-                                        class='button button--feedback inline-edit-toolbar-button inline-edit-toolbar-unlink'
-                                        type='button'
-                                        ${{
-                                            hidden: () => !hyperlink.existing,
-                                            onclick: () => apply(null)
-                                        }}
-                                    >
-                                        ${icon('unlink')}
-                                    </button>
-                                </div>
-                            `
-                            : ''}
+                                        }
+                                    }}
+                                >
+                                    ${icon('open')}
+                                </button>
+                                <button
+                                    aria-label='Remove link'
+                                    class='button button--feedback inline-edit-toolbar-button inline-edit-toolbar-unlink'
+                                    type='button'
+                                    ${{
+                                        hidden: () => !hyperlink.existing,
+                                        onclick: () => apply(null)
+                                    }}
+                                >
+                                    ${icon('unlink')}
+                                </button>
+                            </div>
+                        `}
                     </div>
                 </div>
                 <span aria-hidden='true' class='inline-edit-icon'>

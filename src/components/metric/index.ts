@@ -195,7 +195,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
                     <div class='metric-value'>${() => {
                         let points = read(series).points;
 
-                        return points.length ? format(points[points.length - 1].value) : '';
+                        return points.length > 0 && format(points[points.length - 1].value);
                     }}</div>
                 </div>
                 <div class='metric-delta'>
@@ -213,7 +213,10 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
                 ${attributes[METRIC_PLOT]}
                 ${{
                     'aria-label': () => `${title}, ${read(series).points.length} points. Use arrow keys to read values.`,
-                    class: () => `${state.active ? '--active' : ''} ${view.shown ? 'metric-plot--shown' : ''}`,
+                    class: [
+                        () => state.active && '--active',
+                        () => view.shown && 'metric-plot--shown'
+                    ],
                     onblur: () => {
                         state.active = false;
                     },
@@ -314,7 +317,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
                         <span class='metric-tip-value'>${() => {
                             let at = point();
 
-                            return at ? format(at.value) : '';
+                            return at && format(at.value);
                         }}</span>
                         <span class='metric-tip-label'>${() => point()?.label ?? ''}</span>
                     </div>

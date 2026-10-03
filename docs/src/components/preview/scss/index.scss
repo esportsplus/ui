@@ -2,8 +2,14 @@
 
 
 .preview {
+    --border-radius: var(--border-radius-600);
+    --border-width: var(--border-width-400);
+    border: var(--border-width) solid var(--border-color);
+    // Keep visited examples' state while the browser skips painting and layout offscreen.
+    contain-intrinsic-block-size: auto 420px;
+    content-visibility: auto;
     scroll-margin-top: calc(var(--header-height) + var(--size-500));
-    margin: var(--size-800) 0 0;
+    margin: var(--size-800) 0 var(--size-500);
 
     &-bar {
         align-items: center;
@@ -25,15 +31,20 @@
 
         &::after {
             @extend %absolute-full;
-            background-image: radial-gradient(var(--color-border-400) 1px, transparent 1px);
+            background-image: radial-gradient(var(--color-grey-500) 1px, transparent 1px);
             background-position: center;
-            background-size: 16px 16px;
+            background-size: 12px 12px;
             content: '';
             z-index: -2;
         }
 
         > * {
             max-width: 100%;
+        }
+
+        // Reserve space while an offscreen example waits to mount.
+        &--pending {
+            min-height: 320px;
         }
     }
 

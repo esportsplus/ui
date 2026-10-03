@@ -9,11 +9,11 @@ const layout = (page: Page) => {
         spy = scrollSpy(page.toc.map((item) => item.id), 'visible');
 
     return html`
-        <main class='docs-main'>
+        <main class='main'>
             ${page.render()}
         </main>
         <aside
-            class='docs-page-nav --scrollbar --scroll-fade'
+            class='page-nav --scrollbar --scroll-fade'
             ${{
                 onconnect: () => {
                     disconnect = spy.connect();

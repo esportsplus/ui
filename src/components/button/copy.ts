@@ -52,7 +52,7 @@ export default component<A, string>(
                 ])}
             </button>
             <span class='button-status' role='status' aria-live='polite'>
-                ${() => state.status === 'success' ? success : state.status === 'error' ? error : ''}
+                ${() => state.status === 'success' ? success : state.status === 'error' && error}
             </span>
         `;
     }

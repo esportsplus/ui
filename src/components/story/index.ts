@@ -201,7 +201,7 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
 
                     go(e.clientX < box.left + box.width / 3 ? -1 : 1);
                 },
-                style: duration === undefined ? undefined : `--duration: ${duration}ms`
+                style: duration !== undefined && `--duration: ${duration}ms`
             }}
         >
             <div aria-hidden='true' class='story-bars'>

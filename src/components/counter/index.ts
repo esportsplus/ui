@@ -142,7 +142,7 @@ export default ({ currency = 'USD', decimals = 2, delay, max, prefix, startOnVie
                         </div>
                     `;
                 })}
-            <span class='counter-sr'>${() => `${prefix ?? ''}${format.format(api.value)}${suffix ? ` ${suffix}` : ''}`}</span>
+            <span class='counter-sr'>${prefix}${() => format.format(api.value)}${suffix && ` ${suffix}`}</span>
         </div>
     `;
 };

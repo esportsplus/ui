@@ -96,7 +96,7 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
                 incident = find(service, value);
 
             render.push(html`
-                <span class='uptime-bar ${incident ? `uptime-bar--${incident.level}` : ''} ${() => day() === value && '--active'}'></span>
+                <span class='uptime-bar ${incident && `uptime-bar--${incident.level}`} ${() => day() === value && '--active'}'></span>
             `);
         }
 

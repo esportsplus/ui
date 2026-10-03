@@ -88,7 +88,7 @@ const page = (): Page => {
 
     return {
         render: () => html`
-            <div class='page docs-page'>
+            <div class='page'>
                 ${pageHead('Fonts', 'The typefaces bundled with the library, with a live specimen at every available weight and the raw @font-face definitions read from source.')}
 
                 ${rendered.map((family) => html`
@@ -97,7 +97,7 @@ const page = (): Page => {
                         class='--font-${family.id}'
                         style='font-family: var(--font-family); font-weight: var(--font-weight-400);'
                     >
-                        <h2 class='docs-page-section-title'>${family.family}</h2>
+                        <h2 class='page-section-title'>${family.family}</h2>
 
                         <div style='display: grid; gap: var(--size-400); margin-bottom: var(--size-500);'>
                             ${family.weights.map((weight) => html`

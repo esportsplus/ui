@@ -2,6 +2,7 @@ import { accordion } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import scrollbar from '~/css-utilities/scrollbar';
+import './accordion.scss';
 
 
 // The consumer owns the control, label, and shared expansion state.
@@ -47,32 +48,47 @@ export default {
     variants: [
         {
             render: () => {
-                let state = reactive({ active: false });
+                let rows = [
+                    { label: 'Export options', content: 'PNG at 2×, with the canvas background. SVG keeps text as text. PDF bundles every region as a page.', active: true },
+                    { label: 'Sharing', content: 'Invite people to view or edit this project, or share a link with your team.' },
+                    { label: 'History', content: 'Review previous versions and restore an earlier version of this project.' },
+                    { label: 'Billing (owners only)', content: 'Manage your plan and payment details.', disabled: true }
+                ];
 
                 return html`
-                    <div
-                        class='button button--tertiary'
-                        style='--width: auto;'
-                        onclick='${() => state.active = !state.active}'
-                    >
-                        toggle
-                    </div>
+                    <div class='accordion-demo'>
+                        ${rows.map(({ active = false, content, disabled = false, label }) => {
+                            let id = `accordion-toggle-${crypto.randomUUID()}`,
+                                state = reactive({ active });
 
-                    ${accordion({ state }, html`
-                        <div
-                            class='card'
-                            style='
-                                --padding-horizontal: var(--size-500);
-                                --padding-vertical: var(--size-500);
-                                background: var(--color-grey-300);
-                                margin-top: var(--size-400);
-                            '>
-                            <div class='text'>
-                                Hidden content revealed when active.
-                                Toggling flips state.active and the component reveals its body.
-                            </div>
-                        </div>
-                    `)}
+                            return html`
+                                <div class='accordion-demo-row'>
+                                    <button
+                                        aria-controls='${id}'
+                                        class='accordion-demo-toggle'
+                                        disabled='${disabled}'
+                                        id='${id}-toggle'
+                                        type='button'
+                                        ${{
+                                            'aria-expanded': () => state.active ? 'true' : 'false',
+                                            onclick: () => state.active = !state.active
+                                        }}
+                                    >
+                                        <span>${label}</span>
+                                        <svg aria-hidden='true' class='accordion-demo-chevron' viewBox='0 0 16 16'>
+                                            <path d='m6 4 4 4-4 4' />
+                                        </svg>
+                                    </button>
+                                    ${accordion({
+                                        'aria-labelledby': `${id}-toggle`,
+                                        id,
+                                        role: 'region',
+                                        state
+                                    }, html`<p class='accordion-demo-description'>${content}</p>`)}
+                                </div>
+                            `;
+                        })}
+                    </div>
                 `;
             },
             title: 'toggle'

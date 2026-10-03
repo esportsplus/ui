@@ -103,7 +103,7 @@ const render = (status: Status, context?: Attributes, attributes?: Attributes) =
                 `)}
             </span>
             <span aria-live='polite' class='inline-edit-status-announcement'>
-                ${() => status.phase === 'saved' && status.savedAt !== null ? 'All changes saved' : ''}
+                ${() => status.phase === 'saved' && status.savedAt !== null && 'All changes saved'}
             </span>
         </div>
     `;

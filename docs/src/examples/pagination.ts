@@ -187,7 +187,7 @@ function carousel(autoplay: boolean) {
             <div class='pagination-demo-controls'>
                 <span aria-hidden='true' class='pagination-demo-spacer'></span>
                 ${pagination.dots({
-                    autoplay: autoplay ? INTERVAL : undefined,
+                    ...(autoplay && { autoplay: INTERVAL }),
                     count: PAGES.length,
                     // Past the last page it scrolls back to the first rather than jumping, so the loop reads as a deliberate rewind.
                     onelapsed: (active: number) => goTo((active + 1) % PAGES.length),

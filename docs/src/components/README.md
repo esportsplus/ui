@@ -11,11 +11,11 @@ these components; they should not own shared component styles.
 | `layout` | Main content placement and composition with the TOC |
 | `nav/tree` | Shared navigation groups, links, titles, and states for the sidebar and in-page navigation |
 | `page` | Docs page headings, card grids, detail pages, and empty states |
-| `preview` | The single example frame renderer used by details and themes |
+| `preview` | Example frames; render factories mount near the viewport and keep their state after mounting |
 | `prose` | Markdown rendering and prose typography; tables use `spec-table` |
 | `root` | Docs-wide theme aliases and shell tokens |
 | `search` | Search state, trigger, and the library `command` palette wired to the nav |
-| `sidebar` | Documentation navigation structure and placement |
+| `sidebar` | Collapsible documentation navigation that pushes content aside on every screen size |
 | `spec` | Shared data tables and token/value typography |
 | `table-head` | Table-header surface and corner styling, included by `spec` |
 | `viewer` | Responsive outer shell grid |
@@ -25,8 +25,14 @@ global shell and shared page/table styles. Use the library's components and CSS
 variables for base behavior and appearance; docs styles add only docs-specific
 layout or presentation.
 
-Do not redefine library classes such as `.header`, `.page` or `.sidebar` in docs.
-The docs page adds `.docs-page` to the library page; the site header uses
-`.docs-header` and the navigation sidebar uses `.docs-sidebar` because they are
-docs chrome, not the library's components. This keeps documentation styles out
-of live examples.
+Shell classes use component names such as `.header`, `.page`, and `.sidebar`.
+The sidebar and routed content share the viewer shell and one open state. The
+sidebar starts open on desktop and closed on small screens; the header toggle is
+available everywhere. On small screens the content keeps its width as it shifts.
+Scope documentation page styles under `.main > .page` so library pages in live
+examples keep their own presentation.
+
+Detail pages pass `variant.render` to `preview` so offscreen examples are not constructed yet.
+Pre-rendered theme content still mounts immediately. Focus and hash navigation mount a targeted
+example before scrolling to it; visited examples retain their state while the browser skips
+rendering their offscreen contents.

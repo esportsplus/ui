@@ -46,7 +46,7 @@ export default component(
                     <svg><use href='#${capsLock}' /></svg>
                 </kbd>
                 <span aria-hidden='true' class='capslock-text --flex-vertical'>Caps Lock On</span>
-                <span aria-live='polite' class='capslock-live --flex-vertical'>${() => state.active ? 'Caps Lock On' : ''}</span>
+                <span aria-live='polite' class='capslock-live --flex-vertical'>${() => state.active && 'Caps Lock On'}</span>
             </div>
         `;
     }

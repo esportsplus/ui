@@ -1,5 +1,21 @@
+@use '/shared';
 @use './variables';
 
 .--glass {
     backdrop-filter: blur(var(--blur));
+
+    &-blur {
+        @extend %frost-blur;
+        --frost-blur: var(--blur);
+        border-radius: inherit;
+        inset: 0;
+        position: absolute;
+        z-index: -1;
+    }
+
+    &:has(> .--glass-blur) {
+        backdrop-filter: none;
+        isolation: isolate;
+        position: relative;
+    }
 }

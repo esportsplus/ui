@@ -14,14 +14,14 @@ const pageNavigation = () => {
     const path = location.pathname.replace(/\/$/, '') || '/docs';
     const index = pages.findIndex((page) => page.href === path);
     const directions = [
-        { name: 'Previous', page: index > 0 ? pages[index - 1] : undefined, svg: arrowLeft, style: 'margin-left: -4px;' },
-        { name: 'Next', page: index >= 0 ? pages[index + 1] : undefined, svg: arrowRight, style: 'margin-right: -4px;' }
+        { name: 'Previous', page: index > 0 ? pages[index - 1] : undefined, svg: arrowLeft },
+        { name: 'Next', page: index >= 0 ? pages[index + 1] : undefined, svg: arrowRight }
     ];
 
     return html`
         <nav class='page-navigation' aria-label='Page navigation'>
-            ${directions.map(({ name, page, svg, style }) => {
-                const graphic = icon({ 'aria-hidden': 'true', style: `--size: var(--size-400);${style}` }, svg);
+            ${directions.map(({ name, page, svg }) => {
+                const graphic = icon({ 'aria-hidden': 'true' }, svg);
 
                 return page
                     ? html`

@@ -1,4 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
+import frostBlur from '../../shared/frost-blur';
 import './scss/index.scss';
 
 
@@ -69,7 +70,21 @@ function attributes(name: string) {
 }
 
 
-const blur = () => attributes('--scrollbar-blur');
+const blur = () => {
+    let scroll = attributes('--scrollbar-blur');
+
+    return {
+        ...scroll,
+        onconnect: (element: HTMLElement) => {
+            if (!element.querySelector(':scope > .--scrollbar-blur-edge')) {
+                element.prepend(frostBlur(element, '--scrollbar-blur-edge --scrollbar-blur-top'));
+                element.appendChild(frostBlur(element, '--scrollbar-blur-edge --scrollbar-blur-bottom'));
+            }
+
+            scroll.onconnect?.(element);
+        }
+    };
+};
 
 // Mouse only: touch, pen and trackpads already scroll natively, with their own momentum. The pointer is
 // captured only once the press moves past the slop, so a plain click still reaches whatever it landed on.

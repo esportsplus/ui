@@ -75,12 +75,12 @@ const page = (): Page => {
 
     return {
         render: () => html`
-            <div class='page docs-page'>
+            <div class='page'>
                 ${pageHead('Themes', 'A theme is a set of CSS custom property overrides layered over the base component styles. Build your own by redefining the same variables listed below.')}
 
                 ${rendered.map((entry) => html`
                     <section id='${entry.id}'>
-                        <h2 class='docs-page-section-title'>${entry.label}</h2>
+                        <h2 class='page-section-title'>${entry.label}</h2>
 
                         ${() => {
                             let content = demo(entry.component);

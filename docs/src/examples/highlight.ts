@@ -17,13 +17,13 @@ function tabs(line: 'bottom' | 'left', fill: boolean) {
     return html`
         <div
             aria-orientation='${line === 'left' ? 'vertical' : 'horizontal'}'
-            class='highlight-demo-tabs ${line === 'left' ? '--vertical' : ''}'
+            class='highlight-demo-tabs ${line === 'left' && '--vertical'}'
             role='tablist'
         >
             ${highlight({ class: 'highlight-demo-highlight', fill, line })}
             ${labels.map((label, index) => html`
                 <button
-                    class='highlight-demo-tab ${() => state.active === index ? '--active' : ''}'
+                    class='highlight-demo-tab ${() => state.active === index && '--active'}'
                     onclick='${() => state.active = index}'
                     role='tab'
                     type='button'
@@ -77,7 +77,7 @@ export default {
                         ${highlight()}
                         ${labels.map((label, index) => html`
                             <div
-                                class='button ${() => state.active === index ? '--active' : ''}'
+                                class='button ${() => state.active === index && '--active'}'
                                 onclick='${() => state.active = index}'
                                 style='border-radius: 999px;'
                                 tabindex='0'
@@ -108,7 +108,7 @@ export default {
                             ${highlight({ class: '--background-blue' })}
                             ${labels.map((label, index) => html`
                                 <div
-                                    class='button ${() => state.active === index ? '--active' : ''}'
+                                    class='button ${() => state.active === index && '--active'}'
                                     onclick='${() => state.active = index}'
                                     style='--color: var(--color-white-400);'
                                     tabindex='0'

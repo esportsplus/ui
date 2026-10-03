@@ -553,7 +553,7 @@ export default <T>(
             return html`${slot}${() => {
                 let item = read(list.dragging);
 
-                return item === null ? '' : ghost(item);
+                return item !== null && ghost(item);
             }}`;
         }
     };

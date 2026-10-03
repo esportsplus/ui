@@ -313,7 +313,7 @@ export default component(
         function control(field: Field, own: FieldAttributes) {
             return input.call({ attributes: parts }, {
                 ...own,
-                'aria-describedby': () => fields[field].error ? `${id}-${field}-error` : '',
+                'aria-describedby': () => fields[field].error && `${id}-${field}-error`,
                 'aria-invalid': () => fields[field].error ? 'true' : 'false',
                 class: `cc-field cc-field--${field}`,
                 id: `${id}-${field}`,
@@ -374,7 +374,7 @@ export default component(
                         ${() => {
                             let error = fields[field].error;
 
-                            return error ? html`<span class='cc-error' id='${id}-${field}-error'>${error}</span>` : '';
+                            return error && html`<span class='cc-error' id='${id}-${field}-error'>${error}</span>`;
                         }}
                     </div>
                     ${content}
@@ -533,14 +533,14 @@ export default component(
                             { content: 'Details look valid', icon: checkmark, key: 'valid' }
                         ])}
                     </button>
-                    ${note ? html`
+                    ${!!note && html`
                         <p class='cc-note'>
                             <svg aria-hidden='true'><use href='#${lock}' /></svg>
                             ${note}
                         </p>
-                    ` : ''}
-                    <span aria-live='polite' class='button-status' role='status'>${() => local.confirmed ? 'Card details look valid' : ''}</span>
-                    <span aria-live='polite' class='cc-live'>${() => brand() === 'unknown' ? '' : `${BRANDS[brand()].name} card`}</span>
+                    `}
+                    <span aria-live='polite' class='button-status' role='status'>${() => local.confirmed && 'Card details look valid'}</span>
+                    <span aria-live='polite' class='cc-live'>${() => brand() !== 'unknown' && `${BRANDS[brand()].name} card`}</span>
                 </div>
             </form>
         `;

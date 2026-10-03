@@ -166,6 +166,8 @@
 
     // Lines up with the search icon above; a long row scrolls sideways rather than wrapping.
     &-tabs {
+        // Keep the tab strip hidden when an ancestor opts into site-wide scrollbar styling.
+        --scrollbar-width: none;
         display: flex;
         flex-shrink: 0;
         gap: var(--size-100);

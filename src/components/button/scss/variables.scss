@@ -76,7 +76,7 @@
         --morph-font-size: 14px;
         --morph-height: 40px;
         --morph-icon-size: 16px;
-        // Read by JS when the width morphs and when a failed save shakes.
+        // JS measures the width morph; CSS owns the failed-save shake.
         --morph-resize-duration: 300ms;
         --morph-resize-easing: var(--morph-spring);
         --morph-scale-pressed: 0.96;

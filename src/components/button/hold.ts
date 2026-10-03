@@ -147,7 +147,7 @@ export default component<A, string>(
                 </span>
             </button>
             <span class='button-status' role='status' aria-live='polite'>
-                ${() => state.status === 'success' ? success : ''}
+                ${() => state.status === 'success' && success}
             </span>
         `;
     }

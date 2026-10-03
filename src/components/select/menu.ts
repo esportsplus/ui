@@ -335,7 +335,7 @@ function template(
                 ${this?.attributes?.[SELECT_MENU_TRIGGER]}
                 ${attributes[SELECT_MENU_TRIGGER]}
                 ${{
-                    'aria-activedescendant': () => state.active ? `${id}-option-${menu.highlight}` : '',
+                    'aria-activedescendant': () => state.active && `${id}-option-${menu.highlight}`,
                     'aria-expanded': () => state.active ? 'true' : 'false',
                     // A press inside the panel keeps focus here, so losing it is leaving the menu.
                     onblur: close,
@@ -414,7 +414,10 @@ function template(
                         onscroll: function(this: HTMLElement) {
                             edges(menu, this);
                         },
-                        style: () => `mask-image: linear-gradient(to bottom, transparent, black ${menu.up ? 'var(--fade)' : '0px'}, black calc(100% - ${menu.down ? 'var(--fade)' : '0px'}), transparent)`
+                        class: [
+                            () => menu.up && 'select-menu-scroller--up',
+                            () => menu.down && 'select-menu-scroller--down'
+                        ]
                     }}
                 >
                     <div aria-labelledby='${id}-label' id='${id}-list' role='listbox'>
@@ -458,7 +461,7 @@ function template(
                                 >
                                     ${option.label}
                                 </span>
-                                ${option.detail ? html`<span class='select-menu-option-detail'>${option.detail}</span>` : ''}
+                                ${option.detail && html`<span class='select-menu-option-detail'>${option.detail}</span>`}
                             </div>
                         `)}
                     </div>

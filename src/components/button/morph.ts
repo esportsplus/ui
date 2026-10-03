@@ -31,17 +31,6 @@ const ANNOUNCE: Record<Status, string> = {
 
 const BUTTON_MORPH_CONTENT = Symbol.for('@esportsplus/ui/button.morph.content');
 
-// Swings that die away, like a head shaking no.
-const SHAKE: Keyframe[] = [
-    { translate: '0' },
-    { translate: '-6px' },
-    { translate: '5px' },
-    { translate: '-3px' },
-    { translate: '2px' },
-    { translate: '0' }
-];
-
-
 function busy(status: Status) {
     return status === 'loading' || status === 'success';
 }
@@ -52,7 +41,6 @@ export default component(
         let attempt = 0,
             morph: Animation | undefined,
             reset: ReturnType<typeof setTimeout> | undefined,
-            shake: Animation | undefined,
             stop: VoidFunction | undefined;
 
         function resize(element: HTMLElement, compact: boolean) {
@@ -70,16 +58,14 @@ export default component(
             morph = element.animate([{ width: from }, { width: computed.width }], resize);
         }
 
-        async function save(this: HTMLElement) {
+        async function save() {
             if (busy(state.status)) {
                 return;
             }
 
-            let element = this,
-                id = ++attempt;
+            let id = ++attempt;
 
             clearTimeout(reset);
-            shake?.cancel();
             state.status = 'loading';
 
             try {
@@ -100,15 +86,6 @@ export default component(
                 }
 
                 state.status = 'error';
-
-                let timed = timing(getComputedStyle(element), 'morph-shake');
-
-                if (!timed) {
-                    return;
-                }
-
-                // Waits for the width to mostly open so it shakes the settled shape.
-                shake = element.animate(SHAKE, { ...timed, delay: 150 });
             }
         }
 
@@ -154,7 +131,6 @@ export default component(
                         attempt++;
                         clearTimeout(reset);
                         morph?.cancel();
-                        shake?.cancel();
                         stop?.();
                     }
                 }}

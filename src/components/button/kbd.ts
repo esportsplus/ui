@@ -131,7 +131,7 @@ export default component(
                         class='button button--kbd'
                         ${attributes[KBD_KEY]}
                         ${{
-                            class: () => key.keyboard || key.pointer ? '--active' : '',
+                            class: () => (key.keyboard || key.pointer) && '--active',
                             onpointercancel: () => {
                                 key.pointer = false;
                             },

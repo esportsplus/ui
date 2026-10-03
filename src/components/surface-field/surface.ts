@@ -190,7 +190,10 @@ export default component<Surface>(
                         element = el;
                         apply();
                     },
-                    style: () => `height: ${view.height}px; translate: ${view.x}px ${view.y}px; width: ${view.width}px;${view.z ? ` z-index: ${view.z};` : ''}`
+                    style: [
+                        () => `height: ${view.height}px; translate: ${view.x}px ${view.y}px; width: ${view.width}px;`,
+                        () => view.z !== 0 && `z-index: ${view.z};`
+                    ]
                 }}
             >
                 <span aria-hidden='true' class='surface-field-surface-lift'></span>

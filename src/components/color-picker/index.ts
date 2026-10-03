@@ -582,7 +582,7 @@ function template(
                     spellcheck: false
                 })}
                 <span aria-hidden='true' class='color-picker-alpha'>${() => `${Math.round(color.a * 100)}%`}</span>
-                <span aria-live='polite' class='color-picker-status'>${() => picker.invalid ? 'Not a valid hex color' : ''}</span>
+                <span aria-live='polite' class='color-picker-status'>${() => picker.invalid && 'Not a valid hex color'}</span>
             </div>
 
             <div class='color-picker-recent' ${{ hidden: () => recent.length === 0 }}>

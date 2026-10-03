@@ -102,7 +102,7 @@ export default {
                                     <span class='radio-demo-text'>
                                         <span class='radio-demo-heading'>
                                             ${plan.title}
-                                            ${plan.badge ? html`<span class='radio-demo-badge'>${plan.badge}</span>` : ''}
+                                            ${plan.badge && html`<span class='radio-demo-badge'>${plan.badge}</span>`}
                                         </span>
                                         <span class='radio-demo-description'>${plan.description}</span>
                                     </span>

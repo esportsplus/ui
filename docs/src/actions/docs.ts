@@ -7,7 +7,7 @@ import type { Page } from '../types';
 
 const page = (): Page => ({
     render: () => html`
-        <div class='page docs-page'>${installation()}</div>
+        <div class='page'>${installation()}</div>
     `,
     toc: [
         { id: 'setup-package', label: 'Install the package' },

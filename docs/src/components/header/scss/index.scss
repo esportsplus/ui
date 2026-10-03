@@ -1,7 +1,11 @@
-.docs-header {
+@use '/tokens';
+
+.header {
     background: color-mix(in oklab, var(--color-white-400) 70%, transparent);
     border-bottom: 1px solid var(--color-grey-400);
-    position: sticky;
+    height: var(--header-height);
+    inset-inline: 0;
+    position: fixed;
     top: 0;
     z-index: 30;
 
@@ -34,18 +38,25 @@
     &-icon {
         --background-default: transparent;
         --background-hover: var(--color-grey-400);
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-200);
         margin-right: calc(var(--padding-horizontal) * -1);
+
+        .icon {
+            --size: var(--size-400);
+        }
     }
 
     &-inner {
         align-items: center;
         display: flex;
         gap: var(--size-500);
-        height: var(--header-height);
+        height: 100%;
         padding: 0 var(--size-600);
         width: 100%;
 
         @media (max-width: 720px) {
+            gap: var(--size-300);
             padding: 0 var(--size-400);
         }
     }
@@ -59,7 +70,7 @@
         text-decoration: none;
         white-space: nowrap;
 
-        &.--active {
+        @include tokens.state(active) {
             color: var(--color-text-500);
             font-weight: var(--font-weight-500);
         }
@@ -80,10 +91,29 @@
         }
     }
 
+    &-sidebar {
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-200);
+        display: flex;
+        flex-shrink: 0;
+        margin-left: calc(var(--size-200) * -1);
+
+        .icon {
+            --size: var(--size-400);
+        }
+    }
+
     &-version {
         --border-color: var(--color-border-400);
         --border-radius: var(--border-radius-300);
+        --font-size: var(--font-size-100);
+        --font-weight: var(--font-weight-300);
 
+        border: 1px solid var(--border-color);
         pointer-events: none;
+
+        @media (max-width: 480px) {
+            display: none;
+        }
     }
 }
