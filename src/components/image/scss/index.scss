@@ -1,44 +1,97 @@
 @use '/shared';
 @use 'variables';
 
-.image-lazyload {
-    aspect-ratio: var(--aspect-ratio);
+.image {
     background: var(--background);
+    background-size: cover;
+    background-position: center;
     border-radius: var(--border-radius);
-    isolation: isolate;
-    overflow: hidden;
+    height: var(--height);
     position: relative;
-    width: 100%;
+    width: var(--width);
 
-    &-placeholder,
-    &-source {
-        @extend %absolute-full;
-        height: 100%;
-        object-fit: cover;
-        user-select: none;
-        width: 100%;
-    }
 
-    // Covers the source while it streams in, then fades out and is removed from the DOM.
-    &-placeholder {
-        pointer-events: none;
-        transition: opacity var(--transition-duration) var(--timing-function);
-        z-index: 1;
-    }
+    &--stack {
+        & + & {
+            margin-left: calc(var(--stack-overlap) * -1);
+        }
 
-    &-source {
-        z-index: 0;
-    }
-
-    &.image-lazyload--error {
-        .image-lazyload-source {
-            visibility: hidden;
+        // Cuts out the next sibling's shape (assumed to share this image's size), grown by
+        // the gap: band right of its corner centers, band between its corners, and its two left
+        // corner arcs. `min()` lets percentage radii (e.g. 100% circles) resolve in any context;
+        // arc radii live in the color stops since Chromium rejects mixed-unit calc() as a size.
+        &:has(+ .image--stack) {
+            mask-composite: subtract, add, add, add, add;
+            mask-image:
+                var(--status-mask, linear-gradient(#000 0 0)),
+                linear-gradient(to right, transparent var(--stack-x), #000 0),
+                linear-gradient(to right, transparent calc(100% - var(--stack-overlap) - var(--stack-gap)), #000 0),
+                radial-gradient(circle at var(--stack-x) var(--stack-radius), #000 calc(var(--stack-cut) - 0.5px), transparent calc(var(--stack-cut) + 0.5px)),
+                radial-gradient(circle at var(--stack-x) calc(100% - var(--stack-radius)), #000 calc(var(--stack-cut) - 0.5px), transparent calc(var(--stack-cut) + 0.5px));
+            mask-position: 0 0, 0 0, 0 50%, 0 0, 0 0;
+            mask-repeat: no-repeat;
+            mask-size: 100% 100%, 100% 100%, 100% calc(100% - var(--stack-radius) * 2), 100% 100%, 100% 100%;
         }
     }
 
-    &.image-lazyload--ready {
-        .image-lazyload-placeholder {
-            opacity: 0;
+    &--status {
+        // Chromium rounds the mask clip by border-radius, which would crop the dot on circles
+        mask-clip: no-clip;
+        mask-image: var(--status-mask);
+
+        // Oversized by 1px so the mask alone defines the dot's edge, leaving no background fringe beneath it
+        &::after {
+            background: var(--status-color);
+            border-radius: 100%;
+            bottom: -0.5px;
+            content: '';
+            height: calc(var(--status-size) + 1px);
+            position: absolute;
+            right: -0.5px;
+            width: calc(var(--status-size) + 1px);
+        }
+    }
+
+
+    &-lazyload {
+        aspect-ratio: var(--aspect-ratio);
+        background: var(--background);
+        border-radius: var(--border-radius);
+        isolation: isolate;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+
+        &-placeholder,
+        &-source {
+            @extend %absolute-full;
+            height: 100%;
+            object-fit: cover;
+            user-select: none;
+            width: 100%;
+        }
+
+        // Covers the source while it streams in, then fades out and is removed from the DOM.
+        &-placeholder {
+            pointer-events: none;
+            transition: opacity var(--transition-duration) var(--timing-function);
+            z-index: 1;
+        }
+
+        &-source {
+            z-index: 0;
+        }
+
+        &.image-lazyload--error {
+            .image-lazyload-source {
+                visibility: hidden;
+            }
+        }
+
+        &.image-lazyload--ready {
+            .image-lazyload-placeholder {
+                opacity: 0;
+            }
         }
     }
 }

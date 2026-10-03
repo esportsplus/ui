@@ -1,7 +1,8 @@
 .--scrollbar {
+    --scrollbar-border-radius: 3px;
     --scrollbar-border-width: 1px;
     --scrollbar-color: var(--color-black-300);
-    --scrollbar-width: 4px;
+    --scrollbar-width: auto;
 
     &-blur {
         --scroll-blur: 4px;

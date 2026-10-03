@@ -1,3 +1,4 @@
+@use 'sass:meta';
 @use '/shared';
 @use 'filter';
 @use 'variables';
@@ -35,3 +36,6 @@
         outline: none;
     }
 }
+
+@include meta.load-css('slider');
+@include meta.load-css('vertical');

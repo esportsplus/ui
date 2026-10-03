@@ -4,6 +4,7 @@
 .accordion {
     display: grid;
     grid-template-rows: 1fr;
+    overflow: var(--scrollbar-overflow, hidden);
     transition: grid-template-rows .3s;
 
     @include tokens.state(inactive) {
@@ -19,7 +20,7 @@
         display: block;
         // Animate the outer box while content retains its natural height for measurement.
         height: min(var(--height, 100vh), calc(var(--lines) * 1lh));
-        overflow-y: auto;
+        overflow-y: var(--scrollbar-overflow, hidden);
         overscroll-behavior: contain;
         transition: height var(--transition-duration) var(--transition-timing-function);
 

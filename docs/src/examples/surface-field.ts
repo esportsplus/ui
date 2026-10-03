@@ -1,6 +1,6 @@
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { colorPicker, select, slider, surfaceField, switch as toggle, tooltip } from '@esportsplus/ui';
+import { colorPicker, range, select, surfaceField, switch as toggle, tooltip } from '@esportsplus/ui';
 import worker from '@esportsplus/ui/surface-field/worker?worker&url';
 import editor from './surface-field-editor';
 import './surface-field.scss';
@@ -134,19 +134,22 @@ function accent(settings: Settings) {
 }
 
 function control(settings: Settings, key: keyof Settings, label: string, min: number, max: number, step: number, unit: 'px' | '%') {
-    return slider({
-        class: 'surface-field-demo-slider',
+    return range.filter({
+        class: 'range--slider surface-field-demo-slider',
         format: (value: number) => unit === '%' ? `${Math.round(value * 100)}%` : `${value} px`,
         label,
         max,
         min,
-        output: true,
+        prefix: '',
+        ticks: 0,
+        value: settings[key] as number,
         // Reads and writes the setting itself, so a preset moves the thumb.
         state: {
-            get value() {
+            low: min,
+            get high() {
                 return settings[key] as number;
             },
-            set value(value: number) {
+            set high(value: number) {
                 (settings[key] as number) = value;
             }
         },

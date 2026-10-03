@@ -116,7 +116,7 @@ const meta: Record<string, Meta> = {
     },
     image: {
         category: 'Display',
-        description: 'Lazyloaded image that fades its placeholder out over the decoded full image, then removes it.'
+        description: 'Image previews with rounded framing, overlapping stacks, and status indicators, plus lazyloaded images that fade their placeholder out over the decoded full image.'
     },
     'inline-edit': {
         category: 'Form Controls',
@@ -180,7 +180,7 @@ const meta: Record<string, Meta> = {
     },
     range: {
         category: 'Form Controls',
-        description: 'Slider input for choosing a value along a track, plus single and dual-thumb range filters with rolling digits, a ghost preview, and optional min/max fields.'
+        description: 'Slider input for choosing a value along a track, plus single and dual-thumb range filters with rolling digits, a ghost preview, and optional min/max fields. Add range--slider for a compact track and thumb style; orientation: vertical supports vertical single and dual thumbs.'
     },
     'relative-time': {
         category: 'Display',
@@ -197,10 +197,6 @@ const meta: Record<string, Meta> = {
     'shortcut-recorder': {
         category: 'Form Controls',
         description: 'Records a keyboard shortcut from the keys you hold, rejecting combinations already in use.'
-    },
-    slider: {
-        category: 'Form Controls',
-        description: 'Single or range slider with edge-aligned thumbs, vertical orientation, value output, and hidden form fields (coss ui).'
     },
     sortable: {
         category: 'Interactive',
@@ -229,10 +225,6 @@ const meta: Record<string, Meta> = {
     textarea: {
         category: 'Form Controls',
         description: 'Multi-line text field for longer form input.'
-    },
-    thumbnail: {
-        category: 'Display',
-        description: 'Compact image preview with rounded framing.'
     },
     toast: {
         category: 'Feedback',

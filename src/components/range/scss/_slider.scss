@@ -1,0 +1,133 @@
+@use '/tokens';
+
+@mixin thumb {
+    background: var(--thumb-background);
+    border: 1px solid var(--thumb-border);
+    border-radius: 50%;
+    box-shadow: var(--thumb-shadow);
+    cursor: grab;
+    height: var(--thumb-size);
+    width: var(--thumb-size);
+    transition: box-shadow 150ms ease-out, scale 150ms ease-out;
+}
+
+.range--slider {
+    --thumb-background: var(--color-white-300);
+    --thumb-border: var(--color-border-300);
+    --thumb-shadow: 0 1px 2px oklch(from var(--color-black-300) l c h / 0.05), 0 1px oklch(from var(--color-black-300) l c h / 0.04);
+    --thumb-size: 16px;
+    --track-color: var(--color-border-300);
+    --range-color: var(--color-text-500);
+    --focus-color: oklch(from var(--color-text-500) l c h / 0.24);
+
+    @media (pointer: coarse) {
+        --thumb-size: 20px;
+    }
+}
+
+.range.range--slider {
+    --background-default: linear-gradient(to right, var(--range-color) var(--thumb-position), var(--track-color) var(--thumb-position));
+    --height: 4px;
+
+    // Keep browser pseudo-elements separate: an unknown pseudo invalidates a selector list.
+    &::-webkit-slider-thumb {
+        @include thumb;
+        appearance: none;
+    }
+
+    &::-moz-range-thumb {
+        @include thumb;
+        appearance: none;
+    }
+
+    &:focus-visible {
+        &::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--focus-color); }
+        &::-moz-range-thumb { box-shadow: 0 0 0 3px var(--focus-color); }
+    }
+
+    &:active:not(:disabled) {
+        &::-webkit-slider-thumb { box-shadow: none; cursor: grabbing; scale: 1.2; }
+        &::-moz-range-thumb { box-shadow: none; cursor: grabbing; scale: 1.2; }
+    }
+
+    &:disabled {
+        opacity: 0.64;
+        &::-webkit-slider-thumb { cursor: not-allowed; }
+        &::-moz-range-thumb { cursor: not-allowed; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &:active:not(:disabled) {
+            &::-webkit-slider-thumb { scale: 1; }
+            &::-moz-range-thumb { scale: 1; }
+        }
+    }
+}
+
+.range-filter.range--slider {
+    --track-height: 4px;
+    --value-font-size: calc(var(--font-size-400) * 0.875);
+    --width: 100%;
+    font-size: var(--value-font-size);
+    gap: 8px;
+
+    .range-filter-header > div {
+        align-items: center;
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .range-filter-clear,
+    .range-filter-ghost {
+        display: none;
+    }
+
+    .range-filter-label {
+        color: inherit;
+        font-size: inherit;
+        letter-spacing: normal;
+        margin: 0;
+        text-transform: none;
+    }
+
+    .range-filter-value {
+        font-weight: inherit;
+    }
+
+    .range-filter-track {
+        // Match the fill to the existing thumb travel without changing range behavior.
+        overflow: visible;
+        margin-inline: calc(var(--thumb-size) / 2);
+        width: calc(100% - var(--thumb-size));
+    }
+
+    .range-filter-range {
+        border-radius: 999px;
+    }
+
+    .range-filter-thumb {
+        @include thumb;
+        outline: none;
+
+        &:hover { scale: 1; }
+        &:focus-visible { box-shadow: 0 0 0 3px var(--focus-color); }
+
+        @include tokens.state(active) {
+            box-shadow: none;
+            cursor: grabbing;
+            scale: 1.2;
+        }
+    }
+
+    &.--disabled {
+        opacity: 0.64;
+        .range-filter-thumb { cursor: not-allowed; scale: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .range-filter-thumb { transition: box-shadow 150ms ease-out; }
+        #{tokens.state(active, '.range-filter-thumb')} { scale: 1; }
+    }
+}

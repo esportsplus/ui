@@ -1,0 +1,71 @@
+.range--vertical {
+    --vertical-size: 176px;
+}
+
+.range.range--vertical {
+    --background-default: linear-gradient(to top, var(--thumb-background) var(--thumb-position), var(--color-black-300) var(--thumb-position));
+    direction: rtl;
+    height: var(--vertical-size);
+    margin-block: var(--margin-vertical);
+    margin-inline: calc(var(--margin-horizontal) + ((var(--thumb-size) - var(--height)) / 2));
+    width: var(--height);
+    writing-mode: vertical-lr;
+
+    &.range--slider {
+        --background-default: linear-gradient(to top, var(--range-color) var(--thumb-position), var(--track-color) var(--thumb-position));
+    }
+}
+
+.range-filter.range--vertical {
+    --width: max-content;
+
+    .range-filter-body {
+        align-self: center;
+        flex-direction: row;
+    }
+
+    .range-filter-root {
+        height: var(--vertical-size);
+        justify-content: center;
+        width: var(--thumb-size);
+    }
+
+    .range-filter-track {
+        height: 100%;
+        width: var(--track-height);
+    }
+
+    .range-filter-range {
+        inset-block: auto;
+        inset-inline: 0;
+    }
+
+    .range-filter-thumb {
+        bottom: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
+        left: 50%;
+        top: auto;
+        translate: -50% 50%;
+    }
+
+    .range-filter-ghost {
+        left: 50%;
+        top: auto;
+        transition: bottom 75ms ease-out, opacity 100ms ease-out, height 75ms ease-out;
+        translate: -50% 0;
+        width: var(--track-height);
+    }
+
+    .range-filter-ticks {
+        flex-direction: column-reverse;
+    }
+
+    &.range--slider .range-filter-track {
+        height: calc(100% - var(--thumb-size));
+        margin-block: calc(var(--thumb-size) / 2);
+        margin-inline: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .range-filter-ghost { transition: none; }
+    }
+}

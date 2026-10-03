@@ -15,29 +15,11 @@
 }
 
 .--scrollbar {
-    overflow: auto;
+    overflow: var(--scrollbar-overflow, auto);
     overscroll-behavior: contain;
     scroll-behavior: smooth;
     scrollbar-color: var(--scrollbar-color) transparent;
-    scrollbar-gutter: stable;
-
-    @supports selector(::-webkit-scrollbar) {
-        scrollbar-color: auto;
-
-        &::-webkit-scrollbar {
-            height: var(--scrollbar-width);
-            width: var(--scrollbar-width);
-        }
-        &::-webkit-scrollbar-button {
-            display: none;
-            height: 0;
-            width: 0;
-        }
-        &::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-color);
-            border-radius: var(--scrollbar-border-width);
-        }
-    }
+    scrollbar-gutter: var(--scrollbar-gutter, stable);
 
     &.--flex-column {
         overflow-x: hidden;

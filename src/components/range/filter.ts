@@ -12,6 +12,7 @@ type A = Attributes & {
     label?: string;
     max?: number;
     min?: number;
+    orientation?: 'horizontal' | 'vertical';
     prefix?: string;
     state?: State;
     step?: number;
@@ -52,6 +53,7 @@ export default ({
     label = 'Price Range',
     max = 1000,
     min = 0,
+    orientation = 'horizontal',
     prefix = '$',
     state,
     step = 10,
@@ -59,7 +61,8 @@ export default ({
     value,
     ...attributes
 }: A) => {
-    let single = typeof value === 'number',
+    let vertical = orientation === 'vertical',
+        single = typeof value === 'number',
         span = max - min || 1,
         s = state ?? reactive({
             high: typeof value === 'number' ? value : value?.[1] ?? clamp(snap(min + span * 0.65, min, step), min, max),
@@ -91,15 +94,19 @@ export default ({
         s[KEYS[index]] = index === 0 ? Math.min(next, s.high) : Math.max(next, s.low);
     }
 
-    // The value under the pointer; the track maps edge to edge, like the range fill.
-    function at(x: number) {
+    // Vertical thumb centres stop half a thumb inside each end of the control.
+    function at(event: PointerEvent) {
         if (!root) {
             return min;
         }
 
-        let rect = root.getBoundingClientRect();
+        let rect = root.getBoundingClientRect(),
+            thumb = vertical ? thumbs[indices[0]]?.offsetHeight ?? 0 : 0,
+            fraction = vertical
+                ? (rect.bottom - event.clientY - thumb / 2) / Math.max(1, rect.height - thumb)
+                : (event.clientX - rect.left) / rect.width;
 
-        return clamp(snap(((x - rect.left) / rect.width) * span + min, min, step), min, max);
+        return clamp(snap(fraction * span + min, min, step), min, max);
     }
 
     function field(index: number) {
@@ -149,6 +156,10 @@ export default ({
     }
 
     function keydown(index: number, event: KeyboardEvent) {
+        if (disabled) {
+            return;
+        }
+
         let big = step * 10,
             delta: Record<string, number> = {
                 ArrowDown: -(event.shiftKey ? big : step),
@@ -220,7 +231,7 @@ export default ({
     }
 
     return html`
-        <div class='range-filter ${disabled && '--disabled'}' ${attributes}>
+        <div class='range-filter ${vertical && 'range--vertical'} ${disabled && '--disabled'}' ${attributes}>
             <div class='range-filter-header'>
                 <div>
                     <p class='range-filter-label'>${label}</p>
@@ -265,7 +276,7 @@ export default ({
                             }
 
                             let grabbed = (event.target as HTMLElement).closest<Thumb>('.range-filter-thumb'),
-                                v = at(event.clientX),
+                                v = at(event),
                                 index: number;
 
                             if (grabbed) {
@@ -297,7 +308,7 @@ export default ({
                         onpointermove: (event: PointerEvent) => {
                             if (drag !== -1) {
                                 if (event.pointerId === pointer) {
-                                    commit(drag, at(event.clientX));
+                                    commit(drag, at(event));
                                 }
 
                                 return;
@@ -305,14 +316,16 @@ export default ({
 
                             // Touch has no hover, so there is nothing to preview.
                             if (!disabled && event.pointerType === 'mouse') {
-                                ui.preview = at(event.clientX);
+                                ui.preview = at(event);
                             }
                         },
                         onpointerup: release
                     }}
                 >
                     <div class='range-filter-track'>
-                        <div class='range-filter-range' style='${() => `left: ${pct(s.low)}%; right: ${100 - pct(s.high)}%;`}'></div>
+                        <div class='range-filter-range' style='${() => vertical
+                            ? `bottom: ${pct(s.low)}%; top: ${100 - pct(s.high)}%;`
+                            : `left: ${pct(s.low)}%; right: ${100 - pct(s.high)}%;`}'></div>
                     </div>
 
                     <div
@@ -328,9 +341,12 @@ export default ({
                                     return '';
                                 }
 
+                                let start = vertical ? 'bottom' : 'left',
+                                    size = vertical ? 'height' : 'width';
+
                                 return p < s.low
-                                    ? `left: ${pct(p)}%; width: ${pct(s.low) - pct(p)}%;`
-                                    : `left: ${pct(s.high)}%; width: ${pct(p) - pct(s.high)}%;`;
+                                    ? `${start}: ${pct(p)}%; ${size}: ${pct(s.low) - pct(p)}%;`
+                                    : `${start}: ${pct(s.high)}%; ${size}: ${pct(p) - pct(s.high)}%;`;
                             }
                         }}
                     ></div>
@@ -341,6 +357,7 @@ export default ({
                         return html`
                             <div
                                 aria-disabled='${disabled}'
+                                aria-orientation='${orientation}'
                                 aria-label='${single ? label : `${index === 0 ? 'Minimum' : 'Maximum'} ${label.toLowerCase()}`}'
                                 aria-valuemax='${max}'
                                 aria-valuemin='${min}'

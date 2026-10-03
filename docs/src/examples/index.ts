@@ -45,7 +45,6 @@ import relativeTime from './relative-time';
 import scrollbar from './scrollbar';
 import select from './select';
 import shortcutRecorder from './shortcut-recorder';
-import slider from './slider';
 import sortable from './sortable';
 import stickyHeader from './sticky-header';
 import story from './story';
@@ -54,7 +53,6 @@ import switchComponent from './switch';
 import tasklist from './tasklist';
 import text from './text';
 import textarea from './textarea';
-import thumbnail from './thumbnail';
 import toast from './toast';
 import tooltip from './tooltip';
 import truncate from './truncate';
@@ -109,7 +107,6 @@ const entries: Entry[] = [
     scrollbar,
     select,
     shortcutRecorder,
-    slider,
     sortable,
     stickyHeader,
     story,
@@ -118,7 +115,6 @@ const entries: Entry[] = [
     tasklist,
     text,
     textarea,
-    thumbnail,
     toast,
     tooltip,
     truncate,

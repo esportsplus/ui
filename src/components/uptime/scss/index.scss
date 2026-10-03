@@ -115,7 +115,7 @@
         }
     }
 
-    // Same cut-out as 'thumbnail--status', anchored top right: the mask punches a ring out of the text, and
+    // Same cut-out as 'image--status', anchored top right: the mask punches a ring out of the text, and
     // the status dot, a sibling so the mask can't clip its tooltip, sits in the hole.
     &-service-label {
         display: block;

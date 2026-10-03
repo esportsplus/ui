@@ -35,7 +35,7 @@ const groups: Group[] = [
 
 function preview(kind: Group['kind'], value: string): Renderable<unknown> {
     if (kind === 'color') {
-        return html`<div class='thumbnail --border-default --border-border' style='--size: var(--size-600);background: ${value};border: 1px solid var(--border-color);'></div>`;
+        return html`<div class='image --border-default --border-border' style='--size: var(--size-600);background: ${value};border: 1px solid var(--border-color);'></div>`;
     }
 
     if (kind === 'size') {

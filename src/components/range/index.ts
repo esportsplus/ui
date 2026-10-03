@@ -7,9 +7,9 @@ import './scss/index.scss';
 
 function plain(
     this: { attributes?: Attributes } | void,
-    attributes: Attributes & { max: number, min: number, state?: { active: boolean, error: string, value: number } }
+    attributes: Attributes & { max: number, min: number, orientation?: 'horizontal' | 'vertical', state?: { active: boolean, error: string, value: number } }
 ) {
-    let { max, min } = attributes,
+    let { max, min, orientation = 'horizontal', ...rest } = attributes,
         state = attributes.state || reactive({
             active: false,
             error: '',
@@ -22,11 +22,14 @@ function plain(
 
     return html`
         <input
-            class='range --border-black'
+            aria-orientation='${orientation}'
+            class='range --border-black ${orientation === 'vertical' && 'range--vertical'}'
             style='${() => `--thumb-position: ${((state.value - min) / (max - min)) * 100}%`}'
             type='range'
             ${this?.attributes}
-            ${attributes}
+            max='${max}'
+            min='${min}'
+            ${rest}
             ${{
                 class: () => state.active && '--active',
                 onconnect: form.input.onconnect(state),

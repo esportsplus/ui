@@ -23,7 +23,7 @@ const SLOP = 4;
 
 function attributes(name: string) {
     if (typeof CSS === 'undefined' || CSS.supports('animation-timeline: scroll()')) {
-        return { class: name };
+        return { class: ['--scrollbar', name] };
     }
 
     let observer: ResizeObserver | undefined,
@@ -49,7 +49,7 @@ function attributes(name: string) {
     // Returned as a reactive style, not set imperatively, because the template rewrites the whole
     // style attribute whenever any other reactive style on the element changes.
     return {
-        class: name,
+        class: ['--scrollbar', name],
         onconnect: (element: HTMLElement) => {
             observer = new ResizeObserver(() => update(element));
             observer.observe(element);
@@ -87,7 +87,7 @@ const drag = (axis: Axis = 'both') => {
     }
 
     return {
-        class: ['--scrollbar-drag', () => state.dragging && '--dragging'],
+        class: ['--scrollbar', '--scrollbar-drag', () => state.dragging && '--dragging'],
         // Links and images would otherwise start a native drag-and-drop mid-scroll.
         ondragstart: (e: DragEvent) => {
             e.preventDefault();

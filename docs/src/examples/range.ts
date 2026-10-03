@@ -2,11 +2,13 @@ import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { range } from '@esportsplus/ui';
 import { rangeVariations } from './form-prototypes';
+import sliders from './range-slider';
 
 
 export default {
     name: 'range',
     variants: [
+        ...sliders,
         ...rangeVariations(),
         {
             render: () => range.filter({ label: 'Price', max: 1000, min: 0, step: 50, value: [200, 800] }),
