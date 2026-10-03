@@ -120,6 +120,11 @@ export default component(
                     }
 
                     switch (e.key) {
+                        case 'Enter':
+                        case ' ':
+                            e.preventDefault();
+                            items().find((element) => element === document.activeElement)?.click();
+                            return;
                         case 'ArrowDown':
                             e.preventDefault();
                             move(1);

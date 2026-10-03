@@ -5,6 +5,8 @@ import { morph, morphing } from './utilities';
 
 
 type A = Attributes & {
+    // Controlled triggers handle their own clicks while sharing the tooltip's visibility and dismissal.
+    manual?: boolean,
     onanimationcancel?: never,
     onanimationend?: never,
     onanimationstart?: never,
@@ -19,7 +21,7 @@ type A = Attributes & {
 
 
 export default component<A>(
-    ({ state = reactive({ active: false }), toggle = false, ...attributes }, content) => {
+    ({ manual = false, state = reactive({ active: false }), toggle = false, ...attributes }, content) => {
         let cancel: VoidFunction | undefined,
             local = reactive({ morphing: false });
 
@@ -35,7 +37,7 @@ export default component<A>(
                     onanimationcancel: morphing(local, false),
                     onanimationend: morphing(local, false),
                     onanimationstart: morphing(local, true),
-                    onclick: function(e) {
+                    ...(!manual && { onclick: function(this: HTMLElement, e: MouseEvent) {
                         let active = this === e.target || toggle ? !state.active : true;
 
                         cancel?.();
@@ -50,7 +52,7 @@ export default component<A>(
                         }
 
                         state.active = active;
-                    },
+                    } }),
                     ondocumentclick: dismiss(() => state.active, () => {
                         state.active = false;
                     }),

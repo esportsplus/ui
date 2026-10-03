@@ -58,7 +58,7 @@ html`
 | `radio` | Radio button group | - |
 | `range` | Range slider; add `class: 'range--slider'` to `range` or `range.filter` for the compact slider appearance (replaces the standalone `slider` component); `orientation: 'vertical'` supports vertical single and dual thumbs, with height set by `--vertical-size` (default `176px`); `range.filter` is a range filter with rolling-digit values, a Clear button, a ghost preview of where a click would stretch the selection, and scale ticks; a number `value` gives one thumb, a pair gives two that stop at each other; `fields` adds editable min/max `input` fields, `disabled`; `state.low`/`state.high`, `format`, `prefix`, `step`, `ticks` | `range.filter` |
 | `datalist` | Inertial wheel picker (scroll-snapped listbox) | - |
-| `select` | Dropdown with custom options; `select.menu` is a macOS-style listbox opening with the selected option over the trigger, with typeahead and hover scrolling | `select.menu` |
+| `select` | Dropdown with custom options; `select.menu` is a tooltip-powered macOS-style listbox opening with the selected option over the trigger, with typeahead and hover scrolling. Its surface, checks, and animations are reusable on tooltips with `--select-menu` | `select.menu` |
 | `switch` | Toggle switch; `switch.group` builds the same group as `checkbox.group` with switches, the select-all knob resting midway when mixed | `switch.group` |
 | `tasklist` | Checklist that strikes through checked tasks and moves them below the open ones; `ordered` keeps both groups in task order, `sortable` lets rows be dragged within their group | `tasklist.checkbox`, `tasklist.content`, `tasklist.description`, `tasklist.item`, `tasklist.label`, `tasklist.row` |
 | `form` | Form wrapper | `form.action`, `form.input` |

@@ -8,6 +8,7 @@
 @use 'south' as *;
 @use 'west' as *;
 @use 'variables';
+@use 'select-menu';
 
 .tooltip {
     cursor: pointer;

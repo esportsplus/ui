@@ -13,6 +13,7 @@ import ava from '~/examples/tooltip/ava.svg?url';
 import ben from '~/examples/tooltip/ben.svg?url';
 import cara from '~/examples/tooltip/cara.svg?url';
 import '~/examples/tooltip/scss/index.scss';
+import selectMenu from './select-menu';
 
 
 type Profile = {
@@ -274,6 +275,7 @@ function toolbar(direction: 'e' | 'n' | 's' | 'w', buttons: [string, string][], 
 export default {
     name: 'tooltip',
     variants: [
+        selectMenu,
         {
             render: () => tooltip.onhover(
                 { class: trigger, style: '--width: auto;' },

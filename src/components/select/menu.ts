@@ -1,7 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
-import dismiss from '~/shared/dismiss';
+import tooltip from '~/components/tooltip';
 import check from '@esportsplus/ui/svg/check.svg';
 import chevronDown from '@esportsplus/ui/svg/chevron-down.svg';
 import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
@@ -12,6 +12,14 @@ type A = Attributes & {
     [SELECT_MENU_OPTION]?: Attributes;
     [SELECT_MENU_PANEL]?: Attributes;
     [SELECT_MENU_TRIGGER]?: Attributes;
+    onanimationcancel?: never;
+    onanimationend?: never;
+    onanimationstart?: never;
+    onclick?: never;
+    ondocumentclick?: never;
+    ontransitioncancel?: never;
+    ontransitionend?: never;
+    ontransitionrun?: never;
     label: string;
     name?: string;
     options: Option[];
@@ -119,7 +127,7 @@ function place({ label, option, panel, scroller, trigger, value }: Required<Part
 }
 
 function template(
-    this: { attributes?: Pick<A, typeof SELECT_MENU_OPTION | typeof SELECT_MENU_PANEL | typeof SELECT_MENU_TRIGGER> } | void,
+    this: { attributes?: Partial<A> } | void,
     {
         label,
         name,
@@ -314,16 +322,20 @@ function template(
         clearTimeout(timer);
     });
 
-    return html`
-        <div
-            class='select-menu tooltip'
-            ${this?.attributes}
-            ${attributes}
-            ${{
-                class: () => state.active && '--active',
-                ondocumentclick: dismiss(() => state.active, close)
-            }}
-        >
+    effect(() => state.active, (active) => {
+        if (!active) {
+            stop();
+        }
+    });
+
+    return tooltip.onclick({
+        ...this?.attributes,
+        ...attributes,
+        class: ['select-menu --select-menu', this?.attributes?.class, attributes.class].flat(),
+        style: [this?.attributes?.style, attributes.style].flat(),
+        manual: true,
+        state
+    }, html`
             <span class='select-menu-label' id='${id}-label'>${label}</span>
             <button
                 aria-controls='${id}-list'
@@ -376,7 +388,7 @@ function template(
                 }}
             />
             <div
-                class='tooltip-content select-menu-panel'
+                class='tooltip-content tooltip-select-menu-panel select-menu-panel'
                 ${this?.attributes?.[SELECT_MENU_PANEL]}
                 ${attributes[SELECT_MENU_PANEL]}
                 ${{
@@ -487,8 +499,7 @@ function template(
                     <svg><use href='#${chevronDown}' /></svg>
                 </div>
             </div>
-        </div>
-    `;
+    `);
 }
 
 
