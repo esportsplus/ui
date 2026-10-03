@@ -21,8 +21,10 @@
     }
 
     &-content {
+        display: flow-root;
         min-height: 0;
-        overflow: hidden;
+        // Clip the collapse without creating a nested scroll container that traps wheel input.
+        overflow: clip;
     }
 
     &--more {
