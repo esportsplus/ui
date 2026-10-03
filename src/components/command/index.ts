@@ -123,6 +123,9 @@ type View = {
 };
 
 
+const SEARCH_SHORTCUT = /\b(Control|Meta)\+K\b/i;
+
+
 const COMMAND_DIALOG = Symbol.for('@esportsplus/ui/command.dialog');
 
 const COMMAND_INPUT = Symbol.for('@esportsplus/ui/command.input');
@@ -464,7 +467,7 @@ export default component(
             }
 
             // A focused element that declares Mod+K as its own (an editor's link shortcut) keeps it.
-            if (/\b(Control|Meta)\+K\b/i.test((e.target as Element | null)?.closest?.('[aria-keyshortcuts]')?.getAttribute('aria-keyshortcuts') ?? '')) {
+            if (SEARCH_SHORTCUT.test((e.target as Element | null)?.closest?.('[aria-keyshortcuts]')?.getAttribute('aria-keyshortcuts') ?? '')) {
                 return;
             }
 

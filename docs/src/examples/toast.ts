@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { toaster } from '@esportsplus/ui';
 import { html } from '@esportsplus/template';
-import notify, { notifications, placement } from '../components/notify';
+import notify, { notifications, placement } from '~/docs-components/notify';
 
 
 const PLACEMENTS = ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'];

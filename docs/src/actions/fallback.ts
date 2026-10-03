@@ -1,5 +1,5 @@
-import { layout } from '../components/layout';
-import { page } from './docs';
+import { layout } from '~/docs-components/layout';
+import { page } from '~/actions/docs';
 
 
 export default {

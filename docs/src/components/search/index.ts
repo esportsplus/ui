@@ -2,10 +2,10 @@ import icon from '~/components/icon';
 import searchSvg from '@esportsplus/ui/svg/search.svg';
 import { command } from '@esportsplus/ui';
 import { mac } from '~/shared/platform';
-import { html, reactive, redirect } from '../../app';
-import { sections } from '../../data/nav';
+import { html, reactive, redirect } from '~/app';
+import { sections } from '~/data/nav';
 import type { Tab } from '~/components/command';
-import './scss/index.scss';
+import '~/docs-components/search/scss/index.scss';
 
 
 const search = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });

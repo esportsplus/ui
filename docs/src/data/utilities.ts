@@ -1,7 +1,7 @@
 import { html, type Renderable } from '@esportsplus/template';
 import glass from '~/css-utilities/glass';
 
-import type { Utility } from '../types';
+import type { Utility } from '~/types';
 
 
 const COLORS = ['blue', 'green', 'purple', 'red', 'grey', 'yellow'];

@@ -1,7 +1,7 @@
 import { highlight } from '@esportsplus/ui';
-import { effect, html } from '../../../app';
-import { scrollSpy } from './spy';
-import './scss/index.scss';
+import { effect, html } from '~/app';
+import { scrollSpy } from '~/docs-components/nav/tree/spy';
+import '~/docs-components/nav/tree/scss/index.scss';
 
 
 type TreeLink = {

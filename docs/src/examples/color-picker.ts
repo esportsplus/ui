@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import { colorPicker } from '@esportsplus/ui';
-import './color-picker.scss';
+import '~/examples/color-picker.scss';
 
 
 let box = '--background-default: var(--color-white-300); --border-radius: 20px; --box-shadow: var(--box-shadow-300); --padding-horizontal: 12px; --padding-vertical: 12px; --width: min(320px, 100%);';

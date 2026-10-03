@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { toaster } from '@esportsplus/ui';
-import './scss/index.scss';
+import '~/docs-components/notify/scss/index.scss';
 
 
 // Where the docs' toaster is pinned; the toast example moves it around.

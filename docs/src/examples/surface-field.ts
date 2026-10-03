@@ -1,9 +1,9 @@
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { colorPicker, range, select, surfaceField, switch as toggle, tooltip } from '@esportsplus/ui';
-import worker from '@esportsplus/ui/surface-field/worker?worker&url';
-import editor from './surface-field-editor';
-import './surface-field.scss';
+import worker from '~/components/surface-field/worker?worker&url';
+import editor from '~/examples/surface-field-editor';
+import '~/examples/surface-field.scss';
 
 
 type Settings = {

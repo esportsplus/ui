@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { select } from '@esportsplus/ui';
-import './select.scss';
+import '~/examples/select.scss';
 
 
 let fonts = [

@@ -1,9 +1,9 @@
-import { html, reactive } from '../../app';
-import { sections } from '../../data/nav';
-import { navTree } from '../nav/tree';
-import { matches } from '../search';
-import type { Request } from '../../app';
-import './scss/index.scss';
+import { html, reactive } from '~/app';
+import { sections } from '~/data/nav';
+import { navTree } from '~/docs-components/nav/tree';
+import { matches } from '~/docs-components/search';
+import type { Request } from '~/app';
+import '~/docs-components/sidebar/scss/index.scss';
 
 
 // Start docked on wide screens; resizing preserves the user's toggle.

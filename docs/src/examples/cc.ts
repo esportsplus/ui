@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { cc } from '@esportsplus/ui';
-import './cc.scss';
+import '~/examples/cc.scss';
 
 
 export default {

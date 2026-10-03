@@ -1,8 +1,8 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { dock } from '@esportsplus/ui';
-import type { Entry } from '../types';
-import './dock.scss';
+import type { Entry } from '~/types';
+import '~/examples/dock.scss';
 
 
 function demo(attributes: Partial<Parameters<typeof dock>[0]> = {}) {

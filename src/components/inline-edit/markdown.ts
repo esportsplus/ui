@@ -12,6 +12,68 @@ type Rule = {
 };
 
 
+const BACKSLASHES = /\\/g;
+
+const EMPHASIS_DELIMITERS = /[*_]/g;
+
+const NON_WHITESPACE = /\S/;
+
+const WORD_CHARACTER = /\w/;
+
+const BACKTICKS = /`/g;
+
+const BRACKETS = /[[\]]/g;
+
+const NON_BREAKING_SPACES = / /g;
+
+const NEWLINES = /\n/g;
+
+const LINK_CHARACTERS = /[()\s]/g;
+
+const HEADING_PREFIX = /^#{1,6}\s/;
+
+const BULLET_PREFIX = /^[-*+]\s/;
+
+const ORDERED_PREFIX = /^\d+[.)]\s/;
+
+const ORDERED_NUMBER = /^(\d+)/;
+
+const SURROUNDING_NEWLINES = /^\n+|\n+$/g;
+
+const ESCAPED_PUNCTUATION = /\\([!-/:-@[-`{-~])/g;
+
+const TRAILING_NEWLINES = /\n+$/;
+
+const WHITESPACE = /\s+/g;
+
+const LINE_BREAKS = /\r\n?/g;
+
+const SUPPORTED_HEADING_PREFIX = /^#{1,3}\s/;
+
+const QUOTE_PREFIX = /^>/;
+
+const CODEBLOCK_PREFIX = /^```/;
+
+const HEADING = /^(#{1,3})\s+(.*)$/;
+
+const QUOTE_MARKER = /^>\s?/;
+
+const TASK_PREFIX = /^[-*+]\s+\[[ xX]\]\s/;
+
+const TASK_ITEM = /^[-*+]\s+\[([ xX])\]\s+(.*)$/;
+
+const BULLET_ITEM = /^[-*+]\s+()(.*)$/;
+
+const ORDERED_ITEM = /^\d+[.)]\s+()(.*)$/;
+
+const INLINE_LINE_BREAKS = /\s*\n\s*/g;
+
+const MARK_PAIRS = {
+    '=': /==/g,
+    '~': /~~/g
+};
+
+
 // Escaped ASCII punctuation is parked on the private use area while marks are matched, so it can't delimit one.
 const PARKED = /[-]/g;
 
@@ -31,24 +93,24 @@ const RULES: Rule[] = [
 // Only characters that could open or close enabled formatting are escaped, so prose like 'snake_case' or 'a == b'
 // stays readable in the saved markdown.
 function escape(text: string, features: Set<Feature>) {
-    text = text.replace(/\\/g, '\\\\');
+    text = text.replace(BACKSLASHES, '\\\\');
 
     if (features.has('bold') || features.has('italic')) {
-        text = text.replace(/[*_]/g, (c: string, i: number, s: string) => {
+        text = text.replace(EMPHASIS_DELIMITERS, (c: string, i: number, s: string) => {
             let after = s[i + 1] ?? '',
                 before = s[i - 1] ?? '';
 
             // '_' only delimits at a word boundary; '*' anywhere it touches text.
             let delimits = c === '*'
-                ? /\S/.test(before) || /\S/.test(after)
-                : (!/\w/.test(before) && /\S/.test(after)) || (/\S/.test(before) && !/\w/.test(after));
+                ? NON_WHITESPACE.test(before) || NON_WHITESPACE.test(after)
+                : (!WORD_CHARACTER.test(before) && NON_WHITESPACE.test(after)) || (NON_WHITESPACE.test(before) && !WORD_CHARACTER.test(after));
 
             return delimits ? `\\${c}` : c;
         });
     }
 
     if (features.has('code')) {
-        text = text.replace(/`/g, '\\`');
+        text = text.replace(BACKTICKS, '\\`');
     }
 
     if (features.has('highlight')) {
@@ -56,7 +118,7 @@ function escape(text: string, features: Set<Feature>) {
     }
 
     if (features.has('link')) {
-        text = text.replace(/[[\]]/g, '\\$&');
+        text = text.replace(BRACKETS, '\\$&');
     }
 
     if (features.has('strike')) {
@@ -82,7 +144,7 @@ function inline(trees: Tree[], features: Set<Feature>): string {
         let tree = trees[i];
 
         if ('text' in tree) {
-            out += escape(tree.text.replace(/ /g, ' '), features);
+            out += escape(tree.text.replace(NON_BREAKING_SPACES, ' '), features);
             continue;
         }
 
@@ -92,7 +154,7 @@ function inline(trees: Tree[], features: Set<Feature>): string {
         }
 
         if (tree.mark === 'code') {
-            let value = plain(tree).replace(/\n/g, ' ');
+            let value = plain(tree).replace(NEWLINES, ' ');
 
             out += value.includes('`') ? `\`\` ${value} \`\`` : `\`${value}\``;
             continue;
@@ -112,7 +174,7 @@ function inline(trees: Tree[], features: Set<Feature>): string {
 
         if (tree.mark === 'link') {
             // encodeURIComponent leaves parentheses alone, and an unbalanced one would end the address early.
-            out += lead + (safe(tree.href) ? `[${core}](${tree.href.replace(/[()\s]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`)})` : core) + trail;
+            out += lead + (safe(tree.href) ? `[${core}](${tree.href.replace(LINK_CHARACTERS, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`)})` : core) + trail;
         }
         else {
             out += lead + wrap(tree.mark, core, (out + lead).slice(-1), trail[0] ?? first(trees[i + 1])) + trail;
@@ -169,9 +231,9 @@ function marks(value: string, features: Set<Feature>, style: Run, out: Run[]) {
 }
 
 // A doubled '=' or '~' delimits only when it touches text on one side.
-function pairs(text: string, c: string) {
-    return text.replace(new RegExp(`\\${c}\\${c}`, 'g'), (pair: string, i: number, s: string) =>
-        /\S/.test(s[i - 1] ?? '') || /\S/.test(s[i + 2] ?? '') ? `\\${c}\\${c}` : pair
+function pairs(text: string, c: keyof typeof MARK_PAIRS) {
+    return text.replace(MARK_PAIRS[c], (pair: string, i: number, s: string) =>
+        NON_WHITESPACE.test(s[i - 1] ?? '') || NON_WHITESPACE.test(s[i + 2] ?? '') ? `\\${c}\\${c}` : pair
     );
 }
 
@@ -183,15 +245,15 @@ function paragraph(runs: Run[], features: Set<Feature>) {
             line = line.trim();
 
             if (
-                (features.has('heading') && /^#{1,6}\s/.test(line)) ||
+                (features.has('heading') && HEADING_PREFIX.test(line)) ||
                 (features.has('quote') && line[0] === '>') ||
-                ((features.has('bullet') || features.has('task')) && /^[-*+]\s/.test(line))
+                ((features.has('bullet') || features.has('task')) && BULLET_PREFIX.test(line))
             ) {
                 return `\\${line}`;
             }
 
-            if (features.has('ordered') && /^\d+[.)]\s/.test(line)) {
-                return line.replace(/^(\d+)/, '$1\\');
+            if (features.has('ordered') && ORDERED_PREFIX.test(line)) {
+                return line.replace(ORDERED_NUMBER, '$1\\');
             }
 
             if (features.has('codeblock') && line.startsWith('```')) {
@@ -201,11 +263,11 @@ function paragraph(runs: Run[], features: Set<Feature>) {
             return line;
         })
         .join('\n')
-        .replace(/^\n+|\n+$/g, '');
+        .replace(SURROUNDING_NEWLINES, '');
 }
 
 function park(text: string) {
-    return text.replace(/\\([!-/:-@[-`{-~])/g, (_, c: string) => String.fromCharCode(0xE000 + c.charCodeAt(0)));
+    return text.replace(ESCAPED_PUNCTUATION, (_, c: string) => String.fromCharCode(0xE000 + c.charCodeAt(0)));
 }
 
 function plain(tree: Tree): string {
@@ -233,7 +295,7 @@ function wrap(mark: Mark, text: string, before: string, after: string) {
             return `==${text}==`;
         case 'italic':
             // '_' can't sit inside a word, so an emphasised part of one uses '*'.
-            return /\w/.test(before) || /\w/.test(after) ? `*${text}*` : `_${text}_`;
+            return WORD_CHARACTER.test(before) || WORD_CHARACTER.test(after) ? `*${text}*` : `_${text}_`;
         default:
             return `~~${text}~~`;
     }
@@ -247,7 +309,7 @@ function write(group: Block[], features: Set<Feature>): string {
             lines: string[] = [];
 
         for (let i = 0, n = group.length; i < n; i++) {
-            let value = paragraph(group[i].runs, features).replace(/\n/g, ' ');
+            let value = paragraph(group[i].runs, features).replace(NEWLINES, ' ');
 
             if (!enabled) {
                 lines.push(value);
@@ -267,7 +329,7 @@ function write(group: Block[], features: Set<Feature>): string {
     }
 
     if (kind === 'codeblock') {
-        let value = text(runs).replace(/\n+$/, '');
+        let value = text(runs).replace(TRAILING_NEWLINES, '');
 
         return features.has('codeblock') ? `\`\`\`\n${value}\n\`\`\`` : paragraph([{ href: '', marks: [], text: value }], features);
     }
@@ -279,7 +341,7 @@ function write(group: Block[], features: Set<Feature>): string {
     }
 
     if (kind[0] === 'h') {
-        return features.has('heading') && value ? `${'#'.repeat(Number(kind[1]))} ${value.replace(/\n/g, ' ')}` : value;
+        return features.has('heading') && value ? `${'#'.repeat(Number(kind[1]))} ${value.replace(NEWLINES, ' ')}` : value;
     }
 
     return value;
@@ -289,19 +351,19 @@ function write(group: Block[], features: Set<Feature>): string {
 // Always at least one block, so there is a line to put the caret on.
 const parse = (markdown: string, features: Set<Feature>, multiline: boolean): Doc => {
     if (!multiline) {
-        return [block('paragraph', runs(markdown.replace(/\s+/g, ' ').trim(), features))];
+        return [block('paragraph', runs(markdown.replace(WHITESPACE, ' ').trim(), features))];
     }
 
     let doc: Doc = [],
-        lines = markdown.replace(/\r\n?/g, '\n').split('\n'),
+        lines = markdown.replace(LINE_BREAKS, '\n').split('\n'),
         n = lines.length;
 
     let opens = (line: string) =>
-        (features.has('heading') && /^#{1,3}\s/.test(line)) ||
-        (features.has('quote') && /^>/.test(line)) ||
-        (features.has('codeblock') && /^```/.test(line)) ||
-        ((features.has('bullet') || features.has('task')) && /^[-*+]\s/.test(line)) ||
-        (features.has('ordered') && /^\d+[.)]\s/.test(line));
+        (features.has('heading') && SUPPORTED_HEADING_PREFIX.test(line)) ||
+        (features.has('quote') && QUOTE_PREFIX.test(line)) ||
+        (features.has('codeblock') && CODEBLOCK_PREFIX.test(line)) ||
+        ((features.has('bullet') || features.has('task')) && BULLET_PREFIX.test(line)) ||
+        (features.has('ordered') && ORDERED_PREFIX.test(line));
 
     for (let i = 0; i < n;) {
         let line = lines[i],
@@ -324,7 +386,7 @@ const parse = (markdown: string, features: Set<Feature>, multiline: boolean): Do
             continue;
         }
 
-        if (features.has('heading') && (match = line.match(/^(#{1,3})\s+(.*)$/))) {
+        if (features.has('heading') && (match = line.match(HEADING))) {
             doc.push(block(`h${match[1].length}` as Kind, runs(match[2].trim(), features)));
             i++;
             continue;
@@ -334,7 +396,7 @@ const parse = (markdown: string, features: Set<Feature>, multiline: boolean): Do
             let body: string[] = [];
 
             for (; i < n && lines[i].startsWith('>'); i++) {
-                body.push(lines[i].replace(/^>\s?/, ''));
+                body.push(lines[i].replace(QUOTE_MARKER, ''));
             }
 
             doc.push(block('quote', runs(body.join('\n'), features)));
@@ -342,13 +404,13 @@ const parse = (markdown: string, features: Set<Feature>, multiline: boolean): Do
         }
 
         let kind = (
-            (features.has('task') && /^[-*+]\s+\[[ xX]\]\s/.test(line) && 'task') ||
-            (features.has('bullet') && /^[-*+]\s/.test(line) && 'bullet') ||
-            (features.has('ordered') && /^\d+[.)]\s/.test(line) && 'ordered')
+            (features.has('task') && TASK_PREFIX.test(line) && 'task') ||
+            (features.has('bullet') && BULLET_PREFIX.test(line) && 'bullet') ||
+            (features.has('ordered') && ORDERED_PREFIX.test(line) && 'ordered')
         ) as Kind | false;
 
         if (kind) {
-            let pattern = kind === 'task' ? /^[-*+]\s+\[([ xX])\]\s+(.*)$/ : kind === 'bullet' ? /^[-*+]\s+()(.*)$/ : /^\d+[.)]\s+()(.*)$/;
+            let pattern = kind === 'task' ? TASK_ITEM : kind === 'bullet' ? BULLET_ITEM : ORDERED_ITEM;
 
             for (; i < n && (match = lines[i].match(pattern)); i++) {
                 doc.push(block(kind, runs(match[2].trim(), features), kind === 'task' && match[1] !== ' '));
@@ -375,7 +437,7 @@ const parse = (markdown: string, features: Set<Feature>, multiline: boolean): Do
 
 const serialize = (doc: Doc, features: Set<Feature>, multiline: boolean) => {
     if (!multiline) {
-        return doc.map((b) => inline(nest(b.runs), features)).join(' ').replace(/\s*\n\s*/g, ' ').trim();
+        return doc.map((b) => inline(nest(b.runs), features)).join(' ').replace(INLINE_LINE_BREAKS, ' ').trim();
     }
 
     let out: string[] = [];

@@ -1,7 +1,7 @@
-import { html } from '../../app';
+import { html } from '~/app';
 import { flush, reactive, untrack } from '@esportsplus/reactivity';
-import type { Renderable } from '../../app';
-import './scss/index.scss';
+import type { Renderable } from '~/app';
+import '~/docs-components/preview/scss/index.scss';
 
 
 const preview = (title: string | null, node: Renderable<unknown>, id?: string) => {

@@ -1,9 +1,9 @@
-import { pageHead } from '../components/page/head';
-import { html } from '../app';
-import { fonts } from '../data/scss';
-import { layout } from '../components/layout';
-import type { Router } from '../app';
-import type { Page, TocItem } from '../types';
+import { pageHead } from '~/docs-components/page/head';
+import { html } from '~/app';
+import { fonts } from '~/data/scss';
+import { layout } from '~/docs-components/layout';
+import type { Router } from '~/app';
+import type { Page, TocItem } from '~/types';
 
 
 type Face = {
@@ -22,20 +22,37 @@ type Family = {
 };
 
 
+const FONT_FACE = /@font-face\s*\{[^}]*\}/g;
+
+const FONT_FAMILY = /font-family:\s*['"]?([^;'"]+)['"]?\s*;/;
+
+const FONT_STYLE = /font-style:\s*([^;]+);/;
+
+const FONT_WEIGHT = /font-weight:\s*([^;]+);/;
+
+const FONT_FORMATS = /format\(['"]([^'"]+)['"]\)/g;
+
+const FONT_FORMAT = /format\(['"]([^'"]+)['"]\)/;
+
+const WHITESPACE = /\s+/g;
+
+const WEIGHT_SEPARATOR = /\s+/;
+
+
 function faces(source: string): Face[] {
-    let blocks = source.match(/@font-face\s*\{[^}]*\}/g) ?? [],
+    let blocks = source.match(FONT_FACE) ?? [],
         out: Face[] = [];
 
     for (let i = 0, n = blocks.length; i < n; i++) {
         let block = blocks[i],
-            family = block.match(/font-family:\s*['"]?([^;'"]+)['"]?\s*;/),
-            style = block.match(/font-style:\s*([^;]+);/),
-            weight = block.match(/font-weight:\s*([^;]+);/);
+            family = block.match(FONT_FAMILY),
+            style = block.match(FONT_STYLE),
+            weight = block.match(FONT_WEIGHT);
 
         out.push({
             family: family ? family[1].trim() : '',
-            formats: (block.match(/format\(['"]([^'"]+)['"]\)/g) ?? [])
-                .map((token) => token.replace(/format\(['"]([^'"]+)['"]\)/, '$1'))
+            formats: (block.match(FONT_FORMATS) ?? [])
+                .map((token) => token.replace(FONT_FORMAT, '$1'))
                 .join(', '),
             style: style ? style[1].trim() : 'normal',
             weight: weight ? weight[1].trim() : '400'
@@ -60,14 +77,14 @@ function families(): Family[] {
             parsed.sort((a, b) => parseFloat(a.weight) - parseFloat(b.weight) || a.style.localeCompare(b.style));
 
             let weights: string[] = [],
-                id = family.toLowerCase().replace(/\s+/g, '-');
+                id = family.toLowerCase().replace(WHITESPACE, '-');
 
             for (let face of parsed) {
                 if (face.style !== 'normal') {
                     continue;
                 }
 
-                let [start, end = start] = face.weight.split(/\s+/).map(Number);
+                let [start, end = start] = face.weight.split(WEIGHT_SEPARATOR).map(Number);
 
                 for (let weight = start; weight <= end; weight += 100) {
                     if (!weights.includes(String(weight))) {

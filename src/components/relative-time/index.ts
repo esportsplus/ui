@@ -44,6 +44,9 @@ type State = {
 type Value = Date | number | string | null;
 
 
+const LEADING_DIGITS = /^(\d+)(.*)$/;
+
+
 const DATE_FORMAT = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -158,7 +161,7 @@ function leave(items: Item[]) {
 
 // Keyed from the right, so 9 -> 10 rolls the ones and brings a new tens digit in beside it.
 function render(slots: ReactiveArray<Item>, rests: ReactiveArray<Item>, text: string) {
-    let match = text.match(/^(\d+)(.*)$/),
+    let match = text.match(LEADING_DIGITS),
         next = match ? match[1] : '',
         suffix = match ? match[2] : text;
 

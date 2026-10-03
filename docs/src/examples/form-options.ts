@@ -1,8 +1,11 @@
 import { input, textarea } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import type { Variant } from '../types';
-import './form-options.scss';
+import type { Variant } from '~/types';
+import '~/examples/form-options.scss';
+
+
+const WORD_SEPARATOR = /\s+/;
 
 // Original previews exploring patterns from these references, without copied source:
 // https://codepen.io/AdrianBece/pen/KKKZQOY — floating labels
@@ -43,7 +46,7 @@ export function moreFieldVariations(kind: 'input' | 'textarea'): Variant[] {
                     oninput: (event: Event) => {
                         const field = event.target as HTMLInputElement | HTMLTextAreaElement;
                         state.length = field.value.length;
-                        state.words = field.value.trim() ? field.value.trim().split(/\s+/).length : 0;
+                        state.words = field.value.trim() ? field.value.trim().split(WORD_SEPARATOR).length : 0;
                         if (mode === 'autosize') {
                             field.style.height = 'auto';
                             field.style.height = `${Math.min(field.scrollHeight, 260)}px`;

@@ -1,7 +1,7 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import { announcement } from '@esportsplus/ui';
-import './announcement.scss';
+import '~/examples/announcement.scss';
 
 
 const STATS = [

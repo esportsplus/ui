@@ -1,10 +1,10 @@
 // Declares the library's layer order before any layered stylesheet can claim a place in it.
 import '@esportsplus/ui/layer.scss';
-import './ui';
-import { fallback, html, middleware, render } from './app';
-import header from './components/header';
-import { notifications } from './components/notify';
-import sidebar, { state as sidebarState } from './components/sidebar';
+import '~/ui';
+import { fallback, html, middleware, render } from '~/app';
+import header from '~/docs-components/header';
+import { notifications } from '~/docs-components/notify';
+import sidebar, { state as sidebarState } from '~/docs-components/sidebar';
 
 
 render(

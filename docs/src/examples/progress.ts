@@ -1,7 +1,7 @@
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { progress } from '@esportsplus/ui';
-import './progress.scss';
+import '~/examples/progress.scss';
 
 
 type Download = { value: number };

@@ -9,10 +9,10 @@ import gearSvg from '@esportsplus/ui/svg/gear.svg';
 import helpSvg from '@esportsplus/ui/svg/help.svg';
 import logOutSvg from '@esportsplus/ui/svg/log-out.svg';
 import userSvg from '@esportsplus/ui/svg/user.svg';
-import ava from './tooltip/ava.svg?url';
-import ben from './tooltip/ben.svg?url';
-import cara from './tooltip/cara.svg?url';
-import './tooltip.scss';
+import ava from '~/examples/tooltip/ava.svg?url';
+import ben from '~/examples/tooltip/ben.svg?url';
+import cara from '~/examples/tooltip/cara.svg?url';
+import '~/examples/tooltip.scss';
 
 
 type Profile = {

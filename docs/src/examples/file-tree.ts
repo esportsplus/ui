@@ -11,7 +11,7 @@ import type {
     FileTreeSortCase,
     FileTreeSortOrder
 } from '~/components/file-tree';
-import './file-tree.scss';
+import '~/examples/file-tree.scss';
 
 
 type Legend = {
@@ -19,6 +19,13 @@ type Legend = {
     // Built per render, since a rendered sample can't be shown in two places at once.
     sample: () => Renderable<unknown>;
 };
+
+
+const FILE_EXTENSION = /(\.[^.]*)?$/;
+
+const TEST_PATH = /^tests(\/|$)/;
+
+const EXECUTABLE_EXTENSION = /\.exe$/i;
 
 
 const CASES: FileTreeSortCase[] = ['insensitive', 'upper', 'lower'];
@@ -451,7 +458,7 @@ function compacted(): FileTreeElement[] {
 
 // A pasted or dropped copy, named apart from what it copies.
 function copy(element: FileTreeElement, uid: number): FileTreeElement {
-    return { ...duplicate(element, uid), name: element.name.replace(/(\.[^.]*)?$/, ' copy$1') };
+    return { ...duplicate(element, uid), name: element.name.replace(FILE_EXTENSION, ' copy$1') };
 }
 
 function duplicate(element: FileTreeElement, uid: number): FileTreeElement {
@@ -1057,7 +1064,7 @@ export default {
                                 indicator: 'hover',
                                 // First match wins; a folder's color carries down to everything inside it.
                                 scopes: [
-                                    { color: 'var(--color-green-500)', match: /^tests(\/|$)/ },
+                                    { color: 'var(--color-green-500)', match: TEST_PATH },
                                     { color: 'var(--color-yellow-500)', match: (element) => element.name === 'node_modules' || element.name === 'dist' }
                                 ]
                             })}
@@ -1450,7 +1457,7 @@ export default {
                                 }),
                                 shortcuts: true,
                                 state,
-                                validate: (name) => /\.exe$/i.test(name) ? 'Executables can\'t be added to this project' : undefined
+                                validate: (name) => EXECUTABLE_EXTENSION.test(name) ? 'Executables can\'t be added to this project' : undefined
                             })}
                         </div>
                         <p class='file-tree-demo-caption'>${() => log.message}</p>

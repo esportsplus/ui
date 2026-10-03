@@ -1,7 +1,7 @@
 import { marquee } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import './marquee.scss';
+import '~/examples/marquee.scss';
 
 
 let customers = [

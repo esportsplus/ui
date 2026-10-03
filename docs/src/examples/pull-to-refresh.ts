@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { pullToRefresh } from '@esportsplus/ui';
-import './pull-to-refresh.scss';
+import '~/examples/pull-to-refresh.scss';
 
 
 type Person = {

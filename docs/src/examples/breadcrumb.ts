@@ -2,8 +2,8 @@ import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { breadcrumb } from '@esportsplus/ui';
 import type { Separator } from '~/components/breadcrumb';
-import type { Entry } from '../types';
-import './breadcrumb.scss';
+import type { Entry } from '~/types';
+import '~/examples/breadcrumb.scss';
 
 
 let path = [

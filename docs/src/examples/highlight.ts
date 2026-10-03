@@ -1,8 +1,8 @@
 import { highlight } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import type { Entry } from '../types';
-import './highlight.scss';
+import type { Entry } from '~/types';
+import '~/examples/highlight.scss';
 
 
 let column = 'display: flex; flex-direction: column; gap: var(--size-100); width: 240px;',

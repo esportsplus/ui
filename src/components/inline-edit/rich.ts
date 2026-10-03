@@ -77,6 +77,17 @@ type View = {
 };
 
 
+const URL_SCHEME = /^[a-z][a-z\d+.-]*:/i;
+
+const RELATIVE_URL = /^[/#?]/;
+
+const EMAIL = /^[^\s/@]+@[^\s/@]+\.[^\s/@]+$/;
+
+const MAC_SHORTCUT = /(⇧?)(\w)$/;
+
+const INLINE_LINE_BREAKS = /\s*\n\s*/g;
+
+
 const ACTIONS: { action: Action, label: string, shortcut?: string }[] = [
     { action: 'bold', label: 'Bold', shortcut: 'B' },
     { action: 'italic', label: 'Italic', shortcut: 'I' },
@@ -145,8 +156,8 @@ const TOOLTIP_DELAY = 700;
 function address(value: string) {
     let href = value.trim();
 
-    if (href && !/^[a-z][a-z\d+.-]*:/i.test(href) && !/^[/#?]/.test(href)) {
-        href = (/^[^\s/@]+@[^\s/@]+\.[^\s/@]+$/.test(href) ? 'mailto:' : 'https://') + href;
+    if (href && !URL_SCHEME.test(href) && !RELATIVE_URL.test(href)) {
+        href = (EMAIL.test(href) ? 'mailto:' : 'https://') + href;
     }
 
     return href && safe(href) ? href : '';
@@ -228,7 +239,7 @@ function hint(label: string, shortcut?: string) {
     }
 
     return mac()
-        ? `${label} ${shortcut.replace('Shift+', '⇧')}`.replace(/(⇧?)(\w)$/, '$1⌘$2')
+        ? `${label} ${shortcut.replace('Shift+', '⇧')}`.replace(MAC_SHORTCUT, '$1⌘$2')
         : `${label} Ctrl+${shortcut}`;
 }
 
@@ -794,7 +805,7 @@ export default component(
                 style = styleAt(host.runs, span.start.offset);
 
             if (host.kind === 'codeblock' || style.marks.includes('code')) {
-                change(insert(blocks, span, [{ ...style, text: host.kind === 'codeblock' ? value : value.replace(/\s*\n\s*/g, ' ') }]), 'other');
+                change(insert(blocks, span, [{ ...style, text: host.kind === 'codeblock' ? value : value.replace(INLINE_LINE_BREAKS, ' ') }]), 'other');
                 return;
             }
 
@@ -1186,7 +1197,7 @@ export default component(
         // Typing takes on the style of the text it follows; a one line field has no line breaks to take.
         function typed(span: Span, value: string) {
             if (!multiline) {
-                value = value.replace(/\s*\n\s*/g, ' ');
+                value = value.replace(INLINE_LINE_BREAKS, ' ');
             }
 
             if (!value) {

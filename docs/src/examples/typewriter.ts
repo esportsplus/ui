@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { typewriter } from '@esportsplus/ui';
-import './typewriter.scss';
+import '~/examples/typewriter.scss';
 
 
 let lines = ['Build once.', 'Ship everywhere.', '@esportsplus/ui'],

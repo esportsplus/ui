@@ -1,7 +1,7 @@
 import { html } from '@esportsplus/template';
 import { filter } from '@esportsplus/ui';
-import type { Entry } from '../types';
-import './filter.scss';
+import type { Entry } from '~/types';
+import '~/examples/filter.scss';
 
 
 type Asset = {

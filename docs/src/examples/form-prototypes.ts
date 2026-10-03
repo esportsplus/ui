@@ -1,8 +1,8 @@
 import { input, textarea } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import type { Variant } from '../types';
-import './form-prototypes.scss';
+import type { Variant } from '~/types';
+import '~/examples/form-prototypes.scss';
 
 
 let instance = 0;

@@ -1,6 +1,6 @@
 import { html } from '@esportsplus/template';
 import { checkbox } from '@esportsplus/ui';
-import './checkbox.scss';
+import '~/examples/checkbox.scss';
 
 
 let notifications = [

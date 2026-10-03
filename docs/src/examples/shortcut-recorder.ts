@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { shortcutRecorder } from '@esportsplus/ui';
-import './shortcut-recorder.scss';
+import '~/examples/shortcut-recorder.scss';
 
 
 type Direction = NonNullable<Parameters<typeof shortcutRecorder>[0]['direction']>;

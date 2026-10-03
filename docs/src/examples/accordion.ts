@@ -2,7 +2,7 @@ import { accordion } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import scrollbar from '~/css-utilities/scrollbar';
-import './accordion.scss';
+import '~/examples/accordion.scss';
 
 
 // The consumer owns the control, label, and shared expansion state.

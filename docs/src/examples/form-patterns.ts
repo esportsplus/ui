@@ -1,8 +1,27 @@
 import { input } from '@esportsplus/ui';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import type { Variant } from '../types';
-import './form-patterns.scss';
+import type { Variant } from '~/types';
+import '~/examples/form-patterns.scss';
+
+
+const LOWERCASE = /[a-z]/;
+
+const UPPERCASE = /[A-Z]/;
+
+const DIGIT = /\d/;
+
+const SPECIAL_CHARACTER = /[^a-zA-Z\d\s]/;
+
+const REPEATED_CHARACTER = /(.)\1{2,}/;
+
+const USERNAME_CHARACTER = /[a-z\d]/;
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+const NON_DIGITS = /\D/g;
+
+const WHITESPACE = /\s+/g;
 
 // Original previews recreating the behavior of these references, without copied source:
 // https://www.interior.dev/docs/floating-label
@@ -21,9 +40,9 @@ const PASSWORD_LABELS = ['Empty', 'Weak', 'Fair', 'Good', 'Strong'];
 
 const PASSWORD_RULES: [string, (value: string) => boolean][] = [
     ['12 characters or more', (value) => value.length >= 12],
-    ['Upper and lower case', (value) => /[a-z]/.test(value) && /[A-Z]/.test(value)],
-    ['A number', (value) => /\d/.test(value)],
-    ['A symbol', (value) => /[^a-zA-Z\d\s]/.test(value)]
+    ['Upper and lower case', (value) => LOWERCASE.test(value) && UPPERCASE.test(value)],
+    ['A number', (value) => DIGIT.test(value)],
+    ['A symbol', (value) => SPECIAL_CHARACTER.test(value)]
 ];
 
 const TAG_SEPARATORS = /[,;]/;
@@ -32,7 +51,7 @@ const TAG_SEPARATORS = /[,;]/;
 function guessable(value: string) {
     let lower = value.toLowerCase();
 
-    if (COMMON_PASSWORDS.includes(lower) || /(.)\1{2,}/.test(value)) {
+    if (COMMON_PASSWORDS.includes(lower) || REPEATED_CHARACTER.test(value)) {
         return true;
     }
 
@@ -42,7 +61,7 @@ function guessable(value: string) {
             b = lower.charCodeAt(i - 1),
             c = lower.charCodeAt(i);
 
-        if (b - a === 1 && c - b === 1 && /[a-z\d]/.test(lower[i])) {
+        if (b - a === 1 && c - b === 1 && USERNAME_CHARACTER.test(lower[i])) {
             return true;
         }
     }
@@ -55,7 +74,7 @@ function validateEmail(value: string) {
         return 'Enter an email address.';
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim())) {
+    if (!EMAIL.test(value.trim())) {
         return 'That does not look like an email address.';
     }
 
@@ -192,7 +211,7 @@ const otp = (): Variant => ({
         function fill(cell: HTMLInputElement, text: string) {
             let all = cells(cell),
                 start = all.indexOf(cell),
-                characters = text.replace(/\D/g, '').slice(0, length - start).split('');
+                characters = text.replace(NON_DIGITS, '').slice(0, length - start).split('');
 
             if (!characters.length) {
                 return;
@@ -371,7 +390,7 @@ const tags = (): Variant => ({
             timer: ReturnType<typeof setTimeout> | undefined;
 
         function commit(text: string) {
-            let value = text.trim().replace(/\s+/g, ' ');
+            let value = text.trim().replace(WHITESPACE, ' ');
 
             if (!value) {
                 return true;

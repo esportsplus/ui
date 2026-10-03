@@ -5,6 +5,9 @@ import autoprefixer from 'autoprefixer';
 import shelljs from 'shelljs';
 
 
+const BACKSLASHES = /\\/g;
+
+
 // Every stylesheet compiled from the library's source sits in the cascade layer its top-level folder names, in the
 // order 'layer.scss' declares. Wrapped as it compiles rather than once bundled, so the docs, which build from source,
 // layer exactly as the published files do; their own styles, outside it, stay unlayered and override the library.
@@ -16,13 +19,13 @@ const LICENSE = /^(?:\s*\/\*![\s\S]*?\*\/)+/;
 // These imports get the file's source or address as a module (the docs show source with '?raw'), not compiled CSS.
 const NOT_CSS = /[?&](?:raw|sharedworker|url|worker)\b/;
 
-const SOURCE = resolve(import.meta.dirname, 'src').replace(/\\/g, '/') + '/';
+const SOURCE = resolve(import.meta.dirname, 'src').replace(BACKSLASHES, '/') + '/';
 
 
 const layers: Plugin = {
     name: '@esportsplus/ui-layers',
     transform(code, id) {
-        let path = id.split('?')[0].replace(/\\/g, '/');
+        let path = id.split('?')[0].replace(BACKSLASHES, '/');
 
         if (!path.endsWith('.scss') || !path.startsWith(SOURCE) || NOT_CSS.test(id)) {
             return;

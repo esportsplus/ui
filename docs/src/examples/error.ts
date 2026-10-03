@@ -1,7 +1,7 @@
 import { effect, flush, onCleanup, reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import { error, input, select } from '@esportsplus/ui';
-import './error.scss';
+import '~/examples/error.scss';
 
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
