@@ -91,7 +91,7 @@ export default ({ 'aria-label': label = 'Notifications', count = 0, dot = false,
                     return html`
                         <span class='notification-bell-character'>
                             <span class='notification-bell-character-track' style='${() => `--value: ${character.value}`}'>
-                                ${DIGITS.map((value) => html`<span>${value}</span>`)}
+                                ${DIGITS.map((value) => html`<span class='notification-bell-character-digit'>${value}</span>`)}
                             </span>
                         </span>
                     `;

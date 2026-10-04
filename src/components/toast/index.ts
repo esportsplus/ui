@@ -189,7 +189,7 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
                         }
                     }}
                 >
-                    <svg aria-hidden='true'><use href='#${close}' /></svg>
+                    <svg aria-hidden='true' class='toast-close-icon'><use href='#${close}' /></svg>
                 </button>
             `}
         </div>

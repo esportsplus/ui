@@ -17,8 +17,9 @@
         @extend %icon-stroke, %icon-stroke-draw;
         flex-shrink: 0;
         height: var(--check-size);
+        stroke-dashoffset: var(--check-offset);
         stroke-width: 3;
-        transition: stroke-dashoffset 0s var(--ease-in-out) 150ms;
+        transition: stroke-dashoffset var(--check-duration) var(--ease-in-out) 150ms;
         width: var(--check-size);
     }
 
@@ -36,6 +37,17 @@
             translate 150ms var(--ease-out);
         translate: 0 4px;
         white-space: nowrap;
+
+        &.--done {
+            filter: none;
+            opacity: 1;
+            pointer-events: auto;
+            transition:
+                filter 300ms var(--ease-out) 100ms,
+                opacity 300ms var(--ease-out) 100ms,
+                translate 300ms var(--ease-out) 100ms;
+            translate: 0 0;
+        }
     }
 
     &-ink {
@@ -50,6 +62,13 @@
             opacity 300ms var(--ease-out),
             translate 300ms var(--ease-out);
         white-space: nowrap;
+
+        &.--done {
+            filter: blur(4px);
+            opacity: 0;
+            transition-duration: 200ms;
+            translate: 0 -4px;
+        }
     }
 
     &-labels {
@@ -63,6 +82,12 @@
         transition:
             filter 300ms var(--ease-out),
             opacity 300ms var(--ease-out);
+
+        &.--done {
+            filter: blur(4px);
+            opacity: 0;
+            transition-duration: 200ms;
+        }
     }
 
     &-roll {
@@ -93,46 +118,14 @@
         color: var(--track-color);
     }
 
-    &.progress-text--done {
-        .progress-text-check {
-            stroke-dashoffset: 0;
-            transition-duration: 300ms;
-        }
-
-        .progress-text-done {
-            filter: none;
-            opacity: 1;
-            pointer-events: auto;
-            transition:
-                filter 300ms var(--ease-out) 100ms,
-                opacity 300ms var(--ease-out) 100ms,
-                translate 300ms var(--ease-out) 100ms;
-            translate: 0 0;
-        }
-
-        .progress-text-label {
-            filter: blur(4px);
-            opacity: 0;
-            transition-duration: 200ms;
-            translate: 0 -4px;
-        }
-
-        .progress-text-percent {
-            filter: blur(4px);
-            opacity: 0;
-            transition-duration: 200ms;
-        }
-    }
-
     @media (prefers-reduced-motion: reduce) {
         &-check,
-        &-strip,
-        &.progress-text--done &-check {
+        &-strip {
             transition: none;
         }
 
         &-done,
-        &.progress-text--done &-label {
+        &-label.--done {
             translate: 0 0;
         }
     }

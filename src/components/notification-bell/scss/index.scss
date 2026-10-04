@@ -8,17 +8,6 @@
     height: var(--size);
     width: var(--size);
 
-    &:focus-visible {
-        outline: var(--focus-width) solid var(--focus-color);
-        outline-offset: var(--focus-offset);
-    }
-
-    @each $i in 1, 2 {
-        &.notification-bell--ring-#{$i} .notification-bell-icon {
-            animation: notification-bell-ring-#{$i} var(--ring-duration) ease-in-out;
-        }
-    }
-
     &-badge {
         align-items: center;
         background: var(--badge-background);
@@ -58,25 +47,32 @@
         height: 1lh;
         overflow: hidden;
 
+        &-digit {
+            height: 1lh;
+            text-align: center;
+        }
+
         &-track {
             display: grid;
             transition: translate var(--roll-duration) var(--roll-timing-function);
             translate: 0 calc(var(--value) * -1lh);
-
-            span {
-                height: 1lh;
-                text-align: center;
-            }
         }
     }
 
-    .notification-bell-icon {
+    // Qualified to outrank the '.icon' it pairs with.
+    &-icon.icon {
+        animation: var(--ring-animation-name) var(--ring-duration) ease-in-out;
         transform-origin: 50% 8%;
 
         svg {
             @extend %icon-stroke;
             stroke-width: var(--icon-stroke-width);
         }
+    }
+
+    &:focus-visible {
+        outline: var(--focus-width) solid var(--focus-color);
+        outline-offset: var(--focus-offset);
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -86,10 +82,8 @@
             transition: none;
         }
 
-        @each $i in 1, 2 {
-            &.notification-bell--ring-#{$i} .notification-bell-icon {
-                animation: none;
-            }
+        &-icon.icon {
+            animation: none;
         }
     }
 }

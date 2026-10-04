@@ -37,7 +37,7 @@ function bar(modifier: string, content: Renderable<unknown>, ondismiss: () => vo
                 type='button'
                 onclick=${ondismiss}
             >
-                <svg aria-hidden='true'><use href='#${close}' /></svg>
+                <svg aria-hidden='true' class='announcement-demo-close-icon'><use href='#${close}' /></svg>
             </button>
         </div>
     `;

@@ -1,5 +1,11 @@
 .banner {
+    &--backdrop {
+        --backdrop-height: 80svh;
+    }
+
+    // '--backdrop-height' is read when paired with '--backdrop'.
     &--blur {
+        --backdrop-height: 90svh;
         --blur: 24px;
     }
 

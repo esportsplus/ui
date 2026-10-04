@@ -17,12 +17,14 @@
         background: var(--bar-color);
         border-radius: var(--bar-border-radius);
         flex-shrink: 0;
+        opacity: var(--bar-opacity);
         transition:
             opacity var(--transition-duration) var(--timing-function),
             scale var(--transition-duration) var(--timing-function);
         width: round(down, (100% - (var(--days) - 1) * var(--bar-gap)) / var(--days), 1px);
 
         @include tokens.state(active) {
+            --bar-opacity: 1;
             scale: 1 var(--bar-active-scale);
         }
     }
@@ -35,13 +37,14 @@
         justify-content: space-between;
         outline: none;
 
+        // A highlighted row dims every bar but the selected one.
+        @include tokens.state(active) {
+            --bar-opacity: var(--bar-dim);
+        }
+
         &:focus-visible {
             outline: 2px solid var(--color);
             outline-offset: 4px;
-        }
-
-        #{tokens.state(active)} #{tokens.state(inactive, '.uptime-bar')} {
-            opacity: var(--bar-dim);
         }
     }
 

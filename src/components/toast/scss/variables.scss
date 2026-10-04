@@ -44,6 +44,8 @@
     // Room past the box for shadows and the close button, which the collapsed clip would otherwise cut.
     --toast-bleed: 32px;
     --toast-content-gap: var(--size-300);
+    // Read by the content and close button: collapsed back toasts hide theirs.
+    --toast-content-opacity: 1;
     // Written by the toast: its duration, and the same in whole seconds for a countdown in its content.
     --toast-duration: 0ms;
     --toast-exit-duration: 0.3s;

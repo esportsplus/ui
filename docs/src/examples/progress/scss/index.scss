@@ -30,6 +30,11 @@
             color 150ms ease-out,
             scale 150ms ease-out;
 
+        &-icon {
+            height: 14px;
+            width: 14px;
+        }
+
         &:active {
             scale: 0.96;
         }
@@ -42,11 +47,6 @@
         &:hover {
             background: var(--color-grey-400);
             color: var(--color-text-500);
-        }
-
-        svg {
-            height: 14px;
-            width: 14px;
         }
     }
 }

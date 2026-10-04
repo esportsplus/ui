@@ -1,6 +1,8 @@
 @use '/tokens';
 
 .usage-meter {
+    --cost-prefix: '≈ ';
+    --detail-display: inline;
     --fill: var(--fill-normal);
     --fill-critical: color-mix(in oklch, var(--color-red-400) 80%, transparent);
     --fill-normal: var(--color-text-500);
@@ -14,26 +16,33 @@
     --meta-color: var(--color-text-300);
     --meta-color-muted: color-mix(in oklch, var(--color-text-300) 70%, transparent);
     --meta-font-size: var(--font-size-100);
+    --row-display: flex;
     --track-background: color-mix(in oklch, var(--color-text-500) 6%, transparent);
     --track-height: 6px;
+    --track-order: 0;
     --track-width: 100%;
     --transition-duration: 500ms;
     --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
 
-    &--inline {
-        --gap: var(--size-300);
-        --max-width: none;
-        --track-background: color-mix(in oklch, var(--color-text-500) 7%, transparent);
-        --track-height: 4px;
-        --track-width: 64px;
-    }
-
-    &.usage-meter--critical {
+    &--critical {
         --fill: var(--fill-critical);
     }
 
-    &.usage-meter--warning {
+    // One row: track, count, cost; the footer and header wrappers dissolve so their children join it
+    &--inline {
+        --cost-prefix: none;
+        --detail-display: none;
+        --gap: var(--size-300);
+        --max-width: none;
+        --row-display: contents;
+        --track-background: color-mix(in oklch, var(--color-text-500) 7%, transparent);
+        --track-height: 4px;
+        --track-order: -1;
+        --track-width: 64px;
+    }
+
+    &--warning {
         --fill: var(--fill-warning);
     }
 

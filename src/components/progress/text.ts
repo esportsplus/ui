@@ -134,19 +134,19 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
             }}
         >
             <span aria-hidden='true' class='progress-text-labels'>
-                <span class='progress-text-label'>
+                <span class='progress-text-label ${() => done() && '--done'}'>
                     <span class='progress-text-track'>${label}</span>
                     <span class='progress-text-ink' style='${() => `clip-path: ${clip(ink.position)}`}'>
                         ${label}
                     </span>
                 </span>
-                <span class='progress-text-done'>
+                <span class='progress-text-done ${() => done() && '--done'}'>
                     <svg class='progress-text-check'><use href='#${check}' /></svg>
                     ${doneLabel}
                 </span>
             </span>
 
-            <span aria-hidden='true' class='progress-text-percent'>
+            <span aria-hidden='true' class='progress-text-percent ${() => done() && '--done'}'>
                 ${roll(TENS, () => Math.floor((percent() % 100) / 10))}
                 ${roll(DIGITS, () => percent() % 10)}
                 <span>%</span>

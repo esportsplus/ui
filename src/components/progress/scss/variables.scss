@@ -12,6 +12,9 @@
 
 
 .progress-text {
+    // The check undraws at once; 'progress-text--done' draws it in.
+    --check-duration: 0s;
+    --check-offset: 1;
     --check-size: 16px;
     --color: var(--color-text-500);
     --done-gap: 6px;
@@ -33,6 +36,11 @@
     &--blue {
         --color: var(--color-blue-400);
         --track-color: oklch(from var(--color-blue-400) l c h / 0.2);
+    }
+
+    &--done {
+        --check-duration: 300ms;
+        --check-offset: 0;
     }
 
     &--large {

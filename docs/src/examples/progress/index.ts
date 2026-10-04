@@ -17,7 +17,7 @@ function demo(attributes: Record<string, string>, label: string, doneLabel: stri
         <div class='progress-text-demo'>
             ${progress.text({ ...attributes, doneLabel, label, state })}
             <button class='progress-text-demo-restart' type='button' onclick='${restart}'>
-                <svg aria-hidden='true' fill='none' viewBox='0 0 16 16'>
+                <svg aria-hidden='true' class='progress-text-demo-restart-icon' fill='none' viewBox='0 0 16 16'>
                     <path
                         d='M2.75 8a5.25 5.25 0 1 0 1.54-3.71M2.75 2.5v2.25H5'
                         stroke='currentColor'
