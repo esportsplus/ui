@@ -1,5 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { computed, dispose, effect, onCleanup, reactive, read } from '@esportsplus/reactivity';
 import faces from '~/components/button/faces';
 import { check as checkmark } from '~/components/button/icons';
 import input from '~/components/input';
@@ -272,7 +272,9 @@ export default component(
             ...attributes
         }: A
     ) {
-        let fields: Record<Field, { active: boolean, error: string }> = {
+        // Every brand binding reads this, so typing digits only reaches them when the brand itself changes.
+        let detected = computed(() => detect(state.number)),
+            fields: Record<Field, { active: boolean, error: string }> = {
                 cvc: reactive({ active: false, error: '' }),
                 expiry: reactive({ active: false, error: '' }),
                 name: reactive({ active: false, error: '' }),
@@ -287,7 +289,7 @@ export default component(
             timer: ReturnType<typeof setTimeout> | undefined;
 
         function brand() {
-            return detect(state.number);
+            return read(detected);
         }
 
         function check(e: SubmitEvent) {
@@ -424,6 +426,7 @@ export default component(
 
         onCleanup(() => {
             clearTimeout(timer);
+            dispose(detected);
         });
 
         return html`
