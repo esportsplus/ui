@@ -63,6 +63,9 @@ type Slide = {
     from: number[];
 };
 
+// Whether a parent lays its children out from its start, read once per parent: alignment is set up, not toggled.
+const ANCHORED = new WeakMap<Element, boolean>();
+
 // Every highlight's layers, so one nested in another's container doesn't wake it with its own motion or class flips.
 const LAYERS = new WeakSet<Element>();
 
@@ -117,6 +120,28 @@ function active(parent: Element, self: Element[], target?: string) {
     }
 
     return null;
+}
+
+// Laid out from the start, a change past an item can't shift it; centered, end-aligned or reversed, it can.
+function anchored(parent: Element) {
+    let value = ANCHORED.get(parent);
+
+    if (value === undefined) {
+        let style = getComputedStyle(parent);
+
+        value = !/around|between|center|end|evenly|reverse|right/.test(
+            `${style.alignContent} ${style.flexDirection} ${style.flexWrap} ${style.justifyContent} ${style.textAlign}`
+        );
+        ANCHORED.set(parent, value);
+    }
+
+    return value;
+}
+
+// Whether 'node' holds 'item' or comes before it in the document, where a change to it can move the item. A node
+// already taken out of the document can only hold it.
+function before(node: Node, item: Element) {
+    return node.contains(item) || (node.isConnected && !!(node.compareDocumentPosition(item) & Node.DOCUMENT_POSITION_FOLLOWING));
 }
 
 // The highlight's own layers are siblings too; only tracked items define the group's ends.
@@ -229,6 +254,8 @@ export default component<A>(
         // Both layers know the line's edge, so the hover fill keeps clear of it just as the active fill does.
         let focused: Element | null = null,
             following = false,
+            // Just observed after a mutation added them; their first size report is the insertion, already weighed.
+            fresh = new WeakSet<Element>(),
             glides = { active: glide(), pointer: glide() },
             hovered: Element | null = null,
             layers = { active: reactive(empty()), pointer: reactive(empty()) },
@@ -421,11 +448,50 @@ export default component<A>(
             enqueue(update);
         }
 
+        // Whether a mutation could move one of 'items' or change which item is active. Recycled rows, their own class
+        // flips and anything rebuilt inside them leave a resting highlight alone; an item marked active, one taken
+        // out, or anything changed ahead of one (an insert above, a reorder) is measured.
+        function relevant(record: MutationRecord, items: Element[]) {
+            let host = record.target as Element,
+                owner = target ? host.parentElement?.closest(target) : host.parentElement === parent ? null : host.parentElement;
+
+            // Within an item that holds none of them: it only reaches the others through its own observed size.
+            if (owner && parent?.contains(owner) && owner !== parent && !items.some((item) => owner.contains(item))) {
+                return false;
+            }
+
+            if (record.type === 'attributes') {
+                // 'inert' only conceals what it holds; a class can also reflow whatever follows.
+                return items.some((item) => record.attributeName === 'inert' ? host.contains(item) : before(host, item));
+            }
+
+            for (let nodes of [record.addedNodes, record.removedNodes]) {
+                for (let node of nodes) {
+                    if (items.some((item) => node.contains(item))) {
+                        return true;
+                    }
+                }
+            }
+
+            // The change sits just before 'nextSibling', or at the end of its parent.
+            return items.some((item) =>
+                (record.nextSibling ? before(record.nextSibling, item) : !host.contains(item) && before(host, item)) ||
+                (host.contains(item) && !anchored(host))
+            );
+        }
+
         function release() {
             if (pressed) {
                 pressed = false;
                 schedule();
             }
+        }
+
+        // What a change has to reach to matter: the items the layers rest on or are headed for, and the active one.
+        function tracked() {
+            let items = [glides.active.item, glides.pointer.item, hovered, focused, parent && active(parent, self, target)];
+
+            return items.filter((item): item is Element => !!item);
         }
 
         function update() {
@@ -513,7 +579,8 @@ export default component<A>(
                         parent = container;
 
                         mutations = new MutationObserver((records) => {
-                            let changed = false;
+                            let changed = false,
+                                items = tracked();
 
                             for (let i = 0, n = records.length; i < n; i++) {
                                 let record = records[i];
@@ -523,8 +590,6 @@ export default component<A>(
                                     continue;
                                 }
 
-                                changed = true;
-
                                 // Only items and the container's children, as on connect; anything deeper that moves
                                 // them resizes one of those.
                                 for (let node of record.addedNodes) {
@@ -533,6 +598,7 @@ export default component<A>(
                                         !LAYERS.has(node) &&
                                         (node.parentElement === container || (target && node.matches(target)))
                                     ) {
+                                        fresh.add(node);
                                         resize?.observe(node);
                                     }
                                 }
@@ -542,6 +608,8 @@ export default component<A>(
                                         resize?.unobserve(node);
                                     }
                                 }
+
+                                changed ||= relevant(record, items);
                             }
 
                             if (changed) {
@@ -550,12 +618,43 @@ export default component<A>(
                         });
                         mutations.observe(container, { attributeFilter: ['class', 'inert'], attributes: true, childList: true, subtree: true });
 
-                        resize = new ResizeObserver(schedule);
+                        // A size change moves an item only from ahead of it, around it, or past it in a parent that
+                        // isn't laid out from its start; a virtual list's rows and trailing spacer resizing below a
+                        // resting highlight don't.
+                        resize = new ResizeObserver((entries) => {
+                            let items: Element[] | undefined;
+
+                            for (let i = 0, n = entries.length; i < n; i++) {
+                                let node = entries[i].target,
+                                    host = node.parentElement;
+
+                                if (fresh.delete(node)) {
+                                    continue;
+                                }
+
+                                items ??= tracked();
+
+                                if (
+                                    node === container ||
+                                    items.some((item) => before(node, item) || (!!host && host.contains(item) && !anchored(host)))
+                                ) {
+                                    schedule();
+                                    return;
+                                }
+                            }
+                        });
                         resize.observe(container);
 
                         for (let child of container.children) {
                             if (!self.includes(child)) {
                                 resize.observe(child);
+                            }
+                        }
+
+                        // Nested items too, as mutations add them, so one shown or resized is seen wherever it sits.
+                        if (target) {
+                            for (let item of container.querySelectorAll(target)) {
+                                resize.observe(item);
                             }
                         }
 
