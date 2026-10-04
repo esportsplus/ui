@@ -1,12 +1,13 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import { fileTree, FileTreeDecorations, FileTreeEditor, FileTreeElements, FileTreeHistory, icon, input } from '@esportsplus/ui/components';
+import { fileTree, FileTreeDecorations, FileTreeEditor, FileTreeElements, FileTreeHistory, icon, input, select, switch as toggle } from '@esportsplus/ui/components';
 import symlink from '@esportsplus/ui/svg/corner-down-right.svg';
 import lock from '@esportsplus/ui/svg/lock.svg';
 import type {
     FileTreeController,
     FileTreeElement,
     FileTreeHistoryOperation,
+    FileTreeKind,
     FileTreeSnapshot,
     FileTreeSortCase,
     FileTreeSortOrder
@@ -400,6 +401,16 @@ function chain(parent: string, names: string, children: (id: string) => FileTree
     return element;
 }
 
+// A select over 'values', each shown as itself, named by the text beside it.
+function choice(label: string, values: string[], state: { active: boolean; error: string; selected?: number | string }) {
+    return html`
+        <div class='file-tree-demo-field'>
+            <span aria-hidden='true'>${label}</span>
+            ${select({ class: 'file-tree-demo-select', label, options: Object.fromEntries(values.map((value) => [value, value])), state })}
+        </div>
+    `;
+}
+
 // Java packages and a deep web app, with ids as paths. Fresh per render, since the store changes it in place.
 function compacted(): FileTreeElement[] {
     return [
@@ -467,6 +478,23 @@ function duplicate(element: FileTreeElement, uid: number): FileTreeElement {
         children: element.children?.map((child) => duplicate(child, uid)),
         id: `${element.id}~${uid}`
     };
+}
+
+// A switch named by the text beside it, which toggles it too.
+function flag(label: string, value: () => boolean, change: (value: boolean) => void) {
+    return html`
+        <label class='file-tree-demo-field'>
+            ${toggle({
+                [toggle.input]: {
+                    checked: value,
+                    onchange: (event: Event) => {
+                        change((event.target as HTMLInputElement).checked);
+                    }
+                }
+            })}
+            ${label}
+        </label>
+    `;
 }
 
 // What a history label calls them: one by name, several by count.
@@ -585,6 +613,20 @@ function movable(): FileTreeElement[] {
     ];
 }
 
+// What a typed path like 'a/b.ts' asks the store to create: its folders, outermost first, each holding the next, then
+// the item; 'id' names each in turn.
+function nest(parts: string[], kind: FileTreeKind, id: (name: string) => string) {
+    let made = parts.map((name, i): FileTreeElement => i === parts.length - 1 && kind === 'file'
+        ? { id: id(name), name }
+        : { children: [], id: id(name), name, type: 'folder' });
+
+    for (let i = made.length - 1; i > 0; i--) {
+        made[i - 1].children!.push(made[i]);
+    }
+
+    return made;
+}
+
 // A history step's operation as an app mirroring it on disk would log it.
 function operation(value: FileTreeHistoryOperation) {
     switch (value.type) {
@@ -604,6 +646,11 @@ function packages(): FileTreeElement[] {
         name: `package-${p}`,
         type: 'folder' as const
     }));
+}
+
+// Ids as paths for 'nest', each from the one before: 'a', then 'a/b'; 'parent' is the folder the first lands in.
+function path(parent: string) {
+    return (name: string) => parent = parent ? `${parent}/${name}` : name;
 }
 
 // Fresh per render, since the store changes the elements it's given in place. Each top-level folder is a root.
@@ -926,40 +973,22 @@ export default {
         },
         {
             render: () => {
-                let settings = reactive({ case: 'insensitive' as FileTreeSortCase, order: 'folders' as FileTreeSortOrder, unicode: false });
+                let casing = reactive({ active: false, error: '', render: false, selected: CASES[0] as number | string }),
+                    order = reactive({ active: false, error: '', render: false, selected: ORDERS[0] as number | string }),
+                    settings = reactive({ unicode: false });
 
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo-actions'>
-                            <label>
-                                Order
-                                <select onchange='${(event: Event) => {
-                                    settings.order = (event.target as HTMLSelectElement).value as FileTreeSortOrder;
-                                }}'>
-                                    ${ORDERS.map((order) => html`<option value='${order}'>${order}</option>`)}
-                                </select>
-                            </label>
-                            <label>
-                                Case
-                                <select onchange='${(event: Event) => {
-                                    settings.case = (event.target as HTMLSelectElement).value as FileTreeSortCase;
-                                }}'>
-                                    ${CASES.map((value) => html`<option value='${value}'>${value}</option>`)}
-                                </select>
-                            </label>
-                            <label>
-                                <input
-                                    onchange='${() => {
-                                        settings.unicode = !settings.unicode;
-                                    }}'
-                                    type='checkbox'
-                                />
-                                Unicode
-                            </label>
+                            ${choice('Order', ORDERS, order)}
+                            ${choice('Case', CASES, casing)}
+                            ${flag('Unicode', () => settings.unicode, (value) => {
+                                settings.unicode = value;
+                            })}
                         </div>
                         <div class='file-tree-demo'>
                             ${() => {
-                                let sort = { case: settings.case, order: settings.order, unicode: settings.unicode };
+                                let sort = { case: casing.selected as FileTreeSortCase, order: order.selected as FileTreeSortOrder, unicode: settings.unicode };
 
                                 // A fresh tree per sort.
                                 return fileTree({ elements: PROJECT, expanded: ['src'], sort });
@@ -1154,31 +1183,12 @@ export default {
                                 // Stands in for the file system: the new item lands in the store, with the folders a
                                 // path like 'a/b.ts' names around it.
                                 create: (parent, parts, kind) => {
-                                    let id = parent?.id ?? '',
-                                        root: FileTreeElement | undefined,
-                                        tail: FileTreeElement | undefined;
+                                    let made = nest(parts, kind, path(parent?.id ?? ''));
 
-                                    for (let i = 0, n = parts.length; i < n; i++) {
-                                        id = id ? `${id}/${parts[i]}` : parts[i];
-
-                                        let element: FileTreeElement = i === n - 1 && kind === 'file'
-                                            ? { id, name: parts[i] }
-                                            : { children: [], id, name: parts[i], type: 'folder' };
-
-                                        if (tail) {
-                                            tail.children!.push(element);
-                                        }
-                                        else {
-                                            root = element;
-                                        }
-
-                                        tail = element;
-                                    }
-
-                                    history.transact(() => files.add(root!, parent?.id ?? null), `Create ${parts.join('/')}`);
+                                    history.transact(() => files.add(made[0], parent?.id ?? null), `Create ${parts.join('/')}`);
                                     log.text = `Created ${parts.join('/')} in ${parent?.id ?? 'the root'}`;
                                     setTimeout(() => {
-                                        state.selected = id;
+                                        state.selected = made[made.length - 1].id;
                                     });
                                 },
                                 decorations,
@@ -1239,16 +1249,9 @@ export default {
                             >
                                 Select com
                             </button>
-                            <label>
-                                <input
-                                    checked
-                                    onchange='${() => {
-                                        settings.compact = !settings.compact;
-                                    }}'
-                                    type='checkbox'
-                                />
-                                Compact
-                            </label>
+                            ${flag('Compact', () => settings.compact, (value) => {
+                                settings.compact = value;
+                            })}
                         </div>
                         <p class='file-tree-demo-caption'>${() => log.text}</p>
                     </div>
@@ -1416,31 +1419,13 @@ export default {
                                 // Stands in for the file system: the new item lands in the store, which adds its row
                                 // live, with the folders a path like 'a/b.ts' names around it.
                                 create: (parent, parts, kind) => {
-                                    let id = '',
-                                        root: FileTreeElement | undefined,
-                                        tail: FileTreeElement | undefined;
+                                    let made = nest(parts, kind, () => `new-${++next}`);
 
-                                    for (let i = 0, n = parts.length; i < n; i++) {
-                                        let element: FileTreeElement = i === n - 1 && kind === 'file'
-                                            ? { id: `new-${++next}`, name: parts[i] }
-                                            : { children: [], id: `new-${++next}`, name: parts[i], type: 'folder' };
-
-                                        if (tail) {
-                                            tail.children!.push(element);
-                                        }
-                                        else {
-                                            root = element;
-                                        }
-
-                                        id = element.id;
-                                        tail = element;
-                                    }
-
-                                    history.transact(() => files.add(root!, parent?.id ?? null), `Create ${parts.join('/')}`);
+                                    history.transact(() => files.add(made[0], parent?.id ?? null), `Create ${parts.join('/')}`);
                                     log.message = `Created ${parts.join('/')} in ${parent?.name ?? 'the root'}`;
                                     // Once the input has closed, handing focus back to the row it opened from.
                                     setTimeout(() => {
-                                        state.selected = id;
+                                        state.selected = made[made.length - 1].id;
                                     });
                                 },
                                 editor,
@@ -1698,25 +1683,9 @@ export default {
                         <div class='file-tree-demo'>
                             ${fileTree({
                                 create: (parent, parts, kind) => {
-                                    let root: FileTreeElement | undefined,
-                                        tail: FileTreeElement | undefined;
+                                    let made = nest(parts, kind, () => `created-${++next}`);
 
-                                    for (let i = 0, n = parts.length; i < n; i++) {
-                                        let element: FileTreeElement = i === n - 1 && kind === 'file'
-                                            ? { id: `created-${++next}`, name: parts[i] }
-                                            : { children: [], id: `created-${++next}`, name: parts[i], type: 'folder' };
-
-                                        if (tail) {
-                                            tail.children!.push(element);
-                                        }
-                                        else {
-                                            root = element;
-                                        }
-
-                                        tail = element;
-                                    }
-
-                                    history.transact(() => files.add(root!, parent?.id ?? null), `Create ${parts.join('/')}`);
+                                    history.transact(() => files.add(made[0], parent?.id ?? null), `Create ${parts.join('/')}`);
                                 },
                                 decorations,
                                 display: { stats: true },
@@ -1861,20 +1830,7 @@ export default {
                             ${fileTree({
                                 // A path like 'a/b.ts' names the folders to make on the way; roots always hold it.
                                 create: (parent, parts, kind) => {
-                                    let at = parent!.id,
-                                        made = parts.map((name, i): FileTreeElement => {
-                                            at = `${at}/${name}`;
-
-                                            return i === parts.length - 1 && kind === 'file'
-                                                ? { id: at, name }
-                                                : { children: [], id: at, name, type: 'folder' };
-                                        });
-
-                                    for (let i = made.length - 1; i > 0; i--) {
-                                        made[i - 1].children!.push(made[i]);
-                                    }
-
-                                    files.add(made[0], parent!.id);
+                                    files.add(nest(parts, kind, path(parent!.id))[0], parent!.id);
                                     ui.log = `Created ${parts.join('/')} in ${parent!.name}`;
                                 },
                                 decorations,

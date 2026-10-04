@@ -9,7 +9,9 @@
     width: 384px;
 
     &-actions {
+        align-items: center;
         display: flex;
+        flex-wrap: wrap;
         gap: 8px;
     }
 
@@ -17,6 +19,14 @@
         color: var(--color-text-300);
         font-size: 13px;
         margin: 0;
+    }
+
+    // A control and the text naming it.
+    &-field {
+        align-items: center;
+        display: flex;
+        font-size: 13px;
+        gap: 8px;
     }
 
     &-history {
@@ -91,6 +101,11 @@
         flex: none;
         max-width: 100%;
         width: 384px;
+    }
+
+    // Two sit side by side over the tree.
+    &-select.select {
+        --width: 136px;
     }
 
     &-stack {
