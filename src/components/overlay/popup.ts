@@ -104,11 +104,13 @@ function popup({ canDismiss, contains = (root, node) => !!node && root.contains(
         onclosed?.();
     }
 
+    function dismissable() {
+        return state.active || !!canDismiss?.();
+    }
+
     function dismissPopup(reason: 'escape' | 'outside') {
-        if (state.active || canDismiss?.()) {
-            ondismiss?.(reason);
-            state.active = false;
-        }
+        ondismiss?.(reason);
+        state.active = false;
     }
 
     return {
@@ -166,25 +168,30 @@ function popup({ canDismiss, contains = (root, node) => !!node && root.contains(
             hide();
             root = undefined;
         },
+        // Every popup sees every document event, so the cheap open check comes before any tree walk.
         ...(dismiss && {
             ondocumentpointerdown: (event: PointerEvent) => {
-                if (root && !contains(root, event.target as Node | null)) {
+                if (root && dismissable() && !contains(root, event.target as Node | null)) {
                     dismissPopup('outside');
                 }
             }
         }),
         ...(dismissOn && {
             ondocumentclick: (event: MouseEvent) => {
+                if (!root || !dismissable()) {
+                    return;
+                }
+
                 let match = (event.target as Element | null)?.closest?.(dismissOn);
 
-                if (root && match && root.contains(match)) {
+                if (match && root.contains(match)) {
                     dismissPopup('outside');
                 }
             }
         }),
         ...(escape && {
             ondocumentkeydown: (event: KeyboardEvent) => {
-                if (event.key !== 'Escape' || event.defaultPrevented || !root || !(state.active || canDismiss?.())) {
+                if (event.key !== 'Escape' || event.defaultPrevented || !root || !dismissable()) {
                     return;
                 }
 

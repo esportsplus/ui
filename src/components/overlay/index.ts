@@ -105,6 +105,16 @@ function outside(element: HTMLElement, e: MouseEvent) {
     return e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom;
 }
 
+// A numeric custom property, written only when it changes; zero removes it.
+function property(element: HTMLElement, name: string, value: number) {
+    if (!value) {
+        element.style.removeProperty(name);
+    }
+    else if (element.style.getPropertyValue(name) !== String(value)) {
+        element.style.setProperty(name, String(value));
+    }
+}
+
 // Clears what a drag dismissal left behind, once the overlay has closed or is opening again.
 function reset(element: HTMLElement) {
     element.classList.remove('overlay--edge-fill');
@@ -119,23 +129,22 @@ function reset(element: HTMLElement) {
 
 // Each layer recedes by how much of every layer above it in the same host is still open, so dragging the top
 // one lets the rest follow the finger back. The host's '.overlay-page' child, if it opts in, recedes under all.
+// It runs on every drag move, so only changes are written: even re-setting 'inert' queues a mutation record.
 function restack() {
     let hosts = new Map<HTMLElement, { depth: number; tracking: boolean }>();
 
     // Walking down from the top, so every layer sees what is already stacked over it.
     for (let i = layers.length - 1; i >= 0; i--) {
         let { dragging, element, host, progress } = layers[i],
-            entry = hosts.get(host) ?? { depth: 0, tracking: false };
+            entry = hosts.get(host) ?? { depth: 0, tracking: false },
+            covered = entry.depth > 0;
 
-        element.classList.toggle('overlay--covered', entry.depth > 0);
-        element.classList.toggle('overlay--tracking', entry.depth > 0 && entry.tracking);
-        element.inert = entry.depth > 0;
+        element.classList.toggle('overlay--covered', covered);
+        element.classList.toggle('overlay--tracking', covered && entry.tracking);
+        property(element, '--depth', entry.depth);
 
-        if (entry.depth > 0) {
-            element.style.setProperty('--depth', String(entry.depth));
-        }
-        else {
-            element.style.removeProperty('--depth');
+        if (element.inert !== covered) {
+            element.inert = covered;
         }
 
         entry.depth += 1 - progress;
@@ -157,10 +166,12 @@ function restack() {
         }
     }
 
+    // Custom properties inherit, so writing one on <body> every drag move restyles the whole page; only a host with
+    // a receding page reads it.
     for (let [host, entry] of hosts) {
-        host.classList.add('overlay-host--active');
+        host.classList.toggle('overlay-host--active', true);
         host.classList.toggle('overlay-host--dragging', entry.tracking);
-        host.style.setProperty('--overlay-depth', String(entry.depth));
+        property(host, '--overlay-depth', host.querySelector(':scope > .overlay-page') ? entry.depth : 0);
     }
 
     overlaid = new Set(hosts.keys());

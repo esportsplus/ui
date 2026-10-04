@@ -501,9 +501,10 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             return;
         }
 
-        // Follows the trigger exactly; a glide would trail behind the scroll.
-        element.classList.remove('tooltip-shared--gliding');
+        // Follows the trigger exactly; a glide would trail behind the scroll. Dropped after measuring, which reads
+        // layout: a class change first would force a style and layout pass on every scroll event.
         measure();
+        element.classList.remove('tooltip-shared--gliding');
     }
 
     // Spans, so it can be rendered inside running text.
