@@ -1,5 +1,8 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { batch, computed, dispose, onCleanup, reactive, ReactiveArray, read } from '@esportsplus/reactivity';
+import { clamp } from '~/shared/clamp';
+import { observeSize } from '~/shared/resize';
+import { onceVisible } from '~/shared/visible';
 import flash from './flash';
 import './scss/index.scss';
 
@@ -69,13 +72,10 @@ function subscribe(data: ReactiveArray<Point>, listener: VoidFunction) {
 
 function template(this: { attributes?: Partial<A> } | void, { data, format = String, state = reactive({ active: false, index: data.length - 1 }), title, ...attributes }: A) {
     let plot: HTMLElement | undefined,
-        resize: ResizeObserver | undefined,
         // Plot and tip sizes in CSS pixels: the chart is drawn at the size it is shown, so the stroke, dot and tip
         // keep their size in any card instead of scaling with it.
         size = reactive({ height: 0, tip: 0, width: 0 }),
-        tip: HTMLElement | undefined,
-        view = reactive({ announcement: '', revision: 0, shown: false }),
-        visible: IntersectionObserver | undefined;
+        view = reactive({ announcement: '', revision: 0, shown: false });
 
     // A snapshot per revision, so every binding reads one consistent series while the array changes under it.
     let series = computed(() => {
@@ -91,6 +91,15 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
         }
 
         return { max, min, points, span: max - min || 1 };
+    });
+
+    // Built once per change for both the line and the area under it.
+    let line = computed(() => {
+        if (!size.width) {
+            return '';
+        }
+
+        return read(series).points.map((point, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(point.value).toFixed(1)}`).join(' ');
     });
 
     function delta() {
@@ -115,26 +124,6 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
         return Math.max(read(series).points.length - 1, 0);
     }
 
-    function line() {
-        if (!size.width) {
-            return '';
-        }
-
-        return read(series).points.map((point, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(point.value).toFixed(1)}`).join(' ');
-    }
-
-    function measure() {
-        if (!plot) {
-            return;
-        }
-
-        batch(() => {
-            size.height = plot!.clientHeight;
-            size.tip = tip?.offsetWidth ?? 0;
-            size.width = plot!.clientWidth;
-        });
-    }
-
     function nearest(clientX: number) {
         if (!plot) {
             return state.index;
@@ -144,12 +133,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
             // Divides out any CSS scale so the maths holds inside a scaled container.
             at = (clientX - box.left) / (box.width / plot.clientWidth || 1);
 
-        return Math.min(Math.max(Math.round((at - PAD_X) / step()), 0), last());
-    }
-
-    function observe(element: HTMLElement) {
-        resize ??= new ResizeObserver(measure);
-        resize.observe(element);
+        return clamp(Math.round((at - PAD_X) / step()), 0, last());
     }
 
     function point() {
@@ -184,6 +168,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
     }
 
     onCleanup(() => {
+        dispose(line);
         dispose(series);
     });
 
@@ -211,6 +196,13 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
                 tabindex='0'
                 ${this?.attributes?.[METRIC_PLOT]}
                 ${attributes[METRIC_PLOT]}
+                ${observeSize(({ height, width }) => {
+                    batch(() => {
+                        size.height = height;
+                        size.width = width;
+                    });
+                })}
+                ${onceVisible(() => view.shown = true)}
                 ${{
                     'aria-label': () => `${title}, ${read(series).points.length} points. Use arrow keys to read values.`,
                     class: [
@@ -222,20 +214,6 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
                     },
                     onconnect: (element: HTMLElement) => {
                         plot = element;
-                        observe(element);
-                        visible = new IntersectionObserver((entries) => {
-                            if (!entries.some((entry) => entry.isIntersecting)) {
-                                return;
-                            }
-
-                            visible?.disconnect();
-                            view.shown = true;
-                        });
-                        visible.observe(element);
-                    },
-                    ondisconnect: () => {
-                        resize?.disconnect();
-                        visible?.disconnect();
                     },
                     onfocus: () => {
                         state.active = true;
@@ -250,7 +228,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
 
                         e.preventDefault();
 
-                        let index = Math.min(Math.max(key(state.index, last()), 0), last());
+                        let index = clamp(key(state.index, last()), 0, last());
 
                         state.active = true;
                         state.index = index;
@@ -289,11 +267,11 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
             >
                 <svg aria-hidden='true' class='metric-svg'>
                     <path class='metric-area' d='${() => {
-                        let path = line();
+                        let path = read(line);
 
                         return path && `${path} L${x(last()).toFixed(1)} ${size.height} L${x(0).toFixed(1)} ${size.height} Z`;
                     }}' />
-                    <path class='metric-line' d='${() => line()}' fill='none' pathLength='1' />
+                    <path class='metric-line' d='${() => read(line)}' fill='none' pathLength='1' />
                 </svg>
 
                 <div aria-hidden='true' class='metric-overlay'>
@@ -305,14 +283,11 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
                             let half = size.tip / 2;
 
                             // Kept inside the card near either edge, and centred when the card is narrower than the tip.
-                            return `left: ${size.width < size.tip ? size.width / 2 : Math.min(Math.max(x(state.index), half), size.width - half)}px`;
+                            return `left: ${size.width < size.tip ? size.width / 2 : clamp(x(state.index), half, size.width - half)}px`;
                         }}'
-                        ${{
-                            onconnect: (element: HTMLElement) => {
-                                tip = element;
-                                observe(element);
-                            }
-                        }}
+                        ${observeSize(({ width }) => {
+                            size.tip = width;
+                        })}
                     >
                         <span class='metric-tip-value'>${() => {
                             let at = point();
