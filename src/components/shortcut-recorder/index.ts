@@ -1,5 +1,5 @@
 import { html, type Attributes } from '@esportsplus/template';
-import { effect, flush, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { effect, flush, onCleanup, reactive } from '@esportsplus/reactivity';
 import error, { type Direction } from '~/components/error';
 import { mac as apple } from '~/shared/platform';
 import '~/components/button/scss/index.scss';
@@ -111,12 +111,7 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
         listeners: AbortController | undefined,
         mac = apple(),
         pressed: string[] = [],
-        status = reactive({ recording: false }),
-        sync = effect(() => {
-            let tokens = status.recording ? [] : parse(state.value);
-
-            untrack(() => show(tokens, connected ? 'settle' : ''));
-        });
+        status = reactive({ recording: false });
 
     function commit(held: string[]) {
         let shortcut = chord.join('+'),
@@ -269,9 +264,10 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
         state.error = '';
     }
 
+    onCleanup(effect(() => status.recording ? [] : parse(state.value), (tokens) => show(tokens, connected ? 'settle' : '')));
+
     onCleanup(() => {
         listeners?.abort();
-        sync();
     });
 
     return error({ direction, duration: ERROR_DURATION, state }, html`

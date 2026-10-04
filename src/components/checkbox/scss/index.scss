@@ -62,28 +62,33 @@
         stroke-dashoffset: 0;
     }
 
-    &:has(> .checkbox-tag:focus-visible, > .radio-tag:focus-visible, > .switch-tag:focus-visible) {
+    &:has(> .checkbox-tag:focus-visible) {
         outline: var(--focus-width) solid var(--focus-color);
         outline-offset: var(--focus-offset);
     }
 
-    .checkbox-check {
+    // The group header's dash draws with the same variables and timing as the checkmark it replaces.
+    .checkbox-check,
+    .checkbox-group-dash {
+        @extend %absolute-full;
         height: var(--check-size);
-        inset: 0 0 0 1px;
         margin: auto;
         pointer-events: none;
-        position: absolute;
         width: var(--check-size);
 
         svg {
             @extend %icon-stroke-draw;
             fill: none;
             stroke: var(--indicator-color);
-            stroke-width: var(--check-stroke-width);
             stroke-linecap: var(--check-linecap);
             stroke-linejoin: var(--check-linejoin);
+            stroke-width: var(--check-stroke-width);
             transition: stroke-dashoffset var(--transition-duration) var(--check-timing-function);
         }
+    }
+
+    .checkbox-check {
+        left: 1px;
     }
 
     &-group {
@@ -126,24 +131,6 @@
             flex: 1;
             font-weight: var(--font-weight-500);
             min-width: 0;
-        }
-
-        // Lives inside the checkbox, so it draws with the same variables and timing as the checkmark it replaces.
-        .checkbox &-dash {
-            @extend %absolute-full;
-            height: var(--check-size);
-            margin: auto;
-            pointer-events: none;
-            width: var(--check-size);
-
-            svg {
-                @extend %icon-stroke-draw;
-                fill: none;
-                stroke: var(--indicator-color);
-                stroke-linecap: var(--check-linecap);
-                stroke-width: var(--check-stroke-width);
-                transition: stroke-dashoffset var(--transition-duration) var(--check-timing-function);
-            }
         }
 
         .checkbox:has(input:indeterminate) &-dash svg {

@@ -24,7 +24,7 @@ function factory<const P extends Record<PropertyKey, unknown> = {}>(type: 'check
         ) {
             return html`
                 <div
-                    class='checkbox ${(type === 'radio' || type === 'switch') && `checkbox--${type}`}'
+                    class='checkbox ${type !== 'checkbox' && `checkbox--${type}`}'
                     ${this?.attributes}
                     ${attributes}
                 >
