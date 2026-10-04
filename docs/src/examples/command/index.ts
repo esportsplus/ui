@@ -1,6 +1,8 @@
-import { reactive } from '@esportsplus/reactivity';
+import { reactive, read, signal, write } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import { command } from '@esportsplus/ui/components';
+import { mac } from '@esportsplus/ui/shared/platform';
+import fuzzy from '@esportsplus/ui/shared/fuzzy';
 import back from '@esportsplus/ui/svg/arrow-left.svg';
 import forward from '@esportsplus/ui/svg/arrow-right.svg';
 import next from '@esportsplus/ui/svg/arrow-down.svg';
@@ -38,6 +40,19 @@ let commands: Command[] = [
         { group: 'Actions', icon: contrast, id: 'theme', label: 'Toggle theme', shortcut: ['Shift', 'T'] },
         { group: 'Actions', icon: logOut, id: 'logout', label: 'Log out' }
     ],
+    files = [
+        'docs/src/examples/command/index.ts',
+        'package.json',
+        'src/components/command/index.ts',
+        'src/components/command/scss/index.scss',
+        'src/components/command/scss/variables.scss',
+        'src/components/file-tree/index.ts',
+        'src/components/overlay/index.ts',
+        'src/components/overlay/popup.ts',
+        'src/shared/fuzzy.ts',
+        'src/shared/platform.ts',
+        'tsconfig.json'
+    ],
     shortcuts: Shortcut[] = [
         { group: 'Navigation', icon: magnifier, id: 'search', keys: ['Mod', 'K'], label: 'Search' },
         { group: 'Navigation', icon: back, id: 'back', keys: ['Mod', '['], label: 'Go back' },
@@ -63,8 +78,8 @@ function demo(attributes: Partial<Parameters<typeof command>[0]> = {}, actions?:
     return html`
         <div class='command-demo'>
             ${command({
-                ...attributes,
                 commands,
+                ...attributes,
                 onrun: (entry) => {
                     ran.label = entry.label;
                 }
@@ -111,6 +126,50 @@ function local(prefix: string): Store {
     };
 }
 
+// No trigger of its own: the page opens it through 'state', from a button or Mod+P, like an editor's quick open.
+function palette() {
+    let paths = signal(files),
+        state = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
+
+    return demo(
+        {
+            commands: () => read(paths).map((path) => ({ group: 'Files', icon: docs, id: path, label: path })),
+            hotkey: ['Mod', 'P'],
+            limit: 8,
+            match: fuzzy,
+            placeholder: 'Go to file',
+            state,
+            trigger: false
+        },
+        html`
+            <div class='command-demo-actions'>
+                <button
+                    class='button'
+                    type='button'
+                    onclick='${() => {
+                        state.active = true;
+                    }}'
+                >
+                    Go to file
+                    <kbd class='button button--kbd'>${mac() ? '⌘' : 'Ctrl'}</kbd>
+                    <kbd class='button button--kbd'>P</kbd>
+                </button>
+                <button
+                    class='button'
+                    type='button'
+                    onclick='${() => {
+                        let list = read(paths);
+
+                        write(paths, [...list, `src/untitled-${list.length - files.length + 1}.ts`]);
+                    }}'
+                >
+                    Add file
+                </button>
+            </div>
+        `
+    );
+}
+
 
 export default {
     name: 'command',
@@ -126,6 +185,10 @@ export default {
         {
             render: () => hub(),
             title: 'tabs: recents + every command, a tab per group + keyboard shortcuts'
+        },
+        {
+            render: () => palette(),
+            title: 'trigger-less palette: opened by state from a button or ⌘P / Ctrl+P, fuzzy matched, live list'
         }
     ]
 } satisfies Entry;
