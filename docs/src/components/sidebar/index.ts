@@ -85,7 +85,7 @@ export default (request: Request) => {
                 ${searchTrigger()}
             </div>
 
-            <div class='sidebar-scrollport --scrollbar --scrollbar-blur --scrollbar-hidden'>
+            <div class='sidebar-scrollport --scrollbar --scrollbar-fade --scrollbar-hidden'>
                 <div class='sidebar-content'>
                     ${navTree(
                         sections().map((section) => ({
