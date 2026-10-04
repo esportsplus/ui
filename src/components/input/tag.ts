@@ -136,7 +136,7 @@ export default component(
                                 }
                             }}
                         >
-                            <svg aria-hidden='true'><use href='#${close}' /></svg>
+                            <svg aria-hidden='true' class='input-tag-chip-icon'><use href='#${close}' /></svg>
                         </button>
                     </span>
                     ${name && html`<input name='${name}[]' type='hidden' value='${tag}' />`}
@@ -170,7 +170,7 @@ export default component(
                     <span aria-hidden='true' class='input-tag-chip-body'></span>
                     <span class='input-tag-chip-text'>${ghost.tag}</span>
                     <span class='input-tag-chip-remove'>
-                        <span class='input-tag-chip-button'><svg aria-hidden='true'><use href='#${close}' /></svg></span>
+                        <span class='input-tag-chip-button'><svg aria-hidden='true' class='input-tag-chip-icon'><use href='#${close}' /></svg></span>
                     </span>
                 </li>
             `);

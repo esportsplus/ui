@@ -46,11 +46,6 @@
             transition:
                 background-color var(--transition-duration) var(--transition-timing-function),
                 box-shadow var(--transition-duration) var(--transition-timing-function);
-
-            #{tokens.state(active, '.input-tag-chip')} > & {
-                background: var(--chip-background-active);
-                box-shadow: none;
-            }
         }
 
         &-button {
@@ -92,20 +87,11 @@
             &:focus-visible {
                 outline: var(--border-width-500) solid var(--outline-color);
             }
+        }
 
-            svg {
-                height: 14px;
-                width: 14px;
-            }
-
-            #{tokens.state(active, '.input-tag-chip')} & {
-                color: oklch(from var(--chip-color-active) l c h / 0.7);
-
-                &:hover {
-                    background: transparent;
-                    color: var(--chip-color-active);
-                }
-            }
+        &-icon {
+            height: 14px;
+            width: 14px;
         }
 
         &-remove {

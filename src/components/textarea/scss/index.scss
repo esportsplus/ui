@@ -23,10 +23,6 @@
         resize: none;
         scrollbar-gutter: var(--scrollbar-gutter);
 
-        &.textarea--scrollable {
-            --scrollbar-overflow: auto;
-        }
-
         @media (prefers-reduced-motion: reduce) {
             transition: none;
         }
@@ -52,6 +48,11 @@
         &-fallback {
             height: calc(var(--content-height, var(--min-height)) + 2 * var(--border-width));
         }
+    }
+
+    // Only ever set alongside '--autoresize', once the content outgrows its maximum height.
+    &--scrollable {
+        --scrollbar-overflow: auto;
     }
 }
 

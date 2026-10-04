@@ -85,7 +85,7 @@
         // Carries the surface from anywhere but an editable title; the grip is its keyboard handle.
         &-header {
             align-items: center;
-            cursor: grab;
+            cursor: var(--surface-header-cursor);
             display: flex;
             flex-shrink: 0;
             gap: 4px;
@@ -94,20 +94,12 @@
             touch-action: none;
         }
 
-        #{tokens.state(active)} &-header {
-            cursor: grabbing;
-        }
-
         // An element rather than a pseudo-element, so both of those stay free for the surface's own decoration.
         &-lift {
             @extend %layer;
             box-shadow: var(--surface-box-shadow-active);
-            opacity: 0;
+            opacity: var(--surface-lift-opacity);
             transition: opacity var(--surface-lift-duration) ease;
-        }
-
-        #{tokens.state(active)} > &-lift {
-            opacity: 1;
         }
 
         &-handle {
@@ -163,7 +155,7 @@
             min-width: 0;
         }
 
-        &-header > &-title + &-handle {
+        &-title + &-handle {
             margin-inline-start: auto;
         }
     }

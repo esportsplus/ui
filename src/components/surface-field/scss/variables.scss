@@ -1,3 +1,5 @@
+@use '/tokens';
+
 .surface-field {
     --accent: #6683e8;
     --color: var(--color-text-500);
@@ -13,10 +15,20 @@
     --surface-grip-color: var(--color-text-300);
     --surface-grip-width: 32px;
     --surface-handle-height: 28px;
+    --surface-header-cursor: grab;
     --surface-lift-duration: 200ms;
+    --surface-lift-opacity: 0;
     --surface-title-color: var(--color-text-500);
 
     @media (prefers-reduced-motion: reduce) {
         --still: 1;
+    }
+
+    // Held, a surface shows its second shadow and the closed hand.
+    &-surface {
+        @include tokens.state(active) {
+            --surface-header-cursor: grabbing;
+            --surface-lift-opacity: 1;
+        }
     }
 }
