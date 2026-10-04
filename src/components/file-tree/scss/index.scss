@@ -16,81 +16,34 @@
     position: relative;
     width: 100%;
 
-    // One guide per ancestor under each ancestor's chevron, outside the row's box so the highlight covers the row
-    // alone; rows carry no vertical margins, so each row's share joins into an unbroken line. The parent's guide is a
-    // 1px box and the others are its shadows ('--guides'), whole indents further out: boxes snap to whole pixels the
-    // same way on every row, where a gradient's line falls between pixels and each row rounds it its own way.
-    &--indicator &-row {
-        --guide-direction: 1;
+    &--indicator {
+        --indicator-display: block;
 
-        &:dir(rtl) {
-            --guide-direction: -1;
-        }
-
-        &::before {
-            background: currentColor;
-            box-shadow: var(--guides);
-            color: var(--indicator-color);
-            content: '';
-            inset-block: 0;
-            inset-inline-start: calc(var(--padding) + var(--twistie-size) / 2 - 0.5px - var(--indent));
-            position: absolute;
-            // Top-level rows have no parent to draw.
-            width: calc(min(var(--depth), 1) * 1px);
+        // On the tree rather than the viewport, so the copies standing in for rows mid-motion, laid beside the
+        // viewport, brighten and show along with the rest.
+        &:hover {
+            --indicator-color: var(--indicator-hover);
         }
     }
 
-    // On the tree rather than the viewport, so the copies standing in for rows mid-motion, laid beside the viewport,
-    // brighten and show along with the rest.
-    &--indicator:hover &-row::before {
-        --indicator-color: var(--indicator-hover);
-    }
+    &--indicator-hover {
+        --indicator-opacity: 0;
 
-    &--indicator-hover &-row::before {
-        opacity: 0;
-        transition: opacity var(--indicator-duration) ease-out;
-    }
-
-    &--indicator-hover:hover &-row::before {
-        opacity: 1;
+        &:hover {
+            --indicator-opacity: 1;
+        }
     }
 
     // The accordion: the folder's bottom edge travels over its rows, 0 to --motion-rows rows down. Runs under
     // reduced motion as well, since its end is what settles the motion.
-    &.file-tree--motion {
+    &--motion {
         --motion-edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         animation: file-tree-collapse var(--collapse-duration) var(--motion-easing) forwards;
     }
 
-    &.file-tree--motion-open {
+    &--motion-open {
         animation-duration: var(--expand-duration);
         animation-name: file-tree-expand;
-    }
-
-    // The viewport holds the pointer for the whole drag, so its cursor is the one that shows.
-    &.file-tree--drag &-viewport {
-        cursor: grabbing;
-
-        .file-tree-row {
-            cursor: inherit;
-        }
-    }
-
-    &.file-tree--drag-copy &-viewport {
-        cursor: copy;
-    }
-
-    &.file-tree--drag-move &-row.file-tree-row--dragged {
-        opacity: var(--dragged-opacity);
-    }
-
-    &.file-tree--drag-none &-viewport {
-        cursor: no-drop;
-    }
-
-    &.file-tree--drop &-viewport {
-        background: var(--drop-background);
-        box-shadow: inset 0 0 0 var(--border-width-400) var(--drop-border-color);
     }
 
     &-badge {
@@ -103,17 +56,19 @@
         margin-inline-start: auto;
         padding-inline-start: var(--item-gap);
 
-        @each $tone in additions, added, conflict, deleted, deletions, error, ignored, modified, open, submodule, unsaved, warning {
-            > .file-tree-badge-part--#{$tone} {
-                color: var(--#{$tone}-color);
+        &-part {
+            @each $tone in additions, added, conflict, deleted, deletions, error, ignored, modified, open, submodule, unsaved, warning {
+                &--#{$tone} {
+                    color: var(--#{$tone}-color);
+                }
             }
-        }
 
-        // Changes in the index sit in a tinted chip, so a file staged and then edited again reads as two letters.
-        > .file-tree-badge-part--staged {
-            background: color-mix(in srgb, currentColor var(--staged-tint), transparent);
-            border-radius: var(--staged-radius);
-            padding-inline: var(--staged-padding);
+            // Changes in the index sit in a tinted chip, so a file staged and then edited again reads as two letters.
+            &--staged {
+                background: color-mix(in srgb, currentColor var(--staged-tint), transparent);
+                border-radius: var(--staged-radius);
+                padding-inline: var(--staged-padding);
+            }
         }
     }
 
@@ -154,14 +109,14 @@
             display: flex;
         }
 
+        &--copy {
+            --drag-copy-display: block;
+        }
+
         &-copy {
             color: var(--added-color);
-            display: none;
+            display: var(--drag-copy-display, none);
             font-weight: var(--badge-font-weight);
-
-            .file-tree-drag--copy > & {
-                display: block;
-            }
         }
 
         &-count {
@@ -344,10 +299,6 @@
             left: 0;
             position: absolute;
             right: 0;
-
-            > .file-tree-row {
-                position: absolute;
-            }
         }
     }
 
@@ -355,21 +306,24 @@
         @extend %text-truncate;
         color: var(--tone, inherit);
         min-width: 0;
-
-        .file-tree-row--deleted > & {
-            text-decoration: line-through;
-        }
+        text-decoration: var(--name-decoration, none);
     }
 
     &-notice {
         color: var(--notice-color);
+
+        // Nothing to act on while loading; the error row retries.
+        &:not(.file-tree-row--error) {
+            cursor: var(--drag-cursor, default);
+        }
     }
 
     &-row {
         @extend %drag-item;
+        --guide-direction: 1;
         align-items: center;
         border-radius: var(--row-radius);
-        cursor: pointer;
+        cursor: var(--drag-cursor, pointer);
         display: flex;
         gap: var(--item-gap);
         height: var(--row-height);
@@ -381,25 +335,58 @@
         position: relative;
         user-select: none;
 
+        &:dir(rtl) {
+            --guide-direction: -1;
+        }
+
+        // One guide per ancestor under each ancestor's chevron, outside the row's box so the highlight covers the row
+        // alone; rows carry no vertical margins, so each row's share joins into an unbroken line. The parent's guide
+        // is a 1px box and the others are its shadows ('--guides'), whole indents further out: boxes snap to whole
+        // pixels the same way on every row, where a gradient's line falls between pixels and each row rounds it its
+        // own way.
+        &::before {
+            background: currentColor;
+            box-shadow: var(--guides);
+            color: var(--indicator-color);
+            content: '';
+            display: var(--indicator-display, none);
+            inset-block: 0;
+            inset-inline-start: calc(var(--padding) + var(--twistie-size) / 2 - 0.5px - var(--indent));
+            opacity: var(--indicator-opacity, 1);
+            position: absolute;
+            transition: opacity var(--indicator-duration) ease-out;
+            // Top-level rows have no parent to draw.
+            width: calc(min(var(--depth), 1) * 1px);
+        }
+
         // The contents alone, so the guide and a selection behind the row keep their strength.
-        &.file-tree-row--cut > * {
+        &--cut > * {
             opacity: var(--cut-opacity);
         }
 
         &.--disabled {
-            cursor: not-allowed;
+            cursor: var(--drag-cursor, not-allowed);
             opacity: 0.5;
         }
 
+        &--deleted {
+            --name-decoration: line-through;
+        }
+
+        // Set while moving, not copying.
+        &--dragged {
+            opacity: var(--dragged-opacity);
+        }
+
         // A root's header, set apart from the folders under it as VS Code sets its workspace folders.
-        &.file-tree-row--root {
+        &--root {
             font-size: var(--root-font-size);
             font-weight: var(--root-font-weight);
             text-transform: uppercase;
         }
 
         // The drop target and its open contents read as one box, from the folder's indent down to its last row.
-        &.file-tree-row--drop::after {
+        &--drop::after {
             background: var(--drop-background);
             border: 0 solid var(--drop-border-color);
             border-inline-width: var(--border-width-400);
@@ -410,47 +397,42 @@
             position: absolute;
         }
 
-        &.file-tree-row--drop-end::after,
-        &.file-tree-row--drop-only::after {
+        &--drop-end::after,
+        &--drop-only::after {
             border-block-end-width: var(--border-width-400);
             border-end-end-radius: var(--row-radius);
             border-end-start-radius: var(--row-radius);
         }
 
-        &.file-tree-row--drop-only::after,
-        &.file-tree-row--drop-start::after {
+        &--drop-only::after,
+        &--drop-start::after {
             border-block-start-width: var(--border-width-400);
             border-start-end-radius: var(--row-radius);
             border-start-start-radius: var(--row-radius);
         }
 
         // Every match tinted, the one the find bar is on outlined as well; a selected match shows its selection.
-        &.file-tree-row--match {
+        &--match {
             background: var(--found-background);
         }
 
-        &.file-tree-row--match-current {
+        &--match-current {
             box-shadow: inset 0 0 0 1px var(--found-border-color);
         }
 
         // Selected rows besides the primary, which the highlight covers.
-        &.file-tree-row--selected {
+        &--selected {
             background: var(--background-selected);
         }
 
-        // Nothing to act on while loading; the error row retries.
-        &.file-tree-notice:not(.file-tree-row--error) {
-            cursor: default;
-        }
-
         // A folder's rows fade in a beat behind the opening.
-        &.file-tree-row--reveal {
+        &--reveal {
             animation: file-tree-reveal var(--reveal-duration) ease-out var(--reveal-delay) backwards;
         }
 
         // A square band across the tree's full width, back past the row's depth inset, so a scope's rows join into
         // one block. Isolated, the band sits over the highlight and under the row's content and guides.
-        &.file-tree-row--scope {
+        &--scope {
             isolation: isolate;
 
             &::after {
@@ -464,7 +446,22 @@
             }
         }
 
-        .file-tree-viewport:focus-visible > &.file-tree-row--focused {
+        // A copy in the sticky stack, which covers the highlight, so it shows its own hover and selection.
+        &--pinned {
+            --background-selected: var(--background-active);
+
+            &:not(.--disabled, .file-tree-row--selected):hover {
+                background: var(--background-hover);
+            }
+
+            // The deepest folder, pushed up by the rows after its own, slides under the one above it.
+            &:last-child {
+                clip-path: inset(var(--sticky-push, 0px) calc(var(--depth) * var(--indent) * -1) 0);
+                margin-block-start: calc(var(--sticky-push, 0px) * -1);
+            }
+        }
+
+        .file-tree-viewport:focus-visible &--focused {
             outline-width: 1px;
         }
     }
@@ -479,11 +476,11 @@
             text-decoration: underline;
         }
 
-        &.file-tree-segment--match-current {
+        &--match-current {
             box-shadow: inset 0 0 0 1px var(--found-border-color);
         }
 
-        &.file-tree-segment--drop {
+        &--drop {
             background: var(--drop-background);
             box-shadow: inset 0 0 0 var(--border-width-400) var(--drop-border-color);
         }
@@ -511,26 +508,6 @@
 
             &:not(:has(> .file-tree-row)) {
                 display: none;
-            }
-
-            > .file-tree-row {
-                &.file-tree-row--selected {
-                    background: var(--background-active);
-                }
-
-                &:not(.--disabled, .file-tree-row--selected):hover {
-                    background: var(--background-hover);
-                }
-
-                // The deepest folder, pushed up by the rows after its own, slides under the one above it.
-                &:last-child {
-                    clip-path: inset(var(--sticky-push, 0px) calc(var(--depth) * var(--indent) * -1) 0);
-                    margin-block-start: calc(var(--sticky-push, 0px) * -1);
-                }
-
-                .file-tree-viewport:focus-visible &.file-tree-row--focused {
-                    outline-width: 1px;
-                }
             }
         }
     }
@@ -573,34 +550,55 @@
         outline: none;
         overflow-x: hidden;
         overflow-y: auto;
+
+        // The viewport holds the pointer for the whole drag, so its cursor is the one that shows; its rows take it too.
+        &--drag {
+            --drag-cursor: grabbing;
+            cursor: var(--drag-cursor);
+        }
+
+        &--drag-copy {
+            --drag-cursor: copy;
+        }
+
+        &--drag-none {
+            --drag-cursor: no-drop;
+        }
+
+        &--drop {
+            background: var(--drop-background);
+            box-shadow: inset 0 0 0 var(--border-width-400) var(--drop-border-color);
+        }
     }
 
     // The list has already swapped rows, so the rows below are drawn back where they sat and ride the edge home, and
     // copies stand in for any no longer rendered. Opening: the folder's rows show above the edge. Closing: copies of
     // them fade out above it. The real rows move, not their contents, so the highlight follows the selected one.
     @media (prefers-reduced-motion: no-preference) {
-        &.file-tree--motion &-motion {
-            display: block;
-        }
+        &-motion {
+            @include tokens.state(active) {
+                display: block;
+            }
 
-        &.file-tree--motion-close {
-            .file-tree-motion-layer {
+            &-layer--close {
                 animation: file-tree-conceal var(--conceal-duration) ease-out forwards;
                 height: var(--motion-edge);
                 overflow: hidden;
             }
 
-            .file-tree-row.file-tree-row--motion ~ .file-tree-row {
+            &-layer--open {
                 translate: 0 var(--motion-edge);
             }
         }
 
-        &.file-tree--motion-open {
-            .file-tree-motion-layer {
+        &-row {
+            // Marked only while closing.
+            &--motion ~ .file-tree-row {
                 translate: 0 var(--motion-edge);
             }
 
-            .file-tree-row.file-tree-row--reveal {
+            // Marked only while opening.
+            &--reveal {
                 // Open at the sides, so the guides drawn outside the row still show.
                 clip-path: inset(
                     0
@@ -621,7 +619,7 @@
             transition: none;
         }
 
-        &-row.file-tree-row--reveal {
+        &-row--reveal {
             animation-name: file-tree-fade;
         }
     }
@@ -629,12 +627,8 @@
     // High contrast themes swap every color for the system palette and drop tints and shadows, which would take the
     // highlight, the scope bands and all but the parent's guide with them.
     @media (forced-colors: active) {
-        // Opted out, so the shadow copies drawing the further ancestors' guides survive.
-        &--indicator &-row::before {
-            --indicator-color: GrayText;
-            --indicator-hover: CanvasText;
-            forced-color-adjust: none;
-        }
+        --indicator-color: GrayText;
+        --indicator-hover: CanvasText;
 
         // The wash is dropped with the other tints, so an underline marks the match along with its weight.
         &-match {
@@ -642,6 +636,11 @@
         }
 
         &-row {
+            // Opted out, so the shadow copies drawing the further ancestors' guides survive.
+            &::before {
+                forced-color-adjust: none;
+            }
+
             // Opted out, or the backplate drawn behind text in Canvas hides the name.
             @include tokens.state(active) {
                 background: Highlight;
@@ -664,19 +663,19 @@
                 outline: 1px dashed Highlight;
             }
 
-            &.file-tree-row--match {
+            &--match {
                 outline: 1px dotted CanvasText;
             }
 
-            &.file-tree-row--match-current {
+            &--match-current {
                 outline-style: solid;
             }
 
-            &.file-tree-row--scope::after {
+            &--scope::after {
                 display: none;
             }
 
-            .file-tree-viewport:focus-visible > &.file-tree-row--focused {
+            .file-tree-viewport:focus-visible > &--focused {
                 outline: 1px solid CanvasText;
             }
         }

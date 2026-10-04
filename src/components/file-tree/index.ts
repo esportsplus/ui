@@ -742,7 +742,7 @@ export default ({
                         // Each tests its own row first, so only the rows concerned follow the cursor and the motion.
                         class: [
                             () => signal.selector(focused, row.key) && 'file-tree-row--focused',
-                            () => signal.selector(sweep, row.key) && ui.motion && 'file-tree-row--motion',
+                            () => signal.selector(sweep, row.key) && ui.motion === 'close' && 'file-tree-row--motion',
                             () => revealing.has(row) && ui.motion === 'open' && 'file-tree-row--reveal'
                         ],
                         onauxclick: (event: MouseEvent) => press(row, event),
@@ -762,7 +762,7 @@ export default ({
             return html`
                 <div
                     aria-expanded='true'
-                    class='file-tree-row ${row.locked && '--disabled'} ${header(row) && 'file-tree-row--root'} ${() => active(row) && 'file-tree-row--selected'}'
+                    class='file-tree-row file-tree-row--pinned ${row.locked && '--disabled'} ${header(row) && 'file-tree-row--root'} ${() => active(row) && 'file-tree-row--selected'}'
                     style='--depth: ${row.depth}; --guides: ${guides(row.depth)};'
                     ${mark && { class: () => read(mark).tone && `file-tree-row--${read(mark).tone}` }}
                     ${{
@@ -1533,7 +1533,7 @@ export default ({
     // Drawn like the row it stands in for, its marks kept live; laid out by its measured box, so the depth margin
     // would count twice.
     function ghost({ left, row, top, width }: Ghost) {
-        let style = `--depth: ${row.depth}; --guides: ${guides(row.depth)}; left: ${left}px; margin: 0; top: ${top}px; width: ${width}px;`;
+        let style = `--depth: ${row.depth}; --guides: ${guides(row.depth)}; left: ${left}px; margin: 0; position: absolute; top: ${top}px; width: ${width}px;`;
 
         if (row.notice) {
             return placeholder(row.notice, { style });
@@ -3238,8 +3238,13 @@ export default ({
                 class='file-tree-motion'
                 inert
                 style='${() => `height: ${stage.height}px; left: ${stage.left}px; top: ${stage.top}px; width: ${stage.width}px;`}'
+                ${{ class: () => ui.motion && '--active' }}
             >
-                <div class='file-tree-motion-layer' style='${() => `top: ${stage.edge}px;`}'>
+                <div
+                    class='file-tree-motion-layer'
+                    style='${() => `top: ${stage.edge}px;`}'
+                    ${{ class: () => ui.motion && `file-tree-motion-layer--${ui.motion}` }}
+                >
                     ${html.reactive(ghosts, ghost)}
                 </div>
             </div>

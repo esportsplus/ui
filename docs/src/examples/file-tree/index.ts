@@ -510,8 +510,8 @@ function legend() {
                     <h4 class='file-tree-demo-legend-title'>${group.title}</h4>
                     <dl class='file-tree-demo-legend-list'>
                         ${group.entries.map((entry) => html`
-                            <dt>${entry.sample()}</dt>
-                            <dd>${entry.label}</dd>
+                            <dt class='file-tree-demo-legend-term'>${entry.sample()}</dt>
+                            <dd class='file-tree-demo-legend-description'>${entry.label}</dd>
                         `)}
                     </dl>
                 </section>
@@ -525,7 +525,7 @@ function letter(text: string, label: string, tone?: string, options: { color?: s
     return {
         label,
         sample: () => html`
-            <span class='file-tree-badge'>
+            <span class='file-tree-badge file-tree-demo-legend-badge'>
                 <span
                     class='file-tree-badge-part ${options.staged && 'file-tree-badge-part--staged'} ${tone && `file-tree-badge-part--${tone}`}'
                     ${{ style: options.color && `color: ${options.color}` }}
@@ -1746,8 +1746,8 @@ export default {
                         <p class='file-tree-demo-caption'>${() => ui.mirrored}</p>
                         <ol class='file-tree-demo-history'>
                             ${() => html`
-                                ${history.undoable.map((entry) => html`<li>${entry.label}</li>`)}
-                                ${[...history.redoable].reverse().map((entry) => html`<li class='--undone'>${entry.label}</li>`)}
+                                ${history.undoable.map((entry) => html`<li class='file-tree-demo-history-step'>${entry.label}</li>`)}
+                                ${[...history.redoable].reverse().map((entry) => html`<li class='file-tree-demo-history-step --undone'>${entry.label}</li>`)}
                             `}
                         </ol>
                     </div>

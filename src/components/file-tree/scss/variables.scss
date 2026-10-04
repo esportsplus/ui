@@ -137,7 +137,7 @@
 
     &-row {
         @each $tone in added, conflict, deleted, error, ignored, modified, warning {
-            &.file-tree-row--#{$tone} {
+            &--#{$tone} {
                 --tone: var(--#{$tone}-color);
             }
         }

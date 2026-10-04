@@ -38,7 +38,7 @@
         padding-left: 20px;
         width: 384px;
 
-        .--undone {
+        &-step.--undone {
             opacity: 0.5;
             text-decoration: line-through;
         }
@@ -51,32 +51,32 @@
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         width: 100%;
 
+        // A row pushes its badge to the far end; here it sits centered in its column.
+        &-badge.file-tree-badge {
+            margin: 0;
+            padding: 0;
+        }
+
+        &-description {
+            color: var(--color-text-300);
+            margin: 0;
+        }
+
         &-list {
             align-items: center;
             display: grid;
             gap: var(--size-100) var(--size-200);
             grid-template-columns: max-content 1fr;
             margin: 0;
-
-            dd {
-                color: var(--color-text-300);
-                margin: 0;
-            }
-
-            dt {
-                display: flex;
-                justify-content: center;
-
-                // A row pushes its badge to the far end; here it sits centered in its column.
-                .file-tree-badge {
-                    margin: 0;
-                    padding: 0;
-                }
-            }
         }
 
         &-name--deleted {
             text-decoration: line-through;
+        }
+
+        &-term {
+            display: flex;
+            justify-content: center;
         }
 
         &-title {

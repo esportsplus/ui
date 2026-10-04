@@ -378,15 +378,11 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
         `,
         root: {
             ...gesture.attributes,
-            class: [
-                () => ui.effect && `file-tree--drag file-tree--drag-${ui.effect}`,
-                () => read(marks.target) === -1 && 'file-tree--drop'
-            ],
             ondisconnect: () => gesture.cancel()
         } as Attributes,
         row: (row: T): Attributes => ({
             class: [
-                () => read(held) && sources.includes(row) && 'file-tree-row--dragged',
+                () => read(held) && ui.effect === 'move' && sources.includes(row) && 'file-tree-row--dragged',
                 () => mark(row)
             ],
             onpointerdown: (e: PointerEvent) => {
@@ -421,6 +417,10 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
         }),
         // The root carries the fold motion's inline styles, so the drop depth goes on the viewport instead.
         viewport: {
+            class: [
+                () => ui.effect && `file-tree-viewport--drag file-tree-viewport--drag-${ui.effect}`,
+                () => read(marks.target) === -1 && 'file-tree-viewport--drop'
+            ],
             style: () => ui.depth !== null && `--drop-depth: ${ui.depth}`
         } as Attributes
     };
