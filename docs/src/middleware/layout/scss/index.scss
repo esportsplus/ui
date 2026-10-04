@@ -13,6 +13,10 @@
     position: sticky;
     top: 0;
 
+    &:not(:has(.nav-tree-link)) {
+        display: none;
+    }
+
     @media (max-width: 1280px) {
         display: none;
     }

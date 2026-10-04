@@ -18,7 +18,9 @@ const pageNavTree = (links: TreeLink[]) => links.length > 0 && html`
                         ${{
                             onclick: (event: Event) => link.onclick?.(event)
                         }}
-                    >${link.label}</a>
+                    >
+                        ${link.label}
+                    </a>
                 `)}
             </div>
         </div>

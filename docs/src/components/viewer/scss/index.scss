@@ -26,6 +26,10 @@
         min-width: 0;
         padding-inline: var(--size-600);
 
+        &:not(:has(> .page-nav .nav-tree-link)) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
         @media (max-width: 1280px) {
             grid-template-columns: minmax(0, 1fr);
         }
