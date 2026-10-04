@@ -113,7 +113,7 @@ function accent(settings: Settings) {
     });
 
     return html`
-        <div class='surface-field-demo-row --inline'>
+        <div class='surface-field-demo-row surface-field-demo-row--inline'>
             <span class='surface-field-demo-label'>Accent color</span>
             ${tooltip.onclick(
                 { class: 'surface-field-demo-accent' },
@@ -157,7 +157,7 @@ function control(settings: Settings, key: keyof Settings, label: string, min: nu
     });
 }
 
-function panel(settings: Settings, intro: string) {
+function panel(settings: Settings, intro: string, stacked = false) {
     let preset = reactive({ active: false, error: '', render: false, selected: 'Workspace' as number | string });
 
     effect(() => {
@@ -165,11 +165,11 @@ function panel(settings: Settings, intro: string) {
     });
 
     return html`
-        <aside class='surface-field-demo-panel --scrollbar'>
+        <aside class='surface-field-demo-panel --scrollbar ${stacked && 'surface-field-demo-panel--stacked'}'>
             <p class='surface-field-demo-intro'>${intro}</p>
 
             <div class='surface-field-demo-group'>
-                <h4>Preset</h4>
+                <h4 class='surface-field-demo-heading'>Preset</h4>
                 <div class='surface-field-demo-preset'>
                     ${select({
                         'aria-label': 'Field preset',
@@ -192,7 +192,7 @@ function panel(settings: Settings, intro: string) {
             </div>
 
             <div class='surface-field-demo-group'>
-                <h4>Dots & lines</h4>
+                <h4 class='surface-field-demo-heading'>Dots & lines</h4>
                 ${control(settings, 'gap', 'Spacing', 10, 48, 1, 'px')}
                 ${control(settings, 'radius', 'Light radius', 0, 800, 10, 'px')}
                 ${control(settings, 'brightness', 'Brightness', 0, 1, 0.01, '%')}
@@ -201,14 +201,14 @@ function panel(settings: Settings, intro: string) {
             </div>
 
             <div class='surface-field-demo-group'>
-                <h4>Interaction</h4>
+                <h4 class='surface-field-demo-heading'>Interaction</h4>
                 ${control(settings, 'pointerPush', 'Cursor distortion', 0, 20, 1, 'px')}
                 ${control(settings, 'ripplePush', 'Ripple displacement', 0, 30, 1, 'px')}
                 ${control(settings, 'surfacePadding', 'Surface spacing', -16, 40, 1, 'px')}
             </div>
 
             <div class='surface-field-demo-group'>
-                <h4>Color & motion</h4>
+                <h4 class='surface-field-demo-heading'>Color & motion</h4>
                 ${accent(settings)}
                 ${control(settings, 'tint', 'Accent blend', 0, 1, 0.01, '%')}
                 ${switchRow(settings, 'wander', 'Wandering light', 'Let the light drift when idle')}
@@ -221,12 +221,13 @@ function panel(settings: Settings, intro: string) {
 
 function switchRow(settings: Settings, key: 'connected' | 'still' | 'wander', label: string, hint?: string) {
     return html`
-        <label class='surface-field-demo-row --inline'>
+        <label class='surface-field-demo-row surface-field-demo-row--inline'>
             <span class='surface-field-demo-label'>
                 ${label}
-                ${hint && html`<small>${hint}</small>`}
+                ${hint && html`<small class='surface-field-demo-label-hint'>${hint}</small>`}
             </span>
             ${toggle({
+                class: 'surface-field-demo-switch',
                 [toggle.input]: {
                     'aria-label': label,
                     checked: () => settings[key],
@@ -292,7 +293,7 @@ export default {
 
                 return html`
                     <div class='surface-field-demo --stacked'>
-                        ${panel(settings, 'The field as a node canvas background. Pan, zoom, move or resize a card, or rename one: the grid follows the camera as a floor below it, and the links run through the field.')}
+                        ${panel(settings, 'The field as a node canvas background. Pan, zoom, move or resize a card, or rename one: the grid follows the camera as a floor below it, and the links run through the field.', true)}
                         ${editor(settings)}
                     </div>
                 `;
@@ -305,8 +306,8 @@ export default {
                 html`
                     <div class='surface-field-demo-hero'>
                         <div class='surface-field-demo-card' data-surface-field>
-                            <h3>Any element can be a surface</h3>
-                            <p>Mark it with <code>data-surface-field</code> and the field clears a space around it. This one draws in a worker.</p>
+                            <h3 class='surface-field-demo-hero-title'>Any element can be a surface</h3>
+                            <p class='surface-field-demo-hero-text'>Mark it with <code class='surface-field-demo-hero-code'>data-surface-field</code> and the field clears a space around it. This one draws in a worker.</p>
                         </div>
                     </div>
                 `

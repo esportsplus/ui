@@ -5,19 +5,26 @@
     display: grid;
     gap: var(--size-200);
 
-    &--counter &-surface:focus-within {
-        box-shadow: 0 0 0 3px var(--demo-ring);
+    &-control {
+        --background: transparent;
+        --border-radius: var(--border-radius-600);
+        --border-width: 0px;
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-300);
+        margin: 0;
+        min-width: 0;
+        outline: none;
+        width: 100%;
+
+        // Autoresize sizes and locks its own field; only the fixed one takes a floor and a handle.
+        &--resizable {
+            min-height: 112px;
+            resize: vertical;
+        }
     }
 
-    // Autoresize sizes and locks its own field; only the fixed one takes a floor and a handle.
-    &--counter .textarea {
-        min-height: 112px;
-        resize: vertical;
-    }
-
-    &--prefix &-surface {
-        align-items: stretch;
-        display: flex;
+    &-count {
+        font-variant-numeric: tabular-nums;
     }
 
     &-footer {
@@ -28,10 +35,6 @@
         gap: var(--size-300);
         justify-content: space-between;
         padding: var(--size-200) var(--size-400);
-
-        output {
-            font-variant-numeric: tabular-nums;
-        }
     }
 
     &-prefix {
@@ -50,21 +53,17 @@
         position: relative;
         transition: background var(--demo-duration), border-color var(--demo-duration), box-shadow var(--demo-duration);
 
+        &--counter:focus-within {
+            box-shadow: 0 0 0 3px var(--demo-ring);
+        }
+
+        &--prefix {
+            align-items: stretch;
+            display: flex;
+        }
+
         &:focus-within {
             border-color: var(--demo-accent);
         }
-    }
-
-    .input,
-    .textarea {
-        --background: transparent;
-        --border-radius: var(--border-radius-600);
-        --border-width: 0px;
-        --padding-horizontal: var(--size-400);
-        --padding-vertical: var(--size-300);
-        margin: 0;
-        min-width: 0;
-        outline: none;
-        width: 100%;
     }
 }

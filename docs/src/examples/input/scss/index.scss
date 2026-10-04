@@ -33,13 +33,13 @@
             height: 120px;
             justify-content: center;
             overflow: hidden;
+        }
 
-            div {
-                background: var(--color-blue-400);
-                border-radius: var(--border-radius-600);
-                height: 48px;
-                width: 48px;
-            }
+        &-shape {
+            background: var(--color-blue-400);
+            border-radius: var(--border-radius-600);
+            height: 48px;
+            width: 48px;
         }
 
         &-title {

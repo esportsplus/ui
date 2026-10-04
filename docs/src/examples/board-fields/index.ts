@@ -83,6 +83,7 @@ function field({ disabled, invalid, size = 'medium', value }: Field = {}) {
                 ${input({
                     'aria-describedby': `${id}-hint`,
                     'aria-invalid': invalid && 'true',
+                    class: 'board-input-control',
                     disabled,
                     id,
                     placeholder: 'Enter your email',
@@ -92,7 +93,7 @@ function field({ disabled, invalid, size = 'medium', value }: Field = {}) {
                 })}
                 ${ICONS.help()}
             </div>
-            <small id='${id}-hint'>${HINT}</small>
+            <small class='board-input-note' id='${id}-hint'>${HINT}</small>
         </div>
     `;
 }
@@ -122,7 +123,7 @@ function format(value: string) {
 function label(id: string, text: string, required = true, info = true) {
     return html`
         <label class='board-input-label' for='${id}'>
-            ${text}${required && html`<span aria-hidden='true'>*</span>`}${info && ICONS.info()}
+            ${text}${required && html`<span aria-hidden='true' class='board-input-required'>*</span>`}${info && ICONS.info()}
         </label>
     `;
 }
@@ -139,6 +140,7 @@ function notes({ autoresize, count, disabled, hint, invalid, label: text, placeh
                     'aria-describedby': `${id}-hint`,
                     'aria-invalid': invalid && 'true',
                     ...(autoresize && { autoresize: { height: { max: '160px', min: '20px' } } }),
+                    class: ['board-input-control', 'board-input-textarea', !autoresize && !invalid && 'board-input-textarea--resizable'],
                     disabled,
                     id,
                     ...(count && { maxlength: 160 }),
@@ -152,8 +154,8 @@ function notes({ autoresize, count, disabled, hint, invalid, label: text, placeh
                 })}
             </div>
             <div class='board-input-hint'>
-                <small id='${id}-hint'>${hint}</small>
-                ${count && html`<small class='board-input-count'>${() => state.length}/160</small>`}
+                <small class='board-input-note' id='${id}-hint'>${hint}</small>
+                ${count && html`<small class='board-input-count board-input-note'>${() => state.length}/160</small>`}
             </div>
         </div>
     `;
@@ -190,6 +192,7 @@ function otp({ disabled, group, invalid, length = 6, value = '' }: Otp = {}) {
                             'aria-invalid': invalid && 'true',
                             'aria-label': `Digit ${index + 1} of ${length}`,
                             autocomplete: 'one-time-code',
+                            class: 'board-otp-input',
                             disabled,
                             inputmode: 'numeric',
                             maxlength: length,
@@ -242,7 +245,7 @@ function otp({ disabled, group, invalid, length = 6, value = '' }: Otp = {}) {
                     </span>
                 `)}
             </div>
-            <small>${() => state.status || `Value · "${state.code}"`}</small>
+            <small class='board-otp-status'>${() => state.status || `Value · "${state.code}"`}</small>
         </div>
     `;
 }
@@ -259,13 +262,14 @@ function phone(value = '') {
                     <span class='${() => `board-flag board-flag--${COUNTRIES[state.country].code}`}' aria-hidden='true'></span>
                     <span>${() => COUNTRIES[state.country].dial}</span>
                     ${ICONS.chevron()}
-                    <select aria-label='Country code' onchange='${(event: Event) => state.country = (event.target as HTMLSelectElement).selectedIndex}'>
+                    <select aria-label='Country code' class='board-input-select' onchange='${(event: Event) => state.country = (event.target as HTMLSelectElement).selectedIndex}'>
                         ${COUNTRIES.map(({ dial, name }) => html`<option>${name} (${dial})</option>`)}
                     </select>
                 </label>
                 ${input({
                     'aria-describedby': `${id}-hint`,
                     autocomplete: 'tel-national',
+                    class: 'board-input-control',
                     id,
                     inputmode: 'tel',
                     oninput: (event: Event) => {
@@ -280,7 +284,7 @@ function phone(value = '') {
                 })}
                 ${ICONS.help()}
             </div>
-            <small id='${id}-hint'>${HINT}</small>
+            <small class='board-input-note' id='${id}-hint'>${HINT}</small>
         </div>
     `;
 }
@@ -290,7 +294,7 @@ function quick(icon: keyof typeof ICONS, placeholder: string, type: string) {
         <div class='board-input board-input--medium'>
             <div class='board-input-field'>
                 ${ICONS[icon]()}
-                ${input({ 'aria-label': placeholder, placeholder, type })}
+                ${input({ 'aria-label': placeholder, class: 'board-input-control', placeholder, type })}
             </div>
         </div>
     `;

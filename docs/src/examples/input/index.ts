@@ -90,7 +90,7 @@ export default {
                             ${input.scrub({ label: 'Scale', max: 4, min: 0.1, pixelsPerStep: 4, state: scale, step: 0.01 }, 'S')}
                         </div>
                         <div class='input-scrub-demo-preview'>
-                            <div style=${() => `opacity: ${opacity.value / 100}; scale: ${scale.value};`}></div>
+                            <div class='input-scrub-demo-shape' style=${() => `opacity: ${opacity.value / 100}; scale: ${scale.value};`}></div>
                         </div>
                     </div>
                 `;

@@ -22,14 +22,14 @@ function fieldVariations(kind: 'input' | 'textarea'): Variant[] {
             let id = `field-prototype-${++instance}`;
 
             return html`
-                <div class='form-prototype field-prototype field-prototype--${mode}'>
+                <div class='form-prototype field-prototype'>
                     <label for='${id}'>${kind === 'input' ? 'Project name' : 'Notes'}</label>
-                    <div class='field-prototype-surface'>
+                    <div class='field-prototype-surface field-prototype-surface--${mode}'>
                         ${kind === 'input'
-                            ? input({ id, placeholder: 'Enter a project name…' })
-                            : textarea({ id, placeholder: 'Write a few notes…', rows: 3 })}
+                            ? input({ class: 'field-prototype-control', id, placeholder: 'Enter a project name…' })
+                            : textarea({ class: 'field-prototype-control field-prototype-control--resizable', id, placeholder: 'Write a few notes…', rows: 3 })}
                     </div>
-                    <small>Focus and type to try the ${mode} animation.</small>
+                    <small class='form-prototype-hint'>Focus and type to try the ${mode} animation.</small>
                 </div>
             `;
         },

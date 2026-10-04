@@ -51,8 +51,8 @@
 
         &--us {
             background:
-            linear-gradient(#3c3b6e, #3c3b6e) 0 0 / 7px 6.5px no-repeat,
-            repeating-linear-gradient(#b22234 0 1px, #fff 1px 2px);
+                linear-gradient(#3c3b6e, #3c3b6e) 0 0 / 7px 6.5px no-repeat,
+                repeating-linear-gradient(#b22234 0 1px, #fff 1px 2px);
         }
     }
 
@@ -75,62 +75,72 @@
     }
 
     &-input {
+        --board-field-align: center;
+        --board-field-background: var(--board-surface);
+        --board-field-color: var(--board-muted);
+        --board-field-cursor: text;
+        --board-field-min-height: auto;
+        --board-field-opacity: 1;
+        --board-field-padding: 8px;
+        --board-field-shadow: inset 0 0 0 2px transparent;
+        --board-placeholder-color: var(--board-muted);
         color: var(--board-text);
         display: grid;
         font-size: 14px;
         gap: 4px;
         line-height: 20px;
 
-        &--disabled &-field {
-            background: var(--board-disabled);
-            box-shadow: none;
-            cursor: not-allowed;
-            opacity: .55;
-
-            .input,
-            .textarea {
-                cursor: not-allowed;
-            }
+        &--disabled {
+            --board-field-background: var(--board-disabled);
+            --board-field-cursor: not-allowed;
+            --board-field-opacity: .55;
+            --board-field-shadow: none;
         }
 
         &--invalid {
-            small {
-                color: var(--board-error);
+            --board-field-background: var(--board-error-surface);
+            --board-field-color: var(--board-error);
+            --board-field-shadow: none;
+            --board-placeholder-color: color-mix(in oklab, var(--board-error) 70%, transparent);
+        }
+
+        &--phone {
+            --board-field-padding: 4px 8px 4px 4px;
+        }
+
+        &--small {
+            --board-field-min-height: 32px;
+            --board-field-padding: 6px;
+        }
+
+        &--textarea {
+            --board-field-align: stretch;
+        }
+
+        &-control {
+            --background: transparent;
+            --border-width: 0px;
+            --color-default: var(--board-text);
+            --font-size: 14px;
+            --padding-horizontal: 4px;
+            --padding-vertical: 0px;
+            --size: 20px;
+            line-height: 20px;
+            margin: 0;
+            outline: none;
+
+            &::placeholder {
+                color: var(--board-placeholder-color);
+                transition: color var(--board-transition);
             }
-        }
 
-        &--invalid &-field {
-            background: var(--board-error-surface);
-            box-shadow: none;
-            color: var(--board-error);
-
-            .input::placeholder,
-            .textarea::placeholder {
-                color: color-mix(in oklab, var(--board-error) 70%, transparent);
+            &:disabled {
+                cursor: not-allowed;
             }
-        }
 
-        &--phone &-field {
-            padding: 4px 8px 4px 4px;
-        }
-
-        &--small &-field {
-            min-height: 32px;
-            padding: 6px;
-        }
-
-        &--textarea &-field {
-            align-items: stretch;
-        }
-
-        &--textarea .textarea {
-            min-height: 40px;
-            resize: vertical;
-        }
-
-        &--textarea.board-input--invalid .textarea,
-        &--textarea .textarea--autoresize {
-            resize: none;
+            &:focus::placeholder {
+                color: var(--board-text);
+            }
         }
 
         &-count {
@@ -154,25 +164,21 @@
             &:focus-within {
                 box-shadow: 0 0 0 2px var(--board-focus);
             }
-
-            select {
-                cursor: pointer;
-                inset: 0;
-                opacity: 0;
-                position: absolute;
-            }
         }
 
+        // Hover and focus rings show through the disabled and invalid states.
         &-field {
-            align-items: center;
-            background: var(--board-surface);
+            align-items: var(--board-field-align);
+            background: var(--board-field-background);
             border-radius: var(--board-radius);
-            box-shadow: inset 0 0 0 2px transparent;
-            color: var(--board-muted);
-            cursor: text;
+            box-shadow: var(--board-field-shadow);
+            color: var(--board-field-color);
+            cursor: var(--board-field-cursor);
             display: flex;
             gap: 6px;
-            padding: 8px;
+            min-height: var(--board-field-min-height);
+            opacity: var(--board-field-opacity);
+            padding: var(--board-field-padding);
             transition: background-color var(--board-transition), box-shadow var(--board-transition), color var(--board-transition);
 
             &:focus-within {
@@ -194,42 +200,35 @@
             display: flex;
             font-weight: 500;
             gap: 2px;
-
-            span {
-                color: var(--board-error);
-            }
         }
 
-        .input,
-        .textarea {
-            --background: transparent;
-            --border-width: 0px;
-            --color-default: var(--board-text);
-            --font-size: 14px;
-            --padding-horizontal: 4px;
-            --padding-vertical: 0px;
-            --size: 20px;
-            line-height: 20px;
-            margin: 0;
-            outline: none;
-
-            &::placeholder {
-                color: var(--board-muted);
-                transition: color var(--board-transition);
-            }
-
-            &:focus::placeholder {
-                color: var(--board-text);
-            }
-        }
-
-        small {
+        &-note {
             color: var(--board-muted);
             font-size: 12px;
             font-weight: 500;
             letter-spacing: .15px;
             line-height: 16px;
             padding-top: 1px;
+        }
+
+        &-required {
+            color: var(--board-error);
+        }
+
+        &-select {
+            cursor: pointer;
+            inset: 0;
+            opacity: 0;
+            position: absolute;
+        }
+
+        &-textarea {
+            min-height: 40px;
+            resize: none;
+
+            &--resizable {
+                resize: vertical;
+            }
         }
     }
 
@@ -238,14 +237,12 @@
         gap: var(--size-300);
         justify-items: center;
 
-        &--invalid &-box .input {
-            --background: var(--board-error-surface);
-            --border-color: var(--board-error);
-            --color-default: var(--board-error);
-
-            &:hover {
-                --border-color: var(--board-error);
-            }
+        // The boxes read these tokens, so an invalid code only has to recolour them.
+        &--invalid {
+            --board-ring-active: var(--board-error);
+            --board-ring-hover: var(--board-error);
+            --board-surface: var(--board-error-surface);
+            --board-text: var(--board-error);
         }
 
         &-box {
@@ -253,44 +250,6 @@
 
             &--gap {
                 margin-left: 12px;
-            }
-
-            .input {
-                --background: var(--board-surface);
-                --border-color-default: var(--board-ring-hover);
-                --border-radius: var(--board-radius);
-                --border-width: 1px;
-                --color-default: var(--board-text);
-                --font-size: 20px;
-                --padding-horizontal: 0px;
-                --padding-vertical: 0px;
-                --size: 46px;
-                box-shadow: 0 1px 2px 0 rgb(0 0 0 / .18);
-                font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-                font-variant-numeric: tabular-nums;
-                font-weight: 500;
-                height: 48px;
-                justify-content: center;
-                margin: 0;
-                outline: none;
-                text-align: center;
-                width: 48px;
-
-                &:disabled {
-                    --background: var(--board-disabled);
-                    box-shadow: none;
-                    color: var(--board-muted);
-                    cursor: not-allowed;
-                }
-
-                &:focus-visible {
-                    --border-color: var(--board-focus);
-                    box-shadow: 0 0 0 2px var(--board-focus);
-                }
-
-                &:hover {
-                    --border-color: var(--board-ring-active);
-                }
             }
         }
 
@@ -300,7 +259,45 @@
             gap: 8px;
         }
 
-        small {
+        &-input {
+            --background: var(--board-surface);
+            --border-color-default: var(--board-ring-hover);
+            --border-radius: var(--board-radius);
+            --border-width: 1px;
+            --color-default: var(--board-text);
+            --font-size: 20px;
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
+            --size: 46px;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / .18);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-variant-numeric: tabular-nums;
+            font-weight: 500;
+            height: 48px;
+            justify-content: center;
+            margin: 0;
+            outline: none;
+            text-align: center;
+            width: 48px;
+
+            &:disabled {
+                --background: var(--board-disabled);
+                box-shadow: none;
+                color: var(--board-muted);
+                cursor: not-allowed;
+            }
+
+            &:focus-visible {
+                --border-color: var(--board-focus);
+                box-shadow: 0 0 0 2px var(--board-focus);
+            }
+
+            &:hover {
+                --border-color: var(--board-ring-active);
+            }
+        }
+
+        &-status {
             color: var(--board-muted);
             font-size: 12px;
             font-variant-numeric: tabular-nums;

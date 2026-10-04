@@ -37,7 +37,7 @@ export default {
                         <div class='inline-edit-demo-header'>
                             <span aria-hidden='true' class='inline-edit-demo-avatar'>AM</span>
                             <span aria-hidden='true' class='inline-edit-demo-saved ${() => status.saved && '--active'}'>
-                                <svg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
+                                <svg class='inline-edit-demo-saved-icon' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
                                     <path d='m3.5 8.5 3 3 6-7' />
                                 </svg>
                                 Saved

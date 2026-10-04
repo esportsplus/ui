@@ -29,6 +29,7 @@ function moreFieldVariations(kind: 'input' | 'textarea'): Variant[] {
                 state = reactive({ length: 0 }),
                 attributes = {
                     'aria-describedby': `${id}-hint`,
+                    class: 'field-option-control',
                     id,
                     maxlength: mode === 'counter' ? LIMIT : undefined,
                     oninput: (event: Event) => {
@@ -38,25 +39,26 @@ function moreFieldVariations(kind: 'input' | 'textarea'): Variant[] {
                 };
 
             return html`
-                <div class='form-prototype field-option field-option--${mode}'>
+                <div class='form-prototype field-option'>
                     <label for='${id}'>${label}</label>
-                    <div class='field-option-surface'>
+                    <div class='field-option-surface field-option-surface--${mode}'>
                         ${mode === 'prefix' && html`<span aria-hidden='true' class='field-option-prefix'>workspace /</span>`}
                         ${kind === 'input'
                             ? input(attributes)
                             : textarea({
                                 ...attributes,
                                 autoresize: mode === 'autosize' ? { height: { max: '260px', min: '76px' } } : undefined,
+                                class: ['field-option-control', mode === 'counter' && 'field-option-control--resizable'],
                                 rows: mode === 'autosize' ? 2 : 4
                             })}
                         ${mode === 'counter' && html`
                             <div class='field-option-footer'>
                                 <span>Keep it concise</span>
-                                <output for='${id}'>${() => state.length} / ${LIMIT}</output>
+                                <output class='field-option-count' for='${id}'>${() => state.length} / ${LIMIT}</output>
                             </div>
                         `}
                     </div>
-                    <small id='${id}-hint'>${hint}</small>
+                    <small class='form-prototype-hint' id='${id}-hint'>${hint}</small>
                 </div>
             `;
         },

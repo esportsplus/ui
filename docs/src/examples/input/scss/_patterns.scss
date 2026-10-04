@@ -5,25 +5,13 @@
     --demo-caution: var(--color-yellow-400);
     --demo-danger: var(--color-red-400);
     --demo-safe: var(--color-green-400);
+    --surface-background: color-mix(in srgb, var(--demo-border) 10%, transparent);
+    --surface-border-color: var(--demo-border);
+    --surface-border-color-active: var(--demo-accent);
     display: grid;
     gap: var(--size-200);
 
-    &-surface {
-        background: color-mix(in srgb, var(--demo-border) 10%, transparent);
-        border: 2px solid var(--demo-border);
-        border-radius: 10px;
-        box-shadow: inset 0 1px 2px oklch(from var(--color-black-400) l c h / 0.06);
-        position: relative;
-        transition: background var(--demo-duration), border-color var(--demo-duration), box-shadow var(--demo-duration);
-
-        &:focus-within {
-            background: transparent;
-            border-color: var(--demo-accent);
-            box-shadow: none;
-        }
-    }
-
-    .input {
+    &-input {
         --background: transparent;
         --border-radius: 8px;
         --border-width: 0px;
@@ -35,10 +23,26 @@
         outline: none;
         width: 100%;
     }
+
+    &-surface {
+        background: var(--surface-background);
+        border: 2px solid var(--surface-border-color);
+        border-radius: 10px;
+        box-shadow: inset 0 1px 2px oklch(from var(--color-black-400) l c h / 0.06);
+        position: relative;
+        transition: background var(--demo-duration), border-color var(--demo-duration), box-shadow var(--demo-duration);
+
+        &:focus-within {
+            background: transparent;
+            border-color: var(--surface-border-color-active);
+            box-shadow: none;
+        }
+    }
 }
 
 
 .otp-pattern {
+    --cell-border-color: var(--demo-border);
     --tone: var(--demo-accent);
 
     &-caret {
@@ -55,43 +59,14 @@
         visibility: hidden;
         width: 1.5px;
     }
+
     &-cell {
         height: 48px;
         position: relative;
         width: 40px;
-
-        input {
-            appearance: none;
-            background: color-mix(in srgb, var(--demo-border) 10%, transparent);
-            border: 2px solid var(--demo-border);
-            border-radius: 10px;
-            box-shadow: inset 0 1px 2px oklch(from var(--color-black-400) l c h / 0.06);
-            caret-color: transparent;
-            color: var(--color-text-400);
-            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-            font-size: 15px;
-            height: 100%;
-            outline: none;
-            padding: 0;
-            text-align: center;
-            transition: background var(--demo-duration), border-color var(--demo-duration), box-shadow var(--demo-duration);
-            width: 100%;
-
-            &:focus {
-                background: transparent;
-                border-color: var(--demo-accent);
-                box-shadow: none;
-            }
-
-            &:not(:placeholder-shown) {
-                animation: otp-pattern-enter var(--demo-duration) var(--demo-spring);
-                background: transparent;
-                box-shadow: none;
-            }
-        }
     }
 
-    &-cell:has(input:focus:placeholder-shown) &-caret {
+    &-cell:has(.otp-pattern-input:focus:placeholder-shown) &-caret {
         visibility: visible;
     }
 
@@ -99,6 +74,37 @@
         align-items: center;
         display: flex;
         gap: 6px;
+    }
+
+    // Focused, a cell takes the tone: the accent while idle, the result once the code is checked.
+    &-input {
+        appearance: none;
+        background: color-mix(in srgb, var(--demo-border) 10%, transparent);
+        border: 2px solid var(--cell-border-color);
+        border-radius: 10px;
+        box-shadow: inset 0 1px 2px oklch(from var(--color-black-400) l c h / 0.06);
+        caret-color: transparent;
+        color: var(--color-text-400);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 15px;
+        height: 100%;
+        outline: none;
+        padding: 0;
+        text-align: center;
+        transition: background var(--demo-duration), border-color var(--demo-duration), box-shadow var(--demo-duration);
+        width: 100%;
+
+        &:focus {
+            background: transparent;
+            border-color: var(--tone);
+            box-shadow: none;
+        }
+
+        &:not(:placeholder-shown) {
+            animation: otp-pattern-enter var(--demo-duration) var(--demo-spring);
+            background: transparent;
+            box-shadow: none;
+        }
     }
 
     &-message {
@@ -113,21 +119,22 @@
         width: 10px;
     }
 
-    &.--error { --tone: var(--demo-danger); }
-
-    &.--error &-cell input, &.--success &-cell input {
-        border-color: var(--tone);
+    &.--error {
+        --cell-border-color: var(--tone);
+        --demo-hint: var(--tone);
+        --tone: var(--demo-danger);
     }
 
-    &.--error &-message, &.--success &-message {
-        color: var(--tone) !important;
+    &.--success {
+        --cell-border-color: var(--tone);
+        --demo-hint: var(--tone);
+        --tone: var(--demo-safe);
     }
-
-    &.--success { --tone: var(--demo-safe); }
 }
 
 
 .strength-pattern {
+    --status-color: var(--tone);
     --tone: var(--demo-border);
 
     &-badge {
@@ -138,40 +145,42 @@
         font-weight: 600;
         padding: 2px var(--size-200);
     }
+
     &-check {
-        border: 1.5px solid var(--demo-border);
+        background: var(--check-background);
+        border: 1.5px solid var(--check-border-color);
         border-radius: 4px;
         display: grid;
         height: 14px;
         place-items: center;
         transition: background 200ms, border-color 200ms;
         width: 14px;
-
-        .--met > & {
-            background: var(--demo-safe);
-            border-color: var(--demo-safe);
-
-            svg { stroke-dashoffset: 0; }
-        }
-
-        svg {
-            fill: none;
-            height: 10px;
-            stroke: var(--color-white-400);
-            stroke-dasharray: 16;
-            stroke-dashoffset: 16;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-width: 2.5;
-            transition: stroke-dashoffset var(--demo-duration) ease-out;
-            width: 10px;
-        }
     }
+
     &-meter {
         display: grid;
         gap: 4px;
         grid-auto-flow: column;
         margin-top: var(--size-100);
+    }
+
+    &-rule {
+        --check-background: transparent;
+        --check-border-color: var(--demo-border);
+        --check-offset: 16;
+        align-items: center;
+        color: var(--color-text-300);
+        display: flex;
+        font-size: var(--font-size-300);
+        gap: var(--size-200);
+        transition: color 200ms;
+
+        &.--met {
+            --check-background: var(--demo-safe);
+            --check-border-color: var(--demo-safe);
+            --check-offset: 0;
+            color: var(--color-text-400);
+        }
     }
 
     &-rules {
@@ -180,19 +189,12 @@
         list-style: none;
         margin: 0;
         padding: 0;
+    }
 
-        li {
-            align-items: center;
-            color: var(--color-text-300);
-            display: flex;
-            font-size: var(--font-size-300);
-            gap: var(--size-200);
-            transition: color 200ms;
-
-            &.--met {
-                color: var(--color-text-400);
-            }
-        }
+    &-score {
+        color: var(--status-color);
+        font-weight: 600;
+        transition: color 200ms;
     }
 
     &-segment {
@@ -225,27 +227,50 @@
         gap: var(--size-200);
         justify-content: space-between;
         min-height: 20px;
-
-        > span:first-child {
-            color: var(--tone);
-            font-weight: 600;
-            transition: color 200ms;
-        }
     }
 
-    &.--caution { --tone: var(--demo-caution); }
-
-    &.--danger { --tone: var(--demo-danger); }
-
-    &.--none &-status > span:first-child {
-        color: var(--color-text-300);
+    &-tick {
+        fill: none;
+        height: 10px;
+        stroke: var(--color-white-400);
+        stroke-dasharray: 16;
+        stroke-dashoffset: var(--check-offset);
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.5;
+        transition: stroke-dashoffset var(--demo-duration) ease-out;
+        width: 10px;
     }
 
-    &.--safe { --tone: var(--demo-safe); }
+    &.--caution {
+        --tone: var(--demo-caution);
+    }
+
+    &.--danger {
+        --tone: var(--demo-danger);
+    }
+
+    &.--none {
+        --status-color: var(--color-text-300);
+    }
+
+    &.--safe {
+        --tone: var(--demo-safe);
+    }
 }
 
 
 .validation-pattern {
+    --alert-opacity: 0;
+    --alert-transform: scale(0.6);
+    --check-offset: 16;
+    --check-opacity: 0;
+    --check-transform: scale(0.6);
+    --error-opacity: 0;
+    --error-transform: translateY(-4px);
+    --hint-opacity: 1;
+    --hint-transform: none;
+
     &-alert {
         background: var(--demo-danger);
         border-radius: 50%;
@@ -254,27 +279,50 @@
         font-weight: 700;
         height: 16px;
         line-height: 16px;
+        opacity: var(--alert-opacity);
         text-align: center;
+        transform: var(--alert-transform);
         width: 16px;
+    }
+
+    &-alert,
+    &-check {
+        grid-area: 1 / 1;
+        transition: opacity var(--demo-duration), transform var(--demo-duration) var(--demo-spring);
     }
 
     &-check {
         fill: none;
         height: 16px;
+        opacity: var(--check-opacity);
         stroke: var(--demo-safe);
         stroke-dasharray: 16;
-        stroke-dashoffset: 16;
+        stroke-dashoffset: var(--check-offset);
         stroke-linecap: round;
         stroke-linejoin: round;
         stroke-width: 2;
-        transition: opacity var(--demo-duration), stroke-dashoffset var(--demo-duration) ease-out, transform var(--demo-duration) var(--demo-spring);
+        transform: var(--check-transform);
         width: 16px;
     }
 
     &-error {
-        color: var(--demo-danger) !important;
-        opacity: 0;
-        transform: translateY(-4px);
+        --demo-hint: var(--demo-danger);
+        opacity: var(--error-opacity);
+        transform: var(--error-transform);
+    }
+
+    &-error,
+    &-hint {
+        grid-area: 1 / 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: opacity var(--demo-duration), transform var(--demo-duration);
+        white-space: nowrap;
+    }
+
+    &-hint {
+        opacity: var(--hint-opacity);
+        transform: var(--hint-transform);
     }
 
     &-icon {
@@ -286,74 +334,62 @@
         top: 50%;
         transform: translateY(-50%);
         width: 16px;
+    }
 
-        > * {
-            grid-area: 1 / 1;
-            opacity: 0;
-            transform: scale(0.6);
-            transition: opacity var(--demo-duration), transform var(--demo-duration) var(--demo-spring);
-        }
+    &-input {
+        padding-right: calc(var(--size-300) + 22px);
     }
 
     &-message {
         display: grid;
         min-height: 16px;
-
-        > small {
-            grid-area: 1 / 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            transition: opacity var(--demo-duration), transform var(--demo-duration);
-            white-space: nowrap;
-        }
     }
 
     &.--invalid {
-        .field-pattern-surface {
-            background: transparent;
-            border-color: var(--demo-danger);
-        }
-
-        .validation {
-            &-pattern-alert {
-                opacity: 1;
-                transform: none;
-            }
-
-            &-pattern-error {
-                opacity: 1;
-                transform: none;
-            }
-
-            &-pattern-hint {
-                opacity: 0;
-                transform: translateY(4px);
-            }
-        }
+        --alert-opacity: 1;
+        --alert-transform: none;
+        --error-opacity: 1;
+        --error-transform: none;
+        --hint-opacity: 0;
+        --hint-transform: translateY(4px);
+        --surface-background: transparent;
+        --surface-border-color: var(--demo-danger);
+        --surface-border-color-active: var(--demo-danger);
     }
 
-    &.--valid &-check {
-        opacity: 1;
-        stroke-dashoffset: 0;
-        transform: none;
-    }
-
-    .input {
-        padding-right: calc(var(--size-300) + 22px);
+    &.--valid {
+        --check-offset: 0;
+        --check-opacity: 1;
+        --check-transform: none;
     }
 }
 
 
 @keyframes otp-pattern-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
 }
 
 @keyframes otp-pattern-enter {
-    from { filter: blur(2px); transform: scale(0.8); }
+    from {
+        filter: blur(2px);
+        transform: scale(0.8);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .field-pattern *, .field-pattern *::before, .field-pattern *::after { animation: none !important; }
-    .otp-pattern-caret { opacity: 1; }
+    .field-pattern *,
+    .field-pattern *::before,
+    .field-pattern *::after {
+        animation: none !important;
+    }
+
+    .otp-pattern-caret {
+        opacity: 1;
+    }
 }

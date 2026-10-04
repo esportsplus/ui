@@ -104,6 +104,7 @@ const inlineValidation = (): Variant => ({
                         'aria-describedby': `${id}-message`,
                         'aria-invalid': () => state.error ? 'true' : 'false',
                         autocomplete: 'email',
+                        class: 'field-pattern-input validation-pattern-input',
                         id,
                         placeholder: 'you@example.com',
                         type: 'email',
@@ -123,8 +124,8 @@ const inlineValidation = (): Variant => ({
                     </span>
                 </div>
                 <div class='validation-pattern-message' id='${`${id}-message`}' aria-live='polite'>
-                    <small class='validation-pattern-hint'>We only use this for sign-in links.</small>
-                    <small class='validation-pattern-error'>${() => state.error}</small>
+                    <small class='form-prototype-hint validation-pattern-hint'>We only use this for sign-in links.</small>
+                    <small class='form-prototype-hint validation-pattern-error'>${() => state.error}</small>
                 </div>
             </div>
         `;
@@ -244,6 +245,7 @@ const otp = (): Variant => ({
                             <input
                                 aria-label='${`Digit ${index + 1} of ${length}`}'
                                 autocomplete='${index === 0 ? 'one-time-code' : 'off'}'
+                                class='otp-pattern-input'
                                 id='${`${id}-${index}`}'
                                 inputmode='numeric'
                                 placeholder=' '
@@ -265,7 +267,7 @@ const otp = (): Variant => ({
                         </span>
                     `)}
                 </div>
-                <small class='otp-pattern-message' id='${`${id}-message`}' aria-live='polite'>
+                <small class='form-prototype-hint otp-pattern-message' id='${`${id}-message`}' aria-live='polite'>
                     ${() => state.status === 'error'
                         ? 'That code did not match. Try again.'
                         : state.status === 'success'
@@ -310,6 +312,7 @@ const passwordStrength = (): Variant => ({
                     ${input({
                         'aria-describedby': `${id}-strength`,
                         autocomplete: 'new-password',
+                        class: 'field-pattern-input',
                         id,
                         placeholder: 'Create a password',
                         type: 'password',
@@ -324,14 +327,14 @@ const passwordStrength = (): Variant => ({
                     `)}
                 </div>
                 <div class='strength-pattern-status' id='${`${id}-strength`}' aria-live='polite'>
-                    <span>${() => PASSWORD_LABELS[score()]}</span>
+                    <span class='strength-pattern-score'>${() => PASSWORD_LABELS[score()]}</span>
                     ${() => state.value && guessable(state.value) && html`<span class='strength-pattern-badge'>Commonly guessed</span>`}
                 </div>
                 <ul class='strength-pattern-rules'>
                     ${PASSWORD_RULES.map(([label, test]) => html`
-                        <li class='${() => test(state.value) && '--met'}'>
+                        <li class='strength-pattern-rule ${() => test(state.value) && '--met'}'>
                             <span class='strength-pattern-check' aria-hidden='true'>
-                                <svg viewBox='0 0 16 16'><path d='M3.5 8.5l3 3 6-7' /></svg>
+                                <svg class='strength-pattern-tick' viewBox='0 0 16 16'><path d='M3.5 8.5l3 3 6-7' /></svg>
                             </span>
                             ${label}
                         </li>

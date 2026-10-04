@@ -79,16 +79,16 @@
             translate 150ms cubic-bezier(0.23, 1, 0.32, 1);
         translate: 0 2px;
 
+        &-icon {
+            height: 14px;
+            width: 14px;
+        }
+
         &.--active {
             filter: blur(0);
             opacity: 1;
             transition-duration: 200ms;
             translate: 0 0;
-        }
-
-        svg {
-            height: 14px;
-            width: 14px;
         }
     }
 

@@ -167,7 +167,7 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
         zoomAt(Math.exp(-event.deltaY * (event.ctrlKey ? 0.01 : 0.0015)), event.clientX - bounds.left, event.clientY - bounds.top);
     };
 
-    return surfaceField({ camera, class: 'surface-field-demo-stage', links: LINKS, state: settings }, html`
+    return surfaceField({ camera, class: 'surface-field-demo-stage surface-field-demo-stage--stacked', links: LINKS, state: settings }, html`
         <div
             aria-label='Node canvas: drag the background or use the arrow keys to pan, plus and minus to zoom'
             class='surface-field-editor'
@@ -258,7 +258,7 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
                         name: node.id,
                         state: node.state
                     },
-                    html`<small>${node.kind}</small>`
+                    html`<small class='surface-field-editor-node-kind'>${node.kind}</small>`
                 ))}
             </div>
         </div>
@@ -298,14 +298,14 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
         </div>
 
         <div class='surface-field-editor-controls'>
-            <button aria-label='Zoom in' type='button' ${{ onclick: () => zoomCentre(1.25) }}>
-                <svg fill='none' stroke='currentColor' stroke-linecap='round' stroke-width='1.75' viewBox='0 0 24 24'><path d='M12 5v14M5 12h14' /></svg>
+            <button aria-label='Zoom in' class='surface-field-editor-control' type='button' ${{ onclick: () => zoomCentre(1.25) }}>
+                <svg class='surface-field-editor-control-icon' fill='none' stroke='currentColor' stroke-linecap='round' stroke-width='1.75' viewBox='0 0 24 24'><path d='M12 5v14M5 12h14' /></svg>
             </button>
-            <button aria-label='Zoom out' type='button' ${{ onclick: () => zoomCentre(0.8) }}>
-                <svg fill='none' stroke='currentColor' stroke-linecap='round' stroke-width='1.75' viewBox='0 0 24 24'><path d='M5 12h14' /></svg>
+            <button aria-label='Zoom out' class='surface-field-editor-control' type='button' ${{ onclick: () => zoomCentre(0.8) }}>
+                <svg class='surface-field-editor-control-icon' fill='none' stroke='currentColor' stroke-linecap='round' stroke-width='1.75' viewBox='0 0 24 24'><path d='M5 12h14' /></svg>
             </button>
-            <button aria-label='Fit view' type='button' ${{ onclick: () => fit() }}>
-                <svg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.75' viewBox='0 0 24 24'><path d='M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4' /></svg>
+            <button aria-label='Fit view' class='surface-field-editor-control' type='button' ${{ onclick: () => fit() }}>
+                <svg class='surface-field-editor-control-icon' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.75' viewBox='0 0 24 24'><path d='M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4' /></svg>
             </button>
         </div>
     `);
