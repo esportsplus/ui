@@ -1,7 +1,5 @@
+import { NON_BREAKING_SPACES } from './utilities';
 import type { Pos, Selection, Span } from './model';
-
-
-const NON_BREAKING_SPACES = / /g;
 
 
 // Every block the editor renders carries it; their order is the document's.
@@ -180,7 +178,6 @@ const written = (block: HTMLElement) => {
 
     return out.replace(NON_BREAKING_SPACES, ' ');
 };
-
 
 
 export { capture, elements, restore, target, written };

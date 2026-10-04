@@ -15,6 +15,9 @@ const INLINE_EDIT_STATUS = Symbol.for('@esportsplus/ui/inline-edit.status');
 
 const MINUTE = 60_000;
 
+// Long enough to notice after the field settles, short enough that the pencil is back before the next edit.
+const SAVED_FOR = 1600;
+
 
 // Reads like a person would say it, and only changes when those words would.
 function text({ phase, savedAt }: Status, now: number) {
@@ -41,6 +44,52 @@ function text({ phase, savedAt }: Status, now: number) {
     }
 
     return `Saved at ${new Date(savedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+}
+
+// Drives the status from the field: unsaved while the edit differs from the saved value, saving while 'onsave's
+// promise is pending, saved once it settles (unsaved again if it fails). Returns what reports a save's result.
+function track(status: Status, dirty: () => boolean) {
+    let sequence = 0;
+
+    effect(dirty, (changed, previous) => {
+        if (previous === undefined) {
+            return;
+        }
+
+        if (changed) {
+            // A save still pending no longer covers everything.
+            sequence++;
+            status.phase = 'unsaved';
+        }
+        else if (status.phase === 'unsaved') {
+            status.phase = 'saved';
+        }
+    });
+
+    return (result: unknown) => {
+        let id = ++sequence;
+
+        if (!isPromise(result)) {
+            status.phase = 'saved';
+            status.savedAt = Date.now();
+            return;
+        }
+
+        status.phase = 'saving';
+        result.then(
+            () => {
+                if (id === sequence) {
+                    status.phase = 'saved';
+                    status.savedAt = Date.now();
+                }
+            },
+            () => {
+                if (id === sequence) {
+                    status.phase = 'unsaved';
+                }
+            }
+        );
+    };
 }
 
 
@@ -109,53 +158,37 @@ const render = (status: Status, context?: Attributes, attributes?: Attributes) =
     `;
 };
 
-// Drives the status from the field: unsaved while the edit differs from the saved value, saving while 'onsave's
-// promise is pending, saved once it settles (unsaved again if it fails). Returns what reports a save's result.
-const track = (status: Status, dirty: () => boolean) => {
-    let sequence = 0;
+// What saving does, for either field: the value is taken, flagged saved for a moment and handed to 'onsave', and the
+// status follows the result when 'option' asks for one ('true' for its own, or one passed in to read or drive it).
+// 'dirty' is whether the edit differs from the saved value.
+const saver = (
+    state: { editing: boolean, saved: boolean, value: string },
+    option: boolean | Status,
+    dirty: () => boolean,
+    onsave?: (value: string) => unknown
+) => {
+    let shown = option === true ? reactive<Status>({ phase: 'saved', savedAt: null }) : option || null,
+        report = shown ? track(shown, () => state.editing && dirty()) : null,
+        timer: ReturnType<typeof setTimeout> | undefined;
 
-    effect(dirty, (changed, previous) => {
-        if (previous === undefined) {
-            return;
-        }
-
-        if (changed) {
-            // A save still pending no longer covers everything.
-            sequence++;
-            status.phase = 'unsaved';
-        }
-        else if (status.phase === 'unsaved') {
-            status.phase = 'saved';
-        }
-    });
-
-    return (result: unknown) => {
-        let id = ++sequence;
-
-        if (!isPromise(result)) {
-            status.phase = 'saved';
-            status.savedAt = Date.now();
-            return;
-        }
-
-        status.phase = 'saving';
-        result.then(
-            () => {
-                if (id === sequence) {
-                    status.phase = 'saved';
-                    status.savedAt = Date.now();
-                }
-            },
-            () => {
-                if (id === sequence) {
-                    status.phase = 'unsaved';
-                }
-            }
-        );
+    return {
+        dispose: () => {
+            clearTimeout(timer);
+        },
+        save: (value: string) => {
+            state.value = value;
+            state.saved = true;
+            report?.(onsave?.(value));
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                state.saved = false;
+            }, SAVED_FOR);
+        },
+        status: shown
     };
 };
 
 
-export default { render, track };
+export default { render, saver };
 export { INLINE_EDIT_STATUS };
 export type { Phase, Status };

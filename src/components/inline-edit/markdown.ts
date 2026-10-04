@@ -1,5 +1,5 @@
 import { block, list, nest, sort, text, type Block, type Doc, type Kind, type Mark, type Run, type Tree } from './model';
-import { safe } from './utilities';
+import { INLINE_LINE_BREAKS, NON_BREAKING_SPACES, safe } from './utilities';
 
 
 type Feature = Group | Mark | 'clear' | 'copy';
@@ -23,8 +23,6 @@ const WORD_CHARACTER = /\w/;
 const BACKTICKS = /`/g;
 
 const BRACKETS = /[[\]]/g;
-
-const NON_BREAKING_SPACES = / /g;
 
 const NEWLINES = /\n/g;
 
@@ -65,8 +63,6 @@ const TASK_ITEM = /^[-*+]\s+\[([ xX])\]\s+(.*)$/;
 const BULLET_ITEM = /^[-*+]\s+()(.*)$/;
 
 const ORDERED_ITEM = /^\d+[.)]\s+()(.*)$/;
-
-const INLINE_LINE_BREAKS = /\s*\n\s*/g;
 
 const MARK_PAIRS = {
     '=': /==/g,
