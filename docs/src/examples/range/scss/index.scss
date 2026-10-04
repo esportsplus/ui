@@ -64,6 +64,7 @@
 
         &--ticks {
             --tick-major: color-mix(in srgb, var(--color-text-400) 40%, transparent);
+            --tick-minor: color-mix(in srgb, var(--color-text-400) 20%, transparent);
 
             &::before {
                 background: range-ticks(10, var(--tick-major), 10px);
@@ -73,6 +74,10 @@
                 position: absolute;
                 width: calc(var(--surface-travel) + 1px);
             }
+        }
+
+        &--ticks-minor::before {
+            background: range-ticks(10, var(--tick-major), 10px), range-ticks(50, var(--tick-minor), 5px);
         }
     }
 

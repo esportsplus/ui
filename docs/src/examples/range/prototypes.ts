@@ -32,7 +32,7 @@ export function rangeVariations(): Variant[] {
                             <output for='${id}' class='range-surface-heading-value'>${() => state.value}${unit}</output>
                         </div>
                     `}
-                    <div class='range-surface-control ${tick && 'range-surface-control--ticks'}'>
+                    <div class='range-surface-control ${tick && 'range-surface-control--ticks'} ${tick === 'all' && 'range-surface-control--ticks-minor'}'>
                         <div class='range-surface-fill' aria-hidden='true'></div>
                         ${mode !== 'inline' && html`<div class='range-surface-handle' aria-hidden='true'></div>`}
                         ${mode !== 'heading' && html`
