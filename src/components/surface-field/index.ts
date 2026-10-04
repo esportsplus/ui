@@ -232,14 +232,14 @@ export default component(
 
         let bounds: DOMRect | null = null,
             canvas: HTMLCanvasElement | undefined,
-            cleanup: VoidFunction[] = [],
             elements: Element[] | null = null,
             field: Field | null = null,
             host: HTMLElement | undefined,
             last = { accent: '', camera: null as Camera | null, color: '', shapes: [] as Shape[], size: '' },
+            // Ends everything a connection listens to and observes, presses still held included.
+            listening: AbortController | undefined,
             measuring = 0,
             relink = true,
-            releases = new AbortController(),
             resizer: ResizeObserver | undefined,
             running = 0,
             settle = 0,
@@ -610,10 +610,9 @@ export default component(
                             ? remote(canvas, url)
                             : engine(canvas, scheduler());
 
-                        let blur = () => {
-                                bounds = null;
-                            },
-                            done = (event: Event) => {
+                        listening = new AbortController();
+
+                        let done = (event: Event) => {
                                 if (event.type === 'transitionrun' || event.type === 'animationstart') {
                                     running++;
                                 }
@@ -644,7 +643,7 @@ export default component(
 
                                 schedule();
                             }),
-                            scheme = matchMedia('(prefers-color-scheme: dark)'),
+                            signal = listening.signal,
                             theme = new MutationObserver(() => {
                                 styles = new WeakMap();
                                 recolor();
@@ -663,40 +662,29 @@ export default component(
 
                         // Hear every descendant's motion, including events with their own template handler.
                         for (let type of ['animationcancel', 'animationend', 'animationstart', 'transitioncancel', 'transitionend', 'transitionrun']) {
-                            element.addEventListener(type, done);
+                            element.addEventListener(type, done, { signal });
                         }
 
-                        element.addEventListener('scroll', viewport, { capture: true, passive: true });
-                        scheme.addEventListener('change', recolor);
-                        window.addEventListener('scroll', blur, { capture: true, passive: true });
-
-                        cleanup.push(() => {
-                            for (let type of ['animationcancel', 'animationend', 'animationstart', 'transitioncancel', 'transitionend', 'transitionrun']) {
-                                element.removeEventListener(type, done);
-                            }
-
-                            element.removeEventListener('scroll', viewport, { capture: true });
+                        element.addEventListener('scroll', viewport, { capture: true, passive: true, signal });
+                        matchMedia('(prefers-color-scheme: dark)').addEventListener('change', recolor, { signal });
+                        window.addEventListener('scroll', () => {
+                            bounds = null;
+                        }, { capture: true, passive: true, signal });
+                        signal.addEventListener('abort', () => {
                             intersection.disconnect();
                             mutation.disconnect();
                             resizer?.disconnect();
-                            scheme.removeEventListener('change', recolor);
                             theme.disconnect();
-                            window.removeEventListener('scroll', blur, { capture: true });
-                        });
+                        }, { once: true });
 
                         collect();
                         sync();
                     },
                     ondisconnect: () => {
-                        releases.abort();
+                        listening?.abort();
+                        listening = undefined;
                         cancelAnimationFrame(measuring);
                         measuring = 0;
-
-                        for (let i = 0, n = cleanup.length; i < n; i++) {
-                            cleanup[i]();
-                        }
-
-                        cleanup = [];
                         field?.dispose();
                         field = null;
                         host = undefined;
@@ -736,8 +724,8 @@ export default component(
                         };
 
                         field.press(id, x, y);
-                        window.addEventListener('pointercancel', finish, { signal: releases.signal });
-                        window.addEventListener('pointerup', finish, { signal: releases.signal });
+                        window.addEventListener('pointercancel', finish, { signal: listening?.signal });
+                        window.addEventListener('pointerup', finish, { signal: listening?.signal });
                     },
                     onpointerleave: (event: PointerEvent) => {
                         field?.pointer(event.pointerId, 0, 0, false);
