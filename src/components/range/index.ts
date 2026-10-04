@@ -1,5 +1,5 @@
 import { html, type Attributes } from '@esportsplus/template';
-import { reactive, root } from '@esportsplus/reactivity';
+import { reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
 import filter from './filter';
 import './scss/index.scss';
@@ -7,17 +7,17 @@ import './scss/index.scss';
 
 function plain(
     this: { attributes?: Attributes } | void,
-    attributes: Attributes & { max: number, min: number, orientation?: 'horizontal' | 'vertical', state?: { active: boolean, error: string, value: number } }
+    {
+        max,
+        min,
+        orientation = 'horizontal',
+        state = reactive({ active: false, error: '', value: 0 }),
+        value,
+        ...attributes
+    }: Attributes & { max: number, min: number, orientation?: 'horizontal' | 'vertical', state?: { active: boolean, error: string, value: number } }
 ) {
-    let { max, min, orientation = 'horizontal', ...rest } = attributes,
-        state = attributes.state || reactive({
-            active: false,
-            error: '',
-            value: 0
-        });
-
-    if (attributes?.value) {
-        state.value = Number( attributes.value );
+    if (value) {
+        state.value = Number(value);
     }
 
     return html`
@@ -29,7 +29,7 @@ function plain(
             ${this?.attributes}
             max='${max}'
             min='${min}'
-            ${rest}
+            ${attributes}
             ${{
                 class: () => state.active && '--active',
                 onconnect: form.input.onconnect(state),
@@ -42,7 +42,7 @@ function plain(
                 oninput: (e) => {
                     state.value = Number((e.target as HTMLInputElement).value);
                 },
-                value: root(() => (attributes?.value as number) || state.value || 0)
+                value: () => state.value
             }}
         />
     `;
