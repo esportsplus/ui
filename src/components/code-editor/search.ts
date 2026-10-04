@@ -7,22 +7,40 @@ const WORD = /[\p{L}\p{N}_$]/u;
 export const MATCH_LIMIT = 10000;
 
 /** Regex is an explicit opt-in; arbitrary regex execution cannot be time-bounded on the main thread. */
-export function search(text: string, query: string, options: SearchOptions = {}, replacement = '', limit = MATCH_LIMIT): SearchResult {
+export function search(
+    text: string,
+    query: string,
+    options: SearchOptions = {},
+    replacement = '',
+    limit = MATCH_LIMIT
+): SearchResult {
     let matches: Match[] = [];
     if (!query) return { matches, error: '', truncated: false };
     let expression: RegExp;
     try {
-        expression = new RegExp(options.regex ? query : query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), options.caseSensitive ? 'gu' : 'giu');
+        expression = new RegExp(
+            options.regex ? query : query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+            options.caseSensitive ? 'gu' : 'giu'
+        );
+    } catch (error) {
+        return { matches, error: error instanceof Error ? error.message : String(error), truncated: false };
     }
-    catch (error) { return { matches, error: error instanceof Error ? error.message : String(error), truncated: false }; }
     let match: RegExpExecArray | null;
     while ((match = expression.exec(text))) {
-        let from = match.index, to = from + match[0].length,
+        let from = match.index,
+            to = from + match[0].length,
             left = Array.from(text.slice(Math.max(0, from - 2), from)).at(-1) ?? '',
             right = Array.from(text.slice(to, to + 2))[0] ?? '';
         if (!options.wholeWord || ((!left || !WORD.test(left)) && (!right || !WORD.test(right)))) {
             if (matches.length >= limit) return { matches, error: '', truncated: true };
-            matches.push(Object.freeze({ from, to, text: match[0], replacement: options.regex ? expandReplacement(replacement, match, text) : replacement }));
+            matches.push(
+                Object.freeze({
+                    from,
+                    to,
+                    text: match[0],
+                    replacement: options.regex ? expandReplacement(replacement, match, text) : replacement
+                })
+            );
         }
         if (match[0].length === 0) {
             if (expression.lastIndex >= text.length) break;
@@ -42,7 +60,8 @@ function expandReplacement(template: string, match: RegExpExecArray, text: strin
         if (key.startsWith('<')) return match.groups ? (match.groups[key.slice(1, -1)] ?? '') : token;
         let index = Number(key);
         if (index > 0 && index < match.length) return match[index] ?? '';
-        if (key.length === 2 && Number(key[0]) > 0 && Number(key[0]) < match.length) return (match[Number(key[0])] ?? '') + key[1];
+        if (key.length === 2 && Number(key[0]) > 0 && Number(key[0]) < match.length)
+            return (match[Number(key[0])] ?? '') + key[1];
         return token;
     });
 }
@@ -66,6 +85,10 @@ export function replaceMatches(doc: EditorDocument, result: SearchResult, all = 
     let matches = all ? result.matches : result.matches.slice(index, index + 1);
     if (!matches.length || matches.some((match) => doc.value.slice(match.from, match.to) !== match.text)) return false;
     let edits: Edit[] = matches.map((match) => ({ from: match.from, to: match.to, insert: match.replacement })),
-        first = edits[0], caret = first.from + first.insert.length;
-    return doc.transact(edits, { source: all ? 'replaceAll' : 'replace', selection: { start: first.from, end: caret } });
+        first = edits[0],
+        caret = first.from + first.insert.length;
+    return doc.transact(edits, {
+        source: all ? 'replaceAll' : 'replace',
+        selection: { start: first.from, end: caret }
+    });
 }

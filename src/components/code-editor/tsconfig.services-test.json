@@ -1,5 +1,0 @@
-{
-    "extends": "@esportsplus/typescript/tsconfig.browser.json",
-    "compilerOptions": { "noEmit": true, "rootDir": "../../.." },
-    "include": ["services*.ts", "markdown*.ts", "../../../vite-env.d.ts"]
-}

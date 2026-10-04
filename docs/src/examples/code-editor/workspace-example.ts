@@ -1,10 +1,10 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { codeEditorWorkspace, createMemoryWorkspaceHost, isWorkspaceCodeEditor, type CodeEditorWorkspaceController } from '@esportsplus/ui/components/code-editor/workspace';
-import { markdownEditor } from '@esportsplus/ui/components/code-editor/markdown';
-import { mountLanguageServices } from '@esportsplus/ui/components/code-editor/services';
-import { workspaceFiles } from './fixtures';
-import { demoLanguageTransport } from './language-fixture';
+import { codeEditor } from '@esportsplus/ui/components';
+import { isWorkspaceCodeEditor, mountLanguageServices, type CodeEditorWorkspaceController } from '@esportsplus/ui/components/code-editor';
+import { workspaceFiles } from './fixtures/files';
+import { demoLanguageTransport } from './fixtures/language';
+import { createMemoryWorkspaceHost } from './fixtures/workspace';
 
 export const workspaceExample = {
     title: 'complete editor workspace',
@@ -19,11 +19,11 @@ export const workspaceExample = {
         };
         return html`
             <section class='code-editor-demo code-editor-demo-full' aria-label='Complete workspace example'>
-                ${codeEditorWorkspace({
+                ${codeEditor.workspace({
                     host, cwd: '/demo', openTarget: { path: 'src/greeting.ts' },
                     editorOptions: { minimap: true },
                     controller: value => { workspace = value; },
-                    renderEditor: (tab, attributes) => /\.(?:md|markdown)$/i.test(tab.path) ? markdownEditor(attributes) : undefined,
+                    renderEditor: (tab, attributes) => /\.(?:md|markdown)$/i.test(tab.path) ? codeEditor.markdown(attributes) : undefined,
                     addons: ({ host, controller, tab }) => {
                         if (!isWorkspaceCodeEditor(controller)) return;
                         return mountLanguageServices(host, controller, {

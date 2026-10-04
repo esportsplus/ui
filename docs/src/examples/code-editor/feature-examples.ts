@@ -1,11 +1,9 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { codeEditor } from '@esportsplus/ui/components';
-import { EditorDocument } from '@esportsplus/ui/components/code-editor';
-import { markdownEditor, type MarkdownController } from '@esportsplus/ui/components/code-editor/markdown';
-import { mountLanguageServices, type LanguageServices } from '@esportsplus/ui/components/code-editor/services';
-import { workspaceFiles } from './fixtures';
-import { demoLanguageTransport } from './language-fixture';
+import { EditorDocument, mountLanguageServices, type LanguageServices, type MarkdownController } from '@esportsplus/ui/components/code-editor';
+import { workspaceFiles } from './fixtures/files';
+import { demoLanguageTransport } from './fixtures/language';
 
 export const featureExamples = [
     {
@@ -46,7 +44,7 @@ export const featureExamples = [
                         <button type='button' onclick=${() => editor?.setValue(Array.from({ length: 1500 }, (_, index) => `## Section ${index + 1}\n\nParagraph ${index + 1} with **bold** and a [link](https://example.com).\n\n`).join(''))}>Load large document</button>
                         <button type='button' onclick=${() => editor?.setValue(workspaceFiles['README.md'])}>Restore example</button>
                     </div>
-                    ${markdownEditor({
+                    ${codeEditor.markdown({
                         document, options: { label: 'Markdown source' },
                         controller: value => { editor = value; },
                         onChange: () => { state.status = document.state.dirty ? 'Unsaved changes' : 'Ready'; },

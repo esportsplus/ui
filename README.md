@@ -49,8 +49,6 @@ html`
 
 ## Components
 
-The [code editor](src/components/code-editor/README.md) and [file tree](src/components/file-tree/README.md) use the library's reactivity/template stack without an external editor or icon engine. The [plugin comparison and implementation plan](docs/editor-investigation.md) describe their scope and how they compose.
-
 ### Form Controls
 | Component | Description | Variants |
 |-----------|-------------|----------|
@@ -76,6 +74,7 @@ The [code editor](src/components/code-editor/README.md) and [file tree](src/comp
 | `accordion` | Collapsible sections | - |
 | `clipboard` | Copy to clipboard | `clipboard.copy`, `clipboard.write` |
 | `command` | ⌘K/Ctrl+K command palette on `overlay` + `input`: substring-then-subsequence matching with highlighted runs, grouped results, arrow/Enter keys, `onrun`; `tabs` adds a row of tabs under the search, marked by `highlight`, whose views are `frame--swap`s, drifting in from their side, and cycle with Tab/Shift+Tab (All leads with recent commands, persisted through any `store` implementing `get`/`set`, then lists every command; each command group gets its own tab; a Shortcuts tab lists `shortcuts`); setting `state.tab` (`'all'`, `'shortcuts'` or a group name) switches views and clears the search. `render(groups)` supplies custom result markup: each item exposes its `label`, highlighted `content`, command `id`, and `attributes` to spread onto the option element so selection and keyboard navigation keep working. Icons are sprite ids; `.command-trigger` also styles standalone search buttons | `command.dialog` (e.g. `overlay--blur`), `command.input`, `command.option`, `command.trigger`, `command--centered` |
+| `codeEditor` | Source editor on a persistent native textarea: syntax colors, line numbers, multiple selections, undo/redo, find/replace, go to line, folding and a minimap, editing an `EditorDocument` that keeps its own history; `codeEditor.markdown` edits Markdown in place, `codeEditor.workspace` adds a `fileTree` explorer, tabs and quick open over a host you supply, and `mountLanguageServices` attaches completion, hover and diagnostics from a language-server transport | `codeEditor.markdown`, `codeEditor.workspace` |
 | `alert` | Notifications | error, info, success types |
 | `dock` | macOS-style `card` shelf whose icons swell toward the cursor on a spring, with delayed `tooltip` labels (`group` shares one gliding `tooltip.shared` label) and a hop-and-squash launch that lights a running dot (per-item `state.running`, `onlaunch`) | `dock.button`, `dock--square` |
 | `card.expand` | List of `card--expand` cards that each morph into their own `card` `overlay` and fly back into their slot through a view transition (a plain `overlay` fade where unsupported, a cross-fade under reduced motion); `state.open` is two-way | `card.expand.trigger` |
