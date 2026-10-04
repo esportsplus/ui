@@ -1,6 +1,8 @@
 .sidebar {
     --content-padding-horizontal: var(--size-600);
-    --scrollbar-color: var(--color-border-400);
+    --scrollbar-color-default: var(--color-border-400);
+    --scrollbar-color-hover: var(--color-border-500);
+    --scrollbar-color-pressed: var(--color-text-300);
     background-color: var(--sidebar-background);
     background-image: var(--sidebar-texture);
     background-size: 256px 256px;

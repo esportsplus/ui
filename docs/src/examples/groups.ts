@@ -95,8 +95,8 @@ const groups: Record<string, Group[]> = {
     ],
     'relative-time': [{ title: 'relative time', members: ['default', ['every unit, live seconds', 'Every unit'], ['unknown until set (placeholder)', 'Placeholder']] }],
     scrollbar: [
-        { title: 'vertical bar', members: [['default bar', 'Default'], 'visible on hover or keyboard focus', 'hidden bar', 'thin bar', 'no arrows', 'square thumb', 'width variable'] },
-        { title: 'horizontal bar', members: [['horizontal bar', 'Default'], ['no arrows (auto, horizontal)', 'No arrows'], ['drag (horizontal)', 'Drag horizontally'], ['drag (both)', 'Drag both axes']] },
+        { title: 'vertical bar', members: [['default bar', 'Default'], 'visible on hover or keyboard focus', 'hidden bar', 'color states', 'rail color', 'centered growth', 'square thumb', 'width variable'] },
+        { title: 'horizontal bar', members: [['horizontal bar', 'Default'], ['auto (horizontal)', 'Platform width'], ['drag (horizontal)', 'Drag horizontally'], ['drag (both)', 'Drag both axes']] },
         { title: 'edge effects', members: [['fade', 'Fade'], ['fade (content fits)', 'Fade, content fits'], ['blur', 'Blur']] }
     ],
     select: [

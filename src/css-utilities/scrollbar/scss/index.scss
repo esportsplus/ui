@@ -24,59 +24,79 @@
 .--scrollbar,
 :where(.--scrollbar-scope, .--scrollbar-scope *) {
     scroll-behavior: var(--scrollbar-behavior);
-    scrollbar-color: var(--scrollbar-color) transparent;
+    scrollbar-color: var(--scrollbar-color-default) var(--scrollbar-rail-color);
     scrollbar-width: var(--scrollbar-width);
 
     @media (prefers-reduced-motion: reduce) {
         scroll-behavior: auto;
     }
 
-    // Custom rendering exposes thumb shape; other browsers keep the native color and width above.
+    // Custom rendering exposes thumb shape and state; other browsers keep the native color and width above.
+    // Size-derived values resolve on each element rather than as root defaults, so a descendant that overrides
+    // --scrollbar-size keeps its own proportions.
     @supports selector(::-webkit-scrollbar) {
+        --scrollbar-growth: calc(var(--scrollbar-size-hover, calc(var(--scrollbar-size) + 2px)) - var(--scrollbar-size));
+        --scrollbar-inset-edge: calc(var(--scrollbar-growth) * var(--scrollbar-align));
+        --scrollbar-inset-inner: calc(var(--scrollbar-growth) * (1 - var(--scrollbar-align)));
+        --scrollbar-radius: var(--scrollbar-border-radius, calc(var(--scrollbar-size) / 3));
         scrollbar-color: auto;
         scrollbar-width: auto;
 
+        // Sized for the hovered thumb, so widening it never reflows the gutter.
         &::-webkit-scrollbar {
-            height: var(--scrollbar-size);
-            width: var(--scrollbar-size);
+            height: calc(var(--scrollbar-size) + var(--scrollbar-growth));
+            width: calc(var(--scrollbar-size) + var(--scrollbar-growth));
         }
 
         &::-webkit-scrollbar-thumb {
-            background-color: var(--scrollbar-color);
-            border-radius: var(--scrollbar-border-radius);
+            background-clip: padding-box;
+            background-color: var(--scrollbar-color-default);
+            border: 0 solid transparent;
+            border-radius: var(--scrollbar-radius);
         }
 
-        &::-webkit-scrollbar-button:single-button {
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: 100% 50%;
-            height: var(--scrollbar-size);
-            width: var(--scrollbar-size);
+        // Transparent borders across the thumb inset its paint to --scrollbar-size, split between the window edge
+        // and the content side by --scrollbar-align. Each corner's cross-axis radius grows by its side's inset so
+        // the painted corners keep --scrollbar-radius.
+        &::-webkit-scrollbar-thumb:vertical {
+            border-end-end-radius: calc(var(--scrollbar-radius) + var(--scrollbar-inset-edge)) var(--scrollbar-radius);
+            border-end-start-radius: calc(var(--scrollbar-radius) + var(--scrollbar-inset-inner)) var(--scrollbar-radius);
+            border-inline-end-width: var(--scrollbar-inset-edge);
+            border-inline-start-width: var(--scrollbar-inset-inner);
+            border-start-end-radius: calc(var(--scrollbar-radius) + var(--scrollbar-inset-edge)) var(--scrollbar-radius);
+            border-start-start-radius: calc(var(--scrollbar-radius) + var(--scrollbar-inset-inner)) var(--scrollbar-radius);
         }
 
-        &::-webkit-scrollbar-button:single-button:vertical:decrement {
-            background-image: conic-gradient(from 315deg at 50% 75%, var(--scrollbar-color) 90deg, transparent 0);
+        &::-webkit-scrollbar-thumb:horizontal {
+            border-block-end-width: var(--scrollbar-inset-edge);
+            border-block-start-width: var(--scrollbar-inset-inner);
+            border-end-end-radius: var(--scrollbar-radius) calc(var(--scrollbar-radius) + var(--scrollbar-inset-edge));
+            border-end-start-radius: var(--scrollbar-radius) calc(var(--scrollbar-radius) + var(--scrollbar-inset-edge));
+            border-start-end-radius: var(--scrollbar-radius) calc(var(--scrollbar-radius) + var(--scrollbar-inset-inner));
+            border-start-start-radius: var(--scrollbar-radius) calc(var(--scrollbar-radius) + var(--scrollbar-inset-inner));
         }
 
-        &::-webkit-scrollbar-button:single-button:vertical:increment {
-            background-image: conic-gradient(from 135deg at 50% 25%, var(--scrollbar-color) 90deg, transparent 0);
+        &::-webkit-scrollbar-thumb:active,
+        &::-webkit-scrollbar-thumb:hover {
+            border-radius: var(--scrollbar-radius);
+            border-width: 0;
         }
 
-        &::-webkit-scrollbar-button:single-button:horizontal {
-            background-size: 50% 100%;
+        &::-webkit-scrollbar-thumb:hover {
+            background-color: var(--scrollbar-color-hover);
         }
 
-        &::-webkit-scrollbar-button:single-button:horizontal:decrement {
-            background-image: conic-gradient(from 225deg at 75% 50%, var(--scrollbar-color) 90deg, transparent 0);
+        &::-webkit-scrollbar-thumb:active {
+            background-color: var(--scrollbar-color-pressed);
         }
 
-        &::-webkit-scrollbar-button:single-button:horizontal:increment {
-            background-image: conic-gradient(from 45deg at 25% 50%, var(--scrollbar-color) 90deg, transparent 0);
+        &::-webkit-scrollbar-button {
+            display: none;
         }
 
         &::-webkit-scrollbar-corner,
         &::-webkit-scrollbar-track {
-            background: transparent;
+            background: var(--scrollbar-rail-color);
         }
     }
 }
@@ -91,6 +111,11 @@
     }
     &.--flex-row {
         overflow-y: hidden;
+    }
+
+    // An `auto` size has no width to inset from, so the platform bar paints at full width.
+    &-auto {
+        --scrollbar-growth: 0px;
     }
 
     // Sticky edges pin to the scrollport and cancel their own height with a negative margin.
@@ -219,8 +244,9 @@
                 @supports selector(::-webkit-scrollbar) {
                     scrollbar-color: auto;
 
-                    &::-webkit-scrollbar-button,
-                    &::-webkit-scrollbar-thumb {
+                    &::-webkit-scrollbar-corner,
+                    &::-webkit-scrollbar-thumb,
+                    &::-webkit-scrollbar-track {
                         background: transparent;
                     }
                 }
@@ -234,17 +260,6 @@
         overflow-y: hidden;
         overscroll-behavior-y: auto;
         scrollbar-gutter: auto;
-    }
-
-    &-no-arrows {
-        @supports selector(::-webkit-scrollbar) {
-            &::-webkit-scrollbar-button,
-            &::-webkit-scrollbar-button:single-button {
-                display: none;
-                height: 0;
-                width: 0;
-            }
-        }
     }
 
     &-snap {

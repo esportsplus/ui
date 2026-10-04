@@ -45,7 +45,7 @@ const code = (source: string) => {
             <button class='code-copy' type='button' aria-label='${() => state.error ? 'Copy unavailable. Select and copy the code.' : state.copied ? 'Code copied' : 'Copy code'}' title='${() => state.error ? 'Copy unavailable. Select and copy the code.' : state.copied ? 'Copied' : 'Copy code'}' ${{ onclick: copy }}>
                 ${() => icon({ 'aria-hidden': 'true', class: state.copied ? 'code-copy-check' : '' }, state.copied ? checkIcon : copyIcon)}
             </button>
-            <pre class='code-source --scrollbar --scrollbar-hover --scrollbar-no-arrows' tabindex='0' aria-label='TypeScript code'><span class='code-lines' aria-hidden='true'>${source.split('\n').map((_, index) => index + 1).join('\n')}</span><code>${tokenize(source).map((token) =>
+            <pre class='code-source --scrollbar --scrollbar-hover' tabindex='0' aria-label='TypeScript code'><span class='code-lines' aria-hidden='true'>${source.split('\n').map((_, index) => index + 1).join('\n')}</span><code>${tokenize(source).map((token) =>
                 token.kind ? html`<span class='code-token code-token--${token.kind}'>${token.text}</span>` : token.text
             )}</code></pre>
         </div>

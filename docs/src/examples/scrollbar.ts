@@ -40,7 +40,7 @@ export default {
             render: () => html`
                 <div class='--scrollbar-scope' style='display: grid; gap: var(--size-400); grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%;'>
                     <div style='${box} overflow-y: auto;'>${rows(14)}</div>
-                    <div class='--scrollbar-no-arrows' style='${box} overflow-y: auto; --scrollbar-color: var(--color-blue-500); --scrollbar-size: 10px; --scrollbar-behavior: auto;'>${rows(14)}</div>
+                    <div class='--scrollbar-blue' style='${box} overflow-y: auto; --scrollbar-size: 10px; --scrollbar-behavior: auto;'>${rows(14)}</div>
                 </div>
             `,
             title: 'scope: inherited defaults and child overrides'
@@ -50,16 +50,20 @@ export default {
             title: 'hidden bar'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-thin' style='${box}'>${rows(14)}</div>`,
-            title: 'thin bar'
+            render: () => html`<div class='--scrollbar --scrollbar-blue' style='${box}'>${rows(14)}</div>`,
+            title: 'color states'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-no-arrows' style='${box}'>${rows(14)}</div>`,
-            title: 'no arrows'
+            render: () => html`<div class='--scrollbar' style='${box} --scrollbar-rail-color: var(--color-grey-500);'>${rows(14)}</div>`,
+            title: 'rail color'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-auto --scrollbar-no-arrows --scrollbar-horizontal' style='${box}'>${tiles(16, 1)}</div>`,
-            title: 'no arrows (auto, horizontal)'
+            render: () => html`<div class='--scrollbar' style='${box} --scrollbar-align: 0.5; --scrollbar-rail-color: var(--color-grey-500); --scrollbar-size-hover: 12px;'>${rows(14)}</div>`,
+            title: 'centered growth'
+        },
+        {
+            render: () => html`<div class='--scrollbar --scrollbar-auto --scrollbar-horizontal' style='${box}'>${tiles(16, 1)}</div>`,
+            title: 'auto (horizontal)'
         },
         {
             render: () => html`<div class='--scrollbar' style='${box} --scrollbar-size: 12px; --scrollbar-width: auto;'>${rows(14)}</div>`,
@@ -90,7 +94,7 @@ export default {
             title: 'fade (content fits)'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box} --border-radius: 0px;'>${rows(14)}</div>`,
+            render: () => html`<div class='--scrollbar' style='${box} --scrollbar-border-radius: 0px;'>${rows(14)}</div>`,
             title: 'square thumb'
         }
     ]
