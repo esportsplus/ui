@@ -12,9 +12,9 @@ h1, h2, h3, h4, h5, h6 {
     font-size: var(--font-size);
     font-weight: var(--font-weight-500);
     margin: 0;
+    overflow-wrap: break-word;
     padding: 0;
     position: relative;
-    overflow-wrap: break-word;
     text-wrap: balance;
     width: 100%;
 

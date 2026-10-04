@@ -245,6 +245,8 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                                 keydown(e);
                             }
                         },
+                        // Delegation stops at the nearest bound element, so a press here never reaches the story's own
+                        // tap, hold and drag handling, whose pointer capture would steal the click.
                         onpointerdown: () => {},
                         onpointerup: () => {}
                     }}

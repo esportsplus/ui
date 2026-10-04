@@ -31,6 +31,7 @@ const ANNOUNCE: Record<Status, string> = {
 
 const BUTTON_MORPH_CONTENT = Symbol.for('@esportsplus/ui/button.morph.content');
 
+
 function busy(status: Status) {
     return status === 'loading' || status === 'success';
 }
