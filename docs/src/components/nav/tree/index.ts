@@ -1,6 +1,7 @@
 import { highlight } from '@esportsplus/ui/components';
 import { effect, html } from 'docs/app';
 import { scrollSpy } from 'docs/components/nav/tree/spy';
+import type { Attributes, Renderable } from '@esportsplus/template';
 import 'docs/components/nav/tree/scss/index.scss';
 
 
@@ -10,6 +11,8 @@ type TreeLink = {
     active?: () => boolean;
     visible?: () => boolean;
     onclick?: (event: Event) => void;
+    attributes?: Attributes;
+    content?: Renderable<unknown>;
 };
 
 type TreeSection = {
@@ -75,12 +78,16 @@ function visible (link: TreeLink) {
 }
 
 
-const navTree = (sections: TreeSection[], current: 'location' | 'page' = 'page') => html`
-    <nav class='nav-tree --flex-column ${current === 'page' && 'nav-tree--highlight'}'>
-        ${current === 'page' && highlight({ class: 'nav-tree-highlight', target: '.nav-tree-link:not(.--hidden)' })}
+const navTree = (sections: TreeSection[], current: 'command' | 'location' | 'page' = 'page') => html`
+    <nav
+        class='nav-tree --flex-column ${current !== 'location' && 'nav-tree--highlight'} ${current === 'command' && '--command'}'
+        ${current === 'command' && { role: 'presentation' }}
+    >
+        ${current !== 'location' && highlight({ class: 'nav-tree-highlight', hover: current !== 'command', target: '.nav-tree-link:not(.--hidden)' })}
         ${sections.map((section) => html`
             <div
                 class='nav-tree-group --flex-column ${() => !section.groups.some((group) => group.links.some(visible)) && '--hidden'}'
+                ${current === 'command' && { 'aria-label': section.label, role: 'group' }}
             >
                 ${section.href
                     ? html`<a class='nav-tree-title text' href='${section.href}' onclick='${(event: Event) => section.onclick?.(event)}'>${section.label}</a>`
@@ -109,13 +116,15 @@ const navTree = (sections: TreeSection[], current: 'location' | 'page' = 'page')
 
                             ${group.links.map((link) => html`
                                 <a
-                                    aria-current='${() => link.active?.() ? current : 'false'}'
+                                    aria-current='${() => current !== 'command' && link.active?.() ? current : 'false'}'
                                     class='nav-tree-link link ${() => link.active?.() && '--active'} ${() => !visible(link) && '--hidden'}'
                                     href='${link.href}'
                                     ${{
                                         onclick: (event: Event) => link.onclick?.(event)
                                     }}
-                                >${link.label}</a>
+                                    ${current === 'command' && { tabindex: -1 }}
+                                    ${link.attributes}
+                                >${link.content ?? link.label}</a>
                             `)}
 
                             ${current === 'location' && html`<span aria-hidden='true' class='nav-tree-indicator'></span>`}

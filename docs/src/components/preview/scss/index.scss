@@ -1,45 +1,17 @@
 @use '../../../../../shared.scss';
 
 
-.preview-example {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin: var(--size-800) 0 var(--size-500);
-    min-width: 0;
-    scroll-margin-top: var(--size-500);
-
-    > .example-view {
-        margin: 0;
-    }
-
-    &:has(.preview-select.--active) {
-        z-index: 10;
-    }
-}
-
 .preview {
     --border-radius: var(--border-radius-500);
     border: var(--border-width-400) solid var(--color-grey-500);
     // Keep visited examples' state while the browser skips painting and layout offscreen.
     contain-intrinsic-block-size: auto 420px;
-    scroll-margin-top: var(--size-500);
     margin: 0;
-
-    // An open selector must paint beyond this card and above the following preview.
-    &:has(.preview-select.--active) {
-        content-visibility: visible;
-        z-index: 10;
-    }
+    scroll-margin-top: var(--size-500);
 
     &-anchor {
         position: absolute;
         scroll-margin-top: var(--size-500);
-    }
-
-    &-stage[hidden],
-    &-code[hidden] {
-        display: none;
     }
 
     &-code {
@@ -77,6 +49,11 @@
         min-height: 160px;
         padding: var(--size-600) var(--size-500);
 
+        // Reserve space while an offscreen example waits to mount.
+        &--pending {
+            min-height: 320px;
+        }
+
         &::after {
             @extend %absolute-full;
             background-image: radial-gradient(var(--color-grey-400) 1px, transparent 1px);
@@ -89,11 +66,11 @@
         > * {
             max-width: 100%;
         }
+    }
 
-        // Reserve space while an offscreen example waits to mount.
-        &--pending {
-            min-height: 320px;
-        }
+    &-stage[hidden],
+    &-code[hidden] {
+        display: none;
     }
 
     &-title {
@@ -108,5 +85,28 @@
         min-height: 40px;
         padding: var(--size-200) var(--size-400);
         text-transform: lowercase;
+    }
+
+    // An open selector must paint beyond this card and above the following preview.
+    &:has(.preview-select.--active) {
+        content-visibility: visible;
+        z-index: 10;
+    }
+}
+
+.preview-example {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: var(--size-800) 0 var(--size-500);
+    min-width: 0;
+    scroll-margin-top: var(--size-500);
+
+    &:has(.preview-select.--active) {
+        z-index: 10;
+    }
+
+    > .example-view {
+        margin: 0;
     }
 }

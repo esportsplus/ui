@@ -33,13 +33,28 @@
         width: 28px;
         z-index: 2;
 
-        .icon {
-            --size: 16px;
-        }
-
         &:hover {
             background: var(--color-grey-400);
             color: var(--color-text-500);
+        }
+
+        .icon {
+            --size: 16px;
+        }
+    }
+
+    &-copy .code-copy-check svg {
+        @extend %icon-stroke-draw;
+        animation: code-check-draw 280ms ease forwards;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 4;
+
+        @media (prefers-reduced-motion: reduce) {
+            animation: none;
+            stroke-dashoffset: 0;
         }
     }
 
@@ -49,19 +64,15 @@
         outline-offset: -2px;
     }
 
-    &-copy .code-copy-check svg {
-        @extend %icon-stroke-draw;
-        animation: code-check-draw 280ms ease forwards;
-        fill: none;
-        stroke: currentColor;
-        stroke-width: 4;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-
-        @media (prefers-reduced-motion: reduce) {
-            animation: none;
-            stroke-dashoffset: 0;
-        }
+    &-lines {
+        background: var(--code-background);
+        color: var(--color-text-300);
+        display: block;
+        flex: 0 0 auto;
+        font-variant-numeric: tabular-nums;
+        padding: 0 24px;
+        text-align: right;
+        user-select: none;
     }
 
     &-source {
@@ -89,24 +100,13 @@
         }
     }
 
-    &-lines {
-        background: var(--code-background);
-        color: var(--color-text-300);
-        display: block;
-        flex: 0 0 auto;
-        font-variant-numeric: tabular-nums;
-        padding: 0 24px;
-        text-align: right;
-        user-select: none;
-    }
-
     &-token {
         &--comment { color: #77808f; }
+        &--function { color: #8544df; }
         &--keyword { color: #e53359; }
+        &--punctuation { color: #51617a; }
         &--string { color: #16458b; }
         &--value { color: #1764a5; }
-        &--function { color: #8544df; }
-        &--punctuation { color: #51617a; }
     }
 
 }

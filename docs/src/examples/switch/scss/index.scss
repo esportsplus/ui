@@ -1,17 +1,17 @@
 .switch-demo {
     width: min(360px, 100%);
 
-    .checkbox {
-        --accent: var(--color-white-400);
-        --background-active: var(--color-primary-400);
-        --background-default: var(--color-border-500);
-    }
-
     &-row {
         align-items: center;
         cursor: pointer;
         display: flex;
         gap: var(--size-300);
         user-select: none;
+    }
+
+    .checkbox {
+        --accent: var(--color-white-400);
+        --background-active: var(--color-primary-400);
+        --background-default: var(--color-border-500);
     }
 }

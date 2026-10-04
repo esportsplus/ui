@@ -124,6 +124,13 @@
             scale 0.15s ease-out;
         width: 32px;
 
+        &.--active .pagination-demo-icon--pause,
+        &:not(.--active) .pagination-demo-icon--play {
+            filter: blur(0);
+            opacity: 1;
+            scale: 1;
+        }
+
         &::after {
             border-radius: 999px;
             content: '';
@@ -142,13 +149,6 @@
         &:hover {
             background: var(--color-grey-400);
             color: var(--color-text-500);
-        }
-
-        &.--active .pagination-demo-icon--pause,
-        &:not(.--active) .pagination-demo-icon--play {
-            filter: blur(0);
-            opacity: 1;
-            scale: 1;
         }
     }
 

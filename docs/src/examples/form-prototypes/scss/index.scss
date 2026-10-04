@@ -5,51 +5,46 @@
     display: grid;
     gap: var(--size-200);
 
-    &-surface {
-        border: var(--border-width-400) solid var(--demo-border);
-        border-radius: var(--border-radius-500);
-        position: relative;
-        transition: border-color var(--demo-duration), box-shadow var(--demo-duration),
-            transform var(--demo-duration) var(--demo-spring), background var(--demo-duration);
-
-        &:hover { border-color: var(--demo-accent); }
-        &:focus-within { border-color: var(--demo-accent); }
+    &--bracket &-surface {
+        &::after { right: -2px; }
+        &::before { left: -2px; }
+        &::before, &::after {
+            background: var(--demo-accent);
+            border-radius: var(--border-radius-200);
+            bottom: 25%;
+            content: '';
+            pointer-events: none;
+            position: absolute;
+            top: 25%;
+            transform: scaleY(0);
+            transition: transform var(--demo-duration) var(--demo-spring), top var(--demo-duration), bottom var(--demo-duration);
+            width: calc(var(--size-100) * 0.375);
+        }
+        &:focus-within::before, &:focus-within::after { bottom: 10%; top: 10%; transform: scaleY(1); }
     }
-
-    .input, .textarea {
-        --background: transparent;
-        --border-width: 0px;
-        --border-radius: var(--border-radius-500);
-        --padding-horizontal: var(--size-300);
-        --padding-vertical: var(--size-300);
-        outline: none;
-        margin: 0;
-    }
-
-    .textarea { min-height: 104px; resize: vertical; }
 
     &--halo &-surface:focus-within { box-shadow: 0 0 0 4px var(--demo-ring); }
 
-    &--underline &-surface {
-        border-color: transparent;
-        border-bottom-color: var(--demo-border);
-        border-radius: 0;
-        &::after {
-            content: '';
-            position: absolute;
-            inset: auto 0 -1px;
-            height: calc(var(--size-100) * 0.25);
-            background: var(--demo-accent);
-            transform: scaleX(0);
-            transition: transform var(--demo-duration);
-            pointer-events: none;
-        }
-        &:focus-within::after { transform: scaleX(1); }
+    &--lift &-surface:focus-within {
+        box-shadow: 0 8px 18px var(--demo-ring);
+        transform: translateY(-3px);
     }
 
-    &--lift &-surface:focus-within {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 18px var(--demo-ring);
+    &--underline &-surface {
+        border-bottom-color: var(--demo-border);
+        border-color: transparent;
+        border-radius: 0;
+        &::after {
+            background: var(--demo-accent);
+            content: '';
+            height: calc(var(--size-100) * 0.25);
+            inset: auto 0 -1px;
+            pointer-events: none;
+            position: absolute;
+            transform: scaleX(0);
+            transition: transform var(--demo-duration);
+        }
+        &:focus-within::after { transform: scaleX(1); }
     }
 
     &--wash &-surface {
@@ -57,21 +52,26 @@
         &:focus-within { background: var(--demo-tint); box-shadow: inset 0 0 0 1px var(--demo-accent); }
     }
 
-    &--bracket &-surface {
-        &::before, &::after {
-            content: '';
-            position: absolute;
-            top: 25%;
-            bottom: 25%;
-            width: calc(var(--size-100) * 0.375);
-            border-radius: var(--border-radius-200);
-            background: var(--demo-accent);
-            transform: scaleY(0);
-            transition: transform var(--demo-duration) var(--demo-spring), top var(--demo-duration), bottom var(--demo-duration);
-            pointer-events: none;
-        }
-        &::before { left: -2px; }
-        &::after { right: -2px; }
-        &:focus-within::before, &:focus-within::after { transform: scaleY(1); top: 10%; bottom: 10%; }
+    &-surface {
+        border: var(--border-width-400) solid var(--demo-border);
+        border-radius: var(--border-radius-500);
+        position: relative;
+        transition: border-color var(--demo-duration), box-shadow var(--demo-duration),
+            transform var(--demo-duration) var(--demo-spring), background var(--demo-duration);
+
+        &:focus-within { border-color: var(--demo-accent); }
+        &:hover { border-color: var(--demo-accent); }
     }
+
+    .input, .textarea {
+        --background: transparent;
+        --border-radius: var(--border-radius-500);
+        --border-width: 0px;
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-300);
+        margin: 0;
+        outline: none;
+    }
+
+    .textarea { min-height: 104px; resize: vertical; }
 }

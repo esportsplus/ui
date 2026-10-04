@@ -40,8 +40,17 @@
         translate: 0 -50%;
         width: 24px;
 
+        &:active span {
+            background: var(--color-text-500);
+            scale: 1 1.15;
+        }
+
         &:focus-visible {
             outline: 2px solid var(--color-text-500);
+        }
+
+        &:hover span {
+            background: var(--color-text-300);
         }
 
         span {
@@ -52,15 +61,6 @@
                 background-color 0.15s ease-out,
                 scale 0.15s ease-out;
             width: 6px;
-        }
-
-        &:hover span {
-            background: var(--color-text-300);
-        }
-
-        &:active span {
-            background: var(--color-text-500);
-            scale: 1 1.15;
         }
     }
 

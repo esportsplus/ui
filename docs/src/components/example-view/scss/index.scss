@@ -9,15 +9,6 @@
     padding: 4px;
     width: fit-content;
 
-    &-highlight.highlight {
-        --background-default: transparent;
-        --background-active: var(--color-white-400);
-        --background-hover: transparent;
-        --background-pressed: transparent;
-        --background-disabled: transparent;
-        --scale-hidden: 1;
-    }
-
     &-button {
         align-items: center;
         background: transparent;
@@ -32,21 +23,30 @@
         padding: 0 10px;
         transition: background-color 150ms ease-out, color 150ms ease-out;
 
-        &[aria-pressed='true'] {
-            color: var(--color-text-500);
+        &:focus-visible {
+            outline: 2px solid var(--color-blue-400);
+            outline-offset: 2px;
         }
 
         &:hover {
             color: var(--color-text-500);
         }
 
-        &:focus-visible {
-            outline: 2px solid var(--color-blue-400);
-            outline-offset: 2px;
+        &[aria-pressed='true'] {
+            color: var(--color-text-500);
         }
 
         .icon {
             --size: 16px;
         }
+    }
+
+    &-highlight.highlight {
+        --background-active: var(--color-white-400);
+        --background-default: transparent;
+        --background-disabled: transparent;
+        --background-hover: transparent;
+        --background-pressed: transparent;
+        --scale-hidden: 1;
     }
 }

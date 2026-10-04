@@ -1,11 +1,44 @@
 @use '/tokens';
-@use 'presentation';
 
 .nav-tree {
-    @include presentation.tree;
+    --gap-horizontal: var(--size-600);
+    --gap-vertical: var(--size-600);
+
+    &--highlight {
+        .nav {
+            &-tree-link {
+                --background-active: transparent;
+                --background-default: transparent;
+                --background-hover: transparent;
+                --background-pressed: transparent;
+                border: 0;
+                border-radius: var(--border-radius-300);
+                padding-inline: var(--size-300);
+
+                &:focus-visible {
+                    outline: var(--border-width-400) solid var(--color-blue-400);
+                    outline-offset: calc(var(--border-width-400) * -1);
+                }
+            }
+
+            &-tree-links {
+                margin-inline: calc(var(--size-300) * -1);
+            }
+        }
+
+        .nav-tree-highlight.highlight {
+            --background-active: var(--color-black-400);
+            --background-hover: var(--color-grey-400);
+            --background-pressed: var(--color-grey-500);
+            --glide-duration: 0.2s;
+            --glide-duration-active: 0.25s;
+            --scale-hidden: 1;
+        }
+    }
 
     &-group {
-        @include presentation.group;
+        --gap-horizontal: var(--size-200);
+        --gap-vertical: var(--size-200);
     }
 
     &-group,
@@ -47,13 +80,13 @@
     }
 
     &-link {
-        --border-color-default: var(--color-border-400);
         --border-color-active: var(--border-color-default);
+        --border-color-default: var(--color-border-400);
         --border-color-hover: var(--color-text-400);
         --border-color-pressed: var(--border-color-hover);
-        --color-default: var(--color-text-400);
-        --color-active: var(--color-white-400);
         --border-width: var(--border-width-400);
+        --color-active: var(--color-white-400);
+        --color-default: var(--color-text-400);
         --font-size: var(--font-size-300);
         --font-weight: var(--font-weight-300);
         --padding-horizontal: var(--size-300);
@@ -71,31 +104,24 @@
     }
 
     &-title {
-        @include presentation.title;
+        --color-default: var(--color-text-400);
+        --font-size: var(--font-size-200);
+        --font-weight: var(--font-weight-500);
+        text-transform: uppercase;
     }
 
-    &--highlight {
+    &.--command {
+        .command-label,
+        .command-match {
+            color: inherit;
+        }
+
         .nav-tree-highlight.highlight {
-            @include presentation.highlight;
+            --background-active: var(--color-grey-400);
         }
 
         .nav-tree-link {
-            --background-default: transparent;
-            --background-active: transparent;
-            --background-hover: transparent;
-            --background-pressed: transparent;
-            border: 0;
-            border-radius: var(--border-radius-300);
-            padding-inline: var(--size-300);
-
-            &:focus-visible {
-                outline: var(--border-width-400) solid var(--color-blue-400);
-                outline-offset: calc(var(--border-width-400) * -1);
-            }
-        }
-
-        .nav-tree-links {
-            margin-inline: calc(var(--size-300) * -1);
+            --color-active: var(--color-text-500);
         }
     }
 }

@@ -23,6 +23,8 @@ type A = Attributes & {
     label?: Renderable<unknown>;
     onrun?: (command: Command) => void;
     placeholder?: string;
+    // Replaces the grouped result markup; apply each item's attributes to its option element.
+    render?: (groups: ResultGroup[]) => Renderable<unknown>;
     // Listed under their own tab.
     shortcuts?: Shortcut[];
     state?: State;
@@ -82,6 +84,20 @@ type Match = {
     entry: Entry;
     index: number;
     ranges: [number, number][];
+};
+
+type Result = {
+    attributes: Attributes;
+    command?: Command;
+    content: Renderable<unknown>;
+    id: string;
+    label: string;
+};
+
+type ResultGroup = {
+    id: string;
+    items: Result[];
+    label: string;
 };
 
 type Shortcut = {
@@ -297,6 +313,7 @@ export default component(
             label = 'Search commands',
             onrun,
             placeholder = 'Type a command or search',
+            render,
             shortcuts,
             state = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab }),
             store,
@@ -306,6 +323,7 @@ export default component(
     ) {
         let apple = mac(),
             id = `command-${++uid}`,
+            optionAttributes = this?.attributes?.[COMMAND_OPTION],
             bindings = (shortcuts ?? []).map((shortcut): Entry => ({
                 group: shortcut.group,
                 icon: shortcut.icon,
@@ -434,6 +452,63 @@ export default component(
             state.query = '';
             // A swap cut short by closing may never report its end.
             ui.moving = false;
+        }
+
+        function results(view: View) {
+            let groups = read(view.results).groups.map(({ group, items }, g): ResultGroup => ({
+                id: `${view.key}-group-${g}`,
+                label: group,
+                items: items.map(({ entry, index, ranges }) => ({
+                    attributes: {
+                        ...optionAttributes,
+                        ...attributes[COMMAND_OPTION],
+                        id: `${view.key}-${index}`,
+                        role: 'option',
+                        'aria-selected': () => current() === view && selected() === index ? 'true' : 'false',
+                        class: [
+                            optionAttributes?.class,
+                            attributes[COMMAND_OPTION]?.class,
+                            !entry.command && 'command-option--inert',
+                            () => current() === view && selected() === index && '--active'
+                        ].flat(),
+                        onclick: (event: Event) => {
+                            event.preventDefault();
+                            run(entry);
+                        },
+                        onpointermove: (event: PointerEvent) => {
+                            if (event.pointerType === 'touch' || (pointer && pointer.x === event.clientX && pointer.y === event.clientY)) {
+                                return;
+                            }
+
+                            pointer = { x: event.clientX, y: event.clientY };
+
+                            if (index !== selected()) {
+                                state.index = index;
+                            }
+                        }
+                    },
+                    command: entry.command,
+                    content: html`
+                        ${entry.icon && sprite(entry.icon, 'command-option-icon')}
+                        ${mark(entry.label, ranges)}
+                        ${entry.keys && kbd(entry.keys)}
+                    `,
+                    id: entry.id,
+                    label: entry.label
+                }))
+            }));
+
+            return render ? render(groups) : html`
+                ${highlight({ class: 'command-highlight', hover: false, target: '.command-option' })}
+                ${groups.map((group) => html`
+                    <div aria-labelledby='${group.id}' class='command-group' role='group'>
+                        <div class='command-group-label' id='${group.id}'>${group.label}</div>
+                        ${group.items.map((item) => html`
+                            <div class='command-option' ${item.attributes}>${item.content}</div>
+                        `)}
+                    </div>
+                `)}
+            `;
         }
 
         // Shortcut rows are a reference list; only commands run.
@@ -669,45 +744,7 @@ export default component(
                                                 }
                                             }}
                                         >
-                                            ${highlight({ class: 'command-highlight', hover: false, target: '.command-option' })}
-                                            ${() => read(view.results).groups.map(({ group, items }, g) => html`
-                                                <div aria-labelledby='${view.key}-group-${g}' class='command-group' role='group'>
-                                                    <div class='command-group-label' id='${view.key}-group-${g}'>${group}</div>
-                                                    ${items.map(({ entry, index, ranges }) => html`
-                                                        <div
-                                                            class='command-option ${!entry.command && 'command-option--inert'}'
-                                                            id='${view.key}-${index}'
-                                                            role='option'
-                                                            ${this?.attributes?.[COMMAND_OPTION]}
-                                                            ${attributes[COMMAND_OPTION]}
-                                                            ${{
-                                                                'aria-selected': () => current() === view && selected() === index ? 'true' : 'false',
-                                                                class: () => current() === view && selected() === index && '--active',
-                                                                onclick: () => run(entry),
-                                                                onpointermove: (e: PointerEvent) => {
-                                                                    if (e.pointerType === 'touch') {
-                                                                        return;
-                                                                    }
-
-                                                                    if (pointer && pointer.x === e.clientX && pointer.y === e.clientY) {
-                                                                        return;
-                                                                    }
-
-                                                                    pointer = { x: e.clientX, y: e.clientY };
-
-                                                                    if (index !== selected()) {
-                                                                        state.index = index;
-                                                                    }
-                                                                }
-                                                            }}
-                                                        >
-                                                            ${entry.icon && sprite(entry.icon, 'command-option-icon')}
-                                                            ${mark(entry.label, ranges)}
-                                                            ${entry.keys && kbd(entry.keys)}
-                                                        </div>
-                                                    `)}
-                                                </div>
-                                            `)}
+                                            ${() => results(view)}
                                         </div>
 
                                         ${() => !read(view.results).flat.length && html`
@@ -736,4 +773,4 @@ export default component(
         trigger: COMMAND_TRIGGER
     }
 );
-export type { Command, Shortcut, State, Store, Tab };
+export type { Command, Result, ResultGroup, Shortcut, State, Store, Tab };

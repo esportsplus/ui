@@ -14,10 +14,6 @@
         height: 140px;
     }
 
-    p {
-        margin: 0;
-    }
-
     // Pinned to the frame, so it stays under the cursor while the banner reopens.
     // Arrives after the banner has closed, leaves at once.
     &-again {
@@ -225,6 +221,10 @@
         font-variant-numeric: tabular-nums;
         font-weight: var(--font-weight-500);
         margin-top: 2px;
+    }
+
+    p {
+        margin: 0;
     }
 
     @media (prefers-reduced-motion: reduce) {

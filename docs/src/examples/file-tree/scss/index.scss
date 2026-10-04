@@ -41,10 +41,6 @@
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         width: 100%;
 
-        &.file-tree {
-            height: auto;
-        }
-
         &-list {
             align-items: center;
             display: grid;
@@ -77,6 +73,10 @@
             font-size: var(--font-size-300);
             font-weight: var(--font-weight-500);
             margin: 0 0 var(--size-100);
+        }
+
+        &.file-tree {
+            height: auto;
         }
     }
 

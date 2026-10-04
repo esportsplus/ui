@@ -19,21 +19,6 @@
     width: min(var(--sidebar-width), 100%);
     z-index: 31;
 
-    .viewer-body.--sidebar-open > & {
-        transition-delay: 0s;
-        translate: 0 0;
-        visibility: visible;
-    }
-
-    &-header {
-        align-items: center;
-        display: flex;
-        flex-shrink: 0;
-        gap: 6px;
-        height: var(--sidebar-header-height);
-        padding-inline: 52px 8px;
-    }
-
     &-brand {
         align-items: baseline;
         color: var(--color-text-500);
@@ -50,18 +35,24 @@
         }
     }
 
-    &-version {
-        --border-color: var(--color-border-400);
-        --border-radius: var(--border-radius-300);
-        --font-size: var(--font-size-100);
-        --font-weight: var(--font-weight-500);
-        flex-shrink: 0;
-        border: 1px solid var(--border-color);
-        padding: 2px 6px;
+    // Keep the scrollport unpadded so its blur edges span the entire navigation surface.
+    &-content {
+        padding: var(--size-400) var(--size-600);
+    }
 
-        @media (max-width: 480px) {
-            display: none;
-        }
+    &-header {
+        align-items: center;
+        display: flex;
+        flex-shrink: 0;
+        gap: 6px;
+        height: var(--sidebar-header-height);
+        padding-inline: 52px 8px;
+    }
+
+    &-scrollport {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden auto;
     }
 
     &-search {
@@ -86,13 +77,13 @@
         height: var(--size);
         width: var(--size);
 
-        .icon {
-            --size: var(--size-400);
-        }
-
         &:focus-visible {
             outline: 2px solid var(--color-blue-400);
             outline-offset: 2px;
+        }
+
+        .icon {
+            --size: var(--size-400);
         }
     }
 
@@ -103,15 +94,24 @@
         z-index: 40;
     }
 
-    &-scrollport {
-        flex: 1;
-        min-height: 0;
-        overflow: hidden auto;
+    &-version {
+        --border-color: var(--color-border-400);
+        --border-radius: var(--border-radius-300);
+        --font-size: var(--font-size-100);
+        --font-weight: var(--font-weight-500);
+        border: 1px solid var(--border-color);
+        flex-shrink: 0;
+        padding: 2px 6px;
+
+        @media (max-width: 480px) {
+            display: none;
+        }
     }
 
-    // Keep the scrollport unpadded so its blur edges span the entire navigation surface.
-    &-content {
-        padding: var(--size-400) var(--size-600);
+    .viewer-body.--sidebar-open > & {
+        transition-delay: 0s;
+        translate: 0 0;
+        visibility: visible;
     }
 
     @media (max-width: 720px) {

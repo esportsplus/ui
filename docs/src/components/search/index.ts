@@ -4,6 +4,7 @@ import { command } from '@esportsplus/ui/components';
 import { mac } from '@esportsplus/ui/shared/platform';
 import { html, reactive, redirect } from 'docs/app';
 import { sections } from 'docs/data/nav';
+import { navTree } from 'docs/components/nav/tree';
 import type { Tab } from '@esportsplus/ui/components/command';
 import 'docs/components/search/scss/index.scss';
 
@@ -23,8 +24,7 @@ const modal = () => {
     let links = new Map(sections().flatMap((section) => section.groups.flatMap((group) => group.links.map((link) => [link.href, link] as const))));
 
     return command({
-        [command.dialog]: { class: 'overlay--blur docs-search nav-tree--highlight nav-tree--highlight-command' },
-        [command.option]: { class: 'nav-tree-link link' },
+        [command.dialog]: { class: 'overlay--blur docs-search' },
         [command.trigger]: { hidden: true },
         commands: sections().flatMap((section) => section.groups.flatMap((group) => group.links.map(({ href, label }) => ({ group: section.label, id: href, label })))),
         onrun: (entry) => {
@@ -35,6 +35,17 @@ const modal = () => {
             }
         },
         placeholder: 'Search documentation…',
+        render: (groups) => navTree(groups.map((group) => ({
+            label: group.label,
+            groups: [{
+                links: group.items.map((item) => ({
+                    attributes: item.attributes,
+                    content: item.content,
+                    href: item.id,
+                    label: item.label
+                }))
+            }]
+        })), 'command'),
         state: search
     });
 };

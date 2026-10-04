@@ -1,13 +1,6 @@
 .checkbox-demo {
     width: min(360px, 100%);
 
-    .checkbox {
-        --background-active: var(--color-primary-400);
-        --border-color-active: var(--color-primary-400);
-        --border-color-default: var(--color-border-500);
-        --border-width: var(--border-width-400);
-    }
-
     &-description {
         color: var(--color-text-300);
         font-size: var(--font-size-300);
@@ -34,5 +27,12 @@
         display: flex;
         flex-direction: column;
         gap: 2px;
+    }
+
+    .checkbox {
+        --background-active: var(--color-primary-400);
+        --border-color-active: var(--color-primary-400);
+        --border-color-default: var(--color-border-500);
+        --border-width: var(--border-width-400);
     }
 }

@@ -15,7 +15,7 @@ these components; they should not own shared component styles.
 | `preview` | Example frames; render factories mount near the viewport and keep their state after mounting |
 | `prose` | Markdown rendering and prose typography; tables use `spec-table` |
 | `root` | Docs-wide theme aliases and shell tokens |
-| `search` | Search state, trigger, and the library `command` palette wired to the nav, with shared nav tree rows, headings, spacing, and highlight styles |
+| `search` | Search state, trigger, and the library `command` palette wired to the shared nav tree renderer |
 | `sidebar` | Collapsible documentation navigation that pushes content aside on every screen size |
 | `spec` | Shared data tables and token/value typography |
 | `table-head` | Table-header surface and corner styling, included by `spec` |
@@ -37,6 +37,9 @@ divider, so they slide together. Only the sidebar toggle stays fixed. The search
 icon sits beside the release badge, and the command palette mounts in the viewer shell
 so its keyboard shortcut also works with the sidebar closed. Navigation scrolls below
 the brand row and uses the shared nav tree styling and original responsive content spacing.
+The command palette passes its filtered groups to `navTree` through `command`'s
+`render` callback. Sidebar and command results use the same markup and tree styles;
+the tree's `--command` modifier changes the active highlight and text colors.
 Scope documentation page styles under `.main > .page` so library pages in live
 examples keep their own presentation.
 

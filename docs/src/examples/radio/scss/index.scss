@@ -8,13 +8,6 @@
     padding: 0;
     width: min(420px, 100%);
 
-    .checkbox {
-        --background-active: var(--color-primary-400);
-        --border-color-active: var(--color-primary-400);
-        --border-color-default: var(--color-border-500);
-        --border-width: var(--border-width-400);
-    }
-
     &-badge {
         background: var(--color-grey-400);
         border-radius: 999px;
@@ -101,5 +94,12 @@
         flex-direction: column;
         gap: 2px;
         min-width: 0;
+    }
+
+    .checkbox {
+        --background-active: var(--color-primary-400);
+        --border-color-active: var(--color-primary-400);
+        --border-color-default: var(--color-border-500);
+        --border-width: var(--border-width-400);
     }
 }

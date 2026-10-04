@@ -88,6 +88,16 @@
         }
     }
 
+    &-picker {
+        align-items: center;
+        display: flex;
+        font-size: var(--font-size-400);
+        font-weight: var(--font-weight-500);
+        gap: var(--size-400);
+        justify-content: space-between;
+        width: 460px;
+    }
+
     &-row {
         align-items: center;
         background: var(--color-white-300);
@@ -98,26 +108,16 @@
         gap: var(--size-300);
         padding: var(--size-300) var(--size-400);
 
-        .sortable-overlay {
-            color: var(--color-text-500);
-            font-weight: var(--font-weight-600);
-        }
-
         &-meta {
             color: var(--color-text-300);
             font-size: var(--font-size-300);
             margin-inline-start: auto;
         }
-    }
 
-    &-picker {
-        align-items: center;
-        justify-content: space-between;
-        width: 460px;
-        display: flex;
-        font-size: var(--font-size-400);
-        font-weight: var(--font-weight-500);
-        gap: var(--size-400);
+        .sortable-overlay {
+            color: var(--color-text-500);
+            font-weight: var(--font-weight-600);
+        }
     }
 
     &-status {
@@ -139,14 +139,11 @@
         padding: 0;
         width: 34px;
 
-        input {
-            background: transparent;
-            border: 0;
-            color: inherit;
-            font: inherit;
-            min-width: 0;
-            outline: none;
-            width: 100%;
+        &--search {
+            cursor: text;
+            justify-content: flex-start;
+            padding-inline: var(--size-300);
+            width: 160px;
         }
 
         .sortable-overlay {
@@ -155,11 +152,14 @@
             letter-spacing: 0.02em;
         }
 
-        &--search {
-            cursor: text;
-            justify-content: flex-start;
-            padding-inline: var(--size-300);
-            width: 160px;
+        input {
+            background: transparent;
+            border: 0;
+            color: inherit;
+            font: inherit;
+            min-width: 0;
+            outline: none;
+            width: 100%;
         }
     }
 

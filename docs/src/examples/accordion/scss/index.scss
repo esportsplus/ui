@@ -4,6 +4,26 @@
     max-width: 100%;
     width: 420px;
 
+    &-chevron {
+        color: var(--color-text-300);
+        fill: none;
+        flex-shrink: 0;
+        height: 16px;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.5;
+        transition: rotate 150ms ease-out;
+        width: 16px;
+    }
+
+    &-description {
+        color: var(--color-text-300);
+        line-height: 18px;
+        margin: 0;
+        padding: 0 24px 14px 0;
+    }
+
     &-row:not(:last-child) {
         border-bottom: 1px solid var(--color-border-400);
     }
@@ -23,15 +43,15 @@
         text-align: start;
         width: 100%;
 
+        &:disabled {
+            cursor: default;
+            opacity: 0.4;
+        }
+
         &:focus-visible {
             border-radius: 3px;
             outline: 2px solid var(--color-primary-400);
             outline-offset: 3px;
-        }
-
-        &:disabled {
-            cursor: default;
-            opacity: 0.4;
         }
 
     }
@@ -40,26 +60,6 @@
         &[aria-expanded='true'] .accordion-demo-chevron {
             rotate: 90deg;
         }
-    }
-
-    &-chevron {
-        color: var(--color-text-300);
-        fill: none;
-        flex-shrink: 0;
-        height: 16px;
-        stroke: currentColor;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-width: 1.5;
-        transition: rotate 150ms ease-out;
-        width: 16px;
-    }
-
-    &-description {
-        color: var(--color-text-300);
-        line-height: 18px;
-        margin: 0;
-        padding: 0 24px 14px 0;
     }
 
     @media (prefers-reduced-motion: reduce) {

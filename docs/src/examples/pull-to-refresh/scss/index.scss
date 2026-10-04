@@ -101,11 +101,6 @@
             scale 0.15s ease-out;
         width: 36px;
 
-        svg {
-            height: 16px;
-            width: 16px;
-        }
-
         &:active {
             scale: 0.96;
         }
@@ -121,6 +116,11 @@
 
         &[aria-disabled='true'] {
             opacity: 0.5;
+        }
+
+        svg {
+            height: 16px;
+            width: 16px;
         }
     }
 
