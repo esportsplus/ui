@@ -17,7 +17,7 @@ function tabs(line: 'bottom' | 'left', fill: boolean) {
     return html`
         <div
             aria-orientation='${line === 'left' ? 'vertical' : 'horizontal'}'
-            class='highlight-demo-tabs ${line === 'left' && '--vertical'}'
+            class='highlight-demo-tabs ${line === 'left' && 'highlight-demo-tabs--vertical'}'
             role='tablist'
         >
             ${highlight({ class: 'highlight-demo-highlight', fill, line })}

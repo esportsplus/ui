@@ -340,7 +340,7 @@ function createMenu(context = false) {
                                     <span class='tooltip-menu-title-regular'>${item.label}</span>
                                     <span aria-hidden='true' class='tooltip-menu-title-bold'>${item.label}</span>
                                 </span>
-                                <span class='tooltip-menu-chevron'></span>
+                                <span class='tooltip-menu-chevron tooltip-menu-chevron--down'></span>
                             </div>
                         `}
 

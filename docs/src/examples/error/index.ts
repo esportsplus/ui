@@ -79,6 +79,7 @@ export default {
                 }));
 
                 return field('Week starts on', 'Pick a weekend day', error({ direction: 'ne', state }, select({
+                    class: 'error-demo-select',
                     options: { monday: 'Monday', saturday: 'Saturday', sunday: 'Sunday' },
                     state
                 })));

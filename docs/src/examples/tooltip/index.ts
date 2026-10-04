@@ -115,7 +115,7 @@ function mention(profile: Profile, tip: ReturnType<typeof tooltip.shared>) {
                 <span aria-label='${profile.name}, ${profile.handle}' class='tooltip-card-demo-profile' role='group'>
                     <span class='tooltip-card-demo-top'>
                         <span class='tooltip-card-demo-avatar'>
-                            <img alt='' src='${profile.avatar}' />
+                            <img alt='' class='tooltip-card-demo-avatar-image' src='${profile.avatar}' />
                         </span>
                         <button
                             aria-label='Follow ${profile.name}'
@@ -128,8 +128,8 @@ function mention(profile: Profile, tip: ReturnType<typeof tooltip.shared>) {
                                 }
                             }}
                         >
-                            <span>Follow</span>
-                            <span aria-hidden='true'>Following</span>
+                            <span class='tooltip-card-demo-follow-label'>Follow</span>
+                            <span aria-hidden='true' class='tooltip-card-demo-follow-label tooltip-card-demo-follow-label--following'>Following</span>
                         </button>
                     </span>
                     <span class='tooltip-card-demo-name'>${profile.name}</span>
@@ -137,11 +137,11 @@ function mention(profile: Profile, tip: ReturnType<typeof tooltip.shared>) {
                     <span class='tooltip-card-demo-bio'>${profile.bio}</span>
                     <span class='tooltip-card-demo-stats'>
                         <span>
-                            <strong>${() => (profile.followers + (state.following ? 1 : 0)).toLocaleString('en-US')}</strong>
+                            <strong class='tooltip-card-demo-count'>${() => (profile.followers + (state.following ? 1 : 0)).toLocaleString('en-US')}</strong>
                             followers
                         </span>
                         <span>
-                            <strong>${profile.following.toLocaleString('en-US')}</strong>
+                            <strong class='tooltip-card-demo-count'>${profile.following.toLocaleString('en-US')}</strong>
                             following
                         </span>
                     </span>

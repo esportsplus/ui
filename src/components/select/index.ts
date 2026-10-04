@@ -395,11 +395,7 @@ function template(
                 ${defaultPanel}
                 ${panelAttributes}
                 ${{
-                    class: [
-                        () => menu.down && 'select-menu-panel--down',
-                        () => menu.hover && 'select-menu-panel--hover',
-                        () => menu.up && 'select-menu-panel--up'
-                    ],
+                    class: () => state.active && '--active',
                     inert: () => !state.active,
                     onconnect: (element: HTMLElement) => {
                         parts.panel = element;
@@ -486,21 +482,23 @@ function template(
                     aria-hidden='true'
                     class='select-menu-scroll select-menu-scroll--up'
                     ${{
+                        class: () => menu.hover && menu.up && '--active',
                         onpointerenter: (e: PointerEvent) => scroll(-1, e),
                         onpointerleave: stop
                     }}
                 >
-                    <svg><use href='#${chevronUp}' /></svg>
+                    <svg class='select-menu-scroll-icon'><use href='#${chevronUp}' /></svg>
                 </div>
                 <div
                     aria-hidden='true'
                     class='select-menu-scroll select-menu-scroll--down'
                     ${{
+                        class: () => menu.hover && menu.down && '--active',
                         onpointerenter: (e: PointerEvent) => scroll(1, e),
                         onpointerleave: stop
                     }}
                 >
-                    <svg><use href='#${chevronDown}' /></svg>
+                    <svg class='select-menu-scroll-icon'><use href='#${chevronDown}' /></svg>
                 </div>
             </div>
         </div>

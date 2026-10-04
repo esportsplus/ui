@@ -22,43 +22,43 @@
     width: calc(var(--width) - var(--inset-inline) * 2 + var(--slide-width));
     z-index: -1;
 
-    &.highlight--line::after {
+    &--line::after {
         background: var(--line-color);
         border-radius: var(--line-radius);
         content: '';
         position: absolute;
     }
 
-    &.highlight--unfilled {
+    &--unfilled {
         background: transparent;
     }
 
     // The line runs along the item's own edge, so it reaches back out past the inset.
-    &.highlight--line-bottom::after {
+    &--line-bottom::after {
         bottom: calc(var(--line-offset) - var(--inset-block));
         height: var(--line-width);
         inset-inline: calc(var(--inset-inline) * -1);
     }
 
-    &.highlight--line-left::after {
+    &--line-left::after {
         inset-block: calc(var(--inset-block) * -1);
         left: calc(var(--line-offset) - var(--inset-inline));
         width: var(--line-width);
     }
 
-    &.highlight--line-right::after {
+    &--line-right::after {
         inset-block: calc(var(--inset-block) * -1);
         right: calc(var(--line-offset) - var(--inset-inline));
         width: var(--line-width);
     }
 
-    &.highlight--line-top::after {
+    &--line-top::after {
         height: var(--line-width);
         inset-inline: calc(var(--inset-inline) * -1);
         top: calc(var(--line-offset) - var(--inset-block));
     }
 
-    &.highlight--visible {
+    &--visible {
         display: block;
         opacity: 1;
         scale: 1;

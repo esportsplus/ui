@@ -47,7 +47,7 @@
         gap: 2px;
         padding-inline: 2px;
 
-        &.--vertical {
+        &--vertical {
             border-bottom: 0;
             border-left: var(--border-width-400) solid var(--color-border-300);
             flex-direction: column;

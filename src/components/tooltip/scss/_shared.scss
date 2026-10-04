@@ -16,14 +16,6 @@
     translate: var(--shared-x) var(--shared-y);
     width: var(--shared-width);
 
-    // Only while moving between triggers; a fresh open appears in place.
-    &.tooltip-shared--gliding {
-        transition:
-            height var(--glide-duration) var(--glide-timing-function),
-            translate var(--glide-duration) var(--glide-timing-function),
-            width var(--glide-duration) var(--glide-timing-function);
-    }
-
     &:not(.tooltip-shared--gliding) .tooltip-shared-layer {
         transition: none;
     }
@@ -48,38 +40,32 @@
 
     &--e {
         padding-left: var(--spacer);
-
-        > .tooltip-shared-box {
-            translate: calc(var(--rise) * -1) 0;
-        }
     }
 
-    #{tokens.state(active, '&--interactive')} {
-        pointer-events: auto;
+    // Only while moving between triggers; a fresh open appears in place.
+    &--gliding {
+        transition:
+            height var(--glide-duration) var(--glide-timing-function),
+            translate var(--glide-duration) var(--glide-timing-function),
+            width var(--glide-duration) var(--glide-timing-function);
+    }
+
+    &--interactive {
+        @include tokens.state(active) {
+            pointer-events: auto;
+        }
     }
 
     &--n {
         padding-bottom: var(--spacer);
-
-        > .tooltip-shared-box {
-            translate: 0 var(--rise);
-        }
     }
 
     &--s {
         padding-top: var(--spacer);
-
-        > .tooltip-shared-box {
-            translate: 0 calc(var(--rise) * -1);
-        }
     }
 
     &--w {
         padding-right: var(--spacer);
-
-        > .tooltip-shared-box {
-            translate: var(--rise) 0;
-        }
     }
 
 
@@ -99,6 +85,7 @@
             opacity var(--close-duration) var(--timing-function),
             scale var(--close-duration) var(--timing-function),
             translate var(--close-duration) var(--timing-function);
+        translate: var(--box-translate);
     }
 
     // A 'frame--swap', centered in the box so the box can resize around it; centering takes 'transform', leaving

@@ -47,15 +47,15 @@
         cursor: inherit;
     }
 
-    // Morph tooltips (-2) sit behind the trigger. A child can't paint under its parent's own
-    // background, so repaint that background above them; the label still paints on top.
-    // Shares '.button::after' (its shadow layer) when the trigger is a button.
     // Gooey join between trigger and tooltip while the morph runs; 'morph()' injects the filter
     // and toggles the class.
-    &.tooltip--morphing {
+    &--morphing {
         filter: url(#tooltip-morph-goo);
     }
 
+    // Morph tooltips (-2) sit behind the trigger. A child can't paint under its parent's own
+    // background, so repaint that background above them; the label still paints on top.
+    // Shares '.button::after' (its shadow layer) when the trigger is a button.
     &:has(> .tooltip-content--morph, > .tooltip-message--morph, > :not(.tooltip) > .tooltip-content--morph, > :not(.tooltip) > .tooltip-message--morph)::after {
         @extend %layer;
         background: inherit;
@@ -193,6 +193,10 @@
 }
 
 
+// Shrinks straight onto the trigger (every edge together) until it's a blob '--morph-land'
+// larger than the trigger on every side, holds there, then settles into the trigger's exact box.
+// The hold matters: without it, edges still arriving (the travel differs per direction) overlap
+// with the final shrink, so it never reads as having landed.
 @keyframes tooltip-morph-close {
     0% {
         animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
