@@ -1,8 +1,7 @@
-import { command } from '@esportsplus/ui/components';
+import { command, nav } from '@esportsplus/ui/components';
 import { mac } from '@esportsplus/ui/shared/platform';
 import { html, reactive, redirect } from 'docs/app';
 import { sections } from 'docs/data/nav';
-import { navTree } from 'docs/components/nav/tree';
 import type { Tab } from '@esportsplus/ui/components/command';
 import icon from '@esportsplus/ui/components/icon';
 import svg from '@esportsplus/ui/svg/search.svg';
@@ -29,17 +28,20 @@ const modal = () => {
             }
         },
         placeholder: 'Search documentation…',
-        render: (groups) => navTree(groups.map((group) => ({
-            label: group.label,
-            groups: [{
-                links: group.items.map((item) => ({
-                    attributes: item.attributes,
-                    content: item.content,
-                    href: item.id,
-                    label: item.label
-                }))
-            }]
-        })), 'command'),
+        render: (groups) => nav.tree({
+            current: 'command',
+            sections: groups.map((group) => ({
+                label: group.label,
+                groups: [{
+                    links: group.items.map((item) => ({
+                        attributes: item.attributes,
+                        content: item.content,
+                        href: item.id,
+                        label: item.label
+                    }))
+                }]
+            }))
+        }),
         state: search
     });
 };

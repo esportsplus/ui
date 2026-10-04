@@ -1,7 +1,7 @@
+import { nav } from '@esportsplus/ui/components';
 import { effect, html, reactive, uri } from 'docs/app';
 import { repository, version } from '@esportsplus/ui/package.json';
 import { sections } from 'docs/data/nav';
-import { navTree } from 'docs/components/nav/tree';
 import { trigger as searchTrigger } from 'docs/components/search';
 import type { Request } from 'docs/app';
 import 'docs/components/sidebar/scss/index.scss';
@@ -87,8 +87,8 @@ export default (request: Request) => {
 
             <div class='sidebar-scrollport --scrollbar --scrollbar-blur --scrollbar-hidden'>
                 <div class='sidebar-content'>
-                    ${navTree(
-                        sections().map((section) => ({
+                    ${nav.tree({
+                        sections: sections().map((section) => ({
                             label: section.label,
                             href: section.index ? section.href : undefined,
                             active: () => request.path === section.href,
@@ -100,7 +100,7 @@ export default (request: Request) => {
                                 }))
                             }]
                         }))
-                    )}
+                    })}
                 </div>
             </div>
         </aside>

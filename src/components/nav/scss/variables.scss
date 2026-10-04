@@ -1,0 +1,60 @@
+.nav-tree {
+    --focus-color: var(--color-blue-400);
+    --focus-width: var(--border-width-400);
+    --highlight-background-active: var(--color-black-400);
+    --highlight-background-hover: var(--color-grey-400);
+    --highlight-background-pressed: var(--color-grey-500);
+    // Text colour of the active link while the highlight sits under it.
+    --highlight-color: var(--color-white-400);
+    --indicator-color: var(--color-blue-400);
+    --indicator-width: var(--border-width-400);
+    --link-border-color: var(--color-border-400);
+    --link-border-color-active: var(--link-border-color);
+    --link-border-color-hover: var(--color-text-400);
+    --link-border-radius: 0px;
+    --link-border-width: var(--border-width-400);
+    --link-color: var(--color-text-400);
+    --link-color-active: var(--color-black-500);
+    --link-font-size: var(--font-size-300);
+    --link-font-weight: var(--font-weight-300);
+    --link-font-weight-active: var(--font-weight-500);
+    // Pulls links out past the column edge, so their text lines up with the titles while the highlight pads around it.
+    --link-inset: 0px;
+    --link-padding-horizontal: var(--size-300);
+    --link-padding-vertical: var(--size-100);
+    --section-gap: var(--size-600);
+    --title-color: var(--color-text-400);
+    --title-font-size: var(--font-size-200);
+    --title-font-weight: var(--font-weight-500);
+    --title-font-weight-active: var(--font-weight-600);
+    --title-spacing: var(--size-100);
+
+
+    &--command {
+        --highlight-background-active: var(--color-grey-400);
+        --highlight-color: var(--color-text-500);
+    }
+
+    // The border stays, transparent, so links keep the same box with or without the highlight.
+    &--highlight {
+        --link-border-color: transparent;
+        --link-border-color-active: transparent;
+        --link-border-color-hover: transparent;
+        --link-border-radius: var(--border-radius-300);
+        --link-color-active: var(--highlight-color);
+        --link-inset: var(--size-300);
+    }
+
+    &--toc {
+        --link-border-color-active: var(--link-color-active);
+    }
+
+    &-highlight.highlight {
+        --background-active: var(--highlight-background-active);
+        --background-hover: var(--highlight-background-hover);
+        --background-pressed: var(--highlight-background-pressed);
+        --glide-duration: 0.2s;
+        --glide-duration-active: 0.25s;
+        --scale-hidden: 1;
+    }
+}

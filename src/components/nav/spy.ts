@@ -1,7 +1,10 @@
-import { reactive } from 'docs/app';
+import { reactive } from '@esportsplus/reactivity';
 
 
+// 'current' marks the last section scrolled past the top; 'visible' marks every section on screen.
 type Mode = 'current' | 'visible';
+
+type Spy = ReturnType<typeof spy>;
 
 
 const LOCK_TIMEOUT = 1000;
@@ -26,7 +29,9 @@ function container(element: Element) {
 }
 
 
-const scrollSpy = (ids: string[], mode: Mode = 'current') => {
+// Tracks which of the elements with these ids are in view, within whichever ancestor scrolls them. Navigating locks
+// the active range on the target until the smooth scroll settles, so sections passed on the way don't flash active.
+const spy = (ids: string[], mode: Mode = 'current') => {
     let frame = 0,
         locked = false,
         root: HTMLElement | undefined,
@@ -192,5 +197,5 @@ const scrollSpy = (ids: string[], mode: Mode = 'current') => {
 };
 
 
-export { scrollSpy };
-export type { Mode };
+export default spy;
+export type { Mode, Spy };

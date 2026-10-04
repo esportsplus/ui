@@ -26,6 +26,7 @@ export { default as json } from './json';
 export { default as loading } from './loading';
 export { default as marquee } from './marquee';
 export { default as metric } from './metric';
+export { default as nav } from './nav';
 export { default as notificationBell } from './notification-bell';
 export { default as number } from './number';
 export { default as overlay } from './overlay';
