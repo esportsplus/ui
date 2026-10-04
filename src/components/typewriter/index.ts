@@ -17,6 +17,10 @@ export default component(
         return html`
             <div class='typewriter' ${attributes} ${{
                 onconnect: () => {
+                    if (!content.length) {
+                        return;
+                    }
+
                     let character = 0,
                         i = 0,
                         isWriting = true,

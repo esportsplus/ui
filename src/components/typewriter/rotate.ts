@@ -1,7 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive, ReactiveArray } from '@esportsplus/reactivity';
 import { timing } from '~/shared/animation';
-import './scss/index.scss';
 
 
 type A = Attributes & {

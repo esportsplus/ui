@@ -32,12 +32,12 @@ export default component<A, (state: { copied: boolean, failed: boolean }) => Ren
 
                         reset();
 
-                        state.copied = await write(value);
+                        let copied = await write(value);
 
-                        if (!state.copied) {
-                            state.failed = true;
-                        }
-
+                        // A second click can land while the first is still writing; only the last one's timer runs.
+                        clearTimeout(timer);
+                        state.copied = copied;
+                        state.failed = !copied;
                         timer = setTimeout(reset, timeout);
                     }
                 }}

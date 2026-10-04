@@ -72,7 +72,6 @@
 
     &-status {
         @extend %hidden-visually;
-        border: 0;
     }
 
     // Graded like the system spinner: the leading tick is solid and each one behind it fades, so the stepped rotation reads
