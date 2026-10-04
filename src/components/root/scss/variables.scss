@@ -69,3 +69,9 @@ h5 {
 section {
     --width: 100%;
 }
+
+// Light, as a page declaring no color scheme is drawn, until the page declares one: 'light-dark()' needs a scheme,
+// and the fallback Lightning CSS writes for older browsers has none to read without it.
+:where(:root) {
+    color-scheme: light;
+}
