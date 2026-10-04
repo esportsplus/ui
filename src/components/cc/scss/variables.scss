@@ -34,23 +34,8 @@
         --ring-duration: 0s;
     }
 
-    // Qualified so it wins over the shared button styles regardless of stylesheet order.
-    &-actions #{&}-submit {
-        --background-default: var(--submit-background);
-        --border-radius: var(--field-border-radius);
-        --color-default: var(--submit-color);
-        --face-duration: var(--swap-duration);
-        --face-gap: 8px;
-        --face-timing-function: var(--spring);
-        --font-size: var(--field-font-size);
-        --font-weight: var(--font-weight-500);
-        --icon-size: 16px;
-        --padding-horizontal: 20px;
-        --padding-vertical: 0px;
-    }
-
-    // Qualified by the control so it wins over the reused input styles regardless of stylesheet order.
-    &-shell #{&}-field {
+    // Chained through '.input' so it wins over the reused input styles regardless of stylesheet order.
+    &-field.input {
         --background-default: var(--field-background);
         --border-color-active: var(--field-border-color);
         --border-color-default: var(--field-border-color);
@@ -65,5 +50,20 @@
             --field-border-color: var(--error-color);
             --outline-color: var(--error-color);
         }
+    }
+
+    // Chained through '.button' so it wins over the shared button styles regardless of stylesheet order.
+    &-submit.button {
+        --background-default: var(--submit-background);
+        --border-radius: var(--field-border-radius);
+        --color-default: var(--submit-color);
+        --face-duration: var(--swap-duration);
+        --face-gap: 8px;
+        --face-timing-function: var(--spring);
+        --font-size: var(--field-font-size);
+        --font-weight: var(--font-weight-500);
+        --icon-size: 16px;
+        --padding-horizontal: 20px;
+        --padding-vertical: 0px;
     }
 }

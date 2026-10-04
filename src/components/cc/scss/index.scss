@@ -31,6 +31,12 @@
             width: 36px;
         }
 
+        &-icon {
+            display: block;
+            height: 100%;
+            width: 100%;
+        }
+
         &-mark {
             @extend %icon-swap;
             grid-area: 1 / 1;
@@ -39,12 +45,6 @@
 
             @include tokens.state(active) {
                 @extend %icon-swap-active;
-            }
-
-            svg {
-                display: block;
-                height: 100%;
-                width: 100%;
             }
         }
     }
@@ -63,7 +63,7 @@
         transition: transform var(--flip-duration) var(--flip-timing-function);
         width: 100%;
 
-        &.cc-card--flipped {
+        &--flipped {
             transform: rotateY(180deg);
         }
     }
@@ -86,7 +86,7 @@
             transition: color var(--transition-duration) var(--transition-timing-function);
             translate: 0 -50%;
 
-            &.cc-control-brand--known {
+            &--known {
                 color: var(--color);
             }
         }
@@ -95,19 +95,19 @@
     &-digit {
         display: inline-block;
 
-        &.cc-digit--gap {
+        &--gap {
             margin-inline-start: 0.6em;
         }
 
-        &.cc-digit--placeholder {
+        &--placeholder {
             opacity: 0.45;
         }
 
-        &.cc-digit--roll-1 {
+        &--roll-1 {
             animation: cc-digit-1 var(--digit-duration) ease-out;
         }
 
-        &.cc-digit--roll-2 {
+        &--roll-2 {
             animation: cc-digit-2 var(--digit-duration) ease-out;
         }
     }
@@ -184,40 +184,42 @@
         }
     }
 
-    &-fields {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    // Qualified by the control so it wins over the reused input styles regardless of stylesheet order.
-    &-shell #{&}-field {
-        font-size: var(--field-font-size);
-        font-variant-numeric: tabular-nums;
-        height: var(--field-height);
-        min-height: 0;
-        outline: none;
-        padding-block: 0;
-        transition: border-color 150ms ease-out;
-
-        &:focus-visible {
-            outline: var(--border-width-500) solid var(--outline-color);
-            outline-offset: -1px;
-        }
-
-        &::placeholder {
-            color: oklch(from var(--muted-color) l c h / 0.7);
-        }
-
+    // Chained through '.input' so these win over the reused input styles regardless of stylesheet order.
+    &-field {
         &--cvc,
         &--expiry,
         &--number {
             font-family: var(--font-mono);
         }
 
-        &--number {
+        &--number.input {
             padding-inline-end: 64px;
         }
+
+        &.input {
+            font-size: var(--field-font-size);
+            font-variant-numeric: tabular-nums;
+            height: var(--field-height);
+            min-height: 0;
+            outline: none;
+            padding-block: 0;
+            transition: border-color 150ms ease-out;
+
+            &:focus-visible {
+                outline: var(--border-width-500) solid var(--outline-color);
+                outline-offset: -1px;
+            }
+
+            &::placeholder {
+                color: oklch(from var(--muted-color) l c h / 0.7);
+            }
+        }
+    }
+
+    &-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
     }
 
     &-holder {
@@ -254,7 +256,7 @@
         justify-content: center;
         margin: 0;
 
-        svg {
+        &-icon {
             flex-shrink: 0;
             height: 14px;
             width: 14px;
@@ -352,8 +354,8 @@
         margin-top: 24px;
     }
 
-    // Qualified so it wins over the shared button styles regardless of stylesheet order.
-    &-actions #{&}-submit {
+    // Chained through '.button' so it wins over the shared button styles regardless of stylesheet order.
+    &-submit.button {
         border: 0;
         height: var(--field-height);
         outline: none;
@@ -388,11 +390,14 @@
 
 // No half turn: the faces cross-fade in place and every blur, slide and scale drops to a plain fade.
 @media (prefers-reduced-motion: reduce) {
-    .cc-card.cc-card--flipped {
+    .cc-card--flipped {
+        --face-back-opacity: 1;
+        --face-front-opacity: 0;
         transform: none;
     }
 
-    .cc-digit:is(.cc-digit--roll-1, .cc-digit--roll-2) {
+    .cc-digit--roll-1,
+    .cc-digit--roll-2 {
         animation-name: cc-fade;
     }
 
@@ -404,19 +409,15 @@
     }
 
     .cc-face--back {
-        opacity: 0;
+        opacity: var(--face-back-opacity, 0);
         transform: none;
     }
 
-    .cc-card.cc-card--flipped .cc-face--back {
-        opacity: 1;
+    .cc-face--front {
+        opacity: var(--face-front-opacity, 1);
     }
 
-    .cc-card.cc-card--flipped .cc-face--front {
-        opacity: 0;
-    }
-
-    .cc-actions .cc-submit:active {
+    .cc-submit.button:active {
         scale: 1;
     }
 }

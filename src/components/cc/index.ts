@@ -161,7 +161,7 @@ function mark(brand: () => Brand, size: 'large' | 'small') {
         <span aria-hidden='true' class='cc-brand cc-brand--${size}'>
             ${(Object.keys(BRANDS) as Brand[]).map((b) => html`
                 <span class='cc-brand-mark ${() => brand() === b && '--active'}'>
-                    <svg><use href='#${BRANDS[b].icon}' /></svg>
+                    <svg class='cc-brand-icon'><use href='#${BRANDS[b].icon}' /></svg>
                 </span>
             `)}
         </span>
@@ -547,7 +547,7 @@ export default component(
                     </button>
                     ${!!note && html`
                         <p class='cc-note'>
-                            <svg aria-hidden='true'><use href='#${lock}' /></svg>
+                            <svg aria-hidden='true' class='cc-note-icon'><use href='#${lock}' /></svg>
                             ${note}
                         </p>
                     `}

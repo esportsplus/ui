@@ -59,11 +59,11 @@
             outline: 2px solid var(--focus-ring-color);
             outline-offset: 2px;
         }
+    }
 
-        svg {
-            height: 18px;
-            width: 18px;
-        }
+    // Held until the morph has visibly settled, so nothing shows while its box is still growing.
+    &-delayed {
+        animation: var(--delayed-animation, none);
     }
 
     &-detail {
@@ -78,9 +78,8 @@
     &-dialog {
         overflow: visible;
 
-        // Held until the morph has visibly settled, so nothing shows while its box is still growing.
-        #{tokens.state(active)} .card-expand-delayed {
-            animation: card-expand-reveal 0.25s var(--ease-out) 0.25s backwards;
+        @include tokens.state(active) {
+            --delayed-animation: card-expand-reveal 0.25s var(--ease-out) 0.25s backwards;
         }
     }
 
@@ -96,6 +95,11 @@
         display: flex;
         flex-direction: column;
         gap: 4px;
+    }
+
+    &-icon {
+        height: 18px;
+        width: 18px;
     }
 
     // Holds the slot at the card's exact size so the list never jumps, and marks where it returns to. Keyed off
@@ -126,6 +130,7 @@
         font-size: 13px;
         font-variant-numeric: tabular-nums;
         margin: 0;
+        view-transition-name: var(--meta-transition-name, none);
     }
 
     &-panel {
@@ -148,13 +153,15 @@
         color: var(--muted-color);
         font-size: 14px;
         margin: 0;
-    }
+        view-transition-name: var(--summary-transition-name, none);
 
-    &-panel &-summary {
-        font-size: 15px;
-        line-height: 24px;
-        margin-top: 16px;
-        white-space: normal;
+        // In the open panel, where it shows in full.
+        &--full {
+            font-size: 15px;
+            line-height: 24px;
+            margin-top: 16px;
+            white-space: normal;
+        }
     }
 
     &-title {
@@ -163,6 +170,7 @@
         font-size: 15px;
         font-weight: 500;
         margin: 0;
+        view-transition-name: var(--title-transition-name, none);
     }
 
     // Only the card on the move and its open dialog are named, so the rest of the list stays under the backdrop.
@@ -170,19 +178,10 @@
     @media (prefers-reduced-motion: no-preference) {
         &-item:not(:has(> #{tokens.state(active, '.card-expand-dialog')})) > .card--expand.card--morphing,
         &-item:has(> .card--morphing) > #{tokens.state(active, '.card-expand-dialog')} {
+            --meta-transition-name: card-expand-meta;
+            --summary-transition-name: card-expand-summary;
+            --title-transition-name: card-expand-title;
             view-transition-name: card-expand;
-
-            .card-expand-meta {
-                view-transition-name: card-expand-meta;
-            }
-
-            .card-expand-summary {
-                view-transition-name: card-expand-summary;
-            }
-
-            .card-expand-title {
-                view-transition-name: card-expand-title;
-            }
         }
     }
 
@@ -191,7 +190,7 @@
             transition: none;
         }
 
-        #{tokens.state(active, '&-dialog')} .card-expand-delayed {
+        &-delayed {
             animation: none;
         }
     }

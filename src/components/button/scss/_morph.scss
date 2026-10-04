@@ -1,4 +1,5 @@
 @use '/shared';
+@use '/tokens';
 
 // Compound selector so these win over `.button`, whose rules follow this partial.
 .button.button--morph {
@@ -44,13 +45,7 @@
         animation: button-morph-shake var(--morph-shake-duration) var(--morph-shake-easing) 150ms;
     }
 
-    &-error .button-morph-text--error,
-    &-idle .button-morph-text--idle {
-        filter: blur(0px);
-        opacity: 1;
-        transition-duration: 200ms;
-    }
-
+    // Keyed off the status, since the icons are <svg>s, which take no dynamic class.
     &-loading .button-morph-icon--loading,
     &-success .button-morph-icon--success {
         @extend %icon-swap-active;
@@ -94,15 +89,31 @@
             filter 150ms ease-out,
             opacity 150ms ease-out;
         white-space: nowrap;
+
+        @include tokens.state(active) {
+            filter: blur(0px);
+            opacity: 1;
+            transition-duration: 200ms;
+        }
     }
 }
 
 
 // Swings that die away, like a head shaking no.
 @keyframes button-morph-shake {
-    0%, 100% { translate: 0; }
-    20% { translate: -6px; }
-    40% { translate: 5px; }
-    60% { translate: -3px; }
-    80% { translate: 2px; }
+    0%, 100% {
+        translate: 0;
+    }
+    20% {
+        translate: -6px;
+    }
+    40% {
+        translate: 5px;
+    }
+    60% {
+        translate: -3px;
+    }
+    80% {
+        translate: 2px;
+    }
 }

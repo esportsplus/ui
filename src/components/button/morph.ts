@@ -142,8 +142,8 @@ export default component(
                     ${this?.attributes?.[BUTTON_MORPH_CONTENT]}
                     ${attributes[BUTTON_MORPH_CONTENT]}
                 >
-                    <span class='button-morph-text button-morph-text--idle'>${label}</span>
-                    <span class='button-morph-text button-morph-text--error'>${retryLabel}</span>
+                    <span class='button-morph-text ${() => state.status === 'idle' && '--active'}'>${label}</span>
+                    <span class='button-morph-text ${() => state.status === 'error' && '--active'}'>${retryLabel}</span>
                     <svg class='button-morph-icon button-morph-icon--loading'><use class='button-morph-spinner' href='#${spinner}' /></svg>
                     <svg class='button-morph-icon button-morph-icon--success'><use href='#${check}' /></svg>
                 </span>

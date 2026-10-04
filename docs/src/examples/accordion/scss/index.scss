@@ -8,6 +8,7 @@
         color: var(--color-text-300);
         flex-shrink: 0;
         height: 16px;
+        rotate: var(--chevron-rotate, none);
         transition: rotate 150ms ease-out;
         width: 16px;
     }
@@ -49,8 +50,8 @@
             outline-offset: 3px;
         }
 
-        &[aria-expanded='true'] .accordion-demo-chevron {
-            rotate: 90deg;
+        &[aria-expanded='true'] {
+            --chevron-rotate: 90deg;
         }
     }
 
