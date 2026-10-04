@@ -53,7 +53,7 @@ function contained(description: string) {
                 html`
                     <div class='text'>${description}</div>
                     <div
-                        class='button button--tertiary'
+                        class='button'
                         style='${BUTTON}'
                         onclick='${() => state.active = false}'
                     >
@@ -62,7 +62,7 @@ function contained(description: string) {
                 `
             )}
             <div
-                class='button button--primary'
+                class='button'
                 style='--width: auto; left: 50%; position: absolute; top: 50%; translate: -50% -50%;'
                 onclick='${() => state.active = !state.active}'
             >
@@ -101,7 +101,7 @@ function demo(variant: string, description: string, style = '') {
     let state = reactive({ active: false });
 
     return html`
-        <div class='button button--primary' style='--width: auto;' onclick='${() => state.active = true}'>
+        <div class='button' style='--width: auto;' onclick='${() => state.active = true}'>
             open overlay
         </div>
 
@@ -115,7 +115,7 @@ function demo(variant: string, description: string, style = '') {
                 <h3 style='margin: 0 0 var(--size-400);'>Overlay title</h3>
                 <div class='text'>${description}</div>
                 <div
-                    class='button button--tertiary'
+                    class='button'
                     style='${BUTTON}'
                     onclick='${() => state.active = false}'
                 >
@@ -143,11 +143,11 @@ function stacked(modal: boolean) {
                 <div class='text'>${description}</div>
                 <div style='display: flex; gap: var(--size-300); margin-top: var(--size-500);'>
                     ${i + 1 < SHEETS.length && html`
-                        <div class='button button--primary' style='--width: auto;' onclick='${() => states[i + 1].active = true}'>
+                        <div class='button' style='--width: auto;' onclick='${() => states[i + 1].active = true}'>
                             ${SHEETS[i + 1].title}
                         </div>
                     `}
-                    <div class='button button--tertiary' style='--width: auto;' onclick='${() => states[i].active = false}'>
+                    <div class='button' style='--width: auto;' onclick='${() => states[i].active = false}'>
                         done
                     </div>
                 </div>
@@ -156,7 +156,7 @@ function stacked(modal: boolean) {
 
     if (modal) {
         return html`
-            <div class='button button--primary' style='--width: auto;' onclick='${() => states[0].active = true}'>
+            <div class='button' style='--width: auto;' onclick='${() => states[0].active = true}'>
                 share
             </div>
             ${sheets}
@@ -169,7 +169,7 @@ function stacked(modal: boolean) {
                 <div class='text' style='color: var(--color-text-300);'>Drafts</div>
                 <h3 style='margin: var(--size-200) 0 var(--size-400);'>Launch notes</h3>
                 <div class='text'>Three fixes, one new component, and a faster index. Ship Thursday after review.</div>
-                <div class='button button--primary' style='${BUTTON}' onclick='${() => states[0].active = true}'>
+                <div class='button' style='${BUTTON}' onclick='${() => states[0].active = true}'>
                     share
                 </div>
             </div>

@@ -30,7 +30,7 @@ function toggle() {
         ${marquee({ items: customers, label: 'Customers', state })}
 
         <button
-            class='button button--tertiary'
+            class='button'
             style='--width: auto; margin-top: var(--size-400);'
             onclick='${() => state.paused = !state.paused}'
             type='button'

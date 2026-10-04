@@ -27,9 +27,9 @@ function demo(component: string): Renderable<unknown> | null {
     if (component === 'button') {
         return html`
             <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
-                <div class='button button--primary' style='--width: auto;'>Primary</div>
-                <div class='button button--secondary' style='--width: auto;'>Secondary</div>
-                <div class='button button--tertiary' style='--width: auto;'>Tertiary</div>
+                <button class='button' style='--width: auto;' type='button'>Default</button>
+                <button class='button button--tactile' style='--width: auto;' type='button'>Tactile</button>
+                <button class='button button--underline' style='--width: auto;' type='button'>Underline</button>
             </div>
         `;
     }

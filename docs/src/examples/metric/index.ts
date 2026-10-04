@@ -40,14 +40,14 @@ function controls(state: { value: number }, step: number, render: ReturnType<typ
         ${render}
 
         <div style='display: flex; gap: var(--size-200); margin-top: var(--size-400);'>
-            <button class='button button--tertiary' style='--width: auto;' onclick='${() => state.value -= step}' type='button'>
+            <button class='button' style='--width: auto;' onclick='${() => state.value -= step}' type='button'>
                 decrease
             </button>
-            <button class='button button--tertiary' style='--width: auto;' onclick='${() => state.value += step}' type='button'>
+            <button class='button' style='--width: auto;' onclick='${() => state.value += step}' type='button'>
                 increase
             </button>
             <button
-                class='button button--tertiary'
+                class='button'
                 style='--width: auto;'
                 onclick='${() => state.value += Math.round((Math.random() - 0.5) * step * 400) / 100}'
                 type='button'

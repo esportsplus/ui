@@ -3,7 +3,7 @@ import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 
 
-let trigger = 'button button--tertiary';
+let trigger = 'button';
 
 
 export default {

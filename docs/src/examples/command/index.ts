@@ -84,7 +84,7 @@ function hub() {
         { label: 'Search or run', shortcuts, state, store: local('docs-command'), tabs: true },
         html`
             <button
-                class='button button--tertiary'
+                class='button'
                 type='button'
                 onclick='${() => {
                     state.tab = 'shortcuts';

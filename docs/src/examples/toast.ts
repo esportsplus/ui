@@ -11,7 +11,7 @@ const PLACEMENTS = ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'];
 let alerts = createToaster({ [createToaster.overflow]: { class: 'docs-toast-overflow docs-toast-overflow--dark' }, class: 'toaster--n', limit: 2 }),
     burst = 0,
     timer: { active: boolean, duration: number } | undefined,
-    trigger = 'button button--tertiary';
+    trigger = 'button';
 
 let alert = alerts.toast.bind({ attributes: { class: 'docs-toast docs-toast--dark' } });
 

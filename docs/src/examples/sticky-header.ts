@@ -50,9 +50,9 @@ export default {
             render: () => stickyHeader({
                 after: html`
                     <div style='align-items: center; display: flex; gap: var(--size-300); width: 100%;'>
-                        <div class='button button--tertiary' style='--width: auto;' tabindex='0'>back</div>
+                        <div class='button' style='--width: auto;' tabindex='0'>back</div>
                         <div class='text' style='${compact} flex: 1;'>Invoices</div>
-                        <div class='button button--tertiary' style='--width: auto;' tabindex='0'>new</div>
+                        <div class='button' style='--width: auto;' tabindex='0'>new</div>
                     </div>
                 `,
                 before: html`
@@ -61,7 +61,7 @@ export default {
                             <div class='text' style='${subtitle}'>Billing</div>
                             <div class='text' style='${title}'>Invoices</div>
                         </div>
-                        <div class='button button--tertiary' style='--width: auto;' tabindex='0'>new</div>
+                        <div class='button' style='--width: auto;' tabindex='0'>new</div>
                     </div>
                 `,
                 style: '--expanded-height: 76px; --max-height: 420px; width: min(100%, 360px);'

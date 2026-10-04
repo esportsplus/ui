@@ -10,7 +10,7 @@ function live(variant?: string) {
         ${usageMeter({ class: variant, usage })}
 
         <button
-            class='button button--tertiary'
+            class='button'
             style='--width: auto; margin-top: var(--size-400);'
             type='button'
             onclick='${() => {

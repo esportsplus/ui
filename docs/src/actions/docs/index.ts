@@ -14,7 +14,7 @@ const SOURCE_KEYWORD = /^(?:@use|import|from)$/;
 
 const managers = ['pnpm', 'npm', 'yarn', 'bun'] as const;
 const commands = { pnpm: 'pnpm add @esportsplus/ui', npm: 'npm install @esportsplus/ui', yarn: 'yarn add @esportsplus/ui', bun: 'bun add @esportsplus/ui' };
-const example = "import { html } from '@esportsplus/template';\n\nhtml`<button class='button button--primary'>\n  Save changes\n</button>`;";
+const example = "import { html } from '@esportsplus/template';\n\nhtml`<button class='button'>\n  Save changes\n</button>`;";
 const styles = "@use '@esportsplus/ui/button.scss';\n@use '@esportsplus/ui/themes/dark/button.scss';";
 
 // Source goes in through slots, which keep its whitespace; the template compiler collapses static HTML text.
@@ -61,7 +61,7 @@ const render = () => {
                 <span class='setup-step-number'>03</span><h2 class='setup-step-title'>Use a component</h2><p class='setup-step-description'>Add the button classes to your template. Explore the <a class='setup-step-link' href='/components/button'>button reference</a> for colors, modifiers, and hold-to-confirm behavior.</p>
                 <div class='setup-code'><div class='setup-code-bar'><span>app.ts</span><button class='setup-code-copy' type='button' aria-label='Copy component example' ${{ onclick: () => copy(example, 'example') }}>${() => state.copied === 'example' ? 'Copied' : 'Copy'}</button></div><pre class='setup-code-source'>${sourceCode(example)}</pre></div>
             </section>
-            <div class='setup-example' id='setup-preview'><div class='setup-example-bar'><span>Button preview</span><a class='setup-example-link' href='/components/button'>View all variants</a></div><div class='setup-live'><button class='button button--primary setup-live-button' type='button' ${{ onclick: () => { state.saved = !state.saved; } }}>${() => state.saved ? 'Changes saved' : 'Save changes'}</button><span class='setup-live-feedback' aria-live='polite'>${() => state.saved ? 'Click again to reset the example.' : 'Try the button.'}</span></div></div>
+            <div class='setup-example' id='setup-preview'><div class='setup-example-bar'><span>Button preview</span><a class='setup-example-link' href='/components/button'>View all variants</a></div><div class='setup-live'><button class='button setup-live-button' type='button' ${{ onclick: () => { state.saved = !state.saved; } }}>${() => state.saved ? 'Changes saved' : 'Save changes'}</button><span class='setup-live-feedback' aria-live='polite'>${() => state.saved ? 'Click again to reset the example.' : 'Try the button.'}</span></div></div>
             <p class='setup-copy-status' role='status'>${() => state.copied === 'error' && 'Copy is unavailable. Select and copy the code above.'}</p>
             <div class='setup-next'><a class='setup-next-link' href='/components/button'><span class='setup-next-label'>Continue exploring</span><strong class='setup-next-title'>Button</strong><p class='setup-next-description'>Explore button variants and interactions.</p></a><a class='setup-next-link' href='/themes'><span class='setup-next-label'>Customize your project</span><strong class='setup-next-title'>Theming</strong><p class='setup-next-description'>Make the library fit your design.</p></a></div>
         </div>
