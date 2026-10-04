@@ -44,6 +44,12 @@
             filter 0.53s var(--spring),
             opacity 0.53s var(--spring),
             scale 0.53s var(--spring);
+
+        &.--active {
+            filter: blur(0);
+            opacity: 1;
+            scale: 1;
+        }
     }
 
     &-note {
@@ -128,13 +134,6 @@
             color 0.15s ease-out,
             scale 0.15s ease-out;
         width: 32px;
-
-        &.--active .pagination-demo-icon--pause,
-        &:not(.--active) .pagination-demo-icon--play {
-            filter: blur(0);
-            opacity: 1;
-            scale: 1;
-        }
 
         &::after {
             border-radius: 999px;

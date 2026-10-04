@@ -345,12 +345,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    // Doubled to outrank the swing presets, which set the same variables on the same element.
-    .sortable.sortable {
-        --shift-duration: 0s;
-        --swing-angle: 0deg;
-    }
-
     .sortable-drag {
         animation: none;
     }

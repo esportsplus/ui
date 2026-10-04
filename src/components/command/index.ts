@@ -289,7 +289,7 @@ function match(label: string, query: string): [number, number][] | null {
     return ranges;
 }
 
-function sprite(href: string, name = '') {
+function sprite(href: string, name: Attributes['class'] = '') {
     return icon({ 'aria-hidden': 'true', class: name }, href);
 }
 
@@ -466,7 +466,7 @@ export default component(
                         },
                         command: entry.command,
                         content: html`
-                            ${entry.icon && sprite(entry.icon, 'command-option-icon')}
+                            ${entry.icon && sprite(entry.icon, ['command-option-icon', () => signal.selector(active, key) && '--active'])}
                             ${mark(entry.label, ranges)}
                             ${entry.keys && kbd(entry.keys)}
                         `,

@@ -36,7 +36,7 @@
             outline-offset: 2px;
         }
 
-        &.dock-button--launching {
+        &--launching {
             animation:
                 dock-hop var(--hop-duration),
                 dock-squash var(--hop-duration) ease-in-out;
@@ -86,25 +86,6 @@
             transition-delay: var(--light-delay);
             transition-duration: 0.2s;
         }
-    }
-}
-
-
-// The hovered icon peaks and swells its two neighbours on each side. Touch has no hover to follow, and
-// reduced motion keeps the icons still.
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .dock-item:hover {
-        --size: var(--size-peak);
-    }
-
-    .dock-item:has(+ .dock-item:hover),
-    .dock-item:hover + .dock-item {
-        --size: var(--size-near);
-    }
-
-    .dock-item:has(+ .dock-item + .dock-item:hover),
-    .dock-item:hover + .dock-item + .dock-item {
-        --size: var(--size-far);
     }
 }
 

@@ -17,12 +17,12 @@
             box-shadow: var(--box-shadow-200);
             height: 56px;
             width: 56px;
+        }
 
-            .sortable-overlay {
-                color: var(--color-white-400);
-                font-size: var(--font-size-600);
-                font-weight: var(--font-weight-600);
-            }
+        &-overlay {
+            color: var(--color-white-400);
+            font-size: var(--font-size-600);
+            font-weight: var(--font-weight-600);
         }
     }
 
@@ -114,7 +114,7 @@
             margin-inline-start: auto;
         }
 
-        .sortable-overlay {
+        &-overlay {
             color: var(--color-text-500);
             font-weight: var(--font-weight-600);
         }
@@ -146,13 +146,7 @@
             width: 160px;
         }
 
-        .sortable-overlay {
-            font-size: 10px;
-            font-weight: var(--font-weight-600);
-            letter-spacing: 0.02em;
-        }
-
-        input {
+        &-input {
             background: transparent;
             border: 0;
             color: inherit;
@@ -160,6 +154,12 @@
             min-width: 0;
             outline: none;
             width: 100%;
+        }
+
+        &-overlay {
+            font-size: 10px;
+            font-weight: var(--font-weight-600);
+            letter-spacing: 0.02em;
         }
     }
 

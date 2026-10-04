@@ -45,10 +45,6 @@ function separator(kind: Separator) {
     return html`<svg aria-hidden='true' class='breadcrumb-separator'><use href='#${SEPARATORS[kind]}' /></svg>`;
 }
 
-function sprite(href: string) {
-    return html`<svg aria-hidden='true'><use href='#${href}' /></svg>`;
-}
-
 
 /*
  * Fitting works off a hidden copy of the full trail, so the widths never depend on what is currently folded
@@ -155,12 +151,12 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                 ${{ onconnect: (element: HTMLElement) => { ruler = element; } }}
             >
                 ${items.map((item, index) => html`
-                    <li class='breadcrumb-segment'>
+                    <li class='breadcrumb-ruler-segment'>
                         ${index > 0 && separator(kind)}
                         <span class='breadcrumb-text ${index === last && 'breadcrumb-text--current'}'>${item.label}</span>
                     </li>
                 `)}
-                <li class='breadcrumb-segment'>
+                <li class='breadcrumb-ruler-segment'>
                     ${separator(kind)}
                     <span class='breadcrumb-space'></span>
                 </li>
@@ -198,7 +194,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                         class: 'breadcrumb-menu-root',
                                         items: items.slice(1, last).map((item, i) => ({
                                             label: item.label,
-                                            icon: () => sprite(folder),
+                                            icon: () => html`<svg aria-hidden='true' class='breadcrumb-option-icon'><use href='#${folder}' /></svg>`,
                                             hidden: () => i >= s.hidden,
                                             href: item.href,
                                             onselect: (_item, event) => navigate(event, item, i + 1),
@@ -218,7 +214,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                             id: `${id}-menu`
                                         }
                                     },
-                                    sprite(dots)
+                                    html`<svg aria-hidden='true' class='breadcrumb-trigger-icon'><use href='#${dots}' /></svg>`
                                 )}
                             </div>
                         </li>

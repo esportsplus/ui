@@ -71,7 +71,7 @@ function demo(attributes: Partial<Parameters<typeof command>[0]> = {}, actions?:
             })}
             ${actions}
             <p aria-live='polite' class='command-demo-status'>
-                ${() => ran.label && html`Ran: <span>${ran.label}</span>`}
+                ${() => ran.label && html`Ran: <span class='command-demo-status-label'>${ran.label}</span>`}
             </p>
         </div>
     `;

@@ -9,6 +9,17 @@
     justify-content: space-between;
     width: 100%;
 
+    // Geometry is derived from '--progress' alone, so a scroll or drag only rewrites one custom property per frame.
+    &--dots {
+        contain: layout;
+        display: block;
+        flex: none;
+        height: var(--height);
+        position: relative;
+        // Never changes width: the active slot is always one pill wide, whichever dot owns it.
+        width: calc((var(--count) - 1) * var(--step) + var(--pill-width));
+    }
+
     &-control,
     &-page {
         border: var(--border-width) solid var(--border-color);

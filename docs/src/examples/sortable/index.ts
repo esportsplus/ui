@@ -114,14 +114,14 @@ export default {
                         ? html`
                             <label class='sortable-demo-tool sortable-demo-tool--search' ${attributes}>
                                 ${icon({ 'aria-hidden': 'true' }, tool.icon)}
-                                <input placeholder='Search' type='text' />
-                                <span class='sortable-overlay'>${tool.label}</span>
+                                <input class='sortable-demo-tool-input' placeholder='Search' type='text' />
+                                <span class='sortable-overlay sortable-demo-tool-overlay'>${tool.label}</span>
                             </label>
                         `
                         : html`
                             <button class='sortable-demo-tool' type='button' ${attributes}>
                                 ${icon({ 'aria-hidden': 'true' }, tool.icon)}
-                                <span class='sortable-overlay'>${tool.label}</span>
+                                <span class='sortable-overlay sortable-demo-tool-overlay'>${tool.label}</span>
                             </button>
                         `, {
                         onsort: (tool, from, to) => {
@@ -145,7 +145,7 @@ export default {
                 let list = sortable(new ReactiveArray(apps.map(([name, color]) => ({ color, name }))), (app, attributes) => html`
                     <div class='sortable-demo-app' ${attributes}>
                         <div class='sortable-demo-app-icon' style='background: ${app.color};'>
-                            <span class='sortable-overlay'>${app.name[0]}</span>
+                            <span class='sortable-overlay sortable-demo-app-overlay'>${app.name[0]}</span>
                         </div>
                         <span>${app.name}</span>
                     </div>
@@ -168,7 +168,7 @@ export default {
                         <span class='sortable-demo-handle'>⋮⋮</span>
                         <span>${task.label}</span>
                         <span class='sortable-demo-row-meta'>#${task.number}</span>
-                        <div class='sortable-overlay'>${task.label}</div>
+                        <div class='sortable-overlay sortable-demo-row-overlay'>${task.label}</div>
                     </div>
                 `, {
                     // A different look while it is carried: the row stays as the placeholder underneath.

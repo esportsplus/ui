@@ -212,8 +212,8 @@ function carousel(autoplay: boolean) {
                                 }
                             }}
                         >
-                            ${icon({ 'aria-hidden': 'true', class: 'pagination-demo-icon pagination-demo-icon--pause' }, pause)}
-                            ${icon({ 'aria-hidden': 'true', class: 'pagination-demo-icon pagination-demo-icon--play' }, play)}
+                            ${icon({ 'aria-hidden': 'true', class: ['pagination-demo-icon', () => (demo.choice ?? !reduced) && '--active'] }, pause)}
+                            ${icon({ 'aria-hidden': 'true', class: ['pagination-demo-icon', () => !(demo.choice ?? !reduced) && '--active'] }, play)}
                         </button>
                     `
                     : html`<span aria-hidden='true' class='pagination-demo-spacer'></span>`}
