@@ -3,14 +3,27 @@
 @use 'filter';
 @use 'variables';
 
+@mixin thumb {
+    appearance: none;
+    background: var(--thumb-background);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: 100%;
+    cursor: pointer;
+    height: var(--thumb-size);
+    outline: none;
+    width: var(--thumb-size);
+}
+
 .range {
     @extend %background-state, %border-state;
+    appearance: none;
     background: var(--background);
     border: 0px;
     border-radius: 240px;
     height: var(--height);
     margin-block: calc(var(--margin-vertical) + ((var(--thumb-size) - var(--height)) / 2));
     margin-inline: var(--margin-horizontal);
+    outline: none;
     transition:
         background var(--transition-duration) var(--transition-timing-function),
         border-color var(--transition-duration) var(--transition-timing-function),
@@ -19,21 +32,13 @@
         transform var(--transition-duration) var(--transition-timing-function);
     width: var(--width);
 
-    &::-moz-range-thumb,
-    &::-webkit-slider-thumb {
-        background: var(--thumb-background);
-        border: var(--border-width) solid var(--border-color);
-        border-radius: 100%;
-        cursor: pointer;
-        height: var(--thumb-size);
-        width: var(--thumb-size);
+    // Keep browser pseudo-elements separate: an unknown pseudo invalidates a selector list.
+    &::-moz-range-thumb {
+        @include thumb;
     }
 
-    &,
-    &::-moz-range-thumb,
     &::-webkit-slider-thumb {
-        appearance: none;
-        outline: none;
+        @include thumb;
     }
 }
 
