@@ -48,38 +48,46 @@ export default {
             title: 'pre-selected'
         },
         {
+            render: () => select({
+                label: 'Choose font',
+                options: fonts,
+                selected: 'inter'
+            }),
+            title: 'font picker'
+        },
+        {
             render: () => html`
                 <div class='select-menu-demo'>
                     ${[
-                        { label: 'Time zone', options: timeZones, value: 'kolkata' },
-                        { label: 'Week starts on', options: weekStarts, value: 'monday' }
+                        { label: 'Time zone', options: timeZones, selected: 'kolkata' },
+                        { label: 'Week starts on', options: weekStarts, selected: 'monday' }
                     ].map((row) => html`
                         <div class='select-menu-demo-row'>
                             <span aria-hidden='true'>${row.label}</span>
-                            ${select.menu(row)}
+                            ${select(row)}
                         </div>
                     `)}
                 </div>
             `,
-            title: 'menu · settings'
+            title: 'settings'
         },
         {
             render: () => {
-                let state = reactive({ active: false, error: '', value: 'montserrat' });
+                let state = reactive({ active: false, error: '', selected: 'montserrat' });
 
                 return html`
                     <div class='select-menu-demo'>
                         <div class='select-menu-demo-row'>
                             <span aria-hidden='true'>Font</span>
-                            ${select.menu({ label: 'Font', name: 'font', options: fonts, state })}
+                            ${select({ label: 'Font', name: 'font', options: fonts, state })}
                         </div>
                         <span class='select-menu-demo-status'>
-                            value: ${() => state.value}${() => state.active && ' (open)'}
+                            selected: ${() => state.selected}${() => state.active && ' (open)'}
                         </span>
                     </div>
                 `;
             },
-            title: 'menu · controlled state'
+            title: 'controlled state'
         }
     ]
 };

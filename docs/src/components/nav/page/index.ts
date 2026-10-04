@@ -13,7 +13,7 @@ const pageNavTree = (links: TreeLink[]) => html`
                 ${links.map((link) => html`
                     <a
                         aria-current='${() => link.active?.() ? 'location' : 'false'}'
-                        class='nav-tree-link link ${() => link.active?.() && '--active'}'
+                        class='nav-tree-link link --text-truncate ${() => link.active?.() && '--active'}'
                         href='${link.href}'
                         ${{
                             onclick: (event: Event) => link.onclick?.(event)

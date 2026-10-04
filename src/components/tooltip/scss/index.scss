@@ -2,13 +2,12 @@
 @use '/tokens';
 @use 'center' as *;
 @use 'east' as *;
-@use 'nested-menu';
+@use 'menu';
 @use 'north' as *;
 @use 'shared' as tooltip-shared;
 @use 'south' as *;
 @use 'west' as *;
 @use 'variables';
-@use 'select-menu';
 
 .tooltip {
     cursor: pointer;
@@ -44,7 +43,7 @@
     }
 
     &--context,
-    &--nested-menu {
+    &--menu {
         cursor: inherit;
     }
 
@@ -105,7 +104,7 @@
         }
 
         // A warm handoff between delayed tooltips ('delay') swaps straight in. Single-class specificity and
-        // ahead of the '--expand' and '--morph' variants, so those keep their own motion.
+        // ahead of the '--morph' variant, so it keeps its own motion.
         &:where(.tooltip.tooltip--instant > *, .tooltip.tooltip--instant :not(.tooltip) > *) {
             transition: none;
         }
@@ -120,74 +119,6 @@
         @include north($active);
         @include south($active);
         @include west($active);
-
-
-        // Opens over the trigger from the edge or corner the direction anchors it to: 'morph()'
-        // seeds the trigger's box as insets, then the background springs out to the tooltip's own
-        // box while the tooltip crossfades over the trigger. The background is a layer so its shadow
-        // survives; the clip only keeps content inside the growing shape, and ends past the shadow.
-        &--expand {
-            background: transparent;
-            box-shadow: none;
-            clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));
-            transition:
-                clip-path var(--expand-duration) var(--expand-timing-function),
-                opacity var(--expand-fade-duration) linear var(--expand-fade-delay);
-
-            &::before {
-                background: var(--background);
-                border-radius: var(--morph-radius);
-                box-shadow: var(--box-shadow);
-                content: '';
-                inset: var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left);
-                position: absolute;
-                transition:
-                    border-radius var(--expand-duration) var(--expand-timing-function),
-                    inset var(--expand-duration) var(--expand-timing-function);
-                z-index: -1;
-            }
-
-            // Items animate rather than transition so their own transitions (a link's colour) survive.
-            // Their boxes never move, only fade, so a 'highlight' measures them where they land even
-            // mid-cascade; it places itself with 'translate', so it arrives with the panel instead.
-            // Closing fades them out together; the shrinking shape carries the motion.
-            > :not(.highlight) {
-                animation: tooltip-expand-out var(--expand-content-duration) var(--expand-content-timing-function);
-                opacity: 0;
-            }
-
-            #{$active} {
-                clip-path: inset(calc(var(--expand-bleed) * -1) round calc(var(--border-radius) + var(--expand-bleed)));
-
-                &::before {
-                    border-radius: var(--border-radius);
-                    inset: 0;
-                }
-
-                > :not(.highlight) {
-                    animation: tooltip-expand-in var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index, 0) * var(--expand-stagger)) backwards;
-                    opacity: 1;
-
-                    // Text-only items and dividers just fade.
-                    > * {
-                        animation: tooltip-expand-slide var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index, 0) * var(--expand-stagger)) backwards;
-                    }
-                }
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            &--expand,
-            &--expand::before {
-                transition-duration: 0s;
-            }
-
-            &--expand {
-                --expand-content-delay: 0s;
-                --expand-content-duration: 0s;
-                --expand-stagger: 0s;
-            }
-        }
 
 
         // Grows out of the trigger: 'morph()' seeds the trigger's box as clip-path insets, then the
@@ -249,20 +180,6 @@
         }
     }
 
-    // 'tooltip.menu' focuses the menu on pointer opens and each option the pointer moves over, so
-    // the UA ring would trail every hover; focus shows as the option highlight instead.
-    &-content[role='menu'] {
-        outline: none;
-
-        > [role='menuitem'] {
-            outline: none;
-
-            &:focus {
-                --background: var(--option-focus-background);
-            }
-        }
-    }
-
     &-message {
         color: var(--color);
         cursor: auto;
@@ -276,31 +193,6 @@
 }
 
 
-@keyframes tooltip-expand-in {
-    from {
-        opacity: 0;
-    }
-}
-
-@keyframes tooltip-expand-out {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
-}
-
-@keyframes tooltip-expand-slide {
-    from {
-        translate: var(--expand-shift);
-    }
-}
-
-// Shrinks straight onto the trigger (every edge together) until it's a blob '--morph-land'
-// larger than the trigger on every side, holds there, then settles into the trigger's exact box.
-// The hold matters: without it, edges still arriving (the travel differs per direction) overlap
-// with the final shrink, so it never reads as having landed.
 @keyframes tooltip-morph-close {
     0% {
         animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);

@@ -23,7 +23,6 @@ const NON_DIGITS = /\D/g;
 const WHITESPACE = /\s+/g;
 
 // Original previews recreating the behavior of these references, without copied source:
-// https://www.interior.dev/docs/floating-label
 // https://www.interior.dev/docs/inline-validation
 // https://www.interior.dev/docs/password-strength
 // https://www.interior.dev/docs/otp-input
@@ -80,37 +79,6 @@ function validateEmail(value: string) {
     return null;
 }
 
-
-const floatingLabel = (): Variant => ({
-    render: () => {
-        let id = `field-pattern-${++instance}`,
-            max = 32,
-            state = reactive({ length: 0 });
-
-        return html`
-            <div class='form-prototype field-pattern floating-pattern'>
-                <div class='field-pattern-surface'>
-                    ${input.call({}, {
-                        'aria-describedby': `${id}-hint`,
-                        id,
-                        maxlength: max,
-                        placeholder: ' ',
-                        required: true,
-                        oninput: (event: Event) => {
-                            state.length = (event.target as HTMLInputElement).value.length;
-                        }
-                    })}
-                    <label for='${id}'>Display name <span aria-hidden='true'>*</span></label>
-                </div>
-                <div class='field-pattern-footer'>
-                    <small id='${`${id}-hint`}'>Shown on your public profile.</small>
-                    <output for='${id}' style='${`--digits: ${String(max).length * 2 + 3}ch;`}'>${() => state.length} / ${max}</output>
-                </div>
-            </div>
-        `;
-    },
-    title: 'Floating label · Rises above the field'
-});
 
 const inlineValidation = (): Variant => ({
     render: () => {
@@ -543,7 +511,7 @@ const tags = (): Variant => ({
     title: 'Tag input · Enter, comma or paste'
 });
 
-const inputPatternVariations = (): Variant[] => [floatingLabel(), inlineValidation(), passwordStrength(), otp(), tags()];
+const inputPatternVariations = (): Variant[] => [inlineValidation(), passwordStrength(), otp(), tags()];
 
 
 export { inputPatternVariations };

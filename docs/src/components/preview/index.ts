@@ -15,7 +15,7 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
         cache = new Map<string, string>(),
         render = typeof node === 'function' ? node as () => Renderable<unknown> : () => node,
         target = () => options.find((option) => location.hash === `#${option.id}`),
-        selection = reactive({ active: false, error: '', value: target()?.id ?? options[0]?.id ?? '' }),
+        selection = reactive({ active: false, error: '', selected: target()?.id ?? options[0]?.id ?? '' }),
         state = reactive({
             code: '',
             error: '',
@@ -26,7 +26,7 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
         });
 
     effect(() => {
-        let selected = options.find((option) => option.id === selection.value),
+        let selected = options.find((option) => option.id === selection.selected),
             key = selected?.id ?? id ?? '',
             provider = selected?.source ?? source,
             view = state.view;
@@ -67,7 +67,7 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
         let option = target();
 
         if (option) {
-            selection.value = option.id;
+            selection.selected = option.id;
         }
 
         return !!option || (!!id && location.hash === `#${id}`);
@@ -152,7 +152,7 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
                 ${title !== null && html`
                     <div class='preview-title'>
                         <span>${title}</span>
-                        ${options.length > 1 && select.menu({
+                        ${options.length > 1 && select({
                             class: 'preview-select',
                             label: `${title} variant`,
                             options: options.map((option) => ({ label: option.label, value: option.id })),
@@ -172,7 +172,7 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
                         return;
                     }
 
-                    let selected = options.find((option) => option.id === selection.value);
+                    let selected = options.find((option) => option.id === selection.selected);
 
                     return untrack(selected?.render ?? render);
                 }}</div>

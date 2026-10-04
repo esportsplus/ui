@@ -193,42 +193,30 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                 ${tooltip.menu(
                                     {
                                         class: 'breadcrumb-menu-root',
-                                        options: items.slice(1, last).map((item, i) => ({
-                                            content: html`
-                                                <svg aria-hidden='true'><use href='#${folder}' /></svg>
-                                                <span>${item.label}</span>
-                                            `,
+                                        items: items.slice(1, last).map((item, i) => ({
+                                            label: item.label,
+                                            icon: () => html`<svg aria-hidden='true'><use href='#${folder}' /></svg>`,
                                             hidden: () => i >= s.hidden,
                                             href: item.href,
-                                            onconnect: (element: Element) => {
-                                                on(element, 'click', (e) => navigate(e, item, i + 1));
-                                            },
+                                            onselect: (_item, event) => navigate(event, item, i + 1),
                                             target: '_self'
                                         })),
                                         state: s,
-                                        toggle: true,
-                                        [tooltip.menu.option]: { class: 'breadcrumb-option' },
-                                        [tooltip.menu.tooltipContent]: {
+                                        [tooltip.menu.item]: { class: 'breadcrumb-option link' },
+                                        [tooltip.menu.trigger]: {
+                                            'aria-controls': `${id}-menu`,
+                                            'aria-label': () => `Show ${s.hidden} hidden ${s.hidden === 1 ? 'folder' : 'folders'}`,
+                                            class: 'breadcrumb-trigger'
+                                        },
+                                        [tooltip.menu.panel]: {
                                             ...attributes[BREADCRUMB_MENU],
                                             'aria-label': 'Hidden folders',
                                             class: ['breadcrumb-menu', attributes[BREADCRUMB_MENU]?.class ?? []].flat(),
-                                            direction: 'sw',
                                             id: `${id}-menu`
                                         }
                                     },
                                     html`
-                                        <button
-                                            aria-haspopup='menu'
-                                            class='breadcrumb-trigger'
-                                            type='button'
-                                            ${{
-                                                'aria-controls': `${id}-menu`,
-                                                'aria-expanded': () => String(s.active),
-                                                'aria-label': () => `Show ${s.hidden} hidden ${s.hidden === 1 ? 'folder' : 'folders'}`
-                                            }}
-                                        >
-                                            <svg aria-hidden='true'><use href='#${dots}' /></svg>
-                                        </button>
+                                        <svg aria-hidden='true'><use href='#${dots}' /></svg>
                                     `
                                 )}
                             </div>

@@ -1,283 +1,554 @@
-import { component, html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
-import onclick from './onclick';
-import render, { type Option } from './options';
-import place from './select-menu';
-
-
-const MENU_OPTION = Symbol.for('@esportsplus/ui/tooltip.menu.option');
-
-const MENU_TOOLTIP_CONTENT = Symbol.for('@esportsplus/ui/tooltip.menu.tooltip-content');
+import { flush, onCleanup, reactive } from '@esportsplus/reactivity';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import overlay from '~/components/overlay';
+import { morph } from './utilities';
 
 
 type A = Attributes & {
-    [MENU_OPTION]?: Attributes,
-    [MENU_TOOLTIP_CONTENT]?: Attributes & { direction?: string },
-    onanimationcancel?: never,
-    onanimationend?: never,
-    onanimationstart?: never,
-    onclick?: never,
-    ondocumentclick?: never,
-    onfocusout?: never,
-    onkeydown?: never,
-    onpointerdown?: never,
-    ontransitioncancel?: never,
-    ontransitionend?: never,
-    ontransitionrun?: never,
-    options: Option[],
-    state?: { active: boolean },
-    toggle?: boolean
+    [MENU_TRIGGER]?: Attributes & { onclick?: never };
+    [MENU_ITEM]?: Attributes;
+    [MENU_PANEL]?: Attributes;
+    animate?: boolean;
+    expand?: boolean | 'c' | 'e' | 'en' | 'es' | 'n' | 'ne' | 'nw' | 's' | 'se' | 'sw' | 'w' | 'wn' | 'ws';
+    items: Item[];
+    openOn?: 'click' | 'hover';
+    ondocumentclick?: never;
+    onkeydown?: never;
+    onselect?: (item: Item) => void;
+    state?: { active: boolean };
+};
+
+type Item = {
+    danger?: boolean;
+    disabled?: boolean;
+    hint?: string;
+    hidden?: Attributes['hidden'];
+    href?: string;
+    // Factory because the icon renders twice for branches: in the row and in the panel header.
+    icon?: () => Renderable<unknown>;
+    items?: Item[];
+    label: Renderable<unknown>;
+    onselect?: (item: Item, event: MouseEvent) => void;
+    target?: string;
+};
+
+type MenuNode = {
+    button?: HTMLElement;
+    children: MenuNode[];
+    item?: Item;
+    panel?: HTMLElement;
+    parent?: MenuNode;
+    state: { open: boolean, render: boolean, settled: boolean };
 };
 
 
-export default component(
-    ({ options, state = reactive({ active: false }), ...attributes }: A, content) => {
-        let { direction = 'nw', ...tooltipContent } = attributes[MENU_TOOLTIP_CONTENT] ?? {},
-            elements: HTMLElement[] = [],
-            keyboard = false,
-            layout = reactive({ placement: '' }),
-            menu: HTMLElement | undefined,
-            observer: MutationObserver | undefined,
-            trigger: HTMLElement | undefined;
+const MENU_TRIGGER = Symbol.for('@esportsplus/ui/tooltip.menu.trigger');
 
-        function selection() {
-            return Math.max(0, items().findIndex((element) => element.matches('[aria-checked="true"], [aria-selected="true"]')));
+const MENU_ITEM = Symbol.for('@esportsplus/ui/tooltip.menu.item');
+
+const MENU_PANEL = Symbol.for('@esportsplus/ui/tooltip.menu.panel');
+
+// Keeps the shifted stack this far from the viewport edges.
+const VIEWPORT_MARGIN = 8;
+
+
+function covered(node: MenuNode) {
+    for (let i = 0, n = node.children.length; i < n; i++) {
+        if (node.children[i].state.open) {
+            return true;
         }
+    }
 
-        function selectMenu() {
-            return menu?.parentElement?.classList.contains('--select-menu');
+    return false;
+}
+
+function enabled(node: MenuNode) {
+    let nodes: MenuNode[] = [];
+
+    for (let i = 0, n = node.children.length; i < n; i++) {
+        let child = node.children[i];
+
+        if (child.button && !child.button.hidden && !child.item?.disabled) {
+            nodes.push(child);
         }
+    }
 
-        function position() {
-            if (!menu || !selectMenu()) {
-                return;
+    return nodes;
+}
+
+function tree(items: Item[], parent?: MenuNode) {
+    let nodes: MenuNode[] = [];
+
+    for (let i = 0, n = items.length; i < n; i++) {
+        let node: MenuNode = {
+            children: [],
+            item: items[i],
+            parent,
+            state: reactive({ open: false, render: false, settled: false })
+        };
+
+        node.children = tree(items[i].items ?? [], node);
+        nodes.push(node);
+    }
+
+    return nodes;
+}
+
+
+function createMenu(context = false) {
+    return component(
+        ({ animate = true, expand: expansion = false, items, onselect, openOn = 'click', state = reactive({ active: false }), ...attributes }: A, content) => {
+            let root: MenuNode = { children: [], state: reactive({ open: true, render: true, settled: true }) },
+                stack: MenuNode[] = [root],
+                host: HTMLElement | undefined,
+                leaving: ReturnType<typeof setTimeout> | undefined,
+                pending: VoidFunction | undefined,
+                placement = reactive({ style: '' }),
+                trigger: HTMLElement | undefined;
+
+            root.children = tree(items, root);
+
+            onCleanup(() => {
+                clearTimeout(leaving);
+                pending?.();
+            });
+
+            function stay() {
+                clearTimeout(leaving);
+                leaving = undefined;
             }
 
-            trigger ??= menu.parentElement?.querySelector<HTMLElement>('.tooltip-select-menu-trigger') ?? undefined;
+            function close(focus: boolean) {
+                stay();
+                pending?.();
+                pending = undefined;
 
-            let visible = items(),
-                option = visible[0],
-                label = option?.querySelector<HTMLElement>('.tooltip-select-menu-option-label'),
-                value = trigger?.querySelector<HTMLElement>('.tooltip-select-menu-value');
-
-            if (!trigger || !option || !label || !value) {
-                return;
-            }
-
-            let placed = place({ label, option, panel: menu, scroller: menu, trigger, value }, visible.length, selection());
-
-            layout.placement = placed.style;
-            menu.scrollTo({ top: placed.scroll, behavior: 'instant' });
-        }
-
-        onCleanup(() => observer?.disconnect());
-
-        function close(refocus: boolean) {
-            state.active = false;
-
-            if (refocus) {
-                trigger?.focus({ preventScroll: true });
-            }
-        }
-
-        function focus(index: number) {
-            let visible = items(),
-                n = visible.length,
-                element = visible[((index % n) + n) % n];
-
-            element?.focus({ preventScroll: true });
-
-            if (element && menu && selectMenu()) {
-                let pad = parseFloat(getComputedStyle(menu).paddingTop) || 0,
-                    top = element.offsetTop;
-
-                if (top < menu.scrollTop + pad) {
-                    menu.scrollTo({ top: top - pad, behavior: 'instant' });
+                if (expansion && state.active) {
+                    // Restore an interpolable clip before shrinking back into the trigger.
+                    root.state.settled = false;
+                    flush();
+                    root.panel?.getBoundingClientRect();
                 }
-                else if (top + element.offsetHeight > menu.scrollTop + menu.clientHeight - pad) {
-                    menu.scrollTo({ top: top + element.offsetHeight - menu.clientHeight + pad, behavior: 'instant' });
+
+                state.active = false;
+
+                if (!animate) {
+                    reset();
+                }
+
+                if (focus) {
+                    trigger?.focus({ preventScroll: true });
                 }
             }
-        }
 
-        function items() {
-            return elements.filter((element) => !element.hidden);
-        }
+            function drill(node: MenuNode) {
+                if (!node.children.length || node.item?.disabled) {
+                    return;
+                }
 
-        function move(step: number) {
-            let at = items().indexOf(document.activeElement as HTMLElement);
+                stack.push(node);
 
-            focus(at === -1 ? (step > 0 ? 0 : -1) : at + step);
-        }
+                if (node.state.render) {
+                    expand(node);
+                    return;
+                }
 
-        // The trigger is the consumer's content, so it's found from the event rather than rendered here.
-        function source(e: Event) {
-            let root = e.currentTarget as HTMLElement,
-                target = (e.target as HTMLElement).closest<HTMLElement>('a[href], button, [tabindex]');
-
-            if (target && root.contains(target) && !menu?.contains(target)) {
-                trigger = target;
-            }
-        }
-
-        effect(() => state.active, (active) => {
-            if (!menu) {
-                return;
+                // A panel created already open has no closed state to transition from, so it would never
+                // animate or settle; it renders closed and opens once that has painted.
+                node.state.render = true;
             }
 
-            menu.inert = !active;
+            function entry(node: MenuNode): Renderable<unknown> {
+                let branch = node.children.length > 0,
+                    { danger, disabled, hint, icon, items: _items, label, onselect: _onselect, ...itemAttributes } = node.item!,
+                    contents = html`
+                        ${icon && html`<span class='tooltip-menu-icon'>${icon()}</span>`}
+                        <span class='tooltip-menu-label'>${label}</span>
+                        ${hint && html`<span class='tooltip-menu-hint'>${hint}</span>`}
+                        ${branch && html`<span class='tooltip-menu-chevron'></span>`}
+                    `,
+                    bindings = {
+                        'aria-expanded': branch && (() => String(node.state.open)),
+                        'aria-haspopup': branch && 'menu',
+                        'aria-disabled': disabled === true && 'true',
+                        onclick: (event: MouseEvent) => {
+                            if (disabled) {
+                                event.preventDefault();
+                                return;
+                            }
 
-            if (!active) {
-                return;
-            }
-
-            position();
-
-            // Select menus start on their selection; other menus use the first item or the panel.
-            if (selectMenu()) {
-                focus(selection());
-            }
-            else if (keyboard) {
-                focus(0);
-            }
-            else {
-                menu.focus({ preventScroll: true });
-            }
-        });
-
-        return onclick(
-            {
-                ...attributes,
-                onfocusout: (e: FocusEvent) => {
-                    if (state.active && !(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node | null)) {
-                        close(false);
-                    }
-                },
-                onkeydown: (e: KeyboardEvent) => {
-                    if (!menu?.contains(e.target as Node)) {
-                        keyboard = true;
-                        source(e);
-
-                        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                            e.preventDefault();
-
-                            if (state.active) {
-                                focus(e.key === 'ArrowDown' ? 0 : -1);
+                            if (branch) {
+                                event.preventDefault();
+                                drill(node);
                             }
                             else {
-                                state.active = true;
+                                select(node, event);
                             }
-                        }
-
-                        return;
-                    }
-
-                    switch (e.key) {
-                        case 'Enter':
-                        case ' ':
-                            e.preventDefault();
-                            items().find((element) => element === document.activeElement)?.click();
-                            return;
-                        case 'ArrowDown':
-                            e.preventDefault();
-                            move(1);
-                            return;
-                        case 'ArrowUp':
-                            e.preventDefault();
-                            move(-1);
-                            return;
-                        case 'End':
-                            e.preventDefault();
-                            focus(-1);
-                            return;
-                        case 'Escape':
-                            e.preventDefault();
-                            close(true);
-                            return;
-                        case 'Home':
-                            e.preventDefault();
-                            focus(0);
-                            return;
-                        case 'Tab':
-                            // Focus moves on as usual; the menu just gets out of the way.
-                            close(false);
-                    }
-                },
-                onpointerdown: (e: PointerEvent) => {
-                    keyboard = false;
-                    source(e);
-                },
-                onwindowresize: () => {
-                    if (state.active) {
-                        position();
-                    }
-                },
-                state
-            },
-            html`
-                ${content}
-
-                <div
-                    class='tooltip-content ${`tooltip-content--${direction}`}'
-                    role='menu'
-                    tabindex='-1'
-                    ${tooltipContent}
-                    ${{
-                        style: [tooltipContent.style, () => layout.placement].flat(),
+                        },
                         onconnect: (element: HTMLElement) => {
-                            element.inert = !state.active;
-                            menu = element;
+                            node.button = element;
+                        }
+                    };
 
-                            if (selectMenu()) {
-                                observer = new MutationObserver(() => {
-                                    if (state.active) {
-                                        position();
+                return html`
+                    <div class='tooltip-menu-entry' ${{ class: () => node.state.open && 'tooltip-menu-entry--open' }}>
+                        ${itemAttributes.href ? html`<a
+                            class='tooltip-menu-item ${danger && 'tooltip-menu-item--danger'}'
+                            role='menuitem'
+                            tabindex='-1'
+                            ${attributes[MENU_ITEM]}
+                            ${itemAttributes}
+                            ${bindings}
+                        >${contents}</a>` : html`<button
+                            class='tooltip-menu-item ${danger && 'tooltip-menu-item--danger'}'
+                            role='menuitem'
+                            tabindex='-1'
+                            type='button'
+                            ${attributes[MENU_ITEM]}
+                            ${itemAttributes}
+                            ${{ ...bindings, disabled: disabled === true }}
+                        >${contents}</button>`}
 
-                                        if (menu?.contains(document.activeElement)) {
-                                            focus(selection());
-                                        }
+                        ${() => branch && node.state.render && panel(node)}
+                    </div>
+                `;
+            }
+
+            function expand(node: MenuNode) {
+                // No transitionend will settle it: either still open from a pending close, or motion is off
+                node.state.settled = node.state.open || instant();
+                node.state.open = true;
+                flush();
+                enabled(node)[0]?.button?.focus();
+            }
+
+            function instant() {
+                return !root.panel || parseFloat(getComputedStyle(root.panel).getPropertyValue('--open-duration')) === 0;
+            }
+
+            function open(focus = true) {
+                stay();
+
+                if (state.active || pending) {
+                    return;
+                }
+
+                reset();
+                root.state.settled = !expansion || instant();
+                flush();
+                shift();
+
+                function reveal() {
+                    pending = undefined;
+                    state.active = true;
+                    flush();
+
+                    if (focus) {
+                        enabled(root)[0]?.button?.focus({ preventScroll: true });
+                    }
+                }
+
+                if (expansion && host && trigger) {
+                    pending = morph(host, reveal, root.panel, trigger);
+                }
+                else {
+                    reveal();
+                }
+            }
+
+            function contextmenu(event: MouseEvent) {
+                if (!host || !root.panel || root.panel.contains(event.target as Node)) {
+                    return;
+                }
+
+                event.preventDefault();
+                trigger = host;
+                reset();
+                root.panel.style.setProperty('--shift-x', '0px');
+
+                let bounds = host.getBoundingClientRect(),
+                    scale = bounds.width / host.offsetWidth || 1,
+                    width = root.panel.offsetWidth * scale,
+                    height = root.panel.offsetHeight * scale,
+                    keyboard = event.clientX === 0 && event.clientY === 0,
+                    x = keyboard ? bounds.left : event.clientX,
+                    y = keyboard ? bounds.top : event.clientY,
+                    xflip = x + width > window.innerWidth - VIEWPORT_MARGIN,
+                    yflip = y + height > window.innerHeight - VIEWPORT_MARGIN;
+
+                x = Math.max(VIEWPORT_MARGIN, xflip ? x - width : x);
+                y = Math.max(VIEWPORT_MARGIN, yflip ? y - height : y);
+                placement.style = `left: ${(x - bounds.left) / scale - host.clientLeft + host.scrollLeft}px; top: ${(y - bounds.top) / scale - host.clientTop + host.scrollTop}px;`;
+                open();
+            }
+
+            function panel(node: MenuNode): Renderable<unknown> {
+                let item = node.item;
+
+                return html`
+                    <div
+                        class='tooltip-menu-panel ${node === root && expansion && `tooltip-content tooltip-menu-panel--expand tooltip-content--${expansion === true ? 'se' : expansion}`}'
+                        role='menu'
+                        ${node === root && attributes[MENU_PANEL]}
+                        ${{
+                            class: [
+                                () => (node === root ? state.active : node.state.open) && '--active',
+                                () => covered(node) && 'tooltip-menu-panel--covered',
+                                () => node.state.settled && 'tooltip-menu-panel--settled'
+                            ],
+                            inert: () => node === root ? !state.active : !node.state.open,
+                            style: node === root && [attributes[MENU_PANEL]?.style, () => placement.style].flat(),
+                            // A dimmed parent panel's scrim takes the click; return to that level
+                            onclick: (event: MouseEvent) => {
+                                if (event.target === node.panel && node !== stack[stack.length - 1]) {
+                                    popTo(node);
+                                }
+                            },
+                            onconnect: (element: HTMLElement) => {
+                                node.panel = element;
+                            },
+                            onfirstpaint: () => {
+                                if (node !== root && stack.includes(node)) {
+                                    expand(node);
+                                }
+                            },
+                            ontransitionend: (e: TransitionEvent) => {
+                                if (e.target !== node.panel) {
+                                    return;
+                                }
+
+                                // Collapse the stack once the closing fade finishes so the next open starts at the root.
+                                if (node === root) {
+                                    if (e.propertyName === 'opacity' && !state.active) {
+                                        reset();
                                     }
-                                });
-                                observer.observe(element, {
-                                    attributeFilter: ['aria-checked', 'aria-selected', 'hidden'],
-                                    attributes: true,
-                                    subtree: true
-                                });
-                                position();
+                                    else if (e.propertyName === 'clip-path' && state.active) {
+                                        root.state.settled = true;
+                                    }
+                                }
+                                // The reveal clip would also clip nested panels, so it's dropped once the panel is open.
+                                else if (e.propertyName === 'clip-path' && node.state.open) {
+                                    node.state.settled = true;
+                                }
                             }
+                        }}
+                    >
+                        ${item && html`
+                            <div class='tooltip-menu-header' onclick='${pop}'>
+                                ${item.icon && html`<span class='tooltip-menu-icon'>${item.icon()}</span>`}
+                                <span class='tooltip-menu-title'>
+                                    <span class='tooltip-menu-title-regular'>${item.label}</span>
+                                    <span aria-hidden='true' class='tooltip-menu-title-bold'>${item.label}</span>
+                                </span>
+                                <span class='tooltip-menu-chevron'></span>
+                            </div>
+                        `}
+
+                        ${node.children.map(entry)}
+                    </div>
+                `;
+            }
+
+            function pop() {
+                if (stack.length < 2) {
+                    return;
+                }
+
+                let node = stack.pop()!;
+
+                node.state.settled = false;
+                node.button?.focus();
+
+                // Restore the clip before closing: 'none' can't interpolate, so closing straight from
+                // the settled state would snap shut instead of animating.
+                requestAnimationFrame(() => {
+                    if (!stack.includes(node)) {
+                        node.state.open = false;
+                    }
+                });
+            }
+
+            function popTo(node: MenuNode) {
+                while (stack.length > 1 && stack[stack.length - 1] !== node) {
+                    pop();
+                }
+            }
+
+            function reset() {
+                while (stack.length > 1) {
+                    let node = stack.pop()!;
+
+                    node.state.open = false;
+                    node.state.settled = false;
+                }
+            }
+
+            function select(node: MenuNode, event: MouseEvent) {
+                let item = node.item!;
+
+                if (item.disabled) {
+                    return;
+                }
+
+                close(true);
+                item.onselect?.(item, event);
+                onselect?.(item);
+            }
+
+            // Moves the whole stack horizontally to stay inside the viewport; sub-panels inherit the
+            // offset because they're positioned within the root panel.
+            function shift() {
+                let element = root.panel;
+
+                if (!element) {
+                    return;
+                }
+
+                let current = parseFloat(element.style.getPropertyValue('--shift-x')) || 0,
+                    rect = element.getBoundingClientRect(),
+                    left = rect.left - current,
+                    right = rect.right - current,
+                    x = 0;
+
+                if (right > window.innerWidth - VIEWPORT_MARGIN) {
+                    x = window.innerWidth - VIEWPORT_MARGIN - right;
+                }
+
+                if (left + x < VIEWPORT_MARGIN) {
+                    x = VIEWPORT_MARGIN - left;
+                }
+
+                element.style.setProperty('--shift-x', `${x}px`);
+            }
+
+            return html`
+                <div
+                    class='tooltip tooltip--menu ${context && 'tooltip--context'} ${!animate && 'tooltip--instant'}'
+                    tabindex='${context && 0}'
+                    ${attributes}
+                    ${{
+                        ...overlay.popup({
+                            canDismiss: () => !!pending,
+                            ondismiss: (reason) => close(reason === 'escape'),
+                            state,
+                            target: (root) => root.querySelector<HTMLElement>(':scope > .tooltip-menu-panel') ?? undefined
+                        }),
+                        oncontextmenu: context ? contextmenu : undefined,
+                        onfocusout: (event: FocusEvent) => {
+                            if ((state.active || pending) && !(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) {
+                                close(false);
+                            }
+                        },
+                        onpointerenter: !context && openOn === 'hover' ? ((event: PointerEvent) => {
+                            if (event.pointerType !== 'touch') {
+                                open(false);
+                            }
+                        }) : undefined,
+                        onpointerleave: !context && openOn === 'hover' ? ((event: PointerEvent) => {
+                            if (event.pointerType !== 'touch') {
+                                leaving = setTimeout(() => close(false), 150);
+                            }
+                        }) : undefined,
+                        onwindowresize: () => state.active && shift(),
+                        onkeydown: (e: KeyboardEvent) => {
+                            if (context && (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey))) {
+                                e.preventDefault();
+                                contextmenu(new MouseEvent('contextmenu'));
+                                return;
+                            }
+
+                            if (!state.active) {
+                                if (e.key === 'ArrowDown' && e.target === trigger) {
+                                    e.preventDefault();
+                                    open();
+                                }
+
+                                return;
+                            }
+
+                            let nodes = enabled(stack[stack.length - 1]),
+                                index = nodes.findIndex((node) => node.button === document.activeElement),
+                                n = nodes.length;
+
+                            switch (e.key) {
+                                case 'ArrowDown':
+                                    nodes[(index + 1) % n]?.button?.focus();
+                                    break;
+                                case 'ArrowUp':
+                                    nodes[index < 1 ? n - 1 : index - 1]?.button?.focus();
+                                    break;
+                                case 'ArrowLeft':
+                                case 'Backspace':
+                                    pop();
+                                    break;
+                                case 'ArrowRight':
+                                    if (index !== -1) {
+                                        drill(nodes[index]);
+                                    }
+                                    break;
+                                case 'End':
+                                    nodes[n - 1]?.button?.focus();
+                                    break;
+                                case 'Escape':
+                                    if (stack.length > 1) {
+                                        pop();
+                                    }
+                                    else {
+                                        close(true);
+                                    }
+                                    break;
+                                case 'Home':
+                                    nodes[0]?.button?.focus();
+                                    break;
+                                case 'Tab':
+                                    close(true);
+                                    break;
+                                // Enter and Space fall through to the native button click
+                                default:
+                                    return;
+                            }
+
+                            e.preventDefault();
                         }
                     }}
                 >
-                    ${render(
-                        options.map(({ onclick, onconnect, ...option }, index) => ({
-                            ...option,
-                            // Also keeps the click from reaching the tooltip's own toggle, which would reopen it.
-                            onclick: function(this: HTMLElement, e: PointerEvent) {
-                                onclick?.call(this, e);
-                                close(true);
-                            },
-                            onconnect: (element: HTMLElement) => {
-                                elements[index] = element;
-                                onconnect?.(element);
-                            },
-                            onpointermove: (e: PointerEvent) => {
-                                let element = e.currentTarget as HTMLElement;
-
-                                if (e.pointerType !== 'touch' && document.activeElement !== element) {
-                                    element.focus({ preventScroll: true });
+                    ${context ? html`<div class='tooltip-menu-trigger' ${{ onconnect: (element: HTMLElement) => { host = element.parentElement ?? undefined; trigger = host; } }}>${content}</div>` : html`<button
+                        aria-haspopup='menu'
+                        class='tooltip-menu-trigger'
+                        type='button'
+                        ${attributes[MENU_TRIGGER]}
+                        ${{
+                            'aria-expanded': () => String(state.active),
+                            onclick: () => {
+                                if (state.active || pending) {
+                                    close(false);
+                                }
+                                else {
+                                    open();
                                 }
                             },
-                            role: 'menuitem',
-                            tabindex: '-1'
-                        })),
-                        attributes[MENU_OPTION]
-                    )}
+                            onconnect: (element: HTMLElement) => {
+                                trigger = element;
+                                host = element.parentElement ?? undefined;
+                            }
+                        }}
+                    >
+                        ${content}
+                    </button>`}
+
+                    ${panel(root)}
                 </div>
-            `
-        );
-    },
-    { option: MENU_OPTION, tooltipContent: MENU_TOOLTIP_CONTENT }
-);
+            `;
+        },
+        { item: MENU_ITEM, panel: MENU_PANEL, trigger: MENU_TRIGGER }
+    );
+}
 
+const menu = createMenu();
 
-export type { A };
+const context = createMenu(true);
+
+export default menu;
+export { context };
+
+export type { A, Item };

@@ -4,9 +4,10 @@
     > .page-breadcrumb {
         --link-padding: 0px;
         margin-bottom: var(--size-400);
+        text-transform: capitalize;
 
         .breadcrumb-separator {
-            margin-inline: var(--size-200);
+            margin-inline: 4px;
         }
     }
 

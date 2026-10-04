@@ -56,33 +56,32 @@ function goo() {
     `);
 }
 
-// Seeds the '--expand' and '--morph' variants with the trigger's box, then calls 'open' once
+// Seeds expanding menus and '--morph' tooltips with the trigger's box, then calls 'open' once
 // that start shape has been painted; the returned function cancels a pending open.
-function morph(element: HTMLElement, open: VoidFunction) {
-    let tooltip = content(element);
-
-    if (!tooltip?.matches('.tooltip-content--expand, .tooltip-content--morph, .tooltip-message--expand, .tooltip-message--morph')) {
+function morph(element: HTMLElement, open: VoidFunction, tooltip = content(element), anchor = element) {
+    if (!tooltip?.matches('.tooltip-menu-panel--expand, .tooltip-content--morph, .tooltip-message--morph')) {
         open();
         return;
     }
 
-    // '--expand' overlaps the trigger, so there's no gap for the goo to bridge.
+    // Expanding menus overlap the trigger, so only morph tooltips need the goo bridge.
     if (tooltip.matches('.tooltip-content--morph, .tooltip-message--morph')) {
         goo();
     }
 
     let box = tooltip.getBoundingClientRect(),
-        rect = element.getBoundingClientRect(),
+        rect = anchor.getBoundingClientRect(),
+        scale = box.width / tooltip.offsetWidth || 1,
         style = tooltip.style;
 
     // Jump straight to the new start shape instead of transitioning into it. The insets place
     // the clip over the trigger; negative values reach outside the tooltip's own box.
     style.transition = 'none';
-    style.setProperty('--morph-bottom', `${box.bottom - rect.bottom}px`);
-    style.setProperty('--morph-left', `${rect.left - box.left}px`);
-    style.setProperty('--morph-radius', getComputedStyle(element).borderTopLeftRadius);
-    style.setProperty('--morph-right', `${box.right - rect.right}px`);
-    style.setProperty('--morph-top', `${rect.top - box.top}px`);
+    style.setProperty('--morph-bottom', `${(box.bottom - rect.bottom) / scale}px`);
+    style.setProperty('--morph-left', `${(rect.left - box.left) / scale}px`);
+    style.setProperty('--morph-radius', getComputedStyle(anchor).borderTopLeftRadius);
+    style.setProperty('--morph-right', `${(box.right - rect.right) / scale}px`);
+    style.setProperty('--morph-top', `${(rect.top - box.top) / scale}px`);
 
     // Apply the start shape now, while transitions are off; otherwise it is first styled
     // after they're restored and animates into the start shape instead of out of it.

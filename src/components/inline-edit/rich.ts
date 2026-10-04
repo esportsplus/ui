@@ -5,7 +5,7 @@ import { check as checked, copy as copied, cross } from '~/components/button/ico
 import checkbox from '~/components/checkbox';
 import clipboard from '~/components/clipboard/write';
 import input from '~/components/input';
-import selectMenu from '~/components/select/menu';
+import selectInput from '~/components/select';
 import tooltip from '~/components/tooltip';
 import { mac } from '~/shared/platform';
 import { active, check, clear, extent, kindAt, link, setKind, toggle, unformat } from './format';
@@ -351,7 +351,7 @@ export default component(
     ) {
         let features = new Set(multiline ? whitelist : whitelist.filter((feature) => !KINDS.some((k) => k.feature === feature))),
             actions = ACTIONS.filter(({ action }) => features.has(action)),
-            block = reactive({ active: false, error: '', value: 'paragraph' }),
+            block = reactive({ active: false, error: '', selected: 'paragraph' }),
             doc = signal<Doc>(parse(state.value, features, multiline)),
             hyperlink = reactive({ existing: false, invalid: false, url: '' }),
             // Declared so page-wide shortcuts (a command palette on Mod+K) leave these to the text.
@@ -399,7 +399,7 @@ export default component(
 
         // The select only reports a value; one that differs from the block under the selection is a choice.
         effect(() => {
-            let next = block.value as Kind;
+            let next = block.selected as Kind;
 
             if (next !== shown) {
                 untrack(() => turn(next));
@@ -752,7 +752,7 @@ export default component(
             }
 
             shown = kindAt(blocks, span);
-            block.value = shown;
+            block.selected = shown;
         }
 
         function item(view: View) {
@@ -1432,8 +1432,8 @@ export default component(
                     >
                         <div class='inline-edit-toolbar-format' ${tip.delegate({ content: (trigger) => (trigger as Tool)[HINT], edge: true, selector: '.inline-edit-toolbar-button' })}>
                             ${kinds.length > 1 && html`
-                                ${selectMenu({
-                                    [selectMenu.trigger]: {
+                                ${selectInput({
+                                    [selectInput.trigger]: {
                                         onconnect: (element: HTMLElement) => {
                                             items[0] = element;
                                         },

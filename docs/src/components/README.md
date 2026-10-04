@@ -42,7 +42,7 @@ example before scrolling to it; visited examples retain their state while the br
 rendering their offscreen contents.
 
 Component detail routes group related states explicitly in `examples/groups.ts`. The preview
-title stays fixed and the library's `select.menu` swaps the render factory. Original variant
+title stays fixed and the library's `select()` swaps the render factory. Original variant
 anchors still select their corresponding state. Each card owns its Preview/Code selection,
 keeps its live example mounted, and lazily loads the selected variant's TypeScript snippet.
 `docs/scripts/example-source.mjs` captures the original render factory, its imports and helper

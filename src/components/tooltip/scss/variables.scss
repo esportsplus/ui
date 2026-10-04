@@ -17,46 +17,6 @@
         --spacer: var(--size-300);
         --width: auto;
 
-        // Mirrors '$active' in 'index.scss'.
-        $active: '#{tokens.state(active, ".tooltip")} > &, #{tokens.state(active, ".tooltip")} :not(.tooltip) > &';
-
-        // Opens over the trigger instead of beside it (uselayouts' smooth dropdown), anchored on the
-        // trigger's edge or corner for the direction; items cascade in the way the shape grows, see
-        // the direction overrides below.
-        &--expand {
-            // Covers the '--box-shadow-400' extent so the resting clip doesn't cut the shadow.
-            --expand-bleed: 24px;
-            // Closing swaps this delay: the shape crossfades back into the trigger once it has
-            // nearly landed. Items leave together at once.
-            --expand-close-fade-delay: 0.2s;
-            --expand-content-delay: 0.06s;
-            --expand-content-duration: 0.15s;
-            --expand-content-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-            --expand-duration: 0.4s;
-            --expand-fade-delay: var(--expand-close-fade-delay);
-            --expand-fade-duration: 0.15s;
-            --expand-offset: 8px;
-            --expand-shift: 0;
-            --expand-stagger: 0.02s;
-            // Spring (damping 34, stiffness 380, mass 0.8) sampled into linear().
-            --expand-timing-function: linear(0, 0.072, 0.22, 0.382, 0.529, 0.651, 0.747, 0.82, 0.874, 0.913, 0.94, 0.96, 0.973, 0.982, 0.988, 0.992, 0.995, 0.997, 0.998, 0.999, 1);
-            --offset: 0px;
-            // Cancels the '100%' every direction pushes the tooltip past the trigger by, so it
-            // lines up with the trigger's own edges instead.
-            --spacer: -100%;
-
-            #{$active} {
-                --expand-fade-delay: 0s;
-            }
-
-            // Cascade order.
-            @for $i from 1 through 12 {
-                > :nth-child(#{$i}) {
-                    --index: #{$i - 1};
-                }
-            }
-        }
-
         &--morph {
             --morph-blur: 4px;
             --morph-close-duration: 0.16s;
@@ -107,27 +67,10 @@
         --padding-horizontal: var(--size-300);
         --padding-vertical: var(--size-300);
     }
-
-    @each $base in 'content', 'message' {
-        // Items drift the way the shape grows; corner anchors drift sideways, as the reference does
-        // from its top-right anchor ('se').
-        @each $directions, $shift in (
-            ('e', 'en', 'es', 'nw', 'sw'): calc(var(--expand-offset) * -1) 0,
-            ('n'): 0 var(--expand-offset),
-            ('s'): 0 calc(var(--expand-offset) * -1),
-            ('ne', 'se', 'w', 'wn', 'ws'): var(--expand-offset) 0
-        ) {
-            @each $direction in $directions {
-                &-#{$base}--expand.tooltip-#{$base}--#{$direction} {
-                    --expand-shift: #{$shift};
-                }
-            }
-        }
-    }
 }
 
 
-.tooltip--nested-menu {
+.tooltip--menu {
     --background: var(--color-white-400);
     --background-hover: var(--color-grey-500);
     --border-radius: var(--border-radius-600);

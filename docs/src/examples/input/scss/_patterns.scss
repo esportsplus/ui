@@ -8,7 +8,7 @@
     display: grid;
     gap: var(--size-200);
 
-    &-footer, &-heading {
+    &-heading {
         align-items: baseline;
         display: flex;
         gap: var(--size-300);
@@ -19,7 +19,6 @@
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
             font-size: var(--font-size-300);
             font-variant-numeric: tabular-nums;
-            min-width: var(--digits, auto);
             text-align: right;
         }
     }
@@ -50,34 +49,6 @@
         min-width: 0;
         outline: none;
         width: 100%;
-    }
-}
-
-
-.floating-pattern {
-    padding-top: var(--size-500);
-
-    .field-pattern-surface > label {
-        color: var(--color-text-300);
-        left: var(--size-300);
-        pointer-events: none;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        transform-origin: left center;
-        transition: color var(--demo-duration), transform var(--demo-duration) var(--demo-spring);
-
-        span { opacity: 0.6; }
-    }
-
-    .field-pattern-surface:focus-within > label,
-    .field-pattern-surface:has(input:not(:placeholder-shown)) > label {
-        color: var(--color-text-400);
-        transform: translate(calc(var(--size-300) * -1 - 2px), calc(-50% - 32px)) scale(0.92);
-    }
-
-    .field-pattern-surface:focus-within > label {
-        color: var(--demo-accent);
     }
 }
 
