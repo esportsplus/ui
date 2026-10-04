@@ -2,6 +2,7 @@ import { component, html, on, type Attributes, type Element, type Renderable } f
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import form from '~/components/form';
 import scrollbar from '~/css-utilities/scrollbar';
+import { observeSize } from '~/shared/resize';
 import './scss/index.scss';
 
 
@@ -82,7 +83,6 @@ export default component(
             drum = reactive({ half: 0, offset: 0 }),
             height = 0,
             id = `datalist-${++uid}`,
-            observer: ResizeObserver | undefined,
             option: HTMLElement | undefined,
             previous: string | undefined,
             scroller: HTMLElement | undefined,
@@ -172,7 +172,6 @@ export default component(
 
         onCleanup(() => {
             clearTimeout(timer);
-            observer?.disconnect();
             stop();
         });
 
@@ -187,6 +186,7 @@ export default component(
                     ${this?.attributes?.[DATALIST_SCROLLER]}
                     ${attributes[DATALIST_SCROLLER]}
                     ${scrollbar.drag('vertical')}
+                    ${observeSize(measure)}
                     ${{
                         'aria-activedescendant': () => {
                             let index = keys.indexOf(String(state.selected));
@@ -195,13 +195,9 @@ export default component(
                         },
                         onconnect: (element: Element) => {
                             scroller = element as HTMLElement;
-                            measure();
 
                             // `scrollend` does not bubble so it cannot be delegated
                             on(element, 'scrollend', settle);
-
-                            observer = new ResizeObserver(measure);
-                            observer.observe(element);
                         },
                         onkeydown: (e: KeyboardEvent) => {
                             let index = keys.indexOf(String(state.selected));
