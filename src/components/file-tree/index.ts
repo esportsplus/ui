@@ -6,9 +6,6 @@ import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import chevron from '@esportsplus/ui/svg/chevron-right.svg';
 import symlink from '@esportsplus/ui/svg/corner-down-right.svg';
-import file from '@esportsplus/ui/svg/file.svg';
-import folderOpen from '@esportsplus/ui/svg/folder-open.svg';
-import folderClosed from '@esportsplus/ui/svg/folder.svg';
 import lock from '@esportsplus/ui/svg/lock.svg';
 import Clipboard from './clipboard';
 import segments, { ancestors, caption, holds, lineage, same, SEGMENT, sole, type Segment } from './compact';
@@ -20,7 +17,8 @@ import Finder, { type Mode } from './find';
 import fuzzy from './fuzzy';
 import glob from './glob';
 import History, { type Entry as HistoryEntry, type Operation, type Options as HistoryOptions, type Place, type Step } from './history';
-import FOLDERS from './icons';
+import glyph, { renderer } from './glyph';
+import { resolver as createFileTreeIconResolver, resolve as resolveFileTreeIcon, type Name as IconName, type Options as IconOptions, type Resolved as ResolvedIcon } from './icons';
 import Loader, { placeholder, type Load, type Notice } from './lazy';
 import Elements, { type Change, type Entry } from './model';
 import Selection from './selection';
@@ -65,7 +63,10 @@ type A = Attributes & {
     // Ctrl/Cmd+Z undoes its last entry and Ctrl/Cmd+Shift+Z or Ctrl+Y redoes one; whatever an undo or redo brings
     // back, moves or renames, however it was started, is selected and revealed.
     history?: History;
+    // Override individual glyphs; undefined uses the built-in, while null/false suppresses the icon.
     icon?: (element: Element, open: boolean) => Renderable<unknown>;
+    // Partial filename, extension and folder mappings, plus optional monochrome rendering.
+    icons?: IconOptions;
     // Draws a guide line down each open folder.
     indicator?: Indicator;
     label?: string;
@@ -80,7 +81,8 @@ type A = Attributes & {
     // What Shift+Alt+C copies, and Ctrl+Shift+Alt+C as 'relative'; the id by default.
     path?: (element: Element, relative: boolean) => string;
     // Moving the cursor onto a file opens it as a preview once the cursor rests, like JetBrains' autoscroll to source.
-    preview?: boolean;
+    // 'immediate' follows keyboard/typeahead navigation without the resting-cursor delay.
+    preview?: boolean | 'immediate';
     // F2 renames the focused item.
     rename?: (element: Element, name: string) => Result;
     // Selection written from outside: 'on' opens the folders down to it and scrolls to it, 'select' opens them
@@ -117,6 +119,10 @@ type A = Attributes & {
 type Align = 'center' | 'end' | 'start';
 
 type Controller = {
+    collapseAll: () => void;
+    expandAll: () => void;
+    // Apply an external query without opening or focusing the tree's built-in find bar.
+    search: (query: string) => void;
     // Open the find bar, with 'query' in place of what it last held when given.
     find: (query?: string) => void;
     // Move the cursor to the next or previous file git reports changed, wrapping round, and return it; null when
@@ -420,18 +426,6 @@ function folder(element: Element) {
     return element.type ? element.type === 'folder' : Array.isArray(element.children);
 }
 
-function glyph(element: Element, open: boolean) {
-    let svg = file;
-
-    if (folder(element)) {
-        let named = FOLDERS.get(element.name.toLowerCase());
-
-        svg = named ? named[open ? 1 : 0] : (open ? folderOpen : folderClosed);
-    }
-
-    return icon({ 'aria-hidden': 'true', class: 'file-tree-icon' }, svg);
-}
-
 // Shadows repeating a row's parent guide under each further ancestor, read by the row's '::before'.
 function guides(depth: number) {
     let out: string[] = [];
@@ -558,7 +552,8 @@ export default ({
     find = 'highlight',
     highlight: phrase = '',
     history,
-    icon: render = glyph,
+    icon: render,
+    icons,
     indicator = 'always',
     label = 'Files',
     load,
@@ -669,6 +664,7 @@ export default ({
         unfolded = new Map<string, boolean>(),
         // Filled before the slot exists: rows inserted at the top of a live slot read as arriving above the reader.
         rows = reactive(visible(top)),
+        renderIcon = renderer(icons),
         cursor: Row | null = rows.find((row) => holds(row, (id) => id === chosen)) ?? rows[0] ?? null,
         dragging = drag && draggable<Row>(drag, {
             // Pressing a selected row drags the whole selection, as in VS Code; any other row goes alone. Roots stay, and
@@ -735,7 +731,9 @@ export default ({
                     ${dragging?.row(row)}
                     ${onscreen(row)}
                     ${{
-                        'aria-label': mark ? () => read(mark).label : spoken({ ...row.element, name: caption(row), root: header(row) }),
+                        // Keep the file's accessible name stable when opening it adds editor decorations.
+                        'aria-label': spoken({ ...row.element, name: caption(row), root: header(row) }),
+                        'aria-description': mark ? () => read(mark).label : undefined,
                         'aria-posinset': () => position(row),
                         'aria-selected': () => holds(row, (id) => selection.read(id)) ? 'true' : 'false',
                         'aria-setsize': () => row.size - read(row.gaps),
@@ -817,6 +815,9 @@ export default ({
     }
 
     controller?.({
+        collapseAll: () => all(false),
+        expandAll: () => all(true),
+        search: (text) => search?.set(text),
         find: (text) => search?.open(text),
         next: () => jump(1),
         previous: () => jump(-1)
@@ -1222,7 +1223,16 @@ export default ({
             <span aria-hidden='true' class='file-tree-twistie'>
                 ${open && icon({ class: 'file-tree-chevron' }, chevron)}
             </span>
-            ${() => !header(row) && render(element, open !== null && read(open))}
+            ${() => {
+                if (header(row)) {
+                    return false;
+                }
+
+                let expanded = open !== null && read(open),
+                    custom = render?.(element, expanded);
+
+                return custom === undefined ? renderIcon(element, expanded) : custom;
+            }}
             ${() => {
                 let edit = read(draft);
 
@@ -1526,7 +1536,8 @@ export default ({
         clearTimeout(timer);
 
         if (preview && !row.open && !row.locked) {
-            timer = setTimeout(() => activate(row, PREVIEW), REST);
+            if (preview === 'immediate') activate(row, PREVIEW);
+            else timer = setTimeout(() => activate(row, PREVIEW), REST);
         }
     }
 
@@ -3271,7 +3282,11 @@ export default ({
 };
 
 export { Decorations as FileTreeDecorations, Editor as FileTreeEditor, Elements as FileTreeElements, History as FileTreeHistory };
+export { createFileTreeIconResolver, glyph as fileTreeIcon, resolveFileTreeIcon };
 export type {
+    IconName as FileTreeIconName,
+    IconOptions as FileTreeIconOptions,
+    ResolvedIcon as FileTreeResolvedIcon,
     Badge as FileTreeBadge,
     Change as FileTreeChange,
     Controller as FileTreeController,

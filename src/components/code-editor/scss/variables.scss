@@ -1,0 +1,19 @@
+.code-editor, .markdown-editor {
+    --editor-background: var(--color-white-300, #fff);
+    --editor-border: var(--color-border-300, #d0d7de);
+    --editor-color: var(--color-text-500, #24292f);
+    --editor-comment: var(--color-text-300, #6e7781);
+    --editor-font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --editor-font-size: 13px;
+    --editor-gutter-width: 5ch;
+    --editor-height: 320px;
+    --editor-keyword: #8250df;
+    --editor-line-height: 20px;
+    --editor-match: color-mix(in srgb, #d4a72c 30%, transparent);
+    --editor-match-active: color-mix(in srgb, #d4a72c 55%, transparent);
+    --editor-number: #0550ae;
+    --editor-padding: 12px;
+    --editor-selection: color-mix(in srgb, #0969da 25%, transparent);
+    --editor-string: #0a7853;
+    --editor-tab-size: 4;
+}

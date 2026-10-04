@@ -38,6 +38,10 @@ const meta: Record<string, Meta> = {
     clipboard: {
         description: 'Copy-to-clipboard affordance with click and programmatic variants.'
     },
+    'code-editor': {
+        description: 'Code editing with syntax colors, line numbers, undo and redo, indentation, search and replacement, and keyboard navigation.',
+        label: 'Code Editor'
+    },
     'color-picker': {
         description: 'Saturation pad, hue and opacity sliders, a hex field, and a recent-colors row that reorders as you commit.'
     },

@@ -755,6 +755,30 @@ export default {
     name: 'file-tree',
     variants: [
         {
+            render: () => fileTree({
+                class: 'file-tree-demo',
+                compact: false,
+                elements: [
+                    { children: [], id: 'config', name: 'config', type: 'folder' },
+                    {
+                        children: ['index.ts', 'app.tsx', 'styles.scss', 'types.d.ts', 'worker.py', 'main.rs', 'schema.sql']
+                            .map(name => ({ id: `src/${name}`, name })),
+                        id: 'src', name: 'src', type: 'folder'
+                    },
+                    {
+                        children: ['logo.svg', 'photo.png', 'intro.mp4', 'audio.wav', 'font.woff2']
+                            .map(name => ({ id: `assets/${name}`, name })),
+                        id: 'assets', name: 'assets', type: 'folder'
+                    },
+                    ...['.gitignore', '.env.local', 'package.json', 'pnpm-lock.yaml', 'tsconfig.json', 'Dockerfile', 'README.md', 'LICENSE', 'backup.tar.gz', 'unknown.custom']
+                        .map(name => ({ id: name, name }))
+                ],
+                expanded: ['src', 'assets'],
+                label: 'File and folder icon examples'
+            }),
+            title: 'file types, special filenames, compound extensions, and folders'
+        },
+        {
             render: () => {
                 let state = reactive({ selected: 'button' });
 

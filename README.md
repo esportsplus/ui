@@ -49,6 +49,8 @@ html`
 
 ## Components
 
+The [code editor](src/components/code-editor/README.md) and [file tree](src/components/file-tree/README.md) use the library's reactivity/template stack without an external editor or icon engine. The [plugin comparison and implementation plan](docs/editor-investigation.md) describe their scope and how they compose.
+
 ### Form Controls
 | Component | Description | Variants |
 |-----------|-------------|----------|

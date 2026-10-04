@@ -135,6 +135,7 @@ class Finder {
 
     readonly state: {
         count: number;
+        external: boolean;
         // The match the cursor was last moved to; empty when it's on none.
         current: string;
         index: number;
@@ -149,7 +150,7 @@ class Finder {
     constructor(mode: Mode, query: Signal<string>, host: Host) {
         this.host = host;
         this.query = query;
-        this.state = reactive({ count: 0, current: '', index: -1, mode, open: false, text: '', unloaded: 0 });
+        this.state = reactive({ count: 0, external: false, current: '', index: -1, mode, open: false, text: '', unloaded: 0 });
     }
 
 
@@ -274,6 +275,8 @@ class Finder {
     open(text?: string) {
         let state = this.state;
 
+        state.external = false;
+
         if (text !== undefined) {
             state.text = text;
         }
@@ -297,6 +300,14 @@ class Finder {
         this.run(true);
     }
 
+    // An external search field applies the same filter without creating or focusing another input.
+    set(text: string) {
+        this.state.external = true;
+        this.state.text = text;
+        this.state.open = text.trim() !== '';
+        this.run(false);
+    }
+
     // The tree changed under the search: a file added may match, one renamed may no longer.
     refresh() {
         if (!peek(this.query)) {
@@ -311,7 +322,7 @@ class Finder {
         let state = this.state;
 
         return html`
-            ${() => state.open && html`
+            ${() => state.open && !state.external && html`
                 <div class='file-tree-find' role='search'>
                     <div class='file-tree-find-bar'>
                         <input

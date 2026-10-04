@@ -24,8 +24,8 @@ function count(n: number | undefined, word: string) {
 }
 
 
-// The row's accessible name, which the tree announces through its active descendant: what the name's color and the
-// badge show, plus the problem counts the badge leaves out. "index.ts, modified, 2 errors, unsaved".
+// The row's name without decorations; its accessible description includes what the color and badges show,
+// plus problem counts the badge leaves out. "index.ts, modified, 2 errors, unsaved".
 export default (subject: Subject, decoration?: Decoration, lines: number[] = [0, 0], inside?: Tone) => {
     let editor = decoration?.editor,
         words = [
