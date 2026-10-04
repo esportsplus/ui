@@ -4,6 +4,8 @@ import { story } from '@esportsplus/ui/components';
 import 'docs/examples/story/scss/index.scss';
 
 
+const BUTTON = 'button --background-text --color-white';
+
 const STATS = [
     { caption: 'People tried the lab this week.', value: '12k' },
     { caption: 'Average rating across every component.', value: '4.8' },
@@ -31,25 +33,29 @@ export default {
             title: 'stories'
         },
         {
-            render: () => story({
-                label: 'Mixed stories',
-                stories: [
-                    stat(STATS[0]),
-                    html`
-                        <div class='story-demo story-demo--gradient'>
-                            <span class='story-demo-caption'>Any content renders inside a story.</span>
-                        </div>
-                    `,
-                    html`
-                        <div class='story-demo'>
-                            <span class='story-demo-caption'>Controls inside a story keep their own clicks.</span>
-                            <div class='button button--tertiary' role='button' style='--width: auto;' tabindex='0'>
-                                a button
+            render: () => {
+                let clicks = reactive({ count: 0 });
+
+                return story({
+                    label: 'Mixed stories',
+                    stories: [
+                        stat(STATS[0]),
+                        html`
+                            <div class='story-demo story-demo--gradient'>
+                                <span class='story-demo-caption'>Any content renders inside a story.</span>
                             </div>
-                        </div>
-                    `
-                ]
-            }),
+                        `,
+                        html`
+                            <div class='story-demo'>
+                                <span class='story-demo-caption'>Controls inside a story keep their own clicks.</span>
+                                <button class='${BUTTON}' onclick='${() => clicks.count++}' type='button'>
+                                    ${() => `clicked ${clicks.count}×`}
+                                </button>
+                            </div>
+                        `
+                    ]
+                });
+            },
             title: 'any content'
         },
         {
@@ -60,12 +66,12 @@ export default {
                     <div style='align-items: center; display: flex; flex-direction: column; gap: var(--size-400);'>
                         ${story({ duration: 2000, label: 'Quick stories', state, stories: STATS.map(stat) })}
                         <div style='display: flex; gap: var(--size-300);'>
-                            <div class='button button--tertiary' style='--width: auto;' onclick='${() => state.paused = !state.paused}'>
+                            <button class='${BUTTON}' onclick='${() => state.paused = !state.paused}' type='button'>
                                 ${() => state.paused ? 'play' : 'pause'}
-                            </div>
-                            <div class='button button--tertiary' style='--width: auto;' onclick='${() => state.index = 0}'>
+                            </button>
+                            <button class='${BUTTON}' onclick='${() => state.index = 0}' type='button'>
                                 first story
-                            </div>
+                            </button>
                         </div>
                     </div>
                 `;

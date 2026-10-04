@@ -2,6 +2,7 @@ import { accordion } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import scrollbar from '@esportsplus/ui/css-utilities/scrollbar';
+import chevron from '@esportsplus/ui/svg/chevron-right.svg';
 import 'docs/examples/accordion/scss/index.scss';
 
 
@@ -27,8 +28,8 @@ const more = (attributes: { lines?: number, style?: string }, content: Renderabl
             ${() => state.expandable && html`
                 <button
                     aria-controls='${id}'
-                    class='link --color-text --text-300'
-                    style='--font-size: var(--font-size-300);--width: auto; margin-top: var(--size-300);'
+                    class='link --color-text'
+                    style='--font-size: var(--font-size-300); margin-top: var(--size-300);'
                     type='button'
                     ${{
                         'aria-expanded': () => state.active ? 'true' : 'false',
@@ -75,9 +76,7 @@ export default {
                                         }}
                                     >
                                         <span>${label}</span>
-                                        <svg aria-hidden='true' class='accordion-demo-chevron' viewBox='0 0 16 16'>
-                                            <path d='m6 4 4 4-4 4' />
-                                        </svg>
+                                        <svg aria-hidden='true' class='accordion-demo-chevron'><use href='#${chevron}' /></svg>
                                     </button>
                                     ${accordion({
                                         'aria-labelledby': `${id}-toggle`,
