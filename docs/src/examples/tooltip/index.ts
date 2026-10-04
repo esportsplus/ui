@@ -1,4 +1,4 @@
-import { highlight, icon, tooltip } from '@esportsplus/ui';
+import { highlight, icon, tooltip } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import creditCardSvg from '@esportsplus/ui/svg/credit-card.svg';

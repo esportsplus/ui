@@ -1,4 +1,4 @@
-import { loading } from '@esportsplus/ui';
+import { loading } from '@esportsplus/ui/components';
 
 
 export default {

@@ -1,5 +1,5 @@
 import { html } from '@esportsplus/template';
-import { filter } from '@esportsplus/ui';
+import { filter } from '@esportsplus/ui/components';
 import type { Entry } from '~/types';
 import '~/examples/filter/scss/index.scss';
 

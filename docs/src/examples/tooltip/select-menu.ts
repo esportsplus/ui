@@ -1,6 +1,6 @@
 import { html } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { tooltip } from '@esportsplus/ui';
+import { tooltip } from '@esportsplus/ui/components';
 import check from '@esportsplus/ui/svg/check.svg';
 import chevrons from '@esportsplus/ui/svg/chevrons-up-down.svg';
 

@@ -1,10 +1,10 @@
 import { html } from '~/app';
-import { clipboard, icon } from '@esportsplus/ui';
+import { clipboard, icon } from '@esportsplus/ui/components';
 import type { Renderable } from '~/app';
 import check from '@esportsplus/ui/svg/check.svg';
 import copy from '@esportsplus/ui/svg/copy.svg';
-import notify from '~/docs-components/notify';
-import '~/docs-components/color-palette/scss/index.scss';
+import notify from '~/components/notify';
+import '~/components/color-palette/scss/index.scss';
 
 
 type ColorToken = { label: string; name: string; value: string };

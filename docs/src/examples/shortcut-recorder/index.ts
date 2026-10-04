@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { shortcutRecorder } from '@esportsplus/ui';
+import { shortcutRecorder } from '@esportsplus/ui/components';
 import '~/examples/shortcut-recorder/scss/index.scss';
 
 

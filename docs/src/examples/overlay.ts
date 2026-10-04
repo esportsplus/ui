@@ -1,4 +1,4 @@
-import { icon, overlay } from '@esportsplus/ui';
+import { icon, overlay } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import bell from '@esportsplus/ui/svg/bell.svg';

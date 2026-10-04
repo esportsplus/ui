@@ -1,4 +1,4 @@
-import { json } from '@esportsplus/ui';
+import { json } from '@esportsplus/ui/components';
 import { html } from '@esportsplus/template';
 
 

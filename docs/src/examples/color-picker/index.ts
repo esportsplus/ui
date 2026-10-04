@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import { colorPicker } from '@esportsplus/ui';
+import { colorPicker } from '@esportsplus/ui/components';
 import '~/examples/color-picker/scss/index.scss';
 
 

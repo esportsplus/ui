@@ -10,12 +10,12 @@ const BASENAME = {
 };
 
 
-const fontSources = import.meta.glob('~/css-utilities/font/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
+const fontSources = import.meta.glob('../../../src/css-utilities/font/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
 
-const themeSources = import.meta.glob('~/themes/*/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
+const themeSources = import.meta.glob('../../../src/themes/*/*/scss/index.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>;
 
 const tokenSources = Object.fromEntries(
-    Object.entries(import.meta.glob('~/tokens/scss/*.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>)
+    Object.entries(import.meta.glob('../../../src/tokens/scss/*.scss', { eager: true, import: 'default', query: '?raw' }) as Record<string, string>)
         .map(([path, source]) => [path.slice(path.lastIndexOf('/') + 1, -'.scss'.length), source])
 );
 
@@ -132,7 +132,9 @@ const fonts = () => Object.values(fontSources).map((source) => ({
 }));
 
 const map = (scss: string | undefined, name: string): Node | null => {
-    if (scss === undefined) return null;
+    if (scss === undefined) {
+        return null;
+    }
 
     let body = block(scss, name);
 

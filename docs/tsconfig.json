@@ -4,35 +4,20 @@
         "noEmit": true,
         "rootDir": "..",
         "paths": {
-            "~/components/*": [
-                "../src/components/*"
+            "@esportsplus/ui/layer.scss": [
+                "../layer.scss"
             ],
-            "~/css-utilities/*": [
-                "../src/css-utilities/*"
+            "@esportsplus/ui/svg/*": [
+                "../storage/svg/*"
             ],
-            "~/docs-components/*": [
-                "./src/components/*"
-            ],
-            "~/normalize/*": [
-                "../src/normalize/*"
-            ],
-            "~/shared/*": [
-                "../src/shared/*"
-            ],
-            "~/themes/*": [
-                "../src/themes/*"
-            ],
-            "~/tokens/*": [
-                "../src/tokens/*"
+            "@esportsplus/ui/*": [
+                "../build/*"
             ],
             "~/package.json": [
                 "../package.json"
             ],
             "~/*": [
                 "./src/*"
-            ],
-            "@esportsplus/ui": [
-                "../src/components/index.ts"
             ]
         }
     },

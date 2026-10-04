@@ -1,11 +1,10 @@
-import icon from '~/components/icon';
+import icon from '@esportsplus/ui/components/icon';
 import searchSvg from '@esportsplus/ui/svg/search.svg';
-import { command } from '@esportsplus/ui';
-import { mac } from '~/shared/platform';
+import { command } from '@esportsplus/ui/components';
+import { mac } from '@esportsplus/ui/shared/platform';
 import { html, reactive, redirect } from '~/app';
 import { sections } from '~/data/nav';
-import type { Tab } from '~/components/command';
-import '~/docs-components/search/scss/index.scss';
+import type { Tab } from '@esportsplus/ui/components/command';
 
 
 const search = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
@@ -38,11 +37,11 @@ const modal = () => {
     });
 };
 
-const searchTrigger = (placeholder = 'Search documentation…') => html`
+const searchTrigger = (placeholder = 'Search') => html`
     <button
         aria-keyshortcuts='${mac() ? 'Meta+K' : 'Control+K'}'
-        aria-label='Search documentation'
-        class='button command-trigger search'
+        aria-label='Search'
+        class='button button--tactile command-trigger header-search'
         type='button'
         ${{
             onclick: () => {
@@ -51,7 +50,7 @@ const searchTrigger = (placeholder = 'Search documentation…') => html`
         }}
     >
         ${icon({ 'aria-hidden': 'true' }, searchSvg)}
-        <span class='command-trigger-label'>${placeholder}</span>
+        ${placeholder}
         <span aria-hidden='true' class='command-keys'>
             <kbd class='button button--kbd'>${mac() ? '⌘' : 'Ctrl'}</kbd>
             <kbd class='button button--kbd'>K</kbd>

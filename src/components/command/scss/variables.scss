@@ -96,7 +96,7 @@
 
     // One 24px keycap line plus 6px either side makes the 36px trigger.
     &-trigger.button {
-        --background-default: var(--color-grey-400);
+        --background-default: var(--color-white-400);
         --border-radius: var(--border-radius-400);
         --box-shadow-default: var(--raised);
         --color-default: var(--color-text-300);

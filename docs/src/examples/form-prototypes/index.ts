@@ -1,4 +1,4 @@
-import { input, textarea } from '@esportsplus/ui';
+import { input, textarea } from '@esportsplus/ui/components';
 import { html } from '@esportsplus/template';
 import type { Variant } from '~/types';
 import '~/examples/form-prototypes/scss/index.scss';

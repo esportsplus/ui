@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { typewriter } from '@esportsplus/ui';
+import { typewriter } from '@esportsplus/ui/components';
 import '~/examples/typewriter/scss/index.scss';
 
 

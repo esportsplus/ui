@@ -1,4 +1,4 @@
-import { datalist } from '@esportsplus/ui';
+import { datalist } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 

@@ -1,7 +1,7 @@
-import { button } from '@esportsplus/ui';
+import { button } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import notify from '~/docs-components/notify';
+import notify from '~/components/notify';
 
 
 let colors = ['primary', 'secondary', 'tertiary'],

@@ -1,4 +1,4 @@
-import { capslock } from '@esportsplus/ui';
+import { capslock } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 
 

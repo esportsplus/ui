@@ -3,7 +3,7 @@ import { after, test } from 'node:test';
 import { ts } from '@esportsplus/typescript';
 import { languageService } from '@esportsplus/typescript/compiler';
 import { snippet } from './example-source.mjs';
-import { groupVariants } from './src/examples/groups.ts';
+import { groupVariants } from '../src/examples/groups.ts';
 
 
 after(() => languageService.dispose());

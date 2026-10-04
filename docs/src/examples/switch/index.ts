@@ -1,5 +1,5 @@
 import { html } from '@esportsplus/template';
-import { switch as switchComponent } from '@esportsplus/ui';
+import { switch as switchComponent } from '@esportsplus/ui/components';
 import '~/examples/switch/scss/index.scss';
 
 

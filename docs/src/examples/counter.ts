@@ -1,4 +1,4 @@
-import { counter } from '@esportsplus/ui';
+import { counter } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 

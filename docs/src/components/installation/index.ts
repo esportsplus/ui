@@ -1,9 +1,9 @@
-import icon from '~/components/icon';
+import icon from '@esportsplus/ui/components/icon';
 import infoSvg from '@esportsplus/ui/svg/info.svg';
 import { html, reactive } from '~/app';
-import { pageNavigation } from '~/docs-components/page-navigation';
+import { pageNavigation } from '~/components/page-navigation';
 
-import '~/docs-components/installation/scss/index.scss';
+import '~/components/installation/scss/index.scss';
 
 
 const SOURCE_TOKENS = /('[^']*'|@use|\bimport\b|\bfrom\b)/g;

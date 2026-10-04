@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { tokenize } from './src/components/code/tokens.ts';
+import { tokenize } from '../src/components/code/tokens.ts';
 
 
 test('highlighting preserves source text, whitespace, and literal HTML', () => {

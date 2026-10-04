@@ -1,4 +1,4 @@
-import { number } from '@esportsplus/ui';
+import { number } from '@esportsplus/ui/components';
 import { html } from '@esportsplus/template';
 
 

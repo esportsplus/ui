@@ -1,5 +1,5 @@
 import { html } from '@esportsplus/template';
-import { checkbox } from '@esportsplus/ui';
+import { checkbox } from '@esportsplus/ui/components';
 import '~/examples/checkbox/scss/index.scss';
 
 

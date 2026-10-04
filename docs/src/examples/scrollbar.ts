@@ -1,5 +1,5 @@
 import { html } from '@esportsplus/template';
-import scrollbar from '~/css-utilities/scrollbar';
+import scrollbar from '@esportsplus/ui/css-utilities/scrollbar';
 
 
 let box = 'height: 160px; border: 1px solid var(--color-border-400); border-radius: var(--border-radius-400);';

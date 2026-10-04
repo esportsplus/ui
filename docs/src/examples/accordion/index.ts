@@ -1,7 +1,7 @@
-import { accordion } from '@esportsplus/ui';
+import { accordion } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import scrollbar from '~/css-utilities/scrollbar';
+import scrollbar from '@esportsplus/ui/css-utilities/scrollbar';
 import '~/examples/accordion/scss/index.scss';
 
 

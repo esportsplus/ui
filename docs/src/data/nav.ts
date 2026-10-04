@@ -51,7 +51,10 @@ const sections = (): Section[] => [
     },
     {
         groups: [
-            { label: '', links: links(entries.map((item) => item.name), 'components.detail', (slug) => meta[slug]?.label ?? slug) }
+            {
+                label: '',
+                links: links(entries.map((item) => item.name), 'components.detail', (slug) => meta[slug]?.label ?? slug)
+            }
         ],
         href: uri('components'),
         index: true,
@@ -59,7 +62,10 @@ const sections = (): Section[] => [
     },
     {
         groups: [
-            { label: '', links: links(utilities.map((item) => item.name), 'css-utilities.detail') }
+            {
+                label: '',
+                links: links(utilities.map((item) => item.name), 'css-utilities.detail')
+            }
         ],
         href: uri('css-utilities'),
         index: true,

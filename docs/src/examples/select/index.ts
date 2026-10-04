@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { select } from '@esportsplus/ui';
+import { select } from '@esportsplus/ui/components';
 import '~/examples/select/scss/index.scss';
 
 

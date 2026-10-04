@@ -1,7 +1,7 @@
-import { pageHead } from '~/docs-components/page/head';
+import { pageHead } from '~/components/page/head';
 import { html } from '~/app';
 import { fonts } from '~/data/scss';
-import { layout } from '~/docs-components/layout';
+import { layout } from '~/components/layout';
 import type { Router } from '~/app';
 import type { Page, TocItem } from '~/types';
 

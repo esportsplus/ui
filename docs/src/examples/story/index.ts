@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { story } from '@esportsplus/ui';
+import { story } from '@esportsplus/ui/components';
 import '~/examples/story/scss/index.scss';
 
 

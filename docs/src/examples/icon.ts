@@ -1,4 +1,4 @@
-import { icon } from '@esportsplus/ui';
+import { icon } from '@esportsplus/ui/components';
 import { html } from '@esportsplus/template';
 import bolt from '@esportsplus/ui/svg/bolt.svg';
 import star from '@esportsplus/ui/svg/star.svg';

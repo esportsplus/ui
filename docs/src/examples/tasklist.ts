@@ -1,4 +1,4 @@
-import { tasklist } from '@esportsplus/ui';
+import { tasklist } from '@esportsplus/ui/components';
 
 
 // Opaque rows so a row sliding past its neighbours covers them instead of overlapping their text

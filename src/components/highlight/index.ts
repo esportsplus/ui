@@ -112,6 +112,22 @@ function active(parent: Element, self: Element[], target?: string) {
     return null;
 }
 
+// The highlight's own layers are siblings too; only tracked items define the group's ends.
+function boundary(parent: Element, self: Element[], item: Element, target?: string) {
+    let items = target ? parent.querySelectorAll(target) : parent.children,
+        first: Element | undefined,
+        last: Element | undefined;
+
+    for (let candidate of items) {
+        if (!self.includes(candidate)) {
+            first ??= candidate;
+            last = candidate;
+        }
+    }
+
+    return item === first || item === last;
+}
+
 // Inside a collapsed group, like a closed tree folder, an item keeps a box but can't be seen.
 function concealed(item: Element, parent: Element) {
     for (let node: Element | null = item; node && node !== parent; node = node.parentElement) {
@@ -272,10 +288,11 @@ export default component<A>(
                 let node = nodes[name];
 
                 if (node) {
-                    let style = getComputedStyle(node);
+                    let style = getComputedStyle(node),
+                        easing = boundary(parent, self, item, target) ? '--glide-timing-function-edge' : '--glide-timing-function';
 
                     timing = {
-                        easing: style.getPropertyValue('--glide-timing-function').trim() || 'ease',
+                        easing: style.getPropertyValue(easing).trim() || 'ease',
                         lead: ms(style.getPropertyValue('--glide')),
                         tail: ms(style.getPropertyValue('--glide-tail'))
                     };

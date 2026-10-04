@@ -1,7 +1,7 @@
 import { batch, onCleanup, reactive, ReactiveArray } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { metric } from '@esportsplus/ui';
-import type { MetricPoint } from '~/components/metric';
+import { metric } from '@esportsplus/ui/components';
+import type { MetricPoint } from '@esportsplus/ui/components/metric';
 import type { Entry } from '~/types';
 import '~/examples/metric/scss/index.scss';
 

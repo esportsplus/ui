@@ -1,4 +1,4 @@
-@use '@esportsplus/ui/shared.scss';
+@use '../../../../../shared.scss';
 
 
 @keyframes code-check-draw {
@@ -76,6 +76,10 @@
         tab-size: 4;
         white-space: pre;
 
+        * {
+            line-height: inherit;
+        }
+
         code {
             color: inherit;
             display: block;
@@ -91,12 +95,9 @@
         display: block;
         flex: 0 0 auto;
         font-variant-numeric: tabular-nums;
-        left: 0;
         padding: 0 24px;
-        position: sticky;
         text-align: right;
         user-select: none;
-        z-index: 1;
     }
 
     &-token {

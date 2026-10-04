@@ -1,4 +1,4 @@
-import { marquee } from '@esportsplus/ui';
+import { marquee } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import '~/examples/marquee/scss/index.scss';

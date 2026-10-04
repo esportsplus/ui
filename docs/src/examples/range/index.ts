@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { range } from '@esportsplus/ui';
+import { range } from '@esportsplus/ui/components';
 import { rangeVariations } from '~/examples/range/prototypes';
 import sliders from '~/examples/range/sliders';
 import '~/examples/range/scss/index.scss';

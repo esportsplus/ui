@@ -1,4 +1,4 @@
-import { textarea } from '@esportsplus/ui';
+import { textarea } from '@esportsplus/ui/components';
 import { boardTextareaVariations } from '~/examples/board-fields';
 import { fieldVariations } from '~/examples/form-prototypes';
 import { moreFieldVariations } from '~/examples/form-options';

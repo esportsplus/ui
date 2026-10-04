@@ -1,4 +1,4 @@
-import { image } from '@esportsplus/ui';
+import { image } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 

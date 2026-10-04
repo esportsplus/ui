@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { surfaceField } from '@esportsplus/ui';
+import { surfaceField } from '@esportsplus/ui/components';
 
 
 type Camera = { x: number, y: number, zoom: number };

@@ -1,6 +1,6 @@
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { progress } from '@esportsplus/ui';
+import { progress } from '@esportsplus/ui/components';
 import '~/examples/progress/scss/index.scss';
 
 

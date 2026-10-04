@@ -86,6 +86,30 @@
         }
     }
 
+    &-search {
+        --font-size: var(--font-size-300);
+        --padding-horizontal: var(--size-200);
+        --width: auto;
+        flex-shrink: 1;
+        min-width: 0;
+
+        .command-keys {
+            margin-left: var(--size-100);
+        }
+
+        @media (max-width: 600px) {
+            --width: 36px;
+            flex-shrink: 0;
+            justify-content: center;
+            padding-inline: 0;
+
+            .command-trigger-label,
+            .command-keys {
+                display: none;
+            }
+        }
+    }
+
     &-sidebar {
         display: flex;
         flex-shrink: 0;

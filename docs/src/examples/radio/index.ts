@@ -1,5 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
-import { highlight, radio } from '@esportsplus/ui';
+import { highlight, radio } from '@esportsplus/ui/components';
 import { html } from '@esportsplus/template';
 import '~/examples/radio/scss/index.scss';
 

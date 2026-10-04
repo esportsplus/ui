@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import { fileTree, FileTreeDecorations, FileTreeEditor, FileTreeElements, FileTreeHistory, icon, input } from '@esportsplus/ui';
+import { fileTree, FileTreeDecorations, FileTreeEditor, FileTreeElements, FileTreeHistory, icon, input } from '@esportsplus/ui/components';
 import symlink from '@esportsplus/ui/svg/corner-down-right.svg';
 import lock from '@esportsplus/ui/svg/lock.svg';
 import type {
@@ -10,7 +10,7 @@ import type {
     FileTreeSnapshot,
     FileTreeSortCase,
     FileTreeSortOrder
-} from '~/components/file-tree';
+} from '@esportsplus/ui/components/file-tree';
 import '~/examples/file-tree/scss/index.scss';
 
 

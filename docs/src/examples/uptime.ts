@@ -1,7 +1,7 @@
-import { uptime } from '@esportsplus/ui';
+import { uptime } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import type { Service } from '~/components/uptime';
+import type { Service } from '@esportsplus/ui/components/uptime';
 
 
 let degraded: Service[] = [

@@ -1,10 +1,10 @@
 // Declares the library's layer order before any layered stylesheet can claim a place in it.
 import '@esportsplus/ui/layer.scss';
-import '~/ui';
+import './ui';
 import { fallback, html, middleware, render } from '~/app';
-import header from '~/docs-components/header';
-import { notifications } from '~/docs-components/notify';
-import sidebar, { state as sidebarState } from '~/docs-components/sidebar';
+import header from '~/components/header';
+import { notifications } from '~/components/notify';
+import sidebar, { state as sidebarState } from '~/components/sidebar';
 
 
 render(
@@ -17,7 +17,9 @@ render(
             ${header(request)}
             ${notifications.content}
 
-            <div class='viewer-body ${() => sidebarState.active && '--sidebar-open'}'>
+            <div
+                class='viewer-body ${() => sidebarState.active && '--sidebar-open'}'
+            >
                 ${sidebar(request)}
                 <div class='viewer-content'>
                     ${() => {

@@ -1,4 +1,4 @@
-import { stickyHeader } from '@esportsplus/ui';
+import { stickyHeader } from '@esportsplus/ui/components';
 import { html } from '@esportsplus/template';
 
 

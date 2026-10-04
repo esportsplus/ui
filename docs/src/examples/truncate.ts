@@ -1,4 +1,4 @@
-import { truncate } from '@esportsplus/ui';
+import { truncate } from '@esportsplus/ui/components';
 import { html } from '@esportsplus/template';
 
 

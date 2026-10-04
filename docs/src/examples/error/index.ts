@@ -1,6 +1,6 @@
 import { effect, flush, onCleanup, reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import { error, input, select } from '@esportsplus/ui';
+import { error, input, select } from '@esportsplus/ui/components';
 import '~/examples/error/scss/index.scss';
 
 

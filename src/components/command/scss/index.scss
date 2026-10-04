@@ -177,15 +177,8 @@
     }
 
     &-trigger.button {
-        max-width: 100%;
-        // The keycaps sit 6px from the end; the icon side gets the usual inset.
-        padding-inline-start: var(--size-300);
         touch-action: manipulation;
         user-select: none;
-
-        &:active {
-            scale: 0.96;
-        }
 
         &:focus-visible {
             outline: var(--border-width-500) solid var(--color-text-500);

@@ -1,4 +1,4 @@
-import { usageMeter } from '@esportsplus/ui';
+import { usageMeter } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 

@@ -1,4 +1,4 @@
-import { input, textarea } from '@esportsplus/ui';
+import { input, textarea } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import type { Variant } from '~/types';

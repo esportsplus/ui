@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { command } from '@esportsplus/ui';
+import { command } from '@esportsplus/ui/components';
 import back from '@esportsplus/ui/svg/arrow-left.svg';
 import forward from '@esportsplus/ui/svg/arrow-right.svg';
 import next from '@esportsplus/ui/svg/arrow-down.svg';
@@ -23,7 +23,7 @@ import sliders from '@esportsplus/ui/svg/sliders.svg';
 import undo from '@esportsplus/ui/svg/undo.svg';
 import zoomIn from '@esportsplus/ui/svg/zoom-in.svg';
 import zoomOut from '@esportsplus/ui/svg/zoom-out.svg';
-import type { Command, Shortcut, Store, Tab } from '~/components/command';
+import type { Command, Shortcut, Store, Tab } from '@esportsplus/ui/components/command';
 import '~/examples/command/scss/index.scss';
 
 

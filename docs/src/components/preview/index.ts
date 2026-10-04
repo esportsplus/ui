@@ -1,11 +1,11 @@
 import { html } from '~/app';
 import { effect, flush, reactive, untrack } from '@esportsplus/reactivity';
-import { select } from '@esportsplus/ui';
-import { code } from '~/docs-components/code';
-import { exampleView, type View } from '~/docs-components/example-view';
+import { select } from '@esportsplus/ui/components';
+import { code } from '~/components/code';
+import { exampleView, type View } from '~/components/example-view';
 import type { Renderable } from '~/app';
 import type { PreviewOption } from '~/types';
-import '~/docs-components/preview/scss/index.scss';
+import '~/components/preview/scss/index.scss';
 
 
 const preview = (title: string | null, node: Renderable<unknown>, id?: string, options: PreviewOption[] = [], source?: () => Promise<string>) => {

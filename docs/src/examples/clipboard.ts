@@ -1,4 +1,4 @@
-import { clipboard } from '@esportsplus/ui';
+import { clipboard } from '@esportsplus/ui/components';
 
 
 export default {

@@ -1,4 +1,4 @@
-import { layout } from '~/docs-components/layout';
+import { layout } from '~/components/layout';
 import { page } from '~/actions/docs';
 
 

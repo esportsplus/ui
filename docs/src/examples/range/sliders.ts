@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { range } from '@esportsplus/ui';
+import { range } from '@esportsplus/ui/components';
 
 
 export default [

@@ -1,4 +1,4 @@
-import { form, input } from '@esportsplus/ui';
+import { form, input } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { boardInputVariations, boardOtpVariations } from '~/examples/board-fields';

@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { relativeTime } from '@esportsplus/ui';
+import { relativeTime } from '@esportsplus/ui/components';
 import type { Entry } from '~/types';
 import '~/examples/relative-time/scss/index.scss';
 

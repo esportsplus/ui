@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { heatmap } from '@esportsplus/ui';
-import type { HeatmapDay } from '~/components/heatmap';
+import { heatmap } from '@esportsplus/ui/components';
+import type { HeatmapDay } from '@esportsplus/ui/components/heatmap';
 import type { Entry } from '~/types';
 import '~/examples/heatmap/scss/index.scss';
 

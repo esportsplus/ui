@@ -1,5 +1,5 @@
 import { html, type Renderable } from '@esportsplus/template';
-import glass from '~/css-utilities/glass';
+import glass from '@esportsplus/ui/css-utilities/glass';
 
 import type { Utility } from '~/types';
 
