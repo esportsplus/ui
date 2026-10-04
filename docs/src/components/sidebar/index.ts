@@ -71,8 +71,11 @@ export default (request: Request) => {
                     target='_blank'
                     title='v${version}'
                 >v${release}</a>
+            </div>
+            <div class='sidebar-tools'>
                 ${searchTrigger()}
             </div>
+
             <div class='sidebar-scrollport --scrollbar --scrollbar-blur --scrollbar-hidden'>
                 <div class='sidebar-content'>
                     ${navTree(
@@ -80,14 +83,13 @@ export default (request: Request) => {
                             label: section.label,
                             href: section.index ? section.href : undefined,
                             active: () => request.path === section.href,
-                            groups: section.groups.map((group) => ({
-                                label: group.label,
-                                links: group.links.map((link) => ({
+                            groups: [{
+                                links: section.links.map((link) => ({
                                     label: link.label,
                                     href: link.href,
                                     active: () => request.data.route?.name === link.name && (request.data.parameters?.slug ?? '') === link.slug
                                 }))
-                            }))
+                            }]
                         }))
                     )}
                 </div>

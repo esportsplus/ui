@@ -21,7 +21,7 @@ const TRAILING_SLASH = /\/$/;
 const pageHead = ({ breadcrumb: trail, description, title }: Head) => {
     let pages = sections().flatMap((section) => [
             ...(section.index ? [{ href: section.href, label: section.label }] : []),
-            ...section.groups.flatMap((group) => group.links)
+            ...section.links
         ]),
         path = location.pathname.replace(TRAILING_SLASH, '') || '/docs',
         index = pages.findIndex((page) => page.href === path),

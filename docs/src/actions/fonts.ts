@@ -97,7 +97,7 @@ function families(): Family[] {
 }
 
 
-const page = (): Page => {
+const responder = (): Page => {
     let rendered = families(),
         toc: TocItem[] = rendered.map((family) => ({ id: family.id, label: family.family }));
 
@@ -147,4 +147,4 @@ const page = (): Page => {
 
 
 export default (r: Router) => r
-    .get({ name: 'fonts', path: '/fonts', responder: () => page() });
+    .get({ name: 'fonts', path: '/fonts', responder });

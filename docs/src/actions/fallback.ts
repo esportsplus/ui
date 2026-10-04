@@ -1,8 +1,8 @@
-import { page } from 'docs/actions/docs/index';
+import { responder } from 'docs/actions/docs/index';
 
 
 export default {
-    handler: () => page(),
+    handler: responder,
     name: null,
     path: null,
     subdomain: null

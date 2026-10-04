@@ -15,7 +15,7 @@ for (let i = 0, n = entries.length; i < n; i++) {
 }
 
 
-function page(slug: string = ''): Page {
+function responder(slug: string = ''): Page {
     if (slug === '') {
         return cardGrid(
             'A reactive, themeable component library built on compile-time template transforms. Select a component to see every variant.',
@@ -50,10 +50,10 @@ export default (r: Router) => r
     .get({
         name: 'components',
         path: '/components',
-        responder: () => page()
+        responder: () => responder()
     })
     .get({
         name: 'components.detail',
         path: '/components/:slug',
-        responder: (request) => page(request.data.parameters?.slug ?? '')
+        responder: (request) => responder(request.data.parameters?.slug ?? '')
     });

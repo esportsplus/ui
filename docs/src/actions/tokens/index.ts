@@ -13,7 +13,6 @@ import 'docs/actions/tokens/scss/index.scss';
 type Group = {
     id: string;
     kind: 'box-shadow' | 'border-radius' | 'border-width' | 'color' | 'font-size' | 'size';
-    prefix: string;
     title: string;
     variable: string;
 };
@@ -29,13 +28,13 @@ const SHADE_SUFFIX = /-\d+$/;
 
 
 const groups: Group[] = [
-    { id: 'border-radius', kind: 'border-radius', prefix: 'border-radius', title: 'Border Radius', variable: 'border-radius' },
-    { id: 'border-width', kind: 'border-width', prefix: 'border-width', title: 'Border Width', variable: 'border-width' },
-    { id: 'box-shadow', kind: 'box-shadow', prefix: 'box-shadow', title: 'Box Shadow', variable: 'box-shadow' },
-    { id: 'colors', kind: 'color', prefix: 'color', title: 'Colors', variable: 'color' },
-    { id: 'font-size', kind: 'font-size', prefix: 'font-size', title: 'Font Size', variable: 'font-size' },
-    { id: 'sizing', kind: 'size', prefix: 'size', title: 'Sizing', variable: 'size' },
-    { id: 'spacing', kind: 'size', prefix: 'spacer', title: 'Spacing', variable: 'spacer' }
+    { id: 'border-radius', kind: 'border-radius', title: 'Border Radius', variable: 'border-radius' },
+    { id: 'border-width', kind: 'border-width', title: 'Border Width', variable: 'border-width' },
+    { id: 'box-shadow', kind: 'box-shadow', title: 'Box Shadow', variable: 'box-shadow' },
+    { id: 'colors', kind: 'color', title: 'Colors', variable: 'color' },
+    { id: 'font-size', kind: 'font-size', title: 'Font Size', variable: 'font-size' },
+    { id: 'sizing', kind: 'size', title: 'Sizing', variable: 'size' },
+    { id: 'spacing', kind: 'size', title: 'Spacing', variable: 'spacer' }
 ];
 
 
@@ -116,11 +115,7 @@ function colorPalette(values: Token[]): Renderable<unknown> {
 }
 
 
-function preview(kind: Group['kind'], value: string): Renderable<unknown> {
-    if (kind === 'color') {
-        return html`<div class='image --border-default --border-border' style='--size: var(--size-600);background: ${value};border: 1px solid var(--border-color);'></div>`;
-    }
-
+function preview(kind: Exclude<Group['kind'], 'color'>, value: string): Renderable<unknown> {
     if (kind === 'size') {
         return html`<div style='background: var(--color-blue-400); border-radius: var(--border-radius-200); height: var(--size-300); width: ${value};'></div>`;
     }
@@ -137,11 +132,7 @@ function preview(kind: Group['kind'], value: string): Renderable<unknown> {
         return html`<div style='background: var(--background); border-radius: var(--border-radius-300); box-shadow: ${value}; height: var(--size-600); width: var(--size-600);'></div>`;
     }
 
-    if (kind === 'font-size') {
-        return html`<span style='font-size: ${value};'>Aa</span>`;
-    }
-
-    return html`<span style=''>Aa</span>`;
+    return html`<span style='font-size: ${value};'>Aa</span>`;
 }
 
 function tokens(group: Group): Token[] {
@@ -157,13 +148,13 @@ function tokens(group: Group): Token[] {
         let value = node[key];
 
         if (typeof value === 'string') {
-            let name = `--${group.prefix}-${key}`;
+            let name = `--${group.variable}-${key}`;
 
             out.push({ label: key, name, value: cssValue(name) });
         }
         else {
             for (let subkey in value) {
-                let name = `--${group.prefix}-${key}-${subkey}`;
+                let name = `--${group.variable}-${key}-${subkey}`;
 
                 out.push({ label: `${key}-${subkey}`, name, value: cssValue(name) });
             }
@@ -174,7 +165,7 @@ function tokens(group: Group): Token[] {
 }
 
 
-const page = (): Page => {
+const responder = (): Page => {
     let rendered = groups
             .map((group) => ({ group, tokens: tokens(group) }))
             .filter((entry) => entry.tokens.length > 0),
@@ -187,19 +178,19 @@ const page = (): Page => {
 
                 <p class='page-note'>Font weights are defined per font family. See the <a href='/fonts'>Fonts reference</a> for available families and weights.</p>
 
-                ${rendered.map((entry) => html`
-                    <section id='${entry.group.id}'>
-                        <h2 class='page-section-title'>${entry.group.title}</h2>
+                ${rendered.map(({ group: { id, kind, title }, tokens: values }) => html`
+                    <section id='${id}'>
+                        <h2 class='page-section-title'>${title}</h2>
 
-                        ${entry.group.kind === 'color' ? colorPalette(entry.tokens) : html`<div class='spec-table-scroll'><table class='spec-table'>
+                        ${kind === 'color' ? colorPalette(values) : html`<div class='spec-table-scroll'><table class='spec-table'>
                             <thead class='table-head'>
                                 <tr><th>Token</th><th>Preview</th><th>Value</th></tr>
                             </thead>
                             <tbody>
-                                ${entry.tokens.map((token) => html`
+                                ${values.map((token) => html`
                                     <tr>
                                         <td class='spec-name'>${token.name}</td>
-                                        <td>${preview(entry.group.kind, token.value)}</td>
+                                        <td>${preview(kind, token.value)}</td>
                                         <td class='spec-value'>${token.value || '—'}</td>
                                     </tr>
                                 `)}
@@ -215,4 +206,4 @@ const page = (): Page => {
 
 
 export default (r: Router) => r
-    .get({ name: 'tokens', path: '/tokens', responder: () => page() });
+    .get({ name: 'tokens', path: '/tokens', responder });

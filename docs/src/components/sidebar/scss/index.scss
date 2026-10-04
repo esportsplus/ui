@@ -1,4 +1,5 @@
 .sidebar {
+    --content-padding-horizontal: var(--size-600);
     --scrollbar-color: var(--color-border-400);
     background-color: var(--sidebar-background);
     background-image: var(--sidebar-texture);
@@ -37,7 +38,7 @@
 
     // Keep the scrollport unpadded so its blur edges span the entire navigation surface.
     &-content {
-        padding: var(--size-400) var(--size-600);
+        padding: var(--size-400) var(--content-padding-horizontal);
     }
 
     &-header {
@@ -54,11 +55,13 @@
         overflow: hidden auto;
     }
 
-    &-search {
-        margin-left: auto;
+    &-search.command-trigger {
+        --font-size: var(--font-size-300);
+        --padding-horizontal: var(--size-200);
+        --width: 100%;
+        min-width: 0;
     }
 
-    &-search,
     &-toggle {
         --background-default: transparent;
         --background-hover: color-mix(in oklab, var(--color-text-500) 6%, transparent);
@@ -93,6 +96,11 @@
         z-index: 40;
     }
 
+    &-tools {
+        flex-shrink: 0;
+        padding: var(--size-100) calc(var(--content-padding-horizontal) - var(--size-300));
+    }
+
     &-version {
         --border-color: var(--color-border-400);
         --border-radius: var(--border-radius-300);
@@ -114,8 +122,10 @@
     }
 
     @media (max-width: 720px) {
+        --content-padding-horizontal: var(--size-400);
+
         &-content {
-            padding: var(--size-400) var(--size-400) var(--spacer-100);
+            padding-bottom: var(--spacer-100);
         }
     }
 }

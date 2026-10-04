@@ -71,7 +71,7 @@ function variables(source: string): Variable[] {
 }
 
 
-const page = (): Page => {
+const responder = (): Page => {
     let rendered = entries(),
         toc: TocItem[] = rendered.map((entry) => ({ id: entry.id, label: entry.label }));
 
@@ -117,4 +117,4 @@ const page = (): Page => {
 
 
 export default (r: Router) => r
-    .get({ name: 'themes', path: '/themes', responder: () => page() });
+    .get({ name: 'themes', path: '/themes', responder });

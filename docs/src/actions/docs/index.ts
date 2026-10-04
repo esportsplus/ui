@@ -69,7 +69,7 @@ const render = () => {
 };
 
 
-const page = (): Page => ({
+const responder = (): Page => ({
     render,
     toc: [
         { id: 'setup-package', label: 'Install the package' },
@@ -80,8 +80,8 @@ const page = (): Page => ({
 });
 
 
-export { page };
+export { responder };
 export default (r: Router) => r
-    .get({ name: 'docs', path: '/docs', responder: () => page() })
-    .get({ name: 'home', path: '/', responder: () => page() });
+    .get({ name: 'docs', path: '/docs', responder })
+    .get({ name: 'home', path: '/', responder });
 

@@ -16,8 +16,7 @@ its color palettes, contrast calculation, clipboard feedback, and swatch styles.
 | `root` | Docs-wide theme aliases and shell tokens |
 | `search` | Search state, trigger, and the library `command` palette wired to the shared nav tree renderer |
 | `sidebar` | Collapsible documentation navigation that pushes content aside on every screen size |
-| `spec` | Shared data tables and token/value typography |
-| `table-head` | Table-header surface and corner styling, included by `spec` |
+| `spec` | Shared data tables, token/value typography, and table-header surface and corner styling |
 | `toaster` | The shared docs toast queue, placement, and toast surface styles |
 | `viewer` | Responsive outer shell grid |
 
@@ -42,6 +41,8 @@ the fixed sidebar toggle. The search icon sits beside the release badge, and
 the command palette mounts in the viewer shell
 so its keyboard shortcut also works with the sidebar closed. Navigation scrolls below
 the brand row and uses the shared nav tree styling and original responsive content spacing.
+Navigation data keeps links directly on each section; the sidebar supplies the
+group structure used by the tree renderer.
 The command palette passes its filtered groups to `navTree` through `command`'s
 `render` callback. Sidebar and command results use the same markup and tree styles;
 the tree's `--command` modifier changes the active highlight and text colors.

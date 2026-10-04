@@ -12,21 +12,15 @@ import 'docs/components/search/scss/index.scss';
 const search = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
 
 
-// The palette keeps its query after closing, so the sidebar only filters while it is open.
-const matches = (label: string) => {
-    let query = search.query.trim().toLowerCase();
-
-    return !search.active || query === '' || label.toLowerCase().includes(query);
-};
-
 // The palette handles Cmd/Ctrl+K itself; the sidebar opens it through `searchTrigger` instead of its own button.
 const modal = () => {
-    let links = new Map(sections().flatMap((section) => section.groups.flatMap((group) => group.links.map((link) => [link.href, link] as const))));
+    let navigation = sections(),
+        links = new Map(navigation.flatMap((section) => section.links.map((link) => [link.href, link] as const)));
 
     return command({
         [command.dialog]: { class: 'overlay--blur docs-search' },
         [command.trigger]: { hidden: true },
-        commands: sections().flatMap((section) => section.groups.flatMap((group) => group.links.map(({ href, label }) => ({ group: section.label, id: href, label })))),
+        commands: navigation.flatMap((section) => section.links.map(({ href, label }) => ({ group: section.label, id: href, label }))),
         onrun: (entry) => {
             let link = links.get(entry.id);
 
@@ -55,7 +49,7 @@ const trigger = () => html`
         aria-keyshortcuts='${mac() ? 'Meta+K' : 'Control+K'}'
         aria-label='Search'
         aria-haspopup='dialog'
-        class='button sidebar-search'
+        class='button button--tactile command-trigger sidebar-search'
         title='Search (${mac() ? '⌘' : 'Ctrl+'}K)'
         type='button'
         ${{
@@ -65,7 +59,12 @@ const trigger = () => html`
         }}
     >
         ${icon({ 'aria-hidden': 'true' }, svg)}
+        <span class='command-trigger-label'>Search</span>
+        <span aria-hidden='true' class='command-keys'>
+            <kbd class='button button--kbd'>${mac() ? '⌘' : 'Ctrl'}</kbd>
+            <kbd class='button button--kbd'>K</kbd>
+        </span>
     </button>
 `;
 
-export { matches, modal, search, trigger };
+export { modal, search, trigger };
