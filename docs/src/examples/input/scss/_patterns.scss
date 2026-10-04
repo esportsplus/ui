@@ -282,13 +282,13 @@
         opacity: var(--alert-opacity);
         text-align: center;
         transform: var(--alert-transform);
+        transition: opacity var(--demo-duration), transform var(--demo-duration) var(--demo-spring);
         width: 16px;
     }
 
     &-alert,
     &-check {
         grid-area: 1 / 1;
-        transition: opacity var(--demo-duration), transform var(--demo-duration) var(--demo-spring);
     }
 
     &-check {
@@ -302,6 +302,7 @@
         stroke-linejoin: round;
         stroke-width: 2;
         transform: var(--check-transform);
+        transition: opacity var(--demo-duration), stroke-dashoffset var(--demo-duration) ease-out, transform var(--demo-duration) var(--demo-spring);
         width: 16px;
     }
 
