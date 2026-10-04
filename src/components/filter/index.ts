@@ -1,4 +1,4 @@
-import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import { timing } from '~/shared/animation';
 import type { Attributes } from '@esportsplus/template';
 import './scss/index.scss';
@@ -23,8 +23,6 @@ type Origin = {
     top: number;
 };
 
-
-const OFFSCREEN = 'clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; white-space: nowrap; width: 1px;';
 
 // Items further than this outside the viewport snap into place instead of animating.
 const OVERSCAN = 200;
@@ -59,16 +57,9 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         status = reactive({ visible: 0 });
 
     for (let i = 0, n = filters.length; i < n; i++) {
-        let count = 0,
-            filter = filters[i];
+        let filter = filters[i];
 
-        for (let j = 0, m = items.length; j < m; j++) {
-            if (filter.match(items[j])) {
-                count++;
-            }
-        }
-
-        counts[filter.id] = count;
+        counts[filter.id] = items.filter((item) => filter.match(item)).length;
     }
 
     function cancel(element: HTMLElement) {
@@ -328,17 +319,13 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         }
     }
 
-    let stop = effect(() => {
-        state.active;
+    let stop = effect(() => state.active, () => {
+        let computed = list && getComputedStyle(list);
 
-        untrack(() => {
-            let computed = list && getComputedStyle(list);
-
-            enter = computed ? timing(computed, 'enter') : null;
-            leave = computed ? timing(computed, 'leave') : null;
-            move = computed ? timing(computed, 'move') : null;
-            update(!!(enter || leave || move));
-        });
+        enter = computed ? timing(computed, 'enter') : null;
+        leave = computed ? timing(computed, 'leave') : null;
+        move = computed ? timing(computed, 'move') : null;
+        update(!!(enter || leave || move));
     });
 
     onCleanup(() => {
@@ -353,7 +340,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
     return {
         announcer: {
             'aria-live': 'polite',
-            style: OFFSCREEN,
+            class: 'filter-announcer',
             textContent: () => `${current()?.label ?? ''}: ${status.visible} of ${items.length} shown`
         } as Attributes,
         counts,
