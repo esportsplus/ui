@@ -15,7 +15,6 @@ let notifications = [
         --border-color-active: var(--color-primary-400);
         --border-color-default: var(--color-border-500);
         --border-width: var(--border-width-400);
-        --check-color: var(--color-white-400);
     `,
     toppings = [
         { id: 'basil', label: 'Basil' },

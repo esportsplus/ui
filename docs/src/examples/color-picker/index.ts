@@ -4,11 +4,8 @@ import { colorPicker } from '@esportsplus/ui/components';
 import 'docs/examples/color-picker/scss/index.scss';
 
 
-let box = '--background-default: var(--color-white-300); --border-radius: 20px; --box-shadow: var(--box-shadow-300); --padding-horizontal: 12px; --padding-vertical: 12px; --width: min(320px, 100%);';
-
-
 function card(content: Renderable<unknown>) {
-    return html`<div class='card' style='${box}'>${content}</div>`;
+    return html`<div class='card color-picker-demo-card'>${content}</div>`;
 }
 
 

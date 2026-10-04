@@ -1,12 +1,13 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { shortcutRecorder } from '@esportsplus/ui/components';
+import { select, shortcutRecorder } from '@esportsplus/ui/components';
 import 'docs/examples/shortcut-recorder/scss/index.scss';
 
 
 type Direction = NonNullable<Parameters<typeof shortcutRecorder>[0]['direction']>;
 
 type Row = {
+    direction?: Direction;
     hint?: string;
     label: string;
     limit?: number;
@@ -27,14 +28,14 @@ const TAKEN: Record<string, string> = {
 };
 
 
-function row({ hint, label, limit, state, taken }: Row, border = false) {
+function row({ direction, hint, label, limit, state, taken }: Row, border = false) {
     return html`
         <div class='shortcut-recorder-demo-row ${border && 'shortcut-recorder-demo-row--border'}'>
             <div class='shortcut-recorder-demo-label'>
                 ${label}
                 ${hint && html`<span class='shortcut-recorder-demo-hint'>${hint}</span>`}
             </div>
-            ${shortcutRecorder({ 'aria-label': `${label} shortcut`, limit, state, taken })}
+            ${shortcutRecorder({ 'aria-label': `${label} shortcut`, direction, limit, state, taken })}
         </div>
     `;
 }
@@ -59,36 +60,30 @@ function shortcuts() {
     `;
 }
 
-// The picker renders the field afresh on each change; the state outlives it.
+// The field renders afresh whenever the direction changes; the state outlives it.
 function errors() {
-    let state = reactive({ error: '', value: '' }),
-        view = reactive({ direction: 'ne' as Direction });
+    let direction = reactive({ active: false, error: '', selected: 'ne' }),
+        state = reactive({ error: '', value: '' });
 
     return html`
         <div class='shortcut-recorder-demo'>
-            <div class='shortcut-recorder-demo-row'>
+            ${() => row({
+                direction: direction.selected as Direction,
+                hint: 'K alone, Mod+K, or Mod+L for a long one',
+                label: 'Whole field',
+                state,
+                taken: (shortcut) => TAKEN[shortcut]
+            })}
+            <div class='shortcut-recorder-demo-row shortcut-recorder-demo-row--border'>
                 <div class='shortcut-recorder-demo-label'>
-                    Whole field
-                    <span class='shortcut-recorder-demo-hint'>K alone, Mod+K, or Mod+L for a long one</span>
-                    <label class='shortcut-recorder-demo-hint'>
-                        Tooltip
-                        <select
-                            class='shortcut-recorder-demo-direction'
-                            ${{
-                                onchange: (e: Event) => {
-                                    view.direction = (e.target as HTMLSelectElement).value as Direction;
-                                }
-                            }}
-                        >
-                            ${DIRECTIONS.map((d) => html`<option selected=${d === 'ne'} value='${d}'>${d}</option>`)}
-                        </select>
-                    </label>
+                    Error direction
+                    <span class='shortcut-recorder-demo-hint'>Where the message opens</span>
                 </div>
-                ${() => shortcutRecorder({
-                    'aria-label': 'Whole field shortcut',
-                    direction: view.direction,
-                    state,
-                    taken: (shortcut) => TAKEN[shortcut]
+                ${select({
+                    class: 'shortcut-recorder-demo-direction',
+                    label: 'Error direction',
+                    options: DIRECTIONS.map((d) => ({ label: d, value: d })),
+                    state: direction
                 })}
             </div>
         </div>

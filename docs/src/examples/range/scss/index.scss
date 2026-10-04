@@ -13,6 +13,29 @@
     @return $layers;
 }
 
+.range-demo {
+    display: grid;
+    gap: 12px;
+    justify-items: center;
+    width: 100%;
+
+    &--stretch {
+        justify-items: stretch;
+    }
+
+    &-row {
+        align-items: center;
+        display: flex;
+        gap: 48px;
+        justify-content: center;
+    }
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: 13px;
+    }
+}
+
 .range-surface {
     --surface-background: color-mix(in srgb, var(--color-text-400) 8%, transparent);
     --surface-height: 32px;

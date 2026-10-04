@@ -50,6 +50,16 @@
         gap: var(--size-200);
     }
 
+    &-inline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--size-400);
+
+        .radio-demo-row {
+            align-items: center;
+        }
+    }
+
     &-legend {
         margin-bottom: var(--size-200);
         padding: 0;
