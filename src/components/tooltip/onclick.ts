@@ -1,7 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import overlay from '~/components/overlay';
-import { content as surface, morph, morphing } from './utilities';
+import { content as surface, morph, morphs } from './utilities';
 
 
 type A = Attributes & {
@@ -43,13 +43,11 @@ export default component<A>(
                 ${attributes}
                 ${{
                     ...popup,
+                    ...morphs(local),
                     class: [
                         popup.class,
                         () => local.morphing && 'tooltip--morphing'
                     ].flat(),
-                    onanimationcancel: morphing(local, false),
-                    onanimationend: morphing(local, false),
-                    onanimationstart: morphing(local, true),
                     ...(!manual && { onclick: function(this: HTMLElement, e: MouseEvent) {
                         let active = this === e.target || toggle ? !state.active : true;
 
@@ -65,10 +63,7 @@ export default component<A>(
                         }
 
                         state.active = active;
-                    } }),
-                    ontransitioncancel: morphing(local, false),
-                    ontransitionend: morphing(local, false),
-                    ontransitionrun: morphing(local, true)
+                    } })
                 }}
             >
                 ${content}
