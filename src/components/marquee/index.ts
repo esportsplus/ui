@@ -1,5 +1,6 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import { reactive } from '@esportsplus/reactivity';
+import { effect, reactive, untrack } from '@esportsplus/reactivity';
+import { clamp } from '~/shared/clamp';
 import * as scroll from './velocity';
 import './scss/index.scss';
 
@@ -23,10 +24,6 @@ const MAX_COPIES = 14;
 
 const MIN_COPIES = 4;
 
-
-function clamp(x: number, min: number, max: number) {
-    return x < min ? min : x > max ? max : x;
-}
 
 // Wraps the offset into (-loop, 0] so the track never runs out of copies.
 function fold(x: number, loop: number) {
@@ -109,6 +106,7 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
         span = loop;
         offset = loop > 0 ? clamp(offset, -loop, loop) : 0;
         paint();
+        wake();
 
         let next = stage.still || loop <= 0
             ? MIN_COPIES
@@ -160,12 +158,12 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
 
         if (delta !== 0) {
             nudge = clamp(offset + nudge + delta, -loop, loop) - offset;
+            wake();
         }
     }
 
     function run() {
-        cancelAnimationFrame(frame);
-        frame = 0;
+        sleep();
 
         if (stage.still || !near) {
             return;
@@ -177,15 +175,17 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
             frame = requestAnimationFrame(tick);
 
             let dt = last ? Math.min((now - last) / 1000, 0.05) : 0,
+                goal = held || state.paused ? 0 : 1,
                 loop = span;
 
             last = now;
 
             if (loop <= 0) {
+                sleep();
                 return;
             }
 
-            rate += ((held || state.paused ? 0 : 1) - rate) * (1 - Math.exp(-dt / RAMP));
+            rate += (goal - rate) * (1 - Math.exp(-dt / RAMP));
 
             let pull = nudge * (1 - Math.exp(-dt / SETTLE));
 
@@ -216,10 +216,37 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
 
             offset = x;
             paint();
+
+            // Stopped with nothing left to settle: no frames until a resume, a nudge, a resize or a scroll wakes it.
+            if (!goal && rate < 0.002 && Math.abs(nudge) < 0.25 && (!tracker || scroll.settled(tracker, now))) {
+                sleep();
+            }
         }
 
         frame = requestAnimationFrame(tick);
     }
+
+    function sleep() {
+        cancelAnimationFrame(frame);
+        frame = 0;
+    }
+
+    function unhold() {
+        held = false;
+        wake();
+    }
+
+    function wake() {
+        if (!frame) {
+            run();
+        }
+    }
+
+    effect(() => {
+        if (!state.paused) {
+            untrack(wake);
+        }
+    });
 
     return html`
         <section
@@ -241,36 +268,32 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                     cleanup.push(() => resize.disconnect());
 
                     if (velocity) {
-                        let t = scroll.track(element);
+                        let t = scroll.track(element, wake);
 
                         tracker = t;
                         cleanup.push(() => {
-                            t.release();
+                            t.release(wake);
                             tracker = undefined;
                         });
                     }
 
-                    if (typeof IntersectionObserver === 'undefined') {
-                        near = true;
-                    }
-                    else {
-                        let intersection = new IntersectionObserver((entries) => {
-                            let entry = entries[entries.length - 1];
+                    let intersection = new IntersectionObserver((entries) => {
+                        let entry = entries[entries.length - 1];
 
-                            if (entry && entry.isIntersecting !== near) {
-                                near = entry.isIntersecting;
-                                run();
-                            }
-                        }, { rootMargin: '96px' });
+                        if (entry && entry.isIntersecting !== near) {
+                            near = entry.isIntersecting;
+                            run();
+                        }
+                    }, { rootMargin: '96px' });
 
-                        intersection.observe(viewport);
-                        cleanup.push(() => intersection.disconnect());
-                    }
+                    intersection.observe(viewport);
+                    cleanup.push(() => intersection.disconnect());
 
                     motion();
                 },
                 ondisconnect: () => {
-                    cancelAnimationFrame(frame);
+                    near = false;
+                    sleep();
 
                     for (let i = 0, n = cleanup.length; i < n; i++) {
                         cleanup[i]();
@@ -282,12 +305,8 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                     held = true;
                     reveal(e.target as HTMLElement);
                 },
-                onfocusout: () => {
-                    held = false;
-                },
-                onpointercancel: () => {
-                    held = false;
-                },
+                onfocusout: unhold,
+                onpointercancel: unhold,
                 onpointerdown: () => {
                     held = true;
                 },
@@ -296,17 +315,13 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                         held = true;
                     }
                 },
-                onpointerleave: () => {
-                    held = false;
-                },
+                onpointerleave: unhold,
                 onpointerup: (e: PointerEvent) => {
                     if (e.pointerType === 'touch') {
-                        held = false;
+                        unhold();
                     }
                 },
-                onwindowblur: () => {
-                    held = false;
-                }
+                onwindowblur: unhold
             }}
         >
             <div
