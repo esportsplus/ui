@@ -24,15 +24,21 @@ function count(n: number | undefined, word: string) {
 }
 
 
-// The row's name without decorations; its accessible description includes what the color and badges show,
-// plus problem counts the badge leaves out. "index.ts, modified, 2 errors, unsaved".
-export default (subject: Subject, decoration?: Decoration, lines: number[] = [0, 0], inside?: Tone) => {
+// What the row is: "src, root folder, read-only".
+function identity(subject: Subject) {
+    return [
+        subject.name,
+        subject.root ? 'root folder' : '',
+        subject.symlink ? 'symbolic link' : '',
+        subject.readonly ? 'read-only' : ''
+    ];
+}
+
+// What the name's color, the dot and the badges show, plus the problem counts the badge leaves out:
+// "modified, 2 errors, unsaved".
+function status(decoration: Decoration | undefined, lines: number[], inside: Tone | undefined) {
     let editor = decoration?.editor,
         words = [
-            subject.name,
-            subject.root ? 'root folder' : '',
-            subject.symlink ? 'symbolic link' : '',
-            subject.readonly ? 'read-only' : '',
             decoration?.staged ? `staged ${decoration.staged}` : '',
             decoration?.status ?? '',
             decoration?.submodule ? 'submodule' : '',
@@ -49,5 +55,13 @@ export default (subject: Subject, decoration?: Decoration, lines: number[] = [0,
 
     words.push(editor?.unsaved ? 'unsaved' : editor?.open ? 'open in editor' : '');
 
-    return words.filter(Boolean).join(', ');
+    return words;
+}
+
+
+// The row's accessible name, which the tree announces through its active descendant: what it is, then its status,
+// in the one name, so neither is said twice nor left to a description a reader may skip.
+// "index.ts, modified, 2 errors, unsaved".
+export default (subject: Subject, decoration?: Decoration, lines: number[] = [0, 0], inside?: Tone) => {
+    return [...identity(subject), ...status(decoration, lines, inside)].filter(Boolean).join(', ');
 };

@@ -1,3 +1,84 @@
+@use 'sass:map';
+
+// The file type icons' color families, after @pierre/trees, each for a light and a dark color scheme.
+$families: (
+    'blue': light-dark(#1a85d4, #69b1ff),
+    'cyan': light-dark(#1ca1c7, #68cdf2),
+    'gray': light-dark(#84848a, #adadb1),
+    'green': light-dark(#199f43, #5ecc71),
+    'indigo': light-dark(#693acf, #9d6afb),
+    'mauve': light-dark(#594c5b, #79697b),
+    'orange': light-dark(#d47628, #ffa359),
+    'pink': light-dark(#d32a61, #ff678d),
+    'purple': light-dark(#a631be, #d568ea),
+    'red': light-dark(#d52c36, #ff6762),
+    'teal': light-dark(#17a5af, #64d1db),
+    'yellow': light-dark(#d5a910, #ffd452)
+);
+
+// Each built-in icon's family; 'folder' colors every folder.
+$icons: (
+    agents: 'gray',
+    astro: 'purple',
+    babel: 'yellow',
+    bash: 'green',
+    biome: 'blue',
+    bootstrap: 'indigo',
+    browserslist: 'yellow',
+    bun: 'mauve',
+    c: 'blue',
+    claude: 'orange',
+    css: 'indigo',
+    database: 'purple',
+    docker: 'blue',
+    eslint: 'indigo',
+    file: 'gray',
+    folder: 'gray',
+    font: 'gray',
+    git: 'red',
+    go: 'cyan',
+    graphql: 'pink',
+    html: 'orange',
+    image: 'pink',
+    javascript: 'yellow',
+    json: 'orange',
+    markdown: 'green',
+    mcp: 'teal',
+    nextjs: 'gray',
+    npm: 'red',
+    oxc: 'cyan',
+    package: 'red',
+    pnpm: 'yellow',
+    postcss: 'red',
+    prettier: 'teal',
+    python: 'blue',
+    react: 'cyan',
+    readme: 'orange',
+    ruby: 'red',
+    rust: 'orange',
+    sass: 'pink',
+    stylelint: 'gray',
+    svelte: 'red',
+    svg: 'orange',
+    svgo: 'green',
+    swift: 'orange',
+    table: 'teal',
+    tailwind: 'cyan',
+    terraform: 'indigo',
+    text: 'gray',
+    tsconfig: 'blue',
+    typescript: 'blue',
+    vite: 'purple',
+    vscode: 'blue',
+    vue: 'green',
+    wasm: 'indigo',
+    webpack: 'blue',
+    yml: 'red',
+    zig: 'orange',
+    zip: 'orange'
+);
+
+
 .file-tree {
     // Git and problem colors, after VS Code's; the token scales are tuned for dark surfaces, so lightness is
     // pinned to stay legible on light ones.
@@ -52,16 +133,11 @@
     --found-background: color-mix(in srgb, var(--found-color) 14%, transparent);
     --found-border-color: color-mix(in srgb, var(--found-color) 70%, transparent);
     --found-color: oklch(from var(--color-yellow-500) 0.72 c calc(h - 35));
+    @each $family, $color in $families {
+        --icon-#{$family}: #{$color};
+    }
+
     --icon-size: var(--size-400);
-    // Semantic icon palette. Pinned lightness supports light and dark surfaces; shapes still work in monochrome.
-    --file-tree-icon-blue: oklch(from var(--color-blue-400) 0.62 c h);
-    --file-tree-icon-cyan: oklch(from var(--color-blue-400) 0.62 c calc(h - 35));
-    --file-tree-icon-green: oklch(from var(--color-green-500) 0.58 c h);
-    --file-tree-icon-grey: var(--color-text-400);
-    --file-tree-icon-orange: oklch(from var(--color-yellow-500) 0.64 c calc(h - 35));
-    --file-tree-icon-purple: oklch(from var(--color-blue-400) 0.62 c calc(h + 50));
-    --file-tree-icon-red: oklch(from var(--color-red-400) 0.60 c h);
-    --file-tree-icon-yellow: oklch(from var(--color-yellow-500) 0.64 c h);
     --ignored-color: var(--color-text-300);
     // Past '--padding' plus half '--twistie-size', so a nested row, and the highlight on it, starts clear of its
     // parent's guide.
@@ -130,8 +206,19 @@
         --size: var(--size-300);
     }
 
+    // Overridden per family, per icon by '--icon-color-<icon>', or all at once by '--icon-color'. Icons drawn outside a
+    // tree fall back to the same families.
     &-icon.icon {
         --size: var(--icon-size);
+
+        @each $icon, $family in $icons {
+            &.file-tree-icon--#{$icon} {
+                --color: var(
+                    --icon-color,
+                    var(--icon-color-#{$icon}, var(--icon-#{$family}, #{map.get($families, $family)}))
+                );
+            }
+        }
     }
 
     &-marker.icon {

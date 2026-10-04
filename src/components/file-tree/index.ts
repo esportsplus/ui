@@ -16,8 +16,8 @@ import Editor, { field, resolve, type Draft, type Kind, type Result } from './ed
 import filter, { recheck } from './filter';
 import Finder, { type Mode } from './find';
 import glob from './glob';
-import History, { type Entry as HistoryEntry, type Operation, type Options as HistoryOptions, type Place, type Step } from './history';
 import glyph, { renderer } from './glyph';
+import History, { type Entry as HistoryEntry, type Operation, type Options as HistoryOptions, type Place, type Step } from './history';
 import { resolver as createFileTreeIconResolver, resolve as resolveFileTreeIcon, type Name as IconName, type Options as IconOptions, type Resolved as ResolvedIcon } from './icons';
 import Loader, { placeholder, type Load, type Notice } from './lazy';
 import Elements, { type Change, type Entry } from './model';
@@ -63,10 +63,12 @@ type A = Attributes & {
     // Ctrl/Cmd+Z undoes its last entry and Ctrl/Cmd+Shift+Z or Ctrl+Y redoes one; whatever an undo or redo brings
     // back, moves or renames, however it was started, is selected and revealed.
     history?: History;
-    // Override individual glyphs; undefined uses the built-in, while null/false suppresses the icon.
+    // Draws every row's icon in place of the built-in ones; what it returns is drawn as is, nothing for undefined.
+    // 'fileTreeIcon' draws the built-in one, for the rows it leaves be.
     icon?: (element: Element, open: boolean) => Renderable<unknown>;
-    // Partial filename, extension and folder mappings, plus optional monochrome rendering.
-    icons?: IconOptions;
+    // Rules mapping names, name fragments, extensions and folders to built-in icons or any sprite, on top of the
+    // built-in set; false draws no icons.
+    icons?: IconOptions | false;
     // Draws a guide line down each open folder.
     indicator?: Indicator;
     label?: string;
@@ -94,6 +96,9 @@ type A = Attributes & {
     roots?: boolean;
     // Tints rows by the first scope matching them, or else by their folder's.
     scopes?: Scope[];
+    // The query the rows show changed from within the tree, by typing in it, its find bar or Escape; not called for
+    // 'Controller.search', so a search field outside can follow it.
+    searched?: (query: string) => void;
     select?: (element: Element) => void;
     selected?: string;
     // Alt+N starts a new file and Alt+Shift+N a new folder.
@@ -121,14 +126,15 @@ type Align = 'center' | 'end' | 'start';
 type Controller = {
     collapseAll: () => void;
     expandAll: () => void;
-    // Apply an external query without opening or focusing the tree's built-in find bar.
-    search: (query: string) => void;
     // Open the find bar, with 'query' in place of what it last held when given.
     find: (query?: string) => void;
     // Move the cursor to the next or previous file git reports changed, wrapping round, and return it; null when
     // nothing has changed.
     next: () => Element | null;
     previous: () => Element | null;
+    // Apply a search field's query outside the tree, without opening or focusing the find bar; 'searched' reports
+    // what the tree does to it.
+    search: (query: string) => void;
 };
 
 type Display = {
@@ -552,8 +558,8 @@ export default ({
     find = 'highlight',
     highlight: phrase = '',
     history,
-    icon: render,
-    icons,
+    icon: draw,
+    icons = {},
     indicator = 'always',
     label = 'Files',
     load,
@@ -566,6 +572,7 @@ export default ({
     reveal: autoreveal = 'on',
     roots = false,
     scopes = [],
+    searched,
     select,
     selected,
     shortcuts,
@@ -623,6 +630,8 @@ export default ({
         given = signal(typeof phrase === 'function' ? untrack(phrase) : phrase),
         // The search the rows show, empty while the find bar is closed.
         query = signal(''),
+        remap = icons ? icons.remap ?? {} : {},
+        render = draw ?? (icons ? renderer(icons) : () => false),
         // The rows a folder is opening onto, by place within it; emptied when the motion settles, so rows scrolled
         // back into view later arrive as they are.
         revealing = new Map<Row, number>(),
@@ -636,6 +645,7 @@ export default ({
             gone,
             lazy: !!load,
             leave: () => viewport?.focus({ preventScroll: true }),
+            searched,
             shows: (id) => {
                 let row = built.get(id);
 
@@ -664,7 +674,6 @@ export default ({
         unfolded = new Map<string, boolean>(),
         // Filled before the slot exists: rows inserted at the top of a live slot read as arriving above the reader.
         rows = reactive(visible(top)),
-        renderIcon = renderer(icons),
         cursor: Row | null = rows.find((row) => holds(row, (id) => id === chosen)) ?? rows[0] ?? null,
         dragging = drag && draggable<Row>(drag, {
             // Pressing a selected row drags the whole selection, as in VS Code; any other row goes alone. Roots stay, and
@@ -731,9 +740,7 @@ export default ({
                     ${dragging?.row(row)}
                     ${onscreen(row)}
                     ${{
-                        // Keep the file's accessible name stable when opening it adds editor decorations.
-                        'aria-label': spoken({ ...row.element, name: caption(row), root: header(row) }),
-                        'aria-description': mark ? () => read(mark).label : undefined,
+                        'aria-label': mark ? () => read(mark).label : spoken({ ...row.element, name: caption(row), root: header(row) }),
                         'aria-posinset': () => position(row),
                         'aria-selected': () => holds(row, (id) => selection.read(id)) ? 'true' : 'false',
                         'aria-setsize': () => row.size - read(row.gaps),
@@ -817,10 +824,10 @@ export default ({
     controller?.({
         collapseAll: () => all(false),
         expandAll: () => all(true),
-        search: (text) => search?.set(text),
         find: (text) => search?.open(text),
         next: () => jump(1),
-        previous: () => jump(-1)
+        previous: () => jump(-1),
+        search: (text) => search?.set(text)
     });
 
     // A folder given 'toggle' false is only selected. 'subject' is what's selected: in a compact row, the folder of
@@ -1221,18 +1228,9 @@ export default ({
 
         return html`
             <span aria-hidden='true' class='file-tree-twistie'>
-                ${open && icon({ class: 'file-tree-chevron' }, chevron)}
+                ${open && icon({ class: 'file-tree-chevron' }, remap.chevron ?? chevron)}
             </span>
-            ${() => {
-                if (header(row)) {
-                    return false;
-                }
-
-                let expanded = open !== null && read(open),
-                    custom = render?.(element, expanded);
-
-                return custom === undefined ? renderIcon(element, expanded) : custom;
-            }}
+            ${() => !header(row) && render(element, open !== null && read(open))}
             ${() => {
                 let edit = read(draft);
 
@@ -1260,8 +1258,8 @@ export default ({
                     })}
                 `;
             }}
-            ${element.symlink && icon({ 'aria-hidden': 'true', class: 'file-tree-marker' }, symlink)}
-            ${element.readonly && icon({ 'aria-hidden': 'true', class: 'file-tree-marker' }, lock)}
+            ${element.symlink && icon({ 'aria-hidden': 'true', class: 'file-tree-marker' }, remap.symlink ?? symlink)}
+            ${element.readonly && icon({ 'aria-hidden': 'true', class: 'file-tree-marker' }, remap.lock ?? lock)}
             ${mark && html`
                 <span aria-hidden='true' class='file-tree-badge'>
                     ${() => read(mark).parts.map(chip)}
@@ -1536,8 +1534,12 @@ export default ({
         clearTimeout(timer);
 
         if (preview && !row.open && !row.locked) {
-            if (preview === 'immediate') activate(row, PREVIEW);
-            else timer = setTimeout(() => activate(row, PREVIEW), REST);
+            if (preview === 'immediate') {
+                activate(row, PREVIEW);
+            }
+            else {
+                timer = setTimeout(() => activate(row, PREVIEW), REST);
+            }
         }
     }
 
@@ -3284,9 +3286,6 @@ export default ({
 export { Decorations as FileTreeDecorations, Editor as FileTreeEditor, Elements as FileTreeElements, History as FileTreeHistory };
 export { createFileTreeIconResolver, glyph as fileTreeIcon, resolveFileTreeIcon };
 export type {
-    IconName as FileTreeIconName,
-    IconOptions as FileTreeIconOptions,
-    ResolvedIcon as FileTreeResolvedIcon,
     Badge as FileTreeBadge,
     Change as FileTreeChange,
     Controller as FileTreeController,
@@ -3299,11 +3298,14 @@ export type {
     HistoryOptions as FileTreeHistoryOptions,
     Place as FileTreeHistoryPlace,
     Step as FileTreeHistoryStep,
+    IconName as FileTreeIconName,
+    IconOptions as FileTreeIconOptions,
     Indicator as FileTreeIndicator,
     Kind as FileTreeKind,
     Load as FileTreeLoad,
     Open as FileTreeOpen,
     Operations as FileTreeOperations,
+    ResolvedIcon as FileTreeResolvedIcon,
     Result as FileTreeResult,
     Scope as FileTreeScope,
     Snapshot as FileTreeSnapshot,

@@ -8,6 +8,15 @@
     padding: 8px;
     width: 384px;
 
+    // The icons on a dark surface, as a host with a dark color scheme shows them.
+    &--dark.file-tree {
+        --color: #d4d4d4;
+        --sticky-background: #1f1f23;
+        background: #1f1f23;
+        border-color: #3a3a40;
+        color-scheme: dark;
+    }
+
     &-actions {
         align-items: center;
         display: flex;
@@ -29,6 +38,18 @@
         gap: 8px;
     }
 
+    &-figure {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin: 0;
+
+        .file-tree-demo {
+            height: 640px;
+            width: 200px;
+        }
+    }
+
     &-history {
         color: var(--color-text-300);
         font-size: 13px;
@@ -42,6 +63,14 @@
             opacity: 0.5;
             text-decoration: line-through;
         }
+    }
+
+    &-icons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--size-300);
+        justify-content: center;
+        width: 100%;
     }
 
     // Classed as a tree so its samples take the tree's tones and badge styles.

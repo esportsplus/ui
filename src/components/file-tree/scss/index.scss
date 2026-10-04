@@ -234,10 +234,6 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         }
     }
 
-    &-icon--builtin.icon {
-        color: var(--file-tree-icon-color, var(--file-tree-glyph-color, inherit));
-    }
-
     &-input {
         background: var(--input-background);
         border: 1px solid var(--input-border-color);
@@ -651,10 +647,6 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     @media (forced-colors: active) {
         --indicator-color: GrayText;
         --indicator-hover: CanvasText;
-
-        &-icon--builtin.icon {
-            color: inherit;
-        }
 
         // The wash is dropped with the other tints, so an underline marks the match along with its weight.
         &-match {

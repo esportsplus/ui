@@ -7,6 +7,7 @@ import type {
     FileTreeController,
     FileTreeElement,
     FileTreeHistoryOperation,
+    FileTreeIconOptions,
     FileTreeKind,
     FileTreeSnapshot,
     FileTreeSortCase,
@@ -725,6 +726,32 @@ function tint(tone: string, label: string): Legend {
 }
 
 // Fresh per render, since the store changes the elements it's given in place.
+// One of each file type the tree has artwork for, the generic file last, then the folders with artwork of their own.
+function types(): FileTreeElement[] {
+    let files = [
+            'AGENTS.md', 'App.svelte', 'App.swift', 'App.vue', 'app.tsx', 'backup.tar.gz', 'biome.json', 'bootstrap.min.css',
+            'build.zig', 'bun.lockb', 'ci.yml', 'CLAUDE.md', 'data.json', 'deploy.sh', 'Dockerfile', 'eslint.config.js',
+            'Gemfile', 'guide.md', 'index.html', 'index.js', 'index.ts', 'inter.woff2', 'logo.svg', 'main.c', 'main.go',
+            'main.rs', 'main.tf', 'module.wasm', 'next.config.ts', 'notes.txt', 'package-lock.json', 'package.json',
+            'page.astro', 'photo.png', 'pnpm-lock.yaml', 'postcss.config.js', 'project.code-workspace', 'README.md',
+            'report.csv', 'schema.graphql', 'schema.sql', 'styles.scss', 'svgo.config.js', 'tailwind.config.ts',
+            'theme.css', 'tsconfig.json', 'vite.config.ts', 'webpack.config.js', 'worker.py', '.babelrc',
+            '.browserslistrc', '.gitignore', '.mcp.json', '.oxlintrc.json', '.prettierrc', '.stylelintrc', 'unknown.custom'
+        ],
+        folders = ['.git', 'assets', 'components', 'config', 'dist', 'node_modules', 'public', 'scripts', 'src', 'tests'];
+
+    return [
+        {
+            children: files.map((name) => ({ id: `types/${name}`, name })),
+            id: 'types',
+            name: 'types',
+            type: 'folder'
+        },
+        { children: [{ id: 'docs/guide.md', name: 'guide.md' }], id: 'docs', name: 'docs', type: 'folder' },
+        ...folders.map((name): FileTreeElement => ({ children: [], id: name, name, type: 'folder' }))
+    ];
+}
+
 function workspace(): FileTreeElement[] {
     return [
         {
@@ -755,28 +782,29 @@ export default {
     name: 'file-tree',
     variants: [
         {
-            render: () => fileTree({
-                class: 'file-tree-demo',
-                compact: false,
-                elements: [
-                    { children: [], id: 'config', name: 'config', type: 'folder' },
-                    {
-                        children: ['index.ts', 'app.tsx', 'styles.scss', 'types.d.ts', 'worker.py', 'main.rs', 'schema.sql']
-                            .map(name => ({ id: `src/${name}`, name })),
-                        id: 'src', name: 'src', type: 'folder'
-                    },
-                    {
-                        children: ['logo.svg', 'photo.png', 'intro.mp4', 'audio.wav', 'font.woff2']
-                            .map(name => ({ id: `assets/${name}`, name })),
-                        id: 'assets', name: 'assets', type: 'folder'
-                    },
-                    ...['.gitignore', '.env.local', 'package.json', 'pnpm-lock.yaml', 'tsconfig.json', 'Dockerfile', 'README.md', 'LICENSE', 'backup.tar.gz', 'unknown.custom']
-                        .map(name => ({ id: name, name }))
-                ],
-                expanded: ['src', 'assets'],
-                label: 'File and folder icon examples'
-            }),
-            title: 'file types, special filenames, compound extensions, and folders'
+            render: () => html`
+                <div class='file-tree-demo-icons'>
+                    ${([
+                        ['Colored', 'file-tree-demo', {}],
+                        ['Colored, dark color scheme', 'file-tree-demo file-tree-demo--dark', {}],
+                        ['Monochrome', 'file-tree-demo', { colored: false }]
+                    ] as [string, string, FileTreeIconOptions][]).map(([caption, style, icons]) => html`
+                        <figure class='file-tree-demo-figure'>
+                            ${fileTree({
+                                class: style,
+                                compact: false,
+                                elements: types(),
+                                expanded: ['types', 'docs'],
+                                icons,
+                                label: `${caption} file and folder icons`,
+                                sticky: false
+                            })}
+                            <figcaption class='file-tree-demo-caption'>${caption}</figcaption>
+                        </figure>
+                    `)}
+                </div>
+            `,
+            title: 'file type and named folder icons, colored and monochrome'
         },
         {
             render: () => {
