@@ -1,5 +1,6 @@
 import { batch, computed, dispose, onCleanup, reactive, read, type Computed } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
+import { observeSize } from '~/shared/resize';
 import tooltip from '~/components/tooltip';
 import './scss/index.scss';
 
@@ -85,7 +86,10 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
 }) => {
     let layout = reactive({ days: DAYS }),
         nodes: Computed<number>[] = [],
-        observer: ResizeObserver | undefined;
+        // A narrow container gets half the history so every day stays a real, tappable bar.
+        size = observeSize(({ width }) => {
+            layout.days = width < COMPACT_WIDTH ? DAYS_COMPACT : DAYS;
+        });
 
     function bars(day: () => number, service: Service) {
         let days = layout.days,
@@ -236,8 +240,6 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
     }
 
     onCleanup(() => {
-        observer?.disconnect();
-
         for (let i = 0, n = nodes.length; i < n; i++) {
             dispose(nodes[i]);
         }
@@ -247,15 +249,7 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
         <div
             class='uptime'
             ${attributes}
-            ${{
-                onconnect: (element: HTMLElement) => {
-                    // A narrow container gets half the history so every day stays a real, tappable bar.
-                    observer = new ResizeObserver(() => {
-                        layout.days = element.offsetWidth < COMPACT_WIDTH ? DAYS_COMPACT : DAYS;
-                    });
-                    observer.observe(element);
-                }
-            }}
+            ${size}
         >
             ${services.map(row)}
 

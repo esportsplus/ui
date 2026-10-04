@@ -1,6 +1,6 @@
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { progress } from '@esportsplus/ui/components';
+import { progress, range } from '@esportsplus/ui/components';
 import 'docs/examples/progress/scss/index.scss';
 
 
@@ -113,20 +113,12 @@ export default {
         },
         {
             render: () => {
-                let state = reactive({ value: 62 });
+                let state = reactive({ active: false, error: '', value: 62 });
 
                 return html`
                     <div class='progress-text-demo'>
                         ${progress.text({ label: 'Syncing library', state })}
-                        <input
-                            aria-label='Progress'
-                            class='progress-text-demo-range'
-                            max='100'
-                            min='0'
-                            type='range'
-                            value='${state.value}'
-                            oninput='${(e: Event) => state.value = Number((e.currentTarget as HTMLInputElement).value)}'
-                        />
+                        ${range({ 'aria-label': 'Progress', class: 'range--slider progress-text-demo-range', max: 100, min: 0, state })}
                     </div>
                 `;
             },

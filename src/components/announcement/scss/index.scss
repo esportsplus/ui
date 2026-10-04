@@ -10,22 +10,19 @@
     & > &-content {
         --close-duration: 240ms;
         --ease: var(--announcement-drawer);
+        --fade-duration: 120ms;
         --open-duration: 280ms;
 
         filter: blur(2px);
         transition:
-            filter 120ms var(--announcement-ease),
-            opacity 120ms var(--announcement-ease),
+            filter var(--fade-duration) var(--announcement-ease),
+            opacity var(--fade-duration) var(--announcement-ease),
             transform var(--transition-duration) var(--announcement-drawer),
             translate var(--transition-duration) var(--announcement-drawer);
 
         @include tokens.state(active) {
+            --fade-duration: 200ms;
             filter: blur(0px);
-            transition:
-                filter 200ms var(--announcement-ease),
-                opacity 200ms var(--announcement-ease),
-                transform var(--transition-duration) var(--announcement-drawer),
-                translate var(--transition-duration) var(--announcement-drawer);
         }
 
         &.overlay--dragging {

@@ -1,4 +1,4 @@
-import { html, Attributes } from '@esportsplus/template';
+import { html, type Attributes } from '@esportsplus/template';
 import './scss/index.scss';
 
 

@@ -9,9 +9,10 @@ function live(variant?: string) {
     return html`
         ${usageMeter({ class: variant, usage })}
 
-        <div
+        <button
             class='button button--tertiary'
             style='--width: auto; margin-top: var(--size-400);'
+            type='button'
             onclick='${() => {
                 if (usage.prompt + usage.completion >= usage.context) {
                     usage.completion = 0;
@@ -26,7 +27,7 @@ function live(variant?: string) {
             }}'
         >
             send message
-        </div>
+        </button>
     `;
 }
 

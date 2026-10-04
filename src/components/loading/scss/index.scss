@@ -52,10 +52,7 @@
 }
 
 @keyframes loading {
-    0% {
-        rotate: 0deg;
-    }
-    100% {
+    to {
         rotate: 360deg;
     }
 }

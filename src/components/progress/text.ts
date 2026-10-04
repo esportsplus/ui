@@ -102,13 +102,16 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
             ${{
                 onconnect: (element: HTMLElement) => {
                     stop = effect(() => {
-                        let pour = timing(getComputedStyle(element), 'pour');
-
                         target = clamp(state.value);
 
+                        // A glide already running takes the new target as it is; the style is only read to start one.
+                        if (frame) {
+                            return;
+                        }
+
+                        let pour = timing(getComputedStyle(element), 'pour');
+
                         if (!pour) {
-                            cancelAnimationFrame(frame);
-                            frame = 0;
                             position = target;
                             velocity = 0;
                             ink.position = position;
@@ -119,11 +122,8 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
                         // At this ratio the spring is all but at rest after 8 / damping seconds.
                         damping = 8000 / (pour.duration as number);
                         stiffness = (damping / (2 * RATIO)) ** 2;
-
-                        if (!frame) {
-                            time = performance.now();
-                            frame = requestAnimationFrame(step);
-                        }
+                        time = performance.now();
+                        frame = requestAnimationFrame(step);
                     });
                 },
                 ondisconnect: () => {

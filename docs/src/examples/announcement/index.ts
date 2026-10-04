@@ -1,6 +1,7 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import { announcement } from '@esportsplus/ui/components';
+import close from '@esportsplus/ui/svg/close.svg';
 import 'docs/examples/announcement/scss/index.scss';
 
 
@@ -36,9 +37,7 @@ function bar(modifier: string, content: Renderable<unknown>, ondismiss: () => vo
                 type='button'
                 onclick=${ondismiss}
             >
-                <svg viewBox='0 0 16 16'>
-                    <path d='m4.5 4.5 7 7M11.5 4.5l-7 7' />
-                </svg>
+                <svg aria-hidden='true'><use href='#${close}' /></svg>
             </button>
         </div>
     `;

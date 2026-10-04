@@ -27,12 +27,15 @@ function clamp(value: number) {
 function bar({ label, percent = true, state, status, value = 0, ...attributes }: A) {
     state ??= reactive({ value });
 
+    let current = () => clamp(state.value),
+        rounded = () => Math.round(current());
+
     return html`
         <div class='progress' ${attributes}>
             ${label && html`
                 <div class='progress-header'>
                     <span class='progress-label'>${label}</span>
-                    ${percent && html`<span class='progress-percent'>${() => `${Math.round(clamp(state.value))}%`}</span>`}
+                    ${percent && html`<span class='progress-percent'>${() => `${rounded()}%`}</span>`}
                 </div>
             `}
 
@@ -43,14 +46,14 @@ function bar({ label, percent = true, state, status, value = 0, ...attributes }:
                 class='progress-track'
                 role='progressbar'
                 ${{
-                    'aria-valuenow': () => Math.round(clamp(state.value)),
-                    'aria-valuetext': () => status ? status(clamp(state.value)) : `${Math.round(clamp(state.value))}%`
+                    'aria-valuenow': rounded,
+                    'aria-valuetext': () => status ? status(current()) : `${rounded()}%`
                 }}
             >
-                <div class='progress-indicator' style='${() => `translate: ${clamp(state.value) - 100}% 0`}'></div>
+                <div class='progress-indicator' style='${() => `translate: ${current() - 100}% 0`}'></div>
             </div>
 
-            ${status && html`<div class='progress-status'>${() => status(clamp(state.value))}</div>`}
+            ${status && html`<div class='progress-status'>${() => status(current())}</div>`}
         </div>
     `;
 }

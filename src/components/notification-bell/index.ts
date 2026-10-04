@@ -6,6 +6,9 @@ import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
 
+const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+
 export default ({ 'aria-label': label = 'Notifications', count = 0, dot = false, max = 99, ring = false, state: api = reactive({ count }), ...attributes }: Attributes & {
     'aria-label'?: string;
     count?: number;
@@ -18,46 +21,45 @@ export default ({ 'aria-label': label = 'Notifications', count = 0, dot = false,
         render = reactive([] as { digit: boolean; value: string }[]),
         // Alternates between 1 and 2 so back-to-back increments swap keyframe
         // names, which restarts the swing without forcing a reflow.
-        state = reactive({ ring: ring ? 1 : 0 }),
-        stop = effect(() => {
-            let count = api.count;
+        state = reactive({ ring: ring ? 1 : 0 });
 
-            untrack(() => {
-                if (count > previous) {
-                    state.ring = state.ring === 1 ? 2 : 1;
+    onCleanup(effect(() => {
+        let count = api.count;
+
+        untrack(() => {
+            if (count > previous) {
+                state.ring = state.ring === 1 ? 2 : 1;
+            }
+
+            previous = count;
+
+            // Keep the last digits while the badge scales out
+            if (count <= 0 || dot) {
+                return;
+            }
+
+            let values = (count > max ? `${max}+` : `${count}`).split('');
+
+            for (let i = 0, n = values.length; i < n; i++) {
+                let value = values[i],
+                    digit = value !== '+';
+
+                // Preserve the track so CSS can roll between digit positions.
+                if (render[i]?.digit === digit) {
+                    render[i].value = value;
                 }
+                else {
+                    let character = reactive({ digit, value });
 
-                previous = count;
-
-                // Keep the last digits while the badge scales out
-                if (count <= 0 || dot) {
-                    return;
+                    render[i] = character;
                 }
+            }
 
-                let values = (count > max ? `${max}+` : `${count}`).split('');
-
-                for (let i = 0, n = values.length; i < n; i++) {
-                    let value = values[i],
-                        digit = value !== '+';
-
-                    // Preserve the track so CSS can roll between digit positions.
-                    if (render[i]?.digit === digit) {
-                        render[i].value = value;
-                    }
-                    else {
-                        let character = reactive({ digit, value });
-
-                        render[i] = character;
-                    }
-                }
-
-                if (render.length > values.length) {
-                    render.splice(values.length);
-                }
-            });
+            if (render.length > values.length) {
+                render.splice(values.length);
+            }
         });
-
-    onCleanup(stop);
+    }));
 
     return html`
         <button
@@ -89,7 +91,7 @@ export default ({ 'aria-label': label = 'Notifications', count = 0, dot = false,
                     return html`
                         <span class='notification-bell-character'>
                             <span class='notification-bell-character-track' style='${() => `--value: ${character.value}`}'>
-                                ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span>${value}</span>`)}
+                                ${DIGITS.map((value) => html`<span>${value}</span>`)}
                             </span>
                         </span>
                     `;
