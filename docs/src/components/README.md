@@ -35,9 +35,9 @@ sidebar starts open on desktop and closed on small screens. An effect watches
 the request path and closes the sidebar after route changes on small screens;
 desktop navigation preserves its open state. CSS media queries control the
 layout; on small screens the content keeps its width as it shifts.
-The drawer owns the brand, release badge, search icon, textured surface, and full-height right
+The drawer owns the brand, release badge, search control, textured surface, and full-height right
 divider, so they slide together. Header padding sizes the brand row and aligns
-the fixed sidebar toggle. The search icon sits beside the release badge, and
+the fixed sidebar toggle. The search control sits in a tools row below the brand, and
 the command palette mounts in the viewer shell
 so its keyboard shortcut also works with the sidebar closed. Navigation scrolls below
 the brand row and uses the shared nav tree styling and original responsive content spacing.
@@ -53,6 +53,12 @@ Detail pages pass `variant.render` to `preview` so offscreen examples are not co
 Pre-rendered theme content still mounts immediately. Focus and hash navigation mount a targeted
 example before scrolling to it; visited examples retain their state while the browser skips
 rendering their offscreen contents.
+
+`examples/index.ts` eagerly discovers default exports from top-level example files
+and each example directory's `index.ts`, then sorts entries by name. The registry,
+group definitions, and form helper directories are excluded from discovery. New
+examples in either supported location register automatically and export an `Entry`
+with a name and variants.
 
 Component detail routes group related states explicitly in `examples/groups.ts`. The preview
 title stays fixed and the library's `select()` swaps the render factory. Original variant

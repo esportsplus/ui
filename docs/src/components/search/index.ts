@@ -46,9 +46,9 @@ const modal = () => {
 
 const trigger = () => html`
     <button
+        aria-haspopup='dialog'
         aria-keyshortcuts='${mac() ? 'Meta+K' : 'Control+K'}'
         aria-label='Search'
-        aria-haspopup='dialog'
         class='button button--tactile command-trigger sidebar-search'
         title='Search (${mac() ? '⌘' : 'Ctrl+'}K)'
         type='button'

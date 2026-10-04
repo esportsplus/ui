@@ -2,7 +2,7 @@
 .--scrollbar:not(:where(.--scrollbar-scope *)),
 .--scrollbar-scope {
     --scrollbar-behavior: smooth;
-    --scrollbar-border-radius: 3px;
+    --scrollbar-border-radius: 2px;
     --scrollbar-border-width: 1px;
     --scrollbar-color: var(--color-black-300);
     --scrollbar-overscroll: contain;

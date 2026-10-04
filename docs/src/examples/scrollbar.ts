@@ -62,7 +62,7 @@ export default {
             title: 'no arrows (auto, horizontal)'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box} --scrollbar-width: thin;'>${rows(14)}</div>`,
+            render: () => html`<div class='--scrollbar' style='${box} --scrollbar-size: 12px; --scrollbar-width: auto;'>${rows(14)}</div>`,
             title: 'width variable'
         },
         {
@@ -88,6 +88,10 @@ export default {
         {
             render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar.fade()}>${rows(2)}</div>`,
             title: 'fade (content fits)'
+        },
+        {
+            render: () => html`<div class='--scrollbar' style='${box} --border-radius: 0px;'>${rows(14)}</div>`,
+            title: 'square thumb'
         }
     ]
 };

@@ -15,15 +15,69 @@
     syntax: '<length>';
 }
 
+// Clipped descendants must pass wheel input to their scroller instead of trapping it at their own boundary.
+.--scrollbar,
+:where(.--scrollbar-scope) {
+    overscroll-behavior: var(--scrollbar-overscroll);
+}
+
 .--scrollbar,
 :where(.--scrollbar-scope, .--scrollbar-scope *) {
-    overscroll-behavior: var(--scrollbar-overscroll);
     scroll-behavior: var(--scrollbar-behavior);
     scrollbar-color: var(--scrollbar-color) transparent;
     scrollbar-width: var(--scrollbar-width);
 
     @media (prefers-reduced-motion: reduce) {
         scroll-behavior: auto;
+    }
+
+    // Custom rendering exposes thumb shape; other browsers keep the native color and width above.
+    @supports selector(::-webkit-scrollbar) {
+        scrollbar-color: auto;
+        scrollbar-width: auto;
+
+        &::-webkit-scrollbar {
+            height: var(--scrollbar-size);
+            width: var(--scrollbar-size);
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: var(--scrollbar-color);
+            border-radius: var(--scrollbar-border-radius);
+        }
+
+        &::-webkit-scrollbar-button:single-button {
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 100% 50%;
+            height: var(--scrollbar-size);
+            width: var(--scrollbar-size);
+        }
+
+        &::-webkit-scrollbar-button:single-button:vertical:decrement {
+            background-image: conic-gradient(from 315deg at 50% 75%, var(--scrollbar-color) 90deg, transparent 0);
+        }
+
+        &::-webkit-scrollbar-button:single-button:vertical:increment {
+            background-image: conic-gradient(from 135deg at 50% 25%, var(--scrollbar-color) 90deg, transparent 0);
+        }
+
+        &::-webkit-scrollbar-button:single-button:horizontal {
+            background-size: 50% 100%;
+        }
+
+        &::-webkit-scrollbar-button:single-button:horizontal:decrement {
+            background-image: conic-gradient(from 225deg at 75% 50%, var(--scrollbar-color) 90deg, transparent 0);
+        }
+
+        &::-webkit-scrollbar-button:single-button:horizontal:increment {
+            background-image: conic-gradient(from 45deg at 25% 50%, var(--scrollbar-color) 90deg, transparent 0);
+        }
+
+        &::-webkit-scrollbar-corner,
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
     }
 }
 
@@ -161,6 +215,15 @@
         @media (hover: hover) and (pointer: fine) {
             &:not(:hover, :focus-visible, :has(:focus-visible)) {
                 scrollbar-color: transparent transparent;
+
+                @supports selector(::-webkit-scrollbar) {
+                    scrollbar-color: auto;
+
+                    &::-webkit-scrollbar-button,
+                    &::-webkit-scrollbar-thumb {
+                        background: transparent;
+                    }
+                }
             }
         }
     }
@@ -173,37 +236,13 @@
         scrollbar-gutter: auto;
     }
 
-    // Native scrollbars ignore button styling. Opt into custom rendering only for this modifier.
-    &-no-arrows:not(.--scrollbar-hidden) {
+    &-no-arrows {
         @supports selector(::-webkit-scrollbar) {
-            scrollbar-color: auto;
-            scrollbar-width: auto;
-
-            &::-webkit-scrollbar {
-                height: var(--scrollbar-size);
-                width: var(--scrollbar-size);
-            }
-
-            &::-webkit-scrollbar-button {
+            &::-webkit-scrollbar-button,
+            &::-webkit-scrollbar-button:single-button {
                 display: none;
                 height: 0;
                 width: 0;
-            }
-
-            &::-webkit-scrollbar-thumb {
-                background-color: var(--scrollbar-color);
-                border-radius: var(--scrollbar-border-radius);
-            }
-
-            @media (hover: hover) and (pointer: fine) {
-                &.--scrollbar-hover:not(:hover, :focus-visible, :has(:focus-visible))::-webkit-scrollbar-thumb {
-                    background-color: transparent;
-                }
-            }
-
-            &::-webkit-scrollbar-corner,
-            &::-webkit-scrollbar-track {
-                background: transparent;
             }
         }
     }

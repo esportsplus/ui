@@ -38,7 +38,7 @@
 
     // Keep the scrollport unpadded so its blur edges span the entire navigation surface.
     &-content {
-        padding: var(--size-400) var(--content-padding-horizontal);
+        padding: 0 var(--content-padding-horizontal) var(--size-400);
     }
 
     &-header {
@@ -46,7 +46,7 @@
         display: flex;
         flex-shrink: 0;
         gap: 6px;
-        padding: var(--size-300) var(--size-200) var(--size-300) 52px;
+        padding: var(--size-300) var(--size-200) 0 46px;
     }
 
     &-scrollport {
@@ -56,28 +56,32 @@
     }
 
     &-search.command-trigger {
-        --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-200);
         --width: 100%;
-        min-width: 0;
     }
 
     &-toggle {
+        --sidebar-toggle-divider-x: 0px;
+        --sidebar-toggle-shadow-opacity: 0.2;
         --background-default: transparent;
-        --background-hover: color-mix(in oklab, var(--color-text-500) 6%, transparent);
-        --background-pressed: color-mix(in oklab, var(--color-text-500) 10%, transparent);
+        // --background-hover: color-mix(in oklab, var(--color-text-500) 6%, transparent);
+        // --background-pressed: color-mix(in oklab, var(--color-text-500) 10%, transparent);
         --border-radius: 8px;
-        --color-default: var(--color-text-300);
-        --color-hover: var(--color-text-500);
-        --color-pressed: var(--color-text-500);
+        --color-default: var(--color-text-400);
+        --color-hover: var(--color-black-400);
+        --color-pressed: var(--color-black-500);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
-        --size: 28px;
+        --size: 32px;
         --width: var(--size);
         display: flex;
         flex-shrink: 0;
         height: var(--size);
+        left: var(--size-300);
+        position: fixed;
+        top: var(--size-200);
         width: var(--size);
+        z-index: 40;
 
         &:focus-visible {
             outline: 2px solid var(--color-blue-400);
@@ -86,19 +90,52 @@
 
         .icon {
             --size: var(--size-400);
-        }
-    }
 
-    &-toggle {
-        left: var(--size-500);
-        position: fixed;
-        top: var(--size-300);
-        z-index: 40;
+            svg {
+                fill: none;
+                overflow: hidden;
+            }
+        }
+
+        .sidebar-toggle-shadow {
+            opacity: var(--sidebar-toggle-shadow-opacity);
+        }
+
+        // Preview the sidebar action by sliding its section outside the SVG viewport.
+        .sidebar-toggle-divider {
+            transform: translateX(var(--sidebar-toggle-divider-x));
+            transition: transform 180ms ease;
+        }
+
+        &[aria-expanded='false'],
+        &[aria-expanded='true']:focus-visible {
+            --sidebar-toggle-divider-x: -12px;
+        }
+
+        &[aria-expanded='false']:focus-visible {
+            --sidebar-toggle-divider-x: 0px;
+        }
+
+        @media (hover: hover) {
+            &[aria-expanded='true']:hover {
+                --sidebar-toggle-divider-x: -12px;
+            }
+
+            &[aria-expanded='false']:hover {
+                --sidebar-toggle-divider-x: 0px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .sidebar-toggle-divider {
+                transition: none;
+            }
+        }
     }
 
     &-tools {
         flex-shrink: 0;
-        padding: var(--size-100) calc(var(--content-padding-horizontal) - var(--size-300));
+        padding: var(--size-400) calc(var(--content-padding-horizontal) - var(--size-300));
     }
 
     &-version {
