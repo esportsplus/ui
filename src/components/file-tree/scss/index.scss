@@ -2,9 +2,13 @@
 @use '/tokens';
 @use 'variables';
 
-// Animated on the tree while a folder opens or closes; registered so it interpolates and every row reads one value.
+// The folder's bottom edge mid-motion, 0 to --motion-rows rows down, read from the element's own progress.
+$edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
+
+// Animated on the tree while a folder opens or closes, its end settling the motion, and on each element that moves
+// with it. Not inherited, so a frame restyles those elements alone rather than everything under the tree.
 @property --file-tree-progress {
-    inherits: true;
+    inherits: false;
     initial-value: 0;
     syntax: '<number>';
 }
@@ -37,7 +41,6 @@
     // The accordion: the folder's bottom edge travels over its rows, 0 to --motion-rows rows down. Runs under
     // reduced motion as well, since its end is what settles the motion.
     &--motion {
-        --motion-edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         animation: file-tree-collapse var(--collapse-duration) var(--motion-easing) forwards;
     }
 
@@ -571,9 +574,20 @@
         }
     }
 
+    // The global reset gives every element 'transition: inherit', and a child explicitly inheriting a property is
+    // restyled whenever its parent is; set here, a moving row's children sit out each frame of its motion.
+    &-motion-layer > *,
+    &-row--motion ~ .file-tree-row > *,
+    &-row--reveal > *,
+    &-row--reveal ~ .file-tree-row > * {
+        transition: none;
+    }
+
     // The list has already swapped rows, so the rows below are drawn back where they sat and ride the edge home, and
     // copies stand in for any no longer rendered. Opening: the folder's rows show above the edge. Closing: copies of
-    // them fade out above it. The real rows move, not their contents, so the highlight follows the selected one.
+    // them fade out above it. The real rows move, not their contents, so the highlight follows the selected one. Each
+    // moving element runs the tree's progress itself, started on the same frame, so a frame restyles only them; their
+    // own keyframes would put each on a compositor layer, dropping its text's subpixel antialiasing mid-motion.
     @media (prefers-reduced-motion: no-preference) {
         &-motion {
             @include tokens.state(active) {
@@ -581,34 +595,38 @@
             }
 
             &-layer--close {
-                animation: file-tree-conceal var(--conceal-duration) ease-out forwards;
-                height: var(--motion-edge);
+                animation: file-tree-collapse var(--collapse-duration) var(--motion-easing) forwards, file-tree-conceal var(--conceal-duration) ease-out forwards;
+                height: $edge;
                 overflow: hidden;
             }
 
             &-layer--open {
-                translate: 0 var(--motion-edge);
+                animation: file-tree-expand var(--expand-duration) var(--motion-easing) forwards;
+                translate: 0 $edge;
             }
         }
 
         &-row {
             // Marked only while closing.
             &--motion ~ .file-tree-row {
-                translate: 0 var(--motion-edge);
+                animation: file-tree-collapse var(--collapse-duration) var(--motion-easing) forwards;
+                translate: 0 $edge;
             }
 
             // Marked only while opening.
             &--reveal {
+                animation: file-tree-expand var(--expand-duration) var(--motion-easing) forwards, file-tree-reveal var(--reveal-duration) ease-out var(--reveal-delay) backwards;
                 // Open at the sides, so the guides drawn outside the row still show.
                 clip-path: inset(
                     0
                     calc(var(--depth) * var(--indent) * -1)
-                    clamp(0px, calc((var(--reveal-index) + 1) * var(--row-height) - var(--motion-edge)), var(--row-height))
+                    clamp(0px, calc((var(--reveal-index) + 1) * var(--row-height) - $edge), var(--row-height))
                     calc(var(--depth) * var(--indent) * -1)
                 );
 
                 ~ .file-tree-row:not(.file-tree-row--reveal) {
-                    translate: 0 calc(var(--motion-edge) - var(--motion-rows) * var(--row-height));
+                    animation: file-tree-expand var(--expand-duration) var(--motion-easing) forwards;
+                    translate: 0 calc($edge - var(--motion-rows) * var(--row-height));
                 }
             }
         }
