@@ -21,7 +21,8 @@
                 }
             }
 
-            &-tree-links {
+            &-tree-links,
+            &-tree-link.nav-tree-title {
                 margin-inline: calc(var(--size-300) * -1);
             }
         }
@@ -38,7 +39,7 @@
 
     &-group {
         --gap-horizontal: var(--size-200);
-        --gap-vertical: var(--size-200);
+        --gap-vertical: 0px;
     }
 
     &-group,

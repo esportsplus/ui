@@ -18,6 +18,7 @@ type TreeLink = {
 type TreeSection = {
     label: string;
     href?: string;
+    active?: () => boolean;
     onclick?: (event: Event) => void;
     groups: { label?: string; links: TreeLink[] }[];
 };
@@ -90,7 +91,14 @@ const navTree = (sections: TreeSection[], current: 'command' | 'location' | 'pag
                 ${current === 'command' && { 'aria-label': section.label, role: 'group' }}
             >
                 ${section.href
-                    ? html`<a class='nav-tree-title text' href='${section.href}' onclick='${(event: Event) => section.onclick?.(event)}'>${section.label}</a>`
+                    ? html`
+                        <a
+                            aria-current='${() => current !== 'command' && section.active?.() ? current : 'false'}'
+                            class='nav-tree-link nav-tree-title link ${() => section.active?.() && '--active'}'
+                            href='${section.href}'
+                            onclick='${(event: Event) => section.onclick?.(event)}'
+                        >${section.label}</a>
+                    `
                     : html`<div class='nav-tree-title text'>${section.label}</div>`}
 
                 ${section.groups.map((group) => {

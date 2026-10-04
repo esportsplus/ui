@@ -1,6 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import { ms } from '~/shared/animation';
+import { easing } from './easing';
 import './scss/index.scss';
 
 
@@ -360,7 +361,10 @@ export default component<A>(
                 b[axis + 2] += end;
             }
 
-            let slides = [[lead, timing.lead], [tail, timing.tail]] as const;
+            // Limit the spring by edge travel, including size changes and any interrupted glide's remainder.
+            let distance = Math.max(Math.abs(from[0]), Math.abs(from[1]), Math.abs(from[0] + from[2]), Math.abs(from[1] + from[3])),
+                curve = easing(timing.easing, distance),
+                slides = [[lead, timing.lead], [tail, timing.tail]] as const;
 
             for (let i = 0, n = slides.length; i < n; i++) {
                 let [offset, duration] = slides[i];
@@ -380,7 +384,7 @@ export default component<A>(
                             },
                             { '--slide-height': '0px', '--slide-width': '0px', '--slide-x': '0px', '--slide-y': '0px' }
                         ],
-                        { composite: 'add', duration, easing: timing.easing }
+                        { composite: 'add', duration, easing: curve }
                     ),
                     from: offset
                 });

@@ -79,6 +79,7 @@ export default (request: Request) => {
                         sections().map((section) => ({
                             label: section.label,
                             href: section.index ? section.href : undefined,
+                            active: () => request.path === section.href,
                             groups: section.groups.map((group) => ({
                                 label: group.label,
                                 links: group.links.map((link) => ({
