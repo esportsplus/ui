@@ -33,7 +33,7 @@ function parse(input: ReturnType<FormData['entries']>) {
     }
 
     return data;
-};
+}
 
 
 export default <T extends Record<string, any>>(
@@ -62,7 +62,7 @@ export default <T extends Record<string, any>>(
                         new SubmitEvent('submit', { cancelable: true, bubbles:true, submitter: trigger })
                     );
                 },
-                onsubmit: async function(event) {
+                onsubmit: async function(this: HTMLFormElement, event: SubmitEvent) {
                     event.preventDefault();
 
                     if (state) {
@@ -70,13 +70,13 @@ export default <T extends Record<string, any>>(
                     }
 
                     let { errors } = await action({
-                        input: parse( new FormData( this as any as HTMLFormElement ).entries() ) as T,
+                        input: parse( new FormData(this).entries() ) as T,
                         response
                     });
 
                     for (let i = 0, n = errors.length; i < n; i++) {
                         let { message, path } = errors[i],
-                            reactive = input.get( (this as any as HTMLFormElement)[path!] as Element | undefined );
+                            reactive = input.get( this[path!] as Element | undefined );
 
                         if (!reactive) {
                             continue;

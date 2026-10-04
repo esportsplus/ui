@@ -1,19 +1,7 @@
-@use '/shared';
+@use '../../input/scss/field';
 @use 'variables';
 
 .textarea {
-    @extend %background-state, %border-state, %color-state;
-    background: var(--background);
-    border: var(--border-width) var(--border-style) var(--border-color);
-    border-radius: var(--border-radius);
-    color: var(--color);
-    cursor: text;
-    flex: 1 1 auto;
-    font-size: var(--font-size);
-    min-width: 0;
-    padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
-    padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
-    position: relative;
     transition:
         background var(--transition-duration) var(--transition-timing-function),
         border-color var(--transition-duration) var(--transition-timing-function),
@@ -21,13 +9,7 @@
         height var(--resize-duration) var(--resize-timing-function),
         opacity var(--transition-duration) var(--transition-timing-function),
         transform var(--transition-duration) var(--transition-timing-function);
-    width: 100%;
-
-    &:invalid,
-    &:required {
-        box-shadow: none;
-    }
-
+    @include field.base;
 
     &--autoresize {
         --scrollbar-gutter: stable;
