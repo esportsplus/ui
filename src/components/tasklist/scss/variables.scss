@@ -38,9 +38,10 @@
         // Tints the default instead of replacing it, so an opaque row stays opaque while hovered
         --background-hover: color-mix(in oklch, var(--color-text-500) 3%, var(--background-default));
         --border-radius: var(--border-radius-400);
-        // Spring with stiffness 320 and damping 30, sampled across its 500ms settle
-        --transform-duration: 500ms;
-        --transform-timing-function: linear(0, 0.109, 0.322, 0.536, 0.71, 0.835, 0.916, 0.965, 0.991, 1.003, 1.007, 1.008, 1.006, 1.005, 1.003, 1.002, 1);
+        // Read by JS: the slide that carries a row to its new place. Spring with stiffness 320 and damping 30,
+        // sampled across its 500ms settle
+        --move-duration: 500ms;
+        --move-easing: linear(0, 0.109, 0.322, 0.536, 0.71, 0.835, 0.916, 0.965, 0.991, 1.003, 1.007, 1.008, 1.006, 1.005, 1.003, 1.002, 1);
         --transition-duration: 150ms;
 
         @include tokens.state(hover) {
@@ -52,7 +53,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            --transform-duration: 0ms;
+            --move-duration: 0ms;
         }
     }
 

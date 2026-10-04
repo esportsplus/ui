@@ -31,9 +31,7 @@
         background: var(--background);
         border-radius: var(--border-radius);
         position: relative;
-        transition:
-            background-color var(--transition-duration) var(--timing-function),
-            transform var(--transform-duration) var(--transform-timing-function);
+        transition: background-color var(--transition-duration) var(--timing-function);
 
         &.tasklist-item--checking {
             .tasklist-content,
