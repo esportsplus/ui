@@ -320,7 +320,6 @@
         z-index: 1;
     }
 
-    // Laid over the viewport's visible box; the layer starts at the folder's bottom edge.
     // Laid over the viewport, which stays the tree's one tab stop.
     &-empty {
         @extend %absolute-full;
@@ -334,6 +333,7 @@
         text-align: center;
     }
 
+    // Laid over the viewport's visible box; the layer starts at the folder's bottom edge.
     &-motion {
         display: none;
         overflow: hidden;

@@ -1,10 +1,7 @@
-import { peek, reactive, type Signal } from '@esportsplus/reactivity';
+import { peek, reactive, read, signal, write, type Signal } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
 import press from '~/shared/press';
 
-
-// A row or compact row segment on screen, carrying the row it stands for, which a drag aims at.
-type Aimed<T> = HTMLElement & { [AIM]?: T };
 
 type Drag<E> = {
     // Asked before 'drop', like VS Code's 'explorer.confirmDragAndDrop'; false cancels it.
@@ -39,13 +36,13 @@ type Tree<T> = {
     // The last row on screen inside a folder, or the folder itself when closed.
     last: (row: T) => T;
     open: (row: T) => void;
+    // The row a row or compact row segment on screen stands for, which a drag aims at.
+    row: (element: HTMLElement) => T | undefined;
     // Whether the space past the last row drops into the top level; a tree of roots holds nothing else there.
     top: boolean;
     viewport: () => HTMLElement | undefined;
 };
 
-
-const AIM = Symbol();
 
 // Touch has to hold still this long before a drag starts, so a swipe across the rows still scrolls them.
 const DELAY = 300;
@@ -66,11 +63,15 @@ const SPEED = 600;
 export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: Tree<T>) => {
     let gesture = press(DELAY),
         ghost: HTMLElement | undefined,
-        sources: T[] = [],
+        // Whether a drag is under way; every row reads it, so only a drag's start and end re-render them all.
+        held = signal(false),
         // 'target' is the key of the drop folder's row, -1 for the top level, and 'folder' the folder's own, which
-        // differs for a segment of a compact row; 'last' is the key of the last row in the target's box. 'depth' is the
-        // target box's depth and 'x'/'y' where the ghost sits.
-        ui = reactive({ count: 0, depth: null as number | null, effect: '' as Effect, folder: 0, label: '', last: 0, target: 0, x: 0, y: 0 });
+        // differs for a segment of a compact row; 'last' is the key of the last row in the target's box. Rows and
+        // segments test their own keys alone, so a new target re-renders the rows of the boxes it leaves and enters.
+        marks = { folder: signal(0), last: signal(0), target: signal(0) },
+        sources: T[] = [],
+        // 'depth' is the target box's depth and 'x'/'y' where the ghost sits.
+        ui = reactive({ count: 0, depth: null as number | null, effect: '' as Effect, label: '', x: 0, y: 0 });
 
     function drag(list: T[], e: PointerEvent) {
         let active = false,
@@ -91,6 +92,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
         function activate() {
             active = true;
             sources = list;
+            write(held, true);
             ui.count = list.length;
             ui.label = list[0].element.name;
 
@@ -118,20 +120,22 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                     found = false;
 
                 // By height alone: a nested row starts at its indent, and the space left of it is still that row.
-                for (let node of viewport.querySelectorAll<Aimed<T>>('.file-tree-row')) {
-                    let rect = node.getBoundingClientRect(),
-                        row = node[AIM];
+                for (let node of viewport.querySelectorAll<HTMLElement>('.file-tree-row')) {
+                    let row = tree.row(node);
 
                     if (!row) {
                         continue;
                     }
 
-                    if (y >= rect.top && y < rect.bottom) {
-                        for (let element of node.querySelectorAll<Aimed<T>>('.file-tree-segment')) {
-                            let box = element.getBoundingClientRect();
+                    let rect = node.getBoundingClientRect();
 
-                            if (element[AIM] && x >= box.left && x < box.right) {
-                                row = element[AIM];
+                    if (y >= rect.top && y < rect.bottom) {
+                        for (let element of node.querySelectorAll<HTMLElement>('.file-tree-segment')) {
+                            let box = element.getBoundingClientRect(),
+                                segment = tree.row(element);
+
+                            if (segment && x >= box.left && x < box.right) {
+                                row = segment;
                                 break;
                             }
                         }
@@ -177,9 +181,9 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                 }
             }
 
-            ui.folder = next ? next.key : 0;
-            ui.last = box ? tree.last(box).key : 0;
-            ui.target = box ? box.key : next === null ? -1 : 0;
+            write(marks.folder, next ? next.key : 0);
+            write(marks.last, box ? tree.last(box).key : 0);
+            write(marks.target, box ? box.key : next === null ? -1 : 0);
         }
 
         function allowed(folder: T | null) {
@@ -232,7 +236,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             let box = tree.host(target);
 
             tree.open(box);
-            ui.last = tree.last(box).key;
+            write(marks.last, tree.last(box).key);
         }
 
         function key(e: KeyboardEvent) {
@@ -293,9 +297,10 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             target = undefined;
             ui.depth = null;
             ui.effect = '';
-            ui.folder = 0;
-            ui.last = 0;
-            ui.target = 0;
+            write(held, false);
+            write(marks.folder, 0);
+            write(marks.last, 0);
+            write(marks.target, 0);
         }
 
         function tick(now: number) {
@@ -341,15 +346,9 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
 
     // Where 'row' sits in the box drawn around the target folder and its open contents, as its classes.
     function mark(row: T) {
-        let target = ui.target;
-
-        if (target <= 0) {
-            return false;
-        }
-
         for (let node: T | null = row; node; node = node.parent) {
-            if (node.key === target) {
-                let end = row.key === ui.last;
+            if (signal.selector(marks.target, node.key)) {
+                let end = signal.selector(marks.last, row.key);
 
                 return `file-tree-row--drop file-tree-row--drop-${node === row ? (end ? 'only' : 'start') : (end ? 'end' : 'middle')}`;
             }
@@ -381,18 +380,15 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
             ...gesture.attributes,
             class: [
                 () => ui.effect && `file-tree--drag file-tree--drag-${ui.effect}`,
-                () => ui.target === -1 && 'file-tree--drop'
+                () => read(marks.target) === -1 && 'file-tree--drop'
             ],
             ondisconnect: () => gesture.cancel()
         } as Attributes,
         row: (row: T): Attributes => ({
             class: [
-                () => ui.effect !== '' && sources.includes(row) && 'file-tree-row--dragged',
+                () => read(held) && sources.includes(row) && 'file-tree-row--dragged',
                 () => mark(row)
             ],
-            onconnect: (element: Aimed<T>) => {
-                element[AIM] = row;
-            },
             onpointerdown: (e: PointerEvent) => {
                 if (gesture.busy() || row.locked || e.button !== 0 || !e.isPrimary) {
                     return;
@@ -421,10 +417,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
         }),
         // Marks the segment of a compact row a drop lands in.
         segment: (row: T): Attributes => ({
-            class: () => ui.folder === row.key && 'file-tree-segment--drop',
-            onconnect: (element: Aimed<T>) => {
-                element[AIM] = row;
-            }
+            class: () => signal.selector(marks.folder, row.key) && 'file-tree-segment--drop'
         }),
         // The root carries the fold motion's inline styles, so the drop depth goes on the viewport instead.
         viewport: {

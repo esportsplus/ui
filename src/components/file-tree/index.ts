@@ -15,7 +15,7 @@ import segments, { ancestors, caption, holds, lineage, same, SEGMENT, sole, type
 import Decorations, { merge, type Badge, type Decoration, type Status, type Tone } from './decorations';
 import draggable, { type Drag, type Drop } from './drag';
 import Editor, { field, resolve, type Draft, type Kind, type Result } from './edit';
-import filter from './filter';
+import filter, { recheck } from './filter';
 import Finder, { type Mode } from './find';
 import fuzzy from './fuzzy';
 import glob from './glob';
@@ -152,7 +152,6 @@ type Element = {
     type?: 'file' | 'folder';
 };
 
-// Where guides show: always, only while the pointer is over the tree, or never.
 // A row below a folder that folds, where it sat before the list swapped rows; drawn while the edge travels.
 type Ghost = {
     left: number;
@@ -161,6 +160,7 @@ type Ghost = {
     width: number;
 };
 
+// Where guides show: always, only while the pointer is over the tree, or never.
 type Indicator = 'always' | 'hover' | 'never';
 
 type Layout = Pick<Row, 'depth' | 'element' | 'gaps' | 'parent' | 'position' | 'scope' | 'segments' | 'size'>;
@@ -253,7 +253,14 @@ type State = {
 };
 
 
-const BYTES = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte'];
+// One per unit, made once: a formatter is slow to construct and the tooltip formats a size on every open. Short bytes
+// read '12 byte', so whole bytes are spelled out.
+const BYTES = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte'].map((unit, i) => new Intl.NumberFormat(undefined, {
+    maximumFractionDigits: 1,
+    style: 'unit',
+    unit,
+    unitDisplay: i ? 'short' : 'long'
+}));
 
 // Engines cap how many arguments a spread may pass, so very large folders are inserted in slices.
 const CHUNK = 8192;
@@ -354,13 +361,7 @@ function bytes(value: number) {
         unit++;
     }
 
-    // Short bytes read '12 byte', so whole bytes are spelled out.
-    return new Intl.NumberFormat(undefined, {
-        maximumFractionDigits: 1,
-        style: 'unit',
-        unit: BYTES[unit],
-        unitDisplay: unit ? 'short' : 'long'
-    }).format(value);
+    return BYTES[unit].format(value);
 }
 
 function chip(part: Part) {
@@ -591,6 +592,9 @@ export default ({
         compare = comparator(sort, folder),
         // Descendant tones per folder, one count per rank, so a change walks its ancestors instead of the tree.
         counts = new Map<string, number[]>(),
+        // The primary selection as rows read it: each asks about its own id alone, so a change re-renders the row it
+        // leaves and the one it reaches rather than every row. Kept in step with 'state.selected' while connected.
+        current = signal(chosen),
         decorations = providers && merge([providers].flat()),
         // Lines added and removed per shown row; 'totals' sums them per folder, kept like 'counts'.
         diffs = new Map<string, number[]>(),
@@ -617,6 +621,9 @@ export default ({
         notes = new Map<string, Row>(),
         opened = 0,
         own = new Map<string, number>(),
+        // Per sibling list, how many of its rows are hidden before each place, so a row finds its place in "3 of 5"
+        // without walking every row before it; 'at' is the 'shifts' it was counted at.
+        places = new WeakMap<Row[], { at: number; before: Int32Array }>(),
         // What 'highlight' asks the names to mark; a getter given for it writes this while connected.
         given = signal(typeof phrase === 'function' ? untrack(phrase) : phrase),
         // The search the rows show, empty while the find bar is closed.
@@ -648,10 +655,14 @@ export default ({
         seen = model.version,
         // The display flags last applied, so flags changed while disconnected are applied on connect.
         settings = untrack(modes),
+        // Bumped whenever a row is hidden or shown, so the places counted before are counted again.
+        shifts = 0,
         // A folder kept out of its compact row while a name input is open in it or on it.
         split: string | null = null,
         // Where a fold motion's layer sits over the viewport, and the folder's bottom edge within it.
         stage = reactive({ edge: 0, height: 0, left: 0, top: 0, width: 0 }),
+        // The key of the row a fold motion runs from; 0 while none runs.
+        sweep = signal(0),
         top = build(model.elements, 0, null),
         totals = new Map<string, number[]>(),
         // The folders filtering has reached, and whether it opened them, so ending it closes those alone.
@@ -671,18 +682,21 @@ export default ({
                 return inner[inner.length - 1] ?? row;
             },
             open: (row) => fold(row, true),
+            row: (element) => (element as Segment<Row>)[SEGMENT] ?? (element as Rendered)[ROW],
             top: !roots,
             viewport: () => viewport
         }),
+        // The key of the cursor's row, read per row like 'current'; 0 with no rows.
+        focused = signal(cursor?.key ?? 0),
         // An id the tree itself just made primary: the reveal an outside write gets would pull focus onto it.
         quiet: string | null = null,
         // One tooltip for the whole tree, gliding from row to row; rows come and go as they scroll, so it's bound to
         // the viewport rather than to each row.
-        tip =tooltip.shared({ delay: { open: TOOLTIP }, direction: 'e' }),
+        tip = tooltip.shared({ delay: { open: TOOLTIP }, direction: 'e' }),
         typed = '',
         typedAt = 0,
-        // 'folder' is the key of the row a fold motion runs from, 'motion' its direction.
-        ui = reactive({ any: opened > 0, focused: cursor?.key ?? 0, folder: 0, motion: '' as '' | 'close' | 'open', motionRows: 0 }),
+        // 'motion' is a fold motion's direction.
+        ui = reactive({ any: opened > 0, motion: '' as '' | 'close' | 'open', motionRows: 0 }),
         selection = new Selection((ids) => {
             state.selection = ids;
         }),
@@ -691,8 +705,8 @@ export default ({
                 return placeholder(row.notice, {
                     'aria-level': String(row.depth + 1),
                     class: [
-                        () => ui.focused === row.key && 'file-tree-row--focused',
-                        () => ui.motion === 'open' && revealing.has(row) && 'file-tree-row--reveal'
+                        () => signal.selector(focused, row.key) && 'file-tree-row--focused',
+                        () => revealing.has(row) && ui.motion === 'open' && 'file-tree-row--reveal'
                     ],
                     id: `${id}-${row.key}`,
                     onclick: () => {
@@ -725,10 +739,11 @@ export default ({
                         'aria-posinset': () => position(row),
                         'aria-selected': () => holds(row, (id) => selection.read(id)) ? 'true' : 'false',
                         'aria-setsize': () => row.size - read(row.gaps),
+                        // Each tests its own row first, so only the rows concerned follow the cursor and the motion.
                         class: [
-                            () => ui.focused === row.key && 'file-tree-row--focused',
-                            () => ui.folder === row.key && ui.motion && 'file-tree-row--motion',
-                            () => ui.motion === 'open' && revealing.has(row) && 'file-tree-row--reveal'
+                            () => signal.selector(focused, row.key) && 'file-tree-row--focused',
+                            () => signal.selector(sweep, row.key) && ui.motion && 'file-tree-row--motion',
+                            () => revealing.has(row) && ui.motion === 'open' && 'file-tree-row--reveal'
                         ],
                         onauxclick: (event: MouseEvent) => press(row, event),
                         onclick: (event: MouseEvent) => press(row, event),
@@ -751,7 +766,7 @@ export default ({
                     style='--depth: ${row.depth}; --guides: ${guides(row.depth)};'
                     ${mark && { class: () => read(mark).tone && `file-tree-row--${read(mark).tone}` }}
                     ${{
-                        class: () => ui.focused === row.key && 'file-tree-row--focused',
+                        class: () => signal.selector(focused, row.key) && 'file-tree-row--focused',
                         onclick: () => unpin(row)
                     }}
                 >
@@ -769,6 +784,8 @@ export default ({
         motion = 0,
         root: HTMLElement | undefined,
         timer: ReturnType<typeof setTimeout> | undefined,
+        // The marks a batch of decorations reached, refreshed once each as it ends; null outside one.
+        touched: Set<string> | null = null,
         unsubscribe: VoidFunction | undefined,
         unwatch: VoidFunction | undefined,
         viewport: HTMLElement | undefined;
@@ -776,25 +793,27 @@ export default ({
     selection.replace([...(untrack(() => state.selection) ?? []), ...(chosen ? [chosen] : [])]);
     persist();
 
-    // The tooltip's content: the full path, which also shows a name cut short in its row, then size and date.
+    // The tooltip's content: the full path, which also shows a name cut short in its row, then size and date. Built
+    // only once the tooltip opens, since the pointer crossing a row's parts asks for it again and again.
     function about(row: Row) {
-        let element = row.element,
-            meta: string[] = [];
+        return () => {
+            let element = row.element,
+                full = path(row),
+                meta: string[] = [];
 
-        if (element.size !== undefined) {
-            meta.push(bytes(element.size));
-        }
+            if (element.size !== undefined) {
+                meta.push(bytes(element.size));
+            }
 
-        if (element.modified !== undefined) {
-            meta.push(dates.format(element.modified));
-        }
+            if (element.modified !== undefined) {
+                meta.push(dates.format(element.modified));
+            }
 
-        let full = path(row);
-
-        return () => html`
-            <span class='file-tree-tooltip-path'>${full.slice(0, full.length - element.name.length)}<strong>${element.name}</strong></span>
-            ${meta.length > 0 && html`<span class='file-tree-tooltip-meta'>${meta.join(' · ')}</span>`}
-        `;
+            return html`
+                <span class='file-tree-tooltip-path'>${full.slice(0, full.length - element.name.length)}<strong>${element.name}</strong></span>
+                ${meta.length > 0 && html`<span class='file-tree-tooltip-meta'>${meta.join(' · ')}</span>`}
+            `;
+        };
     }
 
     controller?.({
@@ -831,7 +850,7 @@ export default ({
 
     // Selected itself, or through one of the folders folded into it.
     function active(row: Row) {
-        return holds(row, (id) => id === state.selected);
+        return holds(row, (id) => signal.selector(current, id));
     }
 
     // Opens every folder a click could open, or closes them all; within 'scope' and its folders alone when given.
@@ -874,11 +893,8 @@ export default ({
             }
         }
 
-        // Replaced in place by one splice; clearing first would make everything after read as inserted above the reader.
-        let next = scope ? (peek(scope.open!) ? visible(branch(scope)) : []) : visible(top);
-
-        rows.splice(at + 1, count, ...next.slice(0, CHUNK));
-        insert(at + 1 + CHUNK, next.slice(CHUNK));
+        // Replaced in place; clearing first would make everything after read as inserted above the reader.
+        swap(at + 1, at + 1 + count, scope ? (peek(scope.open!) ? visible(branch(scope)) : []) : visible(top));
         prune();
         ui.any = opened > 0;
 
@@ -1215,7 +1231,7 @@ export default ({
                         ? segments(row, (node) => [
                             {
                                 class: [
-                                    () => node !== row && state.selected === node.id && '--active',
+                                    () => node !== row && signal.selector(current, node.id) && '--active',
                                     search && (() => found('file-tree-segment', search.mark(node.id)))
                                 ]
                             },
@@ -1244,9 +1260,17 @@ export default ({
         `;
     }
 
+    // A full `git status` can reach thousands of ids under the same few folders, so each mark is refreshed once at
+    // the end, and the rows hidden or shown are swapped in one go.
     function decorate(ids: Iterable<string>) {
+        let outer = touched === null,
+            toggled: string[] = [];
+
+        touched ??= new Set();
+
         for (let id of ids) {
             let hide = unseen(id),
+                parent = index.get(id)?.parent ?? null,
                 // A hidden row marks nothing, its folders included; a deleted file is hidden only for being gone from
                 // disk, and is still a change to its folders, unless it's excluded as well. A row a search filters out
                 // is only out of view.
@@ -1255,32 +1279,8 @@ export default ({
                 before = own.get(id) ?? -1;
 
             if (hide !== hidden.has(id)) {
-                let row = built.get(id);
-
-                if (hide) {
-                    hidden.add(id);
-                }
-                else {
-                    hidden.delete(id);
-                }
-
-                // Ahead of any rebuild, which counts the group afresh.
-                if (row) {
-                    write(row.gaps, peek(row.gaps) + (hide ? 1 : -1));
-                }
-
-                let groups = refold(id);
-
-                // Rows whose chains the change joined or split are rebuilt; otherwise the row alone goes or comes back.
-                if (groups.length) {
-                    update(groups);
-                }
-                else if (row && hide) {
-                    conceal(row);
-                }
-                else if (row) {
-                    restore(row);
-                }
+                obscure(id, hide);
+                toggled.push(id);
             }
 
             if (after !== before) {
@@ -1294,24 +1294,9 @@ export default ({
                 let from = lift(before),
                     to = lift(after);
 
-                if (from !== to && (from > 0 || to > 0)) {
-                    for (let parent = index.get(id)?.parent ?? null; parent !== null; parent = index.get(parent)!.parent) {
-                        let list = counts.get(parent);
-
-                        if (!list) {
-                            counts.set(parent, list = new Array(RANK.length).fill(0));
-                        }
-
-                        if (from > 0) {
-                            list[from]--;
-                        }
-
-                        if (to > 0) {
-                            list[to]++;
-                        }
-
-                        refresh(parent);
-                    }
+                if (from !== to) {
+                    tally(parent, from, undefined, -1);
+                    tally(parent, to, undefined, 1);
                 }
             }
 
@@ -1329,20 +1314,40 @@ export default ({
                     diffs.delete(id);
                 }
 
-                for (let parent = index.get(id)?.parent ?? null; parent !== null; parent = index.get(parent)!.parent) {
-                    let total = totals.get(parent);
-
-                    if (!total) {
-                        totals.set(parent, total = [0, 0]);
-                    }
-
-                    total[0] += added;
-                    total[1] += removed;
-                    refresh(parent);
-                }
+                tally(parent, 0, [added, removed], 1);
             }
 
             refresh(id);
+        }
+
+        // One row goes or comes back on its own, unless its chain or its folder's joined or split.
+        if (toggled.length === 1) {
+            let id = toggled[0],
+                groups = refold(id),
+                row = built.get(id);
+
+            if (groups.length) {
+                update(groups);
+            }
+            else if (row && hidden.has(id)) {
+                conceal(row);
+            }
+            else if (row) {
+                restore(row);
+            }
+        }
+        else if (toggled.length) {
+            reshow(toggled);
+        }
+
+        if (outer) {
+            let marked = touched;
+
+            touched = null;
+
+            for (let id of marked) {
+                refresh(id);
+            }
         }
     }
 
@@ -1506,7 +1511,7 @@ export default ({
             }
 
             ghosts.push(...out);
-            ui.folder = row.key;
+            write(sweep, row.key);
             ui.motion = value ? 'open' : 'close';
             ui.motionRows = inner.length;
         });
@@ -1514,7 +1519,7 @@ export default ({
 
     function focus(row: Row) {
         cursor = row;
-        ui.focused = row.key;
+        write(focused, row.key);
     }
 
     function follow(row: Row) {
@@ -1545,7 +1550,7 @@ export default ({
                 ${mark && { class: () => read(mark).tone && `file-tree-row--${read(mark).tone}` }}
                 ${search && { class: () => found('file-tree-row', matched(row)) }}
                 ${!!row.scope && { class: 'file-tree-row--scope', style: `--scope: ${row.scope}` }}
-                ${{ class: () => ui.focused === row.key && 'file-tree-row--focused' }}
+                ${{ class: () => signal.selector(focused, row.key) && 'file-tree-row--focused' }}
             >
                 ${contents(row, mark, true)}
             </div>
@@ -1879,6 +1884,25 @@ export default ({
         return document.getElementById(`${id}-${row.key}`);
     }
 
+    // Every row hidden or shown goes through here: its group's count moves ahead of any rebuild, which counts the
+    // group afresh, and the places counted from what was hidden are counted again.
+    function obscure(id: string, value: boolean) {
+        let row = built.get(id);
+
+        if (value) {
+            hidden.add(id);
+        }
+        else {
+            hidden.delete(id);
+        }
+
+        shifts++;
+
+        if (row) {
+            write(row.gaps, peek(row.gaps) + (value ? 1 : -1));
+        }
+    }
+
     function onscreen(row: Row): Attributes {
         return {
             onconnect: (element: Rendered) => {
@@ -2028,15 +2052,19 @@ export default ({
             return row.position;
         }
 
-        let out = 1;
+        let counted = places.get(siblings);
 
-        for (let i = 0, n = row.position - 1; i < n; i++) {
-            if (!hidden.has(siblings[i].id)) {
-                out++;
+        if (!counted || counted.at !== shifts) {
+            let before = new Int32Array(siblings.length + 1);
+
+            for (let i = 0, n = siblings.length; i < n; i++) {
+                before[i + 1] = before[i] + +hidden.has(siblings[i].id);
             }
+
+            places.set(siblings, counted = { at: shifts, before });
         }
 
-        return out;
+        return row.position - counted.before[row.position - 1];
     }
 
     // A click previews a file and a double or middle click pins it, beside the current one with Alt. Alt+click opens
@@ -2151,38 +2179,24 @@ export default ({
         }
         else {
             cursor = null;
-            ui.focused = 0;
+            write(focused, 0);
         }
     }
 
-    // 'force' rebuilds the rows even when none was hidden or shown, as when folders opened or closed.
+    // 'force' rebuilds the rows even when none was hidden or shown, as when folders opened or closed. What the
+    // patterns hide is left as it is: only the display settings change it, and a search redisplays on every key.
     function redisplay(force = false) {
         settle();
-        filtered = filter(model.elements, display.dotfiles !== false, excluded, roots);
 
         let changed: string[] = [];
 
         for (let id of new Set([...index.keys(), ...(decorations?.keys() ?? [])])) {
             let hide = unseen(id);
 
-            if (hide === hidden.has(id)) {
-                continue;
+            if (hide !== hidden.has(id)) {
+                obscure(id, hide);
+                changed.push(id);
             }
-
-            if (hide) {
-                hidden.add(id);
-            }
-            else {
-                hidden.delete(id);
-            }
-
-            let row = built.get(id);
-
-            if (row) {
-                write(row.gaps, peek(row.gaps) + (hide ? 1 : -1));
-            }
-
-            changed.push(id);
         }
 
         // Hidden is already in step, so this only moves the folder marks; the rows are swapped below in one go.
@@ -2192,33 +2206,8 @@ export default ({
             refresh(id);
         }
 
-        if (!changed.length && !force) {
-            return;
-        }
-
-        // Chains count only what's shown, so those the change joined or split are rebuilt before the rows are swapped.
-        for (let group of new Set(changed.flatMap(refold))) {
-            sync(group);
-        }
-
-        if (cursor?.host) {
-            focus(cursor.host);
-        }
-
-        let next = visible(top),
-            kept = new Set(next),
-            // A hidden cursor moves to the first row after it still shown, as it does when a single row goes.
-            target = cursor && !kept.has(cursor)
-                ? rows.slice(rows.indexOf(cursor)).find((row) => kept.has(row)) ?? next[next.length - 1]
-                : undefined;
-
-        // Replaced in place by one splice, as 'all' does.
-        rows.splice(0, rows.length, ...next.slice(0, CHUNK));
-        insert(CHUNK, next.slice(CHUNK));
-        prune();
-
-        if (target) {
-            focus(target);
+        if (changed.length || force) {
+            reshow(changed);
         }
     }
 
@@ -2245,6 +2234,11 @@ export default ({
             return;
         }
 
+        if (touched) {
+            touched.add(id);
+            return;
+        }
+
         let current = peek(mark),
             next = look(id);
 
@@ -2259,6 +2253,38 @@ export default ({
         let row = id === null ? undefined : built.get(id);
 
         return row && (row.host || stale(row)) ? (row.host ?? row).parent?.id ?? null : id;
+    }
+
+    // Swaps in the rows once 'changed' were hidden or shown, many at a time: one pass over the rows rather than a
+    // search and a splice for each.
+    function reshow(changed: string[]) {
+        settle();
+
+        // Chains count only what's shown, so those the change joined or split are rebuilt before the rows are swapped.
+        for (let group of new Set(changed.flatMap(refold))) {
+            sync(group);
+        }
+
+        if (cursor?.host) {
+            focus(cursor.host);
+        }
+
+        let next = visible(top),
+            kept = new Set(next),
+            // A hidden cursor moves to the first row after it still shown, as it does when a single row goes.
+            target = cursor && !kept.has(cursor)
+                ? rows.slice(rows.indexOf(cursor)).find((row) => kept.has(row)) ?? next[next.length - 1]
+                : undefined;
+
+        swap(0, rows.length, next);
+        prune();
+
+        if (target) {
+            focus(target);
+        }
+
+        ui.any = opened > 0;
+        persist();
     }
 
     // Puts a row back after its previous visible sibling's subtree, when its folder is open and on screen.
@@ -2285,7 +2311,7 @@ export default ({
     }
 
     // A change from the store, applied to the folders it touched.
-    function restructure({ from = null, ids, parent, type }: Change) {
+    function restructure({ elements, from = null, ids, parent, type }: Change) {
         let groups: (string | null)[] = [];
 
         seen = model.version;
@@ -2309,7 +2335,13 @@ export default ({
         else {
             // Exclude and dotfile patterns match paths, so whatever was added, moved or renamed is checked again,
             // before the rows are built so a new row that's hidden is never inserted.
-            filtered = filter(model.elements, display.dotfiles !== false, excluded, roots);
+            for (let id of ids) {
+                filtered.delete(id);
+            }
+
+            for (let i = 0, n = elements.length; i < n; i++) {
+                recheck(elements[i], index, display.dotfiles !== false, excluded, roots, filtered);
+            }
 
             for (let id of ids) {
                 // A root added live opens, as those given at first do.
@@ -2321,13 +2353,7 @@ export default ({
                     continue;
                 }
 
-                if (hidden.has(id)) {
-                    hidden.delete(id);
-                }
-                else {
-                    hidden.add(id);
-                }
-
+                obscure(id, !hidden.has(id));
                 // Deeper in, a folder kept as it was can still hold a chain the change joined or split.
                 groups.push(...refold(id));
             }
@@ -2361,6 +2387,7 @@ export default ({
 
         filtered = filter(model.elements, display.dotfiles !== false, excluded, roots);
         hidden = new Set([...filtered, ...(decorations?.keys() ?? [])].filter(gone));
+        shifts++;
 
         // Rolled up again from scratch by the decorations catching up on connect.
         if (decorations) {
@@ -2524,7 +2551,7 @@ export default ({
         motion = 0;
         ghosts.splice(0, ghosts.length);
         revealing.clear();
-        ui.folder = 0;
+        write(sweep, 0);
         ui.motion = '';
         // Off now, before a fold that follows measures its rows, so its own motion restarts the animation.
         flush();
@@ -2711,6 +2738,10 @@ export default ({
 
     // Adds or takes away one row's tone and lines along a chain of folders.
     function tally(start: string | null, value: number, lines: number[] | undefined, sign: 1 | -1) {
+        if (value <= 0 && !lines) {
+            return;
+        }
+
         for (let parent = start; parent !== null; parent = index.get(parent)?.parent ?? null) {
             if (value > 0) {
                 let list = counts.get(parent);
@@ -2885,6 +2916,8 @@ export default ({
                         // Selection written from outside, like an editor switching tabs, becomes the whole selection
                         // and opens the folders down to it.
                         effect(() => state.selected, (value) => {
+                            write(current, value);
+
                             if (value === known) {
                                 return;
                             }
@@ -2917,6 +2950,7 @@ export default ({
                         effect(modes, (value) => {
                             if (value !== settings) {
                                 settings = value;
+                                filtered = filter(model.elements, display.dotfiles !== false, excluded, roots);
                                 redisplay();
                                 search?.refresh();
                             }
@@ -2990,7 +3024,7 @@ export default ({
                 tabindex='0'
                 ${dragging?.viewport}
                 ${{
-                    'aria-activedescendant': () => ui.focused > 0 && `${id}-${ui.focused}`,
+                    'aria-activedescendant': () => read(focused) > 0 && `${id}-${read(focused)}`,
                     onconnect: (element: HTMLElement) => {
                         viewport = element;
                     },
