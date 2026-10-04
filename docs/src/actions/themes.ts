@@ -1,7 +1,6 @@
 import { pageHead } from 'docs/components/page/head';
 import { html } from 'docs/app';
 import { themes } from 'docs/data/scss';
-import { layout } from 'docs/components/layout';
 import { preview } from 'docs/components/preview';
 import type { Renderable, Router } from 'docs/app';
 import type { Page, TocItem } from 'docs/types';
@@ -118,4 +117,4 @@ const page = (): Page => {
 
 
 export default (r: Router) => r
-    .get({ name: 'themes', path: '/themes', responder: () => layout(page()) });
+    .get({ name: 'themes', path: '/themes', responder: () => page() });

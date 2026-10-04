@@ -132,7 +132,9 @@ const navTree = (sections: TreeSection[], current: 'command' | 'location' | 'pag
                                     }}
                                     ${current === 'command' && { tabindex: -1 }}
                                     ${link.attributes}
-                                >${link.content ?? link.label}</a>
+                                >
+                                    ${link.content ?? link.label}
+                                </a>
                             `)}
 
                             ${current === 'location' && html`<span aria-hidden='true' class='nav-tree-indicator'></span>`}

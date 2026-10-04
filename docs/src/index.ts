@@ -2,9 +2,10 @@
 import '@esportsplus/ui/layer.scss';
 import './ui';
 import { fallback, html, middleware, render } from 'docs/app';
-import { notifications } from 'docs/components/notify';
+import { toaster } from 'docs/components/toaster';
 import { modal } from 'docs/components/search';
 import sidebar, { state as sidebarState } from 'docs/components/sidebar';
+import layout from 'docs/middleware/layout/index';
 
 
 render(
@@ -12,10 +13,10 @@ render(
     {
         class: `--font-montserrat --scrollbar --scrollbar-scope`
     },
-    middleware(
+    html`${middleware(
         (request, next) => html`
             ${modal()}
-            ${notifications.content}
+            ${toaster.content}
 
             <div
                 class='viewer-body ${() => sidebarState.active && '--sidebar-open'}'
@@ -31,6 +32,7 @@ render(
             </div>
         `,
         middleware.match(fallback),
+        layout,
         middleware.dispatch
-    )
+    )}`
 );

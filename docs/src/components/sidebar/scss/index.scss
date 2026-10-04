@@ -45,8 +45,7 @@
         display: flex;
         flex-shrink: 0;
         gap: 6px;
-        height: var(--sidebar-header-height);
-        padding-inline: 52px 8px;
+        padding: var(--size-300) var(--size-200) var(--size-300) 52px;
     }
 
     &-scrollport {
@@ -90,7 +89,7 @@
     &-toggle {
         left: var(--size-500);
         position: fixed;
-        top: calc((var(--sidebar-header-height) - var(--size)) / 2);
+        top: var(--size-300);
         z-index: 40;
     }
 

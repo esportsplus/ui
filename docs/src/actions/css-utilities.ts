@@ -1,7 +1,6 @@
 import { uri } from 'docs/app';
 import { utilities } from 'docs/data/utilities';
 import { cardGrid, detailPage, missing } from 'docs/components/page';
-import { layout } from 'docs/components/layout';
 import type { Router } from 'docs/app';
 import type { Page } from 'docs/types';
 
@@ -42,5 +41,5 @@ const page = (slug: string): Page => {
 
 
 export default (r: Router) => r
-    .get({ name: 'css-utilities', path: '/css-utilities', responder: () => layout(page('')) })
-    .get({ name: 'css-utilities.detail', path: '/css-utilities/:slug', responder: (request) => layout(page(request.data.parameters?.slug ?? '')) });
+    .get({ name: 'css-utilities', path: '/css-utilities', responder: () => page('') })
+    .get({ name: 'css-utilities.detail', path: '/css-utilities/:slug', responder: (request) => page(request.data.parameters?.slug ?? '') });

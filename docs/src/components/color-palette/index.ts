@@ -3,7 +3,7 @@ import { clipboard, icon } from '@esportsplus/ui/components';
 import type { Renderable } from 'docs/app';
 import check from '@esportsplus/ui/svg/check.svg';
 import copy from '@esportsplus/ui/svg/copy.svg';
-import notify from 'docs/components/notify';
+import toast from 'docs/components/toaster';
 import 'docs/components/color-palette/scss/index.scss';
 
 
@@ -73,8 +73,8 @@ function colorPalette(values: ColorToken[]): Renderable<unknown> {
                             class: 'token-colors-swatch',
                             style: `background: var(${token.name}); color: var(${contrast(token.value)});`,
                             'aria-label': `Copy ${token.name}: ${token.value}`,
-                            oncopied: () => notify(() => 'Color copied.'),
-                            onerror: () => notify(() => 'Could not copy color.'),
+                            oncopied: () => toast(() => 'Color copied.'),
+                            onerror: () => toast(() => 'Could not copy color.'),
                             timeout: 3000,
                             value: token.value
                         }, (state) => html`

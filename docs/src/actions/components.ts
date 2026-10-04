@@ -3,7 +3,6 @@ import { entries } from 'docs/examples';
 import { groupVariants } from 'docs/examples/groups';
 import { meta } from 'docs/meta';
 import { cardGrid, detailPage, missing } from 'docs/components/page';
-import { layout } from 'docs/components/layout';
 import type { Router } from 'docs/app';
 import type { Page } from 'docs/types';
 
@@ -51,10 +50,10 @@ export default (r: Router) => r
     .get({
         name: 'components',
         path: '/components',
-        responder: () => layout(page())
+        responder: () => page()
     })
     .get({
         name: 'components.detail',
         path: '/components/:slug',
-        responder: (request) => layout(page(request.data.parameters?.slug ?? ''))
+        responder: (request) => page(request.data.parameters?.slug ?? '')
     });

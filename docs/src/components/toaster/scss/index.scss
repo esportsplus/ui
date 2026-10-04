@@ -1,4 +1,4 @@
-.notify {
+.docs-toast {
     background: var(--color-white-300);
     border: 1px solid var(--color-border-400);
     border-radius: var(--border-radius-500);
@@ -67,10 +67,10 @@
 
     // Whole seconds left on the toast's clock.
     &-seconds {
-        counter-reset: notify-seconds round(up, calc(var(--toast-seconds) * (1 - var(--toast-progress))), 1);
+        counter-reset: docs-toast-seconds round(up, calc(var(--toast-seconds) * (1 - var(--toast-progress))), 1);
 
         &::before {
-            content: counter(notify-seconds);
+            content: counter(docs-toast-seconds);
         }
     }
 

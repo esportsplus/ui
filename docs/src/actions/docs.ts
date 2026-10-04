@@ -1,4 +1,3 @@
-import { layout } from 'docs/components/layout';
 import installation from 'docs/components/installation';
 import type { Router } from 'docs/app';
 import type { Page } from 'docs/types';
@@ -17,5 +16,5 @@ const page = (): Page => ({
 
 export { page };
 export default (r: Router) => r
-    .get({ name: 'docs', path: '/docs', responder: () => layout(page()) })
-    .get({ name: 'home', path: '/', responder: () => layout(page()) });
+    .get({ name: 'docs', path: '/docs', responder: () => page() })
+    .get({ name: 'home', path: '/', responder: () => page() });

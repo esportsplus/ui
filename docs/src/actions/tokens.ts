@@ -1,7 +1,6 @@
 import { pageHead } from 'docs/components/page/head';
 import { html } from 'docs/app';
 import { cssValue, map, tokenSources } from 'docs/data/scss';
-import { layout } from 'docs/components/layout';
 import type { Renderable, Router } from 'docs/app';
 import type { Page, TocItem } from 'docs/types';
 import { colorPalette } from 'docs/components/color-palette';
@@ -132,4 +131,4 @@ const page = (): Page => {
 
 
 export default (r: Router) => r
-    .get({ name: 'tokens', path: '/tokens', responder: () => layout(page()) });
+    .get({ name: 'tokens', path: '/tokens', responder: () => page() });
