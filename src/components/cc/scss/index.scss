@@ -32,21 +32,13 @@
         }
 
         &-mark {
-            filter: blur(4px);
+            @extend %icon-swap;
             grid-area: 1 / 1;
             height: 100%;
-            opacity: 0;
-            scale: 0.25;
-            transition:
-                filter var(--swap-duration) var(--spring),
-                opacity var(--swap-duration) var(--spring),
-                scale var(--swap-duration) var(--spring);
             width: 100%;
 
             @include tokens.state(active) {
-                filter: blur(0);
-                opacity: 1;
-                scale: 1;
+                @extend %icon-swap-active;
             }
 
             svg {
@@ -396,11 +388,6 @@
 
 // No half turn: the faces cross-fade in place and every blur, slide and scale drops to a plain fade.
 @media (prefers-reduced-motion: reduce) {
-    .cc-brand-mark {
-        filter: none !important;
-        scale: 1 !important;
-    }
-
     .cc-card.cc-card--flipped {
         transform: none;
     }

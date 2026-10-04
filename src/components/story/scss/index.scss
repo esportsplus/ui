@@ -78,26 +78,15 @@
     // Static cue for the paused state, so the frozen bar isn't the only signal.
     &-pause,
     &-play {
+        @extend %icon-swap;
         grid-area: 1 / 1;
         height: 16px;
-        transition:
-            filter 0.3s var(--spring),
-            opacity 0.3s var(--spring),
-            scale 0.3s var(--spring);
         width: 16px;
     }
 
-    &-play,
-    &-toggle.story-toggle--paused &-pause {
-        filter: blur(4px);
-        opacity: 0;
-        scale: 0.25;
-    }
-
+    &-toggle:not(.story-toggle--paused) &-pause,
     &-toggle.story-toggle--paused &-play {
-        filter: blur(0);
-        opacity: 1;
-        scale: 1;
+        @extend %icon-swap-active;
     }
 
     &-slide {
@@ -182,16 +171,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        &-play,
-        &-toggle.story-toggle--paused &-pause {
-            filter: none;
-        }
-
-        &-pause,
-        &-play {
-            transition: opacity 0.3s var(--spring);
-        }
-
         &-toggle {
             transition: color 0.15s ease-out;
         }

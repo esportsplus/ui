@@ -13,6 +13,8 @@
     --fill-color: var(--color-text-500);
     --focus-ring-color: oklch(from var(--color-text-500) l c h / 0.38);
     --height: 480px;
+    --icon-swap-duration: 0.3s;
+    --icon-swap-timing-function: var(--spring);
     --max-width: 320px;
     --muted-color: var(--color-text-300);
     --radius: 24px;
