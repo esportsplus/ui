@@ -7,13 +7,14 @@ export default {
     variants: [
         {
             render: () => html`
-                <div
+                <button
                     class='button button--primary'
                     style='--width: auto;'
-                    onclick='${() => json.download({ component: 'json', exported: true, values: [1, 2, 3] }, 'demo.json')}'
+                    onclick='${() => json.download({ component: 'json', exported: true, values: [1, 2, 3] }, 'demo')}'
+                    type='button'
                 >
                     download demo.json
-                </div>
+                </button>
             `,
             title: 'download'
         }

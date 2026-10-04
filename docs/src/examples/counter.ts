@@ -18,13 +18,14 @@ function cycle(values: number[], render: (state: { value: number }) => ReturnTyp
     return html`
         ${render(state)}
 
-        <div
+        <button
             class='button button--tertiary'
             style='--width: auto; margin-top: var(--size-400);'
             onclick='${() => { index = (index + 1) % values.length; state.value = values[index]; }}'
+            type='button'
         >
             change value
-        </div>
+        </button>
     `;
 }
 
