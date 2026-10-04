@@ -1,5 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
-import { html } from '@esportsplus/template';
+import { html, type Renderable } from '@esportsplus/template';
 import { command } from '@esportsplus/ui/components';
 import back from '@esportsplus/ui/svg/arrow-left.svg';
 import forward from '@esportsplus/ui/svg/arrow-right.svg';
@@ -24,6 +24,7 @@ import undo from '@esportsplus/ui/svg/undo.svg';
 import zoomIn from '@esportsplus/ui/svg/zoom-in.svg';
 import zoomOut from '@esportsplus/ui/svg/zoom-out.svg';
 import type { Command, Shortcut, Store, Tab } from '@esportsplus/ui/components/command';
+import type { Entry } from 'docs/types';
 import 'docs/examples/command/scss/index.scss';
 
 
@@ -32,9 +33,9 @@ let commands: Command[] = [
         { group: 'Navigation', icon: inbox, id: 'inbox', label: 'Open Inbox', shortcut: ['G', 'I'] },
         { group: 'Navigation', icon: sliders, id: 'settings', label: 'Go to Settings', shortcut: ['G', 'S'] },
         { group: 'Navigation', icon: docs, id: 'docs', label: 'Search documentation' },
-        { group: 'Actions', icon: plus, id: 'new-file', label: 'New file', shortcut: ['⌘', 'N'] },
+        { group: 'Actions', icon: plus, id: 'new-file', label: 'New file', shortcut: ['Mod', 'N'] },
         { group: 'Actions', icon: link, id: 'copy-link', label: 'Copy link' },
-        { group: 'Actions', icon: contrast, id: 'theme', label: 'Toggle theme', shortcut: ['⇧', 'T'] },
+        { group: 'Actions', icon: contrast, id: 'theme', label: 'Toggle theme', shortcut: ['Shift', 'T'] },
         { group: 'Actions', icon: logOut, id: 'logout', label: 'Log out' }
     ],
     shortcuts: Shortcut[] = [
@@ -56,7 +57,7 @@ let commands: Command[] = [
     ];
 
 
-function demo(attributes: Partial<Parameters<typeof command>[0]> = {}) {
+function demo(attributes: Partial<Parameters<typeof command>[0]> = {}, actions?: Renderable<unknown>) {
     let ran = reactive({ label: '' });
 
     return html`
@@ -68,6 +69,7 @@ function demo(attributes: Partial<Parameters<typeof command>[0]> = {}) {
                     ran.label = entry.label;
                 }
             })}
+            ${actions}
             <p aria-live='polite' class='command-demo-status'>
                 ${() => ran.label && html`Ran: <span>${ran.label}</span>`}
             </p>
@@ -76,22 +78,11 @@ function demo(attributes: Partial<Parameters<typeof command>[0]> = {}) {
 }
 
 function hub() {
-    let ran = reactive({ label: '' }),
-        state = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
+    let state = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
 
-    return html`
-        <div class='command-demo'>
-            ${command({
-                commands,
-                label: 'Search or run',
-                onrun: (entry) => {
-                    ran.label = entry.label;
-                },
-                shortcuts,
-                state,
-                store: local('docs-command'),
-                tabs: true
-            })}
+    return demo(
+        { label: 'Search or run', shortcuts, state, store: local('docs-command'), tabs: true },
+        html`
             <button
                 class='button button--tertiary'
                 type='button'
@@ -102,11 +93,8 @@ function hub() {
             >
                 Open keyboard shortcuts
             </button>
-            <p aria-live='polite' class='command-demo-status'>
-                ${() => ran.label && html`Ran: <span>${ran.label}</span>`}
-            </p>
-        </div>
-    `;
+        `
+    );
 }
 
 // Any backend can sit behind the Store interface; this one keeps values in localStorage under a prefix.
@@ -140,4 +128,4 @@ export default {
             title: 'tabs: recents + every command, a tab per group + keyboard shortcuts'
         }
     ]
-};
+} satisfies Entry;

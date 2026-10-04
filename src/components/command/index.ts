@@ -1,4 +1,4 @@
-import { computed, effect, onCleanup, reactive, read } from '@esportsplus/reactivity';
+import { computed, effect, onCleanup, reactive, read, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import highlight from '~/components/highlight';
 import icon from '~/components/icon';
@@ -40,6 +40,7 @@ type Command = {
     icon?: string;
     id: string;
     label: string;
+    // 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere.
     shortcut?: string[];
 };
 
@@ -165,37 +166,25 @@ let uid = 0;
 
 
 function filter(entries: Entry[], query: string) {
-    let groups: Group[] = [],
-        index = 0,
-        keys = new Map<string, Group>();
+    let flat: Match[] = [],
+        matches: Match[] = [];
 
     for (let i = 0, n = entries.length; i < n; i++) {
-        let entry = entries[i],
-            ranges = match(entry.label, query);
+        let ranges = match(entries[i].label, query);
 
-        if (!ranges) {
-            continue;
+        if (ranges) {
+            matches.push({ entry: entries[i], index: 0, ranges });
         }
-
-        let group = keys.get(entry.group);
-
-        if (!group) {
-            group = { group: entry.group, items: [] };
-            groups.push(group);
-            keys.set(entry.group, group);
-        }
-
-        group.items.push({ entry, index: 0, ranges });
     }
 
-    // Flattened in rendered order, so arrow keys and indices agree even when groups arrive interleaved.
-    let flat: Match[] = [];
+    let groups = [...Map.groupBy(matches, (item) => item.entry.group)].map(([group, items]): Group => ({ group, items }));
 
+    // Flattened in rendered order, so arrow keys and indices agree even when groups arrive interleaved.
     for (let i = 0, n = groups.length; i < n; i++) {
         let items = groups[i].items;
 
         for (let j = 0, m = items.length; j < m; j++) {
-            items[j].index = index++;
+            items[j].index = flat.length;
             flat.push(items[j]);
         }
     }
@@ -324,6 +313,8 @@ export default component(
         let apple = mac(),
             id = `command-${++uid}`,
             optionAttributes = this?.attributes?.[COMMAND_OPTION],
+            // The active option's id; options select on it, so moving it restyles two rows rather than every one.
+            active = signal<string | undefined>(undefined),
             bindings = (shortcuts ?? []).map((shortcut): Entry => ({
                 group: shortcut.group,
                 icon: shortcut.icon,
@@ -336,7 +327,7 @@ export default component(
                 group: command.group,
                 icon: command.icon,
                 id: command.id,
-                keys: command.shortcut,
+                keys: command.shortcut?.map((key) => glyph(key, apple)),
                 label: command.label
             })),
             // Ends the Mod+K listener with the trigger.
@@ -372,6 +363,10 @@ export default component(
             }
         }));
 
+        onCleanup(effect(() => option(current(), selected()), (value) => {
+            write(active, value);
+        }));
+
         function close() {
             state.active = false;
         }
@@ -405,21 +400,7 @@ export default component(
         }
 
         function groups() {
-            let lists = new Map<string, Entry[]>();
-
-            for (let i = 0, n = entries.length; i < n; i++) {
-                let entry = entries[i],
-                    list = lists.get(entry.group);
-
-                if (!list) {
-                    list = [];
-                    lists.set(entry.group, list);
-                }
-
-                list.push(entry);
-            }
-
-            return [...lists].map(([group, list]) => ({
+            return [...Map.groupBy(entries, (entry) => entry.group)].map(([group, list]) => ({
                 empty: 'No commands',
                 entries: () => list,
                 id: group,
@@ -427,13 +408,6 @@ export default component(
                 placeholder,
                 search: `Search ${group}`
             }));
-        }
-
-        // The incoming view's own translate spans the swap; transitions inside the views bubble up here too.
-        function incoming(e: TransitionEvent, parent: HTMLElement) {
-            let target = e.target as HTMLElement;
-
-            return e.propertyName === 'translate' && target.parentElement === parent && target.classList.contains('--active');
         }
 
         // All lists a recent command twice, so rows go by position rather than command id.
@@ -458,44 +432,48 @@ export default component(
             let groups = read(view.results).groups.map(({ group, items }, g): ResultGroup => ({
                 id: `${view.key}-group-${g}`,
                 label: group,
-                items: items.map(({ entry, index, ranges }) => ({
-                    attributes: {
-                        ...optionAttributes,
-                        ...attributes[COMMAND_OPTION],
-                        id: `${view.key}-${index}`,
-                        role: 'option',
-                        'aria-selected': () => current() === view && selected() === index ? 'true' : 'false',
-                        class: [
-                            optionAttributes?.class,
-                            attributes[COMMAND_OPTION]?.class,
-                            !entry.command && 'command-option--inert',
-                            () => current() === view && selected() === index && '--active'
-                        ].flat(),
-                        onclick: (event: Event) => {
-                            event.preventDefault();
-                            run(entry);
+                items: items.map(({ entry, index, ranges }) => {
+                    let key = `${view.key}-${index}`;
+
+                    return {
+                        attributes: {
+                            ...optionAttributes,
+                            ...attributes[COMMAND_OPTION],
+                            id: key,
+                            role: 'option',
+                            'aria-selected': () => signal.selector(active, key) ? 'true' : 'false',
+                            class: [
+                                optionAttributes?.class,
+                                attributes[COMMAND_OPTION]?.class,
+                                !entry.command && 'command-option--inert',
+                                () => signal.selector(active, key) && '--active'
+                            ].flat(),
+                            onclick: (event: Event) => {
+                                event.preventDefault();
+                                run(entry);
+                            },
+                            onpointermove: (event: PointerEvent) => {
+                                if (event.pointerType === 'touch' || (pointer && pointer.x === event.clientX && pointer.y === event.clientY)) {
+                                    return;
+                                }
+
+                                pointer = { x: event.clientX, y: event.clientY };
+
+                                if (index !== selected()) {
+                                    state.index = index;
+                                }
+                            }
                         },
-                        onpointermove: (event: PointerEvent) => {
-                            if (event.pointerType === 'touch' || (pointer && pointer.x === event.clientX && pointer.y === event.clientY)) {
-                                return;
-                            }
-
-                            pointer = { x: event.clientX, y: event.clientY };
-
-                            if (index !== selected()) {
-                                state.index = index;
-                            }
-                        }
-                    },
-                    command: entry.command,
-                    content: html`
-                        ${entry.icon && sprite(entry.icon, 'command-option-icon')}
-                        ${mark(entry.label, ranges)}
-                        ${entry.keys && kbd(entry.keys)}
-                    `,
-                    id: entry.id,
-                    label: entry.label
-                }))
+                        command: entry.command,
+                        content: html`
+                            ${entry.icon && sprite(entry.icon, 'command-option-icon')}
+                            ${mark(entry.label, ranges)}
+                            ${entry.keys && kbd(entry.keys)}
+                        `,
+                        id: entry.id,
+                        label: entry.label
+                    };
+                })
             }));
 
             return render ? render(groups) : html`
@@ -564,6 +542,17 @@ export default component(
             state.tab = views[(views.indexOf(current()) + direction + n) % n].id;
         }
 
+        // The incoming view's own translate spans the swap; transitions inside the views bubble up here too.
+        function swap(moving: boolean) {
+            return function(this: HTMLElement, e: TransitionEvent) {
+                let target = e.target as HTMLElement;
+
+                if (e.propertyName === 'translate' && target.parentElement === this && target.classList.contains('--active')) {
+                    ui.moving = moving;
+                }
+            };
+        }
+
         return html`
             <div class='command' ${this?.attributes} ${attributes}>
                 <button
@@ -606,7 +595,7 @@ export default component(
                             <div class='command-search'>
                                 ${sprite(magnifier)}
                                 ${input({
-                                    'aria-activedescendant': () => option(current(), selected()),
+                                    'aria-activedescendant': () => read(active),
                                     'aria-autocomplete': 'list',
                                     'aria-controls': () => `${current().key}-listbox`,
                                     'aria-expanded': 'true',
@@ -703,21 +692,9 @@ export default component(
                             <div
                                 class='command-views'
                                 ${{
-                                    ontransitioncancel: function(this: HTMLElement, e: TransitionEvent) {
-                                        if (incoming(e, this)) {
-                                            ui.moving = false;
-                                        }
-                                    },
-                                    ontransitionend: function(this: HTMLElement, e: TransitionEvent) {
-                                        if (incoming(e, this)) {
-                                            ui.moving = false;
-                                        }
-                                    },
-                                    ontransitionrun: function(this: HTMLElement, e: TransitionEvent) {
-                                        if (incoming(e, this)) {
-                                            ui.moving = true;
-                                        }
-                                    },
+                                    ontransitioncancel: swap(false),
+                                    ontransitionend: swap(false),
+                                    ontransitionrun: swap(true),
                                     style: () => `--i: ${views.indexOf(current())}`
                                 }}
                             >
