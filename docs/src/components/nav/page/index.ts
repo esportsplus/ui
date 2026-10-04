@@ -4,7 +4,7 @@ import 'docs/components/nav/tree/scss/index.scss';
 import 'docs/components/nav/page/scss/index.scss';
 
 
-const pageNavTree = (links: TreeLink[]) => links.length && html`
+const pageNavTree = (links: TreeLink[]) => links.length > 0 && html`
     <nav aria-label='On this page' class='nav-tree nav-page-tree --flex-column'>
         <div class='nav-tree-group --flex-column'>
             <div class='nav-tree-title text'>On This Page</div>
