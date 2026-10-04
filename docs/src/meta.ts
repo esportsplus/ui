@@ -58,6 +58,11 @@ const meta: Record<string, Meta> = {
         category: 'Interactive',
         description: 'Copy-to-clipboard affordance with click and programmatic variants.'
     },
+    'code-editor': {
+        category: 'Interactive',
+        description: 'Code editing with syntax colors, line numbers, undo and redo, indentation, search and replacement, and keyboard navigation.',
+        label: 'Code Editor'
+    },
     'color-picker': {
         category: 'Form Controls',
         description: 'Saturation pad, hue and opacity sliders, a hex field, and a recent-colors row that reorders as you commit.'

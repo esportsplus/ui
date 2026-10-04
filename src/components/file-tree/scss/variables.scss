@@ -53,6 +53,15 @@
     --found-border-color: color-mix(in srgb, var(--found-color) 70%, transparent);
     --found-color: oklch(from var(--color-yellow-500) 0.72 c calc(h - 35));
     --icon-size: var(--size-400);
+    // Semantic icon palette. Pinned lightness supports light and dark surfaces; shapes still work in monochrome.
+    --file-tree-icon-blue: oklch(from var(--color-blue-400) 0.62 c h);
+    --file-tree-icon-cyan: oklch(from var(--color-blue-400) 0.62 c calc(h - 35));
+    --file-tree-icon-green: oklch(from var(--color-green-500) 0.58 c h);
+    --file-tree-icon-grey: var(--color-text-400);
+    --file-tree-icon-orange: oklch(from var(--color-yellow-500) 0.64 c calc(h - 35));
+    --file-tree-icon-purple: oklch(from var(--color-blue-400) 0.62 c calc(h + 50));
+    --file-tree-icon-red: oklch(from var(--color-red-400) 0.60 c h);
+    --file-tree-icon-yellow: oklch(from var(--color-yellow-500) 0.64 c h);
     --ignored-color: var(--color-text-300);
     // Past '--padding' plus half '--twistie-size', so a nested row, and the highlight on it, starts clear of its
     // parent's guide.

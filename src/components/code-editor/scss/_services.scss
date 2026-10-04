@@ -1,0 +1,19 @@
+.code-editor-services {
+    font: 13px/1.5 var(--editor-font-family, monospace);
+    .code-editor-completions, .code-editor-service-tooltip {
+        position: fixed; z-index: 100; background: var(--editor-background, Canvas); color: var(--editor-color, CanvasText);
+        border: 1px solid var(--editor-border, GrayText); border-radius: 4px; box-shadow: 0 4px 16px #0003;
+    }
+    .code-editor-completions { max-height: 260px; overflow: auto; min-width: 220px; }
+    .code-editor-completions button { display: flex; gap: 20px; width: 100%; text-align: left; background: transparent; color: inherit; border: 0; padding: 4px 8px; font: inherit; }
+    .code-editor-completions button[aria-selected='true'] { background: Highlight; color: HighlightText; }
+    .code-editor-completions small { opacity: .75; }
+    .code-editor-service-tooltip { padding: 6px 10px; white-space: pre-wrap; max-height: 300px; overflow: auto; }
+    .code-editor-squiggle { position: fixed; height: 4px; pointer-events: none; color: var(--editor-error, #d44); background: radial-gradient(circle at 50% -1px, transparent 2px, currentColor 2px, currentColor 3px, transparent 3px) 0 0 / 6px 4px repeat-x; z-index: 2; }
+    .code-editor-squiggle--warning { color: var(--editor-warning, #ba8b00); }
+    .code-editor-squiggle--info { color: var(--editor-accent, #568dca); }
+    .code-editor-diagnostic-messages { display: flex; flex-direction: column; max-height: 120px; overflow: auto; }
+    .code-editor-diagnostic-messages:empty { display: none; }
+    .code-editor-diagnostic-messages button { text-align: left; font: inherit; color: inherit; background: transparent; border: 0; cursor: pointer; }
+    [hidden] { display: none !important; }
+}

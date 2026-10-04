@@ -10,6 +10,7 @@ import card from 'docs/examples/card';
 import cc from 'docs/examples/cc';
 import checkbox from 'docs/examples/checkbox';
 import clipboard from 'docs/examples/clipboard';
+import codeEditor from 'docs/examples/code-editor';
 import colorPicker from 'docs/examples/color-picker';
 import command from 'docs/examples/command';
 import container from 'docs/examples/container';
@@ -72,6 +73,7 @@ const entries: Entry[] = [
     cc,
     checkbox,
     clipboard,
+    codeEditor,
     colorPicker,
     command,
     container,

@@ -276,6 +276,10 @@
         }
     }
 
+    &-icon--builtin.icon {
+        color: var(--file-tree-icon-color, var(--file-tree-glyph-color, inherit));
+    }
+
     &-input {
         background: var(--input-background);
         border: 1px solid var(--input-border-color);
@@ -629,6 +633,10 @@
     // High contrast themes swap every color for the system palette and drop tints and shadows, which would take the
     // highlight, the scope bands and all but the parent's guide with them.
     @media (forced-colors: active) {
+        &-icon--builtin.icon {
+            color: inherit;
+        }
+
         // Opted out, so the shadow copies drawing the further ancestors' guides survive.
         &--indicator &-row::before {
             --indicator-color: GrayText;
