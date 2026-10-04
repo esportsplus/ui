@@ -5,10 +5,10 @@ import type { Entry } from 'docs/types';
 import 'docs/examples/highlight/scss/index.scss';
 
 
-let column = 'display: flex; flex-direction: column; gap: var(--size-100); width: 240px;',
+let column = '--gap-vertical: var(--size-100); width: 240px;',
     labels = ['Overview', 'Matches', 'Teams', 'Players', 'Settings'],
     radii = ['var(--border-radius-300)', '999px', '0px', 'var(--border-radius-500)', '999px', 'var(--border-radius-300)'],
-    row = 'display: flex; flex-wrap: wrap; gap: var(--size-200); align-items: center;';
+    row = '--gap-horizontal: var(--size-200); --gap-vertical: var(--size-200);';
 
 
 function tabs(line: 'bottom' | 'left', fill: boolean) {
@@ -42,10 +42,10 @@ export default {
     variants: [
         {
             render: () => html`
-                <div style='${row}'>
+                <div class='--flex-vertical' style='${row}'>
                     ${highlight()}
                     ${labels.map((label) => html`
-                        <div class='button' tabindex='0'>${label}</div>
+                        <button class='button' type='button'>${label}</button>
                     `)}
                 </div>
             `,
@@ -53,7 +53,7 @@ export default {
         },
         {
             render: () => html`
-                <div style='${column}'>
+                <div class='--flex-column' style='${column}'>
                     ${highlight()}
                     ${labels.map((label) => html`
                         <div
@@ -73,17 +73,17 @@ export default {
                 let state = reactive({ active: 0 });
 
                 return html`
-                    <div style='${row}'>
+                    <div class='--flex-vertical' style='${row}'>
                         ${highlight()}
                         ${labels.map((label, index) => html`
-                            <div
+                            <button
                                 class='button ${() => state.active === index && '--active'}'
                                 onclick='${() => state.active = index}'
                                 style='border-radius: 999px;'
-                                tabindex='0'
+                                type='button'
                             >
                                 ${label}
-                            </div>
+                            </button>
                         `)}
                     </div>
                 `;
@@ -104,17 +104,17 @@ export default {
                             color: var(--color-white-400);
                         '
                     >
-                        <div style='${row}'>
+                        <div class='--flex-vertical' style='${row}'>
                             ${highlight({ class: '--background-blue' })}
                             ${labels.map((label, index) => html`
-                                <div
+                                <button
                                     class='button ${() => state.active === index && '--active'}'
                                     onclick='${() => state.active = index}'
                                     style='--color: var(--color-white-400);'
-                                    tabindex='0'
+                                    type='button'
                                 >
                                     ${label}
-                                </div>
+                                </button>
                             `)}
                         </div>
                     </div>
@@ -139,13 +139,13 @@ export default {
                 <div style='display: grid; gap: var(--size-200); grid-template-columns: repeat(3, 96px);'>
                     ${highlight()}
                     ${radii.map((radius, index) => html`
-                        <div
+                        <button
                             class='button'
                             style='border-radius: ${radius}; height: 64px;'
-                            tabindex='0'
+                            type='button'
                         >
                             ${index + 1}
-                        </div>
+                        </button>
                     `)}
                 </div>
             `,

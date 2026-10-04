@@ -4,6 +4,7 @@ import { html } from '@esportsplus/template';
 import ava from 'docs/examples/tooltip/ava.svg?url';
 import ben from 'docs/examples/tooltip/ben.svg?url';
 import cara from 'docs/examples/tooltip/cara.svg?url';
+import type { Entry } from 'docs/types';
 import 'docs/examples/tooltip/scss/index.scss';
 
 
@@ -17,9 +18,8 @@ type Profile = {
 };
 
 
-let content = 'padding: var(--size-400) var(--size-500); --background: var(--color-black-400); color: var(--color-white-400);',
-    // Menu levels; a branch's 'items' drill into a panel of their own.
-    nested = [
+// Menu levels; a branch's 'items' drill into a panel of their own.
+let nested = [
         { hint: '⌘N', label: 'New file' },
         {
             items: [
@@ -224,10 +224,10 @@ export default {
     variants: [
         {
             render: () => tooltip.onhover(
-                { class: trigger, style: '--width: auto;' },
+                { class: trigger },
                 html`
                     hover me
-                    <div class='tooltip-content tooltip-content--s' style='${content}'>
+                    <div class='tooltip-message tooltip-message--s'>
                         Tooltip shown on hover (direction s)
                     </div>
                 `
@@ -236,10 +236,10 @@ export default {
         },
         {
             render: () => tooltip.onclick(
-                { class: trigger, style: '--width: auto;' },
+                { class: trigger },
                 html`
                     click me
-                    <div class='tooltip-content tooltip-content--n' style='${content}'>
+                    <div class='tooltip-message tooltip-message--n'>
                         Tooltip toggled on click (direction n)
                     </div>
                 `
@@ -248,21 +248,21 @@ export default {
         },
         {
             render: () => tooltip.menu(
-                { items: [{ label: 'Profile' }, { label: 'Settings' }, { label: 'Docs ↗', href: '#' }], [tooltip.menu.trigger]: { class: trigger, style: '--width: auto;' } },
+                { items: [{ label: 'Profile' }, { label: 'Settings' }, { label: 'Docs ↗', href: '#' }], [tooltip.menu.trigger]: { class: trigger } },
                 'open menu'
             ),
             title: 'menu'
         },
         ...(['se', 'sw', 'ne', 'es'] as const).map((direction) => ({
             render: () => tooltip.menu(
-                { expand: direction, items: nested, [tooltip.menu.trigger]: { class: trigger, style: '--width: auto;' } },
+                { expand: direction, items: nested, [tooltip.menu.trigger]: { class: trigger } },
                 'expand menu'
             ),
             title: `menu (expand, ${direction})`
         })),
         {
             render: () => tooltip.menu(
-                { items: nested, openOn: 'hover', [tooltip.menu.trigger]: { class: trigger, style: '--width: auto;' } },
+                { items: nested, openOn: 'hover', [tooltip.menu.trigger]: { class: trigger } },
                 'hover for menu'
             ),
             title: 'menu (onhover)'
@@ -279,47 +279,48 @@ export default {
             [false, 'menu (instant)']
         ] as const).map(([animate, title]) => ({
             render: () => tooltip.menu(
-                { animate, items: nested, [tooltip.menu.trigger]: { class: trigger, style: '--width: auto;' } },
+                { animate, items: nested, [tooltip.menu.trigger]: { class: trigger } },
                 'open menu'
             ),
             title
         })),
         ...[
-            ['tooltip-content--scale', 'scale'],
-            ['tooltip-content--scale-spring', 'scale + spring'],
-            ['tooltip-content--spring', 'spring']
+            ['tooltip-message--scale', 'scale'],
+            ['tooltip-message--scale-spring', 'scale + spring'],
+            ['tooltip-message--spring', 'spring']
         ].map(([variant, title]) => ({
             render: () => tooltip.onhover(
-                { class: trigger, style: '--width: auto;' },
+                { class: trigger },
                 html`
                     hover me
-                    <div class='tooltip-content tooltip-content--s ${variant}' style='${content}'>
+                    <div class='tooltip-message tooltip-message--s ${variant}'>
                         ${title}
                     </div>
                 `
             ),
             title
         })),
-        // Temp: morph review. Content must be wrapped in an element so it can deblur separately from the shape.
         {
             render: () => tooltip.onhover(
-                { class: trigger, style: '--width: auto;' },
+                { class: trigger },
                 html`
                     hover me
-                    <div class='tooltip-content tooltip-content--s tooltip-content--morph' style='${content}'>
-                        <span>Morphs out of the button, then deblurs</span>
-                    </div>
+                    <div class='tooltip-message tooltip-message--s tooltip-message--morph'>Morphs out of the button, then deblurs</div>
                 `
             ),
             title: 'morph (onhover, s)'
         },
+        // Rich content: a 'tooltip-content' styled as the surface, wrapping instead of the message's single line.
         {
             render: () => tooltip.onclick(
-                { class: trigger, style: '--width: auto;' },
+                { class: trigger },
                 html`
                     click me
-                    <div class='tooltip-content tooltip-content--n tooltip-content--morph' style='${content} --width: 280px; white-space: normal;'>
-                        <div class='--flex-column' style='gap: var(--size-200);'>
+                    <div
+                        class='tooltip-content tooltip-content--n tooltip-content--morph'
+                        style='--background: var(--color-black-400); --width: 280px; color: var(--color-white-400); padding: var(--size-400) var(--size-500); white-space: normal;'
+                    >
+                        <div class='--flex-column' style='--gap-vertical: var(--size-200);'>
                             <strong style='--color: var(--color-white-400);'>Liquid tooltip</strong>
                             <span>Grows out from behind the button, springs open, and shrinks back on close.</span>
                         </div>
@@ -330,7 +331,7 @@ export default {
         },
         {
             render: () => tooltip.onhover(
-                { class: trigger, style: '--width: auto;' },
+                { class: trigger },
                 html`
                     hover me
                     <div class='tooltip-message tooltip-message--e tooltip-message--morph'>Plain text message, no wrapper</div>
@@ -437,4 +438,4 @@ export default {
             title: 'shared (navigation: keep, dismiss, state.index)'
         }
     ]
-};
+} satisfies Entry;
