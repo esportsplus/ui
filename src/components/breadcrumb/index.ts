@@ -42,9 +42,11 @@ let uid = 0;
 
 
 function separator(kind: Separator) {
-    return html`
-        <svg aria-hidden='true' class='breadcrumb-separator'><use href='#${SEPARATORS[kind]}' /></svg>
-    `;
+    return html`<svg aria-hidden='true' class='breadcrumb-separator'><use href='#${SEPARATORS[kind]}' /></svg>`;
+}
+
+function sprite(href: string) {
+    return html`<svg aria-hidden='true'><use href='#${href}' /></svg>`;
 }
 
 
@@ -131,6 +133,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                     fit();
 
                     // Also catches webfonts landing late, since they resize the ruler.
+                    observer?.disconnect();
                     observer = new ResizeObserver(fit);
                     observer.observe(element);
 
@@ -195,7 +198,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                         class: 'breadcrumb-menu-root',
                                         items: items.slice(1, last).map((item, i) => ({
                                             label: item.label,
-                                            icon: () => html`<svg aria-hidden='true'><use href='#${folder}' /></svg>`,
+                                            icon: () => sprite(folder),
                                             hidden: () => i >= s.hidden,
                                             href: item.href,
                                             onselect: (_item, event) => navigate(event, item, i + 1),
@@ -215,9 +218,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                             id: `${id}-menu`
                                         }
                                     },
-                                    html`
-                                        <svg aria-hidden='true'><use href='#${dots}' /></svg>
-                                    `
+                                    sprite(dots)
                                 )}
                             </div>
                         </li>
