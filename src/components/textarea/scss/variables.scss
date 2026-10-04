@@ -10,6 +10,8 @@
     --font-size: var(--font-size-400);
     --padding-horizontal: var(--size-400);
     --padding-vertical: var(--size-400);
+    --resize-duration: 240ms;
+    --resize-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --size: var(--size-400);
 
     #{tokens.state(inactive)} {

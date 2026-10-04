@@ -53,7 +53,7 @@ html`
 | Component | Description | Variants |
 |-----------|-------------|----------|
 | `input` | Text input with validation state; `input.scrub` is a numeric `input` whose label scrubs the value on drag (Shift ×10, Alt ×0.1, optional pointer lock) over a tape measure; arrows step, Escape restores; `input.tag` is a chip field turning typed or pasted text into tags that form in place, nudge on duplicates, and go on a double Backspace; `name` submits `name[]` | `input.scrub`, `input.scrub.field`, `input.scrub.label`, `input.tag`, `input.tag.field` |
-| `textarea` | Multi-line text input | - |
+| `textarea` | Multi-line text input; `autoresize` animates height between its minimum and maximum, respecting reduced motion | - |
 | `checkbox` | Checkbox with label; `checkbox.group` builds a checklist with a select-all header (mixed state), optional counter, and Shift-click ranges | `checkbox.group` |
 | `radio` | Radio button group | - |
 | `range` | Range slider; add `class: 'range--slider'` to `range` or `range.filter` for the compact slider appearance (replaces the standalone `slider` component); `orientation: 'vertical'` supports vertical single and dual thumbs, with height set by `--vertical-size` (default `176px`); `range.filter` is a range filter with rolling-digit values, a Clear button, a ghost preview of where a click would stretch the selection, and scale ticks; a number `value` gives one thumb, a pair gives two that stop at each other; `fields` adds editable min/max `input` fields, `disabled`; `state.low`/`state.high`, `format`, `prefix`, `step`, `ticks` | `range.filter` |

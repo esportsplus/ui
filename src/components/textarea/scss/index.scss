@@ -18,6 +18,7 @@
         background var(--transition-duration) var(--transition-timing-function),
         border-color var(--transition-duration) var(--transition-timing-function),
         box-shadow var(--transition-duration) var(--transition-timing-function),
+        height var(--resize-duration) var(--resize-timing-function),
         opacity var(--transition-duration) var(--transition-timing-function),
         transform var(--transition-duration) var(--transition-timing-function);
     width: 100%;
@@ -29,16 +30,53 @@
 
 
     &--autoresize {
+        --scrollbar-gutter: stable;
+        --scrollbar-overflow: hidden;
+        box-sizing: border-box;
+        field-sizing: fixed;
+        height: var(--height, var(--min-height));
+        max-height: var(--max-height);
+        min-height: var(--min-height);
+        overflow-y: var(--scrollbar-overflow);
+        resize: none;
+        scrollbar-gutter: var(--scrollbar-gutter);
+
+        &.textarea--scrollable {
+            --scrollbar-overflow: auto;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    // The visible field animates while this independent, inaccessible field retains its natural height.
+    &--measure {
+        --scrollbar-gutter: stable;
+        box-sizing: border-box;
         field-sizing: content;
         height: auto;
+        inset: 0 auto auto 0;
         max-height: var(--max-height);
         min-height: var(--min-height);
         overflow-y: auto;
+        pointer-events: none;
+        position: absolute;
         resize: none;
+        scrollbar-gutter: var(--scrollbar-gutter);
+        transition: none;
+        visibility: hidden;
 
         &-fallback {
-            box-sizing: border-box;
             height: calc(var(--content-height, var(--min-height)) + 2 * var(--border-width));
         }
     }
+}
+
+.textarea-resize {
+    display: grid;
+    flex: 1 1 auto;
+    min-width: 0;
+    position: relative;
+    width: 100%;
 }

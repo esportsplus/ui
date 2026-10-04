@@ -43,14 +43,11 @@ export function moreFieldVariations(kind: 'input' | 'textarea'): Variant[] {
                     'aria-describedby': `${id}-hint`,
                     ...(mode === 'counter' ? { maxlength: 160 } : {}),
                     ...(kind === 'textarea' ? { rows: mode === 'autosize' ? 2 : 4 } : {}),
+                    ...(kind === 'textarea' && mode === 'autosize' ? { autoresize: { height: { min: '76px' as const, max: '260px' as const } } } : {}),
                     oninput: (event: Event) => {
                         const field = event.target as HTMLInputElement | HTMLTextAreaElement;
                         state.length = field.value.length;
                         state.words = field.value.trim() ? field.value.trim().split(WORD_SEPARATOR).length : 0;
-                        if (mode === 'autosize') {
-                            field.style.height = 'auto';
-                            field.style.height = `${Math.min(field.scrollHeight, 260)}px`;
-                        }
                     }
                 };
 
