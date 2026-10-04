@@ -15,10 +15,11 @@
             width: 100%;
         }
 
+        // Dressed as one of the field's own surfaces, from the variables the field sets for them.
         &-card {
-            background: var(--color-white-300);
-            border-radius: 14px;
-            box-shadow: 0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06), 0 8px 24px -8px oklch(from var(--color-black-300) l c h / 0.14);
+            background: var(--surface-background);
+            border-radius: var(--surface-border-radius);
+            box-shadow: 0 0 0 1px var(--surface-border-color), var(--surface-box-shadow);
             display: flex;
             flex-direction: column;
             gap: 8px;

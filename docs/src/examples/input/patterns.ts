@@ -20,13 +20,10 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const NON_DIGITS = /\D/g;
 
-const WHITESPACE = /\s+/g;
-
 // Original previews recreating the behavior of these references, without copied source:
 // https://www.interior.dev/docs/inline-validation
 // https://www.interior.dev/docs/password-strength
 // https://www.interior.dev/docs/otp-input
-// https://www.interior.dev/docs/tag-input
 let instance = 0;
 
 
@@ -42,8 +39,6 @@ const PASSWORD_RULES: [string, (value: string) => boolean][] = [
     ['A number', (value) => DIGIT.test(value)],
     ['A symbol', (value) => SPECIAL_CHARACTER.test(value)]
 ];
-
-const TAG_SEPARATORS = /[,;]/;
 
 
 function guessable(value: string) {
@@ -105,7 +100,7 @@ const inlineValidation = (): Variant => ({
             <div class='form-prototype field-pattern validation-pattern ${() => state.error && '--invalid'} ${() => state.valid && '--valid'}'>
                 <label for='${id}'>Email</label>
                 <div class='field-pattern-surface'>
-                    ${input.call({}, {
+                    ${input({
                         'aria-describedby': `${id}-message`,
                         'aria-invalid': () => state.error ? 'true' : 'false',
                         autocomplete: 'email',
@@ -312,7 +307,7 @@ const passwordStrength = (): Variant => ({
             <div class='${() => `form-prototype field-pattern strength-pattern --${tone()}`}'>
                 <label for='${id}'>Password</label>
                 <div class='field-pattern-surface'>
-                    ${input.call({}, {
+                    ${input({
                         'aria-describedby': `${id}-strength`,
                         autocomplete: 'new-password',
                         id,
@@ -348,170 +343,7 @@ const passwordStrength = (): Variant => ({
     title: 'Password strength · Segmented meter'
 });
 
-const tags = (): Variant => ({
-    render: () => {
-        let id = `field-pattern-${++instance}`,
-            list = reactive([{ value: 'design' }, { value: 'motion' }] as { value: string }[]),
-            max = 8,
-            state = reactive({ armed: '', duplicate: '', message: '' }),
-            timer: ReturnType<typeof setTimeout> | undefined;
-
-        function commit(text: string) {
-            let value = text.trim().replace(WHITESPACE, ' ');
-
-            if (!value) {
-                return true;
-            }
-
-            if (value.length > 24) {
-                state.message = `"${value.slice(0, 24)}…" is not allowed here, keep it under 24 characters`;
-                return false;
-            }
-
-            if (list.some((tag) => tag.value.toLowerCase() === value.toLowerCase())) {
-                clearTimeout(timer);
-                state.duplicate = value.toLowerCase();
-                state.message = `${value} is already in the list`;
-                timer = setTimeout(() => state.duplicate = '', 700);
-                return false;
-            }
-
-            if (list.length >= max) {
-                state.message = `That is the limit of ${max} tags`;
-                return false;
-            }
-
-            list.push({ value });
-            state.message = '';
-
-            return true;
-        }
-
-        function onkeydown(event: KeyboardEvent) {
-            let draft = event.target as HTMLInputElement,
-                index = list.findIndex((tag) => tag.value === state.armed);
-
-            if (event.key === 'Enter' || TAG_SEPARATORS.test(event.key)) {
-                event.preventDefault();
-
-                if (commit(draft.value)) {
-                    draft.value = '';
-                }
-
-                return;
-            }
-
-            if (draft.value) {
-                state.armed = '';
-                return;
-            }
-
-            switch (event.key) {
-                case 'ArrowLeft':
-                    if (list.length) {
-                        state.armed = list[index === -1 ? list.length - 1 : Math.max(index - 1, 0)].value;
-                    }
-
-                    break;
-                case 'ArrowRight':
-                    state.armed = index === -1 || index === list.length - 1 ? '' : list[index + 1].value;
-                    break;
-                case 'Backspace':
-                    // First press arms the last tag, second press removes it
-                    if (state.armed) {
-                        remove(state.armed);
-                    }
-                    else if (list.length) {
-                        state.armed = list[list.length - 1].value;
-                    }
-
-                    break;
-                case 'Delete':
-                    if (state.armed) {
-                        remove(state.armed);
-                    }
-
-                    break;
-                case 'Escape':
-                    state.armed = '';
-                    break;
-                default:
-                    return;
-            }
-
-            event.preventDefault();
-        }
-
-        function remove(value: string) {
-            let index = list.findIndex((tag) => tag.value === value);
-
-            if (index !== -1) {
-                list.splice(index, 1);
-            }
-
-            state.armed = '';
-            state.message = '';
-        }
-
-        return html`
-            <div class='form-prototype field-pattern tag-pattern'>
-                <div class='field-pattern-heading'>
-                    <label for='${id}'>Topics</label>
-                    <output for='${id}'>${() => list.length} / ${max}</output>
-                </div>
-                <div class='field-pattern-surface tag-pattern-surface' onclick='${(event: MouseEvent) => {
-                    (event.currentTarget as HTMLElement).querySelector<HTMLInputElement>('.tag-pattern-draft')?.focus();
-                }}'>
-                    ${html.reactive(list, (tag) => html`
-                        <span class='tag-pattern-chip ${() => state.armed === tag.value && '--armed'} ${() => state.duplicate === tag.value.toLowerCase() && '--duplicate'}'>
-                            <span class='tag-pattern-label'>${tag.value}</span>
-                            <button
-                                aria-label='${`Remove ${tag.value}`}'
-                                class='tag-pattern-remove'
-                                type='button'
-                                onclick='${(event: MouseEvent) => {
-                                    event.stopPropagation();
-                                    remove(tag.value);
-                                }}'
-                            >
-                                <svg viewBox='0 0 16 16' aria-hidden='true'><path d='M4.5 4.5l7 7m0-7l-7 7' /></svg>
-                            </button>
-                        </span>
-                    `)}
-                    <input
-                        aria-describedby='${`${id}-message`}'
-                        class='tag-pattern-draft'
-                        id='${id}'
-                        placeholder='Add a tag'
-                        onblur='${() => state.armed = ''}'
-                        oninput='${() => state.message = ''}'
-                        onkeydown='${onkeydown}'
-                        onpaste='${(event: ClipboardEvent) => {
-                            let text = event.clipboardData?.getData('text') ?? '';
-
-                            if (!TAG_SEPARATORS.test(text)) {
-                                return;
-                            }
-
-                            event.preventDefault();
-
-                            for (let part of text.split(TAG_SEPARATORS)) {
-                                commit(part);
-                            }
-                        }}'
-                    />
-                </div>
-                <div class='tag-pattern-message ${() => state.message && '--rejected'}' id='${`${id}-message`}' aria-live='polite'>
-                    <small class='tag-pattern-hint'>Enter adds · Backspace removes</small>
-                    <small class='tag-pattern-rejection'>${() => state.message}</small>
-                </div>
-            </div>
-        `;
-    },
-    title: 'Tag input · Enter, comma or paste'
-});
-
-const inputPatternVariations = (): Variant[] => [inlineValidation(), passwordStrength(), otp(), tags()];
+const inputPatternVariations = (): Variant[] => [inlineValidation(), passwordStrength(), otp()];
 
 
 export { inputPatternVariations };

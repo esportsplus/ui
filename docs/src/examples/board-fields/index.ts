@@ -12,14 +12,6 @@ type Field = {
     value?: string;
 };
 
-type Otp = {
-    disabled?: boolean;
-    group?: number;
-    invalid?: boolean;
-    length?: number;
-    value?: string;
-};
-
 type Notes = {
     autoresize?: boolean;
     count?: boolean;
@@ -31,6 +23,14 @@ type Notes = {
     required?: boolean;
     rows?: number;
     size?: 'medium' | 'small';
+    value?: string;
+};
+
+type Otp = {
+    disabled?: boolean;
+    group?: number;
+    invalid?: boolean;
+    length?: number;
     value?: string;
 };
 
@@ -80,7 +80,7 @@ function field({ disabled, invalid, size = 'medium', value }: Field = {}) {
             ${label(id, 'Email')}
             <div class='board-input-field'>
                 ${ICONS.smile()}
-                ${input.call({}, {
+                ${input({
                     'aria-describedby': `${id}-hint`,
                     'aria-invalid': invalid && 'true',
                     disabled,
@@ -105,6 +105,20 @@ function focus(target: HTMLInputElement, index: number) {
     box.select();
 }
 
+function format(value: string) {
+    let digits = value.replace(NON_DIGITS, '').slice(0, 10);
+
+    if (digits.length < 4) {
+        return digits;
+    }
+
+    if (digits.length < 7) {
+        return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    }
+
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 function label(id: string, text: string, required = true, info = true) {
     return html`
         <label class='board-input-label' for='${id}'>
@@ -121,7 +135,7 @@ function notes({ autoresize, count, disabled, hint, invalid, label: text, placeh
         <div class='board-input board-input--${size} board-input--textarea ${invalid && 'board-input--invalid'} ${disabled && 'board-input--disabled'}'>
             ${label(id, text, !!required, !!required)}
             <div class='board-input-field'>
-                ${textarea.call({}, {
+                ${textarea({
                     'aria-describedby': `${id}-hint`,
                     'aria-invalid': invalid && 'true',
                     ...(autoresize && { autoresize: { height: { max: '160px', min: '20px' } } }),
@@ -172,7 +186,7 @@ function otp({ disabled, group, invalid, length = 6, value = '' }: Otp = {}) {
             <div class='board-otp-boxes' role='group' aria-label='Verification code'>
                 ${Array.from({ length }, (_, index) => html`
                     <span class='board-otp-box ${group && index > 0 && index % group === 0 && 'board-otp-box--gap'}'>
-                        ${input.call({}, {
+                        ${input({
                             'aria-invalid': invalid && 'true',
                             'aria-label': `Digit ${index + 1} of ${length}`,
                             autocomplete: 'one-time-code',
@@ -249,7 +263,7 @@ function phone(value = '') {
                         ${COUNTRIES.map(({ dial, name }) => html`<option>${name} (${dial})</option>`)}
                     </select>
                 </label>
-                ${input.call({}, {
+                ${input({
                     'aria-describedby': `${id}-hint`,
                     autocomplete: 'tel-national',
                     id,
@@ -271,26 +285,12 @@ function phone(value = '') {
     `;
 }
 
-function format(value: string) {
-    let digits = value.replace(NON_DIGITS, '').slice(0, 10);
-
-    if (digits.length < 4) {
-        return digits;
-    }
-
-    if (digits.length < 7) {
-        return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-    }
-
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-}
-
 function quick(icon: keyof typeof ICONS, placeholder: string, type: string) {
     return html`
         <div class='board-input board-input--medium'>
             <div class='board-input-field'>
                 ${ICONS[icon]()}
-                ${input.call({}, { 'aria-label': placeholder, placeholder, type })}
+                ${input({ 'aria-label': placeholder, placeholder, type })}
             </div>
         </div>
     `;
