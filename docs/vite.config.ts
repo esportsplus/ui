@@ -3,6 +3,7 @@ import { resolve } from 'path';
 import { defineConfig, normalizePath } from 'vite';
 import template from '@esportsplus/template/compiler/vite';
 import exampleSource from './scripts/example-source.mjs';
+import { layers } from '../vite.config.ts';
 import tsconfig from './tsconfig.json' with { type: 'json' };
 
 
@@ -32,7 +33,8 @@ export default defineConfig((env) => {
         mode: env.mode,
         plugins: [
             exampleSource(),
-            template()
+            template(),
+            layers
         ],
         resolve: {
             alias: [

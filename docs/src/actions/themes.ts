@@ -1,10 +1,10 @@
-import { pageHead } from '~/components/page/head';
-import { html } from '~/app';
-import { themes } from '~/data/scss';
-import { layout } from '~/components/layout';
-import { preview } from '~/components/preview';
-import type { Renderable, Router } from '~/app';
-import type { Page, TocItem } from '~/types';
+import { pageHead } from 'docs/components/page/head';
+import { html } from 'docs/app';
+import { themes } from 'docs/data/scss';
+import { layout } from 'docs/components/layout';
+import { preview } from 'docs/components/preview';
+import type { Renderable, Router } from 'docs/app';
+import type { Page, TocItem } from 'docs/types';
 
 
 type Entry = {

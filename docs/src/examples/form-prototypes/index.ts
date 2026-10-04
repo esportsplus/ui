@@ -1,7 +1,7 @@
 import { input, textarea } from '@esportsplus/ui/components';
 import { html } from '@esportsplus/template';
-import type { Variant } from '~/types';
-import '~/examples/form-prototypes/scss/index.scss';
+import type { Variant } from 'docs/types';
+import 'docs/examples/form-prototypes/scss/index.scss';
 
 
 let instance = 0;

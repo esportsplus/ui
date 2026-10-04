@@ -7,17 +7,20 @@
             "@esportsplus/ui/layer.scss": [
                 "../layer.scss"
             ],
+            "@esportsplus/ui/package.json": [
+                "../package.json"
+            ],
             "@esportsplus/ui/svg/*": [
                 "../storage/svg/*"
             ],
             "@esportsplus/ui/*": [
-                "../build/*"
+                "../src/*"
             ],
-            "~/package.json": [
-                "../package.json"
+            "docs/*": [
+                "./src/*"
             ],
             "~/*": [
-                "./src/*"
+                "../src/*"
             ]
         }
     },

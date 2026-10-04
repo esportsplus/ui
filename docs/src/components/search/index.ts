@@ -2,8 +2,8 @@ import icon from '@esportsplus/ui/components/icon';
 import searchSvg from '@esportsplus/ui/svg/search.svg';
 import { command } from '@esportsplus/ui/components';
 import { mac } from '@esportsplus/ui/shared/platform';
-import { html, reactive, redirect } from '~/app';
-import { sections } from '~/data/nav';
+import { html, reactive, redirect } from 'docs/app';
+import { sections } from 'docs/data/nav';
 import type { Tab } from '@esportsplus/ui/components/command';
 
 

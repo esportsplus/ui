@@ -1,9 +1,9 @@
-import { pageHead } from '~/components/page/head';
-import { html } from '~/app';
-import { fonts } from '~/data/scss';
-import { layout } from '~/components/layout';
-import type { Router } from '~/app';
-import type { Page, TocItem } from '~/types';
+import { pageHead } from 'docs/components/page/head';
+import { html } from 'docs/app';
+import { fonts } from 'docs/data/scss';
+import { layout } from 'docs/components/layout';
+import type { Router } from 'docs/app';
+import type { Page, TocItem } from 'docs/types';
 
 
 type Face = {

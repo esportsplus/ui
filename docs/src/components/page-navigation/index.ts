@@ -1,9 +1,9 @@
-import { html } from '~/app';
+import { html } from 'docs/app';
 import icon from '@esportsplus/ui/components/icon';
 import arrowLeft from '@esportsplus/ui/svg/arrow-left.svg';
 import arrowRight from '@esportsplus/ui/svg/arrow-right.svg';
-import { sections } from '~/data/nav';
-import '~/components/page-navigation/index.scss';
+import { sections } from 'docs/data/nav';
+import 'docs/components/page-navigation/index.scss';
 
 
 const TRAILING_SLASH = /\/$/;

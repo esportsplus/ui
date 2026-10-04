@@ -1,8 +1,8 @@
-import { html } from '~/app';
+import { html } from 'docs/app';
 import { highlight, icon } from '@esportsplus/ui/components';
 import code from '@esportsplus/ui/svg/code.svg';
 import eye from '@esportsplus/ui/svg/eye.svg';
-import '~/components/example-view/scss/index.scss';
+import 'docs/components/example-view/scss/index.scss';
 
 
 type View = 'preview' | 'code';

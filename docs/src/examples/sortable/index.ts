@@ -1,7 +1,7 @@
 import { reactive, ReactiveArray } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { select, sortable } from '@esportsplus/ui/components';
-import '~/examples/sortable/scss/index.scss';
+import 'docs/examples/sortable/scss/index.scss';
 
 
 let apps = [

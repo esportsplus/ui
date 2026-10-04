@@ -1,8 +1,8 @@
-import { uri } from '~/app';
-import { utilities } from '~/data/utilities';
-import { entries } from '~/examples';
-import { meta } from '~/meta';
-import type { RouteName } from '~/app';
+import { uri } from 'docs/app';
+import { utilities } from 'docs/data/utilities';
+import { entries } from 'docs/examples';
+import { meta } from 'docs/meta';
+import type { RouteName } from 'docs/app';
 
 
 type Link = {

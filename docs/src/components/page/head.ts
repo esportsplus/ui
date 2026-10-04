@@ -1,6 +1,6 @@
-import { html } from '~/app';
-import { pageNavigation } from '~/components/page-navigation';
-import '~/components/page/scss/index.scss';
+import { html } from 'docs/app';
+import { pageNavigation } from 'docs/components/page-navigation';
+import 'docs/components/page/scss/index.scss';
 
 
 const pageHead = (title: string, description: string) => html`

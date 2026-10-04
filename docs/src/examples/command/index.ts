@@ -24,7 +24,7 @@ import undo from '@esportsplus/ui/svg/undo.svg';
 import zoomIn from '@esportsplus/ui/svg/zoom-in.svg';
 import zoomOut from '@esportsplus/ui/svg/zoom-out.svg';
 import type { Command, Shortcut, Store, Tab } from '@esportsplus/ui/components/command';
-import '~/examples/command/scss/index.scss';
+import 'docs/examples/command/scss/index.scss';
 
 
 let commands: Command[] = [

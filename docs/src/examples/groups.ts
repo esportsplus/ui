@@ -1,4 +1,4 @@
-import type { Variant } from '~/types';
+import type { Variant } from 'docs/types';
 
 
 type Group = { title: string; members: (string | [string, string])[] };

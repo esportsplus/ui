@@ -1,6 +1,6 @@
 import { html } from '@esportsplus/template';
 import { switch as switchComponent } from '@esportsplus/ui/components';
-import '~/examples/switch/scss/index.scss';
+import 'docs/examples/switch/scss/index.scss';
 
 
 let privacy = [

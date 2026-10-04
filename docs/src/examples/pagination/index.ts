@@ -1,8 +1,8 @@
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { pagination } from '@esportsplus/ui/components';
-import type { Entry } from '~/types';
-import '~/examples/pagination/scss/index.scss';
+import type { Entry } from 'docs/types';
+import 'docs/examples/pagination/scss/index.scss';
 
 
 type Page = {

@@ -1,11 +1,11 @@
-import { uri } from '~/app';
-import { entries } from '~/examples';
-import { groupVariants } from '~/examples/groups';
-import { meta } from '~/meta';
-import { cardGrid, detailPage, missing } from '~/components/page';
-import { layout } from '~/components/layout';
-import type { Router } from '~/app';
-import type { Page } from '~/types';
+import { uri } from 'docs/app';
+import { entries } from 'docs/examples';
+import { groupVariants } from 'docs/examples/groups';
+import { meta } from 'docs/meta';
+import { cardGrid, detailPage, missing } from 'docs/components/page';
+import { layout } from 'docs/components/layout';
+import type { Router } from 'docs/app';
+import type { Page } from 'docs/types';
 
 
 let index: Record<string, (typeof entries)[number]> = {};

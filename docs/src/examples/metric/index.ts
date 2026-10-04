@@ -2,8 +2,8 @@ import { batch, onCleanup, reactive, ReactiveArray } from '@esportsplus/reactivi
 import { html } from '@esportsplus/template';
 import { metric } from '@esportsplus/ui/components';
 import type { MetricPoint } from '@esportsplus/ui/components/metric';
-import type { Entry } from '~/types';
-import '~/examples/metric/scss/index.scss';
+import type { Entry } from 'docs/types';
+import 'docs/examples/metric/scss/index.scss';
 
 
 type Walk = {

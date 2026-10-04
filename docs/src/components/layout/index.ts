@@ -1,8 +1,8 @@
-import { html } from '~/app';
-import { pageNavTree } from '~/components/nav/page';
-import { scrollSpy } from '~/components/nav/tree/spy';
-import type { Page } from '~/types';
-import '~/components/layout/scss/index.scss';
+import { html } from 'docs/app';
+import { pageNavTree } from 'docs/components/nav/page';
+import { scrollSpy } from 'docs/components/nav/tree/spy';
+import type { Page } from 'docs/types';
+import 'docs/components/layout/scss/index.scss';
 
 
 const layout = (page: Page) => {

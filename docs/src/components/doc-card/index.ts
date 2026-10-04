@@ -1,5 +1,5 @@
-import { html } from '~/app';
-import '~/components/doc-card/scss/index.scss';
+import { html } from 'docs/app';
+import 'docs/components/doc-card/scss/index.scss';
 
 
 type Card = {

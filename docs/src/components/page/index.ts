@@ -1,11 +1,11 @@
-import { pageHead } from '~/components/page/head';
-import { html } from '~/app';
+import { pageHead } from 'docs/components/page/head';
+import { html } from 'docs/app';
 import { breadcrumb } from '@esportsplus/ui/components';
-import { docCard } from '~/components/doc-card';
-import { preview } from '~/components/preview';
-import type { Card } from '~/components/doc-card';
-import type { Page, TocItem, Variant } from '~/types';
-import '~/components/page/scss/index.scss';
+import { docCard } from 'docs/components/doc-card';
+import { preview } from 'docs/components/preview';
+import type { Card } from 'docs/components/doc-card';
+import type { Page, TocItem, Variant } from 'docs/types';
+import 'docs/components/page/scss/index.scss';
 
 
 type Detail = {

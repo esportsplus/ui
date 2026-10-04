@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "pnpm --dir .. build && vite",
+        "dev": "vite",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {

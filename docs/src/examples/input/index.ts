@@ -1,11 +1,11 @@
 import { form, input } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { boardInputVariations, boardOtpVariations } from '~/examples/board-fields';
-import { fieldVariations } from '~/examples/form-prototypes';
-import { moreFieldVariations } from '~/examples/form-options';
-import { inputPatternVariations } from '~/examples/input/patterns';
-import '~/examples/input/scss/index.scss';
+import { boardInputVariations, boardOtpVariations } from 'docs/examples/board-fields';
+import { fieldVariations } from 'docs/examples/form-prototypes';
+import { moreFieldVariations } from 'docs/examples/form-options';
+import { inputPatternVariations } from 'docs/examples/input/patterns';
+import 'docs/examples/input/scss/index.scss';
 
 
 const TAG_HINT = 'Press Enter or comma to add. Backspace twice removes the last tag.';

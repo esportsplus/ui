@@ -3,12 +3,12 @@ import glass from '@esportsplus/ui/css-utilities/glass';
 import githubSvg from '@esportsplus/ui/svg/github.svg';
 import sidebarSvg from '@esportsplus/ui/svg/sidebar.svg';
 import sidebarFilledSvg from '@esportsplus/ui/svg/sidebar-filled.svg';
-import { html, uri } from '~/app';
-import { modal, searchTrigger } from '~/components/search';
-import { state as sidebar } from '~/components/sidebar';
-import type { Request } from '~/app';
-import '~/components/header/scss/index.scss';
-import { version } from '~/package.json';
+import { html, uri } from 'docs/app';
+import { modal, searchTrigger } from 'docs/components/search';
+import { state as sidebar } from 'docs/components/sidebar';
+import type { Request } from 'docs/app';
+import 'docs/components/header/scss/index.scss';
+import { version } from '@esportsplus/ui/package.json';
 
 const release = version.split('.').slice(0, 2).join('.');
 

@@ -1,9 +1,9 @@
-import { html, reactive } from '~/app';
+import { html, reactive } from 'docs/app';
 import { icon } from '@esportsplus/ui/components';
 import copyIcon from '@esportsplus/ui/svg/copy.svg';
 import checkIcon from '@esportsplus/ui/svg/check.svg';
 import { tokenize } from './tokens';
-import '~/components/code/scss/index.scss';
+import 'docs/components/code/scss/index.scss';
 
 
 const code = (source: string) => {

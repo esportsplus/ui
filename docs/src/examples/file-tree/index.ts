@@ -11,7 +11,7 @@ import type {
     FileTreeSortCase,
     FileTreeSortOrder
 } from '@esportsplus/ui/components/file-tree';
-import '~/examples/file-tree/scss/index.scss';
+import 'docs/examples/file-tree/scss/index.scss';
 
 
 type Legend = {

@@ -4,7 +4,7 @@ import { tokenize } from '../src/components/code/tokens.ts';
 
 
 test('highlighting preserves source text, whitespace, and literal HTML', () => {
-    const source = "import { html } from '~/app';\nimport './styles.scss';\n\nexport const example = () => {\n\t// Keep <script> as source\n\treturn html`<button title=\"false\">Save</button>`;\n};\n";
+    const source = "import { html } from 'docs/app';\nimport './styles.scss';\n\nexport const example = () => {\n\t// Keep <script> as source\n\treturn html`<button title=\"false\">Save</button>`;\n};\n";
     const tokens = tokenize(source);
 
     assert.equal(tokens.map((token) => token.text).join(''), source);

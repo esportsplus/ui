@@ -1,7 +1,7 @@
-import { html } from '~/app';
-import type { TreeLink } from '~/components/nav/tree';
-import '~/components/nav/tree/scss/index.scss';
-import '~/components/nav/page/scss/index.scss';
+import { html } from 'docs/app';
+import type { TreeLink } from 'docs/components/nav/tree';
+import 'docs/components/nav/tree/scss/index.scss';
+import 'docs/components/nav/page/scss/index.scss';
 
 
 const pageNavTree = (links: TreeLink[]) => html`

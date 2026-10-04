@@ -36,7 +36,7 @@
     // What each layer glides with: the active layer takes '--glide-duration-active', so a selection can jump ('0s')
     // while hover still glides.
     --glide: var(--glide-duration);
-    --glide-duration: 0.6s;
+    --glide-duration: 0.24;
     --glide-duration-active: var(--glide-duration);
     // What the edge trailing a glide takes; longer than '--glide' stretches the layer toward the new item.
     --glide-tail: var(--glide-tail-duration);

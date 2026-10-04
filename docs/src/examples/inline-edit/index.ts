@@ -2,7 +2,7 @@ import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { inlineEdit } from '@esportsplus/ui/components';
 import type { Status } from '@esportsplus/ui/components/inline-edit';
-import '~/examples/inline-edit/scss/index.scss';
+import 'docs/examples/inline-edit/scss/index.scss';
 
 
 const SAVED_FOR = 1600;

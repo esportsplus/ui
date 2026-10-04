@@ -1,7 +1,7 @@
-import { layout } from '~/components/layout';
-import installation from '~/components/installation';
-import type { Router } from '~/app';
-import type { Page } from '~/types';
+import { layout } from 'docs/components/layout';
+import installation from 'docs/components/installation';
+import type { Router } from 'docs/app';
+import type { Page } from 'docs/types';
 
 
 const page = (): Page => ({

@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { highlight, radio } from '@esportsplus/ui/components';
 import { html } from '@esportsplus/template';
-import '~/examples/radio/scss/index.scss';
+import 'docs/examples/radio/scss/index.scss';
 
 
 let instance = 0,

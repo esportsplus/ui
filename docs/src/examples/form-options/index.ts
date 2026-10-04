@@ -1,8 +1,8 @@
 import { input, textarea } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import type { Variant } from '~/types';
-import '~/examples/form-options/scss/index.scss';
+import type { Variant } from 'docs/types';
+import 'docs/examples/form-options/scss/index.scss';
 
 
 const WORD_SEPARATOR = /\s+/;

@@ -1,8 +1,8 @@
 import { input, textarea } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import type { Variant } from '~/types';
-import '~/examples/board-fields/scss/index.scss';
+import type { Variant } from 'docs/types';
+import 'docs/examples/board-fields/scss/index.scss';
 
 
 type Field = {

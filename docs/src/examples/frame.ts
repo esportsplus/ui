@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import type { Entry } from '~/types';
+import type { Entry } from 'docs/types';
 
 
 let instance = 0,
