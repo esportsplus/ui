@@ -15,35 +15,42 @@ type Press = {
 };
 
 
-// Matches the 5% ramp of the scroll-driven keyframes.
-const RAMP = 0.05;
-
 // Up to this many pixels a press is still a click.
 const SLOP = 4;
 
 
-function attributes(name: string) {
+// 'size' names the effect's registered length, which computes to pixels: like the scroll-driven animation ranges,
+// each edge reaches full strength once the content has scrolled that far past it.
+function attributes(name: string, size: string) {
     if (typeof CSS === 'undefined' || CSS.supports('animation-timeline: scroll()')) {
         return { class: ['--scrollbar', name] };
     }
 
-    let observer: ResizeObserver | undefined,
-        overflow = { bottom: 0, top: 0 },
+    let mutation: MutationObserver | undefined,
+        overflow = { end: 0, start: 0 },
+        ramp = 1,
+        resize: ResizeObserver | undefined,
         state = reactive({ toggle: false });
 
+    function measure(element: HTMLElement) {
+        ramp = parseFloat(getComputedStyle(element).getPropertyValue(size)) || 1;
+        update(element);
+    }
+
     function update(element: HTMLElement) {
-        let range = element.scrollHeight - element.clientHeight,
-            progress = range > 0 ? element.scrollTop / range : 0,
-            bottom = range > 0 ? Math.min(1, (1 - progress) / RAMP) : 0,
-            top = range > 0 ? Math.min(1, progress / RAMP) : 0;
+        let horizontal = element.classList.contains('--scrollbar-horizontal'),
+            offset = horizontal ? Math.abs(element.scrollLeft) : element.scrollTop,
+            range = horizontal ? element.scrollWidth - element.clientWidth : element.scrollHeight - element.clientHeight,
+            end = range > 0 ? Math.min(1, (range - offset) / ramp) : 0,
+            start = range > 0 ? Math.min(1, offset / ramp) : 0;
 
         // Both settle at 0 or 1 away from the ends, so most scroll events have nothing to rewrite.
-        if (bottom === overflow.bottom && top === overflow.top) {
+        if (end === overflow.end && start === overflow.start) {
             return;
         }
 
-        overflow.bottom = bottom;
-        overflow.top = top;
+        overflow.end = end;
+        overflow.start = start;
         state.toggle = !state.toggle;
     }
 
@@ -52,36 +59,63 @@ function attributes(name: string) {
     return {
         class: ['--scrollbar', name],
         onconnect: (element: HTMLElement) => {
-            observer = new ResizeObserver(() => update(element));
-            observer.observe(element);
+            resize = new ResizeObserver(() => measure(element));
+            resize.observe(element);
 
             for (let i = 0, n = element.children.length; i < n; i++) {
-                observer.observe(element.children[i]);
+                resize.observe(element.children[i]);
             }
+
+            // Content rendered after connecting changes the range too, so it joins the observed children.
+            mutation = new MutationObserver((records) => {
+                for (let i = 0, n = records.length; i < n; i++) {
+                    let { addedNodes, removedNodes } = records[i];
+
+                    for (let j = 0, m = addedNodes.length; j < m; j++) {
+                        let node = addedNodes[j];
+
+                        if (node instanceof Element) {
+                            resize?.observe(node);
+                        }
+                    }
+
+                    for (let j = 0, m = removedNodes.length; j < m; j++) {
+                        let node = removedNodes[j];
+
+                        if (node instanceof Element) {
+                            resize?.unobserve(node);
+                        }
+                    }
+                }
+
+                update(element);
+            });
+            mutation.observe(element, { childList: true });
         },
         ondisconnect: () => {
-            observer?.disconnect();
+            mutation?.disconnect();
+            resize?.disconnect();
         },
         onscroll: function(this: HTMLElement) {
             update(this);
         },
-        style: () => state.toggle !== undefined && `--scroll-overflow-bottom: ${overflow.bottom}; --scroll-overflow-top: ${overflow.top};`
+        style: () => state.toggle !== undefined && `--scroll-overflow-end: ${overflow.end}; --scroll-overflow-start: ${overflow.start};`
     };
 }
 
 
 const blur = () => {
-    let scroll = attributes('--scrollbar-blur');
+    let scroll = attributes('--scrollbar-blur', '--scroll-blur-size');
 
     return {
         ...scroll,
         onconnect: (element: HTMLElement) => {
-            if (!element.querySelector(':scope > .--scrollbar-blur-top')) {
-                element.prepend(createOverlay(element, 'progressive', '--scrollbar-blur-edge --scrollbar-blur-top'));
+            if (!element.querySelector(':scope > .--scrollbar-blur-start')) {
+                element.prepend(createOverlay(element, 'progressive', '--scrollbar-blur-edge --scrollbar-blur-start'));
             }
 
-            if (!element.querySelector(':scope > .--scrollbar-blur-bottom')) {
-                element.appendChild(createOverlay(element, 'progressive', '--scrollbar-blur-edge --scrollbar-blur-bottom'));
+            if (!element.querySelector(':scope > .--scrollbar-blur-end')) {
+                element.appendChild(createOverlay(element, 'progressive', '--scrollbar-blur-edge --scrollbar-blur-end'));
             }
 
             scroll.onconnect?.(element);
@@ -155,7 +189,7 @@ const drag = (axis: Axis = 'both') => {
     };
 };
 
-const fade = () => attributes('--scrollbar-fade');
+const fade = () => attributes('--scrollbar-fade', '--scroll-fade-size');
 
 
 export default { blur, drag, fade };

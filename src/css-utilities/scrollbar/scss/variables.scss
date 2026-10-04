@@ -29,8 +29,8 @@
     &-blur {
         --scroll-blur: 4px;
         // Move the painted edges over scrollport padding without changing the sticky constraints or layout.
-        --scroll-blur-offset-bottom: 0px;
-        --scroll-blur-offset-top: 0px;
+        --scroll-blur-offset-end: 0px;
+        --scroll-blur-offset-start: 0px;
         --scroll-blur-size: 3lh;
     }
 

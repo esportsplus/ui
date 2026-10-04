@@ -97,7 +97,7 @@ const groups: Record<string, Group[]> = {
     scrollbar: [
         { title: 'vertical bar', members: [['default bar', 'Default'], 'visible on hover or keyboard focus', 'hidden bar', 'color states', 'rail color', 'centered growth', 'square thumb', 'width variable'] },
         { title: 'horizontal bar', members: [['horizontal bar', 'Default'], ['auto (horizontal)', 'Platform width'], ['drag (horizontal)', 'Drag horizontally'], ['drag (both)', 'Drag both axes']] },
-        { title: 'edge effects', members: [['fade', 'Fade'], ['fade (content fits)', 'Fade, content fits'], ['blur', 'Blur']] }
+        { title: 'edge effects', members: [['fade', 'Fade'], ['fade (content fits)', 'Fade, content fits'], ['blur', 'Blur'], ['fade (horizontal)', 'Fade, horizontal'], ['blur (horizontal)', 'Blur, horizontal']] }
     ],
     select: [
         { title: 'options', members: [['options', 'Default'], ['pre-selected', 'Pre-selected'], ['font picker', 'Font picker'], ['settings', 'Settings'], ['controlled state', 'Controlled state']] }

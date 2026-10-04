@@ -90,6 +90,14 @@ export default {
             title: 'blur'
         },
         {
+            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar.fade()}>${tiles(16, 1)}</div>`,
+            title: 'fade (horizontal)'
+        },
+        {
+            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar.blur()}>${tiles(16, 1)}</div>`,
+            title: 'blur (horizontal)'
+        },
+        {
             render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar.fade()}>${rows(2)}</div>`,
             title: 'fade (content fits)'
         },
