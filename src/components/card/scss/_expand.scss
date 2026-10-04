@@ -102,10 +102,11 @@
         width: 18px;
     }
 
-    // Holds the slot at the card's exact size so the list never jumps, and marks where it returns to. Keyed off
-    // the dialog through ':has' because template classes land a frame late, after the view transition has
-    // already captured the new state.
-    &-item:has(> #{tokens.state(active, '.card-expand-dialog')}) > .card--expand {
+    // Holds the slot at the card's exact size so the list never jumps, and marks where it returns to. The item's
+    // classes are bound to the same state as its dialog's '--active' and land in the same flush, before the view
+    // transition captures the new state; ':has()' on the dialog would restyle the whole document on every DOM change.
+    // Chained through '.card' to outrank the card's own states, its pressed scale among them.
+    &-item.--active > .card.card--expand {
         --background: var(--slot-background);
         --box-shadow: inset 0 0 0 var(--border-width-400) var(--slot-border-color);
         cursor: default;
@@ -117,7 +118,7 @@
     }
 
     // The view transition is the only motion; the overlay's own fade would play inside the snapshot.
-    &-item:has(> .card--morphing) > .card-expand-dialog {
+    &-item--morphing > .card.card-expand-dialog {
         &,
         &::backdrop {
             transition: none;
@@ -176,8 +177,8 @@
     // Only the card on the move and its open dialog are named, so the rest of the list stays under the backdrop.
     // Reduced motion leaves them unnamed and the whole page cross-fades instead.
     @media (prefers-reduced-motion: no-preference) {
-        &-item:not(:has(> #{tokens.state(active, '.card-expand-dialog')})) > .card--expand.card--morphing,
-        &-item:has(> .card--morphing) > #{tokens.state(active, '.card-expand-dialog')} {
+        &-item:not(.--active) > .card.card--expand.card--morphing,
+        &-item--morphing > #{tokens.state(active, '.card.card-expand-dialog')} {
             --meta-transition-name: card-expand-meta;
             --summary-transition-name: card-expand-summary;
             --title-transition-name: card-expand-title;

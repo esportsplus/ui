@@ -63,7 +63,15 @@ export default component(
         return html`
             <ul class='card-expand' ${this?.attributes} ${attributes}>
                 ${items.map((item, i) => html`
-                    <li class='card-expand-item'>
+                    <li
+                        class='card-expand-item'
+                        ${{
+                            class: [
+                                () => view.open === item.id && '--active',
+                                () => view.morph === item.id && 'card-expand-item--morphing'
+                            ]
+                        }}
+                    >
                         <button
                             aria-haspopup='dialog'
                             class='card card--expand'
