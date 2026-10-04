@@ -1,0 +1,52 @@
+@use '/shared';
+@use '../../nav/tree/scss/presentation';
+
+.docs-search {
+    .command-list {
+        @include presentation.tree;
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-vertical);
+        padding: var(--size-400) var(--size-600);
+
+        &.command-list--empty {
+            display: none;
+        }
+
+        @media (max-width: 720px) {
+            padding-inline: var(--size-400);
+        }
+    }
+
+    .command-group {
+        @include presentation.group;
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-vertical);
+    }
+
+    .command-group-label {
+        @extend %text;
+        @include presentation.title;
+        padding: 0;
+    }
+
+    .command-option.nav-tree-link {
+        height: auto;
+        margin-inline: calc(var(--size-300) * -1);
+    }
+
+    .command-highlight.highlight {
+        @include presentation.highlight;
+        --background-active: var(--color-grey-400);
+    }
+
+    .nav-tree-link {
+        --color-active: var(--color-text-500);
+    }
+
+    .command-label,
+    .command-match {
+        color: inherit;
+    }
+}

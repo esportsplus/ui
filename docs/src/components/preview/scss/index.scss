@@ -7,7 +7,7 @@
     gap: 8px;
     margin: var(--size-800) 0 var(--size-500);
     min-width: 0;
-    scroll-margin-top: calc(var(--header-height) + var(--size-500));
+    scroll-margin-top: var(--size-500);
 
     > .example-view {
         margin: 0;
@@ -23,7 +23,7 @@
     border: var(--border-width-400) solid var(--color-grey-500);
     // Keep visited examples' state while the browser skips painting and layout offscreen.
     contain-intrinsic-block-size: auto 420px;
-    scroll-margin-top: calc(var(--header-height) + var(--size-500));
+    scroll-margin-top: var(--size-500);
     margin: 0;
 
     // An open selector must paint beyond this card and above the following preview.
@@ -34,7 +34,7 @@
 
     &-anchor {
         position: absolute;
-        scroll-margin-top: calc(var(--header-height) + var(--size-500));
+        scroll-margin-top: var(--size-500);
     }
 
     &-stage[hidden],

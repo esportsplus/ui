@@ -8,10 +8,10 @@
 
 .page-nav {
     align-self: start;
-    max-height: calc(100svh - var(--header-height));
+    max-height: 100svh;
     padding: var(--size-800) var(--size-200) var(--spacer-100) 0;
     position: sticky;
-    top: var(--header-height);
+    top: 0;
 
     @media (max-width: 1280px) {
         display: none;

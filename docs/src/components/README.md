@@ -9,14 +9,13 @@ these components; they should not own shared component styles.
 | `code` | TypeScript syntax colors, line numbers, preserved source whitespace, scrolling, and a floating copy control |
 | `doc-card` | Documentation links built on the library card |
 | `example-view` | Compact Preview/Code button group above each component preview card with a library highlight for the active selection |
-| `header` | Site header and primary navigation |
 | `layout` | Main content placement and composition with the TOC |
 | `nav/tree` | Shared navigation groups, links, titles, and states for the sidebar and in-page navigation |
 | `page` | Docs page headings, card grids, detail pages, and empty states |
 | `preview` | Example frames; render factories mount near the viewport and keep their state after mounting |
 | `prose` | Markdown rendering and prose typography; tables use `spec-table` |
 | `root` | Docs-wide theme aliases and shell tokens |
-| `search` | Search state, trigger, and the library `command` palette wired to the nav |
+| `search` | Search state, trigger, and the library `command` palette wired to the nav, with shared nav tree rows, headings, spacing, and highlight styles |
 | `sidebar` | Collapsible documentation navigation that pushes content aside on every screen size |
 | `spec` | Shared data tables and token/value typography |
 | `table-head` | Table-header surface and corner styling, included by `spec` |
@@ -27,12 +26,17 @@ global shell and shared page/table styles. Use the library's components and CSS
 variables for base behavior and appearance; docs styles add only docs-specific
 layout or presentation.
 
-Shell classes use component names such as `.header`, `.page`, and `.sidebar`.
+Shell classes use component names such as `.page` and `.sidebar`.
 The sidebar and routed content share the viewer shell and one open state. The
 sidebar starts open on desktop and closed on small screens. An effect watches
 the request path and closes the sidebar after route changes on small screens;
 desktop navigation preserves its open state. CSS media queries control the
 layout; on small screens the content keeps its width as it shifts.
+The drawer owns the brand, release badge, search icon, textured surface, and full-height right
+divider, so they slide together. Only the sidebar toggle stays fixed. The search
+icon sits beside the release badge, and the command palette mounts in the viewer shell
+so its keyboard shortcut also works with the sidebar closed. Navigation scrolls below
+the brand row and uses the shared nav tree styling and original responsive content spacing.
 Scope documentation page styles under `.main > .page` so library pages in live
 examples keep their own presentation.
 

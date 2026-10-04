@@ -2,8 +2,8 @@
 import '@esportsplus/ui/layer.scss';
 import './ui';
 import { fallback, html, middleware, render } from 'docs/app';
-import header from 'docs/components/header';
 import { notifications } from 'docs/components/notify';
+import { modal } from 'docs/components/search';
 import sidebar, { state as sidebarState } from 'docs/components/sidebar';
 
 
@@ -14,7 +14,7 @@ render(
     },
     middleware(
         (request, next) => html`
-            ${header(request)}
+            ${modal()}
             ${notifications.content}
 
             <div

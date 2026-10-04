@@ -5,6 +5,7 @@ import { mac } from '@esportsplus/ui/shared/platform';
 import { html, reactive, redirect } from 'docs/app';
 import { sections } from 'docs/data/nav';
 import type { Tab } from '@esportsplus/ui/components/command';
+import 'docs/components/search/scss/index.scss';
 
 
 const search = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
@@ -17,12 +18,13 @@ const matches = (label: string) => {
     return !search.active || query === '' || label.toLowerCase().includes(query);
 };
 
-// The palette handles Cmd/Ctrl+K itself; the header opens it through `searchTrigger` instead of its own button.
+// The palette handles Cmd/Ctrl+K itself; the sidebar opens it through `searchTrigger` instead of its own button.
 const modal = () => {
     let links = new Map(sections().flatMap((section) => section.groups.flatMap((group) => group.links.map((link) => [link.href, link] as const))));
 
     return command({
-        [command.dialog]: { class: 'overlay--blur' },
+        [command.dialog]: { class: 'overlay--blur docs-search nav-tree--highlight nav-tree--highlight-command' },
+        [command.option]: { class: 'nav-tree-link link' },
         [command.trigger]: { hidden: true },
         commands: sections().flatMap((section) => section.groups.flatMap((group) => group.links.map(({ href, label }) => ({ group: section.label, id: href, label })))),
         onrun: (entry) => {
@@ -37,11 +39,13 @@ const modal = () => {
     });
 };
 
-const searchTrigger = (placeholder = 'Search') => html`
+const searchTrigger = () => html`
     <button
         aria-keyshortcuts='${mac() ? 'Meta+K' : 'Control+K'}'
         aria-label='Search'
-        class='button button--tactile command-trigger header-search'
+        aria-haspopup='dialog'
+        class='button sidebar-search'
+        title='Search (${mac() ? '⌘' : 'Ctrl+'}K)'
         type='button'
         ${{
             onclick: () => {
@@ -50,11 +54,6 @@ const searchTrigger = (placeholder = 'Search') => html`
         }}
     >
         ${icon({ 'aria-hidden': 'true' }, searchSvg)}
-        ${placeholder}
-        <span aria-hidden='true' class='command-keys'>
-            <kbd class='button button--kbd'>${mac() ? '⌘' : 'Ctrl'}</kbd>
-            <kbd class='button button--kbd'>K</kbd>
-        </span>
     </button>
 `;
 

@@ -1,17 +1,23 @@
 .sidebar {
     --scrollbar-color: var(--color-border-400);
-    background: var(--color-white-400);
+    background-color: var(--sidebar-background);
+    background-image: var(--sidebar-texture);
+    background-size: 256px 256px;
+    border-right: 1px solid var(--sidebar-border);
     bottom: 0;
+    display: flex;
+    flex-direction: column;
     left: 0;
-    overflow: hidden auto;
+    overflow: hidden;
     position: fixed;
-    top: var(--header-height);
+    top: 0;
     transition:
         translate var(--sidebar-duration) var(--sidebar-ease),
         visibility 0s var(--sidebar-duration);
     translate: -100% 0;
     visibility: hidden;
     width: min(var(--sidebar-width), 100%);
+    z-index: 31;
 
     .viewer-body.--sidebar-open > & {
         transition-delay: 0s;
@@ -19,9 +25,93 @@
         visibility: visible;
     }
 
+    &-header {
+        align-items: center;
+        display: flex;
+        flex-shrink: 0;
+        gap: 6px;
+        height: var(--sidebar-header-height);
+        padding-inline: 52px 8px;
+    }
+
+    &-brand {
+        align-items: baseline;
+        color: var(--color-text-500);
+        display: flex;
+        flex-shrink: 0;
+        font-size: var(--font-size-400);
+        font-weight: var(--font-weight-500);
+        white-space: nowrap;
+
+        &-ui {
+            color: var(--color-text-300);
+            font-weight: var(--font-weight-300);
+            white-space: pre;
+        }
+    }
+
+    &-version {
+        --border-color: var(--color-border-400);
+        --border-radius: var(--border-radius-300);
+        --font-size: var(--font-size-100);
+        --font-weight: var(--font-weight-500);
+        flex-shrink: 0;
+        border: 1px solid var(--border-color);
+        padding: 2px 6px;
+
+        @media (max-width: 480px) {
+            display: none;
+        }
+    }
+
+    &-search {
+        margin-left: auto;
+    }
+
+    &-search,
+    &-toggle {
+        --background-default: transparent;
+        --background-hover: color-mix(in oklab, var(--color-text-500) 6%, transparent);
+        --background-pressed: color-mix(in oklab, var(--color-text-500) 10%, transparent);
+        --border-radius: 8px;
+        --color-default: var(--color-text-300);
+        --color-hover: var(--color-text-500);
+        --color-pressed: var(--color-text-500);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --size: 28px;
+        --width: var(--size);
+        display: flex;
+        flex-shrink: 0;
+        height: var(--size);
+        width: var(--size);
+
+        .icon {
+            --size: var(--size-400);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-blue-400);
+            outline-offset: 2px;
+        }
+    }
+
+    &-toggle {
+        left: var(--size-500);
+        position: fixed;
+        top: calc((var(--sidebar-header-height) - var(--size)) / 2);
+        z-index: 40;
+    }
+
+    &-scrollport {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden auto;
+    }
+
     // Keep the scrollport unpadded so its blur edges span the entire navigation surface.
     &-content {
-        padding: var(--size-800) var(--size-600) var(--spacer-100);
+        padding: var(--size-400) var(--size-600);
     }
 
     @media (max-width: 720px) {

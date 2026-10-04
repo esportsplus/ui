@@ -1,12 +1,8 @@
 .viewer-body {
-    --sidebar-duration: 300ms;
-    --sidebar-ease: cubic-bezier(0.32, 0.72, 0, 1);
     --sidebar-space: 0px;
-    --sidebar-width: 280px;
     display: grid;
     grid-template-columns: var(--sidebar-space) minmax(0, 1fr);
     overflow-x: clip;
-    padding-top: var(--header-height);
     transition: grid-template-columns var(--sidebar-duration) var(--sidebar-ease);
     width: 100%;
 
@@ -19,9 +15,6 @@
         grid-template-columns: var(--sidebar-space) 100%;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        --sidebar-duration: 0s;
-    }
 }
 
 .viewer-content {

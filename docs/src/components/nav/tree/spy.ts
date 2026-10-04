@@ -65,12 +65,11 @@ const scrollSpy = (ids: string[], mode: Mode = 'current') => {
                 : root.getBoundingClientRect(),
             current = elements[0].index,
             end = -1,
-            header = parseFloat(getComputedStyle(root).getPropertyValue('--header-height')) || 0,
             rects = elements.map((section) => section.element.getBoundingClientRect()),
             start = -1;
 
         for (let i = 0, n = elements.length; i < n; i++) {
-            let line = bounds.top + Math.max(header, parseFloat(getComputedStyle(elements[i].element).scrollMarginTop) || 0) + TOLERANCE,
+            let line = bounds.top + (parseFloat(getComputedStyle(elements[i].element).scrollMarginTop) || 0) + TOLERANCE,
                 rect = rects[i];
 
             if (rect.top <= line) {
