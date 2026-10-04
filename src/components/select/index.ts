@@ -1,8 +1,9 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { clamp } from '~/shared/clamp';
 import form from '~/components/form';
 import overlay from '~/components/overlay';
-import place from './placement';
+import place, { ROWS } from './placement';
 import check from '@esportsplus/ui/svg/check.svg';
 import chevronDown from '@esportsplus/ui/svg/chevron-down.svg';
 import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
@@ -55,8 +56,6 @@ type Parts = {
 };
 
 
-const ROWS = 8;
-
 // Scroll-button speed while hovered, in px per second.
 const SCROLL_SPEED = 280;
 
@@ -74,10 +73,6 @@ const TYPEAHEAD_RESET = 500;
 
 let uid = 0;
 
-
-function clamp(value: number, min: number, max: number) {
-    return Math.min(Math.max(value, min), max);
-}
 
 function edges(menu: { down: boolean; up: boolean }, scroller: HTMLElement) {
     menu.down = scroller.scrollTop < scroller.scrollHeight - scroller.clientHeight - 1;

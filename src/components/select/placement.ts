@@ -1,3 +1,6 @@
+import { clamp } from '~/shared/clamp';
+
+
 type Parts = {
     label: HTMLElement;
     option: HTMLElement;
@@ -13,13 +16,9 @@ const MARGIN = 8;
 const ROWS = 8;
 
 
-function clamp(value: number, min: number, max: number) {
-    return Math.min(Math.max(value, min), max);
-}
-
 // Puts the selected option exactly over the trigger, the way macOS does, then trades list position for scroll
 // position if that runs off screen.
-export default function place({ label, option, panel, scroller, trigger, value }: Parts, count: number, selected: number) {
+function place({ label, option, panel, scroller, trigger, value }: Parts, count: number, selected: number) {
     let box = trigger.getBoundingClientRect();
 
     // Demo previews may scale the component down; work in the element's own pixels.
@@ -68,3 +67,7 @@ export default function place({ label, option, panel, scroller, trigger, value }
         `
     };
 }
+
+
+export default place;
+export { ROWS };
