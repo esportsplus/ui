@@ -1,9 +1,9 @@
 @use '/shared';
 @use 'variables';
 
-// JS writes only '--pull-to-refresh-y' (feed offset in px, unitless), '--reveal' (share of ticks drawn) and '--threshold'
-// (px to pull before letting go refreshes); everything else is derived here, and the springs between targets are
-// transitions.
+// JS writes only '--pull-to-refresh-y' (feed offset in px, unitless) and '--threshold' (px to pull before letting go
+// refreshes) on the root, and '--reveal' (share of ticks drawn) on the indicator; everything else is derived here, and the
+// springs between targets are transitions.
 .pull-to-refresh {
     height: var(--height);
     min-height: 0;
@@ -19,16 +19,31 @@
         transition-duration: var(--slide-in-duration);
     }
 
+    // Started from here rather than by swapping a variable on the root, which would restyle the whole feed as a refresh
+    // starts and ends.
+    &--refreshing &-glyph {
+        animation: var(--spinner-animation) var(--spin-duration) steps(8) infinite;
+    }
+
     &-content {
+        --pull-to-refresh-y: inherit;
         background: var(--background);
         min-height: 100%;
         translate: 0 calc(var(--pull-to-refresh-y) * 1px);
         user-select: none;
+
+        // Items inheriting the transition (root reset) restyle along with the feed on every frame it moves; 'none' is the
+        // value they would inherit anyway.
+        > * {
+            transition: none;
+        }
     }
 
+    // Spins rather than the svg so the spin runs on the compositor (an svg's can't); the two share a center, so the spin and
+    // the svg's turn with the pull add up as before.
     &-glyph {
+        --pull-to-refresh-y: inherit;
         display: flex;
-        rotate: calc(var(--pull-to-refresh-y) * 3deg);
 
         // Faded when a refresh ends, so the spinner goes out rather than shrinking tick by tick as the feed retracts.
         &--landing {
@@ -37,8 +52,16 @@
         }
     }
 
+    // Elements inherit their parent's transition (root reset); stopped at the root's children so only the root runs the
+    // spring and everything else reads its value, instead of every element running a copy of it.
+    &-indicator,
+    &-scroller {
+        transition: none;
+    }
+
     &-indicator {
         @extend %absolute-top;
+        --pull-to-refresh-y: inherit;
         align-items: center;
         color: var(--color);
         display: flex;
@@ -53,6 +76,7 @@
     }
 
     &-scroller {
+        --pull-to-refresh-y: inherit;
         height: 100%;
         overflow-y: auto;
         overscroll-behavior: contain;
@@ -67,8 +91,9 @@
 
     // The indeterminate spin is a stepped rotation of graded ticks, like the system activity indicator.
     &-spinner {
-        animation: var(--spinner-animation) var(--spin-duration) steps(8) infinite;
+        --pull-to-refresh-y: inherit;
         height: var(--spinner-size);
+        rotate: calc(var(--pull-to-refresh-y) * 3deg);
         width: var(--spinner-size);
     }
 
@@ -95,7 +120,7 @@
             transition: none;
         }
 
-        &-spinner {
+        &--refreshing &-glyph {
             animation: none;
         }
     }
