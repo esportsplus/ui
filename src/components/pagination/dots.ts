@@ -77,12 +77,13 @@ function template(
             })
         ];
 
+    // Stopped first: ending a running countdown starts a settle, which must not outlive the dots.
     onCleanup(() => {
-        settle?.cancel();
-
         for (let i = 0, n = stops.length; i < n; i++) {
             stops[i]();
         }
+
+        settle?.cancel();
     });
 
     return html`

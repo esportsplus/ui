@@ -9,6 +9,7 @@
         color: var(--color-text-300);
         font-size: var(--font-size-300);
         font-variant-numeric: tabular-nums;
+        text-align: center;
     }
 
     &-card {
@@ -37,14 +38,12 @@
     &-icon {
         filter: blur(4px);
         grid-area: 1 / 1;
-        height: 16px;
         opacity: 0;
         scale: 0.25;
         transition:
             filter 0.53s var(--spring),
             opacity 0.53s var(--spring),
             scale 0.53s var(--spring);
-        width: 16px;
     }
 
     &-note {
@@ -58,6 +57,12 @@
         font-size: 14px;
         font-variant-numeric: tabular-nums;
         margin: 0;
+    }
+
+    &-pages {
+        display: grid;
+        gap: var(--size-400);
+        width: 100%;
     }
 
     &-row {

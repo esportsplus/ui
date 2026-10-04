@@ -1,6 +1,8 @@
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { pagination } from '@esportsplus/ui/components';
+import { icon, pagination } from '@esportsplus/ui/components';
+import pause from '@esportsplus/ui/svg/pause.svg';
+import play from '@esportsplus/ui/svg/play.svg';
 import type { Entry } from 'docs/types';
 import 'docs/examples/pagination/scss/index.scss';
 
@@ -210,12 +212,8 @@ function carousel(autoplay: boolean) {
                                 }
                             }}
                         >
-                            <svg aria-hidden='true' class='pagination-demo-icon pagination-demo-icon--pause' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
-                                <path d='M5.75 3.75v8.5M10.25 3.75v8.5' />
-                            </svg>
-                            <svg aria-hidden='true' class='pagination-demo-icon pagination-demo-icon--play' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
-                                <path d='M5 3.9v8.2a.6.6 0 0 0 .9.5l6.6-4.1a.6.6 0 0 0 0-1L5.9 3.4a.6.6 0 0 0-.9.5Z' />
-                            </svg>
+                            ${icon({ 'aria-hidden': 'true', class: 'pagination-demo-icon pagination-demo-icon--pause' }, pause)}
+                            ${icon({ 'aria-hidden': 'true', class: 'pagination-demo-icon pagination-demo-icon--play' }, play)}
                         </button>
                     `
                     : html`<span aria-hidden='true' class='pagination-demo-spacer'></span>`}
@@ -228,11 +226,9 @@ function demo(page: number, total: number, siblings?: number) {
     let state = reactive({ page });
 
     return html`
-        <div style='display: grid; gap: var(--size-400); width: 100%;'>
+        <div class='pagination-demo-pages'>
             ${pagination({ siblings, state, total })}
-            <div class='--color-text' style='font-size: var(--font-size-300); text-align: center;'>
-                Page ${() => state.page} of ${total}
-            </div>
+            <span class='pagination-demo-caption'>Page ${() => state.page} of ${total}</span>
         </div>
     `;
 }
