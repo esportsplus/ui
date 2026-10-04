@@ -78,7 +78,7 @@ const page = (): Page => {
     return {
         render: () => html`
             <div class='page'>
-                ${pageHead('Themes', 'A theme is a set of CSS custom property overrides layered over the base component styles. Build your own by redefining the same variables listed below.')}
+                ${pageHead({ title: 'Themes', description: 'A theme is a set of CSS custom property overrides layered over the base component styles. Build your own by redefining the same variables listed below.' })}
 
                 ${rendered.map((entry) => html`
                     <section id='${entry.id}'>

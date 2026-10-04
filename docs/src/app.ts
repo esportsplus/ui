@@ -4,11 +4,11 @@ import type { Renderable } from '@esportsplus/template';
 import type { Page } from 'docs/types';
 import components from 'docs/actions/components';
 import cssUtilities from 'docs/actions/css-utilities';
-import docs from 'docs/actions/docs';
+import docs from 'docs/actions/docs/index';
 import fallback from 'docs/actions/fallback';
 import fonts from 'docs/actions/fonts';
 import themes from 'docs/actions/themes';
-import tokens from 'docs/actions/tokens';
+import tokens from 'docs/actions/tokens/index';
 
 
 type Response = Page | Renderable<unknown>;

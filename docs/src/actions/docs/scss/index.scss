@@ -46,17 +46,12 @@
      &-notice-icon {     --color: var(--docs-accent);     --size: var(--size-400);     flex: 0 0 var(--size-400);     margin-top: calc(var(--size-100) * 0.25); }
      &-step {     display: block;     margin-top: var(--size-700);     padding-left: var(--size-900);     position: relative;     scroll-margin-top: var(--size-600);     width: 100%; }
  }
- .setup-breadcrumb { align-items: center; color: var(--docs-muted); display: flex; font-size: var(--font-size-300); gap: var(--size-200); grid-column: 1 / -1; margin-bottom: var(--size-500); }
- .setup-breadcrumb > span:last-child { color: var(--docs-accent); }
- .setup-breadcrumb a { color: var(--docs-muted); }
  .setup-code { background: var(--docs-code); border: var(--border-width-400) solid var(--docs-line); border-radius: var(--docs-radius); margin-top: var(--size-400); min-width: 0; overflow: hidden; }
  .setup-code code { font-family: inherit; font-size: inherit; font-style: inherit; font-weight: inherit; }
  .setup-code pre { color: var(--docs-code-ink); font-family: var(--docs-mono); font-size: var(--font-size-300); margin: 0; overflow-x: auto; padding: var(--size-500); white-space: pre; }
  .setup-code pre { max-width: 100%; }
  .setup-copy-status:empty { display: none; }
  .setup-example-bar a { color: var(--docs-muted); }
- .setup-heading > p { color: var(--docs-muted); font-size: var(--font-size-400); margin-top: var(--size-300); max-width: 62ch; }
- .setup-heading h1 { color: var(--docs-ink); font-family: var(--docs-heading); font-size: var(--font-size-800); font-weight: var(--font-weight-500); margin: 0; }
  .setup-live .button { --width: auto; }
  .setup-live-feedback { color: var(--color-text-300); font-size: var(--font-size-300); }
  .setup-live::after { display: none; }
@@ -83,8 +78,6 @@
         }
         .setup-code pre { font-size: var(--font-size-300); padding: var(--size-300); }
         .setup-code-bar { padding-inline: var(--size-100); }
-        .setup-heading > p { font-size: var(--font-size-400); }
-        .setup-heading h1 { font-size: var(--font-size-700); }
         .setup-step > h2 { font-size: var(--font-size-500); }
     }
 }

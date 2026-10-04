@@ -1,18 +1,18 @@
 # Docs components
 
 Reusable presentation belongs here. Routes in `actions/` supply data and compose
-these components; they should not own shared component styles.
+these components; they should not own shared component styles. Page-specific
+content and styles belong with their action, such as the installation guide in
+`actions/docs/index.ts` and `actions/docs/scss/index.scss`. The tokens action owns
+its color palettes, contrast calculation, clipboard feedback, and swatch styles.
 
 | Component | Owns |
 | --- | --- |
-| `color-palette` | Color families, contrast, clipboard feedback, and swatch styles |
 | `code` | TypeScript syntax colors, line numbers, preserved source whitespace, scrolling, and a floating copy control |
-| `doc-card` | Documentation links built on the library card |
-| `example-view` | Compact Preview/Code button group above each component preview card with a library highlight for the active selection |
 | `nav/tree` | Shared navigation groups, links, titles, and states for the sidebar and in-page navigation |
-| `page` | Docs page headings, card grids, detail pages, and empty states |
-| `preview` | Example frames; render factories mount near the viewport and keep their state after mounting |
-| `prose` | Markdown rendering and prose typography; tables use `spec-table` |
+| `page` | Docs page headings, inline library card links for Components and CSS Utilities grids, detail pages, and empty states |
+| `page/head` | Library page title and subtitle, optional breadcrumb, and previous/next navigation |
+| `preview` | Example frames and inline Preview/Code controls with the library highlight; render factories mount near the viewport and keep their state after mounting |
 | `root` | Docs-wide theme aliases and shell tokens |
 | `search` | Search state, trigger, and the library `command` palette wired to the shared nav tree renderer |
 | `sidebar` | Collapsible documentation navigation that pushes content aside on every screen size |
@@ -60,5 +60,9 @@ keeps its live example mounted, and lazily loads the selected variant's TypeScri
 `docs/scripts/example-source.mjs` captures the original render factory, its imports and helper
 dependencies before template compilation; generated examples include their selected closure
 values. Changing a variant while viewing Code loads its matching snippet. In-page navigation
-and hash links return the targeted card to Preview. Detail page breadcrumbs use the library component directly,
-without the example's background or resize handle.
+and hash links return the targeted card to Preview. All page headers use `pageHead`.
+The header uses the library's `page-title` and `page-subtitle` classes.
+Its optional `breadcrumb` list renders the library breadcrumb inside the header;
+an omitted or empty list leaves it out. The header also owns previous/next navigation
+and its layout styles in `page/scss/head.scss`. Both navigation controls use one
+arrow icon, rotated with CSS for the previous page.

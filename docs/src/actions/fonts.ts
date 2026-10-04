@@ -104,7 +104,7 @@ const page = (): Page => {
     return {
         render: () => html`
             <div class='page'>
-                ${pageHead('Fonts', 'The typefaces bundled with the library, with a live specimen at every available weight and the raw @font-face definitions read from source.')}
+                ${pageHead({ title: 'Fonts', description: 'The typefaces bundled with the library, with a live specimen at every available weight and the raw @font-face definitions read from source.' })}
 
                 ${rendered.map((family) => html`
                     <section

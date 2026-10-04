@@ -12,32 +12,7 @@
         }
     }
 
-    > .page-breadcrumb {
-        --link-padding: 0px;
-        margin-bottom: var(--size-400);
-        text-transform: capitalize;
-
-        .breadcrumb-separator {
-            margin-inline: 4px;
-        }
-    }
-
     > .page-grid {
         --min-width: 220px;
-    }
-
-    > .page-head .page-lede {
-        color: var(--color-text-300);
-        font-size: var(--font-size-400);
-        margin-top: var(--size-400);
-        max-width: 64ch;
-    }
-
-    > .page-head .page-title {
-        text-transform: capitalize;
-
-        @media (max-width: 720px) {
-            font-size: var(--font-size-700);
-        }
     }
 }

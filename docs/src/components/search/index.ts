@@ -1,11 +1,11 @@
-import icon from '@esportsplus/ui/components/icon';
-import searchSvg from '@esportsplus/ui/svg/search.svg';
 import { command } from '@esportsplus/ui/components';
 import { mac } from '@esportsplus/ui/shared/platform';
 import { html, reactive, redirect } from 'docs/app';
 import { sections } from 'docs/data/nav';
 import { navTree } from 'docs/components/nav/tree';
 import type { Tab } from '@esportsplus/ui/components/command';
+import icon from '@esportsplus/ui/components/icon';
+import svg from '@esportsplus/ui/svg/search.svg';
 import 'docs/components/search/scss/index.scss';
 
 
@@ -50,7 +50,7 @@ const modal = () => {
     });
 };
 
-const searchTrigger = () => html`
+const trigger = () => html`
     <button
         aria-keyshortcuts='${mac() ? 'Meta+K' : 'Control+K'}'
         aria-label='Search'
@@ -64,8 +64,8 @@ const searchTrigger = () => html`
             }
         }}
     >
-        ${icon({ 'aria-hidden': 'true' }, searchSvg)}
+        ${icon({ 'aria-hidden': 'true' }, svg)}
     </button>
 `;
 
-export { matches, modal, search, searchTrigger };
+export { matches, modal, search, trigger };

@@ -5,7 +5,7 @@ import { effect, html, reactive, uri } from 'docs/app';
 import { repository, version } from '@esportsplus/ui/package.json';
 import { sections } from 'docs/data/nav';
 import { navTree } from 'docs/components/nav/tree';
-import { searchTrigger } from 'docs/components/search';
+import { trigger as searchTrigger } from 'docs/components/search';
 import type { Request } from 'docs/app';
 import 'docs/components/sidebar/scss/index.scss';
 

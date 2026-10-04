@@ -1,11 +1,15 @@
 import { html } from 'docs/app';
 import { effect, flush, reactive, untrack } from '@esportsplus/reactivity';
-import { select } from '@esportsplus/ui/components';
+import { highlight, icon, select } from '@esportsplus/ui/components';
+import codeSvg from '@esportsplus/ui/svg/code.svg';
+import eye from '@esportsplus/ui/svg/eye.svg';
 import { code } from 'docs/components/code';
-import { exampleView, type View } from 'docs/components/example-view';
 import type { Renderable } from 'docs/app';
 import type { PreviewOption } from 'docs/types';
 import 'docs/components/preview/scss/index.scss';
+
+
+type View = 'preview' | 'code';
 
 
 const preview = (title: string | null, node: Renderable<unknown>, id?: string, options: PreviewOption[] = [], source?: () => Promise<string>) => {
@@ -140,13 +144,30 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
                 }
             }}
         >
-            ${source && exampleView(state, (view) => {
-                state.view = view;
+            ${source && html`
+                <div class='preview-view' role='group' aria-label='${title ?? 'Example'} view'>
+                    ${highlight({ class: 'preview-view-highlight', target: '.preview-view-button' })}
+                    ${(['preview', 'code'] as const).map((view) => html`
+                        <button
+                            class='preview-view-button ${() => state.view === view && '--active'}'
+                            type='button'
+                            ${{
+                                'aria-pressed': () => String(state.view === view),
+                                onclick: () => {
+                                    state.view = view;
 
-                if (view === 'code' && state.error) {
-                    state.retry++;
-                }
-            }, `${title ?? 'Example'} view`)}
+                                    if (view === 'code' && state.error) {
+                                        state.retry++;
+                                    }
+                                }
+                            }}
+                        >
+                            ${icon({ 'aria-hidden': 'true' }, view === 'preview' ? eye : codeSvg)}
+                            ${view === 'preview' ? 'Preview' : 'Code'}
+                        </button>
+                    `)}
+                </div>
+            `}
 
             <div class='preview card --border-default --border-border'>
                 ${title !== null && html`

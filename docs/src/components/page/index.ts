@@ -1,28 +1,42 @@
 import { pageHead } from 'docs/components/page/head';
 import { html } from 'docs/app';
-import { breadcrumb } from '@esportsplus/ui/components';
-import { docCard } from 'docs/components/doc-card';
 import { preview } from 'docs/components/preview';
-import type { Card } from 'docs/components/doc-card';
+import type { Head } from 'docs/components/page/head';
 import type { Page, TocItem, Variant } from 'docs/types';
 import 'docs/components/page/scss/index.scss';
+import 'docs/components/page/scss/card.scss';
+
+
+type Card = {
+    description: string;
+    href: string;
+    name: string;
+};
 
 
 type Detail = {
-    breadcrumb?: { href: string; label: string }[];
+    breadcrumb?: Head['breadcrumb'];
     description: string;
     name: string;
     variants: Variant[];
 };
 
 
-const cardGrid = (lede: string, title: string, cards: Card[]): Page => ({
+const cardGrid = (subtitle: string, title: string, cards: Card[]): Page => ({
     render: () => html`
         <div class='page'>
-            ${pageHead(title, lede)}
+            ${pageHead({ title, description: subtitle })}
 
             <div class='grid page-grid'>
-                ${cards.map(docCard)}
+                ${cards.map((card) => html`
+                    <a
+                        class='doc-card card --border-default --border-border'
+                        href='${card.href}'
+                    >
+                        <div class='doc-card-name'>${card.name}</div>
+                        <p class='doc-card-description'>${card.description}</p>
+                    </a>
+                `)}
             </div>
         </div>
     `,
@@ -35,8 +49,7 @@ const detailPage = (detail: Detail): Page => {
     return {
         render: () => html`
             <div class='page'>
-                ${detail.breadcrumb && breadcrumb({ class: 'page-breadcrumb', items: detail.breadcrumb })}
-                ${pageHead(detail.name, detail.description)}
+                ${pageHead({ title: detail.name, description: detail.description, breadcrumb: detail.breadcrumb })}
 
                 ${detail.variants.length === 0
                     ? html`<p class='page-note'>No examples yet.</p>`
@@ -50,7 +63,7 @@ const detailPage = (detail: Detail): Page => {
 const missing = (title: string): Page => ({
     render: () => html`
         <div class='page'>
-            ${pageHead('Not found', title)}
+            ${pageHead({ title: 'Not found', description: title })}
         </div>
     `,
     toc: []

@@ -1,9 +1,11 @@
 import icon from '@esportsplus/ui/components/icon';
 import infoSvg from '@esportsplus/ui/svg/info.svg';
-import { html, reactive } from 'docs/app';
-import { pageNavigation } from 'docs/components/page-navigation';
+import { html, reactive, uri } from 'docs/app';
+import { pageHead } from 'docs/components/page/head';
+import type { Router } from 'docs/app';
+import type { Page } from 'docs/types';
 
-import 'docs/components/installation/scss/index.scss';
+import 'docs/actions/docs/scss/index.scss';
 
 
 const SOURCE_TOKENS = /('[^']*'|@use|\bimport\b|\bfrom\b)/g;
@@ -22,7 +24,7 @@ const sourceCode = (source: string) => html`<code>${source.split(SOURCE_TOKENS).
         : fragment
 )}</code>`;
 
-export default () => {
+const render = () => {
     const state = reactive({ manager: 'pnpm' as typeof managers[number], copied: '', saved: false });
     const copy = async (value: string, key: string) => {
         try {
@@ -35,11 +37,14 @@ export default () => {
 
     return html`
         <div class='page setup-guide'>
-            <div class='setup-heading title-row'>
-                <div class='setup-breadcrumb'><a href='/docs'>Documentation</a><span aria-hidden='true'>/</span><span>Getting started</span></div>
-                <h1>Installation</h1>${pageNavigation()}
-                <p>Add esportsplus/ui to your project and build your first component.</p>
-            </div>
+            ${pageHead({
+                breadcrumb: [
+                    { href: uri('docs'), label: 'Documentation' },
+                    { href: uri('docs'), label: 'Getting started' }
+                ],
+                description: 'Add esportsplus/ui to your project and build your first component.',
+                title: 'Installation'
+            })}
             <div class='setup-notice'>${icon({ class: 'setup-notice-icon', 'aria-hidden': 'true' }, infoSvg)}<p>These examples assume your project already compiles templates and SCSS, with the library’s root styles and theme tokens configured.</p></div>
             <section class='setup-step' id='setup-package'>
                 <span class='setup-step-number'>01</span><h2>Install the package</h2><p>Use your preferred package manager to add the library to your project.</p>
@@ -62,4 +67,21 @@ export default () => {
         </div>
     `;
 };
+
+
+const page = (): Page => ({
+    render,
+    toc: [
+        { id: 'setup-package', label: 'Install the package' },
+        { id: 'setup-styles', label: 'Import the styles' },
+        { id: 'setup-component', label: 'Use a component' },
+        { id: 'setup-preview', label: 'Preview' }
+    ]
+});
+
+
+export { page };
+export default (r: Router) => r
+    .get({ name: 'docs', path: '/docs', responder: () => page() })
+    .get({ name: 'home', path: '/', responder: () => page() });
 

@@ -1,4 +1,4 @@
-import { page } from 'docs/actions/docs';
+import { page } from 'docs/actions/docs/index';
 
 
 export default {

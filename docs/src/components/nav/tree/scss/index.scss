@@ -109,6 +109,10 @@
         --font-size: var(--font-size-200);
         --font-weight: var(--font-weight-500);
         text-transform: uppercase;
+
+        &:not(.nav-tree-link) {
+            margin-block: var(--size-100);
+        }
     }
 
     &.--command {
