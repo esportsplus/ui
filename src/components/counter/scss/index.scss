@@ -7,7 +7,6 @@
     gap: 2px;
     place-items: center;
     transition: transform calc(var(--transition-duration) / 4) var(--transition-duration);
-    transform-style: flat;
 
     // Only the elements holding glyphs are painted, so a translucent '--fill' never stacks over itself.
     // The text fill goes transparent rather than 'color', which keeps 'currentColor' usable in '--fill'.
@@ -18,11 +17,6 @@
         -webkit-text-fill-color: transparent;
     }
 
-    &-character,
-    &-character-track span {
-        transform-style: flat;
-    }
-
     &-character {
         display: grid;
         font-size: var(--font-size);
@@ -30,24 +24,6 @@
         font-weight: var(--font-weight);
         height: 1lh;
         overflow: hidden;
-        transform-style: flat;
-
-        &--fraction {
-            font-size: calc(var(--font-size) * var(--scale));
-            font-weight: var(--font-weight-300);
-            opacity: var(--opacity);
-            overflow: visible;
-            height: 1lh;
-
-            .counter-character-track {
-                span {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: end;
-                    padding: calc((1lh - 1em) * 0.2) 0;
-                }
-            }
-        }
 
         &--symbol {
             font-size: calc(var(--font-size) * var(--scale));
@@ -63,7 +39,6 @@
 
             span {
                 height: 1lh;
-                transform-style: flat;
             }
         }
     }

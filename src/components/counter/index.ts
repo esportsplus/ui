@@ -1,9 +1,13 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { onceVisible } from '~/shared/visible';
 import './scss/index.scss';
 
 
 type Currency = 'EUR' | 'GBP' | 'IGNORE' | 'USD';
+
+
+const DIGIT = /\d/;
 
 
 let formatters: Record<string, Intl.NumberFormat> = {};
@@ -32,7 +36,6 @@ export default ({ currency = 'USD', decimals = 2, delay, max, prefix, startOnVie
 }) => {
     let animation = reactive({ started: false }),
         format = formatter(currency, decimals),
-        observer: IntersectionObserver | undefined,
         render = reactive([] as { digit: boolean; index: number; roll: number; value: string }[]),
         stop = effect(() => {
             let started = animation.started,
@@ -50,12 +53,12 @@ export default ({ currency = 'USD', decimals = 2, delay, max, prefix, startOnVie
             }
 
             untrack(() => {
-                let remaining = values.filter((value: string) => !isNaN(parseInt(value, 10))).length;
+                let remaining = values.filter((value) => DIGIT.test(value)).length;
 
                 for (let i = 0, n = values.length; i < n; i++) {
                     let previous = render[i],
                         value = values[i],
-                        digit = !isNaN(parseInt(value, 10)),
+                        digit = DIGIT.test(value),
                         index = digit ? --remaining : 0;
 
                     if (digit && (!started || padding > 0)) {
@@ -92,33 +95,11 @@ export default ({ currency = 'USD', decimals = 2, delay, max, prefix, startOnVie
 
     onCleanup(() => {
         clearTimeout(timer);
-        observer?.disconnect();
         stop();
     });
 
     return html`
-        <div
-            class='counter'
-            ${attributes}
-            ${{
-                onconnect: (element: HTMLElement) => {
-                    if (!startOnView) {
-                        start();
-                        return;
-                    }
-
-                    observer = new IntersectionObserver((entries) => {
-                        if (!entries.some((entry) => entry.isIntersecting)) {
-                            return;
-                        }
-
-                        observer?.disconnect();
-                        start();
-                    });
-                    observer.observe(element);
-                }
-            }}
-        >
+        <div class='counter' ${attributes} ${startOnView ? onceVisible(start) : { onconnect: start }}>
             ${html.reactive(render, function (character) {
                     if (!character.digit) {
                         return html`

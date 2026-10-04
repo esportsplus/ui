@@ -1,7 +1,9 @@
-import { onCleanup, reactive } from '@esportsplus/reactivity';
+import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import tooltip from '~/components/tooltip';
 import scrollbar from '~/css-utilities/scrollbar';
+import { clamp } from '~/shared/clamp';
+import { onceVisible } from '~/shared/visible';
 import './scss/index.scss';
 
 
@@ -81,7 +83,6 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
     let bound = this?.attributes,
         cells: Cell[] = [],
         months: { column: number; name: string }[] = [],
-        observer: IntersectionObserver | undefined,
         tip = tooltip.shared(),
         view = reactive({ shown: false }),
         weeks = Math.ceil(data.length / 7);
@@ -108,15 +109,11 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
     }
 
     function move(next: number) {
-        let index = Math.min(Math.max(next, 0), data.length - 1);
+        let index = clamp(next, 0, data.length - 1);
 
         state.index = index;
         cells[index]?.focus();
     }
-
-    onCleanup(() => {
-        observer?.disconnect();
-    });
 
     // The tooltip stays out of the accessibility tree: each cell's label already says what it shows.
     return html`
@@ -161,20 +158,10 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
                         aria-readonly='true'
                         class='heatmap-grid'
                         role='grid'
+                        ${onceVisible(() => view.shown = true, { threshold: 0.4 })}
                         ${{
                             'aria-label': label ?? `Activity over the last ${weeks} weeks`,
                             class: () => view.shown && 'heatmap-grid--shown',
-                            onconnect: (element: HTMLElement) => {
-                                observer = new IntersectionObserver((entries) => {
-                                    if (!entries.some((entry) => entry.isIntersecting)) {
-                                        return;
-                                    }
-
-                                    observer?.disconnect();
-                                    view.shown = true;
-                                }, { threshold: 0.4 });
-                                observer.observe(element);
-                            },
                             onfocusin: (e: FocusEvent) => {
                                 let element = cellFrom(e.target);
 
