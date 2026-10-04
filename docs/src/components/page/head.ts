@@ -32,17 +32,17 @@ const pageHead = ({ breadcrumb: trail, description, title }: Head) => {
 
     return html`
         <div class='page-head'>
-            ${trail && trail.length > 0 && breadcrumb({ class: 'page-breadcrumb', items: trail })}
-            <h1 class='page-title --text-crop'>${title}</h1>
-            <nav class='page-navigation' aria-label='Page navigation'>
+            ${trail && trail.length > 0 && breadcrumb({ class: 'page-head-breadcrumb', items: trail })}
+            <h1 class='page-title page-head-title --text-crop'>${title}</h1>
+            <nav class='page-head-navigation' aria-label='Page navigation'>
                 ${directions.map(({ name, page }) => {
-                    let graphic = icon({ 'aria-hidden': 'true' }, arrow);
+                    let graphic = icon({ 'aria-hidden': 'true', class: `page-head-arrow-icon page-head-arrow-icon--${name.toLowerCase()}` }, arrow);
 
                     return page
                         ? html`
                             <a
                                 aria-label='${name} page: ${page.label}'
-                                class='page-arrow'
+                                class='page-head-arrow'
                                 href='${page.href}'
                                 title='${name}: ${page.label}'
                             >${graphic}</a>
@@ -51,7 +51,7 @@ const pageHead = ({ breadcrumb: trail, description, title }: Head) => {
                             <button
                                 aria-disabled='true'
                                 aria-label='${name} page'
-                                class='page-arrow --disabled'
+                                class='page-head-arrow --disabled'
                                 disabled
                                 title='No ${name.toLowerCase()} page'
                                 type='button'
@@ -59,7 +59,7 @@ const pageHead = ({ breadcrumb: trail, description, title }: Head) => {
                         `;
                 })}
             </nav>
-            <p class='page-subtitle'>${description}</p>
+            <p class='page-subtitle page-head-subtitle'>${description}</p>
         </div>
     `;
 };

@@ -1,18 +1,19 @@
+// Holds whichever page the layout hosts to the reading width.
 .main > .page {
     max-width: 680px;
+}
 
-    .page {
-        &-note {
-            color: var(--color-text-300);
-            font-size: var(--font-size-300);
-        }
-
-        &-section-title {
-            margin: var(--size-800) 0 var(--size-400);
-        }
+.page {
+    &-grid {
+        --min-width: 220px;
     }
 
-    > .page-grid {
-        --min-width: 220px;
+    &-note {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+
+    &-section-title {
+        margin: var(--size-800) 0 var(--size-400);
     }
 }

@@ -162,7 +162,7 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
                                 }
                             }}
                         >
-                            ${icon({ 'aria-hidden': 'true' }, view === 'preview' ? eye : codeSvg)}
+                            ${icon({ 'aria-hidden': 'true', class: 'preview-view-icon' }, view === 'preview' ? eye : codeSvg)}
                             ${view === 'preview' ? 'Preview' : 'Code'}
                         </button>
                     `)}
@@ -199,9 +199,9 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
                 }}</div>
                 ${source && html`
                     <section class='preview-code' aria-label='${title ?? 'Example'} source code' hidden='${() => state.view !== 'code'}' aria-busy='${() => String(state.loading)}'>
-                        ${() => state.loading && html`<p role='status'>Loading example source…</p>`}
-                        ${() => state.error && html`<p role='alert'>${state.error}</p>`}
-                        ${() => state.code && code(state.code)}
+                        ${() => state.loading && html`<p class='preview-code-message' role='status'>Loading example source…</p>`}
+                        ${() => state.error && html`<p class='preview-code-message' role='alert'>${state.error}</p>`}
+                        ${() => state.code && code(state.code, true)}
                     </section>
                 `}
             </div>

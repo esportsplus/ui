@@ -1,3 +1,6 @@
+@use '../../../../../shared.scss';
+
+
 .token-colors {
     width: 100%;
 
@@ -12,12 +15,8 @@
         flex: 0 0 var(--size-400);
 
         // The shared check carries no stroke of its own; the copy glyph brings its own and ignores these.
-        &.icon svg {
-            fill: none;
-            stroke: currentColor;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-width: 2;
+        svg {
+            @extend %icon-stroke;
         }
     }
 
@@ -76,6 +75,7 @@
     }
 
     &-swatch {
+        --value-opacity: 0;
         align-items: center;
         border: 0;
         cursor: pointer;
@@ -93,10 +93,15 @@
             outline-offset: calc(var(--border-width-700) * -1);
         }
 
-        &:hover .token-colors-value,
-        &:focus-visible .token-colors-value {
-            opacity: 1;
+        // Reveals the swatch's value.
+        &:focus-visible,
+        &:hover {
+            --value-opacity: 1;
         }
+    }
+
+    &-text {
+        min-width: 0;
     }
 
     &-toolbar {
@@ -115,22 +120,18 @@
         gap: var(--size-100);
         justify-content: center;
         max-width: 100%;
-        opacity: 0;
+        opacity: var(--value-opacity);
         overflow-wrap: anywhere;
         text-align: center;
 
         &.--copied {
             opacity: 1;
         }
-
-        > span {
-            min-width: 0;
-        }
     }
 
     @media (hover: none) {
-        &-value {
-            opacity: 1;
+        &-swatch {
+            --value-opacity: 1;
         }
     }
 }

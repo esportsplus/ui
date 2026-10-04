@@ -2,19 +2,29 @@
 
 
 @keyframes code-check-draw {
-    to { stroke-dashoffset: 0; }
+    to {
+        stroke-dashoffset: 0;
+    }
 }
 
 
 .code {
     --code-background: var(--color-white-300);
+    --code-border: 1px solid var(--color-grey-500);
+    --code-border-radius: 14px;
     background: var(--code-background);
-    border: 1px solid var(--color-grey-500);
-    border-radius: 14px;
+    border: var(--code-border);
+    border-radius: var(--code-border-radius);
     color: #182b49;
     min-width: 0;
     overflow: hidden;
     position: relative;
+
+    // Sits flush inside a card, rounding only the corners it closes off.
+    &--flush {
+        --code-border: 0;
+        --code-border-radius: 0 0 var(--border-radius) var(--border-radius);
+    }
 
     &-copy {
         align-items: center;
@@ -37,24 +47,25 @@
             background: var(--color-grey-400);
             color: var(--color-text-500);
         }
-
-        .icon {
-            --size: 16px;
-        }
     }
 
-    &-copy .code-copy-check svg {
-        @extend %icon-stroke-draw;
-        animation: code-check-draw 280ms ease forwards;
-        fill: none;
-        stroke: currentColor;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-width: 4;
+    &-copy-icon {
+        --size: 16px;
 
-        @media (prefers-reduced-motion: reduce) {
-            animation: none;
-            stroke-dashoffset: 0;
+        // The shared check carries no stroke of its own; it draws in once the copy lands.
+        &--check svg {
+            @extend %icon-stroke-draw;
+            animation: code-check-draw 280ms ease forwards;
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 4;
+
+            @media (prefers-reduced-motion: reduce) {
+                animation: none;
+                stroke-dashoffset: 0;
+            }
         }
     }
 
@@ -70,6 +81,7 @@
         display: block;
         flex: 0 0 auto;
         font-variant-numeric: tabular-nums;
+        line-height: inherit;
         padding: 0 24px;
         text-align: right;
         user-select: none;
@@ -86,27 +98,42 @@
         padding: 16px 0;
         tab-size: 4;
         white-space: pre;
-
-        * {
-            line-height: inherit;
-        }
-
-        code {
-            color: inherit;
-            display: block;
-            flex: 1 0 auto;
-            font: inherit;
-            padding-right: 48px;
-        }
     }
 
+    &-text {
+        color: inherit;
+        display: block;
+        flex: 1 0 auto;
+        font: inherit;
+        padding-right: 48px;
+    }
+
+    // The library root sets every element's line height; tokens, like the gutter, inherit the block's instead.
     &-token {
-        &--comment { color: #77808f; }
-        &--function { color: #8544df; }
-        &--keyword { color: #e53359; }
-        &--punctuation { color: #51617a; }
-        &--string { color: #16458b; }
-        &--value { color: #1764a5; }
-    }
+        line-height: inherit;
 
+        &--comment {
+            color: #77808f;
+        }
+
+        &--function {
+            color: #8544df;
+        }
+
+        &--keyword {
+            color: #e53359;
+        }
+
+        &--punctuation {
+            color: #51617a;
+        }
+
+        &--string {
+            color: #16458b;
+        }
+
+        &--value {
+            color: #1764a5;
+        }
+    }
 }

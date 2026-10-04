@@ -32,8 +32,8 @@ export default (request: Request) => {
             type='button'
             onclick='${() => state.active = !state.active}'
         >
-            <span aria-hidden='true' class='icon'>
-                <svg fill='none' focusable='false' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
+            <span aria-hidden='true' class='icon sidebar-toggle-icon'>
+                <svg class='sidebar-toggle-graphic' fill='none' focusable='false' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
                     <g class='sidebar-toggle-shadow'>
                         <path fill='currentColor' stroke='none' d='M3.75 2.75h2.5v10.5h-2.5a1.5 1.5 0 0 1-1.5-1.5v-7a1.5 1.5 0 0 1 1.5-1.5Z' />
                         <path d='M6.25 2.75v10.5' />
@@ -49,7 +49,7 @@ export default (request: Request) => {
 
         <aside
             aria-label='Documentation navigation'
-            class='sidebar'
+            class='sidebar ${() => state.active && '--active'}'
             id='docs-navigation'
             ${{
                 inert: () => !state.active,

@@ -95,14 +95,14 @@ const responder = (): Page => {
                         }}
 
                         <div class='spec-table-scroll'><table class='spec-table'>
-                            <thead class='table-head'>
-                                <tr><th>Variable</th><th>Value</th></tr>
+                            <thead class='spec-table-head'>
+                                <tr><th class='spec-table-heading'>Variable</th><th class='spec-table-heading'>Value</th></tr>
                             </thead>
                             <tbody>
                                 ${entry.variables.map((variable) => html`
-                                    <tr>
-                                        <td class='spec-name'>${variable.name}</td>
-                                        <td class='spec-value'>${variable.value}</td>
+                                    <tr class='spec-table-row'>
+                                        <td class='spec-table-cell spec-name'>${variable.name}</td>
+                                        <td class='spec-table-cell spec-value'>${variable.value}</td>
                                     </tr>
                                 `)}
                             </tbody>

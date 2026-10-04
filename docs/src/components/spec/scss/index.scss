@@ -1,63 +1,59 @@
 .spec {
     &-name {
         font-family: ui-monospace, monospace;
-        font-size: var(--font-size-200);
+        font-size: var(--spec-font-size, var(--font-size-200));
     }
 
+    // Names and values take the table's own text size inside it.
     &-table {
+        --spec-font-size: 1em;
         border-collapse: collapse;
         font-size: var(--font-size-400);
         margin: 0 0 var(--size-600);
         width: 100%;
+    }
 
-        .spec-name,
-        .spec-value,
-        code {
-            font-size: inherit;
+    &-table-cell {
+        border-bottom: var(--border-width-400) solid var(--color-border-300);
+    }
+
+    &-table-cell,
+    &-table-heading {
+        padding: var(--size-300) var(--size-400);
+        vertical-align: middle;
+    }
+
+    &-table-head {
+        background: var(--color-grey-400);
+        border-radius: var(--border-radius-400);
+        // Row groups need clipping when their table uses collapsed borders.
+        clip-path: inset(0 round var(--border-radius-400));
+    }
+
+    &-table-heading {
+        color: var(--color-text-300);
+        font-weight: var(--font-weight-500);
+        text-align: left;
+    }
+
+    &-table-row {
+        transition: background var(--transition-duration) var(--transition-timing-function);
+
+        &:hover {
+            background: color-mix(in oklab, var(--color-grey-500) 45%, transparent);
         }
+    }
 
-        tbody tr {
-            transition: background var(--transition-duration) var(--transition-timing-function);
-
-            &:hover {
-                background: color-mix(in oklab, var(--color-grey-500) 45%, transparent);
-            }
-        }
-
-        td {
-            border-bottom: var(--border-width-400) solid var(--color-border-300);
-        }
-
-        td,
-        th {
-            padding: var(--size-300) var(--size-400);
-            vertical-align: middle;
-        }
-
-        th {
-            color: var(--color-text-300);
-            font-weight: var(--font-weight-500);
-            text-align: left;
-        }
+    &-table-scroll {
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+        width: 100%;
     }
 
     &-value {
         color: var(--color-text-300);
-        font-size: var(--font-size-200);
+        font-size: var(--spec-font-size, var(--font-size-200));
         word-break: break-word;
     }
-}
-
-.spec-table-scroll {
-    max-width: 100%;
-    min-width: 0;
-    overflow-x: auto;
-    width: 100%;
-}
-
-.table-head {
-    background: var(--color-grey-400);
-    border-radius: var(--border-radius-400);
-    // Row groups need clipping when their table uses collapsed borders.
-    clip-path: inset(0 round var(--border-radius-400));
 }
