@@ -14,11 +14,6 @@
         filter: none;
         opacity: 1;
         transition-duration: 200ms;
-
-        // Lit hardware reads as "on" in any theme, like a real keyboard light
-        .capslock-key-light {
-            box-shadow: 0 0 4px 1px color-mix(in oklch, var(--light-color) 55%, transparent);
-        }
     }
 
     @include tokens.state(inactive) {
@@ -29,7 +24,7 @@
     &-key {
         pointer-events: none;
 
-        svg {
+        &-icon {
             height: var(--icon-height);
             width: var(--icon-width);
         }
@@ -38,6 +33,7 @@
         &-light {
             background: var(--light-color);
             border-radius: 50%;
+            box-shadow: var(--light-shadow);
             height: var(--light-size);
             left: var(--light-inset);
             position: absolute;

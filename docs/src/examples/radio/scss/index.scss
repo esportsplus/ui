@@ -54,10 +54,6 @@
         display: flex;
         flex-wrap: wrap;
         gap: var(--size-400);
-
-        .radio-demo-row {
-            align-items: center;
-        }
     }
 
     &-legend {
@@ -78,7 +74,7 @@
     }
 
     // Drawn over the opaque cards as a ring, instead of the fill highlight normally slides behind its siblings.
-    &-ring.highlight {
+    &-ring {
         background: none;
         border: var(--border-width-500) solid var(--color-primary-400);
         z-index: 1;
@@ -90,6 +86,10 @@
         display: flex;
         gap: var(--size-300);
         user-select: none;
+
+        &--inline {
+            align-items: center;
+        }
     }
 
     &-status {
@@ -104,12 +104,5 @@
         flex-direction: column;
         gap: 2px;
         min-width: 0;
-    }
-
-    .checkbox {
-        --background-active: var(--color-primary-400);
-        --border-color-active: var(--color-primary-400);
-        --border-color-default: var(--color-border-500);
-        --border-width: var(--border-width-400);
     }
 }

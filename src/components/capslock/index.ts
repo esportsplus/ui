@@ -43,7 +43,7 @@ export default component(
             >
                 <kbd aria-hidden='true' class='button button--kbd capslock-key'>
                     <span class='capslock-key-light'></span>
-                    <svg><use href='#${capsLock}' /></svg>
+                    <svg class='capslock-key-icon'><use href='#${capsLock}' /></svg>
                 </kbd>
                 <span aria-hidden='true' class='capslock-text --flex-vertical'>Caps Lock On</span>
                 <span aria-live='polite' class='capslock-live --flex-vertical'>${() => state.active && 'Caps Lock On'}</span>

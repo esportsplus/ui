@@ -15,6 +15,11 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+
+        &--vertical {
+            align-self: center;
+            flex-direction: row;
+        }
     }
 
     &-clear {
@@ -25,7 +30,7 @@
         box-shadow: 0 1px 2px oklch(from var(--color-black-300) l c h / 0.05);
         color: var(--muted-color);
         cursor: pointer;
-        display: inline-flex;
+        display: var(--clear-display);
         flex-shrink: 0;
         font: inherit;
         font-size: 12px;
@@ -54,7 +59,7 @@
             color: var(--color);
         }
 
-        svg {
+        &-icon {
             height: 12px;
             width: 12px;
         }
@@ -73,24 +78,19 @@
             opacity var(--roll-duration) var(--roll-ease);
         vertical-align: bottom;
 
-        &.range-filter-column--digit {
+        &--digit {
             width: 1ch;
         }
 
-        // Letters and separators are often wider than a digit, and a lone space must keep its width.
-        &.range-filter-column--symbol {
-            max-width: 1.5em;
-            white-space: pre;
-        }
-
-        &.range-filter-column--empty {
+        &--empty {
             max-width: 0;
             opacity: 0;
         }
 
-        &.range-filter-column--symbol .range-filter-strip,
-        &:not(.range-filter-column--symbol) .range-filter-symbol {
-            display: none;
+        // Letters and separators are often wider than a digit, and a lone space must keep its width.
+        &--symbol {
+            max-width: 1.5em;
+            white-space: pre;
         }
     }
 
@@ -102,12 +102,16 @@
         color: var(--muted-color);
     }
 
+    &-digit {
+        height: 1lh;
+    }
+
     &-field {
         align-items: center;
         background: var(--field-background);
         border: 1px solid var(--clear-border);
         border-radius: var(--field-border-radius);
-        cursor: text;
+        cursor: var(--field-cursor);
         display: flex;
         flex: 1 1 0;
         gap: 6px;
@@ -134,6 +138,7 @@
             margin-inline-start: auto;
         }
 
+        // Qualified by the field so it wins over the reused input styles regardless of stylesheet order.
         .range-filter-input {
             flex: 0 1 72px;
             font-variant-numeric: tabular-nums;
@@ -158,6 +163,7 @@
     &-ghost {
         background: var(--ghost-color);
         border-radius: 999px;
+        display: var(--ghost-display);
         height: var(--track-height);
         opacity: 0;
         pointer-events: none;
@@ -173,22 +179,37 @@
         @include tokens.state(active) {
             opacity: 1;
         }
+
+        &--vertical {
+            left: 50%;
+            top: auto;
+            transition:
+                bottom 75ms ease-out,
+                opacity 100ms ease-out,
+                height 75ms ease-out;
+            translate: -50% 0;
+            width: var(--track-height);
+        }
     }
 
     &-header {
-        align-items: flex-start;
+        align-items: var(--header-align);
         display: flex;
-        gap: 16px;
+        gap: var(--header-gap);
         justify-content: space-between;
     }
 
+    &-heading {
+        display: var(--heading-display);
+    }
+
     &-label {
-        color: var(--muted-color);
-        font-size: 12px;
+        color: var(--label-color);
+        font-size: var(--label-font-size);
         font-weight: var(--font-weight-500);
-        letter-spacing: 0.05em;
-        margin: 0 0 4px;
-        text-transform: uppercase;
+        letter-spacing: var(--label-letter-spacing);
+        margin: var(--label-margin);
+        text-transform: var(--label-text-transform);
     }
 
     &-number {
@@ -197,20 +218,32 @@
 
     &-range {
         background: var(--range-color);
+        border-radius: var(--range-border-radius);
         inset-block: 0;
         position: absolute;
         transition: none;
+
+        &--vertical {
+            inset-block: auto;
+            inset-inline: 0;
+        }
     }
 
     &-root {
         align-items: center;
-        cursor: pointer;
+        cursor: var(--root-cursor);
         display: flex;
         height: var(--thumb-size);
         position: relative;
         touch-action: none;
         user-select: none;
         width: 100%;
+
+        &--vertical {
+            height: var(--vertical-size);
+            justify-content: center;
+            width: var(--thumb-size);
+        }
     }
 
     &-separator {
@@ -226,29 +259,30 @@
 
     &-strip {
         @extend %absolute-top;
-        display: flex;
+        display: var(--strip-display);
         flex-direction: column;
         transition: translate var(--roll-duration) var(--roll-ease);
         translate: 0 calc(var(--digit, 0) * -10%);
+    }
 
-        span {
-            height: 1lh;
-        }
+    &-symbol {
+        display: var(--symbol-display);
     }
 
     // Held inside the track like Radix does it: the centre travels from half a thumb in at each end.
     &-thumb {
         background: var(--thumb-background);
-        border: 2px solid var(--thumb-border);
+        border: var(--thumb-border-width) solid var(--thumb-border);
         border-radius: 50%;
-        box-shadow: 0 4px 6px -1px oklch(from var(--color-black-300) l c h / 0.1), 0 2px 4px -2px oklch(from var(--color-black-300) l c h / 0.1);
+        box-shadow: var(--thumb-shadow);
+        cursor: var(--thumb-cursor);
         height: var(--thumb-size);
         left: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
-        outline: 0 solid var(--focus-color);
+        outline: var(--thumb-outline);
         outline-offset: 2px;
         position: absolute;
         top: 50%;
-        transition: scale 150ms ease-out;
+        transition: var(--thumb-transition);
         translate: -50% -50%;
         width: var(--thumb-size);
         z-index: 2;
@@ -258,13 +292,27 @@
             z-index: 3;
         }
 
+        &--vertical {
+            bottom: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
+            left: 50%;
+            top: auto;
+            translate: -50% 50%;
+        }
+
         &:focus-visible {
+            box-shadow: var(--thumb-shadow-focus);
             outline-width: 3px;
         }
 
-        &:hover,
-        #{tokens.state(active)} {
-            scale: 1.25;
+        &:hover {
+            scale: var(--thumb-scale-hover);
+        }
+
+        // Last, so a held thumb keeps its press look while hovered or focused.
+        @include tokens.state(active) {
+            box-shadow: var(--thumb-shadow-active);
+            cursor: var(--thumb-cursor-active);
+            scale: var(--thumb-scale-active);
         }
     }
 
@@ -275,15 +323,27 @@
         font-weight: var(--font-weight-500);
         justify-content: space-between;
         user-select: none;
+
+        &--vertical {
+            flex-direction: column-reverse;
+        }
     }
 
     &-track {
         background: var(--track-color);
         border-radius: 999px;
         height: var(--track-height);
-        overflow: hidden;
+        margin-inline: var(--track-inset);
+        overflow: var(--track-overflow);
         position: relative;
-        width: 100%;
+        width: calc(100% - var(--track-inset) * 2);
+
+        &--vertical {
+            height: calc(100% - var(--track-inset) * 2);
+            margin-block: var(--track-inset);
+            margin-inline: 0;
+            width: var(--track-height);
+        }
     }
 
     // Centred rather than baseline-aligned: the clipped digit columns report their bottom edge as their baseline.
@@ -292,7 +352,7 @@
         display: inline-flex;
         font-size: var(--value-font-size);
         font-variant-numeric: tabular-nums;
-        font-weight: var(--font-weight-700, 700);
+        font-weight: var(--value-font-weight);
     }
 
     &-values {
@@ -303,28 +363,13 @@
 
     &.--disabled {
         opacity: 0.5;
-
-        .range-filter-field,
-        .range-filter-root {
-            cursor: not-allowed;
-        }
-
-        .range-filter-thumb {
-            scale: 1;
-        }
     }
 
     @media (prefers-reduced-motion: reduce) {
         &-column,
         &-ghost,
-        &-strip,
-        &-thumb {
+        &-strip {
             transition: none;
-        }
-
-        &-thumb:hover,
-        #{tokens.state(active, '&-thumb')} {
-            scale: 1;
         }
     }
 }

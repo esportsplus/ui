@@ -41,7 +41,8 @@
         user-select: none;
     }
 
-    // Sized by the native range, whose thumb already stops half its width short of each end.
+    // Sized by the native range, whose thumb already stops half its width short of each end. Qualified by the root so
+    // it wins over the reused range styles regardless of stylesheet order.
     .color-picker-channel {
         appearance: none;
         background: none;
@@ -78,13 +79,12 @@
             @include thumb;
         }
 
-        // Grows a touch while held so you can tell you've got hold of it.
         &:active::-webkit-slider-thumb {
-            scale: 1.1;
+            scale: var(--thumb-scale-pressed);
         }
 
         &:active::-moz-range-thumb {
-            scale: 1.1;
+            scale: var(--thumb-scale-pressed);
         }
     }
 
@@ -135,10 +135,6 @@
         &:focus-visible {
             outline: var(--focus-width) solid var(--color);
             outline-offset: 2px;
-        }
-
-        &:active .color-picker-thumb {
-            scale: 1.1;
         }
     }
 
@@ -222,7 +218,7 @@
         }
 
         // A stand-in for a dropped swatch, whose own node is already gone.
-        &.color-picker-swatch--leaving {
+        &--leaving {
             animation: color-picker-swatch-leave var(--swatch-exit-duration) var(--swatch-exit-easing) forwards;
             pointer-events: none;
             position: absolute;
@@ -245,6 +241,7 @@
         height: var(--thumb-size);
         pointer-events: none;
         position: absolute;
+        scale: var(--thumb-scale);
         transition: scale var(--transition-duration) var(--transition-timing-function);
         translate: -50% -50%;
         width: var(--thumb-size);
@@ -260,17 +257,8 @@
             &::-moz-range-thumb {
                 transition: none;
             }
-
-            &:active::-webkit-slider-thumb {
-                scale: 1;
-            }
-
-            &:active::-moz-range-thumb {
-                scale: 1;
-            }
         }
 
-        &-pad:active .color-picker-thumb,
         &-swatch:active {
             scale: 1;
         }

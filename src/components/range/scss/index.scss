@@ -6,8 +6,8 @@
 .range {
     @extend %background-state, %border-state;
     background: var(--background);
-    border-radius: 240px;
     border: 0px;
+    border-radius: 240px;
     height: var(--height);
     margin-block: calc(var(--margin-vertical) + ((var(--thumb-size) - var(--height)) / 2));
     margin-inline: var(--margin-horizontal);
@@ -22,8 +22,8 @@
     &::-moz-range-thumb,
     &::-webkit-slider-thumb {
         background: var(--thumb-background);
-        border-radius: 100%;
         border: var(--border-width) solid var(--border-color);
+        border-radius: 100%;
         cursor: pointer;
         height: var(--thumb-size);
         width: var(--thumb-size);

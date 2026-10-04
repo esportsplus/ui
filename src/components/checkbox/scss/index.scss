@@ -58,16 +58,13 @@
     }
 
 
-    &:has(input:checked) .checkbox-check svg {
-        stroke-dashoffset: 0;
-    }
-
     &:has(> .checkbox-tag:focus-visible) {
         outline: var(--focus-width) solid var(--focus-color);
         outline-offset: var(--focus-offset);
     }
 
-    // The group header's dash draws with the same variables and timing as the checkmark it replaces.
+    // The group header's dash draws with the same variables and timing as the checkmark it replaces. Qualified by the
+    // root so both win over the reused icon styles regardless of stylesheet order.
     .checkbox-check,
     .checkbox-group-dash {
         @extend %absolute-full;
@@ -89,6 +86,14 @@
 
     .checkbox-check {
         left: 1px;
+
+        svg {
+            stroke-dashoffset: var(--check-offset);
+        }
+    }
+
+    .checkbox-group-dash svg {
+        stroke-dashoffset: var(--dash-offset);
     }
 
     &-group {
@@ -118,7 +123,7 @@
             margin: 0;
             user-select: none;
 
-            kbd {
+            &-key {
                 border: 1px solid var(--border-color);
                 border-radius: 4px;
                 font-family: inherit;
@@ -131,10 +136,6 @@
             flex: 1;
             font-weight: var(--font-weight-500);
             min-width: 0;
-        }
-
-        .checkbox:has(input:indeterminate) &-dash svg {
-            stroke-dashoffset: 0;
         }
     }
 

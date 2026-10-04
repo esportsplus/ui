@@ -24,22 +24,22 @@ export function rangeVariations(): Variant[] {
                 state = reactive({ value });
 
             return html`
-                <div class='form-prototype range-surface range-surface--${mode} ${tick && `range-surface--ticks-${tick}`}'
+                <div class='form-prototype range-surface range-surface--${mode}'
                     style='${() => `--fraction: ${state.value / 100};`}'>
                     ${mode === 'heading' && html`
                         <div class='range-surface-heading'>
                             <label for='${id}'>${label}</label>
-                            <output for='${id}'>${() => state.value}${unit}</output>
+                            <output for='${id}' class='range-surface-heading-value'>${() => state.value}${unit}</output>
                         </div>
                     `}
-                    <div class='range-surface-control'>
+                    <div class='range-surface-control ${tick && 'range-surface-control--ticks'}'>
                         <div class='range-surface-fill' aria-hidden='true'></div>
                         ${mode !== 'inline' && html`<div class='range-surface-handle' aria-hidden='true'></div>`}
                         ${mode !== 'heading' && html`
                             <label for='${id}' class='range-surface-label'>${label}</label>
-                            <output for='${id}' class='range-surface-value'>${() => state.value}${unit && html`<span>${unit}</span>`}</output>
+                            <output for='${id}' class='range-surface-value'>${() => state.value}${unit && html`<span class='range-surface-unit'>${unit}</span>`}</output>
                         `}
-                        <input id='${id}' type='range' min='0' max='100' step='1' value='${value}'
+                        <input id='${id}' class='range-surface-input' type='range' min='0' max='100' step='1' value='${value}'
                             oninput='${(event: Event) => state.value = Number((event.target as HTMLInputElement).value)}'>
                     </div>
                 </div>

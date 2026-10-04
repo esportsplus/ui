@@ -213,7 +213,7 @@ export default ({
                                 }}
                             >
                                 <span class='range-filter-strip' style='${() => `--digit: ${DIGITS.includes(read(char)) ? read(char) : 0}`}'>
-                                    ${DIGITS.map((digit) => html`<span>${digit}</span>`)}
+                                    ${DIGITS.map((digit) => html`<span class='range-filter-digit'>${digit}</span>`)}
                                 </span>
                                 <span class='range-filter-symbol'>${() => !DIGITS.includes(read(char)) && read(char)}</span>
                             </span>
@@ -227,7 +227,7 @@ export default ({
     return html`
         <div class='range-filter ${vertical && 'range--vertical'} ${disabled && '--disabled'}' ${attributes}>
             <div class='range-filter-header'>
-                <div>
+                <div class='range-filter-heading'>
                     <p class='range-filter-label'>${label}</p>
                     <div class='range-filter-values'>
                         ${!single && html`
@@ -247,15 +247,15 @@ export default ({
                     type='button'
                     ${{ disabled: () => disabled || (s.low === min && s.high === (single ? min : max)) }}
                 >
-                    <svg aria-hidden='true'><use href='#${close}' /></svg>
+                    <svg aria-hidden='true' class='range-filter-clear-icon'><use href='#${close}' /></svg>
                     Clear
                 </button>
             </div>
 
-            <div class='range-filter-body'>
+            <div class='range-filter-body ${vertical && 'range-filter-body--vertical'}'>
                 <div
                     aria-label='${label}'
-                    class='range-filter-root'
+                    class='range-filter-root ${vertical && 'range-filter-root--vertical'}'
                     role='group'
                     ${{
                         class: () => ui.dragging !== -1 && 'range-filter-root--dragging',
@@ -315,15 +315,15 @@ export default ({
                         onpointerup: release
                     }}
                 >
-                    <div class='range-filter-track'>
-                        <div class='range-filter-range' style='${() => vertical
+                    <div class='range-filter-track ${vertical && 'range-filter-track--vertical'}'>
+                        <div class='range-filter-range ${vertical && 'range-filter-range--vertical'}' style='${() => vertical
                             ? `bottom: ${pct(s.low)}%; top: ${100 - pct(s.high)}%;`
                             : `left: ${pct(s.low)}%; right: ${100 - pct(s.high)}%;`}'></div>
                     </div>
 
                     <div
                         aria-hidden='true'
-                        class='range-filter-ghost'
+                        class='range-filter-ghost ${vertical && 'range-filter-ghost--vertical'}'
                         ${{
                             // Hovering outside the selection shows how far it would stretch to reach the pointer.
                             class: () => (ui.preview !== -1 && (ui.preview < s.low || ui.preview > s.high)) && '--active',
@@ -354,7 +354,7 @@ export default ({
                                 aria-label='${single ? label : `${index === 0 ? 'Minimum' : 'Maximum'} ${label.toLowerCase()}`}'
                                 aria-valuemax='${max}'
                                 aria-valuemin='${min}'
-                                class='range-filter-thumb'
+                                class='range-filter-thumb ${vertical && 'range-filter-thumb--vertical'}'
                                 role='slider'
                                 tabindex='${disabled ? -1 : 0}'
                                 ${{
@@ -376,7 +376,7 @@ export default ({
                     })}
                 </div>
 
-                <div aria-hidden='true' class='range-filter-ticks'>
+                <div aria-hidden='true' class='range-filter-ticks ${vertical && 'range-filter-ticks--vertical'}'>
                     ${labels.map((tick) => html`<span>${prefix}${format(tick)}</span>`)}
                 </div>
             </div>

@@ -277,7 +277,10 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
             type='button'
             ${attributes}
             ${{
-                class: () => status.recording && '--active',
+                class: [
+                    () => status.recording && '--active',
+                    () => state.error && '--invalid'
+                ],
                 onclick: () => {
                     if (status.recording) {
                         stop();
