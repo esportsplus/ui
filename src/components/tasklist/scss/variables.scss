@@ -42,14 +42,25 @@
         // sampled across its 500ms settle
         --move-duration: 500ms;
         --move-easing: linear(0, 0.109, 0.322, 0.536, 0.71, 0.835, 0.916, 0.965, 0.991, 1.003, 1.007, 1.008, 1.006, 1.005, 1.003, 1.002, 1);
+        // The strike and fade wait on the check while it draws
+        --strike-delay: 0s;
+        --strike-length: 0%;
         --transition-duration: 150ms;
 
         @include tokens.state(hover) {
             --background: var(--background-hover);
         }
 
-        &:has(.checkbox-tag:checked) .tasklist-content {
-            --opacity: var(--opacity-active);
+        &:has(.checkbox-tag:checked) {
+            --strike-length: 100%;
+
+            .tasklist-content {
+                --opacity: var(--opacity-active);
+            }
+        }
+
+        &--checking {
+            --strike-delay: var(--check-duration);
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -70,6 +81,23 @@
         --line-height: var(--size-500);
         --padding-horizontal: var(--size-100);
         --padding-vertical: var(--size-100);
+
+        &--sortable {
+            &::before {
+                --background: var(--color-text-300);
+                --opacity: var(--opacity-default);
+                --opacity-default: 0;
+                --opacity-hover: 1;
+                --size: 16px;
+                --transition-duration: 150ms;
+            }
+
+            @include tokens.state(hover) {
+                &::before {
+                    --opacity: var(--opacity-hover);
+                }
+            }
+        }
     }
 
     &--plan .tasklist-label::before {
@@ -78,22 +106,5 @@
         --font-size: var(--font-size-200);
         --font-weight: var(--font-weight-500);
         --gap: 6px;
-    }
-
-    &.sortable .tasklist-row {
-        &::before {
-            --background: var(--color-text-300);
-            --opacity: var(--opacity-default);
-            --opacity-default: 0;
-            --opacity-hover: 1;
-            --size: 16px;
-            --transition-duration: 150ms;
-        }
-
-        @include tokens.state(hover) {
-            &::before {
-                --opacity: var(--opacity-hover);
-            }
-        }
     }
 }

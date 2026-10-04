@@ -56,9 +56,9 @@ const THRESHOLDS = [1, 4, 7, 10];
 function legend(attributes: Attributes = {}) {
     return html`
         <div aria-hidden='true' class='heatmap-legend' ${attributes}>
-            <span>Less</span>
+            <span class='heatmap-legend-less'>Less</span>
             ${LEVELS.map((level) => html`<span class='heatmap-swatch heatmap-swatch--level-${level}'></span>`)}
-            <span>More</span>
+            <span class='heatmap-legend-more'>More</span>
         </div>
     `;
 }
@@ -131,7 +131,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
             })}
         >
             <div aria-hidden='true' class='heatmap-days'>
-                ${DAYS.map((day) => html`<span>${day}</span>`)}
+                ${DAYS.map((day) => html`<span class='heatmap-day'>${day}</span>`)}
             </div>
 
             <div
@@ -151,7 +151,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
             >
                 <div class='heatmap-body'>
                     <div aria-hidden='true' class='heatmap-months'>
-                        ${months.map((month) => html`<span style='--column: ${month.column}'>${month.name}</span>`)}
+                        ${months.map((month) => html`<span class='heatmap-month' style='--column: ${month.column}'>${month.name}</span>`)}
                     </div>
 
                     <div

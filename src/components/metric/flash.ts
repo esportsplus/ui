@@ -67,6 +67,11 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
             });
         });
 
+    // Alternating parity swaps between identical keyframes, restarting the arrow pop per change.
+    function phase() {
+        return state.flashing ? (state.changes % 2 ? 'odd' : 'even') : state.changes > 0 ? 'off' : '';
+    }
+
     function remove(entry: Entry) {
         let index = render.indexOf(entry);
 
@@ -88,12 +93,11 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
             ${{
                 class: [
                     () => state.direction && `metric-flash--${state.direction}`,
-                    // Alternating parity swaps between identical keyframes, restarting the arrow pop per change.
-                    () => state.flashing ? (state.changes % 2 ? 'metric-flash--odd' : 'metric-flash--even') : state.changes > 0 && 'metric-flash--off'
+                    () => state.flashing && 'metric-flash--flashing'
                 ]
             }}
         >
-            <span aria-hidden='true' class='metric-flash-tint'></span>
+            <span aria-hidden='true' class='metric-flash-tint ${() => state.flashing && 'metric-flash-tint--flashing'}'></span>
             <span aria-hidden='true' class='metric-flash-value'>
                 ${html.reactive(render, function (entry) {
                     return html`
@@ -110,8 +114,11 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
                     `;
                 })}
             </span>
-            <span aria-hidden='true' class='metric-flash-arrow'>
-                <svg><use href='#${triangle}' /></svg>
+            <span
+                aria-hidden='true'
+                class='metric-flash-arrow ${() => state.direction === 'down' && 'metric-flash-arrow--down'} ${() => phase() && `metric-flash-arrow--${phase()}`}'
+            >
+                <svg class='metric-flash-icon'><use href='#${triangle}' /></svg>
             </span>
             <span aria-live='polite' class='metric-flash-announcement'>
                 ${() => label ? `${label}: ${state.settled}` : state.settled}

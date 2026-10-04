@@ -1,5 +1,4 @@
 @use '/shared';
-@use '/tokens';
 @use 'flash';
 @use 'variables';
 
@@ -18,7 +17,7 @@
 
     &-area {
         fill: var(--area-color);
-        opacity: 0;
+        opacity: var(--draw-opacity);
         transition: opacity var(--draw-duration) var(--draw-timing-function);
     }
 
@@ -65,8 +64,9 @@
     // The round cap would show as a dot before the draw starts, so the line also starts hidden.
     &-line {
         @extend %icon-stroke-draw;
-        opacity: 0;
+        opacity: var(--draw-opacity);
         stroke: var(--line-color);
+        stroke-dashoffset: var(--draw-offset);
         stroke-linecap: round;
         stroke-linejoin: round;
         stroke-width: var(--line-width);
@@ -77,9 +77,9 @@
 
     &-overlay {
         @extend %absolute-full;
-        opacity: 0;
+        opacity: var(--overlay-opacity);
         pointer-events: none;
-        transition: opacity 0.15s ease-out;
+        transition: opacity var(--overlay-duration) ease-out;
     }
 
     &-plot {
@@ -95,22 +95,6 @@
         &:focus-visible {
             outline: 2px solid var(--focus-color);
             outline-offset: 4px;
-        }
-
-        #{tokens.state(active)} .metric-overlay {
-            opacity: 1;
-            transition-duration: 0.1s;
-        }
-
-        &.metric-plot--shown {
-            .metric-area,
-            .metric-line {
-                opacity: 1;
-            }
-
-            .metric-line {
-                stroke-dashoffset: 0;
-            }
         }
     }
 

@@ -15,16 +15,14 @@
         width: max-content;
     }
 
-    // Settles from 0.6, not 0: a square growing from nothing reads as a pop, one settling from slightly small
-    // reads as arriving.
     &-cell {
         background: var(--level-0);
         border-radius: var(--cell-radius);
         flex-shrink: 0;
         height: var(--cell-size);
-        opacity: 0;
+        opacity: var(--cell-opacity);
         outline: none;
-        scale: 0.6;
+        scale: var(--cell-scale);
         transition:
             opacity var(--transition-duration) var(--transition-timing-function) calc(var(--column) * var(--stagger)),
             scale var(--transition-duration) var(--transition-timing-function) calc(var(--column) * var(--stagger));
@@ -46,10 +44,15 @@
         }
 
         @for $level from 1 through 4 {
-            &.heatmap-cell--level-#{$level} {
+            &--level-#{$level} {
                 background: var(--level-#{$level});
             }
         }
+    }
+
+    &-day {
+        height: var(--pitch);
+        line-height: var(--cell-size);
     }
 
     // Stays put while the weeks scroll, so rows keep their names.
@@ -58,34 +61,24 @@
         flex-direction: column;
         margin-inline-end: 5px;
         margin-top: calc(var(--months-height) + var(--ring-space));
-
-        span {
-            height: var(--pitch);
-            line-height: var(--cell-size);
-        }
     }
 
     &-grid {
         display: flex;
         flex-direction: column;
         gap: calc(var(--pitch) - var(--cell-size));
+    }
 
-        &.heatmap-grid--shown .heatmap-cell {
-            opacity: 1;
-            scale: 1;
-        }
+    &-month {
+        left: calc(var(--column) * var(--pitch));
+        line-height: 1;
+        position: absolute;
+        top: 0;
     }
 
     &-months {
         height: var(--months-height);
         position: relative;
-
-        span {
-            left: calc(var(--column) * var(--pitch));
-            line-height: 1;
-            position: absolute;
-            top: 0;
-        }
     }
 
     &-row {
@@ -116,11 +109,11 @@
     font-size: var(--font-size);
     gap: 4px;
 
-    > span:first-child {
+    &-less {
         margin-inline-end: 4px;
     }
 
-    > span:last-child {
+    &-more {
         margin-inline-start: 4px;
     }
 }
@@ -131,7 +124,7 @@
     width: var(--cell-size);
 
     @for $level from 0 through 4 {
-        &.heatmap-swatch--level-#{$level} {
+        &--level-#{$level} {
             background: var(--level-#{$level});
         }
     }

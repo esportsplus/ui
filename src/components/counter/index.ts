@@ -116,9 +116,9 @@ export default ({ currency = 'USD', decimals = 2, delay, max, prefix, startOnVie
                                 class='counter-character-track ${() => character.roll && `counter-character-track--roll-${character.roll}`}'
                                 style='${() => `--index: ${character.index}; --value: ${character.value}`}'
                             >
-                                <span>9</span>
-                                ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span>${value}</span>`)}
-                                <span>0</span>
+                                <span class='counter-digit'>9</span>
+                                ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span class='counter-digit'>${value}</span>`)}
+                                <span class='counter-digit'>0</span>
                             </div>
                         </div>
                     `;

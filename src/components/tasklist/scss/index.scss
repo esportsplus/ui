@@ -17,7 +17,7 @@
     &-content {
         min-width: 0;
         opacity: var(--opacity);
-        transition: opacity var(--strike-duration) var(--timing-function);
+        transition: opacity var(--strike-duration) var(--timing-function) var(--strike-delay);
     }
 
     &-description {
@@ -33,26 +33,16 @@
         position: relative;
         transition: background-color var(--transition-duration) var(--timing-function);
 
-        &.tasklist-item--checking {
-            .tasklist-content,
-            .tasklist-label {
-                transition-delay: var(--check-duration);
-            }
-        }
-
-        &.tasklist-item--moving {
+        &--moving {
             z-index: 1;
         }
 
-        &.tasklist-item--unchecking {
-            .checkbox-check svg,
-            .tasklist-checkbox {
+        // The checkbox reads no delay of its own, so the uncheck is held back from here until the strike clears.
+        &--unchecking {
+            .tasklist-checkbox,
+            .tasklist-checkbox .checkbox-check svg {
                 transition-delay: var(--strike-duration);
             }
-        }
-
-        &:has(.checkbox-tag:checked) .tasklist-label {
-            background-size: 100% var(--strike-width);
         }
     }
 
@@ -62,11 +52,11 @@
         background-image: linear-gradient(var(--strike-color), var(--strike-color));
         background-position: 0 55%;
         background-repeat: no-repeat;
-        background-size: 0% var(--strike-width);
+        background-size: var(--strike-length) var(--strike-width);
         box-decoration-break: clone;
         color: var(--color);
         font-weight: var(--font-weight);
-        transition: background-size var(--strike-duration) var(--timing-function);
+        transition: background-size var(--strike-duration) var(--timing-function) var(--strike-delay);
     }
 
     &-row {
@@ -78,6 +68,18 @@
         line-height: var(--line-height);
         padding: var(--padding-vertical) var(--padding-horizontal);
         user-select: none;
+
+        // Drag grip, shown while the row is hovered
+        &--sortable::before {
+            background: var(--background);
+            content: '';
+            flex: 0 0 var(--size);
+            height: var(--size);
+            margin-top: calc((var(--line-height) - var(--size)) / 2);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='5' r='1.5'/%3E%3Ccircle cx='9' cy='12' r='1.5'/%3E%3Ccircle cx='9' cy='19' r='1.5'/%3E%3Ccircle cx='15' cy='5' r='1.5'/%3E%3Ccircle cx='15' cy='12' r='1.5'/%3E%3Ccircle cx='15' cy='19' r='1.5'/%3E%3C/svg%3E") center / contain no-repeat;
+            opacity: var(--opacity);
+            transition: opacity var(--transition-duration) var(--timing-function);
+        }
     }
 
     // Numbered by task position, not DOM position, so a step keeps its number after moving
@@ -95,17 +97,5 @@
             font-weight: var(--font-weight);
             margin-right: var(--gap);
         }
-    }
-
-    // Drag grip, shown while the row is hovered
-    &.sortable .tasklist-row::before {
-        background: var(--background);
-        content: '';
-        flex: 0 0 var(--size);
-        height: var(--size);
-        margin-top: calc((var(--line-height) - var(--size)) / 2);
-        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='5' r='1.5'/%3E%3Ccircle cx='9' cy='12' r='1.5'/%3E%3Ccircle cx='9' cy='19' r='1.5'/%3E%3Ccircle cx='15' cy='5' r='1.5'/%3E%3Ccircle cx='15' cy='12' r='1.5'/%3E%3Ccircle cx='15' cy='19' r='1.5'/%3E%3C/svg%3E") center / contain no-repeat;
-        opacity: var(--opacity);
-        transition: opacity var(--transition-duration) var(--timing-function);
     }
 }

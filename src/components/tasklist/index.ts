@@ -201,7 +201,7 @@ export default component(
                         }
                     }}
                 >
-                    <label class='tasklist-row' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
+                    <label class='tasklist-row ${sorts && 'tasklist-row--sortable'}' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
                         ${checkbox.call(
                             { attributes: context?.[TASKLIST_CHECKBOX] },
                             {

@@ -215,7 +215,7 @@ export default component(
                 }}
             >
                 <div aria-hidden='true' class='pull-to-refresh-indicator'>
-                    <div class='pull-to-refresh-glyph'>
+                    <div class='pull-to-refresh-glyph ${() => view.motion === 'landing' && 'pull-to-refresh-glyph--landing'}'>
                         <svg
                             class='pull-to-refresh-spinner'
                             fill='none'

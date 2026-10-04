@@ -11,7 +11,7 @@
     // Only the elements holding glyphs are painted, so a translucent '--fill' never stacks over itself.
     // The text fill goes transparent rather than 'color', which keeps 'currentColor' usable in '--fill'.
     &-character--symbol,
-    &-character-track span {
+    &-digit {
         background: var(--fill, linear-gradient(currentColor, currentColor));
         background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -37,26 +37,19 @@
             translate: 0 calc((var(--value) + 1) * (1lh * -1));
             transition: translate var(--transition-duration) var(--timing-function) calc(var(--index) * var(--stagger));
 
-            span {
-                height: 1lh;
+            // Each roll names its own animation, which only '--blur' sets.
+            @media (prefers-reduced-motion: no-preference) {
+                @each $roll in 1 2 {
+                    &--roll-#{$roll} {
+                        animation: var(--roll-#{$roll}-animation) var(--transition-duration) ease-out calc(var(--index) * var(--stagger));
+                    }
+                }
             }
         }
     }
 
-    &--blur {
-        @media (prefers-reduced-motion: no-preference) {
-            .counter-character-track {
-                animation: var(--transition-duration) ease-out calc(var(--index) * var(--stagger));
-
-                &.counter-character-track--roll-1 {
-                    animation-name: counter-blur-1;
-                }
-
-                &.counter-character-track--roll-2 {
-                    animation-name: counter-blur-2;
-                }
-            }
-        }
+    &-digit {
+        height: 1lh;
     }
 
     &-sr {

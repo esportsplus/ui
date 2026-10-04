@@ -369,14 +369,14 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                                         }
                                     }}
                                 >
-                                    ${items.map((item) => html`<li>${link(item)}</li>`)}
+                                    ${items.map((item) => html`<li class='marquee-entry'>${link(item)}</li>`)}
                                 </ul>
                             `;
                         }
 
                         return html`
                             <ul aria-hidden='true' class='marquee-group marquee-group--copy'>
-                                ${items.map((item) => html`<li><span class='marquee-item'>${item.mark ? item.mark() : item.label}</span></li>`)}
+                                ${items.map((item) => html`<li class='marquee-entry'><span class='marquee-item'>${item.mark ? item.mark() : item.label}</span></li>`)}
                             </ul>
                         `;
                     })}

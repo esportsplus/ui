@@ -23,6 +23,17 @@
         width: auto;
     }
 
+    &-item {
+        color: var(--color-text-300);
+        display: flex;
+        font-size: var(--font-size-300);
+        justify-content: space-between;
+    }
+
+    &-label {
+        color: var(--color-text-500);
+    }
+
     &-list {
         display: flex;
         flex-direction: column;
@@ -31,17 +42,6 @@
         margin: 0;
         padding: 0;
         width: min(320px, 100%);
-
-        li {
-            color: var(--color-text-300);
-            display: flex;
-            font-size: var(--font-size-300);
-            justify-content: space-between;
-
-            > span:first-child {
-                color: var(--color-text-500);
-            }
-        }
     }
 
     &-name {

@@ -1,38 +1,4 @@
+@use 'caret';
 @use 'retype';
 @use 'rotate';
 @use 'variables';
-
-// A macOS-length blink with short fades rather than a hard flash. The retype sizer carries a caret too, so the space
-// it holds counts one.
-.typewriter::after,
-.typewriter-retype-line::after,
-.typewriter-retype-sizer::after {
-    animation: typewriter--blink var(--caret-duration) var(--caret-timing-function) infinite;
-    background: var(--caret-background);
-    border-radius: var(--caret-radius);
-    color: var(--caret-color);
-    content: var(--caret);
-    display: inline-block;
-    height: var(--caret-height);
-    margin-inline-start: var(--caret-offset);
-    vertical-align: var(--caret-align);
-    width: var(--caret-width);
-
-    @media (prefers-reduced-motion: reduce) {
-        animation: none;
-    }
-}
-
-@keyframes typewriter--blink {
-    0%, 45% {
-        opacity: 1;
-    }
-
-    55%, 95% {
-        opacity: 0;
-    }
-
-    100% {
-        opacity: 1;
-    }
-}

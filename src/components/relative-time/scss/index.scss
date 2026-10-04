@@ -2,15 +2,18 @@
 @use '/tokens';
 @use 'variables';
 
-// Qualified twice so it beats the reused tooltip's own cursor.
-.relative-time.relative-time {
+.relative-time {
     border-radius: var(--border-radius-100);
-    cursor: default;
     display: inline-flex;
     font-variant-numeric: tabular-nums;
     outline: none;
     transition: color 0.15s ease-out;
     white-space: nowrap;
+
+    // Qualified so it beats the reused tooltip's own cursor.
+    &.tooltip {
+        cursor: default;
+    }
 
     // Brightens on hover so the text reads as something with more to say.
     &:focus-visible,
@@ -22,27 +25,11 @@
         outline: 2px solid var(--focus-color);
         outline-offset: 2px;
     }
-}
 
-.relative-time {
     &-digit,
     &-rest {
         display: inline-block;
         white-space: pre;
-    }
-
-    &-digit.relative-time-digit--entering,
-    &-rest.relative-time-rest--entering,
-    &-slot.relative-time-slot--entering {
-        animation: relative-time-enter var(--roll-duration) var(--roll-timing-function);
-    }
-
-    // JS pins 'left' and 'top' to where it stood.
-    &-digit.relative-time-digit--exiting,
-    &-rest.relative-time-rest--exiting,
-    &-slot.relative-time-slot--exiting {
-        animation: relative-time-exit var(--roll-duration) var(--roll-timing-function) forwards;
-        position: absolute;
     }
 
     &-digits,
@@ -53,13 +40,27 @@
         position: relative;
     }
 
+    &-digit--entering,
+    &-rest--entering,
+    &-slot--entering {
+        animation: relative-time-enter var(--roll-duration) var(--roll-timing-function);
+    }
+
+    // JS pins 'left' and 'top' to where it stood. After the base rules, so its 'position' wins.
+    &-digit--exiting,
+    &-rest--exiting,
+    &-slot--exiting {
+        animation: relative-time-exit var(--roll-duration) var(--roll-timing-function) forwards;
+        position: absolute;
+    }
+
     // An empty flex item would lend the line its bottom edge as a baseline, lifting "just now".
     &-digits:empty {
         display: none;
     }
 
     // Holds roughly the right width so the line doesn't reflow once the moment is known.
-    &-roll.relative-time-roll--placeholder::before {
+    &-roll--placeholder::before {
         content: var(--placeholder);
         visibility: hidden;
     }

@@ -11,11 +11,11 @@
     transition: --pull-to-refresh-y var(--settle-duration) var(--spring);
 
     // Following the hand, or shifting the feed without a visible move.
-    &.pull-to-refresh--instant {
+    &--instant {
         transition: none;
     }
 
-    &.pull-to-refresh--landing {
+    &--landing {
         transition-duration: var(--slide-in-duration);
     }
 
@@ -24,21 +24,17 @@
         min-height: 100%;
         translate: 0 calc(var(--pull-to-refresh-y) * 1px);
         user-select: none;
-
-        > .pull-to-refresh-item--fresh {
-            animation: pull-to-refresh-fresh var(--fresh-duration) var(--fresh-timing-function);
-        }
     }
 
     &-glyph {
         display: flex;
         rotate: calc(var(--pull-to-refresh-y) * 3deg);
-    }
 
-    // Faded when a refresh ends, so the spinner goes out rather than shrinking tick by tick as the feed retracts.
-    &.pull-to-refresh--landing &-glyph {
-        opacity: 0;
-        transition: opacity var(--fade-duration) var(--fade-timing-function);
+        // Faded when a refresh ends, so the spinner goes out rather than shrinking tick by tick as the feed retracts.
+        &--landing {
+            opacity: 0;
+            transition: opacity var(--fade-duration) var(--fade-timing-function);
+        }
     }
 
     &-indicator {
@@ -50,6 +46,10 @@
         justify-content: center;
         opacity: clamp(0, var(--pull-to-refresh-y) / var(--threshold), 1);
         pointer-events: none;
+    }
+
+    &-item--fresh {
+        animation: pull-to-refresh-fresh var(--fresh-duration) var(--fresh-timing-function);
     }
 
     &-scroller {
@@ -65,7 +65,9 @@
         }
     }
 
+    // The indeterminate spin is a stepped rotation of graded ticks, like the system activity indicator.
     &-spinner {
+        animation: var(--spinner-animation) var(--spin-duration) steps(8) infinite;
         height: var(--spinner-size);
         width: var(--spinner-size);
     }
@@ -87,18 +89,13 @@
         }
     }
 
-    // The indeterminate spin is a stepped rotation of graded ticks, like the system activity indicator.
-    &.pull-to-refresh--refreshing &-spinner {
-        animation: pull-to-refresh-spin var(--spin-duration) steps(8) infinite;
-    }
-
     @media (prefers-reduced-motion: reduce) {
         &,
-        &.pull-to-refresh--landing &-glyph {
+        &-glyph--landing {
             transition: none;
         }
 
-        &.pull-to-refresh--refreshing &-spinner {
+        &-spinner {
             animation: none;
         }
     }

@@ -1,6 +1,7 @@
 .marquee {
     --color: var(--color-text-300);
     --color-hover: var(--color-text-400);
+    --copy-display: flex;
     // Read by JS: the share of its speed it drifts at. None holds it still, as a strip to scroll by hand.
     --drift: 1;
     --fade: var(--size-700);
@@ -11,10 +12,19 @@
     --item-gap: 40px;
     --item-height: 40px;
     --item-padding-horizontal: var(--size-300);
+    --track-will-change: transform;
     --transition-duration: 0.15s;
+    --viewport-overflow-x: hidden;
 
     @media (prefers-reduced-motion: reduce) {
         --drift: 0;
+    }
+
+    // Holding still, it is a strip to scroll by hand.
+    &--still {
+        --copy-display: none;
+        --track-will-change: auto;
+        --viewport-overflow-x: auto;
     }
 
     // Children re-declare --padding-* via root's `*` rule, so it has to be set here rather than inherited.

@@ -100,8 +100,8 @@ export default {
                             ['Release tagged', now - 4 * DAY],
                             ['Project created', now - 40 * DAY]
                         ].map(([label, date]) => html`
-                            <li>
-                                <span>${label}</span>
+                            <li class='relative-time-demo-item'>
+                                <span class='relative-time-demo-label'>${label}</span>
                                 ${relativeTime({ date })}
                             </li>
                         `)}

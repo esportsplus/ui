@@ -15,29 +15,12 @@
         color var(--tone-duration) var(--transition-timing-function),
         scale var(--settle-duration) var(--settle);
 
-    &:is(.metric-flash--even, .metric-flash--odd) {
+    &--flashing {
         color: var(--tone);
         scale: var(--lift-scale);
         transition:
             color var(--tone-duration) var(--transition-timing-function),
             scale var(--lift-duration) var(--lift);
-
-        .metric-flash-tint {
-            opacity: 1;
-            transition: opacity var(--cell-duration) var(--cell);
-        }
-    }
-
-    &.metric-flash--even .metric-flash-arrow svg {
-        animation-name: metric-flash-pop-2;
-    }
-
-    &.metric-flash--odd .metric-flash-arrow svg {
-        animation-name: metric-flash-pop-1;
-    }
-
-    &.metric-flash--off .metric-flash-arrow svg {
-        animation: metric-flash-clear var(--clear-duration) var(--clear) both;
     }
 
     &-announcement {
@@ -45,23 +28,35 @@
     }
 
     &-arrow {
+        animation: none var(--pop-duration) var(--pop) both;
         display: grid;
         height: 1em;
+        opacity: 0;
         place-items: center;
         position: relative;
         width: 1em;
 
-        svg {
-            animation: none var(--pop-duration) var(--pop) both;
-            display: block;
-            height: var(--arrow-size);
-            opacity: 0;
-            width: var(--arrow-size);
+        &--down {
+            rotate: 180deg;
+        }
+
+        &--even {
+            animation-name: metric-flash-pop-2;
+        }
+
+        &--odd {
+            animation-name: metric-flash-pop-1;
+        }
+
+        &--off {
+            animation: metric-flash-clear var(--clear-duration) var(--clear) both;
         }
     }
 
-    &.metric-flash--down &-arrow svg {
-        rotate: 180deg;
+    &-icon {
+        display: block;
+        height: var(--arrow-size);
+        width: var(--arrow-size);
     }
 
     &-text {
@@ -85,6 +80,11 @@
         background: color-mix(in oklch, var(--tone, transparent) var(--tint-opacity), transparent);
         opacity: 0;
         transition: opacity var(--clear-duration) var(--clear);
+
+        &--flashing {
+            opacity: 1;
+            transition: opacity var(--cell-duration) var(--cell);
+        }
     }
 
     &-value {

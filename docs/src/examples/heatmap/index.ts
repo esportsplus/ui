@@ -90,9 +90,9 @@ export default {
             render: () => html`
                 <div class='heatmap-demo'>
                     <span class='heatmap-demo-summary'>
-                        <strong>${NUMBER.format(COUNTS.reduce((sum, count) => sum + count, 0))}</strong>
+                        <strong class='heatmap-demo-count'>${NUMBER.format(COUNTS.reduce((sum, count) => sum + count, 0))}</strong>
                         contributions in the last year by
-                        <a href='https://github.com/${USER}' rel='noreferrer' target='_blank'>@${USER}</a>
+                        <a class='heatmap-demo-link' href='https://github.com/${USER}' rel='noreferrer' target='_blank'>@${USER}</a>
                     </span>
                     ${heatmap({ data: year(), label: 'Contributions over the last year', ...github })}
                     ${heatmap.legend({ class: 'heatmap-demo-legend' })}
