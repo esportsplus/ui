@@ -1601,6 +1601,19 @@ export default ({
         return viewport?.querySelector<HTMLElement>('.file-tree-row')?.offsetHeight ?? 0;
     }
 
+    // Whether the path tooltip tells more than the row shows: a size or date, the folders above it, or a name cut
+    // short. A root-level name shown in full would only be repeated.
+    function informative(row: Row, target: HTMLElement) {
+        let element = row.element,
+            name = target.querySelector<HTMLElement>('.file-tree-name');
+
+        if (element.size !== undefined || element.modified !== undefined || !name) {
+            return true;
+        }
+
+        return name.scrollWidth > name.clientWidth || path(row) !== name.textContent?.trim();
+    }
+
     function insert(at: number, items: Row[]) {
         for (let i = 0, n = items.length; i < n; i += CHUNK) {
             rows.splice(at + i, 0, ...items.slice(i, i + CHUNK));
@@ -3228,6 +3241,11 @@ export default ({
 
                         // Between rows, in the space beside a nested one, the tooltip stays on the last row.
                         if (!target || !row) {
+                            return;
+                        }
+
+                        if (!informative(row, target)) {
+                            tip.release();
                             return;
                         }
 
