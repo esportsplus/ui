@@ -274,19 +274,21 @@ function openOf(cache: SyntaxCache, frame: Frame, index: number) {
     return cache.document.lineStart(lineOf(cache, frame.entry, index)) + frame.at;
 }
 
+// Only a pair spanning lines folds, as in CodeMirror: one closing on its own line would hide nothing worth a marker,
+// and folding all would collapse every one-line parameter list.
 function range(document: EditorDocument, open: number, close: number): FoldRange | null {
     if (close <= open + 1) {
         return null;
     }
 
-    return {
-        close,
-        endLine: document.lineAt(close) + 1,
-        from: open + 1,
-        line: document.lineAt(open) + 1,
-        open,
-        to: close
-    };
+    let endLine = document.lineAt(close) + 1,
+        line = document.lineAt(open) + 1;
+
+    if (endLine === line) {
+        return null;
+    }
+
+    return { close, endLine, from: open + 1, line, open, to: close };
 }
 
 // A header's body: the lines after it, up to the line at 'end' or the end of the document.

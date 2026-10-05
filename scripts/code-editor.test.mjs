@@ -1062,6 +1062,23 @@ test('repeated-character multi insertion anchors each caret and undo restores ev
     );
 });
 
+test('typing at several carets is one undo step, as at one caret', () => {
+    let doc = new EditorDocument('a\nb\nc');
+
+    doc.selectMany([{ start: 1 }, { start: 3 }, { start: 5 }]);
+
+    for (let character of 'tile') {
+        assert.equal(bracket(doc, character), false);
+        insertText(doc, character, 'input');
+    }
+
+    assert.equal(doc.value, 'atile\nbtile\nctile');
+    doc.undo();
+    assert.equal(doc.value, 'a\nb\nc');
+    assert.equal(bracket(doc, '('), true);
+    assert.equal(doc.value, 'a()\nb()\nc()');
+});
+
 test('multiple bracket, newline, deletion and distributed paste are atomic with CRLF and surrogate pairs', () => {
     let doc = new EditorDocument('x\r\nx');
 
@@ -1228,7 +1245,9 @@ test('lexical brackets and folds ignore string/comment delimiters and handle nes
     assert.equal(matchingPair(scan.pairs, 0).to, source.length - 1);
     assert.equal(matchingPair(scan.pairs, source.indexOf('"}') + 1), null);
     assert.equal(structures('def f():\n  x=1\n  y=2\nz=3', 'python').folds.length, 1);
-    assert.equal(structures('<div>\n<p>x</p>\n<p>y</p>\n</div>', 'html').folds.length, 3);
+    assert.equal(structures('<div>\n<p>x</p>\n<p>y</p>\n</div>', 'html').folds.length, 1);
+    // Pairs closing on their own line don't fold, as in CodeMirror.
+    assert.equal(structures('greet(person, { name: "Ada" });', 'typescript').folds.length, 0);
     assert.equal(structures('# Title\na\nb\n# Next', 'markdown').folds.length, 1);
     assert.equal(structures('const m: Map<string, Array<number>> = new Map();\n</string>', 'typescript').folds.length, 0);
 });
@@ -1509,7 +1528,7 @@ test('two closed folds map independently through edits before, between, after an
 });
 
 test('ellipsis boundaries retain exact CRLF source, protect native deletion and map seam paste', () => {
-    let source = 'head\r\n{ secret }\r\n{\r\nmore\r\n}\r\ntail',
+    let source = 'head\r\n{ secret\r\n}\r\n{\r\nmore\r\n}\r\ntail',
         folds = outerFolds(structures(source, 'typescript').folds),
         projection = new NativeText(source, folds);
 
@@ -1547,7 +1566,7 @@ test('ellipsis boundaries retain exact CRLF source, protect native deletion and 
 });
 
 test('wrapped inline and multiline ellipses roundtrip geometry and original gutter numbers', () => {
-    let source = '0123456789 { hidden } end\r\n{\r\n more\r\n}\r\nafter',
+    let source = '0123456789 {\r\n hidden } end\r\n{\r\n more\r\n}\r\nafter',
         folds = outerFolds(structures(source, 'typescript').folds),
         projection = new NativeText(source, folds),
         layout = new EditorLayout(projection, source, 42, 20, 7, 4, true);
@@ -1562,7 +1581,7 @@ test('wrapped inline and multiline ellipses roundtrip geometry and original gutt
 
     assert.deepEqual(
         layout.lines.map((line) => line.number),
-        [1, 2, 5]
+        [1, 3, 6]
     );
 });
 
