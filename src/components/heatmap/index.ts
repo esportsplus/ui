@@ -1,4 +1,4 @@
-import { reactive } from '@esportsplus/reactivity';
+import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import tooltip from '~/components/tooltip';
 import scrollbar from '~/css-utilities/scrollbar';
@@ -82,6 +82,8 @@ function summary(day: Day) {
 function template(this: { attributes?: Partial<A> } | void, { data, describe = summary, label, state = reactive({ index: data.length - 1 }), thresholds = THRESHOLDS, tooltip: content, ...attributes }: A) {
     let bound = this?.attributes,
         cells: Cell[] = [],
+        // Read untracked: a tracked read here would rebuild the whole heatmap on every move.
+        initial = untrack(() => state.index),
         months: { column: number; name: string }[] = [],
         tip = tooltip.shared(),
         view = reactive({ shown: false }),
@@ -162,6 +164,48 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
                         ${{
                             'aria-label': label ?? `Activity over the last ${weeks} weeks`,
                             class: () => view.shown && 'heatmap-grid--shown',
+                            // One roving tab stop for the whole grid: cells are indexed by position, and a single
+                            // effect hands tabindex 0 from the previous cell to the current one.
+                            onconnect: (element: HTMLElement) => {
+                                let rows = element.querySelectorAll<HTMLElement>(':scope > .heatmap-row');
+
+                                for (let day = 0, n = rows.length; day < n; day++) {
+                                    let row = rows[day].children;
+
+                                    for (let week = 0; week < weeks; week++) {
+                                        let i = week * 7 + day;
+
+                                        if (i >= data.length) {
+                                            break;
+                                        }
+
+                                        let cell = row[week] as Cell;
+
+                                        cell[INDEX] = i;
+                                        cells[i] = cell;
+                                    }
+                                }
+
+                                let previous = cells[initial];
+
+                                effect(() => state.index, (index) => {
+                                    let next = cells[index];
+
+                                    if (next === previous) {
+                                        return;
+                                    }
+
+                                    if (previous) {
+                                        previous.tabIndex = -1;
+                                    }
+
+                                    if (next) {
+                                        next.tabIndex = 0;
+                                    }
+
+                                    previous = next;
+                                });
+                            },
                             onfocusin: (e: FocusEvent) => {
                                 let element = cellFrom(e.target);
 
@@ -211,15 +255,9 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
                                             class='heatmap-cell heatmap-cell--level-${data[i].level ?? levelOf(data[i].value, thresholds)}'
                                             role='gridcell'
                                             style='--column: ${week}'
-                                            tabindex='${() => state.index === i ? '0' : '-1'}'
+                                            tabindex='${i === initial ? '0' : '-1'}'
                                             ${bound?.[HEATMAP_CELL]}
                                             ${attributes[HEATMAP_CELL]}
-                                            ${{
-                                                onconnect: (element: Cell) => {
-                                                    element[INDEX] = i;
-                                                    cells[i] = element;
-                                                }
-                                            }}
                                         ></div>
                                     `;
                                 })}
