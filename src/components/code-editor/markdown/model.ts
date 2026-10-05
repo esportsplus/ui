@@ -297,7 +297,7 @@ export function markdownEnter(doc: EditorDocument): boolean {
             edits.push({ from, to: from + candidate[2]!.length, insert: String(++expected) });
         }
     }
-    return doc.transact(edits, { source: 'markdown-enter', selection: { start: start + insert.length } });
+    return doc.transact(edits, { source: 'markdown-enter', selection: { start: start + insert.length } }).changed;
 }
 export function markdownBackspace(doc: EditorDocument): boolean {
     if (doc.selection.start !== doc.selection.end) return false;
@@ -328,7 +328,7 @@ export function toggleMarkdown(doc: EditorDocument, marker: '*' | '**'): boolean
         start += marker.length;
         end += marker.length;
     }
-    return doc.transact([edit], { source: 'markdown-format', selection: { start, end, direction } });
+    return doc.transact([edit], { source: 'markdown-format', selection: { start, end, direction } }).changed;
 }
 export function toggleTask(doc: EditorDocument, task: NonNullable<MarkdownBlock['task']>): boolean {
     if (

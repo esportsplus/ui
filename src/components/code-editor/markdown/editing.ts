@@ -28,7 +28,7 @@ export function markdownCommand(doc: EditorDocument, command: 'enter' | 'backspa
             .reduce((sum, edit) => sum + edit.insert.length - (edit.to - edit.from), 0);
         return { ...item.selection, start: item.selection.start + shift, end: item.selection.end + shift };
     });
-    return doc.transact(edits, { source: `markdown-${command}`, selections });
+    return doc.transact(edits, { source: `markdown-${command}`, selections }).changed;
 }
 function run(doc: EditorDocument, command: 'enter' | 'backspace' | 'bold' | 'italic') {
     if (command === 'bold' || command === 'italic') return toggleMarkdown(doc, command === 'bold' ? '**' : '*');

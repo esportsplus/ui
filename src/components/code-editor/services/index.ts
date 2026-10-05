@@ -387,7 +387,7 @@ export function mountLanguageServices(
                 }),
                 selection = doc.selection;
             applying = true;
-            let result = doc.tryTransact(edits, {
+            let result = doc.transact(edits, {
                 source: 'snippet-mirror',
                 group: 'insertText',
                 selection: { start: map(selection.start), end: map(selection.end), direction: selection.direction }

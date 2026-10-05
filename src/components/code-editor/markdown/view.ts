@@ -700,7 +700,7 @@ export function mountMarkdownEditor(
                 };
             if ((beforeSelections?.length ?? doc.selections.length) > 1) insertText(doc, insert, sourceName);
             else
-                doc.tryTransact([{ from: active.from + edit.from, to: active.from + edit.to, insert }], {
+                doc.transact([{ from: active.from + edit.from, to: active.from + edit.to, insert }], {
                     source: sourceName,
                     selection,
                     group:

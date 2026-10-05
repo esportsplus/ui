@@ -1,213 +1,412 @@
-import { lineStarts, lineEnd, floorIndex, type Edit } from './document';
-import { highlightLine, type Language, type LexState } from './syntax';
-export type FoldRange = { from: number; to: number; line: number; endLine: number; open?: number; close?: number };
-export type BracketPair = { from: number; to: number };
-/** Bounded lexical structure scan. Strings/comments do not participate in brace folding. */
-export function structures(source: string, language: Language) {
-    let starts = lineStarts(source),
-        commentStart: number | null = null,
-        fenceStart: number | null = null,
-        folds: FoldRange[] = [],
-        pairs: BracketPair[] = [],
-        stack: { character: string; offset: number }[] = [],
-        state: LexState = '',
-        scanned = 0,
-        processed = 0,
-        python: { index: number; indent: number }[] = [],
-        headings: { index: number; level: number }[] = [],
-        tags: { name: string; offset: number }[] = [];
-    let addFold = (from: number, to: number) => {
-        let first = floorIndex(starts, from),
-            last = floorIndex(starts, to);
-        if (to > from + 1)
-            folds.push({ from: from + 1, to, line: first + 1, endLine: last + 1, open: from, close: to });
-    };
-    for (let index = 0; index < starts.length && index < 30000 && scanned < 1_000_000; index++) {
-        let from = starts[index],
-            text = source.slice(from, lineEnd(source, starts, index)),
-            previousState = state,
-            lex = highlightLine(text, language, state);
-        state = lex.state;
-        scanned += text.length;
-        processed = index + 1;
-        if (state.includes('comment') && !previousState.includes('comment')) commentStart = from;
-        if (commentStart !== null && !state.includes('comment')) {
-            addFold(commentStart, from);
-            commentStart = null;
-        }
-        if (language === 'markdown' && state.startsWith('fence:') && !previousState.startsWith('fence:'))
-            fenceStart = from;
-        if (fenceStart !== null && !state.startsWith('fence:')) {
-            addFold(fenceStart, from);
-            fenceStart = null;
-        }
-        for (let offset = 0, tokenIndex = 0; offset < text.length; offset++) {
-            while (lex.tokens[tokenIndex]?.to <= offset) tokenIndex++;
-            let token = lex.tokens[tokenIndex];
-            if (token && token.from <= offset && ['string', 'comment', 'regexp'].includes(token.kind)) continue;
-            let character = text[offset];
-            if ('([{'.includes(character)) stack.push({ character, offset: from + offset });
-            else if (')]}'.includes(character)) {
-                let open = stack.at(-1);
-                if (open && '([{'.indexOf(open.character) === ')]}'.indexOf(character)) {
-                    stack.pop();
-                    pairs.push({ from: open.offset, to: from + offset });
-                    addFold(open.offset, from + offset);
-                }
-            }
-        }
-        if (
-            language === 'html' ||
-            language === 'jsx' ||
-            language === 'tsx' ||
-            language === 'javascript' ||
-            language === 'typescript'
-        ) {
-            let pattern = /<(\/?)([\w:-]+)\b[^>]*>/g;
-            for (let match; (match = pattern.exec(text));) {
-                let name = match[2].toLowerCase();
-                if (
-                    lex.tokens.some(
-                        (token) =>
-                            token.from <= match.index &&
-                            token.to > match.index &&
-                            ['string', 'comment', 'regexp'].includes(token.kind)
-                    )
-                )
-                    continue;
-                if (
-                    match[0].endsWith('/>') ||
-                    /^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)$/.test(name)
-                )
-                    continue;
-                if (match[1]) {
-                    let at = tags.map((tag) => tag.name).lastIndexOf(name);
-                    if (at >= 0) {
-                        let open = tags[at];
-                        tags.length = at;
-                        addFold(open.offset, from + match.index);
-                    }
-                } else tags.push({ name, offset: from + match.index + match[0].length - 1 });
-            }
-        }
-        if (
-            language === 'python' &&
-            text.trim() &&
-            !/^\s*#/.test(text) &&
-            ![String.fromCharCode(34).repeat(3), String.fromCharCode(39).repeat(3)].includes(previousState)
-        ) {
-            let indent = 0;
-            for (let character of /^[\t ]*/.exec(text)![0]) indent += character === '\t' ? 4 - (indent % 4) : 1;
-            while (python.length && python.at(-1)!.indent >= indent) {
-                let header = python.pop()!;
-                if (index > header.index + 1)
-                    folds.push({
-                        from: starts[header.index + 1],
-                        to: starts[index],
-                        line: header.index + 1,
-                        endLine: index + 1
-                    });
-            }
-            if (/:\s*(?:#.*)?$/.test(text)) python.push({ index, indent });
-        }
-        if (language === 'markdown' && !previousState.startsWith('fence:') && /^#{1,6}\s/.test(text)) {
-            let level = /^#+/.exec(text)![0].length;
-            while (headings.length && headings.at(-1)!.level >= level) {
-                let header = headings.pop()!;
-                if (index > header.index + 1)
-                    folds.push({
-                        from: starts[header.index + 1],
-                        to: starts[index],
-                        line: header.index + 1,
-                        endLine: index + 1
-                    });
-            }
-            headings.push({ index, level });
+import { EditorDocument, floorIndex, lineStarts, type Edit } from './document';
+import { SyntaxCache, type Frame, type Language, type LineSyntax, type Nesting } from './syntax';
+
+
+type BracketPair = { from: number; to: number };
+
+type FoldRange = {
+    close?: number;
+    endLine: number;
+    from: number;
+    line: number;
+    open?: number;
+    to: number;
+};
+
+type Structure = {
+    folds: FoldRange[];
+    pairs: BracketPair[];
+};
+
+
+const COMMENT_LINE = /^\s*#/;
+
+const HEADER = /:\s*(?:#.*)?$/;
+
+const HEADING = /^#{1,6}\s/;
+
+const TRIPLE = new Set(["'''", '"""']);
+
+
+// Preferred fold for a line: the one reaching furthest, then the largest, then the earliest. A header holding
+// parameters and an inline type collapses its body rather than the first short pair on the line.
+function better(a: FoldRange | null, b: FoldRange | null) {
+    if (!a || !b) {
+        return a ?? b;
+    }
+
+    if (a.endLine !== b.endLine) {
+        return a.endLine > b.endLine ? a : b;
+    }
+
+    if (a.to - a.from !== b.to - b.from) {
+        return a.to - a.from > b.to - b.from ? a : b;
+    }
+
+    return b.from < a.from ? b : a;
+}
+
+function bracketFold(cache: SyntaxCache, index: number, tag: boolean) {
+    let best: FoldRange | null = null,
+        nesting = cache.nesting(index),
+        open: Frame[] = [],
+        start = cache.document.lineStart(index);
+
+    let frame = tag ? nesting.tags : nesting.brackets;
+
+    while (frame && frame.entry === nesting.entry) {
+        open.push(frame);
+        frame = frame.parent;
+    }
+
+    // Outermost first: the first of these to close reaches furthest.
+    for (let i = open.length - 1; i >= 0; i--) {
+        let close = closing(cache, open[i], index, tag);
+
+        if (close >= 0) {
+            return range(cache.document, start + open[i].at, close);
         }
     }
-    if (processed === starts.length)
-        for (let header of [...python, ...headings])
-            if (processed > header.index + 1)
-                folds.push({
-                    from: starts[header.index + 1],
-                    to: source.length,
-                    line: header.index + 1,
-                    endLine: processed + 1
-                });
-    // A header may contain parameters and an inline type before its body. The gutter
-    // collapses the outer body, rather than the first short pair on that line.
+
+    for (let i = 0, n = nesting.closed.length; i < n; i++) {
+        let { at, frame } = nesting.closed[i];
+
+        if (frame.entry === nesting.entry && isTag(frame) === tag) {
+            best = better(best, range(cache.document, start + frame.at, start + at));
+        }
+    }
+
+    return best;
+}
+
+function closedAt(nesting: Nesting, at: number) {
+    for (let i = 0, n = nesting.closed.length; i < n; i++) {
+        let closed = nesting.closed[i];
+
+        if (closed.at === at && !isTag(closed.frame)) {
+            return closed.frame;
+        }
+    }
+
+    return null;
+}
+
+// Offset of the closer that pops 'frame', which is open somewhere on line 'index'.
+function closeOf(cache: SyntaxCache, frame: Frame, index: number) {
+    let nesting = cache.nesting(index);
+
+    for (let i = 0, n = nesting.closed.length; i < n; i++) {
+        if (nesting.closed[i].frame === frame) {
+            return cache.document.lineStart(index) + nesting.closed[i].at;
+        }
+    }
+
+    return closing(cache, frame, index, false);
+}
+
+// Offset of the closer that pops 'frame', open at the end of line 'index'; -1 when nothing closes it.
+function closing(cache: SyntaxCache, frame: Frame, index: number, tag: boolean) {
+    for (let j = index + 1, n = cache.lineCount; j < n; j++) {
+        let nesting = cache.nesting(j);
+
+        if ((tag ? nesting.tagLow : nesting.low) >= frame.depth) {
+            continue;
+        }
+
+        for (let k = 0, m = nesting.closed.length; k < m; k++) {
+            if (nesting.closed[k].frame === frame) {
+                return cache.document.lineStart(j) + nesting.closed[k].at;
+            }
+        }
+
+        return -1;
+    }
+
+    return -1;
+}
+
+function commentFold(cache: SyntaxCache, index: number) {
+    let entry = cache.line(index);
+
+    if (entry.start.includes('comment') || !entry.end.includes('comment')) {
+        return null;
+    }
+
+    for (let j = index + 1, n = cache.lineCount; j < n; j++) {
+        if (!cache.line(j).end.includes('comment')) {
+            return range(cache.document, cache.document.lineStart(index), cache.document.lineStart(j));
+        }
+    }
+
+    return null;
+}
+
+function fenceFold(cache: SyntaxCache, index: number) {
+    let entry = cache.line(index);
+
+    if (entry.start.startsWith('fence:') || !entry.end.startsWith('fence:')) {
+        return null;
+    }
+
+    for (let j = index + 1, n = cache.lineCount; j < n; j++) {
+        if (!cache.line(j).end.startsWith('fence:')) {
+            return range(cache.document, cache.document.lineStart(index), cache.document.lineStart(j));
+        }
+    }
+
+    return null;
+}
+
+function headingFold(cache: SyntaxCache, index: number) {
+    let document = cache.document,
+        level = headingLevel(cache, index);
+
+    if (!level) {
+        return null;
+    }
+
+    for (let j = index + 1, n = document.lineCount; j < n; j++) {
+        let next = headingLevel(cache, j);
+
+        if (next && next <= level) {
+            return section(document, index, j);
+        }
+    }
+
+    return section(document, index, document.lineCount);
+}
+
+function headingLevel(cache: SyntaxCache, index: number) {
+    let text = cache.document.lineText(index);
+
+    if (!HEADING.test(text) || cache.stateAt(index).startsWith('fence:')) {
+        return 0;
+    }
+
+    let level = 0;
+
+    while (text[level] === '#') {
+        level++;
+    }
+
+    return level;
+}
+
+function indentFold(cache: SyntaxCache, index: number) {
+    let document = cache.document,
+        indent = indentOf(cache, index);
+
+    if (indent < 0 || !HEADER.test(document.lineText(index))) {
+        return null;
+    }
+
+    for (let j = index + 1, n = document.lineCount; j < n; j++) {
+        let next = indentOf(cache, j);
+
+        if (next >= 0 && next <= indent) {
+            return section(document, index, j);
+        }
+    }
+
+    return section(document, index, document.lineCount);
+}
+
+// Indentation width of a line that opens or closes Python blocks; -1 for blank lines, comments and string bodies.
+function indentOf(cache: SyntaxCache, index: number) {
+    let text = cache.document.lineText(index);
+
+    if (!text.trim() || COMMENT_LINE.test(text) || TRIPLE.has(cache.stateAt(index))) {
+        return -1;
+    }
+
+    let indent = 0;
+
+    for (let i = 0, n = text.length; i < n; i++) {
+        if (text[i] === '\t') {
+            indent += 4 - (indent % 4);
+        }
+        else if (text[i] === ' ') {
+            indent++;
+        }
+        else {
+            break;
+        }
+    }
+
+    return indent;
+}
+
+function isTag(frame: Frame) {
+    return frame.name !== '(' && frame.name !== '[' && frame.name !== '{';
+}
+
+// Line start of the line holding 'entry', searching back from 'index'.
+function lineOf(cache: SyntaxCache, entry: LineSyntax, index: number) {
+    for (let j = index; j >= 0; j--) {
+        if (cache.line(j) === entry) {
+            return j;
+        }
+    }
+
+    return -1;
+}
+
+// The frame an opener at column 'at' of the nesting's line pushed.
+function openedAt(nesting: Nesting, at: number) {
+    for (let i = 0, n = nesting.closed.length; i < n; i++) {
+        let frame = nesting.closed[i].frame;
+
+        if (frame.entry === nesting.entry && frame.at === at && !isTag(frame)) {
+            return frame;
+        }
+    }
+
+    for (let frame = nesting.brackets; frame && frame.entry === nesting.entry; frame = frame.parent) {
+        if (frame.at === at) {
+            return frame;
+        }
+    }
+
+    return null;
+}
+
+function openOf(cache: SyntaxCache, frame: Frame, index: number) {
+    return cache.document.lineStart(lineOf(cache, frame.entry, index)) + frame.at;
+}
+
+function range(document: EditorDocument, open: number, close: number): FoldRange | null {
+    if (close <= open + 1) {
+        return null;
+    }
+
     return {
-        folds: folds.sort(
-            (a, b) => a.line - b.line || b.endLine - a.endLine || b.to - b.from - (a.to - a.from) || a.from - b.from
-        ),
-        pairs
+        close,
+        endLine: document.lineAt(close) + 1,
+        from: open + 1,
+        line: document.lineAt(open) + 1,
+        open,
+        to: close
     };
 }
-export function matchingPair(pairs: readonly BracketPair[], offset: number) {
-    return (
-        pairs.find(
-            (pair) => pair.from === offset || pair.to === offset || pair.from === offset - 1 || pair.to === offset - 1
-        ) ?? null
-    );
-}
-export function outerFolds(folds: readonly FoldRange[]) {
-    let result: FoldRange[] = [];
-    for (let fold of [...folds].sort((a, b) => a.from - b.from || b.to - a.to))
-        if (!result.some((range) => fold.from >= range.from && fold.to <= range.to)) result.push(fold);
-    return result;
+
+// A header's body: the lines after it, up to the line at 'end' or the end of the document.
+function section(document: EditorDocument, index: number, end: number): FoldRange | null {
+    if (end <= index + 1) {
+        return null;
+    }
+
+    let to = end < document.lineCount ? document.lineStart(end) : document.value.length;
+
+    return { endLine: document.lineAt(to) + 1, from: document.lineStart(index + 1), line: index + 1, to };
 }
 
-/** Lexical context for character assistance. Scan caps preserve responsiveness on large sources. */
-export function contexts(source: string, language: Language, offsets: readonly number[]) {
-    let found = new Map<number, import('./syntax').Token>();
-    if (language === 'plain' || !offsets.length) return found;
-    let starts = lineStarts(source),
-        maximum = Math.max(...offsets),
-        last = floorIndex(starts, maximum),
-        state: LexState = '',
-        budget = 0,
-        positions = [...offsets].sort((a, b) => a - b),
-        cursor = 0;
-    for (let line = 0; line <= last && line < 30000; line++) {
-        let from = starts[line],
-            end = lineEnd(source, starts, line),
-            text = source.slice(from, end);
-        budget += text.length;
-        if (budget > 1_000_000) break;
-        let lex = highlightLine(text, language, state);
-        state = lex.state;
-        while (cursor < positions.length && positions[cursor] <= end) {
-            let offset = positions[cursor++],
-                local = offset - from,
-                token = lex.tokens.find((token) => token.from < local && token.to >= local);
-            if (token) {
-                let closed =
-                    token.to === local &&
-                    ((token.kind === 'string' &&
-                        text[token.from] === text[token.to - 1] &&
-                        token.to - token.from > 1) ||
-                        (token.kind === 'comment' && /\*\/|-->/.test(text.slice(token.to - 3, token.to))) ||
-                        token.kind === 'regexp');
-                if (!closed) found.set(offset, token);
+// Bracket stack at column 'at' of line 'index', with the marks before it applied; 'inclusive' also applies an opener
+// exactly at it.
+function stackAt(cache: SyntaxCache, index: number, at: number, inclusive: boolean) {
+    let marks = cache.marks(index),
+        nesting = cache.nesting(index),
+        stack = nesting.from;
+
+    for (let i = 0, n = marks.length; i < n; i++) {
+        let mark = marks[i];
+
+        if (mark.tag) {
+            continue;
+        }
+
+        if (mark.at > at || (mark.at === at && (mark.close || !inclusive))) {
+            break;
+        }
+
+        if (mark.close) {
+            let popped = closedAt(nesting, mark.at);
+
+            if (popped) {
+                stack = popped.parent;
             }
         }
+        else {
+            stack = openedAt(nesting, mark.at) ?? stack;
+        }
     }
-    return found;
-}
-export function tokenAt(source: string, language: Language, offset: number) {
-    return contexts(source, language, [offset]).get(offset) ?? null;
+
+    return stack;
 }
 
-/** Each batch uses its own pre-edit offsets, including grouped history travel. */
-export function mapFolds(
+
+// Innermost fold hiding 'line' (1-based), searching up from it the way an editor folds from inside a block.
+const enclosingFold = (cache: SyntaxCache, line: number) => {
+    if (line < 1 || line > cache.lineCount) {
+        return null;
+    }
+
+    let start = cache.document.lineStart(line - 1);
+
+    for (let l = line; l >= 1; l--) {
+        let fold = foldAt(cache, l);
+
+        if (fold && fold.to > start) {
+            return fold;
+        }
+    }
+
+    return null;
+};
+
+// The fold a gutter marker on 'line' (1-based) collapses; null when nothing folds there.
+const foldAt = (cache: SyntaxCache, line: number) => {
+    if (line < 1 || line > cache.lineCount) {
+        return null;
+    }
+
+    let index = line - 1,
+        language = cache.language,
+        best = better(bracketFold(cache, index, false), bracketFold(cache, index, true));
+
+    best = better(best, commentFold(cache, index));
+
+    if (language === 'markdown') {
+        best = better(best, fenceFold(cache, index));
+        best = better(best, headingFold(cache, index));
+    }
+
+    if (language === 'python') {
+        best = better(best, indentFold(cache, index));
+    }
+
+    return best;
+};
+
+// Each batch is in its own pre-edit offsets, grouped history travel included. Insertions at either boundary stay
+// visible; editing a hidden character, or a fold's own delimiters, reveals the fold.
+const mapFolds = (
     folds: readonly FoldRange[],
     batches: readonly (readonly Edit[])[],
-    source: string
-): FoldRange[] {
+    source: EditorDocument | string
+): FoldRange[] => {
     let mapped = [...folds];
-    for (let batch of batches)
-        mapped = mapped.flatMap((fold) => {
-            // Insertions at either boundary are visible; edits of hidden characters reveal the fold.
+
+    for (let i = 0, n = batches.length; i < n; i++) {
+        let batch = batches[i],
+            next: FoldRange[] = [];
+
+        let shift = (offset: number, right: boolean) => {
+            let delta = 0;
+
+            for (let k = 0, m = batch.length; k < m; k++) {
+                let edit = batch[k];
+
+                if (edit.to < offset || (edit.to === offset && (right || edit.from !== edit.to))) {
+                    delta += edit.insert.length - (edit.to - edit.from);
+                }
+            }
+
+            return delta;
+        };
+
+        for (let j = 0, m = mapped.length; j < m; j++) {
+            let fold = mapped[j];
+
             if (
                 batch.some((edit) =>
                     edit.from === edit.to
@@ -216,31 +415,248 @@ export function mapFolds(
                           (fold.open !== undefined && edit.from <= fold.open && edit.to > fold.open) ||
                           (fold.close !== undefined && edit.from <= fold.close && edit.to > fold.close)
                 )
-            )
-                return [];
-            let shift = (offset: number, right: boolean) =>
-                batch.reduce(
-                    (delta, edit) =>
-                        delta +
-                        (edit.to < offset || (edit.to === offset && (right || edit.from !== edit.to))
-                            ? edit.insert.length - (edit.to - edit.from)
-                            : 0),
-                    0
-                );
-            return [
-                {
-                    ...fold,
-                    from: fold.from + shift(fold.from, true),
-                    to: fold.to + shift(fold.to, false),
-                    open: fold.open === undefined ? undefined : fold.open + shift(fold.open, true),
-                    close: fold.close === undefined ? undefined : fold.close + shift(fold.close, true)
-                }
-            ];
-        });
-    let starts = lineStarts(source);
+            ) {
+                continue;
+            }
+
+            next.push({
+                ...fold,
+                close: fold.close === undefined ? undefined : fold.close + shift(fold.close, true),
+                from: fold.from + shift(fold.from, true),
+                open: fold.open === undefined ? undefined : fold.open + shift(fold.open, true),
+                to: fold.to + shift(fold.to, false)
+            });
+        }
+
+        mapped = next;
+    }
+
+    let starts = typeof source === 'string' ? lineStarts(source) : source.starts;
+
     return mapped.map((fold) => ({
         ...fold,
-        line: floorIndex(starts, fold.open ?? Math.max(0, fold.from - 1)) + 1,
-        endLine: floorIndex(starts, fold.close ?? fold.to) + 1
+        endLine: floorIndex(starts, fold.close ?? fold.to) + 1,
+        line: floorIndex(starts, fold.open ?? Math.max(0, fold.from - 1)) + 1
     }));
-}
+};
+
+const matchingPair = (pairs: readonly BracketPair[], offset: number) => {
+    for (let i = 0, n = pairs.length; i < n; i++) {
+        let pair = pairs[i];
+
+        if (pair.from === offset || pair.to === offset || pair.from === offset - 1 || pair.to === offset - 1) {
+            return pair;
+        }
+    }
+
+    return null;
+};
+
+// Bracket opener still open at 'offset', the one a closer typed there would match.
+const openBracket = (cache: SyntaxCache, offset: number) => {
+    let document = cache.document,
+        index = document.lineAt(offset),
+        top = stackAt(cache, index, offset - document.lineStart(index), false);
+
+    return top ? { from: openOf(cache, top, index), name: top.name } : null;
+};
+
+const outerFolds = (folds: readonly FoldRange[]) => {
+    let reach = -1,
+        result: FoldRange[] = [],
+        sorted = [...folds].sort((a, b) => a.from - b.from || b.to - a.to);
+
+    for (let i = 0, n = sorted.length; i < n; i++) {
+        let fold = sorted[i];
+
+        if (fold.to > reach) {
+            result.push(fold);
+            reach = fold.to;
+        }
+    }
+
+    return result;
+};
+
+// Smallest bracket pair enclosing [from, to] and larger than it, for growing a selection outwards.
+const pairAround = (cache: SyntaxCache, from: number, to: number): BracketPair | null => {
+    let document = cache.document,
+        index = document.lineAt(from);
+
+    for (let frame = stackAt(cache, index, from - document.lineStart(index), true); frame; frame = frame.parent) {
+        let close = closeOf(cache, frame, index),
+            open = openOf(cache, frame, index);
+
+        if (close >= to && (open < from || close > to)) {
+            return { from: open, to: close };
+        }
+    }
+
+    return null;
+};
+
+// The bracket pair touching 'offset' from either side; when both sides touch one, the pair that closes first.
+const pairAt = (cache: SyntaxCache, offset: number): BracketPair | null => {
+    let best: BracketPair | null = null,
+        document = cache.document,
+        index = document.lineAt(offset),
+        marks = cache.marks(index),
+        nesting = cache.nesting(index),
+        start = document.lineStart(index);
+
+    for (let i = 0, n = marks.length; i < n; i++) {
+        let mark = marks[i],
+            pair: BracketPair | null = null;
+
+        if (mark.tag || (mark.at !== offset - start && mark.at !== offset - start - 1)) {
+            continue;
+        }
+
+        if (mark.close) {
+            let frame = closedAt(nesting, mark.at);
+
+            if (frame) {
+                pair = { from: openOf(cache, frame, index), to: start + mark.at };
+            }
+        }
+        else {
+            let frame = openedAt(nesting, mark.at),
+                close = frame ? closeOf(cache, frame, index) : -1;
+
+            if (close >= 0) {
+                pair = { from: start + mark.at, to: close };
+            }
+        }
+
+        if (pair && (!best || pair.to < best.to)) {
+            best = pair;
+        }
+    }
+
+    return best;
+};
+
+// Every fold and bracket pair in the document, in one pass over the cache; for 'fold all' and the like.
+const structureOf = (cache: SyntaxCache): Structure => {
+    let comment = -1,
+        document = cache.document,
+        fence = -1,
+        folds: FoldRange[] = [],
+        headings: { index: number; level: number }[] = [],
+        language = cache.language,
+        lines = new Map<LineSyntax, number>(),
+        n = document.lineCount,
+        pairs: BracketPair[] = [],
+        python: { index: number; indent: number }[] = [];
+
+    let add = (fold: FoldRange | null) => {
+        if (fold) {
+            folds.push(fold);
+        }
+    };
+
+    for (let j = 0; j < n; j++) {
+        let entry = cache.line(j),
+            nesting = cache.nesting(j),
+            start = document.lineStart(j);
+
+        lines.set(entry, j);
+
+        if (entry.end.includes('comment') && !entry.start.includes('comment')) {
+            comment = start;
+        }
+
+        if (comment >= 0 && !entry.end.includes('comment')) {
+            add(range(document, comment, start));
+            comment = -1;
+        }
+
+        if (language === 'markdown') {
+            if (entry.end.startsWith('fence:') && !entry.start.startsWith('fence:')) {
+                fence = start;
+            }
+
+            if (fence >= 0 && !entry.end.startsWith('fence:')) {
+                add(range(document, fence, start));
+                fence = -1;
+            }
+        }
+
+        for (let tags = 0; tags < 2; tags++) {
+            for (let k = 0, m = nesting.closed.length; k < m; k++) {
+                let { at, frame } = nesting.closed[k];
+
+                if (isTag(frame) !== !!tags) {
+                    continue;
+                }
+
+                let open = document.lineStart(lines.get(frame.entry)!) + frame.at;
+
+                if (!tags) {
+                    pairs.push({ from: open, to: start + at });
+                }
+
+                add(range(document, open, start + at));
+            }
+        }
+
+        if (language === 'python') {
+            let indent = indentOf(cache, j);
+
+            if (indent >= 0) {
+                while (python.length && python[python.length - 1].indent >= indent) {
+                    add(section(document, python.pop()!.index, j));
+                }
+
+                if (HEADER.test(document.lineText(j))) {
+                    python.push({ index: j, indent });
+                }
+            }
+        }
+
+        if (language === 'markdown') {
+            let level = headingLevel(cache, j);
+
+            if (level) {
+                while (headings.length && headings[headings.length - 1].level >= level) {
+                    add(section(document, headings.pop()!.index, j));
+                }
+
+                headings.push({ index: j, level });
+            }
+        }
+    }
+
+    for (let i = 0, m = python.length; i < m; i++) {
+        add(section(document, python[i].index, n));
+    }
+
+    for (let i = 0, m = headings.length; i < m; i++) {
+        add(section(document, headings[i].index, n));
+    }
+
+    folds.sort(
+        (a, b) => a.line - b.line || b.endLine - a.endLine || b.to - b.from - (a.to - a.from) || a.from - b.from
+    );
+
+    return { folds, pairs };
+};
+
+const structures = (source: string, language: Language) => {
+    return structureOf(new SyntaxCache(new EditorDocument(source), language));
+};
+
+
+export {
+    enclosingFold,
+    foldAt,
+    mapFolds,
+    matchingPair,
+    openBracket,
+    outerFolds,
+    pairAround,
+    pairAt,
+    structureOf,
+    structures
+};
+export type { BracketPair, FoldRange, Structure };

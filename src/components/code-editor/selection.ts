@@ -1,34 +1,83 @@
-/** Browser-standard grapheme boundaries for custom multi-caret navigation/deletion. Source offsets stay UTF-16. */
-let segmenter =
+import { clamp } from '~/shared/clamp';
+
+
+const SEGMENTER =
     typeof Intl.Segmenter === 'function' ? new Intl.Segmenter(undefined, { granularity: 'grapheme' }) : null;
-export function stepCharacter(value: string, offset: number, backwards = false) {
-    offset = Math.max(0, Math.min(value.length, offset));
-    if ((backwards && offset === 0) || (!backwards && offset === value.length)) return offset;
-    let from =
-        Math.max(value.lastIndexOf('\n', Math.max(0, offset - 1)), value.lastIndexOf('\r', Math.max(0, offset - 1))) +
-        1;
-    if (backwards && from === offset) return Math.max(0, offset - (value.slice(offset - 2, offset) === '\r\n' ? 2 : 1));
-    let nextLF = value.indexOf('\n', offset),
-        nextCR = value.indexOf('\r', offset),
-        to = Math.min(nextLF < 0 ? value.length : nextLF, nextCR < 0 ? value.length : nextCR);
-    if (!backwards && to === offset)
-        return Math.min(value.length, offset + (value.slice(offset, offset + 2) === '\r\n' ? 2 : 1));
-    let text = value.slice(from, to),
-        previous = from;
-    if (segmenter) {
-        for (let part of segmenter.segment(text)) {
+
+
+function isBreak(code: number) {
+    return code === 10 || code === 13;
+}
+
+
+// Next grapheme boundary from 'offset', so custom multi-caret movement and deletion never split a cluster. Offsets
+// stay UTF-16; CRLF is one step.
+const stepCharacter = (value: string, offset: number, backwards = false) => {
+    let n = value.length;
+
+    offset = clamp(offset, 0, n);
+
+    if ((backwards && offset === 0) || (!backwards && offset === n)) {
+        return offset;
+    }
+
+    let from = offset,
+        to = offset;
+
+    while (from > 0 && !isBreak(value.charCodeAt(from - 1))) {
+        from--;
+    }
+
+    while (to < n && !isBreak(value.charCodeAt(to))) {
+        to++;
+    }
+
+    if (backwards && from === offset) {
+        let crlf = value.charCodeAt(offset - 1) === 10 && value.charCodeAt(offset - 2) === 13;
+
+        return Math.max(0, offset - (crlf ? 2 : 1));
+    }
+
+    if (!backwards && to === offset) {
+        return Math.min(n, offset + (value.charCodeAt(offset) === 13 && value.charCodeAt(offset + 1) === 10 ? 2 : 1));
+    }
+
+    let previous = from;
+
+    if (SEGMENTER) {
+        for (let part of SEGMENTER.segment(value.slice(from, to))) {
             let start = from + part.index,
                 end = start + part.segment.length;
-            if (backwards && end >= offset) return start;
-            if (!backwards && end > offset) return end;
+
+            if (backwards && end >= offset) {
+                return start;
+            }
+
+            if (!backwards && end > offset) {
+                return end;
+            }
+
             previous = end;
         }
-    } else
-        for (let character of text) {
+    }
+    else {
+        for (let character of value.slice(from, to)) {
             let end = previous + character.length;
-            if (backwards && end >= offset) return previous;
-            if (!backwards && end > offset) return end;
+
+            if (backwards && end >= offset) {
+                return previous;
+            }
+
+            if (!backwards && end > offset) {
+                return end;
+            }
+
             previous = end;
         }
+    }
+
     return backwards ? previous : to;
-}
+};
+
+
+export { stepCharacter };

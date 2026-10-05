@@ -108,7 +108,7 @@ export function applyCompletion(doc: EditorDocument, item: CompletionItem, offse
         origin = main.from + shift,
         first = snippet.stops[0],
         end = origin + edits[0]!.insert.length,
-        result = doc.tryTransact(edits, {
+        result = doc.transact(edits, {
             source: 'completion',
             selection: { start: first ? origin + first.from : end, end: first ? origin + first.to : end }
         });
