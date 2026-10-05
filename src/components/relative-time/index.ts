@@ -1,5 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { computed, dispose, effect, onCleanup, reactive, ReactiveArray, read, untrack } from '@esportsplus/reactivity';
+import { computed, effect, onCleanup, reactive, ReactiveArray, read, untrack } from '@esportsplus/reactivity';
 import tooltip from '~/components/tooltip';
 import './scss/index.scss';
 
@@ -313,28 +313,23 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
         schedule();
     }
 
-    let stopNudge = effect(() => {
-            if (tip.active) {
-                nudge();
-            }
-        }),
-        stopRender = effect(() => {
-            let value = read(text);
-
-            if (value !== null) {
-                untrack(() => render(slots, rests, value));
-            }
-        }),
-        stopSchedule = effect(schedule);
-
-    onCleanup(() => {
-        clearTimeout(timer);
-        dispose(text);
-        dispose(time);
-        stopNudge();
-        stopRender();
-        stopSchedule();
+    effect(() => {
+        if (tip.active) {
+            nudge();
+        }
     });
+
+    effect(() => {
+        let value = read(text);
+
+        if (value !== null) {
+            untrack(() => render(slots, rests, value));
+        }
+    });
+
+    effect(schedule);
+
+    onCleanup(() => clearTimeout(timer));
 
     return html`
         <time

@@ -37,66 +37,64 @@ export default ({ currency = 'USD', decimals = 2, delay, max, prefix, startOnVie
     let animation = reactive({ started: false }),
         format = formatter(currency, decimals),
         render = reactive([] as { digit: boolean; index: number; roll: number; value: string }[]),
-        stop = effect(() => {
-            let started = animation.started,
-                target = api.value;
-
-            let padding = (max || target).toFixed(decimals).length - target.toFixed(decimals).length,
-                values = format.format(Number(target.toString().padStart(target.toString().length + padding, '1'))).split('');
-
-            if (prefix) {
-                values.unshift(...prefix.split(''));
-            }
-
-            if (suffix) {
-                values.push(' ', ...suffix.split(''));
-            }
-
-            untrack(() => {
-                let remaining = values.filter((value) => DIGIT.test(value)).length;
-
-                for (let i = 0, n = values.length; i < n; i++) {
-                    let previous = render[i],
-                        value = values[i],
-                        digit = DIGIT.test(value),
-                        index = digit ? --remaining : 0;
-
-                    if (digit && (!started || padding > 0)) {
-                        padding--;
-                        value = '0';
-                    }
-
-                    // Preserve the track so CSS can transition between digit positions.
-                    if (previous?.digit === digit) {
-                        previous.index = index;
-
-                        if (previous.value !== value) {
-                            previous.roll = previous.roll === 1 ? 2 : 1;
-                            previous.value = value;
-                        }
-                    }
-                    else {
-                        let character = reactive({ digit, index, roll: 0, value });
-
-                        render[i] = character;
-                    }
-                }
-
-                if (render.length > values.length) {
-                    render.splice(values.length);
-                }
-            });
-        }),
         timer: ReturnType<typeof setTimeout> | undefined;
+
+    effect(() => {
+        let started = animation.started,
+            target = api.value;
+
+        let padding = (max || target).toFixed(decimals).length - target.toFixed(decimals).length,
+            values = format.format(Number(target.toString().padStart(target.toString().length + padding, '1'))).split('');
+
+        if (prefix) {
+            values.unshift(...prefix.split(''));
+        }
+
+        if (suffix) {
+            values.push(' ', ...suffix.split(''));
+        }
+
+        untrack(() => {
+            let remaining = values.filter((value) => DIGIT.test(value)).length;
+
+            for (let i = 0, n = values.length; i < n; i++) {
+                let previous = render[i],
+                    value = values[i],
+                    digit = DIGIT.test(value),
+                    index = digit ? --remaining : 0;
+
+                if (digit && (!started || padding > 0)) {
+                    padding--;
+                    value = '0';
+                }
+
+                // Preserve the track so CSS can transition between digit positions.
+                if (previous?.digit === digit) {
+                    previous.index = index;
+
+                    if (previous.value !== value) {
+                        previous.roll = previous.roll === 1 ? 2 : 1;
+                        previous.value = value;
+                    }
+                }
+                else {
+                    let character = reactive({ digit, index, roll: 0, value });
+
+                    render[i] = character;
+                }
+            }
+
+            if (render.length > values.length) {
+                render.splice(values.length);
+            }
+        });
+    });
 
     function start() {
         timer = setTimeout(() => animation.started = true, delay ?? 1000);
     }
 
-    onCleanup(() => {
-        clearTimeout(timer);
-        stop();
-    });
+    onCleanup(() => clearTimeout(timer));
 
     return html`
         <div class='counter' ${attributes} ${startOnView ? onceVisible(start) : { onconnect: start }}>

@@ -1,5 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import { computed, dispose, effect, onCleanup, reactive, read } from '@esportsplus/reactivity';
+import { computed, effect, onCleanup, reactive, read } from '@esportsplus/reactivity';
 import faces from '~/components/button/faces';
 import { check as checkmark } from '~/components/button/icons';
 import input from '~/components/input';
@@ -424,10 +424,7 @@ export default component(
 
         effect(focused, frame);
 
-        onCleanup(() => {
-            clearTimeout(timer);
-            dispose(detected);
-        });
+        onCleanup(() => clearTimeout(timer));
 
         return html`
             <form

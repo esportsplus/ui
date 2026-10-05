@@ -1,5 +1,5 @@
 import { html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, reactive } from '@esportsplus/reactivity';
 import icon from '~/components/icon';
 import next from '@esportsplus/ui/svg/arrow-right.svg';
 import previous from '@esportsplus/ui/svg/arrow-left.svg';
@@ -53,12 +53,13 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
     state?: { page: number };
     total: number;
 }) => {
-    let cells = pages(api.page, siblings, total).map((value) => reactive({ value })),
-        stop = effect(() => pages(api.page, siblings, total), (values) => {
-            for (let i = 0, n = values.length; i < n; i++) {
-                cells[i].value = values[i];
-            }
-        });
+    let cells = pages(api.page, siblings, total).map((value) => reactive({ value }));
+
+    effect(() => pages(api.page, siblings, total), (values) => {
+        for (let i = 0, n = values.length; i < n; i++) {
+            cells[i].value = values[i];
+        }
+    });
 
     function go(page: number) {
         page = Math.min(Math.max(page, 1), total);
@@ -70,8 +71,6 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
         api.page = page;
         onchange?.(page);
     }
-
-    onCleanup(stop);
 
     return html`
         <nav aria-label='Pagination' class='pagination' ${attributes}>

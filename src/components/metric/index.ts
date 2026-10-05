@@ -1,5 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { batch, computed, dispose, onCleanup, reactive, ReactiveArray, read } from '@esportsplus/reactivity';
+import { batch, computed, onCleanup, reactive, ReactiveArray, read } from '@esportsplus/reactivity';
 import { clamp } from '~/shared/clamp';
 import { observeSize } from '~/shared/resize';
 import { onceVisible } from '~/shared/visible';
@@ -138,11 +138,6 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
             });
         }));
     }
-
-    onCleanup(() => {
-        dispose(line);
-        dispose(series);
-    });
 
     return html`
         <div class='metric' ${this?.attributes} ${attributes}>

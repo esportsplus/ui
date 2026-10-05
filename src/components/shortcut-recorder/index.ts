@@ -264,7 +264,7 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
         state.error = '';
     }
 
-    onCleanup(effect(() => status.recording ? [] : parse(state.value), (tokens) => show(tokens, connected ? 'settle' : '')));
+    effect(() => status.recording ? [] : parse(state.value), (tokens) => show(tokens, connected ? 'settle' : ''));
 
     onCleanup(() => {
         listeners?.abort();

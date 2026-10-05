@@ -1,4 +1,4 @@
-import { effect, onCleanup, untrack } from '@esportsplus/reactivity';
+import { effect, untrack } from '@esportsplus/reactivity';
 import { component, type Attributes } from '@esportsplus/template';
 import { EditorDocument } from './document';
 import { view, type Callbacks, type Controller, type Options } from './view';
@@ -41,7 +41,7 @@ export default component(
             last: string | undefined;
 
         // Separate effects, so an options change never writes a stale initial value over a draft.
-        onCleanup(effect(() => {
+        effect(() => {
             let next = current();
 
             if (next === last) {
@@ -54,13 +54,13 @@ export default component(
                     editor.controller.setValue(next);
                 }
             });
-        }));
+        });
 
-        onCleanup(effect(() => {
+        effect(() => {
             let next = settings();
 
             untrack(() => editor.controller.setOptions(next, true));
-        }));
+        });
 
         return editor.template(attributes);
     }

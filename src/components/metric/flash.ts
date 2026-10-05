@@ -19,53 +19,54 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
         holder: ReturnType<typeof setTimeout> | undefined,
         previous = api.value,
         render = reactive([] as Entry[]),
-        state = reactive({ changes: 0, direction: '' as Direction | '', flashing: false, settled: format(previous) }),
-        stop = effect(() => {
-            let value = api.value;
+        state = reactive({ changes: 0, direction: '' as Direction | '', flashing: false, settled: format(previous) });
 
-            untrack(() => {
-                let prior = previous,
-                    text = format(value);
+    effect(() => {
+        let value = api.value;
 
-                previous = value;
+        untrack(() => {
+            let prior = previous,
+                text = format(value);
 
-                clearTimeout(announcer);
-                announcer = setTimeout(() => state.settled = text, announceAfter);
+            previous = value;
 
-                // First run seeds the display without rolling it in.
-                if (render.length === 0) {
-                    render.push(reactive({ direction: '', leaving: false, text }));
-                    return;
+            clearTimeout(announcer);
+            announcer = setTimeout(() => state.settled = text, announceAfter);
+
+            // First run seeds the display without rolling it in.
+            if (render.length === 0) {
+                render.push(reactive({ direction: '', leaving: false, text }));
+                return;
+            }
+
+            let delta = value - prior;
+
+            if (!delta) {
+                if (render[render.length - 1].text !== text) {
+                    render[render.length - 1].text = text;
                 }
 
-                let delta = value - prior;
+                return;
+            }
 
-                if (!delta) {
-                    if (render[render.length - 1].text !== text) {
-                        render[render.length - 1].text = text;
-                    }
+            let direction: Direction = delta > 0 ? 'up' : 'down';
 
-                    return;
-                }
+            // Outgoing text leaves the way the incoming text travels.
+            for (let i = 0, n = render.length; i < n; i++) {
+                render[i].direction = direction;
+                render[i].leaving = true;
+            }
 
-                let direction: Direction = delta > 0 ? 'up' : 'down';
+            render.push(reactive({ direction, leaving: false, text }));
 
-                // Outgoing text leaves the way the incoming text travels.
-                for (let i = 0, n = render.length; i < n; i++) {
-                    render[i].direction = direction;
-                    render[i].leaving = true;
-                }
+            state.changes++;
+            state.direction = direction;
+            state.flashing = true;
 
-                render.push(reactive({ direction, leaving: false, text }));
-
-                state.changes++;
-                state.direction = direction;
-                state.flashing = true;
-
-                clearTimeout(holder);
-                holder = setTimeout(() => state.flashing = false, hold);
-            });
+            clearTimeout(holder);
+            holder = setTimeout(() => state.flashing = false, hold);
         });
+    });
 
     // Alternating parity swaps between identical keyframes, restarting the arrow pop per change.
     function phase() {
@@ -83,7 +84,6 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
     onCleanup(() => {
         clearTimeout(announcer);
         clearTimeout(holder);
-        stop();
     });
 
     return html`

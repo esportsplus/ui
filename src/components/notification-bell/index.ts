@@ -1,5 +1,5 @@
 import { html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import icon from '~/components/icon';
 import bell from '@esportsplus/ui/svg/bell.svg';
 import '~/components/button/scss/index.scss';
@@ -23,7 +23,7 @@ export default ({ 'aria-label': label = 'Notifications', count = 0, dot = false,
         // names, which restarts the swing without forcing a reflow.
         state = reactive({ ring: ring ? 1 : 0 });
 
-    onCleanup(effect(() => {
+    effect(() => {
         let count = api.count;
 
         untrack(() => {
@@ -59,7 +59,7 @@ export default ({ 'aria-label': label = 'Notifications', count = 0, dot = false,
                 render.splice(values.length);
             }
         });
-    }));
+    });
 
     return html`
         <button

@@ -116,7 +116,7 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
         }
     }
 
-    onCleanup(effect(() => {
+    effect(() => {
         let text = state.error;
 
         untrack(() => {
@@ -144,7 +144,7 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
             cancelAnimationFrame(pending);
             pending = requestAnimationFrame(close);
         });
-    }));
+    });
 
     onCleanup(() => {
         disposed = true;

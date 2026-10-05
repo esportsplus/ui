@@ -319,7 +319,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         }
     }
 
-    let stop = effect(() => state.active, () => {
+    effect(() => state.active, () => {
         let computed = list && getComputedStyle(list);
 
         enter = computed ? timing(computed, 'enter') : null;
@@ -330,7 +330,6 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
 
     onCleanup(() => {
         resize?.cancel();
-        stop();
 
         for (let animation of animations.values()) {
             animation.cancel();

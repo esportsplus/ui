@@ -1,5 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, reactive } from '@esportsplus/reactivity';
 import { measure, slide as shift, timing } from '~/shared/animation';
 import { clamp } from '~/shared/clamp';
 import { keystep } from '~/shared/keystep';
@@ -337,25 +337,25 @@ function template(
         sync();
     }
 
-    onCleanup(effect(() => alpha.value, (next) => {
+    effect(() => alpha.value, (next) => {
         if (Math.round(color.a * 100) !== next) {
             update({ a: next / 100 });
         }
-    }));
+    });
 
-    onCleanup(effect(() => hue.value, (next) => {
+    effect(() => hue.value, (next) => {
         if (Math.round(color.h) !== next) {
             update({ h: next });
         }
-    }));
+    });
 
-    onCleanup(effect(() => state.value, (next) => {
+    effect(() => state.value, (next) => {
         let parsed = next && toHex(read()) !== next.toUpperCase() ? fromHex(next, read()) : null;
 
         if (parsed) {
             update(parsed);
         }
-    }));
+    });
 
     return html`
         <div class='color-picker' ${this?.attributes} ${attributes} ${{ style: css }}>

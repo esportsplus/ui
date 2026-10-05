@@ -151,7 +151,7 @@ export default component(
             state.settled = true;
         }
 
-        let stop = effect(() => {
+        effect(() => {
             let key = String(state.selected);
 
             untrack(() => {
@@ -170,10 +170,7 @@ export default component(
             });
         });
 
-        onCleanup(() => {
-            clearTimeout(timer);
-            stop();
-        });
+        onCleanup(() => clearTimeout(timer));
 
         return html`
             <div class='datalist' ${this?.attributes} ${attributes}>

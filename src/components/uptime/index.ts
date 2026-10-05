@@ -1,4 +1,4 @@
-import { batch, computed, dispose, onCleanup, reactive, read, type Computed } from '@esportsplus/reactivity';
+import { batch, computed, reactive, read } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
 import { observeSize } from '~/shared/resize';
 import tooltip from '~/components/tooltip';
@@ -85,7 +85,6 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
     state?: { day: number; row: number };
 }) => {
     let layout = reactive({ days: DAYS }),
-        nodes: Computed<number>[] = [],
         // A narrow container gets half the history so every day stays a real, tappable bar.
         size = observeSize(({ width }) => {
             layout.days = width < COMPACT_WIDTH ? DAYS_COMPACT : DAYS;
@@ -141,8 +140,6 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
                 return find(service, value) ? value : HEALTHY;
             }),
             status: keyof typeof STATUS = find(service, 0)?.level ?? 'operational';
-
-        nodes.push(caption, day);
 
         return html`
             <div class='uptime-service'>
@@ -238,12 +235,6 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
             api.row = row;
         });
     }
-
-    onCleanup(() => {
-        for (let i = 0, n = nodes.length; i < n; i++) {
-            dispose(nodes[i]);
-        }
-    });
 
     return html`
         <div

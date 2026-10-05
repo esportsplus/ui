@@ -1,4 +1,4 @@
-import { computed, effect, onCleanup, reactive, read, signal, write } from '@esportsplus/reactivity';
+import { computed, effect, reactive, read, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import highlight from '~/components/highlight';
 import icon from '~/components/icon';
@@ -417,15 +417,15 @@ export default component(
 
         // Opening or switching views starts a fresh search, whether the trigger, a tab, the Tab key or the
         // caller's state moved it.
-        onCleanup(effect(() => state.active && state.tab, (open) => {
+        effect(() => state.active && state.tab, (open) => {
             if (open) {
                 reset();
             }
-        }));
+        });
 
-        onCleanup(effect(() => option(current(), selected()), (value) => {
+        effect(() => option(current(), selected()), (value) => {
             write(active, value);
-        }));
+        });
 
         function close() {
             state.active = false;
