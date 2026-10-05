@@ -1,4 +1,4 @@
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { icon, pagination } from '@esportsplus/ui/components';
 import pause from '@esportsplus/ui/svg/pause.svg';
@@ -47,11 +47,11 @@ function carousel(autoplay: boolean) {
         toggle: HTMLElement | undefined,
         touching = false;
 
-    onCleanup(effect(() => {
+    effect(() => {
         let playing = demo.choice ?? !reduced;
 
         state.running = autoplay && playing && !demo.hovered && !demo.focused && !demo.scrolling && demo.visible;
-    }));
+    });
 
     function goTo(index: number) {
         if (!scroller) {

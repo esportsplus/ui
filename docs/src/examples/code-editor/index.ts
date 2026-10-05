@@ -1,4 +1,4 @@
-import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { codeEditor, icon, select, switch as toggle } from '@esportsplus/ui/components';
 import { EditorDocument } from '@esportsplus/ui/components/code-editor';
@@ -202,11 +202,11 @@ function languages() {
         return { fileName: path, label: `${path} source` };
     }
 
-    onCleanup(effect(() => {
+    effect(() => {
         let path = String(state.selected);
 
         untrack(() => editor?.setDocument(open(path), settings(path)));
-    }));
+    });
 
     return html`
         <div class='code-editor-demo'>
