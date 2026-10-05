@@ -421,6 +421,8 @@ function template(
                     class='select-menu-scroller'
                     ${{
                         onconnect: (element: HTMLElement) => {
+                            parts.label = element.querySelector<HTMLElement>('.select-menu-option-label') ?? undefined;
+                            parts.option = element.querySelector<HTMLElement>('.select-menu-option') ?? undefined;
                             parts.scroller = element;
                         },
                         onscroll: function(this: HTMLElement) {
@@ -444,9 +446,6 @@ function template(
                                     'aria-selected': () => String(state.selected ?? '') === option.value ? 'true' : 'false',
                                     class: () => menu.highlight === index && 'select-menu-option--highlighted',
                                     onclick: () => choose(index),
-                                    onconnect: (element: HTMLElement) => {
-                                        parts.option ??= element;
-                                    },
                                     onpointermove: (e: PointerEvent) => {
                                         // Scrolling under a still cursor can fire synthetic moves; only real movement
                                         // takes the highlight.
@@ -463,14 +462,7 @@ function template(
                                 }}
                             >
                                 <svg aria-hidden='true' class='select-menu-check'><use href='#${check}' /></svg>
-                                <span
-                                    class='select-menu-option-label'
-                                    ${{
-                                        onconnect: (element: HTMLElement) => {
-                                            parts.label ??= element;
-                                        }
-                                    }}
-                                >
+                                <span class='select-menu-option-label'>
                                     ${option.label}
                                 </span>
                                 ${option.detail && html`<span class='select-menu-option-detail'>${option.detail}</span>`}
