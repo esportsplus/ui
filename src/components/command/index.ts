@@ -79,6 +79,8 @@ type Entry = {
     id: string;
     keys?: string[];
     label: string;
+    // 'label' lowercased once, for the built-in matcher.
+    lower: string;
 };
 
 type Field = Attributes & {
@@ -143,7 +145,7 @@ type Tab = 'all' | 'shortcuts' | (string & {});
 
 type View = {
     empty: string;
-    entries: () => Entry[];
+    entries: (query: string) => Entry[];
     id: Tab;
     // Element id prefix; group names can hold characters an id can't.
     key: string;
@@ -183,7 +185,10 @@ function aria(keys: string[], mod: 'Control' | 'Meta') {
 
 function filter(entries: Entry[], query: string, matcher?: Matcher, limit = Infinity) {
     let flat: Match[] = [],
-        matches: Match[] = [];
+        groups: Group[] = [],
+        lookup = new Map<string, Group>(),
+        matches: Match[] = [],
+        needle = query.toLowerCase();
 
     for (let i = 0, n = entries.length; i < n; i++) {
         let entry = entries[i];
@@ -198,7 +203,7 @@ function filter(entries: Entry[], query: string, matcher?: Matcher, limit = Infi
             continue;
         }
 
-        let ranges = match(entry.label, query);
+        let ranges = match(entry.lower, needle);
 
         if (ranges) {
             matches.push({ entry, index: 0, ranges, score: 0 });
@@ -214,7 +219,18 @@ function filter(entries: Entry[], query: string, matcher?: Matcher, limit = Infi
         matches.length = limit;
     }
 
-    let groups = [...Map.groupBy(matches, (item) => item.entry.group)].map(([group, items]): Group => ({ group, items }));
+    for (let i = 0, n = matches.length; i < n; i++) {
+        let item = matches[i],
+            group = lookup.get(item.entry.group);
+
+        if (!group) {
+            group = { group: item.entry.group, items: [] };
+            groups.push(group);
+            lookup.set(item.entry.group, group);
+        }
+
+        group.items.push(item);
+    }
 
     // Flattened in rendered order, so arrow keys and indices agree even when groups arrive interleaved.
     for (let i = 0, n = groups.length; i < n; i++) {
@@ -288,14 +304,13 @@ function mark(label: string, ranges: [number, number][]) {
 
 // Contiguous substring first, so "set" highlights "Settings" as one run instead of scattered letters;
 // subsequence is the fallback ("gtst").
-function match(label: string, query: string): [number, number][] | null {
-    if (!query) {
+// Both sides arrive lowercased.
+function match(hay: string, needle: string): [number, number][] | null {
+    if (!needle) {
         return [];
     }
 
-    let hay = label.toLowerCase(),
-        needle = query.toLowerCase(),
-        at = hay.indexOf(needle);
+    let at = hay.indexOf(needle);
 
     if (at !== -1) {
         return [[at, at + needle.length]];
@@ -379,7 +394,8 @@ export default component(
                 icon: shortcut.icon,
                 id: shortcut.id,
                 keys: shortcut.keys.map((key) => glyph(key, apple)),
-                label: shortcut.label
+                label: shortcut.label,
+                lower: shortcut.label.toLowerCase()
             })),
             entries = computed(() => (typeof commands === 'function' ? commands() : commands).map((command): Entry => ({
                 command,
@@ -387,7 +403,8 @@ export default component(
                 icon: command.icon,
                 id: command.id,
                 keys: command.shortcut?.map((key) => glyph(key, apple)),
-                label: command.label
+                label: command.label,
+                lower: command.label.toLowerCase()
             }))),
             // The trigger, or the panel without one; the hotkey stays quiet while it is gone or inert.
             host: HTMLElement | undefined,
@@ -404,7 +421,18 @@ export default component(
                 ...(tabs ? groups() : []),
                 ...(tabs && bindings.length ? [{ empty: 'No shortcuts', entries: () => bindings, id: 'shortcuts', label: 'Shortcuts', placeholder: 'Search shortcuts', search: 'Search shortcuts' }] : [])
             ] satisfies Omit<View, 'key' | 'results'>[])
-                .map((view, i) => ({ ...view, key: `${id}-${i}`, results: computed(() => filter(view.entries(), state.query.trim(), matcher, limit)) }));
+                .map((view, i) => ({ ...view, key: `${id}-${i}` }) as View);
+
+        // Hidden views are inert and start a fresh search when shown, so only the current one follows the typing.
+        for (let i = 0, n = views.length; i < n; i++) {
+            let view = views[i];
+
+            view.results = computed(() => {
+                let query = current() === view ? state.query.trim() : '';
+
+                return filter(view.entries(query), query, matcher, limit);
+            });
+        }
 
         if (store) {
             void Promise.resolve(store.get<string[]>(RECENT_KEY)).then((ids) => {
@@ -441,8 +469,8 @@ export default component(
         }
 
         // All leads with what was run last; typing there searches every command once.
-        function everything() {
-            if (!tabs || state.query.trim()) {
+        function everything(query: string) {
+            if (!tabs || query) {
                 return read(entries);
             }
 

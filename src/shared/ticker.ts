@@ -2,6 +2,7 @@ type Tick = (now: number) => void;
 
 
 let frame = 0,
+    snapshot: Tick[] = [],
     ticks = new Set<Tick>();
 
 
@@ -10,7 +11,13 @@ let frame = 0,
 function run(now: number) {
     frame = 0;
 
-    for (let tick of [...ticks]) {
+    for (let tick of ticks) {
+        snapshot.push(tick);
+    }
+
+    for (let i = 0, n = snapshot.length; i < n; i++) {
+        let tick = snapshot[i];
+
         if (!ticks.has(tick)) {
             continue;
         }
@@ -22,6 +29,8 @@ function run(now: number) {
             reportError(error);
         }
     }
+
+    snapshot.length = 0;
 
     if (ticks.size) {
         frame ||= requestAnimationFrame(run);

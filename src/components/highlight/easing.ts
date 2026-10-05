@@ -5,9 +5,16 @@ function easing(value: string, distance: number, limit = 8) {
         return value;
     }
 
-    let stops = value.slice(7, -1).split(','),
-        peak = Math.max(...stops.map((stop) => Math.max(0, parseFloat(stop) - 1, -parseFloat(stop)))),
-        scale = Math.min(1, Math.max(0, limit) / (distance * peak));
+    let peak = 0,
+        stops = value.slice(7, -1).split(',');
+
+    for (let i = 0, n = stops.length; i < n; i++) {
+        let progress = parseFloat(stops[i]);
+
+        peak = Math.max(peak, progress - 1, -progress);
+    }
+
+    let scale = Math.min(1, Math.max(0, limit) / (distance * peak));
 
     if (!peak || scale === 1) {
         return value;

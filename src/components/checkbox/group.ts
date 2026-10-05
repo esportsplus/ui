@@ -1,5 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import { reactive } from '@esportsplus/reactivity';
+import { computed, reactive, read } from '@esportsplus/reactivity';
 import icon from '~/components/icon';
 import dash from '@esportsplus/ui/svg/dash.svg';
 import options, { type Attr } from './options';
@@ -64,16 +64,26 @@ function fill(ctx: Context, a: number, b: number, checked: boolean) {
 }
 
 function header(ctx: Context, { counter = false, ...attributes }: Header = {}): Renderable<unknown> {
+    let tally = computed(() => count(ctx));
+
     return html`
         <label class='checkbox-group-header' ${attributes}>
             ${ctx.control(
                 {
-                    style: () => `--progress: ${ctx.group.total && count(ctx) / ctx.group.total}`,
+                    style: () => `--progress: ${ctx.group.total && read(tally) / ctx.group.total}`,
                     [options.checkbox.input]: {
                         'aria-controls': () => ctx.options.slice(0, ctx.group.total).map((option) => `${ctx.id}-${option.id}`).join(' '),
-                        checked: () => all(ctx),
+                        checked: () => {
+                            let n = read(tally);
+
+                            return n > 0 && n === ctx.group.total;
+                        },
                         disabled: () => ctx.group.total === 0,
-                        indeterminate: () => mixed(ctx),
+                        indeterminate: () => {
+                            let n = read(tally);
+
+                            return n > 0 && n < ctx.group.total;
+                        },
                         onchange: () => {
                             ctx.anchor = null;
                             ctx.shift = false;
@@ -88,7 +98,7 @@ function header(ctx: Context, { counter = false, ...attributes }: Header = {}): 
             </span>
             ${counter && html`
                 <span class='checkbox-group-counter'>
-                    ${() => count(ctx)} of ${() => ctx.group.total}
+                    ${() => read(tally)} of ${() => ctx.group.total}
                 </span>
             `}
         </label>
@@ -101,12 +111,6 @@ function hint(attributes?: Attributes) {
             <kbd class='checkbox-group-hint-key'>Shift</kbd> click to select a range
         </p>
     `;
-}
-
-function mixed(ctx: Context) {
-    let n = count(ctx);
-
-    return n > 0 && n < ctx.group.total;
 }
 
 // A label click forwards a second click to its input, and browsers disagree on whether that one carries the

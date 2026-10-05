@@ -10,6 +10,8 @@ const spy = <T>({ state, turns }: { state: Range, turns: readonly T[] }) => {
         observer: IntersectionObserver | undefined,
         // A turn asked for before it was rendered, as one just pushed is; it scrolls there once it connects.
         pending: T | undefined,
+        // Each turn's last known index: turns are appended, so it almost never has to be looked up again.
+        positions = new Map<T, number>(),
         root: HTMLElement | undefined,
         visible = new Set<Element>();
 
@@ -20,7 +22,7 @@ const spy = <T>({ state, turns }: { state: Range, turns: readonly T[] }) => {
             let item = items.get(element);
 
             if (item !== undefined) {
-                indexes.push(turns.indexOf(item));
+                indexes.push(position(item));
             }
         }
 
@@ -38,6 +40,20 @@ const spy = <T>({ state, turns }: { state: Range, turns: readonly T[] }) => {
         if (state.end !== range.end) {
             state.end = range.end;
         }
+    }
+
+    function position(item: T) {
+        let hint = positions.get(item);
+
+        if (hint !== undefined && turns[hint] === item) {
+            return hint;
+        }
+
+        let index = turns.indexOf(item);
+
+        positions.set(item, index);
+
+        return index;
     }
 
     function reveal(element: HTMLElement) {
@@ -80,6 +96,7 @@ const spy = <T>({ state, turns }: { state: Range, turns: readonly T[] }) => {
             ondisconnect: (element: HTMLElement) => {
                 if (elements.get(item) === element) {
                     elements.delete(item);
+                    positions.delete(item);
                 }
 
                 items.delete(element);

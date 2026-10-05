@@ -19,6 +19,8 @@ type Drag = {
     directions: Direction[];
     // How far out it is, along the ways it may leave by.
     distance: number;
+    // Its layout size, read once on capture: a drag only transforms it.
+    height: number;
     originX: number;
     originY: number;
     pointer: number;
@@ -29,6 +31,7 @@ type Drag = {
     // The pointer's recent velocity, px per ms, resistance aside: pulling hard the wrong way must still read as such.
     vx: number;
     vy: number;
+    width: number;
     // Where it stands, resistance included.
     x: number;
     y: number;
@@ -80,8 +83,9 @@ const THRESHOLD = 4;
 
 // Let go moving fast and mostly the way out, it was flicked. Let go far enough out, it was dragged away, unless it
 // was already on its way back in.
-function dismissed(element: HTMLElement, { directions, distance, time, vx, vy, x, y }: Drag) {
-    let ox = outward(directions, 'x', x),
+function dismissed(drag: Drag) {
+    let { directions, distance, time, vx, vy, x, y } = drag,
+        ox = outward(directions, 'x', x),
         oy = outward(directions, 'y', y);
 
     if (distance === 0) {
@@ -89,7 +93,7 @@ function dismissed(element: HTMLElement, { directions, distance, time, vx, vy, x
     }
 
     if (performance.now() - time > REST) {
-        return distance > extent(element, ox, oy) * DISMISS_DISTANCE;
+        return distance > extent(drag, ox, oy) * DISMISS_DISTANCE;
     }
 
     let fx = outward(directions, 'x', vx),
@@ -100,18 +104,18 @@ function dismissed(element: HTMLElement, { directions, distance, time, vx, vy, x
         return true;
     }
 
-    return distance > extent(element, ox, oy) * DISMISS_DISTANCE && (vx * ox + vy * oy) / distance > -FLICK_VELOCITY;
+    return distance > extent(drag, ox, oy) * DISMISS_DISTANCE && (vx * ox + vy * oy) / distance > -FLICK_VELOCITY;
 }
 
 // Its size along the way it's heading, so a share of it means the same whichever way it goes.
-function extent(element: HTMLElement, x: number, y: number) {
+function extent({ height, width }: Drag, x: number, y: number) {
     let length = Math.hypot(x, y);
 
     if (length === 0) {
-        return Math.max(element.offsetWidth, element.offsetHeight);
+        return Math.max(width, height);
     }
 
-    return (Math.abs(x) * element.offsetWidth + Math.abs(y) * element.offsetHeight) / length;
+    return (Math.abs(x) * width + Math.abs(y) * height) / length;
 }
 
 // Toward a way out it follows 1:1. The other way along an axis it may leave by, it still gives, but less the further
@@ -185,6 +189,7 @@ const drag = ({ begin, capture, move, release }: Options) => {
                 captured: false,
                 directions,
                 distance: 0,
+                height: 0,
                 originX: e.clientX,
                 originY: e.clientY,
                 pointer: e.pointerId,
@@ -193,6 +198,7 @@ const drag = ({ begin, capture, move, release }: Options) => {
                 time: now,
                 vx: 0,
                 vy: 0,
+                width: 0,
                 x: 0,
                 y: 0
             };
@@ -218,6 +224,8 @@ const drag = ({ begin, capture, move, release }: Options) => {
                 element.setPointerCapture(e.pointerId);
                 getSelection()?.removeAllRanges();
                 capture?.(element);
+                current.height = element.offsetHeight;
+                current.width = element.offsetWidth;
             }
 
             let now = performance.now(),
@@ -237,7 +245,7 @@ const drag = ({ begin, capture, move, release }: Options) => {
             current.distance = Math.hypot(ox, oy);
             current.x = x;
             current.y = y;
-            move(element, current, Math.min(current.distance / extent(element, ox, oy), 1));
+            move(element, current, Math.min(current.distance / extent(current, ox, oy), 1));
         },
         onpointerup: (e: PointerEvent) => {
             if (!current || e.pointerId !== current.pointer) {
@@ -255,7 +263,7 @@ const drag = ({ begin, capture, move, release }: Options) => {
 
             // Its click would otherwise read as a press on the element (or, beyond an overlay, on its backdrop).
             swallow();
-            release(element, state, dismissed(element, state));
+            release(element, state, dismissed(state));
         }
     };
 };

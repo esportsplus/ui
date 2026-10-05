@@ -177,7 +177,16 @@ export default component(
 
         function add(raw: string[], typed: boolean) {
             let added: string[] = [],
-                seen = new Set<string>(state.tags.map(key));
+                // Each key's spelling among the current tags; undefined for one added earlier in this batch.
+                seen = new Map<string, string | undefined>();
+
+            for (let i = 0, n = state.tags.length; i < n; i++) {
+                let k = key(state.tags[i]);
+
+                if (!seen.has(k)) {
+                    seen.set(k, state.tags[i]);
+                }
+            }
 
             for (let i = 0, n = raw.length; i < n; i++) {
                 let tag = raw[i].trim();
@@ -186,15 +195,15 @@ export default component(
                     continue;
                 }
 
-                if (seen.has(key(tag))) {
-                    let existing = state.tags.find((t) => key(t) === key(tag)) ?? tag;
+                let k = key(tag);
 
-                    nudge(key(tag));
-                    local.announcement = `${existing} is already added`;
+                if (seen.has(k)) {
+                    nudge(k);
+                    local.announcement = `${seen.get(k) ?? tag} is already added`;
                     continue;
                 }
 
-                seen.add(key(tag));
+                seen.set(k, undefined);
                 added.push(tag);
             }
 

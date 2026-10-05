@@ -39,6 +39,7 @@ const MATCH = 16;
 // 'folds' caches lowercase forms of non-ASCII code units, 0 meaning not looked up yet.
 let bonuses = new Int32Array(64),
     folds = new Uint16Array(65536),
+    lowers = new Uint16Array(64),
     matched = new Float64Array(256),
     runs = new Int32Array(256),
     skipped = new Float64Array(256),
@@ -106,6 +107,7 @@ export default (query: string, text: string): Match | null => {
 
     if (n > texts.length) {
         bonuses = new Int32Array(n * 2);
+        lowers = new Uint16Array(n * 2);
         texts = new Uint16Array(n * 2);
     }
 
@@ -142,6 +144,7 @@ export default (query: string, text: string): Match | null => {
             : (previous === 1 && current === 2) || (previous !== 3 && current === 3)
                 ? CAMEL
                 : 0;
+        lowers[j] = fold(code);
         previous = current;
         texts[j] = code;
     }
@@ -169,8 +172,7 @@ export default (query: string, text: string): Match | null => {
             let cell = row + j,
                 run = 0,
                 score = -Infinity,
-                step = 0,
-                t = texts[j];
+                step = 0;
 
             if (j === starts[i]) {
                 skipped[cell] = -Infinity;
@@ -188,7 +190,7 @@ export default (query: string, text: string): Match | null => {
                 }
             }
 
-            if (exact ? t === q : fold(t) === lower) {
+            if (exact ? texts[j] === q : lowers[j] === lower) {
                 let bonus = bonuses[j];
 
                 if (i === 0) {

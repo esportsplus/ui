@@ -11,11 +11,16 @@ const SLIDE = Symbol();
 // stopped running (reopening mid-close, say). Looping decoration must not keep a closing dialog modal forever.
 // Every 'finished' is taken up front, since cancelling one replaces it with a promise that never settles.
 const finished = (element: HTMLElement, options?: GetAnimationsOptions) => {
-    return Promise.allSettled(
-        element.getAnimations(options)
-            .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity)
-            .map((animation) => animation.finished)
-    );
+    let animations = element.getAnimations(options),
+        pending: Promise<Animation>[] = [];
+
+    for (let i = 0, n = animations.length; i < n; i++) {
+        if (animations[i].effect?.getComputedTiming().endTime !== Infinity) {
+            pending.push(animations[i].finished);
+        }
+    }
+
+    return Promise.allSettled(pending);
 };
 
 // Records where each element is drawn now, a slide still running included, ahead of a change to the layout.
@@ -40,6 +45,7 @@ const ms = (value: string) => {
 const slides = <T extends Element>(elements: ArrayLike<T>, timing: KeyframeAnimationOptions | null, enter?: (element: T) => void) => {
     let froms: (DOMRect | undefined)[] = [],
         n = elements.length,
+        options: KeyframeAnimationOptions | null = timing && { ...timing, composite: 'add' },
         tos: DOMRect[] = [];
 
     for (let i = 0; i < n; i++) {
@@ -62,7 +68,7 @@ const slides = <T extends Element>(elements: ArrayLike<T>, timing: KeyframeAnima
         let from = froms[i],
             to = tos[i];
 
-        if (!from || !timing) {
+        if (!from || !options) {
             continue;
         }
 
@@ -72,7 +78,7 @@ const slides = <T extends Element>(elements: ArrayLike<T>, timing: KeyframeAnima
         if (Math.abs(x) >= 0.5 || Math.abs(y) >= 0.5) {
             (elements[i] as Sliding)[SLIDE] = elements[i].animate(
                 [{ translate: `${x}px ${y}px` }, { translate: '0px 0px' }],
-                { ...timing, composite: 'add' }
+                options
             );
         }
     }

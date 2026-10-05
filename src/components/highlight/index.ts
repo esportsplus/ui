@@ -83,14 +83,17 @@ function enqueue(measure: () => VoidFunction | undefined) {
     frame ||= requestAnimationFrame(() => {
         frame = 0;
 
-        let reads = [...pending];
+        let writes: (VoidFunction | undefined)[] = [];
+
+        // Measuring never enqueues, so the set holds still while it is walked.
+        for (let read of pending) {
+            writes.push(read());
+        }
 
         pending.clear();
 
-        let writes = reads.map((read) => read());
-
-        for (let write of writes) {
-            write?.();
+        for (let i = 0, n = writes.length; i < n; i++) {
+            writes[i]?.();
         }
     });
 }

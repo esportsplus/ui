@@ -296,15 +296,15 @@ function template(
         target.value = clamp(target.value + delta, 0, Number((e.currentTarget as HTMLInputElement).max));
     }
 
-    function sync() {
-        let hex = parts.hex;
+    function sync(hex: string) {
+        let field = parts.hex;
 
         alpha.value = Math.round(color.a * 100);
         hue.value = Math.round(color.h);
 
         // The field follows the color except while it is being typed in.
-        if (hex && document.activeElement !== hex) {
-            hex.value = toHex(read());
+        if (field && document.activeElement !== field) {
+            field.value = hex;
         }
     }
 
@@ -332,7 +332,7 @@ function template(
         }
 
         state.value = hex;
-        sync();
+        sync(hex);
     }
 
     effect(() => alpha.value, (next) => {

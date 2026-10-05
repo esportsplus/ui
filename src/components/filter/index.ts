@@ -150,9 +150,14 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             first = new Map<HTMLElement, DOMRect>(),
             from = 0,
             lifts = new Map<HTMLElement, Origin>(),
+            matched: boolean[] = [],
             parents = new Map<Element, Origin>(),
             view = viewport(),
             visible = 0;
+
+        for (let i = 0, n = items.length; i < n; i++) {
+            matched.push(!filter || filter.match(items[i]));
+        }
 
         // Reads are batched ahead of any write so the browser lays out once per phase.
         if (animate && list) {
@@ -169,7 +174,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
 
                 first.set(element, rect);
 
-                if (!shown[i] || !filter || filter.match(items[i]) || !near(rect, view)) {
+                if (!shown[i] || matched[i] || !near(rect, view)) {
                     continue;
                 }
 
@@ -198,7 +203,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         for (let i = 0, n = items.length; i < n; i++) {
             let element = elements[i];
 
-            if (!filter || filter.match(items[i])) {
+            if (matched[i]) {
                 visible++;
                 shown[i] = true;
 
