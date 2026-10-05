@@ -112,6 +112,15 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
         return read(series).points[state.index];
     }
 
+    function row(point: Point) {
+        return html`
+            <tr>
+                <th scope='row'>${point.label}</th>
+                <td>${format(point.value)}</td>
+            </tr>
+        `;
+    }
+
     function step() {
         return (size.width - PAD_X * 2) / Math.max(read(series).points.length - 1, 1);
     }
@@ -277,12 +286,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
                         </tr>
                     </thead>
                     <tbody>
-                        ${() => read(series).points.map((point) => html`
-                            <tr>
-                                <th scope='row'>${point.label}</th>
-                                <td>${format(point.value)}</td>
-                            </tr>
-                        `)}
+                        ${data instanceof ReactiveArray ? html.reactive(data, row) : data.map(row)}
                     </tbody>
                 </table>
             </div>
