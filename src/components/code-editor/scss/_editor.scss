@@ -274,7 +274,8 @@
     }
 
     &-number {
-        align-items: center;
+        // A wrapped line's number and fold marker sit on its first row.
+        align-items: flex-start;
         display: flex;
         left: 0;
         position: absolute;
