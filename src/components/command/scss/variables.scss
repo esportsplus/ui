@@ -58,9 +58,11 @@
         --glide-duration: 0.3s;
     }
 
+    // 'inherit' passes the palette's '--font-size' through the input's own; 'var(--font-size)' here would refer to
+    // itself, and the cycle leaves the input at whatever font size its host happens to inherit.
     &-input.input {
         --color-default: var(--color);
-        --font-size: var(--font-size);
+        --font-size: inherit;
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         --size: 0px;
