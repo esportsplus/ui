@@ -106,7 +106,7 @@ export default {
         },
         {
             render: () => more({ lines: 2, style: '--max-height: 160px;' }, html`
-                <div class='text'>
+                <div class='text --flex-column'>
                     ${Array.from({ length: 6 }, (_, i) => html`
                         <p>
                             Paragraph ${i + 1}. Expanded height is capped by the --max-height CSS variable. The region
