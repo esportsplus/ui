@@ -9,6 +9,7 @@ type A = Attributes & {
     [MENU_ITEM]?: Attributes;
     [MENU_PANEL]?: Attributes;
     animate?: boolean;
+    controller?: (controller: Controller) => void;
     expand?: boolean | 'c' | 'e' | 'en' | 'es' | 'n' | 'ne' | 'nw' | 's' | 'se' | 'sw' | 'w' | 'wn' | 'ws';
     items: Item[];
     openOn?: 'click' | 'hover';
@@ -16,6 +17,14 @@ type A = Attributes & {
     onkeydown?: never;
     onselect?: (item: Item) => void;
     state?: { active: boolean };
+};
+
+type Controller = {
+    // Hands focus back only when it was inside the menu.
+    close: () => void;
+    // A context menu opens at 'position', a viewport point, or by the focused element inside it when omitted; either
+    // way focus returns to whatever held it before. A menu opens under its trigger and ignores 'position'.
+    open: (position?: Point) => void;
 };
 
 type Item = {
@@ -40,6 +49,8 @@ type MenuNode = {
     parent?: MenuNode;
     state: { open: boolean, render: boolean, settled: boolean };
 };
+
+type Point = { x: number, y: number };
 
 
 const MENU_TRIGGER = Symbol.for('@esportsplus/ui/tooltip.menu.trigger');
@@ -97,7 +108,7 @@ function tree(items: Item[], parent?: MenuNode) {
 
 function createMenu(context = false) {
     return component(
-        ({ animate = true, expand: expansion = false, items, onselect, openOn = 'click', state = reactive({ active: false }), ...attributes }: A, content) => {
+        ({ animate = true, controller, expand: expansion = false, items, onselect, openOn = 'click', state = reactive({ active: false }), ...attributes }: A, content) => {
             let root: MenuNode = { children: [], state: reactive({ open: true, render: true, settled: true }) },
                 stack: MenuNode[] = [root],
                 host: HTMLElement | undefined,
@@ -113,9 +124,37 @@ function createMenu(context = false) {
                 pending?.();
             });
 
+            controller?.({
+                close: () => {
+                    if (state.active || pending) {
+                        close(!!root.panel?.contains(document.activeElement));
+                    }
+                },
+                open: (position) => {
+                    if (!context) {
+                        open();
+                    }
+                    else if (position) {
+                        place(position);
+                    }
+                    else if (host) {
+                        let focused = document.activeElement;
+
+                        place(anchor(focused && host.contains(focused) && !root.panel?.contains(focused) ? focused : host));
+                    }
+                }
+            });
+
             function stay() {
                 clearTimeout(leaving);
                 leaving = undefined;
+            }
+
+            // Below a focused element inside the host; over the host's own corner.
+            function anchor(element: Element): Point {
+                let bounds = element.getBoundingClientRect();
+
+                return { x: bounds.left, y: element === host ? bounds.top : bounds.bottom };
             }
 
             function close(focus: boolean) {
@@ -249,7 +288,8 @@ function createMenu(context = false) {
                 }
 
                 if (expansion && host && trigger) {
-                    pending = morph(host, reveal, root.panel, trigger);
+                    // A context menu's trigger is only where focus returns; it still expands out of its host.
+                    pending = morph(host, reveal, root.panel, context ? host : trigger);
                 }
                 else {
                     reveal();
@@ -262,24 +302,14 @@ function createMenu(context = false) {
                 }
 
                 event.preventDefault();
-                trigger = host;
-                reset();
-                root.panel.style.setProperty('--shift-x', '0px');
 
-                let bounds = host.getBoundingClientRect(),
-                    scale = bounds.width / host.offsetWidth || 1,
-                    width = root.panel.offsetWidth * scale,
-                    height = root.panel.offsetHeight * scale,
-                    keyboard = event.clientX === 0 && event.clientY === 0,
-                    x = keyboard ? bounds.left : event.clientX,
-                    y = keyboard ? bounds.top : event.clientY,
-                    xflip = x + width > window.innerWidth - VIEWPORT_MARGIN,
-                    yflip = y + height > window.innerHeight - VIEWPORT_MARGIN;
-
-                x = Math.max(VIEWPORT_MARGIN, xflip ? x - width : x);
-                y = Math.max(VIEWPORT_MARGIN, yflip ? y - height : y);
-                placement.style = `left: ${(x - bounds.left) / scale - host.clientLeft + host.scrollLeft}px; top: ${(y - bounds.top) / scale - host.clientTop + host.scrollTop}px;`;
-                open();
+                // Synthetic events carry no point.
+                if (event.clientX === 0 && event.clientY === 0) {
+                    place(anchor(event.target instanceof Element ? event.target : host));
+                }
+                else {
+                    place({ x: event.clientX, y: event.clientY });
+                }
             }
 
             function panel(node: MenuNode): Renderable<unknown> {
@@ -347,6 +377,34 @@ function createMenu(context = false) {
                         ${node.children.map(entry)}
                     </div>
                 `;
+            }
+
+            function place({ x, y }: Point) {
+                if (!host || !root.panel) {
+                    return;
+                }
+
+                let focused = document.activeElement;
+
+                // Kept while focus is already in the menu, so moving an open menu still returns to the original holder.
+                if (!root.panel.contains(focused)) {
+                    trigger = focused instanceof HTMLElement && focused !== document.body ? focused : host;
+                }
+
+                reset();
+                root.panel.style.setProperty('--shift-x', '0px');
+
+                let bounds = host.getBoundingClientRect(),
+                    scale = bounds.width / host.offsetWidth || 1,
+                    width = root.panel.offsetWidth * scale,
+                    height = root.panel.offsetHeight * scale,
+                    xflip = x + width > window.innerWidth - VIEWPORT_MARGIN,
+                    yflip = y + height > window.innerHeight - VIEWPORT_MARGIN;
+
+                x = Math.max(VIEWPORT_MARGIN, xflip ? x - width : x);
+                y = Math.max(VIEWPORT_MARGIN, yflip ? y - height : y);
+                placement.style = `left: ${(x - bounds.left) / scale - host.clientLeft + host.scrollLeft}px; top: ${(y - bounds.top) / scale - host.clientTop + host.scrollTop}px;`;
+                open();
             }
 
             function pop() {
@@ -424,7 +482,6 @@ function createMenu(context = false) {
             return html`
                 <div
                     class='tooltip tooltip--menu ${context && 'tooltip--context'} ${!animate && 'tooltip--instant'}'
-                    tabindex='${context && 0}'
                     ${attributes}
                     ${{
                         ...overlay.popup({
@@ -453,7 +510,11 @@ function createMenu(context = false) {
                         onkeydown: (e: KeyboardEvent) => {
                             if (context && (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey))) {
                                 e.preventDefault();
-                                contextmenu(new MouseEvent('contextmenu'));
+
+                                if (!root.panel?.contains(e.target as Node)) {
+                                    place(anchor(e.target as Element));
+                                }
+
                                 return;
                             }
 
@@ -551,4 +612,4 @@ const context = createMenu(true);
 export default menu;
 export { context };
 
-export type { A, Item };
+export type { A, Controller, Item };

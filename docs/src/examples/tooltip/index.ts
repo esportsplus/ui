@@ -4,6 +4,7 @@ import { html } from '@esportsplus/template';
 import ava from 'docs/examples/tooltip/ava.svg?url';
 import ben from 'docs/examples/tooltip/ben.svg?url';
 import cara from 'docs/examples/tooltip/cara.svg?url';
+import type { Controller } from '@esportsplus/ui/components/tooltip/menu';
 import type { Entry } from 'docs/types';
 import 'docs/examples/tooltip/scss/index.scss';
 
@@ -102,6 +103,59 @@ let nested = [
     ],
     trigger = 'button --background-black --color-white';
 
+
+// Rows that claim their own right click, as a file tree's do, open one context menu through its controller. It opens
+// where the row reports, and focus returns to that row as it closes.
+function files() {
+    let actions: Controller | undefined,
+        state = reactive({ chosen: '', target: '' });
+
+    return html`
+        <div class='tooltip-files-demo'>
+            <div aria-label='Files' class='tooltip-files-demo-list' role='group'>
+                ${['index.ts', 'package.json', 'README.md'].map((name) => html`
+                    <button
+                        class='tooltip-files-demo-row'
+                        type='button'
+                        ${{
+                            oncontextmenu: (event: MouseEvent) => {
+                                let bounds = (event.currentTarget as HTMLElement).getBoundingClientRect();
+
+                                event.preventDefault();
+                                state.target = name;
+
+                                // Opened from the keyboard, there's no pointer to open at; open under the row instead.
+                                actions?.open(event.button === 2
+                                    ? { x: event.clientX, y: event.clientY }
+                                    : { x: bounds.left, y: bounds.bottom });
+                            }
+                        }}
+                    >
+                        ${name}
+                    </button>
+                `)}
+            </div>
+            <span aria-live='polite' class='tooltip-files-demo-status'>
+                ${() => state.chosen || 'Right click a file, or focus one and press Shift+F10'}
+            </span>
+            ${tooltip.context(
+                {
+                    controller: (value) => {
+                        actions = value;
+                    },
+                    items: ['Open', 'Rename', 'Copy path', 'Delete'].map((label) => ({
+                        danger: label === 'Delete',
+                        label,
+                        onselect: () => {
+                            state.chosen = `${label}: ${state.target}`;
+                        }
+                    }))
+                },
+                ''
+            )}
+        </div>
+    `;
+}
 
 // The card is rendered afresh on every open; the follow state lives here so it outlasts each render.
 function mention(profile: Profile, tip: ReturnType<typeof tooltip.shared>) {
@@ -268,11 +322,16 @@ export default {
             title: 'menu (onhover)'
         },
         {
+            // The region is the only thing it acts on, so it takes focus itself; Shift+F10 opens it from the keyboard.
             render: () => tooltip.context(
-                { items: nested, class: '--flex-center', style: 'border: 1px dashed currentColor; height: 160px; width: 320px;' },
+                { items: nested, class: '--flex-center', style: 'border: 1px dashed currentColor; height: 160px; width: 320px;', tabindex: 0 },
                 'right click here'
             ),
             title: 'context'
+        },
+        {
+            render: files,
+            title: 'context (programmatic open)'
         },
         ...([
             [true, 'menu (drill down)'],
