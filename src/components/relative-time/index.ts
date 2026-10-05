@@ -1,6 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { computed, effect, onCleanup, reactive, ReactiveArray, read, untrack } from '@esportsplus/reactivity';
 import tooltip from '~/components/tooltip';
+import { deadline } from '~/shared/deadline';
 import { viewport } from '~/shared/viewport';
 import './scss/index.scss';
 
@@ -55,9 +56,6 @@ const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
 
 const ITEM = Symbol();
-
-// setTimeout overflows past ~24.8 days and fires immediately.
-const MAX_TIMEOUT = 2 ** 31 - 1;
 
 const MIN = 60 * 1000;
 
@@ -264,7 +262,8 @@ function untilChange(diff: number) {
 
 
 function template(this: { attributes?: Partial<A> } | void, { date, state = reactive({ date, now: null as number | null }), ...attributes }: A) {
-    let clock = reactive({ tick: 0 }),
+    let cancel: VoidFunction | undefined,
+        clock = reactive({ tick: 0 }),
         id = `relative-time-${++uid}`,
         message: HTMLElement | undefined,
         rests = new ReactiveArray<Item>(),
@@ -277,7 +276,6 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
 
             return value === null ? null : label((state.now ?? Date.now()) - value, value);
         }),
-        timer: ReturnType<typeof setTimeout> | undefined,
         tip = reactive({ active: false });
 
     function nudge() {
@@ -297,8 +295,10 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
         }
     }
 
+    // Every row waits in one shared queue, under one timer, for the moment its own label next changes.
     function schedule() {
-        clearTimeout(timer);
+        cancel?.();
+        cancel = undefined;
 
         let value = read(time);
 
@@ -306,7 +306,9 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
             return;
         }
 
-        timer = setTimeout(tick, Math.min(untilChange(Date.now() - value) + SETTLE, MAX_TIMEOUT));
+        let now = Date.now();
+
+        cancel = deadline(now + untilChange(now - value) + SETTLE, tick);
     }
 
     function tick() {
@@ -330,7 +332,7 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
 
     effect(schedule);
 
-    onCleanup(() => clearTimeout(timer));
+    onCleanup(() => cancel?.());
 
     return html`
         <time
