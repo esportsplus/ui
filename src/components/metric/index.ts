@@ -2,9 +2,9 @@ import { component, html, type Attributes } from '@esportsplus/template';
 import { batch, computed, onCleanup, reactive, ReactiveArray, read } from '@esportsplus/reactivity';
 import { clamp } from '~/shared/clamp';
 import { observeSize } from '~/shared/resize';
+import subscribe from '~/shared/subscribe';
 import { onceVisible } from '~/shared/visible';
 import flash from './flash';
-import subscribe from './subscribe';
 import './scss/index.scss';
 
 

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { ReactiveArray } from '@esportsplus/reactivity';
 import './resolve.mjs';
-const { default: subscribe } = await import('../src/components/metric/subscribe.ts');
+const { default: subscribe } = await import('../src/shared/subscribe.ts');
 
 
 test('each mounted metric hears every change and an unmounted one is removed from the array', () => {
