@@ -1,130 +1,311 @@
+// Modifiers only set variables; the layout reads them, so combined states never need combined selectors.
 .code-workspace {
-    --workspace-background: var(--color-white-300, Canvas);
-    --workspace-surface: var(--color-grey-300, Canvas);
-    --workspace-raised: var(--color-white-400, Canvas);
-    --workspace-color: var(--color-text-500, CanvasText);
-    --workspace-muted: var(--color-text-300, CanvasText);
-    --workspace-border: var(--color-border-300, color-mix(in srgb, CanvasText 20%, Canvas));
-    --workspace-accent: var(--color-primary-400, #1769c2);
-    --workspace-accent-text: #fff;
-    --workspace-error: var(--color-red-400, #e25d5d);
-    --workspace-radius: var(--border-radius-300, 6px);
-    --workspace-explorer-width: min(22rem, 46%);
-    --workspace-peek-width: 16px;
-    --file-tree-icon-blue: var(--color-blue-400, #518ccb);
-    --file-tree-icon-cyan: var(--color-blue-300, #4ab9cc);
-    --file-tree-icon-green: var(--color-green-500, #59a371);
-    --file-tree-icon-grey: var(--workspace-muted);
-    --file-tree-icon-orange: var(--color-yellow-500, #c49138);
-    --file-tree-icon-purple: var(--color-purple-400, #ad7fd0);
-    --file-tree-icon-red: var(--workspace-error);
-    --file-tree-icon-yellow: var(--color-yellow-400, #c4ad43);
-    background: var(--workspace-background);
-    color: var(--workspace-color);
+    --accent: var(--color-primary-400);
+    --accent-color: var(--color-white-300);
+    --aside-track: minmax(0, 1fr);
+    --background: var(--color-white-300);
+    --bar-height: var(--size-800);
+    --border-color: var(--color-border-300);
+    --close-icon-size: var(--size-200);
+    --close-size: var(--size-400);
+    --color: var(--color-text-500);
+    --columns: var(--main-track) var(--aside-track);
+    --confirm-background: var(--surface);
+    --confirm-color: var(--color);
+    --confirm-hover: var(--control-active-background);
+    --control-active-background: oklch(from var(--color-text-500) l c h / 0.08);
+    --control-icon-size: var(--size-300);
+    --control-size: var(--size-600);
+    --dirty-size: calc(var(--size-100) * 0.75);
+    --disabled-opacity: 0.45;
+    --divider: var(--border-width-400) solid var(--border-color);
+    --docked-track: var(--explorer-width);
+    --drawer-duration: 0.18s;
+    --drawer-hidden: calc(100% - var(--peek-width));
+    --drawer-inset: auto 0;
+    --drawer-offset: var(--drawer-hidden);
+    --drawer-shadow: var(--box-shadow-500);
+    --drawer-timing-function: var(--transition-timing-function);
+    // At least a usable explorer, even when the workspace itself is narrow.
+    --drawer-width: min(100%, max(16rem, 46%));
+    --edge-inset: 0 auto;
+    --error-color: var(--color-red-400);
+    --explorer-column: 2;
+    --explorer-end: none;
+    --explorer-inset: auto;
+    --explorer-layer: auto;
+    --explorer-position: relative;
+    --explorer-row: 1 / 3;
+    --explorer-shadow: none;
+    --explorer-size: auto;
+    --explorer-span: var(--explorer-column);
+    --explorer-start: var(--divider);
+    --explorer-top: none;
+    --explorer-translate: 0px;
+    --explorer-width: min(22rem, 46%);
+    --focus-color: var(--accent);
+    --focus-width: var(--border-width-500);
+    --font-size: var(--font-size-200);
+    --height: 100%;
+    // Read by file icons, which only the tree sizes; tabs and quick open draw them too.
+    --icon-size: var(--size-400);
+    --main-column: 1;
+    --main-track: 0px;
+    --main-visibility: hidden;
+    --menu-layer: 3;
+    --min-height: 160px;
+    --muted-color: var(--color-text-300);
+    --peek-width: var(--size-400);
+    --radius: var(--border-radius-300);
+    --raised: var(--color-white-400);
+    --rows: minmax(0, 1fr) auto;
+    --spacing: var(--size-100);
+    --spacing-tight: calc(var(--size-100) / 2);
+    --status-font-size: var(--font-size-100);
+    --status-row: 2;
+    --surface: var(--color-grey-300);
+    --tab-height: var(--size-600);
+    --tab-hover-background: oklch(from var(--color-text-500) l c h / 0.06);
+    --tab-max-width: 160px;
+    --tabs-height: var(--size-700);
+    background: var(--background);
+    color: var(--color);
     display: grid;
-    font: 12px var(--font-family, system-ui, sans-serif);
-    grid-template-columns: 0 minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) auto;
-    height: var(--workspace-height, 100%);
+    font-size: var(--font-size);
+    grid-template-columns: var(--columns);
+    grid-template-rows: var(--rows);
+    height: var(--height);
     isolation: isolate;
-    min-height: 160px;
+    min-height: var(--min-height);
     min-width: 0;
     overflow: hidden;
     position: relative;
     width: 100%;
 
-    &,
-    * {
-        box-sizing: border-box;
-    }
-    button,
-    input {
-        color: inherit;
-        font: inherit;
-    }
-    button {
-        cursor: pointer;
-    }
-    button:disabled {
-        cursor: default;
-        opacity: 0.45;
-    }
-    button:focus-visible,
-    input:focus-visible,
-    [role='tab']:focus-visible {
-        outline: 2px solid var(--workspace-accent);
-        outline-offset: -2px;
-    }
-    &[data-has-tabs='true'] {
-        grid-template-columns: minmax(0, 1fr) var(--workspace-explorer-width);
-    }
-    &[data-explorer-side='left'] {
-        grid-template-columns: minmax(0, 1fr) 0;
-    }
-    &[data-explorer-side='left'][data-has-tabs='true'] {
-        grid-template-columns: var(--workspace-explorer-width) minmax(0, 1fr);
-    }
-    &[data-has-tabs='false'] &-main {
-        visibility: hidden;
-    }
-    &[data-has-tabs='true'][data-explorer-open='false'] {
-        grid-template-columns: minmax(0, 1fr) var(--workspace-peek-width);
-    }
-    &[data-explorer-side='left'][data-has-tabs='true'][data-explorer-open='false'] {
-        grid-template-columns: var(--workspace-peek-width) minmax(0, 1fr);
+    // A hidden explorer overlays the editor as a drawer that rests offscreen but for its edge.
+    &--collapsed {
+        --docked-track: var(--peek-width);
+        --explorer-inset: var(--drawer-inset);
+        --explorer-layer: 2;
+        --explorer-position: absolute;
+        --explorer-shadow: var(--drawer-shadow);
+        --explorer-size: var(--drawer-width);
+        --explorer-span: 1 / -1;
+        --explorer-translate: var(--drawer-offset);
     }
 
-    // Stack at the component's measured width, including narrow embedded previews.
-    &[data-compact='true'][data-has-tabs='true'][data-explorer-side] {
-        --workspace-explorer-width: min(22rem, calc(100% - var(--workspace-peek-width)));
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: minmax(0, 3fr) minmax(0, 2fr) auto;
-        .code-workspace-main {
-            grid-column: 1;
-            grid-row: 1;
+    &--left {
+        --columns: var(--aside-track) var(--main-track);
+        --drawer-hidden: calc(var(--peek-width) - 100%);
+        --drawer-inset: 0 auto;
+        --edge-inset: auto 0;
+        --explorer-column: 1;
+        --explorer-end: var(--divider);
+        --explorer-start: none;
+        --main-column: 2;
+    }
+
+    &--peek {
+        --drawer-offset: 0px;
+    }
+
+    // Follows '--left' so a narrow workspace stacks the same way whichever side the explorer docks on.
+    &--stacked {
+        --columns: minmax(0, 1fr);
+        --explorer-column: 1;
+        --explorer-end: none;
+        --explorer-row: 2;
+        --explorer-start: none;
+        --explorer-top: var(--divider);
+        --main-column: 1;
+        --rows: minmax(0, 3fr) minmax(0, 2fr) auto;
+        --status-row: 3;
+    }
+
+    &--tabs {
+        --aside-track: var(--docked-track);
+        --main-track: minmax(0, 1fr);
+        --main-visibility: visible;
+    }
+
+    &-actions {
+        align-items: center;
+        display: flex;
+        flex: none;
+        gap: var(--spacing-tight);
+    }
+
+    &-bar {
+        align-items: center;
+        border-bottom: var(--divider);
+        display: flex;
+        flex: none;
+        gap: var(--spacing);
+        height: var(--bar-height);
+        min-width: 0;
+        padding-inline: var(--size-200) var(--spacing);
+    }
+
+    &-breadcrumb.breadcrumb {
+        --font-size: var(--font-size-200);
+        flex: 1;
+        min-width: 0;
+    }
+
+    &-confirm-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing);
+        justify-content: flex-end;
+        margin-top: var(--size-400);
+    }
+
+    &-confirm-button--primary {
+        --confirm-background: var(--accent);
+        --confirm-color: var(--accent-color);
+        --confirm-hover: var(--color-primary-300);
+    }
+
+    &-confirm-button.button {
+        --background-default: var(--confirm-background);
+        --background-hover: var(--confirm-hover);
+        --border-radius: var(--radius);
+        --color-default: var(--confirm-color);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--spacing);
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--border-width-400);
         }
-        .code-workspace-explorer {
-            border-inline: 0;
-            border-top: 1px solid var(--workspace-border);
-            grid-column: 1;
-            grid-row: 2;
+    }
+
+    &-confirm-files {
+        font-weight: var(--font-weight-500);
+        margin-block: var(--size-200) 0;
+        overflow-wrap: anywhere;
+    }
+
+    &-confirm-text {
+        color: var(--muted-color);
+        margin-block: var(--spacing) 0;
+    }
+
+    &-confirm-title {
+        font-size: var(--font-size-400);
+        margin: 0;
+    }
+
+    &-confirm.card {
+        --background-default: var(--raised);
+        --border-radius: var(--border-radius-500);
+        --border-width: 0px;
+        --box-shadow-default: var(--box-shadow-500);
+        --max-width: 440px;
+        --padding-horizontal: var(--size-500);
+        --padding-vertical: var(--size-500);
+        color: var(--color);
+        font-size: var(--font-size-300);
+    }
+
+    &-control-icon.icon {
+        --size: var(--control-icon-size);
+    }
+
+    &-control.button {
+        --background-active: var(--control-active-background);
+        --background-default: transparent;
+        --background-hover: var(--control-active-background);
+        --border-radius: var(--radius);
+        --color-active: var(--color);
+        --color-default: var(--muted-color);
+        --color-hover: var(--color);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        flex: none;
+        height: var(--control-size);
+        width: var(--control-size);
+
+        &:disabled {
+            cursor: default;
+            opacity: var(--disabled-opacity);
         }
-        .code-workspace-statusbar {
-            grid-column: 1;
-            grid-row: 3;
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
         }
-        &[data-explorer-open='false'] {
-            grid-template-rows: minmax(0, 1fr) auto;
-            .code-workspace-main {
-                grid-row: 1;
-                margin-inline-end: var(--workspace-peek-width);
-            }
-            .code-workspace-statusbar {
-                grid-row: 2;
-                margin-inline-end: var(--workspace-peek-width);
-            }
-            &[data-explorer-side='left'] {
-                .code-workspace-main,
-                .code-workspace-statusbar {
-                    margin-inline-end: 0;
-                    margin-inline-start: var(--workspace-peek-width);
-                }
-            }
-        }
+    }
+
+    &-document.code-editor {
+        --border-radius: 0px;
+        --border-width: 0px;
+        --height: 100%;
+        flex: 1;
+        min-height: 0;
+    }
+
+    &-document.markdown-editor {
+        --editor-height: 100%;
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+    }
+
+    &-edge {
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        inset-block: 0;
+        inset-inline: var(--edge-inset);
+        padding: 0;
+        position: absolute;
+        width: var(--peek-width);
+    }
+
+    &-editor {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+        position: relative;
+    }
+
+    &-empty {
+        align-items: center;
+        color: var(--muted-color);
+        display: flex;
+        flex: 1;
+        flex-wrap: wrap;
+        gap: var(--spacing);
+        justify-content: center;
+        padding: var(--size-300);
+        text-align: center;
     }
 
     &-explorer {
-        background: var(--workspace-surface);
-        border-inline-start: 1px solid var(--workspace-border);
+        background: var(--surface);
+        border-inline-end: var(--explorer-end);
+        border-inline-start: var(--explorer-start);
+        border-top: var(--explorer-top);
+        box-shadow: var(--explorer-shadow);
         display: flex;
-        grid-column: 2;
-        grid-row: 1 / 3;
+        grid-column: var(--explorer-span);
+        grid-row: var(--explorer-row);
+        inset-block: 0;
+        inset-inline: var(--explorer-inset);
         min-height: 0;
         min-width: 0;
         overflow: hidden;
-        position: relative;
+        position: var(--explorer-position);
+        transition: translate var(--drawer-duration) var(--drawer-timing-function);
+        translate: var(--explorer-translate);
         user-select: none;
+        width: var(--explorer-size);
+        z-index: var(--explorer-layer);
     }
+
     &-explorer-content {
         display: flex;
         flex: 1;
@@ -132,272 +313,125 @@
         min-height: 0;
         min-width: 0;
     }
-    &[data-explorer-side='left'] &-explorer {
-        border-inline-end: 1px solid var(--workspace-border);
-        border-inline-start: 0;
-        grid-column: 1;
-    }
-    &[data-explorer-side='left'] &-main,
-    &[data-explorer-side='left'] &-statusbar {
-        grid-column: 2;
-    }
-    &[data-has-tabs='true'][data-explorer-open='false'] &-explorer {
-        bottom: 0;
-        box-shadow: -6px 0 20px rgb(0 0 0 / 14%);
-        position: absolute;
-        right: 0;
-        top: 0;
-        transform: translateX(calc(100% - var(--workspace-peek-width)));
-        transition: transform 180ms ease;
-        width: var(--workspace-explorer-width);
-        z-index: 5;
-    }
-    &[data-explorer-side='left'][data-has-tabs='true'][data-explorer-open='false'] &-explorer {
-        box-shadow: 6px 0 20px rgb(0 0 0 / 14%);
-        left: 0;
-        right: auto;
-        transform: translateX(calc(-100% + var(--workspace-peek-width)));
-    }
-    &[data-has-tabs='true'][data-explorer-open='false'] &-explorer[data-peek='true'] {
-        transform: translateX(0);
-    }
-    &[data-has-tabs='true'][data-explorer-open='false'] &-explorer-content {
-        pointer-events: none;
-    }
-    &[data-has-tabs='true'][data-explorer-open='false'] &-explorer[data-peek-ready='true'] &-explorer-content {
-        pointer-events: auto;
-    }
-    &-peek-edge {
-        background: transparent;
-        border: 0;
-        bottom: 0;
-        display: none;
-        left: 0;
-        position: absolute;
-        top: 0;
-        width: var(--workspace-peek-width);
-    }
-    &[data-has-tabs='true'][data-explorer-open='false'] &-peek-edge {
-        display: block;
-    }
-    &[data-explorer-side='left'] &-peek-edge {
-        left: auto;
-        right: 0;
-    }
-    &-explorer[data-peek-ready='true'] &-peek-edge {
-        display: none;
+
+    &-explorer-header {
+        align-items: center;
+        border-bottom: var(--divider);
+        display: flex;
+        flex: none;
+        gap: var(--spacing-tight);
+        height: var(--bar-height);
+        min-width: 0;
+        padding-inline: var(--spacing);
     }
 
-    &-tree-header {
-        align-items: center;
-        border-bottom: 1px solid var(--workspace-border);
-        display: flex;
-        flex: 0 0 34px;
-        gap: 2px;
-        min-width: 0;
-        padding: 0 6px;
-    }
-    &-search {
-        background: transparent;
-        border: 0;
-        flex: 1;
-        min-width: 0;
-        padding: 4px 6px;
-        width: 100%;
-    }
-    &-search::placeholder {
-        color: var(--workspace-muted);
-    }
-    &-tree-wrap {
-        flex: 1;
-        min-height: 0;
-        position: relative;
-    }
-    &-tree-wrap > .file-tree {
+    &-files.file-tree {
         height: 100%;
     }
-    &-tree-wrap > .code-workspace-notice {
-        background: var(--workspace-surface);
-        inset: 0;
-        position: absolute;
-        z-index: 2;
+
+    &-keys {
+        display: inline-flex;
+        gap: var(--spacing-tight);
     }
+
     &-main {
         display: flex;
         flex-direction: column;
-        grid-column: 1;
+        grid-column: var(--main-column);
         grid-row: 1;
+        // Keeps the editor's own layers, like its minimap, under the explorer drawer.
+        isolation: isolate;
         min-height: 0;
         min-width: 0;
         overflow: hidden;
+        visibility: var(--main-visibility);
     }
-    &-tabbar {
+
+    &-menu-panel {
+        pointer-events: auto;
+    }
+
+    // An empty layer over the viewport, so the context menu opens where the tree reports and flips at the viewport's
+    // edges rather than being clipped by the workspace's.
+    &-menu.tooltip {
+        inset: 0;
+        pointer-events: none;
+        position: fixed;
+        z-index: var(--menu-layer);
+    }
+
+    &-notice {
         align-items: center;
-        border-bottom: 1px solid var(--workspace-border);
+        color: var(--muted-color);
         display: flex;
-        flex: 0 0 36px;
-        gap: 4px;
-        overflow-x: auto;
-        padding: 0 6px;
-        scrollbar-width: none;
-    }
-    &-tabbar::-webkit-scrollbar,
-    &-breadcrumb::-webkit-scrollbar {
-        display: none;
-    }
-    &-tab {
-        align-items: center;
-        border-radius: var(--workspace-radius);
-        color: var(--workspace-muted);
-        cursor: pointer;
-        display: flex;
-        flex: 0 0 auto;
-        gap: 4px;
-        height: 24px;
-        max-width: 144px;
-        padding: 0 4px 0 6px;
-        user-select: none;
-    }
-    &-tab:hover {
-        background: color-mix(in srgb, var(--workspace-accent) 40%, transparent);
-        color: var(--workspace-color);
-    }
-    &-tab[aria-selected='true'] {
-        background: var(--workspace-accent);
-        color: var(--workspace-accent-text);
-    }
-    &-tab-name {
-        flex: 1;
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    &-tab-icon,
-    &-result > .icon {
-        --size: 16px;
-        --width: 16px;
-        --height: 16px;
-        display: inline-flex;
-        flex: 0 0 16px;
-        height: 16px;
-        width: 16px;
-    }
-    &-tab-icon > .icon {
-        --size: 16px;
-        --width: 16px;
-        --height: 16px;
-    }
-    &-dirty {
-        background: currentColor;
-        border-radius: 50%;
-        flex: 0 0 6px;
-        height: 6px;
-    }
-    &-close {
-        align-items: center;
-        background: transparent;
-        border: 0;
-        border-radius: 2px;
-        display: inline-flex;
-        flex: 0 0 16px;
-        font-size: 14px;
-        height: 16px;
-        justify-content: center;
-        margin-left: 2px;
-        padding: 0;
-    }
-    &-close:hover {
-        background: color-mix(in srgb, currentColor 12%, transparent);
-    }
-    &-button {
-        align-items: center;
-        background: transparent;
-        border: 0;
-        border-radius: var(--workspace-radius);
-        color: var(--workspace-muted);
-        display: inline-flex;
-        flex: 0 0 24px;
-        height: 24px;
-        justify-content: center;
-        padding: 0;
-        width: 24px;
-    }
-    &-button svg {
-        height: 14px;
-        width: 14px;
-    }
-    &-button:hover,
-    &-button[aria-pressed='true'] {
-        background: color-mix(in srgb, var(--workspace-color) 8%, transparent);
-        color: var(--workspace-color);
-    }
-    &-breadcrumb-bar {
-        align-items: center;
-        border-bottom: 1px solid var(--workspace-border);
-        display: flex;
-        flex: 0 0 40px;
-        gap: 6px;
-        min-width: 0;
-        padding: 0 8px 0 12px;
-    }
-    &-breadcrumb {
-        align-items: center;
-        display: flex;
-        flex: 1;
-        gap: 4px;
-        min-width: 0;
-        overflow-x: auto;
-        scrollbar-width: none;
-        white-space: nowrap;
-    }
-    &-crumb {
-        color: var(--workspace-muted);
-        max-width: 160px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    &-crumb--file {
-        color: var(--workspace-color);
-        font-weight: 500;
-    }
-    &-editor-area {
-        display: flex;
-        flex: 1;
         flex-direction: column;
-        min-height: 0;
+        gap: var(--spacing);
+        justify-content: center;
+        min-height: var(--bar-height);
+        padding: var(--size-300);
+        text-align: center;
+
+        &--cover {
+            background: var(--surface);
+            inset: 0;
+            position: absolute;
+            z-index: 1;
+        }
+    }
+
+    &-retry.button {
+        --background-default: var(--background);
+        --background-hover: var(--control-active-background);
+        --border-radius: var(--radius);
+        --color-default: var(--color);
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--spacing-tight);
+    }
+
+    &-search.input {
+        --background-default: transparent;
+        --border-color-default: transparent;
+        --border-radius: var(--radius);
+        --color-default: var(--color);
+        --font-size: var(--font-size-200);
+        --padding-horizontal: var(--spacing);
+        --padding-vertical: 0px;
+        --size: var(--control-size);
+        flex: 1;
         min-width: 0;
-        position: relative;
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
+        }
     }
-    &-editor-area > .code-editor {
-        --editor-height: 100%;
-        border: 0;
-        border-radius: 0;
-        flex: 1;
-        height: 100%;
-        min-height: 0;
-    }
-    &-editor-area > .markdown-editor {
-        --editor-height: 100%;
-        flex: 1;
-        height: 100%;
-        min-height: 0;
-        overflow: auto;
-    }
-    &-statusbar {
+
+    &-status {
         align-items: center;
-        background: var(--workspace-surface);
-        border-top: 1px solid var(--workspace-border);
-        color: var(--workspace-muted);
+        background: var(--surface);
+        border-top: var(--divider);
+        color: var(--muted-color);
         display: flex;
-        font-size: 11px;
-        gap: 14px;
-        grid-column: 1;
-        grid-row: 2;
+        font-size: var(--status-font-size);
+        gap: var(--size-300);
+        grid-column: var(--main-column);
+        grid-row: var(--status-row);
         justify-content: space-between;
         min-width: 0;
-        padding: 3px 12px;
+        padding: var(--spacing-tight) var(--size-300);
     }
+
+    &-status-message {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &--error {
+            color: var(--error-color);
+        }
+    }
+
     &-status-path {
         flex: 1;
         min-width: 0;
@@ -405,149 +439,106 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    &-statusbar [role='status'] {
+
+    &-status-position {
+        white-space: nowrap;
+    }
+
+    &-tab-close-icon.icon {
+        --size: var(--close-icon-size);
+    }
+
+    &-tab-close.button {
+        --background-default: transparent;
+        --background-hover: var(--control-active-background);
+        --border-radius: var(--border-radius-100);
+        --color-default: inherit;
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        flex: none;
+        height: var(--close-size);
+        width: var(--close-size);
+    }
+
+    &-tab-dirty {
+        background: currentColor;
+        border-radius: 50%;
+        flex: none;
+        height: var(--dirty-size);
+        width: var(--dirty-size);
+    }
+
+    &-tab-name {
+        flex: 1;
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    &-position {
-        white-space: nowrap;
+
+    // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
+    &-tab.button {
+        --background-active: transparent;
+        --background-default: transparent;
+        --background-hover: transparent;
+        --background-pressed: transparent;
+        --border-radius: var(--radius);
+        --color-active: var(--color);
+        --color-default: var(--muted-color);
+        --color-hover: var(--color);
+        --gap-horizontal: var(--spacing-tight);
+        --padding-horizontal: var(--spacing);
+        --padding-vertical: 0px;
+        flex: none;
+        height: var(--tab-height);
+        max-width: var(--tab-max-width);
+        user-select: none;
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
+        }
     }
-    &-statusbar [data-error='true'] {
-        color: var(--workspace-error);
-    }
-    &-empty,
-    &-notice {
+
+    &-tabs {
+        --scrollbar-size: calc(var(--size-100) / 2);
         align-items: center;
-        color: var(--workspace-muted);
+        border-bottom: var(--divider);
         display: flex;
-        flex-direction: column;
-        gap: 8px;
-        justify-content: center;
-        min-height: 36px;
-        padding: 12px;
-        text-align: center;
+        flex: none;
+        gap: var(--spacing-tight);
+        height: var(--tabs-height);
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-inline: var(--spacing);
+        position: relative;
     }
-    &-empty {
+
+    &-tabs-highlight.highlight {
+        --background-active: var(--control-active-background);
+        --background-default: var(--tab-hover-background);
+        --line-color: var(--accent);
+    }
+
+    &-tree {
         flex: 1;
+        min-height: 0;
+        position: relative;
     }
-    &-backdrop {
-        align-items: flex-start;
-        background: rgb(0 0 0 / 35%);
-        display: flex;
-        inset: 0;
-        justify-content: center;
-        padding: 48px 24px 16px;
-        position: absolute;
-        z-index: 10;
-    }
-    &-quick {
-        background: var(--workspace-raised);
-        border: 1px solid var(--workspace-border);
-        border-radius: var(--workspace-radius);
-        box-shadow: 0 8px 32px rgb(0 0 0 / 35%);
-        max-height: 80%;
-        overflow: auto;
-        width: min(520px, 100%);
-    }
-    &-quick-input {
-        background: transparent;
-        border: 0;
-        border-bottom: 1px solid var(--workspace-border);
-        font-family: var(--editor-font-family, monospace);
-        font-size: 13px;
-        padding: 10px 12px;
-        width: 100%;
-    }
-    &-result {
-        align-items: center;
-        cursor: pointer;
-        display: flex;
-        font-family: var(--editor-font-family, monospace);
-        gap: 6px;
-        padding: 6px 12px;
-    }
-    &-result > span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    &-result[aria-selected='true'] {
-        background: var(--workspace-accent);
-        color: var(--workspace-accent-text);
-    }
-    &-menu {
-        background: var(--workspace-raised);
-        border: 1px solid var(--workspace-border);
-        border-radius: var(--workspace-radius);
-        box-shadow: 0 4px 16px rgb(0 0 0 / 35%);
-        min-width: 140px;
-        padding: 4px 0;
-        position: absolute;
-        z-index: 20;
-    }
-    &-menu button {
-        background: transparent;
-        border: 0;
-        display: block;
-        padding: 3px 16px;
-        text-align: start;
-        width: 100%;
-    }
-    &-menu button:hover,
-    &-menu button:focus {
-        background: var(--workspace-accent);
-        color: var(--workspace-accent-text);
-    }
-    &-confirm-backdrop {
-        align-items: center;
-        z-index: 30;
-    }
-    &-confirm {
-        background: var(--workspace-raised);
-        border: 1px solid var(--workspace-border);
-        border-radius: var(--workspace-radius);
-        max-width: min(440px, 100%);
-        padding: 16px;
-    }
-    &-confirm p {
-        overflow-wrap: anywhere;
-    }
-    &-confirm > div {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        justify-content: flex-end;
-    }
-    &-confirm button {
-        background: var(--workspace-surface);
-        border: 1px solid var(--workspace-border);
-        border-radius: var(--workspace-radius);
-        padding: 5px 10px;
+
+    @media (forced-colors: active) {
+        --accent: Highlight;
+        --accent-color: HighlightText;
+        --background: Canvas;
+        --border-color: CanvasText;
+        --color: CanvasText;
+        --error-color: CanvasText;
+        --muted-color: CanvasText;
+        --raised: Canvas;
+        --surface: Canvas;
     }
 
     @media (prefers-reduced-motion: reduce) {
-        &-explorer {
-            transition: none !important;
-        }
-    }
-    @media (forced-colors: active) {
-        --workspace-background: Canvas;
-        --workspace-surface: Canvas;
-        --workspace-raised: Canvas;
-        --workspace-color: CanvasText;
-        --workspace-muted: CanvasText;
-        --workspace-border: CanvasText;
-        --workspace-accent: Highlight;
-        --workspace-accent-text: HighlightText;
-        --workspace-error: CanvasText;
-        &-tab[aria-selected='true'],
-        &-result[aria-selected='true'] {
-            forced-color-adjust: none;
-        }
-        .file-tree-icon {
-            color: inherit;
-        }
+        --drawer-duration: 0s;
     }
 }

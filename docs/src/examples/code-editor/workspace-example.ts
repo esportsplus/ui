@@ -1,50 +1,91 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { codeEditor } from '@esportsplus/ui/components';
-import { isWorkspaceCodeEditor, mountLanguageServices, type CodeEditorWorkspaceController } from '@esportsplus/ui/components/code-editor';
+import type { CodeEditorWorkspaceController } from '@esportsplus/ui/components/code-editor';
+import pencil from '@esportsplus/ui/svg/pencil.svg';
 import { workspaceFiles } from './fixtures/files';
 import { demoLanguageTransport } from './fixtures/language';
 import { createMemoryWorkspaceHost } from './fixtures/workspace';
 
-export const workspaceExample = {
-    title: 'complete editor workspace',
+
+const MARKDOWN = /\.(?:md|markdown)$/i;
+
+
+const workspaceExample = {
     render: () => {
         let host = createMemoryWorkspaceHost(workspaceFiles),
+            revision = 0,
             state = reactive({ message: 'Files and preferences are kept in memory for this example.' }),
-            workspace: CodeEditorWorkspaceController | undefined, revision = 0;
-        host.mention = (_cwd, path) => { host.mentions.push(path); state.message = `Added to chat: ${path}`; };
+            workspace: CodeEditorWorkspaceController | undefined;
+
+        host.actions = [
+            {
+                icon: pencil,
+                id: 'annotate',
+                label: 'Annotate',
+                run: (_cwd, paths) => {
+                    state.message = `Annotate: ${paths.join(', ')}`;
+                }
+            }
+        ];
         host.copyPath = async (_cwd, path) => {
             await navigator.clipboard.writeText(path);
-            host.copiedPaths.push(path); state.message = `Copied: ${path}`;
+            host.copiedPaths.push(path);
+            state.message = `Copied: ${path}`;
         };
+
         return html`
-            <section class='code-editor-demo code-editor-demo-full' aria-label='Complete workspace example'>
+            <section aria-label='Complete workspace example' class='code-editor-demo code-editor-demo-full'>
                 ${codeEditor.workspace({
-                    host, cwd: '/demo', openTarget: { path: 'src/greeting.ts' },
-                    editorOptions: { minimap: true },
-                    controller: value => { workspace = value; },
-                    renderEditor: (tab, attributes) => /\.(?:md|markdown)$/i.test(tab.path) ? codeEditor.markdown(attributes) : undefined,
-                    addons: ({ host, controller, tab }) => {
-                        if (!isWorkspaceCodeEditor(controller)) return;
-                        return mountLanguageServices(host, controller, {
-                            cwd: '/demo', fileName: tab.path, transport: demoLanguageTransport()
-                        }).dispose;
-                    }
+                    controller: (value) => {
+                        workspace = value;
+                    },
+                    cwd: '/demo',
+                    editorOptions: { minimap: true, services: { cwd: '/demo', transport: demoLanguageTransport() } },
+                    host,
+                    openTarget: { path: 'src/greeting.ts' },
+                    renderEditor: (tab, attributes) => (MARKDOWN.test(tab.path) ? codeEditor.markdown(attributes) : undefined),
+                    style: '--height: 580px;'
                 })}
                 <div class='code-editor-demo-toolbar'>
-                    <button type='button' onclick=${() => {
-                        host.change('src/greeting.ts', workspaceFiles['src/greeting.ts'] + `\n// External update ${++revision}\n`);
-                        state.message = 'Watcher delivered an external update to src/greeting.ts.';
-                    }}>Simulate external update</button>
-                    <button type='button' onclick=${() => {
-                        host.change('notes/new-file.txt', 'Created outside the editor.\n');
-                        state.message = 'Watcher added notes/new-file.txt.';
-                    }}>Simulate new file</button>
-                    <button type='button' onclick=${() => { void workspace?.open('src/greeting.ts', 8, 5); }}>Open greeting at line 8</button>
+                    <button
+                        type='button'
+                        onclick=${() => {
+                            host.change('src/greeting.ts', workspaceFiles['src/greeting.ts'] + `\n// External update ${++revision}\n`);
+                            state.message = 'Watcher delivered an external update to src/greeting.ts.';
+                        }}
+                    >
+                        Simulate external update
+                    </button>
+                    <button
+                        type='button'
+                        onclick=${() => {
+                            host.change('notes/new-file.txt', 'Created outside the editor.\n');
+                            state.message = 'Watcher added notes/new-file.txt.';
+                        }}
+                    >
+                        Simulate new file
+                    </button>
+                    <button
+                        type='button'
+                        onclick=${() => {
+                            void workspace?.open('src/greeting.ts', 8, 5);
+                        }}
+                    >
+                        Open greeting at line 8
+                    </button>
                 </div>
-                <div class='code-editor-demo-status' aria-live='polite'>${() => state.message}</div>
-                <p>Use Ctrl+P to open files. Tabs retain independent drafts and history. The explorer menu supports rename, delete, undo, chat mentions, and copying paths.</p>
+                <div aria-live='polite' class='code-editor-demo-status'>${() => state.message}</div>
+                <p>
+                    Press Ctrl/Cmd+P over the workspace to open files. Tabs keep independent drafts and history. The
+                    explorer menu supports rename, delete, copying paths and host actions such as Annotate; file
+                    operations undo from the explorer toolbar.
+                </p>
             </section>
         `;
-    }
+    },
+    title: 'complete editor workspace'
 };
+
+
+export { workspaceExample };

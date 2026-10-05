@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './resolve.mjs';
-const { EditorWorkspaceModel, dirty, workspaceMatches, workspacePath } =
+const { EditorWorkspaceModel, dirty, workspacePath } =
     await import('../src/components/code-editor/workspace/model.ts');
 const { createMemoryWorkspaceHost } = await import('../docs/src/examples/code-editor/fixtures/workspace.ts');
 const deferred = () => {
@@ -59,23 +59,40 @@ test('deduplicated failed opens show the current request error without replacing
     assert.equal(model.state.active.path, 'src/a.ts');
 });
 
-test('quick-open ranks subsequences, excludes directories, limits results and breaks ties deterministically', () => {
-    const entries = [
-        { path: 'src', kind: 'directory' },
-        ...['abc.ts', 'a-b-c.ts', 'src/abc.ts'].map((path) => ({ path, kind: 'file' }))
-    ];
-    assert.deepEqual(
-        workspaceMatches(entries, 'ABC').map((entry) => entry.path),
-        ['abc.ts', 'a-b-c.ts', 'src/abc.ts']
-    );
-    assert.deepEqual(workspaceMatches(entries, 'zzz'), []);
-    assert.equal(
-        workspaceMatches(
-            Array.from({ length: 50 }, (_, at) => ({ path: `f${at}`, kind: 'file' })),
-            ''
-        ).length,
-        12
-    );
+test('typing emits only when a tab turns dirty or clean, never per keystroke', async (t) => {
+    const { model } = await fixture();
+    t.after(() => model.dispose());
+    const a = await model.open('src/a.ts');
+    await model.open('b.md');
+    let emits = 0;
+    const saved = a.saved,
+        stop = model.subscribe(() => emits++);
+    a.document.setValue(`${saved}!`);
+    assert.equal(emits, 1);
+    for (let i = 0; i < 50; i++) a.document.replace(a.document.value.length, a.document.value.length, 'x');
+    assert.equal(emits, 1);
+    a.document.setValue(saved);
+    assert.equal(emits, 2);
+    assert.equal(dirty(a), false);
+    a.document.select({ start: 1, end: 1 });
+    assert.equal(emits, 2);
+    stop();
+});
+
+test('host actions run against workspace-relative paths and report failures in the status line', async (t) => {
+    const { host, model } = await fixture();
+    t.after(() => model.dispose());
+    const calls = [],
+        action = { id: 'tag', label: 'Tag', run: (cwd, paths) => { calls.push([cwd, paths]); } };
+    await model.run(action, ['src/a.ts', 'b.md']);
+    assert.deepEqual(calls, [['/project', ['src/a.ts', 'b.md']]]);
+    await model.run({ ...action, run: () => { throw new Error('offline'); } }, ['b.md']);
+    assert.equal(model.state.status, 'Tag failed: offline');
+    assert.equal(model.state.statusKind, 'error');
+    await model.run(action, ['../escape.ts']);
+    assert.match(model.state.status, /^Tag failed: path is outside|^Tag failed: a valid/);
+    assert.equal(calls.length, 1);
+    assert.equal(host.watchCount(), 1);
 });
 
 test('tabs retain independent documents, undo, selection and scroll; closing chooses the next neighbor', async (t) => {
@@ -363,9 +380,7 @@ test('missing files retain drafts, host actions execute, workspace changes and d
     await model.whenIdle();
     assert.equal(tab.missing, true);
     assert.equal(tab.document.value, 'draft');
-    await model.mention('src/a.ts');
     await model.copyPath('src/a.ts');
-    assert.deepEqual(host.mentions, ['src/a.ts']);
     assert.deepEqual(host.copiedPaths, ['/project/src/a.ts']);
     host.confirm = () => 'cancel';
     assert.equal(await model.setWorkspace('/other'), false);
