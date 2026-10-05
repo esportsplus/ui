@@ -12,6 +12,9 @@ const state = reactive({ active: !matchMedia('(max-width: 1024px)').matches });
 
 
 export default (request: Request) => {
+    let navigation = sections(),
+        routes = new Set(navigation.flatMap((section) => section.links.map(key)));
+
     function close() {
         if (document.getElementById('docs-navigation')?.contains(document.activeElement)) {
             document.querySelector<HTMLButtonElement>('.sidebar-toggle')?.focus({ preventScroll: true });
@@ -19,6 +22,17 @@ export default (request: Request) => {
 
         state.active = false;
     };
+
+    // Links match by route, so any URL their route accepts marks them; a section title matches its own path.
+    function current() {
+        let route = `${request.data.route?.name}:${request.data.parameters?.slug ?? ''}`;
+
+        return routes.has(route) ? route : request.path;
+    }
+
+    function key(link: { name: string; slug: string }) {
+        return `${link.name}:${link.slug}`;
+    }
 
     return html`
         <button
@@ -85,15 +99,15 @@ export default (request: Request) => {
             <div class='sidebar-scrollport --scrollbar --scrollbar-blur --scrollbar-hidden'>
                 <div class='sidebar-content'>
                     ${nav.tree({
-                        sections: sections().map((section) => ({
+                        active: current,
+                        sections: navigation.map((section) => ({
                             label: section.label,
                             href: section.index ? section.href : undefined,
-                            active: () => request.path === section.href,
                             groups: [{
                                 links: section.links.map((link) => ({
                                     label: link.label,
                                     href: link.href,
-                                    active: () => request.data.route?.name === link.name && (request.data.parameters?.slug ?? '') === link.slug
+                                    key: key(link)
                                 }))
                             }]
                         }))

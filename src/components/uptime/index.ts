@@ -1,4 +1,4 @@
-import { batch, computed, reactive, read } from '@esportsplus/reactivity';
+import { batch, computed, effect, reactive, read, signal, write } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
 import { observeSize } from '~/shared/resize';
 import tooltip from '~/components/tooltip';
@@ -84,13 +84,15 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
     services: Service[];
     state?: { day: number; row: number };
 }) => {
-    let layout = reactive({ days: DAYS }),
+    // A private mirror of the selected bar's key that bars select on, so a move restyles two bars rather than a row.
+    let active = signal(''),
+        layout = reactive({ days: DAYS }),
         // A narrow container gets half the history so every day stays a real, tappable bar.
         size = observeSize(({ width }) => {
             layout.days = width < COMPACT_WIDTH ? DAYS_COMPACT : DAYS;
         });
 
-    function bars(day: () => number, service: Service) {
+    function bars(index: number, service: Service) {
         let days = layout.days,
             render = [];
 
@@ -99,7 +101,7 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
                 incident = find(service, value);
 
             render.push(html`
-                <span class='uptime-bar ${incident && `uptime-bar--${incident.level}`} ${() => day() === value && '--active'}'></span>
+                <span class='uptime-bar ${incident && `uptime-bar--${incident.level}`} ${() => signal.selector(active, `${index}:${value}`) && '--active'}'></span>
             `);
         }
 
@@ -213,7 +215,7 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
                         }
                     }}
                 >
-                    ${() => bars(() => read(day), service)}
+                    ${() => bars(index, service)}
                 </div>
 
                 <div class='uptime-service-axis'>
@@ -235,6 +237,10 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
             api.row = row;
         });
     }
+
+    effect(() => `${api.row}:${api.day}`, (key) => {
+        write(active, key);
+    });
 
     return html`
         <div

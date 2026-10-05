@@ -1,5 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive, signal, write } from '@esportsplus/reactivity';
 import { clamp } from '~/shared/clamp';
 import form from '~/components/form';
 import overlay from '~/components/overlay';
@@ -102,7 +102,10 @@ function template(
         }),
         { direction: _defaultDirection, ...defaultPanel } = defaults?.[SELECT_TOOLTIP_CONTENT] ?? {},
         { direction: _direction, ...panelAttributes } = attributes[SELECT_TOOLTIP_CONTENT] ?? {},
+        // Private mirrors the options select on, so a move or a pick restyles two options rather than every one.
+        chosen = signal(''),
         frame = 0,
+        highlighted = signal(0),
         id = `select-menu-${++uid}`,
         last = { x: -1, y: -1 },
         menu = reactive({ down: false, highlight: 0, hover: false, placement: '', up: false }),
@@ -330,6 +333,14 @@ function template(
         }
     });
 
+    effect(() => menu.highlight, (index) => {
+        write(highlighted, index);
+    });
+
+    effect(() => String(state.selected ?? ''), (value) => {
+        write(chosen, value);
+    });
+
     return html`
         <div
             class='select select-menu'
@@ -443,8 +454,8 @@ function template(
                                 ${this?.attributes?.[SELECT_OPTION]}
                                 ${attributes[SELECT_OPTION]}
                                 ${{
-                                    'aria-selected': () => String(state.selected ?? '') === option.value ? 'true' : 'false',
-                                    class: () => menu.highlight === index && 'select-menu-option--highlighted',
+                                    'aria-selected': () => signal.selector(chosen, option.value) ? 'true' : 'false',
+                                    class: () => signal.selector(highlighted, index) && 'select-menu-option--highlighted',
                                     onclick: () => choose(index),
                                     onpointermove: (e: PointerEvent) => {
                                         // Scrolling under a still cursor can fire synthetic moves; only real movement

@@ -1,10 +1,19 @@
-import { component, html, type Attributes } from '@esportsplus/template';
-import type { TreeLink } from './tree';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 
 
 type A = Attributes & {
     label?: string;
-    links: TreeLink[];
+    links: TocLink[];
+};
+
+type TocLink = {
+    active?: () => boolean;
+    attributes?: Attributes;
+    content?: Renderable<unknown>;
+    href: string;
+    label: string;
+    onclick?: (event: Event) => void;
+    visible?: () => boolean;
 };
 
 
@@ -34,3 +43,6 @@ export default component<A>(
         </nav>
     `
 );
+
+
+export type { TocLink };
