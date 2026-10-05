@@ -42,8 +42,8 @@ const KEYS: Key[] = ['low', 'high'];
 
 
 // Rounded to the step's own precision, so fractional steps never drift into float noise.
-function snap(value: number, min: number, step: number) {
-    return Number((Math.round((value - min) / step) * step + min).toFixed((String(step).split('.')[1] || '').length));
+function snap(value: number, min: number, step: number, decimals: number) {
+    return Number((Math.round((value - min) / step) * step + min).toFixed(decimals));
 }
 
 
@@ -62,12 +62,13 @@ export default ({
     value,
     ...attributes
 }: A) => {
-    let vertical = orientation === 'vertical',
+    let decimals = (String(step).split('.')[1] || '').length,
+        vertical = orientation === 'vertical',
         single = typeof value === 'number',
         span = max - min || 1,
         s = state ?? reactive({
-            high: typeof value === 'number' ? value : value?.[1] ?? clamp(snap(min + span * 0.65, min, step), min, max),
-            low: typeof value === 'number' ? min : value?.[0] ?? clamp(snap(min + span * 0.15, min, step), min, max)
+            high: typeof value === 'number' ? value : value?.[1] ?? clamp(snap(min + span * 0.65, min, step, decimals), min, max),
+            low: typeof value === 'number' ? min : value?.[0] ?? clamp(snap(min + span * 0.15, min, step, decimals), min, max)
         }),
         indices = single ? [1] : [0, 1],
         labels: number[] = [],
@@ -77,10 +78,10 @@ export default ({
         thumbs: HTMLElement[] = [],
         ui = reactive({ dragging: -1, preview: -1 }),
         // Negative and fractional values can outgrow `max`, so the digit columns size to the widest extreme.
-        width = Math.max(...[min, max, min + step, max - step].map((v) => format(snap(v, min, step)).length));
+        width = Math.max(...[min, max, min + step, max - step].map((v) => format(snap(v, min, step, decimals)).length));
 
     for (let i = 0; i < ticks; i++) {
-        let tick = snap(min + (i * span) / Math.max(1, ticks - 1), min, step);
+        let tick = snap(min + (i * span) / Math.max(1, ticks - 1), min, step, decimals);
 
         if (!labels.includes(tick)) {
             labels.push(tick);
@@ -88,7 +89,7 @@ export default ({
     }
 
     function commit(index: number, raw: number) {
-        let next = clamp(snap(raw, min, step), min, max);
+        let next = clamp(snap(raw, min, step, decimals), min, max);
 
         // Thumbs meet but never pass, so each keeps the bound it started as.
         s[KEYS[index]] = index === 0 ? Math.min(next, s.high) : Math.max(next, s.low);
@@ -106,7 +107,7 @@ export default ({
                 ? (rect.bottom - event.clientY - thumb / 2) / Math.max(1, rect.height - thumb)
                 : (event.clientX - rect.left) / rect.width;
 
-        return clamp(snap(fraction * span + min, min, step), min, max);
+        return clamp(snap(fraction * span + min, min, step, decimals), min, max);
     }
 
     function field(index: number) {

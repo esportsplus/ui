@@ -398,8 +398,9 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
                 continue;
             }
 
-            for (let u of [Math.max(0, (lo - a0) / (a1 - a0)), Math.min(1, (hi - a0) / (a1 - a0))]) {
-                let x = path.xs[i] + (path.xs[i + 1] - path.xs[i]) * u,
+            for (let e = 0; e < 2; e++) {
+                let u = e ? Math.min(1, (hi - a0) / (a1 - a0)) : Math.max(0, (lo - a0) / (a1 - a0)),
+                    x = path.xs[i] + (path.xs[i + 1] - path.xs[i]) * u,
                     y = path.ys[i] + (path.ys[i + 1] - path.ys[i]) * u;
 
                 box.bottom = Math.max(box.bottom, y);
@@ -1095,44 +1096,47 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
         let dt = Math.min(64, now - ticked) / 1000,
             animate = animated(),
             before = lightBox(),
+            flowing = animate && paths.some((path) => path.motion),
             intensity = 0,
-            target = { x: light.x, y: light.y },
+            tx = light.x,
+            ty = light.y,
             wandering = false;
 
         ticked = now;
 
         if (animate && pointer.inside) {
             intensity = 1;
-            target = { x: pointer.x, y: pointer.y };
+            tx = pointer.x;
+            ty = pointer.y;
         }
         else if (animate && o.wander && now - pointer.at > IDLE) {
             let t = now / 1000,
                 { height, width } = size;
 
             intensity = 0.85;
-            target = {
-                x: width / 2 + Math.cos(t * 0.23) * width * 0.34 + Math.sin(t * 0.57) * width * 0.08,
-                y: height / 2 + Math.sin(t * 0.31) * height * 0.3 + Math.cos(t * 0.49) * height * 0.08
-            };
+            tx = width / 2 + Math.cos(t * 0.23) * width * 0.34 + Math.sin(t * 0.57) * width * 0.08;
+            ty = height / 2 + Math.sin(t * 0.31) * height * 0.3 + Math.cos(t * 0.49) * height * 0.08;
             wandering = true;
         }
 
         // A light fading in from nothing starts where it is aimed rather than sweeping across from its last spot.
         if (light.intensity < 0.01 && intensity > 0) {
-            light.x = target.x;
-            light.y = target.y;
+            light.x = tx;
+            light.y = ty;
         }
 
         let follow = 1 - Math.exp(-dt * (wandering ? 2.5 : 16)),
             fade = 1 - Math.exp(-dt * 6),
-            last = { intensity: light.intensity, x: light.x, y: light.y };
+            lastIntensity = light.intensity,
+            lastX = light.x,
+            lastY = light.y;
 
         light.intensity += (intensity - light.intensity) * fade;
-        light.x += (target.x - light.x) * follow;
-        light.y += (target.y - light.y) * follow;
+        light.x += (tx - light.x) * follow;
+        light.y += (ty - light.y) * follow;
 
         let settled = Math.abs(intensity - light.intensity) < 0.002
-            && (light.intensity < 0.002 || (Math.abs(target.x - light.x) < 0.1 && Math.abs(target.y - light.y) < 0.1));
+            && (light.intensity < 0.002 || (Math.abs(tx - light.x) < 0.1 && Math.abs(ty - light.y) < 0.1));
 
         if (!animate) {
             light.intensity = 0;
@@ -1142,8 +1146,8 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
             light.intensity = intensity;
 
             if (intensity) {
-                light.x = target.x;
-                light.y = target.y;
+                light.x = tx;
+                light.y = ty;
             }
         }
 
@@ -1155,9 +1159,9 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
             }
         }
 
-        let moved = light.intensity !== last.intensity || light.x !== last.x || light.y !== last.y,
+        let moved = light.intensity !== lastIntensity || light.x !== lastX || light.y !== lastY,
             travelling = rings.some((r) => !r.held || now - r.born < RIPPLE_RISE + 16),
-            crest = animate && paths.some((path) => path.motion) && now - linked >= LINK_FRAME - SLACK,
+            crest = flowing && now - linked >= LINK_FRAME - SLACK,
             breath = breathing() && now - breathed >= BREATH_FRAME - SLACK,
             // A breathing field changes everywhere with time, so a partial repaint would leave a seam at its edge.
             painting = full || travelling || breath || (breathing() && (moved || crest || damage.length > 0));
@@ -1220,7 +1224,7 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
         if (!settled || travelling || wandering) {
             frame = scheduler.frame(tick);
         }
-        else if (breathing() || (animate && paths.some((path) => path.motion))) {
+        else if (breathing() || flowing) {
             snooze();
         }
     }

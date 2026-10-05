@@ -111,6 +111,7 @@ function template(
         menu = reactive({ down: false, highlight: 0, hover: false, placement: '', up: false }),
         parts: Parts = {},
         query = '',
+        texts: string[] | undefined,
         timer: ReturnType<typeof setTimeout> | undefined;
 
     function choose(index: number) {
@@ -267,12 +268,20 @@ function template(
             needle = repeated ? query[0] : query,
             start = repeated ? from + 1 : from;
 
+        if (!texts) {
+            texts = [];
+
+            for (let i = 0, n = options.length; i < n; i++) {
+                let option = options[i];
+
+                texts.push((option.text ?? (typeof option.label === 'string' ? option.label : '')).toLowerCase());
+            }
+        }
+
         for (let i = 0, n = options.length; i < n; i++) {
             let index = (start + i) % n;
 
-            let text = options[index].text ?? (typeof options[index].label === 'string' ? options[index].label as string : '');
-
-            if (!text.toLowerCase().startsWith(needle)) {
+            if (!texts[index].startsWith(needle)) {
                 continue;
             }
 
@@ -289,7 +298,15 @@ function template(
     }
 
     function selected() {
-        return Math.max(0, options.findIndex((option) => option.value === String(state.selected ?? '')));
+        let value = String(state.selected ?? '');
+
+        for (let i = 0, n = options.length; i < n; i++) {
+            if (options[i].value === value) {
+                return i;
+            }
+        }
+
+        return 0;
     }
 
     function stop() {
@@ -388,7 +405,11 @@ function template(
                         }
                     }}
                 >
-                    ${content ? (() => content(state)) : (() => options[selected()]?.selected ?? options[selected()]?.label ?? '')}
+                    ${content ? (() => content(state)) : (() => {
+                        let option = options[selected()];
+
+                        return option?.selected ?? option?.label ?? '';
+                    })}
                 </span>
                 <svg aria-hidden='true' class='select-menu-chevron' ${this?.attributes?.[SELECT_ARROW]} ${attributes[SELECT_ARROW]}><use href='#${chevrons}' /></svg>
             </button>

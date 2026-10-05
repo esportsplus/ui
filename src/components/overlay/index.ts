@@ -153,11 +153,14 @@ function restack() {
         hosts.set(host, entry);
     }
 
+    let seen = new Set<HTMLElement>();
+
     // Only the lowest backdrop dims the page; covered layers dim themselves rather than stacking dimmers.
     for (let i = 0, n = layers.length; i < n; i++) {
         let { element, host } = layers[i];
 
-        element.classList.toggle('overlay--stacked', layers.findIndex((layer) => layer.host === host) < i);
+        element.classList.toggle('overlay--stacked', seen.has(host));
+        seen.add(host);
     }
 
     for (let host of overlaid) {

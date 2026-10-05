@@ -181,6 +181,13 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
             box.animate([{ width: `${from.width / s}px` }, { width: `${width}px` }], glide);
         }
 
+        // Read in one pass: interleaving reads with animate() calls forces a style recalc per letter.
+        let lefts: number[] = [];
+
+        for (let i = 0, n = letters.length; i < n; i++) {
+            lefts.push(letters[i].left === undefined ? 0 : ((nodes[i]?.getBoundingClientRect().left ?? to.left) - to.left) / scale);
+        }
+
         for (let i = 0, n = letters.length; i < n; i++) {
             let l = letters[i],
                 was = l.left;
@@ -204,7 +211,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                 continue;
             }
 
-            let now = ((nodes[i]?.getBoundingClientRect().left ?? to.left) - to.left) / scale;
+            let now = lefts[i];
 
             if (!glide || Math.abs(was - now) < 0.5) {
                 continue;

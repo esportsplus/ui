@@ -266,10 +266,8 @@ export default component(
             return elements;
         }
 
-        function curve(from: string | undefined, to: string | undefined) {
-            let a = last.shapes.find((shape) => shape.id && shape.id === from),
-                b = last.shapes.find((shape) => shape.id && shape.id === to),
-                points: number[] = [];
+        function curve(a: Shape | undefined, b: Shape | undefined) {
+            let points: number[] = [];
 
             if (!a || !b) {
                 return points;
@@ -398,6 +396,7 @@ export default component(
         function paths() {
             let links = read('links'),
                 camera = last.camera,
+                named: Map<string, Shape> | undefined,
                 result: Path[] = [];
 
             if (!links) {
@@ -419,7 +418,19 @@ export default component(
                     }
                 }
                 else {
-                    points = curve(link.from, link.to);
+                    if (!named) {
+                        named = new Map();
+
+                        for (let j = 0, m = last.shapes.length; j < m; j++) {
+                            let shape = last.shapes[j];
+
+                            if (shape.id && !named.has(shape.id)) {
+                                named.set(shape.id, shape);
+                            }
+                        }
+                    }
+
+                    points = curve(named.get(link.from ?? ''), named.get(link.to ?? ''));
                 }
 
                 if (points.length >= 4) {

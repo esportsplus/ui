@@ -67,11 +67,27 @@ function template(this: { attributes?: Partial<A> } | void, { data, format = Str
 
     // Built once per change for both the line and the area under it.
     let line = computed(() => {
-        if (!size.width) {
+        let width = size.width;
+
+        if (!width) {
             return '';
         }
 
-        return read(series).points.map((point, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(point.value).toFixed(1)}`).join(' ');
+        let { min, points, span } = read(series);
+
+        if (!points.length) {
+            return '';
+        }
+
+        let dx = (width - PAD_X * 2) / Math.max(points.length - 1, 1),
+            h = size.height - PAD_Y * 2,
+            path = '';
+
+        for (let i = 0, n = points.length; i < n; i++) {
+            path += `${i ? ' L' : 'M'}${(PAD_X + i * dx).toFixed(1)} ${(PAD_Y + (1 - (points[i].value - min) / span) * h).toFixed(1)}`;
+        }
+
+        return path;
     });
 
     function delta() {
