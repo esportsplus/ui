@@ -1,5 +1,5 @@
 import { clamp } from '~/shared/clamp';
-import { floorIndex, lineStarts } from './document';
+import { floorIndex, lineStarts, type EditorDocument } from './document';
 import type { NativeText } from './projection';
 
 
@@ -165,7 +165,8 @@ class EditorLayout {
     private folded: boolean;
     private numbers: number[] | null = null;
     private projection: NativeText;
-    private source: string;
+    // A document is read live, so its maintained line index stays current across edits.
+    private source: EditorDocument | string;
     private starts: number[];
     private total = 0;
     private tree: number[] = [];
@@ -173,7 +174,7 @@ class EditorLayout {
 
     constructor(
         projection: NativeText,
-        source: string,
+        source: EditorDocument | string,
         width: number,
         lineHeight: number,
         charWidth: number,
@@ -478,7 +479,7 @@ class EditorLayout {
         let numbers = this.numbers;
 
         if (!numbers) {
-            let source = lineStarts(this.source);
+            let source = typeof this.source === 'string' ? lineStarts(this.source) : this.source.starts;
 
             numbers = this.numbers = [];
 

@@ -962,7 +962,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         }
 
         ui.width = Math.max(1, metrics.width);
-        layout = new EditorLayout(projection, model.value, ui.width, metrics.lineHeight, metrics.charWidth, tabSize, !!options.wrap, breaks.map);
+        layout = new EditorLayout(projection, model, ui.width, metrics.lineHeight, metrics.charWidth, tabSize, !!options.wrap, breaks.map);
         map.invalidate();
         schedule();
     }
