@@ -234,6 +234,53 @@ const pool = () => {
 };
 
 
+// Offsets in [1, length] where a rendered row wraps onto a new visual row, found in one pass over its text. An offset
+// on a node boundary resolves to the end of the earlier node, and one past the text to the end of the last node.
+const rowBreaks = (element: HTMLElement, length: number, half: number) => {
+    let base = 0,
+        breaks: number[] = [],
+        last: Text | null = null,
+        range = element.ownerDocument.createRange(),
+        texts = walker(element),
+        y = 0;
+
+    for (let text = texts.nextNode() as Text | null; text && base < length; text = texts.nextNode() as Text | null) {
+        let start = last ? 1 : 0;
+
+        last = text;
+
+        for (let offset = start, n = Math.min(text.length, length - base); offset <= n; offset++) {
+            range.setStart(text, offset);
+            range.setEnd(text, offset);
+
+            let rect = range.getClientRects()[0];
+
+            if (base + offset === 0) {
+                y = rect?.top ?? 0;
+            }
+            else if (rect && rect.top > y + half) {
+                breaks.push(base + offset);
+                y = rect.top;
+            }
+        }
+
+        base += text.length;
+    }
+
+    if (last && base < length) {
+        range.setStart(last, last.length);
+        range.setEnd(last, last.length);
+
+        let rect = range.getClientRects()[0];
+
+        if (rect && rect.top > y + half) {
+            breaks.push(base + 1);
+        }
+    }
+
+    return breaks;
+};
+
 // Offset within a rendered row under a client point, for text the arithmetic layout can't place.
 const rowOffset = (element: HTMLElement, x: number, y: number) => {
     let doc = element.ownerDocument as Document & {
@@ -306,19 +353,33 @@ const tokens = (
         return cache.lineTokens(index);
     }
 
-    let first = document.lineAt(projection.toSource(from)),
+    let f = 0,
+        first = document.lineAt(projection.toSource(from)),
         last = document.lineAt(projection.toSource(to)),
         out: Token[] = [];
 
+    // Folds are sorted by start and token starts only grow, so folds ending before a token never hide a later one.
     for (let line = first; line <= last; line++) {
         let start = document.lineStart(line),
             list = cache.lineTokens(line);
 
         for (let i = 0, n = list.length; i < n; i++) {
             let a = start + list[i].from,
-                b = start + list[i].to;
+                b = start + list[i].to,
+                hidden = false;
 
-            if (folded.some((fold) => a >= fold.from && b <= fold.to)) {
+            while (f < folded.length && folded[f].to < a) {
+                f++;
+            }
+
+            for (let k = f, m = folded.length; k < m && folded[k].from <= a; k++) {
+                if (b <= folded[k].to) {
+                    hidden = true;
+                    break;
+                }
+            }
+
+            if (hidden) {
                 continue;
             }
 
@@ -335,5 +396,5 @@ const tokens = (
 };
 
 
-export { marks, markup, pool, rowOffset, rowRect, tokens };
+export { marks, markup, pool, rowBreaks, rowOffset, rowRect, tokens };
 export type { Fold, Mark, Paint, Slot };

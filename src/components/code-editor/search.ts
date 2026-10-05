@@ -267,10 +267,19 @@ const replaceMatches = (doc: EditorDocument, result: SearchResult, all = true, i
         return false;
     }
 
-    let matches = all ? result.matches : result.matches.slice(index, index + 1);
+    let matches = all ? result.matches : result.matches.slice(index, index + 1),
+        value = doc.value;
 
-    if (!matches.length || matches.some((match) => doc.value.slice(match.from, match.to) !== match.text)) {
+    if (!matches.length) {
         return false;
+    }
+
+    for (let i = 0, n = matches.length; i < n; i++) {
+        let match = matches[i];
+
+        if (match.to - match.from !== match.text.length || !value.startsWith(match.text, match.from)) {
+            return false;
+        }
     }
 
     let edits: Edit[] = matches.map((match) => ({ from: match.from, insert: match.replacement, to: match.to })),

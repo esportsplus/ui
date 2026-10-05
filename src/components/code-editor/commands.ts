@@ -595,7 +595,7 @@ const lineCommand = (doc: EditorDocument, command: LineCommand) => {
             id = position.line - 1,
             index =
                 command === 'copyDown'
-                    ? rows.map((row) => row.id).lastIndexOf(id)
+                    ? rows.findLastIndex((row) => row.id === id)
                     : rows.findIndex((row) => row.id === id);
 
         if (index < 0) {

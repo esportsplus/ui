@@ -174,19 +174,22 @@ function name(path: string) {
 
 // Path-shaped entries reconcile through the existing store, so watcher ticks keep unchanged rows and expansion.
 function reconcile(store: FileTreeElements, entries: readonly WorkspaceEntry[]) {
-    let nodes = new Map<string, { element: FileTreeElement; parent: string | null }>();
+    let nodes = new Map<string, { depth: number; element: FileTreeElement; parent: string | null }>();
 
     for (let i = 0, n = entries.length; i < n; i++) {
         let entry = entries[i],
+            id = '',
             parts = entry.path.split('/');
 
         for (let length = 1, m = parts.length; length <= m; length++) {
             let folder = length < m || entry.kind === 'directory',
-                id = parts.slice(0, length).join('/');
+                parent = length === 1 ? null : id;
 
+            id = parent === null ? parts[0] : `${parent}/${parts[length - 1]}`;
             nodes.set(id, {
+                depth: length,
                 element: { id, name: parts[length - 1], type: folder ? 'folder' : 'file', ...(folder ? { children: [] } : {}) },
-                parent: length === 1 ? null : parts.slice(0, length - 1).join('/')
+                parent
             });
         }
     }
@@ -197,7 +200,7 @@ function reconcile(store: FileTreeElements, entries: readonly WorkspaceEntry[]) 
         }
     }
 
-    let sorted = [...nodes].sort(([a], [b]) => a.split('/').length - b.split('/').length);
+    let sorted = [...nodes].sort(([, a], [, b]) => a.depth - b.depth);
 
     for (let i = 0, n = sorted.length; i < n; i++) {
         let [id, node] = sorted[i];

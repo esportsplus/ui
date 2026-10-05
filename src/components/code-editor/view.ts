@@ -21,7 +21,7 @@ import { composition } from './composition';
 import { EditorDocument, type Change, type Edit, type Selection, type Snapshot } from './document';
 import { RANGES, write as writeField, type Pending } from './field';
 import { find } from './find';
-import { enclosingFold, foldAt, mapFolds, outerFolds, pairAt, structureOf, type FoldRange } from './folding';
+import { enclosingFold, foldAt, mapFolds, outerFolds, pairAt, structureOf, type BracketPair, type FoldRange } from './folding';
 import { goto } from './goto';
 import { gutter } from './gutter';
 import { commands, keymap } from './keymap';
@@ -30,7 +30,7 @@ import { minimap, type Source } from './minimap';
 import { move } from './navigation';
 import { pointer } from './pointer';
 import { inputEdit, NativeText, type Before, type Placeholder } from './projection';
-import { markup, marks, pool, rowOffset, rowRect, tokens, type Fold, type Paint, type Slot } from './rows';
+import { markup, marks, pool, rowBreaks, rowOffset, rowRect, tokens, type Fold, type Paint, type Slot } from './rows';
 import { search as scan, type Match, type SearchOptions, type SearchResult } from './search';
 import { services, type LanguageServiceOptions } from './services';
 import { commentSyntax, languageFor, syntaxCache, type Language, type SyntaxCache, type Token } from './syntax';
@@ -183,6 +183,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         before: Before | null = null,
         beforeRanges: readonly Selection[] = [],
         beforeSelection: Selection | undefined,
+        bracketPair: { cache: SyntaxCache | null; offset: number; pair: BracketPair | null; revision: number } = { cache: null, offset: -1, pair: null, revision: -1 },
         breaks = { key: '', map: new Map<string, readonly number[]>() },
         cache: SyntaxCache = syntaxCache(model, 'plain'),
         decorations = reactive([] as Decoration[]),
@@ -928,7 +929,13 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             occurrences = { key, marks: list };
         }
 
-        let { index, matches } = search.matches(projection.toSource(from));
+        let head = selection.direction === 'backward' ? selection.start : selection.end,
+            { index, matches } = search.matches(projection.toSource(from));
+
+        // Walking to a far bracket's partner costs a line per step, too much to repeat on every scroll frame.
+        if (bracketPair.cache !== cache || bracketPair.offset !== head || bracketPair.revision !== model.revision) {
+            bracketPair = { cache, offset: head, pair: pairAt(cache, head), revision: model.revision };
+        }
 
         return {
             active: search.state.index,
@@ -936,7 +943,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             index,
             matches,
             occurrences: occurrences.marks,
-            pair: pairAt(cache, selection.direction === 'backward' ? selection.start : selection.end),
+            pair: bracketPair.pair,
             placeholders: folded.length ? projection.placeholders() : []
         };
     }
@@ -1080,20 +1087,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 flushed = true;
             }
 
-            let breaks: number[] = [],
-                length = geometry.end(line) - geometry.lineFrom(line),
-                y = rowRect(row, 0)?.top ?? 0;
-
-            for (let offset = 1; offset <= length; offset++) {
-                let rect = rowRect(row, offset);
-
-                if (rect && rect.top > y + half) {
-                    breaks.push(offset);
-                    y = rect.top;
-                }
-            }
-
-            changed = geometry.measure(line, breaks) || changed;
+            changed = geometry.measure(line, rowBreaks(row, geometry.end(line) - geometry.lineFrom(line), half)) || changed;
         }
 
         if (changed) {

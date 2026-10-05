@@ -69,6 +69,10 @@ function breakable(before: number, a: number, b: number) {
 
 // Wide East Asian and emoji code units take two columns in the estimate; a low surrogate's pair already counted.
 function columns(code: number) {
+    if (code < 0x1100) {
+        return 1;
+    }
+
     if (code >= 0xdc00 && code <= 0xdfff) {
         return 0;
     }
@@ -113,14 +117,15 @@ function wrap(text: string, width: number, charWidth: number, tabSize: number): 
             continue;
         }
 
-        let advance = columns(code) * charWidth,
+        let span = columns(code),
+            advance = span * charWidth,
             previous = i > row ? text.charCodeAt(i - 1) : -1;
 
         if (
             previous === 32 ||
             previous === 9 ||
             (previous > 32 && breakable(i > 1 ? text.charCodeAt(i - 2) : 0, previous, code)) ||
-            (previous > 0x2e7f && columns(code) === 2)
+            (previous > 0x2e7f && span === 2)
         ) {
             last = i;
         }

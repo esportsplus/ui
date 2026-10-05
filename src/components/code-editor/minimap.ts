@@ -73,6 +73,8 @@ const minimap = ({ focus, scroll }: { focus: VoidFunction; scroll: (top: number,
         lineHeight = 20,
         pixels = '',
         state = reactive({ height: 24, top: 0 }),
+        // Last fill this paint set; the fillStyle setter parses its color every time, even an unchanged one.
+        style = '',
         viewport: Viewport = { clientHeight: 0, scrollHeight: 0, scrollTop: 0 },
         width = 0;
 
@@ -82,7 +84,7 @@ const minimap = ({ focus, scroll }: { focus: VoidFunction; scroll: (top: number,
             pitch = Math.max(1, Math.min(3, source.lineHeight * scale));
 
         if (text.length > LONG) {
-            context.fillStyle = colors.comment;
+            fill(context, colors.comment);
             context.fillRect(INSET, top * scale, Math.min(width - INSET * 2, COLUMNS), pitch);
             return;
         }
@@ -118,9 +120,15 @@ const minimap = ({ focus, scroll }: { focus: VoidFunction; scroll: (top: number,
                     i++;
                 }
 
-                context.fillStyle = colors[kind] ?? colors.variable;
+                fill(context, colors[kind] ?? colors.variable);
                 context.fillRect(start, y, x - start, pitch);
             }
+        }
+    }
+
+    function fill(context: CanvasRenderingContext2D, color: string) {
+        if (color !== style) {
+            context.fillStyle = style = color;
         }
     }
 
@@ -212,6 +220,7 @@ const minimap = ({ focus, scroll }: { focus: VoidFunction; scroll: (top: number,
                 last = source.count;
 
             context.setTransform(ratio, 0, 0, ratio, 0, 0);
+            style = '';
 
             if (full) {
                 context.clearRect(0, 0, width, height);

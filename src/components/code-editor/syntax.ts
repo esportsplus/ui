@@ -1104,18 +1104,34 @@ function structuralMarks(text: string, tokens: readonly Token[], language: Langu
         return marks;
     }
 
+    let t = 0;
+
     TAG.lastIndex = 0;
 
     for (let match; (match = TAG.exec(text));) {
         let at = match.index,
             name = match[2].toLowerCase();
 
+        if (match[0].endsWith('/>') || VOID.test(name)) {
+            continue;
+        }
+
+        // Matches and tokens both run left to right, so one cursor walks the tokens for every match.
+        while (t < tokens.length && tokens[t].from < at) {
+            t++;
+        }
+
+        let tagged = false;
+
+        for (let j = t, m = tokens.length; j < m && tokens[j].from === at; j++) {
+            if (tokens[j].kind === 'tag') {
+                tagged = true;
+                break;
+            }
+        }
+
         // Only what the lexer took for a tag: a generic's '<T>' or a '<' inside a string never folds.
-        if (
-            match[0].endsWith('/>') ||
-            VOID.test(name) ||
-            !tokens.some((token) => token.from === at && token.kind === 'tag')
-        ) {
+        if (!tagged) {
             continue;
         }
 
