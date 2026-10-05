@@ -574,15 +574,6 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         }
     }
 
-    // The global reset gives every element 'transition: inherit', and a child explicitly inheriting a property is
-    // restyled whenever its parent is; set here, a moving row's children sit out each frame of its motion.
-    &-motion-layer > *,
-    &-row--motion ~ .file-tree-row > *,
-    &-row--reveal > *,
-    &-row--reveal ~ .file-tree-row > * {
-        transition: none;
-    }
-
     // The list has already swapped rows, so the rows below are drawn back where they sat and ride the edge home, and
     // copies stand in for any no longer rendered. Opening: the folder's rows show above the edge. Closing: copies of
     // them fade out above it. The real rows move, not their contents, so the highlight follows the selected one. Each

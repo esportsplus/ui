@@ -81,8 +81,8 @@
         align-items: center;
         display: flex;
         gap: var(--item-gap);
-        // Root transitions transform on every element; that would lag each frame and animate the loop wrap. Only
-        // '--drift' transitions, for its end to tell JS it changed.
+        // Only '--drift' transitions, for its end to tell JS it changed; easing the transform would lag each frame and
+        // animate the loop wrap.
         transition: --drift 1ms;
         width: max-content;
         will-change: var(--track-will-change);

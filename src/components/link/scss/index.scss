@@ -16,4 +16,11 @@
         border-color var(--transition-duration) var(--transition-timing-function),
         color var(--transition-duration) var(--transition-timing-function),
         opacity var(--transition-duration) var(--transition-timing-function);
+
+
+    // An icon resolves '--color' itself rather than inheriting the label's eased colour, so it eases alongside. Zero
+    // specificity, so an icon's own transition wins.
+    :where(&) :where(.icon) {
+        transition: color var(--transition-duration) var(--transition-timing-function);
+    }
 }

@@ -31,12 +31,6 @@
         min-height: 100%;
         translate: 0 calc(var(--pull-to-refresh-y) * 1px);
         user-select: none;
-
-        // Items inheriting the transition (root reset) restyle along with the feed on every frame it moves; 'none' is the
-        // value they would inherit anyway.
-        > * {
-            transition: none;
-        }
     }
 
     // Spins rather than the svg so the spin runs on the compositor (an svg's can't); the two share a center, so the spin and
@@ -50,13 +44,6 @@
             opacity: 0;
             transition: opacity var(--fade-duration) var(--fade-timing-function);
         }
-    }
-
-    // Elements inherit their parent's transition (root reset); stopped at the root's children so only the root runs the
-    // spring and everything else reads its value, instead of every element running a copy of it.
-    &-indicator,
-    &-scroller {
-        transition: none;
     }
 
     &-indicator {

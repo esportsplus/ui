@@ -44,8 +44,8 @@
         }
     }
 
-    // Shows again at once under the fading copy: its own transitions, or ones it inherits, would ease it back in after
-    // the copy has gone. Important, since they can come from any rule.
+    // Shows again at once under the fading copy: its own transitions, or its contents', would ease it back in after the
+    // copy has gone. Important, since they can come from any rule.
     > .sortable-item--revealing,
     > .sortable-item--revealing * {
         transition: none !important;

@@ -303,7 +303,6 @@
             border-radius: 3px;
             pointer-events: none;
             position: absolute;
-            transition: none;
         }
 
         &-minimap {
@@ -323,7 +322,6 @@
                 background: var(--color-border-400);
                 border-radius: 2px;
                 position: absolute;
-                transition: none;
             }
         }
 
@@ -385,7 +383,6 @@
             position: absolute;
             top: 0;
             transform-origin: 0 0;
-            transition: none;
             width: 0;
         }
 
