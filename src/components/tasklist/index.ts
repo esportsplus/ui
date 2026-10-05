@@ -1,6 +1,6 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { flush, reactive, ReactiveArray } from '@esportsplus/reactivity';
-import { finished, measure, slide, timing } from '~/shared/animation';
+import { finished, measure, slides, timing } from '~/shared/animation';
 import checkbox from '~/components/checkbox';
 import sortable from '~/components/sortable';
 import './scss/index.scss';
@@ -144,9 +144,7 @@ export default component(
                 slot!.flush();
             }
 
-            for (let i = 0, n = items.length; i < n; i++) {
-                slide(items[i], shift);
-            }
+            slides(items, shift);
 
             entry.state.moving = true;
 

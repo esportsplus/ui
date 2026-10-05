@@ -1,6 +1,6 @@
 import { flush, reactive, read, signal, write, type ReactiveArray, type Signal } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import { finished, measure, slide, timing } from '~/shared/animation';
+import { finished, measure, slides, timing } from '~/shared/animation';
 import press from '~/shared/press';
 import './scss/index.scss';
 
@@ -274,6 +274,9 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         lastLeft = NaN;
         layout.length = 0;
 
+        let elements: HTMLElement[] = [],
+            places: { index: number, left: number, list: List<unknown>, top: number }[] = [];
+
         for (let i = 0, n = lists.length; i < n; i++) {
             let list = lists[i],
                 parent = list.container;
@@ -289,28 +292,34 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
 
             for (let element of parent.children as HTMLCollectionOf<HTMLElement>) {
                 // Only the items: the copy is a child too, out in the top layer.
-                if (element.classList.contains('sortable-drag')) {
-                    continue;
+                if (!element.classList.contains('sortable-drag')) {
+                    elements.push(element);
+                    places.push({ index: index++, left, list, top });
                 }
-
-                // Slid from where it was drawn, and laid out where it slides to; one new to the list just is.
-                let rect = slide(element, shift) ?? element.getBoundingClientRect(),
-                    entry = {
-                        bottom: rect.bottom - top,
-                        element,
-                        index: index++,
-                        left: rect.left - left,
-                        list,
-                        right: rect.right - left,
-                        top: rect.top - top
-                    };
-
-                if (list === current && entry.index === at) {
-                    hole = entry;
-                }
-
-                layout.push(entry);
             }
+        }
+
+        // Every list's items slide from where they were drawn, laid out where they slide to; one new to a list just is.
+        let rects = slides(elements, shift);
+
+        for (let i = 0, n = elements.length; i < n; i++) {
+            let { index, left, list, top } = places[i],
+                rect = rects[i],
+                entry = {
+                    bottom: rect.bottom - top,
+                    element: elements[i],
+                    index,
+                    left: rect.left - left,
+                    list,
+                    right: rect.right - left,
+                    top: rect.top - top
+                };
+
+            if (list === current && entry.index === at) {
+                hole = entry;
+            }
+
+            layout.push(entry);
         }
     }
 

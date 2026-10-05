@@ -1,7 +1,7 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
 import close from '@esportsplus/ui/svg/close.svg';
-import { measure, slide, timing } from '~/shared/animation';
+import { measure, slides, timing } from '~/shared/animation';
 import input from './field';
 
 
@@ -240,13 +240,7 @@ export default component(
             change();
             slot.flush();
 
-            for (let i = 0, n = children.length; i < n; i++) {
-                let child = children[i] as HTMLElement;
-
-                if (!child.classList.contains('input-tag-ghost') && !slide(child, shift)) {
-                    enter?.(child);
-                }
-            }
+            slides([...children as HTMLCollectionOf<HTMLElement>].filter((child) => !child.classList.contains('input-tag-ghost')), shift, enter);
         }
 
         function nudge(k: string) {

@@ -262,11 +262,22 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             return;
         }
 
+        // Every box is read before any animation starts: starting one dirties styles, so a read after it lays out again.
+        let lasts: (DOMRect | undefined)[] = [];
+
         if (height && move) {
             resize?.cancel();
+        }
 
-            let to = list.getBoundingClientRect().height;
+        let to = list.getBoundingClientRect().height;
 
+        for (let i = 0, n = elements.length; i < n; i++) {
+            let element = elements[i];
+
+            lasts.push(element && shown[i] ? element.getBoundingClientRect() : undefined);
+        }
+
+        if (height && move) {
             if (Math.abs(from - to) > 0.5) {
                 let keyframes: Keyframe[] = [
                     { boxSizing: 'border-box', height: `${from}px` },
@@ -282,14 +293,14 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         }
 
         for (let i = 0, n = elements.length; i < n; i++) {
-            let element = elements[i];
+            let element = elements[i],
+                last = lasts[i];
 
-            if (!element || !shown[i]) {
+            if (!element || !last) {
                 continue;
             }
 
-            let last = element.getBoundingClientRect(),
-                rect = first.get(element);
+            let rect = first.get(element);
 
             if (!rect) {
                 if (enter && near(last)) {
