@@ -41,6 +41,10 @@
             outline-offset: var(--size-100);
         }
 
+        &.accordion--instant {
+            transition: none;
+        }
+
         @include tokens.state(active) {
             height: min(var(--height, var(--max-height)), var(--max-height));
         }
