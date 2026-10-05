@@ -1,0 +1,73 @@
+.chat-minimap-demo {
+    align-items: center;
+    display: flex;
+    gap: var(--size-500);
+    padding: var(--size-500) var(--size-400);
+    width: 100%;
+
+    &--left {
+        flex-direction: row-reverse;
+    }
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+// The rail sits in the thread's right-hand gutter, beside the scrollbar, the way chat apps place it.
+.chat-minimap-thread {
+    border: var(--border-width-400) solid var(--color-border-300);
+    border-radius: var(--border-radius-600);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 360px auto;
+    max-width: 640px;
+    overflow: hidden;
+    width: 100%;
+
+    &-answer {
+        color: var(--color-text-400);
+        font-size: 0.875rem;
+    }
+
+    &-ask {
+        grid-column: 1 / -1;
+        justify-self: start;
+        margin: var(--size-300);
+    }
+
+    &-question {
+        align-self: flex-end;
+        background: var(--color-grey-400);
+        border-radius: var(--border-radius-600);
+        color: var(--color-text-500);
+        font-size: 0.875rem;
+        max-width: 80%;
+        padding: var(--size-100) var(--size-300);
+        width: fit-content;
+    }
+
+    &-rail {
+        align-self: center;
+        padding: var(--size-300) var(--size-100);
+    }
+
+    &-scroll {
+        display: flex;
+        flex-direction: column;
+        gap: var(--size-600);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: var(--size-400) var(--size-400) var(--size-400) var(--size-500);
+        scroll-padding-top: var(--size-400);
+    }
+
+    &-turn {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: var(--size-200);
+    }
+}

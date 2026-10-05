@@ -32,6 +32,10 @@ const meta: Record<string, Meta> = {
         description: 'Payment card form with a live card preview that flips for the CVC, brand detection, auto-formatting and Luhn validation.',
         label: 'CC'
     },
+    'chat-minimap': {
+        description: 'A rail of lines mapping a conversation, one per turn: the hovered line swells its neighbours, a card previews the turn, the turns in view stay lit as the thread scrolls, and the rail grows with the chat.',
+        label: 'Chat Minimap'
+    },
     checkbox: {
         description: 'Binary selection control, plus checklist groups with a select-all header that goes mixed and Shift-click range selection.'
     },
