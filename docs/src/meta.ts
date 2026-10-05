@@ -39,7 +39,7 @@ const meta: Record<string, Meta> = {
         description: 'Copy-to-clipboard affordance with click and programmatic variants.'
     },
     'code-editor': {
-        description: 'Code editing with syntax colors, line numbers, undo and redo, indentation, search and replacement, and keyboard navigation.',
+        description: 'Source editor with syntax colors for TypeScript, CSS, HTML, JSON, Python and Markdown, undo and redo, find and replace, multiple and rectangular selections, folding, wrap and a minimap; language services add completion, hover and diagnostics, the Markdown editor renders in place one block at a time, and the workspace adds a file explorer, tabs and quick open.',
         label: 'Code Editor'
     },
     'color-picker': {

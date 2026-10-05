@@ -14,6 +14,8 @@ type Handlers = {
     hover?: (params: unknown, signal?: AbortSignal) => Hover | null | Promise<Hover | null>;
 };
 
+type Request = { position: Position; textDocument: { uri: string } };
+
 type Sync = {
     contentChanges?: { text: string }[];
     textDocument: { text?: string; uri: string; version?: number };
@@ -25,32 +27,62 @@ const EOL = /\r\n|\r|\n/;
 const MARKER = 'TODO_ERROR';
 
 const SYMBOLS = [
-    { detail: '(person: Person): string', kind: 3, label: 'greet' },
-    { detail: 'Person', kind: 6, label: 'person' },
-    { detail: 'number', kind: 10, label: 'score' }
+    { detail: 'interface', hover: 'interface Person {\n    name: string;\n    score: number;\n}', kind: 8, label: 'Person' },
+    { detail: '(person: Person): string', hover: 'function greet(person: Person): string', kind: 3, label: 'greet' },
+    { detail: 'string', hover: '(property) Person.name: string', kind: 10, label: 'name' },
+    { detail: 'Person', hover: 'const person: Person', kind: 6, label: 'person' },
+    { detail: 'number', hover: '(property) Person.score: number', kind: 10, label: 'score' }
 ];
 
+const WORD = /[\w$]/;
 
-// A sample host for the demo: completes a few fixed symbols, hovers with a fixed card and reports every 'TODO_ERROR'.
-// The editor itself has no simulated server behavior.
+
+// A sample server for the docs, so the editor's own service code runs end to end: it completes and hovers a few
+// fixed symbols and reports every 'TODO_ERROR' as an error.
 const demoLanguageTransport = (): LanguageTransport => {
     let documents = new Map<string, string>();
 
     let fixture = mockLanguageTransport({
         completion: (params) => {
-            let { position, textDocument } = params as { position: Position; textDocument: { uri: string } },
+            let { position, textDocument } = params as Request,
                 line = (documents.get(textDocument.uri) ?? '').split(EOL)[position.line] ?? '',
                 word = /[\w$]*$/.exec(line.slice(0, position.character))?.[0] ?? '';
 
-            return SYMBOLS.filter((symbol) => symbol.label.startsWith(word)).map((symbol) => ({
-                ...symbol,
+            return SYMBOLS.filter((symbol) => symbol.label.startsWith(word)).map(({ detail, kind, label }) => ({
+                detail,
+                kind,
+                label,
                 textEdit: {
-                    newText: symbol.label,
+                    newText: label,
                     range: { end: position, start: { character: position.character - word.length, line: position.line } }
                 }
             }));
         },
-        hover: () => ({ contents: 'Sample language service\nfunction greet(person: Person): string' })
+        hover: (params) => {
+            let { position, textDocument } = params as Request,
+                line = (documents.get(textDocument.uri) ?? '').split(EOL)[position.line] ?? '',
+                end = position.character,
+                start = position.character;
+
+            while (start > 0 && WORD.test(line[start - 1])) {
+                start--;
+            }
+
+            while (end < line.length && WORD.test(line[end])) {
+                end++;
+            }
+
+            let symbol = SYMBOLS.find((symbol) => symbol.label === line.slice(start, end));
+
+            if (!symbol) {
+                return null;
+            }
+
+            return {
+                contents: symbol.hover,
+                range: { end: { character: end, line: position.line }, start: { character: start, line: position.line } }
+            };
+        }
     });
 
     return {
@@ -96,7 +128,7 @@ const demoLanguageTransport = (): LanguageTransport => {
     };
 };
 
-// A transport answering from explicit handlers, recording what it was sent.
+// Answers from explicit handlers and records what it was sent, for the demo above and the service tests.
 const mockLanguageTransport = (handlers: Handlers = {}) => {
     let listeners = new Set<(event: Notification) => void>(),
         notifications: Notification[] = [],
