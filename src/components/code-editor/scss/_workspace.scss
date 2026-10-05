@@ -13,6 +13,8 @@
     --confirm-background: var(--surface);
     --confirm-color: var(--color);
     --confirm-hover: var(--control-active-background);
+    --content-delay: 0s;
+    --content-visibility: visible;
     --control-active-background: oklch(from var(--color-text-500) l c h / 0.08);
     --control-icon-size: var(--size-300);
     --control-size: var(--size-600);
@@ -82,6 +84,9 @@
 
     // A hidden explorer overlays the editor as a drawer that rests offscreen but for its edge.
     &--collapsed {
+        // Only the drawer's edge shows at rest; its contents stay hidden until it peeks, and while it slides away.
+        --content-delay: var(--drawer-duration);
+        --content-visibility: hidden;
         --docked-track: var(--peek-width);
         --explorer-inset: var(--drawer-inset);
         --explorer-layer: 2;
@@ -104,6 +109,8 @@
     }
 
     &--peek {
+        --content-delay: 0s;
+        --content-visibility: visible;
         --drawer-offset: 0px;
     }
 
@@ -304,6 +311,8 @@
         flex-direction: column;
         min-height: 0;
         min-width: 0;
+        transition: visibility 0s linear var(--content-delay);
+        visibility: var(--content-visibility);
     }
 
     &-explorer-header {
