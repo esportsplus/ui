@@ -1,1723 +1,2329 @@
-import { flush, reactive, root } from '@esportsplus/reactivity';
-import { html, render, type Renderable } from '@esportsplus/template';
-import { EditorDocument, preferredEol, type Change, type Selection, type Snapshot } from '../document';
-import { NativeText } from '../projection';
+import { flush, reactive } from '@esportsplus/reactivity';
+import { html, type Attributes } from '@esportsplus/template';
+import icon from '~/components/icon';
+import { clamp } from '~/shared/clamp';
+import { mac } from '~/shared/platform';
+import { observeSize } from '~/shared/resize';
+import { copied, read, write } from '../clipboard';
+import { addNextOccurrence, deleteCharacter, indent, insertText, lineCommand, toggleComment } from '../commands';
+import { composition } from '../composition';
+import { write as writeField } from '../field';
+import { find } from '../find';
+import { mapFolds, outerFolds, type FoldRange } from '../folding';
+import { goto } from '../goto';
+import { commands, keymap } from '../keymap';
+import { EditorLayout, type Rect } from '../layout';
+import { minimap, type Source } from '../minimap';
+import { move } from '../navigation';
+import { pointer } from '../pointer';
+import { inputEdit, NativeText, type Before } from '../projection';
+import { syntaxCache, type Token } from '../syntax';
+import { markdownCommand } from './editing';
+import { parseInline, type Inline, type References } from './inline';
+import { arrange, cache, headingScale, MarkdownLayout, SCALED_LINE, unitStart, type Unit } from './layout';
 import {
-    blocksAt,
+    blockAt,
+    contentEnd,
     markdownBackspace,
-    markdownEnter,
     markdownReferences,
-    parseInline,
     parseMarkdown,
+    reparse,
     toggleTask,
-    type Inline,
+    type Kind,
     type MarkdownBlock
 } from './model';
-import { headingScale, MarkdownLayout, viewportBlocks } from './layout';
-import { renderSafeHtml } from './html';
-import { clipInline } from './inline';
-import { addNextOccurrence, deleteCharacter, indent, insertText, lineCommand, toggleComment } from '../commands';
-import { stepCharacter } from '../selection';
-import { mapFolds, outerFolds, type FoldRange } from '../folding';
-import { markdownFolds, foldedMarkdown } from './structure';
-import { mountMarkdownControls } from './controls';
-import type { Controller, Options } from '../view';
-import { markdownCommand } from './editing';
-import { EditorLayout } from '../layout';
+import { renderer } from './render';
+import { foldable, foldAt, markdownFolds } from './structure';
+import type { Change, Edit, EditorDocument, Selection, Snapshot } from '../document';
+import type { Callbacks, Controller, Options } from '../view';
+import chevron from '@esportsplus/ui/svg/chevron-down.svg';
 
-export type MarkdownOptions = Options & { spellcheck?: boolean };
-export type MarkdownCallbacks = {
-    onChange?: (value: string, change: Change, state: Snapshot) => void;
-    onSave?: (value: string, state: Snapshot) => void;
-    onSelection?: (selection: Selection, position: { line: number; column: number }) => void;
-};
-export type MarkdownController = Omit<Controller, 'setOptions'> & {
-    setOptions(options: MarkdownOptions, replace?: boolean): void;
+
+type Active = { first: number; from: number; last: number; to: number };
+
+type Decoration = { kind: string; style: string };
+
+type MarkdownController = Omit<Controller, 'setOptions'> & {
     bold(): boolean;
     italic(): boolean;
+    setOptions(options: MarkdownOptions, replace?: boolean): void;
 };
 
-export function mountMarkdownEditor(
-    host: HTMLElement,
-    doc = new EditorDocument(),
-    initial: MarkdownOptions = {},
-    callbacks: MarkdownCallbacks = {}
-): MarkdownController {
-    return root((disposeScope) => {
-        let dom = host.ownerDocument,
-            win = dom.defaultView!,
-            disposed = false,
-            disposing = false,
-            focused = false,
-            composing = false,
-            compositionPending = false,
-            compositionTimer: number | undefined,
-            compositionConflict = false,
-            pendingValue: string | undefined,
-            options: MarkdownOptions = { wrap: true, ...initial },
-            active = { from: 0, to: 0 },
-            folds: FoldRange[] = [],
-            availableFolds: FoldRange[] = [],
-            controls: ReturnType<typeof mountMarkdownControls> | undefined,
-            state = reactive({
-                ...doc.state,
-                selection: { ...doc.selection },
-                selections: doc.selections.map((range) => ({ ...range }))
-            }),
-            beforeSelections: readonly Selection[] | undefined,
-            source = '',
-            projection = new NativeText(''),
-            activeGeometry: EditorLayout | undefined,
-            activeGeometryKey = '',
-            beforeInput: Selection | undefined,
-            inputType = '',
-            parsedSource = doc.value,
-            parsedBlocks = parseMarkdown(doc),
-            renderBlocks = viewportBlocks(parsedBlocks, doc.value),
-            references = markdownReferences(doc.value),
-            inlineCache = new Map<MarkdownBlock, Inline[]>(),
-            activeBlock: MarkdownBlock | undefined,
-            layout = new MarkdownLayout(renderBlocks, doc.value),
-            layoutWidth = 600,
-            layoutFont = 13,
-            layoutLine = 20,
-            measured = new Map<string, number>(),
-            modeKey = '',
-            frame = 0,
-            pendingReveal = false,
-            activeStart = 0,
-            activeEnd = 0,
-            activeHeight = 0,
-            textarea: HTMLTextAreaElement,
-            surface: HTMLElement,
-            mirror: HTMLElement,
-            caret: HTMLElement,
-            before = reactive([] as MarkdownBlock[]),
-            after = reactive([] as MarkdownBlock[]),
-            ui = reactive({
-                readonly: !!initial.readonly,
-                label: initial.label ?? 'Markdown editor',
-                spellcheck: initial.spellcheck ?? true,
-                placeholder: initial.placeholder ?? '',
-                active: false,
-                activeClass: 'markdown-input',
-                activeStyle: '',
-                inputHeight: 20,
-                top: 0,
-                between: 0,
-                next: 0,
-                bottom: 0,
-                mirrorBefore: '',
-                mirrorAfter: '',
-                mirrorWidth: 600,
-                mixed: false,
-                mirrorClass: 'markdown-input',
-                mirrorStyle: '',
-                composingText: '',
-                paintingComposition: false,
-                activeFold: false,
-                activeFolded: false,
-                activeFoldTop: 0,
-                activeFoldLine: 1,
-                crosshair: false
-            }),
-            removers: VoidFunction[] = [];
-        let addedClass = !host.classList.contains('markdown-editor');
-        host.classList.add('markdown-editor');
-        availableFolds = markdownFolds(doc, parsedBlocks);
-        function inline(tokens: Inline[]): Renderable<unknown> {
-            return tokens.map((token): Renderable<unknown> => {
-                let attrs = { 'data-md-offset': token.from, 'data-md-end': token.to },
-                    children = token.children ? inline(token.children) : token.text;
-                switch (token.kind) {
-                    case 'strong':
-                        return html`<strong ${attrs}>${children}</strong>`;
-                    case 'em':
-                        return html`<em ${attrs}>${children}</em>`;
-                    case 'strike':
-                        return html`<s ${attrs}>${children}</s>`;
-                    case 'code':
-                        return html`<code ${attrs}>${children}</code>`;
-                    case 'link':
-                        return html`<a ${{
-                            ...attrs,
-                            href: token.href,
-                            rel: 'noopener noreferrer',
-                            onclick: (e: MouseEvent) => {
-                                if (e.ctrlKey || e.metaKey) return;
-                                e.preventDefault();
-                                e.stopPropagation();
-                                let block = renderBlocks[layout.index(token.from)];
-                                if (block) activate(block, e);
-                            }
-                        }}>${children}</a>`;
-                    default:
-                        return html`<span ${attrs}>${token.text}</span>`;
-                }
-            });
+type MarkdownOptions = Options & { spellcheck?: boolean };
+
+type Metrics = {
+    charWidth: number;
+    clientHeight: number;
+    fontSize: number;
+    lineHeight: number;
+    minimap: number;
+    padLeft: number;
+    padTop: number;
+    quoteIndent: number;
+    scrollLeft: number;
+    scrollTop: number;
+    // The surface's content width, unrounded.
+    width: number;
+};
+
+
+const DECORATIONS = 1000;
+
+const NAVIGATION = /^(ArrowDown|ArrowLeft|ArrowRight|ArrowUp|End|Home|PageDown|PageUp)$/;
+
+const NONE: readonly number[] = [];
+
+const NO_TOKENS: readonly Token[] = [];
+
+const TOKEN_COLORS = ['comment', 'keyword', 'operator', 'property', 'string', 'type', 'variable'] as const;
+
+const VERTICAL = /^(ArrowDown|ArrowUp|PageDown|PageUp)$/;
+
+
+let uid = 0;
+
+
+// Brings a reactive list to 'next' with the fewest splices, so units that stay keep their DOM. Both are ordered
+// runs of the same unit list.
+function assign(list: Unit[], next: readonly Unit[]) {
+    if (list.length === next.length) {
+        let same = true;
+
+        for (let i = 0, n = list.length; same && i < n; i++) {
+            same = list[i] === next[i];
         }
-        function inlineAt(block: MarkdownBlock, from: number, to: number) {
-            let lo = 0,
-                hi = parsedBlocks.length;
-            while (lo < hi) {
-                let mid = (lo + hi) >>> 1;
-                if (parsedBlocks[mid]!.from <= block.from) lo = mid + 1;
-                else hi = mid;
+
+        if (same) {
+            return;
+        }
+    }
+
+    let keep = new Set(next),
+        kept = 0;
+
+    for (let i = 0, n = list.length; i < n; i++) {
+        if (keep.has(list[i])) {
+            kept++;
+        }
+    }
+
+    if (!kept) {
+        list.splice(0, list.length, ...next);
+        return;
+    }
+
+    for (let i = list.length - 1; i >= 0;) {
+        if (keep.has(list[i])) {
+            i--;
+            continue;
+        }
+
+        let end = i;
+
+        while (i >= 0 && !keep.has(list[i])) {
+            i--;
+        }
+
+        list.splice(i + 1, end - i);
+    }
+
+    for (let i = 0; i < next.length;) {
+        if (list[i] === next[i]) {
+            i++;
+            continue;
+        }
+
+        let end = i;
+
+        while (end < next.length && next[end] !== list[i]) {
+            end++;
+        }
+
+        list.splice(i, 0, ...next.slice(i, end));
+        i = end;
+    }
+}
+
+function pixels(value: string) {
+    return parseFloat(value) || 0;
+}
+
+function prevent(e: Event) {
+    e.preventDefault();
+}
+
+
+// The markdown editor's view: blocks render formatted until the caret enters one, which then edits as source in a
+// native textarea standing in its place. Only units near the viewport are drawn, keyed by block, so edits redraw the
+// block they touched. Returns its template and controller.
+const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller: MarkdownController) => void) => {
+    let active: Active | null = null,
+        activeIndex = -1,
+        apple = mac(),
+        before: Before | null = null,
+        beforeRanges: readonly Selection[] = [],
+        beforeSelection: Selection | undefined,
+        blocks = parseMarkdown(model),
+        decorations = reactive([] as Decoration[]),
+        definitions: References = new Map(),
+        disposed = false,
+        drag: { anchor: number; head: number } | null = null,
+        // Content height the minimap last drew.
+        drawn = 0,
+        dropAt: number | null = null,
+        editing = false,
+        escapeTab = false,
+        estimated = false,
+        fieldSource = '',
+        folds: FoldRange[] = [],
+        frame = 0,
+        geometry: EditorLayout | null = null,
+        goals: number[] = [],
+        help = `markdown-editor-help-${++uid}`,
+        host: HTMLElement | undefined,
+        inlines = new WeakMap<MarkdownBlock, { definitions: References; tokens: readonly Inline[] }>(),
+        inputData: string | null = null,
+        inputType = '',
+        keys = keymap(apple),
+        layout = new MarkdownLayout(),
+        length = model.value.length,
+        listed = { after: reactive([] as Unit[]), before: reactive([] as Unit[]) },
+        metrics: Metrics = {
+            charWidth: 7.8,
+            clientHeight: 320,
+            fontSize: 13,
+            lineHeight: 20,
+            minimap: 0,
+            padLeft: 12,
+            padTop: 12,
+            quoteIndent: 10,
+            scrollLeft: 0,
+            scrollTop: 0,
+            width: 600
+        },
+        observer: ResizeObserver | undefined = new ResizeObserver(resized),
+        options: MarkdownOptions = { wrap: true },
+        palette: Record<string, string> = {},
+        parsed = model.revision,
+        pendingValue: string | undefined,
+        pinned = false,
+        pointerId = -1,
+        projection = new NativeText(''),
+        revealing = false,
+        ruler: HTMLElement | undefined,
+        secondary = false,
+        shown = new WeakMap<Element, Unit>(),
+        state = reactive({
+            ...model.state,
+            selection: { ...model.selection },
+            selections: model.selections.map((range) => ({ ...range }))
+        }),
+        surface: HTMLElement | undefined,
+        textarea: HTMLTextAreaElement | undefined,
+        ui = reactive({
+            between: 0,
+            bottom: 0,
+            editing: false,
+            foldable: false,
+            height: 20,
+            input: '',
+            label: 'Markdown editor',
+            minimap: false,
+            name: '',
+            next: 0,
+            placeholder: '',
+            readonly: false,
+            spellcheck: true,
+            style: '',
+            tabSize: 4,
+            top: 0,
+            wrap: true
+        }),
+        units = cache(),
+        unitsDirty = true,
+        unsubscribe: VoidFunction | undefined,
+        whole: { layout: EditorLayout; projection: NativeText; revision: number } | null = null,
+        writing = false,
+        written = '';
+
+    let activeUnit: Unit = {
+        active: true,
+        block: blocks[0],
+        continuation: false,
+        continues: false,
+        estimate: 0,
+        estimated: -1,
+        height: 0,
+        measured: -1,
+        raw: false
+    };
+
+    let draw = renderer({
+        fold: (unit) => {
+            controller.fold(model.lineAt(unit.block.from) + 1);
+        },
+        foldable: opens,
+        inline: inlineOf,
+        press,
+        readonly: () => ui.readonly,
+        shown: (element, unit) => {
+            if (unit) {
+                shown.set(element, unit);
+
+                observer?.observe(element);
             }
-            let owner = parsedBlocks[Math.max(0, lo - 1)]!,
-                tokens = inlineCache.get(owner);
-            if (!tokens) {
-                let text = doc.value.slice(owner.contentFrom, owner.contentTo);
-                tokens = parseInline(
-                    text,
-                    owner.contentFrom,
-                    0,
-                    /^ {0,3}\[[^\]]+\]:/.test(text) ? new Map() : references
-                );
-                inlineCache.set(owner, tokens);
+            else {
+                shown.delete(element);
+                observer?.unobserve(element);
             }
-            return inline(clipInline(tokens, from, to));
-        }
-        function blockContent(block: MarkdownBlock): Renderable<unknown> {
-            if (rawBlock(block)) {
-                if (doc.selections.length > 1) {
-                    let end = doc.value.slice(block.from, block.to).replace(/(?:\r\n|\r|\n)$/, '').length + block.from,
-                        cursor = block.from,
-                        output: Renderable<unknown>[] = [];
-                    for (let range of [...doc.selections].sort((a, b) => a.start - b.start)) {
-                        let start = Math.max(block.from, range.start),
-                            to = Math.min(end, range.end);
-                        if (start > end || to < cursor) continue;
-                        output.push(
-                            html`<span ${{ 'data-md-offset': cursor, 'data-md-end': start }}>${doc.value.slice(cursor, start)}</span>`
-                        );
-                        output.push(
-                            html`<span class='markdown-selection' ${{ 'data-md-offset': start, 'data-md-end': to }}>${doc.value.slice(start, to)}</span>`
-                        );
-                        cursor = to;
-                    }
-                    output.push(
-                        html`<span ${{ 'data-md-offset': cursor, 'data-md-end': end }}>${doc.value.slice(cursor, end)}</span>`
-                    );
-                    return output;
-                }
-                let start = Math.max(block.from, doc.selection.start),
-                    end = Math.min(block.to, doc.selection.end),
-                    terminal = block.to < doc.value.length && /[\r\n]$/.test(doc.value.slice(block.from, block.to)),
-                    displayEnd = terminal
-                        ? doc.value.slice(block.from, block.to).replace(/(?:\r\n|\r|\n)$/, '').length + block.from
-                        : block.to;
-                start = Math.min(start, displayEnd);
-                end = Math.min(end, displayEnd);
-                return html`
-                    <span ${{ 'data-md-offset': block.from, 'data-md-end': start }}>${doc.value.slice(block.from, start)}</span>
-                    <span class='markdown-selection' ${{ 'data-md-offset': start, 'data-md-end': end }}>${() => (ui.paintingComposition ? (doc.selection.start >= block.from && doc.selection.start < block.to ? ui.composingText : '') : doc.value.slice(start, end))}</span>
-                    <span ${{ 'data-md-offset': end, 'data-md-end': displayEnd }}>${doc.value.slice(end, displayEnd)}</span>
-                `;
+        },
+        task: (block) => {
+            if (!disposed && !options.readonly && !ime.busy() && block.task) {
+                toggleTask(model, block.task);
             }
-            let collapsed = folds.find((fold) => fold.open === block.from);
-            if (collapsed && parsedBlocks.find((original) => original.from === block.from)!.to > collapsed.from)
-                return html`<span ${{ 'data-md-offset': block.from, 'data-md-end': block.contentTo }}>${doc.value.slice(block.from, block.contentTo)}</span>`;
-            let text = doc.value.slice(block.contentFrom, block.contentTo);
-            if (block.kind === 'html') return renderSafeHtml(text, dom);
-            if (block.kind === 'frontmatter')
-                return html`<span class='markdown-frontmatter'>🔑 frontmatter · ${text.split(/\r\n|\r|\n/).length} lines</span>`;
-            if (block.kind === 'fence' || block.kind === 'code')
-                return html`<pre ${{ 'data-language': block.language }}><code>${block.lines ? block.lines.map((row, index) => html`<span ${{ 'data-md-offset': row.contentFrom, 'data-md-end': row.contentTo }}>${doc.value.slice(row.contentFrom, row.contentTo)}</span>${index < block.lines!.length - 1 ? '\n' : ''}`) : text.replace(/(?:\r\n|\r|\n)$/, '')}</code></pre>`;
-            if (block.kind === 'rule') return html`<hr>`;
-            if (block.kind === 'blank') return html`<br>`;
-            if (block.kind === 'quote') {
-                return (
-                    block.lines?.map((row, index) => [
-                        inlineAt(block, row.contentFrom, row.contentTo),
-                        index < block.lines!.length - 1 ? '\n' : ''
-                    ]) ?? inlineAt(block, block.contentFrom, block.contentTo)
-                );
+        },
+        text: () => model.value,
+        unfold: (unit) => {
+            controller.unfold(unit.fold?.line ?? model.lineAt(unit.block.from) + 1);
+        }
+    });
+
+    let ime = composition({
+        begin: () => {
+            capture();
+            beforeRanges = model.selections;
+            beforeSelection = model.selection;
+            model.breakHistory();
+        },
+        commit: (conflict) => {
+            if (conflict) {
+                reset();
+                resync();
             }
-            let content = block.lines
-                ? block.lines.map((row, index) => [
-                      inlineAt(block, row.contentFrom, row.contentTo),
-                      index < block.lines!.length - 1 ? '\n' : ''
-                  ])
-                : inlineAt(block, block.contentFrom, block.contentTo);
-            if (block.kind === 'list')
-                return html`
-                ${block.continuation ? '' : html`<span class='markdown-list-marker'>${/^\d/.test(block.marker ?? '') ? block.marker : '•'}</span>`}
-                ${
-                    block.task
-                        ? html`<input type='checkbox' class='markdown-task' aria-label='Toggle task' ${{
-                              checked: block.task.checked,
-                              disabled: () => ui.readonly,
-                              onmousedown: (e: MouseEvent) => e.preventDefault(),
-                              onclick: (e: MouseEvent) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-                                  if (!ui.readonly && !composing) toggleTask(doc, block.task!);
-                              }
-                          }}>`
-                        : ''
-                }${content}
-            `;
-            return content;
-        }
-        function blockTemplate(block: MarkdownBlock) {
-            let candidate = availableFolds.find((fold) => fold.open === block.from),
-                collapsed = folds.find((fold) => fold.open === block.from);
-            return html`<div ${{
-                class: `markdown-block ${blockClass(block)}${rawBlock(block) ? ' markdown-active' : ''}`,
-                style: blockStyle(block, rawBlock(block)),
-                'data-md-index': layout.index(block.from),
-                'data-md-from': block.from,
-                'data-md-to': block.to,
-                tabindex: 0,
-                role: 'group',
-                'aria-label': `${block.kind} block`,
-                onclick: (event: MouseEvent) => activate(block, event),
-                onkeydown: (event: KeyboardEvent) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        activate(block);
-                    }
-                }
-            }}>${() =>
-                options.fold && candidate
-                    ? html`<button type='button' class='markdown-fold-toggle' ${{
-                          'aria-label': collapsed ? 'Unfold block' : 'Fold block',
-                          'aria-expanded': String(!collapsed),
-                          onmousedown: (e: MouseEvent) => e.preventDefault(),
-                          onclick: (e: MouseEvent) => {
-                              e.stopPropagation();
-                              collapsed ? api.unfold(candidate.line) : api.fold(candidate.line);
-                          }
-                      }}>${collapsed ? '▸' : '▾'}</button>`
-                    : ''}${blockContent(block)}${
-                collapsed
-                    ? html`<button type='button' class='markdown-fold-chip' ${{
-                          'aria-label': 'Unfold block',
-                          onclick: (e: MouseEvent) => {
-                              e.stopPropagation();
-                              api.unfold(collapsed.line);
-                          }
-                      }}>… ${collapsed.endLine - collapsed.line} lines</button>`
-                    : ''
-            }</div>`;
-        }
-        let unrender = render(
-            host,
-            {},
-            () => html`
-            <div class='markdown-surface' ${{ 'aria-label': () => ui.label, 'data-readonly': () => String(ui.readonly), 'data-wrap': () => String(options.wrap !== false), 'data-crosshair': () => String(ui.crosshair) }}>
-                <div class='markdown-spacer' aria-hidden='true' ${{ style: () => `height:${ui.top}px;`, hidden: () => !ui.top }}></div>
-                ${html.reactive(before, blockTemplate)}
-                <div class='markdown-spacer' aria-hidden='true' ${{ style: () => `height:${ui.between}px;`, hidden: () => !ui.between }}></div>
-                <button type='button' class='markdown-active-fold' ${{ hidden: () => !ui.activeFold, 'aria-label': () => (ui.activeFolded ? 'Unfold block' : 'Fold block'), 'aria-expanded': () => String(!ui.activeFolded), style: () => `top:${ui.activeFoldTop + 12}px`, onmousedown: (e: MouseEvent) => e.preventDefault(), onclick: () => (ui.activeFolded ? api.unfold(ui.activeFoldLine) : api.fold(ui.activeFoldLine)) }}>${() => (ui.activeFolded ? '▸' : '▾')}</button>
-                <textarea class='markdown-input' ${{
-                    class: () => `${ui.activeClass}${ui.mixed ? ' markdown-input--selection' : ''}`,
-                    style: () => `${ui.activeStyle}height:${ui.mixed ? 1 : ui.inputHeight}px;`,
-                    hidden: () => !ui.active,
-                    readOnly: () => ui.readonly,
-                    spellcheck: () => ui.spellcheck,
-                    'aria-label': () => ui.label,
-                    placeholder: () => ui.placeholder
-                }}></textarea>
-                <div class='markdown-spacer' aria-hidden='true' ${{ style: () => `height:${ui.next}px;`, hidden: () => !ui.next }}></div>
-                ${html.reactive(after, blockTemplate)}
-                <div class='markdown-spacer' aria-hidden='true' ${{ style: () => `height:${ui.bottom}px;`, hidden: () => !ui.bottom }}></div>
-                <div class='markdown-measure' aria-hidden='true' ${{ class: () => ui.mirrorClass, style: () => `${ui.mirrorStyle}width:${ui.mirrorWidth}px;` }}>${() => ui.mirrorBefore}<span class='markdown-caret'>\u200b</span>${() => ui.mirrorAfter}</div>
-            </div>
-        `
-        );
-        textarea = host.querySelector('textarea')!;
-        surface = host.querySelector('.markdown-surface')!;
-        mirror = host.querySelector('.markdown-measure')!;
-        caret = mirror.querySelector('.markdown-caret')!;
-        function blockClass(block: MarkdownBlock) {
-            return `markdown-block--${block.kind}${block.level ? ` markdown-h${block.level}` : ''}${block.quoteDepth ? ' markdown-quoted' : ''}${block.continuation ? ' markdown-continuation' : ''}${block.continues ? ' markdown-continues' : ''}`;
-        }
-        function blockStyle(block: MarkdownBlock, raw = false) {
-            return `--markdown-quote-depth:${block.quoteDepth ?? 0};--markdown-indent:${raw ? 0 : (block.indent ?? 0)};`;
-        }
-        function rawBlock(block: MarkdownBlock) {
-            return (
-                focused &&
-                ((ui.mixed && block.from < active.to && block.to > active.from) ||
-                    doc.selections.slice(1).some((range) => range.start < block.to && range.end >= block.from))
-            );
-        }
-        function metrics() {
-            // Use the same declared block metrics even before queued class bindings flush.
-            let style = win.getComputedStyle(host),
-                base = parseFloat(style.fontSize) || 13,
-                parsed = parseFloat(style.lineHeight),
-                baseLine = parsed > 0 ? (parsed < 4 ? parsed * base : parsed) : 20,
-                level = activeBlock?.level,
-                font = base * headingScale(level),
-                line = level && level <= 2 ? font * 1.3 : baseLine;
-            return { font, line };
-        }
-        function cacheKey(block: MarkdownBlock) {
-            return `${rawBlock(block)}:${layoutWidth}:${layoutFont}:${layoutLine}:${block.kind}:${doc.value.slice(block.from, block.to)}`;
-        }
-        function rebuildLayout() {
-            let geometry = renderBlocks.map((block): MarkdownBlock =>
-                rawBlock(block)
-                    ? {
-                          ...block,
-                          kind: block.kind === 'frontmatter' ? 'paragraph' : block.kind,
-                          indent: 0,
-                          contentFrom: block.from,
-                          contentTo:
-                              doc.value.slice(block.from, block.to).replace(/(?:\r\n|\r|\n)$/, '').length + block.from,
-                          lines: undefined
-                      }
-                    : block
-            );
-            layout = new MarkdownLayout(
-                geometry,
-                doc.value,
-                options.wrap === false ? 1e9 : layoutWidth,
-                layoutFont,
-                layoutLine
-            );
-            for (let index = 0; index < renderBlocks.length; index++) {
-                let cached = measured.get(cacheKey(renderBlocks[index]!));
-                if (cached !== undefined) layout.measure(index, cached);
+            else {
+                accept(true);
+            }
+
+            if (pendingValue !== undefined) {
+                let value = pendingValue;
+
+                pendingValue = undefined;
+                model.setValue(value, { source: 'external' });
             }
         }
-        function height() {
-            let { font, line } = metrics(),
-                columns =
-                    options.wrap === false
-                        ? 1e9
-                        : Math.max(8, Math.floor((textarea.clientWidth || layoutWidth) / (font * 0.6))),
-                lines = textarea.value.split('\n'),
-                terminal = textarea.value.endsWith('\n') && activeEnd < renderBlocks.length;
-            if (terminal) lines.pop();
-            let rows = lines.reduce(
-                (sum, text) => sum + (options.wrap === false ? 1 : Math.max(1, Math.ceil(text.length / columns))),
-                0
-            );
-            textarea.style.height = '0px';
-            activeHeight = Math.max(
-                activeGeometry ? activeGeometry.height - (terminal ? line : 0) : rows * line,
-                textarea.scrollHeight - (terminal ? line : 0)
-            );
-            ui.inputHeight = activeHeight;
-            textarea.style.height = `${activeHeight}px`;
+    });
+
+    let gestures = pointer({
+        busy: ime.busy,
+        capture,
+        document: model,
+        drop: (offset) => {
+            dropAt = offset;
+            schedule();
+        },
+        focus: () => controller.focus(),
+        insert: (text) => controller.insert(text),
+        offsetAt,
+        placeholder: () => null,
+        readonly: () => !!options.readonly,
+        rows: rowsBetween,
+        select: (ranges, reveal = false) => {
+            model.selectMany(ranges);
+            start(reveal);
+        },
+        transact: (edits, caret) => {
+            model.transact(edits, { selection: { start: caret }, source: 'drop' });
+            start(true);
+        },
+        unfold: () => {}
+    });
+
+    let jump = goto({
+        focus: () => controller.focus(),
+        go: (line, column) => controller.goToLine(line, column)
+    });
+
+    let map = minimap({
+        focus: () => {
+            if (editing) {
+                textarea?.focus({ preventScroll: true });
+            }
+        },
+        scroll: (top, relative) => {
+            scrollTo(relative ? metrics.scrollTop + top : top);
         }
-        function adjustedY(y: number) {
-            if (!focused || ui.mixed) return y;
-            let top = layout.prefix(activeStart),
-                inactiveHeight = layout.prefix(activeEnd) - top;
-            return y <= top ? y : y >= top + activeHeight ? y - activeHeight + inactiveHeight : top;
+    });
+
+    let search = find({
+        document: model,
+        edit: editable,
+        focus: () => controller.focus(),
+        readonly: () => !!options.readonly,
+        reveal: (match) => {
+            model.select({ end: match.to, start: match.from });
+            start(true);
+        },
+        selection: () => {
+            capture();
+            return model.selection;
+        },
+        update: schedule
+    });
+
+    let size = observeSize((_, element) => {
+        // A host removed by anything but its template never hears 'ondisconnect'; the observer still sees it
+        // collapse, and nothing may outlive it.
+        if (!element.isConnected) {
+            controller.dispose();
+            return;
         }
-        function showWindow() {
-            let window = layout.window(adjustedY(surface.scrollTop), surface.clientHeight || 320),
-                blocks = renderBlocks;
-            function assign(target: MarkdownBlock[], next: MarkdownBlock[]) {
-                if (target.length !== next.length || target.some((block, index) => block !== next[index]))
-                    target.splice(0, target.length, ...next);
+
+        measure();
+    });
+
+    let source: Source = {
+        breaks: () => NONE,
+        get count() {
+            return model.lineCount;
+        },
+        get height() {
+            return layout.total;
+        },
+        indexAt: (y) => {
+            let index = layout.at(y),
+                unit = layout.units[index];
+
+            if (!unit) {
+                return 0;
             }
-            if (focused && !ui.mixed) {
-                let start = Math.min(window.start, activeStart),
-                    end = Math.min(window.end, activeStart),
-                    nextStart = Math.max(window.start, activeEnd),
-                    nextEnd = Math.max(window.end, activeEnd);
-                ui.top = layout.prefix(start);
-                ui.between = layout.prefix(activeStart) - layout.prefix(end);
-                ui.next = layout.prefix(nextStart) - layout.prefix(activeEnd);
-                ui.bottom = layout.total - layout.prefix(nextEnd);
-                assign(before, blocks.slice(start, end));
-                assign(after, blocks.slice(nextStart, nextEnd));
-            } else {
-                ui.top = layout.prefix(window.start);
-                ui.between = ui.next = 0;
-                ui.bottom = layout.total - layout.prefix(window.end);
-                assign(before, blocks.slice(window.start, window.end));
-                if (after.length) after.splice(0);
+
+            let { first, last } = linesOf(index),
+                top = layout.top(index),
+                height = layout.height(unit);
+
+            return first + Math.min(last - first, Math.floor(((y - top) / Math.max(1, height)) * (last - first + 1)));
+        },
+        get lineHeight() {
+            return metrics.lineHeight;
+        },
+        rows: () => 1,
+        get tabSize() {
+            return options.tabSize ?? 4;
+        },
+        text: (index) => model.lineText(index),
+        tokens: (index) => ui.minimap ? syntaxCache(model, 'markdown').lineTokens(index) : NO_TOKENS,
+        top: (index) => {
+            let at = layout.indexOf(model.lineStart(index)),
+                unit = layout.units[at];
+
+            if (!unit) {
+                return 0;
             }
+
+            let { first, last } = linesOf(at);
+
+            return layout.top(at) + (Math.max(0, index - first) * layout.height(unit)) / (last - first + 1);
         }
-        function scheduleMeasure() {
-            if (!frame && !disposed) frame = win.requestAnimationFrame(measure);
+    };
+
+    // Applies a native input to the document. 'beforeinput' recorded the field's selection and length, so most inputs
+    // resolve without a diff; the rest diff the field's value.
+    function accept(composed = false) {
+        if (disposed || !textarea || !active) {
+            return;
         }
-        function measure() {
-            frame = 0;
-            if (disposed || composing || compositionPending) return;
-            flush();
-            let anchor = layout.at(adjustedY(surface.scrollTop)),
-                delta = adjustedY(surface.scrollTop) - layout.prefix(anchor),
-                changed = false;
-            for (let element of surface.querySelectorAll<HTMLElement>('.markdown-block[data-md-index]')) {
-                let index = Number(element.dataset.mdIndex),
-                    height = element.getBoundingClientRect().height;
-                if (height > 0) {
-                    measured.set(cacheKey(renderBlocks[index]!), height);
-                    if (measured.size > 10000) measured.delete(measured.keys().next().value!);
-                }
-                changed = layout.measure(index, height) || changed;
-            }
-            if (changed) {
-                let y = layout.prefix(anchor) + delta;
-                if (focused && !ui.mixed && anchor >= activeEnd)
-                    y += activeHeight - (layout.prefix(activeEnd) - layout.prefix(activeStart));
-                surface.scrollTop = Math.max(0, y);
-                showWindow();
-                flush();
-            }
-            if (pendingReveal) {
-                reveal(true);
-                flush();
-            }
+
+        if (options.readonly) {
+            reset();
+            resync();
+            return;
         }
-        function update(measuring = true) {
-            if (disposed || composing || compositionPending) return;
-            surface.dataset.wrap = String(options.wrap !== false);
-            surface.dataset.minimap = String(!!options.minimap);
-            if (parsedSource !== doc.value) {
-                let previous = new Map(parsedBlocks.map((block) => [`${block.from}:${block.to}:${block.kind}`, block]));
-                parsedBlocks = parseMarkdown(doc).map((block) => {
-                    let old = previous.get(`${block.from}:${block.to}:${block.kind}`);
-                    return old && parsedSource.slice(old.from, old.to) === doc.value.slice(block.from, block.to)
-                        ? old
-                        : block;
-                });
-                references = markdownReferences(doc.value);
-                inlineCache.clear();
-                parsedSource = doc.value;
-                availableFolds = markdownFolds(doc, parsedBlocks);
-                renderBlocks = viewportBlocks(foldedMarkdown(doc, parsedBlocks, folds), doc.value);
-                rebuildLayout();
-            }
-            let blocks = parsedBlocks;
-            let surfaceStyle = win.getComputedStyle(surface),
-                width = surface.clientWidth
-                    ? Math.max(
-                          40,
-                          surface.clientWidth -
-                              (parseFloat(surfaceStyle.paddingLeft) || 0) -
-                              (parseFloat(surfaceStyle.paddingRight) || 0)
-                      )
-                    : 600,
-                computed = win.getComputedStyle(host),
-                font = parseFloat(computed.fontSize) || 13,
-                parsedLine = parseFloat(computed.lineHeight),
-                line = parsedLine > 0 ? (parsedLine < 4 ? parsedLine * font : parsedLine) : 20;
-            if (width !== layoutWidth || font !== layoutFont || line !== layoutLine) {
-                layoutWidth = width;
-                layoutFont = font;
-                layoutLine = line;
-                rebuildLayout();
-            }
-            ui.active = focused;
-            if (focused) {
-                active = blocksAt(blocks, doc.selection);
-                activeStart = layout.index(active.from);
-                activeEnd = layout.index(Math.max(active.from, active.to - 1)) + 1;
-                if (active.to === doc.value.length && doc.selection.end === doc.value.length)
-                    activeEnd = renderBlocks.length;
-                activeBlock = blocks.find((block) => block.from === active.from && block.to === active.to);
-                let collapsed = folds.find((fold) => fold.open === active.from);
-                if (collapsed && activeBlock) {
-                    active = { from: active.from, to: Math.min(active.to, collapsed.from) };
-                    activeBlock = { ...activeBlock, to: active.to };
-                    activeEnd = layout.index(Math.max(active.from, active.to - 1)) + 1;
-                }
-                ui.mixed = !activeBlock;
-                let mode =
-                    ui.mixed || doc.selections.length > 1
-                        ? `${active.from}:${active.to}:${doc.selections.map((range) => `${range.start}-${range.end}`).join(',')}`
-                        : 'single';
-                if (mode !== modeKey) {
-                    modeKey = mode;
-                    rebuildLayout();
-                    before.splice(0);
-                    after.splice(0);
-                    activeStart = layout.index(active.from);
-                    activeEnd = layout.index(Math.max(active.from, active.to - 1)) + 1;
-                    if (active.to === doc.value.length && doc.selection.end === doc.value.length)
-                        activeEnd = renderBlocks.length;
-                }
-                ui.activeClass = `markdown-input${activeBlock ? ` ${blockClass(activeBlock)}` : ''}`;
-                ui.activeStyle = activeBlock ? blockStyle(activeBlock, true) : '';
-                let foldCandidate = availableFolds.find((fold) => fold.open === active.from);
-                ui.activeFold = !!options.fold && !!foldCandidate && !ui.mixed;
-                ui.activeFolded = !!collapsed;
-                ui.activeFoldLine = foldCandidate?.line ?? 1;
-                ui.activeFoldTop = layout.prefix(activeStart);
-                source = doc.value.slice(active.from, active.to);
-                projection = new NativeText(source);
-                if (textarea.value !== projection.value) textarea.value = projection.value;
-                textarea.setSelectionRange(
-                    projection.toNative(doc.selection.start - active.from),
-                    projection.toNative(doc.selection.end - active.from),
-                    doc.selection.direction
-                );
-                let head = doc.selection.direction === 'backward' ? doc.selection.start : doc.selection.end,
-                    offset = projection.toNative(head - active.from);
-                let headBlock = renderBlocks[layout.index(head)]!,
-                    headProjection = ui.mixed
-                        ? new NativeText(doc.value.slice(headBlock.from, headBlock.to))
-                        : projection,
-                    mirrorOffset = ui.mixed ? headProjection.toNative(head - headBlock.from) : offset;
-                ui.mirrorClass = ui.mixed ? `markdown-input ${blockClass(headBlock)}` : ui.activeClass;
-                ui.mirrorStyle = ui.mixed ? blockStyle(headBlock, true) : ui.activeStyle;
-                ui.mirrorWidth = textarea.clientWidth || layoutWidth;
-                ui.mirrorBefore = headProjection.value.slice(0, mirrorOffset);
-                ui.mirrorAfter = headProjection.value.slice(mirrorOffset);
-                let { font: activeFont, line: activeLine } = metrics(),
-                    geometryKey = `${active.from}:${active.to}:${layoutWidth}:${activeFont}:${activeLine}:${options.wrap}:${options.tabSize}:${source}`;
-                if (geometryKey !== activeGeometryKey) {
-                    activeGeometryKey = geometryKey;
-                    activeGeometry = new EditorLayout(
-                        projection,
-                        source,
-                        Math.max(40, (textarea.clientWidth || layoutWidth) - (activeBlock?.quoteDepth ?? 0) * 10),
-                        activeLine,
-                        activeFont * 0.6,
-                        options.tabSize ?? 4,
-                        options.wrap !== false
-                    );
-                }
-                flush();
-                height();
-            } else {
-                ui.mirrorBefore = ui.mirrorAfter = '';
-                ui.mixed = false;
-                ui.activeFold = false;
-                if (modeKey !== 'single') {
-                    modeKey = 'single';
-                    rebuildLayout();
-                    before.splice(0);
-                    after.splice(0);
-                }
-            }
-            textarea.wrap = options.wrap === false ? 'off' : 'soft';
-            textarea.name = options.name ?? '';
-            textarea.style.tabSize = mirror.style.tabSize = String(Math.max(1, Math.min(16, options.tabSize ?? 4)));
-            surface.dataset.wrap = String(options.wrap !== false);
-            surface.dataset.minimap = String(!!options.minimap);
-            showWindow();
-            controls?.refresh();
-            if (measuring) scheduleMeasure();
+
+        let after = { end: textarea.selectionEnd, length: textarea.textLength, start: textarea.selectionStart },
+            base = active.from,
+            direction = textarea.selectionDirection,
+            native = before && !composed ? inputEdit(before, after, inputType, inputData) : null,
+            ranges = beforeRanges.length ? beforeRanges : model.selections,
+            value = textarea.value,
+            edit: Edit;
+
+        if (native) {
+            edit = projection.toSourceEdit(model.value, native.from, native.to, native.insert);
         }
-        function reveal(deferred = false) {
-            if (!focused) return;
-            pendingReveal = !deferred;
-            let head = doc.selection.direction === 'backward' ? doc.selection.start : doc.selection.end,
-                index = ui.mixed ? layout.index(head) : activeStart,
-                origin = ui.mixed ? renderBlocks[index]!.from : active.from,
-                text = ui.mixed
-                    ? new NativeText(doc.value.slice(origin, renderBlocks[index]!.to)).value
-                    : projection.value,
-                native = ui.mixed
-                    ? new NativeText(doc.value.slice(origin, renderBlocks[index]!.to)).toNative(head - origin)
-                    : projection.toNative(head - active.from),
-                { font, line } = metrics(),
-                columns =
-                    options.wrap === false
-                        ? 1e9
-                        : Math.max(8, Math.floor((textarea.clientWidth || layoutWidth) / (font * 0.6))),
-                rows = text.slice(0, native).split('\n'),
-                row =
-                    rows.slice(0, -1).reduce((sum, text) => sum + Math.max(1, Math.ceil(text.length / columns)), 0) +
-                    Math.floor((rows.at(-1)?.length ?? 0) / columns),
-                geometry = caret.getBoundingClientRect(),
-                mirrorBox = mirror.getBoundingClientRect(),
-                y = layout.prefix(index) + (geometry.height ? geometry.top - mirrorBox.top : row * line),
-                height = surface.clientHeight || 320;
-            if (y < surface.scrollTop) surface.scrollTop = y;
-            else if (y + line > surface.scrollTop + height) surface.scrollTop = y + line - height;
-            if (options.wrap === false && !ui.mixed) {
-                let x = geometry.height ? geometry.left - mirrorBox.left : (rows.at(-1)?.length ?? 0) * font * 0.6,
-                    width = textarea.clientWidth || layoutWidth;
-                if (x < textarea.scrollLeft) textarea.scrollLeft = x;
-                else if (x + font * 0.6 > textarea.scrollLeft + width) textarea.scrollLeft = x + font * 0.6 - width;
-            }
-            showWindow();
+        else if (value === projection.value) {
+            reset();
+            capture();
+            return;
         }
-        function activate(block: MarkdownBlock, event?: MouseEvent) {
-            if (disposed || composing || compositionPending) return;
-            // Modified link clicks retain ordinary navigation; ordinary clicks edit in place.
-            if (event && (event.ctrlKey || event.metaKey) && (event.target as Element).closest('a[href]')) return;
-            let offset = block.contentFrom;
-            if (event) {
-                let element = (event.target as Element).closest<HTMLElement>('[data-md-offset]');
-                if (element) {
-                    offset = Number(element.dataset.mdOffset);
-                    let caretDoc = dom as Document & {
-                        caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
-                        caretRangeFromPoint?: (x: number, y: number) => Range | null;
-                    };
-                    let point = caretDoc.caretPositionFromPoint?.(event.clientX, event.clientY),
-                        range = caretDoc.caretRangeFromPoint?.(event.clientX, event.clientY),
-                        node = point?.offsetNode ?? range?.startContainer,
-                        count = point?.offset ?? range?.startOffset;
-                    if (node && element.contains(node) && count !== undefined) offset += count;
-                    offset = Math.min(offset, Number(element.dataset.mdEnd));
-                }
-            }
-            focused = true;
-            doc.select({ start: offset });
-            update();
-            reveal();
+        else {
+            let selection = beforeSelection
+                ? { end: clamp(beforeSelection.end - base, 0, fieldSource.length), start: clamp(beforeSelection.start - base, 0, fieldSource.length) }
+                : undefined;
+
+            edit = projection.edit(model.value, value, selection, inputType);
+        }
+
+        // A native edit the projection can't map would remove text the field doesn't show; the field goes back.
+        if (edit.from === edit.to && !edit.insert) {
+            reset();
+            resync();
+            return;
+        }
+
+        let group = !composed && /^(deleteContentBackward|deleteContentForward|insertText)$/.test(inputType) ? inputType : undefined,
+            origin = composed ? 'composition' : 'input';
+
+        written = value;
+
+        if (ranges.length > 1) {
+            reset();
+            insertText(model, edit.insert, origin);
+            return;
+        }
+
+        let from = base + edit.from,
+            caret = native
+                ? { direction, end: from + edit.insert.length, start: from + edit.insert.length }
+                : caretAfter(edit, after, direction);
+
+        reset();
+        model.replace(from, base + edit.to, edit.insert, { group, selection: caret, source: origin });
+    }
+
+    // Shows the field for the selection.
+    function activate(focus: boolean) {
+        if (disposed) {
+            return;
+        }
+
+        editing = true;
+        ui.editing = true;
+        refresh();
+        schedule();
+
+        if (focus && textarea && host?.ownerDocument.activeElement !== textarea) {
+            // The field must be displayed before it can take focus.
             flush();
             textarea.focus({ preventScroll: true });
         }
-        function readSelection() {
-            if (!focused || composing || compositionPending || disposed) return;
-            let next = {
-                start: active.from + projection.toSource(textarea.selectionStart),
-                end: active.from + projection.toSource(textarea.selectionEnd),
-                direction: textarea.selectionDirection
+    }
+
+    function capture() {
+        if (disposed || !textarea || !active || !editing || ime.busy() || writing || textarea.value !== written) {
+            return;
+        }
+
+        let base = active.from,
+            next: Selection = {
+                direction: textarea.selectionDirection,
+                end: base + projection.toSource(textarea.selectionEnd),
+                start: base + projection.toSource(textarea.selectionStart)
             };
-            if (
-                next.start !== doc.selection.start ||
-                next.end !== doc.selection.end ||
-                (next.direction !== doc.selection.direction && doc.selections.length === 1)
-            )
-                doc.select(next);
+
+        let primary = model.selection;
+
+        // A field reports a direction even for a caret, and 'forward' where the document has none.
+        if (
+            next.start === primary.start &&
+            next.end === primary.end &&
+            (next.start === next.end || next.direction === primary.direction || primary.direction === 'none')
+        ) {
+            return;
         }
-        function commit(sourceName = 'input') {
-            if (disposed || ui.readonly || compositionConflict) {
-                update();
-                return;
-            }
-            let edit = projection.edit(
-                    source,
-                    textarea.value,
-                    beforeInput
-                        ? { start: beforeInput.start - active.from, end: beforeInput.end - active.from }
-                        : undefined,
-                    inputType
-                ),
-                insert = edit.insert.replace(/\r\n|\r|\n/g, preferredEol(doc.value)),
-                next = source.slice(0, edit.from) + insert + source.slice(edit.to),
-                nextProjection = new NativeText(next),
-                selection = {
-                    start: active.from + nextProjection.toSource(textarea.selectionStart),
-                    end: active.from + nextProjection.toSource(textarea.selectionEnd),
-                    direction: textarea.selectionDirection
-                };
-            if ((beforeSelections?.length ?? doc.selections.length) > 1) insertText(doc, insert, sourceName);
-            else
-                doc.transact([{ from: active.from + edit.from, to: active.from + edit.to, insert }], {
-                    source: sourceName,
-                    selection,
-                    group:
-                        sourceName === 'input' &&
-                        /^(insertText|deleteContentBackward|deleteContentForward)$/.test(inputType)
-                            ? inputType
-                            : undefined
-                });
-            beforeInput = undefined;
-            beforeSelections = undefined;
-            inputType = '';
-            update();
-        }
-        function listen(target: EventTarget, type: string, listener: EventListener, capture = false) {
-            target.addEventListener(type, listener, capture);
-            removers.push(() => target.removeEventListener(type, listener, capture));
-        }
-        listen(surface, 'scroll', () => {
-            if (!composing && !compositionPending) {
-                showWindow();
-                scheduleMeasure();
-            }
-        });
-        listen(win, 'resize', () => update());
-        listen(surface, 'load', scheduleMeasure, true);
-        if (dom.fonts)
-            listen(dom.fonts, 'loadingdone', () => {
-                measured.clear();
-                layoutWidth = 0;
-                update();
-            });
-        let Observer = (win as Window & typeof globalThis).ResizeObserver,
-            observer = Observer ? new Observer(() => update()) : undefined;
-        observer?.observe(surface);
-        removers.push(() => observer?.disconnect());
-        listen(textarea, 'focus', () => {
-            focused = true;
-            update();
-        });
-        listen(textarea, 'blur', () => {
-            if (composing || compositionPending) finishComposition();
-            focused = false;
-            update();
-        });
-        listen(textarea, 'beforeinput', (event) => {
-            let e = event as InputEvent;
-            if (ui.readonly) {
-                e.preventDefault();
-                return;
-            }
-            if (!composing && !compositionPending) {
-                readSelection();
-                beforeInput = doc.selection;
-                beforeSelections = doc.selections;
-                inputType = e.inputType;
-            }
-            if (!composing && !compositionPending && (e.inputType === 'historyUndo' || e.inputType === 'historyRedo')) {
-                e.preventDefault();
-                e.inputType === 'historyUndo' ? api.undo() : api.redo();
-            } else if (
-                !composing &&
-                !compositionPending &&
-                doc.selections.length > 1 &&
-                /^delete(?:Content|Word)(?:Backward|Forward)$/.test(e.inputType)
-            ) {
-                e.preventDefault();
-                e.inputType === 'deleteContentBackward'
-                    ? markdownCommand(doc, 'backspace')
-                    : deleteCharacter(doc, e.inputType.endsWith('Backward'), e.inputType.startsWith('deleteWord'));
-            } else if (
-                !composing &&
-                !compositionPending &&
-                doc.selections.length > 1 &&
-                (e.inputType === 'insertParagraph' || e.inputType === 'insertLineBreak')
-            ) {
-                e.preventDefault();
-                api.newline();
-            } else if (
-                !composing &&
-                !compositionPending &&
-                (e.inputType === 'insertParagraph' || e.inputType === 'insertLineBreak') &&
-                markdownEnter(doc)
-            )
-                e.preventDefault();
-            else if (
-                !composing &&
-                !compositionPending &&
-                e.inputType === 'deleteContentBackward' &&
-                markdownBackspace(doc)
-            )
-                e.preventDefault();
-        });
-        listen(textarea, 'input', (event) => {
-            if (composing || (event as InputEvent).isComposing) {
-                if (ui.mixed) {
-                    ui.paintingComposition = true;
-                    ui.composingText = projection.edit(
-                        source,
-                        textarea.value,
-                        beforeInput
-                            ? { start: beforeInput.start - active.from, end: beforeInput.end - active.from }
-                            : undefined
-                    ).insert;
-                } else height();
-            } else if (compositionPending) finishComposition();
-            else commit();
-        });
-        for (let type of ['select', 'keyup', 'pointerup']) listen(textarea, type, readSelection);
-        listen(textarea, 'compositionstart', () => {
-            if (ui.readonly) return;
-            if (compositionPending) finishComposition();
-            readSelection();
-            beforeInput = doc.selection;
-            beforeSelections = doc.selections;
-            composing = true;
-            compositionConflict = false;
-            if (ui.mixed) {
-                surface.scrollTop = layout.prefix(layout.index(doc.selection.start));
-                showWindow();
-            }
-        });
-        function finishComposition() {
-            if (!composing && !compositionPending) return;
-            win.clearTimeout(compositionTimer);
-            composing = false;
-            compositionPending = false;
-            ui.paintingComposition = false;
-            ui.composingText = '';
-            if (!compositionConflict) commit('composition');
-            else {
-                compositionConflict = false;
-                update();
-            }
-            if (pendingValue !== undefined) {
-                let value = pendingValue;
-                pendingValue = undefined;
-                api.setValue(value);
-            }
-        }
-        listen(textarea, 'compositionend', () => {
-            composing = false;
-            compositionPending = true;
-            compositionTimer = win.setTimeout(finishComposition, 0);
-        });
-        for (let type of ['copy', 'cut'])
-            listen(textarea, type, (event) => {
-                let e = event as ClipboardEvent;
-                if (composing || compositionPending || !e.clipboardData) return;
-                readSelection();
-                let selected = doc.selections;
-                if (selected.every((range) => range.start === range.end))
-                    selected = selected.map((range) => {
-                        let position = doc.position(range.start);
-                        return {
-                            start: doc.offset(position.line),
-                            end: doc.starts[position.line] ?? doc.value.length,
-                            direction: 'none'
-                        };
-                    });
-                let chunks = selected.map((range) => doc.value.slice(range.start, range.end));
-                e.clipboardData.setData('text/plain', chunks.join(preferredEol(doc.value)));
-                e.clipboardData.setData('application/x-esportsplus-code-editor', JSON.stringify(chunks));
-                e.preventDefault();
-                if (type === 'cut' && !ui.readonly) {
-                    doc.selectMany(selected);
-                    insertText(doc, '', 'markdown-cut');
-                }
-            });
-        listen(textarea, 'paste', (event) => {
-            let e = event as ClipboardEvent;
-            if (composing || compositionPending || ui.readonly || !e.clipboardData) return;
-            readSelection();
-            let insert = e.clipboardData.getData('text/plain');
-            e.preventDefault();
-            let rows = insert.split(/\r\n|\r|\n/),
-                encoded = e.clipboardData.getData('application/x-esportsplus-code-editor');
-            if (encoded) {
-                let decoded: unknown;
-                try {
-                    decoded = JSON.parse(encoded);
-                } catch {
-                    decoded = null;
-                }
-                if (
-                    Array.isArray(decoded) &&
-                    decoded.length === doc.selections.length &&
-                    decoded.every((value) => typeof value === 'string') &&
-                    ['\n', '\r', '\r\n'].some((eol) => decoded.join(eol) === insert)
-                )
-                    rows = decoded;
-            }
-            insertText(
-                doc,
-                doc.selections.length > 1 && rows.length === doc.selections.length ? rows : insert,
-                'markdown-paste'
-            );
-        });
-        function sourcePoint(node: Node | null, offset: number): number | undefined {
-            let element = node?.nodeType === 1 ? (node as HTMLElement) : node?.parentElement;
-            if (!element || !host.contains(element) || element === textarea) return;
-            let token = element.closest<HTMLElement>('[data-md-offset]'),
-                block = element.closest<HTMLElement>('[data-md-from]');
-            if (token && node) {
-                let range = dom.createRange();
-                range.setStart(token, 0);
-                range.setEnd(node, offset);
-                return Math.min(Number(token.dataset.mdEnd), Number(token.dataset.mdOffset) + range.toString().length);
-            }
-            if (block) return Number(block.dataset.mdFrom);
-        }
-        function blockY(offset: number) {
-            let index = layout.index(offset),
-                block = renderBlocks[index];
-            if (!block) return 0;
-            let y = layout.prefix(index);
-            if (focused && !ui.mixed && index >= activeEnd)
-                y += activeHeight - (layout.prefix(activeEnd) - layout.prefix(activeStart));
-            return y;
-        }
-        function sourceY(offset: number) {
-            let hidden = folds.find((fold) => offset >= fold.from && offset < fold.to);
-            if (hidden) return blockY(hidden.open ?? hidden.from);
-            let block = renderBlocks[layout.index(offset)];
-            if (!block) return 0;
-            if (focused && !ui.mixed && offset >= active.from && offset <= active.to && activeGeometry)
-                return blockY(active.from) + activeGeometry.rect(projection.toNative(offset - active.from)).top;
-            let inInput = focused && !ui.mixed && offset >= active.from && offset <= active.to,
-                origin = inInput ? active.from : block.contentFrom,
-                font = layoutFont * headingScale(block.level),
-                line = block.level && block.level <= 2 ? font * 1.3 : layoutLine,
-                columns =
-                    options.wrap === false || (!inInput && (block.kind === 'fence' || block.kind === 'code'))
-                        ? 1e9
-                        : Math.max(8, Math.floor(layoutWidth / (font * 0.6))),
-                rows = new NativeText(doc.value.slice(origin, Math.max(origin, offset))).value.split('\n'),
-                row =
-                    rows.slice(0, -1).reduce((sum, value) => sum + Math.max(1, Math.ceil(value.length / columns)), 0) +
-                    Math.floor((rows.at(-1)?.length ?? 0) / columns);
-            return (
-                blockY(origin) +
-                (inInput && activeGeometry
-                    ? activeGeometry.rect(projection.toNative(offset - active.from)).top
-                    : row * line)
-            );
-        }
-        function textRect(element: HTMLElement, offset: number) {
-            let walker = dom.createTreeWalker(element, 4),
-                node: Node | null;
-            while ((node = walker.nextNode())) {
-                if (node.parentElement?.closest('.markdown-caret,.markdown-fold-toggle,.markdown-fold-chip')) continue;
-                let length = node.textContent?.length ?? 0;
-                if (offset <= length) {
-                    let range = dom.createRange();
-                    range.setStart(node, Math.min(offset, length));
-                    range.setEnd(node, Math.min(offset + 1, length));
-                    return typeof range.getBoundingClientRect === 'function' ? range.getBoundingClientRect() : null;
-                }
-                offset -= length;
-            }
+
+        model.selectMany([next, ...model.selections.slice(1)]);
+    }
+
+    function caretAfter(edit: Edit, after: Before, direction: Selection['direction']) {
+        let base = active!.from,
+            next = new NativeText(fieldSource.slice(0, edit.from) + edit.insert + fieldSource.slice(edit.to));
+
+        return { direction, end: base + next.toSource(after.end), start: base + next.toSource(after.start) };
+    }
+
+    // Client rectangle of a source offset: the field's geometry inside it, the drawn text elsewhere, or else the
+    // unit's top.
+    function clientRect(offset: number): Rect | null {
+        if (!surface) {
             return null;
         }
-        function rectAt(offset: number) {
-            if (
-                disposed ||
-                offset < 0 ||
-                offset > doc.value.length ||
-                folds.some((fold) => offset >= fold.from && offset < fold.to)
-            )
-                return null;
-            let box = surface.getBoundingClientRect(),
-                index = layout.index(offset),
-                block = renderBlocks[index];
-            if (!block) return null;
-            let font = layoutFont * headingScale(block.level),
-                line = block.level && block.level <= 2 ? font * 1.3 : layoutLine,
-                char = font * 0.6;
-            if (focused && !ui.mixed && offset >= active.from && offset <= active.to) {
-                let native = projection.toNative(offset - active.from),
-                    real = textRect(mirror, native),
-                    mirrorBox = mirror.getBoundingClientRect(),
-                    inputBox = textarea.getBoundingClientRect();
-                if (real?.height)
-                    return {
-                        left: inputBox.left + real.left - mirrorBox.left - textarea.scrollLeft,
-                        top: inputBox.top + real.top - mirrorBox.top,
-                        width: real.width || char,
-                        height: real.height
-                    };
-                if (activeGeometry) {
-                    let rect = activeGeometry.rect(native);
-                    return {
-                        left:
-                            box.left +
-                            12 +
-                            (activeBlock?.quoteDepth ?? 0) * 10 +
-                            rect.left -
-                            textarea.scrollLeft -
-                            surface.scrollLeft,
-                        top: box.top + 12 + blockY(active.from) + rect.top - surface.scrollTop,
-                        width: char,
-                        height: rect.height
-                    };
-                }
-            } else {
-                let element = [...surface.querySelectorAll<HTMLElement>('[data-md-from]')].find(
-                    (element) => Number(element.dataset.mdFrom) === block.from
-                );
-                if (element) {
-                    let tokens = [...element.querySelectorAll<HTMLElement>('[data-md-offset]')],
-                        token = tokens
-                            .filter(
-                                (token) =>
-                                    Number(token.dataset.mdOffset) <= offset && Number(token.dataset.mdEnd) >= offset
-                            )
-                            .at(-1);
-                    if (!token)
-                        token = tokens.reduce<HTMLElement | undefined>(
-                            (best, token) =>
-                                !best ||
-                                Math.abs(Number(token.dataset.mdOffset) - offset) <
-                                    Math.abs(Number(best.dataset.mdOffset) - offset)
-                                    ? token
-                                    : best,
-                            undefined
-                        );
-                    let real = token
-                        ? textRect(
-                              token,
-                              Math.max(
-                                  0,
-                                  Math.min((token.textContent ?? '').length, offset - Number(token.dataset.mdOffset))
-                              )
-                          )
-                        : null;
-                    if (real?.height)
-                        return { left: real.left, top: real.top, width: real.width || char, height: real.height };
-                }
-            }
-            let origin =
-                    focused && !ui.mixed && offset >= active.from && offset <= active.to
-                        ? active.from
-                        : block.contentFrom,
-                text = new NativeText(doc.value.slice(origin, Math.max(origin, offset))).value,
-                rows = text.split('\n'),
-                columns =
-                    options.wrap === false ||
-                    (!(focused && !ui.mixed && origin === active.from) &&
-                        (block.kind === 'fence' || block.kind === 'code'))
-                        ? 1e9
-                        : Math.max(8, Math.floor(layoutWidth / char)),
-                row =
-                    rows.slice(0, -1).reduce((sum, value) => sum + Math.max(1, Math.ceil(value.length / columns)), 0) +
-                    Math.floor((rows.at(-1)?.length ?? 0) / columns),
-                column = (rows.at(-1)?.length ?? 0) % columns;
+
+        current();
+
+        let box = surface.getBoundingClientRect(),
+            originX = box.left + surface.clientLeft - surface.scrollLeft,
+            originY = box.top + surface.clientTop - surface.scrollTop;
+
+        if (active && editing && geometry && offset >= active.from && offset <= active.to) {
+            let rect = geometry.rect(projection.toNative(offset - active.from));
+
             return {
-                left: box.left + 12 + (block.quoteDepth ?? 0) * 10 + column * char - surface.scrollLeft,
-                top: box.top + 12 + blockY(origin) + row * line - surface.scrollTop,
-                width: char,
-                height: line
+                height: rect.height,
+                left: originX + fieldLeft() + rect.left,
+                top: originY + metrics.padTop + layout.top(activeIndex) + rect.top,
+                width: rect.width
             };
         }
-        function offsetAt(clientX: number, clientY: number) {
-            if (disposed) return null;
-            let box = surface.getBoundingClientRect();
-            if (box.width && (clientX < box.left || clientX > box.right || clientY < box.top || clientY > box.bottom))
-                return null;
-            let caretDoc = dom as Document & {
-                    caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
-                    caretRangeFromPoint?: (x: number, y: number) => Range | null;
-                },
-                point = caretDoc.caretPositionFromPoint?.(clientX, clientY),
-                range = caretDoc.caretRangeFromPoint?.(clientX, clientY),
-                exact = sourcePoint(
-                    point?.offsetNode ?? range?.startContainer ?? null,
-                    point?.offset ?? range?.startOffset ?? 0
-                );
-            if (exact !== undefined) return exact;
-            if (focused && !ui.mixed) {
-                let inputBox = textarea.getBoundingClientRect(),
-                    mirrorBox = mirror.getBoundingClientRect();
-                if (
-                    inputBox.height &&
-                    clientY >= inputBox.top &&
-                    clientY <= inputBox.bottom &&
-                    textRect(mirror, 0)?.height
-                ) {
-                    let x = clientX - inputBox.left + textarea.scrollLeft + mirrorBox.left,
-                        y = clientY - inputBox.top + mirrorBox.top,
-                        lo = 0,
-                        hi = projection.value.length;
-                    while (lo < hi) {
-                        let mid = (lo + hi) >>> 1,
-                            rect = textRect(mirror, mid);
-                        if (!rect?.height) break;
-                        if (rect.top + rect.height < y || (rect.top <= y && rect.left + rect.width / 2 < x))
-                            lo = mid + 1;
-                        else hi = mid;
-                    }
-                    let rect = textRect(mirror, lo);
-                    if (rect?.height) return active.from + projection.toSource(lo);
-                }
-            }
-            let y = clientY - box.top - 12 + surface.scrollTop,
-                index = layout.at(adjustedY(y)),
-                block = renderBlocks[index];
-            if (!block) return null;
-            let nativeActive =
-                    focused &&
-                    !ui.mixed &&
-                    y >= layout.prefix(activeStart) &&
-                    y <= layout.prefix(activeStart) + activeHeight,
-                from = nativeActive ? active.from : block.contentFrom,
-                to = nativeActive ? active.to : block.contentTo,
-                projected = new NativeText(doc.value.slice(from, to)),
-                font = layoutFont * headingScale(block.level),
-                char = font * 0.6,
-                line = block.level && block.level <= 2 ? font * 1.3 : layoutLine,
-                columns =
-                    options.wrap === false || (!nativeActive && (block.kind === 'fence' || block.kind === 'code'))
-                        ? 1e9
-                        : Math.max(8, Math.floor(layoutWidth / char)),
-                row = Math.max(0, Math.floor((y - blockY(from)) / line)),
-                column = Math.max(
-                    0,
-                    Math.round((clientX - box.left - 12 - (block.quoteDepth ?? 0) * 10 + surface.scrollLeft) / char)
-                ),
-                native = 0,
-                remaining = row;
-            if (nativeActive && activeGeometry)
-                return (
-                    active.from +
-                    projection.toSource(
-                        activeGeometry.offset(
-                            clientX -
-                                box.left -
-                                12 -
-                                (activeBlock?.quoteDepth ?? 0) * 10 +
-                                textarea.scrollLeft +
-                                surface.scrollLeft,
-                            y - blockY(active.from)
-                        )
-                    )
-                );
-            for (let text of projected.value.split('\n')) {
-                let count = Math.max(1, Math.ceil(text.length / columns));
-                if (remaining < count)
-                    return from + projected.toSource(native + Math.min(text.length, remaining * columns + column));
-                remaining -= count;
-                native += text.length + 1;
-            }
-            return to;
+
+        let index = layout.indexOf(offset),
+            unit = layout.units[index];
+
+        if (!unit) {
+            return null;
         }
-        function rebuildFolds() {
-            renderBlocks = viewportBlocks(
-                foldedMarkdown(doc, parsedBlocks, options.fold ? outerFolds(folds) : []),
-                doc.value
-            );
-            measured.clear();
-            modeKey = '';
-            before.splice(0);
-            after.splice(0);
-            rebuildLayout();
-            update();
+
+        let rects = textRects(unit, offset, offset);
+
+        if (rects.length) {
+            return rects[0];
         }
-        function revealFolds(ranges: readonly Partial<Selection>[]) {
-            let previous = folds.length;
-            folds = folds.filter(
-                (fold) =>
-                    !ranges.some(
-                        (range) =>
-                            ((range.start ?? 0) >= fold.from && (range.start ?? 0) < fold.to) ||
-                            ((range.end ?? range.start ?? 0) > fold.from && (range.end ?? range.start ?? 0) <= fold.to)
-                    )
-            );
-            if (previous !== folds.length) rebuildFolds();
+
+        return { height: metrics.lineHeight, left: originX + metrics.padLeft, top: originY + metrics.padTop + layout.top(index), width: 1 };
+    }
+
+    function clip(e: ClipboardEvent, cut: boolean) {
+        if (disposed || ime.busy() || !e.clipboardData) {
+            return;
         }
-        let rectangle: { offset: number; x: number } | undefined,
-            modifiedPointer = false;
-        listen(surface, 'pointerdown', (event) => {
-            let e = event as PointerEvent;
-            if (
-                !(e.altKey || e.ctrlKey || e.metaKey) ||
-                composing ||
-                compositionPending ||
-                (e.target as Element).closest('button,a[href],input')
-            )
-                return;
-            let offset = offsetAt(e.clientX, e.clientY);
-            if (offset === null) return;
-            e.preventDefault();
-            modifiedPointer = true;
-            if (e.altKey) {
-                rectangle = { offset, x: e.clientX };
-                ui.crosshair = true;
-                api.select({ start: offset });
-            } else api.selectMany([...doc.selections, { start: offset }]);
+
+        capture();
+
+        let ranges = copied(model);
+
+        write(e.clipboardData, model, ranges);
+        e.preventDefault();
+
+        if (cut && !options.readonly) {
+            model.selectMany(ranges);
+            controller.insert('');
+        }
+    }
+
+    function connect() {
+        if (disposed || !host || !ruler || !surface || !textarea || unsubscribe) {
+            return;
+        }
+
+        measure();
+        subscribe();
+        refresh();
+        unitsDirty = true;
+        schedule();
+        void host.ownerDocument.fonts?.ready.then(() => {
+            if (!disposed) {
+                measure();
+            }
         });
-        listen(
-            surface,
-            'click',
-            (event) => {
-                if (modifiedPointer) {
-                    modifiedPointer = false;
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-            },
-            true
-        );
-        listen(win, 'pointermove', (event) => {
-            let e = event as PointerEvent;
-            if (!rectangle) return;
-            let end = offsetAt(e.clientX, e.clientY);
-            if (end === null) return;
-            let first = doc.position(rectangle.offset).line,
-                last = doc.position(end).line,
-                ranges: Partial<Selection>[] = [];
-            for (let line = Math.min(first, last); line <= Math.max(first, last) && ranges.length < 1000; line++) {
-                let rect = rectAt(doc.offset(line, 1));
-                if (!rect) continue;
-                let a = offsetAt(rectangle.x, rect.top + rect.height / 2),
-                    b = offsetAt(e.clientX, rect.top + rect.height / 2);
-                if (a !== null && b !== null)
-                    ranges.push({
-                        start: Math.min(a, b),
-                        end: Math.max(a, b),
-                        direction: b < a ? 'backward' : 'forward'
-                    });
+        receive?.(controller);
+    }
+
+    // Where a unit's text starts, after any markers.
+    function contentStart(unit: Unit) {
+        return unit.block.from + (unit.rows ? unit.rows[0].contentFrom : unit.block.contentFrom - unit.block.from);
+    }
+
+    // Brings the unit list up to the document before anything reads positions from it.
+    function current() {
+        if (unitsDirty) {
+            rebuild();
+        }
+    }
+
+    // Hides the field; every block shows formatted again.
+    function deactivate() {
+        if (!editing) {
+            return;
+        }
+
+        ime.flush();
+        editing = false;
+        drag = null;
+        ui.editing = false;
+        gestures.reset();
+        refresh();
+        schedule();
+    }
+
+    function decorate() {
+        let items: Decoration[] = [],
+            ranges = model.selections,
+            matches = search.state.open || search.state.query ? search.result() : null;
+
+        if (ranges.length < 2 && !drag && dropAt === null && !matches?.matches.length) {
+            if (decorations.length) {
+                decorations.splice(0, decorations.length);
             }
-            if (ranges.length) api.selectMany(ranges, false);
-        });
-        listen(win, 'pointerup', () => {
-            rectangle = undefined;
-            ui.crosshair = false;
-        });
-        listen(win, 'keyup', (event) => {
-            if (!(event as KeyboardEvent).altKey) ui.crosshair = false;
-        });
-        listen(win, 'blur', () => {
-            rectangle = undefined;
-            ui.crosshair = false;
-        });
-        listen(host, 'pointerup', (event) => {
-            if (composing || compositionPending || event.target === textarea || (event as PointerEvent).altKey) return;
-            let selection = dom.getSelection();
-            if (!selection || selection.isCollapsed) return;
-            let anchor = sourcePoint(selection.anchorNode, selection.anchorOffset),
-                head = sourcePoint(selection.focusNode, selection.focusOffset);
-            if (anchor === undefined || head === undefined) return;
-            selection.removeAllRanges();
-            api.select({
-                start: Math.min(anchor, head),
-                end: Math.max(anchor, head),
-                direction: head < anchor ? 'backward' : 'forward'
-            });
-        });
-        listen(
-            host,
-            'keydown',
-            (event) => {
-                let e = event as KeyboardEvent;
-                if (e.isComposing || composing || compositionPending) return;
-                if (e.key === 'Alt') ui.crosshair = true;
-                let mod = e.ctrlKey || e.metaKey,
-                    key = e.key.toLowerCase(),
-                    handled = true;
-                if (
-                    (e.target as Element).closest('.markdown-controls') &&
-                    !((mod && ['f', 'h', 'g'].includes(key)) || e.key === 'F3')
-                )
-                    return;
-                if (event.target === textarea) readSelection();
-                if (mod && e.altKey && key === 'g') api.openGoToLine();
-                else if (mod && e.altKey && key === '[') e.shiftKey ? api.foldAll() : api.fold();
-                else if (mod && e.altKey && key === ']') e.shiftKey ? api.unfoldAll() : api.unfold();
-                else if (mod && !e.altKey && key === 'f') api.openFind();
-                else if (mod && !e.altKey && key === 'h') api.openFind(true);
-                else if (mod && !e.altKey && key === 'g') e.shiftKey ? api.findPrevious() : api.findNext();
-                else if (e.key === 'F3') e.shiftKey ? api.findPrevious() : api.findNext();
-                else if (mod && key === 'd') api.addNextOccurrence();
-                else if (mod && e.shiftKey && (key === 'l' || key === 'a')) api.addNextOccurrence(true);
-                else if (mod && key === 'u') e.shiftKey ? api.redoSelection() : api.undoSelection();
-                else handled = false;
-                if (handled) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            },
-            true
-        );
-        listen(textarea, 'keydown', (event) => {
-            let e = event as KeyboardEvent;
-            if (e.isComposing || composing || compositionPending) return;
-            if (options.onCompletionKey?.(e, api as Controller)) {
-                e.preventDefault();
+
+            return;
+        }
+
+        let box = surface!.getBoundingClientRect(),
+            originX = box.left + surface!.clientLeft - surface!.scrollLeft,
+            originY = box.top + surface!.clientTop - surface!.scrollTop,
+            units = layout.units,
+            view = layout.window(metrics.scrollTop - metrics.padTop, metrics.clientHeight, 0),
+            from = units[view.start] ? unitStart(units[view.start]) : 0,
+            to = view.end < units.length ? unitStart(units[view.end]) : model.value.length;
+
+        let mark = (start: number, end: number, kind: string) => {
+            if (end < from || start > to || items.length >= DECORATIONS) {
                 return;
             }
-            readSelection();
-            let mod = e.ctrlKey || e.metaKey,
-                key = e.key.toLowerCase();
-            if (mod && e.key === ' ') {
-                e.preventDefault();
-                options.onAutocomplete?.(api as Controller, true);
-                return;
-            }
-            if (
-                doc.selections.length > 1 &&
-                /^(ArrowLeft|ArrowRight|ArrowUp|ArrowDown|Home|End|PageUp|PageDown)$/.test(e.key)
-            ) {
-                e.preventDefault();
-                api.selectMany(
-                    doc.selections.map((range) => {
-                        let head = range.direction === 'backward' ? range.start : range.end,
-                            anchor = range.direction === 'backward' ? range.end : range.start,
-                            position = doc.position(head),
-                            next =
-                                e.key === 'ArrowLeft' || e.key === 'ArrowRight'
-                                    ? stepCharacter(doc.value, head, e.key === 'ArrowLeft')
-                                    : e.key === 'Home'
-                                      ? doc.offset(position.line, 1)
-                                      : e.key === 'End'
-                                        ? doc.offset(position.line, 1e9)
-                                        : doc.offset(
-                                              position.line +
-                                                  (e.key.endsWith('Up') ? -1 : 1) *
-                                                      (e.key.startsWith('Page')
-                                                          ? Math.max(
-                                                                1,
-                                                                Math.floor((surface.clientHeight || 320) / layoutLine)
-                                                            )
-                                                          : 1),
-                                              position.column
-                                          );
-                        return e.shiftKey
-                            ? {
-                                  start: Math.min(anchor, next),
-                                  end: Math.max(anchor, next),
-                                  direction: next < anchor ? 'backward' : 'forward'
-                              }
-                            : { start: next };
-                    })
-                );
-                return;
-            }
-            if (!ui.readonly && doc.selections.length > 1 && (e.key === 'Backspace' || e.key === 'Delete')) {
-                e.preventDefault();
-                e.key === 'Backspace' && !mod && !e.altKey
-                    ? markdownCommand(doc, 'backspace')
-                    : deleteCharacter(doc, e.key === 'Backspace', mod || e.altKey);
-                return;
-            }
-            if (!ui.readonly && e.key === 'Tab' && options.captureTab !== false) {
-                e.preventDefault();
-                e.shiftKey ? api.outdent() : api.indent();
-                return;
-            }
-            if (!ui.readonly && mod && (key === '[' || key === ']' || key === '/' || key === 'enter')) {
-                e.preventDefault();
-                key === '['
-                    ? api.outdent()
-                    : key === ']'
-                      ? api.indent()
-                      : key === '/'
-                        ? api.toggleComment()
-                        : api.lineCommand('blank');
-                return;
-            }
-            if (mod && key === 's') {
-                e.preventDefault();
-                api.save();
-            }
-            if (mod && key === 'a') {
-                e.preventDefault();
-                api.select({ start: 0, end: doc.value.length });
-                return;
-            }
-            if (
-                (mod && (e.key === 'Home' || e.key === 'End')) ||
-                (e.metaKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) ||
-                e.key === 'PageUp' ||
-                e.key === 'PageDown'
-            ) {
-                let selection = doc.selection,
-                    backward = selection.direction === 'backward',
-                    anchor = backward ? selection.end : selection.start,
-                    head = backward ? selection.start : selection.end,
-                    position = doc.position(head),
-                    next =
-                        e.key === 'Home' || e.key === 'ArrowUp'
-                            ? 0
-                            : e.key === 'End' || e.key === 'ArrowDown'
-                              ? doc.value.length
-                              : doc.offset(
-                                    position.line +
-                                        Math.max(1, Math.floor((surface.clientHeight || 320) / metrics().line)) *
-                                            (e.key === 'PageUp' ? -1 : 1),
-                                    position.column
-                                );
-                e.preventDefault();
-                api.select(
-                    e.shiftKey
-                        ? {
-                              start: Math.min(anchor, next),
-                              end: Math.max(anchor, next),
-                              direction: next < anchor ? 'backward' : 'forward'
-                          }
-                        : { start: next }
-                );
-                return;
-            }
-            if (e.shiftKey && /^Arrow(?:Left|Right|Up|Down)$/.test(e.key)) {
-                let selection = doc.selection,
-                    backward = selection.direction === 'backward',
-                    head = backward ? selection.start : selection.end,
-                    anchor = backward ? selection.end : selection.start,
-                    nativeHead = backward ? textarea.selectionStart : textarea.selectionEnd,
-                    atEdge =
-                        e.key === 'ArrowLeft'
-                            ? nativeHead === 0
-                            : e.key === 'ArrowRight'
-                              ? nativeHead === textarea.value.length
-                              : e.key === 'ArrowUp'
-                                ? !textarea.value.slice(0, nativeHead).includes('\n')
-                                : !textarea.value.slice(nativeHead).includes('\n');
-                if (atEdge) {
-                    let whole = new NativeText(doc.value),
-                        position = doc.position(head),
-                        next =
-                            e.key === 'ArrowLeft'
-                                ? whole.toSource(whole.toNative(head) - 1)
-                                : e.key === 'ArrowRight'
-                                  ? whole.toSource(whole.toNative(head) + 1)
-                                  : doc.offset(position.line + (e.key === 'ArrowUp' ? -1 : 1), position.column);
-                    e.preventDefault();
-                    api.select({
-                        start: Math.min(anchor, next),
-                        end: Math.max(anchor, next),
-                        direction: next < anchor ? 'backward' : 'forward'
-                    });
-                    return;
-                }
-            }
-            if (!e.shiftKey && doc.selection.start === doc.selection.end && e.key.startsWith('Arrow')) {
-                let caret = textarea.selectionStart,
-                    move: number | undefined;
-                if (e.key === 'ArrowLeft' && caret === 0 && active.from > 0) {
-                    let whole = new NativeText(doc.value);
-                    move = whole.toSource(whole.toNative(active.from) - 1);
-                }
-                if (e.key === 'ArrowRight' && caret === textarea.value.length && active.to < doc.value.length)
-                    move = active.to;
-                let position = doc.position();
-                if (e.key === 'ArrowUp' && !textarea.value.slice(0, caret).includes('\n') && active.from > 0)
-                    move = doc.offset(position.line - 1, position.column);
-                if (
-                    e.key === 'ArrowDown' &&
-                    !textarea.value.slice(caret).includes('\n') &&
-                    active.to < doc.value.length
-                )
-                    move = doc.offset(position.line + 1, position.column);
-                if (move !== undefined) {
-                    e.preventDefault();
-                    api.select({ start: move });
-                    return;
-                }
-            }
-            if (ui.readonly) return;
-            if (mod && (key === 'b' || key === 'i')) {
-                e.preventDefault();
-                key === 'b' ? api.bold() : api.italic();
-            } else if (mod && key === 'z') {
-                e.preventDefault();
-                e.shiftKey ? api.redo() : api.undo();
-            } else if (mod && key === 'y') {
-                e.preventDefault();
-                api.redo();
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                api.newline();
-            } else if (e.key === 'Backspace' && markdownBackspace(doc)) e.preventDefault();
-        });
-        removers.push(
-            doc.subscribe((state, change) => {
-                let { selections, ...single } = state;
-                (api.state.selections as Selection[]).splice(
-                    0,
-                    api.state.selections.length,
-                    ...selections.map((range) => ({ ...range }))
-                );
-                Object.assign(api.state, single, { selection: { ...state.selection } });
-                if (change.textChanged && folds.length) {
-                    folds = mapFolds(folds, change.editBatches ?? [], doc.value);
-                    parsedSource = '\u0000' + doc.value;
-                }
-                if (change.selectionChanged) revealFolds(doc.selections);
-                if ((composing || compositionPending) && change.textChanged) compositionConflict = true;
-                update();
-                if (change.selectionChanged) reveal();
-                if (change.textChanged) callbacks.onChange?.(state.value, change, state);
-                if (change.textChanged && focused && !ui.readonly) options.onAutocomplete?.(api as Controller, false);
-                if (change.selectionChanged) callbacks.onSelection?.(state.selection, doc.position());
-            })
-        );
-        const mutable = () => !disposed && !composing && !compositionPending && !ui.readonly;
-        const api: MarkdownController = {
-            document: doc,
-            state,
-            textarea,
-            rectAt,
-            offsetAt,
-            refresh() {
-                if (!disposed) {
-                    measured.clear();
-                    layoutWidth = 0;
-                    update();
-                }
-            },
-            focus() {
-                if (!disposed) {
-                    focused = true;
-                    update();
-                    reveal();
-                    flush();
-                    textarea.focus({ preventScroll: true });
-                }
-            },
-            select(selection, shouldReveal = true) {
-                api.selectMany([selection], shouldReveal);
-            },
-            selectMany(selections, shouldReveal = true) {
-                if (!disposed && !composing && !compositionPending) {
-                    revealFolds(selections);
-                    focused = true;
-                    doc.selectMany(selections);
-                    update();
-                    if (shouldReveal) reveal();
-                    flush();
-                    textarea.focus({ preventScroll: true });
-                }
-            },
-            addNextOccurrence(all = false) {
-                if (disposed || composing || compositionPending) return false;
-                readSelection();
-                let changed = addNextOccurrence(doc, all);
-                api.focus();
-                return changed;
-            },
-            insert(text) {
-                return mutable() && insertText(doc, text);
-            },
-            undoSelection() {
-                return !disposed && !composing && !compositionPending && doc.undoSelection();
-            },
-            redoSelection() {
-                return !disposed && !composing && !compositionPending && doc.redoSelection();
-            },
-            indent() {
-                return mutable() && indent(doc, options.indent);
-            },
-            outdent() {
-                return mutable() && indent(doc, options.indent, true);
-            },
-            newline() {
-                return mutable() && markdownCommand(doc, 'enter');
-            },
-            lineCommand(command) {
-                return mutable() && lineCommand(doc, command);
-            },
-            toggleComment() {
-                return (
-                    mutable() &&
-                    toggleComment(doc, options.lineComment ?? false, options.blockComment ?? ['<!--', '-->'])
-                );
-            },
-            fold(line = doc.position().line) {
-                if (disposed || composing || compositionPending || !options.fold) return false;
-                let candidate = availableFolds.find((fold) => fold.line === line);
-                if (!candidate || folds.some((fold) => fold.from === candidate.from && fold.to === candidate.to))
-                    return false;
-                if (
-                    doc.selections.some(
-                        (range) =>
-                            (range.start >= candidate.from && range.start < candidate.to) ||
-                            (range.end > candidate.from && range.end <= candidate.to)
-                    )
-                )
-                    doc.select({ start: candidate.open });
-                folds.push(candidate);
-                focused = false;
-                textarea.blur();
-                rebuildFolds();
-                return true;
-            },
-            unfold(line = doc.position().line) {
-                if (disposed || composing || compositionPending) return false;
-                let previous = folds.length;
-                folds = folds.filter((fold) => fold.line !== line);
-                if (folds.length === previous) return false;
-                rebuildFolds();
-                return true;
-            },
-            foldAll() {
-                if (disposed || composing || compositionPending || !options.fold) return;
-                doc.select({ start: 0 });
-                folds = [...availableFolds];
-                focused = false;
-                textarea.blur();
-                rebuildFolds();
-            },
-            unfoldAll() {
-                if (disposed || composing || compositionPending) return;
-                folds = [];
-                rebuildFolds();
-            },
-            goToLine(line, column = 1) {
-                api.select({ start: doc.offset(line, column) });
-            },
-            find(query, searchOptions) {
-                return controls!.find(query, searchOptions);
-            },
-            findNext() {
-                return controls!.findNext();
-            },
-            findPrevious() {
-                return controls!.findPrevious();
-            },
-            replace(replacement) {
-                return controls!.replace(replacement);
-            },
-            replaceAll(replacement) {
-                return controls!.replaceAll(replacement);
-            },
-            openFind(replace) {
-                if (!disposed && !composing && !compositionPending) controls!.openFind(replace);
-            },
-            closeFind() {
-                if (!disposed) controls!.closeFind();
-            },
-            openGoToLine() {
-                if (!disposed && !composing && !compositionPending) controls!.openGoToLine();
-            },
-            setValue(value) {
-                if (disposed) return false;
-                if (composing || compositionPending) {
-                    pendingValue = value;
-                    return false;
-                }
-                return doc.setValue(value, { source: 'external' });
-            },
-            setOptions(next, replace = false) {
-                if (disposed) return;
-                options = replace ? { wrap: true, ...next } : { ...options, ...next };
-                ui.readonly = !!options.readonly;
-                ui.label = options.label ?? 'Markdown editor';
-                ui.spellcheck = options.spellcheck ?? true;
-                ui.placeholder = options.placeholder ?? '';
-                if (!options.fold) folds = [];
-                textarea.wrap = options.wrap === false ? 'off' : 'soft';
-                controls?.setOptions(options);
-                rebuildFolds();
-            },
-            bold() {
-                return mutable() && markdownCommand(doc, 'bold');
-            },
-            italic() {
-                return mutable() && markdownCommand(doc, 'italic');
-            },
-            undo() {
-                return mutable() && doc.undo();
-            },
-            redo() {
-                return mutable() && doc.redo();
-            },
-            save() {
-                if (!disposed) callbacks.onSave?.(doc.value, doc.state);
-            },
-            dispose() {
-                if (disposed || disposing) return;
-                disposing = true;
-                finishComposition();
-                disposed = true;
-                win.cancelAnimationFrame(frame);
-                controls?.dispose();
-                for (let remove of removers) remove();
-                unrender();
-                if (addedClass) host.classList.remove('markdown-editor');
-                disposeScope();
-                disposing = false;
+
+            let rects = rangeRects(Math.max(start, from), Math.min(end, to));
+
+            for (let i = 0, n = rects.length; i < n && items.length < DECORATIONS; i++) {
+                let rect = rects[i];
+
+                items.push({
+                    kind,
+                    style: `height: ${rect.height}px; left: ${rect.left - originX}px; top: ${rect.top - originY}px;${start === end ? '' : ` width: ${Math.max(1, rect.width)}px;`}`
+                });
             }
         };
-        controls = mountMarkdownControls(
-            host,
-            api as Controller,
-            () => {
-                let visible = layout.window(adjustedY(surface.scrollTop), surface.clientHeight || 320, 0);
-                return {
-                    total:
-                        layout.total +
-                        (focused && !ui.mixed
-                            ? activeHeight - (layout.prefix(activeEnd) - layout.prefix(activeStart))
-                            : 0),
-                    top: surface.scrollTop,
-                    height: surface.clientHeight || 320,
-                    from: renderBlocks[visible.start]?.from ?? 0,
-                    to: renderBlocks[visible.end - 1]?.to ?? doc.value.length,
-                    y: sourceY,
-                    scroll(y) {
-                        surface.scrollTop = Math.max(0, y);
-                        showWindow();
-                        scheduleMeasure();
-                    }
-                };
+
+        if (matches) {
+            let { index, matches: list } = search.matches(from);
+
+            for (let i = index, n = list.length; i < n && list[i].from <= to && items.length < DECORATIONS; i++) {
+                mark(list[i].from, list[i].to, i === search.state.index ? 'markdown-editor-mark markdown-editor-mark--match --active' : 'markdown-editor-mark markdown-editor-mark--match');
+            }
+        }
+
+        for (let i = 1, n = ranges.length; i < n; i++) {
+            let range = ranges[i];
+
+            if (range.start !== range.end) {
+                mark(range.start, range.end, 'markdown-editor-mark markdown-editor-mark--selection');
+            }
+
+            let head = range.direction === 'backward' ? range.start : range.end;
+
+            mark(head, head, 'markdown-editor-mark markdown-editor-mark--caret');
+        }
+
+        if (drag) {
+            mark(Math.min(drag.anchor, drag.head), Math.max(drag.anchor, drag.head), 'markdown-editor-mark markdown-editor-mark--selection');
+        }
+
+        if (dropAt !== null) {
+            mark(dropAt, dropAt, 'markdown-editor-mark markdown-editor-mark--caret');
+        }
+
+        while (decorations.length < items.length) {
+            decorations.push(reactive({ kind: '', style: '' }));
+        }
+
+        if (decorations.length > items.length) {
+            decorations.splice(items.length, decorations.length - items.length);
+        }
+
+        for (let i = 0, n = items.length; i < n; i++) {
+            decorations[i].kind = items[i].kind;
+            decorations[i].style = items[i].style;
+        }
+    }
+
+    function editable(run: () => boolean) {
+        if (disposed || options.readonly || ime.busy()) {
+            return false;
+        }
+
+        capture();
+        revealFolds(true);
+
+        let changed = run();
+
+        start(true);
+
+        return changed;
+    }
+
+    // Lays out the field's text and sizes it; the field's styles must match what this assumes.
+    function fieldGeometry() {
+        if (!active) {
+            geometry = null;
+            return;
+        }
+
+        let block = blocks[active.first],
+            scale = headingScale(block.level),
+            fontSize = metrics.fontSize * scale,
+            lineHeight = block.level && block.level <= 2 ? fontSize * SCALED_LINE : metrics.lineHeight,
+            wrap = options.wrap !== false,
+            width = Math.max(1, metrics.width - block.quoteDepth * metrics.quoteIndent);
+
+        geometry = new EditorLayout(projection, fieldSource, wrap ? width : Number.MAX_SAFE_INTEGER, lineHeight, metrics.charWidth * scale, options.tabSize ?? 4, wrap);
+        estimated = false;
+
+        if (wrap) {
+            for (let i = 0, n = geometry.count; i < n && !estimated; i++) {
+                estimated = geometry.estimated(i);
+            }
+        }
+
+        let height = Math.max(lineHeight, geometry.height),
+            widest = 0;
+
+        if (!wrap) {
+            for (let i = 0, n = geometry.count; i < n; i++) {
+                widest = Math.max(widest, geometry.end(i) - geometry.lineFrom(i));
+            }
+        }
+
+        ui.height = height;
+        ui.input = `markdown-editor-input markdown-editor-input--${block.kind}${block.level ? ` markdown-editor-input--h${block.level}` : ''}${block.quoteDepth ? ' markdown-editor-input--quoted' : ''}`;
+        ui.style = `--depth: ${block.quoteDepth};${wrap ? '' : ` --field-width: ${Math.ceil((widest + 1) * metrics.charWidth * scale)}px;`}`;
+
+        layout.measure(activeUnit, height);
+    }
+
+    // Left edge of the field's text in the surface's padding box.
+    function fieldLeft() {
+        return metrics.padLeft + (active ? blocks[active.first].quoteDepth * metrics.quoteIndent : 0);
+    }
+
+    // Client rectangles of [from, to) inside the field, one per row, from its geometry.
+    function fieldRects(from: number, to: number, out: Rect[]) {
+        if (!active || !geometry || !surface) {
+            return;
+        }
+
+        let box = surface.getBoundingClientRect(),
+            x = box.left + surface.clientLeft - surface.scrollLeft + fieldLeft(),
+            y = box.top + surface.clientTop - surface.scrollTop + metrics.padTop + layout.top(activeIndex),
+            end = geometry.rect(projection.toNative(clamp(to, active.from, active.to) - active.from)),
+            start = geometry.rect(projection.toNative(clamp(from, active.from, active.to) - active.from)),
+            lineHeight = geometry.lineHeight;
+
+        if (from === to) {
+            out.push({ height: lineHeight, left: x + start.left, top: y + start.top, width: 1 });
+            return;
+        }
+
+        for (let top = start.top; top <= end.top && out.length < DECORATIONS; top += lineHeight) {
+            let left = top === start.top ? start.left : 0,
+                right = top === end.top ? end.left : geometry.width;
+
+            out.push({ height: lineHeight, left: x + left, top: y + top, width: Math.max(1, right - left) });
+        }
+    }
+
+    // Applies a drag or click on the drawn text once the pointer comes back up.
+    function finish() {
+        if (!drag) {
+            return;
+        }
+
+        let { anchor, head } = drag;
+
+        drag = null;
+        model.select({ direction: head < anchor ? 'backward' : 'forward', end: Math.max(anchor, head), start: Math.min(anchor, head) });
+        activate(true);
+    }
+
+    function inlineOf(block: MarkdownBlock) {
+        let entry = inlines.get(block);
+
+        if (!entry || entry.definitions !== definitions) {
+            let base = block.from,
+                text = model.value.slice(block.contentFrom, block.contentTo);
+
+            entry = {
+                definitions,
+                tokens: parseInline(text, block.contentFrom - base, 0, block.definitions ? new Map() : definitions)
+            };
+            inlines.set(block, entry);
+        }
+
+        return entry.tokens;
+    }
+
+    // The block kind at a source offset, for commands that leave literal source alone.
+    function kindAt(offset: number): Kind | undefined {
+        return blocks[blockAt(blocks, offset)]?.kind;
+    }
+
+    // Whether a plain arrow key at the field's edge leaves it for the neighbouring block.
+    function leaves(key: string) {
+        if (!active || !geometry || !textarea) {
+            return false;
+        }
+
+        let head = textarea.selectionDirection === 'backward' ? textarea.selectionStart : textarea.selectionEnd;
+
+        if (key === 'ArrowLeft') {
+            return head === 0 && active.from > 0;
+        }
+
+        if (key === 'ArrowRight') {
+            return head === textarea.textLength && active.to < model.value.length;
+        }
+
+        let rect = geometry.rect(head);
+
+        if (key === 'ArrowUp') {
+            return rect.top < geometry.lineHeight / 2 && active.from > 0;
+        }
+
+        return rect.top + geometry.lineHeight >= geometry.height - 0.5 && active.to < model.value.length;
+    }
+
+    // Source lines [first, last] unit 'index' covers.
+    function linesOf(index: number) {
+        let units = layout.units,
+            from = unitStart(units[index]),
+            to = index + 1 < units.length ? unitStart(units[index + 1]) - 1 : model.value.length;
+
+        return { first: model.lineAt(from), last: model.lineAt(Math.max(from, to)) };
+    }
+
+    // Marks which drawn units in [from, to) show a fold marker; only neighbouring blocks are looked at.
+    function markFoldable(from: number, to: number) {
+        let units = layout.units;
+
+        for (let i = from; i < to; i++) {
+            let unit = units[i],
+                state = draw.state(unit);
+
+            if (!state) {
+                continue;
+            }
+
+            let next = opens(unit);
+
+            if (state.foldable !== next) {
+                state.foldable = next;
+            }
+        }
+    }
+
+    // Reads computed geometry and colors on connect, resize, font load or refresh; never per frame.
+    function measure() {
+        if (disposed || !host || !ruler || !surface || !textarea) {
+            return;
+        }
+
+        let computed = getComputedStyle(surface),
+            style = getComputedStyle(host),
+            fallback = style.getPropertyValue('--color').trim() || 'currentColor',
+            colors: Record<string, string> = {},
+            padLeft = pixels(computed.paddingLeft),
+            fontSize = pixels(computed.fontSize) || 13;
+
+        metrics = {
+            charWidth: ruler.getBoundingClientRect().width / (ruler.textContent?.length || 1) || 7.8,
+            clientHeight: surface.clientHeight,
+            fontSize,
+            lineHeight: pixels(computed.lineHeight) || fontSize * 1.5,
+            minimap: pixels(style.getPropertyValue('--minimap-width')),
+            padLeft,
+            padTop: pixels(computed.paddingTop),
+            quoteIndent: pixels(style.getPropertyValue('--quote-indent')),
+            scrollLeft: surface.scrollLeft,
+            scrollTop: surface.scrollTop,
+            width: surface.getBoundingClientRect().width - (surface.offsetWidth - surface.clientWidth) - padLeft - pixels(computed.paddingRight)
+        };
+
+        for (let i = 0, n = TOKEN_COLORS.length; i < n; i++) {
+            colors[TOKEN_COLORS[i]] = style.getPropertyValue(`--${TOKEN_COLORS[i]}-color`).trim() || fallback;
+        }
+
+        palette = colors;
+
+        if (layout.configure({
+            charWidth: metrics.charWidth,
+            fontSize: metrics.fontSize,
+            lineHeight: metrics.lineHeight,
+            quoteIndent: metrics.quoteIndent,
+            width: metrics.width
+        })) {
+            whole = null;
+            fieldGeometry();
+            map.invalidate();
+            unitsDirty = true;
+        }
+
+        schedule();
+    }
+
+    function moveSelection(key: string, extend: boolean, word = false, add = false, boundary = false) {
+        if (!VERTICAL.test(key) || boundary || add) {
+            goals = [];
+        }
+
+        if (!whole || whole.revision !== model.revision) {
+            let native = new NativeText(model.value);
+
+            whole = {
+                layout: new EditorLayout(native, model.value, Number.MAX_SAFE_INTEGER, metrics.lineHeight, metrics.charWidth, options.tabSize ?? 4, false),
+                projection: native,
+                revision: model.revision
+            };
+        }
+
+        let lineHeight = metrics.lineHeight,
+            ranges = move(model, whole.layout, whole.projection, lineHeight, {
+                boundary,
+                extend,
+                goals,
+                key,
+                page: Math.max(lineHeight, metrics.clientHeight - lineHeight),
+                word
+            });
+
+        model.selectMany(add ? [...model.selections, ...ranges] : ranges, 'navigation');
+        start(true);
+    }
+
+    function offsetAt(clientX: number, clientY: number) {
+        if (disposed || !surface) {
+            return null;
+        }
+
+        current();
+
+        let box = surface.getBoundingClientRect();
+
+        if (box.width && (clientX < box.left || clientX > box.right || clientY < box.top || clientY > box.bottom)) {
+            return null;
+        }
+
+        if (active && editing && textarea && geometry) {
+            let field = textarea.getBoundingClientRect();
+
+            if (clientY >= field.top && clientY < field.bottom) {
+                return active.from + projection.toSource(geometry.offset(clientX - field.left + textarea.scrollLeft, clientY - field.top));
+            }
+        }
+
+        let point = pointAt(clientX, clientY);
+
+        if (point !== null) {
+            return point;
+        }
+
+        // Off the text (a marker, padding, an image): the unit under the point.
+        let under = host!.ownerDocument.elementFromPoint(clientX, clientY)?.closest('.markdown-editor-block'),
+            unit = under && shown.get(under);
+
+        if (unit) {
+            return contentStart(unit);
+        }
+
+        let index = layout.at(clientY - box.top - surface.clientTop + surface.scrollTop - metrics.padTop);
+
+        return layout.units[index] ? contentStart(layout.units[index]) : null;
+    }
+
+    // Whether a drawn unit shows a fold marker; only neighbouring blocks are looked at.
+    function opens(unit: Unit) {
+        return options.fold !== false && !unit.continuation && !unit.raw && !unit.fold && foldable(blocks, blockAt(blocks, unit.block.from), model.value);
+    }
+
+    function paint() {
+        frame = 0;
+
+        if (disposed || !surface) {
+            return;
+        }
+
+        current();
+
+        if (estimated && textarea && editing) {
+            // The arithmetic only estimated some of the field's rows; it takes the height the DOM drew instead.
+            flush();
+
+            let height = textarea.scrollHeight;
+
+            if (height > ui.height + 0.5) {
+                ui.height = height;
+                layout.measure(activeUnit, height);
+            }
+
+            estimated = false;
+        }
+
+        if (revealing) {
+            revealing = false;
+            reveal();
+        }
+
+        let n = layout.units.length,
+            a = activeIndex,
+            view = layout.window(metrics.scrollTop - metrics.padTop, metrics.clientHeight),
+            split = a < 0 ? n : a,
+            s1 = Math.min(view.start, split),
+            e1 = Math.min(view.end, split),
+            s2 = Math.max(view.start, split + 1),
+            e2 = Math.max(view.end, s2);
+
+        if (a < 0) {
+            s2 = e2 = n;
+        }
+
+        if (view.start > split) {
+            s1 = e1 = split;
+        }
+
+        assign(listed.before, layout.units.slice(s1, e1));
+        assign(listed.after, layout.units.slice(s2, e2));
+        ui.top = layout.top(s1);
+        ui.between = a < 0 ? 0 : layout.top(split) - layout.top(e1);
+        ui.next = a < 0 ? 0 : layout.top(s2) - layout.top(a + 1);
+        ui.bottom = layout.total - layout.top(a < 0 ? e1 : e2);
+        ui.foldable = !!active && options.fold !== false && foldable(blocks, active.first, model.value);
+
+        markFoldable(s1, e1);
+        markFoldable(s2, e2);
+        // Rectangles come from the drawn text; units this frame added draw in the list's own pass, queued before.
+        queueMicrotask(() => {
+            if (!disposed) {
+                decorate();
+            }
+        });
+
+        if (options.minimap) {
+            // Heights moved every line below them.
+            if (layout.total !== drawn) {
+                drawn = layout.total;
+                map.invalidate();
+            }
+
+            map.paint(
+                source,
+                { clientHeight: metrics.clientHeight, scrollHeight: layout.total + 2 * metrics.padTop, scrollTop: metrics.scrollTop },
+                palette,
+                metrics.minimap
+            );
+        }
+    }
+
+    // Source offset under a client point from the text node there.
+    function pointAt(clientX: number, clientY: number) {
+        let doc = host!.ownerDocument as Document & {
+                caretPositionFromPoint?: (x: number, y: number) => { offset: number; offsetNode: Node } | null;
             },
-            mutable,
-            options
+            point = doc.caretPositionFromPoint?.(clientX, clientY),
+            range = point ? null : doc.caretRangeFromPoint?.(clientX, clientY);
+
+        return draw.offset(point?.offsetNode ?? range?.startContainer ?? null, point?.offset ?? range?.startOffset ?? 0);
+    }
+
+    // A press on a drawn unit places the caret where it lands, in the same gesture: nothing redraws until the
+    // pointer comes back up, so the press and release meet the same nodes.
+    function press(e: MouseEvent, unit: Unit | null) {
+        if (disposed || ime.busy() || e.button !== 0 || e.altKey || e.defaultPrevented) {
+            return;
+        }
+
+        let target = e.target as Element;
+
+        if ((e.ctrlKey || e.metaKey) && target.closest('a')) {
+            return;
+        }
+
+        e.preventDefault();
+
+        let offset = pointAt(e.clientX, e.clientY) ?? (unit ? contentStart(unit) : offsetAt(e.clientX, e.clientY) ?? 0),
+            selection = model.selection;
+
+        drag = {
+            anchor: e.shiftKey ? (selection.direction === 'backward' ? selection.end : selection.start) : offset,
+            head: offset
+        };
+
+        if (pointerId >= 0 && surface?.isConnected) {
+            try {
+                surface.setPointerCapture(pointerId);
+            }
+            catch {
+                // The pointer may already be gone.
+            }
+        }
+
+        schedule();
+    }
+
+    function rangeRects(from: number, to: number) {
+        let out: Rect[] = [],
+            units = layout.units,
+            first = layout.indexOf(from),
+            last = layout.indexOf(to);
+
+        for (let i = first; i <= last && out.length < DECORATIONS; i++) {
+            let unit = units[i];
+
+            if (unit === activeUnit) {
+                fieldRects(from, to, out);
+            }
+            else {
+                let rects = textRects(unit, from, to);
+
+                for (let j = 0, n = rects.length; j < n; j++) {
+                    out.push(rects[j]);
+                }
+            }
+        }
+
+        return out;
+    }
+
+    function rebuild() {
+        let raw: Set<number> | null = null,
+            ranges = model.selections;
+
+        if (ranges.length > 1) {
+            raw = new Set();
+
+            for (let i = 1, n = ranges.length; i < n; i++) {
+                for (let b = blockAt(blocks, ranges[i].start), e = blockAt(blocks, ranges[i].end); b <= e; b++) {
+                    raw.add(b);
+                }
+            }
+        }
+
+        if (active) {
+            activeUnit.block = blocks[active.first];
+        }
+
+        let list = arrange(
+            blocks,
+            model.value,
+            options.fold === false ? [] : folds,
+            units,
+            active && editing ? { first: active.first, last: active.last, unit: activeUnit } : null,
+            raw ? (index) => raw.has(index) : null
         );
-        update();
-        return api;
+
+        layout.set(list, model.value);
+        activeIndex = -1;
+
+        if (active && editing) {
+            let index = layout.indexOf(active.from);
+
+            activeIndex = list[index] === activeUnit ? index : list.indexOf(activeUnit);
+        }
+
+        unitsDirty = false;
+    }
+
+    // Link reference definitions, from the blocks holding them; links everywhere draw again when they change.
+    function references() {
+        let next = new Map<string, string>();
+
+        for (let i = 0, n = blocks.length; i < n; i++) {
+            let block = blocks[i];
+
+            if (!block.definitions) {
+                continue;
+            }
+
+            for (let [label, href] of markdownReferences(model.value.slice(block.contentFrom, block.contentTo))) {
+                if (!next.has(label)) {
+                    next.set(label, href);
+                }
+            }
+        }
+
+        definitions = next;
+        units = cache();
+        unitsDirty = true;
+    }
+
+    // Brings the field to the primary selection: which blocks it covers, its text, its selection and its size.
+    function refresh() {
+        if (disposed) {
+            return;
+        }
+
+        if (!editing || !blocks.length) {
+            if (active) {
+                active = null;
+                geometry = null;
+                unitsDirty = true;
+            }
+
+            return;
+        }
+
+        let selection = model.selection,
+            first = blockAt(blocks, selection.start),
+            last = blockAt(blocks, selection.end) + 1;
+
+        // A drag inside the field never shrinks it under the pointer.
+        if (pinned && active && active.last <= blocks.length) {
+            first = Math.min(first, active.first);
+            last = Math.max(last, active.last);
+        }
+
+        let from = blocks[first].from,
+            to = Math.max(selection.end, contentEnd(model.value, blocks[last - 1]));
+
+        if (!active || active.first !== first || active.last !== last) {
+            unitsDirty = true;
+        }
+
+        active = { first, from, last, to };
+
+        let text = model.value.slice(from, to),
+            shaped = fieldSource !== text || !geometry;
+
+        if (fieldSource !== text) {
+            fieldSource = text;
+            projection = new NativeText(text);
+        }
+
+        if (shaped || activeUnit.block !== blocks[first]) {
+            activeUnit.block = blocks[first];
+            fieldGeometry();
+        }
+
+        if (!textarea || ime.busy()) {
+            return;
+        }
+
+        if (written !== projection.value) {
+            writing = true;
+
+            try {
+                writeField(textarea, written, projection.value, null);
+            }
+            finally {
+                writing = false;
+            }
+
+            written = projection.value;
+        }
+
+        let nativeEnd = projection.toNative(clamp(selection.end - from, 0, text.length)),
+            nativeStart = projection.toNative(clamp(selection.start - from, 0, text.length));
+
+        if (
+            textarea.selectionStart !== nativeStart ||
+            textarea.selectionEnd !== nativeEnd ||
+            (nativeStart !== nativeEnd && selection.direction !== 'none' && textarea.selectionDirection !== selection.direction)
+        ) {
+            textarea.setSelectionRange(nativeStart, nativeEnd, selection.direction);
+        }
+    }
+
+    // Brings the blocks up to the document: only from the edited block until block boundaries line up again. True
+    // when only blocks the field stands for changed, so the units stay as they are.
+    function reparseBlocks() {
+        let deltas = model.deltas(parsed),
+            previous = length;
+
+        length = model.value.length;
+        parsed = model.revision;
+
+        if (!deltas) {
+            blocks = parseMarkdown(model);
+            map.invalidate();
+            references();
+            return false;
+        }
+
+        if (!deltas.length) {
+            return true;
+        }
+
+        let end = -1,
+            moved = 0,
+            start = Number.MAX_SAFE_INTEGER;
+
+        for (let i = 0, n = deltas.length; i < n; i++) {
+            let { inserted, line, removed } = deltas[i];
+
+            moved += inserted - removed;
+
+            if (end < 0) {
+                end = line + inserted;
+                start = line;
+                continue;
+            }
+
+            if (end >= line + removed) {
+                end += inserted - removed;
+            }
+            else if (end > line) {
+                end = line + inserted;
+            }
+
+            end = Math.max(end, line + inserted);
+            start = Math.min(start, line);
+        }
+
+        let count = model.lineCount,
+            from = model.lineStart(Math.min(start, count - 1)),
+            to = end < count ? model.lineStart(end) : length,
+            splice = reparse(blocks, model, from, to, length - previous),
+            changed = false;
+
+        for (let i = 0, n = splice.dropped.length; !changed && i < n; i++) {
+            changed = !!splice.dropped[i].definitions;
+        }
+
+        for (let i = splice.start, n = splice.start + splice.inserted; !changed && i < n; i++) {
+            changed = !!blocks[i].definitions;
+        }
+
+        if (changed) {
+            map.invalidate();
+            references();
+            return false;
+        }
+
+        // Edits that kept the line count only redraw their lines in the minimap.
+        if (moved) {
+            map.invalidate();
+        }
+        else {
+            map.invalidate(start, end);
+        }
+
+        return !!active &&
+            editing &&
+            splice.dropped.length === splice.inserted &&
+            splice.start >= active.first &&
+            splice.start + splice.inserted <= active.last;
+    }
+
+    function reset() {
+        before = null;
+        beforeRanges = [];
+        beforeSelection = undefined;
+        inputData = null;
+        inputType = '';
+    }
+
+    // Heights the DOM drew for units. Units above the viewport that changed move the view by as much, so it stays on
+    // its text.
+    function resized(entries: ResizeObserverEntry[]) {
+        if (disposed) {
+            return;
+        }
+
+        current();
+
+        let anchor = layout.at(metrics.scrollTop - metrics.padTop),
+            changed = false,
+            shift = 0;
+
+        for (let i = 0, n = entries.length; i < n; i++) {
+            let entry = entries[i],
+                unit = shown.get(entry.target);
+
+            if (!unit) {
+                continue;
+            }
+
+            let height = entry.borderBoxSize?.[0]?.blockSize ?? (entry.target as HTMLElement).offsetHeight,
+                previous = layout.height(unit);
+
+            if (layout.measure(unit, height)) {
+                changed = true;
+
+                if (layout.indexOf(unitStart(unit)) < anchor) {
+                    shift += height - previous;
+                }
+            }
+        }
+
+        if (shift) {
+            scrollTo(metrics.scrollTop + shift);
+        }
+
+        if (changed) {
+            schedule();
+        }
+    }
+
+    // Writes the field again whatever it holds.
+    function resync() {
+        written = '';
+        refresh();
+        schedule();
+    }
+
+    // Scrolls the primary selection's head into view.
+    function reveal() {
+        let selection = model.selection,
+            head = selection.direction === 'backward' ? selection.start : selection.end,
+            height = metrics.lineHeight,
+            y: number;
+
+        if (active && editing && geometry && head >= active.from && head <= active.to) {
+            let rect = geometry.rect(projection.toNative(head - active.from));
+
+            height = rect.height;
+            y = metrics.padTop + layout.top(activeIndex) + rect.top;
+
+            if (options.wrap === false && surface) {
+                let x = fieldLeft() + rect.left;
+
+                if (x < metrics.scrollLeft + metrics.padLeft) {
+                    surface.scrollLeft = metrics.scrollLeft = Math.max(0, x - metrics.padLeft);
+                }
+                else if (x + metrics.padLeft > metrics.scrollLeft + metrics.width) {
+                    surface.scrollLeft = metrics.scrollLeft = x + metrics.padLeft - metrics.width;
+                }
+            }
+        }
+        else {
+            let index = layout.indexOf(head),
+                unit = layout.units[index];
+
+            if (!unit) {
+                return;
+            }
+
+            y = metrics.padTop + layout.top(index);
+            height = Math.min(layout.height(unit), metrics.clientHeight);
+        }
+
+        if (y < metrics.scrollTop) {
+            scrollTo(y - metrics.padTop);
+        }
+        else if (y + height > metrics.scrollTop + metrics.clientHeight) {
+            scrollTo(y + height + metrics.padTop - metrics.clientHeight);
+        }
+    }
+
+    // Unfolds whatever hides a selection edge, or with 'edit', whatever an edit of the selection would touch.
+    function revealFolds(edit = false) {
+        if (!folds.length) {
+            return;
+        }
+
+        let ranges = model.selections,
+            next = folds.filter((fold) => !ranges.some((range) =>
+                (range.start >= fold.from && range.start < fold.to) ||
+                (range.end > fold.from && range.end <= fold.to) ||
+                (edit && range.start < fold.to && range.end > fold.from)
+            ));
+
+        if (next.length !== folds.length) {
+            folds = next;
+            unitsDirty = true;
+        }
+    }
+
+    // Client y of the middle of each source line from one client y to another, for rectangular selections.
+    function rowsBetween(from: number, to: number) {
+        let out: number[] = [];
+
+        if (!surface) {
+            return out;
+        }
+
+        let left = surface.getBoundingClientRect().left + metrics.padLeft,
+            a = offsetAt(left, from),
+            b = offsetAt(left, to);
+
+        if (a === null || b === null) {
+            return out;
+        }
+
+        for (let line = model.lineAt(Math.min(a, b)), last = model.lineAt(Math.max(a, b)); line <= last && out.length < 1000; line++) {
+            let rect = clientRect(model.lineStart(line));
+
+            if (rect) {
+                out.push(rect.top + rect.height / 2);
+            }
+        }
+
+        return out;
+    }
+
+    function schedule() {
+        if (!disposed && !frame && surface) {
+            frame = requestAnimationFrame(paint);
+        }
+    }
+
+    function scrollTo(top: number) {
+        if (!surface) {
+            return;
+        }
+
+        surface.scrollTop = Math.max(0, top);
+        metrics.scrollTop = surface.scrollTop;
+        schedule();
+    }
+
+    // Shows the selection once a gesture or command set it, revealing it when asked.
+    function start(reveal: boolean) {
+        if (!editing) {
+            activate(false);
+        }
+
+        revealing ||= reveal;
+        schedule();
+    }
+
+    function subscribe() {
+        unsubscribe?.();
+        unsubscribe = model.subscribe((snapshot, change) => {
+            if (!host?.isConnected) {
+                requestAnimationFrame(() => {
+                    if (!host?.isConnected) {
+                        controller.dispose();
+                    }
+                });
+            }
+
+            if (change.source !== 'navigation') {
+                goals = [];
+            }
+
+            let { selections, ...single } = snapshot;
+
+            state.selections.splice(0, state.selections.length, ...selections.map((range) => ({ ...range })));
+            Object.assign(state, single, { selection: { ...snapshot.selection } });
+
+            if (change.textChanged) {
+                ime.conflict();
+                textChanged(change);
+            }
+
+            if (change.selectionChanged) {
+                revealFolds();
+                // Blocks holding secondary carets draw as source.
+                unitsDirty ||= secondary || selections.length > 1;
+                secondary = selections.length > 1;
+            }
+
+            refresh();
+            schedule();
+
+            if (change.selectionChanged) {
+                callbacks.onSelection?.(snapshot.selection, model.position());
+            }
+
+            if (change.textChanged) {
+                callbacks.onChange?.(snapshot.value, change, snapshot);
+            }
+        });
+    }
+
+    function textChanged(change: Change) {
+        let local = reparseBlocks();
+
+        if (folds.length) {
+            folds = outerFolds(mapFolds(folds, change.editBatches ?? [], model));
+            local = false;
+        }
+
+        whole = null;
+        unitsDirty ||= !local || secondary;
+    }
+
+    // Client rectangles of [from, to) in a drawn unit's text; a collapsed range gives its caret.
+    function textRects(unit: Unit, from: number, to: number) {
+        let out: Rect[] = [],
+            segments = draw.segments(unit);
+
+        if (!segments || !host) {
+            return out;
+        }
+
+        let range = host.ownerDocument.createRange();
+
+        for (let i = 0, n = segments.length; i < n; i++) {
+            let segment = segments[i],
+                at = segment.block.from + segment.from,
+                end = at + segment.node.length;
+
+            if (end < from || at > to || (from !== to && (end === from || at === to))) {
+                continue;
+            }
+
+            range.setStart(segment.node, clamp(from - at, 0, segment.node.length));
+            range.setEnd(segment.node, clamp(to - at, 0, segment.node.length));
+
+            let rects = range.getClientRects();
+
+            for (let j = 0, m = rects.length; j < m; j++) {
+                out.push({ height: rects[j].height, left: rects[j].left, top: rects[j].top, width: rects[j].width });
+            }
+
+            if (from === to && out.length) {
+                break;
+            }
+        }
+
+        return out;
+    }
+
+    let controller: MarkdownController = {
+        addNextOccurrence: (all = false) => {
+            if (disposed || ime.busy()) {
+                return false;
+            }
+
+            capture();
+
+            let changed = addNextOccurrence(model, all);
+
+            start(true);
+
+            return changed;
+        },
+        bold: () => editable(() => markdownCommand(model, 'bold', kindAt)),
+        closeFind: () => search.close(),
+        dispose: () => {
+            if (disposed) {
+                return;
+            }
+
+            try {
+                ime.flush();
+            }
+            finally {
+                disposed = true;
+
+                if (frame) {
+                    cancelAnimationFrame(frame);
+                    frame = 0;
+                }
+
+                unsubscribe?.();
+                unsubscribe = undefined;
+                observer?.disconnect();
+                observer = undefined;
+                size.ondisconnect();
+                pendingValue = undefined;
+            }
+        },
+        document: model,
+        find: (query, next) => search.find(query, next),
+        findNext: () => search.next(),
+        findPrevious: () => search.previous(),
+        focus: () => {
+            if (!disposed) {
+                activate(true);
+            }
+        },
+        fold: (line) => {
+            if (disposed || ime.busy() || options.fold === false) {
+                return false;
+            }
+
+            let target = line === undefined ? model.position().line : line,
+                index = blockAt(blocks, model.lineStart(target - 1)),
+                range = line === undefined || blocks[index].from === model.lineStart(target - 1) ? foldAt(model, blocks, index) : null;
+
+            if (!range || folds.some((fold) => fold.from === range.from && fold.to === range.to)) {
+                return false;
+            }
+
+            folds = outerFolds([...folds, range]);
+
+            if (model.selections.some((selection) => (selection.start >= range.from && selection.start < range.to) || (selection.end > range.from && selection.end <= range.to))) {
+                model.select({ start: range.open ?? range.from });
+            }
+
+            // A field showing the fold's own lines would hide nothing; the block shows folded instead.
+            if (active && range.from < blocks[active.last - 1].to && range.to > active.from) {
+                deactivate();
+                textarea?.blur();
+            }
+
+            unitsDirty = true;
+            schedule();
+
+            return true;
+        },
+        foldAll: () => {
+            if (disposed || ime.busy() || options.fold === false) {
+                return;
+            }
+
+            model.select({ start: 0 });
+            folds = outerFolds(markdownFolds(model, blocks));
+            deactivate();
+            textarea?.blur();
+            unitsDirty = true;
+            schedule();
+        },
+        goToLine: (line, column = 1) => {
+            if (disposed || ime.busy()) {
+                return;
+            }
+
+            model.select({ start: model.offset(line, column) });
+            revealing = true;
+            controller.focus();
+        },
+        indent: () => editable(() => indent(model, options.indent)),
+        insert: (text) => editable(() => insertText(model, text)),
+        italic: () => editable(() => markdownCommand(model, 'italic', kindAt)),
+        lineCommand: (command) => editable(() => lineCommand(model, command)),
+        newline: () => editable(() => markdownCommand(model, 'enter', kindAt)),
+        offsetAt,
+        openFind: (replace = false) => {
+            if (disposed || ime.busy()) {
+                return;
+            }
+
+            jump.state.open = false;
+            search.open(replace);
+            schedule();
+        },
+        openGoToLine: () => {
+            if (disposed || ime.busy()) {
+                return;
+            }
+
+            capture();
+            search.state.open = false;
+            jump.open(model.position().line);
+        },
+        outdent: () => editable(() => indent(model, options.indent, true)),
+        rectAt: (offset) => {
+            if (disposed || offset < 0 || offset > model.value.length || folds.some((fold) => offset >= fold.from && offset < fold.to)) {
+                return null;
+            }
+
+            return clientRect(offset);
+        },
+        redo: () => editable(() => model.redo()),
+        redoSelection: () => {
+            if (disposed || ime.busy()) {
+                return false;
+            }
+
+            let changed = model.redoSelection();
+
+            start(true);
+
+            return changed;
+        },
+        refresh: () => {
+            if (!disposed) {
+                measure();
+                fieldGeometry();
+                unitsDirty = true;
+                schedule();
+            }
+        },
+        replace: (replacement) => search.replace(replacement),
+        replaceAll: (replacement) => search.replaceAll(replacement),
+        save: () => {
+            if (!disposed && !ime.busy()) {
+                callbacks.onSave?.(model.value, model.state);
+            }
+        },
+        select: (next, reveal = true) => {
+            if (disposed || ime.busy()) {
+                return;
+            }
+
+            model.select(next);
+            start(reveal);
+        },
+        selectMany: (ranges, reveal = true) => {
+            if (disposed || ime.busy()) {
+                return;
+            }
+
+            model.selectMany(ranges);
+            start(reveal);
+        },
+        setOptions: (next, replace = false) => {
+            if (disposed) {
+                return;
+            }
+
+            options = { ...(replace ? {} : options), ...next };
+            options.tabSize = clamp(Math.trunc(options.tabSize ?? 4) || 4, 1, 16);
+
+            if (!options.indent || !/^[\t ]+$/.test(options.indent)) {
+                options.indent = '    ';
+            }
+
+            ui.label = options.label ?? 'Markdown editor';
+            ui.minimap = !!options.minimap;
+            ui.name = options.name ?? '';
+            ui.placeholder = options.placeholder ?? '';
+            ui.readonly = !!options.readonly;
+            ui.spellcheck = options.spellcheck ?? true;
+            ui.tabSize = options.tabSize;
+            ui.wrap = options.wrap !== false;
+            search.status();
+
+            if (options.fold === false) {
+                folds = [];
+            }
+
+            whole = null;
+            fieldGeometry();
+            map.invalidate();
+            unitsDirty = true;
+            schedule();
+        },
+        setValue: (value) => {
+            if (disposed) {
+                return false;
+            }
+
+            if (ime.busy()) {
+                pendingValue = value;
+                return false;
+            }
+
+            return model.setValue(value, { source: 'external' });
+        },
+        get state() {
+            return state as Snapshot;
+        },
+        get textarea() {
+            return textarea!;
+        },
+        toggleComment: () => editable(() => toggleComment(model, options.lineComment ?? false, options.blockComment ?? ['<!--', '-->'])),
+        undo: () => editable(() => model.undo()),
+        undoSelection: () => {
+            if (disposed || ime.busy()) {
+                return false;
+            }
+
+            let changed = model.undoSelection();
+
+            start(true);
+
+            return changed;
+        },
+        unfold: (line = model.position().line) => {
+            if (disposed || ime.busy()) {
+                return false;
+            }
+
+            let next = folds.filter((fold) => fold.line !== line);
+
+            if (next.length === folds.length) {
+                return false;
+            }
+
+            folds = next;
+            unitsDirty = true;
+            schedule();
+
+            return true;
+        },
+        unfoldAll: () => {
+            if (disposed || ime.busy() || !folds.length) {
+                return;
+            }
+
+            folds = [];
+            unitsDirty = true;
+            schedule();
+        }
+    };
+
+    let run = commands({
+        cache: () => syntaxCache(model, 'markdown'),
+        capture,
+        controller: controller as Controller,
+        deleteVisible: (backwards, word) => deleteCharacter(model, backwards, word),
+        document: model,
+        edit: editable,
+        language: () => 'markdown',
+        move: moveSelection,
+        options: () => options,
+        select: (selection) => {
+            model.select(selection);
+            start(true);
+        }
     });
-}
+
+    let field: Attributes = {
+        'aria-describedby': help,
+        'aria-label': () => ui.label,
+        class: () => ui.input,
+        name: () => ui.name,
+        onbeforeinput: (e: InputEvent) => {
+            if (writing || ime.busy() || e.isComposing || !textarea) {
+                return;
+            }
+
+            capture();
+            revealFolds(!e.inputType.startsWith('history') && !options.readonly);
+
+            before = { end: textarea.selectionEnd, length: textarea.textLength, start: textarea.selectionStart };
+            beforeRanges = model.selections;
+            beforeSelection = model.selection;
+            inputData = e.data;
+            inputType = e.inputType;
+
+            if (e.inputType === 'historyUndo' || e.inputType === 'historyRedo') {
+                if (e.cancelable) {
+                    e.preventDefault();
+                    e.inputType === 'historyUndo' ? controller.undo() : controller.redo();
+                }
+
+                return;
+            }
+
+            if (!e.cancelable || options.readonly) {
+                return;
+            }
+
+            if (model.selections.length > 1) {
+                if (e.inputType === 'insertText' && e.data !== null) {
+                    e.preventDefault();
+                    editable(() => insertText(model, e.data!, 'input'));
+                    return;
+                }
+
+                if (/^delete(?:Content|Word)(?:Backward|Forward)$/.test(e.inputType)) {
+                    e.preventDefault();
+                    editable(() => e.inputType === 'deleteContentBackward'
+                        ? markdownCommand(model, 'backspace', kindAt)
+                        : deleteCharacter(model, e.inputType.endsWith('Backward'), e.inputType.startsWith('deleteWord')));
+                    return;
+                }
+            }
+
+            if (e.inputType === 'insertLineBreak' || e.inputType === 'insertParagraph') {
+                e.preventDefault();
+                controller.newline();
+            }
+            else if (e.inputType === 'deleteContentBackward' && editable(() => markdownBackspace(model))) {
+                e.preventDefault();
+            }
+        },
+        oncompositionend: ime.attributes.oncompositionend,
+        oncompositionstart: ime.attributes.oncompositionstart,
+        oncopy: (e: ClipboardEvent) => clip(e, false),
+        oncut: (e: ClipboardEvent) => clip(e, true),
+        ondragstart: gestures.ondragstart,
+        onfocus: () => {
+            if (!editing) {
+                activate(false);
+            }
+
+            capture();
+        },
+        oninput: (e: InputEvent) => {
+            if (writing) {
+                return;
+            }
+
+            if (ime.input(e)) {
+                // The field grows with a composition the document doesn't hold yet.
+                if (textarea && textarea.scrollHeight > ui.height) {
+                    ui.height = textarea.scrollHeight;
+                }
+
+                return;
+            }
+
+            if (e.inputType === 'historyUndo' || e.inputType === 'historyRedo') {
+                e.inputType === 'historyUndo' ? controller.undo() : controller.redo();
+                return;
+            }
+
+            accept();
+        },
+        onkeydown: (e: KeyboardEvent) => {
+            gestures.alt(e);
+
+            if (ime.busy() || e.isComposing || e.keyCode === 229) {
+                return;
+            }
+
+            if (options.onCompletionKey?.(e, controller as Controller)) {
+                e.preventDefault();
+                return;
+            }
+
+            if (e.key === 'Escape') {
+                escapeTab = true;
+
+                if (model.selections.length > 1) {
+                    e.preventDefault();
+                    model.select(model.selection);
+                }
+
+                return;
+            }
+
+            if (e.key === 'Tab' && escapeTab) {
+                escapeTab = false;
+                return;
+            }
+
+            escapeTab = false;
+            capture();
+
+            let mod = apple ? e.metaKey : e.ctrlKey,
+                key = e.key.toLowerCase();
+
+            if (mod && !e.altKey && !e.shiftKey && (key === 'b' || key === 'i')) {
+                e.preventDefault();
+                key === 'b' ? controller.bold() : controller.italic();
+                return;
+            }
+
+            let command = keys(e);
+
+            if (command) {
+                e.preventDefault();
+                run(command, e);
+                return;
+            }
+
+            if (mod) {
+                if (e.altKey || !NAVIGATION.test(e.key)) {
+                    return;
+                }
+
+                if (/^(End|Home)$/.test(e.key) || (apple && /^Arrow(Down|Up)$/.test(e.key))) {
+                    e.preventDefault();
+                    moveSelection(e.key, e.shiftKey, false, false, true);
+                }
+                else if (model.selections.length > 1 || (/^Arrow(Left|Right)$/.test(e.key) && leaves(e.key))) {
+                    e.preventDefault();
+                    moveSelection(e.key, e.shiftKey, true);
+                }
+
+                return;
+            }
+
+            if (e.key === 'Tab' && !e.altKey && options.captureTab !== false && !options.readonly) {
+                e.preventDefault();
+                e.shiftKey ? controller.outdent() : controller.indent();
+            }
+            else if (e.key === 'Enter' && !e.altKey && !options.readonly) {
+                e.preventDefault();
+                controller.newline();
+            }
+            else if ((e.key === 'Backspace' || e.key === 'Delete') && !options.readonly && model.selections.length > 1) {
+                e.preventDefault();
+                editable(() => e.key === 'Backspace' && !e.altKey
+                    ? markdownCommand(model, 'backspace', kindAt)
+                    : deleteCharacter(model, e.key === 'Backspace', e.altKey));
+            }
+            else if ((e.key === 'Backspace' || e.key === 'Delete') && !options.readonly && active) {
+                let selection = model.selection,
+                    collapsed = selection.start === selection.end;
+
+                if (e.key === 'Backspace' && collapsed && editable(() => markdownBackspace(model))) {
+                    e.preventDefault();
+                }
+                else if (e.key === 'Backspace' && collapsed && selection.start === active.from && active.from > 0) {
+                    // The line break before the field isn't in it; joining lines takes the document.
+                    e.preventDefault();
+                    editable(() => deleteCharacter(model, true, e.altKey));
+                }
+                else if (e.key === 'Delete' && collapsed && selection.end === active.to && active.to < model.value.length) {
+                    e.preventDefault();
+                    editable(() => deleteCharacter(model, false, e.altKey));
+                }
+            }
+            else if (NAVIGATION.test(e.key) && (model.selections.length > 1 || e.key.startsWith('Page') || leaves(e.key))) {
+                e.preventDefault();
+                moveSelection(e.key, e.shiftKey, e.altKey);
+            }
+        },
+        onkeyup: (e: KeyboardEvent) => {
+            gestures.alt(e);
+            capture();
+        },
+        onpaste: (e: ClipboardEvent) => {
+            if (ime.busy() || options.readonly || !e.clipboardData) {
+                return;
+            }
+
+            e.preventDefault();
+
+            let text = read(e.clipboardData, model.selections.length);
+
+            editable(() => insertText(model, text, 'paste'));
+        },
+        onpointerdown: () => {
+            goals = [];
+            pinned = true;
+        },
+        onpointerup: () => {
+            pinned = false;
+            capture();
+        },
+        onselect: capture,
+        onselectionchange: capture,
+        placeholder: () => ui.placeholder,
+        readOnly: () => ui.readonly,
+        spellcheck: () => ui.spellcheck,
+        style: () => `${ui.style} height: ${ui.height}px;`,
+        wrap: () => ui.wrap ? 'soft' : 'off'
+    };
+
+
+    let body: Attributes = {
+        'aria-label': () => ui.label,
+        onclick: (e: MouseEvent) => {
+            // Links edit in place on a plain click and open with the platform's modifier.
+            if (!(e.ctrlKey || e.metaKey) && (e.target as Element).closest('a')) {
+                e.preventDefault();
+            }
+        },
+        onconnect: (element: HTMLElement) => {
+            surface = element;
+            connect();
+        },
+        ondragend: gestures.ondragend,
+        ondragleave: gestures.ondragleave,
+        ondragover: gestures.ondragover,
+        ondrop: gestures.ondrop,
+        onfocus: (e: FocusEvent) => {
+            if (e.target === surface) {
+                controller.focus();
+            }
+        },
+        onlostpointercapture: () => {
+            gestures.end();
+            finish();
+        },
+        onmousedown: (e: MouseEvent) => {
+            if (e.target === textarea || (e.target as Element).closest('.markdown-editor-block, .markdown-editor-active')) {
+                return;
+            }
+
+            press(e, null);
+        },
+        onpointercancel: () => {
+            gestures.end();
+            finish();
+        },
+        onpointerdown: (e: PointerEvent) => {
+            pointerId = e.pointerId;
+            gestures.onpointerdown(e);
+        },
+        onpointermove: (e: PointerEvent) => {
+            gestures.onpointermove(e);
+
+            if (!drag) {
+                return;
+            }
+
+            let offset = offsetAt(e.clientX, e.clientY);
+
+            if (offset !== null && offset !== drag.head) {
+                drag.head = offset;
+                schedule();
+            }
+        },
+        onpointerup: () => {
+            pinned = false;
+            pointerId = -1;
+            gestures.end();
+            finish();
+        },
+        onscroll: () => {
+            metrics.scrollLeft = surface!.scrollLeft;
+            metrics.scrollTop = surface!.scrollTop;
+            schedule();
+        },
+        tabindex: () => ui.editing ? -1 : 0
+    };
+
+    let template = (attributes?: Attributes) => html`
+        <div
+            class='markdown-editor'
+            ${attributes}
+            ${{
+                class: [
+                    () => ime.state.composing && 'markdown-editor--composing',
+                    () => gestures.state.crosshair && 'markdown-editor--crosshair',
+                    () => ui.minimap && 'markdown-editor--minimap',
+                    () => !ui.wrap && 'markdown-editor--nowrap',
+                    () => ui.readonly && 'markdown-editor--readonly'
+                ],
+                onconnect: (element: HTMLElement) => {
+                    host = element;
+                    connect();
+                },
+                ondisconnect: () => controller.dispose(),
+                onfocusout: (e: FocusEvent) => {
+                    let next = e.relatedTarget as Node | null;
+
+                    if (!next || !host?.contains(next)) {
+                        capture();
+                        deactivate();
+                    }
+                },
+                style: () => `--tab-size: ${ui.tabSize};`
+            }}
+        >
+            ${search.template()}
+            ${jump.template()}
+            <div class='markdown-editor-body' ${size}>
+                <div class='markdown-editor-surface --scrollbar' ${body}>
+                    <div aria-hidden='true' class='markdown-editor-overlay'>
+                        ${html.reactive(decorations, (decoration) => html`
+                            <div ${{ class: () => decoration.kind, style: () => decoration.style }}></div>
+                        `)}
+                    </div>
+                    <div aria-hidden='true' class='markdown-editor-spacer' ${{ style: () => `height: ${ui.top}px;` }}></div>
+                    ${html.reactive(listed.before, draw.template)}
+                    <div aria-hidden='true' class='markdown-editor-spacer' ${{ style: () => `height: ${ui.between}px;` }}></div>
+                    <div class='markdown-editor-active' ${{ class: () => ui.editing && '--active' }}>
+                        <button
+                            aria-label='Fold block'
+                            class='markdown-editor-fold'
+                            tabindex='-1'
+                            type='button'
+                            ${{
+                                class: () => !ui.foldable && 'markdown-editor-fold--none',
+                                onclick: () => {
+                                    if (active) {
+                                        controller.fold(model.lineAt(blocks[active.first].from) + 1);
+                                    }
+                                },
+                                onmousedown: prevent
+                            }}
+                        >
+                            ${icon({ 'aria-hidden': 'true', class: 'markdown-editor-fold-icon' }, chevron)}
+                        </button>
+                        <textarea
+                            autocapitalize='off'
+                            autocomplete='off'
+                            autocorrect='off'
+                            dir='ltr'
+                            ${field}
+                            ${{
+                                onconnect: (element: HTMLTextAreaElement) => {
+                                    textarea = element;
+                                    connect();
+                                }
+                            }}
+                        ></textarea>
+                    </div>
+                    <div aria-hidden='true' class='markdown-editor-spacer' ${{ style: () => `height: ${ui.next}px;` }}></div>
+                    ${html.reactive(listed.after, draw.template)}
+                    <div aria-hidden='true' class='markdown-editor-spacer' ${{ style: () => `height: ${ui.bottom}px;` }}></div>
+                </div>
+                ${map.template()}
+                <span
+                    aria-hidden='true'
+                    class='markdown-editor-ruler'
+                    ${{
+                        onconnect: (element: HTMLElement) => {
+                            ruler = element;
+                            connect();
+                        }
+                    }}
+                >0000000000000000000000000000000000000000000000000000000000000000</span>
+            </div>
+            <span class='markdown-editor-help' id='${help}'>Press Escape then Tab to move focus out of the editor.</span>
+        </div>
+    `;
+
+    return { controller, template };
+};
+
+
+export { view };
+export type { MarkdownController, MarkdownOptions };

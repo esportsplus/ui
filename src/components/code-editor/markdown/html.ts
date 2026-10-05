@@ -1,163 +1,192 @@
-import { html, type Renderable } from '@esportsplus/template';
-import { safeUrl } from './model';
+import { safeUrl } from './inline';
 
-const allowed = new Set([
-    'p',
-    'div',
-    'span',
-    'br',
-    'hr',
-    'strong',
-    'b',
-    'em',
-    'i',
-    's',
-    'del',
-    'code',
-    'pre',
-    'blockquote',
-    'a',
-    'img',
-    'ul',
-    'ol',
-    'li',
-    'h1',
-    'h2',
-    'h3',
-    'h4',
-    'h5',
-    'h6',
-    'table',
-    'thead',
-    'tbody',
-    'tr',
-    'th',
-    'td',
-    'details',
-    'summary',
-    'sup',
-    'sub'
-]);
-const discard = new Set([
-    'script',
-    'style',
-    'iframe',
-    'object',
-    'embed',
-    'svg',
-    'math',
-    'template',
-    'noscript',
+
+type SafeAttributes = { alt?: string; href?: string; src?: string; title?: string };
+
+type SafeElement = { attributes: SafeAttributes; children: SafeNode[]; tag: Tag };
+
+type SafeNode = SafeElement | string;
+
+// What the sanitizer reads of a parsed node; a DOM node satisfies it.
+type Source = {
+    childNodes: ArrayLike<Source>;
+    getAttribute?: (name: string) => string | null;
+    localName?: string;
+    nodeType: number;
+    textContent: string | null;
+};
+
+type Tag =
+    | 'a'
+    | 'blockquote'
+    | 'br'
+    | 'code'
+    | 'details'
+    | 'div'
+    | 'em'
+    | 'h1'
+    | 'h2'
+    | 'h3'
+    | 'h4'
+    | 'h5'
+    | 'h6'
+    | 'hr'
+    | 'img'
+    | 'li'
+    | 'ol'
+    | 'p'
+    | 'pre'
+    | 's'
+    | 'span'
+    | 'strong'
+    | 'sub'
+    | 'summary'
+    | 'sup'
+    | 'table'
+    | 'tbody'
+    | 'td'
+    | 'th'
+    | 'thead'
+    | 'tr'
+    | 'ul';
+
+
+// Allowed tags and what they render as; presentational synonyms fold into one tag.
+const ALLOWED: Record<string, Tag> = {
+    a: 'a',
+    b: 'strong',
+    blockquote: 'blockquote',
+    br: 'br',
+    code: 'code',
+    del: 's',
+    details: 'details',
+    div: 'div',
+    em: 'em',
+    h1: 'h1',
+    h2: 'h2',
+    h3: 'h3',
+    h4: 'h4',
+    h5: 'h5',
+    h6: 'h6',
+    hr: 'hr',
+    i: 'em',
+    img: 'img',
+    li: 'li',
+    ol: 'ol',
+    p: 'p',
+    pre: 'pre',
+    s: 's',
+    span: 'span',
+    strong: 'strong',
+    sub: 'sub',
+    summary: 'summary',
+    sup: 'sup',
+    table: 'table',
+    tbody: 'tbody',
+    td: 'td',
+    th: 'th',
+    thead: 'thead',
+    tr: 'tr',
+    ul: 'ul'
+};
+
+// Dropped with everything inside them; any other unknown tag is unwrapped to its children.
+const DISCARD = new Set([
     'base',
-    'link',
-    'meta',
-    'form',
-    'input',
     'button',
-    'textarea',
-    'select'
+    'embed',
+    'form',
+    'iframe',
+    'input',
+    'link',
+    'math',
+    'meta',
+    'noscript',
+    'object',
+    'script',
+    'select',
+    'style',
+    'svg',
+    'template',
+    'textarea'
 ]);
 
-/** Parse inertly, project a strict allowlist, then render through compiled templates.
- * Source HTML is never assigned to a live element or template raw-HTML slot. */
-export function renderSafeHtml(source: string, dom: Document): Renderable<unknown> {
-    let parser = new dom.defaultView!.DOMParser(),
-        parsed = parser.parseFromString(source, 'text/html');
-    function node(value: Node, depth: number): Renderable<unknown> {
-        if (depth > 40) return '';
-        if (value.nodeType === 3) return value.textContent ?? '';
-        if (value.nodeType !== 1) return '';
-        let element = value as HTMLElement,
-            tag = element.localName.toLowerCase();
-        if (discard.has(tag)) return '';
-        let children = [...element.childNodes].map((child) => node(child, depth + 1));
-        if (!allowed.has(tag)) return children;
-        let attributes: Record<string, string> = {},
-            title = element.getAttribute('title');
-        if (title) attributes.title = title;
-        if (tag === 'a') {
-            let href = safeUrl(element.getAttribute('href') ?? '');
-            if (href) attributes.href = href;
-            attributes.rel = 'noopener noreferrer';
-        }
-        if (tag === 'img') {
-            let src = safeUrl(element.getAttribute('src') ?? '', true);
-            if (!src) return element.getAttribute('alt') ?? '';
-            attributes.src = src;
-            attributes.alt = element.getAttribute('alt') ?? '';
-            attributes.loading = 'lazy';
-        }
-        // Static tags let the template compiler own every resulting UI node.
-        switch (tag) {
-            case 'a':
-                return html`<a ${attributes}>${children}</a>`;
-            case 'img':
-                return html`<img ${attributes}>`;
-            case 'p':
-                return html`<p ${attributes}>${children}</p>`;
-            case 'div':
-                return html`<div ${attributes}>${children}</div>`;
-            case 'span':
-                return html`<span ${attributes}>${children}</span>`;
-            case 'strong':
-            case 'b':
-                return html`<strong ${attributes}>${children}</strong>`;
-            case 'em':
-            case 'i':
-                return html`<em ${attributes}>${children}</em>`;
-            case 's':
-            case 'del':
-                return html`<s ${attributes}>${children}</s>`;
-            case 'code':
-                return html`<code ${attributes}>${children}</code>`;
-            case 'pre':
-                return html`<pre ${attributes}>${children}</pre>`;
-            case 'blockquote':
-                return html`<blockquote ${attributes}>${children}</blockquote>`;
-            case 'ul':
-                return html`<ul ${attributes}>${children}</ul>`;
-            case 'ol':
-                return html`<ol ${attributes}>${children}</ol>`;
-            case 'li':
-                return html`<li ${attributes}>${children}</li>`;
-            case 'h1':
-                return html`<h1 ${attributes}>${children}</h1>`;
-            case 'h2':
-                return html`<h2 ${attributes}>${children}</h2>`;
-            case 'h3':
-                return html`<h3 ${attributes}>${children}</h3>`;
-            case 'h4':
-                return html`<h4 ${attributes}>${children}</h4>`;
-            case 'h5':
-                return html`<h5 ${attributes}>${children}</h5>`;
-            case 'h6':
-                return html`<h6 ${attributes}>${children}</h6>`;
-            case 'table':
-                return html`<table ${attributes}>${children}</table>`;
-            case 'thead':
-                return html`<thead ${attributes}>${children}</thead>`;
-            case 'tbody':
-                return html`<tbody ${attributes}>${children}</tbody>`;
-            case 'tr':
-                return html`<tr ${attributes}>${children}</tr>`;
-            case 'th':
-                return html`<th ${attributes}>${children}</th>`;
-            case 'td':
-                return html`<td ${attributes}>${children}</td>`;
-            case 'details':
-                return html`<details ${attributes}>${children}</details>`;
-            case 'summary':
-                return html`<summary ${attributes}>${children}</summary>`;
-            case 'sup':
-                return html`<sup ${attributes}>${children}</sup>`;
-            case 'sub':
-                return html`<sub ${attributes}>${children}</sub>`;
-            case 'br':
-                return html`<br>`;
-            case 'hr':
-                return html`<hr>`;
-        }
-        return children;
+const MAX_DEPTH = 40;
+
+
+function children(source: Source, depth: number, out: SafeNode[]) {
+    let nodes = source.childNodes;
+
+    for (let i = 0, n = nodes.length; i < n; i++) {
+        project(nodes[i], depth, out);
     }
-    return [...parsed.body.childNodes].map((child) => node(child, 0));
+
+    return out;
 }
+
+function project(source: Source, depth: number, out: SafeNode[]) {
+    if (depth > MAX_DEPTH) {
+        return;
+    }
+
+    if (source.nodeType === 3) {
+        out.push(source.textContent ?? '');
+        return;
+    }
+
+    if (source.nodeType !== 1) {
+        return;
+    }
+
+    let name = (source.localName ?? '').toLowerCase(),
+        tag = ALLOWED[name];
+
+    if (DISCARD.has(name)) {
+        return;
+    }
+
+    if (!tag) {
+        children(source, depth + 1, out);
+        return;
+    }
+
+    let attributes: SafeAttributes = {},
+        title = source.getAttribute?.('title');
+
+    if (title) {
+        attributes.title = title;
+    }
+
+    if (tag === 'a') {
+        let href = safeUrl(source.getAttribute?.('href') ?? '');
+
+        if (href) {
+            attributes.href = href;
+        }
+    }
+    else if (tag === 'img') {
+        let alt = source.getAttribute?.('alt') ?? '',
+            src = safeUrl(source.getAttribute?.('src') ?? '', true);
+
+        if (!src) {
+            out.push(alt);
+            return;
+        }
+
+        attributes.alt = alt;
+        attributes.src = src;
+    }
+
+    out.push({ attributes, children: tag === 'br' || tag === 'hr' || tag === 'img' ? [] : children(source, depth + 1, []), tag });
+}
+
+
+// Parses inertly, then keeps a strict allowlist of tags and attributes. Source HTML never reaches a live element
+// or a raw HTML slot: the result is plain data for compiled templates to render.
+const sanitize = (source: Source): SafeNode[] => children(source, 0, []);
+
+const sanitizeHtml = (html: string, parser: DOMParser) => sanitize(parser.parseFromString(html, 'text/html').body);
+
+
+export { sanitize, sanitizeHtml };
+export type { SafeElement, SafeNode, Source, Tag };
