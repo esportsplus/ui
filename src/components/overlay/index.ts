@@ -3,6 +3,7 @@ import { component, html, type Attributes } from '@esportsplus/template';
 import { edge } from '~/shared/anchor';
 import { finished, ms } from '~/shared/animation';
 import { drag, fling, INTERACTIVE, toward, type Direction, type Drag } from '~/shared/drag';
+import { observer, type Observer } from '~/shared/resize';
 import popup, { lifecycle } from './popup';
 import './scss/index.scss';
 
@@ -194,9 +195,9 @@ function unstack(element: HTMLDialogElement) {
 
 export default component(
     function(this, { flow = false, modal = !flow, rail = false, state = reactive({ active: false }), ...attributes }: A, content) {
-        let observer: ResizeObserver | undefined,
-            fill = 0,
+        let fill = 0,
             height = 0,
+            resize: Observer | undefined,
             space: HTMLElement | undefined,
             motion: Animation | undefined,
             stop: VoidFunction | undefined;
@@ -433,11 +434,12 @@ export default component(
                                         (element.querySelector<HTMLElement>('[autofocus]') ?? element).focus({ preventScroll: true });
                                     }
 
-                                    observer = new ResizeObserver(() => measure(element));
-                                    observer.observe(element);
+                                    resize?.disconnect();
+                                    resize = observer(() => measure(element));
+                                    resize.observe(element);
 
                                     for (let i = 0, n = element.children.length; i < n; i++) {
-                                        observer.observe(element.children[i]);
+                                        resize.observe(element.children[i]);
                                     }
 
                                     // Commit the closed styles first so adding '--active' transitions in.
@@ -456,7 +458,8 @@ export default component(
                             },
                             close: () => unstack(element),
                             closed: () => {
-                                observer?.disconnect();
+                                resize?.disconnect();
+                                resize = undefined;
                                 element.close();
                                 resetSpace();
                                 reset(element);
@@ -464,7 +467,8 @@ export default component(
                         });
                     },
                     ondisconnect: (element: HTMLDialogElement) => {
-                        observer?.disconnect();
+                        resize?.disconnect();
+                        resize = undefined;
                         stop?.();
                         resetSpace();
                         reset(element);

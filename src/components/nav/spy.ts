@@ -1,4 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
+import { observer } from '~/shared/resize';
 
 
 // 'current' marks the last section scrolled past the top; 'visible' marks every section on screen.
@@ -150,15 +151,15 @@ const spy = (ids: string[], mode: Mode = 'current') => {
 
             root = container(elements[0].element);
 
-            let observer = new ResizeObserver(schedule),
+            let resize = observer(schedule),
                 target: EventTarget = root === document.scrollingElement ? window : root;
 
             target.addEventListener('scroll', schedule, { passive: true });
             target.addEventListener('scrollend', scrollend);
-            observer.observe(root);
+            resize.observe(root);
 
             for (let i = 0, n = elements.length; i < n; i++) {
-                observer.observe(elements[i].element);
+                resize.observe(elements[i].element);
             }
 
             measure();
@@ -166,7 +167,7 @@ const spy = (ids: string[], mode: Mode = 'current') => {
             return () => {
                 cancelAnimationFrame(frame);
                 clearTimeout(timer);
-                observer.disconnect();
+                resize.disconnect();
                 target.removeEventListener('scroll', schedule);
                 target.removeEventListener('scrollend', scrollend);
                 frame = 0;

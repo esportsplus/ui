@@ -1,4 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
+import { observer, type Observer } from '~/shared/resize';
 import { createOverlay } from '../glass';
 import './scss/index.scss';
 
@@ -27,8 +28,8 @@ function attributes(name: string) {
         return { class: ['--scrollbar', name] };
     }
 
-    let observer: ResizeObserver | undefined,
-        overflow = { bottom: 0, top: 0 },
+    let overflow = { bottom: 0, top: 0 },
+        resize: Observer | undefined,
         state = reactive({ toggle: false });
 
     function update(element: HTMLElement) {
@@ -52,15 +53,17 @@ function attributes(name: string) {
     return {
         class: ['--scrollbar', name],
         onconnect: (element: HTMLElement) => {
-            observer = new ResizeObserver(() => update(element));
-            observer.observe(element);
+            resize?.disconnect();
+            resize = observer(() => update(element));
+            resize.observe(element);
 
             for (let i = 0, n = element.children.length; i < n; i++) {
-                observer.observe(element.children[i]);
+                resize.observe(element.children[i]);
             }
         },
         ondisconnect: () => {
-            observer?.disconnect();
+            resize?.disconnect();
+            resize = undefined;
         },
         onscroll: function(this: HTMLElement) {
             update(this);

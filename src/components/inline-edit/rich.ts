@@ -8,6 +8,7 @@ import input from '~/components/input';
 import selectInput from '~/components/select';
 import tooltip from '~/components/tooltip';
 import { mac } from '~/shared/platform';
+import { observe } from '~/shared/resize';
 import { active, check, clear, extent, kindAt, link, setKind, toggle, unformat } from './format';
 import history, { type Entry, type Kind as Step } from './history';
 import { parse, serialize, type Feature, type Group } from './markdown';
@@ -380,7 +381,6 @@ export default component(
             frame = 0,
             items: HTMLElement[] = [],
             keys: AbortController | undefined,
-            observer: ResizeObserver | undefined,
             pressing = false,
             root: HTMLElement | undefined,
             saved: Span | null = null,
@@ -388,6 +388,7 @@ export default component(
             settling: ReturnType<typeof setTimeout> | undefined,
             shown: Kind = 'paragraph',
             toolbar: HTMLElement | undefined,
+            unobserve: VoidFunction | undefined,
             url: HTMLInputElement | undefined;
 
         // The select only reports a value; one that differs from the block under the selection is a choice.
@@ -1240,15 +1241,16 @@ export default component(
                     ],
                     onconnect: (element: HTMLElement) => {
                         root = element;
-                        observer = new ResizeObserver(sync);
-                        observer.observe(element);
+                        unobserve?.();
+                        unobserve = observe(element, sync);
                     },
                     ondisconnect: () => {
                         cancelAnimationFrame(frame);
                         clearTimeout(copyTimer);
                         clearTimeout(settling);
                         keys?.abort();
-                        observer?.disconnect();
+                        unobserve?.();
+                        unobserve = undefined;
                         saving.dispose();
                     },
                     ondocumentselectionchange: sync,

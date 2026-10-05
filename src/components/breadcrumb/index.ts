@@ -1,6 +1,7 @@
 import { component, html, on, type Attributes, type Element } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import tooltip from '~/components/tooltip';
+import { observer } from '~/shared/resize';
 import chevron from '@esportsplus/ui/svg/chevron-right.svg';
 import dots from '@esportsplus/ui/svg/dots.svg';
 import folder from '@esportsplus/ui/svg/folder.svg';
@@ -123,17 +124,17 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                 class: () => view.instant && 'breadcrumb--instant',
                 onconnect: (element: HTMLElement) => {
                     // Also catches webfonts landing late, since they resize the ruler.
-                    let observer = new ResizeObserver(fit);
+                    let resize = observer(fit);
 
                     root = element;
                     fit();
-                    observer.observe(element);
+                    resize.observe(element);
 
                     if (ruler) {
-                        observer.observe(ruler);
+                        resize.observe(ruler);
                     }
 
-                    onCleanup(() => observer.disconnect());
+                    onCleanup(resize.disconnect);
                 },
                 // The first fit lands after the trail has been styled once, so 'breadcrumb--instant' holds until that
                 // fit has painted or it would play the fold.

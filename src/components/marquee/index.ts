@@ -1,6 +1,7 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { clamp } from '~/shared/clamp';
+import { observer } from '~/shared/resize';
 import * as scroll from './velocity';
 import './scss/index.scss';
 
@@ -261,11 +262,11 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                         return;
                     }
 
-                    let resize = new ResizeObserver(measure);
+                    let resize = observer(measure);
 
                     resize.observe(viewport);
                     resize.observe(group);
-                    cleanup.push(() => resize.disconnect());
+                    cleanup.push(resize.disconnect);
 
                     if (velocity) {
                         let t = scroll.track(element, wake);

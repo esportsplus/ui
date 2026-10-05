@@ -18,6 +18,7 @@ import tooltip from '~/components/tooltip';
 import type { Controller as MenuController, Item } from '~/components/tooltip/menu';
 import fuzzy from '~/shared/fuzzy';
 import { mac } from '~/shared/platform';
+import { observe } from '~/shared/resize';
 import codeEditor, { type CodeEditorAttributes } from '../editor';
 import type { Controller as EditorController, Options as EditorOptions } from '../view';
 import {
@@ -431,14 +432,11 @@ const workspace = ({
         container = element;
         release = root((dispose) => {
             let listening = new AbortController(),
-                observer = new ResizeObserver(([entry]) => {
-                    if (entry) {
-                        view.compact = entry.contentRect.width <= COMPACT_WIDTH;
-                    }
+                unobserve = observe(element, ([entry]) => {
+                    view.compact = entry.contentRect.width <= COMPACT_WIDTH;
                 });
 
             bridge();
-            observer.observe(element);
             element.ownerDocument.addEventListener('keydown', keydown, { signal: listening.signal });
             // A closing modal hands focus back to whatever had it before, so ours moves only once it has closed;
             // 'close' doesn't bubble, but capture still passes through the workspace.
@@ -453,7 +451,7 @@ const workspace = ({
             onCleanup(model.subscribe(bridge));
             onCleanup(() => {
                 listening.abort();
-                observer.disconnect();
+                unobserve();
                 confirmation?.resolve('cancel');
                 model.setConfirmation(undefined);
                 model.stop();

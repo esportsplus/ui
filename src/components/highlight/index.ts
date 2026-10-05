@@ -1,6 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import { ms } from '~/shared/animation';
+import { observer, type Observer } from '~/shared/resize';
 import { easing } from './easing';
 import './scss/index.scss';
 
@@ -264,7 +265,7 @@ export default component<A>(
             nodes: Record<Name, HTMLElement | null> = { active: null, pointer: null },
             parent: HTMLElement | null = null,
             pressed = false,
-            resize: ResizeObserver | undefined,
+            resize: Observer | undefined,
             self: Element[] = [];
 
         // Animations and transitions near the items, a folder opening or a dialog scaling in, can move them without
@@ -621,7 +622,7 @@ export default component<A>(
                         // A size change moves an item only from ahead of it, around it, or past it in a parent that
                         // isn't laid out from its start; a virtual list's rows and trailing spacer resizing below a
                         // resting highlight don't.
-                        resize = new ResizeObserver((entries) => {
+                        resize = observer((entries) => {
                             let items: Element[] | undefined;
 
                             for (let i = 0, n = entries.length; i < n; i++) {

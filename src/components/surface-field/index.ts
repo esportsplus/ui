@@ -1,6 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, read as get, signal, untrack, write } from '@esportsplus/reactivity';
 import { pool } from '@esportsplus/workers';
+import { observer, type Observer } from '~/shared/resize';
 import engine, { scheduler, type Camera, type Link as Path, type Rgb, type Settings, type Shape } from './engine';
 import surface from './surface';
 import type { Actions, Call, Field } from './worker';
@@ -242,7 +243,7 @@ export default component(
             listening: AbortController | undefined,
             measuring = 0,
             relink = true,
-            resizer: ResizeObserver | undefined,
+            resizer: Observer | undefined,
             running = 0,
             settle = 0,
             shown = true,
@@ -648,7 +649,7 @@ export default component(
                                 schedule();
                             });
 
-                        resizer = new ResizeObserver(() => schedule());
+                        resizer = observer(() => schedule());
                         intersection.observe(element);
                         mutation.observe(element, {
                             attributeFilter: ['class', 'data-surface-field', 'style'],

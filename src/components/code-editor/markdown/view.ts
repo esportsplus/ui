@@ -3,7 +3,7 @@ import { html, type Attributes } from '@esportsplus/template';
 import icon from '~/components/icon';
 import { clamp } from '~/shared/clamp';
 import { mac } from '~/shared/platform';
-import { observeSize } from '~/shared/resize';
+import { observer, observeSize, type Observer } from '~/shared/resize';
 import { copied, read, write } from '../clipboard';
 import { addNextOccurrence, deleteCharacter, indent, insertText, lineCommand, toggleComment } from '../commands';
 import { composition } from '../composition';
@@ -204,7 +204,6 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             scrollTop: 0,
             width: 600
         },
-        observer: ResizeObserver | undefined = new ResizeObserver(resized),
         options: MarkdownOptions = { wrap: true },
         palette: Record<string, string> = {},
         parsed = model.revision,
@@ -212,6 +211,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         pinned = false,
         pointerId = -1,
         projection = new NativeText(''),
+        resize: Observer | undefined = observer(resized),
         revealing = false,
         ruler: HTMLElement | undefined,
         secondary = false,
@@ -275,11 +275,11 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             if (unit) {
                 shown.set(element, unit);
 
-                observer?.observe(element);
+                resize?.observe(element);
             }
             else {
                 shown.delete(element);
-                observer?.unobserve(element);
+                resize?.unobserve(element);
             }
         },
         task: (block) => {
@@ -1740,8 +1740,8 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
                 unsubscribe?.();
                 unsubscribe = undefined;
-                observer?.disconnect();
-                observer = undefined;
+                resize?.disconnect();
+                resize = undefined;
                 size.ondisconnect();
                 pendingValue = undefined;
             }
