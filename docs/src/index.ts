@@ -13,7 +13,7 @@ render(
     {
         class: `--font-montserrat --scrollbar --scrollbar-scope`
     },
-    html`${middleware(
+    () => html`${middleware(
         (request, next) => html`
             ${modal()}
             ${toaster.content}

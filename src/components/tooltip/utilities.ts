@@ -45,7 +45,7 @@ function goo() {
         return;
     }
 
-    render(document.body, html`
+    render(document.body, () => html`
         <svg aria-hidden='true' height='0' style='position: absolute;' width='0'>
             <filter color-interpolation-filters='sRGB' filterUnits='userSpaceOnUse' height='4000' id='${GOO}' width='4000' x='-2000' y='-2000'>
                 <feGaussianBlur in='SourceGraphic' result='blur' stdDeviation='8' />
