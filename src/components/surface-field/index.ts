@@ -2,6 +2,7 @@ import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, read as get, signal, untrack, write } from '@esportsplus/reactivity';
 import { pool } from '@esportsplus/workers';
 import { observer, type Observer } from '~/shared/resize';
+import { observeIntersection } from '~/shared/visible';
 import engine, { scheduler, type Camera, type Link as Path, type Rgb, type Settings, type Shape } from './engine';
 import surface from './surface';
 import type { Actions, Call, Field } from './worker';
@@ -621,7 +622,7 @@ export default component(
 
                                 schedule();
                             },
-                            intersection = new IntersectionObserver((entries) => {
+                            intersection = observeIntersection(element, (entries) => {
                                 shown = entries[entries.length - 1].isIntersecting && !document.hidden;
                                 field?.visible(shown);
                             }),
@@ -650,7 +651,6 @@ export default component(
                             });
 
                         resizer = observer(() => schedule());
-                        intersection.observe(element);
                         mutation.observe(element, {
                             attributeFilter: ['class', 'data-surface-field', 'style'],
                             characterData: true,
@@ -670,7 +670,7 @@ export default component(
                             bounds = null;
                         }, { capture: true, passive: true, signal });
                         signal.addEventListener('abort', () => {
-                            intersection.disconnect();
+                            intersection();
                             mutation.disconnect();
                             resizer?.disconnect();
                             theme.disconnect();

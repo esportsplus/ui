@@ -1,6 +1,7 @@
 import { html } from 'docs/app';
 import { effect, flush, reactive, untrack } from '@esportsplus/reactivity';
 import { highlight, icon, select } from '@esportsplus/ui/components';
+import { observeIntersection } from '@esportsplus/ui/shared/visible';
 import codeSvg from '@esportsplus/ui/svg/code.svg';
 import eye from '@esportsplus/ui/svg/eye.svg';
 import { code } from 'docs/components/code';
@@ -13,8 +14,8 @@ type View = 'preview' | 'code';
 
 
 const preview = (title: string | null, node: Renderable<unknown>, id?: string, options: PreviewOption[] = [], source?: () => Promise<string>) => {
-    let observer: IntersectionObserver | undefined,
-        frame = 0,
+    let frame = 0,
+        release: VoidFunction | undefined,
         request = 0,
         cache = new Map<string, string>(),
         render = typeof node === 'function' ? node as () => Renderable<unknown> : () => node,
@@ -78,8 +79,8 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
     }
 
     function mount() {
-        observer?.disconnect();
-        observer = undefined;
+        release?.();
+        release = undefined;
         state.mounted = true;
     }
 
@@ -113,18 +114,17 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
                         return;
                     }
 
-                    observer = new IntersectionObserver((entries) => {
+                    release = observeIntersection(element, (entries) => {
                         if (entries.some((entry) => entry.isIntersecting)) {
                             mount();
                         }
                     }, { rootMargin: '400px 0px' });
-                    observer.observe(element);
                 },
                 ondisconnect: () => {
                     cancelAnimationFrame(frame);
                     frame = 0;
-                    observer?.disconnect();
-                    observer = undefined;
+                    release?.();
+                    release = undefined;
                 },
                 // TOC navigation focuses the example before scrolling. Mount first so its final box is the target.
                 onfocusin: function(this: HTMLElement, event: FocusEvent) {

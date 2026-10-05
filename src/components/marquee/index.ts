@@ -2,6 +2,7 @@ import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { clamp } from '~/shared/clamp';
 import { observer } from '~/shared/resize';
+import { observeIntersection } from '~/shared/visible';
 import * as scroll from './velocity';
 import './scss/index.scss';
 
@@ -278,17 +279,14 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                         });
                     }
 
-                    let intersection = new IntersectionObserver((entries) => {
+                    cleanup.push(observeIntersection(viewport, (entries) => {
                         let entry = entries[entries.length - 1];
 
                         if (entry && entry.isIntersecting !== near) {
                             near = entry.isIntersecting;
                             run();
                         }
-                    }, { rootMargin: '96px' });
-
-                    intersection.observe(viewport);
-                    cleanup.push(() => intersection.disconnect());
+                    }, { rootMargin: '96px' }));
 
                     motion();
                 },
