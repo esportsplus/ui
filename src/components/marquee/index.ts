@@ -1,7 +1,8 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import { effect, reactive, untrack } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import { clamp } from '~/shared/clamp';
 import { observer } from '~/shared/resize';
+import { ticker } from '~/shared/ticker';
 import { observeIntersection } from '~/shared/visible';
 import * as scroll from './velocity';
 import './scss/index.scss';
@@ -54,11 +55,9 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
     // Scrolling the page speeds the marquee up and turns it with the scroll direction.
     velocity?: boolean;
 }) => {
-    let cleanup: VoidFunction[] = [],
-        copies = reactive(Array.from({ length: MIN_COPIES }, (_, i) => i)),
+    let copies = reactive(Array.from({ length: MIN_COPIES }, (_, i) => i)),
         // The share of 'speed' it drifts at, from the CSS; none holds it still, to scroll by hand.
         drift = 0,
-        frame = 0,
         group: HTMLElement | undefined,
         held = false,
         near = false,
@@ -68,6 +67,8 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
         sign = direction === 'right' ? 1 : -1,
         span = 0,
         stage = reactive({ still: false, x: 0 }),
+        // Unsubscribes from the shared ticker; unset while asleep.
+        stop: VoidFunction | undefined,
         track: HTMLElement | undefined,
         tracker: scroll.Tracker | undefined,
         viewport: HTMLElement | undefined;
@@ -173,9 +174,7 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
 
         let last = 0;
 
-        function tick(now: number) {
-            frame = requestAnimationFrame(tick);
-
+        stop = ticker((now) => {
             let dt = last ? Math.min((now - last) / 1000, 0.05) : 0,
                 goal = held || state.paused ? 0 : 1,
                 loop = span;
@@ -223,14 +222,12 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
             if (!goal && rate < 0.002 && Math.abs(nudge) < 0.25 && (!tracker || scroll.settled(tracker, now))) {
                 sleep();
             }
-        }
-
-        frame = requestAnimationFrame(tick);
+        });
     }
 
     function sleep() {
-        cancelAnimationFrame(frame);
-        frame = 0;
+        stop?.();
+        stop = undefined;
     }
 
     function unhold() {
@@ -239,7 +236,7 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
     }
 
     function wake() {
-        if (!frame) {
+        if (!stop) {
             run();
         }
     }
@@ -267,19 +264,19 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
 
                     resize.observe(viewport);
                     resize.observe(group);
-                    cleanup.push(resize.disconnect);
+                    onCleanup(resize.disconnect);
 
                     if (velocity) {
                         let t = scroll.track(element, wake);
 
                         tracker = t;
-                        cleanup.push(() => {
+                        onCleanup(() => {
                             t.release(wake);
                             tracker = undefined;
                         });
                     }
 
-                    cleanup.push(observeIntersection(viewport, (entries) => {
+                    onCleanup(observeIntersection(viewport, (entries) => {
                         let entry = entries[entries.length - 1];
 
                         if (entry && entry.isIntersecting !== near) {
@@ -287,18 +284,12 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                             run();
                         }
                     }, { rootMargin: '96px' }));
+                    onCleanup(() => {
+                        near = false;
+                        sleep();
+                    });
 
                     motion();
-                },
-                ondisconnect: () => {
-                    near = false;
-                    sleep();
-
-                    for (let i = 0, n = cleanup.length; i < n; i++) {
-                        cleanup[i]();
-                    }
-
-                    cleanup.length = 0;
                 },
                 onfocusin: (e: FocusEvent) => {
                     held = true;
