@@ -68,10 +68,6 @@ function boxes(target: HTMLInputElement) {
     return Array.from(target.closest('.board-otp-boxes')!.querySelectorAll<HTMLInputElement>('input'));
 }
 
-function code(target: HTMLInputElement) {
-    return boxes(target).map((box) => box.value).join('');
-}
-
 function field({ disabled, invalid, size = 'medium', value }: Field = {}) {
     let id = `board-input-${++instance}`;
 
@@ -98,9 +94,8 @@ function field({ disabled, invalid, size = 'medium', value }: Field = {}) {
     `;
 }
 
-function focus(target: HTMLInputElement, index: number) {
-    let list = boxes(target),
-        box = list[Math.max(0, Math.min(index, list.length - 1))];
+function focus(list: HTMLInputElement[], index: number) {
+    let box = list[Math.max(0, Math.min(index, list.length - 1))];
 
     box.focus();
     box.select();
@@ -163,9 +158,15 @@ function notes({ autoresize, count, disabled, hint, invalid, label: text, placeh
 
 function otp({ disabled, group, invalid, length = 6, value = '' }: Otp = {}) {
     let state = reactive({ code: value, status: '' }),
-        sync = (target: HTMLInputElement) => {
-            state.code = code(target);
-            state.status = state.code.length === length ? `Complete · ${state.code}` : '';
+        sync = (list: HTMLInputElement[]) => {
+            let code = '';
+
+            for (let i = 0, n = list.length; i < n; i++) {
+                code += list[i].value;
+            }
+
+            state.code = code;
+            state.status = code.length === length ? `Complete · ${code}` : '';
         },
         write = (target: HTMLInputElement, index: number, digits: string) => {
             let clean = digits.replace(NON_DIGITS, ''),
@@ -179,8 +180,8 @@ function otp({ disabled, group, invalid, length = 6, value = '' }: Otp = {}) {
                 list[index + i].value = clean[i];
             }
 
-            sync(target);
-            focus(target, index + clean.length);
+            sync(list);
+            focus(list, index + clean.length);
         };
 
     return html`
@@ -207,7 +208,7 @@ function otp({ disabled, group, invalid, length = 6, value = '' }: Otp = {}) {
                                     write(target, index, digits);
                                 }
                                 else {
-                                    sync(target);
+                                    sync(boxes(target));
                                 }
                             },
                             onkeydown: (event: KeyboardEvent) => {
@@ -215,20 +216,22 @@ function otp({ disabled, group, invalid, length = 6, value = '' }: Otp = {}) {
 
                                 if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
                                     event.preventDefault();
-                                    focus(target, index + (event.key === 'ArrowLeft' ? -1 : 1));
+                                    focus(boxes(target), index + (event.key === 'ArrowLeft' ? -1 : 1));
                                 }
                                 else if (event.key === 'Backspace') {
+                                    let list = boxes(target);
+
                                     event.preventDefault();
 
                                     if (target.value) {
                                         target.value = '';
                                     }
                                     else if (index > 0) {
-                                        boxes(target)[index - 1].value = '';
-                                        focus(target, index - 1);
+                                        list[index - 1].value = '';
+                                        focus(list, index - 1);
                                     }
 
-                                    sync(target);
+                                    sync(list);
                                 }
                                 else if (DIGIT.test(event.key) && !event.ctrlKey && !event.metaKey) {
                                     event.preventDefault();

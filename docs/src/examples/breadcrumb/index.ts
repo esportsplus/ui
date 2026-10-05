@@ -24,15 +24,13 @@ const STEP = 16;
 
 
 function resizable({ modifier = '', plain = false, separator, status }: { modifier?: string, plain?: boolean, separator?: Separator, status?: { last: string } } = {}) {
-    let drag: { width: number; x: number } | null = null,
+    let drag: { max: number | undefined; width: number; x: number } | null = null,
         frame: HTMLElement | undefined,
         handle: HTMLElement | undefined,
         wrap: HTMLElement | undefined;
 
     // Written straight to the DOM: resizing is continuous, and only a fold change inside the trail reacts.
-    function resize(width: number) {
-        let max = wrap?.clientWidth ?? width;
-
+    function resize(width: number, max = wrap?.clientWidth ?? width) {
         if (!frame || !handle) {
             return;
         }
@@ -104,11 +102,11 @@ function resizable({ modifier = '', plain = false, separator, status }: { modifi
                             }
 
                             (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-                            drag = { width: frame?.offsetWidth ?? 0, x: e.clientX };
+                            drag = { max: wrap?.clientWidth, width: frame?.offsetWidth ?? 0, x: e.clientX };
                         },
                         onpointermove: (e: PointerEvent) => {
                             if (drag) {
-                                resize(drag.width + e.clientX - drag.x);
+                                resize(drag.width + e.clientX - drag.x, drag.max);
                             }
                         },
                         onpointerup: () => {

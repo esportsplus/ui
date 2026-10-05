@@ -18,11 +18,31 @@ type Head = {
 const TRAILING_SLASH = /\/$/;
 
 
+let cache: { href: string; label: string }[] | undefined;
+
+
+function flatten() {
+    let navigation = sections(),
+        out: { href: string; label: string }[] = [];
+
+    for (let i = 0, n = navigation.length; i < n; i++) {
+        let section = navigation[i];
+
+        if (section.index) {
+            out.push({ href: section.href, label: section.label });
+        }
+
+        for (let j = 0, m = section.links.length; j < m; j++) {
+            out.push(section.links[j]);
+        }
+    }
+
+    return out;
+}
+
+
 const pageHead = ({ breadcrumb: trail, description, title }: Head) => {
-    let pages = sections().flatMap((section) => [
-            ...(section.index ? [{ href: section.href, label: section.label }] : []),
-            ...section.links
-        ]),
+    let pages = cache ??= flatten(),
         path = location.pathname.replace(TRAILING_SLASH, '') || '/docs',
         index = pages.findIndex((page) => page.href === path),
         directions = [

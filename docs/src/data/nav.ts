@@ -20,6 +20,9 @@ type Section = {
 };
 
 
+let cache: Section[] | undefined;
+
+
 function links(names: string[], name: 'components.detail' | 'css-utilities.detail', label = (slug: string) => slug): Link[] {
     return names
         .map((slug) => ({ href: uri(name, { slug }), label: label(slug), name, slug }))
@@ -27,7 +30,7 @@ function links(names: string[], name: 'components.detail' | 'css-utilities.detai
 }
 
 
-const sections = (): Section[] => [
+const sections = (): Section[] => cache ??= [
     {
         href: uri('docs'),
         index: false,

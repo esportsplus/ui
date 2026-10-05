@@ -1,6 +1,8 @@
 type Token = { kind: string; text: string };
 
 
+const CALL = /\s*\(/y;
+
 const KEYWORDS = new Set([
     'as', 'async', 'await', 'break', 'case', 'catch', 'class', 'const', 'continue',
     'declare', 'default', 'delete', 'do', 'else', 'enum', 'export', 'extends',
@@ -14,6 +16,13 @@ const VALUES = new Set(['true', 'false', 'null', 'undefined', 'this', 'super']);
 
 // Keep comments and strings intact, and preserve every source character as text.
 const PATTERN = /\/\/[^\n]*|\/\*[\s\S]*?\*\/|'(?:\\[\s\S]|[^'\\])*'|"(?:\\[\s\S]|[^"\\])*"|`(?:\\[\s\S]|[^`\\])*`|\b(?:0[xX][\da-fA-F]+|0[bB][01]+|0[oO][0-7]+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)(?:n)?\b|[a-zA-Z_$][\w$]*|[{}()[\];,.?:]|[+*/%=!<>|&~^-]+/g;
+
+
+function call(source: string, index: number) {
+    CALL.lastIndex = index;
+
+    return CALL.test(source);
+}
 
 
 const tokenize = (source: string): Token[] => {
@@ -40,7 +49,7 @@ const tokenize = (source: string): Token[] => {
         else if (VALUES.has(text) || /^\d/.test(text)) {
             kind = 'value';
         }
-        else if (/^[a-zA-Z_$]/.test(text) && /^\s*\(/.test(source.slice(match.index + text.length))) {
+        else if (/^[a-zA-Z_$]/.test(text) && call(source, match.index + text.length)) {
             kind = 'function';
         }
         else if (/^[{}()[\];,.?:+*/%=!<>|&~^-]/.test(text)) {

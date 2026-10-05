@@ -23,13 +23,17 @@ const DAY = new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short' })
 
 const DAYS = 30;
 
+const INTEGER = new Intl.NumberFormat();
+
+const NUMBER = new Intl.NumberFormat('en-US');
+
 const PRICE = new Intl.NumberFormat('en-US', { currency: 'USD', style: 'currency' });
 
 const RESPONSE: Walk = { floor: 80, format: (value) => `${value} ms`, seed: 7, start: 128, swing: 0.14, title: 'Response time' };
 
 const WALKS: Walk[] = [
     { floor: 30000, format: (value) => CURRENCY.format(value), seed: 3, start: 48210, swing: 0.08, title: 'Revenue' },
-    { floor: 8000, format: (value) => value.toLocaleString('en-US'), seed: 5, start: 12480, swing: 0.06, title: 'Users' },
+    { floor: 8000, format: (value) => NUMBER.format(value), seed: 5, start: 12480, swing: 0.06, title: 'Users' },
     { decimals: 2, floor: 2, format: (value) => `${value.toFixed(2)}%`, seed: 9, start: 3.42, swing: 0.07, title: 'Conversion' },
     { floor: 120, format: (value) => `${value} ms`, seed: 11, start: 184, swing: 0.1, title: 'Latency' }
 ];
@@ -209,7 +213,7 @@ export default {
             render: () => {
                 let state = reactive({ value: 1240 });
 
-                return controls(state, 1, metric.flash({ format: (value) => `${Math.round(value).toLocaleString()} req/s`, label: 'Requests', state }));
+                return controls(state, 1, metric.flash({ format: (value) => `${INTEGER.format(Math.round(value))} req/s`, label: 'Requests', state }));
             },
             title: 'flash, request rate'
         },

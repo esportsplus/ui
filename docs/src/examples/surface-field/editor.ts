@@ -66,14 +66,18 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
         nodes[id] = { id, kind, state: reactive({ height: NODE_HEIGHT, title, width: NODE_WIDTH, x, y }) };
     }
 
-    // The field reads the camera object itself; the world and the lens follow it through 'view'.
-    function update() {
+    // Measured once per gesture or glide, not per frame, so pan moves and glide steps don't force layout.
+    function measure() {
         if (!viewport) {
             return;
         }
 
         view.height = viewport.clientHeight;
         view.width = viewport.clientWidth;
+    }
+
+    // The field reads the camera object itself; the world and the lens follow it through 'view'.
+    function update() {
         view.x = camera.x;
         view.y = camera.y;
         view.zoom = camera.zoom;
@@ -81,6 +85,7 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
 
     function animate(to: Camera, instant = false) {
         cancelAnimationFrame(glide);
+        measure();
 
         if (instant || matchMedia('(prefers-reduced-motion: reduce)').matches) {
             Object.assign(camera, to);
@@ -230,6 +235,7 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
 
                     cancelAnimationFrame(glide);
                     (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+                    measure();
                     pan = { pointerX: event.clientX, pointerY: event.clientY, x: camera.x, y: camera.y };
                     view.panning = true;
                 },

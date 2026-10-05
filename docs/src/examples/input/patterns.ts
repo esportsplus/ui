@@ -1,5 +1,5 @@
 import { input } from '@esportsplus/ui/components';
-import { reactive } from '@esportsplus/reactivity';
+import { computed, reactive, read } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import type { Variant } from 'docs/types';
 
@@ -283,24 +283,32 @@ const otp = (): Variant => ({
 const passwordStrength = (): Variant => ({
     render: () => {
         let id = `field-pattern-${++instance}`,
-            state = reactive({ value: '' });
+            state = reactive({ value: '' }),
+            weak = computed(() => guessable(state.value)),
+            score = computed(() => {
+                let value = state.value;
 
-        function score() {
-            let value = state.value;
+                if (!value) {
+                    return 0;
+                }
 
-            if (!value) {
-                return 0;
-            }
+                if (read(weak)) {
+                    return 1;
+                }
 
-            if (guessable(value)) {
-                return 1;
-            }
+                let met = 0;
 
-            return Math.max(1, PASSWORD_RULES.filter(([, test]) => test(value)).length);
-        }
+                for (let i = 0, n = PASSWORD_RULES.length; i < n; i++) {
+                    if (PASSWORD_RULES[i][1](value)) {
+                        met++;
+                    }
+                }
+
+                return Math.max(1, met);
+            });
 
         function tone() {
-            let s = score();
+            let s = read(score);
 
             return s === 0 ? 'none' : s === 1 ? 'danger' : s < PASSWORD_RULES.length ? 'caution' : 'safe';
         }
@@ -323,12 +331,12 @@ const passwordStrength = (): Variant => ({
                 </div>
                 <div class='strength-pattern-meter' aria-hidden='true'>
                     ${PASSWORD_RULES.map((_, index) => html`
-                        <span class='strength-pattern-segment ${() => index < score() && '--filled'}' style='${`--index: ${index};`}'></span>
+                        <span class='strength-pattern-segment ${() => index < read(score) && '--filled'}' style='${`--index: ${index};`}'></span>
                     `)}
                 </div>
                 <div class='strength-pattern-status' id='${`${id}-strength`}' aria-live='polite'>
-                    <span class='strength-pattern-score'>${() => PASSWORD_LABELS[score()]}</span>
-                    ${() => state.value && guessable(state.value) && html`<span class='strength-pattern-badge'>Commonly guessed</span>`}
+                    <span class='strength-pattern-score'>${() => PASSWORD_LABELS[read(score)]}</span>
+                    ${() => state.value && read(weak) && html`<span class='strength-pattern-badge'>Commonly guessed</span>`}
                 </div>
                 <ul class='strength-pattern-rules'>
                     ${PASSWORD_RULES.map(([label, test]) => html`

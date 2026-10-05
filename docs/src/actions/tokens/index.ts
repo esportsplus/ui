@@ -41,15 +41,20 @@ const groups: Group[] = [
 function colorContrast() {
     let context = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
 
+    let linear = (value: number) => {
+        let channel = value / 255;
+
+        return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+    };
+
     // Canvas resolves OKLCH and converts to sRGB for relative luminance.
     let luminance = (color: string) => {
         context.fillStyle = color;
         context.fillRect(0, 0, 1, 1);
-        let channels = [...context.getImageData(0, 0, 1, 1).data].slice(0, 3).map((value) => {
-            let channel = value / 255;
-            return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
-        });
-        return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+
+        let data = context.getImageData(0, 0, 1, 1).data;
+
+        return linear(data[0]) * 0.2126 + linear(data[1]) * 0.7152 + linear(data[2]) * 0.0722;
     };
     let white = luminance(cssValue('--color-white-400')),
         text = luminance(cssValue('--color-text-400')),
@@ -66,8 +71,14 @@ function colorPalette(values: Token[]): Renderable<unknown> {
         contrast = colorContrast();
 
     for (let token of values) {
-        let family = token.label.replace(SHADE_SUFFIX, '');
-        families.set(family, [...(families.get(family) ?? []), token]);
+        let family = token.label.replace(SHADE_SUFFIX, ''),
+            shades = families.get(family);
+
+        if (!shades) {
+            families.set(family, shades = []);
+        }
+
+        shades.push(token);
     }
 
     let palettes = [...families];

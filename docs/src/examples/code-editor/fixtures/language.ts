@@ -1,4 +1,5 @@
 import type {
+    CompletionItem,
     CompletionResult,
     Diagnostic,
     Hover,
@@ -40,27 +41,38 @@ const WORD = /[\w$]/;
 // A sample server for the docs, so the editor's own service code runs end to end: it completes and hovers a few
 // fixed symbols and reports every 'TODO_ERROR' as an error.
 const demoLanguageTransport = (): LanguageTransport => {
-    let documents = new Map<string, string>();
+    let documents = new Map<string, string[]>();
 
     let fixture = mockLanguageTransport({
         completion: (params) => {
             let { position, textDocument } = params as Request,
-                line = (documents.get(textDocument.uri) ?? '').split(EOL)[position.line] ?? '',
+                items: CompletionItem[] = [],
+                line = documents.get(textDocument.uri)?.[position.line] ?? '',
                 word = /[\w$]*$/.exec(line.slice(0, position.character))?.[0] ?? '';
 
-            return SYMBOLS.filter((symbol) => symbol.label.startsWith(word)).map(({ detail, kind, label }) => ({
-                detail,
-                kind,
-                label,
-                textEdit: {
-                    newText: label,
-                    range: { end: position, start: { character: position.character - word.length, line: position.line } }
+            for (let i = 0, n = SYMBOLS.length; i < n; i++) {
+                let { detail, kind, label } = SYMBOLS[i];
+
+                if (!label.startsWith(word)) {
+                    continue;
                 }
-            }));
+
+                items.push({
+                    detail,
+                    kind,
+                    label,
+                    textEdit: {
+                        newText: label,
+                        range: { end: position, start: { character: position.character - word.length, line: position.line } }
+                    }
+                });
+            }
+
+            return items;
         },
         hover: (params) => {
             let { position, textDocument } = params as Request,
-                line = (documents.get(textDocument.uri) ?? '').split(EOL)[position.line] ?? '',
+                line = documents.get(textDocument.uri)?.[position.line] ?? '',
                 end = position.character,
                 start = position.character;
 
@@ -106,7 +118,7 @@ const demoLanguageTransport = (): LanguageTransport => {
             let diagnostics: Diagnostic[] = [],
                 lines = source.split(EOL);
 
-            documents.set(uri, source);
+            documents.set(uri, lines);
 
             for (let i = 0, n = lines.length; i < n; i++) {
                 let column = lines[i].indexOf(MARKER);
