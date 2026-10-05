@@ -18,7 +18,7 @@ import {
     type LineCommand
 } from './commands';
 import { composition } from './composition';
-import { EditorDocument, sameSelection, type Change, type Edit, type Selection, type Snapshot } from './document';
+import { EditorDocument, type Change, type Edit, type Selection, type Snapshot } from './document';
 import { RANGES, write as writeField, type Pending } from './field';
 import { find } from './find';
 import { enclosingFold, foldAt, mapFolds, outerFolds, pairAt, structureOf, type FoldRange } from './folding';
@@ -533,14 +533,23 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         }
 
         let next: Selection = {
-            direction: textarea.selectionDirection,
-            end: projection.toSource(textarea.selectionEnd),
-            start: projection.toSource(textarea.selectionStart)
-        };
+                direction: textarea.selectionDirection,
+                end: projection.toSource(textarea.selectionEnd),
+                start: projection.toSource(textarea.selectionStart)
+            },
+            primary = model.selection;
 
-        if (!sameSelection(next, model.selection)) {
-            model.selectMany([next, ...model.selections.slice(1)]);
+        // A field reports a direction even for a caret, and 'forward' where the document has none; taking it would
+        // count as moving the caret and end the typing's undo step.
+        if (
+            next.start === primary.start &&
+            next.end === primary.end &&
+            (next.start === next.end || next.direction === primary.direction || primary.direction === 'none')
+        ) {
+            return;
         }
+
+        model.selectMany([next, ...model.selections.slice(1)]);
     }
 
     function changeFold(line: number, close: boolean) {

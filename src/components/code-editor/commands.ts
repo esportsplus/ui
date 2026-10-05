@@ -401,6 +401,11 @@ const addNextOccurrence = (doc: EditorDocument, all = false) => {
 };
 
 const bracket = (doc: EditorDocument, character: string, language: Language = 'plain') => {
+    // Anything else is plain typing, which the caller inserts as input so it groups into one undo step.
+    if (!PAIRS[character] && !CLOSERS.includes(character)) {
+        return false;
+    }
+
     return eachRange(doc, 'bracket', (local) => {
         let closer = CLOSERS.includes(character) && local.value[local.selection.end] === character;
 
