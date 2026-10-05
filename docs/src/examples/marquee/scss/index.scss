@@ -1,5 +1,4 @@
-// Doubled so it outranks the component's own variables whatever order the stylesheets load in.
-.marquee.marquee-demo-headline {
+.marquee-demo-headline {
     --color: var(--color-text-500);
     --fade: 25%;
     --font-size: clamp(36px, 7vw, 72px);

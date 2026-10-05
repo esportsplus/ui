@@ -1,1 +1,6 @@
+@use '/shared';
 @use 'variables';
+
+.filter-announcer {
+    @extend %hidden-visually;
+}

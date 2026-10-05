@@ -1,6 +1,6 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { flush, reactive, ReactiveArray } from '@esportsplus/reactivity';
-import { finished } from '~/shared/animation';
+import { finished, measure, slides, timing } from '~/shared/animation';
 import checkbox from '~/components/checkbox';
 import sortable from '~/components/sortable';
 import './scss/index.scss';
@@ -21,10 +21,9 @@ type A = Attributes & {
 
 type CheckboxAttributes = NonNullable<Parameters<typeof checkbox>[0]>;
 
-// 'offset' holds a row where it was drawn while the list reorders under it, transitions off; null lets it slide home.
 type Row = {
     index: number;
-    state: { moving: boolean, offset: number | null, stage: '' | 'checking' | 'unchecking' };
+    state: { moving: boolean, stage: '' | 'checking' | 'unchecking' };
     task: Task;
 };
 
@@ -89,7 +88,7 @@ export default component(
         { ordered = false, reorder = true, sortable: sorts = false, tasks, ...attributes }: A
     ) {
         let context = this?.attributes,
-            entries: Row[] = tasks.map((task, index) => ({ index, state: reactive({ moving: false, offset: null as number | null, stage: '' as Row['state']['stage'] }), task })),
+            entries: Row[] = tasks.map((task, index) => ({ index, state: reactive({ moving: false, stage: '' as Row['state']['stage'] }), task })),
             list: HTMLElement | undefined,
             rows = new ReactiveArray<Row>(reorder ? [
                 ...entries.filter((entry) => !entry.task.checked),
@@ -123,18 +122,17 @@ export default component(
                 return;
             }
 
-            let first = new Map<Row, number>(),
-                items = list.children;
-
-            for (let i = 0, n = rows.length; i < n; i++) {
-                first.set(rows[i], items[i].getBoundingClientRect().top);
-            }
-
-            let rest = rows.filter((r) => r !== entry);
+            let items = list.children,
+                rest = rows.filter((r) => r !== entry),
+                shift = timing(getComputedStyle(items[at]), 'move');
 
             rest.splice(before ? rest.indexOf(before) : rest.length, 0, entry);
 
             let rank = new Map(rest.map((r, i) => [r, i]));
+
+            // Where each row is drawn, a slide still running included, so a move that interrupts another carries on
+            // from there.
+            measure(items);
 
             // A sort moves the rows' own nodes, so focus stays on the checkbox.
             rows.sort((a, b) => rank.get(a)! - rank.get(b)!);
@@ -146,26 +144,9 @@ export default component(
                 slot!.flush();
             }
 
-            // Measure untransformed positions so a move that interrupts another starts from where rows are drawn
-            for (let i = 0, n = rows.length; i < n; i++) {
-                rows[i].state.offset = 0;
-            }
-
-            flush();
-
-            for (let i = 0, n = rows.length; i < n; i++) {
-                rows[i].state.offset = first.get(rows[i])! - items[i].getBoundingClientRect().top;
-            }
-
-            flush();
-            list.getBoundingClientRect();
-
-            for (let i = 0, n = rows.length; i < n; i++) {
-                rows[i].state.offset = null;
-            }
+            slides(items, shift);
 
             entry.state.moving = true;
-            flush();
 
             let element = items[rows.indexOf(entry)] as HTMLElement;
 
@@ -215,11 +196,10 @@ export default component(
                             if (reorder) {
                                 move(entry, destination(rows, entry, ordered));
                             }
-                        },
-                        style: () => state.offset !== null && `transform: translateY(${state.offset}px); transition: none;`
+                        }
                     }}
                 >
-                    <label class='tasklist-row' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
+                    <label class='tasklist-row ${sorts && 'tasklist-row--sortable'}' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
                         ${checkbox.call(
                             { attributes: context?.[TASKLIST_CHECKBOX] },
                             {

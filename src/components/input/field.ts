@@ -26,16 +26,7 @@ export default function (
             class='input'
             ${this?.attributes}
             ${attributes}
-            ${{
-                class: () => state.active && '--active',
-                onconnect: form.input.onconnect(state),
-                onfocusin: () => {
-                    state.active = true;
-                },
-                onfocusout: () => {
-                    state.active = false;
-                }
-            }}
+            ${form.input.attributes(state)}
         />
     `;
 };

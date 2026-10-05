@@ -49,6 +49,26 @@ export default {
         },
         {
             render: () => select({
+                label: 'Language',
+                options: {
+                    de: { content: 'Deutsch (Deutschland)', selected: 'DE' },
+                    en: { content: 'English (United States)', selected: 'EN' },
+                    fr: { content: 'Français (France)', selected: 'FR' }
+                },
+                selected: 'en'
+            }),
+            title: 'short label in the trigger'
+        },
+        {
+            render: () => select({
+                disabled: true,
+                options: { eur: 'EUR', gbp: 'GBP', usd: 'USD' },
+                selected: 'usd'
+            }),
+            title: 'disabled'
+        },
+        {
+            render: () => select({
                 label: 'Choose font',
                 options: fonts,
                 selected: 'inter'

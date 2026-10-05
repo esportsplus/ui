@@ -24,8 +24,21 @@
         }
     }
 
+    &-grip {
+        background: var(--grip-background);
+        border-radius: 999px;
+        height: 24px;
+        scale: var(--grip-scale);
+        transition:
+            background-color 0.15s ease-out,
+            scale 0.15s ease-out;
+        width: 6px;
+    }
+
     // A 24px wide hit area around a 6px grip, centred on the edge.
     &-handle {
+        --grip-background: var(--color-border-300);
+        --grip-scale: none;
         align-items: center;
         border-radius: 999px;
         cursor: ew-resize;
@@ -40,27 +53,17 @@
         translate: 0 -50%;
         width: 24px;
 
-        &:active span {
-            background: var(--color-text-500);
-            scale: 1 1.15;
+        &:active {
+            --grip-background: var(--color-text-500);
+            --grip-scale: 1 1.15;
         }
 
         &:focus-visible {
             outline: 2px solid var(--color-text-500);
         }
 
-        &:hover span {
-            background: var(--color-text-300);
-        }
-
-        span {
-            background: var(--color-border-300);
-            border-radius: 999px;
-            height: 24px;
-            transition:
-                background-color 0.15s ease-out,
-                scale 0.15s ease-out;
-            width: 6px;
+        &:hover {
+            --grip-background: var(--color-text-300);
         }
     }
 

@@ -267,11 +267,11 @@ const slice = (doc: Doc, { end, start }: Span): Doc => {
     return out;
 };
 
-// Enter: list items continue the list (an empty one leaves it), headings end in a paragraph, and quotes and code
-// blocks take a new line, leaving on a second Enter at their end.
 // Marks without repeats, in the order of LAYERS, so equal styles compare equal.
 const sort = (marks: Mark[]) => [...new Set(marks)].sort((a, b) => LAYERS.indexOf(a) - LAYERS.indexOf(b));
 
+// Enter: list items continue the list (an empty one leaves it), headings end in a paragraph, and quotes and code
+// blocks take a new line, leaving on a second Enter at their end.
 const split = (doc: Doc, span: Span): Edit => {
     let next = remove(doc, span).doc,
         { block: i, offset } = span.start,

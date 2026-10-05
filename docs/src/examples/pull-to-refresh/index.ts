@@ -96,7 +96,7 @@ function feed() {
         <div class='pull-to-refresh-demo'>
             <div class='pull-to-refresh-demo-screen'>
                 <div class='pull-to-refresh-demo-header'>
-                    <h3>Following</h3>
+                    <h3 class='pull-to-refresh-demo-title'>Following</h3>
                     <button
                         aria-disabled='${() => String(state.refreshing)}'
                         aria-label='Refresh feed'
@@ -106,7 +106,7 @@ function feed() {
                         }}'
                         type='button'
                     >
-                        <svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
+                        <svg aria-hidden='true' class='pull-to-refresh-demo-refresh-icon' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
                             <path d='M13.25 8a5.25 5.25 0 1 1-1.6-3.77M13.25 2.5v2.75H10.5' />
                         </svg>
                     </button>

@@ -8,8 +8,33 @@
     padding: 8px;
     width: 384px;
 
+    // The icons on a dark surface, as a host with a dark color scheme shows them.
+    &--dark.file-tree {
+        --color: #d4d4d4;
+        --sticky-background: #1f1f23;
+        background: #1f1f23;
+        border-color: #3a3a40;
+        color-scheme: dark;
+    }
+
+    &-action {
+        --border-width: var(--border-width-400);
+        --font-size: var(--font-size-300);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-100);
+        border: var(--border-width) solid var(--border-color);
+
+        // The library button has no disabled look of its own.
+        &.--disabled {
+            cursor: default;
+            opacity: 0.5;
+        }
+    }
+
     &-actions {
+        align-items: center;
         display: flex;
+        flex-wrap: wrap;
         gap: 8px;
     }
 
@@ -17,6 +42,26 @@
         color: var(--color-text-300);
         font-size: 13px;
         margin: 0;
+    }
+
+    // A control and the text naming it.
+    &-field {
+        align-items: center;
+        display: flex;
+        font-size: 13px;
+        gap: 8px;
+    }
+
+    &-figure {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin: 0;
+
+        .file-tree-demo {
+            height: 640px;
+            width: 200px;
+        }
     }
 
     &-history {
@@ -28,10 +73,18 @@
         padding-left: 20px;
         width: 384px;
 
-        .--undone {
+        &-step.--undone {
             opacity: 0.5;
             text-decoration: line-through;
         }
+    }
+
+    &-icons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--size-300);
+        justify-content: center;
+        width: 100%;
     }
 
     // Classed as a tree so its samples take the tree's tones and badge styles.
@@ -41,32 +94,32 @@
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         width: 100%;
 
+        // A row pushes its badge to the far end; here it sits centered in its column.
+        &-badge.file-tree-badge {
+            margin: 0;
+            padding: 0;
+        }
+
+        &-description {
+            color: var(--color-text-300);
+            margin: 0;
+        }
+
         &-list {
             align-items: center;
             display: grid;
             gap: var(--size-100) var(--size-200);
             grid-template-columns: max-content 1fr;
             margin: 0;
-
-            dd {
-                color: var(--color-text-300);
-                margin: 0;
-            }
-
-            dt {
-                display: flex;
-                justify-content: center;
-
-                // A row pushes its badge to the far end; here it sits centered in its column.
-                .file-tree-badge {
-                    margin: 0;
-                    padding: 0;
-                }
-            }
         }
 
         &-name--deleted {
             text-decoration: line-through;
+        }
+
+        &-term {
+            display: flex;
+            justify-content: center;
         }
 
         &-title {
@@ -91,6 +144,11 @@
         flex: none;
         max-width: 100%;
         width: 384px;
+    }
+
+    // Two sit side by side over the tree.
+    &-select.select {
+        --width: 136px;
     }
 
     &-stack {

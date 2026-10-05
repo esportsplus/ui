@@ -1,3 +1,5 @@
+@use '/shared';
+
 .inline-edit-demo {
     background: var(--color-white-300);
     border-radius: 24px;
@@ -54,11 +56,7 @@
     }
 
     &-live {
-        clip-path: inset(50%);
-        height: 1px;
-        overflow: hidden;
-        position: absolute;
-        width: 1px;
+        @extend %hidden-visually;
     }
 
     &-name {
@@ -81,16 +79,16 @@
             translate 150ms cubic-bezier(0.23, 1, 0.32, 1);
         translate: 0 2px;
 
+        &-icon {
+            height: 14px;
+            width: 14px;
+        }
+
         &.--active {
             filter: blur(0);
             opacity: 1;
             transition-duration: 200ms;
             translate: 0 0;
-        }
-
-        svg {
-            height: 14px;
-            width: 14px;
         }
     }
 

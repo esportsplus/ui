@@ -16,19 +16,12 @@
         border-radius: var(--box-border-radius);
         grid-area: 1 / 1;
         overflow: hidden;
+        overflow-wrap: var(--box-overflow-wrap);
         padding: var(--box-padding-block) var(--box-padding-end) var(--box-padding-block) var(--box-padding-start);
         text-align: start;
-        text-overflow: ellipsis;
-        white-space: pre;
+        text-overflow: var(--box-text-overflow);
+        white-space: var(--box-white-space);
         width: 100%;
-    }
-
-    &--multiline > #{&}-display,
-    &--multiline > #{&}-editor,
-    &--multiline > #{&}-field {
-        overflow-wrap: break-word;
-        text-overflow: clip;
-        white-space: pre-wrap;
     }
 
     // Stays in the cell while editing (hidden), so the field inherits its exact width and starting height.
@@ -56,7 +49,7 @@
             visibility: hidden;
         }
 
-        #{tokens.state(inactive, '.inline-edit.inline-edit--empty')} > & {
+        #{tokens.state(inactive, '.inline-edit--empty')} > & {
             color: var(--placeholder-color);
         }
     }
@@ -88,7 +81,7 @@
             text-overflow: clip;
         }
 
-        .inline-edit.inline-edit--empty > &::before {
+        .inline-edit--empty > &::before {
             color: var(--placeholder-color);
             content: attr(data-placeholder);
             pointer-events: none;
@@ -272,7 +265,7 @@
             }
         }
 
-        &.inline-edit-status--saved .inline-edit-status-check {
+        &--saved &-check {
             opacity: 1;
             stroke-dashoffset: 0;
             transition:
@@ -280,7 +273,7 @@
                 stroke-dashoffset var(--check-duration) var(--timing-function) var(--check-delay);
         }
 
-        &.inline-edit-status--saving .inline-edit-status-dot {
+        &--saving &-dot {
             opacity: 1;
             scale: 1;
             translate: calc((var(--i) - 1) * var(--dot-gap));
@@ -290,7 +283,7 @@
             }
         }
 
-        &.inline-edit-status--unsaved .inline-edit-status-dot:nth-child(2) {
+        &--unsaved &-dot:nth-child(2) {
             opacity: 1;
             scale: 1.5;
         }
@@ -336,48 +329,36 @@
         width: 24px;
 
         // Only the shared check takes these; it carries no stroke of its own and is drawn on a 24 unit grid.
-        svg {
-            fill: none;
+        &-check,
+        &-pencil {
+            @extend %icon-stroke, %icon-swap;
             grid-area: 1 / 1;
             height: var(--icon-size);
-            stroke: currentColor;
-            stroke-linecap: round;
-            stroke-linejoin: round;
             stroke-width: 2.25;
-            transition:
-                filter var(--icon-swap-duration) var(--icon-swap-timing-function),
-                opacity var(--icon-swap-duration) var(--icon-swap-timing-function),
-                scale var(--icon-swap-duration) var(--icon-swap-timing-function);
             width: var(--icon-size);
         }
 
         &-check {
             color: var(--icon-color-saved);
-            filter: blur(4px);
-            opacity: 0;
-            scale: 0.25;
         }
 
-        // The pencil only shows on hover or keyboard focus.
+        // The pencil rests in place but faded, showing only on hover or keyboard focus.
         &-pencil {
+            @extend %icon-swap-active;
             opacity: 0;
         }
 
-        .inline-edit:hover &-pencil,
-        .inline-edit:has(:focus-visible) &-pencil {
+        // Not while saved: the saved pencil is hidden by the shared swap rules, which come first, so they'd lose a tie.
+        .inline-edit:not(.inline-edit--saved):is(:hover, :has(:focus-visible)) &-pencil {
             opacity: 1;
         }
 
         .inline-edit.inline-edit--saved &-check {
-            filter: blur(0);
-            opacity: 1;
-            scale: 1;
+            @extend %icon-swap-active;
         }
 
         .inline-edit.inline-edit--saved &-pencil {
-            filter: blur(4px);
-            opacity: 0;
-            scale: 0.25;
+            @extend %icon-swap;
         }
 
         #{tokens.state(active, '.inline-edit')} > & {
@@ -391,7 +372,8 @@
 
     // Placed over the selection through '--toolbar-x'/'--toolbar-y', scaling out of it from '--toolbar-origin'.
     // Visible overflow lets the block select's list hang outside the bar.
-    & #{&}-toolbar {
+    // Qualified so it wins over the reused tooltip styles regardless of stylesheet order.
+    &-toolbar.tooltip-content {
         left: 0;
         overflow: visible;
         padding: 4px;
@@ -401,12 +383,12 @@
     }
 
     // Shown afresh, it jumps to the selection rather than gliding from where it last was.
-    & #{&}-toolbar--instant {
+    &-toolbar--instant.tooltip-content {
         transition: none;
     }
 
     // The block select is a bare trigger here; its own list still opens as a panel.
-    & #{&}-toolbar-block {
+    &-toolbar-block.select {
         --background: transparent;
         --box-shadow: none;
         --height: var(--toolbar-button-size);
@@ -464,13 +446,15 @@
     &-toolbar-format,
     &-toolbar-link {
         align-items: center;
-        display: flex;
         gap: 2px;
     }
 
-    &-toolbar--link > #{&}-toolbar-format,
-    &-toolbar:not(#{&}-toolbar--link) > #{&}-toolbar-link {
-        display: none;
+    &-toolbar-format {
+        display: var(--toolbar-format-display);
+    }
+
+    &-toolbar-link {
+        display: var(--toolbar-link-display);
     }
 
     // Only the shared check takes the stroke; it carries none of its own and is drawn on a 24 unit grid.
@@ -484,7 +468,7 @@
         width: var(--toolbar-icon-size);
     }
 
-    & #{&}-toolbar-url.input {
+    &-toolbar-url.input {
         --background-default: transparent;
         --color-default: var(--toolbar-color);
         --padding-horizontal: 8px;
@@ -531,13 +515,13 @@
     }
 }
 
-// Every motion runs on these durations, so zeroing them stills the component.
+// Every motion but the icon swap (stilled by '%icon-swap' itself) runs on these durations, so zeroing them stills the
+// component.
 @media (prefers-reduced-motion: reduce) {
     .inline-edit {
-        --icon-swap-duration: 0s;
         --toolbar-button-duration: 0s;
 
-        & #{&}-status {
+        &-status {
             --check-delay: 0s;
             --check-duration: 0s;
             --enter-duration: 0s;
@@ -547,14 +531,9 @@
             --pulse-stagger: 0s;
         }
 
-        & #{&}-toolbar {
+        &-toolbar.tooltip-content {
             --transition-duration: 0s;
         }
-    }
-
-    .inline-edit-icon svg {
-        filter: none !important;
-        scale: 1 !important;
     }
 
     .inline-edit-toolbar-button.button:active {

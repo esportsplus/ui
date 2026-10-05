@@ -2,6 +2,7 @@ import { computed, reactive, read } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { edge, type Edge } from '~/shared/anchor';
 import { drag, fling, toward, type Fling } from '~/shared/drag';
+import { observeSize } from '~/shared/resize';
 import close from '@esportsplus/ui/svg/close.svg';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
@@ -80,8 +81,12 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
     let element: HTMLElement | undefined,
         frontmost = 0,
         // 'swipe' is where a swipe holds it, 'thrown' the way a dismissing swipe flings it on.
-        local = reactive({ swipe: null as { x: number, y: number } | null, swiping: false, thrown: null as Fling | null }),
-        observer: ResizeObserver | undefined;
+        local = reactive({ swipe: null as { x: number, y: number } | null, swiping: false, thrown: null as Fling | null });
+
+    // Layout height, unaffected by the collapsed scale.
+    let size = observeSize(({ height }) => {
+        toast.measured.height = height;
+    });
 
     let gesture = drag({
         // Swiped back toward the edges the stack is pinned to.
@@ -137,16 +142,9 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
                 },
                 onconnect: (el: HTMLElement) => {
                     element = el;
-
-                    // Layout height, unaffected by the collapsed scale.
-                    observer = new ResizeObserver(() => {
-                        toast.measured.height = el.offsetHeight;
-                    });
-                    observer.observe(el);
+                    size.onconnect(el);
                 },
-                ondisconnect: () => {
-                    observer?.disconnect();
-                },
+                ondisconnect: size.ondisconnect,
                 style: () => {
                     let { active, duration } = toast.state,
                         { swipe, thrown } = local,
@@ -191,7 +189,7 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
                         }
                     }}
                 >
-                    <svg aria-hidden='true'><use href='#${close}' /></svg>
+                    <svg aria-hidden='true' class='toast-close-icon'><use href='#${close}' /></svg>
                 </button>
             `}
         </div>

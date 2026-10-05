@@ -122,6 +122,21 @@ function morphing(state: { morphing: boolean }, active: boolean) {
     };
 }
 
+// Every 'morphing' handler a trigger spreads: starts turn the goo on, ends and cancels turn it off.
+function morphs(state: { morphing: boolean }) {
+    let start = morphing(state, true),
+        stop = morphing(state, false);
+
+    return {
+        onanimationcancel: stop,
+        onanimationend: stop,
+        onanimationstart: start,
+        ontransitioncancel: stop,
+        ontransitionend: stop,
+        ontransitionrun: start
+    };
+}
+
 // Runs 'open' after 'delay', or at once when there is none or while warm; returns a cancel for a pending open.
 function wait(delay: number, open: VoidFunction) {
     if (!delay || warm()) {
@@ -139,5 +154,5 @@ function warm() {
 }
 
 
-export { content, cool, morph, morphing, wait, warm };
+export { content, cool, morph, morphing, morphs, wait, warm };
 export type { Delay };

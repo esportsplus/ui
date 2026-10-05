@@ -1,30 +1,8 @@
 @use '/tokens';
+@use 'field';
 
 .input {
-    --border-color-default: var(--background);
-    --border-radius: var(--border-radius-400);
-    --border-style: solid;
-    --border-width: 0px;
-    --box-shadow: var(--box-shadow-default);
-    --box-shadow-default: none;
-    --font-size: var(--font-size-400);
-    --padding-horizontal: var(--size-400);
-    --padding-vertical: var(--size-400);
-    --size: var(--size-400);
-
-    #{tokens.state(inactive)} {
-        @include tokens.state(hover) {
-            --box-shadow: var(--box-shadow-hover);
-        }
-
-        @include tokens.state(pressed) {
-            --box-shadow: var(--box-shadow-pressed);
-        }
-    }
-
-    #{tokens.state(active)} {
-        --box-shadow: var(--box-shadow-active);
-    }
+    @include field.variables;
 }
 
 
@@ -42,14 +20,25 @@
     --outline-color: var(--color-text-500);
     --outline-width: var(--border-width-500);
     --tape-color: var(--color-text-300);
+    --tape-duration: var(--tape-leave-duration);
     --tape-enter-duration: 150ms;
     --tape-height: 8px;
     --tape-leave-duration: 200ms;
     --tape-major-height: 6px;
     --tape-minor-height: 3px;
+    --tape-opacity: 0;
     --tape-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --tape-translate: 0 4px;
     // Keep in sync with the component's TICK constant; the tape offset is computed against it.
     --tick: 6px;
+
+    // Scrubbing lights the label and raises the tape under the needle.
+    @include tokens.state(active) {
+        --label-color: var(--label-color-active);
+        --tape-duration: var(--tape-enter-duration);
+        --tape-opacity: 1;
+        --tape-translate: 0 0;
+    }
 
     // Qualified by the root so it wins over the reused input styles regardless of stylesheet order.
     & > #{&}-field {
@@ -109,6 +98,17 @@
         --chip-shake: 0px;
         --chip-shake-opacity: 0.4;
         --chip-slide-duration: 0s;
+    }
+
+    // An armed chip inverts, and its remove button follows it onto the dark surface.
+    &-chip {
+        @include tokens.state(active) {
+            --chip-background: var(--chip-background-active);
+            --chip-remove-color: oklch(from var(--chip-color-active) l c h / 0.7);
+            --chip-remove-color-hover: var(--chip-color-active);
+            --chip-remove-hover-background: transparent;
+            --chip-shadow: none;
+        }
     }
 
     // Qualified so it wins over the reused input styles regardless of stylesheet order.

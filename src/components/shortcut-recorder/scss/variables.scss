@@ -36,7 +36,7 @@
     }
 
     // The 'error' it renders in turns the edge red; the placeholder turns with it.
-    .error.error--invalid > & {
+    &.--invalid {
         --color-muted: var(--color-error);
     }
 }

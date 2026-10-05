@@ -56,7 +56,7 @@ export default component(
         let keys = names.map(parse);
 
         // Only a key going from up to down can complete the combo, so holding it fires once.
-        const press = (key: Key, source: 'keyboard' | 'pointer') => {
+        function press(key: Key, source: 'keyboard' | 'pointer') {
             let down = key.keyboard || key.pointer;
 
             key[source] = true;
@@ -68,13 +68,13 @@ export default component(
             ontrigger?.();
 
             return true;
-        };
+        }
 
-        const release = () => {
+        function release() {
             for (let i = 0, n = keys.length; i < n; i++) {
                 keys[i].keyboard = false;
             }
-        };
+        }
 
         return html`
             <kbd

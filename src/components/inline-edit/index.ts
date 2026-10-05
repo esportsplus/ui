@@ -42,9 +42,6 @@ const INLINE_EDIT_DISPLAY = Symbol.for('@esportsplus/ui/inline-edit.display');
 
 const INLINE_EDIT_FIELD = Symbol.for('@esportsplus/ui/inline-edit.field');
 
-// Long enough to notice after the field settles, short enough that the pencil is back before the next edit.
-const SAVED_FOR = 1600;
-
 
 function template(
     this: { attributes?: D } | void,
@@ -63,9 +60,7 @@ function template(
         draft = '',
         local = reactive({ draft: '' }),
         parts = { ...this?.attributes?.[INLINE_EDIT_FIELD], ...attributes[INLINE_EDIT_FIELD] },
-        saving = shown ? (shown === true ? reactive<Status>({ phase: 'saved', savedAt: null }) : shown) : null,
-        report = saving ? status.track(saving, () => state.editing && clean(local.draft) !== state.value) : null,
-        timer: ReturnType<typeof setTimeout> | undefined;
+        saving = status.saver(state, shown, () => clean(local.draft) !== state.value, onsave);
 
     function clean(value: string) {
         return multiline ? value.trim() : value.replace(WHITESPACE, ' ').trim();
@@ -100,7 +95,7 @@ function template(
         };
 
         if (multiline) {
-            return textarea.bind({ attributes: parts })({ ...own, rows: 1 });
+            return textarea.call({ attributes: parts }, { ...own, rows: 1 });
         }
 
         return input.call({ attributes: parts }, own);
@@ -122,20 +117,9 @@ function template(
 
         let next = clean(local.draft);
 
-        if (!commit || next === state.value) {
-            return;
+        if (commit && next !== state.value) {
+            saving.save(next);
         }
-
-        state.value = next;
-        state.saved = true;
-
-        let result = onsave?.(next);
-
-        report?.(result);
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            state.saved = false;
-        }, SAVED_FOR);
     }
 
     return html`
@@ -150,9 +134,7 @@ function template(
                     () => state.saved && 'inline-edit--saved',
                     () => state.value.trim() === '' && 'inline-edit--empty'
                 ],
-                ondisconnect: () => {
-                    clearTimeout(timer);
-                }
+                ondisconnect: saving.dispose
             }}
         >
             <button
@@ -186,7 +168,7 @@ function template(
                 <svg class='inline-edit-icon-pencil'><use href='#${pencil}' /></svg>
                 <svg class='inline-edit-icon-check'><use href='#${check}' /></svg>
             </span>
-            ${saving && status.render(saving, this?.attributes?.[INLINE_EDIT_STATUS], attributes[INLINE_EDIT_STATUS])}
+            ${saving.status && status.render(saving.status, this?.attributes?.[INLINE_EDIT_STATUS], attributes[INLINE_EDIT_STATUS])}
         </div>
     `;
 }

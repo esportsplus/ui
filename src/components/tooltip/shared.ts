@@ -2,6 +2,8 @@ import { effect, flush, reactive, ReactiveArray, untrack } from '@esportsplus/re
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import overlay from '~/components/overlay';
 import { finished } from '~/shared/animation';
+import { observe } from '~/shared/resize';
+import { fit, viewport } from '~/shared/viewport';
 import { cool, wait, warm, type Delay } from './utilities';
 import '~/components/frame/scss/index.scss';
 
@@ -82,16 +84,13 @@ const SIDES: Direction[] = ['e', 'n', 's', 'w'];
 let uid = 0;
 
 
-function clamp(value: number, min: number, max: number) {
-    return Math.max(min, Math.min(value, max));
-}
-
 // 'gap' is the surface's padding on the anchor side; x and y place the surface, padding included.
 function place(anchor: DOMRect, direction: Direction, gap: number, height: number, width: number) {
-    let room = {
-            e: innerWidth - anchor.right,
+    let view = viewport(),
+        room = {
+            e: view.width - anchor.right,
             n: anchor.top,
-            s: innerHeight - anchor.bottom,
+            s: view.height - anchor.bottom,
             w: anchor.left
         },
         side = direction;
@@ -103,7 +102,7 @@ function place(anchor: DOMRect, direction: Direction, gap: number, height: numbe
     if (side === 'n' || side === 's') {
         return {
             side,
-            x: clamp(anchor.left + anchor.width / 2 - width / 2, EDGE, innerWidth - EDGE - width),
+            x: fit(anchor.left + anchor.width / 2 - width / 2, width, view.width, EDGE),
             y: side === 'n' ? anchor.top - gap - height : anchor.bottom
         };
     }
@@ -111,7 +110,7 @@ function place(anchor: DOMRect, direction: Direction, gap: number, height: numbe
     return {
         side,
         x: side === 'w' ? anchor.left - gap - width : anchor.right,
-        y: clamp(anchor.top + anchor.height / 2 - height / 2, EDGE, innerHeight - EDGE - height)
+        y: fit(anchor.top + anchor.height / 2 - height / 2, height, view.height, EDGE)
     };
 }
 
@@ -133,13 +132,15 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         leaving: Layer | null = null,
         layers = new ReactiveArray<Layer>(),
         next: Target | null = null,
-        observer: ResizeObserver | undefined,
         pointer = 'mouse',
         presentation = reactive({ active: false }),
         // The surface is in the top layer: open, or still playing its close.
         shown = false,
         timer: ReturnType<typeof setTimeout> | undefined,
-        waiting: VoidFunction | undefined;
+        unobserve: VoidFunction | undefined,
+        waiting: VoidFunction | undefined,
+        // The layer whose content the box is sized to while it shows.
+        watched: Layer | null = null;
 
     let stack = html.reactive(layers, (layer) => html`
         <span
@@ -395,6 +396,10 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
     function free(layer: Layer) {
         let index = layers.indexOf(layer);
 
+        if (watched === layer) {
+            unwatch();
+        }
+
         if (index !== -1) {
             layers.splice(index, 1);
         }
@@ -410,7 +415,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         drop(leaving);
         active = null;
         leaving = null;
-        observer?.disconnect();
+        unwatch();
         listen(false);
         shown = false;
     }
@@ -501,9 +506,10 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             return;
         }
 
-        // Follows the trigger exactly; a glide would trail behind the scroll.
-        element.classList.remove('tooltip-shared--gliding');
+        // Follows the trigger exactly; a glide would trail behind the scroll. Dropped after measuring, which reads
+        // layout: a class change first would force a style and layout pass on every scroll event.
         measure();
+        element.classList.remove('tooltip-shared--gliding');
     }
 
     // Spans, so it can be rendered inside running text.
@@ -582,6 +588,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                     },
                     ondisconnect: (el: HTMLElement) => {
                         close();
+                        unwatch();
                         popup.ondisconnect?.(el);
 
                         for (let entry of bound.values()) {
@@ -757,9 +764,15 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         flush();
 
         // Content that changes size while showing (a live count, an image loading) resizes the box with it.
-        observer ??= new ResizeObserver(measure);
-        observer.disconnect();
-        observer.observe(node);
+        unwatch();
+        unobserve = observe(node, measure);
+        watched = layer;
+    }
+
+    function unwatch() {
+        unobserve?.();
+        unobserve = undefined;
+        watched = null;
     }
 
     // Driven through 'state' from outside. Both return nothing on purpose: an effect's value is a dependency of

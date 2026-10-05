@@ -27,9 +27,9 @@ function demo(component: string): Renderable<unknown> | null {
     if (component === 'button') {
         return html`
             <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
-                <div class='button button--primary' style='--width: auto;'>Primary</div>
-                <div class='button button--secondary' style='--width: auto;'>Secondary</div>
-                <div class='button button--tertiary' style='--width: auto;'>Tertiary</div>
+                <button class='button' style='--width: auto;' type='button'>Default</button>
+                <button class='button button--tactile' style='--width: auto;' type='button'>Tactile</button>
+                <button class='button button--underline' style='--width: auto;' type='button'>Underline</button>
             </div>
         `;
     }
@@ -95,14 +95,14 @@ const responder = (): Page => {
                         }}
 
                         <div class='spec-table-scroll'><table class='spec-table'>
-                            <thead class='table-head'>
-                                <tr><th>Variable</th><th>Value</th></tr>
+                            <thead class='spec-table-head'>
+                                <tr><th class='spec-table-heading'>Variable</th><th class='spec-table-heading'>Value</th></tr>
                             </thead>
                             <tbody>
                                 ${entry.variables.map((variable) => html`
-                                    <tr>
-                                        <td class='spec-name'>${variable.name}</td>
-                                        <td class='spec-value'>${variable.value}</td>
+                                    <tr class='spec-table-row'>
+                                        <td class='spec-table-cell spec-name'>${variable.name}</td>
+                                        <td class='spec-table-cell spec-value'>${variable.value}</td>
                                     </tr>
                                 `)}
                             </tbody>

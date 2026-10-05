@@ -1,4 +1,6 @@
 .story-demo {
+    --caption-color: var(--color-text-300);
+    align-items: flex-start;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -7,16 +9,13 @@
     padding: 24px;
 
     &--gradient {
+        --caption-color: var(--color-white-500);
         background: linear-gradient(160deg, var(--color-primary-400), var(--color-primary-500));
         color: var(--color-white-500);
-
-        .story-demo-caption {
-            color: inherit;
-        }
     }
 
     &-caption {
-        color: var(--color-text-300);
+        color: var(--caption-color);
         font-size: 15px;
         text-wrap: pretty;
     }

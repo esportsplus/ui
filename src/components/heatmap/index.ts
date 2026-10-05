@@ -1,7 +1,9 @@
-import { onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import tooltip from '~/components/tooltip';
 import scrollbar from '~/css-utilities/scrollbar';
+import { clamp } from '~/shared/clamp';
+import { onceVisible } from '~/shared/visible';
 import './scss/index.scss';
 
 
@@ -54,9 +56,9 @@ const THRESHOLDS = [1, 4, 7, 10];
 function legend(attributes: Attributes = {}) {
     return html`
         <div aria-hidden='true' class='heatmap-legend' ${attributes}>
-            <span>Less</span>
+            <span class='heatmap-legend-less'>Less</span>
             ${LEVELS.map((level) => html`<span class='heatmap-swatch heatmap-swatch--level-${level}'></span>`)}
-            <span>More</span>
+            <span class='heatmap-legend-more'>More</span>
         </div>
     `;
 }
@@ -80,8 +82,9 @@ function summary(day: Day) {
 function template(this: { attributes?: Partial<A> } | void, { data, describe = summary, label, state = reactive({ index: data.length - 1 }), thresholds = THRESHOLDS, tooltip: content, ...attributes }: A) {
     let bound = this?.attributes,
         cells: Cell[] = [],
+        // Read untracked: a tracked read here would rebuild the whole heatmap on every move.
+        initial = untrack(() => state.index),
         months: { column: number; name: string }[] = [],
-        observer: IntersectionObserver | undefined,
         tip = tooltip.shared(),
         view = reactive({ shown: false }),
         weeks = Math.ceil(data.length / 7);
@@ -108,15 +111,11 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
     }
 
     function move(next: number) {
-        let index = Math.min(Math.max(next, 0), data.length - 1);
+        let index = clamp(next, 0, data.length - 1);
 
         state.index = index;
         cells[index]?.focus();
     }
-
-    onCleanup(() => {
-        observer?.disconnect();
-    });
 
     // The tooltip stays out of the accessibility tree: each cell's label already says what it shows.
     return html`
@@ -134,7 +133,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
             })}
         >
             <div aria-hidden='true' class='heatmap-days'>
-                ${DAYS.map((day) => html`<span>${day}</span>`)}
+                ${DAYS.map((day) => html`<span class='heatmap-day'>${day}</span>`)}
             </div>
 
             <div
@@ -154,26 +153,58 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
             >
                 <div class='heatmap-body'>
                     <div aria-hidden='true' class='heatmap-months'>
-                        ${months.map((month) => html`<span style='--column: ${month.column}'>${month.name}</span>`)}
+                        ${months.map((month) => html`<span class='heatmap-month' style='--column: ${month.column}'>${month.name}</span>`)}
                     </div>
 
                     <div
                         aria-readonly='true'
                         class='heatmap-grid'
                         role='grid'
+                        ${onceVisible(() => view.shown = true, { threshold: 0.4 })}
                         ${{
                             'aria-label': label ?? `Activity over the last ${weeks} weeks`,
                             class: () => view.shown && 'heatmap-grid--shown',
+                            // One roving tab stop for the whole grid: cells are indexed by position, and a single
+                            // effect hands tabindex 0 from the previous cell to the current one.
                             onconnect: (element: HTMLElement) => {
-                                observer = new IntersectionObserver((entries) => {
-                                    if (!entries.some((entry) => entry.isIntersecting)) {
+                                let rows = element.querySelectorAll<HTMLElement>(':scope > .heatmap-row');
+
+                                for (let day = 0, n = rows.length; day < n; day++) {
+                                    let row = rows[day].children;
+
+                                    for (let week = 0; week < weeks; week++) {
+                                        let i = week * 7 + day;
+
+                                        if (i >= data.length) {
+                                            break;
+                                        }
+
+                                        let cell = row[week] as Cell;
+
+                                        cell[INDEX] = i;
+                                        cells[i] = cell;
+                                    }
+                                }
+
+                                let previous = cells[initial];
+
+                                effect(() => state.index, (index) => {
+                                    let next = cells[index];
+
+                                    if (next === previous) {
                                         return;
                                     }
 
-                                    observer?.disconnect();
-                                    view.shown = true;
-                                }, { threshold: 0.4 });
-                                observer.observe(element);
+                                    if (previous) {
+                                        previous.tabIndex = -1;
+                                    }
+
+                                    if (next) {
+                                        next.tabIndex = 0;
+                                    }
+
+                                    previous = next;
+                                });
                             },
                             onfocusin: (e: FocusEvent) => {
                                 let element = cellFrom(e.target);
@@ -224,15 +255,9 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
                                             class='heatmap-cell heatmap-cell--level-${data[i].level ?? levelOf(data[i].value, thresholds)}'
                                             role='gridcell'
                                             style='--column: ${week}'
-                                            tabindex='${() => state.index === i ? '0' : '-1'}'
+                                            tabindex='${i === initial ? '0' : '-1'}'
                                             ${bound?.[HEATMAP_CELL]}
                                             ${attributes[HEATMAP_CELL]}
-                                            ${{
-                                                onconnect: (element: Cell) => {
-                                                    element[INDEX] = i;
-                                                    cells[i] = element;
-                                                }
-                                            }}
                                         ></div>
                                     `;
                                 })}

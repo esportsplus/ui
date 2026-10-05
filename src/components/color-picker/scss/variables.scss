@@ -7,7 +7,6 @@
     --control-border-radius: var(--border-radius-400);
     --control-height: 36px;
     --focus-width: var(--border-width-500);
-    --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     --font-size: calc(var(--font-size-400) * 0.875);
     --hairline: inset 0 0 0 1px color-mix(in oklch, var(--color) 10%, transparent);
     --pad-height: 176px;
@@ -27,6 +26,9 @@
     --swatch-shift-easing: var(--swatch-easing);
     --swatch-size: 28px;
     --thumb-border: 2px solid var(--color-white-300);
+    --thumb-scale: none;
+    // Grows a touch while held so you can tell you've got hold of it.
+    --thumb-scale-pressed: 1.1;
     --thumb-shadow:
         0 0 0 1px oklch(from var(--color-black-500) l c h / 0.12),
         0 1px 3px oklch(from var(--color-black-500) l c h / 0.3);
@@ -35,14 +37,15 @@
     --transition-duration: 150ms;
     --transition-timing-function: ease-out;
 
-    // Swatches fade in and out where they stand.
+    // Swatches fade in and out where they stand, and held thumbs keep their size.
     @media (prefers-reduced-motion: reduce) {
         --swatch-blur: 0px;
         --swatch-scale: 1;
         --swatch-shift-duration: 0s;
+        --thumb-scale-pressed: 1;
     }
 
-    .color-picker-channel {
+    &-channel {
         &--alpha {
             --thumb: linear-gradient(rgb(var(--rgb) / var(--alpha)), rgb(var(--rgb) / var(--alpha))), var(--checker);
             --track: linear-gradient(to right, rgb(var(--rgb) / 0), rgb(var(--rgb))), var(--checker);
@@ -72,5 +75,9 @@
         &[aria-invalid='true'] {
             --control-border-color: var(--color-invalid);
         }
+    }
+
+    &-pad:active {
+        --thumb-scale: var(--thumb-scale-pressed);
     }
 }

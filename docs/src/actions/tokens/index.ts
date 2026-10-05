@@ -103,7 +103,7 @@ function colorPalette(values: Token[]): Renderable<unknown> {
                         }, (state) => html`
                                 <span class='token-colors-value ${state.copied && '--copied'}'>
                                     ${icon({ class: 'token-colors-copy', 'aria-hidden': 'true' }, state.copied ? check : copy)}
-                                    <span>${token.value}</span>
+                                    <span class='token-colors-text'>${token.value}</span>
                                 </span>
                                 <span class='token-colors-shade'>${token.label.slice(name.length + 1)}</span>
                         `))}
@@ -183,15 +183,15 @@ const responder = (): Page => {
                         <h2 class='page-section-title'>${title}</h2>
 
                         ${kind === 'color' ? colorPalette(values) : html`<div class='spec-table-scroll'><table class='spec-table'>
-                            <thead class='table-head'>
-                                <tr><th>Token</th><th>Preview</th><th>Value</th></tr>
+                            <thead class='spec-table-head'>
+                                <tr><th class='spec-table-heading'>Token</th><th class='spec-table-heading'>Preview</th><th class='spec-table-heading'>Value</th></tr>
                             </thead>
                             <tbody>
                                 ${values.map((token) => html`
-                                    <tr>
-                                        <td class='spec-name'>${token.name}</td>
-                                        <td>${preview(kind, token.value)}</td>
-                                        <td class='spec-value'>${token.value || '—'}</td>
+                                    <tr class='spec-table-row'>
+                                        <td class='spec-table-cell spec-name'>${token.name}</td>
+                                        <td class='spec-table-cell'>${preview(kind, token.value)}</td>
+                                        <td class='spec-table-cell spec-value'>${token.value || '—'}</td>
                                     </tr>
                                 `)}
                             </tbody>

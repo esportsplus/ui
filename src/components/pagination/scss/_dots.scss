@@ -1,18 +1,6 @@
 @use '/shared';
 @use 'variables';
 
-// Geometry is derived from '--progress' alone, so a scroll or drag only rewrites one custom property per frame.
-// Chained through '.pagination' so the base layout, emitted after this file, can't override it.
-.pagination.pagination--dots {
-    contain: layout;
-    display: block;
-    flex: none;
-    height: var(--height);
-    position: relative;
-    // Never changes width: the active slot is always one pill wide, whichever dot owns it.
-    width: calc((var(--count) - 1) * var(--step) + var(--pill-width));
-}
-
 .pagination {
     // Each dot swells toward pill width as its page approaches, so the row makes room for the pill and every gap stays even mid-scroll.
     &-dot {
@@ -36,16 +24,6 @@
         &:focus-visible {
             outline: var(--border-width-500) solid var(--focus-color);
         }
-
-        &:active .pagination-mark {
-            scale: var(--pressed-scale);
-        }
-
-        @media (hover: hover) {
-            &:hover .pagination-mark {
-                background: var(--dot-color-hover);
-            }
-        }
     }
 
     &-fill {
@@ -58,6 +36,7 @@
         background: var(--dot-color);
         border-radius: 999px;
         height: var(--dot-size);
+        scale: var(--mark-scale);
         transition:
             background-color var(--transition-duration) var(--transition-timing-function),
             scale var(--transition-duration) var(--transition-timing-function);
@@ -81,11 +60,8 @@
 
     @media (prefers-reduced-motion: reduce) {
         &-mark {
-            transition: background-color var(--transition-duration) var(--transition-timing-function);
-        }
-
-        &-dot:active .pagination-mark {
             scale: none;
+            transition: background-color var(--transition-duration) var(--transition-timing-function);
         }
     }
 }

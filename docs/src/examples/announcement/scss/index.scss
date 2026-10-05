@@ -108,6 +108,15 @@
             scale 150ms ease-out;
         width: 32px;
 
+        &-icon {
+            fill: none;
+            height: 16px;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-width: 1.5;
+            width: 16px;
+        }
+
         // Grows the hit area to 40px without growing the circle.
         &::before {
             border-radius: 999px;
@@ -127,15 +136,6 @@
         &:hover {
             background: color-mix(in oklab, var(--bar-color) 15%, transparent);
             color: var(--bar-color);
-        }
-
-        svg {
-            fill: none;
-            height: 16px;
-            stroke: currentColor;
-            stroke-linecap: round;
-            stroke-width: 1.5;
-            width: 16px;
         }
     }
 
@@ -180,6 +180,7 @@
 
     &-muted {
         color: var(--color-text-300);
+        margin: 0;
     }
 
     &-nav {
@@ -208,6 +209,7 @@
 
     &-text {
         flex: 0 1 auto;
+        margin: 0;
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -220,10 +222,6 @@
         font-size: 15px;
         font-variant-numeric: tabular-nums;
         font-weight: var(--font-weight-500);
-        margin-top: 2px;
-    }
-
-    p {
         margin: 0;
     }
 

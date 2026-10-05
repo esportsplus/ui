@@ -16,7 +16,14 @@
     justify-content: center;
     padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
     padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
-    transition: all var(--transition-duration) var(--transition-timing-function);
+    transition:
+        background var(--transition-duration) var(--transition-timing-function),
+        border-color var(--transition-duration) var(--transition-timing-function),
+        box-shadow var(--transition-duration) var(--transition-timing-function),
+        color var(--transition-duration) var(--transition-timing-function),
+        opacity var(--transition-duration) var(--transition-timing-function),
+        scale var(--transition-duration) var(--transition-timing-function),
+        translate var(--transition-duration) var(--transition-timing-function);
     white-space: nowrap;
     translate: 0;
 
@@ -207,6 +214,14 @@
 
     &-status {
         @extend %hidden-visually;
+    }
+
+    // An icon resolves '--color' itself rather than inheriting the label's eased colour, so it eases alongside. Zero
+    // specificity, so an icon's own transition wins.
+    :where(&) :where(.icon) {
+        transition:
+            color var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function);
     }
 
     @media (prefers-reduced-motion: reduce) {

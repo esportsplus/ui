@@ -1,28 +1,16 @@
-@use '/shared';
+@use 'field';
 @use 'scrub';
 @use 'tag';
 @use 'variables';
 
 .input {
-    @extend %background-state, %border-state, %color-state;
     align-items: center;
-    background: var(--background);
-    border: var(--border-width) var(--border-style) var(--border-color);
-    border-radius: var(--border-radius);
-    color: var(--color);
-    cursor: text;
     display: flex;
-    flex: 1 1 auto;
     flex-wrap: wrap;
-    font-size: var(--font-size);
     // Necessary To Maintain Height Of Hidden Password Fields In Floating Modals
     // - Password Managers Cause Problems When Fields Are Not Using 'display:hidden' On Password Fields
     min-height: calc((var(--padding-vertical) * 2) + var(--size));
-    min-width: 0;
     overflow: hidden;
-    padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
-    padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
-    position: relative;
     text-overflow: ellipsis;
     transition:
         background var(--transition-duration) var(--transition-timing-function),
@@ -31,12 +19,7 @@
         opacity var(--transition-duration) var(--transition-timing-function),
         transform var(--transition-duration) var(--transition-timing-function);
     white-space: nowrap;
-    width: 100%;
-
-    &:invalid,
-    &:required {
-        box-shadow: none;
-    }
+    @include field.base;
 
     &[type='number'] {
         appearance: textfield;

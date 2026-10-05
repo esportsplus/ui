@@ -32,6 +32,12 @@ export default component<A, string>(
             state = reactive({ status: 'idle' as 'holding' | 'idle' | 'releasing' | 'success' }),
             timer: ReturnType<typeof setTimeout> | undefined;
 
+        // Rendered twice: under the sweep, and again inside it in the fill's colours.
+        let label = () => faces(() => state.status === 'success' ? 'success' : 'idle', [
+            { content, key: 'idle' },
+            { content: success, icon: check, key: 'success' }
+        ]);
+
         function commit() {
             state.status = 'success';
             navigator.vibrate?.(14);
@@ -135,15 +141,9 @@ export default component<A, string>(
                     onpointerup: drain
                 }}
             >
-                ${faces(() => state.status === 'success' ? 'success' : 'idle', [
-                    { content, key: 'idle' },
-                    { content: success, icon: check, key: 'success' }
-                ])}
+                ${label()}
                 <span aria-hidden='true' class='button-fill' ${{ onconnect: (element: HTMLElement) => fill = element }}>
-                    ${faces(() => state.status === 'success' ? 'success' : 'idle', [
-                        { content, key: 'idle' },
-                        { content: success, icon: check, key: 'success' }
-                    ])}
+                    ${label()}
                 </span>
             </button>
             <span class='button-status' role='status' aria-live='polite'>

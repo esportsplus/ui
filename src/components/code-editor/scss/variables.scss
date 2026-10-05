@@ -1,0 +1,270 @@
+@use '/tokens';
+
+.code-editor {
+    --active-line-background: oklch(from var(--color-text-500) l c h / 0.04);
+    --background: var(--color-white-300);
+    --bar-background: var(--color-white-400);
+    --bar-control-height: var(--size-700);
+    --bar-font-size: var(--font-size-200);
+    --bar-gap: var(--size-100);
+    --bar-icon-size: var(--size-300);
+    --bar-input-width: 160px;
+    --bar-padding: var(--size-100);
+    --border-color: var(--color-border-300);
+    --border-radius: var(--border-radius-300);
+    --border-width: var(--border-width-400);
+    --bracket-background: oklch(from var(--color-yellow-400) l c h / 0.45);
+    --bracket-outline: oklch(from var(--color-blue-400) l c h / 0.6);
+    --caret-color: var(--color);
+    --caret-width: var(--border-width-500);
+    --color: var(--color-text-500);
+    --comment-color: var(--color-text-300);
+    --completion-detail-color: var(--muted-color);
+    --completion-gap: var(--size-300);
+    --completion-height: var(--size-600);
+    --completion-padding: var(--size-200);
+    --completion-rows: 8;
+    --completion-width: 240px;
+    --diagnostic-error-color: var(--invalid-color);
+    --diagnostic-hint-color: var(--muted-color);
+    --diagnostic-info-color: var(--focus-color);
+    --diagnostic-offset: 2px;
+    --diagnostic-warning-color: var(--color-yellow-500);
+    --disabled-opacity: 0.5;
+    --drop-width: var(--border-width-500);
+    --focus-color: var(--color-blue-400);
+    --focus-offset: var(--border-width-400);
+    --focus-width: var(--border-width-500);
+    --fold-duration: 0.15s;
+    --fold-icon-size: var(--size-100);
+    --fold-rotate: 0deg;
+    --fold-width: var(--size-400);
+    --font-family: var(--font-family-mono);
+    --font-size: var(--font-size-200);
+    --function-color: var(--color-purple-300);
+    --gutter-active-color: var(--color);
+    --gutter-color: var(--color-text-300);
+    --gutter-width: calc(var(--number-width) + var(--fold-width));
+    --height: 320px;
+    --hover-max-height: 300px;
+    --hover-max-width: 480px;
+    --hover-padding: var(--size-200);
+    --input-color: transparent;
+    --input-cursor: text;
+    --invalid-color: var(--color-red-400);
+    --keyword-color: var(--color-purple-400);
+    --line-height: var(--size-600);
+    --line-width: max-content;
+    // CSS color literals.
+    --literal-color: var(--number-color);
+    --match-active-background: oklch(from var(--color-yellow-500) l c h / 0.6);
+    --match-background: oklch(from var(--color-yellow-400) l c h / 0.35);
+    --min-height: 100px;
+    --minimap-display: none;
+    --minimap-offset: 0px;
+    --minimap-slider-background: oklch(from var(--color-text-500) l c h / 0.1);
+    --minimap-width: 80px;
+    --muted-color: var(--color-text-300);
+    --number-color: var(--color-blue-400);
+    --number-display: block;
+    --number-padding: var(--size-100);
+    --number-width: calc(var(--digits) * 1ch + var(--number-padding));
+    --occurrence-background: oklch(from var(--color-yellow-400) l c h / 0.22);
+    --operator-color: var(--color-text-400);
+    --overflow-wrap: normal;
+    --overlay-visibility: visible;
+    --padding: var(--size-200);
+    --placeholder-background: oklch(from var(--color-text-300) l c h / 0.15);
+    --placeholder-color: var(--color-text-300);
+    --popup-border-radius: var(--border-radius-300);
+    --popup-shadow: var(--box-shadow-400);
+    --problems-max-height: 120px;
+    --property-color: var(--color-blue-500);
+    --regexp-color: var(--color-red-500);
+    --selection-background: oklch(from var(--color-blue-400) l c h / 0.22);
+    --selector-color: var(--color-purple-500);
+    --string-color: oklch(from var(--color-green-500) 45% c h);
+    --tag-color: var(--color-red-400);
+    --type-color: var(--color-blue-300);
+    --variable-color: var(--color);
+    --white-space: pre;
+    --whitespace-color: oklch(from var(--color-text-300) l c h / 0.6);
+
+    &--composing {
+        --input-color: var(--color);
+        --overlay-visibility: hidden;
+    }
+
+    &--crosshair {
+        --input-cursor: crosshair;
+    }
+
+    &--foldless {
+        --fold-width: 0px;
+    }
+
+    &--minimap {
+        --minimap-display: block;
+        --minimap-offset: var(--minimap-width);
+    }
+
+    &--numberless {
+        --number-display: none;
+        --number-width: 0px;
+    }
+
+    &--wrap {
+        --line-width: var(--content-width);
+        --overflow-wrap: break-word;
+        --white-space: pre-wrap;
+    }
+
+    &-find-button.button {
+        --background-active: var(--selection-background);
+        --background-default: transparent;
+        --background-hover: var(--active-line-background);
+        --border-radius: var(--border-radius-200);
+        --color-default: var(--color);
+        --font-size: var(--bar-font-size);
+        --line-height: 1;
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: 0px;
+    }
+
+    &-find-icon.icon {
+        --size: var(--bar-icon-size);
+    }
+
+    &-find-input.input,
+    &-goto-input.input {
+        --background-default: var(--background);
+        --border-color-default: var(--border-color);
+        --border-radius: var(--border-radius-200);
+        --border-width: var(--border-width-400);
+        --color-default: var(--color);
+        --font-size: var(--bar-font-size);
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: 0px;
+        --size: var(--bar-control-height);
+    }
+
+    &-fold {
+        @include tokens.state(active) {
+            --fold-rotate: -90deg;
+        }
+    }
+
+    @media (forced-colors: active) {
+        --caret-color: CanvasText;
+        --input-color: CanvasText;
+        --overlay-visibility: hidden;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --fold-duration: 0s;
+    }
+}
+
+.markdown-editor {
+    --active-line-background: oklch(from var(--color-text-500) l c h / 0.04);
+    --background: var(--color-white-300);
+    --bar-background: var(--color-white-400);
+    --bar-control-height: var(--size-700);
+    --bar-font-size: var(--font-size-200);
+    --bar-gap: var(--size-100);
+    --bar-icon-size: var(--size-300);
+    --bar-input-width: 160px;
+    --bar-padding: var(--size-100);
+    --border-color: var(--color-border-300);
+    --border-radius: var(--border-radius-300);
+    --border-width: var(--border-width-400);
+    --caret-color: var(--color);
+    --caret-width: var(--border-width-500);
+    --cell-padding: var(--size-100) var(--size-200);
+    --chip-background: oklch(from var(--color-text-300) l c h / 0.15);
+    --chip-font-size: var(--font-size-100);
+    --code-background: oklch(from var(--color-text-500) l c h / 0.06);
+    --code-padding: 0 0.25em;
+    --code-radius: var(--border-radius-200);
+    --color: var(--color-text-500);
+    --comment-color: var(--color-text-300);
+    --cursor: text;
+    --disabled-opacity: 0.5;
+    --focus-color: var(--color-blue-400);
+    --focus-offset: var(--border-width-400);
+    --focus-width: var(--border-width-500);
+    --fold-duration: 0.15s;
+    --fold-icon-size: var(--size-100);
+    --fold-rotate: 0deg;
+    --fold-width: var(--size-400);
+    --font-family: var(--font-family-mono);
+    --font-size: var(--font-size-200);
+    // Heading font scales and the line height of the two largest; the layout's arithmetic uses the same values.
+    --h1-scale: 1.7;
+    --h2-scale: 1.45;
+    --h3-scale: 1.25;
+    --h4-scale: 1.1;
+    --h5-scale: 1;
+    --h6-scale: 0.95;
+    --heading-line-height: 1.3;
+    --heading-weight: 600;
+    --height: 320px;
+    --invalid-color: var(--color-red-400);
+    --keyword-color: var(--color-purple-400);
+    --line-height: var(--size-600);
+    --link-color: var(--color-blue-400);
+    --marker-width: 1.5em;
+    --match-active-background: oklch(from var(--color-yellow-500) l c h / 0.6);
+    --match-background: oklch(from var(--color-yellow-400) l c h / 0.35);
+    --min-height: 100px;
+    --minimap-display: none;
+    --minimap-offset: 0px;
+    --minimap-slider-background: oklch(from var(--color-text-500) l c h / 0.1);
+    --minimap-width: 80px;
+    --muted-color: var(--color-text-300);
+    --operator-color: var(--color-text-400);
+    // The field's arithmetic layout assumes these wrapping rules.
+    --overflow-wrap: break-word;
+    --padding: var(--size-200);
+    --placeholder-color: var(--color-text-300);
+    --property-color: var(--color-blue-500);
+    --quote-bar-color: var(--color-border-300);
+    --quote-bar-width: var(--border-width-500);
+    --quote-color: var(--color-text-400);
+    --quote-indent: var(--size-200);
+    --rule-color: var(--color-border-300);
+    --selection-background: oklch(from var(--color-blue-400) l c h / 0.22);
+    --string-color: oklch(from var(--color-green-500) 45% c h);
+    --task-gap: var(--size-100);
+    --type-color: var(--color-blue-300);
+    --variable-color: var(--color);
+    --white-space: pre-wrap;
+
+    &--crosshair {
+        --cursor: crosshair;
+    }
+
+    &--minimap {
+        --minimap-display: block;
+        --minimap-offset: var(--minimap-width);
+    }
+
+    &--nowrap {
+        --overflow-wrap: normal;
+        --white-space: pre;
+    }
+
+    &-fold {
+        @include tokens.state(active) {
+            --fold-rotate: -90deg;
+        }
+    }
+
+    @media (forced-colors: active) {
+        --caret-color: CanvasText;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --fold-duration: 0s;
+    }
+}

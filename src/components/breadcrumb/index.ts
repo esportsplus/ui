@@ -1,6 +1,7 @@
 import { component, html, on, type Attributes, type Element } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import tooltip from '~/components/tooltip';
+import { observer } from '~/shared/resize';
 import chevron from '@esportsplus/ui/svg/chevron-right.svg';
 import dots from '@esportsplus/ui/svg/dots.svg';
 import folder from '@esportsplus/ui/svg/folder.svg';
@@ -42,9 +43,7 @@ let uid = 0;
 
 
 function separator(kind: Separator) {
-    return html`
-        <svg aria-hidden='true' class='breadcrumb-separator'><use href='#${SEPARATORS[kind]}' /></svg>
-    `;
+    return html`<svg aria-hidden='true' class='breadcrumb-separator'><use href='#${SEPARATORS[kind]}' /></svg>`;
 }
 
 
@@ -56,7 +55,6 @@ function separator(kind: Separator) {
 const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind = 'slash', state, ...attributes }: A) => {
     let id = `breadcrumb-${++uid}`,
         last = items.length - 1,
-        observer: ResizeObserver | undefined,
         root: HTMLElement | undefined,
         ruler: HTMLElement | undefined,
         s = state ?? reactive({ active: false, hidden: 0 }),
@@ -117,8 +115,6 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
         onnavigate(item, index);
     }
 
-    onCleanup(() => observer?.disconnect());
-
     return html`
         <nav
             class='breadcrumb'
@@ -127,16 +123,18 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                 'aria-label': label,
                 class: () => view.instant && 'breadcrumb--instant',
                 onconnect: (element: HTMLElement) => {
+                    // Also catches webfonts landing late, since they resize the ruler.
+                    let resize = observer(fit);
+
                     root = element;
                     fit();
-
-                    // Also catches webfonts landing late, since they resize the ruler.
-                    observer = new ResizeObserver(fit);
-                    observer.observe(element);
+                    resize.observe(element);
 
                     if (ruler) {
-                        observer.observe(ruler);
+                        resize.observe(ruler);
                     }
+
+                    onCleanup(resize.disconnect);
                 },
                 // The first fit lands after the trail has been styled once, so 'breadcrumb--instant' holds until that
                 // fit has painted or it would play the fold.
@@ -152,12 +150,12 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                 ${{ onconnect: (element: HTMLElement) => { ruler = element; } }}
             >
                 ${items.map((item, index) => html`
-                    <li class='breadcrumb-segment'>
+                    <li class='breadcrumb-ruler-segment'>
                         ${index > 0 && separator(kind)}
                         <span class='breadcrumb-text ${index === last && 'breadcrumb-text--current'}'>${item.label}</span>
                     </li>
                 `)}
-                <li class='breadcrumb-segment'>
+                <li class='breadcrumb-ruler-segment'>
                     ${separator(kind)}
                     <span class='breadcrumb-space'></span>
                 </li>
@@ -195,7 +193,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                         class: 'breadcrumb-menu-root',
                                         items: items.slice(1, last).map((item, i) => ({
                                             label: item.label,
-                                            icon: () => html`<svg aria-hidden='true'><use href='#${folder}' /></svg>`,
+                                            icon: () => html`<svg aria-hidden='true' class='breadcrumb-option-icon'><use href='#${folder}' /></svg>`,
                                             hidden: () => i >= s.hidden,
                                             href: item.href,
                                             onselect: (_item, event) => navigate(event, item, i + 1),
@@ -215,9 +213,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                             id: `${id}-menu`
                                         }
                                     },
-                                    html`
-                                        <svg aria-hidden='true'><use href='#${dots}' /></svg>
-                                    `
+                                    html`<svg aria-hidden='true' class='breadcrumb-trigger-icon'><use href='#${dots}' /></svg>`
                                 )}
                             </div>
                         </li>

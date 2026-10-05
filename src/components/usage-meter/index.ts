@@ -1,4 +1,4 @@
-import { computed, dispose, onCleanup, read } from '@esportsplus/reactivity';
+import { computed, read } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import number from '../number';
 import './scss/index.scss';
@@ -18,12 +18,6 @@ export default component(
         let costed = computed(() => usage.cost !== undefined),
             used = computed(() => usage.prompt + usage.completion),
             ratio = computed(() => Math.min(1, read(used) / usage.context));
-
-        onCleanup(() => {
-            dispose(costed);
-            dispose(ratio);
-            dispose(used);
-        });
 
         return html`
             <div

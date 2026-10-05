@@ -1,6 +1,8 @@
-// Registered so a transition can spring the offset, and the indicator, glyph and feed all follow the one interpolated value.
+// Registered so a transition can spring the offset. Not inherited, or every item in the feed would restyle on every frame of
+// the spring; the indicator, glyph, spinner, scroller and feed follow the one interpolated value by declaring
+// '--pull-to-refresh-y: inherit', and so can any element of yours whose parent has it.
 @property --pull-to-refresh-y {
-    inherits: true;
+    inherits: false;
     initial-value: 0;
     syntax: '<number>';
 }
@@ -14,13 +16,13 @@
     --fresh-duration: 0.3s;
     --fresh-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     --height: 100%;
-    --reveal: 0;
     // Critically damped at a 0.35s visual duration: an indicator that overshoots would bounce the feed.
     --settle-duration: 617ms;
     // Longer than a UI transition on purpose (0.5s visual duration): the feed travels up to ~150px and the new items should
     // be seen arriving, not just appear.
     --slide-in-duration: 882ms;
     --spin-duration: 0.8s;
+    --spinner-animation: pull-to-refresh-spin;
     --spinner-size: 24px;
     // Critically damped spring sampled into linear(); the durations above set its stiffness.
     --spring: linear(0, 0.0575, 0.1803, 0.3208, 0.4551, 0.573, 0.6711, 0.7501, 0.8122, 0.8601, 0.8966, 0.924, 0.9445, 0.9596, 0.9708, 0.9789, 0.9848, 0.9891, 0.9922, 0.9944, 0.996, 0.9972, 0.998, 0.9986, 1);

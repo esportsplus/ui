@@ -61,4 +61,10 @@
             --drag-animation: #{$animation};
         }
     }
+
+    // After the swing presets, which set the same variables on the same element.
+    @media (prefers-reduced-motion: reduce) {
+        --shift-duration: 0s;
+        --swing-angle: 0deg;
+    }
 }

@@ -1,7 +1,7 @@
 import { component, html, Attributes } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import overlay from '~/components/overlay';
-import { content, cool, morph, morphing, wait, warm, type Delay } from './utilities';
+import { content, cool, morph, morphs, wait, warm, type Delay } from './utilities';
 
 
 type A = Attributes & Options & {
@@ -103,7 +103,6 @@ function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state 
         local = reactive({ instant: false, morphing: false, safe: '' }),
         morphed: VoidFunction | undefined,
         pending: VoidFunction | undefined,
-        settled = morphing(local, false),
         x = 0,
         y = 0;
 
@@ -154,18 +153,17 @@ function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state 
         pending?.();
     });
 
-    let popup = overlay.popup({ canDismiss: () => !!(pending || morphed), ondismiss: close, state, target: content });
+    let handlers = morphs(local),
+        popup = overlay.popup({ canDismiss: () => !!(pending || morphed), ondismiss: close, state, target: content });
 
     return {
         ...popup,
+        ...handlers,
         class: [
             popup.class,
             () => state.active && local.instant && 'tooltip--instant',
             () => local.morphing && 'tooltip--morphing'
         ].flat(),
-        onanimationcancel: settled,
-        onanimationend: settled,
-        onanimationstart: morphing(local, true),
         onfocusin: (e: FocusEvent) => {
             stay();
 
@@ -214,16 +212,14 @@ function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state 
                 local.safe = safe(element, x, y) ?? local.safe;
             }
         },
-        ontransitioncancel: settled,
         // Content animates in; re-measure once it settles so the cone targets its final position.
         ontransitionend: (e: TransitionEvent) => {
-            settled(e);
+            handlers.ontransitionend(e);
 
             if (state.active) {
                 local.safe = safe(e.currentTarget as HTMLElement, x, y) ?? local.safe;
             }
         },
-        ontransitionrun: morphing(local, true),
         style: () => local.safe
     };
 }

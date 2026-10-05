@@ -10,7 +10,7 @@
 
     &--backdrop {
         background-position: bottom;
-        height: 80svh;
+        height: var(--backdrop-height);
     }
 
     &--blur {
@@ -18,10 +18,6 @@
         left: -2svh;
         right: -2svh;
         top: -2svh;
-
-        &.banner--backdrop {
-            height: 90svh;
-        }
     }
 
     &--fixed {

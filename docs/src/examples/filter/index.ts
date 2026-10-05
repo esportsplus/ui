@@ -35,7 +35,7 @@ function demo(layout: 'capped' | 'grid' | 'rows') {
     let controller = filter({ filters, height: true, items: assets, label: 'Asset type' });
 
     return html`
-        <div class='filter-demo filter-demo--${layout}'>
+        <div class='filter-demo'>
             <div class='filter-demo-triggers' ${controller.triggers}>
                 ${filters.map((f, index) => html`
                     <button class='filter-demo-trigger' ${controller.trigger(f, index)}>
@@ -45,9 +45,9 @@ function demo(layout: 'capped' | 'grid' | 'rows') {
                 `)}
             </div>
 
-            <ul class='filter-demo-items' ${controller.list}>
+            <ul class='filter-demo-items ${layout !== 'rows' && 'filter-demo-items--' + layout}' ${controller.list}>
                 ${assets.map((asset, index) => html`
-                    <li class='filter-demo-item' ${controller.item(index)}>
+                    <li class='filter-demo-item ${layout === 'rows' && 'filter-demo-item--row'}' ${controller.item(index)}>
                         <span class='filter-demo-name'>${asset.name}</span>
                         <span class='filter-demo-meta'>${asset.kind} · ${asset.size}</span>
                     </li>

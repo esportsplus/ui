@@ -19,6 +19,10 @@
     position: relative;
     width: 100%;
 
+    &-entry {
+        flex-shrink: 0;
+    }
+
     &-group {
         @extend %reset-list;
         align-items: center;
@@ -26,8 +30,8 @@
         gap: var(--item-gap);
         width: max-content;
 
-        li {
-            flex-shrink: 0;
+        &--copy {
+            display: var(--copy-display);
         }
     }
 
@@ -77,34 +81,22 @@
         align-items: center;
         display: flex;
         gap: var(--item-gap);
-        // Root transitions transform on every element; that would lag each frame and animate the loop wrap. Only
-        // '--drift' transitions, for its end to tell JS it changed.
+        // Only '--drift' transitions, for its end to tell JS it changed; easing the transform would lag each frame and
+        // animate the loop wrap.
         transition: --drift 1ms;
         width: max-content;
-        will-change: transform;
+        will-change: var(--track-will-change);
     }
 
     &-viewport {
         mask: linear-gradient(to right, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
         outline: none;
         overflow: hidden;
+        overflow-x: var(--viewport-overflow-x);
         padding: var(--padding-vertical) 0;
 
         &:focus-visible {
             box-shadow: inset 0 0 0 1px var(--focus-color);
         }
-    }
-
-    // Holding still, it is a strip to scroll by hand.
-    &--still &-group--copy {
-        display: none;
-    }
-
-    &--still &-track {
-        will-change: auto;
-    }
-
-    &--still &-viewport {
-        overflow-x: auto;
     }
 }

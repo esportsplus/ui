@@ -116,7 +116,7 @@ function resizable({ modifier = '', plain = false, separator, status }: { modifi
                         }
                     }}
                 >
-                    <span></span>
+                    <span class='breadcrumb-demo-grip'></span>
                 </div>
             </div>
             <p class='breadcrumb-demo-hint'>

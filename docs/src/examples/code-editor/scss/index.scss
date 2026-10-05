@@ -1,0 +1,90 @@
+.code-editor-demo {
+    display: grid;
+    gap: var(--size-300);
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 100%;
+    min-width: 0;
+    width: min(850px, 100%);
+
+    &-action {
+        --border-width: var(--border-width-400);
+        --font-size: var(--font-size-300);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-100);
+        border: var(--border-width) solid var(--border-color);
+        gap: var(--size-200);
+    }
+
+    &-actions {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--size-200) var(--size-400);
+    }
+
+    &-caption {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        margin: 0;
+    }
+
+    &-editor {
+        &--compact.code-editor {
+            --height: 200px;
+        }
+
+        &--tall.code-editor,
+        &--tall.markdown-editor {
+            --height: 420px;
+        }
+    }
+
+    // A control and the text naming it.
+    &-field {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        font-size: var(--font-size-300);
+        gap: var(--size-200);
+        user-select: none;
+        white-space: nowrap;
+    }
+
+    &-hint {
+        color: var(--color-text-300);
+        margin: 0;
+    }
+
+    &-hints {
+        align-items: center;
+        display: grid;
+        font-size: var(--font-size-300);
+        gap: var(--size-200) var(--size-400);
+        grid-template-columns: max-content minmax(0, 1fr);
+        margin: 0;
+    }
+
+    &-icon {
+        --size: 1em;
+    }
+
+    &-keys {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--size-200) var(--size-500);
+        margin: 0;
+    }
+
+    &-status {
+        color: var(--color-text-300);
+        display: flex;
+        font-size: var(--font-size-300);
+        gap: var(--size-400);
+        justify-content: space-between;
+    }
+
+    &-switch {
+        --background-active: var(--color-primary-400);
+        --background-default: var(--color-border-500);
+    }
+}

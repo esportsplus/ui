@@ -6,7 +6,7 @@ import { range } from '@esportsplus/ui/components';
 export default [
     {
         render: () => html`
-            <div style='display: flex; align-items: center; justify-content: center; gap: 48px;'>
+            <div class='range-demo-row'>
                 ${range({ 'aria-label': 'Volume', class: 'range--slider', max: 100, min: 0, orientation: 'vertical', value: 50 })}
                 ${range.filter({ class: 'range--slider', label: 'Range', max: 100, min: 0, orientation: 'vertical', prefix: '', step: 1, ticks: 0, value: [20, 70] })}
             </div>
@@ -54,7 +54,7 @@ export default [
             let state = reactive({ active: false, error: '', value: 0.4 });
 
             return html`
-                <form style='display: grid; gap: 12px; width: 100%;' onsubmit='${(event: Event) => event.preventDefault()}'>
+                <form class='range-demo range-demo--stretch' onsubmit='${(event: Event) => event.preventDefault()}'>
                     <label for='range-slider-zoom'>Zoom <output for='range-slider-zoom'>${() => `${Math.round(state.value * 100)}%`}</output></label>
                     ${range({ class: 'range--slider', id: 'range-slider-zoom', max: 1, min: 0, name: 'zoom', state, step: 0.01 })}
                     <code>zoom=${() => state.value}</code>

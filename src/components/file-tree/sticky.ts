@@ -1,5 +1,6 @@
 import { reactive, type Reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
+import { observe } from '~/shared/resize';
 
 
 type Node<T> = {
@@ -124,15 +125,13 @@ export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number,
                 class='file-tree-sticky'
                 ${{
                     onconnect: (element: HTMLElement) => {
-                        let host = element.parentElement!,
-                            resize = new ResizeObserver(() => {
-                                measure();
-                                update();
-                            });
+                        let host = element.parentElement!;
 
-                        resize.observe(host);
                         stack = element;
-                        stop = () => resize.disconnect();
+                        stop = observe(host, () => {
+                            measure();
+                            update();
+                        });
                         viewport = host;
                     },
                     ondisconnect: () => {

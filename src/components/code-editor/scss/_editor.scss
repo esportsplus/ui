@@ -1,0 +1,429 @@
+@use '/shared';
+@use '/tokens';
+
+.code-editor {
+    background: var(--background);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    color: var(--color);
+    display: flex;
+    flex-direction: column;
+    height: var(--height);
+    min-height: var(--min-height);
+    min-width: 0;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+
+    &-bracket {
+        background: var(--bracket-background);
+        outline: var(--border-width) solid var(--bracket-outline);
+    }
+
+    &-decoration {
+        position: absolute;
+        transition: none;
+
+        &--caret {
+            background: var(--caret-color);
+            width: var(--caret-width);
+        }
+
+        &--drop {
+            background: var(--caret-color);
+            width: var(--drop-width);
+        }
+
+        &--selection {
+            background: var(--selection-background);
+        }
+    }
+
+    &-decorations,
+    &-lines,
+    &-numbers {
+        left: 0;
+        position: absolute;
+        top: 0;
+        // Rows must follow the native scroll offset in the same frame, even under a theme that transitions transforms.
+        transition: none;
+    }
+
+    &-find {
+        flex-direction: column;
+    }
+
+    &-find,
+    &-goto {
+        background: var(--bar-background);
+        border-bottom: var(--border-width) solid var(--border-color);
+        display: none;
+        flex: none;
+        font-size: var(--bar-font-size);
+        gap: var(--bar-gap);
+        margin: 0;
+        padding: var(--bar-padding);
+
+        @include tokens.state(active) {
+            display: flex;
+        }
+    }
+
+    &-find-button.button {
+        flex: none;
+        height: var(--bar-control-height);
+        min-width: var(--bar-control-height);
+
+        &:disabled {
+            cursor: default;
+            opacity: var(--disabled-opacity);
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+        }
+    }
+
+    &-find-input.input,
+    &-goto-input.input {
+        flex: 1 1 var(--bar-input-width);
+        min-width: 0;
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+        }
+
+        // The field's invalid state is semantic; nothing else marks it.
+        &[aria-invalid='true'] {
+            --border-color-default: var(--invalid-color);
+        }
+    }
+
+    &-find-row {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--bar-gap);
+
+        &--replace {
+            display: none;
+
+            @include tokens.state(active) {
+                display: flex;
+            }
+        }
+    }
+
+    &-find-status {
+        color: var(--muted-color);
+        font-variant-numeric: tabular-nums;
+        min-width: 6ch;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    &-fold {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        flex: none;
+        height: var(--line-height);
+        justify-content: center;
+        pointer-events: auto;
+        width: var(--fold-width);
+
+        &--none {
+            pointer-events: none;
+            visibility: hidden;
+        }
+    }
+
+    &-fold-icon.icon {
+        --size: var(--fold-icon-size);
+        rotate: var(--fold-rotate);
+        transition: rotate var(--fold-duration) ease-out;
+    }
+
+    &-goto {
+        align-items: center;
+    }
+
+    &-gutter {
+        border-right: var(--border-width) solid var(--border-color);
+        bottom: 0;
+        box-sizing: border-box;
+        color: var(--gutter-color);
+        left: 0;
+        overflow: hidden;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        user-select: none;
+        width: var(--gutter-width);
+        z-index: 3;
+    }
+
+    &-help {
+        @extend %hidden-visually;
+    }
+
+    &-input {
+        // The shared scrollbar scope must not animate caret reveals in the editing surface.
+        --scrollbar-behavior: auto;
+        appearance: none;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-sizing: border-box;
+        caret-color: var(--caret-color);
+        color: var(--input-color);
+        cursor: var(--input-cursor);
+        display: block;
+        font: inherit;
+        height: 100%;
+        left: var(--gutter-width);
+        letter-spacing: inherit;
+        line-height: inherit;
+        margin: 0;
+        outline: none;
+        overflow: auto;
+        overflow-wrap: var(--overflow-wrap);
+        padding: var(--padding);
+        position: absolute;
+        resize: none;
+        scroll-behavior: auto;
+        tab-size: inherit;
+        top: 0;
+        transition: none;
+        white-space: var(--white-space);
+        width: calc(100% - var(--gutter-width) - var(--minimap-offset));
+        z-index: 1;
+
+        &::placeholder {
+            color: var(--placeholder-color);
+        }
+
+        &::selection {
+            background: var(--selection-background);
+        }
+    }
+
+    &-line {
+        box-sizing: border-box;
+        left: 0;
+        min-width: 100%;
+        overflow-wrap: var(--overflow-wrap);
+        position: absolute;
+        white-space: var(--white-space);
+        width: var(--line-width);
+
+        @include tokens.state(active) {
+            background: var(--active-line-background);
+        }
+
+        &--unused {
+            display: none;
+        }
+    }
+
+    &-lines {
+        width: var(--content-width);
+    }
+
+    &-match {
+        background: var(--match-background);
+
+        @include tokens.state(active) {
+            background: var(--match-active-background);
+        }
+    }
+
+    &-minimap {
+        border-left: var(--border-width) solid var(--border-color);
+        bottom: 0;
+        box-sizing: border-box;
+        cursor: pointer;
+        display: var(--minimap-display);
+        overflow: hidden;
+        position: absolute;
+        right: 0;
+        top: 0;
+        touch-action: none;
+        width: var(--minimap-width);
+        z-index: 4;
+    }
+
+    &-minimap-canvas {
+        display: block;
+        height: 100%;
+        width: 100%;
+    }
+
+    &-minimap-slider {
+        background: var(--minimap-slider-background);
+        border: var(--border-width) solid var(--border-color);
+        box-sizing: border-box;
+        height: var(--slider-height);
+        left: 0;
+        pointer-events: none;
+        position: absolute;
+        top: var(--slider-top);
+        transition: none;
+        width: 100%;
+    }
+
+    &-number {
+        // A wrapped line's number and fold marker sit on its first row.
+        align-items: flex-start;
+        display: flex;
+        left: 0;
+        position: absolute;
+        width: 100%;
+
+        @include tokens.state(active) {
+            color: var(--gutter-active-color);
+        }
+
+        &--unused {
+            display: none;
+        }
+    }
+
+    &-number-text {
+        display: var(--number-display);
+        flex: 1;
+        line-height: var(--line-height);
+        text-align: right;
+    }
+
+    &-numbers {
+        width: 100%;
+    }
+
+    &-occurrence {
+        background: var(--occurrence-background);
+    }
+
+    &-overlay {
+        bottom: 0;
+        left: var(--gutter-width);
+        overflow: hidden;
+        pointer-events: none;
+        position: absolute;
+        right: var(--minimap-offset);
+        top: 0;
+        user-select: none;
+        visibility: var(--overlay-visibility);
+    }
+
+    &-placeholder {
+        background: var(--placeholder-background);
+        border-radius: var(--border-radius-100);
+        color: var(--placeholder-color);
+    }
+
+    &-ruler {
+        left: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        visibility: hidden;
+        white-space: pre;
+    }
+
+    &-space {
+        background: radial-gradient(circle at center, var(--whitespace-color) 1px, transparent 1.4px);
+    }
+
+    &-surface {
+        flex: 1;
+        font-family: var(--font-family);
+        font-size: var(--font-size);
+        font-style: normal;
+        font-variant-ligatures: none;
+        font-weight: normal;
+        letter-spacing: normal;
+        line-height: var(--line-height);
+        min-height: 0;
+        overflow: hidden;
+        position: relative;
+        tab-size: var(--tab-size);
+        text-align: left;
+        text-indent: 0;
+        text-transform: none;
+        word-spacing: normal;
+    }
+
+    &-tab {
+        position: relative;
+
+        &::before {
+            color: var(--whitespace-color);
+            content: '→';
+            left: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+    }
+
+    &-token {
+        &--color {
+            color: var(--literal-color);
+        }
+
+        &--comment {
+            color: var(--comment-color);
+            font-style: italic;
+        }
+
+        &--function {
+            color: var(--function-color);
+        }
+
+        &--keyword {
+            color: var(--keyword-color);
+        }
+
+        &--number {
+            color: var(--number-color);
+        }
+
+        &--operator {
+            color: var(--operator-color);
+        }
+
+        &--property {
+            color: var(--property-color);
+        }
+
+        &--regexp {
+            color: var(--regexp-color);
+        }
+
+        &--selector {
+            color: var(--selector-color);
+        }
+
+        &--string {
+            color: var(--string-color);
+        }
+
+        &--tag {
+            color: var(--tag-color);
+        }
+
+        &--type {
+            color: var(--type-color);
+        }
+
+        &--variable {
+            color: var(--variable-color);
+        }
+    }
+
+    &:focus-within {
+        outline: var(--focus-width) solid var(--focus-color);
+        outline-offset: var(--focus-offset);
+    }
+}

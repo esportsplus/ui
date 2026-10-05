@@ -52,14 +52,6 @@
         height: 56px;
         justify-content: space-between;
         padding: 0 12px 0 20px;
-
-        h3 {
-            color: var(--color-text-500);
-            font-size: 17px;
-            font-weight: var(--font-weight-600);
-            letter-spacing: -0.01em;
-            margin: 0;
-        }
     }
 
     &-meta {
@@ -101,6 +93,11 @@
             scale 0.15s ease-out;
         width: 36px;
 
+        &-icon {
+            height: 16px;
+            width: 16px;
+        }
+
         &:active {
             scale: 0.96;
         }
@@ -116,11 +113,6 @@
 
         &[aria-disabled='true'] {
             opacity: 0.5;
-        }
-
-        svg {
-            height: 16px;
-            width: 16px;
         }
     }
 
@@ -140,6 +132,14 @@
         line-height: 20px;
         margin: 2px 0 0;
         text-wrap: pretty;
+    }
+
+    &-title {
+        color: var(--color-text-500);
+        font-size: 17px;
+        font-weight: var(--font-weight-600);
+        letter-spacing: -0.01em;
+        margin: 0;
     }
 
     @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,8 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, untrack } from '@esportsplus/reactivity';
+import { effect, read as get, signal, untrack, write } from '@esportsplus/reactivity';
 import { pool } from '@esportsplus/workers';
+import { observer, type Observer } from '~/shared/resize';
+import { observeIntersection } from '~/shared/visible';
 import engine, { scheduler, type Camera, type Link as Path, type Rgb, type Settings, type Shape } from './engine';
 import surface from './surface';
 import type { Actions, Call, Field } from './worker';
@@ -232,15 +234,17 @@ export default component(
 
         let bounds: DOMRect | null = null,
             canvas: HTMLCanvasElement | undefined,
-            cleanup: VoidFunction[] = [],
             elements: Element[] | null = null,
             field: Field | null = null,
+            // Bumped when the worker fails, so the template renders a fresh canvas the page can draw on again.
+            generation = signal(0),
             host: HTMLElement | undefined,
             last = { accent: '', camera: null as Camera | null, color: '', shapes: [] as Shape[], size: '' },
+            // Ends everything a connection listens to and observes, presses still held included.
+            listening: AbortController | undefined,
             measuring = 0,
             relink = true,
-            releases = new AbortController(),
-            resizer: ResizeObserver | undefined,
+            resizer: Observer | undefined,
             running = 0,
             settle = 0,
             shown = true,
@@ -493,20 +497,16 @@ export default component(
             proxy.flush = flush;
 
             // A worker that fails to start or dies hands the drawing back to the page, on a fresh canvas since the
-            // old one now belongs to the worker.
+            // old one now belongs to the worker; the fresh canvas starts the engine once it connects.
             task.catch(() => {
                 if (field !== proxy) {
                     return;
                 }
 
-                let fresh = element.cloneNode() as HTMLCanvasElement;
-
                 channel.port1.close();
                 void workers.shutdown();
-                element.replaceWith(fresh);
-                canvas = fresh;
-                field = engine(fresh, scheduler());
-                sync();
+                field = null;
+                write(generation, generation.value + 1);
             });
 
             return proxy;
@@ -552,45 +552,40 @@ export default component(
             schedule();
         }
 
-        let disposers = [
-            effect(() => {
-                let next = settings();
+        effect(() => {
+            let next = settings();
 
-                untrack(() => field?.configure(next));
-            }),
-            effect(() => {
-                read('accent');
-                untrack(recolor);
-            }),
-            // Read deeply so reactive cameras and links are tracked; the next measure picks up what changed.
-            effect(() => {
-                let camera = read('camera'),
-                    links = read('links');
+            untrack(() => field?.configure(next));
+        });
 
-                if (camera) {
-                    void (camera.x + camera.y + camera.zoom);
-                }
+        effect(() => {
+            read('accent');
+            untrack(recolor);
+        });
 
-                void JSON.stringify(links);
-                untrack(() => {
-                    relink = true;
-                    schedule();
-                });
-            }),
-            effect(() => {
-                let ripple = read('ripple');
+        // Read deeply so reactive cameras and links are tracked; the next measure picks up what changed.
+        effect(() => {
+            let camera = read('camera'),
+                links = read('links');
 
-                if (ripple) {
-                    let { x, y } = ripple;
+            if (camera) {
+                void (camera.x + camera.y + camera.zoom);
+            }
 
-                    untrack(() => field?.ripple(x, y));
-                }
-            })
-        ];
+            void JSON.stringify(links);
+            untrack(() => {
+                relink = true;
+                schedule();
+            });
+        });
 
-        onCleanup(() => {
-            for (let i = 0, n = disposers.length; i < n; i++) {
-                disposers[i]();
+        effect(() => {
+            let ripple = read('ripple');
+
+            if (ripple) {
+                let { x, y } = ripple;
+
+                untrack(() => field?.ripple(x, y));
             }
         });
 
@@ -610,10 +605,9 @@ export default component(
                             ? remote(canvas, url)
                             : engine(canvas, scheduler());
 
-                        let blur = () => {
-                                bounds = null;
-                            },
-                            done = (event: Event) => {
+                        listening = new AbortController();
+
+                        let done = (event: Event) => {
                                 if (event.type === 'transitionrun' || event.type === 'animationstart') {
                                     running++;
                                 }
@@ -623,7 +617,7 @@ export default component(
 
                                 schedule();
                             },
-                            intersection = new IntersectionObserver((entries) => {
+                            intersection = observeIntersection(element, (entries) => {
                                 shown = entries[entries.length - 1].isIntersecting && !document.hidden;
                                 field?.visible(shown);
                             }),
@@ -644,15 +638,14 @@ export default component(
 
                                 schedule();
                             }),
-                            scheme = matchMedia('(prefers-color-scheme: dark)'),
+                            signal = listening.signal,
                             theme = new MutationObserver(() => {
                                 styles = new WeakMap();
                                 recolor();
                                 schedule();
                             });
 
-                        resizer = new ResizeObserver(() => schedule());
-                        intersection.observe(element);
+                        resizer = observer(() => schedule());
                         mutation.observe(element, {
                             attributeFilter: ['class', 'data-surface-field', 'style'],
                             characterData: true,
@@ -663,40 +656,29 @@ export default component(
 
                         // Hear every descendant's motion, including events with their own template handler.
                         for (let type of ['animationcancel', 'animationend', 'animationstart', 'transitioncancel', 'transitionend', 'transitionrun']) {
-                            element.addEventListener(type, done);
+                            element.addEventListener(type, done, { signal });
                         }
 
-                        element.addEventListener('scroll', viewport, { capture: true, passive: true });
-                        scheme.addEventListener('change', recolor);
-                        window.addEventListener('scroll', blur, { capture: true, passive: true });
-
-                        cleanup.push(() => {
-                            for (let type of ['animationcancel', 'animationend', 'animationstart', 'transitioncancel', 'transitionend', 'transitionrun']) {
-                                element.removeEventListener(type, done);
-                            }
-
-                            element.removeEventListener('scroll', viewport, { capture: true });
-                            intersection.disconnect();
+                        element.addEventListener('scroll', viewport, { capture: true, passive: true, signal });
+                        matchMedia('(prefers-color-scheme: dark)').addEventListener('change', recolor, { signal });
+                        window.addEventListener('scroll', () => {
+                            bounds = null;
+                        }, { capture: true, passive: true, signal });
+                        signal.addEventListener('abort', () => {
+                            intersection();
                             mutation.disconnect();
                             resizer?.disconnect();
-                            scheme.removeEventListener('change', recolor);
                             theme.disconnect();
-                            window.removeEventListener('scroll', blur, { capture: true });
-                        });
+                        }, { once: true });
 
                         collect();
                         sync();
                     },
                     ondisconnect: () => {
-                        releases.abort();
+                        listening?.abort();
+                        listening = undefined;
                         cancelAnimationFrame(measuring);
                         measuring = 0;
-
-                        for (let i = 0, n = cleanup.length; i < n; i++) {
-                            cleanup[i]();
-                        }
-
-                        cleanup = [];
                         field?.dispose();
                         field = null;
                         host = undefined;
@@ -736,8 +718,8 @@ export default component(
                         };
 
                         field.press(id, x, y);
-                        window.addEventListener('pointercancel', finish, { signal: releases.signal });
-                        window.addEventListener('pointerup', finish, { signal: releases.signal });
+                        window.addEventListener('pointercancel', finish, { signal: listening?.signal });
+                        window.addEventListener('pointerup', finish, { signal: listening?.signal });
                     },
                     onpointerleave: (event: PointerEvent) => {
                         field?.pointer(event.pointerId, 0, 0, false);
@@ -754,21 +736,33 @@ export default component(
                     onwindowresize: viewport
                 }}
             >
-                <canvas
-                    aria-hidden='true'
-                    class='surface-field-canvas'
-                    ${{
-                        onconnect: (element: HTMLCanvasElement) => {
-                            canvas = element;
-                        },
-                        // Its CSS transitions '--still' alone, so a change to it is heard here.
-                        ontransitionend: (e: TransitionEvent) => {
-                            if (e.propertyName === '--still') {
-                                field?.configure(settings());
-                            }
-                        }
-                    }}
-                ></canvas>
+                ${() => {
+                    get(generation);
+
+                    return html`
+                        <canvas
+                            aria-hidden='true'
+                            class='surface-field-canvas'
+                            ${{
+                                onconnect: (element: HTMLCanvasElement) => {
+                                    canvas = element;
+
+                                    // A replacement after the worker failed; the first canvas is started by the host.
+                                    if (host && !field) {
+                                        field = engine(element, scheduler());
+                                        sync();
+                                    }
+                                },
+                                // Its CSS transitions '--still' alone, so a change to it is heard here.
+                                ontransitionend: (e: TransitionEvent) => {
+                                    if (e.propertyName === '--still') {
+                                        field?.configure(settings());
+                                    }
+                                }
+                            }}
+                        ></canvas>
+                    `;
+                }}
                 <div class='surface-field-content'>${content}</div>
             </div>
         `;

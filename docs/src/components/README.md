@@ -9,12 +9,11 @@ its color palettes, contrast calculation, clipboard feedback, and swatch styles.
 | Component | Owns |
 | --- | --- |
 | `code` | TypeScript syntax colors, line numbers, preserved source whitespace, scrolling, and a floating copy control |
-| `nav/tree` | Shared navigation groups, links, titles, and states for the sidebar and in-page navigation |
 | `page` | Docs page headings, inline library card links for Components and CSS Utilities grids, detail pages, and empty states |
 | `page/head` | Library page title and subtitle, optional breadcrumb, and previous/next navigation |
 | `preview` | Example frames and inline Preview/Code controls with the library highlight; render factories mount near the viewport and keep their state after mounting |
 | `root` | Docs-wide theme aliases and shell tokens |
-| `search` | Search state, trigger, and the library `command` palette wired to the shared nav tree renderer |
+| `search` | Search state, trigger, and the library `command` palette wired to the library `nav.tree` renderer |
 | `sidebar` | Collapsible documentation navigation that pushes content aside on every screen size |
 | `spec` | Shared data tables, token/value typography, and table-header surface and corner styling |
 | `toaster` | The shared docs toast queue, placement, and toast surface styles |
@@ -27,6 +26,7 @@ layout or presentation.
 
 Routes return page data. `middleware/layout/index.ts` lists the routes whose responses
 are wrapped in the shared main content and TOC layout, including the fallback.
+The TOC is the library `nav.toc`, driven by a `nav.spy` scroll spy over the page's headings.
 The middleware owns that markup and its styles in `middleware/layout/scss/index.scss`.
 
 Shell classes use component names such as `.page` and `.sidebar`.
@@ -40,12 +40,12 @@ divider, so they slide together. Header padding sizes the brand row and aligns
 the fixed sidebar toggle. The search control sits in a tools row below the brand, and
 the command palette mounts in the viewer shell
 so its keyboard shortcut also works with the sidebar closed. Navigation scrolls below
-the brand row and uses the shared nav tree styling and original responsive content spacing.
+the brand row and uses the library `nav.tree` and original responsive content spacing.
 Navigation data keeps links directly on each section; the sidebar supplies the
 group structure used by the tree renderer.
-The command palette passes its filtered groups to `navTree` through `command`'s
+The command palette passes its filtered groups to `nav.tree` through `command`'s
 `render` callback. Sidebar and command results use the same markup and tree styles;
-the tree's `--command` modifier changes the active highlight and text colors.
+the tree's `nav-tree--command` variant changes the active highlight and text colors.
 Scope documentation page styles under `.main > .page` so library pages in live
 examples keep their own presentation.
 

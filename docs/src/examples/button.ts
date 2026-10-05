@@ -66,7 +66,7 @@ export default {
             render: () => html`
                 <div style='${row}'>
                     ${modifiers.map((modifier) => html`
-                        <div class='button button--tertiary button--${modifier}'>${modifier}</div>
+                        <div class='button button--${modifier}'>${modifier}</div>
                     `)}
                 </div>
             `,

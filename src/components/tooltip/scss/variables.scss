@@ -22,7 +22,7 @@
             --morph-close-duration: 0.16s;
             // Starts clearing as soon as content emerges from behind the trigger, settling with the shape.
             --morph-focus-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
-            --morph-land:2px;
+            --morph-land: 2px;
             --morph-open-duration: 0.12s;
             --morph-timing-function: cubic-bezier(0.2, 0, 0, 1);
             // Motion comes from the morph, not the slide/scale.
@@ -48,7 +48,6 @@
             --transition-duration: 0.24s;
             --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-
     }
 
     &-arrow {
@@ -107,6 +106,18 @@
     }
 }
 
+// Read by a branch panel's header title, which crossfades to bold while that panel is open. Every panel sets its
+// own, so a parent panel's state never reaches its children's titles.
+.tooltip-menu-panel {
+    --title-bold-opacity: 0;
+    --title-regular-opacity: 1;
+
+    @include tokens.state(active) {
+        --title-bold-opacity: 1;
+        --title-regular-opacity: 0;
+    }
+}
+
 
 // '--padding' and '--radius' rather than the usual names: the root resets '--padding-*' and '--border-radius' on
 // every element, so the box and layers inside would never see them.
@@ -130,8 +141,25 @@
     --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     --white-space: nowrap;
 
+    // Read by the box: where it rises from, toward the trigger.
+    &--e {
+        --box-translate: calc(var(--rise) * -1) 0;
+    }
+
     &--interactive {
         --white-space: normal;
+    }
+
+    &--n {
+        --box-translate: 0 var(--rise);
+    }
+
+    &--s {
+        --box-translate: 0 calc(var(--rise) * -1);
+    }
+
+    &--w {
+        --box-translate: var(--rise) 0;
     }
 }
 

@@ -3,7 +3,8 @@
     display: inline-flex;
     gap: var(--gap);
 
-    .button-kbd-plus {
+    // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
+    &-plus.icon {
         --size: var(--plus-size);
         color: var(--plus-color);
     }

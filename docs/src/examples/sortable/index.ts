@@ -1,6 +1,12 @@
 import { reactive, ReactiveArray } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { select, sortable } from '@esportsplus/ui/components';
+import { icon, select, sortable } from '@esportsplus/ui/components';
+import back from '@esportsplus/ui/svg/arrow-left.svg';
+import forward from '@esportsplus/ui/svg/arrow-right.svg';
+import dots from '@esportsplus/ui/svg/dots.svg';
+import redo from '@esportsplus/ui/svg/redo.svg';
+import magnifier from '@esportsplus/ui/svg/search.svg';
+import type { Entry } from 'docs/types';
 import 'docs/examples/sortable/scss/index.scss';
 
 
@@ -98,24 +104,24 @@ export default {
             render: () => {
                 let state = reactive({ last: 'drag any control' }),
                     tools = new ReactiveArray([
-                        { icon: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`, label: 'Back', name: 'back' },
-                        { icon: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`, label: 'Fwd', name: 'forward' },
-                        { icon: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`, label: 'Search', name: 'search' },
-                        { icon: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>`, label: 'Reload', name: 'refresh' },
-                        { icon: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`, label: 'More', name: 'more' }
+                        { icon: back, label: 'Back', name: 'back' },
+                        { icon: forward, label: 'Fwd', name: 'forward' },
+                        { icon: magnifier, label: 'Search', name: 'search' },
+                        { icon: redo, label: 'Redo', name: 'redo' },
+                        { icon: dots, label: 'More', name: 'more' }
                     ]),
                     list = sortable(tools, (tool, attributes) => tool.name === 'search'
                         ? html`
                             <label class='sortable-demo-tool sortable-demo-tool--search' ${attributes}>
-                                ${tool.icon()}
-                                <input placeholder='Search' type='text' />
-                                <span class='sortable-overlay'>${tool.label}</span>
+                                ${icon({ 'aria-hidden': 'true' }, tool.icon)}
+                                <input class='sortable-demo-tool-input' placeholder='Search' type='text' />
+                                <span class='sortable-overlay sortable-demo-tool-overlay'>${tool.label}</span>
                             </label>
                         `
                         : html`
                             <button class='sortable-demo-tool' type='button' ${attributes}>
-                                ${tool.icon()}
-                                <span class='sortable-overlay'>${tool.label}</span>
+                                ${icon({ 'aria-hidden': 'true' }, tool.icon)}
+                                <span class='sortable-overlay sortable-demo-tool-overlay'>${tool.label}</span>
                             </button>
                         `, {
                         onsort: (tool, from, to) => {
@@ -139,7 +145,7 @@ export default {
                 let list = sortable(new ReactiveArray(apps.map(([name, color]) => ({ color, name }))), (app, attributes) => html`
                     <div class='sortable-demo-app' ${attributes}>
                         <div class='sortable-demo-app-icon' style='background: ${app.color};'>
-                            <span class='sortable-overlay'>${app.name[0]}</span>
+                            <span class='sortable-overlay sortable-demo-app-overlay'>${app.name[0]}</span>
                         </div>
                         <span>${app.name}</span>
                     </div>
@@ -162,7 +168,7 @@ export default {
                         <span class='sortable-demo-handle'>⋮⋮</span>
                         <span>${task.label}</span>
                         <span class='sortable-demo-row-meta'>#${task.number}</span>
-                        <div class='sortable-overlay'>${task.label}</div>
+                        <div class='sortable-overlay sortable-demo-row-overlay'>${task.label}</div>
                     </div>
                 `, {
                     // A different look while it is carried: the row stays as the placeholder underneath.
@@ -224,4 +230,4 @@ export default {
             title: 'groups (move between lists)'
         }
     ]
-};
+} satisfies Entry;

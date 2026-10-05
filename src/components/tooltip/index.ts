@@ -1,5 +1,4 @@
-import context from './context';
-import menu from './menu';
+import menu, { context } from './menu';
 import onclick from './onclick';
 import onhover from './onhover';
 import shared from './shared';

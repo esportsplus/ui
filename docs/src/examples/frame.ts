@@ -23,7 +23,7 @@ function demo(option: typeof options[number]) {
                 ${labels.map((label, index) => html`
                     <div
                         type='button'
-                        class='frame-trigger button button--secondary ${() => state.active === index && '--active'}'
+                        class='frame-trigger button ${() => state.active === index && '--active'}'
                         id='${id}-tab-${index}'
                         role='tab'
                         aria-controls='${id}-panel-${index}'

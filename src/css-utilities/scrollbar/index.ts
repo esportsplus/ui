@@ -1,4 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
+import { observer, type Observer } from '~/shared/resize';
 import { createOverlay } from '../glass';
 import './scss/index.scss';
 
@@ -29,7 +30,7 @@ function attributes(name: string, size: string) {
     let mutation: MutationObserver | undefined,
         overflow = { end: 0, start: 0 },
         ramp = 1,
-        resize: ResizeObserver | undefined,
+        resize: Observer | undefined,
         state = reactive({ toggle: false });
 
     function measure(element: HTMLElement) {
@@ -59,7 +60,8 @@ function attributes(name: string, size: string) {
     return {
         class: ['--scrollbar', name],
         onconnect: (element: HTMLElement) => {
-            resize = new ResizeObserver(() => measure(element));
+            resize?.disconnect();
+            resize = observer(() => measure(element));
             resize.observe(element);
 
             for (let i = 0, n = element.children.length; i < n; i++) {
@@ -95,6 +97,7 @@ function attributes(name: string, size: string) {
         ondisconnect: () => {
             mutation?.disconnect();
             resize?.disconnect();
+            resize = undefined;
         },
         onscroll: function(this: HTMLElement) {
             update(this);

@@ -1,6 +1,6 @@
 import { flush, reactive, read, signal, write, type ReactiveArray, type Signal } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import { finished, measure, slide, timing } from '~/shared/animation';
+import { finished, measure, slides, timing } from '~/shared/animation';
 import press from '~/shared/press';
 import './scss/index.scss';
 
@@ -73,13 +73,18 @@ const HANG = 0.5;
 const SMOOTHING = 0.04;
 
 
+// Drags carrying an item and not yet dropping it; the root grabs while there are any.
+let carrying = 0;
+
 // Connected lists per group name, so a drag reaches every list it can drop into.
 let groups = new Map<string, Set<List<unknown>>>();
 
 
 function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: PointerEvent, { group, onsort }: Options<unknown>) {
-    // 'current' is the list the item sits in now.
-    let current = source,
+    // Whether this drag counts toward 'carrying'.
+    let carried = false,
+        // 'current' is the list the item sits in now.
+        current = source,
         frame = 0,
         from = source.items.indexOf(value),
         hole: Rect | null = null,
@@ -122,7 +127,20 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
             write(source.held, value);
         });
 
+        carry(true);
         frame = requestAnimationFrame(tick);
+    }
+
+    // Marks the root from the lift until the copy starts landing. Not ':root:has(.sortable-drag)' in CSS: that makes
+    // every DOM change anywhere on the page restyle the whole document.
+    function carry(value: boolean) {
+        if (carried === value) {
+            return;
+        }
+
+        carried = value;
+        carrying += value ? 1 : -1;
+        document.documentElement.classList.toggle('sortable-grabbing', carrying > 0);
     }
 
     function drop() {
@@ -146,6 +164,7 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
             motion.x = box.left - motion.left;
             motion.y = box.top - motion.top;
             flush();
+            carry(false);
         }
 
         // The item shows again under the copy as the copy starts to fade, three quarters through landing, so the two
@@ -173,6 +192,7 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
             source.reveal = undefined;
             write(source.dragging, null);
             flush();
+            carry(false);
 
             if (onsort && (current !== source || to !== from)) {
                 onsort(value, from, to, source.items, current.items);
@@ -215,6 +235,7 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
 
         write(current.held, null);
         write(source.dragging, null);
+        carry(false);
     }
 
     function over() {
@@ -253,6 +274,9 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         lastLeft = NaN;
         layout.length = 0;
 
+        let elements: HTMLElement[] = [],
+            places: { index: number, left: number, list: List<unknown>, top: number }[] = [];
+
         for (let i = 0, n = lists.length; i < n; i++) {
             let list = lists[i],
                 parent = list.container;
@@ -268,28 +292,34 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
 
             for (let element of parent.children as HTMLCollectionOf<HTMLElement>) {
                 // Only the items: the copy is a child too, out in the top layer.
-                if (element.classList.contains('sortable-drag')) {
-                    continue;
+                if (!element.classList.contains('sortable-drag')) {
+                    elements.push(element);
+                    places.push({ index: index++, left, list, top });
                 }
-
-                // Slid from where it was drawn, and laid out where it slides to; one new to the list just is.
-                let rect = slide(element, shift) ?? element.getBoundingClientRect(),
-                    entry = {
-                        bottom: rect.bottom - top,
-                        element,
-                        index: index++,
-                        left: rect.left - left,
-                        list,
-                        right: rect.right - left,
-                        top: rect.top - top
-                    };
-
-                if (list === current && entry.index === at) {
-                    hole = entry;
-                }
-
-                layout.push(entry);
             }
+        }
+
+        // Every list's items slide from where they were drawn, laid out where they slide to; one new to a list just is.
+        let rects = slides(elements, shift);
+
+        for (let i = 0, n = elements.length; i < n; i++) {
+            let { index, left, list, top } = places[i],
+                rect = rects[i],
+                entry = {
+                    bottom: rect.bottom - top,
+                    element: elements[i],
+                    index,
+                    left: rect.left - left,
+                    list,
+                    right: rect.right - left,
+                    top: rect.top - top
+                };
+
+            if (list === current && entry.index === at) {
+                hole = entry;
+            }
+
+            layout.push(entry);
         }
     }
 

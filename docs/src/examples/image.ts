@@ -79,7 +79,7 @@ export default {
                     </div>
 
                     <div
-                        class='button button--tertiary'
+                        class='button'
                         style='--width: auto; margin-top: var(--size-400);'
                         onclick='${() => { state.bust++; }}'
                     >

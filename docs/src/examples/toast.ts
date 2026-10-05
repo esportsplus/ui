@@ -11,7 +11,7 @@ const PLACEMENTS = ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'];
 let alerts = createToaster({ [createToaster.overflow]: { class: 'docs-toast-overflow docs-toast-overflow--dark' }, class: 'toaster--n', limit: 2 }),
     burst = 0,
     timer: { active: boolean, duration: number } | undefined,
-    trigger = 'button button--tertiary';
+    trigger = 'button';
 
 let alert = alerts.toast.bind({ attributes: { class: 'docs-toast docs-toast--dark' } });
 
@@ -48,14 +48,15 @@ export default {
         {
             render: () => html`
                 <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
-                    <div class='${trigger}' style='--width: auto;' onclick='${() => toast(() => 'A plain message.')}'>message</div>
-                    <div class='${trigger}' style='--width: auto;' onclick='${detail}'>title + description</div>
-                    <div class='${trigger}' style='--width: auto;' onclick='${action}'>with action</div>
-                    <div class='${trigger}' style='--width: auto;' onclick='${() => toast({ duration: 0 }, () => 'Stays until dismissed.')}'>persistent</div>
-                    <div class='${trigger}' style='--width: auto;' onclick='${() => toast({ dismissible: false }, () => 'No close button.')}'>not dismissible</div>
-                    <div
+                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => toast(() => 'A plain message.')}'>message</button>
+                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${detail}'>title + description</button>
+                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${action}'>with action</button>
+                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => toast({ duration: 0 }, () => 'Stays until dismissed.')}'>persistent</button>
+                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => toast({ dismissible: false }, () => 'No close button.')}'>not dismissible</button>
+                    <button
                         class='${trigger}'
                         style='--width: auto;'
+                        type='button'
                         onclick='${() => {
                             for (let i = 0; i < 6; i++) {
                                 toast(() => `Notification ${++burst}`);
@@ -63,8 +64,8 @@ export default {
                         }}'
                     >
                         burst of 6
-                    </div>
-                    <div class='${trigger}' style='--width: auto;' onclick='${() => toaster.toast.dismiss()}'>dismiss all</div>
+                    </button>
+                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => toaster.toast.dismiss()}'>dismiss all</button>
                 </div>
             `,
             title: 'content'
@@ -73,9 +74,10 @@ export default {
             render: () => html`
                 <div style='display: flex; flex-direction: column; gap: var(--size-400);'>
                     <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
-                        <div
+                        <button
                             class='${trigger}'
                             style='--width: auto;'
+                            type='button'
                             onclick='${() => {
                                 timer = reactive({ active: true, duration: 8000 });
                                 toast({ state: timer }, () => html`
@@ -88,10 +90,11 @@ export default {
                             }}'
                         >
                             show
-                        </div>
-                        <div
+                        </button>
+                        <button
                             class='${trigger}'
                             style='--width: auto;'
+                            type='button'
                             onclick='${() => {
                                 if (timer?.active) {
                                     timer.duration += 4000;
@@ -99,7 +102,7 @@ export default {
                             }}'
                         >
                             +4 seconds
-                        </div>
+                        </button>
                     </div>
                     <span style='color: var(--color-text-300); font-size: 14px;'>
                         The toast exposes its clock as '--toast-progress' (0 to 1) and '--toast-seconds'; this ring and
@@ -114,16 +117,17 @@ export default {
             render: () => html`
                 <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
                     ${PLACEMENTS.map((value) => html`
-                        <div
+                        <button
                             class='${trigger} ${() => placement.value === value && '--active'}'
                             style='--width: auto;'
+                            type='button'
                             onclick='${() => {
                                 placement.value = value;
                                 toast(() => `toaster--${value}`);
                             }}'
                         >
                             ${value}
-                        </div>
+                        </button>
                     `)}
                 </div>
             `,
@@ -133,8 +137,8 @@ export default {
             render: () => html`
                 ${alerts.content}
                 <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
-                    <div class='${trigger}' style='--width: auto;' onclick='${() => alert(() => `Alert ${++burst}`)}'>alert</div>
-                    <div class='${trigger}' style='--width: auto;' onclick='${() => alerts.toast.dismiss()}'>dismiss alerts</div>
+                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => alert(() => `Alert ${++burst}`)}'>alert</button>
+                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => alerts.toast.dismiss()}'>dismiss alerts</button>
                 </div>
             `,
             title: 'separate toaster (top center, limit 2)'

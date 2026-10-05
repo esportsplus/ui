@@ -32,7 +32,7 @@ export default {
                 let state = reactive({ high: 32, low: 18 });
 
                 return html`
-                    <div style='display: grid; gap: 12px; justify-items: center; width: 100%;'>
+                    <div class='range-demo'>
                         ${range.filter({
                             fields: true,
                             format: (value: number) => `${value}°C`,
@@ -44,7 +44,7 @@ export default {
                             step: 0.5,
                             ticks: 6
                         })}
-                        <code style='color: var(--color-text-300); font-size: 13px;'>${() => `state: { low: ${state.low}, high: ${state.high} }`}</code>
+                        <code class='range-demo-status'>${() => `state: { low: ${state.low}, high: ${state.high} }`}</code>
                     </div>
                 `;
             },
@@ -72,9 +72,9 @@ export default {
                 let state = reactive({ high: 32, low: 8 });
 
                 return html`
-                    <div style='display: grid; gap: 12px; justify-items: center; width: 100%;'>
+                    <div class='range-demo'>
                         ${range.filter({ label: 'Distance', max: 50, min: 0, prefix: '', state, step: 1, ticks: 6, format: (value: number) => `${value} km` })}
-                        <code style='color: var(--color-text-300); font-size: 13px;'>${() => `${state.low}–${state.high} km`}</code>
+                        <code class='range-demo-status'>${() => `${state.low}–${state.high} km`}</code>
                     </div>
                 `;
             },

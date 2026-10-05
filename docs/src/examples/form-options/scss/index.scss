@@ -5,30 +5,7 @@
     display: grid;
     gap: var(--size-200);
 
-    &--autosize .textarea { max-height: 260px; min-height: 76px; resize: none; }
-
-    &--counter &-surface:focus-within { box-shadow: 0 0 0 3px var(--demo-ring); }
-    &--prefix &-surface { align-items: stretch; display: flex; }
-    &-footer {
-        border-top: var(--border-width-400) solid var(--demo-border);
-        color: var(--color-text-300);
-        display: flex;
-        font-size: var(--font-size-300);
-        gap: var(--size-300);
-        justify-content: space-between;
-        padding: var(--size-200) var(--size-400);
-        output { font-variant-numeric: tabular-nums; }
-    }
-
-    &-prefix { align-items: center; background: var(--demo-tint); border-radius: var(--border-radius-600) 0 0 var(--border-radius-600); display: flex; font-size: var(--font-size-300); padding: 0 var(--size-300); white-space: nowrap; }
-    &-surface {
-        border: var(--border-width-400) solid var(--demo-border);
-        border-radius: var(--border-radius-600);
-        position: relative;
-        transition: border-color var(--demo-duration), box-shadow var(--demo-duration), background var(--demo-duration);
-        &:focus-within { border-color: var(--demo-accent); }
-    }
-    .input, .textarea {
+    &-control {
         --background: transparent;
         --border-radius: var(--border-radius-600);
         --border-width: 0px;
@@ -38,10 +15,55 @@
         min-width: 0;
         outline: none;
         width: 100%;
-    }
-    .textarea { min-height: 112px; resize: vertical; }
-}
 
-@media (prefers-reduced-motion: reduce) {
-    .field-option *, .field-option *::before, .field-option *::after { transition: none !important; }
+        // Autoresize sizes and locks its own field; only the fixed one takes a floor and a handle.
+        &--resizable {
+            min-height: 112px;
+            resize: vertical;
+        }
+    }
+
+    &-count {
+        font-variant-numeric: tabular-nums;
+    }
+
+    &-footer {
+        border-top: var(--border-width-400) solid var(--demo-border);
+        color: var(--color-text-300);
+        display: flex;
+        font-size: var(--font-size-300);
+        gap: var(--size-300);
+        justify-content: space-between;
+        padding: var(--size-200) var(--size-400);
+    }
+
+    &-prefix {
+        align-items: center;
+        background: var(--demo-tint);
+        border-radius: var(--border-radius-600) 0 0 var(--border-radius-600);
+        display: flex;
+        font-size: var(--font-size-300);
+        padding: 0 var(--size-300);
+        white-space: nowrap;
+    }
+
+    &-surface {
+        border: var(--border-width-400) solid var(--demo-border);
+        border-radius: var(--border-radius-600);
+        position: relative;
+        transition: background var(--demo-duration), border-color var(--demo-duration), box-shadow var(--demo-duration);
+
+        &--counter:focus-within {
+            box-shadow: 0 0 0 3px var(--demo-ring);
+        }
+
+        &--prefix {
+            align-items: stretch;
+            display: flex;
+        }
+
+        &:focus-within {
+            border-color: var(--demo-accent);
+        }
+    }
 }

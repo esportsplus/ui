@@ -13,8 +13,33 @@
     @return $layers;
 }
 
+.range-demo {
+    display: grid;
+    gap: 12px;
+    justify-items: center;
+    width: 100%;
+
+    &--stretch {
+        justify-items: stretch;
+    }
+
+    &-row {
+        align-items: center;
+        display: flex;
+        gap: 48px;
+        justify-content: center;
+    }
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: 13px;
+    }
+}
+
 .range-surface {
     --surface-background: color-mix(in srgb, var(--color-text-400) 8%, transparent);
+    --surface-fill: var(--color-white-400);
+    --surface-fill-shadow: var(--box-shadow-200);
     --surface-height: 32px;
     --surface-radius: var(--border-radius-400);
     --surface-thumb: 16px;
@@ -23,42 +48,49 @@
     gap: var(--size-200);
 
     &--inline {
+        --surface-fill: color-mix(in srgb, var(--color-text-400) 20%, var(--color-white-400));
+        --surface-fill-shadow: none;
         --surface-height: 40px;
         --surface-radius: var(--border-radius-500);
         --surface-thumb: 2px;
-        .range-surface-fill { background: color-mix(in srgb, var(--color-text-400) 20%, var(--color-white-400)); box-shadow: none; }
     }
-    &--ticks-all .range-surface-control::before {
-        background: range-ticks(10, var(--tick-major), 10px), range-ticks(50, var(--tick-minor), 5px);
-    }
-    &--ticks-major, &--ticks-all {
-        --tick-major: color-mix(in srgb, var(--color-text-400) 40%, transparent);
-        --tick-minor: color-mix(in srgb, var(--color-text-400) 20%, transparent);
-        .range-surface-control::before {
-            background: range-ticks(10, var(--tick-major), 10px);
-            content: '';
-            inset: 0 auto 0 calc(var(--surface-thumb) / 2 - 0.5px);
-            pointer-events: none;
-            position: absolute;
-            width: calc(var(--surface-travel) + 1px);
-        }
-    }
+
     &-control {
         background: var(--surface-background);
         border-radius: var(--surface-radius);
         height: var(--surface-height);
         isolation: isolate;
         position: relative;
+
+        &--ticks {
+            --tick-major: color-mix(in srgb, var(--color-text-400) 40%, transparent);
+            --tick-minor: color-mix(in srgb, var(--color-text-400) 20%, transparent);
+
+            &::before {
+                background: range-ticks(10, var(--tick-major), 10px);
+                content: '';
+                inset: 0 auto 0 calc(var(--surface-thumb) / 2 - 0.5px);
+                pointer-events: none;
+                position: absolute;
+                width: calc(var(--surface-travel) + 1px);
+            }
+        }
+
+        &--ticks-minor::before {
+            background: range-ticks(10, var(--tick-major), 10px), range-ticks(50, var(--tick-minor), 5px);
+        }
     }
+
     &-fill {
-        background: var(--color-white-400);
+        background: var(--surface-fill);
         border-radius: inherit;
-        box-shadow: var(--box-shadow-200);
+        box-shadow: var(--surface-fill-shadow);
         inset: 0 auto 0 0;
         pointer-events: none;
         position: absolute;
         width: calc(var(--surface-thumb) + var(--surface-travel) * var(--fraction));
     }
+
     &-handle {
         background: var(--color-text-400);
         border-radius: var(--border-radius-200);
@@ -71,31 +103,20 @@
         width: 2px;
         z-index: 1;
     }
+
     &-heading {
         align-items: baseline;
         color: var(--color-text-300);
         display: flex;
         font-size: var(--font-size-300);
         justify-content: space-between;
-        output { font-variant-numeric: tabular-nums; }
-    }
-    &-label { color: var(--color-text-300); left: var(--size-400); }
 
-    &-label, &-value {
-        pointer-events: none;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 1;
+        &-value {
+            font-variant-numeric: tabular-nums;
+        }
     }
 
-    &-value {
-        font-variant-numeric: tabular-nums;
-        font-weight: var(--font-weight-500);
-        right: var(--size-400);
-        span { color: var(--color-text-300); font-weight: normal; margin-left: calc(var(--size-100) * 0.5); }
-    }
-    input {
+    &-input {
         appearance: none;
         background: transparent;
         border-radius: inherit;
@@ -106,8 +127,51 @@
         position: absolute;
         width: 100%;
         z-index: 2;
-        &::-moz-range-thumb { background: transparent; border: 0; height: var(--surface-height); width: var(--surface-thumb); }
-        &::-webkit-slider-thumb { appearance: none; background: transparent; border: 0; height: var(--surface-height); width: var(--surface-thumb); }
-        &:focus-visible { outline: var(--border-width-500) solid var(--demo-accent); outline-offset: 4px; }
+
+        &::-moz-range-thumb {
+            background: transparent;
+            border: 0;
+            height: var(--surface-height);
+            width: var(--surface-thumb);
+        }
+
+        &::-webkit-slider-thumb {
+            appearance: none;
+            background: transparent;
+            border: 0;
+            height: var(--surface-height);
+            width: var(--surface-thumb);
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--demo-accent);
+            outline-offset: 4px;
+        }
+    }
+
+    &-label {
+        color: var(--color-text-300);
+        left: var(--size-400);
+    }
+
+    &-label,
+    &-value {
+        pointer-events: none;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1;
+    }
+
+    &-unit {
+        color: var(--color-text-300);
+        font-weight: normal;
+        margin-left: calc(var(--size-100) * 0.5);
+    }
+
+    &-value {
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--font-weight-500);
+        right: var(--size-400);
     }
 }

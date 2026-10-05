@@ -23,7 +23,7 @@
         outline-offset: 2px;
     }
 
-    &.story--paused {
+    &--paused {
         --play-state: paused;
     }
 
@@ -34,15 +34,13 @@
         height: var(--bar-height);
         overflow: hidden;
 
-        &.story-bar--done {
+        &--done {
             --scale: 1;
         }
 
         // The fill is the timer: its 'animationend' advances the story, so the bar and the content can't drift.
         @include tokens.state(active) {
-            .story-fill {
-                animation: story-fill var(--duration) linear forwards var(--play-state, running);
-            }
+            --fill-animation: story-fill var(--duration) linear forwards var(--play-state, running);
         }
     }
 
@@ -59,6 +57,7 @@
     }
 
     &-fill {
+        animation: var(--fill-animation, none);
         background: var(--fill-color);
         border-radius: 999px;
         display: block;
@@ -78,31 +77,26 @@
     // Static cue for the paused state, so the frozen bar isn't the only signal.
     &-pause,
     &-play {
+        @extend %icon-swap;
         grid-area: 1 / 1;
         height: 16px;
-        transition:
-            filter 0.3s var(--spring),
-            opacity 0.3s var(--spring),
-            scale 0.3s var(--spring);
         width: 16px;
     }
 
-    &-play,
-    &-toggle.story-toggle--paused &-pause {
-        filter: blur(4px);
-        opacity: 0;
-        scale: 0.25;
-    }
-
-    &-toggle.story-toggle--paused &-play {
-        filter: blur(0);
-        opacity: 1;
-        scale: 1;
+    // Keyed off the toggle, since the icons are <svg>s, which take no dynamic class.
+    &-toggle:not(.story-toggle--paused) &-pause,
+    &-toggle--paused &-play {
+        @extend %icon-swap-active;
     }
 
     &-slide {
         min-height: 0;
         overflow: hidden;
+
+        // Chained through '.frame' so the slide transition can't override it, whichever stylesheet loads last.
+        &--dragging.frame {
+            transition: none;
+        }
     }
 
     &-sr {
@@ -149,12 +143,20 @@
         transition: opacity 0.2s ease-out;
         z-index: 1;
 
-        &.story-track--dimmed {
+        &--dimmed {
             opacity: var(--dim-opacity);
         }
+    }
 
-        &.story-track--dragging .story-slide {
-            transition: none;
+    &-zone {
+        background: transparent;
+        border: 0;
+        flex: 1;
+        outline: none;
+        padding: 0;
+
+        &:last-child {
+            flex: 2;
         }
     }
 
@@ -167,31 +169,9 @@
         position: absolute;
         right: 0;
         top: 60px;
-
-        button {
-            background: transparent;
-            border: 0;
-            flex: 1;
-            outline: none;
-            padding: 0;
-
-            &:last-child {
-                flex: 2;
-            }
-        }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        &-play,
-        &-toggle.story-toggle--paused &-pause {
-            filter: none;
-        }
-
-        &-pause,
-        &-play {
-            transition: opacity 0.3s var(--spring);
-        }
-
         &-toggle {
             transition: color 0.15s ease-out;
         }

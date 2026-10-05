@@ -41,7 +41,7 @@ function controlled() {
         <div style='align-items: center; display: flex; flex-direction: column; gap: var(--size-500); width: 100%;'>
             ${card.expand({ items: notes, state })}
             <div style='align-items: center; display: flex; gap: var(--size-300);'>
-                <button class='button button--tertiary' onclick='${() => state.open = 'springs'}' style='--width: auto;' type='button'>
+                <button class='button' onclick='${() => state.open = 'springs'}' style='--width: auto;' type='button'>
                     open "Spring timing"
                 </button>
                 <span style='color: var(--color-text-300); font-size: var(--font-size-300);'>

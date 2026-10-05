@@ -92,33 +92,14 @@ export default component(function(
             ${resize && {
                 ...motion.attributes,
                 class: ['textarea--autoresize', () => measured.scrollable && 'textarea--scrollable'],
-                style: [limits, () => measured.height && `--height: ${measured.height}px;`],
-                oninput: function(this: HTMLElement, event: InputEvent) {
-                    if (probe) {
-                        probe.value = (event.currentTarget as HTMLTextAreaElement).value;
-                        schedule();
-                    }
-
-                    caller?.call(this, event);
-                }
-            }}
-            ${{
-                class: () => state.active && '--active',
                 onconnect: (element: Element<HTMLTextAreaElement>) => {
-                    form.input.onconnect(state)(element);
-
-                    if (resize) {
-                        field = element;
-                        motion.attributes.onconnect(element);
-                        owner = element.form;
-                        owner?.addEventListener('reset', reset);
-                    }
+                    field = element;
+                    motion.attributes.onconnect(element);
+                    owner = element.form;
+                    owner?.addEventListener('reset', reset);
                 },
                 ondisconnect: () => {
-                    if (resize) {
-                        motion.attributes.ondisconnect();
-                    }
-
+                    motion.attributes.ondisconnect();
                     owner?.removeEventListener('reset', reset);
                     owner = undefined;
 
@@ -129,13 +110,17 @@ export default component(function(
 
                     field = undefined;
                 },
-                onfocusin: () => {
-                    state.active = true;
+                oninput: function(this: HTMLElement, event: InputEvent) {
+                    if (probe) {
+                        probe.value = (event.currentTarget as HTMLTextAreaElement).value;
+                        schedule();
+                    }
+
+                    caller?.call(this, event);
                 },
-                onfocusout: () => {
-                    state.active = false;
-                }
+                style: [limits, () => measured.height && `--height: ${measured.height}px;`]
             }}
+            ${form.input.attributes(state)}
         ></textarea>
     `;
 

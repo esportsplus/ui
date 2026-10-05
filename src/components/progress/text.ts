@@ -52,7 +52,6 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
         ink = reactive({ position: clamp(state.value) }),
         position = ink.position,
         stiffness = 0,
-        stop: VoidFunction | undefined,
         target = position,
         time = 0,
         velocity = 0;
@@ -101,14 +100,17 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
             ${attributes}
             ${{
                 onconnect: (element: HTMLElement) => {
-                    stop = effect(() => {
-                        let pour = timing(getComputedStyle(element), 'pour');
-
+                    effect(() => {
                         target = clamp(state.value);
 
+                        // A glide already running takes the new target as it is; the style is only read to start one.
+                        if (frame) {
+                            return;
+                        }
+
+                        let pour = timing(getComputedStyle(element), 'pour');
+
                         if (!pour) {
-                            cancelAnimationFrame(frame);
-                            frame = 0;
                             position = target;
                             velocity = 0;
                             ink.position = position;
@@ -119,34 +121,30 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
                         // At this ratio the spring is all but at rest after 8 / damping seconds.
                         damping = 8000 / (pour.duration as number);
                         stiffness = (damping / (2 * RATIO)) ** 2;
-
-                        if (!frame) {
-                            time = performance.now();
-                            frame = requestAnimationFrame(step);
-                        }
+                        time = performance.now();
+                        frame = requestAnimationFrame(step);
                     });
                 },
                 ondisconnect: () => {
                     cancelAnimationFrame(frame);
                     frame = 0;
-                    stop?.();
                 }
             }}
         >
             <span aria-hidden='true' class='progress-text-labels'>
-                <span class='progress-text-label'>
+                <span class='progress-text-label ${() => done() && '--done'}'>
                     <span class='progress-text-track'>${label}</span>
                     <span class='progress-text-ink' style='${() => `clip-path: ${clip(ink.position)}`}'>
                         ${label}
                     </span>
                 </span>
-                <span class='progress-text-done'>
+                <span class='progress-text-done ${() => done() && '--done'}'>
                     <svg class='progress-text-check'><use href='#${check}' /></svg>
                     ${doneLabel}
                 </span>
             </span>
 
-            <span aria-hidden='true' class='progress-text-percent'>
+            <span aria-hidden='true' class='progress-text-percent ${() => done() && '--done'}'>
                 ${roll(TENS, () => Math.floor((percent() % 100) / 10))}
                 ${roll(DIGITS, () => percent() % 10)}
                 <span>%</span>

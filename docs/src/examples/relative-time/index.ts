@@ -1,4 +1,4 @@
-import { reactive } from '@esportsplus/reactivity';
+import { onCleanup, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { relativeTime } from '@esportsplus/ui/components';
 import type { Entry } from 'docs/types';
@@ -34,6 +34,12 @@ export default {
                     states = [2 * HOUR + 14 * MIN, 4 * MIN + 51 * SEC, 12 * SEC].map((ago) => reactive({ date: now - ago, now: null as number | null })),
                     timers: ReturnType<typeof setTimeout>[] = [];
 
+                function clear() {
+                    for (let i = 0, n = timers.length; i < n; i++) {
+                        clearTimeout(timers[i]);
+                    }
+                }
+
                 function pin(value: number | null) {
                     for (let i = 0, n = states.length; i < n; i++) {
                         states[i].now = value;
@@ -44,10 +50,7 @@ export default {
                     let start = Date.now(),
                         wait = 0;
 
-                    for (let i = 0, n = timers.length; i < n; i++) {
-                        clearTimeout(timers[i]);
-                    }
-
+                    clear();
                     timers = SHOW.map(([delay, skip]) => {
                         wait += delay;
 
@@ -57,6 +60,8 @@ export default {
                     // Hands the labels back to the live clock; they roll home.
                     timers.push(setTimeout(() => pin(null), wait + SHOW_HOLD));
                 }
+
+                onCleanup(clear);
 
                 return html`
                     <div class='relative-time-demo'>
@@ -95,8 +100,8 @@ export default {
                             ['Release tagged', now - 4 * DAY],
                             ['Project created', now - 40 * DAY]
                         ].map(([label, date]) => html`
-                            <li>
-                                <span>${label}</span>
+                            <li class='relative-time-demo-item'>
+                                <span class='relative-time-demo-label'>${label}</span>
                                 ${relativeTime({ date })}
                             </li>
                         `)}

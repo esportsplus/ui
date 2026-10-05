@@ -8,6 +8,7 @@
     @include shared.css-variables(border-width, tokens.$border-width);
     @include shared.css-variables(box-shadow, tokens.$box-shadow);
     @include shared.css-variables(color, tokens.$color);
+    @include shared.css-variables(font-family, tokens.$font-family);
     @include shared.css-variables(font-size, tokens.$font-size);
     @include shared.css-variables(size, tokens.$size);
     @include shared.css-variables(spacer, tokens.$spacer);
@@ -38,7 +39,10 @@ strong {
     --font-weight: var(--font-weight-500);
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
     --color: var(--color-text-400);
     --font-weight: var(--font-weight-500);
 }
@@ -65,4 +69,10 @@ h5 {
 
 section {
     --width: 100%;
+}
+
+// Light, as a page declaring no color scheme is drawn, until the page declares one: 'light-dark()' needs a scheme,
+// and the fallback Lightning CSS writes for older browsers has none to read without it.
+:where(:root) {
+    color-scheme: light;
 }

@@ -245,6 +245,8 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                                 keydown(e);
                             }
                         },
+                        // Delegation stops at the nearest bound element, so a press here never reaches the story's own
+                        // tap, hold and drag handling, whose pointer capture would steal the click.
                         onpointerdown: () => {},
                         onpointerup: () => {}
                     }}
@@ -255,14 +257,14 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
             </div>
 
             <div
-                class='story-track ${() => (view.held || state.paused) && 'story-track--dimmed'} ${() => view.dragging && 'story-track--dragging'}'
+                class='story-track ${() => (view.held || state.paused) && 'story-track--dimmed'}'
                 style='${() => `--i: ${state.index - view.offset}`}'
             >
                 ${stories.map((story, i) => html`
                     <div
                         aria-label='${`${i + 1} of ${count}`}'
                         aria-roledescription='story'
-                        class='story-slide frame frame--slide ${() => state.index === i && '--active'}'
+                        class='story-slide frame frame--slide ${() => state.index === i && '--active'} ${() => view.dragging && 'story-slide--dragging'}'
                         role='group'
                         style='${`--n: ${i}`}'
                         ${{
@@ -281,12 +283,14 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
             <div class='story-zones'>
                 <button
                     aria-label='Previous story'
+                    class='story-zone'
                     tabindex='-1'
                     type='button'
                     onclick='${(e: MouseEvent) => e.detail === 0 && go(-1)}'
                 ></button>
                 <button
                     aria-label='Next story'
+                    class='story-zone'
                     tabindex='-1'
                     type='button'
                     onclick='${(e: MouseEvent) => e.detail === 0 && go(1)}'

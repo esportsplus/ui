@@ -1,4 +1,5 @@
 @use '/shared';
+@use '/tokens';
 
 // Compound selector so these win over `.button`, whose rules follow this partial.
 .button.button--morph {
@@ -44,18 +45,10 @@
         animation: button-morph-shake var(--morph-shake-duration) var(--morph-shake-easing) 150ms;
     }
 
-    &-error .button-morph-text--error,
-    &-idle .button-morph-text--idle {
-        filter: blur(0px);
-        opacity: 1;
-        transition-duration: 200ms;
-    }
-
+    // Keyed off the status, since the icons are <svg>s, which take no dynamic class.
     &-loading .button-morph-icon--loading,
     &-success .button-morph-icon--success {
-        filter: blur(0px);
-        opacity: 1;
-        scale: 1;
+        @extend %icon-swap-active;
     }
 }
 
@@ -69,32 +62,20 @@
     }
 
     &-icon {
-        @extend %icon-stroke;
-        filter: blur(4px);
+        @extend %icon-stroke, %icon-swap;
         grid-area: 1 / 1;
         height: var(--morph-icon-size);
-        opacity: 0;
-        scale: 0.25;
-        transition:
-            filter 300ms var(--morph-spring),
-            opacity 300ms var(--morph-spring),
-            scale 300ms var(--morph-spring);
         width: var(--morph-icon-size);
-
-        @media (prefers-reduced-motion: reduce) {
-            filter: none;
-            scale: 1;
-            transition-property: opacity;
-        }
     }
 
     &-live {
         @extend %hidden-visually;
     }
 
-    // Turns about the icon box: the arc alone is off-centre, so its own box would wobble.
+    // Turns about the icon box: the arc alone is off-centre, so its own box would wobble. The turn is the
+    // '.button--processing' keyframes, which '.button-icon--spin' shares too.
     &-spinner {
-        animation: button-morph-spin 700ms linear infinite;
+        animation: button--processing 700ms linear infinite;
         transform-box: view-box;
         transform-origin: center;
     }
@@ -108,21 +89,31 @@
             filter 150ms ease-out,
             opacity 150ms ease-out;
         white-space: nowrap;
+
+        @include tokens.state(active) {
+            filter: blur(0px);
+            opacity: 1;
+            transition-duration: 200ms;
+        }
     }
 }
 
-
-@keyframes button-morph-spin {
-    to {
-        rotate: 360deg;
-    }
-}
 
 // Swings that die away, like a head shaking no.
 @keyframes button-morph-shake {
-    0%, 100% { translate: 0; }
-    20% { translate: -6px; }
-    40% { translate: 5px; }
-    60% { translate: -3px; }
-    80% { translate: 2px; }
+    0%, 100% {
+        translate: 0;
+    }
+    20% {
+        translate: -6px;
+    }
+    40% {
+        translate: 5px;
+    }
+    60% {
+        translate: -3px;
+    }
+    80% {
+        translate: 2px;
+    }
 }

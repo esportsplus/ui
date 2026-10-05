@@ -44,8 +44,8 @@
         }
     }
 
-    // Shows again at once under the fading copy: its own transitions, or ones it inherits, would ease it back in after
-    // the copy has gone. Important, since they can come from any rule.
+    // Shows again at once under the fading copy: its own transitions, or its contents', would ease it back in after the
+    // copy has gone. Important, since they can come from any rule.
     > .sortable-item--revealing,
     > .sortable-item--revealing * {
         transition: none !important;
@@ -139,9 +139,9 @@
 
 
 // Grabbing wherever the pointer goes while an item is carried, over whatever sets its own cursor; released as it
-// drops.
-:root:has(.sortable-drag:not(.sortable-drag--dropping)),
-:root:has(.sortable-drag:not(.sortable-drag--dropping)) * {
+// drops. JS marks the root for as long.
+:root.sortable-grabbing,
+:root.sortable-grabbing * {
     cursor: grabbing !important;
 }
 
@@ -345,12 +345,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    // Doubled to outrank the swing presets, which set the same variables on the same element.
-    .sortable.sortable {
-        --shift-duration: 0s;
-        --swing-angle: 0deg;
-    }
-
     .sortable-drag {
         animation: none;
     }

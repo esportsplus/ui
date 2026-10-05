@@ -1,0 +1,53 @@
+@use '/shared';
+@use '/tokens';
+
+// The text field '.input' and '.textarea' both are: one box with its states, padded so its border sits inside it.
+// It ends in nested rules, so it is included after the field's own declarations.
+@mixin base {
+    @extend %background-state, %border-state, %color-state;
+    background: var(--background);
+    border: var(--border-width) var(--border-style) var(--border-color);
+    border-radius: var(--border-radius);
+    color: var(--color);
+    cursor: text;
+    flex: 1 1 auto;
+    font-size: var(--font-size);
+    min-width: 0;
+    padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
+    padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
+    position: relative;
+    width: 100%;
+
+    &:invalid,
+    &:required {
+        box-shadow: none;
+    }
+}
+
+// Included after the field's own variables, for the same reason.
+@mixin variables {
+    --border-color-default: var(--background);
+    --border-radius: var(--border-radius-400);
+    --border-style: solid;
+    --border-width: 0px;
+    --box-shadow: var(--box-shadow-default);
+    --box-shadow-default: none;
+    --font-size: var(--font-size-400);
+    --padding-horizontal: var(--size-400);
+    --padding-vertical: var(--size-400);
+    --size: var(--size-400);
+
+    #{tokens.state(inactive)} {
+        @include tokens.state(hover) {
+            --box-shadow: var(--box-shadow-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --box-shadow: var(--box-shadow-pressed);
+        }
+    }
+
+    #{tokens.state(active)} {
+        --box-shadow: var(--box-shadow-active);
+    }
+}

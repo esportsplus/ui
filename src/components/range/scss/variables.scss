@@ -1,3 +1,5 @@
+@use '/tokens';
+
 .range {
     --background-default: linear-gradient(to right, var(--thumb-background) var(--thumb-position), var(--color-black-300) var(--thumb-position));
     --border-width: var(--border-width-700);
@@ -11,26 +13,78 @@
     &-filter {
         --clear-background: var(--color-white-300);
         --clear-border: var(--color-border-300);
+        --clear-display: inline-flex;
         --clear-hover: var(--color-grey-400);
         --color: var(--color-text-500);
         --field-background: var(--color-white-300);
         --field-border-radius: var(--border-radius-400);
+        --field-cursor: text;
         --field-height: 40px;
         --focus-color: oklch(from var(--color-text-500) l c h / 0.3);
         --ghost-color: oklch(from var(--color-text-500) l c h / 0.3);
+        --ghost-display: block;
+        --header-align: flex-start;
+        --header-gap: 16px;
+        --heading-display: block;
+        --label-color: var(--muted-color);
+        --label-font-size: 12px;
+        --label-letter-spacing: 0.05em;
+        --label-margin: 0 0 4px;
+        --label-text-transform: uppercase;
         --muted-color: var(--color-text-300);
+        --range-border-radius: 0px;
         --range-color: var(--color-text-500);
         --roll-duration: 500ms;
         --roll-ease: cubic-bezier(0.23, 1, 0.32, 1);
+        --root-cursor: pointer;
         --thumb-background: var(--color-white-300);
         --thumb-border: var(--color-text-500);
+        --thumb-border-width: 2px;
+        // Unset, so the thumb takes the cursor around it.
+        --thumb-cursor: initial;
+        --thumb-cursor-active: initial;
+        --thumb-outline: 0 solid var(--focus-color);
+        --thumb-scale-active: 1.25;
+        --thumb-scale-hover: 1.25;
+        --thumb-shadow: 0 4px 6px -1px oklch(from var(--color-black-300) l c h / 0.1), 0 2px 4px -2px oklch(from var(--color-black-300) l c h / 0.1);
+        --thumb-shadow-active: var(--thumb-shadow);
+        --thumb-shadow-focus: var(--thumb-shadow);
         --thumb-size: 20px;
+        --thumb-transition: scale 150ms ease-out;
         --tick-color: oklch(from var(--color-text-300) l c h / 0.6);
         --track-color: var(--color-grey-500);
         --track-height: 8px;
+        --track-inset: 0px;
+        --track-overflow: hidden;
         --value-font-size: var(--font-size-500);
+        --value-font-weight: var(--font-weight-700, 700);
         --width: 384px;
 
+        @include tokens.state(disabled) {
+            --field-cursor: not-allowed;
+            --root-cursor: not-allowed;
+            --thumb-scale-active: 1;
+            --thumb-scale-hover: 1;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            --thumb-scale-active: 1;
+            --thumb-scale-hover: 1;
+            --thumb-transition: none;
+        }
+
+        // A symbol column shows its character in place of the rolling digit strip.
+        &-column {
+            --strip-display: flex;
+            --symbol-display: none;
+
+            &--symbol {
+                --strip-display: none;
+                --symbol-display: inline;
+            }
+        }
+
+        // Qualified by the field so it wins over the reused input styles regardless of stylesheet order.
         &-field .range-filter-input {
             --background-default: transparent;
             --color-default: currentColor;

@@ -8,13 +8,15 @@ import input from '~/components/input';
 import selectInput from '~/components/select';
 import tooltip from '~/components/tooltip';
 import { mac } from '~/shared/platform';
+import { observe } from '~/shared/resize';
+import { viewport } from '~/shared/viewport';
 import { active, check, clear, extent, kindAt, link, setKind, toggle, unformat } from './format';
 import history, { type Entry, type Kind as Step } from './history';
 import { parse, serialize, type Feature, type Group } from './markdown';
 import { caret, empty, insert, length, list, nest, order, paste, remove, slice, sort, split, styleAt, text, type Block, type Doc, type Edit, type Kind, type Mark, type Pos, type Selection, type Span, type Tree } from './model';
 import { capture, elements, restore, target, written } from './selection';
 import status, { INLINE_EDIT_STATUS, type Status } from './status';
-import { safe } from './utilities';
+import { INLINE_LINE_BREAKS, safe } from './utilities';
 import boldSvg from '@esportsplus/ui/svg/bold.svg';
 import checkSvg from '@esportsplus/ui/svg/check.svg';
 import clearSvg from '@esportsplus/ui/svg/clear-format.svg';
@@ -85,8 +87,6 @@ const EMAIL = /^[^\s/@]+@[^\s/@]+\.[^\s/@]+$/;
 
 const MAC_SHORTCUT = /(⇧?)(\w)$/;
 
-const INLINE_LINE_BREAKS = /\s*\n\s*/g;
-
 
 const ACTIONS: { action: Action, label: string, shortcut?: string }[] = [
     { action: 'bold', label: 'Bold', shortcut: 'B' },
@@ -144,9 +144,6 @@ const KINDS: { feature?: Group, label: string, value: Kind }[] = [
     { feature: 'ordered', label: 'Numbered list', value: 'ordered' },
     { feature: 'task', label: 'Checklist', value: 'task' }
 ];
-
-// Long enough to notice after the field settles, short enough that the pencil is back before the next edit.
-const SAVED_FOR = 1600;
 
 // Long enough that labels only show once the pointer rests, so passing across the toolbar stays quiet.
 const TOOLTIP_DELAY = 700;
@@ -370,8 +367,7 @@ export default component(
             pressed = reactive(Object.fromEntries(marks.map(({ action }) => [action, false])) as Record<string, boolean>),
             // The saved value as this field writes it, which a value from outside may not be: what an edit differs from.
             pristine = signal(serialize(read(doc), features, multiline)),
-            saving = indicator ? (indicator === true ? reactive<Status>({ phase: 'saved', savedAt: null }) : indicator) : null,
-            report = saving ? status.track(saving, () => state.editing && serialize(read(doc), features, multiline) !== read(pristine)) : null,
+            saving = status.saver(state, indicator, () => serialize(read(doc), features, multiline) !== read(pristine), onsave),
             sections = new ReactiveArray<Section>(partition(read(doc)).map(section)),
             slot = html.reactive(sections, group),
             steps = history(),
@@ -386,15 +382,14 @@ export default component(
             frame = 0,
             items: HTMLElement[] = [],
             keys: AbortController | undefined,
-            observer: ResizeObserver | undefined,
             pressing = false,
             root: HTMLElement | undefined,
             saved: Span | null = null,
-            savedTimer: ReturnType<typeof setTimeout> | undefined,
             selection: Selection | null = null,
             settling: ReturnType<typeof setTimeout> | undefined,
             shown: Kind = 'paragraph',
             toolbar: HTMLElement | undefined,
+            unobserve: VoidFunction | undefined,
             url: HTMLInputElement | undefined;
 
         // The select only reports a value; one that differs from the block under the selection is a choice.
@@ -539,7 +534,7 @@ export default component(
         function current() {
             let blocks = read(doc);
 
-            if (!saved || (saved.start.block === saved.end.block && saved.start.offset === saved.end.offset) || !blocks[saved.end.block]) {
+            if (!saved || collapsed(saved) || !blocks[saved.end.block]) {
                 return null;
             }
 
@@ -951,7 +946,7 @@ export default component(
             // Floats outside the field, so only the viewport limits it: flips below when there's no room above.
             let below = first.top < h + GAP,
                 center = bounds.left + bounds.width / 2,
-                x = Math.min(Math.max(center - w / 2, GAP), document.documentElement.clientWidth - w - GAP);
+                x = Math.min(Math.max(center - w / 2, GAP), viewport().width - w - GAP);
 
             // Scales out of the selection itself, even when clamped to the edge.
             panel.origin = `${center - x}px ${below ? 0 : h}px`;
@@ -1043,16 +1038,7 @@ export default component(
             }
 
             write(pristine, next);
-            state.value = next;
-            state.saved = true;
-
-            let result = onsave?.(next);
-
-            report?.(result);
-            clearTimeout(savedTimer);
-            savedTimer = setTimeout(() => {
-                state.saved = false;
-            }, SAVED_FOR);
+            saving.save(next);
         }
 
         function section({ blocks, kind }: { blocks: Block[], kind: Section['kind'] }): Section {
@@ -1256,16 +1242,17 @@ export default component(
                     ],
                     onconnect: (element: HTMLElement) => {
                         root = element;
-                        observer = new ResizeObserver(sync);
-                        observer.observe(element);
+                        unobserve?.();
+                        unobserve = observe(element, sync);
                     },
                     ondisconnect: () => {
                         cancelAnimationFrame(frame);
                         clearTimeout(copyTimer);
-                        clearTimeout(savedTimer);
                         clearTimeout(settling);
                         keys?.abort();
-                        observer?.disconnect();
+                        unobserve?.();
+                        unobserve = undefined;
+                        saving.dispose();
                     },
                     ondocumentselectionchange: sync,
                     onfocusout: leave,
@@ -1521,7 +1508,7 @@ export default component(
                     <svg class='inline-edit-icon-check'><use href='#${checkSvg}' /></svg>
                 </span>
                 <span aria-live='polite' class='inline-edit-label'>${() => local.live}</span>
-                ${saving && status.render(saving, this?.attributes?.[INLINE_EDIT_STATUS], attributes[INLINE_EDIT_STATUS])}
+                ${saving.status && status.render(saving.status, this?.attributes?.[INLINE_EDIT_STATUS], attributes[INLINE_EDIT_STATUS])}
             </div>
         `;
     },

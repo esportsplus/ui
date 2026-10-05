@@ -1,84 +1,83 @@
-.main > .page > .page-head {
+.page-head {
     align-items: center;
     column-gap: var(--size-400);
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     width: 100%;
 
-    .page {
-        &-arrow {
-            align-items: center;
-            background: var(--color-grey-400);
-            border: 0;
-            border-radius: var(--border-radius-400);
-            color: var(--color-text-500);
-            cursor: pointer;
-            display: inline-flex;
-            height: var(--size-600);
-            justify-content: center;
-            padding: 0;
-            width: var(--size-600);
+    &-arrow {
+        align-items: center;
+        background: var(--color-grey-400);
+        border: 0;
+        border-radius: var(--border-radius-400);
+        color: var(--color-text-500);
+        cursor: pointer;
+        display: inline-flex;
+        height: var(--size-600);
+        justify-content: center;
+        padding: 0;
+        width: var(--size-600);
 
-            &.--disabled {
-                cursor: default;
-                opacity: 0.4;
-            }
-
-            &:first-child .icon {
-                margin-left: -4px;
-                transform: rotate(180deg);
-            }
-
-            &:focus-visible {
-                outline: var(--border-width-500) solid var(--color-blue-400);
-                outline-offset: 3px;
-            }
-
-            &:hover {
-                background: var(--color-grey-500);
-            }
-
-            &:last-child .icon {
-                margin-right: -4px;
-            }
-
-            .icon {
-                --size: var(--size-400);
-            }
+        &.--disabled {
+            cursor: default;
+            opacity: 0.4;
         }
 
-        &-breadcrumb {
-            --link-padding: 0px;
-            grid-column: 1 / -1;
-            margin-bottom: var(--size-400);
-            text-transform: capitalize;
-
-            .breadcrumb-separator {
-                margin-inline: 4px;
-            }
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--color-blue-400);
+            outline-offset: 3px;
         }
 
-        &-navigation {
-            align-items: center;
-            display: flex;
-            flex: 0 0 auto;
-            gap: var(--size-100);
+        &:hover {
+            background: var(--color-grey-500);
+        }
+    }
+
+    &-arrow-icon {
+        --size: var(--size-400);
+
+        &--next {
+            margin-right: -4px;
         }
 
-        &-subtitle {
-            grid-column: 1 / -1;
-            margin-top: var(--size-400);
-            max-width: 64ch;
+        &--previous {
+            margin-left: -4px;
+            transform: rotate(180deg);
         }
+    }
 
-        &-title {
-            min-width: 0;
-            text-transform: capitalize;
-            width: auto;
+    &-breadcrumb {
+        --link-padding: 0px;
+        grid-column: 1 / -1;
+        margin-bottom: var(--size-400);
+        text-transform: capitalize;
 
-            @media (max-width: 720px) {
-                font-size: var(--font-size-700);
-            }
+        // The breadcrumb exposes no separator spacing, so it is set on its separators directly.
+        .breadcrumb-separator {
+            margin-inline: 4px;
+        }
+    }
+
+    &-navigation {
+        align-items: center;
+        display: flex;
+        flex: 0 0 auto;
+        gap: var(--size-100);
+    }
+
+    &-subtitle {
+        grid-column: 1 / -1;
+        margin-top: var(--size-400);
+        max-width: 64ch;
+    }
+
+    &-title {
+        min-width: 0;
+        text-transform: capitalize;
+        width: auto;
+
+        @media (max-width: 720px) {
+            font-size: var(--font-size-700);
         }
     }
 }

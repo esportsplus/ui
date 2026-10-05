@@ -14,36 +14,54 @@ let instance = 0,
         { description: 'Arrives in 5 to 7 business days.', title: 'Standard', value: 'standard' },
         { description: 'Arrives in 2 to 3 business days.', title: 'Priority', value: 'priority' },
         { description: 'Arrives tomorrow if ordered before 2pm.', title: 'Express', value: 'express' }
-    ];
-const style = `
-    --background-active: var(--color-primary-400);
-    --border-color-active: var(--color-primary-400);
-    --border-color-default: var(--color-border-500);
-    --border-width: var(--border-width-400);
-`;
+    ],
+    sizes = ['Small', 'Medium', 'Large'],
+    style = `
+        --background-active: var(--color-primary-400);
+        --border-color-active: var(--color-primary-400);
+        --border-color-default: var(--color-border-500);
+        --border-width: var(--border-width-400);
+    `;
+
+
+// A radio bound to shared state, so the group's chosen value is readable outside the inputs.
+function choice(name: string, state: { value: string }, value: string) {
+    return radio({
+        style,
+        [radio.input]: {
+            checked: () => state.value === value,
+            name,
+            onchange: () => {
+                state.value = value;
+            },
+            value
+        }
+    });
+}
 
 
 export default {
     name: 'radio',
     variants: [
         {
-            title: 'Spring · Inset mark with matching corners',
             render: () => {
                 let name = `radio-example-${++instance}`;
+
                 return html`
-                    <fieldset style='border: 0; margin: 0; padding: 0; min-width: 0;'>
-                        <legend style='margin-bottom: var(--size-400);'>Choose a size</legend>
-                        <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
-                            ${['Small', 'Medium', 'Large'].map((label, index) => html`
-                                <label style='display: inline-flex; align-items: center; gap: var(--size-300); cursor: pointer;'>
-                                    ${radio({ style, [radio.input]: { 'aria-label': label, checked: index === 1, name, value: label } })}
-                                    <span>${label}</span>
+                    <fieldset class='radio-demo'>
+                        <legend class='radio-demo-legend'>Choose a size</legend>
+                        <div class='radio-demo-inline'>
+                            ${sizes.map((size, index) => html`
+                                <label class='radio-demo-row radio-demo-row--inline'>
+                                    ${radio({ style, [radio.input]: { checked: index === 1, name, value: size } })}
+                                    ${size}
                                 </label>
                             `)}
                         </div>
                     </fieldset>
                 `;
-            }
+            },
+            title: 'default'
         },
         {
             render: () => {
@@ -55,16 +73,7 @@ export default {
                         <legend class='radio-demo-legend'>Delivery</legend>
                         ${shipping.map((option) => html`
                             <label class='radio-demo-row'>
-                                ${radio({
-                                    [radio.input]: {
-                                        checked: () => state.value === option.value,
-                                        name,
-                                        onchange: () => {
-                                            state.value = option.value;
-                                        },
-                                        value: option.value
-                                    }
-                                })}
+                                ${choice(name, state, option.value)}
                                 <span class='radio-demo-text'>
                                     ${option.title}
                                     <span class='radio-demo-description'>${option.description}</span>
@@ -89,16 +98,7 @@ export default {
                             ${highlight({ class: 'radio-demo-ring', hover: false })}
                             ${plans.map((plan) => html`
                                 <label class='card radio-demo-card' ${{ class: () => state.value === plan.value && '--active' }}>
-                                    ${radio({
-                                        [radio.input]: {
-                                            checked: () => state.value === plan.value,
-                                            name,
-                                            onchange: () => {
-                                                state.value = plan.value;
-                                            },
-                                            value: plan.value
-                                        }
-                                    })}
+                                    ${choice(name, state, plan.value)}
                                     <span class='radio-demo-text'>
                                         <span class='radio-demo-heading'>
                                             ${plan.title}

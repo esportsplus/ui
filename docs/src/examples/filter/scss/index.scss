@@ -1,4 +1,6 @@
 .filter-demo {
+    --count-color: var(--color-text-300);
+    --count-opacity: 1;
     --gap: var(--size-200);
     --row-height: 72px;
     display: flex;
@@ -7,29 +9,11 @@
     max-width: 560px;
     width: 100%;
 
-    &--capped &-items {
-        max-height: calc(2 * var(--row-height) + var(--gap));
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        scrollbar-gutter: stable;
-    }
-
-    &--capped &-items,
-    &--grid &-items {
-        grid-auto-rows: var(--row-height);
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    &--rows &-item {
-        align-items: center;
-        flex-direction: row;
-        padding-block: var(--size-200);
-    }
-
     &-count {
-        color: var(--color-text-300);
+        color: var(--count-color);
         font-size: 0.84em;
         font-variant: tabular-nums;
+        opacity: var(--count-opacity);
     }
 
     &-empty {
@@ -54,6 +38,12 @@
         justify-content: space-between;
         min-width: 0;
         padding: var(--size-300);
+
+        &--row {
+            align-items: center;
+            flex-direction: row;
+            padding-block: var(--size-200);
+        }
     }
 
     &-items {
@@ -63,6 +53,19 @@
         margin: 0;
         outline: none;
         padding: 0;
+
+        &--capped {
+            max-height: calc(2 * var(--row-height) + var(--gap));
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scrollbar-gutter: stable;
+        }
+
+        &--capped,
+        &--grid {
+            grid-auto-rows: var(--row-height);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
     }
 
     &-meta {
@@ -95,14 +98,11 @@
         transition: background-color 0.16s, border-color 0.16s, color 0.16s;
 
         &.--active {
+            --count-color: currentColor;
+            --count-opacity: 0.7;
             background: var(--color-black-400);
             border-color: var(--color-black-400);
             color: var(--color-white-400);
-
-            .filter-demo-count {
-                color: currentColor;
-                opacity: 0.7;
-            }
         }
 
         &:focus-visible {

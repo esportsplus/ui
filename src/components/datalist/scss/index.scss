@@ -31,8 +31,6 @@
         rotate: x calc(var(--rotate) * var(--t) * -1);
         scale: calc(var(--scale) - var(--scale-falloff) * var(--t-abs));
         scroll-snap-align: center;
-        // Driven per scroll frame; the inherited root transition would ease it behind the scroll
-        transition: none;
         user-select: none;
 
         // Driven by each option's own position in the scroller; the range runs from its center

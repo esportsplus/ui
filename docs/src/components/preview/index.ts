@@ -1,6 +1,7 @@
 import { html } from 'docs/app';
 import { effect, flush, reactive, untrack } from '@esportsplus/reactivity';
 import { highlight, icon, select } from '@esportsplus/ui/components';
+import { observeIntersection } from '@esportsplus/ui/shared/visible';
 import codeSvg from '@esportsplus/ui/svg/code.svg';
 import eye from '@esportsplus/ui/svg/eye.svg';
 import { code } from 'docs/components/code';
@@ -13,8 +14,8 @@ type View = 'preview' | 'code';
 
 
 const preview = (title: string | null, node: Renderable<unknown>, id?: string, options: PreviewOption[] = [], source?: () => Promise<string>) => {
-    let observer: IntersectionObserver | undefined,
-        frame = 0,
+    let frame = 0,
+        release: VoidFunction | undefined,
         request = 0,
         cache = new Map<string, string>(),
         render = typeof node === 'function' ? node as () => Renderable<unknown> : () => node,
@@ -78,8 +79,8 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
     }
 
     function mount() {
-        observer?.disconnect();
-        observer = undefined;
+        release?.();
+        release = undefined;
         state.mounted = true;
     }
 
@@ -113,18 +114,17 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
                         return;
                     }
 
-                    observer = new IntersectionObserver((entries) => {
+                    release = observeIntersection(element, (entries) => {
                         if (entries.some((entry) => entry.isIntersecting)) {
                             mount();
                         }
                     }, { rootMargin: '400px 0px' });
-                    observer.observe(element);
                 },
                 ondisconnect: () => {
                     cancelAnimationFrame(frame);
                     frame = 0;
-                    observer?.disconnect();
-                    observer = undefined;
+                    release?.();
+                    release = undefined;
                 },
                 // TOC navigation focuses the example before scrolling. Mount first so its final box is the target.
                 onfocusin: function(this: HTMLElement, event: FocusEvent) {
@@ -162,7 +162,7 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
                                 }
                             }}
                         >
-                            ${icon({ 'aria-hidden': 'true' }, view === 'preview' ? eye : codeSvg)}
+                            ${icon({ 'aria-hidden': 'true', class: 'preview-view-icon' }, view === 'preview' ? eye : codeSvg)}
                             ${view === 'preview' ? 'Preview' : 'Code'}
                         </button>
                     `)}
@@ -199,9 +199,9 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
                 }}</div>
                 ${source && html`
                     <section class='preview-code' aria-label='${title ?? 'Example'} source code' hidden='${() => state.view !== 'code'}' aria-busy='${() => String(state.loading)}'>
-                        ${() => state.loading && html`<p role='status'>Loading example source…</p>`}
-                        ${() => state.error && html`<p role='alert'>${state.error}</p>`}
-                        ${() => state.code && code(state.code)}
+                        ${() => state.loading && html`<p class='preview-code-message' role='status'>Loading example source…</p>`}
+                        ${() => state.error && html`<p class='preview-code-message' role='alert'>${state.error}</p>`}
+                        ${() => state.code && code(state.code, true)}
                     </section>
                 `}
             </div>

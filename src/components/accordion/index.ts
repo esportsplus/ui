@@ -34,10 +34,15 @@ export default component<Attributes & {
         });
 
         if (lines !== undefined) {
-            let measured = reactive({ height: 0 });
+            let measured = reactive({ height: 0, instant: true });
 
             a = {
-                class: 'accordion--more',
+                class: ['accordion--more', () => measured.instant && 'accordion--instant'],
+                // The size measured on connect is written after the box was styled once, so the height holds still
+                // until that first measured frame has painted, or it would play from the unmeasured height.
+                onfirstpaint: () => {
+                    measured.instant = false;
+                },
                 style: [
                     () => measured.height && `--height: ${measured.height}px;`,
                     `--lines: ${lines};`

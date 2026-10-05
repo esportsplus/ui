@@ -1,7 +1,7 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
 import close from '@esportsplus/ui/svg/close.svg';
-import { measure, slide, timing } from '~/shared/animation';
+import { measure, slides, timing } from '~/shared/animation';
 import input from './field';
 
 
@@ -136,7 +136,7 @@ export default component(
                                 }
                             }}
                         >
-                            <svg aria-hidden='true'><use href='#${close}' /></svg>
+                            <svg aria-hidden='true' class='input-tag-chip-icon'><use href='#${close}' /></svg>
                         </button>
                     </span>
                     ${name && html`<input name='${name}[]' type='hidden' value='${tag}' />`}
@@ -170,7 +170,7 @@ export default component(
                     <span aria-hidden='true' class='input-tag-chip-body'></span>
                     <span class='input-tag-chip-text'>${ghost.tag}</span>
                     <span class='input-tag-chip-remove'>
-                        <span class='input-tag-chip-button'><svg aria-hidden='true'><use href='#${close}' /></svg></span>
+                        <span class='input-tag-chip-button'><svg aria-hidden='true' class='input-tag-chip-icon'><use href='#${close}' /></svg></span>
                     </span>
                 </li>
             `);
@@ -240,13 +240,7 @@ export default component(
             change();
             slot.flush();
 
-            for (let i = 0, n = children.length; i < n; i++) {
-                let child = children[i] as HTMLElement;
-
-                if (!child.classList.contains('input-tag-ghost') && !slide(child, shift)) {
-                    enter?.(child);
-                }
-            }
+            slides([...children as HTMLCollectionOf<HTMLElement>].filter((child) => !child.classList.contains('input-tag-ghost')), shift, enter);
         }
 
         function nudge(k: string) {

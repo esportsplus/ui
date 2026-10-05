@@ -38,21 +38,33 @@
         // Tints the default instead of replacing it, so an opaque row stays opaque while hovered
         --background-hover: color-mix(in oklch, var(--color-text-500) 3%, var(--background-default));
         --border-radius: var(--border-radius-400);
-        // Spring with stiffness 320 and damping 30, sampled across its 500ms settle
-        --transform-duration: 500ms;
-        --transform-timing-function: linear(0, 0.109, 0.322, 0.536, 0.71, 0.835, 0.916, 0.965, 0.991, 1.003, 1.007, 1.008, 1.006, 1.005, 1.003, 1.002, 1);
+        // Read by JS: the slide that carries a row to its new place. Spring with stiffness 320 and damping 30,
+        // sampled across its 500ms settle
+        --move-duration: 500ms;
+        --move-easing: linear(0, 0.109, 0.322, 0.536, 0.71, 0.835, 0.916, 0.965, 0.991, 1.003, 1.007, 1.008, 1.006, 1.005, 1.003, 1.002, 1);
+        // The strike and fade wait on the check while it draws
+        --strike-delay: 0s;
+        --strike-length: 0%;
         --transition-duration: 150ms;
 
         @include tokens.state(hover) {
             --background: var(--background-hover);
         }
 
-        &:has(.checkbox-tag:checked) .tasklist-content {
-            --opacity: var(--opacity-active);
+        &:has(.checkbox-tag:checked) {
+            --strike-length: 100%;
+
+            .tasklist-content {
+                --opacity: var(--opacity-active);
+            }
+        }
+
+        &--checking {
+            --strike-delay: var(--check-duration);
         }
 
         @media (prefers-reduced-motion: reduce) {
-            --transform-duration: 0ms;
+            --move-duration: 0ms;
         }
     }
 
@@ -69,30 +81,30 @@
         --line-height: var(--size-500);
         --padding-horizontal: var(--size-100);
         --padding-vertical: var(--size-100);
+
+        &--sortable {
+            &::before {
+                --background: var(--color-text-300);
+                --opacity: var(--opacity-default);
+                --opacity-default: 0;
+                --opacity-hover: 1;
+                --size: 16px;
+                --transition-duration: 150ms;
+            }
+
+            @include tokens.state(hover) {
+                &::before {
+                    --opacity: var(--opacity-hover);
+                }
+            }
+        }
     }
 
     &--plan .tasklist-label::before {
         --color: var(--color-text-300);
-        --font-family: 'Geist Mono', ui-monospace, monospace;
+        --font-family: var(--font-family-mono);
         --font-size: var(--font-size-200);
         --font-weight: var(--font-weight-500);
         --gap: 6px;
-    }
-
-    &.sortable .tasklist-row {
-        &::before {
-            --background: var(--color-text-300);
-            --opacity: var(--opacity-default);
-            --opacity-default: 0;
-            --opacity-hover: 1;
-            --size: 16px;
-            --transition-duration: 150ms;
-        }
-
-        @include tokens.state(hover) {
-            &::before {
-                --opacity: var(--opacity-hover);
-            }
-        }
     }
 }

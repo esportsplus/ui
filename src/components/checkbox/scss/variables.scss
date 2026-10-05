@@ -23,9 +23,11 @@
     --box-shadow-pressed: var(--box-shadow-default);
     --check-linecap: round;
     --check-linejoin: round;
+    --check-offset: 1;
     --check-size: 80%;
     --check-stroke-width: 4;
     --check-timing-function: ease;
+    --dash-offset: 1;
     --focus-color: var(--border-color-active);
     --focus-offset: 2px;
     --focus-width: 2px;
@@ -121,5 +123,14 @@
         --box-shadow: var(--box-shadow-active);
         --indicator-color: var(--indicator-color-active);
         --scale: var(--scale-active);
+    }
+
+    &:has(input:checked) {
+        --check-offset: 0;
+    }
+
+    // The group header's dash, drawn while some but not all of its options are checked.
+    &:has(input:indeterminate) {
+        --dash-offset: 0;
     }
 }

@@ -4,6 +4,13 @@
     flex-direction: column;
     gap: var(--size-300);
 
+    &-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--size-300);
+        justify-content: center;
+    }
+
     &-status {
         color: var(--color-text-300);
         font-size: var(--font-size-300);
@@ -11,7 +18,7 @@
         min-height: 1lh;
         text-align: center;
 
-        span {
+        &-label {
             color: var(--color-text-500);
         }
     }

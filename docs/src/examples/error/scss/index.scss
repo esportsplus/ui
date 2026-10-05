@@ -16,6 +16,14 @@
         width: 200px;
     }
 
+    // The error reddens a control's edge through '--border-color'; these draw none by default, so give them one. The
+    // plain select defines the variables without drawing an edge at all, so it draws one here from them.
+    &-input,
+    &-select {
+        --border-color-default: var(--color-border-400);
+        --border-width: 1px;
+    }
+
     &-label {
         color: var(--color-text-500);
         flex: 1 1 auto;
@@ -23,15 +31,7 @@
         min-width: 0;
     }
 
-    // The error reddens a control's edge through '--border-color'; these draw none by default, so give them one. The
-    // plain select defines the variables without drawing an edge at all, so it draws one here from them.
-    .input,
-    .select {
-        --border-color-default: var(--color-border-400);
-        --border-width: 1px;
-    }
-
-    .select {
+    &-select {
         box-shadow: inset 0 0 0 var(--border-width) var(--border-color);
     }
 }

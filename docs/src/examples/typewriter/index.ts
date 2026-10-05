@@ -74,7 +74,7 @@ export default {
                         <h2 class='typewriter-rotate-demo'>
                             Design that feels ${typewriter.rotate({ class: 'typewriter-rotate-demo-word', interval: 1400, state, words: rotations })}
                         </h2>
-                        <button class='button button--tertiary' style='--width: auto;' type='button' onclick='${() => state.paused = !state.paused}'>
+                        <button class='button' style='--width: auto;' type='button' onclick='${() => state.paused = !state.paused}'>
                             ${() => state.paused ? 'resume' : 'pause (settles home)'}
                         </button>
                     </div>

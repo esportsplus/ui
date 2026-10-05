@@ -32,32 +32,60 @@ const ms = (value: string) => {
     return isNaN(n) ? 0 : value.trim().endsWith('ms') ? n : n * 1000;
 };
 
-// Slides an element from the box 'measure' recorded to where the change put it, replacing a slide still running on it,
-// and returns that new box; undefined for an element 'measure' never saw, which is new to the layout. Added onto its
-// translate, so a shake or nudge of its own still plays.
-const slide = (element: Element, timing: KeyframeAnimationOptions | null) => {
-    let from = (element as Sliding)[FROM];
+// Slides each element from the box 'measure' recorded to where the change put it, replacing a slide still running on
+// it, and returns every element's new box. An element 'measure' never saw is new to the layout: it doesn't slide, and
+// 'enter' hears it once every slide has started. Added onto its translate, so a shake or nudge of its own still plays.
+// Every slide is cancelled, then every box read, then every slide started: a read between two starts would
+// recalculate styles once per element.
+const slides = <T extends Element>(elements: ArrayLike<T>, timing: KeyframeAnimationOptions | null, enter?: (element: T) => void) => {
+    let froms: (DOMRect | undefined)[] = [],
+        n = elements.length,
+        tos: DOMRect[] = [];
 
-    (element as Sliding)[FROM] = undefined;
+    for (let i = 0; i < n; i++) {
+        let element: Sliding = elements[i],
+            from = element[FROM];
 
-    if (!from) {
-        return undefined;
+        element[FROM] = undefined;
+        froms.push(from);
+
+        if (from) {
+            element[SLIDE]?.cancel();
+        }
     }
 
-    (element as Sliding)[SLIDE]?.cancel();
-
-    let to = element.getBoundingClientRect(),
-        x = from.left - to.left,
-        y = from.top - to.top;
-
-    if (timing && (Math.abs(x) >= 0.5 || Math.abs(y) >= 0.5)) {
-        (element as Sliding)[SLIDE] = element.animate(
-            [{ translate: `${x}px ${y}px` }, { translate: '0px 0px' }],
-            { ...timing, composite: 'add' }
-        );
+    for (let i = 0; i < n; i++) {
+        tos.push(elements[i].getBoundingClientRect());
     }
 
-    return to;
+    for (let i = 0; i < n; i++) {
+        let from = froms[i],
+            to = tos[i];
+
+        if (!from || !timing) {
+            continue;
+        }
+
+        let x = from.left - to.left,
+            y = from.top - to.top;
+
+        if (Math.abs(x) >= 0.5 || Math.abs(y) >= 0.5) {
+            (elements[i] as Sliding)[SLIDE] = elements[i].animate(
+                [{ translate: `${x}px ${y}px` }, { translate: '0px 0px' }],
+                { ...timing, composite: 'add' }
+            );
+        }
+    }
+
+    if (enter) {
+        for (let i = 0; i < n; i++) {
+            if (!froms[i]) {
+                enter(elements[i]);
+            }
+        }
+    }
+
+    return tos;
 };
 
 // A slide's timing from the CSS variables '--{name}-duration' and '--{name}-easing'; null without a duration, so
@@ -69,4 +97,4 @@ const timing = (computed: CSSStyleDeclaration, name: string): KeyframeAnimationO
 };
 
 
-export { finished, measure, ms, slide, timing };
+export { finished, measure, ms, slides, timing };

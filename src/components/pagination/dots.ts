@@ -32,58 +32,60 @@ function template(
 ) {
     let fill: HTMLElement | undefined,
         local = reactive({ connected: false }),
-        settle: Animation | undefined,
-        stops = [
-            effect(() => {
-                let active = Math.min(Math.max(Math.round(state.progress), 0), count - 1);
+        settle: Animation | undefined;
 
-                if (state.active !== active) {
-                    state.active = active;
-                }
-            }),
-            effect((cleanup) => {
-                // Read before any early return so every input stays a dependency.
-                let active = state.active,
-                    running = local.connected && state.running;
+    effect(() => {
+        let active = Math.min(Math.max(Math.round(state.progress), 0), count - 1);
 
-                if (!autoplay || !fill || !running) {
-                    return;
-                }
-
-                let target = fill;
-
-                settle?.cancel();
-
-                // The countdown is the timer: when the fill finishes, the page advances.
-                let countdown = target.animate(
-                    [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
-                    { duration: autoplay, easing: 'linear' }
-                );
-
-                countdown.onfinish = () => onelapsed?.(active);
-
-                cleanup(() => {
-                    countdown.onfinish = null;
-
-                    if (countdown.playState !== 'running') {
-                        return;
-                    }
-
-                    let from = getComputedStyle(target).transform;
-
-                    countdown.cancel();
-                    settle = target.animate([{ transform: from }, { transform: 'scaleX(1)' }], SETTLE);
-                });
-            })
-        ];
-
-    onCleanup(() => {
-        settle?.cancel();
-
-        for (let i = 0, n = stops.length; i < n; i++) {
-            stops[i]();
+        if (state.active !== active) {
+            state.active = active;
         }
     });
+
+    effect((cleanup) => {
+        // Read before any early return so every input stays a dependency.
+        let active = state.active,
+            running = local.connected && state.running;
+
+        if (!autoplay || !fill || !running) {
+            return;
+        }
+
+        let target = fill;
+
+        settle?.cancel();
+
+        // The countdown is the timer: when the fill finishes, the page advances.
+        let countdown = target.animate(
+            [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+            { duration: autoplay, easing: 'linear' }
+        );
+
+        countdown.onfinish = () => onelapsed?.(active);
+
+        cleanup(() => {
+            countdown.onfinish = null;
+
+            if (countdown.playState !== 'running') {
+                return;
+            }
+
+            // Detached means the dots are going. No settle then: a nested disposal runs this after the owner's cleanup,
+            // so nothing would cancel it.
+            if (!target.isConnected) {
+                countdown.cancel();
+                return;
+            }
+
+            let from = getComputedStyle(target).transform;
+
+            countdown.cancel();
+            settle = target.animate([{ transform: from }, { transform: 'scaleX(1)' }], SETTLE);
+        });
+    });
+
+    // A pause just before the dots go leaves a settle running, which must not outlive them.
+    onCleanup(() => settle?.cancel());
 
     return html`
         <div

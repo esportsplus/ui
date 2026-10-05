@@ -52,14 +52,21 @@
         --background-default: var(--color-white-300);
         --box-shadow-default: var(--box-shadow-100);
         --color-default: var(--color-text-500);
-
-        .icon {
-            --size: var(--size-400);
-        }
     }
 
     &-dot {
+        --mark-scale: none;
         --near: clamp(0, 1 - max(var(--progress) - var(--index), var(--index) - var(--progress)), 1);
+
+        &:active {
+            --mark-scale: var(--pressed-scale);
+        }
+
+        @media (hover: hover) {
+            &:hover {
+                --dot-color: var(--dot-color-hover);
+            }
+        }
     }
 
     &-page {

@@ -1,5 +1,6 @@
-import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import { timing } from '~/shared/animation';
+import { viewport } from '~/shared/viewport';
 import type { Attributes } from '@esportsplus/template';
 import './scss/index.scss';
 
@@ -24,8 +25,6 @@ type Origin = {
 };
 
 
-const OFFSCREEN = 'clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; white-space: nowrap; width: 1px;';
-
 // Items further than this outside the viewport snap into place instead of animating.
 const OVERSCAN = 200;
 
@@ -33,11 +32,11 @@ const OVERSCAN = 200;
 let instance = 0;
 
 
-function near(rect: DOMRect) {
+function near(rect: DOMRect, view: { height: number, width: number }) {
     return rect.bottom > -OVERSCAN
         && rect.right > -OVERSCAN
-        && rect.left < innerWidth + OVERSCAN
-        && rect.top < innerHeight + OVERSCAN;
+        && rect.left < view.width + OVERSCAN
+        && rect.top < view.height + OVERSCAN;
 }
 
 
@@ -59,16 +58,9 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         status = reactive({ visible: 0 });
 
     for (let i = 0, n = filters.length; i < n; i++) {
-        let count = 0,
-            filter = filters[i];
+        let filter = filters[i];
 
-        for (let j = 0, m = items.length; j < m; j++) {
-            if (filter.match(items[j])) {
-                count++;
-            }
-        }
-
-        counts[filter.id] = count;
+        counts[filter.id] = items.filter((item) => filter.match(item)).length;
     }
 
     function cancel(element: HTMLElement) {
@@ -159,6 +151,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             from = 0,
             lifts = new Map<HTMLElement, Origin>(),
             parents = new Map<Element, Origin>(),
+            view = viewport(),
             visible = 0;
 
         // Reads are batched ahead of any write so the browser lays out once per phase.
@@ -176,7 +169,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
 
                 first.set(element, rect);
 
-                if (!shown[i] || !filter || filter.match(items[i]) || !near(rect)) {
+                if (!shown[i] || !filter || filter.match(items[i]) || !near(rect, view)) {
                     continue;
                 }
 
@@ -234,7 +227,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             let origin = lifts.get(element),
                 rect = first.get(element);
 
-            if (!leave || !origin || !rect || !near(rect)) {
+            if (!leave || !origin || !rect || !near(rect, view)) {
                 element.style.display = 'none';
                 continue;
             }
@@ -271,11 +264,22 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             return;
         }
 
+        // Every box is read before any animation starts: starting one dirties styles, so a read after it lays out again.
+        let lasts: (DOMRect | undefined)[] = [];
+
         if (height && move) {
             resize?.cancel();
+        }
 
-            let to = list.getBoundingClientRect().height;
+        let to = list.getBoundingClientRect().height;
 
+        for (let i = 0, n = elements.length; i < n; i++) {
+            let element = elements[i];
+
+            lasts.push(element && shown[i] ? element.getBoundingClientRect() : undefined);
+        }
+
+        if (height && move) {
             if (Math.abs(from - to) > 0.5) {
                 let keyframes: Keyframe[] = [
                     { boxSizing: 'border-box', height: `${from}px` },
@@ -291,24 +295,24 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         }
 
         for (let i = 0, n = elements.length; i < n; i++) {
-            let element = elements[i];
+            let element = elements[i],
+                last = lasts[i];
 
-            if (!element || !shown[i]) {
+            if (!element || !last) {
                 continue;
             }
 
-            let last = element.getBoundingClientRect(),
-                rect = first.get(element);
+            let rect = first.get(element);
 
             if (!rect) {
-                if (enter && near(last)) {
+                if (enter && near(last, view)) {
                     play(element, [{ opacity: 0, transform: 'scale(0.97)' }, { opacity: 1, transform: 'scale(1)' }], enter);
                 }
 
                 continue;
             }
 
-            if (!move || (!near(last) && !near(rect))) {
+            if (!move || (!near(last, view) && !near(rect, view))) {
                 continue;
             }
 
@@ -328,22 +332,17 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         }
     }
 
-    let stop = effect(() => {
-        state.active;
+    effect(() => state.active, () => {
+        let computed = list && getComputedStyle(list);
 
-        untrack(() => {
-            let computed = list && getComputedStyle(list);
-
-            enter = computed ? timing(computed, 'enter') : null;
-            leave = computed ? timing(computed, 'leave') : null;
-            move = computed ? timing(computed, 'move') : null;
-            update(!!(enter || leave || move));
-        });
+        enter = computed ? timing(computed, 'enter') : null;
+        leave = computed ? timing(computed, 'leave') : null;
+        move = computed ? timing(computed, 'move') : null;
+        update(!!(enter || leave || move));
     });
 
     onCleanup(() => {
         resize?.cancel();
-        stop();
 
         for (let animation of animations.values()) {
             animation.cancel();
@@ -353,7 +352,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
     return {
         announcer: {
             'aria-live': 'polite',
-            style: OFFSCREEN,
+            class: 'filter-announcer',
             textContent: () => `${current()?.label ?? ''}: ${status.visible} of ${items.length} shown`
         } as Attributes,
         counts,

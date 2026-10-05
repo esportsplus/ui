@@ -1,5 +1,4 @@
 @use '/shared';
-@use '/tokens';
 
 .input-scrub {
     align-items: center;
@@ -39,14 +38,13 @@
         user-select: none;
         width: var(--label-width);
 
+        &:hover {
+            color: var(--label-color-active);
+        }
+
         svg {
             height: 16px;
             width: 16px;
-        }
-
-        &:hover,
-        #{tokens.state(active, '.input-scrub')} & {
-            color: var(--label-color-active);
         }
     }
 
@@ -66,18 +64,12 @@
         color: var(--tape-color);
         height: var(--tape-height);
         mask-image: linear-gradient(to right, transparent, #000 30%, #000 70%, transparent);
-        opacity: 0;
+        opacity: var(--tape-opacity);
         pointer-events: none;
         transition:
-            opacity var(--tape-leave-duration) var(--tape-timing-function),
-            translate var(--tape-leave-duration) var(--tape-timing-function);
-        translate: 0 4px;
-
-        #{tokens.state(active, '.input-scrub')} > & {
-            opacity: 1;
-            transition-duration: var(--tape-enter-duration);
-            translate: 0 0;
-        }
+            opacity var(--tape-duration) var(--tape-timing-function),
+            translate var(--tape-duration) var(--tape-timing-function);
+        translate: var(--tape-translate);
     }
 
     &-ticks {

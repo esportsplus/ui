@@ -8,12 +8,15 @@
     --light-color: var(--color-border-400);
     --light-color-active: var(--color-green-400);
     --light-inset: 3px;
+    --light-shadow: none;
     --light-size: 4px;
     --transition-duration: 150ms;
     --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
     @include tokens.state(active) {
         --light-color: var(--light-color-active);
+        // Lit hardware reads as "on" in any theme, like a real keyboard light
+        --light-shadow: 0 0 4px 1px color-mix(in oklch, var(--light-color) 55%, transparent);
     }
 
     // Wider than a square cap so the light clears the icon

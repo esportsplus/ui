@@ -1,3 +1,7 @@
+const INLINE_LINE_BREAKS = /\s*\n\s*/g;
+
+const NON_BREAKING_SPACES = / /g;
+
 const PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
 
 
@@ -11,4 +15,4 @@ function safe(href: string) {
 }
 
 
-export { safe };
+export { INLINE_LINE_BREAKS, NON_BREAKING_SPACES, safe };

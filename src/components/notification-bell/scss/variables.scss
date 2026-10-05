@@ -22,6 +22,7 @@
     --padding-horizontal: 0px;
     --padding-vertical: 0px;
     --ring-angle: 14deg;
+    --ring-animation-name: none;
     --ring-duration: 800ms;
     --roll-duration: 400ms;
     --roll-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
@@ -30,8 +31,15 @@
     --transition-timing-function: ease;
     --width: var(--size);
 
+    // Each ring swaps the keyframe name, restarting the swing.
+    @each $i in 1, 2 {
+        &--ring-#{$i} {
+            --ring-animation-name: notification-bell-ring-#{$i};
+        }
+    }
+
     // Outranks `.icon` so its --size default can't win on source order
-    .notification-bell-icon {
+    &-icon.icon {
         --size: var(--icon-size);
     }
 }

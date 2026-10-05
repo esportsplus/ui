@@ -1,6 +1,8 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
-import { measure, slide as shift, timing } from '~/shared/animation';
+import { effect, reactive } from '@esportsplus/reactivity';
+import { measure, slides, timing } from '~/shared/animation';
+import { clamp } from '~/shared/clamp';
+import { keystep } from '~/shared/keystep';
 import input from '~/components/input';
 import range from '~/components/range';
 import './scss/index.scss';
@@ -18,9 +20,7 @@ type Channel = { active: boolean, error: string, value: number };
 type Hsva = { a: number, h: number, s: number, v: number };
 
 type Parts = {
-    alpha?: HTMLInputElement;
     hex?: HTMLInputElement;
-    hue?: HTMLInputElement;
     swatches?: HTMLElement;
 };
 
@@ -39,10 +39,6 @@ const MAX_RECENT = 8;
 let uid = 0;
 
 
-function clamp(n: number) {
-    return Math.min(Math.max(n, 0), 1);
-}
-
 function fromHex(hex: string, previous: Hsva): Hsva | null {
     let rgba = parse(hex);
 
@@ -51,31 +47,6 @@ function fromHex(hex: string, previous: Hsva): Hsva | null {
     }
 
     return { ...toHsv(rgba.r, rgba.g, rgba.b, previous), a: rgba.a };
-}
-
-// Arrows move one step, Shift or the Page keys ten, Home and End jump to the ends.
-function keystep(e: KeyboardEvent, step: number) {
-    let big = step * 10,
-        unit = e.shiftKey ? big : step;
-
-    switch (e.key) {
-        case 'ArrowRight':
-        case 'ArrowUp':
-            return unit;
-        case 'ArrowDown':
-        case 'ArrowLeft':
-            return -unit;
-        case 'End':
-            return Infinity;
-        case 'Home':
-            return -Infinity;
-        case 'PageDown':
-            return -big;
-        case 'PageUp':
-            return big;
-    }
-
-    return null;
 }
 
 function parse(value: string) {
@@ -279,17 +250,25 @@ function template(
             },
             move = timing(computed, 'swatch-shift');
 
-        for (let i = 0, n = recent.length; i < n; i++) {
-            let element = container.children[i];
-
-            if (!shift(element, move) && enter) {
+        slides([...container.children].slice(0, recent.length), move, (element) => {
+            if (enter) {
                 element.animate([from, { filter: 'blur(0px)', opacity: 1, scale: '1' }], enter);
             }
-        }
+        });
 
         for (let { hex, rect } of dropped) {
             leaving.push({ hex, left: rect.left - box.left, top: rect.top - box.top });
         }
+    }
+
+    // Pointer capture keeps the drag alive outside the pad, so the point is clamped back onto it.
+    function pick(pad: HTMLElement, e: PointerEvent) {
+        let rect = pad.getBoundingClientRect();
+
+        update({
+            s: clamp((e.clientX - rect.left) / rect.width, 0, 1),
+            v: 1 - clamp((e.clientY - rect.top) / rect.height, 0, 1)
+        });
     }
 
     function read(): Hsva {
@@ -297,9 +276,8 @@ function template(
     }
 
     function slide(channel: 'alpha' | 'hue', e: KeyboardEvent) {
-        let element = e.currentTarget as HTMLInputElement,
-            max = Number(element.max),
-            delta = keystep(e, 1);
+        let delta = keystep(e, 1),
+            target = channel === 'hue' ? hue : alpha;
 
         pointer[channel] = false;
 
@@ -315,26 +293,14 @@ function template(
         }
 
         e.preventDefault();
-
-        let next = Math.min(Math.max(element.valueAsNumber + delta, 0), max);
-
-        element.value = String(next);
-        (channel === 'hue' ? hue : alpha).value = next;
+        target.value = clamp(target.value + delta, 0, Number((e.currentTarget as HTMLInputElement).max));
     }
 
     function sync() {
-        let { alpha: a, hex, hue: h } = parts;
+        let hex = parts.hex;
 
         alpha.value = Math.round(color.a * 100);
         hue.value = Math.round(color.h);
-
-        if (a && a.valueAsNumber !== alpha.value) {
-            a.value = String(alpha.value);
-        }
-
-        if (h && h.valueAsNumber !== hue.value) {
-            h.value = String(hue.value);
-        }
 
         // The field follows the color except while it is being typed in.
         if (hex && document.activeElement !== hex) {
@@ -369,41 +335,23 @@ function template(
         sync();
     }
 
-    let disposers = [
-            effect(() => {
-                let next = alpha.value;
+    effect(() => alpha.value, (next) => {
+        if (Math.round(color.a * 100) !== next) {
+            update({ a: next / 100 });
+        }
+    });
 
-                untrack(() => {
-                    if (Math.round(color.a * 100) !== next) {
-                        update({ a: next / 100 });
-                    }
-                });
-            }),
-            effect(() => {
-                let next = hue.value;
+    effect(() => hue.value, (next) => {
+        if (Math.round(color.h) !== next) {
+            update({ h: next });
+        }
+    });
 
-                untrack(() => {
-                    if (Math.round(color.h) !== next) {
-                        update({ h: next });
-                    }
-                });
-            }),
-            effect(() => {
-                let next = state.value;
+    effect(() => state.value, (next) => {
+        let parsed = next && toHex(read()) !== next.toUpperCase() ? fromHex(next, read()) : null;
 
-                untrack(() => {
-                    let parsed = next && toHex(read()) !== next.toUpperCase() ? fromHex(next, read()) : null;
-
-                    if (parsed) {
-                        update(parsed);
-                    }
-                });
-            })
-        ];
-
-    onCleanup(() => {
-        for (let i = 0, n = disposers.length; i < n; i++) {
-            disposers[i]();
+        if (parsed) {
+            update(parsed);
         }
     });
 
@@ -439,10 +387,10 @@ function template(
 
                         // Left and right move saturation, the rest brightness, matching the axes on screen.
                         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-                            update({ s: clamp(color.s + delta) });
+                            update({ s: clamp(color.s + delta, 0, 1) });
                         }
                         else {
-                            update({ v: clamp(color.v + delta) });
+                            update({ v: clamp(color.v + delta, 0, 1) });
                         }
                     },
                     onpointercancel: (e: PointerEvent) => {
@@ -451,8 +399,7 @@ function template(
                             commit();
                         }
                     },
-                    // Pointer capture keeps the drag alive outside the pad, and only the first pointer counts, so
-                    // a second finger can't make the handle jump.
+                    // Only the first pointer counts, so a second finger can't make the handle jump.
                     onpointerdown: function(this: HTMLElement, e: PointerEvent) {
                         if (pointer.pad !== -1 || (e.pointerType === 'mouse' && e.button !== 0)) {
                             return;
@@ -460,25 +407,12 @@ function template(
 
                         pointer.pad = e.pointerId;
                         this.setPointerCapture(e.pointerId);
-
-                        let rect = this.getBoundingClientRect();
-
-                        update({
-                            s: clamp((e.clientX - rect.left) / rect.width),
-                            v: 1 - clamp((e.clientY - rect.top) / rect.height)
-                        });
+                        pick(this, e);
                     },
                     onpointermove: function(this: HTMLElement, e: PointerEvent) {
-                        if (e.pointerId !== pointer.pad) {
-                            return;
+                        if (e.pointerId === pointer.pad) {
+                            pick(this, e);
                         }
-
-                        let rect = this.getBoundingClientRect();
-
-                        update({
-                            s: clamp((e.clientX - rect.left) / rect.width),
-                            v: 1 - clamp((e.clientY - rect.top) / rect.height)
-                        });
                     },
                     onpointerup: (e: PointerEvent) => {
                         if (e.pointerId === pointer.pad) {
@@ -514,9 +448,6 @@ function template(
                                 commit();
                             }
                         },
-                        onconnect: (element: HTMLInputElement) => {
-                            parts.hue = element;
-                        },
                         onkeydown: (e: KeyboardEvent) => slide('hue', e),
                         onpointerdown: () => {
                             pointer.hue = true;
@@ -541,9 +472,6 @@ function template(
                             if (pointer.alpha) {
                                 commit();
                             }
-                        },
-                        onconnect: (element: HTMLInputElement) => {
-                            parts.alpha = element;
                         },
                         onkeydown: (e: KeyboardEvent) => slide('alpha', e),
                         onpointerdown: () => {

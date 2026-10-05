@@ -16,19 +16,14 @@
 
     &-code {
         min-width: 0;
-
-        > .code {
-            border: 0;
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
-        }
-
-        p {
-            color: var(--color-text-300);
-            padding: var(--size-500);
-        }
     }
 
-    &-select.select-menu {
+    &-code-message {
+        color: var(--color-text-300);
+        padding: var(--size-500);
+    }
+
+    &-select {
         --background: var(--color-white-400);
         --font-size: var(--font-size-200);
         --height: 28px;
@@ -36,6 +31,7 @@
         max-width: 100%;
         text-transform: none;
 
+        // The select exposes no trigger width, so its trigger is capped directly.
         .select-menu-trigger {
             max-width: 100%;
         }
@@ -123,19 +119,19 @@
             &[aria-pressed='true'] {
                 color: var(--color-text-500);
             }
-
-            .icon {
-                --size: 16px;
-            }
         }
 
-        &-highlight.highlight {
+        &-highlight {
             --background-active: var(--color-white-400);
             --background-default: transparent;
             --background-disabled: transparent;
             --background-hover: transparent;
             --background-pressed: transparent;
             --scale-hidden: 1;
+        }
+
+        &-icon {
+            --size: 16px;
         }
     }
 

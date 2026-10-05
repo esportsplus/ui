@@ -1,8 +1,9 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive, signal, write } from '@esportsplus/reactivity';
+import { clamp } from '~/shared/clamp';
 import form from '~/components/form';
 import overlay from '~/components/overlay';
-import place from './placement';
+import place, { ROWS } from './placement';
 import check from '@esportsplus/ui/svg/check.svg';
 import chevronDown from '@esportsplus/ui/svg/chevron-down.svg';
 import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
@@ -55,8 +56,6 @@ type Parts = {
 };
 
 
-const ROWS = 8;
-
 // Scroll-button speed while hovered, in px per second.
 const SCROLL_SPEED = 280;
 
@@ -74,10 +73,6 @@ const TYPEAHEAD_RESET = 500;
 
 let uid = 0;
 
-
-function clamp(value: number, min: number, max: number) {
-    return Math.min(Math.max(value, min), max);
-}
 
 function edges(menu: { down: boolean; up: boolean }, scroller: HTMLElement) {
     menu.down = scroller.scrollTop < scroller.scrollHeight - scroller.clientHeight - 1;
@@ -107,7 +102,10 @@ function template(
         }),
         { direction: _defaultDirection, ...defaultPanel } = defaults?.[SELECT_TOOLTIP_CONTENT] ?? {},
         { direction: _direction, ...panelAttributes } = attributes[SELECT_TOOLTIP_CONTENT] ?? {},
+        // Private mirrors the options select on, so a move or a pick restyles two options rather than every one.
+        chosen = signal(''),
         frame = 0,
+        highlighted = signal(0),
         id = `select-menu-${++uid}`,
         last = { x: -1, y: -1 },
         menu = reactive({ down: false, highlight: 0, hover: false, placement: '', up: false }),
@@ -335,6 +333,14 @@ function template(
         }
     });
 
+    effect(() => menu.highlight, (index) => {
+        write(highlighted, index);
+    });
+
+    effect(() => String(state.selected ?? ''), (value) => {
+        write(chosen, value);
+    });
+
     return html`
         <div
             class='select select-menu'
@@ -400,11 +406,7 @@ function template(
                 ${defaultPanel}
                 ${panelAttributes}
                 ${{
-                    class: [
-                        () => menu.down && 'select-menu-panel--down',
-                        () => menu.hover && 'select-menu-panel--hover',
-                        () => menu.up && 'select-menu-panel--up'
-                    ],
+                    class: () => state.active && '--active',
                     inert: () => !state.active,
                     onconnect: (element: HTMLElement) => {
                         parts.panel = element;
@@ -430,6 +432,8 @@ function template(
                     class='select-menu-scroller'
                     ${{
                         onconnect: (element: HTMLElement) => {
+                            parts.label = element.querySelector<HTMLElement>('.select-menu-option-label') ?? undefined;
+                            parts.option = element.querySelector<HTMLElement>('.select-menu-option') ?? undefined;
                             parts.scroller = element;
                         },
                         onscroll: function(this: HTMLElement) {
@@ -450,12 +454,9 @@ function template(
                                 ${this?.attributes?.[SELECT_OPTION]}
                                 ${attributes[SELECT_OPTION]}
                                 ${{
-                                    'aria-selected': () => String(state.selected ?? '') === option.value ? 'true' : 'false',
-                                    class: () => menu.highlight === index && 'select-menu-option--highlighted',
+                                    'aria-selected': () => signal.selector(chosen, option.value) ? 'true' : 'false',
+                                    class: () => signal.selector(highlighted, index) && 'select-menu-option--highlighted',
                                     onclick: () => choose(index),
-                                    onconnect: (element: HTMLElement) => {
-                                        parts.option ??= element;
-                                    },
                                     onpointermove: (e: PointerEvent) => {
                                         // Scrolling under a still cursor can fire synthetic moves; only real movement
                                         // takes the highlight.
@@ -472,14 +473,7 @@ function template(
                                 }}
                             >
                                 <svg aria-hidden='true' class='select-menu-check'><use href='#${check}' /></svg>
-                                <span
-                                    class='select-menu-option-label'
-                                    ${{
-                                        onconnect: (element: HTMLElement) => {
-                                            parts.label ??= element;
-                                        }
-                                    }}
-                                >
+                                <span class='select-menu-option-label'>
                                     ${option.label}
                                 </span>
                                 ${option.detail && html`<span class='select-menu-option-detail'>${option.detail}</span>`}
@@ -491,21 +485,23 @@ function template(
                     aria-hidden='true'
                     class='select-menu-scroll select-menu-scroll--up'
                     ${{
+                        class: () => menu.hover && menu.up && '--active',
                         onpointerenter: (e: PointerEvent) => scroll(-1, e),
                         onpointerleave: stop
                     }}
                 >
-                    <svg><use href='#${chevronUp}' /></svg>
+                    <svg class='select-menu-scroll-icon'><use href='#${chevronUp}' /></svg>
                 </div>
                 <div
                     aria-hidden='true'
                     class='select-menu-scroll select-menu-scroll--down'
                     ${{
+                        class: () => menu.hover && menu.down && '--active',
                         onpointerenter: (e: PointerEvent) => scroll(1, e),
                         onpointerleave: stop
                     }}
                 >
-                    <svg><use href='#${chevronDown}' /></svg>
+                    <svg class='select-menu-scroll-icon'><use href='#${chevronDown}' /></svg>
                 </div>
             </div>
         </div>

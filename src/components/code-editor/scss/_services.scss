@@ -1,0 +1,154 @@
+@use '/shared';
+@use '/tokens';
+
+// Language services. The completion list and hover card are popovers in the top layer, clear of the editor's
+// clipping, placed against anchors that scroll with the text; squiggles are marks on the rendered rows.
+.code-editor {
+    &-anchor {
+        pointer-events: none;
+        position: absolute;
+        width: 1px;
+    }
+
+    &-completion {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        gap: var(--completion-gap);
+        height: var(--completion-height);
+        padding: 0 var(--completion-padding);
+        white-space: nowrap;
+
+        @include tokens.state(active) {
+            background: var(--selection-background);
+        }
+
+        @media (forced-colors: active) {
+            @include tokens.state(active) {
+                background: Highlight;
+                color: HighlightText;
+            }
+        }
+    }
+
+    &-completion-detail {
+        @extend %text-truncate;
+        color: var(--completion-detail-color);
+        margin-left: auto;
+        min-width: 0;
+    }
+
+    &-completion-label {
+        @extend %text-truncate;
+        flex: none;
+        max-width: 100%;
+    }
+
+    &-completions {
+        max-height: calc(var(--completion-rows) * var(--completion-height) + 2 * var(--border-width));
+        max-width: min(90vw, calc(var(--completion-width) * 2));
+        min-width: var(--completion-width);
+        overflow: auto;
+        pointer-events: auto;
+        position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+        top: anchor(bottom);
+    }
+
+    &-completions,
+    &-hover {
+        @extend %reset-popover;
+        background: var(--background);
+        border: var(--border-width) solid var(--border-color);
+        border-radius: var(--popup-border-radius);
+        box-shadow: var(--popup-shadow);
+        box-sizing: border-box;
+        color: var(--color);
+        font-family: var(--font-family);
+        font-size: var(--font-size);
+        left: anchor(left);
+        position-anchor: var(--anchor);
+        // Hidden with the text it belongs to once that scrolls out of the editor.
+        position-visibility: anchors-visible;
+    }
+
+    &-diagnostic {
+        text-decoration-color: var(--diagnostic-error-color);
+        text-decoration-line: underline;
+        text-decoration-skip-ink: none;
+        text-decoration-style: wavy;
+        text-underline-offset: var(--diagnostic-offset);
+
+        &--hint {
+            text-decoration-color: var(--diagnostic-hint-color);
+            text-decoration-style: dotted;
+        }
+
+        &--info {
+            text-decoration-color: var(--diagnostic-info-color);
+        }
+
+        &--warning {
+            text-decoration-color: var(--diagnostic-warning-color);
+        }
+    }
+
+    &-hover {
+        bottom: anchor(top);
+        max-height: var(--hover-max-height);
+        max-width: min(90vw, var(--hover-max-width));
+        overflow: hidden;
+        padding: var(--hover-padding);
+        position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+        white-space: pre-wrap;
+    }
+
+    &-problem {
+        appearance: none;
+        background: transparent;
+        border: 0;
+        border-left: var(--caret-width) solid var(--diagnostic-error-color);
+        color: inherit;
+        cursor: pointer;
+        flex: none;
+        font: inherit;
+        padding: 0 var(--completion-padding);
+        text-align: left;
+
+        &--hint {
+            border-left-color: var(--diagnostic-hint-color);
+        }
+
+        &--info {
+            border-left-color: var(--diagnostic-info-color);
+        }
+
+        &--warning {
+            border-left-color: var(--diagnostic-warning-color);
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+        }
+
+        &:hover {
+            background: var(--active-line-background);
+        }
+    }
+
+    &-problems {
+        background: var(--bar-background);
+        border-top: var(--border-width) solid var(--border-color);
+        display: none;
+        flex: none;
+        flex-direction: column;
+        font-size: var(--bar-font-size);
+        gap: var(--bar-gap);
+        max-height: var(--problems-max-height);
+        overflow: auto;
+        padding: var(--bar-padding);
+
+        @include tokens.state(active) {
+            display: flex;
+        }
+    }
+}

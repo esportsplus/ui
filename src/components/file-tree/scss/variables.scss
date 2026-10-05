@@ -1,3 +1,84 @@
+@use 'sass:map';
+
+// The file type icons' color families, after @pierre/trees, each for a light and a dark color scheme.
+$families: (
+    'blue': light-dark(#1a85d4, #69b1ff),
+    'cyan': light-dark(#1ca1c7, #68cdf2),
+    'gray': light-dark(#84848a, #adadb1),
+    'green': light-dark(#199f43, #5ecc71),
+    'indigo': light-dark(#693acf, #9d6afb),
+    'mauve': light-dark(#594c5b, #79697b),
+    'orange': light-dark(#d47628, #ffa359),
+    'pink': light-dark(#d32a61, #ff678d),
+    'purple': light-dark(#a631be, #d568ea),
+    'red': light-dark(#d52c36, #ff6762),
+    'teal': light-dark(#17a5af, #64d1db),
+    'yellow': light-dark(#d5a910, #ffd452)
+);
+
+// Each built-in icon's family; 'folder' colors every folder.
+$icons: (
+    agents: 'gray',
+    astro: 'purple',
+    babel: 'yellow',
+    bash: 'green',
+    biome: 'blue',
+    bootstrap: 'indigo',
+    browserslist: 'yellow',
+    bun: 'mauve',
+    c: 'blue',
+    claude: 'orange',
+    css: 'indigo',
+    database: 'purple',
+    docker: 'blue',
+    eslint: 'indigo',
+    file: 'gray',
+    folder: 'gray',
+    font: 'gray',
+    git: 'red',
+    go: 'cyan',
+    graphql: 'pink',
+    html: 'orange',
+    image: 'pink',
+    javascript: 'yellow',
+    json: 'orange',
+    markdown: 'green',
+    mcp: 'teal',
+    nextjs: 'gray',
+    npm: 'red',
+    oxc: 'cyan',
+    package: 'red',
+    pnpm: 'yellow',
+    postcss: 'red',
+    prettier: 'teal',
+    python: 'blue',
+    react: 'cyan',
+    readme: 'orange',
+    ruby: 'red',
+    rust: 'orange',
+    sass: 'pink',
+    stylelint: 'gray',
+    svelte: 'red',
+    svg: 'orange',
+    svgo: 'green',
+    swift: 'orange',
+    table: 'teal',
+    tailwind: 'cyan',
+    terraform: 'indigo',
+    text: 'gray',
+    tsconfig: 'blue',
+    typescript: 'blue',
+    vite: 'purple',
+    vscode: 'blue',
+    vue: 'green',
+    wasm: 'indigo',
+    webpack: 'blue',
+    yml: 'red',
+    zig: 'orange',
+    zip: 'orange'
+);
+
+
 .file-tree {
     // Git and problem colors, after VS Code's; the token scales are tuned for dark surfaces, so lightness is
     // pinned to stay legible on light ones.
@@ -52,6 +133,10 @@
     --found-background: color-mix(in srgb, var(--found-color) 14%, transparent);
     --found-border-color: color-mix(in srgb, var(--found-color) 70%, transparent);
     --found-color: oklch(from var(--color-yellow-500) 0.72 c calc(h - 35));
+    @each $family, $color in $families {
+        --icon-#{$family}: #{$color};
+    }
+
     --icon-size: var(--size-400);
     --ignored-color: var(--color-text-300);
     // Past '--padding' plus half '--twistie-size', so a nested row, and the highlight on it, starts clear of its
@@ -121,8 +206,26 @@
         --size: var(--size-300);
     }
 
+    // Overridden per family, per icon by '--icon-color-<icon>', or all at once by '--icon-color'. Icons drawn outside a
+    // tree, as in tabs or a palette's rows, fall back to the same families and size themselves rather than read some
+    // other component's '--icon-size'.
     &-icon.icon {
+        --icon-size: var(--size-400);
         --size: var(--icon-size);
+
+        @each $icon, $family in $icons {
+            &.file-tree-icon--#{$icon} {
+                --color: var(
+                    --icon-color,
+                    var(--icon-color-#{$icon}, var(--icon-#{$family}, #{map.get($families, $family)}))
+                );
+            }
+        }
+    }
+
+    // A tree's own icons take its '--icon-size', which may be set on the tree.
+    & &-icon.icon {
+        --icon-size: inherit;
     }
 
     &-marker.icon {
@@ -137,7 +240,7 @@
 
     &-row {
         @each $tone in added, conflict, deleted, error, ignored, modified, warning {
-            &.file-tree-row--#{$tone} {
+            &--#{$tone} {
                 --tone: var(--#{$tone}-color);
             }
         }

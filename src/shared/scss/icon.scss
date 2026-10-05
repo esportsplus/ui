@@ -12,3 +12,25 @@
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
 }
+
+// One of several icons sharing a spot: blurred and shrunk away until '%icon-swap-active' brings it in, over the
+// block's '--icon-swap-duration' and '--icon-swap-timing-function'. Reduced motion swaps instantly.
+%icon-swap {
+    filter: blur(4px);
+    opacity: 0;
+    scale: 0.25;
+    transition:
+        filter var(--icon-swap-duration) var(--icon-swap-timing-function),
+        opacity var(--icon-swap-duration) var(--icon-swap-timing-function),
+        scale var(--icon-swap-duration) var(--icon-swap-timing-function);
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}
+
+%icon-swap-active {
+    filter: blur(0);
+    opacity: 1;
+    scale: 1;
+}

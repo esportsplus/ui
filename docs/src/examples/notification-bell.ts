@@ -3,7 +3,7 @@ import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 
 
-let trigger = 'button button--tertiary';
+let trigger = 'button';
 
 
 export default {
@@ -17,10 +17,10 @@ export default {
                     <div style='align-items: center; display: flex; flex-wrap: wrap; gap: var(--size-400);'>
                         ${notificationBell({ state })}
 
-                        <div class='${trigger}' style='--width: auto;' onclick='${() => state.count++}'>add</div>
-                        <div class='${trigger}' style='--width: auto;' onclick='${() => state.count += 25}'>add 25</div>
-                        <div class='${trigger}' style='--width: auto;' onclick='${() => state.count = Math.max(0, state.count - 1)}'>read one</div>
-                        <div class='${trigger}' style='--width: auto;' onclick='${() => state.count = 0}'>mark all read</div>
+                        <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => state.count++}'>add</button>
+                        <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => state.count += 25}'>add 25</button>
+                        <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => state.count = Math.max(0, state.count - 1)}'>read one</button>
+                        <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => state.count = 0}'>mark all read</button>
                     </div>
                 `;
             },

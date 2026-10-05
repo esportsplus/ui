@@ -1,5 +1,7 @@
-import { reactive } from '@esportsplus/reactivity';
+import { computed, reactive, read } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
+import { clamp } from '~/shared/clamp';
+import { keystep } from '~/shared/keystep';
 import input from '~/components/input';
 import close from '@esportsplus/ui/svg/close.svg';
 
@@ -39,10 +41,6 @@ const INDEX = Symbol();
 const KEYS: Key[] = ['low', 'high'];
 
 
-function clamp(value: number, min: number, max: number) {
-    return Math.min(Math.max(value, min), max);
-}
-
 // Rounded to the step's own precision, so fractional steps never drift into float noise.
 function snap(value: number, min: number, step: number) {
     return Number((Math.round((value - min) / step) * step + min).toFixed((String(step).split('.')[1] || '').length));
@@ -71,7 +69,6 @@ export default ({
             high: typeof value === 'number' ? value : value?.[1] ?? clamp(snap(min + span * 0.65, min, step), min, max),
             low: typeof value === 'number' ? min : value?.[0] ?? clamp(snap(min + span * 0.15, min, step), min, max)
         }),
-        drag = -1,
         indices = single ? [1] : [0, 1],
         labels: number[] = [],
         // The pointer dragging; another finger's moves are ignored.
@@ -163,24 +160,14 @@ export default ({
             return;
         }
 
-        let big = step * 10,
-            delta: Record<string, number> = {
-                ArrowDown: -(event.shiftKey ? big : step),
-                ArrowLeft: -(event.shiftKey ? big : step),
-                ArrowRight: event.shiftKey ? big : step,
-                ArrowUp: event.shiftKey ? big : step,
-                End: Infinity,
-                Home: -Infinity,
-                PageDown: -big,
-                PageUp: big
-            };
+        let delta = keystep(event, step);
 
-        if (!(event.key in delta)) {
+        if (delta === null) {
             return;
         }
 
         event.preventDefault();
-        commit(index, clamp(s[KEYS[index]] + delta[event.key], min, max));
+        commit(index, clamp(s[KEYS[index]] + delta, min, max));
     }
 
     function pct(value: number) {
@@ -192,42 +179,46 @@ export default ({
             return;
         }
 
-        drag = -1;
         pointer = -1;
         ui.dragging = -1;
     }
 
     // Digits roll on their own columns, right-aligned so the ones place never moves; columns a smaller number
-    // doesn't need fold away to nothing.
+    // doesn't need fold away to nothing. A drag commits on every pointer move, so the number is formatted once per
+    // change and only the columns whose character changed re-render.
     function roll(key: Key) {
-        function char(i: number) {
-            let text = format(s[key]),
-                pad = width - text.length;
-
-            return i < pad ? '' : text[i - pad];
-        }
+        let text = computed(() => format(s[key]));
 
         return html`
             <span class='range-filter-number'>
-                <span class='range-filter-sr'>${() => format(s[key])}</span>
+                <span class='range-filter-sr'>${() => read(text)}</span>
                 <span aria-hidden='true' class='range-filter-columns'>
-                    ${Array.from({ length: width }, (_, i) => html`
-                        <span
-                            class='range-filter-column'
-                            ${{
-                                class: () => {
-                                    let c = char(i);
+                    ${Array.from({ length: width }, (_, i) => {
+                        let char = computed(() => {
+                                let value = read(text),
+                                    pad = width - value.length;
 
-                                    return c === '' ? 'range-filter-column--empty' : DIGITS.includes(c) ? 'range-filter-column--digit' : 'range-filter-column--symbol';
-                                }
-                            }}
-                        >
-                            <span class='range-filter-strip' style='${() => `--digit: ${DIGITS.includes(char(i)) ? char(i) : 0}`}'>
-                                ${DIGITS.map((digit) => html`<span>${digit}</span>`)}
+                                return i < pad ? '' : value[i - pad];
+                            });
+
+                        return html`
+                            <span
+                                class='range-filter-column'
+                                ${{
+                                    class: () => {
+                                        let c = read(char);
+
+                                        return c === '' ? 'range-filter-column--empty' : DIGITS.includes(c) ? 'range-filter-column--digit' : 'range-filter-column--symbol';
+                                    }
+                                }}
+                            >
+                                <span class='range-filter-strip' style='${() => `--digit: ${DIGITS.includes(read(char)) ? read(char) : 0}`}'>
+                                    ${DIGITS.map((digit) => html`<span class='range-filter-digit'>${digit}</span>`)}
+                                </span>
+                                <span class='range-filter-symbol'>${() => !DIGITS.includes(read(char)) && read(char)}</span>
                             </span>
-                            <span class='range-filter-symbol'>${() => !DIGITS.includes(char(i)) && char(i)}</span>
-                        </span>
-                    `)}
+                        `;
+                    })}
                 </span>
             </span>
         `;
@@ -236,7 +227,7 @@ export default ({
     return html`
         <div class='range-filter ${vertical && 'range--vertical'} ${disabled && '--disabled'}' ${attributes}>
             <div class='range-filter-header'>
-                <div>
+                <div class='range-filter-heading'>
                     <p class='range-filter-label'>${label}</p>
                     <div class='range-filter-values'>
                         ${!single && html`
@@ -256,15 +247,15 @@ export default ({
                     type='button'
                     ${{ disabled: () => disabled || (s.low === min && s.high === (single ? min : max)) }}
                 >
-                    <svg aria-hidden='true'><use href='#${close}' /></svg>
+                    <svg aria-hidden='true' class='range-filter-clear-icon'><use href='#${close}' /></svg>
                     Clear
                 </button>
             </div>
 
-            <div class='range-filter-body'>
+            <div class='range-filter-body ${vertical && 'range-filter-body--vertical'}'>
                 <div
                     aria-label='${label}'
-                    class='range-filter-root'
+                    class='range-filter-root ${vertical && 'range-filter-root--vertical'}'
                     role='group'
                     ${{
                         class: () => ui.dragging !== -1 && 'range-filter-root--dragging',
@@ -299,7 +290,6 @@ export default ({
                             event.preventDefault();
                             thumbs[index]?.focus({ preventScroll: true });
                             root.setPointerCapture(event.pointerId);
-                            drag = index;
                             pointer = event.pointerId;
                             ui.dragging = index;
                             ui.preview = -1;
@@ -309,9 +299,9 @@ export default ({
                             ui.preview = -1;
                         },
                         onpointermove: (event: PointerEvent) => {
-                            if (drag !== -1) {
+                            if (ui.dragging !== -1) {
                                 if (event.pointerId === pointer) {
-                                    commit(drag, at(event));
+                                    commit(ui.dragging, at(event));
                                 }
 
                                 return;
@@ -325,15 +315,15 @@ export default ({
                         onpointerup: release
                     }}
                 >
-                    <div class='range-filter-track'>
-                        <div class='range-filter-range' style='${() => vertical
+                    <div class='range-filter-track ${vertical && 'range-filter-track--vertical'}'>
+                        <div class='range-filter-range ${vertical && 'range-filter-range--vertical'}' style='${() => vertical
                             ? `bottom: ${pct(s.low)}%; top: ${100 - pct(s.high)}%;`
                             : `left: ${pct(s.low)}%; right: ${100 - pct(s.high)}%;`}'></div>
                     </div>
 
                     <div
                         aria-hidden='true'
-                        class='range-filter-ghost'
+                        class='range-filter-ghost ${vertical && 'range-filter-ghost--vertical'}'
                         ${{
                             // Hovering outside the selection shows how far it would stretch to reach the pointer.
                             class: () => (ui.preview !== -1 && (ui.preview < s.low || ui.preview > s.high)) && '--active',
@@ -364,7 +354,7 @@ export default ({
                                 aria-label='${single ? label : `${index === 0 ? 'Minimum' : 'Maximum'} ${label.toLowerCase()}`}'
                                 aria-valuemax='${max}'
                                 aria-valuemin='${min}'
-                                class='range-filter-thumb'
+                                class='range-filter-thumb ${vertical && 'range-filter-thumb--vertical'}'
                                 role='slider'
                                 tabindex='${disabled ? -1 : 0}'
                                 ${{
@@ -386,7 +376,7 @@ export default ({
                     })}
                 </div>
 
-                <div aria-hidden='true' class='range-filter-ticks'>
+                <div aria-hidden='true' class='range-filter-ticks ${vertical && 'range-filter-ticks--vertical'}'>
                     ${labels.map((tick) => html`<span>${prefix}${format(tick)}</span>`)}
                 </div>
             </div>

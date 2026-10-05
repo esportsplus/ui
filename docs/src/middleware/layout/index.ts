@@ -1,6 +1,5 @@
+import { nav } from '@esportsplus/ui/components';
 import { html } from 'docs/app';
-import { pageNavTree } from 'docs/components/nav/page';
-import { scrollSpy } from 'docs/components/nav/tree/spy';
 import type { Request, Responder, RouteName } from 'docs/app';
 import type { Page } from 'docs/types';
 import 'docs/middleware/layout/scss/index.scss';
@@ -29,7 +28,7 @@ export default (request: Request, next: Responder) => {
 
     let page = response as Page,
         disconnect = () => {},
-        spy = scrollSpy(page.toc.map((item) => item.id));
+        spy = nav.spy(page.toc.map((item) => item.id));
 
     return html`
         <main class='main'>
@@ -44,15 +43,17 @@ export default (request: Request, next: Responder) => {
                 ondisconnect: () => disconnect()
             }}
         >
-            ${pageNavTree(page.toc.map((item, index) => ({
-                label: item.label,
-                href: `#${item.id}`,
-                active: () => spy.active(index),
-                onclick: (event: Event) => {
-                    event.preventDefault();
-                    spy.navigate(index);
-                }
-            })))}
+            ${nav.toc({
+                links: page.toc.map((item, index) => ({
+                    label: item.label,
+                    href: `#${item.id}`,
+                    active: () => spy.active(index),
+                    onclick: (event: Event) => {
+                        event.preventDefault();
+                        spy.navigate(index);
+                    }
+                }))
+            })}
         </aside>
     `;
 };

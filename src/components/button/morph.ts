@@ -31,6 +31,7 @@ const ANNOUNCE: Record<Status, string> = {
 
 const BUTTON_MORPH_CONTENT = Symbol.for('@esportsplus/ui/button.morph.content');
 
+
 function busy(status: Status) {
     return status === 'loading' || status === 'success';
 }
@@ -40,8 +41,7 @@ export default component(
     function(this: { attributes?: Partial<A> } | void, { label = 'Save changes', onsave, retryLabel = 'Try again', state = reactive({ status: 'idle' as Status }), successFor = 1500, ...attributes }: A) {
         let attempt = 0,
             morph: Animation | undefined,
-            reset: ReturnType<typeof setTimeout> | undefined,
-            stop: VoidFunction | undefined;
+            reset: ReturnType<typeof setTimeout> | undefined;
 
         function resize(element: HTMLElement, compact: boolean) {
             let computed = getComputedStyle(element),
@@ -118,7 +118,7 @@ export default component(
                             element.style.width = 'var(--morph-height)';
                         }
 
-                        stop = effect(() => {
+                        effect(() => {
                             let next = busy(state.status);
 
                             if (next !== compact) {
@@ -131,7 +131,6 @@ export default component(
                         attempt++;
                         clearTimeout(reset);
                         morph?.cancel();
-                        stop?.();
                     }
                 }}
             >
@@ -141,8 +140,8 @@ export default component(
                     ${this?.attributes?.[BUTTON_MORPH_CONTENT]}
                     ${attributes[BUTTON_MORPH_CONTENT]}
                 >
-                    <span class='button-morph-text button-morph-text--idle'>${label}</span>
-                    <span class='button-morph-text button-morph-text--error'>${retryLabel}</span>
+                    <span class='button-morph-text ${() => state.status === 'idle' && '--active'}'>${label}</span>
+                    <span class='button-morph-text ${() => state.status === 'error' && '--active'}'>${retryLabel}</span>
                     <svg class='button-morph-icon button-morph-icon--loading'><use class='button-morph-spinner' href='#${spinner}' /></svg>
                     <svg class='button-morph-icon button-morph-icon--success'><use href='#${check}' /></svg>
                 </span>

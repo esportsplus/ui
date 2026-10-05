@@ -7,6 +7,8 @@ $expand-box-shadow:
 
 .card {
     --border-color-default: var(--background);
+    // The card draws no border of its own; a consumer adding one sets this, so the box keeps its size.
+    --border-width: 0px;
     --box-shadow: var(--box-shadow-default);
     --box-shadow-default: none;
     --padding-horizontal: 0px;

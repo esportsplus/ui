@@ -2,68 +2,12 @@
 
 
 .field-prototype {
+    --surface-border-color: var(--demo-border);
+    --surface-border-color-active: var(--demo-accent);
     display: grid;
     gap: var(--size-200);
 
-    &--bracket &-surface {
-        &::after { right: -2px; }
-        &::before { left: -2px; }
-        &::before, &::after {
-            background: var(--demo-accent);
-            border-radius: var(--border-radius-200);
-            bottom: 25%;
-            content: '';
-            pointer-events: none;
-            position: absolute;
-            top: 25%;
-            transform: scaleY(0);
-            transition: transform var(--demo-duration) var(--demo-spring), top var(--demo-duration), bottom var(--demo-duration);
-            width: calc(var(--size-100) * 0.375);
-        }
-        &:focus-within::before, &:focus-within::after { bottom: 10%; top: 10%; transform: scaleY(1); }
-    }
-
-    &--halo &-surface:focus-within { box-shadow: 0 0 0 4px var(--demo-ring); }
-
-    &--lift &-surface:focus-within {
-        box-shadow: 0 8px 18px var(--demo-ring);
-        transform: translateY(-3px);
-    }
-
-    &--underline &-surface {
-        border-bottom-color: var(--demo-border);
-        border-color: transparent;
-        border-radius: 0;
-        &::after {
-            background: var(--demo-accent);
-            content: '';
-            height: calc(var(--size-100) * 0.25);
-            inset: auto 0 -1px;
-            pointer-events: none;
-            position: absolute;
-            transform: scaleX(0);
-            transition: transform var(--demo-duration);
-        }
-        &:focus-within::after { transform: scaleX(1); }
-    }
-
-    &--wash &-surface {
-        background: color-mix(in srgb, var(--demo-border) 15%, transparent);
-        &:focus-within { background: var(--demo-tint); box-shadow: inset 0 0 0 1px var(--demo-accent); }
-    }
-
-    &-surface {
-        border: var(--border-width-400) solid var(--demo-border);
-        border-radius: var(--border-radius-500);
-        position: relative;
-        transition: border-color var(--demo-duration), box-shadow var(--demo-duration),
-            transform var(--demo-duration) var(--demo-spring), background var(--demo-duration);
-
-        &:focus-within { border-color: var(--demo-accent); }
-        &:hover { border-color: var(--demo-accent); }
-    }
-
-    .input, .textarea {
+    &-control {
         --background: transparent;
         --border-radius: var(--border-radius-500);
         --border-width: 0px;
@@ -71,7 +15,98 @@
         --padding-vertical: var(--size-300);
         margin: 0;
         outline: none;
+
+        &--resizable {
+            min-height: 104px;
+            resize: vertical;
+        }
     }
 
-    .textarea { min-height: 104px; resize: vertical; }
+    &-surface {
+        border: var(--border-width-400) solid;
+        border-color: var(--surface-border-color);
+        border-radius: var(--border-radius-500);
+        position: relative;
+        transition:
+            background var(--demo-duration),
+            border-color var(--demo-duration),
+            box-shadow var(--demo-duration),
+            transform var(--demo-duration) var(--demo-spring);
+
+        &--bracket {
+            &::after {
+                right: -2px;
+            }
+
+            &::after,
+            &::before {
+                background: var(--demo-accent);
+                border-radius: var(--border-radius-200);
+                bottom: 25%;
+                content: '';
+                pointer-events: none;
+                position: absolute;
+                top: 25%;
+                transform: scaleY(0);
+                transition: transform var(--demo-duration) var(--demo-spring), top var(--demo-duration), bottom var(--demo-duration);
+                width: calc(var(--size-100) * 0.375);
+            }
+
+            &::before {
+                left: -2px;
+            }
+
+            &:focus-within::after,
+            &:focus-within::before {
+                bottom: 10%;
+                top: 10%;
+                transform: scaleY(1);
+            }
+        }
+
+        &--halo:focus-within {
+            box-shadow: 0 0 0 4px var(--demo-ring);
+        }
+
+        &--lift:focus-within {
+            box-shadow: 0 8px 18px var(--demo-ring);
+            transform: translateY(-3px);
+        }
+
+        // Only the bottom edge shows, resting or focused; the accent line draws over it.
+        &--underline {
+            --surface-border-color: transparent transparent var(--demo-border);
+            --surface-border-color-active: transparent transparent var(--demo-border);
+            border-radius: 0;
+
+            &::after {
+                background: var(--demo-accent);
+                content: '';
+                height: calc(var(--size-100) * 0.25);
+                inset: auto 0 -1px;
+                pointer-events: none;
+                position: absolute;
+                transform: scaleX(0);
+                transition: transform var(--demo-duration);
+            }
+
+            &:focus-within::after {
+                transform: scaleX(1);
+            }
+        }
+
+        &--wash {
+            background: color-mix(in srgb, var(--demo-border) 15%, transparent);
+
+            &:focus-within {
+                background: var(--demo-tint);
+                box-shadow: inset 0 0 0 1px var(--demo-accent);
+            }
+        }
+
+        &:focus-within,
+        &:hover {
+            border-color: var(--surface-border-color-active);
+        }
+    }
 }

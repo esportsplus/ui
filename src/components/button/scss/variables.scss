@@ -67,6 +67,8 @@
         --color-default: var(--morph-color);
         --font-size: var(--morph-font-size);
         --font-weight: var(--font-weight-500);
+        --icon-swap-duration: 300ms;
+        --icon-swap-timing-function: var(--morph-spring);
         --line-height: 20px;
         --morph-background: var(--color-text-500);
         --morph-background-error: var(--color-red-500);

@@ -6,13 +6,9 @@
 
     &-chevron {
         color: var(--color-text-300);
-        fill: none;
         flex-shrink: 0;
         height: 16px;
-        stroke: currentColor;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-width: 1.5;
+        rotate: var(--chevron-rotate, none);
         transition: rotate 150ms ease-out;
         width: 16px;
     }
@@ -54,15 +50,14 @@
             outline-offset: 3px;
         }
 
-    }
-
-    &-toggle {
-        &[aria-expanded='true'] .accordion-demo-chevron {
-            rotate: 90deg;
+        &[aria-expanded='true'] {
+            --chevron-rotate: 90deg;
         }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        &-chevron { transition: none; }
+        &-chevron {
+            transition: none;
+        }
     }
 }

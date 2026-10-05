@@ -124,15 +124,15 @@ const responder = (): Page => {
                         </div>
 
                         <div class='spec-table-scroll'><table class='spec-table'>
-                            <thead class='table-head'>
-                                <tr><th>Weight</th><th>Style</th><th>Formats</th></tr>
+                            <thead class='spec-table-head'>
+                                <tr><th class='spec-table-heading'>Weight</th><th class='spec-table-heading'>Style</th><th class='spec-table-heading'>Formats</th></tr>
                             </thead>
                             <tbody>
                                 ${family.faces.map((face) => html`
-                                    <tr>
-                                        <td class='spec-name'>${face.weight}</td>
-                                        <td>${face.style}</td>
-                                        <td class='spec-value'>${face.formats}</td>
+                                    <tr class='spec-table-row'>
+                                        <td class='spec-table-cell spec-name'>${face.weight}</td>
+                                        <td class='spec-table-cell'>${face.style}</td>
+                                        <td class='spec-table-cell spec-value'>${face.formats}</td>
                                     </tr>
                                 `)}
                             </tbody>

@@ -1,3 +1,5 @@
+@use '/tokens';
+
 .metric {
     --area-color: color-mix(in oklab, var(--line-color) 8%, transparent);
     --background: var(--color-grey-400);
@@ -6,6 +8,9 @@
     --cursor-color: color-mix(in oklab, var(--color-text-300) 40%, transparent);
     // Long for a UI animation on purpose: the draw introduces the shape once, and a faster line reads as a flicker.
     --draw-duration: 0.7s;
+    // Hidden and undrawn until the plot is shown.
+    --draw-offset: 1;
+    --draw-opacity: 0;
     --draw-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     --dot-color: var(--line-color);
     --dot-ring-color: var(--background);
@@ -15,6 +20,9 @@
     --line-color: var(--color-text-500);
     --line-width: 2.5;
     --muted-color: var(--color-text-300);
+    // Shown while the plot is active.
+    --overlay-duration: 0.15s;
+    --overlay-opacity: 0;
     --padding: var(--size-500);
     // Tracks the card's width (cqi) between a floor that keeps small cards readable and the full-size chart.
     --plot-height: clamp(64px, 30cqi, 160px);
@@ -33,6 +41,18 @@
         --dot-color: var(--color-blue-400);
         --line-color: var(--color-blue-400);
         --tip-background: var(--color-blue-400);
+    }
+
+    &-plot {
+        @include tokens.state(active) {
+            --overlay-duration: 0.1s;
+            --overlay-opacity: 1;
+        }
+
+        &--shown {
+            --draw-offset: 0;
+            --draw-opacity: 1;
+        }
     }
 }
 
@@ -69,20 +89,20 @@
     --tint-opacity: 14%;
     --tone-duration: 200ms;
 
-    &.metric-flash--down {
+    &--down {
         --tone: var(--color-down);
     }
 
-    &.metric-flash--up {
+    &--up {
         --tone: var(--color-up);
     }
 
-    &-arrow svg {
+    &-arrow {
         --from: var(--arrow-offset);
-    }
 
-    &.metric-flash--down &-arrow svg {
-        --from: calc(var(--arrow-offset) * -1);
+        &--down {
+            --from: calc(var(--arrow-offset) * -1);
+        }
     }
 
     &-text {

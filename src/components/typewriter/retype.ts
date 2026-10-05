@@ -32,11 +32,11 @@ export default ({ prefix = '', words, ...attributes }: A) => {
         letters = reactive([] as string[]),
         longest = words.reduce((a, b) => b.length > a.length ? b : a, ''),
         timer: ReturnType<typeof setTimeout> | undefined,
-        // 'typewriter-retype--selecting' while the word is selected, 'typewriter-retype--typing' while keys are moving.
-        view = reactive({ retyped: false, state: '' });
+        // 'selecting' while the word is selected, 'typing' while keys are moving.
+        view = reactive({ retyped: false, state: '' as '' | 'selecting' | 'typing' });
 
     return html`
-        <span class='typewriter-retype ${() => view.state}' ${attributes} ${{
+        <span class='typewriter-retype' ${attributes} ${{
             onconnect: (element: HTMLElement) => {
                 if (words.length < 2) {
                     return;
@@ -59,7 +59,7 @@ export default ({ prefix = '', words, ...attributes }: A) => {
                     let finished = length >= target.length;
 
                     // Solid while keys are moving, blinking while it waits.
-                    view.state = finished ? '' : 'typewriter-retype--typing';
+                    view.state = finished ? '' : 'typing';
                     timer = finished
                         ? setTimeout(select, HOLD)
                         : setTimeout(key, (pace?.duration as number) + jitter(word, length) * ((spread?.duration as number) || 0));
@@ -68,7 +68,7 @@ export default ({ prefix = '', words, ...attributes }: A) => {
                 // Rewrites the way people do: select the word, then type over it. The first key replaces the whole
                 // selection at once.
                 function select() {
-                    view.state = 'typewriter-retype--selecting';
+                    view.state = 'selecting';
                     timer = setTimeout(() => {
                         length = 0;
                         letters.clear();
@@ -90,9 +90,9 @@ export default ({ prefix = '', words, ...attributes }: A) => {
         }}>
             <span class='typewriter-retype-sr'>${`${lead}${new Intl.ListFormat('en', { type: 'disjunction' }).format(words)}.`}</span>
             <span aria-hidden='true' class='typewriter-retype-sizer'>${`${lead}${longest}`}</span>
-            <span aria-hidden='true' class='typewriter-retype-line'>
+            <span aria-hidden='true' class='typewriter-retype-line ${() => view.state && `typewriter-retype-line--${view.state}`}'>
                 ${lead}
-                <span class='typewriter-retype-word'>${() => !view.retyped && (words[0] ?? '')}${html.reactive(letters, (char) => html`<span class='typewriter-retype-letter'>${char}</span>`)}</span>
+                <span class='typewriter-retype-word ${() => view.state === 'selecting' && 'typewriter-retype-word--selecting'}'>${() => !view.retyped && (words[0] ?? '')}${html.reactive(letters, (char) => html`<span class='typewriter-retype-letter'>${char}</span>`)}</span>
             </span>
         </span>
     `;

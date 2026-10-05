@@ -63,7 +63,15 @@ export default component(
         return html`
             <ul class='card-expand' ${this?.attributes} ${attributes}>
                 ${items.map((item, i) => html`
-                    <li class='card-expand-item'>
+                    <li
+                        class='card-expand-item'
+                        ${{
+                            class: [
+                                () => view.open === item.id && '--active',
+                                () => view.morph === item.id && 'card-expand-item--morphing'
+                            ]
+                        }}
+                    >
                         <button
                             aria-haspopup='dialog'
                             class='card card--expand'
@@ -116,10 +124,10 @@ export default component(
                                                 }
                                             }}
                                         >
-                                            <svg aria-hidden='true'><use href='#${close}' /></svg>
+                                            <svg aria-hidden='true' class='card-expand-icon'><use href='#${close}' /></svg>
                                         </button>
                                     </div>
-                                    <p class='card-expand-summary'>${item.summary}</p>
+                                    <p class='card-expand-summary card-expand-summary--full'>${item.summary}</p>
                                     <p class='card-expand-detail card-expand-delayed'>${item.detail}</p>
                                 </div>
                             `

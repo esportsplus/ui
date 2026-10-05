@@ -15,7 +15,8 @@
     // A half turn across the card's full width reads as a rush under ~400ms, and nobody waits on it.
     --flip-duration: 764ms;
     --flip-timing-function: linear(0, 0.031, 0.108, 0.205, 0.315, 0.421, 0.524, 0.614, 0.695, 0.762, 0.82, 0.865, 0.903, 0.931, 0.954, 0.97, 0.982, 0.991, 0.997, 1.001, 1.004, 1.005, 1.006, 1.006, 1.005, 1.005, 1.004, 1.004, 1.003, 1.002, 1);
-    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --icon-swap-duration: var(--swap-duration);
+    --icon-swap-timing-function: var(--spring);
     --label-font-size: var(--font-size-300);
     --label-font-weight: var(--font-weight-500);
     --muted-color: var(--color-text-300);
@@ -32,23 +33,8 @@
         --ring-duration: 0s;
     }
 
-    // Qualified so it wins over the shared button styles regardless of stylesheet order.
-    &-actions #{&}-submit {
-        --background-default: var(--submit-background);
-        --border-radius: var(--field-border-radius);
-        --color-default: var(--submit-color);
-        --face-duration: var(--swap-duration);
-        --face-gap: 8px;
-        --face-timing-function: var(--spring);
-        --font-size: var(--field-font-size);
-        --font-weight: var(--font-weight-500);
-        --icon-size: 16px;
-        --padding-horizontal: 20px;
-        --padding-vertical: 0px;
-    }
-
-    // Qualified by the control so it wins over the reused input styles regardless of stylesheet order.
-    &-shell #{&}-field {
+    // Chained through '.input' so it wins over the reused input styles regardless of stylesheet order.
+    &-field.input {
         --background-default: var(--field-background);
         --border-color-active: var(--field-border-color);
         --border-color-default: var(--field-border-color);
@@ -63,5 +49,20 @@
             --field-border-color: var(--error-color);
             --outline-color: var(--error-color);
         }
+    }
+
+    // Chained through '.button' so it wins over the shared button styles regardless of stylesheet order.
+    &-submit.button {
+        --background-default: var(--submit-background);
+        --border-radius: var(--field-border-radius);
+        --color-default: var(--submit-color);
+        --face-duration: var(--swap-duration);
+        --face-gap: 8px;
+        --face-timing-function: var(--spring);
+        --font-size: var(--field-font-size);
+        --font-weight: var(--font-weight-500);
+        --icon-size: 16px;
+        --padding-horizontal: 20px;
+        --padding-vertical: 0px;
     }
 }

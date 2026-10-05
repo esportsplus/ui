@@ -1,5 +1,5 @@
 import { html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { effect, reactive } from '@esportsplus/reactivity';
 import icon from '~/components/icon';
 import next from '@esportsplus/ui/svg/arrow-right.svg';
 import previous from '@esportsplus/ui/svg/arrow-left.svg';
@@ -22,7 +22,8 @@ function range(start: number, end: number) {
     return values;
 }
 
-// First, last, current, two ellipses and the siblings on each side of current.
+// First, last, current, two ellipses and the siblings on each side of current; always the same count for a total, so
+// the cells are rendered once and only relabelled.
 function pages(page: number, siblings: number, total: number) {
     let slots = siblings * 2 + 5;
 
@@ -52,28 +53,13 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
     state?: { page: number };
     total: number;
 }) => {
-    let render = reactive([] as { value: number }[]),
-        stop = effect(() => {
-            let values = pages(api.page, siblings, total);
+    let cells = pages(api.page, siblings, total).map((value) => reactive({ value }));
 
-            untrack(() => {
-                // Reuse cells in place so only the changed labels re-render.
-                for (let i = 0, n = values.length; i < n; i++) {
-                    if (render[i]) {
-                        render[i].value = values[i];
-                    }
-                    else {
-                        let cell = reactive({ value: values[i] });
-
-                        render[i] = cell;
-                    }
-                }
-
-                if (render.length > values.length) {
-                    render.splice(values.length);
-                }
-            });
-        });
+    effect(() => pages(api.page, siblings, total), (values) => {
+        for (let i = 0, n = values.length; i < n; i++) {
+            cells[i].value = values[i];
+        }
+    });
 
     function go(page: number) {
         page = Math.min(Math.max(page, 1), total);
@@ -85,8 +71,6 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
         api.page = page;
         onchange?.(page);
     }
-
-    onCleanup(stop);
 
     return html`
         <nav aria-label='Pagination' class='pagination' ${attributes}>
@@ -101,20 +85,18 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
             </button>
 
             <div class='pagination-pages'>
-                ${html.reactive(render, function (cell) {
-                    return html`
-                        <button
-                            aria-current='${() => cell.value === api.page ? 'page' : 'false'}'
-                            aria-hidden='${() => String(cell.value === DOTS)}'
-                            class='button pagination-page ${() => cell.value === DOTS ? 'pagination-page--dots' : cell.value === api.page && '--active'}'
-                            onclick='${() => cell.value !== DOTS && go(cell.value)}'
-                            tabindex='${() => cell.value === DOTS ? -1 : 0}'
-                            type='button'
-                        >
-                            ${() => cell.value === DOTS ? '...' : cell.value}
-                        </button>
-                    `;
-                })}
+                ${cells.map((cell) => html`
+                    <button
+                        aria-current='${() => cell.value === api.page ? 'page' : 'false'}'
+                        aria-hidden='${() => String(cell.value === DOTS)}'
+                        class='button pagination-page ${() => cell.value === DOTS ? 'pagination-page--dots' : cell.value === api.page && '--active'}'
+                        onclick='${() => cell.value !== DOTS && go(cell.value)}'
+                        tabindex='${() => cell.value === DOTS ? -1 : 0}'
+                        type='button'
+                    >
+                        ${() => cell.value === DOTS ? '...' : cell.value}
+                    </button>
+                `)}
             </div>
 
             <button

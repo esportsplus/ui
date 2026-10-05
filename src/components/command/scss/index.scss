@@ -70,15 +70,11 @@
 
     &-input.input {
         height: 100%;
+        mask-image: var(--input-mask);
         outline: none;
 
         &::placeholder {
             color: var(--color-muted);
-        }
-
-        // Long queries fade out before they reach the result count instead of running into it.
-        .command-search:has(.command-count) & {
-            mask-image: linear-gradient(to right, #000 calc(100% - var(--count-fade)), transparent);
         }
     }
 
@@ -116,7 +112,7 @@
             scroll-behavior: auto;
         }
 
-        &.command-list--empty {
+        &--empty {
             display: none;
         }
     }
@@ -134,7 +130,6 @@
         gap: var(--size-200);
         height: var(--option-height);
         padding-inline: var(--size-300);
-        transition: none;
         user-select: none;
 
         // Shortcut rows are a reference list; nothing runs on click.

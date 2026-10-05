@@ -29,13 +29,14 @@ function toggle() {
     return html`
         ${marquee({ items: customers, label: 'Customers', state })}
 
-        <div
-            class='button button--tertiary'
+        <button
+            class='button'
             style='--width: auto; margin-top: var(--size-400);'
             onclick='${() => state.paused = !state.paused}'
+            type='button'
         >
             ${() => state.paused ? 'resume' : 'pause'}
-        </div>
+        </button>
     `;
 }
 

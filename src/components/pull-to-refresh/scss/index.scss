@@ -1,9 +1,9 @@
 @use '/shared';
 @use 'variables';
 
-// JS writes only '--pull-to-refresh-y' (feed offset in px, unitless), '--reveal' (share of ticks drawn) and '--threshold'
-// (px to pull before letting go refreshes); everything else is derived here, and the springs between targets are
-// transitions.
+// JS writes only '--pull-to-refresh-y' (feed offset in px, unitless) and '--threshold' (px to pull before letting go
+// refreshes) on the root, and '--reveal' (share of ticks drawn) on the indicator; everything else is derived here, and the
+// springs between targets are transitions.
 .pull-to-refresh {
     height: var(--height);
     min-height: 0;
@@ -11,38 +11,44 @@
     transition: --pull-to-refresh-y var(--settle-duration) var(--spring);
 
     // Following the hand, or shifting the feed without a visible move.
-    &.pull-to-refresh--instant {
+    &--instant {
         transition: none;
     }
 
-    &.pull-to-refresh--landing {
+    &--landing {
         transition-duration: var(--slide-in-duration);
     }
 
+    // Started from here rather than by swapping a variable on the root, which would restyle the whole feed as a refresh
+    // starts and ends.
+    &--refreshing &-glyph {
+        animation: var(--spinner-animation) var(--spin-duration) steps(8) infinite;
+    }
+
     &-content {
+        --pull-to-refresh-y: inherit;
         background: var(--background);
         min-height: 100%;
         translate: 0 calc(var(--pull-to-refresh-y) * 1px);
         user-select: none;
-
-        > .pull-to-refresh-item--fresh {
-            animation: pull-to-refresh-fresh var(--fresh-duration) var(--fresh-timing-function);
-        }
     }
 
+    // Spins rather than the svg so the spin runs on the compositor (an svg's can't); the two share a center, so the spin and
+    // the svg's turn with the pull add up as before.
     &-glyph {
+        --pull-to-refresh-y: inherit;
         display: flex;
-        rotate: calc(var(--pull-to-refresh-y) * 3deg);
-    }
 
-    // Faded when a refresh ends, so the spinner goes out rather than shrinking tick by tick as the feed retracts.
-    &.pull-to-refresh--landing &-glyph {
-        opacity: 0;
-        transition: opacity var(--fade-duration) var(--fade-timing-function);
+        // Faded when a refresh ends, so the spinner goes out rather than shrinking tick by tick as the feed retracts.
+        &--landing {
+            opacity: 0;
+            transition: opacity var(--fade-duration) var(--fade-timing-function);
+        }
     }
 
     &-indicator {
         @extend %absolute-top;
+        --pull-to-refresh-y: inherit;
         align-items: center;
         color: var(--color);
         display: flex;
@@ -52,7 +58,12 @@
         pointer-events: none;
     }
 
+    &-item--fresh {
+        animation: pull-to-refresh-fresh var(--fresh-duration) var(--fresh-timing-function);
+    }
+
     &-scroller {
+        --pull-to-refresh-y: inherit;
         height: 100%;
         overflow-y: auto;
         overscroll-behavior: contain;
@@ -65,14 +76,16 @@
         }
     }
 
+    // The indeterminate spin is a stepped rotation of graded ticks, like the system activity indicator.
     &-spinner {
+        --pull-to-refresh-y: inherit;
         height: var(--spinner-size);
+        rotate: calc(var(--pull-to-refresh-y) * 3deg);
         width: var(--spinner-size);
     }
 
     &-status {
         @extend %hidden-visually;
-        border: 0;
     }
 
     // Graded like the system spinner: the leading tick is solid and each one behind it fades, so the stepped rotation reads
@@ -88,18 +101,13 @@
         }
     }
 
-    // The indeterminate spin is a stepped rotation of graded ticks, like the system activity indicator.
-    &.pull-to-refresh--refreshing &-spinner {
-        animation: pull-to-refresh-spin var(--spin-duration) steps(8) infinite;
-    }
-
     @media (prefers-reduced-motion: reduce) {
         &,
-        &.pull-to-refresh--landing &-glyph {
+        &-glyph--landing {
             transition: none;
         }
 
-        &.pull-to-refresh--refreshing &-spinner {
+        &--refreshing &-glyph {
             animation: none;
         }
     }

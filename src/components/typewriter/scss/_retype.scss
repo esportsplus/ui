@@ -16,6 +16,14 @@
 
     &-line {
         text-align: left;
+
+        &--selecting::after {
+            visibility: hidden;
+        }
+
+        &--typing::after {
+            animation: none;
+        }
     }
 
     &-sizer {
@@ -43,21 +51,11 @@
             transform-origin: right;
             z-index: -1;
         }
-    }
 
-    &.typewriter-retype--selecting {
-        .typewriter-retype-line::after {
-            visibility: hidden;
-        }
-
-        .typewriter-retype-word::before {
+        &--selecting::before {
             scale: 1 1;
             transition: scale var(--select-duration) var(--ease-out);
         }
-    }
-
-    &.typewriter-retype--typing .typewriter-retype-line::after {
-        animation: none;
     }
 }
 

@@ -32,11 +32,19 @@ const meta: Record<string, Meta> = {
         description: 'Payment card form with a live card preview that flips for the CVC, brand detection, auto-formatting and Luhn validation.',
         label: 'CC'
     },
+    'chat-minimap': {
+        description: 'A rail of lines mapping a conversation, one per turn: the hovered line swells its neighbours, a card previews the turn, the turns in view stay lit as the thread scrolls, and the rail grows with the chat.',
+        label: 'Chat Minimap'
+    },
     checkbox: {
         description: 'Binary selection control, plus checklist groups with a select-all header that goes mixed and Shift-click range selection.'
     },
     clipboard: {
         description: 'Copy-to-clipboard affordance with click and programmatic variants.'
+    },
+    'code-editor': {
+        description: 'Source editor with syntax colors for TypeScript, CSS, HTML, JSON, Python and Markdown, undo and redo, find and replace, multiple and rectangular selections, folding, wrap and a minimap; language services add completion, hover and diagnostics, the Markdown editor renders in place one block at a time, and the workspace adds a file explorer, tabs and quick open.',
+        label: 'Code Editor'
     },
     'color-picker': {
         description: 'Saturation pad, hue and opacity sliders, a hex field, and a recent-colors row that reorders as you commit.'

@@ -1,3 +1,6 @@
+@use '../../../../../tokens.scss';
+
+
 .sidebar {
     --content-padding-horizontal: var(--size-600);
     --scrollbar-color-default: var(--color-border-400);
@@ -57,14 +60,12 @@
         overflow: hidden auto;
     }
 
-    &-search.command-trigger {
+    &-search {
         --padding-horizontal: var(--size-200);
         --width: 100%;
     }
 
     &-toggle {
-        --sidebar-toggle-divider-x: 0px;
-        --sidebar-toggle-shadow-opacity: 0.2;
         --background-default: transparent;
         // --background-hover: color-mix(in oklab, var(--color-text-500) 6%, transparent);
         // --background-pressed: color-mix(in oklab, var(--color-text-500) 10%, transparent);
@@ -74,6 +75,8 @@
         --color-pressed: var(--color-black-500);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
+        --sidebar-toggle-divider-x: 0px;
+        --sidebar-toggle-shadow-opacity: 0.2;
         --size: 32px;
         --width: var(--size);
         display: flex;
@@ -90,25 +93,6 @@
             outline-offset: 2px;
         }
 
-        .icon {
-            --size: var(--size-400);
-
-            svg {
-                fill: none;
-                overflow: hidden;
-            }
-        }
-
-        .sidebar-toggle-shadow {
-            opacity: var(--sidebar-toggle-shadow-opacity);
-        }
-
-        // Preview the sidebar action by sliding its section outside the SVG viewport.
-        .sidebar-toggle-divider {
-            transform: translateX(var(--sidebar-toggle-divider-x));
-            transition: transform 180ms ease;
-        }
-
         &[aria-expanded='false'],
         &[aria-expanded='true']:focus-visible {
             --sidebar-toggle-divider-x: -12px;
@@ -119,20 +103,37 @@
         }
 
         @media (hover: hover) {
-            &[aria-expanded='true']:hover {
-                --sidebar-toggle-divider-x: -12px;
-            }
-
             &[aria-expanded='false']:hover {
                 --sidebar-toggle-divider-x: 0px;
             }
-        }
 
-        @media (prefers-reduced-motion: reduce) {
-            .sidebar-toggle-divider {
-                transition: none;
+            &[aria-expanded='true']:hover {
+                --sidebar-toggle-divider-x: -12px;
             }
         }
+    }
+
+    // Preview the sidebar action by sliding its section outside the SVG viewport.
+    &-toggle-divider {
+        transform: translateX(var(--sidebar-toggle-divider-x));
+        transition: transform 180ms ease;
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    &-toggle-graphic {
+        fill: none;
+        overflow: hidden;
+    }
+
+    &-toggle-icon {
+        --size: var(--size-400);
+    }
+
+    &-toggle-shadow {
+        opacity: var(--sidebar-toggle-shadow-opacity);
     }
 
     &-tools {
@@ -154,7 +155,7 @@
         }
     }
 
-    .viewer-body.--sidebar-open > & {
+    @include tokens.state(active) {
         transition-delay: 0s;
         translate: 0 0;
         visibility: visible;

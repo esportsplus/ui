@@ -40,6 +40,13 @@
         --trigger-width: 28px;
     }
 
+    // Zeroes every fold timing, so nothing transitions until the first fit has painted.
+    &--instant {
+        --enter-duration: 0s;
+        --exit-duration: 0s;
+        --slide-duration: 0s;
+    }
+
     &-menu.tooltip-content {
         --background-default: var(--menu-background);
         --border-radius: var(--menu-radius);
@@ -50,8 +57,19 @@
         --transition-duration: var(--menu-duration-out);
         --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
-        #{tokens.state(active, '.tooltip')} > & {
+        @include tokens.state(active) {
             --transition-duration: var(--menu-duration-in);
+        }
+    }
+
+    // Clips the body only while folded or unfolding, so focus rings and the menu aren't cut off at rest.
+    &-segment {
+        --body-overflow: visible;
+        --body-transition: overflow 0s linear var(--slide-duration) allow-discrete;
+
+        &--hidden {
+            --body-overflow: hidden;
+            --body-transition: none;
         }
     }
 

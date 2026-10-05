@@ -28,6 +28,18 @@
     --level-color: var(--color-blue-400);
 }
 
+// Settles from 0.6, not 0: a square growing from nothing reads as a pop, one settling from slightly small
+// reads as arriving.
+.heatmap-grid {
+    --cell-opacity: 0;
+    --cell-scale: 0.6;
+
+    &--shown {
+        --cell-opacity: 1;
+        --cell-scale: 1;
+    }
+}
+
 // Compact for a dense grid.
 .heatmap .tooltip-shared {
     --padding: var(--size-100) var(--size-200);

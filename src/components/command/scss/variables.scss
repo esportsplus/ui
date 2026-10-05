@@ -23,6 +23,7 @@
     --divider-color: var(--color-border-300);
     --font-size: calc(var(--font-size-400) * 0.875);
     --footer-height: 44px;
+    --input-mask: none;
     --kbd-icon-size: 12px;
     --label-font-size: var(--font-size-200);
     --list-max-height: min(320px, 50vh);
@@ -57,9 +58,11 @@
         --glide-duration: 0.3s;
     }
 
+    // 'inherit' passes the palette's '--font-size' through the input's own; 'var(--font-size)' here would refer to
+    // itself, and the cycle leaves the input at whatever font size its host happens to inherit.
     &-input.input {
         --color-default: var(--color);
-        --font-size: var(--font-size);
+        --font-size: inherit;
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         --size: 0px;
@@ -69,12 +72,18 @@
         --size: var(--kbd-icon-size);
     }
 
+    // Takes '--active' alongside its option.
     &-option-icon.icon {
         --color: var(--color-muted);
 
-        #{tokens.state(active, '')} > & {
+        @include tokens.state(active) {
             --color: inherit;
         }
+    }
+
+    // Long queries fade out before they reach the result count instead of running into it.
+    &-search:has(.command-count) {
+        --input-mask: linear-gradient(to right, #000 calc(100% - var(--count-fade)), transparent);
     }
 
     // The highlight paints the tab backgrounds, so the buttons only carry colour.

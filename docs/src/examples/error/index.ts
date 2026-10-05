@@ -1,4 +1,4 @@
-import { effect, flush, onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, flush, reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import { error, input, select } from '@esportsplus/ui/components';
 import 'docs/examples/error/scss/index.scss';
@@ -74,11 +74,12 @@ export default {
             render: () => {
                 let state = reactive({ active: false, error: '', render: false, selected: 'monday' as number | string });
 
-                onCleanup(effect(() => {
+                effect(() => {
                     state.error = WEEKEND.has(String(state.selected)) ? 'Weeks start on a weekday here' : '';
-                }));
+                });
 
                 return field('Week starts on', 'Pick a weekend day', error({ direction: 'ne', state }, select({
+                    class: 'error-demo-select',
                     options: { monday: 'Monday', saturday: 'Saturday', sunday: 'Sunday' },
                     state
                 })));

@@ -3,16 +3,17 @@ type Tracker = {
     factor: number;
     // Last raw scroll sample.
     position: number;
-    release: VoidFunction;
+    release: (wake: VoidFunction) => void;
     // Spring state: the smoothed velocity and its rate of change.
     smooth: number;
     smoothRate: number;
     // Frame the spring last advanced on, so marquees sharing a tracker step it once.
     stepped: number;
     time: number;
-    users: number;
     // Raw velocity in px/s from the last two scroll events.
     velocity: number;
+    // One per marquee using it: a scroll restarts a marquee whose loop is asleep.
+    wakes: Set<VoidFunction>;
 };
 
 
@@ -63,6 +64,11 @@ function scroller(element: HTMLElement): EventTarget {
 }
 
 
+// No scroll is feeding the spring and it has come to rest, so stepping it changes nothing a marquee would show.
+const settled = (t: Tracker, now: number) => {
+    return now - t.time > SETTLE && Math.abs(t.smooth) < 1 && Math.abs(t.smoothRate) < 1;
+};
+
 const step = (t: Tracker, now: number, dt: number) => {
     if (t.stepped === now) {
         return;
@@ -82,20 +88,22 @@ const step = (t: Tracker, now: number, dt: number) => {
     t.factor = Math.sign(t.smooth) * Math.min(MAX_FACTOR, (Math.abs(t.smooth) / 1000) * MAX_FACTOR);
 };
 
-const track = (element: HTMLElement) => {
+const track = (element: HTMLElement, wake: VoidFunction) => {
     let target = scroller(element),
         existing = trackers.get(target);
 
     if (existing) {
-        existing.users++;
+        existing.wakes.add(wake);
         return existing;
     }
 
     let t: Tracker = {
             factor: 0,
             position: offset(target),
-            release: () => {
-                if (--t.users > 0) {
+            release: (wake) => {
+                t.wakes.delete(wake);
+
+                if (t.wakes.size > 0) {
                     return;
                 }
 
@@ -106,8 +114,8 @@ const track = (element: HTMLElement) => {
             smoothRate: 0,
             stepped: 0,
             time: 0,
-            users: 1,
-            velocity: 0
+            velocity: 0,
+            wakes: new Set([wake])
         };
 
     function scroll() {
@@ -119,6 +127,10 @@ const track = (element: HTMLElement) => {
         t.velocity = dt > 0 && dt < 200 ? ((position - t.position) / dt) * 1000 : 0;
         t.position = position;
         t.time = now;
+
+        for (let wake of t.wakes) {
+            wake();
+        }
     }
 
     target.addEventListener('scroll', scroll, { passive: true });
@@ -128,5 +140,5 @@ const track = (element: HTMLElement) => {
 };
 
 
-export { MAX_FACTOR, step, track };
+export { MAX_FACTOR, settled, step, track };
 export type { Tracker };

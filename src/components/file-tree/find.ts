@@ -1,11 +1,11 @@
 import { peek, reactive, read, write, type Signal } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import icon from '~/components/icon';
+import fuzzy from '~/shared/fuzzy';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import up from '@esportsplus/ui/svg/arrow-up.svg';
 import cross from '@esportsplus/ui/svg/close.svg';
 import sliders from '@esportsplus/ui/svg/sliders.svg';
-import fuzzy from './fuzzy';
 import Selection from './selection';
 import type { FileTreeElement as Element } from '.';
 
@@ -31,6 +31,8 @@ type Host = {
     lazy: boolean;
     // Hands focus back to the tree.
     leave: VoidFunction;
+    // The query applied changed from within the tree rather than through 'set'.
+    searched?: (query: string) => void;
     // Whether the row is on screen now, with every folder above it open.
     shows: (id: string) => boolean;
     // Filter mode's view: the folders down to the matches, in tree order, to open; null ends it. The rows are on
@@ -137,6 +139,8 @@ class Finder {
         count: number;
         // The match the cursor was last moved to; empty when it's on none.
         current: string;
+        // The query is a search field's outside the tree, so no find bar is drawn for it.
+        external: boolean;
         index: number;
         mode: Mode;
         open: boolean;
@@ -149,7 +153,7 @@ class Finder {
     constructor(mode: Mode, query: Signal<string>, host: Host) {
         this.host = host;
         this.query = query;
-        this.state = reactive({ count: 0, current: '', index: -1, mode, open: false, text: '', unloaded: 0 });
+        this.state = reactive({ count: 0, current: '', external: false, index: -1, mode, open: false, text: '', unloaded: 0 });
     }
 
 
@@ -175,7 +179,8 @@ class Finder {
         return jump ? state.current : '';
     }
 
-    private run(jump: boolean) {
+    // 'quiet' when the query came from outside, which needn't hear it back.
+    private run(jump: boolean, quiet = false) {
         clearTimeout(this.timer);
 
         let state = this.state,
@@ -183,6 +188,10 @@ class Finder {
             result = text ? search(text, this.host) : { folders: [], matches: [], unloaded: 0 },
             filter = text !== '' && state.mode === 'filter',
             sifted = filter || this.sifting;
+
+        if (!quiet && text !== peek(this.query)) {
+            this.host.searched?.(text);
+        }
 
         this.keep = filter ? new Set([...result.matches, ...result.folders]) : null;
         this.matched.replace(result.matches);
@@ -206,11 +215,18 @@ class Finder {
 
 
     close(refocus: boolean) {
-        if (!this.state.open) {
+        let state = this.state;
+
+        if (!state.open) {
             return;
         }
 
-        this.state.open = false;
+        // An outside field's query is cleared rather than kept for the find bar to reopen with.
+        if (state.external) {
+            state.text = '';
+        }
+
+        state.open = false;
         this.run(false);
 
         if (refocus) {
@@ -274,6 +290,8 @@ class Finder {
     open(text?: string) {
         let state = this.state;
 
+        state.external = false;
+
         if (text !== undefined) {
             state.text = text;
         }
@@ -311,7 +329,7 @@ class Finder {
         let state = this.state;
 
         return html`
-            ${() => state.open && html`
+            ${() => state.open && !state.external && html`
                 <div class='file-tree-find' role='search'>
                     <div class='file-tree-find-bar'>
                         <input
@@ -433,6 +451,16 @@ class Finder {
         `;
     }
 
+    // A search field outside the tree applies the same search without drawing or focusing the find bar.
+    set(text: string, quiet = true) {
+        let state = this.state;
+
+        state.external = true;
+        state.open = text.trim() !== '';
+        state.text = text;
+        this.run(false, quiet);
+    }
+
     // Wraps round, as VS Code's does.
     step(by: 1 | -1) {
         let n = this.matches.length,
@@ -452,9 +480,18 @@ class Finder {
         this.run(true);
     }
 
-    // A letter typed in the tree, when typing finds: it starts a search, or adds to the one open.
+    // A letter typed in the tree, when typing finds: it starts a search, or adds to the one open; in the outside field
+    // once one searches, until the find bar is opened.
     type(character: string) {
-        this.open(this.state.open ? this.state.text + character : character);
+        let state = this.state,
+            text = state.open ? state.text + character : character;
+
+        if (state.external) {
+            this.set(text, false);
+        }
+        else {
+            this.open(text);
+        }
     }
 }
 

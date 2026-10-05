@@ -2,16 +2,24 @@
     --demo-accent: var(--color-primary-400);
     --demo-border: var(--color-border-500);
     --demo-duration: 280ms;
+    --demo-hint: var(--color-text-300);
     --demo-ring: color-mix(in srgb, var(--demo-accent) 24%, transparent);
     --demo-spring: cubic-bezier(.34, 1.56, .64, 1);
     --demo-tint: color-mix(in srgb, var(--demo-accent) 12%, transparent);
     color: var(--color-text-400);
     width: min(100%, 400px);
 
-    small { color: var(--color-text-300); font-size: var(--font-size-300); }
+    &-hint {
+        color: var(--demo-hint);
+        font-size: var(--font-size-300);
+    }
 }
 
 
 @media (prefers-reduced-motion: reduce) {
-    .form-prototype *, .form-prototype *::before, .form-prototype *::after { transition: none !important; }
+    .form-prototype *,
+    .form-prototype *::before,
+    .form-prototype *::after {
+        transition: none !important;
+    }
 }

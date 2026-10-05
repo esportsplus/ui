@@ -9,6 +9,12 @@
     width: 100%;
 
 
+    &--inline {
+        align-items: center;
+        flex-direction: row;
+        width: fit-content;
+    }
+
     &-breakdown,
     &-cost,
     &-count {
@@ -16,8 +22,14 @@
         font-variant-numeric: tabular-nums;
     }
 
+    &-breakdown,
+    &-label,
+    &-percent {
+        display: var(--detail-display);
+    }
+
     &-cost::before {
-        content: '≈ ';
+        content: var(--cost-prefix);
     }
 
     &-count {
@@ -40,14 +52,14 @@
     &-footer {
         align-items: center;
         color: var(--meta-color-muted);
-        display: flex;
+        display: var(--row-display);
         font-size: var(--meta-font-size);
         justify-content: space-between;
     }
 
     &-header {
         align-items: baseline;
-        display: flex;
+        display: var(--row-display);
         gap: var(--size-300);
         justify-content: space-between;
     }
@@ -63,33 +75,8 @@
         border-radius: 999px;
         flex: 0 0 auto;
         height: var(--track-height);
+        order: var(--track-order);
         overflow: hidden;
         width: var(--track-width);
-    }
-
-    // One row: track, count, cost; the footer and header wrappers dissolve so their children join it
-    &--inline {
-        align-items: center;
-        flex-direction: row;
-        width: fit-content;
-
-        .usage-meter-breakdown,
-        .usage-meter-label,
-        .usage-meter-percent {
-            display: none;
-        }
-
-        .usage-meter-cost::before {
-            content: none;
-        }
-
-        .usage-meter-footer,
-        .usage-meter-header {
-            display: contents;
-        }
-
-        .usage-meter-track {
-            order: -1;
-        }
     }
 }

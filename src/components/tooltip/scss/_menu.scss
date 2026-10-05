@@ -24,22 +24,12 @@
         }
     }
 
+    // Qualified twice so it outranks the tooltip content it composes, and classes paired onto that content.
     > .tooltip-menu-panel.tooltip-menu-panel--expand {
-        overflow: visible;
-        transform: translateX(var(--shift-x, 0px));
-
         // Keep the menu's surface tokens when composing the generic tooltip content.
         --background: inherit;
         --border-radius: inherit;
         --box-shadow: inherit;
-        --scale: 1;
-        --width: inherit;
-
-        // The reveal is finished; child panels can now extend beyond the root.
-        &.--active.tooltip-menu-panel--settled {
-            clip-path: none;
-        }
-
         // Keeps the resting clip outside the menu's shadow.
         --expand-bleed: 24px;
         // Closing swaps this delay: the shape crossfades back into the trigger once it has
@@ -57,27 +47,44 @@
         // Spring (damping 34, stiffness 380, mass 0.8) sampled into linear().
         --expand-timing-function: linear(0, 0.072, 0.22, 0.382, 0.529, 0.651, 0.747, 0.82, 0.874, 0.913, 0.94, 0.96, 0.973, 0.982, 0.988, 0.992, 0.995, 0.997, 0.998, 0.999, 1);
         --offset: 0px;
+        --scale: 1;
         // Cancels the '100%' every direction pushes the tooltip past the trigger by, so it
         // lines up with the trigger's own edges instead.
         --spacer: -100%;
-
-        &.--active {
-            --expand-fade-delay: 0s;
-        }
-
-        // Cascade order.
-        @for $i from 1 through 12 {
-            > :nth-child(#{$i}) {
-                --index: #{$i - 1};
-            }
-        }
-
+        --width: inherit;
         background: transparent;
         box-shadow: none;
         clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));
+        overflow: visible;
+        transform: translateX(var(--shift-x, 0px));
         transition:
             clip-path var(--expand-duration) var(--expand-timing-function),
             opacity var(--expand-fade-duration) linear var(--expand-fade-delay);
+
+        @include tokens.state(active) {
+            --expand-fade-delay: 0s;
+            clip-path: inset(calc(var(--expand-bleed) * -1) round calc(var(--border-radius) + var(--expand-bleed)));
+
+            &::before {
+                border-radius: var(--border-radius);
+                inset: 0;
+            }
+
+            > :not(.highlight) {
+                animation: tooltip-menu-expand-in var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index, 0) * var(--expand-stagger)) backwards;
+                opacity: 1;
+
+                // Text-only items and dividers just fade.
+                > * {
+                    animation: tooltip-menu-expand-slide var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index, 0) * var(--expand-stagger)) backwards;
+                }
+            }
+
+            // The reveal is finished; child panels can now extend beyond the root.
+            &.tooltip-menu-panel--settled {
+                clip-path: none;
+            }
+        }
 
         &::before {
             background: var(--background);
@@ -101,22 +108,10 @@
             opacity: 0;
         }
 
-        &.--active {
-            clip-path: inset(calc(var(--expand-bleed) * -1) round calc(var(--border-radius) + var(--expand-bleed)));
-
-            &::before {
-                border-radius: var(--border-radius);
-                inset: 0;
-            }
-
-            > :not(.highlight) {
-                animation: tooltip-menu-expand-in var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index, 0) * var(--expand-stagger)) backwards;
-                opacity: 1;
-
-                // Text-only items and dividers just fade.
-                > * {
-                    animation: tooltip-menu-expand-slide var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index, 0) * var(--expand-stagger)) backwards;
-                }
+        // Cascade order.
+        @for $i from 1 through 12 {
+            > :nth-child(#{$i}) {
+                --index: #{$i - 1};
             }
         }
 
@@ -134,17 +129,19 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            &, &::before {
-                transition-duration: 0s;
-            }
-
             --expand-content-delay: 0s;
             --expand-content-duration: 0s;
             --expand-fade-delay: 0s;
             --expand-stagger: 0s;
+
+            &,
+            &::before {
+                transition-duration: 0s;
+            }
         }
     }
 
+    // After the expanding root's own values, which it overrides at the same specificity.
     &.tooltip--instant > .tooltip-menu-panel--expand {
         --expand-content-delay: 0s;
         --expand-content-duration: 0s;
@@ -167,13 +164,18 @@
         rotate: -45deg;
         transition: rotate var(--open-duration) var(--open-timing-function);
         width: 6px;
+
+        // A branch panel's header points down into the panel it heads.
+        &--down {
+            rotate: 45deg;
+        }
     }
 
     &-entry {
         position: relative;
 
         // Above the parent's scrim, so the open child panel stays undimmed
-        &.tooltip-menu-entry--open {
+        &--open {
             z-index: 2;
         }
     }
@@ -190,10 +192,6 @@
 
     &-header {
         cursor: pointer;
-
-        .tooltip-menu-chevron {
-            rotate: 45deg;
-        }
     }
 
     &-hint {
@@ -224,6 +222,7 @@
             background: var(--background-hover);
         }
 
+        // Doubled so it outranks a class paired onto the item, such as '.link'.
         &.tooltip-menu-item--danger {
             color: var(--color-danger);
         }
@@ -264,7 +263,7 @@
             z-index: 1;
         }
 
-        &.tooltip-menu-panel--covered::after {
+        &--covered::after {
             cursor: pointer;
             opacity: 1;
             pointer-events: auto;
@@ -318,17 +317,11 @@
 
         &-bold {
             font-weight: 600;
-            opacity: 0;
-        }
-    }
-
-    #{tokens.state(active, '&-panel')} > &-header &-title {
-        &-bold {
-            opacity: 1;
+            opacity: var(--title-bold-opacity);
         }
 
         &-regular {
-            opacity: 0;
+            opacity: var(--title-regular-opacity);
         }
     }
 
@@ -357,8 +350,3 @@
         translate: var(--expand-shift);
     }
 }
-
-// Shrinks straight onto the trigger (every edge together) until it's a blob '--morph-land'
-// larger than the trigger on every side, holds there, then settles into the trigger's exact box.
-// The hold matters: without it, edges still arriving (the travel differs per direction) overlap
-// with the final shrink, so it never reads as having landed.

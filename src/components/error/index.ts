@@ -1,6 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, flush, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
-import { morph, morphing } from '~/components/tooltip/utilities';
+import { morph, morphs } from '~/components/tooltip/utilities';
 import '~/components/tooltip/scss/index.scss';
 import './scss/index.scss';
 
@@ -116,7 +116,7 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
         }
     }
 
-    onCleanup(effect(() => {
+    effect(() => {
         let text = state.error;
 
         untrack(() => {
@@ -144,7 +144,7 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
             cancelAnimationFrame(pending);
             pending = requestAnimationFrame(close);
         });
-    }));
+    });
 
     onCleanup(() => {
         disposed = true;
@@ -160,22 +160,17 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
             class='error tooltip'
             ${attributes}
             ${{
+                ...morphs(local),
                 class: [
                     () => local.active && '--active',
                     () => state.error && 'error--invalid',
                     () => local.morphing && 'tooltip--morphing',
                     () => local.shake && `error--shake-${local.shake}`
                 ],
-                onanimationcancel: morphing(local, false),
-                onanimationend: morphing(local, false),
-                onanimationstart: morphing(local, true),
                 onconnect: (el: HTMLElement) => {
                     control = el.firstElementChild;
                     element = el;
-                },
-                ontransitioncancel: morphing(local, false),
-                ontransitionend: morphing(local, false),
-                ontransitionrun: morphing(local, true)
+                }
             }}
         >
             ${content}

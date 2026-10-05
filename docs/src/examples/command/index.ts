@@ -1,6 +1,8 @@
-import { reactive } from '@esportsplus/reactivity';
-import { html } from '@esportsplus/template';
+import { reactive, read, signal, write } from '@esportsplus/reactivity';
+import { html, type Renderable } from '@esportsplus/template';
 import { command } from '@esportsplus/ui/components';
+import { mac } from '@esportsplus/ui/shared/platform';
+import fuzzy from '@esportsplus/ui/shared/fuzzy';
 import back from '@esportsplus/ui/svg/arrow-left.svg';
 import forward from '@esportsplus/ui/svg/arrow-right.svg';
 import next from '@esportsplus/ui/svg/arrow-down.svg';
@@ -24,6 +26,7 @@ import undo from '@esportsplus/ui/svg/undo.svg';
 import zoomIn from '@esportsplus/ui/svg/zoom-in.svg';
 import zoomOut from '@esportsplus/ui/svg/zoom-out.svg';
 import type { Command, Shortcut, Store, Tab } from '@esportsplus/ui/components/command';
+import type { Entry } from 'docs/types';
 import 'docs/examples/command/scss/index.scss';
 
 
@@ -32,10 +35,23 @@ let commands: Command[] = [
         { group: 'Navigation', icon: inbox, id: 'inbox', label: 'Open Inbox', shortcut: ['G', 'I'] },
         { group: 'Navigation', icon: sliders, id: 'settings', label: 'Go to Settings', shortcut: ['G', 'S'] },
         { group: 'Navigation', icon: docs, id: 'docs', label: 'Search documentation' },
-        { group: 'Actions', icon: plus, id: 'new-file', label: 'New file', shortcut: ['⌘', 'N'] },
+        { group: 'Actions', icon: plus, id: 'new-file', label: 'New file', shortcut: ['Mod', 'N'] },
         { group: 'Actions', icon: link, id: 'copy-link', label: 'Copy link' },
-        { group: 'Actions', icon: contrast, id: 'theme', label: 'Toggle theme', shortcut: ['⇧', 'T'] },
+        { group: 'Actions', icon: contrast, id: 'theme', label: 'Toggle theme', shortcut: ['Shift', 'T'] },
         { group: 'Actions', icon: logOut, id: 'logout', label: 'Log out' }
+    ],
+    files = [
+        'docs/src/examples/command/index.ts',
+        'package.json',
+        'src/components/command/index.ts',
+        'src/components/command/scss/index.scss',
+        'src/components/command/scss/variables.scss',
+        'src/components/file-tree/index.ts',
+        'src/components/overlay/index.ts',
+        'src/components/overlay/popup.ts',
+        'src/shared/fuzzy.ts',
+        'src/shared/platform.ts',
+        'tsconfig.json'
     ],
     shortcuts: Shortcut[] = [
         { group: 'Navigation', icon: magnifier, id: 'search', keys: ['Mod', 'K'], label: 'Search' },
@@ -56,44 +72,34 @@ let commands: Command[] = [
     ];
 
 
-function demo(attributes: Partial<Parameters<typeof command>[0]> = {}) {
+function demo(attributes: Partial<Parameters<typeof command>[0]> = {}, actions?: Renderable<unknown>) {
     let ran = reactive({ label: '' });
 
     return html`
         <div class='command-demo'>
             ${command({
-                ...attributes,
                 commands,
+                ...attributes,
                 onrun: (entry) => {
                     ran.label = entry.label;
                 }
             })}
+            ${actions}
             <p aria-live='polite' class='command-demo-status'>
-                ${() => ran.label && html`Ran: <span>${ran.label}</span>`}
+                ${() => ran.label && html`Ran: <span class='command-demo-status-label'>${ran.label}</span>`}
             </p>
         </div>
     `;
 }
 
 function hub() {
-    let ran = reactive({ label: '' }),
-        state = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
+    let state = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
 
-    return html`
-        <div class='command-demo'>
-            ${command({
-                commands,
-                label: 'Search or run',
-                onrun: (entry) => {
-                    ran.label = entry.label;
-                },
-                shortcuts,
-                state,
-                store: local('docs-command'),
-                tabs: true
-            })}
+    return demo(
+        { label: 'Search or run', shortcuts, state, store: local('docs-command'), tabs: true },
+        html`
             <button
-                class='button button--tertiary'
+                class='button'
                 type='button'
                 onclick='${() => {
                     state.tab = 'shortcuts';
@@ -102,11 +108,8 @@ function hub() {
             >
                 Open keyboard shortcuts
             </button>
-            <p aria-live='polite' class='command-demo-status'>
-                ${() => ran.label && html`Ran: <span>${ran.label}</span>`}
-            </p>
-        </div>
-    `;
+        `
+    );
 }
 
 // Any backend can sit behind the Store interface; this one keeps values in localStorage under a prefix.
@@ -121,6 +124,50 @@ function local(prefix: string): Store {
             localStorage.setItem(`${prefix}:${key}`, JSON.stringify(value));
         }
     };
+}
+
+// No trigger of its own: the page opens it through 'state', from a button or Mod+P, like an editor's quick open.
+function palette() {
+    let paths = signal(files),
+        state = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
+
+    return demo(
+        {
+            commands: () => read(paths).map((path) => ({ group: 'Files', icon: docs, id: path, label: path })),
+            hotkey: ['Mod', 'P'],
+            limit: 8,
+            match: fuzzy,
+            placeholder: 'Go to file',
+            state,
+            trigger: false
+        },
+        html`
+            <div class='command-demo-actions'>
+                <button
+                    class='button'
+                    type='button'
+                    onclick='${() => {
+                        state.active = true;
+                    }}'
+                >
+                    Go to file
+                    <kbd class='button button--kbd'>${mac() ? '⌘' : 'Ctrl'}</kbd>
+                    <kbd class='button button--kbd'>P</kbd>
+                </button>
+                <button
+                    class='button'
+                    type='button'
+                    onclick='${() => {
+                        let list = read(paths);
+
+                        write(paths, [...list, `src/untitled-${list.length - files.length + 1}.ts`]);
+                    }}'
+                >
+                    Add file
+                </button>
+            </div>
+        `
+    );
 }
 
 
@@ -138,6 +185,10 @@ export default {
         {
             render: () => hub(),
             title: 'tabs: recents + every command, a tab per group + keyboard shortcuts'
+        },
+        {
+            render: () => palette(),
+            title: 'trigger-less palette: opened by state from a button or ⌘P / Ctrl+P, fuzzy matched, live list'
         }
     ]
-};
+} satisfies Entry;

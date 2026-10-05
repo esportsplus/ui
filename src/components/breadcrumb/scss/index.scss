@@ -74,6 +74,13 @@
         display: flex;
     }
 
+    &-option-icon {
+        color: var(--option-icon-color);
+        flex-shrink: 0;
+        height: 16px;
+        width: 16px;
+    }
+
     // Paired with '.link', which the tooltip menu gives every option, so these win over its padding, wrapping,
     // cursor and colour. No transition on the highlight: it follows every hover, so any easing reads as lag.
     &-option.link {
@@ -100,17 +107,6 @@
         &[hidden] {
             display: none;
         }
-
-        span {
-            @extend %text-truncate;
-        }
-
-        svg {
-            color: var(--option-icon-color);
-            flex-shrink: 0;
-            height: 16px;
-            width: 16px;
-        }
     }
 
     &-ruler {
@@ -122,54 +118,49 @@
         top: 0;
         visibility: hidden;
         white-space: nowrap;
+
+        &-segment {
+            align-items: center;
+            display: flex;
+            flex-shrink: 0;
+        }
     }
 
+    // Folding closes the segment's own width, so the rest of the row slides over as it goes.
     &-segment {
         align-items: center;
-        display: flex;
+        display: grid;
         flex-shrink: 0;
+        grid-template-columns: 1fr;
+        transition:
+            filter var(--enter-duration) var(--ease-out),
+            grid-template-columns var(--slide-duration) var(--slide-easing),
+            opacity var(--enter-duration) var(--ease-out);
 
         &--current {
             flex-shrink: 1;
             min-width: 0;
         }
 
-        // Folding closes the segment's own width, so the rest of the row slides over as it goes.
-        .breadcrumb-list > & {
-            display: grid;
-            grid-template-columns: 1fr;
+        // Blur only matters on the way in, so it switches on after the fade out.
+        &--hidden {
+            filter: blur(4px);
+            grid-template-columns: 0fr;
+            opacity: 0;
             transition:
-                filter var(--enter-duration) var(--ease-out),
+                filter 0s linear var(--exit-duration),
                 grid-template-columns var(--slide-duration) var(--slide-easing),
-                opacity var(--enter-duration) var(--ease-out);
-
-            // Blur only matters on the way in, so it switches on after the fade out.
-            &.breadcrumb-segment--hidden {
-                filter: blur(4px);
-                grid-template-columns: 0fr;
-                opacity: 0;
-                transition:
-                    filter 0s linear var(--exit-duration),
-                    grid-template-columns var(--slide-duration) var(--slide-easing),
-                    opacity var(--exit-duration) var(--ease-out),
-                    visibility 0s linear var(--slide-duration);
-                visibility: hidden;
-            }
+                opacity var(--exit-duration) var(--ease-out),
+                visibility 0s linear var(--slide-duration);
+            visibility: hidden;
         }
 
         &-body {
             align-items: center;
             display: flex;
             min-width: 0;
-            // Clips only while folded or unfolding, so focus rings and the menu aren't cut off at rest.
-            overflow: visible;
-            transition: overflow 0s linear var(--slide-duration);
-            transition-behavior: allow-discrete;
-
-            .breadcrumb-segment--hidden > & {
-                overflow: hidden;
-                transition: none;
-            }
+            overflow: var(--body-overflow);
+            transition: var(--body-transition);
         }
     }
 
@@ -221,13 +212,14 @@
             outline: 2px solid var(--focus-color);
         }
 
+        // Stays lit while its menu is open.
         &:hover,
-        #{tokens.state(active, '.tooltip')} > & {
+        &[aria-expanded='true'] {
             background: var(--hover-background);
             color: var(--color-active);
         }
 
-        svg {
+        &-icon {
             height: 16px;
             width: 16px;
         }
@@ -235,39 +227,31 @@
 
 
     @media (prefers-reduced-motion: reduce) {
-        .breadcrumb-list > .breadcrumb-segment {
-            filter: none;
-            transition: opacity var(--enter-duration) var(--ease-out);
-
-            &.breadcrumb-segment--hidden {
-                transition:
-                    opacity var(--exit-duration) var(--ease-out),
-                    visibility 0s linear var(--exit-duration);
-            }
-        }
-
-        .breadcrumb-segment-body {
-            transition-delay: 0s;
-        }
-
         &-link {
             transition:
                 color 0.15s ease-out,
                 text-decoration-color 0.15s ease-out;
         }
 
+        &-segment {
+            filter: none;
+            transition: opacity var(--enter-duration) var(--ease-out);
+
+            &--hidden {
+                transition:
+                    opacity var(--exit-duration) var(--ease-out),
+                    visibility 0s linear var(--exit-duration);
+            }
+
+            &-body {
+                transition-delay: 0s;
+            }
+        }
+
         &-trigger {
             transition:
                 background-color 0.15s ease-out,
                 color 0.15s ease-out;
-        }
-    }
-
-    // After the motion rules so it also beats their '.breadcrumb-segment--hidden' variants.
-    &.breadcrumb--instant {
-        .breadcrumb-list > .breadcrumb-segment,
-        .breadcrumb-segment-body {
-            transition: none;
         }
     }
 }

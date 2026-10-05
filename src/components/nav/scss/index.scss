@@ -1,0 +1,123 @@
+@use '/shared';
+@use '/tokens';
+@use 'variables';
+
+.nav-tree {
+    display: flex;
+    flex-direction: column;
+    gap: var(--section-gap);
+
+    // Command results mark their matches; inside the tree they take the link's state colour instead.
+    &--command :is(.command-label, .command-match) {
+        color: inherit;
+    }
+
+    &-group,
+    &-links {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &-group,
+    &-link,
+    &-links {
+        &.--hidden {
+            display: none;
+        }
+    }
+
+    &-indicator {
+        background: var(--indicator-color);
+        display: none;
+        height: 0;
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        transition:
+            display 160ms allow-discrete,
+            height 320ms cubic-bezier(0.34, 1.36, 0.64, 1),
+            opacity 160ms ease,
+            transform 320ms cubic-bezier(0.34, 1.36, 0.64, 1);
+        width: var(--indicator-width);
+
+        @include tokens.state(active) {
+            display: block;
+            opacity: 1;
+
+            @starting-style {
+                opacity: 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    &-link {
+        @extend %border-state, %color-state, %text;
+        --border-color-active: var(--link-border-color-active);
+        --border-color-default: var(--link-border-color);
+        --border-color-hover: var(--link-border-color-hover);
+        --border-color-pressed: var(--border-color-hover);
+        --color-active: var(--link-color-active);
+        --color-default: var(--link-color);
+        --font-size: var(--link-font-size);
+        --font-weight: var(--link-font-weight);
+        align-content: center;
+        border-left: var(--link-border-width) solid var(--border-color);
+        border-radius: var(--link-border-radius);
+        cursor: pointer;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        padding-block: max(0px, calc(var(--link-padding-vertical) - var(--link-border-width)));
+        padding-inline: max(0px, calc(var(--link-padding-horizontal) - var(--link-border-width)));
+        text-transform: capitalize;
+        transition:
+            border-color var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
+        }
+
+        &--truncate {
+            @extend %text-truncate;
+            display: block;
+        }
+
+        @include tokens.state(active) {
+            --font-weight: var(--link-font-weight-active);
+        }
+    }
+
+    &-links {
+        position: relative;
+    }
+
+    &-links,
+    &-title.nav-tree-link {
+        margin-inline: calc(var(--link-inset) * -1);
+    }
+
+    &-title {
+        @extend %text;
+        --color-default: var(--title-color);
+        --font-size: var(--title-font-size);
+        --font-weight: var(--title-font-weight);
+        text-transform: uppercase;
+
+        &.nav-tree-link {
+            @include tokens.state(active) {
+                --font-weight: var(--title-font-weight-active);
+            }
+        }
+
+        &:not(.nav-tree-link) {
+            margin-block: var(--title-spacing);
+        }
+    }
+}

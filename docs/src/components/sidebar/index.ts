@@ -1,7 +1,7 @@
+import { nav } from '@esportsplus/ui/components';
 import { effect, html, reactive, uri } from 'docs/app';
 import { repository, version } from '@esportsplus/ui/package.json';
 import { sections } from 'docs/data/nav';
-import { navTree } from 'docs/components/nav/tree';
 import { trigger as searchTrigger } from 'docs/components/search';
 import type { Request } from 'docs/app';
 import 'docs/components/sidebar/scss/index.scss';
@@ -12,7 +12,8 @@ const state = reactive({ active: !matchMedia('(max-width: 1024px)').matches });
 
 
 export default (request: Request) => {
-    let disconnect = () => {};
+    let navigation = sections(),
+        routes = new Set(navigation.flatMap((section) => section.links.map(key)));
 
     function close() {
         if (document.getElementById('docs-navigation')?.contains(document.activeElement)) {
@@ -21,6 +22,17 @@ export default (request: Request) => {
 
         state.active = false;
     };
+
+    // Links match by route, so any URL their route accepts marks them; a section title matches its own path.
+    function current() {
+        let route = `${request.data.route?.name}:${request.data.parameters?.slug ?? ''}`;
+
+        return routes.has(route) ? route : request.path;
+    }
+
+    function key(link: { name: string; slug: string }) {
+        return `${link.name}:${link.slug}`;
+    }
 
     return html`
         <button
@@ -32,8 +44,8 @@ export default (request: Request) => {
             type='button'
             onclick='${() => state.active = !state.active}'
         >
-            <span aria-hidden='true' class='icon'>
-                <svg fill='none' focusable='false' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
+            <span aria-hidden='true' class='icon sidebar-toggle-icon'>
+                <svg class='sidebar-toggle-graphic' fill='none' focusable='false' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
                     <g class='sidebar-toggle-shadow'>
                         <path fill='currentColor' stroke='none' d='M3.75 2.75h2.5v10.5h-2.5a1.5 1.5 0 0 1-1.5-1.5v-7a1.5 1.5 0 0 1 1.5-1.5Z' />
                         <path d='M6.25 2.75v10.5' />
@@ -49,18 +61,17 @@ export default (request: Request) => {
 
         <aside
             aria-label='Documentation navigation'
-            class='sidebar'
+            class='sidebar ${() => state.active && '--active'}'
             id='docs-navigation'
             ${{
                 inert: () => !state.active,
                 onconnect: () => {
-                    disconnect = effect(() => request.path, (path, previous) => {
+                    effect(() => request.path, (path, previous) => {
                         if (previous !== undefined && path !== previous && matchMedia('(max-width: 1024px)').matches) {
                             close();
                         }
                     });
                 },
-                ondisconnect: () => disconnect(),
                 onkeydown: (event: KeyboardEvent) => {
                     if (event.key === 'Escape' && !event.defaultPrevented) {
                         event.preventDefault();
@@ -87,20 +98,20 @@ export default (request: Request) => {
 
             <div class='sidebar-scrollport --scrollbar --scrollbar-fade --scrollbar-hidden'>
                 <div class='sidebar-content'>
-                    ${navTree(
-                        sections().map((section) => ({
+                    ${nav.tree({
+                        active: current,
+                        sections: navigation.map((section) => ({
                             label: section.label,
                             href: section.index ? section.href : undefined,
-                            active: () => request.path === section.href,
                             groups: [{
                                 links: section.links.map((link) => ({
                                     label: link.label,
                                     href: link.href,
-                                    active: () => request.data.route?.name === link.name && (request.data.parameters?.slug ?? '') === link.slug
+                                    key: key(link)
                                 }))
                             }]
                         }))
-                    )}
+                    })}
                 </div>
             </div>
         </aside>
