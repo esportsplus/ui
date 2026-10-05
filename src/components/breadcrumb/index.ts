@@ -54,7 +54,6 @@ function separator(kind: Separator) {
 const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind = 'slash', state, ...attributes }: A) => {
     let id = `breadcrumb-${++uid}`,
         last = items.length - 1,
-        observer: ResizeObserver | undefined,
         root: HTMLElement | undefined,
         ruler: HTMLElement | undefined,
         s = state ?? reactive({ active: false, hidden: 0 }),
@@ -115,8 +114,6 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
         onnavigate(item, index);
     }
 
-    onCleanup(() => observer?.disconnect());
-
     return html`
         <nav
             class='breadcrumb'
@@ -125,17 +122,18 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                 'aria-label': label,
                 class: () => view.instant && 'breadcrumb--instant',
                 onconnect: (element: HTMLElement) => {
+                    // Also catches webfonts landing late, since they resize the ruler.
+                    let observer = new ResizeObserver(fit);
+
                     root = element;
                     fit();
-
-                    // Also catches webfonts landing late, since they resize the ruler.
-                    observer?.disconnect();
-                    observer = new ResizeObserver(fit);
                     observer.observe(element);
 
                     if (ruler) {
                         observer.observe(ruler);
                     }
+
+                    onCleanup(() => observer.disconnect());
                 },
                 // The first fit lands after the trail has been styled once, so 'breadcrumb--instant' holds until that
                 // fit has painted or it would play the fold.
