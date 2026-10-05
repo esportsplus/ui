@@ -1,6 +1,7 @@
 import { flush, onCleanup, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import overlay from '~/components/overlay';
+import { flip, viewport } from '~/shared/viewport';
 import { morph } from './utilities';
 
 
@@ -398,11 +399,10 @@ function createMenu(context = false) {
                     scale = bounds.width / host.offsetWidth || 1,
                     width = root.panel.offsetWidth * scale,
                     height = root.panel.offsetHeight * scale,
-                    xflip = x + width > window.innerWidth - VIEWPORT_MARGIN,
-                    yflip = y + height > window.innerHeight - VIEWPORT_MARGIN;
+                    view = viewport();
 
-                x = Math.max(VIEWPORT_MARGIN, xflip ? x - width : x);
-                y = Math.max(VIEWPORT_MARGIN, yflip ? y - height : y);
+                x = flip(x, width, view.width, VIEWPORT_MARGIN);
+                y = flip(y, height, view.height, VIEWPORT_MARGIN);
                 placement.style = `left: ${(x - bounds.left) / scale - host.clientLeft + host.scrollLeft}px; top: ${(y - bounds.top) / scale - host.clientTop + host.scrollTop}px;`;
                 open();
             }
@@ -466,10 +466,11 @@ function createMenu(context = false) {
                     rect = element.getBoundingClientRect(),
                     left = rect.left - current,
                     right = rect.right - current,
+                    width = viewport().width,
                     x = 0;
 
-                if (right > window.innerWidth - VIEWPORT_MARGIN) {
-                    x = window.innerWidth - VIEWPORT_MARGIN - right;
+                if (right > width - VIEWPORT_MARGIN) {
+                    x = width - VIEWPORT_MARGIN - right;
                 }
 
                 if (left + x < VIEWPORT_MARGIN) {

@@ -9,6 +9,7 @@ import selectInput from '~/components/select';
 import tooltip from '~/components/tooltip';
 import { mac } from '~/shared/platform';
 import { observe } from '~/shared/resize';
+import { viewport } from '~/shared/viewport';
 import { active, check, clear, extent, kindAt, link, setKind, toggle, unformat } from './format';
 import history, { type Entry, type Kind as Step } from './history';
 import { parse, serialize, type Feature, type Group } from './markdown';
@@ -945,7 +946,7 @@ export default component(
             // Floats outside the field, so only the viewport limits it: flips below when there's no room above.
             let below = first.top < h + GAP,
                 center = bounds.left + bounds.width / 2,
-                x = Math.min(Math.max(center - w / 2, GAP), document.documentElement.clientWidth - w - GAP);
+                x = Math.min(Math.max(center - w / 2, GAP), viewport().width - w - GAP);
 
             // Scales out of the selection itself, even when clamped to the edge.
             panel.origin = `${center - x}px ${below ? 0 : h}px`;

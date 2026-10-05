@@ -1,6 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { computed, effect, onCleanup, reactive, ReactiveArray, read, untrack } from '@esportsplus/reactivity';
 import tooltip from '~/components/tooltip';
+import { viewport } from '~/shared/viewport';
 import './scss/index.scss';
 
 
@@ -288,7 +289,7 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
 
         // Starts centred on the text; nudged sideways only if that would poke past the viewport.
         let box = message.getBoundingClientRect(),
-            max = document.documentElement.clientWidth - VIEWPORT_GUTTER,
+            max = viewport().width - VIEWPORT_GUTTER,
             shift = box.left < VIEWPORT_GUTTER ? VIEWPORT_GUTTER - box.left : box.right > max ? max - box.right : 0;
 
         if (shift) {

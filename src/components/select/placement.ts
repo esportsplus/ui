@@ -1,4 +1,5 @@
 import { clamp } from '~/shared/clamp';
+import { viewport } from '~/shared/viewport';
 
 
 type Parts = {
@@ -33,7 +34,8 @@ function place({ label, option, panel, scroller, trigger, value }: Parts, count:
         shift = label.offsetLeft - (value.offsetLeft - trigger.offsetLeft),
         top = trigger.offsetTop + (trigger.offsetHeight - item) / 2 - (pad + selected * item - scroll);
 
-    let maxBottom = trigger.offsetTop + (innerHeight - MARGIN - box.top) / scale,
+    let view = viewport(),
+        maxBottom = trigger.offsetTop + (view.height - MARGIN - box.top) / scale,
         minTop = trigger.offsetTop + (MARGIN - box.top) / scale;
 
     if (top < minTop) {
@@ -53,7 +55,7 @@ function place({ label, option, panel, scroller, trigger, value }: Parts, count:
     let width = trigger.offsetWidth + shift,
         left = Math.max(
             trigger.offsetLeft + (MARGIN - box.left) / scale,
-            Math.min(trigger.offsetLeft - shift, trigger.offsetLeft + (innerWidth - MARGIN - box.left) / scale - width)
+            Math.min(trigger.offsetLeft - shift, trigger.offsetLeft + (view.width - MARGIN - box.left) / scale - width)
         );
 
     return {

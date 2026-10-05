@@ -3,6 +3,7 @@ import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import overlay from '~/components/overlay';
 import { finished } from '~/shared/animation';
 import { observe } from '~/shared/resize';
+import { fit, viewport } from '~/shared/viewport';
 import { cool, wait, warm, type Delay } from './utilities';
 import '~/components/frame/scss/index.scss';
 
@@ -83,16 +84,13 @@ const SIDES: Direction[] = ['e', 'n', 's', 'w'];
 let uid = 0;
 
 
-function clamp(value: number, min: number, max: number) {
-    return Math.max(min, Math.min(value, max));
-}
-
 // 'gap' is the surface's padding on the anchor side; x and y place the surface, padding included.
 function place(anchor: DOMRect, direction: Direction, gap: number, height: number, width: number) {
-    let room = {
-            e: innerWidth - anchor.right,
+    let view = viewport(),
+        room = {
+            e: view.width - anchor.right,
             n: anchor.top,
-            s: innerHeight - anchor.bottom,
+            s: view.height - anchor.bottom,
             w: anchor.left
         },
         side = direction;
@@ -104,7 +102,7 @@ function place(anchor: DOMRect, direction: Direction, gap: number, height: numbe
     if (side === 'n' || side === 's') {
         return {
             side,
-            x: clamp(anchor.left + anchor.width / 2 - width / 2, EDGE, innerWidth - EDGE - width),
+            x: fit(anchor.left + anchor.width / 2 - width / 2, width, view.width, EDGE),
             y: side === 'n' ? anchor.top - gap - height : anchor.bottom
         };
     }
@@ -112,7 +110,7 @@ function place(anchor: DOMRect, direction: Direction, gap: number, height: numbe
     return {
         side,
         x: side === 'w' ? anchor.left - gap - width : anchor.right,
-        y: clamp(anchor.top + anchor.height / 2 - height / 2, EDGE, innerHeight - EDGE - height)
+        y: fit(anchor.top + anchor.height / 2 - height / 2, height, view.height, EDGE)
     };
 }
 

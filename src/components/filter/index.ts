@@ -1,5 +1,6 @@
 import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
 import { timing } from '~/shared/animation';
+import { viewport } from '~/shared/viewport';
 import type { Attributes } from '@esportsplus/template';
 import './scss/index.scss';
 
@@ -31,11 +32,11 @@ const OVERSCAN = 200;
 let instance = 0;
 
 
-function near(rect: DOMRect) {
+function near(rect: DOMRect, view: { height: number, width: number }) {
     return rect.bottom > -OVERSCAN
         && rect.right > -OVERSCAN
-        && rect.left < innerWidth + OVERSCAN
-        && rect.top < innerHeight + OVERSCAN;
+        && rect.left < view.width + OVERSCAN
+        && rect.top < view.height + OVERSCAN;
 }
 
 
@@ -150,6 +151,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             from = 0,
             lifts = new Map<HTMLElement, Origin>(),
             parents = new Map<Element, Origin>(),
+            view = viewport(),
             visible = 0;
 
         // Reads are batched ahead of any write so the browser lays out once per phase.
@@ -167,7 +169,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
 
                 first.set(element, rect);
 
-                if (!shown[i] || !filter || filter.match(items[i]) || !near(rect)) {
+                if (!shown[i] || !filter || filter.match(items[i]) || !near(rect, view)) {
                     continue;
                 }
 
@@ -225,7 +227,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             let origin = lifts.get(element),
                 rect = first.get(element);
 
-            if (!leave || !origin || !rect || !near(rect)) {
+            if (!leave || !origin || !rect || !near(rect, view)) {
                 element.style.display = 'none';
                 continue;
             }
@@ -303,14 +305,14 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             let rect = first.get(element);
 
             if (!rect) {
-                if (enter && near(last)) {
+                if (enter && near(last, view)) {
                     play(element, [{ opacity: 0, transform: 'scale(0.97)' }, { opacity: 1, transform: 'scale(1)' }], enter);
                 }
 
                 continue;
             }
 
-            if (!move || (!near(last) && !near(rect))) {
+            if (!move || (!near(last, view) && !near(rect, view))) {
                 continue;
             }
 
