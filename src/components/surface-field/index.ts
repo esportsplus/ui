@@ -1,5 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, read as get, signal, untrack, write } from '@esportsplus/reactivity';
+import { effect, read as get, signal, untrack, write } from '@esportsplus/reactivity';
 import { pool } from '@esportsplus/workers';
 import { observer, type Observer } from '~/shared/resize';
 import { observeIntersection } from '~/shared/visible';
@@ -552,45 +552,40 @@ export default component(
             schedule();
         }
 
-        let disposers = [
-            effect(() => {
-                let next = settings();
+        effect(() => {
+            let next = settings();
 
-                untrack(() => field?.configure(next));
-            }),
-            effect(() => {
-                read('accent');
-                untrack(recolor);
-            }),
-            // Read deeply so reactive cameras and links are tracked; the next measure picks up what changed.
-            effect(() => {
-                let camera = read('camera'),
-                    links = read('links');
+            untrack(() => field?.configure(next));
+        });
 
-                if (camera) {
-                    void (camera.x + camera.y + camera.zoom);
-                }
+        effect(() => {
+            read('accent');
+            untrack(recolor);
+        });
 
-                void JSON.stringify(links);
-                untrack(() => {
-                    relink = true;
-                    schedule();
-                });
-            }),
-            effect(() => {
-                let ripple = read('ripple');
+        // Read deeply so reactive cameras and links are tracked; the next measure picks up what changed.
+        effect(() => {
+            let camera = read('camera'),
+                links = read('links');
 
-                if (ripple) {
-                    let { x, y } = ripple;
+            if (camera) {
+                void (camera.x + camera.y + camera.zoom);
+            }
 
-                    untrack(() => field?.ripple(x, y));
-                }
-            })
-        ];
+            void JSON.stringify(links);
+            untrack(() => {
+                relink = true;
+                schedule();
+            });
+        });
 
-        onCleanup(() => {
-            for (let i = 0, n = disposers.length; i < n; i++) {
-                disposers[i]();
+        effect(() => {
+            let ripple = read('ripple');
+
+            if (ripple) {
+                let { x, y } = ripple;
+
+                untrack(() => field?.ripple(x, y));
             }
         });
 
