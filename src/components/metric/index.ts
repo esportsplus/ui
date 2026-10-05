@@ -4,6 +4,7 @@ import { clamp } from '~/shared/clamp';
 import { observeSize } from '~/shared/resize';
 import { onceVisible } from '~/shared/visible';
 import flash from './flash';
+import subscribe from './subscribe';
 import './scss/index.scss';
 
 
@@ -26,8 +27,6 @@ type State = {
 };
 
 
-const EVENTS = ['clear', 'concat', 'pop', 'push', 'reverse', 'set', 'shift', 'sort', 'splice', 'unshift'] as const;
-
 const KEYS: Record<string, (index: number, last: number) => number> = {
     ArrowLeft: (index) => index - 1,
     ArrowRight: (index) => index + 1,
@@ -41,33 +40,6 @@ const METRIC_PLOT = Symbol.for('@esportsplus/ui/metric.plot');
 const PAD_X = 8;
 
 const PAD_Y = 10;
-
-// A reactive array's listeners can never be removed, so each array gets one listener per event that fans out to
-// whichever metrics are mounted on it, and an unmounted metric only leaves this set.
-const SUBSCRIBERS = new WeakMap<ReactiveArray<Point>, Set<VoidFunction>>();
-
-
-function subscribe(data: ReactiveArray<Point>, listener: VoidFunction) {
-    let listeners = SUBSCRIBERS.get(data) ?? new Set<VoidFunction>();
-
-    if (!SUBSCRIBERS.has(data)) {
-        SUBSCRIBERS.set(data, listeners);
-
-        for (let i = 0, n = EVENTS.length; i < n; i++) {
-            data.on(EVENTS[i], () => {
-                for (let fn of listeners) {
-                    fn();
-                }
-            });
-        }
-    }
-
-    listeners.add(listener);
-
-    return () => {
-        listeners.delete(listener);
-    };
-}
 
 
 function template(this: { attributes?: Partial<A> } | void, { data, format = String, state = reactive({ active: false, index: data.length - 1 }), title, ...attributes }: A) {
