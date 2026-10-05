@@ -8,7 +8,7 @@ const themed: typeof select = select.bind({
             class: '--background-black --color-white',
             style: '--color-default: var(--color-grey-500); --padding-horizontal: var(--size-500); white-space: nowrap; width: 100%;'
         },
-        style: '--border-color-default: var(--color-black-300); --border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color);',
+        style: '--border-color-default: var(--color-black-300); --border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color); color-scheme: dark;',
 
         [select.tooltipContent]: {
             direction: 'sw',
@@ -18,6 +18,7 @@ const themed: typeof select = select.bind({
                 --border-radius: var(--border-radius-500);
                 --border-width: var(--border-width-400);
                 border: var(--border-width) solid var(--border-color);
+                color-scheme: dark;
             `
         }
     }

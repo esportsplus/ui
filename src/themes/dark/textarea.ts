@@ -7,6 +7,7 @@ export default textarea.bind({
         style: `
             --border-color-active: var(--color-purple-300);
             --border-color-default: var(--color-black-300);
+            color-scheme: dark;
         `
     }
 });
