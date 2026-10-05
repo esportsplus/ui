@@ -23,15 +23,8 @@
     &-menu {
         // Read by the option's check, which pops in once the option is chosen.
         &-option {
-            --check-blur: 4px;
-            --check-opacity: 0;
-            --check-scale: 0.25;
-
-            &[aria-selected='true'] {
-                --check-blur: 0px;
-                --check-opacity: 1;
-                --check-scale: 1;
-            }
+            --icon-swap-duration: 300ms;
+            --icon-swap-timing-function: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.897, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
         }
 
         &-panel {

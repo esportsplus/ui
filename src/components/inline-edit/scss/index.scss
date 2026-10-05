@@ -331,47 +331,34 @@
         // Only the shared check takes these; it carries no stroke of its own and is drawn on a 24 unit grid.
         &-check,
         &-pencil {
-            fill: none;
+            @extend %icon-stroke, %icon-swap;
             grid-area: 1 / 1;
             height: var(--icon-size);
-            stroke: currentColor;
-            stroke-linecap: round;
-            stroke-linejoin: round;
             stroke-width: 2.25;
-            transition:
-                filter var(--icon-swap-duration) var(--icon-swap-timing-function),
-                opacity var(--icon-swap-duration) var(--icon-swap-timing-function),
-                scale var(--icon-swap-duration) var(--icon-swap-timing-function);
             width: var(--icon-size);
         }
 
         &-check {
             color: var(--icon-color-saved);
-            filter: blur(4px);
-            opacity: 0;
-            scale: 0.25;
         }
 
-        // The pencil only shows on hover or keyboard focus.
+        // The pencil rests in place but faded, showing only on hover or keyboard focus.
         &-pencil {
+            @extend %icon-swap-active;
             opacity: 0;
         }
 
-        .inline-edit:hover &-pencil,
-        .inline-edit:has(:focus-visible) &-pencil {
+        // Not while saved: the saved pencil is hidden by the shared swap rules, which come first, so they'd lose a tie.
+        .inline-edit:not(.inline-edit--saved):is(:hover, :has(:focus-visible)) &-pencil {
             opacity: 1;
         }
 
         .inline-edit.inline-edit--saved &-check {
-            filter: blur(0);
-            opacity: 1;
-            scale: 1;
+            @extend %icon-swap-active;
         }
 
         .inline-edit.inline-edit--saved &-pencil {
-            filter: blur(4px);
-            opacity: 0;
-            scale: 0.25;
+            @extend %icon-swap;
         }
 
         #{tokens.state(active, '.inline-edit')} > & {
@@ -528,10 +515,10 @@
     }
 }
 
-// Every motion runs on these durations, so zeroing them stills the component.
+// Every motion but the icon swap (stilled by '%icon-swap' itself) runs on these durations, so zeroing them stills the
+// component.
 @media (prefers-reduced-motion: reduce) {
     .inline-edit {
-        --icon-swap-duration: 0s;
         --toolbar-button-duration: 0s;
 
         &-status {
@@ -547,12 +534,6 @@
         &-toolbar.tooltip-content {
             --transition-duration: 0s;
         }
-    }
-
-    .inline-edit-icon-check,
-    .inline-edit-icon-pencil {
-        filter: none !important;
-        scale: 1 !important;
     }
 
     .inline-edit-toolbar-button.button:active {

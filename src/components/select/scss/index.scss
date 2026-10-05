@@ -2,8 +2,6 @@
 @use '/tokens';
 @use 'variables';
 
-$icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.897, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
-
 .select {
     color: var(--color);
     font-size: var(--font-size);
@@ -18,17 +16,10 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
 
     &-menu {
         &-check {
-            @extend %icon-stroke;
-            filter: blur(var(--check-blur));
+            @extend %icon-stroke, %icon-swap;
             flex: 0 0 auto;
             height: 16px;
-            opacity: var(--check-opacity);
-            scale: var(--check-scale);
             stroke-width: 2.25;
-            transition:
-                filter 300ms $icon-swap,
-                opacity 300ms $icon-swap,
-                scale 300ms $icon-swap;
             width: 16px;
         }
 
@@ -57,6 +48,10 @@ $icon-swap: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86
             &--highlighted,
             &:focus {
                 background: var(--highlight);
+            }
+
+            &[aria-selected='true'] .select-menu-check {
+                @extend %icon-swap-active;
             }
 
             &-detail {

@@ -14,7 +14,7 @@
 }
 
 // One of several icons sharing a spot: blurred and shrunk away until '%icon-swap-active' brings it in, over the
-// block's '--icon-swap-duration' and '--icon-swap-timing-function'. Reduced motion keeps only the fade.
+// block's '--icon-swap-duration' and '--icon-swap-timing-function'. Reduced motion swaps instantly.
 %icon-swap {
     filter: blur(4px);
     opacity: 0;
@@ -25,9 +25,7 @@
         scale var(--icon-swap-duration) var(--icon-swap-timing-function);
 
     @media (prefers-reduced-motion: reduce) {
-        filter: none;
-        scale: 1;
-        transition-property: opacity;
+        transition: none;
     }
 }
 
