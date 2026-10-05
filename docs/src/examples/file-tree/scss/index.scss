@@ -17,6 +17,20 @@
         color-scheme: dark;
     }
 
+    &-action {
+        --border-width: var(--border-width-400);
+        --font-size: var(--font-size-300);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-100);
+        border: var(--border-width) solid var(--border-color);
+
+        // The library button has no disabled look of its own.
+        &.--disabled {
+            cursor: default;
+            opacity: 0.5;
+        }
+    }
+
     &-actions {
         align-items: center;
         display: flex;

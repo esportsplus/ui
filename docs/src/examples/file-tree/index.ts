@@ -23,6 +23,9 @@ type Legend = {
 };
 
 
+// The library button, dressed as the other examples' controls.
+const ACTION = 'button --background-white --border-border --color-text file-tree-demo-action';
+
 const FILE_EXTENSION = /(\.[^.]*)?$/;
 
 const TEST_PATH = /^tests(\/|$)/;
@@ -877,7 +880,7 @@ export default {
                         <p class='file-tree-demo-caption'>Viewing: <code>${() => editor.file}</code></p>
                         <div class='file-tree-demo-actions'>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     editor.dirty = !editor.dirty;
                                     tabs.update([['package.json', { editor: { open: true, unsaved: editor.dirty } }]]);
@@ -891,7 +894,7 @@ export default {
                                 ${() => editor.dirty ? 'Save package.json' : 'Edit package.json'}
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => view('src/components/card/expand.ts')}'
                                 type='button'
                             >
@@ -936,7 +939,7 @@ export default {
                             })}
                         </div>
                         <div class='file-tree-demo-actions'>
-                            <button class='button' onclick='${() => controller?.find('file-42.')}' type='button'>
+                            <button class='${ACTION}' onclick='${() => controller?.find('file-42.')}' type='button'>
                                 Find file-42.
                             </button>
                         </div>
@@ -990,11 +993,11 @@ export default {
                             })}
                         </div>
                         <div class='file-tree-demo-actions'>
-                            <button class='button' onclick='${() => controller?.find('index')}' type='button'>
+                            <button class='${ACTION}' onclick='${() => controller?.find('index')}' type='button'>
                                 Find index
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     files.add({ id: `src/components/card/index-${++count}.ts`, name: `index-${count}.ts` }, 'src/components/card');
                                 }}'
@@ -1003,7 +1006,7 @@ export default {
                                 Add a matching file
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     let id = 'src/components/tooltip/index.ts';
 
@@ -1070,7 +1073,7 @@ export default {
                         <p class='file-tree-demo-caption'>Excluded: <code>${EXCLUDE.join(', ')}</code></p>
                         <div class='file-tree-demo-actions'>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     display.dotfiles = !display.dotfiles;
                                 }}'
@@ -1079,7 +1082,7 @@ export default {
                                 ${() => display.dotfiles ? 'Hide dotfiles' : 'Show dotfiles'}
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     display.ignored = !display.ignored;
                                 }}'
@@ -1088,7 +1091,7 @@ export default {
                                 ${() => display.ignored ? 'Hide gitignored' : 'Show gitignored'}
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     decorations.update([['src/styles.css', decorations.get('src/styles.css') ? null : { status: 'ignored' }]]);
                                 }}'
@@ -1153,7 +1156,7 @@ export default {
                         <p class='file-tree-demo-caption'>Guides show while hovering; rest on a row for its path. Deleting a file keeps the set sizes screen readers hear in step.</p>
                         <div class='file-tree-demo-actions'>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     removed = !removed;
                                     decorations.update([['src/components/old-menu.ts', removed ? { deletions: 48, status: 'deleted' } : null]]);
@@ -1271,7 +1274,7 @@ export default {
                         <p class='file-tree-demo-caption'>Selected: <code>${() => state.selected || 'nothing'}</code></p>
                         <div class='file-tree-demo-actions'>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     // A second folder in src/main splits its row; taking it away joins it again.
                                     history.transact(() => settings.resources
@@ -1284,7 +1287,7 @@ export default {
                                 ${() => settings.resources ? 'Remove src/main/resources' : 'Add src/main/resources'}
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     display.dotfiles = !display.dotfiles;
                                 }}'
@@ -1293,7 +1296,7 @@ export default {
                                 ${() => display.dotfiles ? 'Hide dotfiles' : 'Show dotfiles'}
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     state.selected = 'src/main/java/com';
                                 }}'
@@ -1348,14 +1351,14 @@ export default {
                             Viewing: <code>${() => editor.file || 'nothing'}</code>${() => editor.how && ` (${editor.how})`}
                         </p>
                         <div class='file-tree-demo-actions'>
-                            <button class='button' onclick='${() => controller?.previous()}' type='button'>
+                            <button class='${ACTION}' onclick='${() => controller?.previous()}' type='button'>
                                 Previous change
                             </button>
-                            <button class='button' onclick='${() => controller?.next()}' type='button'>
+                            <button class='${ACTION}' onclick='${() => controller?.next()}' type='button'>
                                 Next change
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     state.selected = 'src/components/heatmap/index.ts';
                                 }}'
@@ -1462,9 +1465,9 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo-actions'>
-                            <button class='button' onclick='${() => editor.create('file')}' type='button'>New file</button>
-                            <button class='button' onclick='${() => editor.create('folder')}' type='button'>New folder</button>
-                            <button class='button' onclick='${() => editor.rename()}' type='button'>Rename</button>
+                            <button class='${ACTION}' onclick='${() => editor.create('file')}' type='button'>New file</button>
+                            <button class='${ACTION}' onclick='${() => editor.create('folder')}' type='button'>New folder</button>
+                            <button class='${ACTION}' onclick='${() => editor.rename()}' type='button'>Rename</button>
                         </div>
                         <div class='file-tree-demo'>
                             ${fileTree({
@@ -1557,7 +1560,7 @@ export default {
                         <p class='file-tree-demo-caption'>${() => ui.last}</p>
                         <div class='file-tree-demo-actions'>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     ui.ask = !ui.ask;
                                 }}'
@@ -1616,7 +1619,7 @@ export default {
                         <p class='file-tree-demo-caption'>Selected: <code>${() => state.selected || 'nothing'}</code></p>
                         <div class='file-tree-demo-actions'>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     let id = `new-${++count}`;
 
@@ -1628,7 +1631,7 @@ export default {
                                 Add
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     let element = files.get(state.selected);
 
@@ -1641,7 +1644,7 @@ export default {
                                 Rename
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     let element = files.get(state.selected);
 
@@ -1654,7 +1657,7 @@ export default {
                                 Move
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     if (files.get(state.selected)) {
                                         history.transact(() => files.remove(state.selected));
@@ -1664,7 +1667,7 @@ export default {
                             >
                                 Delete
                             </button>
-                            <button class='button' onclick='${() => history.undo()}' type='button'>Undo</button>
+                            <button class='${ACTION}' onclick='${() => history.undo()}' type='button'>Undo</button>
                         </div>
                     </div>
                 `;
@@ -1708,22 +1711,22 @@ export default {
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo-actions'>
                             <button
-                                class='button ${() => !history.canUndo && '--disabled'}'
+                                class='${ACTION} ${() => !history.canUndo && '--disabled'}'
                                 onclick='${() => history.undo()}'
                                 type='button'
                             >
                                 Undo
                             </button>
                             <button
-                                class='button ${() => !history.canRedo && '--disabled'}'
+                                class='${ACTION} ${() => !history.canRedo && '--disabled'}'
                                 onclick='${() => history.redo()}'
                                 type='button'
                             >
                                 Redo
                             </button>
-                            <button class='button' onclick='${() => editor.create('file')}' type='button'>New file</button>
+                            <button class='${ACTION}' onclick='${() => editor.create('file')}' type='button'>New file</button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     ui.ask = !ui.ask;
                                 }}'
@@ -1824,7 +1827,7 @@ export default {
                                     elements: files,
                                     empty: () => html`
                                         <p>No files yet</p>
-                                        <button class='button' onclick='${() => files.add(packages())}' type='button'>Add files</button>
+                                        <button class='${ACTION}' onclick='${() => files.add(packages())}' type='button'>Add files</button>
                                     `,
                                     snapshot
                                 });
@@ -1833,7 +1836,7 @@ export default {
                         <p class='file-tree-demo-caption'>Saved: <code>${() => mounted.saved || 'nothing'}</code></p>
                         <div class='file-tree-demo-actions'>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     // As a consumer would store it, then hand it back.
                                     mounted.saved = JSON.stringify(snapshot);
@@ -1845,7 +1848,7 @@ export default {
                                 Save & remount
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     for (let element of [...files.elements]) {
                                         files.remove(element.id);
@@ -1913,7 +1916,7 @@ export default {
                         <p class='file-tree-demo-caption'>${() => ui.log}</p>
                         <div class='file-tree-demo-actions'>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => {
                                     if (ui.docs) {
                                         files.remove('docs');
@@ -1929,7 +1932,7 @@ export default {
                                 ${() => ui.docs ? 'Remove docs root' : 'Add docs root'}
                             </button>
                             <button
-                                class='button'
+                                class='${ACTION}'
                                 onclick='${() => files.move(files.elements[files.elements.length - 1].id, null, 0)}'
                                 type='button'
                             >
