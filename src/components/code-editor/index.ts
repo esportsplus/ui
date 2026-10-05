@@ -1,6 +1,7 @@
 import editor from './editor';
 import markdown from './markdown';
 import workspace from './workspace';
+import '~/css-utilities/scrollbar/scss/index.scss';
 import './scss/index.scss';
 
 
@@ -12,7 +13,6 @@ const codeEditor: typeof editor & {
 
 export default codeEditor;
 export { EditorDocument } from './document';
-export { mountEditor } from './view';
 export { mountMarkdownEditor } from './markdown';
 export { fileUri, languageIdFor, mountLanguageServices, referenceRpcTransport } from './services';
 export { EditorWorkspaceModel, isWorkspaceCodeEditor } from './workspace';

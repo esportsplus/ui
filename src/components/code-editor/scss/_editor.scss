@@ -1,54 +1,171 @@
+@use '/shared';
+@use '/tokens';
+
 .code-editor {
-    background: var(--editor-background);
-    border: 1px solid var(--editor-border);
-    border-radius: var(--border-radius-400, 6px);
+    background: var(--background);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius);
     box-sizing: border-box;
-    color: var(--editor-color);
+    color: var(--color);
     display: flex;
     flex-direction: column;
-    height: var(--editor-height);
-    min-height: 100px;
+    height: var(--height);
+    min-height: var(--min-height);
     min-width: 0;
     overflow: hidden;
     position: relative;
     width: 100%;
 
-    &:focus-within {
-        outline: 2px solid var(--editor-number);
-        outline-offset: 1px;
+    &-bracket {
+        background: var(--bracket-background);
+        outline: var(--border-width) solid var(--bracket-outline);
     }
 
-    &-view {
-        display: flex;
-        flex: 1;
+    &-decoration {
+        position: absolute;
+        transition: none;
+
+        &--caret {
+            background: var(--caret-color);
+            width: var(--caret-width);
+        }
+
+        &--drop {
+            background: var(--caret-color);
+            width: var(--drop-width);
+        }
+
+        &--selection {
+            background: var(--selection-background);
+        }
+    }
+
+    &-decorations,
+    &-lines,
+    &-numbers {
+        left: 0;
+        position: absolute;
+        top: 0;
+        // Rows must follow the native scroll offset in the same frame, even under a theme that transitions transforms.
+        transition: none;
+    }
+
+    &-find {
         flex-direction: column;
-        min-height: 0;
+    }
+
+    &-find,
+    &-goto {
+        background: var(--bar-background);
+        border-bottom: var(--border-width) solid var(--border-color);
+        display: none;
+        flex: none;
+        font-size: var(--bar-font-size);
+        gap: var(--bar-gap);
+        margin: 0;
+        padding: var(--bar-padding);
+
+        @include tokens.state(active) {
+            display: flex;
+        }
+    }
+
+    &-find-button.button {
+        flex: none;
+        height: var(--bar-control-height);
+        min-width: var(--bar-control-height);
+
+        &:disabled {
+            cursor: default;
+            opacity: var(--disabled-opacity);
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+        }
+    }
+
+    &-find-input.input,
+    &-goto-input.input {
+        flex: 1 1 var(--bar-input-width);
         min-width: 0;
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+        }
+
+        // The field's invalid state is semantic; nothing else marks it.
+        &[aria-invalid='true'] {
+            --border-color-default: var(--invalid-color);
+        }
     }
 
-    &-surface {
-        flex: 1;
-        min-height: 0;
+    &-find-row {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--bar-gap);
+
+        &--replace {
+            display: none;
+
+            @include tokens.state(active) {
+                display: flex;
+            }
+        }
+    }
+
+    &-find-status {
+        color: var(--muted-color);
+        font-variant-numeric: tabular-nums;
+        min-width: 6ch;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    &-fold {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        flex: none;
+        height: var(--line-height);
+        justify-content: center;
+        pointer-events: auto;
+        width: var(--fold-width);
+
+        &--none {
+            pointer-events: none;
+            visibility: hidden;
+        }
+    }
+
+    &-fold-icon.icon {
+        --size: var(--fold-icon-size);
+        rotate: var(--fold-rotate);
+        transition: rotate var(--fold-duration) ease-out;
+    }
+
+    &-goto {
+        align-items: center;
+    }
+
+    &-gutter {
+        border-right: var(--border-width) solid var(--border-color);
+        bottom: 0;
+        box-sizing: border-box;
+        color: var(--gutter-color);
+        left: 0;
         overflow: hidden;
-        position: relative;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        user-select: none;
+        width: var(--gutter-width);
+        z-index: 3;
     }
 
-    &-input,
-    &-overlay,
-    &-gutter,
-    &-mirror {
-        font-family: var(--editor-font-family);
-        font-size: var(--editor-font-size);
-        font-style: normal;
-        font-variant-ligatures: none;
-        font-weight: normal;
-        letter-spacing: normal;
-        line-height: var(--editor-line-height);
-        tab-size: var(--editor-tab-size);
-        text-align: left;
-        text-indent: 0;
-        text-transform: none;
-        word-spacing: normal;
+    &-help {
+        @extend %hidden-visually;
     }
 
     &-input {
@@ -59,346 +176,253 @@
         border: 0;
         border-radius: 0;
         box-sizing: border-box;
-        caret-color: var(--editor-color);
-        color: transparent;
+        caret-color: var(--caret-color);
+        color: var(--input-color);
+        cursor: var(--input-cursor);
         display: block;
+        font: inherit;
         height: 100%;
-        left: var(--editor-gutter-width);
+        left: var(--gutter-width);
+        letter-spacing: inherit;
+        line-height: inherit;
         margin: 0;
         outline: none;
         overflow: auto;
-        overflow-wrap: normal;
-        padding: var(--editor-padding);
+        overflow-wrap: var(--overflow-wrap);
+        padding: var(--padding);
         position: absolute;
         resize: none;
         scroll-behavior: auto;
+        tab-size: inherit;
         top: 0;
         transition: none;
-        white-space: pre;
-        width: calc(100% - var(--editor-gutter-width) - var(--editor-minimap-width, 0px));
+        white-space: var(--white-space);
+        width: calc(100% - var(--gutter-width) - var(--minimap-offset));
         z-index: 1;
 
         &::placeholder {
-            color: var(--editor-comment);
+            color: var(--placeholder-color);
         }
 
         &::selection {
-            background: var(--editor-selection);
+            background: var(--selection-background);
         }
     }
 
-    &-overlay,
-    &-gutter {
+    &-line {
         box-sizing: border-box;
+        left: 0;
+        min-width: 100%;
+        overflow-wrap: var(--overflow-wrap);
+        position: absolute;
+        white-space: var(--white-space);
+        width: var(--line-width);
+
+        @include tokens.state(active) {
+            background: var(--active-line-background);
+        }
+
+        &--unused {
+            display: none;
+        }
+    }
+
+    &-lines {
+        width: var(--content-width);
+    }
+
+    &-match {
+        background: var(--match-background);
+
+        @include tokens.state(active) {
+            background: var(--match-active-background);
+        }
+    }
+
+    &-minimap {
+        border-left: var(--border-width) solid var(--border-color);
+        bottom: 0;
+        box-sizing: border-box;
+        cursor: pointer;
+        display: var(--minimap-display);
         overflow: hidden;
+        position: absolute;
+        right: 0;
+        top: 0;
+        touch-action: none;
+        width: var(--minimap-width);
+        z-index: 4;
+    }
+
+    &-minimap-canvas {
+        display: block;
+        height: 100%;
+        width: 100%;
+    }
+
+    &-minimap-slider {
+        background: var(--minimap-slider-background);
+        border: var(--border-width) solid var(--border-color);
+        box-sizing: border-box;
+        height: var(--slider-height);
+        left: 0;
         pointer-events: none;
         position: absolute;
-        top: 0;
-        user-select: none;
+        top: var(--slider-top);
+        transition: none;
+        width: 100%;
+    }
+
+    &-number {
+        align-items: center;
+        display: flex;
+        left: 0;
+        position: absolute;
+        width: 100%;
+
+        @include tokens.state(active) {
+            color: var(--gutter-active-color);
+        }
+
+        &--unused {
+            display: none;
+        }
+    }
+
+    &-number-text {
+        display: var(--number-display);
+        flex: 1;
+        line-height: var(--line-height);
+        text-align: right;
+    }
+
+    &-numbers {
+        width: 100%;
+    }
+
+    &-occurrence {
+        background: var(--occurrence-background);
     }
 
     &-overlay {
-        left: var(--editor-gutter-width);
+        bottom: 0;
+        left: var(--gutter-width);
+        overflow: hidden;
+        pointer-events: none;
+        position: absolute;
+        right: var(--minimap-offset);
+        top: 0;
+        user-select: none;
+        visibility: var(--overlay-visibility);
     }
 
-    &-gutter {
-        border-right: 1px solid var(--editor-border);
-        color: var(--editor-comment);
-        left: 0;
-        width: var(--editor-gutter-width);
+    &-placeholder {
+        background: var(--placeholder-background);
+        border-radius: var(--border-radius-100);
+        color: var(--placeholder-color);
     }
 
-    &-lines,
-    &-numbers {
+    &-ruler {
         left: 0;
+        pointer-events: none;
         position: absolute;
         top: 0;
-        // Text and line numbers must follow the native scroll offset in the same frame, even inside
-        // a theme that inherits transform transitions onto every element.
-        transition: none;
-    }
-
-    &-numbers {
-        width: 100%;
-    }
-
-    &-line,
-    &-number {
-        box-sizing: border-box;
-        height: var(--editor-line-height);
-        position: absolute;
+        visibility: hidden;
         white-space: pre;
     }
 
-    &-number {
-        padding-right: 1ch;
-        text-align: right;
-        width: 100%;
+    &-space {
+        background: radial-gradient(circle at center, var(--whitespace-color) 1px, transparent 1.4px);
+    }
 
-        &--active {
-            color: var(--editor-color);
+    &-surface {
+        flex: 1;
+        font-family: var(--font-family);
+        font-size: var(--font-size);
+        font-style: normal;
+        font-variant-ligatures: none;
+        font-weight: normal;
+        letter-spacing: normal;
+        line-height: var(--line-height);
+        min-height: 0;
+        overflow: hidden;
+        position: relative;
+        tab-size: var(--tab-size);
+        text-align: left;
+        text-indent: 0;
+        text-transform: none;
+        word-spacing: normal;
+    }
+
+    &-tab {
+        position: relative;
+
+        &::before {
+            color: var(--whitespace-color);
+            content: '→';
+            left: 0;
+            pointer-events: none;
+            position: absolute;
         }
     }
 
     &-token {
+        &--color {
+            color: var(--literal-color);
+        }
+
         &--comment {
-            color: var(--editor-comment);
+            color: var(--comment-color);
+            font-style: italic;
         }
+
+        &--function {
+            color: var(--function-color);
+        }
+
         &--keyword {
-            color: var(--editor-keyword);
+            color: var(--keyword-color);
         }
+
         &--number {
-            color: var(--editor-number);
+            color: var(--number-color);
         }
+
         &--operator {
-            color: var(--editor-color);
+            color: var(--operator-color);
         }
+
+        &--property {
+            color: var(--property-color);
+        }
+
+        &--regexp {
+            color: var(--regexp-color);
+        }
+
+        &--selector {
+            color: var(--selector-color);
+        }
+
         &--string {
-            color: var(--editor-string);
+            color: var(--string-color);
         }
+
         &--tag {
-            color: var(--editor-keyword);
+            color: var(--tag-color);
+        }
+
+        &--type {
+            color: var(--type-color);
+        }
+
+        &--variable {
+            color: var(--variable-color);
         }
     }
 
-    &-match {
-        background: var(--editor-match);
+    &:focus-within {
+        outline: var(--focus-width) solid var(--focus-color);
+        outline-offset: var(--focus-offset);
     }
-    &-match--active {
-        background: var(--editor-match-active);
-    }
-
-    &-find,
-    &-go {
-        align-items: center;
-        border-bottom: 1px solid var(--editor-border);
-        display: flex;
-        flex: none;
-        flex-wrap: wrap;
-        font-family: system-ui, sans-serif;
-        font-size: 12px;
-        gap: 6px;
-        margin: 0;
-        padding: 6px;
-
-        &[hidden] {
-            display: none;
-        }
-
-        input,
-        button {
-            background: var(--editor-background);
-            border: 1px solid var(--editor-border);
-            border-radius: 3px;
-            color: var(--editor-color);
-            font: inherit;
-            min-height: 28px;
-            padding: 3px 6px;
-
-            &:focus-visible {
-                outline: 2px solid var(--editor-number);
-            }
-            &[hidden] {
-                display: none;
-            }
-        }
-
-        input {
-            flex: 1 1 100px;
-            min-width: 60px;
-            width: 120px;
-
-            &[aria-invalid='true'] {
-                border-color: #cf222e;
-            }
-        }
-
-        button {
-            cursor: pointer;
-
-            &[aria-pressed='true'] {
-                background: var(--editor-selection);
-            }
-            &:disabled {
-                cursor: default;
-                opacity: 0.5;
-            }
-        }
-    }
-
-    &-help {
-        clip-path: inset(50%);
-        height: 1px;
-        overflow: hidden;
-        position: absolute;
-        white-space: nowrap;
-        width: 1px;
-    }
-
-    &-view[data-composing='true'] {
-        .code-editor-input {
-            color: var(--editor-color);
-        }
-        .code-editor-overlay {
-            visibility: hidden;
-        }
-    }
-
-    &-view[data-line-numbers='false'] .code-editor-number > span {
-        display: none;
-    }
-
-    @media (forced-colors: active) {
-        .code-editor-input {
-            color: CanvasText;
-            caret-color: CanvasText;
-        }
-        .code-editor-overlay {
-            visibility: hidden;
-        }
-    }
-}
-
-.code-editor {
-    &-mirror {
-        position: absolute;
-        visibility: hidden;
-        pointer-events: none;
-        left: 0;
-        top: 0;
-        transition: none;
-        white-space: pre;
-        overflow-wrap: normal;
-        padding: 0;
-        border: 0;
-        margin: 0;
-    }
-    &-view[data-wrap='true'] {
-        .code-editor-input,
-        .code-editor-mirror,
-        .code-editor-line {
-            white-space: pre-wrap;
-            overflow-wrap: break-word;
-            word-break: normal;
-        }
-    }
-    &-view[data-crosshair='true'] .code-editor-input {
-        cursor: crosshair;
-    }
-    &-line--active {
-        background: color-mix(in srgb, var(--editor-color) 4%, transparent);
-    }
-    &-fold-button {
-        background: transparent;
-        color: inherit;
-        border: 0;
-        padding: 0;
-        width: 1.5ch;
-        height: var(--editor-line-height);
-        cursor: pointer;
-        pointer-events: auto;
-        font: inherit;
-    }
-    &-fold-button[hidden] {
-        visibility: hidden;
-        display: inline-block;
-    }
-    &-gutter {
-        z-index: 3;
-    }
-    &-number {
-        padding-right: 0;
-    }
-    &-decorations {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        overflow: hidden;
-        z-index: 2;
-    }
-    &-decoration {
-        position: absolute;
-        transition: none;
-    }
-    &-secondary-selection {
-        background: var(--editor-selection);
-    }
-    &-secondary-caret,
-    &-drop-caret {
-        background: var(--editor-color);
-    }
-    &-occurrence {
-        background: color-mix(in srgb, var(--editor-match) 65%, transparent);
-    }
-    &-bracket-match {
-        background: var(--editor-match-active);
-        outline: 1px solid var(--editor-number);
-    }
-    &-whitespace-space {
-        background: radial-gradient(circle at center, var(--editor-comment) 1px, transparent 1.4px);
-    }
-    &-whitespace-tab {
-        position: relative;
-        &::before {
-            content: '→';
-            color: var(--editor-comment);
-            position: absolute;
-            left: 0;
-            pointer-events: none;
-        }
-    }
-    &-token--comment {
-        font-style: italic;
-    }
-    &-token--function {
-        color: var(--editor-function, #8250df);
-    }
-    &-token--variable {
-        color: var(--editor-variable, var(--editor-color));
-    }
-    &-token--property {
-        color: var(--editor-property, var(--editor-number));
-    }
-    &-token--type {
-        color: var(--editor-type, var(--editor-keyword));
-    }
-    &-token--regexp {
-        color: var(--editor-string);
-    }
-    &-minimap {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 80px;
-        z-index: 4;
-        overflow: hidden;
-        border-left: 1px solid var(--editor-border);
-        touch-action: none;
-        cursor: pointer;
-    }
-    &-minimap[hidden] {
-        display: none;
-    }
-    &-minimap canvas {
-        display: block;
-        width: 80px;
-        height: 100%;
-    }
-    &-minimap-slider {
-        position: absolute;
-        width: 100%;
-        left: 0;
-        background: color-mix(in srgb, var(--editor-color) 12%, transparent);
-        border: 1px solid var(--editor-border);
-        box-sizing: border-box;
-        pointer-events: none;
-        transition: none;
-    }
-}
-
-.code-editor-fold-placeholder {
-    color: var(--editor-muted, #8993a7);
-    background: color-mix(in srgb, currentColor 15%, transparent);
-    border-radius: 2px;
 }

@@ -1,88 +1,69 @@
-import { effect, untrack } from '@esportsplus/reactivity';
-import { component, html, type Attributes } from '@esportsplus/template';
+import { effect, onCleanup, untrack } from '@esportsplus/reactivity';
+import { component, type Attributes } from '@esportsplus/template';
 import { EditorDocument } from './document';
-import { mountEditor, type Callbacks, type Controller, type Options } from './view';
+import { view, type Callbacks, type Controller, type Options } from './view';
 
-export type CodeEditorAttributes = Attributes &
-    Callbacks & {
-        /** Exact source text; a getter/reactive property controls subsequent values. */
-        value?: string | (() => string);
-        /** Supply one document per tab to retain its independent undo stack. */
-        document?: EditorDocument;
-        options?: Options | (() => Options);
-        controller?: (controller: Controller) => void;
-    };
 
-function template(this: { attributes?: Partial<CodeEditorAttributes> } | void, input: CodeEditorAttributes) {
-    let props = untrack(() => ({ ...this?.attributes, ...input })),
-        {
-            controller: receive,
-            document: supplied,
-            value,
-            options,
-            onChange,
-            onSelection,
-            onSave,
-            onconnect,
-            ondisconnect,
-            ...attributes
-        } = props,
-        resolveValue = () => {
-            let current = input.value ?? this?.attributes?.value;
-            return typeof current === 'function' ? current() : current;
-        },
-        resolveOptions = () => {
-            let current = input.options ?? this?.attributes?.options;
-            return { ...(typeof current === 'function' ? current() : current) };
-        },
-        model = supplied ?? new EditorDocument(untrack(resolveValue) ?? ''),
-        view: Controller | undefined,
-        stop: VoidFunction | undefined;
+type CodeEditorAttributes = Attributes & Callbacks & {
+    // Receives the controller once the editor is connected.
+    controller?: (controller: Controller) => void;
+    // One document per tab keeps its own undo history.
+    document?: EditorDocument;
+    options?: Options | (() => Options);
+    // Exact source text; a getter keeps following it.
+    value?: string | (() => string);
+};
 
-    return html`
-        <div class='code-editor' ${attributes} ${{
-            onconnect: (host: HTMLElement) => {
-                stop?.();
-                view?.dispose();
-                view = mountEditor(host, model, untrack(resolveOptions), { onChange, onSelection, onSave });
-                let mounted = view;
-                // Independent effects keep option changes from echoing a stale initial value over a draft.
-                let lastValue: string | undefined,
-                    stopValue = effect(() => {
-                        let nextValue = resolveValue();
-                        if (nextValue === lastValue) return;
-                        lastValue = nextValue;
-                        untrack(() => {
-                            if (nextValue !== undefined && nextValue !== model.value) mounted.setValue(nextValue);
-                        });
-                    }),
-                    stopOptions = effect(() => {
-                        let nextOptions = resolveOptions();
-                        untrack(() => mounted.setOptions(nextOptions, true));
-                    });
-                let disposeProps = () => {
-                        stopValue();
-                        stopOptions();
-                    },
-                    disposeView = mounted.dispose;
-                stop = disposeProps;
-                mounted.dispose = () => {
-                    disposeProps();
-                    if (stop === disposeProps) stop = undefined;
-                    disposeView();
-                };
-                receive?.(mounted);
-                onconnect?.(host);
+
+export default component(
+    function(this: { attributes?: Partial<CodeEditorAttributes> } | void, input: CodeEditorAttributes) {
+        let {
+                controller: receive,
+                document: supplied,
+                onChange,
+                onSave,
+                onSelection,
+                options,
+                value,
+                ...attributes
+            } = untrack(() => ({ ...this?.attributes, ...input })),
+            current = () => {
+                let next = input.value ?? this?.attributes?.value;
+
+                return typeof next === 'function' ? next() : next;
             },
-            ondisconnect: (host: HTMLElement) => {
-                stop?.();
-                stop = undefined;
-                view?.dispose();
-                view = undefined;
-                ondisconnect?.(host);
-            }
-        }}></div>
-    `;
-}
+            settings = () => {
+                let next = input.options ?? this?.attributes?.options;
 
-export default component(template);
+                return { ...(typeof next === 'function' ? next() : next) };
+            },
+            model = supplied ?? new EditorDocument(untrack(current) ?? ''),
+            editor = view(model, { onChange, onSave, onSelection }, receive),
+            last: string | undefined;
+
+        // Separate effects, so an options change never writes a stale initial value over a draft.
+        onCleanup(effect(() => {
+            let next = current();
+
+            if (next === last) {
+                return;
+            }
+
+            last = next;
+            untrack(() => {
+                if (next !== undefined && next !== model.value) {
+                    editor.controller.setValue(next);
+                }
+            });
+        }));
+
+        onCleanup(effect(() => {
+            let next = settings();
+
+            untrack(() => editor.controller.setOptions(next, true));
+        }));
+
+        return editor.template(attributes);
+    }
+);
+export type { CodeEditorAttributes };
