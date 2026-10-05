@@ -207,8 +207,10 @@ $icons: (
     }
 
     // Overridden per family, per icon by '--icon-color-<icon>', or all at once by '--icon-color'. Icons drawn outside a
-    // tree fall back to the same families.
+    // tree, as in tabs or a palette's rows, fall back to the same families and size themselves rather than read some
+    // other component's '--icon-size'.
     &-icon.icon {
+        --icon-size: var(--size-400);
         --size: var(--icon-size);
 
         @each $icon, $family in $icons {
@@ -219,6 +221,11 @@ $icons: (
                 );
             }
         }
+    }
+
+    // A tree's own icons take its '--icon-size', which may be set on the tree.
+    & &-icon.icon {
+        --icon-size: inherit;
     }
 
     &-marker.icon {
