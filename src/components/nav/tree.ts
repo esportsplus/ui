@@ -101,14 +101,14 @@ export default component<A>(
             ${current !== 'location' && highlight({ class: 'nav-tree-highlight', hover: current !== 'command', target: '.nav-tree-link:not(.--hidden)' })}
             ${sections.map((section) => html`
                 <div
-                    class='nav-tree-group ${() => !section.groups.some((group) => group.links.some(visible)) && '--hidden'}'
+                    class='nav-tree-group ${section.groups.some((group) => group.links.some((link) => link.visible)) && (() => !section.groups.some((group) => group.links.some(visible)) && '--hidden')}'
                     ${current === 'command' && { 'aria-label': section.label, role: 'group' }}
                 >
                     ${section.href
                         ? html`
                             <a
-                                aria-current='${() => current !== 'command' && section.active?.() ? current : 'false'}'
-                                class='nav-tree-link nav-tree-title ${() => section.active?.() && '--active'}'
+                                aria-current='${current !== 'command' && section.active ? () => section.active?.() ? current : 'false' : 'false'}'
+                                class='nav-tree-link nav-tree-title ${section.active && (() => section.active?.() && '--active')}'
                                 href='${section.href}'
                                 onclick='${(event: Event) => section.onclick?.(event)}'
                             >${section.label}</a>
@@ -118,7 +118,7 @@ export default component<A>(
                     ${section.groups.map((group) => {
                         return html`
                             <div
-                                class='nav-tree-links ${() => !group.links.some(visible) && '--hidden'}'
+                                class='nav-tree-links ${group.links.some((link) => link.visible) && (() => !group.links.some(visible) && '--hidden')}'
                                 ${{
                                     onconnect: (element: HTMLElement) => {
                                         if (current === 'location') {
@@ -135,8 +135,8 @@ export default component<A>(
 
                                 ${group.links.map((link) => html`
                                     <a
-                                        aria-current='${() => current !== 'command' && link.active?.() ? current : 'false'}'
-                                        class='nav-tree-link ${() => link.active?.() && '--active'} ${() => !visible(link) && '--hidden'}'
+                                        aria-current='${current !== 'command' && link.active ? () => link.active?.() ? current : 'false' : 'false'}'
+                                        class='nav-tree-link ${link.active && (() => link.active?.() && '--active')} ${link.visible && (() => !visible(link) && '--hidden')}'
                                         href='${link.href}'
                                         ${{
                                             onclick: (event: Event) => link.onclick?.(event)
