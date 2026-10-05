@@ -32,6 +32,7 @@ import { pointer } from './pointer';
 import { inputEdit, NativeText, type Before, type Placeholder } from './projection';
 import { markup, marks, pool, rowOffset, rowRect, tokens, type Fold, type Paint, type Slot } from './rows';
 import { search as scan, type Match, type SearchOptions, type SearchResult } from './search';
+import { services, type LanguageServiceOptions } from './services';
 import { commentSyntax, languageFor, syntaxCache, type Language, type SyntaxCache, type Token } from './syntax';
 
 
@@ -122,6 +123,8 @@ type Options = {
     onCompletionKey?: (event: KeyboardEvent, controller: Controller) => boolean;
     placeholder?: string;
     readonly?: boolean;
+    // Completion, hover and diagnostics from a language server; '{}' alone completes from the document's words.
+    services?: LanguageServiceOptions;
     tabSize?: number;
     whitespace?: boolean;
     wrap?: boolean;
@@ -758,6 +761,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         ui.x = metrics.padLeft - scrollLeft;
         ui.y = metrics.padTop - scrollTop;
         paintDecorations(scrollTop, clientHeight);
+        lsp.paint();
 
         if (options.minimap) {
             map.paint(
@@ -877,6 +881,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
         return {
             active: search.state.index,
+            diagnostics: lsp.marks(projection.toSource(from), projection.toSource(to)),
             index,
             matches,
             occurrences: occurrences.marks,
@@ -1250,6 +1255,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 unsubscribe?.();
                 unsubscribe = undefined;
                 size.ondisconnect();
+                lsp.dispose();
                 pendingValue = undefined;
             }
         },
@@ -1433,6 +1439,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             ui.whitespace = !!options.whitespace;
             ui.wrap = !!options.wrap;
             search.status();
+            lsp.configure(options);
 
             if (options.fold === false && folded.length) {
                 unfold([]);
@@ -1504,6 +1511,19 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             model.select(selection);
             sync(true);
         }
+    });
+
+    let lsp = services({
+        busy: ime.busy,
+        controller,
+        rect: (offset) => {
+            if (!layout || folded.some((fold) => offset > fold.from && offset < fold.to)) {
+                return null;
+            }
+
+            return layout.rect(projection.toNative(offset));
+        },
+        schedule
     });
 
     let field: Attributes = {
@@ -1600,9 +1620,13 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         onblur: () => {
             capture();
             gestures.reset();
+            lsp.dismiss();
         },
         oncompositionend: ime.attributes.oncompositionend,
-        oncompositionstart: ime.attributes.oncompositionstart,
+        oncompositionstart: () => {
+            lsp.dismiss();
+            ime.attributes.oncompositionstart();
+        },
         oncopy: (e: ClipboardEvent) => clip(e, false),
         oncut: (e: ClipboardEvent) => clip(e, true),
         ondragend: gestures.ondragend,
@@ -1630,7 +1654,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 return;
             }
 
-            if (options.onCompletionKey?.(e, controller)) {
+            if (lsp.keydown(e) || options.onCompletionKey?.(e, controller)) {
                 e.preventDefault();
                 return;
             }
@@ -1709,7 +1733,11 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             goals = [];
             gestures.onpointerdown(e);
         },
-        onpointermove: gestures.onpointermove,
+        onpointerleave: lsp.leave,
+        onpointermove: (e: PointerEvent) => {
+            gestures.onpointermove(e);
+            lsp.pointer(e);
+        },
         onpointerup: () => {
             gestures.end();
             capture();
@@ -1771,6 +1799,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                         ${html.reactive(decorations, (decoration) => html`
                             <div ${{ class: () => decoration.kind, style: () => decoration.style }}></div>
                         `)}
+                        ${lsp.anchors()}
                     </div>
                 </div>
                 <div aria-hidden='true' class='code-editor-gutter'>
@@ -1800,6 +1829,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                     dir='ltr'
                     spellcheck='false'
                     ${field}
+                    ${lsp.aria}
                     ${{
                         onconnect: (element: HTMLTextAreaElement) => {
                             textarea = element;
@@ -1816,6 +1846,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                     }}
                 >0000000000000000000000000000000000000000000000000000000000000000</span>
             </div>
+            ${lsp.template()}
             <span class='code-editor-help' id='${help}'>Press Escape then Tab to move focus out of the editor.</span>
         </div>
     `;

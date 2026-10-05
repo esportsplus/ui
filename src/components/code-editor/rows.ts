@@ -14,9 +14,11 @@ type Fold = 0 | 1 | 2;
 type Mark = { from: number; kind: string; to: number };
 
 // What one paint highlights across the visible lines: find matches (source offsets) from 'index' on with the active
-// one, occurrences of the selection (native offsets), the bracket pair at the caret and fold placeholders.
+// one, diagnostics (source offsets), occurrences of the selection (native offsets), the bracket pair at the caret and
+// fold placeholders.
 type Paint = {
     active: number;
+    diagnostics: readonly Mark[];
     index: number;
     matches: readonly Match[];
     occurrences: readonly { from: number; to: number }[];
@@ -63,7 +65,7 @@ function walker(element: HTMLElement) {
 
 // Marks within the native line [from, to), relative to its start.
 const marks = (projection: NativeText, from: number, to: number, paint: Paint) => {
-    let { index, matches, occurrences, pair, placeholders } = paint,
+    let { diagnostics, index, matches, occurrences, pair, placeholders } = paint,
         length = to - from,
         out: Mark[] = [],
         sourceFrom = projection.toSource(from),
@@ -87,6 +89,22 @@ const marks = (projection: NativeText, from: number, to: number, paint: Paint) =
 
         if (end > start) {
             out.push({ from: start, kind: j === paint.active ? 'code-editor-match --active' : 'code-editor-match', to: end });
+            count++;
+        }
+    }
+
+    for (let i = 0, n = diagnostics.length, count = 0; i < n && count < PER_LINE; i++) {
+        let mark = diagnostics[i];
+
+        if (mark.to <= sourceFrom || mark.from >= sourceTo) {
+            continue;
+        }
+
+        let end = Math.min(length, projection.toNative(mark.to) - from),
+            start = Math.max(0, projection.toNative(mark.from) - from);
+
+        if (end > start) {
+            out.push({ from: start, kind: mark.kind, to: end });
             count++;
         }
     }

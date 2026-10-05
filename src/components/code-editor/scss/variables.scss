@@ -19,16 +19,19 @@
     --caret-width: var(--border-width-500);
     --color: var(--color-text-500);
     --comment-color: var(--color-text-300);
+    --completion-detail-color: var(--muted-color);
+    --completion-gap: var(--size-300);
+    --completion-height: var(--size-600);
+    --completion-padding: var(--size-200);
+    --completion-rows: 8;
+    --completion-width: 240px;
+    --diagnostic-error-color: var(--invalid-color);
+    --diagnostic-hint-color: var(--muted-color);
+    --diagnostic-info-color: var(--focus-color);
+    --diagnostic-offset: 2px;
+    --diagnostic-warning-color: var(--color-yellow-500);
     --disabled-opacity: 0.5;
     --drop-width: var(--border-width-500);
-    // Read by the language services partial, which moves to block-scoped names when services are reworked.
-    --editor-accent: var(--focus-color);
-    --editor-background: var(--background);
-    --editor-border: var(--border-color);
-    --editor-color: var(--color);
-    --editor-error: var(--invalid-color);
-    --editor-font-family: var(--font-family);
-    --editor-warning: var(--color-yellow-500);
     --focus-color: var(--color-blue-400);
     --focus-offset: var(--border-width-400);
     --focus-width: var(--border-width-500);
@@ -43,6 +46,9 @@
     --gutter-color: var(--color-text-300);
     --gutter-width: calc(var(--number-width) + var(--fold-width));
     --height: 320px;
+    --hover-max-height: 300px;
+    --hover-max-width: 480px;
+    --hover-padding: var(--size-200);
     --input-color: transparent;
     --input-cursor: text;
     --invalid-color: var(--color-red-400);
@@ -70,6 +76,9 @@
     --padding: var(--size-200);
     --placeholder-background: oklch(from var(--color-text-300) l c h / 0.15);
     --placeholder-color: var(--color-text-300);
+    --popup-border-radius: var(--border-radius-300);
+    --popup-shadow: var(--box-shadow-400);
+    --problems-max-height: 120px;
     --property-color: var(--color-blue-500);
     --regexp-color: var(--color-red-500);
     --selection-background: oklch(from var(--color-blue-400) l c h / 0.22);

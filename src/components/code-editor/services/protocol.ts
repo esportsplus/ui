@@ -1,32 +1,55 @@
-/** Browser-side subset of LSP 3.x. Positions and offsets are UTF-16. */
-export type Position = { line: number; character: number };
-export type Range = { start: Position; end: Position };
-export type TextEdit = { range: Range; newText: string };
-export type CompletionItem = {
-    label: string;
-    kind?: number;
-    detail?: string;
-    documentation?: string | { value: string };
-    insertText?: string;
-    insertTextFormat?: 1 | 2;
-    sortText?: string;
-    filterText?: string;
-    textEdit?: TextEdit | { insert: Range; replace: Range; newText: string };
+// The browser-side subset of LSP 3.x the editor speaks. Positions and offsets are UTF-16.
+
+
+type CompletionItem = {
     additionalTextEdits?: TextEdit[];
     commitCharacters?: string[];
+    detail?: string;
+    documentation?: string | { value: string };
+    filterText?: string;
+    insertText?: string;
+    insertTextFormat?: 1 | 2;
+    kind?: number;
+    label: string;
+    sortText?: string;
+    textEdit?: TextEdit | { insert: Range; newText: string; replace: Range };
 };
-export type CompletionResult = CompletionItem[] | { items: CompletionItem[]; isIncomplete?: boolean } | null;
-export type Hover = { contents: string | { language?: string; value: string } | unknown[]; range?: Range };
-export type Diagnostic = { range: Range; severity?: number; message: string; source?: string; code?: string | number };
-export type Notification = { method: string; params: unknown };
-export type ServiceResults = { 'textDocument/completion': CompletionResult; 'textDocument/hover': Hover | null };
-export type LanguageTransport = {
-    request<M extends keyof ServiceResults>(
-        method: M,
-        params: unknown,
-        signal?: AbortSignal
-    ): Promise<ServiceResults[M]>;
+
+type CompletionResult = CompletionItem[] | { isIncomplete?: boolean; items: CompletionItem[] } | null;
+
+type Diagnostic = { code?: number | string; message: string; range: Range; severity?: number; source?: string };
+
+type Hover = { contents: string | unknown[] | { language?: string; value: string }; range?: Range };
+
+type LanguageTransport = {
     notify(method: string, params: unknown): Promise<void> | void;
+    request<M extends keyof ServiceResults>(method: M, params: unknown, signal?: AbortSignal): Promise<ServiceResults[M]>;
     subscribe(listener: (event: Notification) => void): VoidFunction;
 };
-export type PublishDiagnostics = { uri: string; version?: number; diagnostics: Diagnostic[] };
+
+type Notification = { method: string; params: unknown };
+
+type Position = { character: number; line: number };
+
+type PublishDiagnostics = { diagnostics: Diagnostic[]; uri: string; version?: number };
+
+type Range = { end: Position; start: Position };
+
+type ServiceResults = { 'textDocument/completion': CompletionResult; 'textDocument/hover': Hover | null };
+
+type TextEdit = { newText: string; range: Range };
+
+
+export type {
+    CompletionItem,
+    CompletionResult,
+    Diagnostic,
+    Hover,
+    LanguageTransport,
+    Notification,
+    Position,
+    PublishDiagnostics,
+    Range,
+    ServiceResults,
+    TextEdit
+};

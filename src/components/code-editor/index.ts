@@ -13,26 +13,23 @@ const codeEditor: typeof editor & {
 
 export default codeEditor;
 export { EditorDocument } from './document';
-export { mountMarkdownEditor } from './markdown';
-export { fileUri, languageIdFor, mountLanguageServices, referenceRpcTransport } from './services';
+export { fileUri, languageIdFor, referenceRpcTransport } from './services';
 export { EditorWorkspaceModel, isWorkspaceCodeEditor } from './workspace';
 export type { CodeEditorAttributes } from './editor';
 export type { Change, Edit, Selection, Snapshot, TransactionOptions, TransactionResult } from './document';
 export type { BracketPair, FoldRange } from './folding';
 export type { LayoutLine, Rect } from './layout';
-export type { MarkdownCallbacks, MarkdownController, MarkdownEditorAttributes, MarkdownOptions } from './markdown';
+export type { MarkdownController, MarkdownEditorAttributes, MarkdownOptions } from './markdown';
 export type { Match, SearchOptions, SearchResult } from './search';
 export type {
     CompletionItem,
     Diagnostic,
     Hover,
     LanguageServiceOptions,
-    LanguageServices,
     LanguageTransport,
     Notification,
     Position,
     Range,
-    ServiceController,
     TextEdit
 } from './services';
 export type { Language, Token } from './syntax';

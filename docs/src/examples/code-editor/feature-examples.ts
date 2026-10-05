@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { codeEditor } from '@esportsplus/ui/components';
-import { EditorDocument, mountLanguageServices, type LanguageServices, type MarkdownController } from '@esportsplus/ui/components/code-editor';
+import { EditorDocument, type MarkdownController } from '@esportsplus/ui/components/code-editor';
 import { workspaceFiles } from './fixtures/files';
 import { demoLanguageTransport } from './fixtures/language';
 
@@ -9,19 +9,15 @@ export const featureExamples = [
     {
         title: 'completion, hover and diagnostics',
         render: () => {
-            let services: LanguageServices | undefined;
             return html`
                 <section class='code-editor-demo' aria-label='Language services example'>
                     ${codeEditor({
                         document: new EditorDocument('const score = TODO_ERROR;\n\ngre\n'),
-                        options: { fileName: 'services.ts', label: 'Language services source' },
-                        controller: editor => {
-                            services?.dispose();
-                            services = mountLanguageServices(editor.textarea.closest('.code-editor') as HTMLElement, editor, {
-                                fileName: 'services.ts', cwd: '/demo', transport: demoLanguageTransport()
-                            });
-                        },
-                        ondisconnect: () => { services?.dispose(); services = undefined; }
+                        options: {
+                            fileName: 'services.ts',
+                            label: 'Language services source',
+                            services: { cwd: '/demo', transport: demoLanguageTransport() }
+                        }
                     })}
                     <p>This example uses a deterministic sample language server. Press Ctrl+Space after “gre” for completion, hover over text, or click a diagnostic to select its source.</p>
                 </section>
