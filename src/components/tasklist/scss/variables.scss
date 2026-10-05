@@ -102,7 +102,7 @@
 
     &--plan .tasklist-label::before {
         --color: var(--color-text-300);
-        --font-family: 'Geist Mono', ui-monospace, monospace;
+        --font-family: var(--font-family-mono);
         --font-size: var(--font-size-200);
         --font-weight: var(--font-weight-500);
         --gap: 6px;

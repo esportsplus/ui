@@ -8,6 +8,7 @@
     @include shared.css-variables(border-width, tokens.$border-width);
     @include shared.css-variables(box-shadow, tokens.$box-shadow);
     @include shared.css-variables(color, tokens.$color);
+    @include shared.css-variables(font-family, tokens.$font-family);
     @include shared.css-variables(font-size, tokens.$font-size);
     @include shared.css-variables(size, tokens.$size);
     @include shared.css-variables(spacer, tokens.$spacer);

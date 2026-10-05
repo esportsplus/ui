@@ -39,7 +39,7 @@
     --fold-icon-size: var(--size-100);
     --fold-rotate: 0deg;
     --fold-width: var(--size-400);
-    --font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --font-family: var(--font-family-mono);
     --font-size: var(--font-size-200);
     --function-color: var(--color-purple-300);
     --gutter-active-color: var(--color);
@@ -197,7 +197,7 @@
     --fold-icon-size: var(--size-100);
     --fold-rotate: 0deg;
     --fold-width: var(--size-400);
-    --font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --font-family: var(--font-family-mono);
     --font-size: var(--font-size-200);
     // Heading font scales and the line height of the two largest; the layout's arithmetic uses the same values.
     --h1-scale: 1.7;
