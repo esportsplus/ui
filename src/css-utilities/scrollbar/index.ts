@@ -60,6 +60,7 @@ function attributes(name: string, size: string) {
     return {
         class: ['--scrollbar', name],
         onconnect: (element: HTMLElement) => {
+            mutation?.disconnect();
             resize?.disconnect();
             resize = observer(() => measure(element));
             resize.observe(element);
@@ -96,6 +97,7 @@ function attributes(name: string, size: string) {
         },
         ondisconnect: () => {
             mutation?.disconnect();
+            mutation = undefined;
             resize?.disconnect();
             resize = undefined;
         },
