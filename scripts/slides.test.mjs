@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { measure, slide, slides } from '../src/shared/animation.ts';
+import { measure, slides } from '../src/shared/animation.ts';
 
 
 const TIMING = { duration: 200, easing: 'ease' };
@@ -82,7 +82,7 @@ test('slides read the new box only after cancelling, and start a slide only wher
     assert.deepEqual(log, ['read a', 'read b', 'read c', 'animate a', 'animate b']);
 });
 
-test('slides return the same boxes, and start the same slides, as one slide per element', () => {
+test('slides return the same boxes, and start the same slides, as one call per element', () => {
     let batchLog = [],
         batched = scene(batchLog),
         singleLog = [],
@@ -95,20 +95,22 @@ test('slides return the same boxes, and start the same slides, as one slide per 
     single.forEach((e) => e.move());
 
     let rects = slides(batched, TIMING),
-        expected = single.map((e) => slide(e, TIMING));
+        expected = single.map((e) => slides([e], TIMING)[0]);
 
     assert.deepEqual(rects, expected);
     assert.deepEqual(started(batchLog), started(singleLog));
 });
 
-test('an element measure never saw still reports its box, and slide alone reports it as new', () => {
+test('an element measure never saw still reports its box, and enter hears it', () => {
     let log = [],
         fresh = element('fresh', null, box(5, 5), log);
 
     fresh.move();
 
-    assert.deepEqual(slides([fresh], TIMING), [box(5, 5)]);
-    assert.equal(slide(fresh, TIMING), undefined);
+    let entered = [];
+
+    assert.deepEqual(slides([fresh], TIMING, (e) => entered.push(e)), [box(5, 5)]);
+    assert.deepEqual(entered, [fresh]);
 });
 
 test('without a timing nothing slides, but every box is still read', () => {

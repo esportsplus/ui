@@ -32,17 +32,6 @@ const ms = (value: string) => {
     return isNaN(n) ? 0 : value.trim().endsWith('ms') ? n : n * 1000;
 };
 
-// Slides an element from the box 'measure' recorded to where the change put it, as 'slides' does; undefined for an
-// element 'measure' never saw, which is new to the layout. A loop over elements wants 'slides', which reads once.
-const slide = (element: Element, timing: KeyframeAnimationOptions | null) => {
-    let entered = false,
-        [to] = slides([element], timing, () => {
-            entered = true;
-        });
-
-    return entered ? undefined : to;
-};
-
 // Slides each element from the box 'measure' recorded to where the change put it, replacing a slide still running on
 // it, and returns every element's new box. An element 'measure' never saw is new to the layout: it doesn't slide, and
 // 'enter' hears it once every slide has started. Added onto its translate, so a shake or nudge of its own still plays.
@@ -108,4 +97,4 @@ const timing = (computed: CSSStyleDeclaration, name: string): KeyframeAnimationO
 };
 
 
-export { finished, measure, ms, slide, slides, timing };
+export { finished, measure, ms, slides, timing };

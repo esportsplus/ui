@@ -1,6 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
-import { measure, slide as shift, timing } from '~/shared/animation';
+import { measure, slides, timing } from '~/shared/animation';
 import { clamp } from '~/shared/clamp';
 import { keystep } from '~/shared/keystep';
 import input from '~/components/input';
@@ -250,13 +250,11 @@ function template(
             },
             move = timing(computed, 'swatch-shift');
 
-        for (let i = 0, n = recent.length; i < n; i++) {
-            let element = container.children[i];
-
-            if (!shift(element, move) && enter) {
+        slides([...container.children].slice(0, recent.length), move, (element) => {
+            if (enter) {
                 element.animate([from, { filter: 'blur(0px)', opacity: 1, scale: '1' }], enter);
             }
-        }
+        });
 
         for (let { hex, rect } of dropped) {
             leaving.push({ hex, left: rect.left - box.left, top: rect.top - box.top });
