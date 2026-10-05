@@ -1,5 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { effect, onCleanup, untrack } from '@esportsplus/reactivity';
+import { effect, onCleanup, read as get, signal, untrack, write } from '@esportsplus/reactivity';
 import { pool } from '@esportsplus/workers';
 import engine, { scheduler, type Camera, type Link as Path, type Rgb, type Settings, type Shape } from './engine';
 import surface from './surface';
@@ -234,6 +234,8 @@ export default component(
             canvas: HTMLCanvasElement | undefined,
             elements: Element[] | null = null,
             field: Field | null = null,
+            // Bumped when the worker fails, so the template renders a fresh canvas the page can draw on again.
+            generation = signal(0),
             host: HTMLElement | undefined,
             last = { accent: '', camera: null as Camera | null, color: '', shapes: [] as Shape[], size: '' },
             // Ends everything a connection listens to and observes, presses still held included.
@@ -493,20 +495,16 @@ export default component(
             proxy.flush = flush;
 
             // A worker that fails to start or dies hands the drawing back to the page, on a fresh canvas since the
-            // old one now belongs to the worker.
+            // old one now belongs to the worker; the fresh canvas starts the engine once it connects.
             task.catch(() => {
                 if (field !== proxy) {
                     return;
                 }
 
-                let fresh = element.cloneNode() as HTMLCanvasElement;
-
                 channel.port1.close();
                 void workers.shutdown();
-                element.replaceWith(fresh);
-                canvas = fresh;
-                field = engine(fresh, scheduler());
-                sync();
+                field = null;
+                write(generation, generation.value + 1);
             });
 
             return proxy;
@@ -742,21 +740,33 @@ export default component(
                     onwindowresize: viewport
                 }}
             >
-                <canvas
-                    aria-hidden='true'
-                    class='surface-field-canvas'
-                    ${{
-                        onconnect: (element: HTMLCanvasElement) => {
-                            canvas = element;
-                        },
-                        // Its CSS transitions '--still' alone, so a change to it is heard here.
-                        ontransitionend: (e: TransitionEvent) => {
-                            if (e.propertyName === '--still') {
-                                field?.configure(settings());
-                            }
-                        }
-                    }}
-                ></canvas>
+                ${() => {
+                    get(generation);
+
+                    return html`
+                        <canvas
+                            aria-hidden='true'
+                            class='surface-field-canvas'
+                            ${{
+                                onconnect: (element: HTMLCanvasElement) => {
+                                    canvas = element;
+
+                                    // A replacement after the worker failed; the first canvas is started by the host.
+                                    if (host && !field) {
+                                        field = engine(element, scheduler());
+                                        sync();
+                                    }
+                                },
+                                // Its CSS transitions '--still' alone, so a change to it is heard here.
+                                ontransitionend: (e: TransitionEvent) => {
+                                    if (e.propertyName === '--still') {
+                                        field?.configure(settings());
+                                    }
+                                }
+                            }}
+                        ></canvas>
+                    `;
+                }}
                 <div class='surface-field-content'>${content}</div>
             </div>
         `;
