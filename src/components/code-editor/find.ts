@@ -99,6 +99,19 @@ const find = (host: Host) => {
         return result;
     }
 
+    // A button that disables itself would drop focus out of the bar, where Escape no longer reaches it.
+    function keep(e: MouseEvent, run: VoidFunction) {
+        let button = e.currentTarget as HTMLButtonElement;
+
+        run();
+        current();
+        flush();
+
+        if (button.disabled) {
+            replacement?.focus();
+        }
+    }
+
     function navigate(backwards: boolean) {
         let matches = current().matches,
             selection = host.selection(),
@@ -121,6 +134,17 @@ const find = (host: Host) => {
         host.update();
 
         return result;
+    }
+
+    // Mod+F or Mod+H inside the bar: the field for it takes focus, with the replace row shown for Mod+H.
+    function reopen(replace: boolean) {
+        let target = replace ? replacement : field;
+
+        state.replace ||= replace;
+        // The row must be displayed before its field can take focus.
+        flush();
+        target?.focus();
+        target?.select();
     }
 
     function status() {
@@ -227,9 +251,16 @@ const find = (host: Host) => {
                             return;
                         }
 
+                        let mod = (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey,
+                            key = e.key.toLowerCase();
+
                         if (e.key === 'Escape') {
                             e.preventDefault();
                             api.close();
+                        }
+                        else if (mod && (key === 'f' || key === 'h')) {
+                            e.preventDefault();
+                            reopen(key === 'h');
                         }
                         else if (
                             ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'g') ||
@@ -283,14 +314,17 @@ const find = (host: Host) => {
                     <button
                         class='button code-editor-find-button code-editor-find-button--text'
                         type='button'
-                        ${{ disabled: () => !state.replaceable, onclick: () => api.replace(state.replacement) }}
+                        ${{ disabled: () => !state.replaceable, onclick: (e: MouseEvent) => keep(e, () => api.replace(state.replacement)) }}
                     >
                         Replace
                     </button>
                     <button
                         class='button code-editor-find-button code-editor-find-button--text'
                         type='button'
-                        ${{ disabled: () => !state.replaceable || state.truncated, onclick: () => api.replaceAll(state.replacement) }}
+                        ${{
+                            disabled: () => !state.replaceable || state.truncated,
+                            onclick: (e: MouseEvent) => keep(e, () => api.replaceAll(state.replacement))
+                        }}
                     >
                         Replace all
                     </button>
