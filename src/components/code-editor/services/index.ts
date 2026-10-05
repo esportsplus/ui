@@ -18,6 +18,7 @@ type Services = {
     marks: (from: number, to: number) => readonly Mark[];
     paint: VoidFunction;
     pointer: (e: PointerEvent) => void;
+    retarget: VoidFunction;
     template: () => Renderable<unknown>;
 };
 
@@ -50,6 +51,7 @@ const services = (host: Host): Services => {
         marks: api.marks,
         paint: api.paint,
         pointer: api.pointer,
+        retarget: api.retarget,
         template: () => html`
             <div
                 aria-label='Completions'

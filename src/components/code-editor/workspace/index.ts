@@ -15,7 +15,7 @@ import icon from '~/components/icon';
 import input from '~/components/input';
 import overlay from '~/components/overlay';
 import tooltip from '~/components/tooltip';
-import type { Item } from '~/components/tooltip/menu';
+import type { Controller as MenuController, Item } from '~/components/tooltip/menu';
 import fuzzy from '~/shared/fuzzy';
 import { mac } from '~/shared/platform';
 import codeEditor, { type CodeEditorAttributes } from '../editor';
@@ -45,17 +45,17 @@ import '~/components/button/scss/index.scss';
 
 
 type CodeEditorWorkspaceAttributes = Attributes & {
-    // Called for each active editor mount and again after its path changes; the previous cleanup runs first.
+    // Called whenever the shown tab or its path changes; the previous cleanup runs first.
     addons?: (context: WorkspaceEditorContext) => void | VoidFunction;
     controller?: (controller: CodeEditorWorkspaceController) => void;
     cwd?: string;
+    // The editor for a tab, such as 'codeEditor.markdown', or undefined for the code editor. A mounted editor stays
+    // for the next tab that uses the same one, when its controller can 'setDocument'.
+    editor?: (tab: WorkspaceTab) => WorkspaceEditor | undefined;
     editorOptions?: EditorOptions | ((tab: WorkspaceTab) => EditorOptions);
     host?: WorkspaceHost;
     model?: EditorWorkspaceModel;
     openTarget?: WorkspaceTarget | (() => WorkspaceTarget | undefined);
-    // A first-party markdown or custom editor for the tab, or undefined for the code editor; forward the supplied
-    // attributes so drafts, saving and reveal keep working.
-    renderEditor?: (tab: WorkspaceTab, attributes: WorkspaceEditorAttributes) => Renderable<unknown> | undefined;
 };
 
 type CodeEditorWorkspaceController = {
@@ -92,11 +92,14 @@ type Control = {
     sprite: string | (() => string);
 };
 
-// The editor shown for the active tab, released when another tab takes its place or the workspace goes.
+// The editor shown for the active tab: it moves on to the next tab that uses the same editor, and is released when a
+// different one takes its place or the workspace goes.
 type Mount = {
     addon?: void | VoidFunction;
     controller?: WorkspaceEditorController;
-    path: string;
+    editor: WorkspaceEditor;
+    // The shown tab's path; the options follow it through renames.
+    path: Signal<string>;
     released: boolean;
     tab: WorkspaceTab;
 };
@@ -105,6 +108,9 @@ type Target = {
     element: FileTreeElement;
     paths: string[];
 };
+
+// Forward every attribute, so drafts, saving and reveal keep working.
+type WorkspaceEditor = (attributes: WorkspaceEditorAttributes) => Renderable<unknown>;
 
 type WorkspaceEditorAttributes = Omit<CodeEditorAttributes, 'controller' | 'document'> & {
     controller?: (controller: WorkspaceEditorController) => void;
@@ -118,8 +124,10 @@ type WorkspaceEditorContext = {
     workspace: EditorWorkspaceModel;
 };
 
-// Shared by the code and markdown controllers; narrow with 'isWorkspaceCodeEditor' for code-only addons.
-type WorkspaceEditorController = Pick<EditorController, 'dispose' | 'document' | 'focus' | 'select' | 'textarea'>;
+// Shared by the code and markdown controllers; narrow with 'isWorkspaceCodeEditor' for code-only addons. Without
+// 'setDocument', every tab switch mounts the editor again.
+type WorkspaceEditorController = Pick<EditorController, 'dispose' | 'document' | 'focus' | 'host' | 'scroller' | 'select' | 'textarea'> &
+    Partial<Pick<EditorController, 'setDocument'>>;
 
 
 // Where '@esportsplus/template' keeps the cleanups of the bindings it attached to a node.
@@ -226,10 +234,6 @@ function reconcile(store: FileTreeElements, entries: readonly WorkspaceEntry[]) 
     }
 }
 
-function scroller(controller: WorkspaceEditorController) {
-    return controller.textarea.closest<HTMLElement>('.markdown-editor-surface') ?? controller.textarea;
-}
-
 
 const isWorkspaceCodeEditor = (controller: WorkspaceEditorController): controller is EditorController =>
     'goToLine' in controller && 'rectAt' in controller && 'refresh' in controller;
@@ -238,18 +242,19 @@ const workspace = ({
     addons,
     controller: receive,
     cwd = '',
+    editor: editorFor,
     editorOptions,
     host,
     model: supplied,
     openTarget,
-    renderEditor,
     ...attributes
 }: CodeEditorWorkspaceAttributes) => {
     if (!supplied && !host) {
         throw new Error('Workspace: codeEditorWorkspace requires a WorkspaceHost or EditorWorkspaceModel');
     }
 
-    let active = signal<WorkspaceTab | undefined>(undefined),
+    let actions: MenuController | undefined,
+        active = signal<WorkspaceTab | undefined>(undefined),
         activeId = signal(0),
         confirmation: Confirmation | undefined,
         container: HTMLElement | undefined,
@@ -264,8 +269,6 @@ const workspace = ({
         focusing = false,
         hovered = false,
         id = `code-workspace-${++uid}`,
-        menu = reactive({ active: false }),
-        menuHost: HTMLElement | undefined,
         model = supplied ?? new EditorWorkspaceModel(host!, cwd),
         mount: Mount | undefined,
         palette = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab }),
@@ -276,6 +279,7 @@ const workspace = ({
         searchField: HTMLInputElement | undefined,
         // Runs once the open modal has closed and returned focus, to move it where the user went next.
         settle: VoidFunction | undefined,
+        shown = signal<Mount | undefined>(undefined),
         tabs = signal<readonly WorkspaceTab[]>([]),
         tabsKey = '',
         target = signal<Target | undefined>(undefined),
@@ -342,7 +346,7 @@ const workspace = ({
         let controller = current.controller;
 
         detach(current);
-        current.path = current.tab.path;
+        write(current.path, current.tab.path);
 
         if (!addons || !controller) {
             return;
@@ -351,7 +355,7 @@ const workspace = ({
         try {
             current.addon = addons({
                 controller,
-                host: controller.textarea.closest<HTMLElement>('.code-editor, .markdown-editor') ?? controller.textarea.parentElement!,
+                host: controller.host,
                 tab: current.tab,
                 workspace: model
             });
@@ -394,6 +398,7 @@ const workspace = ({
 
         write(active, current);
         write(activeId, current?.id ?? 0);
+        show(current);
 
         view.busy = state.busy > 0;
         view.canUndo = state.canUndoFiles;
@@ -431,7 +436,7 @@ const workspace = ({
             treeState.selected = path;
 
             // A rename keeps the tab and its editor; addons restart for the new path.
-            if (mount && mount.tab === current && mount.path !== path) {
+            if (mount && mount.tab === current && read(mount.path) !== path) {
                 attach(mount);
             }
         }
@@ -546,17 +551,6 @@ const workspace = ({
             effect(() => {
                 if (!dialog.active) {
                     untrack(() => confirmation?.resolve('cancel'));
-                }
-            });
-
-            // The menu hands focus back to its own host; the row it opened on should have it.
-            effect(() => {
-                if (!menu.active) {
-                    untrack(() => {
-                        if (menuHost?.contains(element.ownerDocument.activeElement)) {
-                            returnFocus?.focus({ preventScroll: true });
-                        }
-                    });
                 }
             });
 
@@ -723,9 +717,9 @@ const workspace = ({
     }
 
     function pane() {
-        let tab = read(active);
+        let next = read(shown);
 
-        if (!tab) {
+        if (!next) {
             return html`
                 <div class='code-workspace-empty'>
                     Open a file from the explorer or press
@@ -736,7 +730,8 @@ const workspace = ({
             `;
         }
 
-        let current: Mount = { path: tab.path, released: false, tab },
+        // A render that runs again has released the mount it made; the tab gets a fresh one.
+        let current: Mount = next.released ? { editor: next.editor, path: signal(next.tab.path), released: false, tab: next.tab } : next,
             bound: WorkspaceEditorAttributes = {
                 class: 'code-workspace-document',
                 controller: (controller) => {
@@ -744,38 +739,32 @@ const workspace = ({
                         return;
                     }
 
-                    let element = scroller(controller);
-
                     current.controller = controller;
-                    element.scrollLeft = tab.scroll.left;
-                    element.scrollTop = tab.scroll.top;
+                    restore(current);
                     attach(current);
                     reveal();
 
                     if (focusing) {
                         focusing = false;
-                        controller.focus();
+                        // The controller can arrive mid-render; focusing may flush, which would render the pane again.
+                        queueMicrotask(() => {
+                            if (!current.released) {
+                                controller.focus();
+                            }
+                        });
                     }
                 },
-                document: tab.document,
+                document: current.tab.document,
                 onSave: () => {
-                    void model.save(tab);
+                    void model.save(current.tab);
                 },
-                options: () => ({
-                    fold: true,
-                    minimap: true,
-                    ...(typeof editorOptions === 'function' ? editorOptions(tab) : editorOptions),
-                    fileName: view.path,
-                    label: view.path,
-                    whitespace: view.whitespace,
-                    wrap: view.wrap
-                })
+                options: () => settings(current.tab, read(current.path))
             };
 
         mount = current;
         onCleanup(() => unmount(current));
 
-        return untrack(() => renderEditor?.(tab, bound)) ?? codeEditor(bound);
+        return untrack(() => current.editor(bound));
     }
 
     function peek(open: boolean, keyboard = false) {
@@ -834,6 +823,43 @@ const workspace = ({
         `;
     }
 
+    // Where the shown tab was left, for when it's shown again.
+    function remember(current: Mount) {
+        let element = current.controller!.scroller;
+
+        current.tab.scroll = { left: element.scrollLeft, top: element.scrollTop };
+    }
+
+    function restore(current: Mount) {
+        let element = current.controller!.scroller,
+            { left, top } = current.tab.scroll,
+            tab = current.tab;
+
+        element.scrollLeft = left;
+        element.scrollTop = top;
+
+        // An editor that draws lazily, like markdown's, isn't tall enough before its first frame; it is after.
+        if (Math.abs(element.scrollLeft - left) > 1 || Math.abs(element.scrollTop - top) > 1) {
+            requestAnimationFrame(() => {
+                if (!current.released && current.tab === tab) {
+                    element.scrollLeft = left;
+                    element.scrollTop = top;
+                }
+            });
+        }
+    }
+
+    // Moves the mounted editor on to another tab's document, which costs far less than mounting it again.
+    function retarget(current: Mount, tab: WorkspaceTab) {
+        remember(current);
+        detach(current);
+        current.tab = tab;
+        current.controller!.setDocument!(tab.document, settings(tab, tab.path));
+        restore(current);
+        attach(current);
+        reveal();
+    }
+
     function reveal() {
         let controller = mount?.controller,
             state = model.state,
@@ -862,6 +888,39 @@ const workspace = ({
 
     function selected() {
         return [...treeState.selection].filter((path) => treeStore.get(path));
+    }
+
+    function settings(tab: WorkspaceTab, path: string): EditorOptions {
+        return {
+            fold: true,
+            minimap: true,
+            ...(typeof editorOptions === 'function' ? editorOptions(tab) : editorOptions),
+            fileName: path,
+            label: path,
+            whitespace: view.whitespace,
+            wrap: view.wrap
+        };
+    }
+
+    // Puts the tab in the editor pane: the mounted editor moves on to it when it can, or one is mounted for it.
+    function show(tab: WorkspaceTab | undefined) {
+        if (mount?.tab === tab) {
+            return;
+        }
+
+        let editor = tab && (editorFor?.(tab) ?? codeEditor);
+
+        if (tab && mount?.controller?.setDocument && mount.editor === editor) {
+            retarget(mount, tab);
+            return;
+        }
+
+        if (mount) {
+            unmount(mount);
+        }
+
+        mount = tab && editor && { editor, path: signal(tab.path), released: false, tab };
+        write(shown, mount);
     }
 
     function tab(entry: WorkspaceTab) {
@@ -965,10 +1024,8 @@ const workspace = ({
             mount = undefined;
         }
 
-        if (controller?.textarea.isConnected) {
-            let element = scroller(controller);
-
-            current.tab.scroll = { left: element.scrollLeft, top: element.scrollTop };
+        if (controller?.host.isConnected) {
+            remember(current);
         }
 
         detach(current);
@@ -1134,22 +1191,15 @@ const workspace = ({
                             empty: () => html`<div class='code-workspace-notice'>No files in this workspace</div>`,
                             find: 'filter',
                             menu: (elements, position) => {
-                                if (!elements.length || !menuHost) {
+                                if (!elements.length || !actions) {
                                     return;
                                 }
 
-                                returnFocus = (menuHost.ownerDocument.activeElement as HTMLElement | null) ?? undefined;
                                 write(target, { element: elements[0], paths: elements.map((element) => element.id) });
                                 // Items hide by the target; the menu focuses its first visible one as it opens.
                                 flush();
                                 // The tree claims the right click; the context menu opens at the point it reports.
-                                menuHost.dispatchEvent(new MouseEvent('contextmenu', {
-                                    bubbles: true,
-                                    button: 2,
-                                    cancelable: true,
-                                    clientX: position.x,
-                                    clientY: position.y
-                                }));
+                                actions.open(position);
                             },
                             open: (element) => {
                                 void model.open(element.id);
@@ -1264,12 +1314,10 @@ const workspace = ({
             ${tooltip.context(
                 {
                     class: 'code-workspace-menu',
-                    items,
-                    onconnect: (element: HTMLElement) => {
-                        menuHost = element;
+                    controller: (value: MenuController) => {
+                        actions = value;
                     },
-                    state: menu,
-                    tabindex: -1,
+                    items,
                     [tooltip.context.panel]: { 'aria-label': 'File actions', class: 'code-workspace-menu-panel' }
                 },
                 ''
@@ -1324,6 +1372,7 @@ export { EditorWorkspaceModel, isWorkspaceCodeEditor };
 export type {
     CodeEditorWorkspaceAttributes,
     CodeEditorWorkspaceController,
+    WorkspaceEditor,
     WorkspaceEditorAttributes,
     WorkspaceEditorContext,
     WorkspaceEditorController

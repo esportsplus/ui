@@ -691,6 +691,12 @@ const session = (host: Host) => {
                 timers.hover = setTimeout(() => void describe(span), settings.hoverDelay ?? 300);
             }
         },
+        // The editor moved to another document: the old one's session closes, and the next 'configure' opens it.
+        retarget: () => {
+            close();
+            caret = { offset: -1, revision: -1 };
+            doc = controller.document;
+        },
         // Selects a diagnostic's source from the problems list.
         reveal: (from: number, to: number) => {
             controller.select({ end: to, start: from }, true);

@@ -47,8 +47,6 @@
     --focus-width: var(--border-width-500);
     --font-size: var(--font-size-200);
     --height: 100%;
-    // Read by file icons, which only the tree sizes; tabs and quick open draw them too.
-    --icon-size: var(--size-400);
     --main-column: 1;
     --main-track: 0px;
     --main-visibility: hidden;
@@ -237,19 +235,13 @@
         }
     }
 
-    &-document.code-editor {
+    &-document.code-editor,
+    &-document.markdown-editor {
         --border-radius: 0px;
         --border-width: 0px;
         --height: 100%;
         flex: 1;
         min-height: 0;
-    }
-
-    &-document.markdown-editor {
-        --editor-height: 100%;
-        flex: 1;
-        min-height: 0;
-        overflow: auto;
     }
 
     &-edge {

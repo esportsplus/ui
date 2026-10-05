@@ -37,8 +37,10 @@ export type { Callbacks, Controller, Options } from './view';
 export type {
     CodeEditorWorkspaceAttributes,
     CodeEditorWorkspaceController,
+    WorkspaceAction,
     WorkspaceConfirmation,
     WorkspaceDecision,
+    WorkspaceEditor,
     WorkspaceEditorAttributes,
     WorkspaceEditorContext,
     WorkspaceEditorController,

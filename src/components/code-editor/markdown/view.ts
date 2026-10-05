@@ -43,13 +43,16 @@ type Active = { first: number; from: number; last: number; to: number };
 
 type Decoration = { kind: string; style: string };
 
-type MarkdownController = Omit<Controller, 'setOptions'> & {
+type MarkdownController = Omit<Controller, 'setDocument' | 'setOptions'> & {
     bold(): boolean;
     italic(): boolean;
+    setDocument(document: EditorDocument, options?: MarkdownOptions): void;
     setOptions(options: MarkdownOptions, replace?: boolean): void;
 };
 
 type MarkdownOptions = Options & { spellcheck?: boolean };
+
+type Memo = { folds: FoldRange[]; left: number; revision: number; top: number };
 
 type Metrics = {
     charWidth: number;
@@ -242,6 +245,8 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         units = cache(),
         unitsDirty = true,
         unsubscribe: VoidFunction | undefined,
+        // Where each document this editor showed was left.
+        visited = new WeakMap<EditorDocument, Memo>(),
         whole: { layout: EditorLayout; projection: NativeText; revision: number } | null = null,
         writing = false,
         written = '';
@@ -316,7 +321,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
     let gestures = pointer({
         busy: ime.busy,
         capture,
-        document: model,
+        get document() {
+            return model;
+        },
         drop: (offset) => {
             dropAt = offset;
             schedule();
@@ -355,7 +362,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
     });
 
     let search = find({
-        document: model,
+        get document() {
+            return model;
+        },
         edit: editable,
         focus: () => controller.focus(),
         readonly: () => !!options.readonly,
@@ -506,6 +515,47 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             flush();
             textarea.focus({ preventScroll: true });
         }
+    }
+
+    // Takes over from the previous document: whatever was derived from it goes, and this one's view comes back as
+    // this editor left it, folds only while its text is unchanged since.
+    function adopt() {
+        let memo = visited.get(model),
+            { selections, ...single } = model.state;
+
+        reset();
+        active = null;
+        activeIndex = -1;
+        blocks = parseMarkdown(model);
+        activeUnit.block = blocks[0];
+        drag = null;
+        dropAt = null;
+        escapeTab = false;
+        fieldSource = '';
+        folds = memo?.revision === model.revision ? memo.folds : [];
+        geometry = null;
+        goals = [];
+        length = model.value.length;
+        metrics.scrollLeft = memo?.left ?? 0;
+        metrics.scrollTop = memo?.top ?? 0;
+        parsed = model.revision;
+        pendingValue = undefined;
+        projection = new NativeText('');
+        secondary = selections.length > 1;
+        whole = null;
+        written = '';
+        state.selections.splice(0, state.selections.length, ...selections.map((range) => ({ ...range })));
+        Object.assign(state, single, { selection: { ...single.selection } });
+        gestures.reset();
+        jump.state.open = false;
+        map.invalidate();
+        references();
+
+        if (unsubscribe) {
+            subscribe();
+        }
+
+        search.result();
     }
 
     function capture() {
@@ -1110,6 +1160,23 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         return draw.offset(point?.offsetNode ?? range?.startContainer ?? null, point?.offset ?? range?.startOffset ?? 0);
     }
 
+    // Draws the window at the scroll position now rather than next frame, so the surface is as tall as its content
+    // before the position applies.
+    function present() {
+        if (disposed || !surface) {
+            return;
+        }
+
+        if (frame) {
+            cancelAnimationFrame(frame);
+        }
+
+        paint();
+        flush();
+        surface.scrollLeft = metrics.scrollLeft;
+        surface.scrollTop = metrics.scrollTop;
+    }
+
     // A press on a drawn unit places the caret where it lands, in the same gesture: nothing redraws until the
     // pointer comes back up, so the press and release meet the same nodes.
     function press(e: MouseEvent, unit: Unit | null) {
@@ -1696,7 +1763,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 pendingValue = undefined;
             }
         },
-        document: model,
+        get document() {
+            return model;
+        },
         find: (query, next) => search.find(query, next),
         findNext: () => search.next(),
         findPrevious: () => search.previous(),
@@ -1755,6 +1824,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             model.select({ start: model.offset(line, column) });
             revealing = true;
             controller.focus();
+        },
+        get host() {
+            return host!;
         },
         indent: () => editable(() => indent(model, options.indent)),
         insert: (text) => editable(() => insertText(model, text)),
@@ -1831,6 +1903,34 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             model.selectMany(ranges);
             start(reveal);
         },
+        setDocument: (next, settings) => {
+            if (disposed) {
+                return;
+            }
+
+            if (next === model) {
+                controller.setOptions(settings ?? {}, !!settings);
+                return;
+            }
+
+            let focused = editing && !!textarea && host?.ownerDocument.activeElement === textarea;
+
+            // Hiding the field commits a composition to the document it started in.
+            deactivate();
+
+            if (surface) {
+                visited.set(model, { folds, left: metrics.scrollLeft, revision: model.revision, top: metrics.scrollTop });
+            }
+
+            model = next;
+            adopt();
+            controller.setOptions(settings ?? {}, !!settings);
+            present();
+
+            if (focused) {
+                activate(true);
+            }
+        },
         setOptions: (next, replace = false) => {
             if (disposed) {
                 return;
@@ -1874,6 +1974,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             }
 
             return model.setValue(value, { source: 'external' });
+        },
+        get scroller() {
+            return surface!;
         },
         get state() {
             return state as Snapshot;
@@ -1927,7 +2030,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         capture,
         controller: controller as Controller,
         deleteVisible: (backwards, word) => deleteCharacter(model, backwards, word),
-        document: model,
+        get document() {
+            return model;
+        },
         edit: editable,
         language: () => 'markdown',
         move: moveSelection,

@@ -45,6 +45,10 @@ type Callbacks = {
 
 type Controller = {
     readonly document: EditorDocument;
+    // The editor's root element; set once the editor connects, like 'scroller' and 'textarea'.
+    readonly host: HTMLElement;
+    // The element that scrolls the text.
+    readonly scroller: HTMLElement;
     // A reactive snapshot for toolbars and status bars; read-only.
     readonly state: Snapshot;
     // Set once the editor connects; the 'controller' callback runs after that.
@@ -78,6 +82,9 @@ type Controller = {
     save(): void;
     select(selection: Partial<Selection>, reveal?: boolean): void;
     selectMany(selections: readonly Partial<Selection>[], reveal?: boolean): void;
+    // Shows another document in place, back at the scroll and folds it had here; 'options' replace the current ones
+    // in the same step, so the language and services follow the new file.
+    setDocument(document: EditorDocument, options?: Options): void;
     setOptions(options: Options, replace?: boolean): void;
     setValue(value: string): boolean;
     toggleComment(): boolean;
@@ -88,6 +95,8 @@ type Controller = {
 };
 
 type Decoration = { kind: string; style: string };
+
+type Memo = Position & { folded: FoldRange[]; revision: number };
 
 type Metrics = {
     charWidth: number;
@@ -129,6 +138,8 @@ type Options = {
     whitespace?: boolean;
     wrap?: boolean;
 };
+
+type Position = { left: number; top: number };
 
 
 const NAVIGATION = /^(ArrowDown|ArrowLeft|ArrowRight|ArrowUp|End|Home|PageDown|PageUp)$/;
@@ -225,6 +236,8 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             y: 12
         }),
         unsubscribe: VoidFunction | undefined,
+        // Where each document this editor showed was left.
+        visited = new WeakMap<EditorDocument, Memo>(),
         writing = false,
         written = '';
 
@@ -258,7 +271,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
     let gestures = pointer({
         busy: ime.busy,
         capture,
-        document: model,
+        get document() {
+            return model;
+        },
         drop: (offset) => {
             drop = offset;
             schedule();
@@ -300,7 +315,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
     });
 
     let search = find({
-        document: model,
+        get document() {
+            return model;
+        },
         edit: editable,
         focus: () => textarea?.focus(),
         readonly: () => !!options.readonly,
@@ -474,6 +491,40 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         }
 
         return lines;
+    }
+
+    // Takes over from the previous document: whatever was derived from it goes, and this one's view comes back as
+    // this editor left it, folds only while its text is unchanged since.
+    function adopt() {
+        let memo = visited.get(model),
+            { selections, ...single } = model.state;
+
+        reset();
+        accepting = -1;
+        cache = syntaxCache(model, language);
+        drop = null;
+        escapeTab = false;
+        folded = memo?.revision === model.revision ? memo.folded : [];
+        foldMarks.clear();
+        foldRevision = -1;
+        goals = [];
+        occurrences = { key: '', marks: [] };
+        pendingValue = undefined;
+        written = '';
+        state.selections.splice(0, state.selections.length, ...selections.map((range) => ({ ...range })));
+        Object.assign(state, single, { selection: { ...single.selection } });
+        ui.digits = Math.max(3, String(model.lineCount).length);
+        gestures.reset();
+        jump.state.open = false;
+
+        if (unsubscribe) {
+            subscribe();
+        }
+
+        // The gutter's width must apply before the field lays out its new text, or it lays out twice.
+        flush();
+        rebuild({ left: memo?.left ?? 0, top: memo?.top ?? 0 });
+        search.result();
     }
 
     function capture() {
@@ -890,12 +941,12 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         };
     }
 
-    function rebuild() {
+    function rebuild(position?: Position) {
         foldedLines = new Map(folded.map((fold) => [fold.line, fold]));
         pending = null;
         projection = new NativeText(model.value, folded);
         relayout();
-        sync();
+        sync(false, position);
     }
 
     function relayout() {
@@ -1092,15 +1143,15 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
     }
 
     // Writes the projection and the primary selection to the field. Edits it doesn't show yet go in through
-    // 'insertText', which Chrome lays out incrementally; assigning the value lays out all of it again.
-    function sync(revealing = false) {
+    // 'insertText', which Chrome lays out incrementally; assigning the value lays out all of it again. A 'position'
+    // replaces the scroll position; otherwise reading it would lay out the text the field is about to drop.
+    function sync(revealing = false, position?: Position) {
         if (disposed || !textarea || ime.busy()) {
             return;
         }
 
-        let changed = false,
-            left = textarea.scrollLeft,
-            top = textarea.scrollTop;
+        let changed = !!position,
+            { left, top } = position ?? { left: textarea.scrollLeft, top: textarea.scrollTop };
 
         if (written !== projection.value) {
             update();
@@ -1259,7 +1310,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 pendingValue = undefined;
             }
         },
-        document: model,
+        get document() {
+            return model;
+        },
         find: (query, next) => search.find(query, next),
         findNext: () => search.next(),
         findPrevious: () => search.previous(),
@@ -1310,6 +1363,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             model.select({ start: model.offset(line, column) });
             sync(true);
             textarea?.focus();
+        },
+        get host() {
+            return host!;
         },
         indent: () => editable(() => indent(model, options.indent)),
         insert: (text) => editable(() => insertText(model, text)),
@@ -1405,6 +1461,26 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             model.selectMany(ranges);
             sync(revealing);
         },
+        setDocument: (next, settings) => {
+            if (disposed) {
+                return;
+            }
+
+            if (next !== model) {
+                // A composition belongs to the document it started in.
+                ime.flush();
+
+                if (textarea) {
+                    visited.set(model, { folded, left: textarea.scrollLeft, revision: model.revision, top: textarea.scrollTop });
+                }
+
+                model = next;
+                lsp.retarget();
+                adopt();
+            }
+
+            controller.setOptions(settings ?? {}, !!settings);
+        },
         setOptions: (next, replace = false) => {
             if (disposed) {
                 return;
@@ -1464,6 +1540,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
             return model.setValue(value);
         },
+        get scroller() {
+            return textarea!;
+        },
         get state() {
             return state as Snapshot;
         },
@@ -1502,7 +1581,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         capture,
         controller,
         deleteVisible,
-        document: model,
+        get document() {
+            return model;
+        },
         edit: editable,
         language: () => language,
         move: moveSelection,

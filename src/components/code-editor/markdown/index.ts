@@ -38,8 +38,7 @@ export default component(
 
                 return { wrap: true, ...(typeof next === 'function' ? next() : next) };
             },
-            model = supplied ?? new EditorDocument(untrack(current) ?? ''),
-            editor = view(model, { onChange, onSave, onSelection }, receive),
+            editor = view(supplied ?? new EditorDocument(untrack(current) ?? ''), { onChange, onSave, onSelection }, receive),
             last: string | undefined;
 
         // Separate effects, so an options change never writes a stale initial value over a draft.
@@ -52,7 +51,7 @@ export default component(
 
             last = next;
             untrack(() => {
-                if (next !== undefined && next !== model.value) {
+                if (next !== undefined && next !== editor.controller.document.value) {
                     editor.controller.setValue(next);
                 }
             });

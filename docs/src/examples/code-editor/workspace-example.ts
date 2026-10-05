@@ -35,7 +35,7 @@ const workspaceExample = {
         };
 
         return html`
-            <section aria-label='Complete workspace example' class='code-editor-demo code-editor-demo-full'>
+            <section aria-label='Complete workspace example' class='code-editor-demo'>
                 ${codeEditor.workspace({
                     controller: (value) => {
                         workspace = value;
@@ -44,11 +44,12 @@ const workspaceExample = {
                     editorOptions: { minimap: true, services: { cwd: '/demo', transport: demoLanguageTransport() } },
                     host,
                     openTarget: { path: 'src/greeting.ts' },
-                    renderEditor: (tab, attributes) => (MARKDOWN.test(tab.path) ? codeEditor.markdown(attributes) : undefined),
+                    editor: (tab) => (MARKDOWN.test(tab.path) ? codeEditor.markdown : undefined),
                     style: '--height: 580px;'
                 })}
-                <div class='code-editor-demo-toolbar'>
+                <div class='code-editor-demo-actions'>
                     <button
+                        class='button --background-white --border-border --color-text code-editor-demo-action'
                         type='button'
                         onclick=${() => {
                             host.change('src/greeting.ts', workspaceFiles['src/greeting.ts'] + `\n// External update ${++revision}\n`);
@@ -58,6 +59,7 @@ const workspaceExample = {
                         Simulate external update
                     </button>
                     <button
+                        class='button --background-white --border-border --color-text code-editor-demo-action'
                         type='button'
                         onclick=${() => {
                             host.change('notes/new-file.txt', 'Created outside the editor.\n');
@@ -67,6 +69,7 @@ const workspaceExample = {
                         Simulate new file
                     </button>
                     <button
+                        class='button --background-white --border-border --color-text code-editor-demo-action'
                         type='button'
                         onclick=${() => {
                             void workspace?.open('src/greeting.ts', 8, 5);
@@ -76,7 +79,7 @@ const workspaceExample = {
                     </button>
                 </div>
                 <div aria-live='polite' class='code-editor-demo-status'>${() => state.message}</div>
-                <p>
+                <p class='code-editor-demo-caption'>
                     Press Ctrl/Cmd+P over the workspace to open files. Tabs keep independent drafts and history. The
                     explorer menu supports rename, delete, copying paths and host actions such as Annotate; file
                     operations undo from the explorer toolbar.

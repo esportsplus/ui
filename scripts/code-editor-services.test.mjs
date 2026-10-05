@@ -216,6 +216,45 @@ test('a changed file name or transport closes the old document and opens the new
     assert.equal(fixture.subscribers, 0);
 });
 
+test('retargeting flushes and closes the old document, then the next configure opens the new one', async () => {
+    let fixture = mockLanguageTransport(),
+        first = new EditorDocument('one'),
+        second = new EditorDocument('two'),
+        controller = {
+            document: first,
+            focus: () => {},
+            offsetAt: () => null,
+            rectAt: () => null,
+            select: () => {}
+        },
+        addon = services({ busy: () => false, controller, rect: () => null, schedule: () => {} });
+
+    addon.configure({ fileName: 'a.ts', services: { changeDelay: 1000, cwd: '/w', transport: fixture.transport } });
+    first.replace(3, 3, '!');
+    controller.document = second;
+    addon.retarget();
+    addon.configure({ fileName: 'b.ts', services: { changeDelay: 0, cwd: '/w', transport: fixture.transport } });
+    await settle();
+    assert.deepEqual(fixture.notifications.map((entry) => [entry.method, entry.params.textDocument.uri]), [
+        ['textDocument/didOpen', 'file:///w/a.ts'],
+        ['textDocument/didChange', 'file:///w/a.ts'],
+        ['textDocument/didClose', 'file:///w/a.ts'],
+        ['textDocument/didOpen', 'file:///w/b.ts']
+    ]);
+    assert.deepEqual(fixture.notifications[1].params.contentChanges, [{ text: 'one!' }]);
+    assert.equal(fixture.notifications[3].params.textDocument.text, 'two');
+    assert.equal(fixture.subscribers, 1);
+    first.replace(0, 0, 'x');
+    second.replace(0, 0, 'y');
+    await settle(20);
+
+    let changes = fixture.notifications.slice(4);
+
+    assert.deepEqual(changes.map((entry) => [entry.method, entry.params.textDocument.uri]), [['textDocument/didChange', 'file:///w/b.ts']]);
+    assert.deepEqual(changes[0].params.contentChanges, [{ text: 'ytwo' }]);
+    addon.dispose();
+});
+
 test('completion: explicit request, stale responses dropped, keyboard accept and Escape', async () => {
     let release,
         fixture = mockLanguageTransport({
