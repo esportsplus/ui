@@ -1,5 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { observer } from '~/shared/resize';
+import { viewport } from '~/shared/viewport';
 
 
 // 'current' marks the last section scrolled past the top; 'visible' marks every section on screen.
@@ -67,7 +68,7 @@ const spy = (ids: string[], mode: Mode = 'current') => {
         }
 
         let bounds = root === document.scrollingElement
-                ? { bottom: window.innerHeight, top: 0 }
+                ? { bottom: viewport().height, top: 0 }
                 : root.getBoundingClientRect(),
             current = elements[0].index,
             end = -1,

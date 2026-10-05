@@ -1,5 +1,6 @@
 import { timing } from '~/shared/animation';
 import { swallow } from '~/shared/press';
+import { viewport } from '~/shared/viewport';
 
 
 // Drag-to-dismiss: capture past a small threshold, follow the pointer out by any of the ways the element may leave,
@@ -291,17 +292,18 @@ const fling = (element: HTMLElement, { directions, time, vx, vy, x, y }: Drag): 
     // Heading out at an angle, it has cleared the screen once past whichever edge it reaches first.
     let rect = element.getBoundingClientRect(),
         speed = moving ? Math.max(vx * ux + vy * uy, 0) : 0,
-        travel = Infinity;
+        travel = Infinity,
+        { height, width } = viewport();
 
     if (ux > 0) {
-        travel = Math.min(travel, (innerWidth - rect.left) / ux);
+        travel = Math.min(travel, (width - rect.left) / ux);
     }
     else if (ux < 0) {
         travel = Math.min(travel, rect.right / -ux);
     }
 
     if (uy > 0) {
-        travel = Math.min(travel, (innerHeight - rect.top) / uy);
+        travel = Math.min(travel, (height - rect.top) / uy);
     }
     else if (uy < 0) {
         travel = Math.min(travel, rect.bottom / -uy);
