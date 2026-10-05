@@ -12,8 +12,6 @@ const state = reactive({ active: !matchMedia('(max-width: 1024px)').matches });
 
 
 export default (request: Request) => {
-    let disconnect = () => {};
-
     function close() {
         if (document.getElementById('docs-navigation')?.contains(document.activeElement)) {
             document.querySelector<HTMLButtonElement>('.sidebar-toggle')?.focus({ preventScroll: true });
@@ -54,13 +52,12 @@ export default (request: Request) => {
             ${{
                 inert: () => !state.active,
                 onconnect: () => {
-                    disconnect = effect(() => request.path, (path, previous) => {
+                    effect(() => request.path, (path, previous) => {
                         if (previous !== undefined && path !== previous && matchMedia('(max-width: 1024px)').matches) {
                             close();
                         }
                     });
                 },
-                ondisconnect: () => disconnect(),
                 onkeydown: (event: KeyboardEvent) => {
                     if (event.key === 'Escape' && !event.defaultPrevented) {
                         event.preventDefault();

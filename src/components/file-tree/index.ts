@@ -781,9 +781,6 @@ export default ({
         }, height),
         anchor: Row | null = null,
         detach: VoidFunction | undefined,
-        // Made on connect rather than while building, where they would belong to whatever computation built the
-        // tree and rerun it; disposed on disconnect.
-        effects: VoidFunction[] = [],
         forget: VoidFunction | undefined,
         // The frame a fold motion starts on; 0 while none runs.
         motion = 0,
@@ -2938,55 +2935,58 @@ export default ({
                         resync();
                     }
 
-                    effects.push(
-                        // Selection written from outside, like an editor switching tabs, becomes the whole selection
-                        // and opens the folders down to it.
-                        effect(() => state.selected, (value) => {
-                            write(current, value);
+                    // These effects are made on connect rather than while building, where they would belong to whatever
+                    // computation built the tree and rerun it; the connection owns them and they end with it.
 
-                            if (value === known) {
-                                return;
-                            }
+                    // Selection written from outside, like an editor switching tabs, becomes the whole selection and
+                    // opens the folders down to it.
+                    effect(() => state.selected, (value) => {
+                        write(current, value);
 
-                            known = value;
+                        if (value === known) {
+                            return;
+                        }
 
-                            if (!selection.has(value)) {
-                                anchor = built.get(value) ?? null;
-                                selection.replace(value ? [value] : []);
-                            }
+                        known = value;
 
-                            if (value !== quiet && autoreveal !== 'off') {
-                                reveal(value, autoreveal === 'on');
-                            }
+                        if (!selection.has(value)) {
+                            anchor = built.get(value) ?? null;
+                            selection.replace(value ? [value] : []);
+                        }
 
-                            quiet = null;
-                        }),
-                        effect(() => state.selection, (value) => {
-                            if (!value || value === selection.ids) {
-                                return;
-                            }
+                        if (value !== quiet && autoreveal !== 'off') {
+                            reveal(value, autoreveal === 'on');
+                        }
 
-                            selection.replace(value);
+                        quiet = null;
+                    });
 
-                            if (!value.has(state.selected)) {
-                                primary(value.values().next().value ?? '');
-                            }
-                        }),
-                        // Display written from outside, like a settings toggle, hides and shows rows in place.
-                        effect(modes, (value) => {
-                            if (value !== settings) {
-                                settings = value;
-                                filtered = filter(model.elements, display.dotfiles !== false, excluded, roots);
-                                redisplay();
-                                search?.refresh();
-                            }
-                        })
-                    );
+                    effect(() => state.selection, (value) => {
+                        if (!value || value === selection.ids) {
+                            return;
+                        }
+
+                        selection.replace(value);
+
+                        if (!value.has(state.selected)) {
+                            primary(value.values().next().value ?? '');
+                        }
+                    });
+
+                    // Display written from outside, like a settings toggle, hides and shows rows in place.
+                    effect(modes, (value) => {
+                        if (value !== settings) {
+                            settings = value;
+                            filtered = filter(model.elements, display.dotfiles !== false, excluded, roots);
+                            redisplay();
+                            search?.refresh();
+                        }
+                    });
 
                     if (typeof phrase === 'function') {
-                        effects.push(effect(phrase, (value) => {
+                        effect(phrase, (value) => {
                             write(given, value);
-                        }));
+                        });
                     }
 
                     // Changes made while disconnected went unsearched.
@@ -3026,10 +3026,6 @@ export default ({
                     search?.dispose();
                     detach?.();
                     detach = undefined;
-
-                    for (let dispose of effects.splice(0)) {
-                        dispose();
-                    }
 
                     forget?.();
                     forget = undefined;

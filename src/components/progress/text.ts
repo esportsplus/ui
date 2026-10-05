@@ -52,7 +52,6 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
         ink = reactive({ position: clamp(state.value) }),
         position = ink.position,
         stiffness = 0,
-        stop: VoidFunction | undefined,
         target = position,
         time = 0,
         velocity = 0;
@@ -101,7 +100,7 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
             ${attributes}
             ${{
                 onconnect: (element: HTMLElement) => {
-                    stop = effect(() => {
+                    effect(() => {
                         target = clamp(state.value);
 
                         // A glide already running takes the new target as it is; the style is only read to start one.
@@ -129,7 +128,6 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
                 ondisconnect: () => {
                     cancelAnimationFrame(frame);
                     frame = 0;
-                    stop?.();
                 }
             }}
         >

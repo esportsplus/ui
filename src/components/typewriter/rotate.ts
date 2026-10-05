@@ -73,7 +73,6 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
         exits = new ReactiveArray<Letter>(),
         hovered = false,
         letters = new ReactiveArray<Letter>([...words[current]].map((char) => ({ char }))),
-        stop: VoidFunction | undefined,
         timer: ReturnType<typeof setTimeout> | undefined;
 
     let leaving = html.reactive(exits, (l) => html`<span class='typewriter-rotate-letter typewriter-rotate-letter--exiting' style='left: ${l.left ?? 0}px;'>${l.char}</span>`),
@@ -228,7 +227,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                         return;
                     }
 
-                    stop = effect(() => {
+                    effect(() => {
                         let index = state.index;
 
                         // Read so pausing and resuming reschedule.
@@ -243,7 +242,6 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                 },
                 ondisconnect: () => {
                     clearTimeout(timer);
-                    stop?.();
                 },
                 onpointerenter: (e: PointerEvent) => {
                     if (e.pointerType !== 'touch') {

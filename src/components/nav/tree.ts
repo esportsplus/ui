@@ -1,4 +1,4 @@
-import { effect } from '@esportsplus/reactivity';
+import { effect, onCleanup } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import highlight from '~/components/highlight';
 
@@ -37,16 +37,17 @@ type TreeSection = {
 };
 
 
-// One bar spans the run of active links, so a 'visible' scroll spy marking several sections reads as one range.
+// One bar spans the run of active links, so a 'visible' scroll spy marking several sections reads as one range. Called
+// on connect, whose root owns the effect and the pending frame.
 function indicator(element: HTMLElement, links: TreeLink[]) {
     let bar = element.querySelector<HTMLElement>(':scope > .nav-tree-indicator'),
         frame = 0;
 
     if (!bar) {
-        return () => {};
+        return;
     }
 
-    let dispose = effect(() => {
+    effect(() => {
         let end = -1,
             start = -1;
 
@@ -82,10 +83,7 @@ function indicator(element: HTMLElement, links: TreeLink[]) {
         });
     });
 
-    return () => {
-        cancelAnimationFrame(frame);
-        dispose();
-    };
+    onCleanup(() => cancelAnimationFrame(frame));
 }
 
 function visible(link: TreeLink) {
@@ -118,18 +116,15 @@ export default component<A>(
                         : html`<div class='nav-tree-title'>${section.label}</div>`}
 
                     ${section.groups.map((group) => {
-                        let dispose = () => {};
-
                         return html`
                             <div
                                 class='nav-tree-links ${() => !group.links.some(visible) && '--hidden'}'
                                 ${{
                                     onconnect: (element: HTMLElement) => {
                                         if (current === 'location') {
-                                            dispose = indicator(element, group.links);
+                                            indicator(element, group.links);
                                         }
-                                    },
-                                    ondisconnect: () => dispose()
+                                    }
                                 }}
                             >
                                 ${group.label && html`

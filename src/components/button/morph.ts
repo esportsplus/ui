@@ -41,8 +41,7 @@ export default component(
     function(this: { attributes?: Partial<A> } | void, { label = 'Save changes', onsave, retryLabel = 'Try again', state = reactive({ status: 'idle' as Status }), successFor = 1500, ...attributes }: A) {
         let attempt = 0,
             morph: Animation | undefined,
-            reset: ReturnType<typeof setTimeout> | undefined,
-            stop: VoidFunction | undefined;
+            reset: ReturnType<typeof setTimeout> | undefined;
 
         function resize(element: HTMLElement, compact: boolean) {
             let computed = getComputedStyle(element),
@@ -119,7 +118,7 @@ export default component(
                             element.style.width = 'var(--morph-height)';
                         }
 
-                        stop = effect(() => {
+                        effect(() => {
                             let next = busy(state.status);
 
                             if (next !== compact) {
@@ -132,7 +131,6 @@ export default component(
                         attempt++;
                         clearTimeout(reset);
                         morph?.cancel();
-                        stop?.();
                     }
                 }}
             >
