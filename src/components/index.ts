@@ -5,6 +5,7 @@ export { default as button } from './button';
 export { default as capslock } from './capslock';
 export { default as card } from './card';
 export { default as cc } from './cc';
+export { default as chatMinimap } from './chat-minimap';
 export { default as checkbox } from './checkbox';
 export { default as clipboard } from './clipboard';
 export { default as codeEditor } from './code-editor';

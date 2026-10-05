@@ -1,0 +1,140 @@
+@use '/shared';
+@use 'variables';
+
+// One line per turn, stacked with no gaps, so the pointer never falls between two lines and the card glides
+// straight from one to the next.
+.chat-minimap {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+
+    // Lines line up on the side facing the thread, and the card opens away from it.
+    &--left {
+        align-items: flex-end;
+
+        .chat-minimap-item,
+        .chat-minimap-nav {
+            justify-content: flex-end;
+        }
+    }
+
+
+    &-card {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 12px;
+        width: var(--card-width);
+    }
+
+    &-description {
+        -webkit-box-orient: vertical;
+        color: var(--card-description-color);
+        display: -webkit-box;
+        font-size: var(--font-size-300);
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
+    }
+
+    &-hidden {
+        @extend %hidden-visually;
+    }
+
+    &-item {
+        align-items: center;
+        background: none;
+        border: 0;
+        cursor: pointer;
+        display: flex;
+        flex-shrink: 0;
+        height: var(--item-height);
+        outline: none;
+        padding: 0 var(--inset);
+        // Holds the hidden description.
+        position: relative;
+        width: var(--item-width);
+
+        &:focus-visible {
+            border-radius: var(--border-radius-200);
+            outline: 2px solid var(--focus-color);
+            outline-offset: -1px;
+        }
+    }
+
+    &-items {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &-line {
+        background: var(--line-color);
+        border-radius: var(--stroke);
+        flex-shrink: 0;
+        height: var(--stroke);
+        pointer-events: none;
+        transition:
+            background-color var(--transition-duration) var(--transition-timing-function),
+            width var(--transition-duration) var(--transition-timing-function);
+        width: var(--length);
+    }
+
+    // Out of the way until wanted: shown on its own hover or focus, and always on touch, which can't hover to find it.
+    &-nav {
+        align-items: center;
+        background: none;
+        border: 0;
+        color: var(--color-text-300);
+        cursor: pointer;
+        display: flex;
+        height: var(--nav-height);
+        opacity: 0;
+        outline: none;
+        padding: 0 var(--inset);
+        transition:
+            color var(--nav-duration) ease-out,
+            opacity var(--nav-duration) ease-out;
+        width: var(--item-width);
+
+        &:disabled {
+            cursor: default;
+            pointer-events: none;
+        }
+
+        &:focus-visible,
+        &:hover {
+            color: var(--color-active);
+            opacity: 1;
+        }
+
+        &:focus-visible {
+            border-radius: var(--border-radius-200);
+            outline: 2px solid var(--focus-color);
+            outline-offset: -1px;
+        }
+
+        @media (pointer: coarse) {
+            opacity: 1;
+
+            &:disabled {
+                opacity: 0.4;
+            }
+        }
+    }
+
+    &-nav-icon {
+        flex-shrink: 0;
+        height: 12px;
+        width: 12px;
+    }
+
+    &-title {
+        color: var(--card-title-color);
+        font-size: 0.875rem;
+        font-weight: var(--font-weight-500);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
