@@ -69,7 +69,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
         // differs for a segment of a compact row; 'last' is the key of the last row in the target's box. Rows and
         // segments test their own keys alone, so a new target re-renders the rows of the boxes it leaves and enters.
         marks = { folder: signal(0), last: signal(0), target: signal(0) },
-        sources: T[] = [],
+        sources = new Set<T>(),
         // 'depth' is the target box's depth and 'x'/'y' where the ghost sits.
         ui = reactive({ count: 0, depth: null as number | null, effect: '' as Effect, label: '', x: 0, y: 0 });
 
@@ -91,7 +91,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
 
         function activate() {
             active = true;
-            sources = list;
+            sources = new Set(list);
             write(held, true);
             ui.count = list.length;
             ui.label = list[0].element.name;
@@ -293,7 +293,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                 viewport.releasePointerCapture(pointer);
             }
 
-            sources = [];
+            sources = new Set();
             target = undefined;
             ui.depth = null;
             ui.effect = '';
@@ -382,7 +382,7 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
         } as Attributes,
         row: (row: T): Attributes => ({
             class: [
-                () => read(held) && ui.effect === 'move' && sources.includes(row) && 'file-tree-row--dragged',
+                () => read(held) && ui.effect === 'move' && sources.has(row) && 'file-tree-row--dragged',
                 () => mark(row)
             ],
             onpointerdown: (e: PointerEvent) => {
@@ -391,20 +391,22 @@ export default <T extends Row<T>>({ confirm, drop }: Drag<T['element']>, tree: T
                 }
 
                 let grabbed = tree.grab(row),
-                    // A row inside another dragged folder travels with it.
-                    list = grabbed.filter((item) => {
-                        if (item.locked) {
-                            return false;
-                        }
+                    lookup = new Set(grabbed),
+                    list: T[] = [];
 
-                        for (let node = item.parent; node; node = node.parent) {
-                            if (grabbed.includes(node)) {
-                                return false;
-                            }
-                        }
+                // A row inside another dragged folder travels with it.
+                for (let i = 0, n = grabbed.length; i < n; i++) {
+                    let item = grabbed[i],
+                        inside = item.locked;
 
-                        return true;
-                    });
+                    for (let node = item.parent; node && !inside; node = node.parent) {
+                        inside = lookup.has(node);
+                    }
+
+                    if (!inside) {
+                        list.push(item);
+                    }
+                }
 
                 if (list.length) {
                     drag(list, e);

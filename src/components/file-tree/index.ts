@@ -277,6 +277,8 @@ const BYTES = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte'].map((unit
 // Engines cap how many arguments a spread may pass, so very large folders are inserted in slices.
 const CHUNK = 8192;
 
+const GUIDES: string[] = [];
+
 const LETTERS: Record<Status, string> = {
     added: 'A',
     conflict: '!',
@@ -425,7 +427,11 @@ function emphasis(name: string, query: string) {
 
 // A search mark as classes on 'block': every match tinted, the current one outlined as well.
 function found(block: string, mark: string | false) {
-    return mark && [`${block}--match`, mark === 'current' && `${block}--match-current`].filter(Boolean).join(' ');
+    if (!mark) {
+        return mark;
+    }
+
+    return mark === 'current' ? `${block}--match ${block}--match-current` : `${block}--match`;
 }
 
 function folder(element: Element) {
@@ -434,13 +440,19 @@ function folder(element: Element) {
 
 // Shadows repeating a row's parent guide under each further ancestor, read by the row's '::before'.
 function guides(depth: number) {
-    let out: string[] = [];
+    let out = GUIDES[depth];
 
-    for (let i = 1; i < depth; i++) {
-        out.push(`calc(var(--indent) * ${-i} * var(--guide-direction)) 0`);
+    if (out !== undefined) {
+        return out;
     }
 
-    return out.join(', ') || 'none';
+    let parts: string[] = [];
+
+    for (let i = 1; i < depth; i++) {
+        parts.push(`calc(var(--indent) * ${-i} * var(--guide-direction)) 0`);
+    }
+
+    return GUIDES[depth] = parts.join(', ') || 'none';
 }
 
 // The rank a row lends its folders: a deleted file is a change inside them, not a loss of them.
@@ -455,11 +467,8 @@ function middle(event: MouseEvent) {
     }
 }
 
-// Tree order, compared folder by folder from the top, so a folder comes before everything in it.
-function order(a: Row, b: Row) {
-    let x = place(a),
-        y = place(b);
-
+// Tree order of two places, compared folder by folder from the top, so a folder comes before everything in it.
+function order(x: number[], y: number[]) {
     for (let i = 0, n = Math.min(x.length, y.length); i < n; i++) {
         if (x[i] !== y[i]) {
             return x[i] - y[i];
@@ -681,10 +690,32 @@ export default ({
             grab: (row) => (selection.has(row.id) ? [...selection.ids].map((id) => built.get(id)) : [row])
                 .filter((row): row is Row => row !== undefined && !header(row) && !ancestors(row).some((node) => selection.has(node.id) && !header(node))),
             host: (row) => row.host ?? row,
+            // Down through each open folder's last shown row, rather than building the whole box to read its end.
             last: (row) => {
-                let inner = row.open && peek(row.open) ? visible(branch(row)) : [];
+                let out = row;
 
-                return inner[inner.length - 1] ?? row;
+                while (out.open && peek(out.open)) {
+                    let list = branch(out),
+                        next: Row | undefined;
+
+                    for (let i = list.length - 1; i >= 0; i--) {
+                        if (!hidden.has(list[i].id)) {
+                            next = list[i];
+                            break;
+                        }
+                    }
+
+                    if (!next) {
+                        // Nothing shown inside, so only a new item's input or an empty root's note can follow.
+                        let inner = visible(list);
+
+                        return inner[inner.length - 1] ?? out;
+                    }
+
+                    out = next;
+                }
+
+                return out;
             },
             open: (row) => fold(row, true),
             row: (element) => (element as Segment<Row>)[SEGMENT] ?? (element as Rendered)[ROW],
@@ -1408,7 +1439,7 @@ export default ({
         operations?.delete?.(elements, permanent);
     }
 
-    function expand(row: Row, value: boolean) {
+    function expand(row: Row, value: boolean, inner?: Row[]) {
         if (!row.open || peek(row.open) === value) {
             return;
         }
@@ -1422,12 +1453,12 @@ export default ({
             opened++;
 
             if (at !== -1) {
-                insert(at + 1, visible(branch(row)));
+                insert(at + 1, inner ?? visible(branch(row)));
             }
         }
         else {
             if (at !== -1) {
-                rows.splice(at + 1, visible(branch(row)).length);
+                rows.splice(at + 1, (inner ?? visible(branch(row))).length);
             }
 
             write(row.open, false);
@@ -1500,7 +1531,7 @@ export default ({
 
         let measured = copy(element, value ? Infinity : inner.length, container, scroller);
 
-        expand(row, value);
+        expand(row, value, inner);
 
         // Started once the list has rendered the swapped rows, ahead of their first paint.
         motion = requestAnimationFrame(() => {
@@ -1657,16 +1688,24 @@ export default ({
             return null;
         }
 
-        changed.sort(order);
-
         let n = changed.length,
-            target = step === 1 ? changed[0] : changed[n - 1];
+            places = new Map<Row, number[]>();
+
+        for (let i = 0; i < n; i++) {
+            places.set(changed[i], place(changed[i]));
+        }
+
+        changed.sort((a, b) => order(places.get(a)!, places.get(b)!));
+
+        let target = step === 1 ? changed[0] : changed[n - 1];
 
         if (cursor) {
+            let here = place(cursor);
+
             for (let i = 0; i < n; i++) {
                 let row = changed[step === 1 ? i : n - 1 - i];
 
-                if (order(row, cursor) * step > 0) {
+                if (order(places.get(row)!, here) * step > 0) {
                     target = row;
                     break;
                 }
@@ -1950,14 +1989,23 @@ export default ({
     // False when the tree has nothing to do with the command, leaving the key to the page.
     function perform(name: Command, row: Row) {
         switch (name) {
-            case 'all':
-                selection.replace(rows.filter((item) => !item.locked).map((item) => item.id));
+            case 'all': {
+                let ids: string[] = [];
+
+                for (let i = 0, n = rows.length; i < n; i++) {
+                    if (!rows[i].locked) {
+                        ids.push(rows[i].id);
+                    }
+                }
+
+                selection.replace(ids);
 
                 if (!selection.has(state.selected) && !row.locked) {
                     primary(row.id);
                 }
 
                 return true;
+            }
             case 'clear': {
                 // Down to the focused row, or the primary when the focused row can't be selected. With nothing to
                 // clear, Escape is left to whatever holds the tree, like a dialog closing.
@@ -2213,12 +2261,13 @@ export default ({
 
         let changed: string[] = [];
 
-        for (let id of new Set([...index.keys(), ...(decorations?.keys() ?? [])])) {
-            let hide = unseen(id);
+        for (let id of index.keys()) {
+            rehide(id, changed);
+        }
 
-            if (hide !== hidden.has(id)) {
-                obscure(id, hide);
-                changed.push(id);
+        for (let id of decorations?.keys() ?? []) {
+            if (!index.has(id)) {
+                rehide(id, changed);
             }
         }
 
@@ -2276,6 +2325,15 @@ export default ({
         let row = id === null ? undefined : built.get(id);
 
         return row && (row.host || stale(row)) ? (row.host ?? row).parent?.id ?? null : id;
+    }
+
+    function rehide(id: string, changed: string[]) {
+        let hide = unseen(id);
+
+        if (hide !== hidden.has(id)) {
+            obscure(id, hide);
+            changed.push(id);
+        }
     }
 
     // Swaps in the rows once 'changed' were hidden or shown, many at a time: one pass over the rows rather than a
@@ -2484,13 +2542,13 @@ export default ({
         }
 
         // By id, since a folder folded into a compact row is selected as its segment, on the row that shows it.
-        let found: { id: string; row: Row }[] = [];
+        let found: { id: string; place: number[]; row: Row }[] = [];
 
         for (let id of ids) {
             let row = locate(id);
 
             if (row && !row.locked && !hidden.has(id)) {
-                found.push({ id, row });
+                found.push({ id, place: place(row), row });
             }
         }
 
@@ -2498,7 +2556,7 @@ export default ({
             return;
         }
 
-        found.sort((a, b) => order(a.row, b.row));
+        found.sort((a, b) => order(a.place, b.place));
         anchor = found[0].row;
         selection.replace(found.map((item) => item.id));
         primary(found[0].id);
@@ -2609,8 +2667,16 @@ export default ({
     function sift(folders: string[] | null) {
         let changed = false,
             next = new Set(folders),
-            shut = compact ? [...built.values()].filter((row) => row.open && !row.host && !peek(row.open)).map((row) => row.id) : [],
+            shut: string[] = [],
             spared = new Set<string>();
+
+        if (compact) {
+            for (let row of built.values()) {
+                if (row.open && !row.host && !peek(row.open)) {
+                    shut.push(row.id);
+                }
+            }
+        }
 
         redisplay();
 
@@ -2806,11 +2872,15 @@ export default ({
         for (let i = 0, n = rows.length; i < n; i++) {
             // Any of a compact row's folders can be selected.
             for (let candidate of lineage(rows[i])) {
-                let nested = distinct && ancestors(candidate).some((node) => selection.has(node.id) && !header(node));
-
-                if (selection.has(candidate.id) && !nested && !(distinct && header(candidate))) {
-                    out.push(candidate.element);
+                if (!selection.has(candidate.id)) {
+                    continue;
                 }
+
+                if (distinct && (header(candidate) || ancestors(candidate).some((node) => selection.has(node.id) && !header(node)))) {
+                    continue;
+                }
+
+                out.push(candidate.element);
             }
         }
 

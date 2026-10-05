@@ -56,7 +56,15 @@ class Clipboard<T extends { id: string }> {
             return;
         }
 
-        let items = held.items.map((item) => find(item.id)).filter((item): item is T => item !== undefined);
+        let items: T[] = [];
+
+        for (let i = 0, n = held.items.length; i < n; i++) {
+            let item = find(held.items[i].id);
+
+            if (item !== undefined) {
+                items.push(item);
+            }
+        }
 
         if (items.length === held.items.length) {
             held.items = items;

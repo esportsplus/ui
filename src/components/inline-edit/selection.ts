@@ -44,14 +44,9 @@ function leaves(block: HTMLElement) {
 }
 
 // A DOM boundary as a position: inside a block it counts what comes before it there; between blocks it is the start
-// of the next one, or the end of the last.
-function locate(editor: HTMLElement, node: Node, at: number): Pos | null {
-    if (!editor.contains(node)) {
-        return null;
-    }
-
-    let list = elements(editor),
-        element = (node.nodeType === Node.ELEMENT_NODE ? node as Element : node.parentElement)?.closest<HTMLElement>(BLOCK);
+// of the next one, or the end of the last. 'node' is inside the editor, whose blocks are 'list'.
+function locate(editor: HTMLElement, list: HTMLElement[], node: Node, at: number): Pos | null {
+    let element = (node.nodeType === Node.ELEMENT_NODE ? node as Element : node.parentElement)?.closest<HTMLElement>(BLOCK);
 
     if (element && editor.contains(element)) {
         return { block: list.indexOf(element), offset: offset(element, node, at) };
@@ -135,8 +130,13 @@ const capture = (editor: HTMLElement): Selection | null => {
         return null;
     }
 
-    let anchor = locate(editor, selection.anchorNode, selection.anchorOffset),
-        focus = locate(editor, selection.focusNode, selection.focusOffset);
+    if (!editor.contains(selection.anchorNode) || !editor.contains(selection.focusNode)) {
+        return null;
+    }
+
+    let list = elements(editor),
+        anchor = locate(editor, list, selection.anchorNode, selection.anchorOffset),
+        focus = locate(editor, list, selection.focusNode, selection.focusOffset);
 
     return anchor && focus ? { anchor, focus } : null;
 };
@@ -162,8 +162,13 @@ const restore = (editor: HTMLElement, { anchor, focus }: Selection) => {
 
 // A range the browser reports (what an input will replace) as a span.
 const target = (editor: HTMLElement, range: AbstractRange): Span | null => {
-    let start = locate(editor, range.startContainer, range.startOffset),
-        end = locate(editor, range.endContainer, range.endOffset);
+    if (!editor.contains(range.startContainer) || !editor.contains(range.endContainer)) {
+        return null;
+    }
+
+    let list = elements(editor),
+        start = locate(editor, list, range.startContainer, range.startOffset),
+        end = locate(editor, list, range.endContainer, range.endOffset);
 
     return start && end ? { end, start } : null;
 };

@@ -70,6 +70,10 @@ const MARK_PAIRS = {
 };
 
 
+// Keyed by the runs array, which the model never changes in place: the dirty check serializes the whole document
+// on every keystroke, and this leaves only the edited block to write again.
+const PARAGRAPHS = new WeakMap<Set<Feature>, WeakMap<Run[], string>>();
+
 // Escaped ASCII punctuation is parked on the private use area while marks are matched, so it can't delimit one.
 const PARKED = /[-]/g;
 
@@ -235,6 +239,30 @@ function pairs(text: string, c: keyof typeof MARK_PAIRS) {
 
 // Paragraph text, with a line that would open an enabled block escaped so it reads back as text.
 function paragraph(runs: Run[], features: Set<Feature>) {
+    let memo = PARAGRAPHS.get(features);
+
+    if (!memo) {
+        PARAGRAPHS.set(features, memo = new WeakMap());
+    }
+
+    let out = memo.get(runs);
+
+    if (out === undefined) {
+        memo.set(runs, out = prose(runs, features));
+    }
+
+    return out;
+}
+
+function park(text: string) {
+    return text.replace(ESCAPED_PUNCTUATION, (_, c: string) => String.fromCharCode(0xE000 + c.charCodeAt(0)));
+}
+
+function plain(tree: Tree): string {
+    return 'text' in tree ? tree.text : tree.children.map(plain).join('');
+}
+
+function prose(runs: Run[], features: Set<Feature>) {
     return inline(nest(runs), features)
         .split('\n')
         .map((line) => {
@@ -260,14 +288,6 @@ function paragraph(runs: Run[], features: Set<Feature>) {
         })
         .join('\n')
         .replace(SURROUNDING_NEWLINES, '');
-}
-
-function park(text: string) {
-    return text.replace(ESCAPED_PUNCTUATION, (_, c: string) => String.fromCharCode(0xE000 + c.charCodeAt(0)));
-}
-
-function plain(tree: Tree): string {
-    return 'text' in tree ? tree.text : tree.children.map(plain).join('');
 }
 
 function runs(value: string, features: Set<Feature>) {
@@ -327,7 +347,7 @@ function write(group: Block[], features: Set<Feature>): string {
     if (kind === 'codeblock') {
         let value = text(runs).replace(TRAILING_NEWLINES, '');
 
-        return features.has('codeblock') ? `\`\`\`\n${value}\n\`\`\`` : paragraph([{ href: '', marks: [], text: value }], features);
+        return features.has('codeblock') ? `\`\`\`\n${value}\n\`\`\`` : prose([{ href: '', marks: [], text: value }], features);
     }
 
     let value = paragraph(runs, features);

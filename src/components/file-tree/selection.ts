@@ -48,21 +48,33 @@ class Selection {
     replace(ids: Iterable<string>) {
         let next = new Set(ids),
             previous = this.values,
-            added = [...next].filter((id) => !previous.has(id)),
-            removed = [...previous].filter((id) => !next.has(id));
+            same = next.size === previous.size;
 
-        if (!added.length && !removed.length) {
+        if (same) {
+            for (let id of next) {
+                if (!previous.has(id)) {
+                    same = false;
+                    break;
+                }
+            }
+        }
+
+        if (same) {
             return;
         }
 
         this.values = next;
 
-        for (let i = 0, n = removed.length; i < n; i++) {
-            this.flag(removed[i], false);
+        for (let id of previous) {
+            if (!next.has(id)) {
+                this.flag(id, false);
+            }
         }
 
-        for (let i = 0, n = added.length; i < n; i++) {
-            this.flag(added[i], true);
+        for (let id of next) {
+            if (!previous.has(id)) {
+                this.flag(id, true);
+            }
         }
 
         this.listener?.(next);
