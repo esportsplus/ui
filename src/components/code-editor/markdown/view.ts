@@ -379,16 +379,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         update: schedule
     });
 
-    let size = observeSize((_, element) => {
-        // A host removed by anything but its template never hears 'ondisconnect'; the observer still sees it
-        // collapse, and nothing may outlive it.
-        if (!element.isConnected) {
-            controller.dispose();
-            return;
-        }
-
-        measure();
-    });
+    let size = observeSize(() => measure());
 
     let source: Source = {
         breaks: () => NONE,
@@ -1632,14 +1623,6 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
     function subscribe() {
         unsubscribe?.();
         unsubscribe = model.subscribe((snapshot, change) => {
-            if (!host?.isConnected) {
-                requestAnimationFrame(() => {
-                    if (!host?.isConnected) {
-                        controller.dispose();
-                    }
-                });
-            }
-
             if (change.source !== 'navigation') {
                 goals = [];
             }

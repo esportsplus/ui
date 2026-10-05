@@ -130,9 +130,6 @@ type WorkspaceEditorController = Pick<EditorController, 'dispose' | 'document' |
     Partial<Pick<EditorController, 'setDocument'>>;
 
 
-// Where '@esportsplus/template' keeps the cleanups of the bindings it attached to a node.
-const CLEANUP = Symbol.for('@esportsplus/template/cleanup');
-
 // At or below this width the explorer stacks under the editor instead of beside it.
 const COMPACT_WIDTH = 520;
 
@@ -157,30 +154,6 @@ function control({ active, disabled, label, onclick, sprite }: Control) {
             ${() => icon({ 'aria-hidden': 'true', class: 'code-workspace-control-icon' }, typeof sprite === 'string' ? sprite : sprite())}
         </button>
     `;
-}
-
-// Runs what the template would on removal, for a host removed by anything else: the library components inside
-// register document and window listeners that would otherwise keep the whole detached tree alive.
-function drain(element: Element) {
-    let calls: VoidFunction[] = [],
-        walker = element.ownerDocument.createTreeWalker(element, NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
-
-    for (let node: Node | null = element; node; node = walker.nextNode()) {
-        let fns = (node as Node & { [CLEANUP]?: VoidFunction[] })[CLEANUP];
-
-        while (fns?.length) {
-            calls.push(fns.pop()!);
-        }
-    }
-
-    for (let i = 0, n = calls.length; i < n; i++) {
-        try {
-            calls[i]();
-        }
-        catch {
-            // One failing cleanup must not keep the rest attached.
-        }
-    }
 }
 
 // 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere, as the command palette spells it.
@@ -459,14 +432,6 @@ const workspace = ({
         release = root((dispose) => {
             let listening = new AbortController(),
                 observer = new ResizeObserver(([entry]) => {
-                    // A host removed by anything but its template never hears 'ondisconnect'; the observer still
-                    // sees it collapse, and nothing may outlive it.
-                    if (!element.isConnected) {
-                        release?.();
-                        drain(element);
-                        return;
-                    }
-
                     if (entry) {
                         view.compact = entry.contentRect.width <= COMPACT_WIDTH;
                     }
@@ -1119,7 +1084,6 @@ const workspace = ({
                     () => view.tabs && 'code-workspace--tabs'
                 ],
                 onconnect: connect,
-                ondisconnect: () => release?.(),
                 onpointerenter: () => {
                     hovered = true;
                 },
