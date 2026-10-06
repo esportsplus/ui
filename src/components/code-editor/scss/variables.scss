@@ -237,7 +237,10 @@
     --rule-color: var(--color-border-300);
     --selection-background: oklch(from var(--color-blue-400) l c h / 0.22);
     --string-color: oklch(from var(--color-green-500) 45% c h);
+    // Resolved on the editor, since the checkbox derives its own '--focus-color' from these.
+    --task-color: var(--focus-color);
     --task-gap: var(--size-100);
+    --task-size: 14px;
     --type-color: var(--color-blue-300);
     --variable-color: var(--color);
     --white-space: pre-wrap;

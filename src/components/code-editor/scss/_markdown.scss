@@ -390,7 +390,26 @@
     }
 
     &-summary {
+        align-items: center;
         cursor: pointer;
+        display: flex;
+        gap: var(--size-100);
+        list-style: none;
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+    }
+
+    // Turns like a fold marker: right while closed, down once open.
+    &-summary-icon.icon {
+        --size: var(--fold-icon-size);
+        rotate: -90deg;
+        transition: rotate var(--fold-duration) ease-out;
+
+        details[open] > .markdown-editor-summary > & {
+            rotate: 0deg;
+        }
     }
 
     &-surface {
@@ -412,13 +431,18 @@
         border-collapse: collapse;
     }
 
-    &-task {
-        accent-color: var(--focus-color);
-        cursor: pointer;
+    &-task.checkbox {
+        --background-active: var(--task-color);
+        --border-color-active: var(--task-color);
+        --border-color-default: var(--color-border-500);
+        --border-radius: var(--border-radius-200);
+        --border-width: var(--border-width-400);
+        --size: var(--task-size);
+        display: inline-block;
         margin: 0 var(--task-gap) 0 0;
         vertical-align: middle;
 
-        &:disabled {
+        &:has(input:disabled) {
             cursor: default;
             opacity: var(--disabled-opacity);
         }

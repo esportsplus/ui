@@ -1,5 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, text, type Renderable } from '@esportsplus/template';
+import checkbox from '~/components/checkbox';
 import icon from '~/components/icon';
 import { sanitizeHtml, type SafeNode } from './html';
 import { clipInline, type Inline } from './inline';
@@ -154,7 +155,8 @@ function safe(nodes: readonly SafeNode[]): Renderable<unknown>[] {
                 out.push(html`<sub ${attributes}>${content}</sub>`);
                 break;
             case 'summary':
-                out.push(html`<summary class='markdown-editor-summary' ${attributes}>${content}</summary>`);
+                // A press on the summary toggles its details instead of opening the block's source.
+                out.push(html`<summary class='markdown-editor-summary' ${attributes} ${{ onmousedown: prevent }}>${icon({ 'aria-hidden': 'true', class: 'markdown-editor-summary-icon' }, chevron)}${content}</summary>`);
                 break;
             case 'sup':
                 out.push(html`<sup ${attributes}>${content}</sup>`);
@@ -190,7 +192,9 @@ function safe(nodes: readonly SafeNode[]): Renderable<unknown>[] {
 // How units draw. Every run of source text is a text node the view knows the offset of, so a point maps back to the
 // source without reading anything from the DOM but the node under it.
 const renderer = (host: Host) => {
-    let segments = new WeakMap<Text, Segment>(),
+    // A toggled task's state before the toggle, by block start; a toggle never moves the block.
+    let flips = new Map<number, boolean>(),
+        segments = new WeakMap<Text, Segment>(),
         views = new Map<Unit, View>();
 
     function body(unit: Unit, view: View): Renderable<unknown> {
@@ -244,24 +248,7 @@ const renderer = (host: Host) => {
 
                 return [
                     html`<span class='markdown-editor-marker'>${ORDERED.test(block.marker ?? '') ? block.marker : '•'}</span>`,
-                    block.task
-                        ? html`
-                            <input
-                                aria-label='Toggle task'
-                                class='markdown-editor-task'
-                                type='checkbox'
-                                ${{
-                                    checked: block.task.checked,
-                                    disabled: () => host.readonly(),
-                                    onclick: (e: MouseEvent) => {
-                                        e.preventDefault();
-                                        host.task(block);
-                                    },
-                                    onmousedown: prevent
-                                }}
-                            >
-                        `
-                        : '',
+                    block.task ? task(block, block.task.checked) : '',
                     content
                 ];
             }
@@ -372,6 +359,37 @@ const renderer = (host: Host) => {
         let base = block.from;
 
         return { contentFrom: row.contentFrom - base, contentTo: row.contentTo - base, from: row.from - base, to: row.to - base };
+    }
+
+    // Toggling redraws the block, so the new checkbox paints the old state first and then flips, letting the checkbox's
+    // own transition play.
+    function task(block: MarkdownBlock, checked: boolean) {
+        let previous = flips.get(block.from),
+            animate = previous !== undefined && previous !== checked;
+
+        flips.delete(block.from);
+
+        return checkbox({
+            class: 'markdown-editor-task',
+            onfirstpaint: (element: HTMLElement) => {
+                let input = element.querySelector('input');
+
+                if (animate && input) {
+                    input.checked = checked;
+                }
+            },
+            [checkbox.input]: {
+                'aria-label': 'Toggle task',
+                checked: animate ? previous : checked,
+                disabled: () => host.readonly(),
+                onclick: (e: MouseEvent) => {
+                    e.preventDefault();
+                    flips.set(block.from, checked);
+                    host.task(block);
+                },
+                onmousedown: prevent
+            }
+        });
     }
 
     return {
