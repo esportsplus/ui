@@ -20,15 +20,16 @@ const routes: readonly (RouteName | null)[] = [
 
 
 export default (request: Request, next: Responder) => {
-    let response = next(request);
+    let response = next(request),
+        route = request.data.route?.name as typeof routes[0];
 
-    if (!routes.some((name) => name === request.data.route?.name)) {
+    if (routes.indexOf(route) === -1) {
         return response;
     }
 
     let page = response as Page,
         disconnect = () => {},
-        spy = nav.spy(page.toc.map((item) => item.id));
+        spy = nav.spy( page.toc.map((item) => item.id) );
 
     return html`
         <main class='main'>
