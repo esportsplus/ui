@@ -1,0 +1,50 @@
+.button-sidebar {
+    // Hidden panels keep the divider slid out; hover and focus preview the opposite state.
+    &[aria-expanded='false'],
+    &[aria-expanded='true']:focus-visible {
+        --divider-x: var(--divider-travel);
+    }
+
+    &[aria-expanded='false']:focus-visible {
+        --divider-x: 0px;
+    }
+
+    @media (hover: hover) {
+        &[aria-expanded='false']:hover {
+            --divider-x: 0px;
+        }
+
+        &[aria-expanded='true']:hover {
+            --divider-x: var(--divider-travel);
+        }
+    }
+
+    // The frame clips the divider, so it disappears as it leaves rather than sliding past the glyph.
+    &-divider {
+        transform: translateX(var(--divider-x));
+        transition: transform var(--divider-duration) ease;
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    // Chained through '.icon' so it wins over the icon's own size and fill regardless of stylesheet order.
+    &-icon.icon {
+        --size: var(--icon-size);
+
+        // Drawn in strokes, with fills set per path, where the icon would fill the whole SVG.
+        .button-sidebar-graphic {
+            fill: none;
+            overflow: hidden;
+        }
+    }
+
+    &-shadow {
+        opacity: var(--shadow-opacity);
+    }
+
+    &--right &-graphic {
+        scale: -1 1;
+    }
+}

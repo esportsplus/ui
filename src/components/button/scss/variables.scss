@@ -158,3 +158,12 @@
     --plus-color: color-mix(in srgb, currentColor 60%, transparent);
     --plus-size: var(--size-300);
 }
+
+.button-sidebar {
+    --divider-duration: 180ms;
+    // How far the divider slides out of the frame while its panel is hidden.
+    --divider-travel: -12px;
+    --divider-x: 0px;
+    --icon-size: var(--size-400);
+    --shadow-opacity: 0.2;
+}
