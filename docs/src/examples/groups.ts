@@ -63,6 +63,10 @@ const groups: Record<string, Group[]> = {
         { title: 'tags', members: [['tag · topics', 'Default'], ['tag · paste + observed state', 'Paste and observed state']] },
         { title: 'scrub', members: [['scrub · transform', 'Default'], ['scrub · bounded + observed state', 'Bounds and observed state'], ['scrub · pointer lock', 'Pointer lock']] }
     ],
+    link: [
+        { title: 'horizontal group', members: [['horizontal group', 'Background'], ['horizontal group · line', 'Line'], ['horizontal group · background + line', 'Background + line']] },
+        { title: 'vertical group', members: [['vertical group', 'Background'], ['vertical group · line', 'Line'], ['vertical group · background + line', 'Background + line']] }
+    ],
     loading: [{ title: 'loading', members: ['default', 'small', 'tail', 'bar'] }],
     marquee: [{ title: 'marquee', members: ['default', 'right', 'marks', 'select', 'paused state', 'velocity (scroll the page to speed it up)'] }],
     metric: [
