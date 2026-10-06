@@ -3,6 +3,7 @@ import { effect, reactive } from '@esportsplus/reactivity';
 import { measure, slides, timing } from '~/shared/animation';
 import { clamp } from '~/shared/clamp';
 import { keystep } from '~/shared/keystep';
+import copy from '~/components/copy';
 import input from '~/components/input';
 import range from '~/components/range';
 import './scss/index.scss';
@@ -10,7 +11,7 @@ import './scss/index.scss';
 
 type A = Attributes & {
     [COLOR_PICKER_SWATCH]?: Attributes;
-    recent?: string[];
+    recent?: false | string[];
     state?: { error: string, value: string };
     value: string;
 };
@@ -131,6 +132,7 @@ function template(
     let alpha: Channel = reactive({ active: false, error: '', value: Math.round(start.a * 100) }),
         color = reactive({ a: start.a, h: start.h, s: start.s, v: start.v }),
         dirty = { alpha: false, hue: false, pad: false },
+        history = initial !== false,
         hue: Channel = reactive({ active: false, error: '', value: Math.round(start.h) }),
         id = `color-picker-${++uid}`,
         // Stand-ins for swatches pushed out of the recent list, fading out where they stood.
@@ -138,24 +140,7 @@ function template(
         parts: Parts = {},
         picker = reactive({ active: '', invalid: false }),
         pointer = { alpha: false, hue: false, pad: -1 },
-        recent = reactive(initial.map((hex) => hex.toUpperCase()));
-
-    let fading = html.reactive(leaving, (ghost) => html`
-        <span
-            aria-hidden='true'
-            class='color-picker-swatch color-picker-swatch--leaving'
-            style='--swatch: ${ghost.hex}; left: ${ghost.left}px; top: ${ghost.top}px;'
-            ${{
-                onanimationend: () => {
-                    let at = leaving.indexOf(ghost);
-
-                    if (at !== -1) {
-                        leaving.splice(at, 1);
-                    }
-                }
-            }}
-        ></span>
-    `);
+        recent = reactive((initial || []).map((hex) => hex.toUpperCase()));
 
     state.value = toHex(color);
 
@@ -196,7 +181,7 @@ function template(
 
         picker.active = hex;
 
-        if (recent[0] === hex) {
+        if (!history || recent[0] === hex) {
             return;
         }
 
@@ -485,80 +470,105 @@ function template(
             </div>
 
             <div class='color-picker-fields'>
-                ${input({
-                    'aria-invalid': () => picker.invalid ? 'true' : 'false',
-                    'aria-label': 'Hex color',
-                    autocapitalize: 'characters',
-                    autocomplete: 'off',
-                    class: 'color-picker-hex',
-                    maxlength: 9,
-                    onblur: () => apply(true),
-                    onconnect: (element: HTMLInputElement) => {
-                        parts.hex = element;
-                        element.value = toHex(read());
-                    },
-                    onfocus: function(this: HTMLInputElement) {
-                        this.select();
-                    },
-                    oninput: () => {
-                        picker.invalid = false;
-                    },
-                    onkeydown: function(this: HTMLInputElement, e: KeyboardEvent) {
-                        if (e.key === 'Enter') {
-                            apply(false);
-                        }
-                        else if (e.key === 'Escape') {
-                            this.value = toHex(read());
+                <div class='color-picker-field'>
+                    ${input({
+                        'aria-invalid': () => picker.invalid ? 'true' : 'false',
+                        'aria-label': 'Hex color',
+                        autocapitalize: 'characters',
+                        autocomplete: 'off',
+                        class: 'color-picker-hex',
+                        maxlength: 9,
+                        onblur: () => apply(true),
+                        onconnect: (element: HTMLInputElement) => {
+                            parts.hex = element;
+                            element.value = toHex(read());
+                        },
+                        onfocus: function(this: HTMLInputElement) {
+                            this.select();
+                        },
+                        oninput: () => {
                             picker.invalid = false;
-                        }
-                    },
-                    spellcheck: false
-                })}
+                        },
+                        onkeydown: function(this: HTMLInputElement, e: KeyboardEvent) {
+                            if (e.key === 'Enter') {
+                                apply(false);
+                            }
+                            else if (e.key === 'Escape') {
+                                this.value = toHex(read());
+                                picker.invalid = false;
+                            }
+                        },
+                        spellcheck: false
+                    })}
+                    ${copy({
+                        class: 'color-picker-copy',
+                        label: 'Copy hex color',
+                        success: 'Hex color copied',
+                        value: () => toHex(read())
+                    })}
+                </div>
                 <span aria-hidden='true' class='color-picker-alpha'>${() => `${Math.round(color.a * 100)}%`}</span>
                 <span aria-live='polite' class='color-picker-status'>${() => picker.invalid && 'Not a valid hex color'}</span>
             </div>
 
-            <div class='color-picker-recent' ${{ hidden: () => recent.length === 0 }}>
-                <p class='color-picker-recent-label' id='${id}-recent'>Recent</p>
-                <div
-                    aria-labelledby='${id}-recent'
-                    class='color-picker-swatches'
-                    role='group'
-                    ${{
-                        onconnect: (element: HTMLElement) => {
-                            parts.swatches = element;
-                        }
-                    }}
-                >
-                    ${html.reactive(recent, (hex) => html`
-                        <button
-                            aria-label='Use ${hex}'
-                            class='color-picker-swatch'
-                            style='--swatch: ${hex};'
-                            type='button'
-                            ${this?.attributes?.[COLOR_PICKER_SWATCH]}
-                            ${attributes[COLOR_PICKER_SWATCH]}
-                            ${{
-                                'aria-pressed': () => picker.active === hex ? 'true' : 'false',
-                                class: () => picker.active === hex && '--active',
-                                onclick: () => {
-                                    let next = fromHex(hex, read());
+            ${history && html`
+                <div class='color-picker-recent' ${{ hidden: () => recent.length === 0 }}>
+                    <p class='color-picker-recent-label' id='${id}-recent'>Recent</p>
+                    <div
+                        aria-labelledby='${id}-recent'
+                        class='color-picker-swatches'
+                        role='group'
+                        ${{
+                            onconnect: (element: HTMLElement) => {
+                                parts.swatches = element;
+                            }
+                        }}
+                    >
+                        ${html.reactive(recent, (hex) => html`
+                            <button
+                                aria-label='Use ${hex}'
+                                class='color-picker-swatch'
+                                style='--swatch: ${hex};'
+                                type='button'
+                                ${this?.attributes?.[COLOR_PICKER_SWATCH]}
+                                ${attributes[COLOR_PICKER_SWATCH]}
+                                ${{
+                                    'aria-pressed': () => picker.active === hex ? 'true' : 'false',
+                                    class: () => picker.active === hex && '--active',
+                                    onclick: () => {
+                                        let next = fromHex(hex, read());
 
-                                    if (!next) {
-                                        return;
+                                        if (!next) {
+                                            return;
+                                        }
+
+                                        // Applies without reordering, so the swatch under the cursor stays put.
+                                        update(next);
+                                        picker.active = hex;
+                                        picker.invalid = false;
                                     }
+                                }}
+                            ></button>
+                        `)}
+                        ${html.reactive(leaving, (ghost) => html`
+                            <span
+                                aria-hidden='true'
+                                class='color-picker-swatch color-picker-swatch--leaving'
+                                style='--swatch: ${ghost.hex}; left: ${ghost.left}px; top: ${ghost.top}px;'
+                                ${{
+                                    onanimationend: () => {
+                                        let at = leaving.indexOf(ghost);
 
-                                    // Applies without reordering, so the swatch under the cursor stays put.
-                                    update(next);
-                                    picker.active = hex;
-                                    picker.invalid = false;
-                                }
-                            }}
-                        ></button>
-                    `)}
-                    ${fading}
+                                        if (at !== -1) {
+                                            leaving.splice(at, 1);
+                                        }
+                                    }
+                                }}
+                            ></span>
+                        `)}
+                    </div>
                 </div>
-            </div>
+            `}
         </div>
     `;
 }

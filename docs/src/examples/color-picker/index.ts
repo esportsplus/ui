@@ -21,6 +21,10 @@ export default {
             title: 'recent colors'
         },
         {
+            render: () => card(colorPicker({ recent: false, value: '#5B8DEF' })),
+            title: 'recent: false'
+        },
+        {
             render: () => {
                 let state = reactive({ error: '', value: '' });
 
