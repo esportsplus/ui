@@ -1,6 +1,7 @@
 import { effect, flush, onCleanup, reactive, read, root, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import breadcrumb, { type Crumb } from '~/components/breadcrumb';
+import sidebar from '~/components/button/sidebar';
 import command, { type Command, type ResultGroup, type Tab } from '~/components/command';
 import fileTree, {
     FileTreeDecorations,
@@ -39,8 +40,6 @@ import wrap from '@esportsplus/ui/svg/corner-down-right.svg';
 import whitespace from '@esportsplus/ui/svg/eye.svg';
 import save from '@esportsplus/ui/svg/save.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
-import sidebarFilled from '@esportsplus/ui/svg/sidebar-filled.svg';
-import sidebar from '@esportsplus/ui/svg/sidebar.svg';
 import undo from '@esportsplus/ui/svg/undo.svg';
 import '~/components/button/scss/index.scss';
 
@@ -1247,11 +1246,13 @@ const workspace = ({
                             onclick: api.toggleWhitespace,
                             sprite: whitespace
                         })}
-                        ${control({
-                            active: () => !view.explorerOpen,
-                            label: () => (view.explorerOpen ? 'Hide file explorer' : 'Show file explorer'),
+                        ${sidebar({
+                            'aria-label': () => (view.explorerOpen ? 'Hide file explorer' : 'Show file explorer'),
+                            class: 'code-workspace-control',
                             onclick: api.toggleExplorer,
-                            sprite: () => (view.explorerOpen ? sidebarFilled : sidebar)
+                            open: () => view.explorerOpen,
+                            side: () => (view.left ? 'left' : 'right'),
+                            title: () => (view.explorerOpen ? 'Hide file explorer' : 'Show file explorer')
                         })}
                     </div>
                 </div>

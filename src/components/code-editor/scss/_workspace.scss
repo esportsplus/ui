@@ -225,6 +225,8 @@
         --color-active: var(--color);
         --color-default: var(--muted-color);
         --color-hover: var(--color);
+        // Sizes the sidebar toggle's glyph like the other control icons.
+        --icon-size: var(--control-icon-size);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         flex: none;

@@ -1,4 +1,4 @@
-import { nav } from '@esportsplus/ui/components';
+import { button, nav } from '@esportsplus/ui/components';
 import { effect, html, reactive, uri } from 'docs/app';
 import { repository, version } from '@esportsplus/ui/package.json';
 import { sections } from 'docs/data/nav';
@@ -35,36 +35,14 @@ export default (request: Request) => {
     }
 
     return html`
-        <button
-            aria-controls='docs-navigation'
-            aria-expanded='${() => state.active ? 'true' : 'false'}'
-            aria-label='${() => state.active ? 'Close documentation navigation' : 'Open documentation navigation'}'
-            class='sidebar-toggle button'
-            title='${() => state.active ? 'Close documentation navigation' : 'Open documentation navigation'}'
-            type='button'
-            onclick='${() => state.active = !state.active}'
-        >
-            <span aria-hidden='true' class='icon sidebar-toggle-icon'>
-                <svg class='sidebar-toggle-graphic' fill='none' focusable='false' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
-                    <defs>
-                        <clipPath id='sidebar-toggle-frame'>
-                            <rect x='2.25' y='2.75' width='11.5' height='10.5' rx='1.5' />
-                        </clipPath>
-                    </defs>
-                    <g class='sidebar-toggle-shadow'>
-                        <path fill='currentColor' stroke='none' d='M3.75 2.75h2.5v10.5h-2.5a1.5 1.5 0 0 1-1.5-1.5v-7a1.5 1.5 0 0 1 1.5-1.5Z' />
-                        <path d='M6.25 2.75v10.5' />
-                    </g>
-                    <g clip-path='url(#sidebar-toggle-frame)'>
-                        <g class='sidebar-toggle-divider'>
-                            <path fill='currentColor' stroke='none' d='M3.75 2.75h2.5v10.5h-2.5a1.5 1.5 0 0 1-1.5-1.5v-7a1.5 1.5 0 0 1 1.5-1.5Z' />
-                            <path d='M6.25 2.75v10.5' />
-                        </g>
-                    </g>
-                    <rect x='2.25' y='2.75' width='11.5' height='10.5' rx='1.5' />
-                </svg>
-            </span>
-        </button>
+        ${button.sidebar({
+            'aria-controls': 'docs-navigation',
+            'aria-label': () => state.active ? 'Close documentation navigation' : 'Open documentation navigation',
+            class: 'sidebar-toggle',
+            onclick: () => state.active = !state.active,
+            open: () => state.active,
+            title: () => state.active ? 'Close documentation navigation' : 'Open documentation navigation'
+        })}
 
         <aside
             aria-label='Documentation navigation'

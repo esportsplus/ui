@@ -75,8 +75,6 @@
         --color-pressed: var(--color-black-500);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
-        --sidebar-toggle-divider-x: 0px;
-        --sidebar-toggle-shadow-opacity: 0.2;
         --size: 32px;
         --width: var(--size);
         display: flex;
@@ -92,48 +90,6 @@
             outline: 2px solid var(--color-blue-400);
             outline-offset: 2px;
         }
-
-        &[aria-expanded='false'],
-        &[aria-expanded='true']:focus-visible {
-            --sidebar-toggle-divider-x: -12px;
-        }
-
-        &[aria-expanded='false']:focus-visible {
-            --sidebar-toggle-divider-x: 0px;
-        }
-
-        @media (hover: hover) {
-            &[aria-expanded='false']:hover {
-                --sidebar-toggle-divider-x: 0px;
-            }
-
-            &[aria-expanded='true']:hover {
-                --sidebar-toggle-divider-x: -12px;
-            }
-        }
-    }
-
-    // Preview the sidebar action by sliding its section out of the frame, which clips it.
-    &-toggle-divider {
-        transform: translateX(var(--sidebar-toggle-divider-x));
-        transition: transform 180ms ease;
-
-        @media (prefers-reduced-motion: reduce) {
-            transition: none;
-        }
-    }
-
-    &-toggle-graphic {
-        fill: none;
-        overflow: hidden;
-    }
-
-    &-toggle-icon {
-        --size: var(--size-400);
-    }
-
-    &-toggle-shadow {
-        opacity: var(--sidebar-toggle-shadow-opacity);
     }
 
     &-tools {
