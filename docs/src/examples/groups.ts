@@ -69,7 +69,10 @@ const groups: Record<string, Group[]> = {
         { title: 'grid', members: [['small cards in a grid', 'Default'], ['live data (push to a ReactiveArray)', 'Live data']] },
         { title: 'flash', members: [['flash, price', 'Price'], ['flash, request rate', 'Request rate'], ['flash, large, long hold', 'Large, long hold']] }
     ],
-    'notification-bell': [{ title: 'notification bell', members: ['interactive', 'max overflow', 'custom max', 'dot', 'ring on mount', ['sizes', 'Sizes']] }],
+    notification: [
+        { title: 'bubble', members: ['interactive', 'max overflow', 'custom max', 'without counter', ['sizes', 'Sizes']] },
+        { title: 'bell', members: [['bell, interactive', 'Interactive'], ['bell, max overflow', 'Max overflow'], ['bell, without counter', 'Without counter'], ['bell, ring on mount', 'Ring on mount'], ['bell, sizes', 'Sizes']] }
+    ],
     overlay: [
         { title: 'placement', members: [['center', 'Default'], 'north', 'south', 'west', 'east', 'north-east', 'south-west', 'floating', ['non-modal', 'Non-modal']] },
         { title: 'stacked', members: ['stacked', 'stacked, pushing back the page'] },

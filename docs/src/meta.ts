@@ -112,8 +112,8 @@ const meta: Record<string, Meta> = {
     metric: {
         description: 'Metric card with a line chart that draws itself in and redraws to fit its container, with a scrubbable readout for pointer, touch, and arrow keys, plus a live value that marks each change with a directional roll, tint, and arrow.'
     },
-    'notification-bell': {
-        description: 'Bell button that swings on new notifications with a rolling unread badge.'
+    notification: {
+        description: 'Unread bubble with a rolling counter, optionally mounted on a bell that swings on new notifications.'
     },
     number: {
         description: 'Locale-aware number formatting helper.'

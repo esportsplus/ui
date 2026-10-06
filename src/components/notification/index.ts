@@ -1,7 +1,7 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import icon from '~/components/icon';
-import bell from '@esportsplus/ui/svg/bell.svg';
+import svg from '@esportsplus/ui/svg/bell.svg';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
@@ -9,15 +9,17 @@ import './scss/index.scss';
 const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 
-export default ({ 'aria-label': label = 'Notifications', count = 0, dot = false, max = 99, ring = false, state: api = reactive({ count }), ...attributes }: Attributes & {
+export default ({ 'aria-label': label = 'Notifications', bell = false, count = 0, counter = true, max = 99, ring = false, state: api = reactive({ count }), ...attributes }: Attributes & {
     'aria-label'?: string;
+    bell?: boolean;
     count?: number;
-    dot?: boolean;
+    counter?: boolean;
     max?: number;
     ring?: boolean;
     state?: { count: number };
 }) => {
-    let previous = api.count,
+    let announce = () => api.count > 0 ? `${label}, ${api.count} unread` : label,
+        previous = api.count,
         render = reactive([] as { digit: boolean; value: string }[]),
         // Alternates between 1 and 2 so back-to-back increments swap keyframe
         // names, which restarts the swing without forcing a reflow.
@@ -27,14 +29,14 @@ export default ({ 'aria-label': label = 'Notifications', count = 0, dot = false,
         let count = api.count;
 
         untrack(() => {
-            if (count > previous) {
+            if (bell && count > previous) {
                 state.ring = state.ring === 1 ? 2 : 1;
             }
 
             previous = count;
 
-            // Keep the last digits while the badge scales out
-            if (count <= 0 || dot) {
+            // Keep the last digits while the bubble scales out
+            if (count <= 0 || !counter) {
                 return;
             }
 
@@ -61,12 +63,38 @@ export default ({ 'aria-label': label = 'Notifications', count = 0, dot = false,
         });
     });
 
+    let bubble = html`
+        <span
+            class='notification ${!counter && 'notification--dot'}'
+            ${{ class: () => api.count > 0 && '--active' }}
+            ${bell ? { 'aria-hidden': 'true' } : { ...attributes, 'aria-label': announce, role: 'status' }}
+        >
+            ${counter && html.reactive(render, function (character) {
+                if (!character.digit) {
+                    return html`<span class='notification-character'>${() => character.value}</span>`;
+                }
+
+                return html`
+                    <span class='notification-character'>
+                        <span class='notification-character-track' style='${() => `--value: ${character.value}`}'>
+                            ${DIGITS.map((value) => html`<span class='notification-character-digit'>${value}</span>`)}
+                        </span>
+                    </span>
+                `;
+            })}
+        </span>
+    `;
+
+    if (!bell) {
+        return bubble;
+    }
+
     return html`
         <button
             class='button notification-bell'
             type='button'
             ${{
-                'aria-label': () => api.count > 0 ? `${label}, ${api.count} unread` : label,
+                'aria-label': announce,
                 class: () => state.ring && `notification-bell--ring-${state.ring}`,
                 onanimationend: (e: AnimationEvent) => {
                     if (e.animationName.startsWith('notification-bell-ring')) {
@@ -76,27 +104,8 @@ export default ({ 'aria-label': label = 'Notifications', count = 0, dot = false,
             }}
             ${attributes}
         >
-            ${icon({ 'aria-hidden': true, class: 'notification-bell-icon' }, bell)}
-
-            <span
-                aria-hidden='true'
-                class='notification-bell-badge ${dot && 'notification-bell-badge--dot'}'
-                ${{ class: () => api.count > 0 && '--active' }}
-            >
-                ${!dot && html.reactive(render, function (character) {
-                    if (!character.digit) {
-                        return html`<span class='notification-bell-character'>${() => character.value}</span>`;
-                    }
-
-                    return html`
-                        <span class='notification-bell-character'>
-                            <span class='notification-bell-character-track' style='${() => `--value: ${character.value}`}'>
-                                ${DIGITS.map((value) => html`<span class='notification-bell-character-digit'>${value}</span>`)}
-                            </span>
-                        </span>
-                    `;
-                })}
-            </span>
+            ${icon({ 'aria-hidden': true, class: 'notification-bell-icon' }, svg)}
+            ${bubble}
         </button>
     `;
 };

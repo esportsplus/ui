@@ -29,7 +29,7 @@ export { default as loading } from './loading';
 export { default as marquee } from './marquee';
 export { default as metric } from './metric';
 export { default as nav } from './nav';
-export { default as notificationBell } from './notification-bell';
+export { default as notification } from './notification';
 export { default as number } from './number';
 export { default as overlay } from './overlay';
 export { default as pagination } from './pagination';
