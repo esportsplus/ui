@@ -1,7 +1,7 @@
-import { pageHead } from 'docs/components/page/head';
+import { pageHeader } from 'docs/components/page/header';
 import { html } from 'docs/app';
 import { preview } from 'docs/components/preview';
-import type { Head } from 'docs/components/page/head';
+import type { Header } from 'docs/components/page/header';
 import type { Page, TocItem, Variant } from 'docs/types';
 import 'docs/components/page/scss/index.scss';
 import 'docs/components/page/scss/card.scss';
@@ -15,7 +15,7 @@ type Card = {
 
 
 type Detail = {
-    breadcrumb?: Head['breadcrumb'];
+    breadcrumb?: Header['breadcrumb'];
     description: string;
     name: string;
     variants: Variant[];
@@ -25,7 +25,7 @@ type Detail = {
 const cardGrid = (subtitle: string, title: string, cards: Card[]): Page => ({
     render: () => html`
         <div class='page'>
-            ${pageHead({ title, description: subtitle })}
+            ${pageHeader({ title, description: subtitle })}
 
             <div class='grid page-grid'>
                 ${cards.map((card) => html`
@@ -49,7 +49,7 @@ const detailPage = (detail: Detail): Page => {
     return {
         render: () => html`
             <div class='page'>
-                ${pageHead({ title: detail.name, description: detail.description, breadcrumb: detail.breadcrumb })}
+                ${pageHeader({ title: detail.name, description: detail.description, breadcrumb: detail.breadcrumb })}
 
                 ${detail.variants.length === 0
                     ? html`<p class='page-note'>No examples yet.</p>`
@@ -63,7 +63,7 @@ const detailPage = (detail: Detail): Page => {
 const missing = (title: string): Page => ({
     render: () => html`
         <div class='page'>
-            ${pageHead({ title: 'Not found', description: title })}
+            ${pageHeader({ title: 'Not found', description: title })}
         </div>
     `,
     toc: []
