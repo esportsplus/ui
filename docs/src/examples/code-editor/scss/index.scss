@@ -28,6 +28,12 @@
         margin: 0;
     }
 
+    // Editors leave framing to their container; workspace documents sit inside the workspace's own frame.
+    :where(.code-editor, .markdown-editor):not(.code-workspace-document) {
+        border: var(--border-width-400) solid var(--color-border-300);
+        border-radius: var(--border-radius-300);
+    }
+
     &-editor {
         &--compact.code-editor {
             --height: 200px;
