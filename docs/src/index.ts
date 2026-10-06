@@ -6,12 +6,16 @@ import { toaster } from 'docs/components/toaster';
 import { modal } from 'docs/components/search';
 import sidebar, { state as sidebarState } from 'docs/components/sidebar';
 import layout from 'docs/middleware/layout/index';
+import theme from '@esportsplus/ui/css-utilities/theme';
+
+
+let mode = theme();
 
 
 render(
     document.body,
     {
-        class: `--font-montserrat --scrollbar --scrollbar-scope`
+        class: [`--font-montserrat --scrollbar --scrollbar-scope`, () => mode.class]
     },
     () => html`${middleware(
         (request, next) => html`
