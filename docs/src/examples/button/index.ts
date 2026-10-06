@@ -1,7 +1,11 @@
-import { button } from '@esportsplus/ui/components';
+import { button, highlight, icon } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import toast from 'docs/components/toaster';
+import code from '@esportsplus/ui/svg/code.svg';
+import eye from '@esportsplus/ui/svg/eye.svg';
+import page from '@esportsplus/ui/svg/document.svg';
+import 'docs/examples/button/scss/index.scss';
 
 
 let colors = ['primary', 'secondary', 'tertiary'],
@@ -29,6 +33,12 @@ let options = () => [
     { 'aria-label': 'Message', content: icons.message(), onclick: () => toast(() => 'Message selected.') }
 ];
 
+let views = [
+    { glyph: eye, label: 'Preview' },
+    { glyph: code, label: 'Code' },
+    { glyph: page, label: 'Docs' }
+];
+
 let swap = (open: Renderable<unknown>) => html`
     <span class='button-fan-swap'>
         ${open}
@@ -36,6 +46,27 @@ let swap = (open: Renderable<unknown>) => html`
     </span>
 `;
 
+
+function group(glide: boolean) {
+    let state = reactive({ active: 0 });
+
+    return html`
+        <div aria-label='View' class='button-demo-group ${!glide && 'button-demo-group--static'}' role='group'>
+            ${glide && highlight({ class: 'button-demo-group-highlight' })}
+            ${views.map(({ glyph, label }, index) => html`
+                <button
+                    class='button button-demo-group-button ${() => state.active === index && '--active'}'
+                    onclick='${() => state.active = index}'
+                    type='button'
+                    ${{ 'aria-pressed': () => String(state.active === index) }}
+                >
+                    ${icon({ 'aria-hidden': 'true', class: 'button-demo-group-icon' }, glyph)}
+                    ${label}
+                </button>
+            `)}
+        </div>
+    `;
+}
 
 function wait(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -138,6 +169,14 @@ export default {
                 </div>
             `,
             title: 'copy'
+        },
+        {
+            render: () => group(true),
+            title: 'group'
+        },
+        {
+            render: () => group(false),
+            title: 'group without highlight'
         },
         {
             render: () => html`

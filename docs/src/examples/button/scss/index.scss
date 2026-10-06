@@ -1,0 +1,49 @@
+// A segmented control: the active button rests on a white pill, which the highlight glides between buttons.
+.button-demo-group {
+    align-items: center;
+    background: var(--color-grey-400);
+    border-radius: 12px;
+    display: inline-flex;
+    gap: 2px;
+    padding: 4px;
+
+    &-button.button {
+        --background-active: transparent;
+        --background-default: transparent;
+        --background-hover: transparent;
+        --background-pressed: transparent;
+        --border-radius: 8px;
+        --color-active: var(--color-text-500);
+        --color-default: var(--color-text-300);
+        --color-hover: var(--color-text-500);
+        --color-pressed: var(--color-text-500);
+        --font-size: var(--font-size-300);
+        --padding-horizontal: 10px;
+        --padding-vertical: 0px;
+        gap: 6px;
+        height: 28px;
+
+        &:focus-visible {
+            outline: 2px solid var(--color-blue-400);
+            outline-offset: 2px;
+        }
+    }
+
+    // Without a highlight the pill sits on the active button itself and swaps instantly.
+    &--static &-button.button {
+        --background-active: var(--color-white-400);
+    }
+
+    &-highlight.highlight {
+        --background-active: var(--color-white-400);
+        --background-default: transparent;
+        --background-hover: transparent;
+        --background-pressed: transparent;
+        --scale-hidden: 1;
+        border-radius: 8px;
+    }
+
+    &-icon {
+        --size: 16px;
+    }
+}
