@@ -25,7 +25,7 @@ const groups: Record<string, Group[]> = {
         { title: 'checkbox', members: ['default', 'checked'] },
         { title: 'group', members: ['group', 'group without descriptions'] }
     ],
-    'color-picker': [{ title: 'color picker', members: ['default', ['recent colors', 'Recent colors'], ['controlled state', 'Controlled state']] }],
+    'color-picker': [{ title: 'color picker', members: ['default', ['recent colors', 'Recent colors'], ['recent: false', 'No recent colors'], ['controlled state', 'Controlled state']] }],
     command: [{ title: 'command', members: [['default (⌘K / Ctrl+K)', 'Default'], 'centered + blur'] }],
     counter: [
         { title: 'USD (animated)', members: [['USD (animated)', 'Default'], 'shade', 'snap', 'spring'] },

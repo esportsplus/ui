@@ -1,7 +1,7 @@
 import icon from '@esportsplus/ui/components/icon';
 import infoSvg from '@esportsplus/ui/svg/info.svg';
-import { html, reactive, uri } from 'docs/app';
-import { pageHead } from 'docs/components/page/head';
+import { html, reactive } from 'docs/app';
+import { gettingStarted, pageHeader } from 'docs/components/page/header';
 import type { Router } from 'docs/app';
 import type { Page } from 'docs/types';
 
@@ -37,11 +37,8 @@ const render = () => {
 
     return html`
         <div class='page setup'>
-            ${pageHead({
-                breadcrumb: [
-                    { href: uri('docs'), label: 'Documentation' },
-                    { href: uri('docs'), label: 'Getting started' }
-                ],
+            ${pageHeader({
+                breadcrumb: gettingStarted(),
                 description: 'Add esportsplus/ui to your project and build your first component.',
                 title: 'Installation'
             })}

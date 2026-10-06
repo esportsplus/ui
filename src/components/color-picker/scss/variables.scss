@@ -6,6 +6,7 @@
     --control-border-color: var(--color-border-300);
     --control-border-radius: var(--border-radius-400);
     --control-height: 36px;
+    --copy-inset: 4px;
     --focus-width: var(--border-width-500);
     --font-size: calc(var(--font-size-400) * 0.875);
     --hairline: inset 0 0 0 1px color-mix(in oklch, var(--color) 10%, transparent);
@@ -59,6 +60,13 @@
     }
 
     // Qualified by the row so it wins over the reused input styles regardless of stylesheet order.
+    .color-picker-copy {
+        --border-radius: calc(var(--control-border-radius) - var(--copy-inset));
+        --color-default: var(--color-muted);
+        --color-hover: var(--color);
+        --size: calc(var(--control-height) - var(--copy-inset) * 2);
+    }
+
     &-fields #{&}-hex {
         --border-color-active: var(--control-border-color);
         --border-color-default: var(--control-border-color);

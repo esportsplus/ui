@@ -1,4 +1,4 @@
-import { pageHead } from 'docs/components/page/head';
+import { gettingStarted, pageHeader } from 'docs/components/page/header';
 import { html } from 'docs/app';
 import { themes } from 'docs/data/scss';
 import { preview } from 'docs/components/preview';
@@ -78,7 +78,7 @@ const responder = (): Page => {
     return {
         render: () => html`
             <div class='page'>
-                ${pageHead({ title: 'Themes', description: 'A theme is a set of CSS custom property overrides layered over the base component styles. Build your own by redefining the same variables listed below.' })}
+                ${pageHeader({ breadcrumb: gettingStarted(), title: 'Themes', description: 'A theme is a set of CSS custom property overrides layered over the base component styles. Build your own by redefining the same variables listed below.' })}
 
                 ${rendered.map((entry) => html`
                     <section id='${entry.id}'>

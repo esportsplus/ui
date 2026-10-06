@@ -1,14 +1,14 @@
-import { html } from 'docs/app';
+import { html, uri } from 'docs/app';
 import breadcrumb from '@esportsplus/ui/components/breadcrumb';
 import icon from '@esportsplus/ui/components/icon';
 import arrow from '@esportsplus/ui/svg/arrow-right.svg';
 import { sections } from 'docs/data/nav';
 import type { Crumb } from '@esportsplus/ui/components/breadcrumb';
 import '@esportsplus/ui/components/page/scss/index.scss';
-import 'docs/components/page/scss/head.scss';
+import 'docs/components/page/scss/header.scss';
 
 
-type Head = {
+type Header = {
     breadcrumb?: Crumb[];
     description: string;
     title: string;
@@ -41,7 +41,12 @@ function flatten() {
 }
 
 
-const pageHead = ({ breadcrumb: trail, description, title }: Head) => {
+const gettingStarted = (): Crumb[] => [
+    { href: uri('docs'), label: 'Documentation' },
+    { href: uri('docs'), label: 'Getting started' }
+];
+
+const pageHeader = ({ breadcrumb: trail, description, title }: Header) => {
     let pages = cache ??= flatten(),
         path = location.pathname.replace(TRAILING_SLASH, '') || '/docs',
         index = pages.findIndex((page) => page.href === path),
@@ -51,18 +56,18 @@ const pageHead = ({ breadcrumb: trail, description, title }: Head) => {
         ];
 
     return html`
-        <div class='page-head'>
-            ${trail && trail.length > 0 && breadcrumb({ class: 'page-head-breadcrumb', items: trail })}
-            <h1 class='page-title page-head-title --text-crop'>${title}</h1>
-            <nav class='page-head-navigation' aria-label='Page navigation'>
+        <div class='page-header'>
+            ${trail && trail.length > 0 && breadcrumb({ class: 'page-header-breadcrumb', items: trail })}
+            <h1 class='page-title page-header-title --text-crop'>${title}</h1>
+            <nav class='page-header-navigation' aria-label='Page navigation'>
                 ${directions.map(({ name, page }) => {
-                    let graphic = icon({ 'aria-hidden': 'true', class: `page-head-arrow-icon page-head-arrow-icon--${name.toLowerCase()}` }, arrow);
+                    let graphic = icon({ 'aria-hidden': 'true', class: `page-header-arrow-icon page-header-arrow-icon--${name.toLowerCase()}` }, arrow);
 
                     return page
                         ? html`
                             <a
                                 aria-label='${name} page: ${page.label}'
-                                class='page-head-arrow'
+                                class='page-header-arrow'
                                 href='${page.href}'
                                 title='${name}: ${page.label}'
                             >${graphic}</a>
@@ -71,7 +76,7 @@ const pageHead = ({ breadcrumb: trail, description, title }: Head) => {
                             <button
                                 aria-disabled='true'
                                 aria-label='${name} page'
-                                class='page-head-arrow --disabled'
+                                class='page-header-arrow --disabled'
                                 disabled
                                 title='No ${name.toLowerCase()} page'
                                 type='button'
@@ -79,11 +84,11 @@ const pageHead = ({ breadcrumb: trail, description, title }: Head) => {
                         `;
                 })}
             </nav>
-            <p class='page-subtitle page-head-subtitle'>${description}</p>
+            <p class='page-subtitle page-header-subtitle'>${description}</p>
         </div>
     `;
 };
 
 
-export { pageHead };
-export type { Head };
+export { gettingStarted, pageHeader };
+export type { Header };

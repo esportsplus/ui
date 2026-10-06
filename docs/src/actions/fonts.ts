@@ -1,4 +1,4 @@
-import { pageHead } from 'docs/components/page/head';
+import { gettingStarted, pageHeader } from 'docs/components/page/header';
 import { html } from 'docs/app';
 import { fonts } from 'docs/data/scss';
 import type { Router } from 'docs/app';
@@ -104,7 +104,7 @@ const responder = (): Page => {
     return {
         render: () => html`
             <div class='page'>
-                ${pageHead({ title: 'Fonts', description: 'The typefaces bundled with the library, with a live specimen at every available weight and the raw @font-face definitions read from source.' })}
+                ${pageHeader({ breadcrumb: gettingStarted(), title: 'Fonts', description: 'The typefaces bundled with the library, with a live specimen at every available weight and the raw @font-face definitions read from source.' })}
 
                 ${rendered.map((family) => html`
                     <section

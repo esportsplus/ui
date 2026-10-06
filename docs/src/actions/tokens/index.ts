@@ -1,4 +1,4 @@
-import { pageHead } from 'docs/components/page/head';
+import { gettingStarted, pageHeader } from 'docs/components/page/header';
 import { html } from 'docs/app';
 import { cssValue, map, tokenSources } from 'docs/data/scss';
 import { clipboard, icon } from '@esportsplus/ui/components';
@@ -185,7 +185,7 @@ const responder = (): Page => {
     return {
         render: () => html`
             <div class='page'>
-                ${pageHead({ title: 'Tokens', description: 'The design tokens that every component and utility is built from, read directly from the source SCSS with their current resolved values.' })}
+                ${pageHeader({ breadcrumb: gettingStarted(), title: 'Tokens', description: 'The design tokens that every component and utility is built from, read directly from the source SCSS with their current resolved values.' })}
 
                 <p class='page-note'>Font weights are defined per font family. See the <a href='/fonts'>Fonts reference</a> for available families and weights.</p>
 

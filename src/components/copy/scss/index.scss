@@ -1,0 +1,52 @@
+@use '/shared';
+@use 'variables';
+
+.copy {
+    align-items: center;
+    background: var(--background);
+    border: 0;
+    border-radius: var(--border-radius);
+    color: var(--color);
+    cursor: pointer;
+    display: flex;
+    flex: 0 0 auto;
+    height: var(--size);
+    justify-content: center;
+    margin: 0;
+    outline: none;
+    padding: 0;
+    transition:
+        background-color var(--transition-duration) var(--transition-timing-function),
+        color var(--transition-duration) var(--transition-timing-function);
+    width: var(--size);
+
+    &:focus-visible {
+        outline: var(--outline-width) solid var(--outline-color);
+        outline-offset: calc(var(--outline-width) * -1);
+    }
+
+    &-icon {
+        flex-shrink: 0;
+        height: var(--icon-size);
+        width: var(--icon-size);
+
+        // The shared check carries no stroke of its own; it draws in once the copy lands.
+        &--check {
+            @extend %icon-stroke, %icon-stroke-draw;
+            animation: copy-check-draw var(--draw-duration) var(--draw-timing-function) forwards;
+            stroke-width: 4;
+
+            @media (prefers-reduced-motion: reduce) {
+                animation: none;
+                stroke-dashoffset: 0;
+            }
+        }
+    }
+}
+
+
+@keyframes copy-check-draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}

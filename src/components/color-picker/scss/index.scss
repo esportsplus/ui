@@ -94,6 +94,26 @@
         gap: var(--spacing);
     }
 
+    // Sits inside the hex field, at its end; the field's padding keeps typed text clear of it.
+    .color-picker-copy {
+        position: absolute;
+        right: var(--copy-inset);
+        top: 50%;
+        translate: 0 -50%;
+    }
+
+    &-field {
+        display: flex;
+        flex: 1 1 auto;
+        min-width: 0;
+        position: relative;
+    }
+
+    // Qualified by the wrapper so it wins over the reused input padding regardless of stylesheet order.
+    &-field > #{&}-hex {
+        padding-inline-end: calc(var(--control-height) - var(--copy-inset));
+    }
+
     &-fields {
         display: flex;
         gap: var(--size-100);
