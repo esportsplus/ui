@@ -190,6 +190,8 @@
         overflow: auto;
         overflow-wrap: var(--overflow-wrap);
         padding: var(--padding);
+        // The minimap floats over the field: wrapped rows stop short of it and unwrapped rows can scroll clear of it.
+        padding-right: calc(var(--padding) + var(--minimap-offset));
         position: absolute;
         resize: none;
         scroll-behavior: auto;
@@ -197,7 +199,7 @@
         top: 0;
         transition: none;
         white-space: var(--white-space);
-        width: calc(100% - var(--gutter-width) - var(--minimap-offset));
+        width: calc(100% - var(--gutter-width));
         z-index: 1;
 
         &::placeholder {
@@ -240,14 +242,16 @@
     }
 
     &-minimap {
+        background: var(--background);
         border-left: var(--border-width) solid var(--border-color);
-        bottom: 0;
+        bottom: var(--track-height);
         box-sizing: border-box;
         cursor: pointer;
         display: var(--minimap-display);
+        opacity: var(--minimap-opacity);
         overflow: hidden;
         position: absolute;
-        right: 0;
+        right: var(--track-width);
         top: 0;
         touch-action: none;
         width: var(--minimap-width);
@@ -311,7 +315,7 @@
         overflow: hidden;
         pointer-events: none;
         position: absolute;
-        right: var(--minimap-offset);
+        right: 0;
         top: 0;
         user-select: none;
         visibility: var(--overlay-visibility);

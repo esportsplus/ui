@@ -230,6 +230,8 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             placeholder: '',
             readonly: false,
             tabSize: 4,
+            trackHeight: 0,
+            trackWidth: 0,
             whitespace: false,
             width: 0,
             wrap: false,
@@ -774,6 +776,15 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             relayout();
         }
 
+        // The horizontal track comes and goes with the longest visible line; the minimap stays clear of both.
+        let trackHeight = textarea.offsetHeight - clientHeight,
+            trackWidth = textarea.offsetWidth - clientWidth;
+
+        if (trackHeight !== ui.trackHeight || trackWidth !== ui.trackWidth) {
+            ui.trackHeight = trackHeight;
+            ui.trackWidth = trackWidth;
+        }
+
         let geometry = layout!,
             lineHeight = metrics.lineHeight,
             first = geometry.indexAt(Math.max(0, scrollTop - metrics.padTop - OVERSCAN * lineHeight)),
@@ -1007,7 +1018,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             unfold(folded.filter((fold) => offset <= fold.from || offset >= fold.to));
         }
 
-        let { lineHeight, padLeft, padTop } = metrics,
+        let { lineHeight, padLeft, padRight, padTop } = metrics,
             rect = layout!.rect(projection.toNative(offset)),
             top = rect.top + padTop;
 
@@ -1024,8 +1035,8 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             if (x < textarea.scrollLeft + padLeft) {
                 textarea.scrollLeft = Math.max(0, x - padLeft);
             }
-            else if (x + padLeft > textarea.scrollLeft + textarea.clientWidth) {
-                textarea.scrollLeft = x + padLeft - textarea.clientWidth;
+            else if (x + padRight > textarea.scrollLeft + textarea.clientWidth) {
+                textarea.scrollLeft = x + padRight - textarea.clientWidth;
             }
         }
 
@@ -1844,7 +1855,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                     receive?.(controller);
                 },
                 ondisconnect: () => controller.dispose(),
-                style: () => `--content-width: ${ui.width}px; --digits: ${ui.digits}; --tab-size: ${ui.tabSize};`
+                style: () => `--content-width: ${ui.width}px; --digits: ${ui.digits}; --tab-size: ${ui.tabSize}; --track-height: ${ui.trackHeight}px; --track-width: ${ui.trackWidth}px;`
             }}
         >
             ${search.template()}
