@@ -55,6 +55,9 @@ const meta: Record<string, Meta> = {
     container: {
         description: 'Width-constrained wrapper that centers content within the page.'
     },
+    copy: {
+        description: 'Icon button that copies a value and draws in a check, turning back to the copy icon after a timeout.'
+    },
     counter: {
         description: 'Animated number display with currency and formatting support.'
     },

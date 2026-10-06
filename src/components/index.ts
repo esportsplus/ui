@@ -11,6 +11,7 @@ export { default as clipboard } from './clipboard';
 export { default as codeEditor } from './code-editor';
 export { default as colorPicker } from './color-picker';
 export { default as command } from './command';
+export { default as copy } from './copy';
 export { default as counter } from './counter';
 export { default as datalist } from './datalist';
 export { default as dock } from './dock';

@@ -1,0 +1,22 @@
+.copy {
+    --background: var(--background-default);
+    --background-default: transparent;
+    --background-hover: var(--color-grey-400);
+    --border-radius: 6px;
+    --color: var(--color-default);
+    --color-default: var(--color-text-300);
+    --color-hover: var(--color-text-500);
+    --draw-duration: 280ms;
+    --draw-timing-function: ease;
+    --icon-size: 16px;
+    --outline-color: var(--color-blue-400);
+    --outline-width: 2px;
+    --size: 28px;
+    --transition-duration: 150ms;
+    --transition-timing-function: ease-out;
+
+    &:hover {
+        --background: var(--background-hover);
+        --color: var(--color-hover);
+    }
+}
