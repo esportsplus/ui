@@ -113,7 +113,7 @@
         }
     }
 
-    // Preview the sidebar action by sliding its section outside the SVG viewport.
+    // Preview the sidebar action by sliding its section out of the frame, which clips it.
     &-toggle-divider {
         transform: translateX(var(--sidebar-toggle-divider-x));
         transition: transform 180ms ease;
