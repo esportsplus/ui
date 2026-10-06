@@ -1,0 +1,30 @@
+.diffs-demo {
+    display: grid;
+    gap: var(--size-300);
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 100%;
+    min-width: 0;
+    width: min(960px, 100%);
+
+    &-caption {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        margin: 0;
+    }
+
+    &-compact.diffs {
+        --height: 240px;
+    }
+
+    &-result {
+        background: var(--color-white-400);
+        border: var(--border-width-400) solid var(--color-border-300);
+        border-radius: var(--border-radius-300);
+        font-family: var(--font-family-mono);
+        font-size: var(--font-size-200);
+        margin: 0;
+        max-height: 240px;
+        overflow: auto;
+        padding: var(--size-200);
+    }
+}

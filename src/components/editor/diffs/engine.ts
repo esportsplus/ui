@@ -44,8 +44,9 @@ function middle<T>(a: readonly T[], b: readonly T[], start: number, endA: number
         trace: Int32Array[] = [],
         v = new Int32Array(2 * max + 1);
 
+    // Each step only keeps the diagonals it can reach, so the trace grows with D squared rather than D times N + M.
     outer: for (let d = 0; d <= max; d++) {
-        trace.push(v.slice());
+        trace.push(v.slice(offset - d, offset + d + 1));
 
         for (let k = -d; k <= d; k += 2) {
             let index = offset + k,
@@ -71,8 +72,8 @@ function middle<T>(a: readonly T[], b: readonly T[], start: number, endA: number
     for (let d = trace.length - 1; d > 0; d--) {
         let row = trace[d],
             k = x - y,
-            previous = k === -d || (k !== d && row[offset + k - 1] < row[offset + k + 1]) ? k + 1 : k - 1,
-            px = row[offset + previous],
+            previous = k === -d || (k !== d && row[d + k - 1] < row[d + k + 1]) ? k + 1 : k - 1,
+            px = row[d + previous],
             py = px - previous;
 
         while (x > px && y > py) {

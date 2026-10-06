@@ -1,0 +1,352 @@
+@use '/tokens';
+
+.diffs {
+    background: var(--background);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius);
+    color: var(--color);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--label-font-size);
+    height: var(--height);
+    min-height: var(--min-height);
+    min-width: 0;
+    overflow: hidden;
+
+
+    &-action {
+        background: var(--action-background);
+        border: var(--border-width) solid var(--border-color);
+        border-radius: var(--border-radius);
+        color: var(--color);
+        cursor: pointer;
+        font: inherit;
+        font-size: var(--label-font-size);
+        line-height: 1.4;
+        padding: 0 var(--size-200);
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+        }
+
+        &:hover {
+            background: var(--action-hover-background);
+        }
+    }
+
+    // Shown for the change under the pointer or holding focus, so a long diff isn't covered in buttons.
+    &-actions {
+        display: flex;
+        gap: var(--size-100);
+        inset-inline-end: var(--size-200);
+        opacity: 0;
+        position: absolute;
+        top: 1px;
+        z-index: 1;
+    }
+
+    &-button {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: var(--border-radius);
+        color: var(--muted-color);
+        cursor: pointer;
+        display: inline-flex;
+        flex: none;
+        font: inherit;
+        gap: var(--size-100);
+        height: var(--button-size);
+        justify-content: center;
+        min-width: var(--button-size);
+        padding: 0;
+
+        &--primary {
+            background: var(--accent);
+            color: var(--accent-color);
+        }
+
+        &--text {
+            padding: 0 var(--size-200);
+        }
+
+        &:disabled {
+            cursor: default;
+            opacity: var(--disabled-opacity);
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
+        }
+
+        &:not(:disabled):hover {
+            background: var(--hover-background);
+            color: var(--color);
+        }
+
+        @include tokens.state(active) {
+            background: var(--hover-background);
+            color: var(--color);
+        }
+    }
+
+    &-button--primary:not(:disabled):hover {
+        background: var(--accent);
+        color: var(--accent-color);
+        filter: brightness(1.1);
+    }
+
+    &-button-icon.icon {
+        --size: var(--button-icon-size);
+    }
+
+    &-cell {
+        display: grid;
+        grid-template-columns: var(--number-width) minmax(0, 1fr);
+        min-width: 0;
+
+        & + & {
+            border-inline-start: var(--border-width) solid var(--border-color);
+        }
+
+        &--delete {
+            background: var(--delete-background);
+        }
+
+        &--empty {
+            background: var(--empty-background);
+        }
+
+        &--insert {
+            background: var(--insert-background);
+        }
+    }
+
+    &-code {
+        font-family: inherit;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        padding-inline: var(--code-padding);
+        white-space: pre-wrap;
+    }
+
+    &-controls {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--size-100);
+        margin-inline-start: auto;
+    }
+
+    &-filename {
+        font-weight: 600;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-gap {
+        align-items: center;
+        background: var(--gap-background);
+        border: 0;
+        color: var(--gap-color);
+        cursor: pointer;
+        display: flex;
+        font: inherit;
+        font-size: var(--label-font-size);
+        gap: var(--size-200);
+        min-height: var(--line-height);
+        padding: 0 var(--code-padding);
+        width: 100%;
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
+        }
+
+        &:hover {
+            background: var(--gap-hover-background);
+            color: var(--color);
+        }
+    }
+
+    &-gap-icon.icon {
+        --size: var(--button-icon-size);
+    }
+
+    &-header {
+        align-items: center;
+        background: var(--bar-background);
+        border-bottom: var(--border-width) solid var(--border-color);
+        display: flex;
+        flex: none;
+        flex-wrap: wrap;
+        gap: var(--bar-gap);
+        padding: var(--bar-padding);
+    }
+
+    &-modes {
+        display: flex;
+        gap: 2px;
+    }
+
+    &-number {
+        color: var(--muted-color);
+        font-variant-numeric: tabular-nums;
+        padding-inline-end: var(--size-100);
+        text-align: end;
+        user-select: none;
+    }
+
+    &-position {
+        color: var(--muted-color);
+        white-space: nowrap;
+    }
+
+    &-row {
+        line-height: var(--line-height);
+        min-height: var(--line-height);
+        position: relative;
+
+        &--delete {
+            background: var(--delete-background);
+        }
+
+        &--insert {
+            background: var(--insert-background);
+        }
+
+        &--split {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        }
+
+        &--unified {
+            display: grid;
+            grid-template-columns: var(--number-width) var(--number-width) var(--sign-width) minmax(0, 1fr);
+        }
+
+        &:focus-within,
+        &:hover {
+            .diffs-actions {
+                opacity: 1;
+            }
+        }
+
+        @include tokens.state(active) {
+            box-shadow: inset 2px 0 0 var(--active-outline);
+        }
+    }
+
+    &-row--delete &-sign {
+        color: var(--delete-color);
+    }
+
+    &-row--insert &-sign {
+        color: var(--insert-color);
+    }
+
+    &-scroller {
+        flex: 1 1 auto;
+        font-family: var(--font-family);
+        font-size: var(--font-size);
+        min-height: 0;
+        overflow: auto;
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
+        }
+    }
+
+    &-sign {
+        text-align: center;
+        user-select: none;
+    }
+
+    &-stat {
+        font-family: var(--font-family);
+
+        &--additions {
+            color: var(--insert-color);
+        }
+
+        &--deletions {
+            color: var(--delete-color);
+        }
+    }
+
+    &-stats {
+        display: flex;
+        gap: var(--size-100);
+    }
+
+    &-token {
+        &--color {
+            color: var(--literal-color);
+        }
+
+        &--comment {
+            color: var(--comment-color);
+            font-style: italic;
+        }
+
+        &--function {
+            color: var(--function-color);
+        }
+
+        &--keyword {
+            color: var(--keyword-color);
+        }
+
+        &--number {
+            color: var(--number-color);
+        }
+
+        &--operator {
+            color: var(--operator-color);
+        }
+
+        &--property {
+            color: var(--property-color);
+        }
+
+        &--regexp {
+            color: var(--regexp-color);
+        }
+
+        &--selector {
+            color: var(--selector-color);
+        }
+
+        &--string {
+            color: var(--string-color);
+        }
+
+        &--tag {
+            color: var(--tag-color);
+        }
+
+        &--type {
+            color: var(--type-color);
+        }
+
+        &--variable {
+            color: var(--variable-color);
+        }
+    }
+
+    &-word {
+        border-radius: 2px;
+
+        &--delete {
+            background: var(--delete-word-background);
+        }
+
+        &--insert {
+            background: var(--insert-word-background);
+        }
+    }
+}
