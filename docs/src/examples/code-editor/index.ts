@@ -10,7 +10,7 @@ import redo from '@esportsplus/ui/svg/redo.svg';
 import save from '@esportsplus/ui/svg/save.svg';
 import search from '@esportsplus/ui/svg/search.svg';
 import undo from '@esportsplus/ui/svg/undo.svg';
-import type { Controller, MarkdownController, Selection } from '@esportsplus/ui/components/editor';
+import type { CodeEditorState, Command, Conflict, Controller, MarkdownController, Selection } from '@esportsplus/ui/components/editor';
 import type { Entry } from 'docs/types';
 import { samples, workspaceFiles } from './fixtures/files';
 import { demoLanguageTransport } from './fixtures/language';
@@ -24,6 +24,57 @@ type Hint = {
 };
 
 
+const ANNOTATED = [
+    '// Mod+click a link: https://github.com/esportsplus/ui or ./src/components/editor/code/view.ts',
+    'export const palette = {',
+    "    accent: '#5B8DEF',",
+    "    danger: 'rgb(229 72 77)',",
+    "    success: 'hsl(152, 57%, 42%)',",
+    "    warning: 'oklch(80% 0.15 80)'",
+    '};',
+    '',
+    '// A zero width space hides between these quotes: \'​\', and the second “a” in pаlette is Cyrillic.',
+    'export const pаlette = palette;',
+    '',
+    'export class Theme {',
+    '    private applied = 0;',
+    '',
+    '    constructor(private readonly name: string) {}',
+    '',
+    '    apply(element: HTMLElement) {',
+    '        for (let [key, value] of Object.entries(palette)) {',
+    "            if (value.startsWith('#')) {",
+    '                element.style.setProperty(`--${key}`, value);',
+    '                continue;',
+    '            }',
+    '',
+    ...Array.from({ length: 24 }, (_, i) => `            element.style.setProperty('--' + key + '-${i + 1}', value);`),
+    '        }',
+    '',
+    '        this.applied = TODO_ERROR;',
+    '    }',
+    '',
+    '    describe() {',
+    '        return `${this.name}: ${Object.keys(palette).length} colors, applied ${this.applied} times`;',
+    '    }',
+    '',
+    '    reset(element: HTMLElement) {',
+    '        for (let key of Object.keys(palette)) {',
+    '            element.style.removeProperty(`--${key}`);',
+    '        }',
+    '',
+    '        this.applied = TODO_ERROR;',
+    '    }',
+    '}',
+    ''
+].join('\n');
+
+// The same file as it was committed: one color differs, a line was added since and one removed.
+const ANNOTATED_HEAD = ANNOTATED
+    .replace("accent: '#5B8DEF'", "accent: '#4A7BD8'")
+    .replace('    private applied = 0;\n\n', '')
+    .replace('    describe() {\n', '    // Summarizes the theme.\n    describe() {\n');
+
 const APPLE: Record<string, string> = {
     Alt: '⌥',
     Ctrl: '⌃',
@@ -36,6 +87,31 @@ const GLYPHS: Record<string, string> = {
     ArrowUp: '↑',
     Mod: 'Ctrl'
 };
+
+const CONFLICTED = [
+    'import { tokens } from "./tokens";',
+    '',
+    '<<<<<<< HEAD',
+    'export const accent = tokens.blue[400];',
+    'export const radius = 6;',
+    '||||||| base',
+    'export const accent = tokens.blue[500];',
+    '=======',
+    'export const accent = tokens.violet[500];',
+    '>>>>>>> feature/violet',
+    '',
+    'export function surface(depth: number) {',
+    '<<<<<<< HEAD',
+    '    return `elevation-${depth}`;',
+    '=======',
+    '    return `surface-${Math.min(depth, 3)}`;',
+    '>>>>>>> feature/violet',
+    '}',
+    ''
+].join('\n');
+
+// A keybinding override for the features example: F2 toggles a line comment, and Mod+D adds nothing.
+const KEYBINDINGS: Readonly<Record<string, Command | null>> = { F2: 'toggleComment', 'Mod+d': null };
 
 const LANGUAGES = [
     { detail: 'greeting.ts', label: 'TypeScript', value: 'src/greeting.ts' },
@@ -74,6 +150,98 @@ function all(text: string, word: string) {
     return ranges;
 }
 
+// Sticky scroll, color swatches, links, unicode warnings, rulers, the git gutter, keybinding overrides and problem
+// navigation, each behind a switch.
+function annotated() {
+    let controller: Controller | undefined,
+        state = reactive({
+            baseline: true,
+            colors: true,
+            keybindings: false,
+            links: true,
+            opened: '',
+            ready: false,
+            rulers: true,
+            sticky: true,
+            unicode: true
+        }),
+        transport = demoLanguageTransport();
+
+    return html`
+        <div class='code-editor-demo'>
+            <div class='code-editor-demo-actions'>
+                ${flag('Sticky scroll', () => state.sticky, (value) => {
+                    state.sticky = value;
+                })}
+                ${flag('Color swatches', () => state.colors, (value) => {
+                    state.colors = value;
+                })}
+                ${flag('Links', () => state.links, (value) => {
+                    state.links = value;
+                })}
+                ${flag('Unicode warnings', () => state.unicode, (value) => {
+                    state.unicode = value;
+                })}
+                ${flag('Rulers at 80 and 120', () => state.rulers, (value) => {
+                    state.rulers = value;
+                })}
+                ${flag('Git gutter', () => state.baseline, (value) => {
+                    state.baseline = value;
+                })}
+                ${flag('F2 comments, Mod+D unbound', () => state.keybindings, (value) => {
+                    state.keybindings = value;
+                })}
+            </div>
+            <div class='code-editor-demo-actions'>
+                ${action('Previous change', () => controller?.previousChange())}
+                ${action('Next change', () => controller?.nextChange())}
+                ${action('Previous problem', () => controller?.previousProblem())}
+                ${action('Next problem', () => controller?.nextProblem())}
+            </div>
+            ${editor.code({
+                class: 'code-editor-demo-editor code-editor-demo-editor--tall',
+                controller: (value) => {
+                    controller = value;
+                    state.ready = true;
+                },
+                options: () => ({
+                    baseline: state.baseline ? ANNOTATED_HEAD : null,
+                    colors: state.colors,
+                    fileName: 'theme.ts',
+                    keybindings: state.keybindings ? KEYBINDINGS : undefined,
+                    label: 'Editor features example',
+                    links: state.links && ((url: string) => {
+                        if (url.startsWith('.')) {
+                            state.opened = url;
+                            return;
+                        }
+
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                    }),
+                    rulers: state.rulers ? [80, 120] : [],
+                    services: { cwd: '/demo', transport },
+                    sticky: state.sticky,
+                    unicode: state.unicode
+                }),
+                value: ANNOTATED
+            })}
+            <div aria-live='polite' class='code-editor-demo-status'>
+                <span>${() => state.ready && controller ? summary(controller.state) : ''}</span>
+                <span>${() => state.opened && `Opened ${state.opened}`}</span>
+            </div>
+            ${hints([
+                { keys: ['Alt+F5', 'Shift+Alt+F5'], label: 'Next and previous change against the baseline' },
+                { keys: ['F8', 'Shift+F8'], label: 'Next and previous problem, with its message' },
+                { keys: ['Mod+Click'], label: 'Open the link under the pointer' }
+            ])}
+            <p class='code-editor-demo-caption'>
+                Scroll inside <code>apply</code> to see its headers stick, click a swatch to pick a color, hover the
+                boxed characters, and click a bar in the gutter to see what the line was at the baseline and revert it.
+            </p>
+        </div>
+    `;
+}
+
 // One shortcut as keycaps, in the platform's own names; 'button.kbd' would also light up on presses, which a list of
 // shortcuts sharing modifiers doesn't want.
 function chord(keys: string) {
@@ -102,6 +270,50 @@ function column(text: string) {
     }
 
     return ranges;
+}
+
+// Merge conflict markers: tinted sides, a lens per block, and navigation between blocks.
+function conflicts() {
+    let controller: Controller | undefined,
+        state = reactive({ compared: '', remaining: 2 });
+
+    return html`
+        <div class='code-editor-demo'>
+            <div class='code-editor-demo-actions'>
+                ${action('Previous conflict', () => controller?.previousConflict())}
+                ${action('Next conflict', () => controller?.nextConflict())}
+                ${action('Accept every incoming', () => {
+                    for (let conflict = controller?.conflicts()[0]; conflict; conflict = controller?.conflicts()[0]) {
+                        controller?.resolveConflict(conflict, 'incoming');
+                    }
+                })}
+                ${action('Restore', () => controller?.setValue(CONFLICTED))}
+            </div>
+            ${editor.code({
+                controller: (value) => {
+                    controller = value;
+                },
+                onChange: () => {
+                    state.remaining = controller?.conflicts().length ?? 0;
+                },
+                options: {
+                    fileName: 'theme.ts',
+                    label: 'Merge conflicts example',
+                    onMerge: (conflict: Conflict) => {
+                        state.compared = `Compare requested for the conflict on line ${conflict.line}`;
+                    }
+                },
+                value: CONFLICTED
+            })}
+            <div aria-live='polite' class='code-editor-demo-status'>
+                <span>${() => state.remaining === 1 ? '1 conflict left' : `${state.remaining} conflicts left`}</span>
+                <span>${() => state.compared}</span>
+            </div>
+            ${hints([
+                { keys: ['Alt+F8', 'Shift+Alt+F8'], label: 'Next and previous conflict' }
+            ])}
+        </div>
+    `;
 }
 
 function editing() {
@@ -345,6 +557,19 @@ function services() {
     `;
 }
 
+// The status a workspace would show for an editor.
+function summary(state: CodeEditorState) {
+    let { errors, warnings } = state.problems;
+
+    return [
+        `${state.selections === 1 ? '1 selection' : `${state.selections} selections`}`,
+        state.indent.tabs ? `Tab size: ${state.indent.size}` : `Spaces: ${state.indent.size}`,
+        state.lineEnding.toUpperCase(),
+        `${errors} errors, ${warnings} warnings`,
+        state.language
+    ].join(' · ');
+}
+
 function view() {
     let controller: Controller | undefined,
         state = reactive({ fold: true, lineNumbers: true, minimap: true, whitespace: false, wrap: false }),
@@ -439,6 +664,14 @@ export default {
         {
             render: services,
             title: 'language services: completion, hover and diagnostics over a transport'
+        },
+        {
+            render: annotated,
+            title: 'features: sticky scroll, color swatches, links, unicode warnings, rulers, git gutter and keybindings'
+        },
+        {
+            render: conflicts,
+            title: 'merge conflicts: accept current, incoming or both, and compare'
         },
         {
             render: markdown,

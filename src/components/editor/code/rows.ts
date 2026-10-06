@@ -10,8 +10,9 @@ import type { SyntaxCache, Token } from './syntax';
 // The gutter marker: none, open, or folded.
 type Fold = 0 | 1 | 2;
 
-// A highlighted range within one native line; 'kind' is its class list.
-type Mark = { from: number; kind: string; to: number };
+// A highlighted range within one native line; 'kind' is its class list, and 'style' custom properties for the span it
+// starts, set only from text the mark has checked.
+type Mark = { from: number; kind: string; style?: string; to: number };
 
 // What one paint highlights across the visible lines: find matches (source offsets) from 'index' on with the active
 // one, diagnostics (source offsets), occurrences of the selection (native offsets), the bracket pair at the caret and
@@ -30,12 +31,16 @@ type Paint = {
 // each field writes only when it changes.
 type Slot = {
     active: boolean;
+    // The change the line has against the baseline ('added', 'deleted' or 'modified'), or ''.
+    change: string;
     fold: Fold;
     height: number;
     html: string;
     // Native line shown, -1 while unused.
     line: number;
     number: number;
+    // A class tinting the whole row, or ''.
+    tint: string;
     top: number;
 };
 
@@ -183,11 +188,18 @@ const markup = (text: string, colors: readonly Token[], highlights: readonly Mar
         }
 
         let classes = t < colors.length && colors[t].from <= from ? `code-editor-token--${colors[t].kind}` : '',
-            piece = text.slice(from, Math.min(to, text.length));
+            piece = text.slice(from, Math.min(to, text.length)),
+            style = '';
 
         for (let j = 0, m = highlights.length; j < m; j++) {
-            if (highlights[j].from <= from && highlights[j].to > from) {
-                classes += (classes ? ' ' : '') + highlights[j].kind;
+            let mark = highlights[j];
+
+            if (mark.from <= from && mark.to > from) {
+                classes += (classes ? ' ' : '') + mark.kind;
+
+                if (mark.style && mark.from === from) {
+                    style += mark.style;
+                }
             }
         }
 
@@ -199,7 +211,7 @@ const markup = (text: string, colors: readonly Token[], highlights: readonly Mar
             }
         }
 
-        out += classes ? `<span class="${classes}">${escape(piece)}</span>` : escape(piece);
+        out += classes ? `<span class="${classes}"${style && ` style="${style.replace(/"/g, '&quot;')}"`}>${escape(piece)}</span>` : escape(piece);
     }
 
     return out;
@@ -212,7 +224,7 @@ const pool = () => {
     return {
         resize: (size: number) => {
             while (slots.length < size) {
-                slots.push(reactive({ active: false, fold: 0 as Fold, height: 0, html: '', line: -1, number: 0, top: 0 }));
+                slots.push(reactive({ active: false, change: '', fold: 0 as Fold, height: 0, html: '', line: -1, number: 0, tint: '', top: 0 }));
             }
 
             if (slots.length > size) {
@@ -224,7 +236,7 @@ const pool = () => {
             <div
                 class='code-editor-line'
                 ${{
-                    class: [() => slot.active && '--active', () => slot.line < 0 && 'code-editor-line--unused'],
+                    class: [() => slot.active && '--active', () => slot.line < 0 && 'code-editor-line--unused', () => slot.tint],
                     innerHTML: () => slot.html,
                     style: () => `height: ${slot.height}px; top: ${slot.top}px;`
                 }}

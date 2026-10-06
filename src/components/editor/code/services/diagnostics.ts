@@ -6,6 +6,8 @@ import type { Diagnostic } from './protocol';
 
 
 type Diagnostics = {
+    // Sorted by offset.
+    readonly all: readonly Entry[];
     clear: VoidFunction;
     readonly count: number;
     hit: (from: number, to: number) => Entry[];
@@ -34,17 +36,22 @@ const SEVERITIES: Severity[] = ['error', 'error', 'warning', 'info', 'hint'];
 
 
 // The published diagnostics: squiggles are marks on the rendered rows, so they sit on the glyphs, wrap and scroll
-// with them at no cost of their own. 'problems' lists them for the panel below the editor.
-const diagnostics = (): Diagnostics => {
+// with them at no cost of their own. 'problems' lists them for the panel below the editor; 'changed' hears of every
+// new list.
+const diagnostics = ({ changed }: { changed?: (entries: readonly Entry[]) => void } = {}): Diagnostics => {
     let entries: Entry[] = [],
         problems = new ReactiveArray<Entry>();
 
     function set(next: Entry[]) {
         entries = next;
         problems.splice(0, problems.length, ...next);
+        changed?.(next);
     }
 
     let api: Diagnostics = {
+        get all() {
+            return entries;
+        },
         clear: () => {
             if (entries.length) {
                 set([]);

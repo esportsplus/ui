@@ -2,9 +2,9 @@ import { reactive } from '@esportsplus/reactivity';
 import type { Change, Edit } from '../document';
 import type { Rect } from '../layout';
 import type { Mark } from '../rows';
-import type { Controller, Options } from '../view';
+import type { CodeController, Controller, Options } from '../view';
 import { completion } from './completion';
-import { diagnostics } from './diagnostics';
+import { diagnostics, type Entry } from './diagnostics';
 import { hover, hoverText } from './hover';
 import { applyCompletion, fileUri, identifier, languageIdFor, localWords, mapStops, positionAt, wordStart, type Span, type Stop } from './model';
 import type { LanguageTransport, Notification, PublishDiagnostics } from './protocol';
@@ -12,7 +12,9 @@ import type { LanguageTransport, Notification, PublishDiagnostics } from './prot
 
 type Host = {
     busy: () => boolean;
-    controller: Controller;
+    controller: CodeController | Controller;
+    // Hears of each new list of diagnostics, sorted by offset.
+    problems?: (entries: readonly Entry[]) => void;
     // Content-box caret rectangle of a source offset, as the scrolled layers draw it; null while folded away.
     rect: (offset: number) => Rect | null;
     schedule: VoidFunction;
@@ -72,7 +74,7 @@ const session = (host: Host) => {
         disposed = false,
         hovered: Span | null = null,
         opened: Session | null = null,
-        problems = diagnostics(),
+        problems = diagnostics({ changed: (entries) => host.problems?.(entries) }),
         readonly = false,
         requests: { completion?: AbortController; hover?: AbortController } = {},
         settings: LanguageServiceOptions = {},
@@ -635,6 +637,8 @@ const session = (host: Host) => {
             return false;
         },
         leave: hide,
+        // The diagnostics, sorted by offset.
+        list: () => opened ? problems.all : [],
         marks: (from: number, to: number) => opened && problems.count ? problems.marks(from, to) : EMPTY,
         // Keeps the anchors on their text through relayouts; a scroll moves them with the layer they sit in.
         paint: () => {
@@ -696,6 +700,11 @@ const session = (host: Host) => {
             close();
             caret = { offset: -1, revision: -1 };
             doc = controller.document;
+        },
+        // Shows a message on the hover card at a source offset, as the editor's own notes do.
+        notice: (offset: number, text: string) => {
+            hide();
+            show(offset, text);
         },
         // Selects a diagnostic's source from the problems list.
         reveal: (from: number, to: number) => {

@@ -2,7 +2,7 @@ import { insertText, reindent, selectLine, toggleComment, transpose } from './co
 import { pairAround, pairAt } from './folding';
 import { commentSyntax, type Language, type SyntaxCache } from './syntax';
 import type { EditorDocument, Selection } from './document';
-import type { Controller, Options } from './view';
+import type { CodeController, Controller, Options } from './view';
 
 
 type Command =
@@ -35,10 +35,16 @@ type Command =
     | 'moveLineUp'
     | 'moveRight'
     | 'moveUp'
+    | 'nextChange'
+    | 'nextConflict'
     | 'nextOccurrence'
+    | 'nextProblem'
     | 'outdent'
     | 'pageDown'
     | 'pageUp'
+    | 'previousChange'
+    | 'previousConflict'
+    | 'previousProblem'
     | 'redo'
     | 'redoSelection'
     | 'reindent'
@@ -59,12 +65,15 @@ type Command =
     | 'wordLeft'
     | 'wordRight';
 
+// A command's entry for keybinding editors: its default keys, written as in 'Binding'.
+type CommandInfo = { id: Command; keys: readonly string[]; label: string };
+
 // What the actions reach in the editor.
 type Host = {
     cache: () => SyntaxCache;
     // Reads the native selection back into the document.
     capture: VoidFunction;
-    controller: Controller;
+    controller: CodeController | Controller;
     // Deletes a character or word at every caret; next to a fold placeholder it unfolds instead.
     deleteVisible: (backwards: boolean, word: boolean) => boolean;
     document: EditorDocument;
@@ -72,9 +81,13 @@ type Host = {
     edit: (run: () => boolean) => boolean;
     language: () => Language;
     move: (key: string, extend: boolean, word?: boolean, add?: boolean) => void;
+    // Moves to the next or previous change, conflict or problem; editors without them leave it out.
+    navigate?: (kind: Navigation, backward: boolean) => void;
     options: () => Options;
     select: (selection: Partial<Selection>) => void;
 };
+
+type Navigation = 'change' | 'conflict' | 'problem';
 
 // 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere; 'Ctrl' is the literal Control key, which only Apple keyboards
 // tell apart. Modifiers are written in this order: Mod, Ctrl, Alt, Shift.
@@ -126,10 +139,16 @@ const ACTIONS: Record<Command, (host: Host, e: KeyboardEvent) => void> = {
     moveLineUp: (host) => host.controller.lineCommand('moveUp'),
     moveRight: (host, e) => host.move('ArrowRight', e.shiftKey),
     moveUp: (host, e) => host.move('ArrowUp', e.shiftKey),
+    nextChange: (host) => host.navigate?.('change', false),
+    nextConflict: (host) => host.navigate?.('conflict', false),
     nextOccurrence: (host) => host.controller.addNextOccurrence(),
+    nextProblem: (host) => host.navigate?.('problem', false),
     outdent: (host) => host.controller.outdent(),
     pageDown: (host, e) => host.move('PageDown', e.shiftKey),
     pageUp: (host, e) => host.move('PageUp', e.shiftKey),
+    previousChange: (host) => host.navigate?.('change', true),
+    previousConflict: (host) => host.navigate?.('conflict', true),
+    previousProblem: (host) => host.navigate?.('problem', true),
     redo: (host) => host.controller.redo(),
     redoSelection: (host) => host.controller.redoSelection(),
     reindent: (host) => host.edit(() => reindent(host.document, host.language(), host.options().indent)),
@@ -178,9 +197,13 @@ const BINDINGS: Binding[] = [
     ['Alt+ArrowLeft', 'wordLeft'],
     ['Alt+ArrowRight', 'wordRight'],
     ['Alt+ArrowUp', 'moveLineUp'],
+    ['Alt+F5', 'nextChange'],
+    ['Alt+F8', 'nextConflict'],
     ['Alt+Shift+a', 'blockComment'],
     ['Alt+Shift+ArrowDown', 'copyLineDown'],
     ['Alt+Shift+ArrowUp', 'copyLineUp'],
+    ['Alt+Shift+F5', 'previousChange'],
+    ['Alt+Shift+F8', 'previousConflict'],
     ['Alt+`', 'autocomplete', true],
     ['Alt+i', 'autocomplete', true],
     ['Alt+l', 'selectLine'],
@@ -206,6 +229,7 @@ const BINDINGS: Binding[] = [
     ['Ctrl+t', 'transpose', true],
     ['Ctrl+v', 'pageDown', true],
     ['F3', 'findNext'],
+    ['F8', 'nextProblem'],
     ['Mod+/', 'toggleComment'],
     ['Mod+Alt+ArrowDown', 'addCursorBelow'],
     ['Mod+Alt+ArrowUp', 'addCursorAbove'],
@@ -235,7 +259,8 @@ const BINDINGS: Binding[] = [
     ['Mod+u', 'undoSelection'],
     ['Mod+y', 'redo'],
     ['Mod+z', 'undo'],
-    ['Shift+F3', 'findPrevious']
+    ['Shift+F3', 'findPrevious'],
+    ['Shift+F8', 'previousProblem']
 ];
 
 // Shift changes the character a punctuation key types ('[' becomes '{'), so these name the key itself.
@@ -261,6 +286,150 @@ const EXTENDING = new Set<Command>([
     'wordRight'
 ]);
 
+// Key names a chord may spell another way, lowercased.
+const KEYS: Record<string, string> = {
+    arrowdown: 'ArrowDown',
+    arrowleft: 'ArrowLeft',
+    arrowright: 'ArrowRight',
+    arrowup: 'ArrowUp',
+    backspace: 'Backspace',
+    del: 'Delete',
+    delete: 'Delete',
+    down: 'ArrowDown',
+    end: 'End',
+    enter: 'Enter',
+    esc: 'Escape',
+    escape: 'Escape',
+    home: 'Home',
+    insert: 'Insert',
+    left: 'ArrowLeft',
+    pagedown: 'PageDown',
+    pageup: 'PageUp',
+    return: 'Enter',
+    right: 'ArrowRight',
+    space: ' ',
+    tab: 'Tab',
+    up: 'ArrowUp'
+};
+
+const LABELS: Record<Command, string> = {
+    addCursorAbove: 'Add cursor above',
+    addCursorBelow: 'Add cursor below',
+    autocomplete: 'Trigger completion',
+    blankLine: 'Insert line below',
+    blockComment: 'Toggle block comment',
+    copyLineDown: 'Copy line down',
+    copyLineUp: 'Copy line up',
+    deleteCharacterBackward: 'Delete character before',
+    deleteCharacterForward: 'Delete character after',
+    deleteLine: 'Delete line',
+    deleteLineEnd: 'Delete to line end',
+    deleteWordBackward: 'Delete word before',
+    deleteWordForward: 'Delete word after',
+    find: 'Find',
+    findNext: 'Find next',
+    findPrevious: 'Find previous',
+    fold: 'Fold',
+    foldAll: 'Fold all',
+    goToLine: 'Go to line',
+    indent: 'Indent line',
+    jumpToBracket: 'Go to bracket',
+    lineEnd: 'Go to line end',
+    lineStart: 'Go to line start',
+    moveDown: 'Cursor down',
+    moveLeft: 'Cursor left',
+    moveLineDown: 'Move line down',
+    moveLineUp: 'Move line up',
+    moveRight: 'Cursor right',
+    moveUp: 'Cursor up',
+    nextChange: 'Go to next change',
+    nextConflict: 'Go to next conflict',
+    nextOccurrence: 'Add next occurrence',
+    nextProblem: 'Go to next problem',
+    outdent: 'Outdent line',
+    pageDown: 'Page down',
+    pageUp: 'Page up',
+    previousChange: 'Go to previous change',
+    previousConflict: 'Go to previous conflict',
+    previousProblem: 'Go to previous problem',
+    redo: 'Redo',
+    redoSelection: 'Redo cursor',
+    reindent: 'Reindent lines',
+    replace: 'Replace',
+    save: 'Save',
+    selectAll: 'Select all',
+    selectAllOccurrences: 'Select all occurrences',
+    selectLine: 'Select line',
+    selectPair: 'Select to bracket',
+    splitLine: 'Split line',
+    toggleComment: 'Toggle line comment',
+    toggleTabCapture: 'Toggle Tab moving focus',
+    transpose: 'Transpose characters',
+    undo: 'Undo',
+    undoSelection: 'Undo cursor',
+    unfold: 'Unfold',
+    unfoldAll: 'Unfold all',
+    wordLeft: 'Cursor word left',
+    wordRight: 'Cursor word right'
+};
+
+// Modifier names a chord may use, lowercased; 'cmd' is the Apple key, which is 'Meta' elsewhere.
+const MODIFIERS: Record<string, string> = {
+    alt: 'Alt',
+    cmd: 'Cmd',
+    command: 'Cmd',
+    control: 'Ctrl',
+    ctrl: 'Ctrl',
+    meta: 'Meta',
+    mod: 'Mod',
+    opt: 'Alt',
+    option: 'Alt',
+    shift: 'Shift'
+};
+
+// Modifiers in the order 'combo' writes them.
+const ORDER = ['Mod', 'Ctrl', 'Meta', 'Alt', 'Shift'];
+
+
+// A chord as 'combo' writes one for this platform: modifiers spelled and ordered its way and a character key
+// lowercased; on Apple platforms ⌘ is 'Mod', elsewhere Ctrl is. Null for a chord that doesn't parse.
+function chord(keys: string, apple: boolean) {
+    let parts = keys.split('+'),
+        key = parts.pop() ?? '',
+        found = new Set<string>();
+
+    // A chord on the plus key itself ends in an empty part.
+    if (!key && parts.length && parts[parts.length - 1] === '') {
+        parts.pop();
+        key = '+';
+    }
+
+    for (let i = 0, n = parts.length; i < n; i++) {
+        let name = MODIFIERS[parts[i].trim().toLowerCase()];
+
+        if (!name) {
+            return null;
+        }
+
+        if (name === 'Cmd' || name === 'Meta') {
+            name = apple ? 'Mod' : 'Meta';
+        }
+        else if (name === 'Ctrl' && !apple) {
+            name = 'Mod';
+        }
+
+        found.add(name);
+    }
+
+    key = key.trim() || key;
+    key = key.length === 1 ? key.toLowerCase() : KEYS[key.toLowerCase()] ?? (/^f\d{1,2}$/i.test(key) ? key.toUpperCase() : key);
+
+    if (!key) {
+        return null;
+    }
+
+    return ORDER.filter((name) => found.has(name)).map((name) => name + '+').join('') + key;
+}
 
 // A keydown as a binding's keys.
 function combo(e: KeyboardEvent, apple: boolean) {
@@ -291,8 +460,10 @@ function combo(e: KeyboardEvent, apple: boolean) {
 
 
 // The command table for one platform: bindings marked for the other are left out, and elsewhere 'Ctrl' is 'Mod'.
-const keymap = (apple: boolean) => {
-    let map = new Map<string, Command>();
+// 'overrides' go over the defaults: a chord runs its command, or with null nothing at all; chords that don't parse
+// and unknown commands are ignored.
+const keymap = (apple: boolean, overrides?: Readonly<Record<string, Command | null>>) => {
+    let map = new Map<string, Command | null>();
 
     for (let i = 0, n = BINDINGS.length; i < n; i++) {
         let [keys, command, platform] = BINDINGS[i];
@@ -304,6 +475,15 @@ const keymap = (apple: boolean) => {
         map.set(apple ? keys : keys.replace('Ctrl+', 'Mod+'), command);
     }
 
+    for (let keys in overrides) {
+        let command = overrides[keys],
+            normalized = chord(keys, apple);
+
+        if (normalized && (command === null || Object.hasOwn(ACTIONS, command))) {
+            map.set(normalized, command);
+        }
+    }
+
     return (e: KeyboardEvent) => {
         let keys = combo(e, apple),
             command = map.get(keys);
@@ -311,7 +491,7 @@ const keymap = (apple: boolean) => {
         if (command === undefined && e.shiftKey) {
             command = map.get(keys.replace('Shift+', ''));
 
-            if (command !== undefined && !EXTENDING.has(command)) {
+            if (command && !EXTENDING.has(command)) {
                 command = undefined;
             }
         }
@@ -321,11 +501,18 @@ const keymap = (apple: boolean) => {
 };
 
 
+// Every command with its label and the keys it has on every platform, for keybinding editors.
+const COMMANDS: readonly CommandInfo[] = (Object.keys(LABELS) as Command[]).map((id) => ({
+    id,
+    keys: BINDINGS.filter((binding) => binding[1] === id && binding[2] === undefined).map((binding) => binding[0]),
+    label: LABELS[id]
+}));
+
 // Runs a command against the editor.
 const commands = (host: Host) => (command: Command, e: KeyboardEvent) => {
     ACTIONS[command](host, e);
 };
 
 
-export { combo, commands, keymap };
-export type { Command, Host };
+export { chord, combo, COMMANDS, commands, keymap };
+export type { Command, CommandInfo, Host, Navigation };

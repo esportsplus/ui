@@ -478,6 +478,67 @@ const deletePair = (doc: EditorDocument) => {
     return eachRange(doc, 'deletePair', singleDeletePair);
 };
 
+// The indentation a text uses, from its first lines: tabs when more lines open with one, otherwise the step between
+// neighbouring lines' spaces seen most often. Null when no line is indented; 'size' is 0 for tabs.
+const detectIndent = (text: string): { size: number; tabs: boolean } | null => {
+    let counts: number[] = [],
+        previous = 0,
+        spaces = 0,
+        tabs = 0;
+
+    for (let at = 0, line = 0, n = text.length; at < n && line < 2000; line++) {
+        let next = text.indexOf('\n', at),
+            stop = next === -1 ? n : next,
+            width = 0;
+
+        while (at + width < stop && text.charCodeAt(at + width) === 32) {
+            width++;
+        }
+
+        let code = text.charCodeAt(at + width);
+
+        if (at + width < stop && code !== 13) {
+            if (code === 9 && width === 0) {
+                tabs++;
+            }
+            // A block comment's continuation lines sit one space in; they say nothing about the step.
+            else if (code !== 42) {
+                if (width) {
+                    spaces++;
+                }
+
+                let step = Math.abs(width - previous);
+
+                if (step > 0 && step <= 8) {
+                    counts[step] = (counts[step] ?? 0) + 1;
+                }
+
+                previous = width;
+            }
+        }
+
+        at = stop + 1;
+    }
+
+    if (tabs > spaces) {
+        return { size: 0, tabs: true };
+    }
+
+    if (!spaces) {
+        return null;
+    }
+
+    let size = 0;
+
+    for (let step = 1; step < counts.length; step++) {
+        if ((counts[step] ?? 0) > (counts[size] ?? 0)) {
+            size = step;
+        }
+    }
+
+    return size ? { size, tabs: false } : null;
+};
+
 const indent = (doc: EditorDocument, unit = '    ', outdent = false) => {
     if (!WHITESPACE.test(unit)) {
         return false;
@@ -805,6 +866,7 @@ export {
     closeIndent,
     deleteCharacter,
     deletePair,
+    detectIndent,
     indent,
     insertText,
     lineCommand,

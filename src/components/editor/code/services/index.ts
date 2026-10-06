@@ -1,5 +1,6 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import type { Mark } from '../rows';
+import type { Entry } from './diagnostics';
 import type { Options } from '../view';
 import { fileUri, languageIdFor } from './model';
 import type { CompletionItem, Diagnostic, Hover, LanguageTransport, Notification, Position, Range, TextEdit } from './protocol';
@@ -15,7 +16,9 @@ type Services = {
     dispose: VoidFunction;
     keydown: (e: KeyboardEvent) => boolean;
     leave: VoidFunction;
+    list: () => readonly Entry[];
     marks: (from: number, to: number) => readonly Mark[];
+    notice: (offset: number, text: string) => void;
     paint: VoidFunction;
     pointer: (e: PointerEvent) => void;
     retarget: VoidFunction;
@@ -48,7 +51,9 @@ const services = (host: Host): Services => {
         dispose: api.dispose,
         keydown: api.keydown,
         leave: api.leave,
+        list: api.list,
         marks: api.marks,
+        notice: api.notice,
         paint: api.paint,
         pointer: api.pointer,
         retarget: api.retarget,
@@ -110,4 +115,4 @@ const services = (host: Host): Services => {
 
 
 export { fileUri, languageIdFor, referenceRpcTransport, services };
-export type { CompletionItem, Diagnostic, Hover, LanguageServiceOptions, LanguageTransport, Notification, Position, Range, Services, TextEdit };
+export type { CompletionItem, Diagnostic, Entry, Hover, LanguageServiceOptions, LanguageTransport, Notification, Position, Range, Services, TextEdit };

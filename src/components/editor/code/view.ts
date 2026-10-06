@@ -10,6 +10,7 @@ import {
     closeIndent,
     deleteCharacter,
     deletePair,
+    detectIndent,
     indent,
     insertText,
     lineCommand,
@@ -18,13 +19,15 @@ import {
     type LineCommand
 } from './commands';
 import { composition } from './composition';
+import type { Conflict, Resolution } from './conflicts';
 import { EditorDocument, type Change, type Edit, type Selection, type Snapshot } from './document';
+import { features } from './features';
 import { RANGES, write as writeField, type Pending } from './field';
 import { find } from './find';
 import { enclosingFold, foldAt, mapFolds, outerFolds, pairAt, structureOf, type BracketPair, type FoldRange } from './folding';
 import { goto } from './goto';
 import { gutter } from './gutter';
-import { commands, keymap } from './keymap';
+import { commands, keymap, type Command } from './keymap';
 import { EditorLayout, irregular, type Rect } from './layout';
 import { minimap, type Source } from './minimap';
 import { move } from './navigation';
@@ -43,6 +46,27 @@ type Callbacks = {
     onSelection?: (selection: Selection, position: { column: number; line: number }) => void;
 };
 
+// The code editor's controller: the one it shares with the markdown editor, with its own state and its navigation,
+// conflict and baseline methods.
+type CodeController = Omit<Controller, 'state'> & {
+    // A reactive snapshot for toolbars and status bars; read-only.
+    readonly state: State;
+    conflicts(): Conflict[];
+    // Each moves the caret to the next or previous one, wrapping around; false when there are none.
+    nextChange(): boolean;
+    nextConflict(): boolean;
+    // Also shows the problem's message.
+    nextProblem(): boolean;
+    previousChange(): boolean;
+    previousConflict(): boolean;
+    previousProblem(): boolean;
+    // Settles a conflict as one undoable edit: one side, both, or the given text.
+    resolveConflict(conflict: Conflict, resolution: Resolution): boolean;
+    // The text the git gutter diffs against, as 'options.baseline'; null clears it.
+    setBaseline(text: string | null): void;
+};
+
+// The controller both editors share; the code editor's is 'CodeController'.
 type Controller = {
     readonly document: EditorDocument;
     // The editor's root element; set once the editor connects, like 'scroller' and 'textarea'.
@@ -113,33 +137,59 @@ type Metrics = {
 type Options = {
     autoBrackets?: boolean;
     autoIndent?: boolean;
+    // Git gutter: the text the document is diffed against, such as the file at HEAD.
+    baseline?: string | null;
     blockComment?: readonly [string, string];
     // Tab inserts indentation by default; Escape then Tab always moves focus.
     captureTab?: boolean;
+    // A swatch before each CSS color literal; clicking it opens a color picker.
+    colors?: boolean;
     fileName?: string;
     fold?: boolean;
     highlight?: boolean;
+    // Detected from the document when left out.
     indent?: string;
+    // Chords over the default keys: each runs a command, or with null nothing.
+    keybindings?: Readonly<Record<string, Command | null>>;
     label?: string;
     language?: Language;
     lineComment?: string | false;
     lineNumbers?: boolean;
+    // URLs open on Mod+click, in a new tab or through the handler, which also gets file URLs and relative paths.
+    links?: boolean | ((url: string) => void);
     minimap?: boolean;
     name?: string;
     // Ctrl/Cmd+Space requests completion; text changes stay observable through onChange.
-    onAutocomplete?: (controller: Controller, explicit: boolean) => void;
+    onAutocomplete?: (controller: CodeController | Controller, explicit: boolean) => void;
     // Services may claim keys before the built-in keymap; return true when consumed.
-    onCompletionKey?: (event: KeyboardEvent, controller: Controller) => boolean;
+    onCompletionKey?: (event: KeyboardEvent, controller: CodeController | Controller) => boolean;
+    // A conflict lens's Compare.
+    onMerge?: (conflict: Conflict) => void;
     placeholder?: string;
     readonly?: boolean;
+    // Columns with a vertical ruler.
+    rulers?: readonly number[];
     // Completion, hover and diagnostics from a language server; '{}' alone completes from the document's words.
     services?: LanguageServiceOptions;
+    // Sticky scroll: the enclosing blocks' headers stay at the top; true pins up to 5, a number sets how many.
+    sticky?: boolean | number;
     tabSize?: number;
+    // Marks invisible, bidirectional and look-alike characters; on unless false.
+    unicode?: boolean;
     whitespace?: boolean;
     wrap?: boolean;
 };
 
 type Position = { left: number; top: number };
+
+type State = Omit<Snapshot, 'selections'> & Readonly<{
+    indent: { size: number; tabs: boolean };
+    language: Language;
+    lineEnding: 'crlf' | 'lf';
+    problems: { errors: number; warnings: number };
+    // How many selections there are.
+    selections: number;
+}>;
 
 
 const NAVIGATION = /^(ArrowDown|ArrowLeft|ArrowRight|ArrowUp|End|Home|PageDown|PageUp)$/;
@@ -170,6 +220,10 @@ const TOKEN_COLORS = [
 let uid = 0;
 
 
+function ending(model: EditorDocument): State['lineEnding'] {
+    return model.eol === '\r\n' ? 'crlf' : 'lf';
+}
+
 function pixels(value: string) {
     return parseFloat(value) || 0;
 }
@@ -177,12 +231,14 @@ function pixels(value: string) {
 
 // The editor's view of one document: a transparent native textarea owns input, selection, IME and scrolling, while
 // pooled rows draw the visible lines from the incremental layout. Returns its template and controller.
-const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller: Controller) => void) => {
+const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller: CodeController) => void) => {
     let accepting = -1,
         apple = mac(),
         before: Before | null = null,
         beforeRanges: readonly Selection[] = [],
         beforeSelection: Selection | undefined,
+        // The option values last applied: 'setBaseline' holds until the option itself changes.
+        bound: { baseline?: string | null; keybindings?: Options['keybindings'] } = {},
         bracketPair: { cache: SyntaxCache | null; offset: number; pair: BracketPair | null; revision: number } = { cache: null, offset: -1, pair: null, revision: -1 },
         breaks = { key: '', map: new Map<string, readonly number[]>() },
         cache: SyntaxCache = syntaxCache(model, 'plain'),
@@ -215,8 +271,12 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         ruler: HTMLElement | undefined,
         state = reactive({
             ...model.state,
+            indent: { size: 4, tabs: false },
+            language: 'plain' as Language,
+            lineEnding: ending(model),
+            problems: { errors: 0, warnings: 0 },
             selection: { ...model.selection },
-            selections: model.selections.map((range) => ({ ...range }))
+            selections: model.selections.length
         }),
         textarea: HTMLTextAreaElement | undefined,
         ui = reactive({
@@ -239,6 +299,8 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             y: 12
         }),
         unsubscribe: VoidFunction | undefined,
+        // The indent unit the options gave, when they gave one; otherwise it is detected.
+        unit: string | undefined,
         // Where each document this editor showed was left.
         visited = new WeakMap<EditorDocument, Memo>(),
         writing = false,
@@ -505,11 +567,12 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         occurrences = { key: '', marks: [] };
         pendingValue = undefined;
         written = '';
-        state.selections.splice(0, state.selections.length, ...selections.map((range) => ({ ...range })));
-        Object.assign(state, single, { selection: { ...single.selection } });
+        Object.assign(state, single, { lineEnding: ending(model), selection: { ...single.selection }, selections: selections.length });
         ui.digits = Math.max(3, String(model.lineCount).length);
         gestures.reset();
         jump.state.open = false;
+        extras.reset();
+        detect();
 
         if (unsubscribe) {
             subscribe();
@@ -611,6 +674,21 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         return deleteCharacter(model, backwards, word);
     }
 
+    // The indent unit: the options' own, or else the document's when it shows one; the state reports it.
+    function detect() {
+        let found = unit ? null : detectIndent(model.value),
+            tabSize = options.tabSize ?? 4;
+
+        options.indent = unit ?? (found ? (found.tabs ? '\t' : ' '.repeat(found.size)) : '    ');
+
+        let tabs = options.indent.includes('\t'),
+            size = tabs ? tabSize : options.indent.length;
+
+        if (state.indent.size !== size || state.indent.tabs !== tabs) {
+            state.indent = { size, tabs };
+        }
+    }
+
     function editable(run: () => boolean) {
         if (disposed || options.readonly || ime.busy()) {
             return false;
@@ -705,6 +783,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
         metrics = next;
         palette = colors;
+        extras.measure();
 
         if (changed) {
             relayout();
@@ -803,14 +882,18 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 number = geometry.number(line),
                 slot = slots[line % size] as Slot,
                 to = geometry.end(line),
-                text = projection.value.slice(from, to);
+                text = projection.value.slice(from, to),
+                highlights = marks(projection, from, to, context);
 
+            extras.decorate(line, from, to, text, highlights);
             slot.active = active.has(line);
+            slot.change = extras.change(number);
             slot.fold = ui.fold ? foldState(number) : 0;
             slot.height = geometry.rows(line) * lineHeight;
-            slot.html = markup(text, tokensOf(line), marks(projection, from, to, context), whitespace);
+            slot.html = markup(text, tokensOf(line), highlights, whitespace);
             slot.line = line;
             slot.number = number;
+            slot.tint = extras.tint(number);
             slot.top = geometry.top(line);
         }
 
@@ -818,13 +901,16 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             let slot = slots[line % size] as Slot;
 
             slot.active = false;
+            slot.change = '';
             slot.html = '';
             slot.line = -1;
+            slot.tint = '';
         }
 
         ui.x = metrics.padLeft - scrollLeft;
         ui.y = metrics.padTop - scrollTop;
         paintDecorations(scrollTop, clientHeight);
+        extras.paint(first, last, scrollTop, metrics.padTop);
         lsp.paint();
 
         if (options.minimap) {
@@ -1116,12 +1202,23 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
             let { selections, ...single } = snapshot;
 
-            state.selections.splice(0, state.selections.length, ...selections.map((range) => ({ ...range })));
-            Object.assign(state, single, { selection: { ...snapshot.selection } });
+            Object.assign(state, single, { selection: { ...snapshot.selection }, selections: selections.length });
 
             if (change.textChanged) {
+                let eol = ending(model);
+
+                if (state.lineEnding !== eol) {
+                    state.lineEnding = eol;
+                }
+
                 ime.conflict();
                 textChanged(change);
+                extras.changed();
+
+                // Text loaded in place of what was there is a new file to read the indentation from.
+                if (change.source === 'external' || change.source === 'reset' || change.source === 'setValue') {
+                    detect();
+                }
             }
 
             if (change.selectionChanged) {
@@ -1270,7 +1367,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         written = projection.value;
     }
 
-    let controller: Controller = {
+    let controller: CodeController = {
         addNextOccurrence: (all = false) => {
             if (disposed || ime.busy()) {
                 return false;
@@ -1285,6 +1382,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             return changed;
         },
         closeFind: () => search.close(),
+        conflicts: () => extras.conflicts(),
         dispose: () => {
             if (disposed) {
                 return;
@@ -1304,6 +1402,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 unsubscribe?.();
                 unsubscribe = undefined;
                 size.ondisconnect();
+                extras.dispose();
                 lsp.dispose();
                 pendingValue = undefined;
             }
@@ -1369,6 +1468,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         insert: (text) => editable(() => insertText(model, text)),
         lineCommand: (command) => editable(() => lineCommand(model, command)),
         newline: () => editable(() => newline(model, options.indent, language)),
+        nextChange: () => !disposed && extras.navigate('change', false),
+        nextConflict: () => !disposed && extras.navigate('conflict', false),
+        nextProblem: () => !disposed && extras.navigate('problem', false),
         offsetAt,
         openFind: (replace = false) => {
             if (disposed || ime.busy()) {
@@ -1389,6 +1491,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             jump.open(model.position().line);
         },
         outdent: () => editable(() => indent(model, options.indent, true)),
+        previousChange: () => !disposed && extras.navigate('change', true),
+        previousConflict: () => !disposed && extras.navigate('conflict', true),
+        previousProblem: () => !disposed && extras.navigate('problem', true),
         rectAt: (offset) => {
             if (disposed || !textarea || !layout || offset < 0 || offset > model.value.length || folded.some((fold) => offset > fold.from && offset < fold.to)) {
                 return null;
@@ -1438,6 +1543,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         },
         replace: (replacement) => search.replace(replacement),
         replaceAll: (replacement) => search.replaceAll(replacement),
+        resolveConflict: (conflict, resolution) => !disposed && extras.resolve(conflict, resolution),
         save: () => {
             if (!disposed && !ime.busy()) {
                 callbacks.onSave?.(model.value, model.state);
@@ -1458,6 +1564,11 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
             model.selectMany(ranges);
             sync(revealing);
+        },
+        setBaseline: (text) => {
+            if (!disposed) {
+                extras.baseline(text);
+            }
         },
         setDocument: (next, settings) => {
             if (disposed) {
@@ -1484,12 +1595,13 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 return;
             }
 
+            if (replace || 'indent' in next) {
+                unit = next.indent && /^[\t ]+$/.test(next.indent) ? next.indent : undefined;
+            }
+
             options = { ...(replace ? {} : options), ...next };
             options.tabSize = clamp(Math.trunc(options.tabSize ?? 4) || 4, 1, 16);
-
-            if (!options.indent || !/^[\t ]+$/.test(options.indent)) {
-                options.indent = '    ';
-            }
+            detect();
 
             let geometry = !!options.wrap !== ui.wrap || options.tabSize !== ui.tabSize,
                 nextLanguage = options.language ?? languageFor(options.fileName);
@@ -1498,7 +1610,20 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 cache = syntaxCache(model, nextLanguage);
                 foldMarks.clear();
                 language = nextLanguage;
+                state.language = language;
                 map.invalidate();
+            }
+
+            if (options.keybindings !== bound.keybindings) {
+                bound.keybindings = options.keybindings;
+                keys = keymap(apple, options.keybindings);
+            }
+
+            extras.configure(options);
+
+            if (options.baseline !== bound.baseline) {
+                bound.baseline = options.baseline;
+                extras.baseline(options.baseline ?? null);
             }
 
             ui.fold = options.fold !== false;
@@ -1542,7 +1667,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             return textarea!;
         },
         get state() {
-            return state as Snapshot;
+            return state as State;
         },
         get textarea() {
             return textarea!;
@@ -1585,6 +1710,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         edit: editable,
         language: () => language,
         move: moveSelection,
+        navigate: (kind, backward) => {
+            extras.navigate(kind, backward);
+        },
         options: () => options,
         select: (selection) => {
             model.select(selection);
@@ -1595,6 +1723,23 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
     let lsp = services({
         busy: ime.busy,
         controller,
+        problems: (entries) => {
+            let errors = 0,
+                warnings = 0;
+
+            for (let i = 0, n = entries.length; i < n; i++) {
+                if (entries[i].severity === 'error') {
+                    errors++;
+                }
+                else if (entries[i].severity === 'warning') {
+                    warnings++;
+                }
+            }
+
+            if (state.problems.errors !== errors || state.problems.warnings !== warnings) {
+                state.problems = { errors, warnings };
+            }
+        },
         rect: (offset) => {
             if (!layout || folded.some((fold) => offset > fold.from && offset < fold.to)) {
                 return null;
@@ -1604,6 +1749,43 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         },
         schedule
     });
+
+    let extras = features({
+        busy: ime.busy,
+        cache: () => cache,
+        charWidth: () => metrics.charWidth,
+        document: () => model,
+        edit: (edit, caret) => editable(() => model.transact([edit], { selection: { start: caret } }).changed),
+        focus: () => textarea?.focus(),
+        folded: () => folded,
+        hide: lsp.leave,
+        language: () => language,
+        layout: () => layout,
+        lineHeight: () => metrics.lineHeight,
+        notice: lsp.notice,
+        offsetAt,
+        problems: lsp.list,
+        projection: () => projection,
+        readonly: () => !!options.readonly,
+        rectAt: controller.rectAt,
+        reveal: (offset) => {
+            if (disposed || ime.busy()) {
+                return;
+            }
+
+            model.select({ start: offset });
+            sync(true);
+        },
+        schedule,
+        scrollTo: (top) => {
+            if (textarea) {
+                textarea.scrollTop = top + metrics.padTop;
+                schedule();
+            }
+        },
+        tokens: tokensOf,
+        x: () => ui.x
+    }, apple);
 
     let field: Attributes = {
         'aria-describedby': help,
@@ -1728,6 +1910,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         },
         onkeydown: (e: KeyboardEvent) => {
             gestures.alt(e);
+            extras.key(e);
 
             if (ime.busy() || e.isComposing || e.keyCode === 229) {
                 return;
@@ -1793,6 +1976,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         },
         onkeyup: (e: KeyboardEvent) => {
             gestures.alt(e);
+            extras.key(e);
             capture();
         },
         onlostpointercapture: gestures.onlostpointercapture,
@@ -1810,12 +1994,21 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         onpointercancel: gestures.onpointercancel,
         onpointerdown: (e: PointerEvent) => {
             goals = [];
-            gestures.onpointerdown(e);
+
+            if (!extras.pointerdown(e)) {
+                gestures.onpointerdown(e);
+            }
         },
-        onpointerleave: lsp.leave,
+        onpointerleave: () => {
+            extras.leave();
+            lsp.leave();
+        },
         onpointermove: (e: PointerEvent) => {
             gestures.onpointermove(e);
-            lsp.pointer(e);
+
+            if (!extras.pointermove(e)) {
+                lsp.pointer(e);
+            }
         },
         onpointerup: () => {
             gestures.end();
@@ -1840,6 +2033,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                     () => !ui.fold && 'code-editor--foldless',
                     () => ui.minimap && 'code-editor--minimap',
                     () => !ui.lineNumbers && 'code-editor--numberless',
+                    () => extras.state.pointer && 'code-editor--pointer',
                     () => ui.wrap && 'code-editor--wrap'
                 ],
                 onconnect: (element: HTMLElement) => {
@@ -1863,6 +2057,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             ${jump.template()}
             <div class='code-editor-surface' ${size}>
                 <div aria-hidden='true' class='code-editor-overlay'>
+                    <div class='code-editor-rulers' ${{ style: () => `transform: translateX(${ui.x}px); ${extras.rulers()}` }}></div>
                     <div
                         class='code-editor-lines'
                         ${{
@@ -1896,9 +2091,15 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                             }
 
                             controller.focus();
+                        }, (slot) => {
+                            if (slot.line >= 0 && slot.change) {
+                                extras.peek(slot.number);
+                            }
                         })}
                     </div>
                 </div>
+                ${extras.sticky()}
+                ${extras.widgets(() => ui.y)}
                 ${map.template()}
                 <textarea
                     autocapitalize='off'
@@ -1935,4 +2136,4 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
 
 export { view };
-export type { Callbacks, Controller, Options };
+export type { Callbacks, CodeController, Controller, Options, State };

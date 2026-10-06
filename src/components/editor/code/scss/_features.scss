@@ -1,0 +1,311 @@
+@use '/tokens';
+
+// Sticky scroll, color swatches, links, unicode warnings, rulers, the git gutter and its peek, and conflict blocks with
+// their lenses. Marks style spans in the rendered rows, so none of them adds width to the text the field lays out.
+.code-editor {
+    &-change {
+        bottom: 0;
+        pointer-events: none;
+        position: absolute;
+        // At the fold column's inner edge, clear of the right-aligned numbers.
+        right: calc(var(--fold-width) - var(--change-width) - 1px);
+        top: 0;
+        width: var(--change-width);
+
+        &--added {
+            background: var(--gutter-added-color);
+        }
+
+        &--added,
+        &--deleted,
+        &--modified {
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        // A wedge on the boundary where lines went.
+        &--deleted {
+            border-bottom: var(--change-wedge) solid transparent;
+            border-left: var(--change-wedge) solid var(--gutter-deleted-color);
+            border-top: var(--change-wedge) solid transparent;
+            bottom: auto;
+            height: 0;
+            top: calc(-1 * var(--change-wedge));
+            width: 0;
+        }
+
+        &--modified {
+            background: var(--gutter-modified-color);
+        }
+    }
+
+    &-lens {
+        align-items: center;
+        display: flex;
+        font-size: var(--lens-font-size);
+        gap: var(--lens-gap);
+        pointer-events: auto;
+        position: absolute;
+        white-space: nowrap;
+
+        &--readonly .code-editor-lens-action--accept {
+            display: none;
+        }
+    }
+
+    &-lens-action {
+        appearance: none;
+        background: transparent;
+        border: 0;
+        color: var(--lens-color);
+        cursor: pointer;
+        font: inherit;
+        padding: 0;
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+        }
+
+        &:hover {
+            color: var(--color);
+            text-decoration: underline;
+        }
+    }
+
+    &-lenses {
+        left: 0;
+        position: absolute;
+        top: 0;
+        transition: none;
+    }
+
+    &-line {
+        &--base {
+            background: var(--conflict-base-background);
+        }
+
+        &--current {
+            background: var(--conflict-current-background);
+        }
+
+        &--divider {
+            background: var(--conflict-divider-background);
+        }
+
+        &--incoming {
+            background: var(--conflict-incoming-background);
+        }
+    }
+
+    &-link {
+        color: var(--link-color);
+        text-decoration-line: underline;
+    }
+
+    &-peek {
+        background: var(--background);
+        border-bottom: var(--border-width) solid var(--peek-border-color);
+        border-top: var(--border-width) solid var(--peek-border-color);
+        box-shadow: var(--popup-shadow);
+        box-sizing: border-box;
+        display: none;
+        flex-direction: column;
+        left: 0;
+        max-height: var(--peek-max-height);
+        pointer-events: auto;
+        position: absolute;
+        right: calc(var(--minimap-offset) + var(--track-width, 0px));
+
+        @include tokens.state(active) {
+            display: flex;
+        }
+
+        &--added {
+            --peek-border-color: var(--gutter-added-color);
+        }
+
+        &--deleted {
+            --peek-border-color: var(--gutter-deleted-color);
+        }
+    }
+
+    &-peek-bar {
+        align-items: center;
+        background: var(--bar-background);
+        display: flex;
+        flex: none;
+        font-size: var(--bar-font-size);
+        gap: var(--bar-gap);
+        padding: var(--bar-padding);
+    }
+
+    &-peek-button {
+        align-items: center;
+        appearance: none;
+        background: transparent;
+        border: 0;
+        border-radius: var(--border-radius-200);
+        color: inherit;
+        cursor: pointer;
+        display: flex;
+        height: var(--bar-control-height);
+        justify-content: center;
+        padding: 0;
+        width: var(--bar-control-height);
+
+        &:disabled {
+            cursor: default;
+            opacity: var(--disabled-opacity);
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+        }
+
+        &:hover:not(:disabled) {
+            background: var(--active-line-background);
+        }
+    }
+
+    &-peek-icon.icon {
+        --size: var(--bar-icon-size);
+    }
+
+    &-peek-lines {
+        background: var(--peek-lines-background);
+        flex: 1;
+        font: inherit;
+        margin: 0;
+        min-height: 0;
+        overflow: auto;
+        padding: 0 var(--padding);
+        white-space: pre;
+    }
+
+    &-peek-title {
+        color: var(--muted-color);
+        flex: 1;
+        min-width: 0;
+    }
+
+    &-picker-anchor {
+        height: 0;
+        left: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        width: 0;
+    }
+
+    &-rulers {
+        bottom: 0;
+        left: 0;
+        min-width: 100%;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        transition: none;
+    }
+
+    &-sticky {
+        background: var(--background);
+        box-shadow: var(--sticky-shadow);
+        display: none;
+        flex-direction: column;
+        left: 0;
+        position: absolute;
+        right: calc(var(--minimap-offset) + var(--track-width, 0px));
+        top: 0;
+        user-select: none;
+        z-index: 4;
+
+        @include tokens.state(active) {
+            display: flex;
+        }
+    }
+
+    &-sticky-code {
+        display: block;
+        transition: none;
+        white-space: pre;
+    }
+
+    &-sticky-number {
+        border-right: var(--border-width) solid var(--border-color);
+        box-sizing: border-box;
+        color: var(--gutter-color);
+        flex: none;
+        overflow: hidden;
+        padding-right: var(--fold-width);
+        text-align: right;
+        width: var(--gutter-width);
+    }
+
+    &-sticky-row {
+        cursor: pointer;
+        display: flex;
+        height: var(--line-height);
+
+        &:hover {
+            background: var(--active-line-background);
+        }
+    }
+
+    &-sticky-text {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    // Drawn in the gap before the literal, so the text keeps its place.
+    &-swatch {
+        position: relative;
+
+        &::before {
+            background: var(--swatch);
+            border: var(--border-width) solid var(--border-color);
+            border-radius: var(--border-radius-100);
+            box-sizing: border-box;
+            content: '';
+            height: var(--swatch-size);
+            left: calc(-1 * var(--swatch-size) - var(--swatch-gap));
+            position: absolute;
+            top: 50%;
+            translate: 0 -50%;
+            width: var(--swatch-size);
+        }
+    }
+
+    // A box around the character, wide enough to see even when the character has no width.
+    &-unicode {
+        position: relative;
+
+        &--confusable {
+            --unicode-style: dashed;
+        }
+
+        &::after {
+            border: var(--border-width) var(--unicode-style) var(--unicode-color);
+            border-radius: var(--border-radius-100);
+            bottom: 10%;
+            content: '';
+            left: -1px;
+            min-width: 2px;
+            pointer-events: none;
+            position: absolute;
+            right: -1px;
+            top: 10%;
+        }
+    }
+
+    &-widgets {
+        height: 0;
+        left: var(--gutter-width);
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: none;
+        z-index: 2;
+    }
+}

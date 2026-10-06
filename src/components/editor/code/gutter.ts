@@ -12,8 +12,8 @@ function keep(e: MouseEvent) {
 }
 
 
-// Line numbers and fold markers for the pooled rows.
-const gutter = (slots: Reactive<Slot[]>, toggle: (slot: Slot) => void) => html.reactive(slots, (slot) => html`
+// Line numbers, change bars and fold markers for the pooled rows; 'peek' opens the change under a bar.
+const gutter = (slots: Reactive<Slot[]>, toggle: (slot: Slot) => void, peek: (slot: Slot) => void) => html.reactive(slots, (slot) => html`
     <div
         class='code-editor-number'
         ${{
@@ -21,6 +21,14 @@ const gutter = (slots: Reactive<Slot[]>, toggle: (slot: Slot) => void) => html.r
             style: () => `height: ${slot.height}px; top: ${slot.top}px;`
         }}
     >
+        <span
+            class='code-editor-change'
+            ${{
+                class: () => slot.change && `code-editor-change--${slot.change}`,
+                onclick: () => peek(slot),
+                onmousedown: keep
+            }}
+        ></span>
         <span class='code-editor-number-text'>${() => slot.number}</span>
         <span
             class='code-editor-fold'

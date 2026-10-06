@@ -538,6 +538,30 @@ const pairAt = (cache: SyntaxCache, offset: number): BracketPair | null => {
     return best;
 };
 
+// The headers sticky scroll pins with 'top' (1-based) the first line in view, outermost first: each fold whose header
+// is above the line its row would cover and that still runs past it, nested in the one before, up to 'cap'. 'folds'
+// come sorted by line, outer before inner, as 'structureOf' gives them.
+const stickyFolds = (folds: readonly FoldRange[], top: number, cap: number) => {
+    let out: FoldRange[] = [];
+
+    for (let i = 0, n = folds.length; i < n && out.length < cap; i++) {
+        let fold = folds[i],
+            row = top + out.length;
+
+        if (fold.line >= row) {
+            break;
+        }
+
+        let last = out[out.length - 1];
+
+        if (fold.endLine > row && (!last || (fold.line > last.line && fold.endLine <= last.endLine))) {
+            out.push(fold);
+        }
+    }
+
+    return out;
+};
+
 // Every fold and bracket pair in the document, in one pass over the cache; for 'fold all' and the like.
 const structureOf = (cache: SyntaxCache): Structure => {
     let comment = -1,
@@ -658,6 +682,7 @@ export {
     outerFolds,
     pairAround,
     pairAt,
+    stickyFolds,
     structureOf,
     structures
 };

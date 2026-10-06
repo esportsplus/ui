@@ -1,12 +1,12 @@
 import { effect, untrack } from '@esportsplus/reactivity';
 import { component, type Attributes } from '@esportsplus/template';
 import { EditorDocument } from './document';
-import { view, type Callbacks, type Controller, type Options } from './view';
+import { view, type Callbacks, type CodeController, type Options } from './view';
 
 
 type CodeEditorAttributes = Attributes & Callbacks & {
     // Receives the controller once the editor is connected.
-    controller?: (controller: Controller) => void;
+    controller?: (controller: CodeController) => void;
     // One document per tab keeps its own undo history.
     document?: EditorDocument;
     options?: Options | (() => Options);
