@@ -33,11 +33,15 @@ const groups: Record<string, Group[]> = {
         { title: 'ticker', members: ['ticker', 'ticker with blur'] }
     ],
     datalist: [{ title: 'options', members: [['options', 'Default'], ['pre-selected', 'Pre-selected'], ['flat (no drum)', 'Flat'], ['reactive state', 'Reactive state']] }],
+    diffs: [
+        { title: 'diffs', members: [['split: syntax colors, accept and revert', 'Split'], 'unified', ['word diff: on and off', 'Word diff'], ['ignore whitespace: off and on', 'Ignore whitespace'], ['large file: 20,000 lines, virtualized', 'Large file']] }
+    ],
     dock: [{ title: 'dock', members: ['default', ['group tooltip', 'Group tooltip'], ['dock--square', 'Square'], ['controlled running state + onlaunch', 'Controlled state, launch callback']] }],
     error: [{ title: 'input', members: ['input', 'input, duration'] }],
     'file-tree': [
         { title: 'file tree', members: ['default', ['locked items, natural sort, no indicator', 'Locked items, no indicator'], ['guides on hover, named folders, path tooltip, scope colors', 'Guides, tooltips and scope colors'], ['sticky scroll, three folders deep', 'Sticky scroll']] },
-        { title: 'large tree', members: [['virtualized, 10,000 files', 'Default'], ['find in 10,000 files, highlight mode', 'Find and highlight']] }
+        { title: 'large tree', members: [['virtualized, 10,000 files', 'Default'], ['find in 10,000 files, highlight mode', 'Find and highlight']] },
+        { title: 'drag and drop with the desktop', members: [['drop files and folders from the desktop', 'Drop in'], ['drag files out to the desktop or another app', 'Drag out']] }
     ],
     filter: [{ title: 'layout', members: [['Grid · 3 columns', 'Default'], ['Rows · Single column list', 'Rows'], ['Max rows · Scrolls past 2 rows', 'Max rows']] }],
     frame: [{ title: 'transition', members: [['Default · Instant', 'Default'], ['frame--slide · Horizontal', 'Slide'], ['frame--scroll · Vertical', 'Scroll'], ['frame--swap · Crossfade in place', 'Swap']] }],

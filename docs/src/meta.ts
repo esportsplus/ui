@@ -64,6 +64,10 @@ const meta: Record<string, Meta> = {
     datalist: {
         description: 'Scroll-snapped wheel picker where the scroll position is the selection.'
     },
+    diffs: {
+        description: 'Side-by-side or unified diff viewer with syntax colors, word-level highlights, collapsible unchanged lines, change navigation and per-change accept and revert, virtualized for large files; diffs.merge is a three-way merge editor with an editable result.',
+        label: 'Diffs'
+    },
     dock: {
         description: 'macOS-style dock whose icons swell toward the cursor and launch with a bounce and a running light.'
     },
