@@ -776,9 +776,10 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             relayout();
         }
 
-        // The horizontal track comes and goes with the longest visible line; the minimap stays clear of both.
+        // The minimap stays clear of the tracks while they show. The vertical gutter is reserved even with nothing to
+        // scroll, so it only counts once the content overflows; the minimap covers it otherwise.
         let trackHeight = textarea.offsetHeight - clientHeight,
-            trackWidth = textarea.offsetWidth - clientWidth;
+            trackWidth = textarea.scrollHeight > clientHeight ? textarea.offsetWidth - clientWidth : 0;
 
         if (trackHeight !== ui.trackHeight || trackWidth !== ui.trackWidth) {
             ui.trackHeight = trackHeight;

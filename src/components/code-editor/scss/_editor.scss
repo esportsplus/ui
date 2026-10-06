@@ -242,14 +242,15 @@
     &-minimap {
         background: var(--background);
         border-left: var(--border-width) solid var(--border-color);
-        bottom: var(--track-height);
+        // Only the code editor measures its scrollbar tracks; the markdown editor's minimap sits beside its scroller.
+        bottom: var(--track-height, 0px);
         box-sizing: border-box;
         cursor: pointer;
         display: var(--minimap-display);
         opacity: var(--minimap-opacity);
         overflow: hidden;
         position: absolute;
-        right: var(--track-width);
+        right: var(--track-width, 0px);
         top: 0;
         touch-action: none;
         width: var(--minimap-width);
