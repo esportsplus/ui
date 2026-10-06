@@ -230,6 +230,37 @@ export default {
                 `;
             },
             title: 'morph, observed state'
+        },
+        {
+            render: () => html`
+                <div style='${row}'>
+                    ${button.split(
+                        {
+                            [button.split.action]: { class: surface, onclick: () => toast(() => 'Pushed and created PR.'), style: border },
+                            [button.split.trigger]: { 'aria-label': 'More git actions', class: surface, style: border },
+                            items: [
+                                { label: 'Commit', onselect: () => toast(() => 'Commit selected.') },
+                                { label: 'Push', onselect: () => toast(() => 'Push selected.') },
+                                { label: 'Create PR', onselect: () => toast(() => 'Create PR selected.') }
+                            ]
+                        },
+                        html`${icons.share()} Push & create PR`
+                    )}
+                    ${button.split(
+                        {
+                            [button.split.action]: { 'aria-label': 'Open in editor', class: surface, onclick: () => toast(() => 'Opened in editor.'), style: border },
+                            [button.split.trigger]: { 'aria-label': 'Choose editor', class: surface, style: border },
+                            items: [
+                                { icon: icons.link, label: 'Cursor', onselect: () => toast(() => 'Cursor selected.') },
+                                { icon: icons.message, label: 'VS Code', onselect: () => toast(() => 'VS Code selected.') }
+                            ],
+                            trigger: icons.plus()
+                        },
+                        icon({ 'aria-hidden': 'true' }, code)
+                    )}
+                </div>
+            `,
+            title: 'split'
         }
     ]
 };

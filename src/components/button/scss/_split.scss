@@ -1,0 +1,53 @@
+.button-split {
+    align-items: stretch;
+    display: inline-flex;
+    isolation: isolate;
+
+
+    &-chevron {
+        transition: rotate var(--chevron-duration) var(--chevron-timing-function);
+    }
+
+    &-menu {
+        display: flex;
+
+        // Hangs from the trigger's end edge so it stays under the whole group.
+        > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
+            left: auto;
+            right: 0;
+        }
+    }
+
+    > .button-split-action {
+        border-end-end-radius: 0;
+        border-start-end-radius: 0;
+    }
+
+    // Overlaps the shared edge so the two borders read as one divider.
+    > .button-split-menu > .button-split-trigger {
+        --padding-horizontal: var(--trigger-padding-horizontal);
+        border-end-start-radius: 0;
+        border-start-start-radius: 0;
+        margin-inline-start: calc(var(--border-width) * -1);
+
+        &[aria-expanded='true'] .button-split-chevron {
+            rotate: 180deg;
+        }
+    }
+
+    > .button-split-action,
+    > .button-split-menu > .button-split-trigger {
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+            z-index: 1;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+        &-chevron {
+            transition: none;
+        }
+    }
+}

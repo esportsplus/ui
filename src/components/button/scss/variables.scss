@@ -167,3 +167,13 @@
     --icon-size: var(--size-400);
     --shadow-opacity: 0.2;
 }
+
+.button-split {
+    --chevron-duration: 0.2s;
+    --chevron-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --focus-color: currentColor;
+    --focus-offset: 2px;
+    --focus-width: 2px;
+    --icon-size: var(--size-400);
+    --trigger-padding-horizontal: var(--size-200);
+}
