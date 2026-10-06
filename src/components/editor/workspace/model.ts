@@ -1,4 +1,4 @@
-import { EditorDocument } from '../document';
+import { EditorDocument } from '../code/document';
 
 
 type FileOperation = {

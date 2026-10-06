@@ -10,7 +10,7 @@ import fileTree, {
     fileTreeIcon,
     type FileTreeController,
     type FileTreeElement
-} from '~/components/file-tree';
+} from '../tree';
 import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import input from '~/components/input';
@@ -20,8 +20,8 @@ import type { Controller as MenuController, Item } from '~/components/tooltip/me
 import fuzzy from '~/shared/fuzzy';
 import { mac } from '~/shared/platform';
 import { observe } from '~/shared/resize';
-import codeEditor, { type CodeEditorAttributes } from '../editor';
-import type { Controller as EditorController, Options as EditorOptions } from '../view';
+import codeEditor, { type CodeEditorAttributes } from '../code/editor';
+import type { Controller as EditorController, Options as EditorOptions } from '../code/view';
 import {
     dirty,
     EditorWorkspaceModel,
@@ -42,6 +42,8 @@ import save from '@esportsplus/ui/svg/save.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
 import undo from '@esportsplus/ui/svg/undo.svg';
 import '~/components/button/scss/index.scss';
+import '../code/scss/index.scss';
+import './scss/index.scss';
 
 
 type CodeEditorWorkspaceAttributes = Attributes & {
@@ -49,7 +51,7 @@ type CodeEditorWorkspaceAttributes = Attributes & {
     addons?: (context: WorkspaceEditorContext) => void | VoidFunction;
     controller?: (controller: CodeEditorWorkspaceController) => void;
     cwd?: string;
-    // The editor for a tab, such as 'codeEditor.markdown', or undefined for the code editor. A mounted editor stays
+    // The editor for a tab, such as 'editor.markdown', or undefined for the code editor. A mounted editor stays
     // for the next tab that uses the same one, when its controller can 'setDocument'.
     editor?: (tab: WorkspaceTab) => WorkspaceEditor | undefined;
     editorOptions?: EditorOptions | ((tab: WorkspaceTab) => EditorOptions);
@@ -226,7 +228,7 @@ const workspace = ({
     ...attributes
 }: CodeEditorWorkspaceAttributes) => {
     if (!supplied && !host) {
-        throw new Error('Workspace: codeEditorWorkspace requires a WorkspaceHost or EditorWorkspaceModel');
+        throw new Error('Workspace: editor.workspace requires a WorkspaceHost or EditorWorkspaceModel');
     }
 
     let actions: MenuController | undefined,

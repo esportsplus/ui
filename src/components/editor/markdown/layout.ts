@@ -1,4 +1,4 @@
-import type { FoldRange } from '../folding';
+import type { FoldRange } from '../code/folding';
 import type { MarkdownBlock, Row } from './model';
 
 

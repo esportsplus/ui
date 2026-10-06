@@ -17,8 +17,8 @@ const {
     selectLine,
     toggleComment,
     transpose
-} = await import('../src/components/code-editor/commands.ts');
-const { EditorDocument, lineEnd, lineStarts } = await import('../src/components/code-editor/document.ts');
+} = await import('../src/components/editor/code/commands.ts');
+const { EditorDocument, lineEnd, lineStarts } = await import('../src/components/editor/code/document.ts');
 const {
     enclosingFold,
     foldAt,
@@ -30,12 +30,12 @@ const {
     pairAt,
     structureOf,
     structures
-} = await import('../src/components/code-editor/folding.ts');
-const { EditorLayout } = await import('../src/components/code-editor/layout.ts');
-const { NativeText } = await import('../src/components/code-editor/projection.ts');
-const { nextMatch, replaceMatches, search, searchDocument } = await import('../src/components/code-editor/search.ts');
+} = await import('../src/components/editor/code/folding.ts');
+const { EditorLayout } = await import('../src/components/editor/code/layout.ts');
+const { NativeText } = await import('../src/components/editor/code/projection.ts');
+const { nextMatch, replaceMatches, search, searchDocument } = await import('../src/components/editor/code/search.ts');
 const { commentSyntax, highlightLine, languageFor, SyntaxCache, syntaxCache } = await import(
-    '../src/components/code-editor/syntax.ts'
+    '../src/components/editor/code/syntax.ts'
 );
 
 
@@ -1271,7 +1271,7 @@ test('wrapping fallback aligns row geometry, tab stops, CRLF source offsets and 
 
 test('minimap slider click/drag maps endpoints, short documents and resize', async (t) => {
     // The minimap module renders through '@esportsplus/template', which needs a DOM as soon as it loads.
-    let module = await import('../src/components/code-editor/minimap.ts').catch(() => null);
+    let module = await import('../src/components/editor/code/minimap.ts').catch(() => null);
 
     if (!module) {
         t.skip('minimap.ts cannot load without a DOM');

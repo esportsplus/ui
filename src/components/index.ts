@@ -8,15 +8,26 @@ export { default as cc } from './cc';
 export { default as chatMinimap } from './chat-minimap';
 export { default as checkbox } from './checkbox';
 export { default as clipboard } from './clipboard';
-export { default as codeEditor } from './code-editor';
 export { default as colorPicker } from './color-picker';
 export { default as command } from './command';
 export { default as copy } from './copy';
 export { default as counter } from './counter';
 export { default as datalist } from './datalist';
 export { default as dock } from './dock';
+export {
+    createFileTreeIconResolver,
+    default as editor,
+    EditorDocument,
+    EditorWorkspaceModel,
+    FileTreeDecorations,
+    FileTreeEditor,
+    FileTreeElements,
+    FileTreeHistory,
+    fileTreeIcon,
+    isWorkspaceCodeEditor,
+    resolveFileTreeIcon
+} from './editor';
 export { default as error } from './error';
-export { default as fileTree, FileTreeDecorations, FileTreeEditor, FileTreeElements, FileTreeHistory, fileTreeIcon, createFileTreeIconResolver, resolveFileTreeIcon } from './file-tree';
 export { default as filter } from './filter';
 export { default as form } from './form';
 export { default as heatmap } from './heatmap';

@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import { fileTree, FileTreeDecorations, FileTreeEditor, FileTreeElements, FileTreeHistory, icon, input, select, switch as toggle } from '@esportsplus/ui/components';
+import { editor, FileTreeDecorations, FileTreeEditor, FileTreeElements, FileTreeHistory, icon, input, select, switch as toggle } from '@esportsplus/ui/components';
 import symlink from '@esportsplus/ui/svg/corner-down-right.svg';
 import lock from '@esportsplus/ui/svg/lock.svg';
 import type {
@@ -12,7 +12,7 @@ import type {
     FileTreeSnapshot,
     FileTreeSortCase,
     FileTreeSortOrder
-} from '@esportsplus/ui/components/file-tree';
+} from '@esportsplus/ui/components/editor/tree';
 import 'docs/examples/file-tree/scss/index.scss';
 
 
@@ -793,7 +793,7 @@ export default {
                         ['Monochrome', 'file-tree-demo', { colored: false }]
                     ] as [string, string, FileTreeIconOptions][]).map(([caption, style, icons]) => html`
                         <figure class='file-tree-demo-figure'>
-                            ${fileTree({
+                            ${editor.tree({
                                 class: style,
                                 compact: false,
                                 elements: types(),
@@ -816,7 +816,7 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${fileTree({ elements: ELEMENTS, expanded: ['app', 'lib'], state, toggle: true })}
+                            ${editor.tree({ elements: ELEMENTS, expanded: ['app', 'lib'], state, toggle: true })}
                         </div>
                         <p class='file-tree-demo-caption'>Selected: <code>${() => state.selected || 'nothing'}</code></p>
                     </div>
@@ -827,10 +827,10 @@ export default {
         {
             render: () => {
                 let coverage = new FileTreeDecorations(),
-                    editor = reactive({ dirty: false, file: 'src/components/file-tree/index.ts' }),
+                    opened = reactive({ dirty: false, file: 'src/components/file-tree/index.ts' }),
                     git = new FileTreeDecorations(),
                     problems = new FileTreeDecorations(),
-                    state = reactive({ selected: editor.file }),
+                    state = reactive({ selected: opened.file }),
                     tabs = new FileTreeDecorations();
 
                 // One store per provider, so each refreshes on its own schedule. Git's is a full `git status` with
@@ -862,14 +862,14 @@ export default {
                 ]);
 
                 let view = (id: string) => {
-                    editor.file = state.selected = id;
+                    opened.file = state.selected = id;
                     tabs.update([[id, { editor: { ...tabs.get(id)?.editor, open: true } }]]);
                 };
 
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${fileTree({
+                            ${editor.tree({
                                 decorations: [git, problems, tabs, coverage],
                                 display: { stats: true },
                                 elements: REPOSITORY,
@@ -877,21 +877,21 @@ export default {
                                 state
                             })}
                         </div>
-                        <p class='file-tree-demo-caption'>Viewing: <code>${() => editor.file}</code></p>
+                        <p class='file-tree-demo-caption'>Viewing: <code>${() => opened.file}</code></p>
                         <div class='file-tree-demo-actions'>
                             <button
                                 class='${ACTION}'
                                 onclick='${() => {
-                                    editor.dirty = !editor.dirty;
-                                    tabs.update([['package.json', { editor: { open: true, unsaved: editor.dirty } }]]);
+                                    opened.dirty = !opened.dirty;
+                                    tabs.update([['package.json', { editor: { open: true, unsaved: opened.dirty } }]]);
 
-                                    if (!editor.dirty) {
+                                    if (!opened.dirty) {
                                         git.update([['package.json', { additions: 2, deletions: 2, status: 'modified' }]]);
                                     }
                                 }}'
                                 type='button'
                             >
-                                ${() => editor.dirty ? 'Save package.json' : 'Edit package.json'}
+                                ${() => opened.dirty ? 'Save package.json' : 'Edit package.json'}
                             </button>
                             <button
                                 class='${ACTION}'
@@ -910,7 +910,7 @@ export default {
         {
             render: () => html`
                 <div class='file-tree-demo'>
-                    ${fileTree({ elements: LOCKED, expanded: ['project'], indicator: 'never' })}
+                    ${editor.tree({ elements: LOCKED, expanded: ['project'], indicator: 'never' })}
                 </div>
             `,
             title: 'locked items, natural sort, no indicator'
@@ -918,7 +918,7 @@ export default {
         {
             render: () => html`
                 <div class='file-tree-demo'>
-                    ${fileTree({ elements: MONOREPO, expanded: ['package-0'], toggle: true })}
+                    ${editor.tree({ elements: MONOREPO, expanded: ['package-0'], toggle: true })}
                 </div>
             `,
             title: 'virtualized, 10,000 files'
@@ -930,7 +930,7 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${fileTree({
+                            ${editor.tree({
                                 controller: (value) => {
                                     controller = value;
                                 },
@@ -981,7 +981,7 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${fileTree({
+                            ${editor.tree({
                                 controller: (value) => {
                                     controller = value;
                                 },
@@ -1046,7 +1046,7 @@ export default {
                                 let sort = { case: casing.selected as FileTreeSortCase, order: order.selected as FileTreeSortOrder, unicode: settings.unicode };
 
                                 // A fresh tree per sort.
-                                return fileTree({ elements: PROJECT, expanded: ['src'], sort });
+                                return editor.tree({ elements: PROJECT, expanded: ['src'], sort });
                             }}
                         </div>
                     </div>
@@ -1068,7 +1068,7 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${fileTree({ decorations, display, elements: PROJECT, exclude: EXCLUDE, expanded: ['src'] })}
+                            ${editor.tree({ decorations, display, elements: PROJECT, exclude: EXCLUDE, expanded: ['src'] })}
                         </div>
                         <p class='file-tree-demo-caption'>Excluded: <code>${EXCLUDE.join(', ')}</code></p>
                         <div class='file-tree-demo-actions'>
@@ -1121,7 +1121,7 @@ export default {
                             value: search.query
                         })}
                         <div class='file-tree-demo'>
-                            ${fileTree({
+                            ${editor.tree({
                                 elements: SEARCHABLE,
                                 expanded: ['.github', '.github/workflows', 'migrations', 'src', 'src/components', 'src/components/file-tree', 'tests'],
                                 highlight: () => search.query
@@ -1141,7 +1141,7 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${fileTree({
+                            ${editor.tree({
                                 decorations,
                                 elements: WORKSPACE,
                                 expanded: ['src', 'src/components', 'tests'],
@@ -1183,7 +1183,7 @@ export default {
 
                 return html`
                     <div class='file-tree-demo'>
-                        ${fileTree({
+                        ${editor.tree({
                             decorations,
                             elements: NESTED,
                             expanded: NESTED.flatMap((element) => [
@@ -1232,7 +1232,7 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${() => fileTree({
+                            ${() => editor.tree({
                                 // A fresh tree per setting, on the same store.
                                 compact: settings.compact,
                                 // Stands in for the file system: the new item lands in the store, with the folders a
@@ -1318,7 +1318,7 @@ export default {
             render: () => {
                 let controller: FileTreeController | undefined,
                     decorations = new FileTreeDecorations(),
-                    editor = reactive({ file: '', how: '' }),
+                    opened = reactive({ file: '', how: '' }),
                     state = reactive({ selected: '' });
 
                 decorations.replace([
@@ -1331,7 +1331,7 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${fileTree({
+                            ${editor.tree({
                                 controller: (value) => {
                                     controller = value;
                                 },
@@ -1339,8 +1339,8 @@ export default {
                                 elements: REPOSITORY,
                                 expand: 'dblclick',
                                 open: (element, { mode, side }) => {
-                                    editor.file = element.id;
-                                    editor.how = side ? `${mode}, to the side` : mode;
+                                    opened.file = element.id;
+                                    opened.how = side ? `${mode}, to the side` : mode;
                                 },
                                 preview: true,
                                 reveal: 'select',
@@ -1348,7 +1348,7 @@ export default {
                             })}
                         </div>
                         <p class='file-tree-demo-caption'>
-                            Viewing: <code>${() => editor.file || 'nothing'}</code>${() => editor.how && ` (${editor.how})`}
+                            Viewing: <code>${() => opened.file || 'nothing'}</code>${() => opened.how && ` (${opened.how})`}
                         </p>
                         <div class='file-tree-demo-actions'>
                             <button class='${ACTION}' onclick='${() => controller?.previous()}' type='button'>
@@ -1389,7 +1389,7 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${fileTree({
+                            ${editor.tree({
                                 elements: files,
                                 history,
                                 menu: (elements, position) => {
@@ -1455,7 +1455,7 @@ export default {
         },
         {
             render: () => {
-                let editor = new FileTreeEditor(),
+                let naming = new FileTreeEditor(),
                     files = new FileTreeElements(workspace()),
                     history = new FileTreeHistory(files),
                     log = reactive({ message: 'F2 renames the focused row; Alt+N and Alt+Shift+N add a file or folder; Ctrl+Z undoes' }),
@@ -1465,12 +1465,12 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo-actions'>
-                            <button class='${ACTION}' onclick='${() => editor.create('file')}' type='button'>New file</button>
-                            <button class='${ACTION}' onclick='${() => editor.create('folder')}' type='button'>New folder</button>
-                            <button class='${ACTION}' onclick='${() => editor.rename()}' type='button'>Rename</button>
+                            <button class='${ACTION}' onclick='${() => naming.create('file')}' type='button'>New file</button>
+                            <button class='${ACTION}' onclick='${() => naming.create('folder')}' type='button'>New folder</button>
+                            <button class='${ACTION}' onclick='${() => naming.rename()}' type='button'>Rename</button>
                         </div>
                         <div class='file-tree-demo'>
-                            ${fileTree({
+                            ${editor.tree({
                                 // Stands in for the file system: the new item lands in the store, which adds its row
                                 // live, with the folders a path like 'a/b.ts' names around it.
                                 create: (parent, parts, kind) => {
@@ -1483,7 +1483,7 @@ export default {
                                         state.selected = made[made.length - 1].id;
                                     });
                                 },
-                                editor,
+                                editor: naming,
                                 elements: files,
                                 expanded: ['src'],
                                 history,
@@ -1517,7 +1517,7 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${fileTree({
+                            ${editor.tree({
                                 drag: {
                                     confirm: (drop) => !ui.ask || window.confirm(
                                         `${drop.copy ? 'Copy' : 'Move'} ${drop.elements.map((element) => element.name).join(', ')} into ${drop.target?.name ?? 'the top level'}?`
@@ -1614,7 +1614,7 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${fileTree({ elements: files, expanded: ['src'], history, load, state })}
+                            ${editor.tree({ elements: files, expanded: ['src'], history, load, state })}
                         </div>
                         <p class='file-tree-demo-caption'>Selected: <code>${() => state.selected || 'nothing'}</code></p>
                         <div class='file-tree-demo-actions'>
@@ -1678,7 +1678,7 @@ export default {
             render: () => {
                 let copies = 0,
                     decorations = new FileTreeDecorations(),
-                    editor = new FileTreeEditor(),
+                    naming = new FileTreeEditor(),
                     files = new FileTreeElements(workspace()),
                     next = 0,
                     state = reactive({ selected: 'index', selection: new Set<string>() }),
@@ -1724,7 +1724,7 @@ export default {
                             >
                                 Redo
                             </button>
-                            <button class='${ACTION}' onclick='${() => editor.create('file')}' type='button'>New file</button>
+                            <button class='${ACTION}' onclick='${() => naming.create('file')}' type='button'>New file</button>
                             <button
                                 class='${ACTION}'
                                 onclick='${() => {
@@ -1736,7 +1736,7 @@ export default {
                             </button>
                         </div>
                         <div class='file-tree-demo'>
-                            ${fileTree({
+                            ${editor.tree({
                                 create: (parent, parts, kind) => {
                                     let made = nest(parts, kind, () => `created-${++next}`);
 
@@ -1758,7 +1758,7 @@ export default {
                                         }, `${drop.copy ? 'Copy' : 'Move'} ${items(drop.elements)}`);
                                     }
                                 },
-                                editor,
+                                editor: naming,
                                 elements: files,
                                 expanded: ['components', 'src'],
                                 history,
@@ -1823,7 +1823,7 @@ export default {
                                 // Read so each remount builds a fresh tree from the snapshot.
                                 mounted.count;
 
-                                return fileTree({
+                                return editor.tree({
                                     elements: files,
                                     empty: () => html`
                                         <p>No files yet</p>
@@ -1882,7 +1882,7 @@ export default {
                 return html`
                     <div class='file-tree-demo-stack'>
                         <div class='file-tree-demo'>
-                            ${fileTree({
+                            ${editor.tree({
                                 // A path like 'a/b.ts' names the folders to make on the way; roots always hold it.
                                 create: (parent, parts, kind) => {
                                     files.add(nest(parts, kind, path(parent!.id))[0], parent!.id);

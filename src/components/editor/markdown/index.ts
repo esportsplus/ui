@@ -1,8 +1,11 @@
 import { effect, untrack } from '@esportsplus/reactivity';
 import { component, type Attributes } from '@esportsplus/template';
-import { EditorDocument } from '../document';
+import { EditorDocument } from '../code/document';
 import { view, type MarkdownController, type MarkdownOptions } from './view';
-import type { Callbacks } from '../view';
+import type { Callbacks } from '../code/view';
+import '~/css-utilities/scrollbar/scss/index.scss';
+import '../code/scss/index.scss';
+import './scss/index.scss';
 
 
 type MarkdownEditorAttributes = Attributes & Callbacks & {

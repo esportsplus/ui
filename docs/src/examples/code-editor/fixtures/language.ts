@@ -7,7 +7,7 @@ import type {
     Notification,
     Position,
     ServiceResults
-} from '@esportsplus/ui/components/code-editor/services/protocol';
+} from '@esportsplus/ui/components/editor/code/services/protocol';
 
 
 type Handlers = {

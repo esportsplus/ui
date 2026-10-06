@@ -6,7 +6,7 @@ import {
     type WorkspaceEntry,
     type WorkspaceHost,
     type WorkspacePreferences
-} from '@esportsplus/ui/components/code-editor/workspace/model';
+} from '@esportsplus/ui/components/editor/workspace/model';
 
 
 /** Deterministic complete host for tests and interactive examples, including watcher and undo receipts.

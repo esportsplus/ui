@@ -1,7 +1,7 @@
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { codeEditor, icon, select, switch as toggle } from '@esportsplus/ui/components';
-import { EditorDocument } from '@esportsplus/ui/components/code-editor';
+import { editor, icon, select, switch as toggle } from '@esportsplus/ui/components';
+import { EditorDocument } from '@esportsplus/ui/components/editor';
 import { mac } from '@esportsplus/ui/shared/platform';
 import bold from '@esportsplus/ui/svg/bold.svg';
 import italic from '@esportsplus/ui/svg/italic.svg';
@@ -10,7 +10,7 @@ import redo from '@esportsplus/ui/svg/redo.svg';
 import save from '@esportsplus/ui/svg/save.svg';
 import search from '@esportsplus/ui/svg/search.svg';
 import undo from '@esportsplus/ui/svg/undo.svg';
-import type { Controller, MarkdownController, Selection } from '@esportsplus/ui/components/code-editor';
+import type { Controller, MarkdownController, Selection } from '@esportsplus/ui/components/editor';
 import type { Entry } from 'docs/types';
 import { samples, workspaceFiles } from './fixtures/files';
 import { demoLanguageTransport } from './fixtures/language';
@@ -106,22 +106,22 @@ function column(text: string) {
 
 function editing() {
     let document = new EditorDocument(samples.editing),
-        editor: Controller | undefined,
+        controller: Controller | undefined,
         state = reactive({ dirty: false, position: 'Ln 1, Col 1' });
 
     return html`
         <div class='code-editor-demo'>
             <div class='code-editor-demo-actions'>
-                ${action('Undo', () => editor?.undo(), undo)}
-                ${action('Redo', () => editor?.redo(), redo)}
-                ${action('Find', () => editor?.openFind(), search)}
-                ${action('Replace', () => editor?.openFind(true))}
-                ${action('Go to line', () => editor?.openGoToLine())}
-                ${action('Save', () => editor?.save(), save)}
+                ${action('Undo', () => controller?.undo(), undo)}
+                ${action('Redo', () => controller?.redo(), redo)}
+                ${action('Find', () => controller?.openFind(), search)}
+                ${action('Replace', () => controller?.openFind(true))}
+                ${action('Go to line', () => controller?.openGoToLine())}
+                ${action('Save', () => controller?.save(), save)}
             </div>
-            ${codeEditor({
+            ${editor.code({
                 controller: (value) => {
-                    editor = value;
+                    controller = value;
                 },
                 document,
                 onChange: (_, __, snapshot) => {
@@ -183,7 +183,7 @@ function hints(list: Hint[]) {
 
 function languages() {
     let documents = new Map<string, EditorDocument>(),
-        editor: Controller | undefined,
+        controller: Controller | undefined,
         state = reactive({ active: false, error: '', selected: LANGUAGES[0].value as string });
 
     // One editor, one document per sample: switching keeps each sample's draft, history, folds and scroll.
@@ -205,7 +205,7 @@ function languages() {
     effect(() => {
         let path = String(state.selected);
 
-        untrack(() => editor?.setDocument(open(path), settings(path)));
+        untrack(() => controller?.setDocument(open(path), settings(path)));
     });
 
     return html`
@@ -216,9 +216,9 @@ function languages() {
                     ${select({ label: 'Language', options: LANGUAGES.map((language) => ({ ...language })), state })}
                 </div>
             </div>
-            ${codeEditor({
+            ${editor.code({
                 controller: (value) => {
-                    editor = value;
+                    controller = value;
                 },
                 document: open(LANGUAGES[0].value),
                 options: settings(LANGUAGES[0].value)
@@ -233,26 +233,26 @@ function languages() {
 
 function markdown() {
     let document = new EditorDocument(workspaceFiles['README.md']),
-        editor: MarkdownController | undefined,
+        controller: MarkdownController | undefined,
         state = reactive({ dirty: false, minimap: false });
 
     return html`
         <div class='code-editor-demo'>
             <div class='code-editor-demo-actions'>
-                ${action('Bold', () => editor?.bold(), bold)}
-                ${action('Italic', () => editor?.italic(), italic)}
-                ${action('Undo', () => editor?.undo(), undo)}
-                ${action('Redo', () => editor?.redo(), redo)}
-                ${action('Load 1,500 sections', () => editor?.setValue(SECTIONS))}
-                ${action('Restore', () => editor?.setValue(workspaceFiles['README.md']))}
+                ${action('Bold', () => controller?.bold(), bold)}
+                ${action('Italic', () => controller?.italic(), italic)}
+                ${action('Undo', () => controller?.undo(), undo)}
+                ${action('Redo', () => controller?.redo(), redo)}
+                ${action('Load 1,500 sections', () => controller?.setValue(SECTIONS))}
+                ${action('Restore', () => controller?.setValue(workspaceFiles['README.md']))}
                 ${flag('Minimap', () => state.minimap, (value) => {
                     state.minimap = value;
                 })}
             </div>
-            ${codeEditor.markdown({
+            ${editor.markdown({
                 class: 'code-editor-demo-editor code-editor-demo-editor--tall',
                 controller: (value) => {
-                    editor = value;
+                    controller = value;
                 },
                 document,
                 onChange: (_, __, snapshot) => {
@@ -282,12 +282,12 @@ function markdown() {
 
 function multiple() {
     let document = new EditorDocument(samples.palette),
-        editor: Controller | undefined,
+        controller: Controller | undefined,
         state = reactive({ selections: 1 });
 
     function pick(ranges: Partial<Selection>[]) {
-        editor?.selectMany(ranges);
-        editor?.focus();
+        controller?.selectMany(ranges);
+        controller?.focus();
     }
 
     return html`
@@ -296,9 +296,9 @@ function multiple() {
                 ${action('Select every “swatch”', () => pick(all(document.value, 'swatch')))}
                 ${action('Select the color column', () => pick(column(document.value)))}
             </div>
-            ${codeEditor({
+            ${editor.code({
                 controller: (value) => {
-                    editor = value;
+                    controller = value;
                 },
                 document,
                 onSelection: () => {
@@ -324,7 +324,7 @@ function multiple() {
 function services() {
     return html`
         <div class='code-editor-demo'>
-            ${codeEditor({
+            ${editor.code({
                 options: {
                     fileName: 'services.ts',
                     label: 'Language services example',
@@ -346,7 +346,7 @@ function services() {
 }
 
 function view() {
-    let editor: Controller | undefined,
+    let controller: Controller | undefined,
         state = reactive({ fold: true, lineNumbers: true, minimap: true, whitespace: false, wrap: false }),
         tabs = reactive({ active: false, error: '', selected: '4' });
 
@@ -374,13 +374,13 @@ function view() {
                 </div>
             </div>
             <div class='code-editor-demo-actions'>
-                ${action('Fold all', () => editor?.foldAll())}
-                ${action('Unfold all', () => editor?.unfoldAll())}
+                ${action('Fold all', () => controller?.foldAll())}
+                ${action('Unfold all', () => controller?.unfoldAll())}
             </div>
-            ${codeEditor({
+            ${editor.code({
                 class: 'code-editor-demo-editor code-editor-demo-editor--tall',
                 controller: (value) => {
-                    editor = value;
+                    controller = value;
                 },
                 options: () => ({
                     fileName: 'layout.ts',
@@ -429,7 +429,7 @@ export default {
             title: 'multiple cursors and rectangular selection'
         },
         {
-            render: () => codeEditor({
+            render: () => editor.code({
                 class: 'code-editor-demo-editor code-editor-demo-editor--compact',
                 options: { fileName: 'settings.json', label: 'Read-only settings', readonly: true },
                 value: samples.settings

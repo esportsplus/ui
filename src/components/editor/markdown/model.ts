@@ -1,4 +1,4 @@
-import { preferredEol, type Edit, type EditorDocument, type Selection } from '../document';
+import { preferredEol, type Edit, type EditorDocument, type Selection } from '../code/document';
 import { referenceLabel } from './inline';
 
 

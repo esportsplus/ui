@@ -3,12 +3,12 @@ import test from 'node:test';
 import './resolve.mjs';
 
 
-const { EditorDocument } = await import('../src/components/code-editor/document.ts');
-const { diagnostics } = await import('../src/components/code-editor/services/diagnostics.ts');
-const { session: services } = await import('../src/components/code-editor/services/session.ts');
+const { EditorDocument } = await import('../src/components/editor/code/document.ts');
+const { diagnostics } = await import('../src/components/editor/code/services/diagnostics.ts');
+const { session: services } = await import('../src/components/editor/code/services/session.ts');
 const { applyCompletion, expandSnippet, fileUri, languageIdFor, localWords, mapStops, offsetAt, positionAt } =
-    await import('../src/components/code-editor/services/model.ts');
-const { referenceRpcTransport } = await import('../src/components/code-editor/services/transport.ts');
+    await import('../src/components/editor/code/services/model.ts');
+const { referenceRpcTransport } = await import('../src/components/editor/code/services/transport.ts');
 const { mockLanguageTransport } = await import('../docs/src/examples/code-editor/fixtures/language.ts');
 
 

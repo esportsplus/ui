@@ -1,5 +1,5 @@
-import { deleteCharacter } from '../commands';
-import { EditorDocument, type Edit, type Selection } from '../document';
+import { deleteCharacter } from '../code/commands';
+import { EditorDocument, type Edit, type Selection } from '../code/document';
 import { markdownBackspace, markdownEnter, toggleMarkdown, type Kind } from './model';
 
 

@@ -3,12 +3,12 @@ import test from 'node:test';
 import './resolve.mjs';
 
 
-const { EditorDocument } = await import('../src/components/code-editor/document.ts');
-const { markdownCommand } = await import('../src/components/code-editor/markdown/editing.ts');
-const { sanitize } = await import('../src/components/code-editor/markdown/html.ts');
-const { clipInline, parseInline, safeUrl } = await import('../src/components/code-editor/markdown/inline.ts');
+const { EditorDocument } = await import('../src/components/editor/code/document.ts');
+const { markdownCommand } = await import('../src/components/editor/markdown/editing.ts');
+const { sanitize } = await import('../src/components/editor/markdown/html.ts');
+const { clipInline, parseInline, safeUrl } = await import('../src/components/editor/markdown/inline.ts');
 const { arrange, cache, MarkdownLayout, SLICE_LINES, unitStart, WINDOW_LIMIT } = await import(
-    '../src/components/code-editor/markdown/layout.ts'
+    '../src/components/editor/markdown/layout.ts'
 );
 const {
     blockAt,
@@ -21,8 +21,8 @@ const {
     reparse,
     toggleMarkdown,
     toggleTask
-} = await import('../src/components/code-editor/markdown/model.ts');
-const { foldable, foldAt, markdownFolds } = await import('../src/components/code-editor/markdown/structure.ts');
+} = await import('../src/components/editor/markdown/model.ts');
+const { foldable, foldAt, markdownFolds } = await import('../src/components/editor/markdown/structure.ts');
 
 
 // A parsed DOM node, as the sanitizer reads one.

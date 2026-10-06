@@ -1,5 +1,5 @@
-import type { EditorDocument } from '../document';
-import type { FoldRange } from '../folding';
+import type { EditorDocument } from '../code/document';
+import type { FoldRange } from '../code/folding';
 import type { MarkdownBlock } from './model';
 
 

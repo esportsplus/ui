@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { codeEditor } from '@esportsplus/ui/components';
-import type { CodeEditorWorkspaceController } from '@esportsplus/ui/components/code-editor';
+import { editor } from '@esportsplus/ui/components';
+import type { CodeEditorWorkspaceController } from '@esportsplus/ui/components/editor';
 import pencil from '@esportsplus/ui/svg/pencil.svg';
 import { workspaceFiles } from './fixtures/files';
 import { demoLanguageTransport } from './fixtures/language';
@@ -36,7 +36,7 @@ const workspaceExample = {
 
         return html`
             <section aria-label='Complete workspace example' class='code-editor-demo'>
-                ${codeEditor.workspace({
+                ${editor.workspace({
                     controller: (value) => {
                         workspace = value;
                     },
@@ -44,7 +44,7 @@ const workspaceExample = {
                     editorOptions: { minimap: true, services: { cwd: '/demo', transport: demoLanguageTransport() } },
                     host,
                     openTarget: { path: 'src/greeting.ts' },
-                    editor: (tab) => (MARKDOWN.test(tab.path) ? codeEditor.markdown : undefined),
+                    editor: (tab) => (MARKDOWN.test(tab.path) ? editor.markdown : undefined),
                     style: '--height: 580px;'
                 })}
                 <div class='code-editor-demo-actions'>

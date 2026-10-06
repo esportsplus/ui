@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
-import { FOLDERS, NAMES, resolve, resolver } from '../src/components/file-tree/icons.ts';
-import Elements from '../src/components/file-tree/model.ts';
+import { FOLDERS, NAMES, resolve, resolver } from '../src/components/editor/tree/icons.ts';
+import Elements from '../src/components/editor/tree/model.ts';
 
 
 const SVG = new URL('../storage/svg/', import.meta.url);
 
-const VARIABLES = readFileSync(new URL('../src/components/file-tree/scss/variables.scss', import.meta.url), 'utf8');
+const VARIABLES = readFileSync(new URL('../src/components/editor/tree/scss/variables.scss', import.meta.url), 'utf8');
 
 
 const file = (name) => ({ name, type: 'file' });
@@ -224,7 +224,7 @@ test('every icon has its sprite, drawn in currentColor, and its color family', (
 
 test('every icon is drawn for something, so none is dead', () => {
     const reached = new Set(['file']);
-    const source = readFileSync(new URL('../src/components/file-tree/icons.ts', import.meta.url), 'utf8');
+    const source = readFileSync(new URL('../src/components/editor/tree/icons.ts', import.meta.url), 'utf8');
 
     for (const match of source.matchAll(/:\s*'(\w+)'|, '(\w+)'\]/g)) {
         reached.add(match[1] ?? match[2]);

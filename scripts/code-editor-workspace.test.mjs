@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import './resolve.mjs';
 const { EditorWorkspaceModel, dirty, workspacePath } =
-    await import('../src/components/code-editor/workspace/model.ts');
+    await import('../src/components/editor/workspace/model.ts');
 const { createMemoryWorkspaceHost } = await import('../docs/src/examples/code-editor/fixtures/workspace.ts');
 const deferred = () => {
     let resolve, reject;

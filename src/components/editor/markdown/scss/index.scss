@@ -1,5 +1,6 @@
 @use '/shared';
 @use '/tokens';
+@use 'variables';
 
 .markdown-editor {
     background: var(--background);
