@@ -22,6 +22,8 @@ class Loader {
     private load: Load;
     private notices = new Map<string, Notice>();
     private settled: Settled;
+    // Each load under way by its notice, so a jump can wait on it.
+    private waits = new WeakMap<Notice, Promise<void>>();
 
 
     constructor(load: Load, settled: Settled) {
@@ -53,7 +55,7 @@ class Loader {
         let pending: Notice = { type: 'loading' };
 
         this.notices.set(id, pending);
-        this.load(element).then(
+        this.waits.set(pending, this.load(element).then(
             (children) => {
                 if (this.notices.get(id) === pending) {
                     this.notices.delete(id);
@@ -66,9 +68,15 @@ class Loader {
                     this.settled(id, null);
                 }
             }
-        );
+        ));
 
         return pending;
+    }
+
+    // Settles once the folder's children have arrived or failed to, starting the load when none is under way; at
+    // once when a failure holds.
+    wait(element: Element) {
+        return this.waits.get(this.request(element)) ?? Promise.resolve();
     }
 }
 

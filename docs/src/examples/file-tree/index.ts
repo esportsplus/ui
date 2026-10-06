@@ -8,6 +8,8 @@ import type {
     FileTreeElement,
     FileTreeHistoryOperation,
     FileTreeIconOptions,
+    FileTreeImportEntry,
+    FileTreeJump,
     FileTreeKind,
     FileTreeSnapshot,
     FileTreeSortCase,
@@ -314,6 +316,26 @@ const SEARCHABLE: FileTreeElement[] = [
 ];
 
 
+// What each text file in 'notes()' holds, dragged out as a data URL.
+const TEXTS: Record<string, string> = {
+    'notes/drafts/letter.txt': 'Dear reader,\n\nThis file was dragged out of a web page.\n',
+    'notes/ideas.md': '# Ideas\n\n- Drag rows out of the tree\n- Drop folders into it\n',
+    'notes/todo.txt': 'Ship the file tree\nWrite the docs\n',
+    'README.md': '# Notes\n\nDrag any file to the desktop.\n'
+};
+
+// The children a lazy 'vendor' folder fetches, by folder id; 'vendor/lib' is lazy too.
+const VENDOR: Record<string, FileTreeElement[]> = {
+    vendor: [
+        { id: 'vendor/lib', name: 'lib', type: 'folder' },
+        { id: 'vendor/LICENSE', name: 'LICENSE' }
+    ],
+    'vendor/lib': [
+        { id: 'vendor/lib/parse.ts', name: 'parse.ts' },
+        { id: 'vendor/lib/print.ts', name: 'print.ts' }
+    ]
+};
+
 // Well-known folder names, with sizes and dates for the tooltip.
 const WORKSPACE: FileTreeElement[] = [
     { children: [{ id: '.git/HEAD', name: 'HEAD', size: 21 }], id: '.git', name: '.git', type: 'folder' },
@@ -501,6 +523,28 @@ function flag(label: string, value: () => boolean, change: (value: boolean) => v
     `;
 }
 
+// Dropped entries joined to the store under 'target', ids as paths from it; one already there is left as it is. Returns
+// the ids of what was dropped at the top, not what's inside dropped folders.
+function imported(files: FileTreeElements, target: FileTreeElement | null, entries: readonly FileTreeImportEntry[]) {
+    let base = target ? `${target.id}/` : '',
+        out: string[] = [];
+
+    for (let entry of entries) {
+        let at = entry.path.lastIndexOf('/'),
+            id = base + entry.path,
+            name = entry.path.slice(at + 1),
+            element: FileTreeElement = entry.file
+                ? { id, modified: entry.file.lastModified, name, size: entry.file.size }
+                : { children: [], id, name, type: 'folder' };
+
+        if (files.add(element, at === -1 ? target?.id ?? null : base + entry.path.slice(0, at)) && at === -1) {
+            out.push(id);
+        }
+    }
+
+    return out;
+}
+
 // What a history label calls them: one by name, several by count.
 function items(elements: FileTreeElement[]) {
     return elements.length === 1 ? elements[0].name : `${elements.length} items`;
@@ -629,6 +673,24 @@ function nest(parts: string[], kind: FileTreeKind, id: (name: string) => string)
     }
 
     return made;
+}
+
+// Fresh per render, since drops change it in place. Ids are paths, which 'TEXTS' goes by.
+function notes(): FileTreeElement[] {
+    return [
+        { children: [], id: 'archive', name: 'archive', type: 'folder' },
+        {
+            children: [
+                { children: [{ id: 'notes/drafts/letter.txt', name: 'letter.txt' }], id: 'notes/drafts', name: 'drafts', type: 'folder' },
+                { id: 'notes/ideas.md', name: 'ideas.md' },
+                { id: 'notes/todo.txt', name: 'todo.txt' }
+            ],
+            id: 'notes',
+            name: 'notes',
+            type: 'folder'
+        },
+        { id: 'README.md', name: 'README.md' }
+    ];
 }
 
 // A history step's operation as an app mirroring it on disk would log it.
@@ -1351,10 +1413,10 @@ export default {
                             Viewing: <code>${() => opened.file || 'nothing'}</code>${() => opened.how && ` (${opened.how})`}
                         </p>
                         <div class='file-tree-demo-actions'>
-                            <button class='${ACTION}' onclick='${() => controller?.previous()}' type='button'>
+                            <button class='${ACTION}' onclick='${() => controller?.previous('change')}' type='button'>
                                 Previous change
                             </button>
-                            <button class='${ACTION}' onclick='${() => controller?.next()}' type='button'>
+                            <button class='${ACTION}' onclick='${() => controller?.next('change')}' type='button'>
                                 Next change
                             </button>
                             <button
@@ -1573,6 +1635,152 @@ export default {
                 `;
             },
             title: 'drag and drop, Alt/Option copies, locked items stay put'
+        },
+        {
+            render: () => {
+                let files = new FileTreeElements(movable()),
+                    state = reactive({ selected: '' }),
+                    ui = reactive({
+                        entries: '',
+                        last: 'Drop files or folders from your computer onto a folder, or below the rows for the top level.'
+                    });
+
+                return html`
+                    <div class='file-tree-demo-stack'>
+                        <div class='file-tree-demo'>
+                            ${editor.tree({
+                                elements: files,
+                                expanded: ['src'],
+                                operations: {
+                                    // Stands in for writing to disk: what was dropped joins the store, folders walked
+                                    // through, under the folder it landed on.
+                                    import: (target, entries) => {
+                                        let added = imported(files, target, entries);
+
+                                        ui.entries = entries.map((entry) => entry.file ? `${entry.path} (${entry.file.size} bytes)` : `${entry.path}/`).join(', ');
+                                        ui.last = `Imported ${entries.length} ${entries.length === 1 ? 'item' : 'items'} into ${target?.name ?? 'the top level'}.`;
+
+                                        if (added.length) {
+                                            state.selected = added[0];
+                                        }
+                                    }
+                                },
+                                state
+                            })}
+                        </div>
+                        <p class='file-tree-demo-caption'>${() => ui.last}</p>
+                        <p class='file-tree-demo-caption'>Entries: <code>${() => ui.entries || 'nothing yet'}</code></p>
+                    </div>
+                `;
+            },
+            title: 'drop files and folders from the desktop'
+        },
+        {
+            render: () => {
+                let drops = 0,
+                    files = new FileTreeElements(notes()),
+                    state = reactive({ selected: '' }),
+                    ui = reactive({ last: 'Drag a file to the desktop or into another app; within the tree it still moves, and Alt/Option copies.' });
+
+                return html`
+                    <div class='file-tree-demo-stack'>
+                        <div class='file-tree-demo'>
+                            ${editor.tree({
+                                drag: {
+                                    drop: (drop) => {
+                                        let into = drop.target?.id ?? null;
+
+                                        drops++;
+
+                                        for (let element of drop.elements) {
+                                            if (drop.copy) {
+                                                files.add(copy(element, drops), into);
+                                            }
+                                            else {
+                                                files.move(element.id, into);
+                                            }
+                                        }
+
+                                        ui.last = `${drop.copy ? 'Copied' : 'Moved'} ${drop.elements.map((element) => element.name).join(', ')} into ${drop.target?.name ?? 'the top level'}.`;
+                                    }
+                                },
+                                elements: files,
+                                expanded: ['notes'],
+                                // Text files leave as data URLs: the desktop saves them as they are, and an editor or
+                                // a text field takes the text. A copy's id carries a '~' suffix.
+                                export: (element) => {
+                                    let text = TEXTS[element.id.split('~')[0]];
+
+                                    if (text === undefined) {
+                                        return null;
+                                    }
+
+                                    return {
+                                        name: element.name,
+                                        text,
+                                        type: 'text/plain',
+                                        url: `data:text/plain;charset=utf-8,${encodeURIComponent(text)}`
+                                    };
+                                },
+                                state
+                            })}
+                        </div>
+                        <p class='file-tree-demo-caption'>${() => ui.last}</p>
+                    </div>
+                `;
+            },
+            title: 'drag files out to the desktop or another app'
+        },
+        {
+            render: () => {
+                let controller: FileTreeController | undefined,
+                    decorations = new FileTreeDecorations(),
+                    state = reactive({ selected: '' }),
+                    ui = reactive({ last: 'Alt+F5 / Shift+Alt+F5 step through changes and F8 / Shift+F8 through problems while the tree has focus.' });
+
+                decorations.replace([
+                    ['src/components/card/expand.ts', { status: 'untracked' }],
+                    ['src/components/file-tree/index.ts', { errors: 2, status: 'modified' }],
+                    ['src/components/heatmap/index.ts', { warnings: 1 }],
+                    ['tsconfig.json', { staged: 'modified' }],
+                    // Inside folders not loaded yet, which a jump loads on its way.
+                    ['vendor/lib/parse.ts', { errors: 1, status: 'modified' }],
+                    ['vendor/lib/print.ts', { status: 'added' }]
+                ]);
+
+                async function go(kind: FileTreeJump, step: 'next' | 'previous') {
+                    let element = await controller?.[step](kind);
+
+                    ui.last = element ? `${step === 'next' ? 'Next' : 'Previous'} ${kind}: ${element.id}` : `No ${kind}s.`;
+                }
+
+                return html`
+                    <div class='file-tree-demo-stack'>
+                        <div class='file-tree-demo'>
+                            ${editor.tree({
+                                controller: (value) => {
+                                    controller = value;
+                                },
+                                decorations,
+                                elements: [...structuredClone(REPOSITORY), { id: 'vendor', name: 'vendor', type: 'folder' }],
+                                load: (element) => new Promise<FileTreeElement[]>((resolve) => {
+                                    setTimeout(() => resolve(VENDOR[element.id] ?? []), 600);
+                                }),
+                                preview: true,
+                                state
+                            })}
+                        </div>
+                        <div class='file-tree-demo-actions'>
+                            <button class='${ACTION}' onclick='${() => go('change', 'previous')}' type='button'>Previous change</button>
+                            <button class='${ACTION}' onclick='${() => go('change', 'next')}' type='button'>Next change</button>
+                            <button class='${ACTION}' onclick='${() => go('problem', 'previous')}' type='button'>Previous problem</button>
+                            <button class='${ACTION}' onclick='${() => go('problem', 'next')}' type='button'>Next problem</button>
+                        </div>
+                        <p class='file-tree-demo-caption'>${() => ui.last}</p>
+                    </div>
+                `;
+            },
+            title: 'next and previous change or problem, through lazy folders'
         },
         {
             render: () => {

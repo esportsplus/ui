@@ -19,6 +19,7 @@ import glob from './glob';
 import glyph, { renderer } from './glyph';
 import History, { type Entry as HistoryEntry, type Operation, type Options as HistoryOptions, type Place, type Step } from './history';
 import { resolver as createFileTreeIconResolver, resolve as resolveFileTreeIcon, type Name as IconName, type Options as IconOptions, type Resolved as ResolvedIcon } from './icons';
+import { enclosing, flagged, order, seek, type Jump } from './jump';
 import Loader, { placeholder, type Load, type Notice } from './lazy';
 import Elements, { type Change, type Entry } from './model';
 import Selection from './selection';
@@ -26,6 +27,7 @@ import command, { extending, type Command } from './shortcuts';
 import comparator, { type Case, type Options, type Order, type Sort } from './sort';
 import spoken from './spoken';
 import stick from './sticky';
+import type { Export, ImportEntry } from './transfer';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
@@ -55,6 +57,9 @@ type A = Attributes & {
     expand?: 'click' | 'dblclick';
     // Folder ids open on mount; the selected item's folders open as well, unless 'reveal' is off.
     expanded?: string[];
+    // What a row dragged out to the desktop or another app leaves there, null for nothing; given, a mouse drags rows
+    // the browser's own way, moves within the tree included.
+    export?: (element: Element) => Export | null;
     // Ctrl/Cmd+Alt+F opens a find bar over the tree, in this mode until toggled: 'highlight' marks the matches among
     // every row, 'filter' leaves only them and the folders above them, opened while it lasts.
     find?: Mode | 'off';
@@ -128,10 +133,11 @@ type Controller = {
     expandAll: () => void;
     // Open the find bar, with 'query' in place of what it last held when given.
     find: (query?: string) => void;
-    // Move the cursor to the next or previous file git reports changed, wrapping round, and return it; null when
-    // nothing has changed.
-    next: () => Element | null;
-    previous: () => Element | null;
+    // Move the cursor to the next or previous file git reports changed, or with errors or warnings, in the order the
+    // rows show, wrapping round, and return it; null when there's none. Folders open on the way, and lazy ones load
+    // when ids are paths and a decorated id lies inside one.
+    next: (kind: Jump) => Promise<Element | null>;
+    previous: (kind: Jump) => Promise<Element | null>;
     // Apply a search field's query outside the tree, without opening or focusing the find bar; 'searched' reports
     // what the tree does to it.
     search: (query: string) => void;
@@ -202,6 +208,9 @@ type Operations = {
     // Delete is meant for the trash, Shift+Delete for good.
     delete?: (elements: Element[], permanent: boolean) => void;
     duplicate?: (elements: Element[]) => void;
+    // Files and folders dropped in from outside the browser onto 'target', a folder or null for the top level, every
+    // folder walked through; without it such drops are refused.
+    import?: (target: Element | null, entries: readonly ImportEntry[]) => void | Promise<void>;
     // Into the focused folder, or the focused file's folder; null is the top level. Cut items stay dimmed until the
     // returned promise settles.
     paste?: (elements: Element[], target: Element | null, cut: boolean) => void | Promise<void>;
@@ -467,17 +476,6 @@ function middle(event: MouseEvent) {
     }
 }
 
-// Tree order of two places, compared folder by folder from the top, so a folder comes before everything in it.
-function order(x: number[], y: number[]) {
-    for (let i = 0, n = Math.min(x.length, y.length); i < n; i++) {
-        if (x[i] !== y[i]) {
-            return x[i] - y[i];
-        }
-    }
-
-    return x.length - y.length;
-}
-
 function path(row: Row) {
     return [...ancestors(row), row].map((node) => node.element.name).join('/');
 }
@@ -564,6 +562,7 @@ export default ({
     exclude = [],
     expand: unfold = 'click',
     expanded = [],
+    export: exporter,
     find = 'highlight',
     highlight: phrase = '',
     history,
@@ -684,7 +683,7 @@ export default ({
         // Filled before the slot exists: rows inserted at the top of a live slot read as arriving above the reader.
         rows = reactive(visible(top)),
         cursor: Row | null = rows.find((row) => holds(row, (id) => id === chosen)) ?? rows[0] ?? null,
-        dragging = drag && draggable<Row>(drag, {
+        dragging = (drag || exporter || operations?.import) && draggable<Row>({ drag, export: exporter, import: operations?.import }, {
             // Pressing a selected row drags the whole selection, as in VS Code; any other row goes alone. Roots stay, and
             // a folder selected along with one folded above it in a compact row travels inside it.
             grab: (row) => (selection.has(row.id) ? [...selection.ids].map((id) => built.get(id)) : [row])
@@ -853,8 +852,8 @@ export default ({
         collapseAll: () => all(false),
         expandAll: () => all(true),
         find: (text) => search?.open(text),
-        next: () => jump(1),
-        previous: () => jump(-1),
+        next: (kind) => jump(kind, 1),
+        previous: (kind) => jump(kind, -1),
         search: (text) => search?.set(text)
     });
 
@@ -1669,48 +1668,39 @@ export default ({
         return sole(element, hidden, folder);
     }
 
-    // Moves the cursor to the next or previous file git reports changed, in tree order, opening the folders down to it.
-    function jump(step: 1 | -1) {
-        let changed: Row[] = [];
-
-        for (let id of decorations?.keys() ?? []) {
-            let entry = index.get(id),
-                status = decorations!.get(id)!.status;
-
-            if (!entry || folder(entry.element) || !status || status === 'ignored' || hidden.has(id)) {
-                continue;
-            }
-
-            changed.push(locate(id)!);
-        }
-
-        if (!changed.length) {
+    // Moves the cursor to the next or previous file 'kind' marks, in tree order, opening the folders down to it.
+    async function jump(kind: Jump, step: 1 | -1) {
+        if (!decorations) {
             return null;
         }
 
-        let n = changed.length,
-            places = new Map<Row, number[]>();
-
-        for (let i = 0; i < n; i++) {
-            places.set(changed[i], place(changed[i]));
+        if (loader) {
+            await uncover(kind);
         }
 
-        changed.sort((a, b) => order(places.get(a)!, places.get(b)!));
+        let found: { place: number[]; row: Row }[] = [];
 
-        let target = step === 1 ? changed[0] : changed[n - 1];
+        for (let id of decorations.keys()) {
+            let entry = index.get(id);
 
-        if (cursor) {
-            let here = place(cursor);
-
-            for (let i = 0; i < n; i++) {
-                let row = changed[step === 1 ? i : n - 1 - i];
-
-                if (order(places.get(row)!, here) * step > 0) {
-                    target = row;
-                    break;
-                }
+            if (!entry || folder(entry.element) || hidden.has(id) || !flagged(decorations.get(id), kind)) {
+                continue;
             }
+
+            let row = locate(id)!;
+
+            found.push({ place: place(row), row });
         }
+
+        found.sort((a, b) => order(a.place, b.place));
+
+        let at = seek(found.map((item) => item.place), cursor ? place(cursor) : null, step);
+
+        if (at === -1) {
+            return null;
+        }
+
+        let target = found[at].row;
 
         reveal(target.id, true);
         follow(target);
@@ -2919,6 +2909,41 @@ export default ({
         return -1;
     }
 
+    // Decorated files the tree doesn't know yet, under ids that are paths: the deepest folder known along each one's
+    // path loads, then the next one down inside what arrived, each at most once.
+    async function uncover(kind: Jump) {
+        let asked = new Set<string>();
+
+        for (;;) {
+            let folders: Element[] = [];
+
+            for (let id of decorations!.keys()) {
+                if (index.has(id) || !flagged(decorations!.get(id), kind)) {
+                    continue;
+                }
+
+                let parent = enclosing(id).find((candidate) => index.has(candidate)),
+                    element = parent === undefined ? undefined : index.get(parent)!.element;
+
+                if (!element || element.children || asked.has(element.id) || hidden.has(element.id) || !folder(element)) {
+                    continue;
+                }
+
+                asked.add(element.id);
+                folders.push(element);
+            }
+
+            if (!folders.length) {
+                return;
+            }
+
+            // One at a time, so a jump across a large unloaded tree doesn't fire off every request at once.
+            for (let i = 0, n = folders.length; i < n; i++) {
+                await loader!.wait(folders[i]);
+            }
+        }
+    }
+
     // A pinned folder's own row is scrolled back to where its copy sits, then clicked, so a folder that closes stays
     // under the pointer with the rows after it following on.
     function unpin(row: Row) {
@@ -3203,11 +3228,19 @@ export default ({
                                 break;
                             // Next and previous change, as in VS Code's editor.
                             case 'F5':
-                                if (!event.altKey) {
+                                if (!event.altKey || event.ctrlKey || event.metaKey) {
                                     return;
                                 }
 
-                                jump(event.shiftKey ? -1 : 1);
+                                void jump('change', event.shiftKey ? -1 : 1);
+                                break;
+                            // Next and previous problem.
+                            case 'F8':
+                                if (event.altKey || event.ctrlKey || event.metaKey) {
+                                    return;
+                                }
+
+                                void jump('problem', event.shiftKey ? -1 : 1);
                                 break;
                             case 'F2':
                                 begin('rename');
@@ -3377,6 +3410,7 @@ export type {
     Drag as FileTreeDrag,
     Drop as FileTreeDrop,
     Element as FileTreeElement,
+    Export as FileTreeExport,
     HistoryEntry as FileTreeHistoryEntry,
     Operation as FileTreeHistoryOperation,
     HistoryOptions as FileTreeHistoryOptions,
@@ -3384,7 +3418,9 @@ export type {
     Step as FileTreeHistoryStep,
     IconName as FileTreeIconName,
     IconOptions as FileTreeIconOptions,
+    ImportEntry as FileTreeImportEntry,
     Indicator as FileTreeIndicator,
+    Jump as FileTreeJump,
     Kind as FileTreeKind,
     Load as FileTreeLoad,
     Open as FileTreeOpen,
