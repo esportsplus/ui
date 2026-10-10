@@ -436,8 +436,8 @@ open. Another level is never a color to paint: a component reaches it by extendi
 sunken` (painted), or `%surface-raised-level` or `%surface-sunken-level` (counted, for components that route background
 and shadow through their own variables), so whatever sits in it reads its states from the level it shows; sunken layers
 cast no shadow. Style queries on custom properties need Chrome and Edge 111, Safari 18 or Firefox 151; elsewhere every
-surface keeps its parent's level. The ladder, secondary offsets and shadows are `!default` Sass variables in
-`shared/scss/surface.scss` (`$surface-steps`, `$surface-secondary`, `$surface-tint-light`, `$surface-shadow-steps`,
+surface keeps its parent's level. The ladder, secondary offsets and shadows are `!default` tokens in
+`tokens/scss/surface.scss` (`$surface-steps`, `$surface-secondary`, `$surface-tint-light`, `$surface-shadow-steps`,
 `$surface-shadow-scale`).
 
 Ready-made pickers drive the same instance:

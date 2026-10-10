@@ -2,6 +2,7 @@
 @use 'sass:meta';
 @use '/shared';
 @use '/tokens';
+@use 'css-utilities/surface';
 
 
 // Each role and weight as one 'light-dark()' of its light and dark values; a role with a single color has no weights.
@@ -44,9 +45,9 @@
 :root {
     @include shared.css-variables(color, schemes(tokens.$themes));
     // The page is level 0 of the surface ladder.
-    @include shared.surface-colors;
-    @include shared.surface-shadow(0);
-    @include shared.surface-shadows;
+    @include surface.surface-colors;
+    @include surface.surface-shadow(0);
+    @include surface.surface-shadows;
 
     @include tokens.weights(primary);
 
