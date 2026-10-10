@@ -79,31 +79,39 @@ export default {
             title: 'horizontal bar'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar.drag('horizontal')}>${tiles(16, 1)}</div>`,
+            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar({ drag: 'horizontal' })}>${tiles(16, 1)}</div>`,
             title: 'drag (horizontal)'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar.drag()}>${tiles(12, 8)}</div>`,
+            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar({ drag: true })}>${tiles(12, 8)}</div>`,
             title: 'drag (both)'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar.fade()}>${rows(14)}</div>`,
+            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar({ fade: true })}>${rows(14)}</div>`,
             title: 'fade'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar.blur()}>${rows(14)}</div>`,
+            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar({ blur: true })}>${rows(14)}</div>`,
             title: 'blur'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar.fade()}>${tiles(16, 1)}</div>`,
+            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar({ fade: true })}>${tiles(16, 1)}</div>`,
             title: 'fade (horizontal)'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar.blur()}>${tiles(16, 1)}</div>`,
+            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar({ blur: true })}>${tiles(16, 1)}</div>`,
             title: 'blur (horizontal)'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar.fade()}>${rows(2)}</div>`,
+            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar({ drag: 'horizontal', fade: true })}>${tiles(16, 1)}</div>`,
+            title: 'drag with fade (horizontal)'
+        },
+        {
+            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar({ blur: true, drag: true })}>${tiles(12, 8)}</div>`,
+            title: 'drag with blur (both)'
+        },
+        {
+            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar({ fade: true })}>${rows(2)}</div>`,
             title: 'fade (content fits)'
         },
         {

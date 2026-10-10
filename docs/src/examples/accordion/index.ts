@@ -8,7 +8,7 @@ import 'docs/examples/accordion/scss/index.scss';
 
 // The consumer owns the control, label, and shared expansion state.
 const more = (attributes: { lines?: number, style?: string }, content: Renderable<unknown>) => {
-    let fade = scrollbar.fade(),
+    let fade = scrollbar({ fade: true }),
         id = `accordion-example-${crypto.randomUUID()}`,
         state = reactive({ active: false, expandable: false });
 

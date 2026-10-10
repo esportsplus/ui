@@ -6,6 +6,14 @@ import './scss/index.scss';
 
 type Axis = 'both' | 'horizontal' | 'vertical';
 
+// Blur and fade are both edge effects, so a scroller takes one or the other; drag combines with either.
+type Options = {
+    drag?: Axis | boolean;
+} & (
+    { blur?: boolean; fade?: never } |
+    { blur?: never; fade?: boolean }
+);
+
 type Press = {
     id: number;
     left: number;
@@ -22,7 +30,7 @@ const SLOP = 4;
 
 // 'size' names the effect's registered length, which computes to pixels: like the scroll-driven animation ranges,
 // each edge reaches full strength once the content has scrolled that far past it.
-function attributes(name: string, size: string) {
+function edges(name: string, size: string) {
     if (typeof CSS === 'undefined' || CSS.supports('animation-timeline: scroll()')) {
         return { class: ['--scrollbar', name] };
     }
@@ -109,8 +117,8 @@ function attributes(name: string, size: string) {
 }
 
 
-const blur = () => {
-    let scroll = attributes('--scrollbar-blur', '--scroll-blur-size');
+function blur() {
+    let scroll = edges('--scrollbar-blur', '--scroll-blur-size');
 
     return {
         ...scroll,
@@ -126,11 +134,11 @@ const blur = () => {
             scroll.onconnect?.(element);
         }
     };
-};
+}
 
 // Mouse only: touch, pen and trackpads already scroll natively, with their own momentum. The pointer is
 // captured only once the press moves past the slop, so a plain click still reaches whatever it landed on.
-const drag = (axis: Axis = 'both') => {
+function drag(axis: Axis) {
     let press: Press | null = null,
         state = reactive({ dragging: false });
 
@@ -144,7 +152,7 @@ const drag = (axis: Axis = 'both') => {
     }
 
     return {
-        class: ['--scrollbar', '--scrollbar-drag', () => state.dragging && '--dragging'],
+        class: ['--scrollbar-drag', () => state.dragging && '--dragging'],
         // Links and images would otherwise start a native drag-and-drop mid-scroll.
         ondragstart: (e: DragEvent) => {
             e.preventDefault();
@@ -192,9 +200,25 @@ const drag = (axis: Axis = 'both') => {
         },
         onpointerup: end
     };
+}
+
+
+// One scroller's attributes: the bar, an edge effect if asked for, and mouse drag along 'drag''s axis, both when true.
+const scrollbar = ({ blur: blurred, drag: dragged, fade: faded }: Options = {}) => {
+    let effect = blurred
+            ? blur()
+            : faded
+                ? edges('--scrollbar-fade', '--scroll-fade-size')
+                : { class: ['--scrollbar'] },
+        grab = dragged ? drag(dragged === true ? 'both' : dragged) : null;
+
+    if (!grab) {
+        return effect;
+    }
+
+    return { ...effect, ...grab, class: [...effect.class, ...grab.class] };
 };
 
-const fade = () => attributes('--scrollbar-fade', '--scroll-fade-size');
 
-
-export default { blur, drag, fade };
+export default scrollbar;
+export type { Axis, Options };

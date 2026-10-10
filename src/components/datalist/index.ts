@@ -182,7 +182,7 @@ export default component(
                     tabindex='0'
                     ${this?.attributes?.[DATALIST_SCROLLER]}
                     ${attributes[DATALIST_SCROLLER]}
-                    ${scrollbar.drag('vertical')}
+                    ${scrollbar({ drag: 'vertical' })}
                     ${observeSize(measure)}
                     ${{
                         'aria-activedescendant': () => {

@@ -13,7 +13,7 @@ let uid = 0;
 
 
 // Engines without scroll-driven animations get the progress and the swap from scroll events instead of the timeline.
-function fallback(fade: ReturnType<typeof scrollbar.fade>) {
+function fallback(fade: ReturnType<typeof scrollbar>) {
     let range = 0,
         state = reactive({ progress: 0 });
 
@@ -42,7 +42,7 @@ export default component<Attributes & {
     before: Renderable<unknown>;
 }>(
     function({ after, before, ...attributes }, content) {
-        let fade = scrollbar.fade(),
+        let fade = scrollbar({ fade: true }),
             id = `sticky-header-${++uid}`,
             legacy = typeof CSS === 'undefined' || CSS.supports('timeline-scope: none') ? null : fallback(fade);
 
