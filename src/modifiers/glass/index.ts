@@ -29,10 +29,10 @@ export default (mode: GlassMode = 'uniform') => ({
         let overlay = element.querySelector(':scope > .--glass-blur');
 
         if (!overlay) {
-            element.appendChild(createOverlay(element, mode));
+            element.appendChild( createOverlay(element, mode) );
         }
         else if (overlay.classList.contains('--glass-blur-progressive') !== (mode === 'progressive')) {
-            overlay.replaceWith(createOverlay(element, mode));
+            overlay.replaceWith( createOverlay(element, mode) );
         }
     }
 });
