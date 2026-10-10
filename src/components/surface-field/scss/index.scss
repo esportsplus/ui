@@ -73,6 +73,35 @@
             padding: 0 16px 16px;
         }
 
+        &-handle {
+            align-self: stretch;
+            border-radius: 0 var(--surface-border-radius) 0 0;
+            cursor: inherit;
+            flex-shrink: 0;
+            position: relative;
+            width: var(--surface-grip-width);
+
+            &::before {
+                background: currentColor;
+                border-radius: 999px;
+                content: '';
+                height: 2px;
+                left: 50%;
+                opacity: 0.7;
+                position: absolute;
+                top: 50%;
+                translate: -50% -50%;
+                width: 18px;
+            }
+
+            // Alone in the header it is the whole bar, grip centred.
+            &:only-child {
+                border-radius: var(--surface-border-radius) var(--surface-border-radius) 0 0;
+                flex: 1;
+                margin-inline-start: -16px;
+            }
+        }
+
         &-handle,
         &-resize {
             background: none;
@@ -105,35 +134,6 @@
             box-shadow: var(--surface-box-shadow-active);
             opacity: var(--surface-lift-opacity);
             transition: opacity var(--surface-lift-duration) ease;
-        }
-
-        &-handle {
-            align-self: stretch;
-            border-radius: 0 var(--surface-border-radius) 0 0;
-            cursor: inherit;
-            flex-shrink: 0;
-            position: relative;
-            width: var(--surface-grip-width);
-
-            &::before {
-                background: currentColor;
-                border-radius: 999px;
-                content: '';
-                height: 2px;
-                left: 50%;
-                opacity: 0.7;
-                position: absolute;
-                top: 50%;
-                translate: -50% -50%;
-                width: 18px;
-            }
-
-            // Alone in the header it is the whole bar, grip centred.
-            &:only-child {
-                border-radius: var(--surface-border-radius) var(--surface-border-radius) 0 0;
-                flex: 1;
-                margin-inline-start: -16px;
-            }
         }
 
         // Two diagonal ticks in the corner, drawn with a gradient so no icon is needed.

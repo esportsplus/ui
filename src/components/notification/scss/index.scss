@@ -74,16 +74,16 @@
         }
     }
 
+    &:focus-visible {
+        outline: var(--focus-width) solid var(--focus-color);
+        outline-offset: var(--focus-offset);
+    }
+
     .notification {
         left: calc(100% - var(--badge-inset));
         position: absolute;
         top: var(--badge-inset);
         translate: -50% -50%;
-    }
-
-    &:focus-visible {
-        outline: var(--focus-width) solid var(--focus-color);
-        outline-offset: var(--focus-offset);
     }
 
     @media (prefers-reduced-motion: reduce) {

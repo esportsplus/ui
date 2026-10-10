@@ -1,25 +1,5 @@
 @use '../tokens/scss' as tokens;
 
-%border-state {
-    --border-color: var(--border-color-default);
-    --border-color-active: var(--border-color-default);
-    --border-color-default: transparent;
-    --border-color-hover: var(--border-color-default);
-    --border-color-pressed: var(--border-color-default);
-
-    @include tokens.state(active) {
-        --border-color: var(--border-color-active);
-    }
-
-    @include tokens.state(hover) {
-        --border-color: var(--border-color-hover);
-    }
-
-    @include tokens.state(pressed) {
-        --border-color: var(--border-color-pressed);
-    }
-}
-
 // After '%border-state', so a color extended alongside it replaces its transparent default.
 %border {
     @include tokens.state-utility('border-color', tokens.$colors);
@@ -41,5 +21,25 @@
         --border-color-default: var(--surface-border-default);
         --border-color-hover: var(--surface-border-hover);
         --border-color-pressed: var(--surface-border-pressed);
+    }
+}
+
+%border-state {
+    --border-color: var(--border-color-default);
+    --border-color-active: var(--border-color-default);
+    --border-color-default: transparent;
+    --border-color-hover: var(--border-color-default);
+    --border-color-pressed: var(--border-color-default);
+
+    @include tokens.state(active) {
+        --border-color: var(--border-color-active);
+    }
+
+    @include tokens.state(hover) {
+        --border-color: var(--border-color-hover);
+    }
+
+    @include tokens.state(pressed) {
+        --border-color: var(--border-color-pressed);
     }
 }

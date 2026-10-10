@@ -171,6 +171,12 @@
         scrollbar-width: none;
     }
 
+    &-trigger-label {
+        @extend %text-truncate;
+        flex: 1 1 auto;
+        text-align: left;
+    }
+
     &-trigger.button {
         touch-action: manipulation;
         user-select: none;
@@ -184,12 +190,6 @@
         &[hidden] {
             display: none;
         }
-    }
-
-    &-trigger-label {
-        @extend %text-truncate;
-        flex: 1 1 auto;
-        text-align: left;
     }
 
     &-view {

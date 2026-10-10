@@ -1,36 +1,3 @@
-// Placed like overlay, extending the same anchor placements and stack variables: 'toaster--n' is top center,
-// 'toaster--ne' top right, and so on round; unplaced, it sits top right.
-.toaster {
-    --margin-horizontal: var(--size-500);
-    --margin-vertical: var(--size-500);
-    --stack-peek: var(--size-300);
-    --stack-scale: 0.94;
-    // Written by the toaster: the newest toast's height, live toasts, the front one's height, how many the limit
-    // keeps out of the collapsed stack, the limit itself, and every live toast's height summed.
-    --toast-anchor-height: 0px;
-    --toast-count: 0;
-    // The way the expanded list grows from the front toast.
-    --toast-direction: 1;
-    --toast-frontmost-height: 0px;
-    --toast-gap: var(--size-300);
-    --toast-hidden: 0;
-    --toast-limit: 3;
-    // How far the overflow card reaches past the last visible layer: room for its line of text.
-    --toast-overflow-peek: 24px;
-    --toast-stack-height: 0px;
-    --toast-transition-duration: var(--duration-slow);
-    --toast-transition-timing-function: var(--easing-spring-bounce);
-    --toast-width: 360px;
-
-
-    &--s,
-    &--se,
-    &--sw {
-        --toast-direction: -1;
-    }
-}
-
-
 // Prefixed where it is the toast's own: the consumer's classes (e.g. '.card') share the element and its variables.
 .toast {
     // Collapsed layer: toasts past the limit wait, unseen, in the last visible one.
@@ -76,5 +43,38 @@
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         --size: var(--size-500);
+    }
+}
+
+
+// Placed like overlay, extending the same anchor placements and stack variables: 'toaster--n' is top center,
+// 'toaster--ne' top right, and so on round; unplaced, it sits top right.
+.toaster {
+    --margin-horizontal: var(--size-500);
+    --margin-vertical: var(--size-500);
+    --stack-peek: var(--size-300);
+    --stack-scale: 0.94;
+    // Written by the toaster: the newest toast's height, live toasts, the front one's height, how many the limit
+    // keeps out of the collapsed stack, the limit itself, and every live toast's height summed.
+    --toast-anchor-height: 0px;
+    --toast-count: 0;
+    // The way the expanded list grows from the front toast.
+    --toast-direction: 1;
+    --toast-frontmost-height: 0px;
+    --toast-gap: var(--size-300);
+    --toast-hidden: 0;
+    --toast-limit: 3;
+    // How far the overflow card reaches past the last visible layer: room for its line of text.
+    --toast-overflow-peek: 24px;
+    --toast-stack-height: 0px;
+    --toast-transition-duration: var(--duration-slow);
+    --toast-transition-timing-function: var(--easing-spring-bounce);
+    --toast-width: 360px;
+
+
+    &--s,
+    &--se,
+    &--sw {
+        --toast-direction: -1;
     }
 }

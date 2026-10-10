@@ -1,27 +1,16 @@
 .button-sidebar {
-    // Hidden panels thin the pill to a line; hover and focus preview the opposite state unless a toggle
-    // just happened under them.
-    &[aria-expanded='false'] {
-        --panel-open: 0;
+    &--right &-graphic {
+        scale: -1 1;
     }
 
-    &:not(&--held) {
-        &[aria-expanded='true']:focus-visible {
-            --panel-open: 0;
-        }
+    // Chained through '.icon' so it wins over the icon's own size and fill regardless of stylesheet order.
+    &-icon.icon {
+        --size: var(--icon-size);
 
-        &[aria-expanded='false']:focus-visible {
-            --panel-open: 1;
-        }
-
-        @media (hover: hover) {
-            &[aria-expanded='false']:hover {
-                --panel-open: 1;
-            }
-
-            &[aria-expanded='true']:hover {
-                --panel-open: 0;
-            }
+        // Drawn in strokes, with fills set per path, where the icon would fill the whole SVG.
+        .button-sidebar-graphic {
+            fill: none;
+            overflow: hidden;
         }
     }
 
@@ -44,18 +33,29 @@
         }
     }
 
-    // Chained through '.icon' so it wins over the icon's own size and fill regardless of stylesheet order.
-    &-icon.icon {
-        --size: var(--icon-size);
+    &:not(&--held) {
+        &[aria-expanded='false']:focus-visible {
+            --panel-open: 1;
+        }
 
-        // Drawn in strokes, with fills set per path, where the icon would fill the whole SVG.
-        .button-sidebar-graphic {
-            fill: none;
-            overflow: hidden;
+        &[aria-expanded='true']:focus-visible {
+            --panel-open: 0;
+        }
+
+        @media (hover: hover) {
+            &[aria-expanded='false']:hover {
+                --panel-open: 1;
+            }
+
+            &[aria-expanded='true']:hover {
+                --panel-open: 0;
+            }
         }
     }
 
-    &--right &-graphic {
-        scale: -1 1;
+    // Hidden panels thin the pill to a line; hover and focus preview the opposite state unless a toggle
+    // just happened under them.
+    &[aria-expanded='false'] {
+        --panel-open: 0;
     }
 }

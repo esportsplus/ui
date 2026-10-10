@@ -11,6 +11,11 @@
     }
 
     &-subtitle,
+    &-suptitle {
+        font-size: var(--font-size);
+    }
+
+    &-subtitle,
     &-suptitle,
     &-title {
         color: var(--color);
@@ -18,11 +23,6 @@
         position: relative;
         width: 100%;
         z-index: 1;
-    }
-
-    &-subtitle,
-    &-suptitle {
-        font-size: var(--font-size);
     }
 
     &-title {

@@ -15,9 +15,9 @@
         @extend %surface-raised-level;
         --clear-background: var(--surface-background-default);
         --clear-border: var(--surface-secondary-default);
-        --clear-display: inline-flex;
         // Resolved here, since the clear button's color state redefines --color on it.
         --clear-color-hover: var(--color);
+        --clear-display: inline-flex;
         --clear-hover: var(--surface-background-hover);
         --color: var(--color-text-500);
         --field-background: var(--surface-background-default);

@@ -3,6 +3,15 @@
     --status-item-height: var(--size-500);
     --status-item-hover: var(--control-active-background);
 
+    // Inline-edit lays its status out under the field; here it sits on the toolbar's line instead.
+    &-autosave .inline-edit-status {
+        --color: inherit;
+        --font-size: var(--status-font-size);
+        grid-area: auto;
+        margin-top: 0;
+        padding-inline-start: 0;
+    }
+
     &-autosave.button {
         --background-default: transparent;
         --background-hover: var(--control-active-background);
@@ -20,22 +29,13 @@
         }
     }
 
-    // Inline-edit lays its status out under the field; here it sits on the toolbar's line instead.
-    &-autosave .inline-edit-status {
-        --color: inherit;
-        --font-size: var(--status-font-size);
-        grid-area: auto;
-        margin-top: 0;
-        padding-inline-start: 0;
+    &-choice-icon.icon {
+        --size: var(--control-icon-size);
     }
 
     // The menu's item styles outrank the 'hidden' attribute; each choice shows only its own entries.
     &-choices .tooltip-menu-entry:has(> [hidden]) {
         display: none;
-    }
-
-    &-choice-icon.icon {
-        --size: var(--control-icon-size);
     }
 
     &-status {
@@ -47,29 +47,6 @@
 
         &-item {
             white-space: nowrap;
-
-            &.button {
-                --background-default: transparent;
-                --background-hover: var(--status-item-hover);
-                --border-radius: var(--border-radius-100);
-                --color-default: inherit;
-                --color-hover: var(--color);
-                --gap-horizontal: var(--spacing-tight);
-                --padding-horizontal: var(--spacing-tight);
-                --padding-vertical: 0px;
-                flex: none;
-                font-size: inherit;
-                min-height: var(--status-item-height);
-
-                &:disabled {
-                    cursor: default;
-                }
-
-                &:focus-visible {
-                    outline: var(--focus-width) solid var(--focus-color);
-                    outline-offset: calc(var(--focus-width) * -1);
-                }
-            }
 
             // Like VS Code's status bar, items drop out as the bar narrows instead of scrolling, least needed first:
             // selections (shown only now and then, so it never counts on room the rest need), encoding, line ending,
@@ -108,6 +85,29 @@
             &--selections {
                 @container workspace-status (width < 62em) {
                     display: none;
+                }
+            }
+
+            &.button {
+                --background-default: transparent;
+                --background-hover: var(--status-item-hover);
+                --border-radius: var(--border-radius-100);
+                --color-default: inherit;
+                --color-hover: var(--color);
+                --gap-horizontal: var(--spacing-tight);
+                --padding-horizontal: var(--spacing-tight);
+                --padding-vertical: 0px;
+                flex: none;
+                font-size: inherit;
+                min-height: var(--status-item-height);
+
+                &:disabled {
+                    cursor: default;
+                }
+
+                &:focus-visible {
+                    outline: var(--focus-width) solid var(--focus-color);
+                    outline-offset: calc(var(--focus-width) * -1);
                 }
             }
         }

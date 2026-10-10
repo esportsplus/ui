@@ -15,17 +15,17 @@
     }
 
     &-group,
-    &-links {
-        display: flex;
-        flex-direction: column;
-    }
-
-    &-group,
     &-link,
     &-links {
         &.--hidden {
             display: none;
         }
+    }
+
+    &-group,
+    &-links {
+        display: flex;
+        flex-direction: column;
     }
 
     &-link {
@@ -51,14 +51,14 @@
             border-color var(--transition-duration) var(--transition-timing-function),
             color var(--transition-duration) var(--transition-timing-function);
 
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: calc(var(--focus-width) * -1);
-        }
-
         &--truncate {
             @extend %text-truncate;
             display: block;
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
         }
 
         @include tokens.state(active) {

@@ -25,24 +25,6 @@
     width: var(--width);
 
 
-    // Pseudo Element Box Shadow
-    &::after {
-        @extend %layer-box-shadow;
-    }
-
-
-    // A soft halo around the card, layered over whichever shadow it has at the time. Keyboard focus shows it as
-    // hover does.
-    &--ring {
-        @extend %box-shadow-outline;
-        box-shadow: var(--box-shadow-outline), var(--box-shadow);
-
-        &:focus-visible {
-            --box-shadow-outline-color: var(--box-shadow-outline-color-hover);
-        }
-    }
-
-
     // A shell that morphs between stacked layers, one shown at a time. The consumer sizes it to the active
     // layer through '--morph-width' and '--morph-height'; the layers are 'frame--swap's, so marking one
     // '--active', with the active index in '--i' on the viewport and each layer's own in '--n', slides the
@@ -73,6 +55,19 @@
         }
     }
 
+
+    // A soft halo around the card, layered over whichever shadow it has at the time. Keyboard focus shows it as
+    // hover does.
+    &--ring {
+        @extend %box-shadow-outline;
+        box-shadow: var(--box-shadow-outline), var(--box-shadow);
+
+        &:focus-visible {
+            --box-shadow-outline-color: var(--box-shadow-outline-color-hover);
+        }
+    }
+
+
     // Pinned to its natural size, so text never reflows while the shell morphs around it.
     &-morph {
         &-layer {
@@ -91,5 +86,10 @@
             position: relative;
             width: 100%;
         }
+    }
+
+    // Pseudo Element Box Shadow
+    &::after {
+        @extend %layer-box-shadow;
     }
 }

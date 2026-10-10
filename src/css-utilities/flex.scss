@@ -29,16 +29,16 @@
     align-items: center;
 }
 
+%flex-column {
+    flex-flow: column;
+    gap: var(--gap-vertical) 0px;
+}
+
 %flex-column,
 %flex-fill,
 %flex-fixed,
 %flex-row {
     display: flex;
-}
-
-%flex-column {
-    flex-flow: column;
-    gap: var(--gap-vertical) 0px;
 }
 
 %flex-end {

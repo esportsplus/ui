@@ -4,6 +4,17 @@
 @use '/tokens';
 
 
+* {
+    --border-radius: calc(1em / 1.618);
+    --gap: calc(1em / 1.618);
+    --gap-horizontal: var(--gap);
+    --gap-vertical: var(--gap);
+    --letter-spacing: clamp(-0.022em, calc(0.060542rem - 0.051418em), 0em);
+    --line-height: clamp(1.128em, calc(0.95em + 0.668rem), 1.618em);
+    --padding-horizontal: 1em;
+    --padding-vertical: calc(1em * 1.272 / (1.618 * 1.618));
+}
+
 :root {
     @include shared.css-variables(border-radius, tokens.$border-radius);
     @include shared.css-variables(border-width, tokens.$border-width);
@@ -25,15 +36,10 @@
     --transition-timing-function: var(--easing-spring);
 }
 
-* {
-    --border-radius: calc(1em / 1.618);
-    --gap: calc(1em / 1.618);
-    --gap-horizontal: var(--gap);
-    --gap-vertical: var(--gap);
-    --letter-spacing: clamp(-0.022em, calc(0.060542rem - 0.051418em), 0em);
-    --line-height: clamp(1.128em, calc(0.95em + 0.668rem), 1.618em);
-    --padding-horizontal: 1em;
-    --padding-vertical: calc(1em * 1.272 / (1.618 * 1.618));
+// Light, as a page declaring no color scheme is drawn, until the page declares one: 'light-dark()' needs a scheme,
+// and the fallback Lightning CSS writes for older browsers has none to read without it.
+:where(:root) {
+    color-scheme: light;
 }
 
 b,
@@ -42,16 +48,16 @@ strong {
     --font-weight: var(--font-weight-500);
 }
 
+h1 {
+    --font-size: var(--font-size-800);
+}
+
 h1,
 h2,
 h3,
 h4 {
     --color: var(--color-text-400);
     --font-weight: var(--font-weight-500);
-}
-
-h1 {
-    --font-size: var(--font-size-800);
 }
 
 h2 {
@@ -68,10 +74,4 @@ h4 {
 
 section {
     --width: 100%;
-}
-
-// Light, as a page declaring no color scheme is drawn, until the page declares one: 'light-dark()' needs a scheme,
-// and the fallback Lightning CSS writes for older browsers has none to read without it.
-:where(:root) {
-    color-scheme: light;
 }

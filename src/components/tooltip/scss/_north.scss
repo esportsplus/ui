@@ -1,14 +1,4 @@
 @mixin north($active) {
-    &--ne,
-    &--nw {
-        bottom: calc(100% + var(--spacer) - var(--offset));
-        position: absolute;
-
-        #{$active} {
-            translate: 0 calc(var(--offset) * -1);
-        }
-    }
-
     &--n {
         bottom: calc(100% + var(--spacer) - var(--offset));
         position: absolute;
@@ -24,6 +14,16 @@
     &--ne {
         right: 0;
         transform-origin: bottom right;
+    }
+
+    &--ne,
+    &--nw {
+        bottom: calc(100% + var(--spacer) - var(--offset));
+        position: absolute;
+
+        #{$active} {
+            translate: 0 calc(var(--offset) * -1);
+        }
     }
 
     &--nw {

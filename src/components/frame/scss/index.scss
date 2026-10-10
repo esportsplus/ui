@@ -5,15 +5,9 @@
 // active frame's, usually set once on the parent. Without a modifier frames switch instantly; the modifiers move them,
 // stacked in one grid cell so the tallest sets the height, and the parent clips whatever sits outside it.
 .frame {
-    &--scroll,
-    &--slide,
-    &--swap {
-        grid-area: 1 / 1;
-        min-width: 0;
-
-        @include tokens.state(inactive) {
-            pointer-events: none;
-        }
+    // Each frame sits its distance from the active one away, so the frames move together like one track.
+    &--scroll {
+        translate: 0 calc((var(--n) - var(--i, 0)) * (100% + var(--gap-vertical)));
     }
 
     &--scroll,
@@ -25,9 +19,15 @@
         }
     }
 
-    // Each frame sits its distance from the active one away, so the frames move together like one track.
-    &--scroll {
-        translate: 0 calc((var(--n) - var(--i, 0)) * (100% + var(--gap-vertical)));
+    &--scroll,
+    &--slide,
+    &--swap {
+        grid-area: 1 / 1;
+        min-width: 0;
+
+        @include tokens.state(inactive) {
+            pointer-events: none;
+        }
     }
 
     &--slide {

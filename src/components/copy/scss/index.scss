@@ -20,11 +20,6 @@
         color var(--transition-duration) var(--transition-timing-function);
     width: var(--size);
 
-    &:focus-visible {
-        outline: var(--outline-width) solid var(--outline-color);
-        outline-offset: calc(var(--outline-width) * -1);
-    }
-
     &-icon {
         flex-shrink: 0;
         height: var(--icon-size);
@@ -41,6 +36,11 @@
                 stroke-dashoffset: 0;
             }
         }
+    }
+
+    &:focus-visible {
+        outline: var(--outline-width) solid var(--outline-color);
+        outline-offset: calc(var(--outline-width) * -1);
     }
 }
 

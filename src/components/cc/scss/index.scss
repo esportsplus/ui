@@ -212,13 +212,13 @@
             padding-block: 0;
             transition: border-color var(--duration-fast) var(--easing-spring);
 
+            &::placeholder {
+                color: oklch(from var(--muted-color) l c h / 0.7);
+            }
+
             &:focus-visible {
                 outline: var(--border-width-500) solid var(--outline-color);
                 outline-offset: -1px;
-            }
-
-            &::placeholder {
-                color: oklch(from var(--muted-color) l c h / 0.7);
             }
         }
     }
@@ -394,6 +394,24 @@
 
 // No half turn: the faces cross-fade in place and every blur, slide and scale drops to a plain fade.
 @media (prefers-reduced-motion: reduce) {
+    .cc {
+        &-error {
+            @starting-style {
+                filter: none;
+                translate: 0 0;
+            }
+        }
+
+        &-face--back {
+            opacity: var(--face-back-opacity, 0);
+            transform: none;
+        }
+
+        &-face--front {
+            opacity: var(--face-front-opacity, 1);
+        }
+    }
+
     .cc-card--flipped {
         --face-back-opacity: 1;
         --face-front-opacity: 0;
@@ -403,22 +421,6 @@
     .cc-digit--roll-1,
     .cc-digit--roll-2 {
         animation-name: cc-fade;
-    }
-
-    .cc-error {
-        @starting-style {
-            filter: none;
-            translate: 0 0;
-        }
-    }
-
-    .cc-face--back {
-        opacity: var(--face-back-opacity, 0);
-        transform: none;
-    }
-
-    .cc-face--front {
-        opacity: var(--face-front-opacity, 1);
     }
 }
 

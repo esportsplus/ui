@@ -3,6 +3,11 @@
 @use 'css-utilities/border';
 @use 'variables';
 
+// The field renders inside an 'error', which takes its place in the layout, so the wrapper keeps it from shrinking.
+.error:has(> .shortcut-recorder) {
+    flex-shrink: 0;
+}
+
 .shortcut-recorder {
     @extend %background-state, %border-state;
     align-items: center;
@@ -76,11 +81,6 @@
             transition: none;
         }
     }
-}
-
-// The field renders inside an 'error', which takes its place in the layout, so the wrapper keeps it from shrinking.
-.error:has(> .shortcut-recorder) {
-    flex-shrink: 0;
 }
 
 @keyframes shortcut-recorder-blink {

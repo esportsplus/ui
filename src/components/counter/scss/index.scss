@@ -8,13 +8,8 @@
     place-items: center;
     transition: transform calc(var(--transition-duration) / 4) var(--transition-duration);
 
-    // Only the elements holding glyphs are painted, so a translucent '--fill' never stacks over itself.
-    // The text fill goes transparent rather than 'color', which keeps 'currentColor' usable in '--fill'.
-    &-character--symbol,
-    &-digit {
-        background: var(--fill, linear-gradient(currentColor, currentColor));
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
+    &--ticker {
+        gap: 0;
     }
 
     &-character {
@@ -34,8 +29,8 @@
         // --index counts digits from the right, so the rightmost digit settles first.
         &-track {
             display: grid;
-            translate: 0 calc((var(--value) + 1) * (1lh * -1));
             transition: translate var(--transition-duration) var(--timing-function) calc(var(--index) * var(--stagger));
+            translate: 0 calc((var(--value) + 1) * (1lh * -1));
 
             // Each roll names its own animation, which only '--blur' sets.
             @media (prefers-reduced-motion: no-preference) {
@@ -48,16 +43,21 @@
         }
     }
 
+    // Only the elements holding glyphs are painted, so a translucent '--fill' never stacks over itself.
+    // The text fill goes transparent rather than 'color', which keeps 'currentColor' usable in '--fill'.
+    &-character--symbol,
+    &-digit {
+        -webkit-text-fill-color: transparent;
+        background: var(--fill, linear-gradient(currentColor, currentColor));
+        background-clip: text;
+    }
+
     &-digit {
         height: 1lh;
     }
 
     &-sr {
         @extend %hidden-visually;
-    }
-
-    &--ticker {
-        gap: 0;
     }
 
     @media (prefers-reduced-motion: reduce) {

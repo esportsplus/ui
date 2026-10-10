@@ -3,60 +3,16 @@
 @use 'css-utilities/surface';
 @use 'variables';
 
-// Zero specificity so paired classes (e.g. '.card') still win over the dialog UA reset.
-:where(dialog.overlay) {
-    background: transparent;
-    border: 0;
-    color: inherit;
-    inset: 0;
-    max-height: calc(100% - (var(--margin-vertical) * 2));
-    max-width: 100%;
-    padding: 0;
-    // Only non-modal overlays stay out of the top layer and need it.
-    z-index: 9;
-}
-
-// Outranks pairings like '.card { position: relative }'. Modal overlays pin to the viewport; non-modal ones
-// sit in their positioned container, which may be the viewport too via an inline 'position: fixed'.
-dialog.overlay {
-    // A fresh surface stack above everything; outranks a paired surface, such as '.card', that would count up instead.
-    @extend %surface-root-level;
-    position: fixed;
-
-    &:not(:modal) {
-        position: absolute;
-    }
-
-    // A flow overlay occupies a row in its parent instead of covering that parent's content.
-    &.overlay--flow:not(:modal) {
-        align-self: start;
-        inset: auto;
-        margin: 0;
-        max-height: none;
-        max-width: none;
-        min-height: 0;
-        position: relative;
-        width: 100%;
-        z-index: auto;
-
-        // Keep its natural height available to the parent's collapsing grid while it is closed.
-        &:not([open]) {
-            display: block;
-            visibility: hidden;
-        }
-    }
-}
-
 .overlay {
     @extend %anchor;
     margin: auto;
+    transform-origin: center;
     transition:
         filter var(--transition-duration) var(--transition-timing-function),
         opacity var(--transition-duration) var(--transition-timing-function),
         scale var(--transition-duration) var(--transition-timing-function),
         transform var(--transition-duration) var(--transition-timing-function),
         translate var(--transition-duration) var(--transition-timing-function);
-    transform-origin: center;
     width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
 
     @include tokens.state(inactive) {
@@ -101,9 +57,8 @@ dialog.overlay {
         backdrop-filter: blur(var(--blur));
     }
 
-    &--e,
-    &--w {
-        height: calc(100% - (var(--margin-vertical) * 2));
+    &--e {
+        transform-origin: right;
     }
 
     // Pinned to the edges its placement names, squaring the corners that meet them unless floating; a corner
@@ -119,6 +74,15 @@ dialog.overlay {
         }
     }
 
+    &--e,
+    &--w {
+        height: calc(100% - (var(--margin-vertical) * 2));
+    }
+
+    &--n {
+        transform-origin: top;
+    }
+
     &--n,
     &--ne,
     &--nw {
@@ -128,36 +92,6 @@ dialog.overlay {
             border-start-end-radius: 0;
             border-start-start-radius: 0;
         }
-    }
-
-    &--s,
-    &--se,
-    &--sw {
-        margin-block-end: var(--margin-vertical);
-
-        &:not(.overlay--floating) {
-            border-end-end-radius: 0;
-            border-end-start-radius: 0;
-        }
-    }
-
-    &--w,
-    &--nw,
-    &--sw {
-        margin-inline-start: var(--margin-horizontal);
-
-        &:not(.overlay--floating) {
-            border-end-start-radius: 0;
-            border-start-start-radius: 0;
-        }
-    }
-
-    &--e {
-        transform-origin: right;
-    }
-
-    &--n {
-        transform-origin: top;
     }
 
     &--ne {
@@ -172,6 +106,17 @@ dialog.overlay {
         transform-origin: bottom;
     }
 
+    &--s,
+    &--se,
+    &--sw {
+        margin-block-end: var(--margin-vertical);
+
+        &:not(.overlay--floating) {
+            border-end-end-radius: 0;
+            border-end-start-radius: 0;
+        }
+    }
+
     &--se {
         transform-origin: bottom right;
     }
@@ -184,6 +129,68 @@ dialog.overlay {
         transform-origin: left;
     }
 
+    &--w,
+    &--nw,
+    &--sw {
+        margin-inline-start: var(--margin-horizontal);
+
+        &:not(.overlay--floating) {
+            border-end-start-radius: 0;
+            border-start-start-radius: 0;
+        }
+    }
+
+
+    &-handle {
+        background: var(--handle-color);
+        border-radius: var(--handle-thickness);
+        height: var(--handle-thickness);
+        position: absolute;
+        touch-action: none;
+        width: var(--handle-length);
+
+        .overlay--e > & {
+            left: var(--handle-offset);
+        }
+
+        .overlay--e > &,
+        .overlay--w > & {
+            height: var(--handle-length);
+            top: 50%;
+            translate: 0 -50%;
+            width: var(--handle-thickness);
+        }
+
+        .overlay--n > &,
+        .overlay--ne > &,
+        .overlay--nw > & {
+            bottom: var(--handle-offset);
+        }
+
+        .overlay--n > &,
+        .overlay--ne > &,
+        .overlay--nw > &,
+        .overlay--s > &,
+        .overlay--se > &,
+        .overlay--sw > & {
+            left: 50%;
+            translate: -50% 0;
+        }
+
+        .overlay--s > &,
+        .overlay--se > &,
+        .overlay--sw > & {
+            top: var(--handle-offset);
+        }
+
+        .overlay--w > & {
+            right: var(--handle-offset);
+        }
+
+        .overlay:not(.overlay--e, .overlay--n, .overlay--ne, .overlay--nw, .overlay--s, .overlay--se, .overlay--sw, .overlay--w) > & {
+            display: none;
+        }
+    }
 
     // '--depth' is how many layers are open above this one, fractional while the top one is dragged away.
     &.overlay--covered {
@@ -209,14 +216,29 @@ dialog.overlay {
         }
     }
 
+    // Fades with the drag, in step with its backdrop.
+    &.overlay--dragging {
+        cursor: grabbing;
+        opacity: calc(1 - var(--progress, 0));
+    }
+
+    // Following the finger: the layers beneath the dragged one track it too, so neither may ease.
+    &.overlay--dragging,
+    &.overlay--tracking {
+        &,
+        &::backdrop {
+            transition: none;
+        }
+    }
+
     // Border paint reaches outside a scrolling surface without adding overflow or using its pseudo-elements.
     // Matching width and outset keeps the fill entirely outside the original border box.
     &.overlay--edge-fill {
-        border-image-source: linear-gradient(var(--edge-background), var(--edge-background));
-        border-image-slice: 1;
-        border-image-width: var(--edge-fill);
         border-image-outset: var(--edge-fill);
         border-image-repeat: stretch;
+        border-image-slice: 1;
+        border-image-source: linear-gradient(var(--edge-background), var(--edge-background));
+        border-image-width: var(--edge-fill);
 
         &.overlay--e {
             --edge-fill: 0 50vw 0 0;
@@ -251,6 +273,7 @@ dialog.overlay {
         }
     }
 
+
     // Always open; '--active' expands it. Rows keep their width and are clipped rather than reflowed, so the
     // collapsed rail shows whatever leads each row (usually an icon).
     &.overlay--rail {
@@ -275,73 +298,6 @@ dialog.overlay {
         }
     }
 
-    // Fades with the drag, in step with its backdrop.
-    &.overlay--dragging {
-        cursor: grabbing;
-        opacity: calc(1 - var(--progress, 0));
-    }
-
-    // Following the finger: the layers beneath the dragged one track it too, so neither may ease.
-    &.overlay--dragging,
-    &.overlay--tracking {
-        &,
-        &::backdrop {
-            transition: none;
-        }
-    }
-
-
-    &-handle {
-        background: var(--handle-color);
-        border-radius: var(--handle-thickness);
-        height: var(--handle-thickness);
-        position: absolute;
-        touch-action: none;
-        width: var(--handle-length);
-
-        .overlay:not(.overlay--e, .overlay--n, .overlay--ne, .overlay--nw, .overlay--s, .overlay--se, .overlay--sw, .overlay--w) > & {
-            display: none;
-        }
-
-        .overlay--e > &,
-        .overlay--w > & {
-            height: var(--handle-length);
-            top: 50%;
-            translate: 0 -50%;
-            width: var(--handle-thickness);
-        }
-
-        .overlay--e > & {
-            left: var(--handle-offset);
-        }
-
-        .overlay--n > &,
-        .overlay--ne > &,
-        .overlay--nw > &,
-        .overlay--s > &,
-        .overlay--se > &,
-        .overlay--sw > & {
-            left: 50%;
-            translate: -50% 0;
-        }
-
-        .overlay--n > &,
-        .overlay--ne > &,
-        .overlay--nw > & {
-            bottom: var(--handle-offset);
-        }
-
-        .overlay--s > &,
-        .overlay--se > &,
-        .overlay--sw > & {
-            top: var(--handle-offset);
-        }
-
-        .overlay--w > & {
-            right: var(--handle-offset);
-        }
-    }
-
     // Every placement fades in place instead of travelling.
     @media (prefers-reduced-motion: reduce) {
         --opacity: 0;
@@ -354,13 +310,13 @@ dialog.overlay {
                 opacity var(--transition-duration) var(--transition-timing-function);
         }
 
-        &::backdrop {
-            transition: opacity var(--transition-duration) var(--transition-timing-function);
-        }
-
         &.overlay--covered {
             scale: none;
             translate: none;
+        }
+
+        &::backdrop {
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
         }
     }
 }
@@ -389,5 +345,49 @@ dialog.overlay {
             scale: none;
             translate: none;
         }
+    }
+}
+
+// Zero specificity so paired classes (e.g. '.card') still win over the dialog UA reset.
+:where(dialog.overlay) {
+    background: transparent;
+    border: 0;
+    color: inherit;
+    inset: 0;
+    max-height: calc(100% - (var(--margin-vertical) * 2));
+    max-width: 100%;
+    padding: 0;
+    // Only non-modal overlays stay out of the top layer and need it.
+    z-index: 9;
+}
+
+// Outranks pairings like '.card { position: relative }'. Modal overlays pin to the viewport; non-modal ones
+// sit in their positioned container, which may be the viewport too via an inline 'position: fixed'.
+dialog.overlay {
+    // A fresh surface stack above everything; outranks a paired surface, such as '.card', that would count up instead.
+    @extend %surface-root-level;
+    position: fixed;
+
+    // A flow overlay occupies a row in its parent instead of covering that parent's content.
+    &.overlay--flow:not(:modal) {
+        align-self: start;
+        inset: auto;
+        margin: 0;
+        max-height: none;
+        max-width: none;
+        min-height: 0;
+        position: relative;
+        width: 100%;
+        z-index: auto;
+
+        // Keep its natural height available to the parent's collapsing grid while it is closed.
+        &:not([open]) {
+            display: block;
+            visibility: hidden;
+        }
+    }
+
+    &:not(:modal) {
+        position: absolute;
     }
 }

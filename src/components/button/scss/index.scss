@@ -34,20 +34,15 @@
         opacity var(--transition-duration) var(--transition-timing-function),
         scale var(--transition-duration) var(--transition-timing-function),
         translate var(--transition-duration) var(--transition-timing-function);
-    white-space: nowrap;
     translate: 0;
-
-
-    // Pseudo Element Box Shadow
-    &::after {
-        @extend %layer-box-shadow;
-    }
+    white-space: nowrap;
 
 
     // Stacks above the options so they reveal from behind it
     &--fan {
         z-index: 1;
     }
+
 
     &--feedback {
         -webkit-touch-callout: none;
@@ -222,6 +217,11 @@
         @extend %hidden-visually;
     }
 
+    // Pseudo Element Box Shadow
+    &::after {
+        @extend %layer-box-shadow;
+    }
+
     // An icon resolves '--color' itself rather than inheriting the label's eased colour, so it eases alongside. Zero
     // specificity, so an icon's own transition wins.
     :where(&) :where(.icon) {
@@ -231,6 +231,12 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+        &--kbd {
+            @include tokens.state(active pressed) {
+                translate: none;
+            }
+        }
+
         &--skeleton,
         &-icon--spin {
             animation: none;
@@ -239,12 +245,6 @@
         &-face,
         &-icon--draw {
             transition: none;
-        }
-
-        &--kbd {
-            @include tokens.state(active pressed) {
-                translate: none;
-            }
         }
     }
 }

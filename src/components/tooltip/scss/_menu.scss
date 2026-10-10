@@ -2,343 +2,345 @@
 @use 'css-utilities/layer';
 @use 'css-utilities/text';
 
-// 'tooltip.menu'; the root also carries '.tooltip', for its stacking and positioning.
-.tooltip--menu {
-    display: inline-block;
+.tooltip {
+    // 'tooltip.menu'; the root also carries '.tooltip', for its stacking and positioning.
+    &--menu {
+        display: inline-block;
 
-    // Root panel
-    > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
-        left: 0;
-        opacity: 0;
-        top: calc(100% + var(--offset));
-        transition:
-            opacity var(--close-duration) var(--open-timing-function),
-            visibility 0s linear var(--close-duration);
-        translate: var(--shift-x, 0px) 0;
-        visibility: hidden;
-        z-index: 9;
-
-        @include tokens.state(active) {
-            opacity: 1;
-            transition: opacity var(--close-duration) var(--open-timing-function);
-            visibility: visible;
+        // After the expanding root's own values, open or closed, which it overrides at the same specificity.
+        &.tooltip--instant > .tooltip-menu-panel--expand,
+        &.tooltip--instant > .tooltip-menu-panel--expand.--active {
+            --expand-content-delay: 0s;
+            --expand-content-duration: 0s;
+            --expand-duration: 0s;
+            --expand-fade-delay: 0s;
+            --expand-fade-duration: 0s;
+            --expand-stagger: 0s;
         }
-    }
 
-    // Qualified twice so it outranks the tooltip content it composes, and classes paired onto that content.
-    > .tooltip-menu-panel.tooltip-menu-panel--expand {
-        // Keep the panel's own surface when composing the generic tooltip content.
-        --background-default: var(--surface-background-default);
-        --border-radius: inherit;
-        --box-shadow-default: var(--surface-shadow-default);
-        // Keeps the resting clip outside the menu's shadow.
-        --expand-bleed: 24px;
-        // Closing swaps this delay: the shape crossfades back into the trigger once it has
-        // nearly landed. Items leave together at once.
-        --expand-close-fade-delay: calc(var(--expand-duration) / 2);
-        --expand-content-delay: 0.06s;
-        --expand-content-duration: var(--duration-fast);
-        --expand-content-timing-function: var(--easing-spring);
-        --expand-duration: var(--duration-moderate-exit);
-        --expand-fade-delay: var(--expand-close-fade-delay);
-        --expand-fade-duration: var(--duration-fast-exit);
-        --expand-offset: var(--size-100);
-        --expand-shift: 0;
-        --expand-stagger: 0.02s;
-        --expand-timing-function: var(--easing-spring);
-        --offset: 0px;
-        --scale: 1;
-        // Cancels the '100%' every direction pushes the tooltip past the trigger by, so it
-        // lines up with the trigger's own edges instead.
-        --spacer: -100%;
-        --width: inherit;
-        background: transparent;
-        box-shadow: none;
-        clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));
-        overflow: visible;
-        transform: translateX(var(--shift-x, 0px));
-        transition:
+        // Qualified twice so it outranks the tooltip content it composes, and classes paired onto that content.
+        > .tooltip-menu-panel.tooltip-menu-panel--expand {
+            // Keep the panel's own surface when composing the generic tooltip content.
+            --background-default: var(--surface-background-default);
+            --border-radius: inherit;
+            --box-shadow-default: var(--surface-shadow-default);
+            // Keeps the resting clip outside the menu's shadow.
+            --expand-bleed: 24px;
+            // Closing swaps this delay: the shape crossfades back into the trigger once it has
+            // nearly landed. Items leave together at once.
+            --expand-close-fade-delay: calc(var(--expand-duration) / 2);
+            --expand-content-delay: 0.06s;
+            --expand-content-duration: var(--duration-fast);
+            --expand-content-timing-function: var(--easing-spring);
+            --expand-duration: var(--duration-moderate-exit);
+            --expand-fade-delay: var(--expand-close-fade-delay);
+            --expand-fade-duration: var(--duration-fast-exit);
+            --expand-offset: var(--size-100);
+            --expand-shift: 0;
+            --expand-stagger: 0.02s;
+            --expand-timing-function: var(--easing-spring);
+            --offset: 0px;
+            --scale: 1;
+            // Cancels the '100%' every direction pushes the tooltip past the trigger by, so it
+            // lines up with the trigger's own edges instead.
+            --spacer: -100%;
+            --width: inherit;
+            background: transparent;
+            box-shadow: none;
+            clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));
+            overflow: visible;
+            transform: translateX(var(--shift-x, 0px));
+            transition:
             clip-path var(--expand-duration) var(--expand-timing-function),
             opacity var(--expand-fade-duration) linear var(--expand-fade-delay);
 
-        @include tokens.state(active) {
-            --expand-duration: var(--duration-moderate);
-            --expand-fade-delay: 0s;
-            --expand-fade-duration: var(--duration-fast);
-            clip-path: inset(calc(var(--expand-bleed) * -1) round calc(var(--border-radius) + var(--expand-bleed)));
+            @include tokens.state(active) {
+                --expand-duration: var(--duration-moderate);
+                --expand-fade-delay: 0s;
+                --expand-fade-duration: var(--duration-fast);
+                clip-path: inset(calc(var(--expand-bleed) * -1) round calc(var(--border-radius) + var(--expand-bleed)));
 
-            &::before {
-                border-radius: var(--border-radius);
-                inset: 0;
-            }
+                // The reveal is finished; child panels can now extend beyond the root.
+                &.tooltip-menu-panel--settled {
+                    clip-path: none;
+                }
 
-            > :not(.highlight) {
-                animation: tooltip-menu-expand-in var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index, 0) * var(--expand-stagger)) backwards;
-                opacity: 1;
+                &::before {
+                    border-radius: var(--border-radius);
+                    inset: 0;
+                }
 
-                // Text-only items and dividers just fade.
-                > * {
-                    animation: tooltip-menu-expand-slide var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index, 0) * var(--expand-stagger)) backwards;
+                > :not(.highlight) {
+                    animation: tooltip-menu-expand-in var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index, 0) * var(--expand-stagger)) backwards;
+                    opacity: 1;
+
+                    // Text-only items and dividers just fade.
+                    > * {
+                        animation: tooltip-menu-expand-slide var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index, 0) * var(--expand-stagger)) backwards;
+                    }
                 }
             }
 
-            // The reveal is finished; child panels can now extend beyond the root.
-            &.tooltip-menu-panel--settled {
-                clip-path: none;
-            }
-        }
-
-        &::before {
-            background: var(--background);
-            border-radius: var(--morph-radius);
-            box-shadow: var(--box-shadow);
-            content: '';
-            inset: var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left);
-            position: absolute;
-            transition:
+            &::before {
+                background: var(--background);
+                border-radius: var(--morph-radius);
+                box-shadow: var(--box-shadow);
+                content: '';
+                inset: var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left);
+                position: absolute;
+                transition:
                 border-radius var(--expand-duration) var(--expand-timing-function),
                 inset var(--expand-duration) var(--expand-timing-function);
-            z-index: -1;
-        }
-
-        // Items animate rather than transition so their own transitions (a link's colour) survive.
-        // Their boxes never move, only fade, so a 'highlight' measures them where they land even
-        // mid-cascade; it places itself with 'translate', so it arrives with the panel instead.
-        // Closing fades them out together; the shrinking shape carries the motion.
-        > :not(.highlight) {
-            animation: tooltip-menu-expand-out var(--expand-content-duration) var(--expand-content-timing-function);
-            opacity: 0;
-        }
-
-        // Cascade order.
-        @for $i from 1 through 12 {
-            > :nth-child(#{$i}) {
-                --index: #{$i - 1};
+                z-index: -1;
             }
-        }
 
-        @each $directions, $shift in (
+            // Items animate rather than transition so their own transitions (a link's colour) survive.
+            // Their boxes never move, only fade, so a 'highlight' measures them where they land even
+            // mid-cascade; it places itself with 'translate', so it arrives with the panel instead.
+            // Closing fades them out together; the shrinking shape carries the motion.
+            > :not(.highlight) {
+                animation: tooltip-menu-expand-out var(--expand-content-duration) var(--expand-content-timing-function);
+                opacity: 0;
+            }
+
+            // Cascade order.
+            @for $i from 1 through 12 {
+                > :nth-child(#{$i}) {
+                    --index: #{$i - 1};
+                }
+            }
+
+            @each $directions, $shift in (
             ('e', 'en', 'es', 'nw', 'sw'): calc(var(--expand-offset) * -1) 0,
             ('n'): 0 var(--expand-offset),
             ('s'): 0 calc(var(--expand-offset) * -1),
             ('ne', 'se', 'w', 'wn', 'ws'): var(--expand-offset) 0
         ) {
-            @each $direction in $directions {
-                &.tooltip-content--#{$direction} {
-                    --expand-shift: #{$shift};
+                @each $direction in $directions {
+                    &.tooltip-content--#{$direction} {
+                        --expand-shift: #{$shift};
+                    }
+                }
+            }
+
+            // The shape snaps open and closed and the items arrive in place, so only the fades remain.
+            @media (prefers-reduced-motion: reduce) {
+                --expand-content-delay: 0s;
+                --expand-duration: 0s;
+                --expand-fade-delay: 0s;
+                --expand-offset: 0px;
+                --expand-stagger: 0s;
+
+                @include tokens.state(active) {
+                    --expand-duration: 0s;
                 }
             }
         }
 
-        // The shape snaps open and closed and the items arrive in place, so only the fades remain.
-        @media (prefers-reduced-motion: reduce) {
-            --expand-content-delay: 0s;
-            --expand-duration: 0s;
-            --expand-fade-delay: 0s;
-            --expand-offset: 0px;
-            --expand-stagger: 0s;
+        // Root panel
+        > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
+            left: 0;
+            opacity: 0;
+            top: calc(100% + var(--offset));
+            transition:
+            opacity var(--close-duration) var(--open-timing-function),
+            visibility 0s linear var(--close-duration);
+            translate: var(--shift-x, 0px) 0;
+            visibility: hidden;
+            z-index: 9;
 
             @include tokens.state(active) {
-                --expand-duration: 0s;
+                opacity: 1;
+                transition: opacity var(--close-duration) var(--open-timing-function);
+                visibility: visible;
             }
         }
     }
 
-    // After the expanding root's own values, open or closed, which it overrides at the same specificity.
-    &.tooltip--instant > .tooltip-menu-panel--expand,
-    &.tooltip--instant > .tooltip-menu-panel--expand.--active {
-        --expand-content-delay: 0s;
-        --expand-content-duration: 0s;
-        --expand-duration: 0s;
-        --expand-fade-delay: 0s;
-        --expand-fade-duration: 0s;
-        --expand-stagger: 0s;
-    }
-}
+    &-menu {
+        &-chevron {
+            border-color: currentColor;
+            border-style: solid;
+            border-width: 0 1.5px 1.5px 0;
+            flex-shrink: 0;
+            height: 6px;
+            margin-inline: 2px;
+            opacity: 0.6;
+            rotate: -45deg;
+            transition: rotate var(--open-duration) var(--open-timing-function);
+            width: 6px;
 
-.tooltip-menu {
-    &-chevron {
-        border-color: currentColor;
-        border-style: solid;
-        border-width: 0 1.5px 1.5px 0;
-        flex-shrink: 0;
-        height: 6px;
-        margin-inline: 2px;
-        opacity: 0.6;
-        rotate: -45deg;
-        transition: rotate var(--open-duration) var(--open-timing-function);
-        width: 6px;
-
-        // A branch panel's header points down into the panel it heads.
-        &--down {
-            rotate: 45deg;
-        }
-    }
-
-    &-entry {
-        position: relative;
-
-        // Above the parent's scrim, so the open child panel stays undimmed
-        &--open {
-            z-index: 2;
+            // A branch panel's header points down into the panel it heads.
+            &--down {
+                rotate: 45deg;
+            }
         }
 
-        // Sub-panels start clipped to the row that opened them, so the row reads as the panel's header,
-        // then the clip grows downward. The open clip overhangs the box so the shadow isn't cut off.
-        & > .tooltip-menu-panel {
-            clip-path: inset(
+        &-entry {
+            position: relative;
+
+            // Sub-panels start clipped to the row that opened them, so the row reads as the panel's header,
+            // then the clip grows downward. The open clip overhangs the box so the shadow isn't cut off.
+            & > .tooltip-menu-panel {
+                clip-path: inset(
                 var(--padding)
                 var(--padding)
                 calc(100% - var(--padding) - var(--item-height))
                 var(--padding)
                 round var(--item-border-radius)
             );
-            inset-inline: calc(var(--padding) * -1);
-            pointer-events: none;
-            top: calc(var(--padding) * -1);
-            transition:
+                inset-inline: calc(var(--padding) * -1);
+                pointer-events: none;
+                top: calc(var(--padding) * -1);
+                transition:
                 clip-path var(--close-duration) var(--open-timing-function),
                 visibility 0s linear var(--close-duration);
-            visibility: hidden;
-            width: auto;
-            z-index: 2;
+                visibility: hidden;
+                width: auto;
+                z-index: 2;
 
-            @include tokens.state(active) {
-                clip-path: inset(-48px round calc(var(--border-radius) + 48px));
-                pointer-events: auto;
-                transition: clip-path var(--open-duration) var(--open-timing-function);
-                visibility: visible;
+                @include tokens.state(active) {
+                    clip-path: inset(-48px round calc(var(--border-radius) + 48px));
+                    pointer-events: auto;
+                    transition: clip-path var(--open-duration) var(--open-timing-function);
+                    visibility: visible;
 
-                &.tooltip-menu-panel--settled {
-                    clip-path: none;
+                    &.tooltip-menu-panel--settled {
+                        clip-path: none;
+                    }
                 }
             }
-        }
-    }
 
-    &-header,
-    &-item {
-        align-items: center;
-        border-radius: var(--item-border-radius);
-        display: flex;
-        gap: var(--gap);
-        min-height: var(--item-height);
-        padding-inline: var(--item-padding);
-    }
-
-    &-header {
-        cursor: pointer;
-    }
-
-    &-hint {
-        color: var(--color-hint);
-        font-size: 0.75rem;
-    }
-
-    &-icon {
-        display: inline-flex;
-        flex-shrink: 0;
-    }
-
-    &-item {
-        appearance: none;
-        background: var(--background);
-        border: 0;
-        color: inherit;
-        cursor: pointer;
-        font: inherit;
-        outline: none;
-        text-align: start;
-        text-decoration: none;
-        transition: background var(--duration-fast) var(--easing-spring);
-        width: 100%;
-
-        &:focus {
-            --background: var(--background-hover);
+            // Above the parent's scrim, so the open child panel stays undimmed
+            &--open {
+                z-index: 2;
+            }
         }
 
-        // Doubled so it outranks a class paired onto the item, such as '.link'.
-        &.tooltip-menu-item--danger {
-            color: var(--color-danger);
-        }
-
-        &:disabled,
-        &[aria-disabled='true'] {
-            --background-hover: var(--background-default);
-            --background-pressed: var(--background-default);
-            color: var(--color-disabled);
-            cursor: not-allowed;
-        }
-    }
-
-    &-label,
-    &-title {
-        @extend %text-truncate;
-        flex: 1;
-        min-width: 0;
-    }
-
-    &-panel {
-        background: var(--background);
-        border-radius: var(--border-radius);
-        box-shadow: var(--box-shadow);
-        color: var(--color);
-        font-size: var(--font-size);
-        isolation: isolate;
-        padding: var(--padding);
-        position: absolute;
-        width: var(--width);
-
-        // Scrim over parent panels while a child is open; it also takes clicks meant to pop back here
-        &::after {
-            @extend %layer;
-            background: var(--scrim);
-            content: '';
-            opacity: 0;
-            transition: opacity var(--open-duration) var(--open-timing-function);
-            z-index: 1;
-        }
-
-        &--covered::after {
+        &-header {
             cursor: pointer;
-            opacity: 1;
-            pointer-events: auto;
-        }
-    }
-
-    // Regular and bold copies of the title are stacked; crossfading them morphs the weight
-    // without reflowing the label.
-    &-title {
-        display: grid;
-
-        &-bold,
-        &-regular {
-            grid-area: 1 / 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            transition: opacity var(--open-duration) var(--open-timing-function);
         }
 
-        &-bold {
-            font-weight: 600;
-            opacity: var(--title-bold-opacity);
+        &-header,
+        &-item {
+            align-items: center;
+            border-radius: var(--item-border-radius);
+            display: flex;
+            gap: var(--gap);
+            min-height: var(--item-height);
+            padding-inline: var(--item-padding);
         }
 
-        &-regular {
-            opacity: var(--title-regular-opacity);
+        &-hint {
+            color: var(--color-hint);
+            font-size: 0.75rem;
         }
-    }
 
-    &-trigger {
-        cursor: pointer;
-    }
+        &-icon {
+            display: inline-flex;
+            flex-shrink: 0;
+        }
 
-    // Sub-panels snap open and the chevron turns at once; the fades keep their timing.
-    @media (prefers-reduced-motion: reduce) {
-        &-chevron,
-        &-entry > .tooltip-menu-panel,
-        &-entry > .tooltip-menu-panel.--active {
-            transition-duration: 0s;
+        &-item {
+            appearance: none;
+            background: var(--background);
+            border: 0;
+            color: inherit;
+            cursor: pointer;
+            font: inherit;
+            outline: none;
+            text-align: start;
+            text-decoration: none;
+            transition: background var(--duration-fast) var(--easing-spring);
+            width: 100%;
+
+            // Doubled so it outranks a class paired onto the item, such as '.link'.
+            &.tooltip-menu-item--danger {
+                color: var(--color-danger);
+            }
+
+            &:disabled,
+            &[aria-disabled='true'] {
+                --background-hover: var(--background-default);
+                --background-pressed: var(--background-default);
+                color: var(--color-disabled);
+                cursor: not-allowed;
+            }
+
+            &:focus {
+                --background: var(--background-hover);
+            }
+        }
+
+        &-label,
+        &-title {
+            @extend %text-truncate;
+            flex: 1;
+            min-width: 0;
+        }
+
+        &-panel {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            color: var(--color);
+            font-size: var(--font-size);
+            isolation: isolate;
+            padding: var(--padding);
+            position: absolute;
+            width: var(--width);
+
+            &--covered::after {
+                cursor: pointer;
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            // Scrim over parent panels while a child is open; it also takes clicks meant to pop back here
+            &::after {
+                @extend %layer;
+                background: var(--scrim);
+                content: '';
+                opacity: 0;
+                transition: opacity var(--open-duration) var(--open-timing-function);
+                z-index: 1;
+            }
+        }
+
+        // Regular and bold copies of the title are stacked; crossfading them morphs the weight
+        // without reflowing the label.
+        &-title {
+            display: grid;
+
+            &-bold {
+                font-weight: 600;
+                opacity: var(--title-bold-opacity);
+            }
+
+            &-bold,
+            &-regular {
+                grid-area: 1 / 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                transition: opacity var(--open-duration) var(--open-timing-function);
+            }
+
+            &-regular {
+                opacity: var(--title-regular-opacity);
+            }
+        }
+
+        &-trigger {
+            cursor: pointer;
+        }
+
+        // Sub-panels snap open and the chevron turns at once; the fades keep their timing.
+        @media (prefers-reduced-motion: reduce) {
+            &-chevron,
+            &-entry > .tooltip-menu-panel,
+            &-entry > .tooltip-menu-panel.--active {
+                transition-duration: 0s;
+            }
         }
     }
 }

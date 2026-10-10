@@ -21,6 +21,12 @@ $placements: ('e', 'n', 'ne', 'nw', 's', 'se', 'sw', 'w');
     --translate-y: 0px;
 
 
+    &--e {
+        --stack-translate: calc(var(--stack-shift) * -1) 0;
+        --translate-x: calc(100% + var(--margin-horizontal));
+        --translate-y: 0px;
+    }
+
     &--e,
     &--n,
     &--ne,
@@ -31,12 +37,6 @@ $placements: ('e', 'n', 'ne', 'nw', 's', 'se', 'sw', 'w');
     &--w {
         --opacity: 1;
         --stack-span: 100%;
-    }
-
-    &--e {
-        --stack-translate: calc(var(--stack-shift) * -1) 0;
-        --translate-x: calc(100% + var(--margin-horizontal));
-        --translate-y: 0px;
     }
 
     &--n,

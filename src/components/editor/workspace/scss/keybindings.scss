@@ -1,6 +1,11 @@
 @use 'css-utilities/font/geist';
 
 
+.code-workspace-command-icon.icon {
+    --size: var(--control-icon-size);
+    flex: none;
+}
+
 // Inside the workspace, so its custom properties reach the dialog through the DOM even in the top layer.
 .code-workspace-keybindings {
     --columns: minmax(0, 1fr) minmax(9rem, auto) 4.5rem 4.5rem;
@@ -10,6 +15,12 @@
     &-actions {
         display: flex;
         justify-content: flex-end;
+    }
+
+    &-button--primary {
+        --confirm-background: var(--accent);
+        --confirm-color: var(--accent-color);
+        --confirm-hover: var(--color-accent-500);
     }
 
     &-button.button {
@@ -30,12 +41,6 @@
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: var(--border-width-400);
         }
-    }
-
-    &-button--primary {
-        --confirm-background: var(--accent);
-        --confirm-color: var(--accent-color);
-        --confirm-hover: var(--color-accent-500);
     }
 
     &-command {
@@ -85,13 +90,13 @@
         text-overflow: ellipsis;
     }
 
-    &-key.button {
-        flex: none;
-    }
-
     &-key--builtin.button {
         cursor: help;
         opacity: 0.75;
+    }
+
+    &-key.button {
+        flex: none;
     }
 
     &-keys {
@@ -108,11 +113,6 @@
         white-space: nowrap;
     }
 
-    &-recorder.shortcut-recorder {
-        --font-size: var(--font-size-200);
-        --height: var(--size-600);
-    }
-
     // Only '+' at rest, so the row's built-in keys aren't read as unbound.
     &-recorder--add.shortcut-recorder {
         --min-width: var(--size-600);
@@ -127,6 +127,11 @@
         }
     }
 
+    &-recorder.shortcut-recorder {
+        --font-size: var(--font-size-200);
+        --height: var(--size-600);
+    }
+
     &-row {
         align-items: center;
         border-bottom: var(--divider);
@@ -135,10 +140,6 @@
         grid-template-columns: var(--columns);
         min-height: var(--row-height);
         padding-block: var(--spacing-tight);
-
-        &[hidden] {
-            display: none;
-        }
 
         &--head {
             background: var(--raised);
@@ -150,6 +151,10 @@
             padding-block: var(--spacing);
             position: sticky;
             z-index: 1;
+        }
+
+        &[hidden] {
+            display: none;
         }
     }
 
@@ -182,9 +187,4 @@
         color: var(--color);
         font-size: var(--font-size-300);
     }
-}
-
-.code-workspace-command-icon.icon {
-    --size: var(--control-icon-size);
-    flex: none;
 }

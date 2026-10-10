@@ -31,10 +31,10 @@
 
     &-description {
         -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
         color: var(--card-description-color);
         display: -webkit-box;
         font-size: var(--font-size-300);
-        -webkit-line-clamp: 2;
         line-clamp: 2;
         overflow: hidden;
     }
@@ -111,15 +111,15 @@
             --color: var(--color-hover);
         }
 
-        &:focus-visible,
-        &:hover {
-            opacity: 1;
-        }
-
         &:focus-visible {
             border-radius: var(--border-radius-200);
             outline: 2px solid var(--focus-color);
             outline-offset: -1px;
+        }
+
+        &:focus-visible,
+        &:hover {
+            opacity: 1;
         }
 
         @media (pointer: coarse) {

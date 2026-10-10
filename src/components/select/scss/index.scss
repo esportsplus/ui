@@ -54,10 +54,6 @@
                 --background-default: var(--highlight);
             }
 
-            &[aria-selected='true'] .select-menu-check {
-                @extend %icon-swap-active;
-            }
-
             &-detail {
                 color: var(--color-muted);
                 flex: 0 0 auto;
@@ -69,6 +65,10 @@
                 @extend %text-truncate;
                 flex: 1;
                 min-width: 0;
+            }
+
+            &[aria-selected='true'] .select-menu-check {
+                @extend %icon-swap-active;
             }
         }
 

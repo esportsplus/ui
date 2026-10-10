@@ -24,37 +24,6 @@
 }
 
 .sortable {
-    > * {
-        @extend %drag-item;
-    }
-
-    // The dragged item stays in the list as its own placeholder: its contents fade out behind a dashed outline while
-    // it moves through the list. Leaving the class drops the transition, so they are back at once on landing.
-    > .sortable-item--held {
-        background: var(--placeholder-background);
-        border-color: transparent;
-        box-shadow: none;
-        color: transparent;
-        outline: var(--placeholder-border-width) dashed var(--placeholder-border-color);
-        outline-offset: calc(var(--placeholder-border-width) * -1);
-        transition:
-            background-color var(--transition-duration) var(--transition-timing-function),
-            color var(--transition-duration) var(--transition-timing-function);
-
-        > * {
-            opacity: 0;
-            transition: opacity var(--transition-duration) var(--transition-timing-function);
-        }
-    }
-
-    // Shows again at once under the fading copy: its own transitions, or its contents', would ease it back in after the
-    // copy has gone. Important, since they can come from any rule.
-    > .sortable-item--revealing,
-    > .sortable-item--revealing * {
-        transition: none !important;
-    }
-
-
     // The copy following the pointer, a popover in the top layer: fixed at the box the item was picked up from,
     // then moved by the pointer's offset and the swing, which JS writes every frame.
     &-drag {
@@ -80,14 +49,6 @@
             scale: 1;
         }
 
-        // The copy takes the box the item was picked up from.
-        > * {
-            box-sizing: border-box;
-            height: 100%;
-            margin: 0;
-            width: 100%;
-        }
-
         // Shrinks onto the item, settling the lift, the swing and any animation on the way, then blurs and fades out
         // over it for the last quarter, as the item shows again under it. The fade eases plainly: the drop's
         // overshoot would clamp it at 0.
@@ -109,6 +70,14 @@
                 scale var(--drop-duration) var(--drop-easing),
                 translate var(--drop-duration) var(--drop-easing),
                 width var(--drop-duration) var(--drop-easing);
+        }
+
+        // The copy takes the box the item was picked up from.
+        > * {
+            box-sizing: border-box;
+            height: 100%;
+            margin: 0;
+            width: 100%;
         }
     }
 
@@ -137,6 +106,37 @@
         .sortable-drag--dropping & {
             opacity: 0;
         }
+    }
+
+    > * {
+        @extend %drag-item;
+    }
+
+
+    // The dragged item stays in the list as its own placeholder: its contents fade out behind a dashed outline while
+    // it moves through the list. Leaving the class drops the transition, so they are back at once on landing.
+    > .sortable-item--held {
+        background: var(--placeholder-background);
+        border-color: transparent;
+        box-shadow: none;
+        color: transparent;
+        outline: var(--placeholder-border-width) dashed var(--placeholder-border-color);
+        outline-offset: calc(var(--placeholder-border-width) * -1);
+        transition:
+            background-color var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
+
+        > * {
+            opacity: 0;
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+        }
+    }
+
+    // Shows again at once under the fading copy: its own transitions, or its contents', would ease it back in after the
+    // copy has gone. Important, since they can come from any rule.
+    > .sortable-item--revealing,
+    > .sortable-item--revealing * {
+        transition: none !important;
     }
 }
 

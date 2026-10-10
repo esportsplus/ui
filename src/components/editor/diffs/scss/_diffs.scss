@@ -82,8 +82,16 @@
             --color-pressed: var(--accent-color);
         }
 
+        &--primary:not(:disabled):hover {
+            filter: brightness(1.1);
+        }
+
         &--text {
             padding: 0 var(--size-200);
+        }
+
+        &-icon.icon {
+            --size: var(--button-icon-size);
         }
 
         &:disabled {
@@ -98,14 +106,6 @@
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: calc(var(--focus-width) * -1);
-        }
-
-        &-icon.icon {
-            --size: var(--button-icon-size);
-        }
-
-        &--primary:not(:disabled):hover {
-            filter: brightness(1.1);
         }
     }
 
@@ -176,13 +176,13 @@
         padding: 0 var(--code-padding);
         width: 100%;
 
+        &-icon.icon {
+            --size: var(--button-icon-size);
+        }
+
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: calc(var(--focus-width) * -1);
-        }
-
-        &-icon.icon {
-            --size: var(--button-icon-size);
         }
     }
 
@@ -228,8 +228,16 @@
             background: var(--delete-background);
         }
 
+        &--delete .diffs-sign {
+            color: var(--delete-color);
+        }
+
         &--insert {
             background: var(--insert-background);
+        }
+
+        &--insert .diffs-sign {
+            color: var(--insert-color);
         }
 
         &--split {
@@ -247,14 +255,6 @@
             .diffs-actions {
                 opacity: 1;
             }
-        }
-
-        &--delete .diffs-sign {
-            color: var(--delete-color);
-        }
-
-        &--insert .diffs-sign {
-            color: var(--insert-color);
         }
     }
 

@@ -2,29 +2,13 @@
 @use 'variables';
 
 .accordion {
-    --scrollbar-overflow: hidden;
-    // Reserve the gutter throughout so enabling the bar cannot reflow and remeasure content.
-    --scrollbar-gutter: stable;
     display: grid;
     grid-template-rows: 1fr;
     overflow: var(--scrollbar-overflow, hidden);
     transition: grid-template-rows var(--transition-duration) var(--transition-timing-function);
 
-    @include tokens.state(active) {
-        &.accordion--scrollable {
-            --scrollbar-overflow: auto;
-        }
-    }
-
     @include tokens.state(inactive) {
         grid-template-rows: 0fr;
-    }
-
-    &-content {
-        display: flow-root;
-        min-height: 0;
-        // Clip the collapse without creating a nested scroll container that traps wheel input.
-        overflow: clip;
     }
 
     &--more {
@@ -35,14 +19,14 @@
         overscroll-behavior: contain;
         transition: height var(--transition-duration) var(--transition-timing-function);
 
+        &.accordion--instant {
+            transition: none;
+        }
+
         &:focus-visible {
             border-radius: var(--border-radius-300);
             outline: var(--border-width-400) solid var(--focus-color);
             outline-offset: var(--size-100);
-        }
-
-        &.accordion--instant {
-            transition: none;
         }
 
         @include tokens.state(active) {
@@ -52,6 +36,13 @@
         @include tokens.state(inactive) {
             overflow: hidden;
         }
+    }
+
+    &-content {
+        display: flow-root;
+        min-height: 0;
+        // Clip the collapse without creating a nested scroll container that traps wheel input.
+        overflow: clip;
     }
 
     @media (prefers-reduced-motion: reduce) {

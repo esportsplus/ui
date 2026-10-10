@@ -1,14 +1,3 @@
-// Out of sight but still read by screen readers: live regions, and labels that name something drawn another way. It
-// can't be extended from inside @media.
-%hidden-visually {
-    clip-path: inset(50%);
-    height: 1px;
-    overflow: hidden;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
-}
-
 // A native field kept for forms and autofill while the component draws its own control.
 %hidden-field {
     height: 0px;
@@ -19,4 +8,15 @@
     top: 0;
     width: 0px;
     z-index: 0;
+}
+
+// Out of sight but still read by screen readers: live regions, and labels that name something drawn another way. It
+// can't be extended from inside @media.
+%hidden-visually {
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
 }

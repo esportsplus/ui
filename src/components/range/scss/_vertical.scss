@@ -2,6 +2,11 @@
     --vertical-size: 176px;
 }
 
+// The filter's parts take their vertical layout from their own '--vertical' modifiers.
+.range-filter.range--vertical {
+    --width: max-content;
+}
+
 .range.range--vertical {
     --background-default: linear-gradient(to top, var(--thumb-background) var(--thumb-position), var(--color-primary-300) var(--thumb-position));
     direction: rtl;
@@ -14,9 +19,4 @@
     &.range--slider {
         --background-default: linear-gradient(to top, var(--range-color) var(--thumb-position), var(--track-color) var(--thumb-position));
     }
-}
-
-// The filter's parts take their vertical layout from their own '--vertical' modifiers.
-.range-filter.range--vertical {
-    --width: max-content;
 }

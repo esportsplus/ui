@@ -18,22 +18,33 @@
     width: var(--width);
 }
 
+// Ellipsis needs a block container, not '%text''s flex. Extends only meet within one stylesheet, so this applies
+// where both are extended in the same file.
+%text%text-truncate {
+    display: block;
+}
+
 %text-crop {
     @supports (text-box: trim-both cap alphabetic) {
         & {
             text-box: trim-both cap alphabetic;
         }
 
-        &-top {
-            text-box: trim-start cap alphabetic;
-        }
-
         &-bottom {
             text-box: trim-end cap alphabetic;
+        }
+
+        &-top {
+            text-box: trim-start cap alphabetic;
         }
     }
 
     @supports not (text-box: trim-both cap alphabetic) {
+        &::after,
+        &-bottom::after {
+            margin-bottom: calc((1em - 1lh) * 0.618);
+        }
+
         &::after,
         &::before,
         &-bottom::after,
@@ -42,11 +53,6 @@
             display: block;
             height: 0;
             width: 100%;
-        }
-
-        &::after,
-        &-bottom::after {
-            margin-bottom: calc((1em - 1lh) * 0.618);
         }
 
         &::before,
@@ -151,12 +157,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-// Ellipsis needs a block container, not '%text''s flex. Extends only meet within one stylesheet, so this applies
-// where both are extended in the same file.
-%text%text-truncate {
-    display: block;
 }
 
 

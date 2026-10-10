@@ -56,6 +56,11 @@
             color var(--duration-fast) var(--easing-spring),
             opacity var(--duration-fast) var(--easing-spring);
 
+        &-icon {
+            height: 12px;
+            width: 12px;
+        }
+
         &:disabled {
             --background-hover: var(--background-default);
             --background-pressed: var(--background-default);
@@ -67,11 +72,6 @@
 
         &:focus-visible {
             outline-width: 2px;
-        }
-
-        &-icon {
-            height: 12px;
-            width: 12px;
         }
     }
 
@@ -131,10 +131,6 @@
         outline-offset: 2px;
         padding-inline: 12px;
 
-        &:has(:focus-visible) {
-            outline-width: 2px;
-        }
-
         &-label {
             color: var(--muted-color);
             font-size: 12px;
@@ -148,6 +144,14 @@
             margin-inline-start: auto;
         }
 
+        &-prefix + .range-filter-input {
+            margin-inline-start: 0;
+        }
+
+        &:has(:focus-visible) {
+            outline-width: 2px;
+        }
+
         // Qualified by the field so it wins over the reused input styles regardless of stylesheet order.
         .range-filter-input {
             flex: 0 1 72px;
@@ -157,10 +161,6 @@
             outline: none;
             text-align: right;
             width: 72px;
-        }
-
-        &-prefix + .range-filter-input {
-            margin-inline-start: 0;
         }
     }
 

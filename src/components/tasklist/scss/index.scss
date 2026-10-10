@@ -9,6 +9,23 @@
     gap: var(--gap);
 
 
+    // Numbered by task position, not DOM position, so a step keeps its number after moving
+    &--plan {
+        .tasklist-item {
+            counter-set: tasklist var(--index);
+        }
+
+        .tasklist-label::before {
+            color: var(--color);
+            content: counter(tasklist, decimal-leading-zero);
+            font-family: var(--font-family);
+            font-size: var(--font-size);
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight);
+            margin-right: var(--gap);
+        }
+    }
+
     // '--line-height' comes from the row, so the box centers on the first line of the label
     &-checkbox {
         margin-top: calc((var(--line-height) - var(--size)) / 2);
@@ -79,23 +96,6 @@
             mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='5' r='1.5'/%3E%3Ccircle cx='9' cy='12' r='1.5'/%3E%3Ccircle cx='9' cy='19' r='1.5'/%3E%3Ccircle cx='15' cy='5' r='1.5'/%3E%3Ccircle cx='15' cy='12' r='1.5'/%3E%3Ccircle cx='15' cy='19' r='1.5'/%3E%3C/svg%3E") center / contain no-repeat;
             opacity: var(--opacity);
             transition: opacity var(--transition-duration) var(--timing-function);
-        }
-    }
-
-    // Numbered by task position, not DOM position, so a step keeps its number after moving
-    &--plan {
-        .tasklist-item {
-            counter-set: tasklist var(--index);
-        }
-
-        .tasklist-label::before {
-            color: var(--color);
-            content: counter(tasklist, decimal-leading-zero);
-            font-family: var(--font-family);
-            font-size: var(--font-size);
-            font-variant-numeric: tabular-nums;
-            font-weight: var(--font-weight);
-            margin-right: var(--gap);
         }
     }
 }

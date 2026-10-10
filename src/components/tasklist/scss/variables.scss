@@ -15,6 +15,14 @@
     }
 
 
+    &--plan .tasklist-label::before {
+        @extend %font-geist-mono;
+        --color: var(--color-text-300);
+        --font-size: var(--font-size-200);
+        --font-weight: var(--font-weight-500);
+        --gap: 6px;
+    }
+
     &-checkbox {
         --background-active: var(--color-primary-500);
         --border-color-active: var(--color-primary-500);
@@ -49,16 +57,16 @@
         --strike-delay: 0s;
         --strike-length: 0%;
 
+        &--checking {
+            --strike-delay: var(--check-duration);
+        }
+
         &:has(.checkbox-tag:checked) {
             --strike-length: 100%;
 
             .tasklist-content {
                 --opacity: var(--opacity-active);
             }
-        }
-
-        &--checking {
-            --strike-delay: var(--check-duration);
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -95,13 +103,5 @@
                 }
             }
         }
-    }
-
-    &--plan .tasklist-label::before {
-        @extend %font-geist-mono;
-        --color: var(--color-text-300);
-        --font-size: var(--font-size-200);
-        --font-weight: var(--font-weight-500);
-        --gap: 6px;
     }
 }

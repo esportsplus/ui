@@ -46,13 +46,6 @@
     --width: var(--height);
 
 
-    &--radio,
-    &--switch {
-        &::before {
-            --box-shadow: 0 2px 4px oklch(from var(--color-shadow) l c h / calc(alpha * 2));
-        }
-    }
-
     &--radio {
         --border-radius: 100%;
         --scale-default: 0;
@@ -61,6 +54,13 @@
         &::before {
             --height: var(--size-100);
             --width: var(--height);
+        }
+    }
+
+    &--radio,
+    &--switch {
+        &::before {
+            --box-shadow: 0 2px 4px oklch(from var(--color-shadow) l c h / calc(alpha * 2));
         }
     }
 
@@ -94,25 +94,8 @@
     }
 
 
-    &:not(:has(input:checked, input:indeterminate)) {
-        &:hover,
-        label:hover & {
-            --background: var(--background-hover);
-            --border-color: var(--border-color-hover);
-            --border-width-offset: var(--border-width-offset-hover);
-            --box-shadow: var(--box-shadow-hover);
-            --indicator-color: var(--indicator-color-hover);
-            --scale: var(--scale-hover);
-        }
-
-        &:active,
-        label:active & {
-            --background: var(--background-pressed);
-            --border-color: var(--border-color-pressed);
-            --box-shadow: var(--box-shadow-pressed);
-            --indicator-color: var(--indicator-color-pressed);
-            --scale: var(--scale-pressed);
-        }
+    &:has(input:checked) {
+        --check-offset: 0;
     }
 
     &:has(input:checked, input:indeterminate) {
@@ -123,12 +106,29 @@
         --scale: var(--scale-active);
     }
 
-    &:has(input:checked) {
-        --check-offset: 0;
-    }
-
     // The group header's dash, drawn while some but not all of its options are checked.
     &:has(input:indeterminate) {
         --dash-offset: 0;
+    }
+
+    &:not(:has(input:checked, input:indeterminate)) {
+        &:active,
+        label:active & {
+            --background: var(--background-pressed);
+            --border-color: var(--border-color-pressed);
+            --box-shadow: var(--box-shadow-pressed);
+            --indicator-color: var(--indicator-color-pressed);
+            --scale: var(--scale-pressed);
+        }
+
+        &:hover,
+        label:hover & {
+            --background: var(--background-hover);
+            --border-color: var(--border-color-hover);
+            --border-width-offset: var(--border-width-offset-hover);
+            --box-shadow: var(--box-shadow-hover);
+            --indicator-color: var(--indicator-color-hover);
+            --scale: var(--scale-hover);
+        }
     }
 }

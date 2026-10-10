@@ -23,6 +23,15 @@
         border-start-end-radius: 0;
     }
 
+    > .button-split-action,
+    > .button-split-menu > .button-split-trigger {
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+            z-index: 1;
+        }
+    }
+
     // Overlaps the shared edge so the two borders read as one divider.
     > .button-split-menu > .button-split-trigger {
         --padding-horizontal: var(--trigger-padding-horizontal);
@@ -32,15 +41,6 @@
 
         &[aria-expanded='true'] .button-split-chevron {
             rotate: 180deg;
-        }
-    }
-
-    > .button-split-action,
-    > .button-split-menu > .button-split-trigger {
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: var(--focus-offset);
-            z-index: 1;
         }
     }
 

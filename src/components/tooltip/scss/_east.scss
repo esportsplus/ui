@@ -1,14 +1,4 @@
 @mixin east($active) {
-    &--en,
-    &--es {
-        left: calc(100% + var(--spacer) - var(--offset));
-        position: absolute;
-
-        #{$active} {
-            translate: var(--offset);
-        }
-    }
-
     &--e {
         bottom: 50%;
         left: calc(100% + var(--spacer) - var(--offset));
@@ -24,6 +14,16 @@
     &--en {
         top: 0;
         transform-origin: top left;
+    }
+
+    &--en,
+    &--es {
+        left: calc(100% + var(--spacer) - var(--offset));
+        position: absolute;
+
+        #{$active} {
+            translate: var(--offset);
+        }
     }
 
     &--es {

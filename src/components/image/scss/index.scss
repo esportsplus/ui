@@ -70,6 +70,14 @@
             --placeholder-opacity: 0;
         }
 
+        // Covers the source while it streams in, then fades out and is removed from the DOM.
+        &-placeholder {
+            opacity: var(--placeholder-opacity, 1);
+            pointer-events: none;
+            transition: opacity var(--transition-duration) var(--timing-function);
+            z-index: 1;
+        }
+
         &-placeholder,
         &-source {
             @extend %absolute-full;
@@ -77,14 +85,6 @@
             object-fit: cover;
             user-select: none;
             width: 100%;
-        }
-
-        // Covers the source while it streams in, then fades out and is removed from the DOM.
-        &-placeholder {
-            opacity: var(--placeholder-opacity, 1);
-            pointer-events: none;
-            transition: opacity var(--transition-duration) var(--timing-function);
-            z-index: 1;
         }
 
         // Unset until an error, so it inherits like any other element's.

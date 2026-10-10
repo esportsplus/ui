@@ -28,10 +28,8 @@
             scale var(--transition-duration) var(--transition-timing-function) calc(var(--column) * var(--stagger));
         width: var(--cell-size);
 
-        // Rings the hovered day outside itself, so it shows on the darkest level too.
-        &:hover {
-            outline: 1px solid var(--hover-color);
-            outline-offset: 1px;
+        &--empty {
+            background: none;
         }
 
         &:focus-visible {
@@ -39,8 +37,10 @@
             outline-offset: 1px;
         }
 
-        &--empty {
-            background: none;
+        // Rings the hovered day outside itself, so it shows on the darkest level too.
+        &:hover {
+            outline: 1px solid var(--hover-color);
+            outline-offset: 1px;
         }
 
         @for $level from 1 through 4 {
@@ -102,30 +102,32 @@
     }
 }
 
-.heatmap-legend {
-    align-items: center;
-    color: var(--color);
-    display: flex;
-    font-size: var(--font-size);
-    gap: 4px;
+.heatmap {
+    &-legend {
+        align-items: center;
+        color: var(--color);
+        display: flex;
+        font-size: var(--font-size);
+        gap: 4px;
 
-    &-less {
-        margin-inline-end: 4px;
+        &-less {
+            margin-inline-end: 4px;
+        }
+
+        &-more {
+            margin-inline-start: 4px;
+        }
     }
 
-    &-more {
-        margin-inline-start: 4px;
-    }
-}
+    &-swatch {
+        border-radius: var(--cell-radius);
+        height: var(--cell-size);
+        width: var(--cell-size);
 
-.heatmap-swatch {
-    border-radius: var(--cell-radius);
-    height: var(--cell-size);
-    width: var(--cell-size);
-
-    @for $level from 0 through 4 {
-        &--level-#{$level} {
-            background: var(--level-#{$level});
+        @for $level from 0 through 4 {
+            &--level-#{$level} {
+                background: var(--level-#{$level});
+            }
         }
     }
 }

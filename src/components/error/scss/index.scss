@@ -6,6 +6,22 @@
     display: inline-flex;
     vertical-align: middle;
 
+    &-live {
+        @extend %hidden-visually;
+    }
+
+    // Long messages wrap instead of running off in one line.
+    &-message.tooltip-content {
+        --background-default: var(--error-background);
+        --max-width: var(--error-max-width);
+        --spacer: var(--error-spacer);
+        --width: max-content;
+        color: var(--error-text);
+        font-size: var(--error-font-size);
+        padding: var(--error-padding);
+        white-space: normal;
+    }
+
     // The control draws its edge from '--border-color', as the form controls do. Doubled, so it outranks the control's
     // own hover and active states whatever order the sheets load in.
     &.error--invalid.error--invalid > :not(.error-live, .error-message) {
@@ -25,22 +41,6 @@
     &.tooltip:has(> .tooltip-content--morph)::after {
         background: var(--error-background);
         inset: 0 var(--error-reach);
-    }
-
-    &-live {
-        @extend %hidden-visually;
-    }
-
-    // Long messages wrap instead of running off in one line.
-    &-message.tooltip-content {
-        --background-default: var(--error-background);
-        --max-width: var(--error-max-width);
-        --spacer: var(--error-spacer);
-        --width: max-content;
-        color: var(--error-text);
-        font-size: var(--error-font-size);
-        padding: var(--error-padding);
-        white-space: normal;
     }
 
     @media (prefers-reduced-motion: reduce) {

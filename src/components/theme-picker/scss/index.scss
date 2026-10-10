@@ -18,15 +18,6 @@
 
 
 .theme-picker {
-    &-icon {
-        display: block;
-        fill: none;
-        flex-shrink: 0;
-        height: 16px;
-        stroke: currentColor;
-        width: 16px;
-    }
-
     &-cards {
         display: flex;
         gap: var(--size-300);
@@ -98,6 +89,15 @@
                 }
             }
         }
+    }
+
+    &-icon {
+        display: block;
+        fill: none;
+        flex-shrink: 0;
+        height: 16px;
+        stroke: currentColor;
+        width: 16px;
     }
 
     &-swatches {

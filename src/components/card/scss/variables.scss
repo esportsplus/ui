@@ -21,18 +21,18 @@ $expand-transition-box-shadow:
     --width: auto;
 
 
+    &--expand {
+        --padding-horizontal: 18px;
+        --padding-vertical: var(--size-400);
+        --width: 100%;
+    }
+
     &--expand,
     &-expand-dialog {
         --background-default: var(--expand-background);
         --border-radius: #{$expand-border-radius};
         --border-width: 0px;
         --box-shadow-default: var(--surface-shadow-default);
-    }
-
-    &--expand {
-        --padding-horizontal: 18px;
-        --padding-vertical: var(--size-400);
-        --width: 100%;
     }
 
     &--morph {

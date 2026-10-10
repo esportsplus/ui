@@ -6,8 +6,6 @@
     --card-title-color: var(--color-text-500);
     --card-width: 256px;
     --color-active: var(--color-text-500);
-    // Resolved here, since the nav's color state redefines --color-active on it.
-    --nav-color-hover: var(--color-active);
     --color-far: color-mix(in oklab, var(--color-primary-500) 55%, transparent);
     --color-near: color-mix(in oklab, var(--color-primary-500) 75%, transparent);
     --color-rest: color-mix(in oklab, var(--color-primary-300) 40%, transparent);
@@ -21,6 +19,8 @@
     --length-near: var(--size-500);
     --length-peak: 24px;
     --length-rest: 12px;
+    // Resolved here, since the nav's color state redefines --color-active on it.
+    --nav-color-hover: var(--color-active);
     --nav-duration: var(--duration-fast);
     --nav-height: var(--size-500);
     --stroke: 2px;
@@ -36,8 +36,9 @@
 
         // Touch has no hover to follow, and reduced motion keeps the lengths still; keyboard focus swells too.
         @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-            &:is(:hover, :focus-visible) {
-                --length: var(--length-peak);
+            &:has(+ .chat-minimap-item + .chat-minimap-item:is(:hover, :focus-visible)),
+            &:is(:hover, :focus-visible) + .chat-minimap-item + .chat-minimap-item {
+                --length: var(--length-far);
             }
 
             &:has(+ .chat-minimap-item:is(:hover, :focus-visible)),
@@ -45,29 +46,34 @@
                 --length: var(--length-near);
             }
 
-            &:has(+ .chat-minimap-item + .chat-minimap-item:is(:hover, :focus-visible)),
-            &:is(:hover, :focus-visible) + .chat-minimap-item + .chat-minimap-item {
-                --length: var(--length-far);
-            }
-        }
-
-        // Turns in view keep their full color while a neighbour is hovered, so the indicator never fades under the
-        // pointer.
-        &:not(.--active) {
-            &:has(+ .chat-minimap-item:is(:hover, :focus-visible)),
-            &:is(:hover, :focus-visible) + .chat-minimap-item {
-                --line-color: var(--color-near);
-            }
-
-            &:has(+ .chat-minimap-item + .chat-minimap-item:is(:hover, :focus-visible)),
-            &:is(:hover, :focus-visible) + .chat-minimap-item + .chat-minimap-item {
-                --line-color: var(--color-far);
+            &:is(:hover, :focus-visible) {
+                --length: var(--length-peak);
             }
         }
 
         &:is(:hover, :focus-visible) {
             --line-color: var(--color-active);
         }
+
+        // Turns in view keep their full color while a neighbour is hovered, so the indicator never fades under the
+        // pointer.
+        &:not(.--active) {
+            &:has(+ .chat-minimap-item + .chat-minimap-item:is(:hover, :focus-visible)),
+            &:is(:hover, :focus-visible) + .chat-minimap-item + .chat-minimap-item {
+                --line-color: var(--color-far);
+            }
+
+            &:has(+ .chat-minimap-item:is(:hover, :focus-visible)),
+            &:is(:hover, :focus-visible) + .chat-minimap-item {
+                --line-color: var(--color-near);
+            }
+        }
+    }
+
+    &-label.tooltip-shared {
+        --padding: 4px 10px;
+        --radius: var(--border-radius-500);
+        --spacer: 4px;
     }
 
     // A white card rather than the dark label bubble; '--padding' stays 0 so the card sets its own width.
@@ -81,12 +87,6 @@
         --radius: var(--border-radius-600);
         --spacer: var(--size-100);
         --white-space: normal;
-    }
-
-    &-label.tooltip-shared {
-        --padding: 4px 10px;
-        --radius: var(--border-radius-500);
-        --spacer: 4px;
     }
 
 

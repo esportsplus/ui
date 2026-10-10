@@ -1,3 +1,43 @@
+.typewriter {
+    &-retype {
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        --ink-blur: 2px;
+        --ink-duration: 140ms;
+        // Read by JS: each key's delay, a base plus up to the jitter, which lands around 8 to 14 keys a second, the pace
+        // of someone who knows the word.
+        --key-duration: 62ms;
+        --key-jitter-duration: 64ms;
+        --select-duration: 220ms;
+        --selection-color: oklch(from var(--color-primary-500) l c h / 0.15);
+        --selection-radius: 3px;
+
+        // Words land whole and still fade in and get selected, without the blur or the sweep.
+        @media (prefers-reduced-motion: reduce) {
+            --ink-blur: 0px;
+            --key-duration: 0s;
+            --select-duration: 0s;
+        }
+    }
+
+    &-rotate {
+        --color: inherit;
+        // Read by JS: how the letters a swap keeps travel to their new places, and the width with them. Shared letters
+        // can travel most of a word across, so they get longer than a typical UI tween; any shorter and it reads as a
+        // jump.
+        --glide-duration: 440ms;
+        --glide-easing: cubic-bezier(0.77, 0, 0.175, 1);
+
+        // A swap is a plain crossfade.
+        @media (prefers-reduced-motion: reduce) {
+            --glide-duration: 0s;
+        }
+
+        &--accent {
+            --color: var(--color-blue-400);
+        }
+    }
+}
+
 .typewriter,
 .typewriter-retype {
     --caret: '';
@@ -32,43 +72,5 @@
         --caret-offset: 0.04em;
         --caret-radius: 0;
         --caret-width: auto;
-    }
-}
-
-.typewriter-retype {
-    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-    --ink-blur: 2px;
-    --ink-duration: 140ms;
-    // Read by JS: each key's delay, a base plus up to the jitter, which lands around 8 to 14 keys a second, the pace
-    // of someone who knows the word.
-    --key-duration: 62ms;
-    --key-jitter-duration: 64ms;
-    --select-duration: 220ms;
-    --selection-color: oklch(from var(--color-primary-500) l c h / 0.15);
-    --selection-radius: 3px;
-
-    // Words land whole and still fade in and get selected, without the blur or the sweep.
-    @media (prefers-reduced-motion: reduce) {
-        --ink-blur: 0px;
-        --key-duration: 0s;
-        --select-duration: 0s;
-    }
-}
-
-.typewriter-rotate {
-    --color: inherit;
-    // Read by JS: how the letters a swap keeps travel to their new places, and the width with them. Shared letters
-    // can travel most of a word across, so they get longer than a typical UI tween; any shorter and it reads as a
-    // jump.
-    --glide-duration: 440ms;
-    --glide-easing: cubic-bezier(0.77, 0, 0.175, 1);
-
-    // A swap is a plain crossfade.
-    @media (prefers-reduced-motion: reduce) {
-        --glide-duration: 0s;
-    }
-
-    &--accent {
-        --color: var(--color-blue-400);
     }
 }

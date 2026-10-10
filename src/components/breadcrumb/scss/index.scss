@@ -60,6 +60,11 @@
         position: relative;
     }
 
+    &-menu-root.tooltip {
+        cursor: default;
+        display: flex;
+    }
+
     &-menu.tooltip-menu-panel {
         display: flex;
         flex-direction: column;
@@ -68,11 +73,6 @@
         // Grows out of the dots.
         transform-origin: calc(var(--trigger-width) / 2) 0;
         width: var(--menu-width);
-    }
-
-    &-menu-root.tooltip {
-        cursor: default;
-        display: flex;
     }
 
     &-option-icon {
@@ -205,6 +205,11 @@
         user-select: none;
         width: var(--trigger-width);
 
+        &-icon {
+            height: 16px;
+            width: 16px;
+        }
+
         &:focus-visible {
             outline: 2px solid var(--focus-color);
         }
@@ -214,11 +219,6 @@
         &[aria-expanded='true'] {
             background: var(--hover-background);
             color: var(--color-active);
-        }
-
-        &-icon {
-            height: 16px;
-            width: 16px;
         }
     }
 

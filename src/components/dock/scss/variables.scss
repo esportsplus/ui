@@ -51,8 +51,9 @@
         // The hovered icon peaks and swells its two neighbours on each side. Touch has no hover to follow, and
         // reduced motion keeps the icons still.
         @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-            &:hover {
-                --size: var(--size-peak);
+            &:has(+ .dock-item + .dock-item:hover),
+            &:hover + .dock-item + .dock-item {
+                --size: var(--size-far);
             }
 
             &:has(+ .dock-item:hover),
@@ -60,11 +61,17 @@
                 --size: var(--size-near);
             }
 
-            &:has(+ .dock-item + .dock-item:hover),
-            &:hover + .dock-item + .dock-item {
-                --size: var(--size-far);
+            &:hover {
+                --size: var(--size-peak);
             }
         }
+    }
+
+    &-label.tooltip-message {
+        --border-radius: var(--border-radius-300);
+        --offset: 4px;
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: 4px;
     }
 
     // Both anchor to the item's top, which is the shelf's; clears an icon at full swell by 12px.
@@ -73,13 +80,6 @@
         --box-shadow-default: none;
         --font-weight: var(--font-weight-500);
         --spacer: calc(var(--size-peak) - var(--size-rest) - var(--inset) + 12px);
-    }
-
-    &-label.tooltip-message {
-        --border-radius: var(--border-radius-300);
-        --offset: 4px;
-        --padding-horizontal: var(--size-100);
-        --padding-vertical: 4px;
     }
 
     &-label.tooltip-shared {

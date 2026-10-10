@@ -70,14 +70,14 @@
         min-width: 0;
     }
 
-    &-service-day,
-    &-service-percentage {
-        font-variant-numeric: tabular-nums;
-    }
-
     &-service-day {
         color: var(--color-muted);
         flex-shrink: 0;
+    }
+
+    &-service-day,
+    &-service-percentage {
+        font-variant-numeric: tabular-nums;
     }
 
     &-service-header {
@@ -87,6 +87,14 @@
         height: var(--size-500);
         justify-content: space-between;
         margin-bottom: var(--size-300);
+    }
+
+    // Same cut-out as 'image--status', anchored top right: the mask punches a ring out of the text, and
+    // the status dot, a sibling so the mask can't clip its tooltip, sits in the hole.
+    &-service-label {
+        display: block;
+        mask-clip: no-clip;
+        mask-image: var(--status-mask);
     }
 
     // Each caption change mounts a fresh node, so the entry animation replays per swap.
@@ -116,14 +124,6 @@
                 width: var(--dot-size);
             }
         }
-    }
-
-    // Same cut-out as 'image--status', anchored top right: the mask punches a ring out of the text, and
-    // the status dot, a sibling so the mask can't clip its tooltip, sits in the hole.
-    &-service-label {
-        display: block;
-        mask-clip: no-clip;
-        mask-image: var(--status-mask);
     }
 
     &-service-name {

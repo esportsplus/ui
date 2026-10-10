@@ -33,11 +33,6 @@
         translate: 0;
     }
 
-    // A warm handoff from another delayed tooltip swaps straight in.
-    &.tooltip-shared--instant > .tooltip-shared-box {
-        transition: none;
-    }
-
     &--e {
         padding-left: var(--spacer);
     }
@@ -68,7 +63,6 @@
         padding-right: var(--spacer);
     }
 
-
     &-box {
         background: var(--background);
         border-radius: var(--radius);
@@ -88,6 +82,7 @@
         translate: var(--box-translate);
     }
 
+
     // A 'frame--swap', centered in the box so the box can resize around it; centering takes 'transform', leaving
     // 'translate' to the frame. 'tooltip.shared' sets '--travel-x' and '--travel-y' to the unit vector of the trip
     // between triggers, so incoming content drifts in along it and outgoing content carries on out the far side.
@@ -105,5 +100,10 @@
         strong {
             --color: inherit;
         }
+    }
+
+    // A warm handoff from another delayed tooltip swaps straight in.
+    &.tooltip-shared--instant > .tooltip-shared-box {
+        transition: none;
     }
 }

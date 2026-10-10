@@ -112,11 +112,6 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         top: 0;
         white-space: nowrap;
 
-        &:popover-open {
-            align-items: center;
-            display: flex;
-        }
-
         &--copy {
             --drag-copy-display: block;
         }
@@ -133,6 +128,24 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             font-variant-numeric: tabular-nums;
             font-weight: var(--badge-font-weight);
         }
+
+        &:popover-open {
+            align-items: center;
+            display: flex;
+        }
+    }
+
+    // Laid over the viewport, which stays the tree's one tab stop.
+    &-empty {
+        @extend %absolute-full;
+        align-items: center;
+        color: var(--empty-color);
+        display: flex;
+        flex-direction: column;
+        gap: var(--size-200);
+        justify-content: center;
+        padding: var(--size-400);
+        text-align: center;
     }
 
     // Over the rows rather than above them, so the list and the sticky folders keep their places as it comes and goes.
@@ -288,19 +301,6 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         z-index: 1;
     }
 
-    // Laid over the viewport, which stays the tree's one tab stop.
-    &-empty {
-        @extend %absolute-full;
-        align-items: center;
-        color: var(--empty-color);
-        display: flex;
-        flex-direction: column;
-        gap: var(--size-200);
-        justify-content: center;
-        padding: var(--size-400);
-        text-align: center;
-    }
-
     // Laid over the viewport's visible box; the layer starts at the folder's bottom edge.
     &-motion {
         display: none;
@@ -348,8 +348,106 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         position: relative;
         user-select: none;
 
-        &:dir(rtl) {
-            --guide-direction: -1;
+        // The contents alone, so the guide and a selection behind the row keep their strength.
+        &--cut > * {
+            opacity: var(--cut-opacity);
+        }
+
+        &--deleted {
+            --name-decoration: line-through;
+        }
+
+        // Set while moving, not copying.
+        &--dragged {
+            opacity: var(--dragged-opacity);
+        }
+
+        &--drop-end::after,
+        &--drop-only::after {
+            border-block-end-width: var(--border-width-400);
+            border-end-end-radius: var(--row-radius);
+            border-end-start-radius: var(--row-radius);
+        }
+
+        &--drop-only::after,
+        &--drop-start::after {
+            border-block-start-width: var(--border-width-400);
+            border-start-end-radius: var(--row-radius);
+            border-start-start-radius: var(--row-radius);
+        }
+
+        // The drop target and its open contents read as one box, from the folder's indent down to its last row.
+        &--drop::after {
+            background: var(--drop-background);
+            border: 0 solid var(--drop-border-color);
+            border-inline-width: var(--border-width-400);
+            content: '';
+            inset-block: 0;
+            inset-inline: calc((var(--drop-depth) - var(--depth)) * var(--indent)) 0;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        // Every match tinted, the one the find bar is on outlined as well; a selected match shows its selection.
+        &--match {
+            background: var(--found-background);
+        }
+
+        &--match-current {
+            box-shadow: inset 0 0 0 1px var(--found-border-color);
+        }
+
+        // A copy in the sticky stack, which covers the highlight, so it shows its own hover and selection.
+        &--pinned {
+            --background-selected: var(--background-active);
+
+            // The deepest folder, pushed up by the rows after its own, slides under the one above it.
+            &:last-child {
+                clip-path: inset(var(--sticky-push, 0px) calc(var(--depth) * var(--indent) * -1) 0);
+                margin-block-start: calc(var(--sticky-push, 0px) * -1);
+            }
+
+            &:not(.--disabled, .file-tree-row--selected):hover {
+                background: var(--background-hover);
+            }
+        }
+
+        // A folder's rows fade in a beat behind the opening.
+        &--reveal {
+            animation: file-tree-reveal var(--reveal-duration) var(--easing-spring) var(--reveal-delay) backwards;
+        }
+
+        // A root's header, set apart from the folders under it as VS Code sets its workspace folders.
+        &--root {
+            font-size: var(--root-font-size);
+            font-weight: var(--root-font-weight);
+            text-transform: uppercase;
+        }
+
+        // A square band across the tree's full width, back past the row's depth inset, so a scope's rows join into
+        // one block. Isolated, the band sits over the highlight and under the row's content and guides.
+        &--scope {
+            isolation: isolate;
+
+            &::after {
+                background: color-mix(in srgb, var(--scope) var(--scope-tint), transparent);
+                content: '';
+                inset-block: 0;
+                inset-inline: calc(var(--depth) * var(--indent) * -1) 0;
+                pointer-events: none;
+                position: absolute;
+                z-index: -1;
+            }
+        }
+
+        // Selected rows besides the primary, which the highlight covers.
+        &--selected {
+            background: var(--background-selected);
+        }
+
+        &.--disabled {
+            cursor: var(--drag-cursor, not-allowed);
+            opacity: 0.5;
         }
 
         // One guide per ancestor under each ancestor's chevron, outside the row's box so the highlight covers the row
@@ -372,106 +470,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             width: calc(min(var(--depth), 1) * 1px);
         }
 
-        // The contents alone, so the guide and a selection behind the row keep their strength.
-        &--cut > * {
-            opacity: var(--cut-opacity);
-        }
-
-        &.--disabled {
-            cursor: var(--drag-cursor, not-allowed);
-            opacity: 0.5;
-        }
-
-        &--deleted {
-            --name-decoration: line-through;
-        }
-
-        // Set while moving, not copying.
-        &--dragged {
-            opacity: var(--dragged-opacity);
-        }
-
-        // A root's header, set apart from the folders under it as VS Code sets its workspace folders.
-        &--root {
-            font-size: var(--root-font-size);
-            font-weight: var(--root-font-weight);
-            text-transform: uppercase;
-        }
-
-        // The drop target and its open contents read as one box, from the folder's indent down to its last row.
-        &--drop::after {
-            background: var(--drop-background);
-            border: 0 solid var(--drop-border-color);
-            border-inline-width: var(--border-width-400);
-            content: '';
-            inset-block: 0;
-            inset-inline: calc((var(--drop-depth) - var(--depth)) * var(--indent)) 0;
-            pointer-events: none;
-            position: absolute;
-        }
-
-        &--drop-end::after,
-        &--drop-only::after {
-            border-block-end-width: var(--border-width-400);
-            border-end-end-radius: var(--row-radius);
-            border-end-start-radius: var(--row-radius);
-        }
-
-        &--drop-only::after,
-        &--drop-start::after {
-            border-block-start-width: var(--border-width-400);
-            border-start-end-radius: var(--row-radius);
-            border-start-start-radius: var(--row-radius);
-        }
-
-        // Every match tinted, the one the find bar is on outlined as well; a selected match shows its selection.
-        &--match {
-            background: var(--found-background);
-        }
-
-        &--match-current {
-            box-shadow: inset 0 0 0 1px var(--found-border-color);
-        }
-
-        // Selected rows besides the primary, which the highlight covers.
-        &--selected {
-            background: var(--background-selected);
-        }
-
-        // A folder's rows fade in a beat behind the opening.
-        &--reveal {
-            animation: file-tree-reveal var(--reveal-duration) var(--easing-spring) var(--reveal-delay) backwards;
-        }
-
-        // A square band across the tree's full width, back past the row's depth inset, so a scope's rows join into
-        // one block. Isolated, the band sits over the highlight and under the row's content and guides.
-        &--scope {
-            isolation: isolate;
-
-            &::after {
-                background: color-mix(in srgb, var(--scope) var(--scope-tint), transparent);
-                content: '';
-                inset-block: 0;
-                inset-inline: calc(var(--depth) * var(--indent) * -1) 0;
-                pointer-events: none;
-                position: absolute;
-                z-index: -1;
-            }
-        }
-
-        // A copy in the sticky stack, which covers the highlight, so it shows its own hover and selection.
-        &--pinned {
-            --background-selected: var(--background-active);
-
-            &:not(.--disabled, .file-tree-row--selected):hover {
-                background: var(--background-hover);
-            }
-
-            // The deepest folder, pushed up by the rows after its own, slides under the one above it.
-            &:last-child {
-                clip-path: inset(var(--sticky-push, 0px) calc(var(--depth) * var(--indent) * -1) 0);
-                margin-block-start: calc(var(--sticky-push, 0px) * -1);
-            }
+        &:dir(rtl) {
+            --guide-direction: -1;
         }
 
         .file-tree-viewport:focus-visible &--focused {
@@ -489,13 +489,13 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             text-decoration: underline;
         }
 
-        &--match-current {
-            box-shadow: inset 0 0 0 1px var(--found-border-color);
-        }
-
         &--drop {
             background: var(--drop-background);
             box-shadow: inset 0 0 0 var(--border-width-400) var(--drop-border-color);
+        }
+
+        &--match-current {
+            box-shadow: inset 0 0 0 1px var(--found-border-color);
         }
     }
 

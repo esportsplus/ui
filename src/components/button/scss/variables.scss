@@ -113,69 +113,71 @@
     }
 }
 
-.button-fan {
-    --focus-color: currentColor;
-    --focus-offset: 2px;
-    --focus-width: var(--border-width-500);
-    --option-opacity-duration: var(--duration-fast);
-    --option-scale: 0.5;
-    --option-spring: var(--easing-spring);
-    --option-spring-duration: var(--duration-moderate);
-    --spacer: var(--size-300);
-    --stagger: 30ms;
-    --swap-rotate: 90deg;
-    --swap-spring: var(--easing-spring);
-    --swap-spring-duration: var(--duration-fast);
+.button {
+    &-fan {
+        --focus-color: currentColor;
+        --focus-offset: 2px;
+        --focus-width: var(--border-width-500);
+        --option-opacity-duration: var(--duration-fast);
+        --option-scale: 0.5;
+        --option-spring: var(--easing-spring);
+        --option-spring-duration: var(--duration-moderate);
+        --spacer: var(--size-300);
+        --stagger: 30ms;
+        --swap-rotate: 90deg;
+        --swap-spring: var(--easing-spring);
+        --swap-spring-duration: var(--duration-fast);
 
 
-    &--tactile {
-        --box-shadow-default: var(--surface-shadow-default);
+        &--e {
+            --direction-x: -1;
+            --direction-y: 0;
+            --origin: left center;
+        }
+
+        &--n {
+            --direction-x: 0;
+            --direction-y: 1;
+            --origin: center bottom;
+        }
+
+        &--s {
+            --direction-x: 0;
+            --direction-y: -1;
+            --origin: center top;
+        }
+
+        &--tactile {
+            --box-shadow-default: var(--surface-shadow-default);
+        }
+
+        &--w {
+            --direction-x: 1;
+            --direction-y: 0;
+            --origin: right center;
+        }
     }
 
-    &--e {
-        --direction-x: -1;
-        --direction-y: 0;
-        --origin: left center;
+    &-kbd {
+        --gap: var(--size-200);
+        --plus-color: color-mix(in srgb, currentColor 60%, transparent);
+        --plus-size: var(--size-300);
     }
 
-    &--n {
-        --direction-x: 0;
-        --direction-y: 1;
-        --origin: center bottom;
+    &-sidebar {
+        --icon-size: var(--size-400);
+        --panel-duration: var(--duration-fast);
+        // 1 while the panel shows, 0 while hidden; the pill's width and offset both derive from it.
+        --panel-open: 1;
     }
 
-    &--s {
-        --direction-x: 0;
-        --direction-y: -1;
-        --origin: center top;
+    &-split {
+        --chevron-duration: var(--duration-fast);
+        --chevron-timing-function: var(--easing-spring);
+        --focus-color: currentColor;
+        --focus-offset: 2px;
+        --focus-width: var(--border-width-500);
+        --icon-size: var(--size-400);
+        --trigger-padding-horizontal: var(--size-200);
     }
-
-    &--w {
-        --direction-x: 1;
-        --direction-y: 0;
-        --origin: right center;
-    }
-}
-
-.button-kbd {
-    --gap: var(--size-200);
-    --plus-color: color-mix(in srgb, currentColor 60%, transparent);
-    --plus-size: var(--size-300);
-}
-
-.button-sidebar {
-    --icon-size: var(--size-400);
-    --panel-duration: var(--duration-fast);
-    // 1 while the panel shows, 0 while hidden; the pill's width and offset both derive from it.
-    --panel-open: 1;
-}
-
-.button-split {
-    --chevron-duration: var(--duration-fast);
-    --chevron-timing-function: var(--easing-spring);
-    --focus-color: currentColor;
-    --focus-offset: 2px;
-    --focus-width: var(--border-width-500);
-    --icon-size: var(--size-400);
-    --trigger-padding-horizontal: var(--size-200);
 }

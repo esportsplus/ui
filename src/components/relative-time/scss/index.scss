@@ -11,33 +11,10 @@
     transition: color var(--duration-fast) var(--easing-spring);
     white-space: nowrap;
 
-    // Qualified so it beats the reused tooltip's own cursor.
-    &.tooltip {
-        cursor: default;
-    }
-
-    // Brightens on hover so the text reads as something with more to say.
-    &:focus-visible {
-        --color: var(--color-hover);
-    }
-
-    &:focus-visible {
-        outline: 2px solid var(--focus-color);
-        outline-offset: 2px;
-    }
-
     &-digit,
     &-rest {
         display: inline-block;
         white-space: pre;
-    }
-
-    &-digits,
-    &-rests,
-    &-roll,
-    &-slot {
-        display: inline-flex;
-        position: relative;
     }
 
     &-digit--entering,
@@ -52,6 +29,14 @@
     &-slot--exiting {
         animation: relative-time-exit var(--roll-duration) var(--roll-timing-function) forwards;
         position: absolute;
+    }
+
+    &-digits,
+    &-rests,
+    &-roll,
+    &-slot {
+        display: inline-flex;
+        position: relative;
     }
 
     // An empty flex item would lend the line its bottom edge as a baseline, lifting "just now".
@@ -86,6 +71,21 @@
         .relative-time.tooltip--instant > & {
             transition: none;
         }
+    }
+
+    // Qualified so it beats the reused tooltip's own cursor.
+    &.tooltip {
+        cursor: default;
+    }
+
+    // Brightens on hover so the text reads as something with more to say.
+    &:focus-visible {
+        --color: var(--color-hover);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--focus-color);
+        outline-offset: 2px;
     }
 
     @media (prefers-reduced-motion: reduce) {

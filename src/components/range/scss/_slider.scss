@@ -28,70 +28,6 @@
     }
 }
 
-.range.range--slider {
-    --background-default: linear-gradient(to right, var(--range-color) var(--thumb-position), var(--track-color) var(--thumb-position));
-    --height: 4px;
-
-    // Keep browser pseudo-elements separate: an unknown pseudo invalidates a selector list.
-    &::-webkit-slider-thumb {
-        @include thumb;
-        appearance: none;
-    }
-
-    &::-moz-range-thumb {
-        @include thumb;
-        appearance: none;
-    }
-
-    &:focus-visible {
-        &::-webkit-slider-thumb {
-            box-shadow: 0 0 0 3px var(--focus-color);
-        }
-
-        &::-moz-range-thumb {
-            box-shadow: 0 0 0 3px var(--focus-color);
-        }
-    }
-
-    &:active:not(:disabled) {
-        &::-webkit-slider-thumb {
-            box-shadow: none;
-            cursor: grabbing;
-            scale: 1.2;
-        }
-
-        &::-moz-range-thumb {
-            box-shadow: none;
-            cursor: grabbing;
-            scale: 1.2;
-        }
-    }
-
-    &:disabled {
-        opacity: 0.64;
-
-        &::-webkit-slider-thumb {
-            cursor: not-allowed;
-        }
-
-        &::-moz-range-thumb {
-            cursor: not-allowed;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &:active:not(:disabled) {
-            &::-webkit-slider-thumb {
-                scale: 1;
-            }
-
-            &::-moz-range-thumb {
-                scale: 1;
-            }
-        }
-    }
-}
-
 .range-filter.range--slider {
     --clear-display: none;
     --ghost-display: none;
@@ -137,5 +73,69 @@
     @media (prefers-reduced-motion: reduce) {
         --thumb-scale-active: 1;
         --thumb-transition: box-shadow var(--duration-fast) var(--easing-spring);
+    }
+}
+
+.range.range--slider {
+    --background-default: linear-gradient(to right, var(--range-color) var(--thumb-position), var(--track-color) var(--thumb-position));
+    --height: 4px;
+
+    &::-moz-range-thumb {
+        @include thumb;
+        appearance: none;
+    }
+
+    // Keep browser pseudo-elements separate: an unknown pseudo invalidates a selector list.
+    &::-webkit-slider-thumb {
+        @include thumb;
+        appearance: none;
+    }
+
+    &:active:not(:disabled) {
+        &::-moz-range-thumb {
+            box-shadow: none;
+            cursor: grabbing;
+            scale: 1.2;
+        }
+
+        &::-webkit-slider-thumb {
+            box-shadow: none;
+            cursor: grabbing;
+            scale: 1.2;
+        }
+    }
+
+    &:disabled {
+        opacity: 0.64;
+
+        &::-moz-range-thumb {
+            cursor: not-allowed;
+        }
+
+        &::-webkit-slider-thumb {
+            cursor: not-allowed;
+        }
+    }
+
+    &:focus-visible {
+        &::-moz-range-thumb {
+            box-shadow: 0 0 0 3px var(--focus-color);
+        }
+
+        &::-webkit-slider-thumb {
+            box-shadow: 0 0 0 3px var(--focus-color);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &:active:not(:disabled) {
+            &::-moz-range-thumb {
+                scale: 1;
+            }
+
+            &::-webkit-slider-thumb {
+                scale: 1;
+            }
+        }
     }
 }

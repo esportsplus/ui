@@ -184,8 +184,17 @@ $icons: (
     --unsaved-color: var(--color);
     --warning-color: light-dark(oklch(from var(--color-yellow-500) 0.62 c calc(h - 25)), oklch(from var(--color-yellow-500) 0.76 c calc(h - 25)));
 
+    // A tree's own icons take its '--icon-size', which may be set on the tree.
+    & &-icon.icon {
+        --icon-size: inherit;
+    }
+
     &-chevron.icon {
         --size: var(--twistie-size);
+    }
+
+    &-find-icon.icon {
+        --size: var(--size-300);
     }
 
     // The highlight declares its own defaults, so the tree's values are pulled through explicitly.
@@ -194,10 +203,6 @@ $icons: (
         --background-hover: inherit;
         --glide-duration: var(--duration-moderate);
         --glide-duration-active: 0s;
-    }
-
-    &-find-icon.icon {
-        --size: var(--size-300);
     }
 
     // Overridden per family, per icon by '--icon-color-<icon>', or all at once by '--icon-color'. Icons drawn outside a
@@ -217,19 +222,9 @@ $icons: (
         }
     }
 
-    // A tree's own icons take its '--icon-size', which may be set on the tree.
-    & &-icon.icon {
-        --icon-size: inherit;
-    }
-
     &-marker.icon {
         --color: var(--marker-color);
         --size: var(--marker-size);
-    }
-
-    &-spinner.loading {
-        --color: currentColor;
-        --size: var(--icon-size);
     }
 
     &-row {
@@ -238,6 +233,11 @@ $icons: (
                 --tone: var(--#{$tone}-color);
             }
         }
+    }
+
+    &-spinner.loading {
+        --color: currentColor;
+        --size: var(--icon-size);
     }
 
     &-toggle.button {

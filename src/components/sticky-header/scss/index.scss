@@ -7,13 +7,6 @@
     timeline-scope: --sticky-header;
 
 
-    // Covers the whole card and clips to its corners, since the card itself can't clip without losing its shadow;
-    // the plate slides up past the top and the edges hang below the header.
-    &-bar {
-        @extend %layer;
-        overflow: clip;
-    }
-
     &-after {
         @extend %absolute-top;
         align-items: center;
@@ -30,6 +23,13 @@
         :is(a, button, input, label, select, textarea, [tabindex]) {
             pointer-events: auto;
         }
+    }
+
+    // Covers the whole card and clips to its corners, since the card itself can't clip without losing its shadow;
+    // the plate slides up past the top and the edges hang below the header.
+    &-bar {
+        @extend %layer;
+        overflow: clip;
     }
 
     &-before {
@@ -92,6 +92,10 @@
     // Scroll-linked, not eased: the scroll itself is the motion. The sides swap at the midpoint, where both are
     // faded out, and hiding the faded one keeps it out of the tab order, the pointer and the accessibility tree.
     @supports (timeline-scope: none) {
+        &-after {
+            animation-name: sticky-header-after;
+        }
+
         &-after,
         &-bar,
         &-before {
@@ -100,10 +104,6 @@
             animation-range: 0 var(--sticky-header-range);
             animation-timeline: --sticky-header;
             animation-timing-function: linear;
-        }
-
-        &-after {
-            animation-name: sticky-header-after;
         }
 
         &-bar {

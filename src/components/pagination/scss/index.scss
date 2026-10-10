@@ -22,12 +22,6 @@
         width: calc((var(--count) - 1) * var(--step) + var(--pill-width));
     }
 
-    &-control,
-    &-page {
-        border: var(--border-width) solid var(--border-color);
-        height: var(--size);
-    }
-
     &-control {
         gap: var(--size-100);
 
@@ -35,6 +29,12 @@
             opacity: 0.64;
             pointer-events: none;
         }
+    }
+
+    &-control,
+    &-page {
+        border: var(--border-width) solid var(--border-color);
+        height: var(--size);
     }
 
     &-page {

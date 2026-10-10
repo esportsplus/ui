@@ -54,65 +54,10 @@
         }
     }
 
-    // Sized by the native range, whose thumb already stops half its width short of each end. Qualified by the root so
-    // it wins over the reused range styles regardless of stylesheet order.
-    .color-picker-channel {
-        appearance: none;
-        background: none;
-        border: 0;
-        border-radius: 999px;
-        cursor: pointer;
-        display: block;
-        height: 28px;
-        margin: 0;
-        outline: none;
-        touch-action: none;
-        width: 100%;
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--color);
-            outline-offset: 1px;
-        }
-
-        &::-webkit-slider-runnable-track {
-            @include track;
-        }
-
-        &::-moz-range-track {
-            @include track;
-        }
-
-        &::-webkit-slider-thumb {
-            @include thumb;
-            appearance: none;
-            margin-top: calc((var(--track-height) - var(--thumb-size)) / 2);
-        }
-
-        &::-moz-range-thumb {
-            @include thumb;
-        }
-
-        &:active::-webkit-slider-thumb {
-            scale: var(--thumb-scale-pressed);
-        }
-
-        &:active::-moz-range-thumb {
-            scale: var(--thumb-scale-pressed);
-        }
-    }
-
     &-channels {
         align-items: center;
         display: flex;
         gap: var(--spacing);
-    }
-
-    // Sits inside the hex field, at its end; the field's padding keeps typed text clear of it.
-    .color-picker-copy {
-        position: absolute;
-        right: var(--copy-inset);
-        top: 50%;
-        translate: 0 -50%;
     }
 
     &-field {
@@ -120,6 +65,63 @@
         flex: 1 1 auto;
         min-width: 0;
         position: relative;
+    }
+
+    .color {
+        // Sized by the native range, whose thumb already stops half its width short of each end. Qualified by the root so
+        // it wins over the reused range styles regardless of stylesheet order.
+        &-picker-channel {
+            appearance: none;
+            background: none;
+            border: 0;
+            border-radius: 999px;
+            cursor: pointer;
+            display: block;
+            height: 28px;
+            margin: 0;
+            outline: none;
+            touch-action: none;
+            width: 100%;
+
+            &::-moz-range-thumb {
+                @include thumb;
+            }
+
+            &::-moz-range-track {
+                @include track;
+            }
+
+            &::-webkit-slider-runnable-track {
+                @include track;
+            }
+
+            &::-webkit-slider-thumb {
+                @include thumb;
+                appearance: none;
+                margin-top: calc((var(--track-height) - var(--thumb-size)) / 2);
+            }
+
+            &:active::-moz-range-thumb {
+                scale: var(--thumb-scale-pressed);
+            }
+
+            &:active::-webkit-slider-thumb {
+                scale: var(--thumb-scale-pressed);
+            }
+
+            &:focus-visible {
+                outline: var(--focus-width) solid var(--color);
+                outline-offset: 1px;
+            }
+        }
+
+        // Sits inside the hex field, at its end; the field's padding keeps typed text clear of it.
+        &-picker-copy {
+            position: absolute;
+            right: var(--copy-inset);
+            top: 50%;
+            translate: 0 -50%;
+        }
     }
 
     // Qualified by the wrapper so it wins over the reused input padding regardless of stylesheet order.
@@ -244,6 +246,13 @@
         user-select: none;
         width: var(--swatch-size);
 
+        // A stand-in for a dropped swatch, whose own node is already gone.
+        &--leaving {
+            animation: color-picker-swatch-leave var(--swatch-exit-duration) var(--swatch-exit-easing) forwards;
+            pointer-events: none;
+            position: absolute;
+        }
+
         // A larger hit area; with the gap, neighbours meet but never overlap.
         &::after {
             border-radius: 50%;
@@ -255,13 +264,6 @@
         &:focus-visible {
             outline: var(--focus-width) solid var(--color);
             outline-offset: 4px;
-        }
-
-        // A stand-in for a dropped swatch, whose own node is already gone.
-        &--leaving {
-            animation: color-picker-swatch-leave var(--swatch-exit-duration) var(--swatch-exit-easing) forwards;
-            pointer-events: none;
-            position: absolute;
         }
     }
 
@@ -309,13 +311,20 @@
             direction: ltr;
         }
 
-        &::-webkit-slider-runnable-track {
+        &::-moz-range-thumb {
+            background: none;
+            border-radius: var(--rail-radius);
+            height: var(--rail-thumb-height);
+            width: 100%;
+        }
+
+        &::-moz-range-track {
             border-radius: var(--rail-radius);
             height: 100%;
             width: 100%;
         }
 
-        &::-moz-range-track {
+        &::-webkit-slider-runnable-track {
             border-radius: var(--rail-radius);
             height: 100%;
             width: 100%;
@@ -328,28 +337,21 @@
             margin: 0;
             width: 100%;
         }
-
-        &::-moz-range-thumb {
-            background: none;
-            border-radius: var(--rail-radius);
-            height: var(--rail-thumb-height);
-            width: 100%;
-        }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .color-picker-channel {
-            &::-webkit-slider-thumb {
-                transition: none;
-            }
+        &-thumb {
+            transition: none;
+        }
 
+        .color-picker-channel {
             &::-moz-range-thumb {
                 transition: none;
             }
-        }
 
-        &-thumb {
-            transition: none;
+            &::-webkit-slider-thumb {
+                transition: none;
+            }
         }
     }
 }

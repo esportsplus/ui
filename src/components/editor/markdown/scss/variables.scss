@@ -38,6 +38,7 @@
     --fold-rotate: 0deg;
     --fold-width: var(--size-400);
     --font-size: var(--font-size-300);
+    --gutter-width: 0px;
     // Heading font scales and the line height of the two largest; the layout's arithmetic uses the same values.
     --h1-scale: 1.7;
     --h2-scale: 1.45;
@@ -47,7 +48,6 @@
     --h6-scale: 0.95;
     --heading-line-height: 1.3;
     --heading-weight: 600;
-    --gutter-width: 0px;
     --height: 320px;
     --invalid-color: var(--color-red-400);
     --keyword-color: light-dark(var(--color-purple-400), oklch(from var(--color-purple-400) 0.75 0.15 h));

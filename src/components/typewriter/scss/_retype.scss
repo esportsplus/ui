@@ -10,11 +10,6 @@
         animation: typewriter-retype--ink var(--ink-duration) var(--ease-out);
     }
 
-    &-line,
-    &-sizer {
-        grid-area: 1 / 1;
-    }
-
     &-line {
         text-align: left;
 
@@ -25,6 +20,11 @@
         &--typing::after {
             animation: none;
         }
+    }
+
+    &-line,
+    &-sizer {
+        grid-area: 1 / 1;
     }
 
     &-sizer {
@@ -42,6 +42,11 @@
         isolation: isolate;
         position: relative;
 
+        &--selecting::before {
+            scale: 1 1;
+            transition: scale var(--select-duration) var(--ease-out);
+        }
+
         &::before {
             background: var(--selection-color);
             border-radius: var(--selection-radius);
@@ -51,11 +56,6 @@
             scale: 0 1;
             transform-origin: right;
             z-index: -1;
-        }
-
-        &--selecting::before {
-            scale: 1 1;
-            transition: scale var(--select-duration) var(--ease-out);
         }
     }
 }

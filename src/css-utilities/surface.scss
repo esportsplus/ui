@@ -171,17 +171,17 @@ $dark-page-default: channel(dark, secondary, 'lightness');
 }
 
 
+// Only a surface already at the top matches no raised query, so it keeps the top shadow.
+%surface-raised-level {
+    @include surface-shadow(6);
+}
+
 // A layer a level above or below whatever it sits in, counted and colored without being painted: for components that
 // route their background and shadow through their own variables, pointing them at '--surface-background-*' and
 // '--surface-shadow-*'. A sunken layer is recessed, so it casts no shadow.
 %surface-raised-level,
 %surface-sunken-level {
     @include surface-colors;
-}
-
-// Only a surface already at the top matches no raised query, so it keeps the top shadow.
-%surface-raised-level {
-    @include surface-shadow(6);
 }
 
 %surface-sunken-level {
@@ -210,12 +210,8 @@ $dark-page-default: channel(dark, secondary, 'lightness');
     }
 }
 
-// A fresh stack above everything, for dialogs: level 1 wherever it opens, so whatever opens inside counts up from it,
-// with the deepest shadow since nothing sits above it. Not counted from its parent, so it skips the queries.
-%surface-root-level {
-    @include surface-colors;
-    @include surface-shadow(6);
-    --surface-level: 1;
+%surface-raised {
+    @extend %surface-raised-level;
 }
 
 // The same, painted: the surface's background and shadow on the element itself.
@@ -226,12 +222,16 @@ $dark-page-default: channel(dark, secondary, 'lightness');
     box-shadow: var(--surface-shadow-default);
 }
 
-%surface-raised {
-    @extend %surface-raised-level;
-}
-
 %surface-root {
     @extend %surface-root-level;
+}
+
+// A fresh stack above everything, for dialogs: level 1 wherever it opens, so whatever opens inside counts up from it,
+// with the deepest shadow since nothing sits above it. Not counted from its parent, so it skips the queries.
+%surface-root-level {
+    @include surface-colors;
+    @include surface-shadow(6);
+    --surface-level: 1;
 }
 
 %surface-sunken {

@@ -66,6 +66,12 @@
         padding: 0;
         width: var(--fold-width);
 
+        &-icon.icon {
+            --size: var(--fold-icon-size);
+            rotate: var(--fold-rotate);
+            transition: rotate var(--fold-duration) var(--easing-spring);
+        }
+
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: calc(var(--focus-width) * -1);
@@ -73,12 +79,6 @@
 
         &[aria-expanded='false'] {
             --fold-rotate: -90deg;
-        }
-
-        &-icon.icon {
-            --size: var(--fold-icon-size);
-            rotate: var(--fold-rotate);
-            transition: rotate var(--fold-duration) var(--easing-spring);
         }
     }
 

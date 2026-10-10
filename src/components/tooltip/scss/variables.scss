@@ -7,6 +7,10 @@
     // Set a translucent color to review the safe area shape.
     --safe-color: transparent;
 
+    &-arrow {
+        --rotate: 0deg;
+    }
+
     // Floating layers, a level above whatever opened them.
     &-content,
     &-message {
@@ -52,10 +56,6 @@
         }
     }
 
-    &-arrow {
-        --rotate: 0deg;
-    }
-
     &-content[role='menu'] {
         --option-focus-background: color-mix(in srgb, currentColor 12%, transparent);
     }
@@ -71,101 +71,103 @@
 }
 
 
-.tooltip--menu {
-    --border-radius: var(--border-radius-600);
-    --close-duration: var(--duration-moderate-exit);
-    --color: var(--color-text-500);
-    --color-danger: var(--color-red-400);
-    --color-disabled: var(--color-text-300);
-    --color-hint: var(--color-text-300);
-    --font-size: 0.875rem;
-    --gap: var(--size-200);
-    --item-border-radius: var(--border-radius-400);
-    --item-height: 36px;
-    --item-padding: var(--size-200);
-    --offset: var(--size-200);
-    --open-duration: var(--duration-moderate);
-    --open-timing-function: var(--easing-spring);
-    --padding: 4px;
-    --scrim: oklch(from var(--color-shadow) 0 0 0 / calc(alpha * 0.9));
-    --width: 17rem;
+.tooltip {
+    &--menu {
+        --border-radius: var(--border-radius-600);
+        --close-duration: var(--duration-moderate-exit);
+        --color: var(--color-text-500);
+        --color-danger: var(--color-red-400);
+        --color-disabled: var(--color-text-300);
+        --color-hint: var(--color-text-300);
+        --font-size: 0.875rem;
+        --gap: var(--size-200);
+        --item-border-radius: var(--border-radius-400);
+        --item-height: 36px;
+        --item-padding: var(--size-200);
+        --offset: var(--size-200);
+        --open-duration: var(--duration-moderate);
+        --open-timing-function: var(--easing-spring);
+        --padding: 4px;
+        --scrim: oklch(from var(--color-shadow) 0 0 0 / calc(alpha * 0.9));
+        --width: 17rem;
 
-    &.tooltip--instant {
-        --close-duration: 0s;
-        --open-duration: 0s;
+        &.tooltip--instant {
+            --close-duration: 0s;
+            --open-duration: 0s;
+        }
+
+        @media (pointer: coarse) {
+            --item-height: 44px;
+        }
     }
 
-    @media (pointer: coarse) {
-        --item-height: 44px;
-    }
-}
-
-// Items take the hover and pressed steps of the panel they sit in.
-.tooltip-menu-item {
-    @extend %background-state;
-    --background-hover: var(--surface-background-hover);
-    --background-pressed: var(--surface-background-pressed);
-}
-
-// A surface of its own, so a branch panel sits a level above the panel it opened from. The title opacities are read
-// by a branch panel's header title, which crossfades to bold while that panel is open; every panel sets its own, so a
-// parent panel's state never reaches its children's titles.
-.tooltip-menu-panel {
-    @extend %background-state, %box-shadow-state, %surface-raised-level;
-    --background-default: var(--surface-background-default);
-    --box-shadow-default: var(--surface-shadow-default);
-    --title-bold-opacity: 0;
-    --title-regular-opacity: 1;
-
-    @include tokens.state(active) {
-        --title-bold-opacity: 1;
-        --title-regular-opacity: 0;
-    }
-}
-
-
-// '--padding' and '--radius' rather than the usual names: the root resets '--padding-*' and '--border-radius' on
-// every element, so the box and layers inside would never see them.
-.tooltip-shared {
-    @extend %background-state, %box-shadow-state, %surface-raised-level;
-    --background-default: var(--color-primary-400);
-    --blur: 7px;
-    --box-shadow-default: var(--surface-shadow-default);
-    --close-duration: var(--duration-moderate-exit);
-    --color: var(--surface-background-default);
-    --font-size: var(--font-size-300);
-    --font-weight: var(--font-weight-400);
-    --glide-duration: var(--duration-moderate);
-    --glide-timing-function: var(--easing-spring);
-    --max-width: calc(90vw - (var(--size-700) * 2));
-    --open-duration: var(--duration-moderate);
-    --padding: var(--size-300);
-    --radius: var(--border-radius-400);
-    --rise: 4px;
-    --scale: 0.94;
-    --spacer: var(--size-300);
-    --timing-function: var(--easing-spring);
-    --white-space: nowrap;
-
-    // Read by the box: where it rises from, toward the trigger.
-    &--e {
-        --box-translate: calc(var(--rise) * -1) 0;
+    // Items take the hover and pressed steps of the panel they sit in.
+    &-menu-item {
+        @extend %background-state;
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
     }
 
-    &--interactive {
-        --white-space: normal;
+    // A surface of its own, so a branch panel sits a level above the panel it opened from. The title opacities are read
+    // by a branch panel's header title, which crossfades to bold while that panel is open; every panel sets its own, so a
+    // parent panel's state never reaches its children's titles.
+    &-menu-panel {
+        @extend %background-state, %box-shadow-state, %surface-raised-level;
+        --background-default: var(--surface-background-default);
+        --box-shadow-default: var(--surface-shadow-default);
+        --title-bold-opacity: 0;
+        --title-regular-opacity: 1;
+
+        @include tokens.state(active) {
+            --title-bold-opacity: 1;
+            --title-regular-opacity: 0;
+        }
     }
 
-    &--n {
-        --box-translate: 0 var(--rise);
-    }
 
-    &--s {
-        --box-translate: 0 calc(var(--rise) * -1);
-    }
+    // '--padding' and '--radius' rather than the usual names: the root resets '--padding-*' and '--border-radius' on
+    // every element, so the box and layers inside would never see them.
+    &-shared {
+        @extend %background-state, %box-shadow-state, %surface-raised-level;
+        --background-default: var(--color-primary-400);
+        --blur: 7px;
+        --box-shadow-default: var(--surface-shadow-default);
+        --close-duration: var(--duration-moderate-exit);
+        --color: var(--surface-background-default);
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-400);
+        --glide-duration: var(--duration-moderate);
+        --glide-timing-function: var(--easing-spring);
+        --max-width: calc(90vw - (var(--size-700) * 2));
+        --open-duration: var(--duration-moderate);
+        --padding: var(--size-300);
+        --radius: var(--border-radius-400);
+        --rise: 4px;
+        --scale: 0.94;
+        --spacer: var(--size-300);
+        --timing-function: var(--easing-spring);
+        --white-space: nowrap;
 
-    &--w {
-        --box-translate: var(--rise) 0;
+        // Read by the box: where it rises from, toward the trigger.
+        &--e {
+            --box-translate: calc(var(--rise) * -1) 0;
+        }
+
+        &--interactive {
+            --white-space: normal;
+        }
+
+        &--n {
+            --box-translate: 0 var(--rise);
+        }
+
+        &--s {
+            --box-translate: 0 calc(var(--rise) * -1);
+        }
+
+        &--w {
+            --box-translate: var(--rise) 0;
+        }
     }
 }
 

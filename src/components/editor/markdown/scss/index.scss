@@ -20,6 +20,10 @@
     tab-size: var(--tab-size);
     width: 100%;
 
+    &--empty &-content::before {
+        display: block;
+    }
+
     &-block {
         cursor: var(--cursor);
         // Margins of drawn HTML stay inside, so the measured box is the space the block takes.
@@ -82,14 +86,14 @@
             padding-left: calc(var(--depth) * var(--quote-indent));
         }
 
-        // Padding, not margin: the layout measures each block's border box, so space outside it would go uncounted.
-        &--task {
-            padding-top: var(--task-spacing);
-        }
-
         &--raw {
             margin-left: 0;
             white-space: var(--white-space);
+        }
+
+        // Padding, not margin: the layout measures each block's border box, so space outside it would go uncounted.
+        &--task {
+            padding-top: var(--task-spacing);
         }
     }
 
@@ -233,6 +237,7 @@
         max-width: 100%;
     }
 
+
     // A fence's info string, labelling its code.
     &-info {
         @extend %font-geist-mono;
@@ -242,7 +247,6 @@
         font-size: var(--chip-font-size);
         min-height: 1lh;
     }
-
 
     // A task's text. Inline, so the strike runs once per wrapped line; it draws after the check, as in the tasklist.
     &-label {
@@ -363,10 +367,6 @@
         gap: var(--size-100);
         list-style: none;
 
-        &::-webkit-details-marker {
-            display: none;
-        }
-
         // Turns like a fold marker: right while closed, down once open.
         &-icon.icon {
             --size: var(--fold-icon-size);
@@ -376,6 +376,10 @@
             details[open] > .markdown-editor-summary > & {
                 rotate: 0deg;
             }
+        }
+
+        &::-webkit-details-marker {
+            display: none;
         }
     }
 
@@ -411,10 +415,6 @@
             cursor: default;
             opacity: var(--disabled-opacity);
         }
-    }
-
-    &--empty &-content::before {
-        display: block;
     }
 
     &:focus-within {

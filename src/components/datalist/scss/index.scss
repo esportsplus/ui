@@ -72,13 +72,13 @@
         }
     }
 
+    &-tag {
+        @extend %hidden-field;
+    }
+
     // Padding lives on the track, not the scroller, since some engines drop a scroller's block-end padding from its scroll range
     &-track {
         padding-block: calc((var(--height) - var(--item-height)) / 2);
-    }
-
-    &-tag {
-        @extend %hidden-field;
     }
 }
 

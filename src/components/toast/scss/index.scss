@@ -42,6 +42,44 @@ $open: ':is(:hover, :focus-within)';
         translate: 0 calc(var(--toast-anchor-height) / -2);
     }
 
+    &--e {
+        > .toast {
+            --stack-translate: calc(var(--stack-shift) * -1) calc((var(--toast-frontmost-height) - var(--toast-height)) / 2);
+            transform-origin: right;
+        }
+
+        > .toaster-overflow {
+            translate: calc(((var(--toast-limit) - 1) * var(--stack-peek) + var(--toast-overflow-peek)) * -1) 0;
+        }
+    }
+
+    // Side stacks recede sideways, back from their edge, the way overlay's do: every toast is as wide as the
+    // next, so the overlay's own shift applies, and back toasts are centered on the front one and trimmed to its
+    // height.
+    &--e,
+    &--w {
+        height: var(--toast-frontmost-height);
+
+        > .toast {
+            --stack-shift: calc(var(--depth) * var(--stack-peek) + (1 - var(--toast-scale)) * var(--stack-span));
+        }
+
+        > .toast.toast--behind {
+            clip-path: inset(calc((100% - var(--toast-frontmost-height)) / 2) calc(var(--toast-bleed) * -1));
+        }
+
+        // Its count runs down the strip it shows beside the stack. Physical sides: in vertical writing its logical
+        // ones turn with the text.
+        > .toaster-overflow {
+            bottom: auto;
+            height: calc(var(--toast-frontmost-height) * pow(var(--stack-scale), var(--toast-limit)));
+            left: 0;
+            right: 0;
+            top: calc(var(--toast-frontmost-height) * (1 - pow(var(--stack-scale), var(--toast-limit))) / 2);
+            writing-mode: vertical-rl;
+        }
+    }
+
     &--n {
         inset: var(--margin-vertical) auto auto 50%;
         translate: -50% 0;
@@ -60,6 +98,28 @@ $open: ':is(:hover, :focus-within)';
         translate: -50% 0;
     }
 
+    &--s,
+    &--se,
+    &--sw {
+        > .toast {
+            --stack-translate: 0 calc(var(--stack-shift) * -1);
+            bottom: 0;
+            top: auto;
+            transform-origin: bottom;
+        }
+
+        > .toast.toast--behind {
+            clip-path: inset(calc(var(--toast-bleed) * -1) calc(var(--toast-bleed) * -1) calc(100% - var(--toast-frontmost-height)));
+        }
+
+        > .toaster-overflow {
+            align-items: flex-start;
+            bottom: 0;
+            top: auto;
+        }
+    }
+
+
     &--se {
         inset: auto var(--margin-horizontal) var(--margin-vertical) auto;
     }
@@ -73,6 +133,17 @@ $open: ':is(:hover, :focus-within)';
         translate: 0 calc(var(--toast-anchor-height) / -2);
     }
 
+    &--w {
+        > .toast {
+            --stack-translate: var(--stack-shift) calc((var(--toast-frontmost-height) - var(--toast-height)) / 2);
+            transform-origin: left;
+        }
+
+        > .toaster-overflow {
+            align-items: flex-start;
+            translate: calc((var(--toast-limit) - 1) * var(--stack-peek) + var(--toast-overflow-peek)) 0;
+        }
+    }
 
     // Scoped under the toaster to outrank consumer pairings like '.card { position: relative }'. The slot it stands
     // in is its 'translate', a swipe (and the way in or out) its 'transform', so the two compose.
@@ -106,6 +177,10 @@ $open: ':is(:hover, :focus-within)';
         opacity: 0;
     }
 
+    > .toast.toast--timed {
+        animation: toast-timer var(--toast-duration) linear forwards;
+    }
+
     // Stands one card further back than the limit, reaching past the last visible layer far enough for its count.
     // Unscaled so its text stays legible: narrowed by the scale that depth would have instead.
     > .toaster-overflow {
@@ -124,81 +199,6 @@ $open: ':is(:hover, :focus-within)';
             translate var(--toast-transition-duration) var(--toast-transition-timing-function);
         translate: 0 calc(((var(--toast-limit) - 1) * var(--stack-peek) + var(--toast-overflow-peek)) * var(--toast-direction));
         z-index: calc(9999 - var(--toast-limit));
-    }
-
-    &--s,
-    &--se,
-    &--sw {
-        > .toast {
-            --stack-translate: 0 calc(var(--stack-shift) * -1);
-            bottom: 0;
-            top: auto;
-            transform-origin: bottom;
-        }
-
-        > .toast.toast--behind {
-            clip-path: inset(calc(var(--toast-bleed) * -1) calc(var(--toast-bleed) * -1) calc(100% - var(--toast-frontmost-height)));
-        }
-
-        > .toaster-overflow {
-            align-items: flex-start;
-            bottom: 0;
-            top: auto;
-        }
-    }
-
-    // Side stacks recede sideways, back from their edge, the way overlay's do: every toast is as wide as the
-    // next, so the overlay's own shift applies, and back toasts are centered on the front one and trimmed to its
-    // height.
-    &--e,
-    &--w {
-        height: var(--toast-frontmost-height);
-
-        > .toast {
-            --stack-shift: calc(var(--depth) * var(--stack-peek) + (1 - var(--toast-scale)) * var(--stack-span));
-        }
-
-        > .toast.toast--behind {
-            clip-path: inset(calc((100% - var(--toast-frontmost-height)) / 2) calc(var(--toast-bleed) * -1));
-        }
-
-        // Its count runs down the strip it shows beside the stack. Physical sides: in vertical writing its logical
-        // ones turn with the text.
-        > .toaster-overflow {
-            bottom: auto;
-            height: calc(var(--toast-frontmost-height) * pow(var(--stack-scale), var(--toast-limit)));
-            left: 0;
-            right: 0;
-            top: calc(var(--toast-frontmost-height) * (1 - pow(var(--stack-scale), var(--toast-limit))) / 2);
-            writing-mode: vertical-rl;
-        }
-    }
-
-    &--e {
-        > .toast {
-            --stack-translate: calc(var(--stack-shift) * -1) calc((var(--toast-frontmost-height) - var(--toast-height)) / 2);
-            transform-origin: right;
-        }
-
-        > .toaster-overflow {
-            translate: calc(((var(--toast-limit) - 1) * var(--stack-peek) + var(--toast-overflow-peek)) * -1) 0;
-        }
-    }
-
-    &--w {
-        > .toast {
-            --stack-translate: var(--stack-shift) calc((var(--toast-frontmost-height) - var(--toast-height)) / 2);
-            transform-origin: left;
-        }
-
-        > .toaster-overflow {
-            align-items: flex-start;
-            translate: calc((var(--toast-limit) - 1) * var(--stack-peek) + var(--toast-overflow-peek)) 0;
-        }
-    }
-
-    > .toast.toast--timed {
-        animation: toast-timer var(--toast-duration) linear forwards;
     }
 
     // Only the front toast's clock runs, and none while the stack is open or a toast is being swiped.
@@ -228,21 +228,11 @@ $open: ':is(:hover, :focus-within)';
         }
     }
 
-    > .toast.toast--swiping {
-        transition: none;
-    }
-
     // Leaving plays out from wherever the toast stands, toward its edge; its clock stays stopped where it ended so
     // anything counting down on it holds still as it goes.
     > .toast.toast--ending {
         animation: toast-exit var(--toast-exit-duration) var(--toast-exit-timing-function) forwards;
         pointer-events: none;
-    }
-
-    > .toast.toast--ending.toast--timed {
-        animation:
-            toast-timer var(--toast-duration) linear forwards paused,
-            toast-exit var(--toast-exit-duration) var(--toast-exit-timing-function) forwards;
     }
 
     // Swiped away, it is thrown on until it has left the screen, whole, rather than fading out on the way.
@@ -252,6 +242,16 @@ $open: ':is(:hover, :focus-within)';
 
     > .toast.toast--ending.toast--flung.toast--timed {
         animation-name: toast-timer, toast-fling;
+    }
+
+    > .toast.toast--ending.toast--timed {
+        animation:
+            toast-timer var(--toast-duration) linear forwards paused,
+            toast-exit var(--toast-exit-duration) var(--toast-exit-timing-function) forwards;
+    }
+
+    > .toast.toast--swiping {
+        transition: none;
     }
 }
 

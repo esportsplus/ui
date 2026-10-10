@@ -12,15 +12,15 @@
     --box-shadow-default: var(--surface-shadow-default);
     --color: var(--color-text-500);
     --cursor-color: color-mix(in oklab, var(--color-primary-300) 40%, transparent);
+    --dot-color: var(--line-color);
+    --dot-ring-color: var(--background);
+    --dot-size: 12px;
     // Long for a UI animation on purpose: the draw introduces the shape once, and a faster line reads as a flicker.
     --draw-duration: 0.7s;
     // Hidden and undrawn until the plot is shown.
     --draw-offset: 1;
     --draw-opacity: 0;
     --draw-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-    --dot-color: var(--line-color);
-    --dot-ring-color: var(--background);
-    --dot-size: 12px;
     --focus-color: var(--color-primary-500);
     --font-size: var(--font-size-400);
     --line-color: var(--color-primary-500);
