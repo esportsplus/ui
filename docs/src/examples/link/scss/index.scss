@@ -2,22 +2,22 @@
 
 // Tab-style links over a rule; the highlight's line sits on that rule, so it reads as the active link's underline.
 .link-demo-group {
-    border-bottom: var(--border-width-400) solid var(--color-border-300);
+    border-bottom: var(--border-width-400) solid var(--surface-secondary-default);
     display: flex;
     gap: 2px;
 
     &--vertical {
         border-bottom: 0;
-        border-left: var(--border-width-400) solid var(--color-border-300);
+        border-left: var(--border-width-400) solid var(--surface-secondary-default);
         flex-direction: column;
         width: 160px;
     }
 
     &-highlight.highlight {
-        --background-active: var(--color-grey-400);
-        --background-hover: var(--color-grey-300);
-        --background-pressed: var(--color-grey-400);
-        --line-color: var(--color-text-500);
+        --background-active: var(--surface-background-active);
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
+        --line-color: var(--color-primary-500);
         --line-offset: calc(var(--border-width-400) * -1);
         --scale-hidden: 1;
         border-radius: var(--border-radius-300);

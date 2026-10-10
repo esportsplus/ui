@@ -3,7 +3,7 @@ import type { Task } from '@esportsplus/ui/components/tasklist';
 
 
 // Opaque rows so a row sliding past its neighbours covers them instead of overlapping their text
-let item = { style: '--background-default: var(--color-white-400);' },
+let item = { style: '--background-default: var(--surface-background-default);' },
     style = 'max-width: 360px; width: 100%;';
 
 

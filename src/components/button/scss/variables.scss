@@ -1,9 +1,11 @@
 @use '/tokens';
+@use 'css-utilities/surface';
 
+// A surface, so its fills and whatever sits in it read from a level above its parent. Flat by default, since most
+// buttons are transparent; a tactile one rises off its parent with the surface's shadow.
 .button {
+    @extend %surface-raised-level;
     --border-color-default: var(--background);
-    --box-shadow: var(--box-shadow-default);
-    --box-shadow-default: none;
 
 
     &--feedback {
@@ -30,33 +32,34 @@
     // Leaves the surface alone and sweeps colour through the label only.
     &--hold-text {
         --fill-background: transparent;
-        --fill-color: var(--color-primary-400);
+        --fill-color: var(--color-accent-400);
     }
 
     // A hairline ring plus an inset bottom edge gives the keycap its depth; pressing drops the cap by that edge.
     &--kbd {
-        --background-active: var(--color-text-500);
-        --background-default: var(--color-white-300);
+        --background-active: var(--color-primary-500);
+        --background-default: var(--surface-background-default);
+        --background-pressed: var(--background-active);
         --border-radius: var(--border-radius-300);
+        --box-shadow-active: none;
         --box-shadow-default:
             0 0 0 var(--border-width-400) var(--kbd-border-color),
             inset 0 calc(var(--border-width-400) * -1) 0 var(--kbd-border-color);
-        --color-active: var(--color-white-300);
+        --box-shadow-pressed: none;
+        --color-active: var(--surface-background-default);
         --color-default: var(--color-text-300);
+        --color-pressed: var(--color-active);
         --font-size: calc(var(--font-size-300) * 0.95);
-        --kbd-border-color: var(--color-border-300);
+        --kbd-border-color: var(--surface-secondary-default);
         --kbd-size: 24px;
         --line-height: 1;
         --padding-horizontal: 6px;
         --padding-vertical: 0px;
-        --transition-duration: 0.3s;
-        --transition-timing-function: ease-out;
+        --transition-duration: var(--duration-moderate);
+        --transition-timing-function: var(--easing-spring);
 
         // Lights instantly and releases with the slower fade.
         @include tokens.state(active pressed) {
-            --background: var(--background-active);
-            --box-shadow: none;
-            --color: var(--color-active);
             --transition-duration: 0s;
         }
     }
@@ -70,22 +73,21 @@
         --icon-swap-duration: 300ms;
         --icon-swap-timing-function: var(--morph-spring);
         --line-height: 20px;
-        --morph-background: var(--color-text-500);
+        --morph-background: var(--color-primary-500);
         --morph-background-error: var(--color-red-500);
-        --morph-color: var(--color-white-300);
+        --morph-color: var(--color-surface);
         --morph-color-error: var(--color-white-300);
-        --morph-focus-color: color-mix(in oklab, var(--color-text-500) 38%, transparent);
+        --morph-focus-color: var(--surface-border-pressed);
         --morph-font-size: 14px;
         --morph-height: 40px;
-        --morph-icon-size: 16px;
+        --morph-icon-size: var(--size-400);
         // JS measures the width morph; CSS owns the failed-save shake.
-        --morph-resize-duration: 300ms;
+        --morph-resize-duration: var(--duration-moderate);
         --morph-resize-easing: var(--morph-spring);
-        --morph-scale-pressed: 0.96;
         --morph-shake-duration: 350ms;
         --morph-shake-easing: ease-in-out;
-        --morph-spring: linear(0, 0.057, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.896, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
-        --padding-horizontal: 20px;
+        --morph-spring: var(--easing-spring);
+        --padding-horizontal: var(--size-500);
         --padding-vertical: 0px;
 
         @media (prefers-reduced-motion: reduce) {
@@ -114,19 +116,21 @@
 .button-fan {
     --focus-color: currentColor;
     --focus-offset: 2px;
-    --focus-width: 2px;
-    --option-opacity-duration: 0.2s;
-    --option-pressed-scale: 0.92;
+    --focus-width: var(--border-width-500);
+    --option-opacity-duration: var(--duration-fast);
     --option-scale: 0.5;
-    --option-spring: linear(0, 0.067, 0.221, 0.406, 0.586, 0.741, 0.862, 0.949, 1.006, 1.037, 1.051, 1.053, 1.047, 1.038, 1.028, 1.019, 1.011, 1.006, 1.002, 0.999, 0.998, 0.997, 0.997, 0.998, 1);
-    --option-spring-duration: 0.6s;
+    --option-spring: var(--easing-spring);
+    --option-spring-duration: var(--duration-moderate);
     --spacer: var(--size-300);
     --stagger: 30ms;
     --swap-rotate: 90deg;
-    --swap-spring: linear(0, 0.07, 0.228, 0.418, 0.602, 0.759, 0.88, 0.965, 1.019, 1.047, 1.058, 1.056, 1.048, 1.038, 1.027, 1.017, 1.009, 1.003, 1, 0.998, 0.997, 0.997, 0.997, 0.998, 1);
-    --swap-spring-duration: 0.44s;
-    --trigger-pressed-scale: 0.94;
+    --swap-spring: var(--easing-spring);
+    --swap-spring-duration: var(--duration-fast);
 
+
+    &--tactile {
+        --box-shadow-default: var(--surface-shadow-default);
+    }
 
     &--e {
         --direction-x: -1;
@@ -160,20 +164,18 @@
 }
 
 .button-sidebar {
-    --divider-duration: 180ms;
-    // How far the divider slides out of the frame while its panel is hidden.
-    --divider-travel: -12px;
-    --divider-x: 0px;
     --icon-size: var(--size-400);
-    --shadow-opacity: 0.2;
+    --panel-duration: var(--duration-fast);
+    // 1 while the panel shows, 0 while hidden; the pill's width and offset both derive from it.
+    --panel-open: 1;
 }
 
 .button-split {
-    --chevron-duration: 0.2s;
-    --chevron-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --chevron-duration: var(--duration-fast);
+    --chevron-timing-function: var(--easing-spring);
     --focus-color: currentColor;
     --focus-offset: 2px;
-    --focus-width: 2px;
+    --focus-width: var(--border-width-500);
     --icon-size: var(--size-400);
     --trigger-padding-horizontal: var(--size-200);
 }

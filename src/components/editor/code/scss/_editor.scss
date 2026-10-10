@@ -1,5 +1,8 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+@use 'css-utilities/hidden';
+@use 'css-utilities/surface';
 
 .code-editor {
     background: var(--background);
@@ -50,11 +53,50 @@
 
     &-find {
         flex-direction: column;
+
+        &-button.button {
+            flex: none;
+            height: var(--bar-control-height);
+            min-width: var(--bar-control-height);
+
+            &:disabled {
+                cursor: default;
+                opacity: var(--disabled-opacity);
+            }
+
+            &:focus-visible {
+                outline: var(--focus-width) solid var(--focus-color);
+            }
+        }
+
+        &-row {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--bar-gap);
+
+            &--replace {
+                display: none;
+
+                @include tokens.state(active) {
+                    display: flex;
+                }
+            }
+        }
+
+        &-status {
+            color: var(--muted-color);
+            font-variant-numeric: tabular-nums;
+            min-width: 6ch;
+            text-align: center;
+            white-space: nowrap;
+        }
     }
 
     &-find,
     &-goto {
-        background: var(--bar-background);
+        @extend %surface-sunken-level;
+        background: var(--surface-background-default);
         border-bottom: var(--border-width) solid var(--border-color);
         display: none;
         flex: none;
@@ -65,21 +107,6 @@
 
         @include tokens.state(active) {
             display: flex;
-        }
-    }
-
-    &-find-button.button {
-        flex: none;
-        height: var(--bar-control-height);
-        min-width: var(--bar-control-height);
-
-        &:disabled {
-            cursor: default;
-            opacity: var(--disabled-opacity);
-        }
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
         }
     }
 
@@ -98,29 +125,6 @@
         }
     }
 
-    &-find-row {
-        align-items: center;
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--bar-gap);
-
-        &--replace {
-            display: none;
-
-            @include tokens.state(active) {
-                display: flex;
-            }
-        }
-    }
-
-    &-find-status {
-        color: var(--muted-color);
-        font-variant-numeric: tabular-nums;
-        min-width: 6ch;
-        text-align: center;
-        white-space: nowrap;
-    }
-
     &-fold {
         align-items: center;
         cursor: pointer;
@@ -135,12 +139,12 @@
             pointer-events: none;
             visibility: hidden;
         }
-    }
 
-    &-fold-icon.icon {
-        --size: var(--fold-icon-size);
-        rotate: var(--fold-rotate);
-        transition: rotate var(--fold-duration) ease-out;
+        &-icon.icon {
+            --size: var(--fold-icon-size);
+            rotate: var(--fold-rotate);
+            transition: rotate var(--fold-duration) var(--easing-spring);
+        }
     }
 
     &-goto {
@@ -210,6 +214,9 @@
     }
 
     &-line {
+        @extend %background-state;
+        --background-active: var(--active-line-background);
+        background: var(--background);
         box-sizing: border-box;
         left: 0;
         min-width: 100%;
@@ -217,10 +224,6 @@
         position: absolute;
         white-space: var(--white-space);
         width: var(--line-width);
-
-        @include tokens.state(active) {
-            background: var(--active-line-background);
-        }
 
         &--unused {
             display: none;
@@ -232,11 +235,10 @@
     }
 
     &-match {
-        background: var(--match-background);
-
-        @include tokens.state(active) {
-            background: var(--match-active-background);
-        }
+        @extend %background-state;
+        --background-active: var(--match-active-background);
+        --background-default: var(--match-background);
+        background: var(--background);
     }
 
     &-minimap {
@@ -255,49 +257,49 @@
         touch-action: none;
         width: var(--minimap-width);
         z-index: 4;
-    }
 
-    &-minimap-canvas {
-        display: block;
-        height: 100%;
-        width: 100%;
-    }
+        &-canvas {
+            display: block;
+            height: 100%;
+            width: 100%;
+        }
 
-    &-minimap-slider {
-        background: var(--minimap-slider-background);
-        border: var(--border-width) solid var(--border-color);
-        box-sizing: border-box;
-        height: var(--slider-height);
-        left: 0;
-        pointer-events: none;
-        position: absolute;
-        top: var(--slider-top);
-        transition: none;
-        width: 100%;
+        &-slider {
+            background: var(--minimap-slider-background);
+            border: var(--border-width) solid var(--border-color);
+            box-sizing: border-box;
+            height: var(--slider-height);
+            left: 0;
+            pointer-events: none;
+            position: absolute;
+            top: var(--slider-top);
+            transition: none;
+            width: 100%;
+        }
     }
 
     &-number {
+        @extend %color-state;
+        --color-active: var(--gutter-active-color);
+        --color-default: currentColor;
         // A wrapped line's number and fold marker sit on its first row.
         align-items: flex-start;
+        color: var(--color);
         display: flex;
         left: 0;
         position: absolute;
         width: 100%;
 
-        @include tokens.state(active) {
-            color: var(--gutter-active-color);
-        }
-
         &--unused {
             display: none;
         }
-    }
 
-    &-number-text {
-        display: var(--number-display);
-        flex: 1;
-        line-height: var(--line-height);
-        text-align: right;
+        &-text {
+            display: var(--number-display);
+            flex: 1;
+            line-height: var(--line-height);
+            text-align: right;
+        }
     }
 
     &-numbers {

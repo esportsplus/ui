@@ -26,7 +26,7 @@ type Legend = {
 
 
 // The library button, dressed as the other examples' controls.
-const ACTION = 'button --background-white --border-border --color-text file-tree-demo-action';
+const ACTION = 'button file-tree-demo-action';
 
 const FILE_EXTENSION = /(\.[^.]*)?$/;
 
@@ -99,7 +99,7 @@ const LEGEND: { entries: Legend[]; title: string }[] = [
         entries: [
             letter('+12', 'Lines added; folders total their contents', 'additions'),
             letter('−9', 'Lines removed', 'deletions'),
-            letter('64%', 'Custom badge, in its own color', undefined, { color: 'var(--color-purple-400)' })
+            letter('64%', 'Custom badge, in its own color', undefined, { color: 'light-dark(var(--color-purple-400), oklch(from var(--color-purple-400) 0.74 0.16 h))' })
         ],
         title: 'Counts and badges'
     },
@@ -554,7 +554,7 @@ function legend() {
     return html`
         <div class='file-tree file-tree-demo-legend'>
             ${LEGEND.map((group) => html`
-                <section>
+                <section class='file-tree-demo-legend-group'>
                     <h4 class='file-tree-demo-legend-title'>${group.title}</h4>
                     <dl class='file-tree-demo-legend-list'>
                         ${group.entries.map((entry) => html`

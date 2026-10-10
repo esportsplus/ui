@@ -1,4 +1,4 @@
-@use '/shared';
+@use 'css-utilities/hidden';
 @use 'variables';
 
 .error {
@@ -33,7 +33,7 @@
 
     // Long messages wrap instead of running off in one line.
     &-message.tooltip-content {
-        --background: var(--error-background);
+        --background-default: var(--error-background);
         --max-width: var(--error-max-width);
         --spacer: var(--error-spacer);
         --width: max-content;

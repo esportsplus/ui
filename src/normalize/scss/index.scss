@@ -1,3 +1,4 @@
+@use 'css-utilities/font/geist/mono';
 @use 'modern-normalize/modern-normalize.css';
 
 button,
@@ -28,7 +29,8 @@ code,
 kbd,
 pre,
 samp {
-    font-family: var(--font-family-mono);
+    @extend %font-geist-mono;
+    font-family: var(--font-family);
 }
 
 form {

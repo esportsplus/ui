@@ -1,30 +1,29 @@
 @use '/tokens';
 
 .chat-minimap {
-    --card-background: var(--color-white-300);
-    --card-border: var(--color-border-300);
+    --card-border: var(--surface-secondary-default);
     --card-description-color: var(--color-text-300);
     --card-title-color: var(--color-text-500);
     --card-width: 256px;
     --color-active: var(--color-text-500);
-    --color-far: color-mix(in oklab, var(--color-text-500) 55%, transparent);
-    --color-near: color-mix(in oklab, var(--color-text-500) 75%, transparent);
-    --color-rest: color-mix(in oklab, var(--color-text-300) 40%, transparent);
-    --focus-color: var(--color-text-500);
+    // Resolved here, since the nav's color state redefines --color-active on it.
+    --nav-color-hover: var(--color-active);
+    --color-far: color-mix(in oklab, var(--color-primary-500) 55%, transparent);
+    --color-near: color-mix(in oklab, var(--color-primary-500) 75%, transparent);
+    --color-rest: color-mix(in oklab, var(--color-primary-300) 40%, transparent);
+    --focus-color: var(--color-primary-500);
     // Lines sit this far in from the rail's leading edge, inside a hit area wider than the longest line.
     --inset: 4px;
-    --item-height: 8px;
+    --item-height: var(--size-100);
     --item-width: 32px;
     // At rest every line shares one length; the hovered one peaks and its two neighbours either side step back down.
-    --length-far: 16px;
-    --length-near: 20px;
+    --length-far: var(--size-400);
+    --length-near: var(--size-500);
     --length-peak: 24px;
     --length-rest: 12px;
-    --nav-duration: 0.15s;
-    --nav-height: 20px;
+    --nav-duration: var(--duration-fast);
+    --nav-height: var(--size-500);
     --stroke: 2px;
-    --transition-duration: 0.2s;
-    --transition-timing-function: ease-out;
 
 
     &-item {
@@ -72,14 +71,15 @@
     }
 
     // A white card rather than the dark label bubble; '--padding' stays 0 so the card sets its own width.
+    // A surface through the shared tooltip, so its colors are read at its own level.
     &-preview.tooltip-shared {
-        --background: var(--card-background);
-        --box-shadow: 0 0 0 var(--border-width-400) var(--card-border), var(--box-shadow-500);
+        --background-default: var(--surface-background-default);
+        --box-shadow-default: 0 0 0 var(--border-width-400) var(--card-border), var(--surface-shadow-default);
         --color: var(--card-title-color);
         --font-size: var(--font-size-400);
         --padding: 0;
         --radius: var(--border-radius-600);
-        --spacer: 8px;
+        --spacer: var(--size-100);
         --white-space: normal;
     }
 
@@ -90,8 +90,8 @@
     }
 
 
+    // The lines hold their length; the nav still fades.
     @media (prefers-reduced-motion: reduce) {
-        --nav-duration: 0s;
         --transition-duration: 0s;
     }
 }

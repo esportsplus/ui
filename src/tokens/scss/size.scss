@@ -13,8 +13,6 @@ $size: (
     700: scale.px(scale.step(1.5)),
     800: scale.px(scale.step(2)),
     900: scale.px(scale.step(2.5)),
-
-    0px: 0px,
 );
 
 // Snap the derived sizes to whole CSS pixels without changing the ratio engine.

@@ -1,4 +1,5 @@
 @use '/tokens';
+@use 'css-utilities/font/geist/mono';
 @use 'variables';
 
 .usage-meter {
@@ -18,7 +19,8 @@
     &-breakdown,
     &-cost,
     &-count {
-        font-family: var(--font-family-mono);
+        @extend %font-geist-mono;
+        font-family: var(--font-family);
         font-variant-numeric: tabular-nums;
     }
 

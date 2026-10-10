@@ -1,11 +1,13 @@
+@use 'css-utilities/surface';
 @use 'patterns';
 
 
 .input {
     &-scrub-demo {
-        background: var(--color-grey-400);
+        @extend %surface-raised-level;
+        background: var(--surface-background-default);
         border-radius: 18px;
-        box-shadow: var(--box-shadow-200);
+        box-shadow: var(--surface-shadow-default);
         display: flex;
         flex-direction: column;
         gap: 10px;
@@ -26,8 +28,9 @@
         }
 
         &-preview {
+            @extend %surface-raised-level;
             align-items: center;
-            background: var(--color-white-300);
+            background: var(--surface-background-default);
             border-radius: var(--border-radius-400);
             display: flex;
             height: 120px;
@@ -63,8 +66,8 @@
         }
 
         &-submit {
-            --background-default: var(--color-text-500);
-            --color-default: var(--color-white-300);
+            --background-default: var(--color-primary-500);
+            --color-default: var(--color-surface);
             --padding-horizontal: var(--size-400);
             --padding-vertical: var(--size-200);
         }

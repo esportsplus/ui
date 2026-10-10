@@ -3,7 +3,7 @@
 }
 
 .range.range--vertical {
-    --background-default: linear-gradient(to top, var(--thumb-background) var(--thumb-position), var(--color-black-300) var(--thumb-position));
+    --background-default: linear-gradient(to top, var(--thumb-background) var(--thumb-position), var(--color-primary-300) var(--thumb-position));
     direction: rtl;
     height: var(--vertical-size);
     margin-block: var(--margin-vertical);

@@ -1,10 +1,13 @@
-@use '/shared';
+@use 'css-utilities/absolute';
+@use 'css-utilities/hidden';
+@use 'css-utilities/icon';
 @use 'flash';
 @use 'variables';
 
 .metric {
     background: var(--background);
     border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
     box-sizing: border-box;
     color: var(--color);
     container-type: inline-size;

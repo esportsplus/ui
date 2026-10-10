@@ -8,6 +8,7 @@ import 'docs/components/sidebar/scss/index.scss';
 
 
 const release = version.split('.').slice(0, 2).join('.');
+
 const state = reactive({ active: !matchMedia('(max-width: 1024px)').matches });
 
 
@@ -66,17 +67,20 @@ export default (request: Request) => {
             }}
         >
             <div class='sidebar-header'>
-                <a class='sidebar-brand' href='${uri('docs')}' aria-label='Esportsplus UI home'>
+                <a class='sidebar-brand' href='${uri('installation')}' aria-label='Esportsplus UI home'>
                     esportsplus<span class='sidebar-brand-ui'> / ui</span>
                 </a>
                 <a
-                    class='sidebar-version button button--flat button--underline'
+                    class='sidebar-version button button--underline'
                     href='${repository.url}'
                     rel='noopener noreferrer'
                     target='_blank'
                     title='v${version}'
-                >v${release}</a>
+                >
+                    v${release}
+                </a>
             </div>
+
             <div class='sidebar-tools'>
                 ${searchTrigger()}
             </div>

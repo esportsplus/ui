@@ -1,4 +1,4 @@
-@use '/shared';
+@use 'css-utilities/absolute';
 @use 'variables';
 
 .pagination {
@@ -36,10 +36,7 @@
         background: var(--dot-color);
         border-radius: 999px;
         height: var(--dot-size);
-        scale: var(--mark-scale);
-        transition:
-            background-color var(--transition-duration) var(--transition-timing-function),
-            scale var(--transition-duration) var(--transition-timing-function);
+        transition: background-color var(--transition-duration) var(--transition-timing-function);
         width: 100%;
     }
 

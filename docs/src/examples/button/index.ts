@@ -15,8 +15,8 @@ let colors = ['primary', 'secondary', 'tertiary'],
 
 let border = '--border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color);',
     round = `${border} --border-radius: 999px; --padding-horizontal: 0; --padding-vertical: 0; height: var(--size-600); width: var(--size-600);`,
-    surface = '--background-white --border-border --color-text',
-    trigger = `button button--tactile ${surface}`;
+    surface = 'button-demo-surface',
+    trigger = `button ${surface}`;
 
 let icons = {
     close: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d='M18 6 6 18' /><path d='m6 6 12 12' /></svg>`,
@@ -80,7 +80,7 @@ export default {
             render: () => html`
                 <div style='${row}'>
                     <div
-                        class='button --background-white --border-border --color-text'
+                        class='button button-demo-surface'
                         style='--border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color); font-weight: var(--font-weight-600);'
                     >
                         white
@@ -230,6 +230,25 @@ export default {
                 `;
             },
             title: 'morph, observed state'
+        },
+        {
+            render: () => {
+                let state = reactive({ left: true, right: false });
+
+                return html`
+                    <div style='${row}'>
+                        ${(['left', 'right'] as const).map((side) => button.sidebar({
+                            'aria-label': () => `${state[side] ? 'Hide' : 'Show'} ${side} panel`,
+                            class: trigger,
+                            onclick: () => state[side] = !state[side],
+                            open: () => state[side],
+                            side,
+                            style: round
+                        }))}
+                    </div>
+                `;
+            },
+            title: 'sidebar'
         },
         {
             render: () => html`

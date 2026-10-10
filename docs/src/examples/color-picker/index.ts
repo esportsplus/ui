@@ -17,6 +17,10 @@ export default {
             title: 'default'
         },
         {
+            render: () => card(colorPicker({ compact: true, value: '#384251' })),
+            title: 'compact'
+        },
+        {
             render: () => card(colorPicker({ recent: ['#E5484D', '#F5A524', '#30A46C', '#0090FF', '#8E4EC6'], value: '#5B8DEF' })),
             title: 'recent colors'
         },

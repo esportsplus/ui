@@ -1,7 +1,14 @@
+@use 'css-utilities/background';
+@use 'css-utilities/border';
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
+
+
 // A segmented control: the active button rests on a white pill, which the highlight glides between buttons.
 .button-demo-group {
+    @extend %surface-sunken-level;
     align-items: center;
-    background: var(--color-grey-400);
+    background: var(--surface-background-default);
     border-radius: 12px;
     display: inline-flex;
     gap: 2px;
@@ -12,13 +19,13 @@
         --background-default: transparent;
         --background-hover: transparent;
         --background-pressed: transparent;
-        --border-radius: 8px;
+        --border-radius: var(--border-radius-400);
         --color-active: var(--color-text-500);
         --color-default: var(--color-text-300);
         --color-hover: var(--color-text-500);
         --color-pressed: var(--color-text-500);
         --font-size: var(--font-size-300);
-        --padding-horizontal: 10px;
+        --padding-horizontal: var(--size-200);
         --padding-vertical: 0px;
         gap: 6px;
         height: 28px;
@@ -31,11 +38,12 @@
 
     // Without a highlight the pill sits on the active button itself and swaps instantly.
     &--static &-button.button {
-        --background-active: var(--color-white-400);
+        --background-active: var(--surface-background-default);
     }
 
     &-highlight.highlight {
-        --background-active: var(--color-white-400);
+        @extend %surface-raised-level;
+        --background-active: var(--surface-background-default);
         --background-default: transparent;
         --background-hover: transparent;
         --background-pressed: transparent;
@@ -44,6 +52,10 @@
     }
 
     &-icon {
-        --size: 16px;
+        --size: var(--size-400);
     }
+}
+
+.button-demo-surface {
+    @extend %background-surface, %border-surface, %color-text;
 }

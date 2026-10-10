@@ -101,7 +101,7 @@ let nested = [
             ['Blog', 'Product news, engineering deep dives and best practices.']
         ]]
     ],
-    trigger = 'button --background-black --color-white';
+    trigger = 'button tooltip-demo-trigger';
 
 
 // Rows that claim their own right click, as a file tree's do, open one context menu through its controller. It opens
@@ -324,7 +324,7 @@ export default {
         {
             // The region is the only thing it acts on, so it takes focus itself; Shift+F10 opens it from the keyboard.
             render: () => tooltip.context(
-                { items: nested, class: '--flex-center', style: 'border: 1px dashed currentColor; height: 160px; width: 320px;', tabindex: 0 },
+                { items: nested, class: 'tooltip-context-demo', style: 'border: 1px dashed currentColor; height: 160px; width: 320px;', tabindex: 0 },
                 'right click here'
             ),
             title: 'context'
@@ -377,10 +377,10 @@ export default {
                     click me
                     <div
                         class='tooltip-content tooltip-content--n tooltip-content--morph'
-                        style='--background: var(--color-black-400); --width: 280px; color: var(--color-white-400); padding: var(--size-400) var(--size-500); white-space: normal;'
+                        style='--background: var(--color-primary-400); --width: 280px; color: var(--surface-background-default); padding: var(--size-400) var(--size-500); white-space: normal;'
                     >
-                        <div class='--flex-column' style='--gap-vertical: var(--size-200);'>
-                            <strong style='--color: var(--color-white-400);'>Liquid tooltip</strong>
+                        <div class='tooltip-morph-demo-body' style='--gap-vertical: var(--size-200);'>
+                            <strong style='--color: var(--surface-background-default);'>Liquid tooltip</strong>
                             <span>Grows out from behind the button, springs open, and shrinks back on close.</span>
                         </div>
                     </div>

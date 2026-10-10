@@ -1,3 +1,9 @@
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+@use 'css-utilities/flex';
+@use 'css-utilities/surface';
+
+
 // Mentions in running text sharing one interactive profile card.
 .tooltip-card-demo {
     color: var(--color-text-500);
@@ -7,11 +13,12 @@
     text-wrap: pretty;
 
     &-avatar {
-        background: var(--color-grey-300);
+        @extend %surface-sunken-level;
+        background: var(--surface-background-default);
         border-radius: 50%;
         flex-shrink: 0;
         height: 48px;
-        outline: 1px solid oklch(from var(--color-black-300) l c h / 0.1);
+        outline: 1px solid var(--surface-border-default);
         outline-offset: -1px;
         overflow: hidden;
         width: 48px;
@@ -30,11 +37,7 @@
     }
 
     &-card.tooltip-shared {
-        --background: var(--color-white-300);
-        --box-shadow:
-            0 0 0 1px oklch(from var(--color-black-300) l c h / 0.06),
-            0 1px 2px oklch(from var(--color-black-300) l c h / 0.06),
-            0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+        --background-default: var(--surface-background-default);
         --close-duration: 0.1s;
         --color: var(--color-text-500);
         --font-size: calc(var(--font-size-400) * 0.875);
@@ -42,7 +45,7 @@
         --padding: 0px;
         --radius: var(--size-500);
         --scale: 0.96;
-        --spacer: 8px;
+        --spacer: var(--size-100);
     }
 
     &-count {
@@ -53,12 +56,13 @@
 
     // Read by its two labels, which crossfade as it toggles.
     &-follow {
+        @extend %surface-raised-level;
         --follow-opacity: 1;
         --following-opacity: 0;
-        background: var(--color-text-500);
+        background: var(--color-primary-500);
         border: 0;
         border-radius: 999px;
-        color: var(--color-white-300);
+        color: var(--color-surface);
         cursor: pointer;
         display: grid;
         font: inherit;
@@ -75,7 +79,7 @@
         &.--active {
             --follow-opacity: 0;
             --following-opacity: 1;
-            background: var(--color-white-300);
+            background: var(--surface-background-default);
             // The card's own shadow, inherited from its surface.
             box-shadow: var(--box-shadow);
             color: var(--color-text-500);
@@ -156,22 +160,30 @@
         outline: none;
         padding: 0;
         text-decoration: underline;
-        text-decoration-color: color-mix(in srgb, var(--color-text-500) 25%, transparent);
+        text-decoration-color: color-mix(in srgb, var(--color-primary-500) 25%, transparent);
         text-decoration-thickness: 1px;
         text-underline-offset: 4px;
         transition: text-decoration-color 0.15s ease-out;
         white-space: nowrap;
 
         &:focus-visible {
-            outline: var(--border-width-500) solid var(--color-text-500);
+            outline: var(--border-width-500) solid var(--color-primary-500);
             outline-offset: var(--border-width-500);
         }
 
         &:hover,
         &[aria-expanded='true'] {
-            text-decoration-color: var(--color-text-500);
+            text-decoration-color: var(--color-primary-500);
         }
     }
+}
+
+.tooltip-context-demo {
+    @extend %flex-center;
+}
+
+.tooltip-demo-trigger {
+    @extend %background-primary, %color-surface;
 }
 
 // Rows handling their own right click, opening one context menu through its controller.
@@ -190,7 +202,10 @@
     }
 
     &-row {
-        background: transparent;
+        @extend %background-state;
+        --background-hover: color-mix(in srgb, currentColor 8%, transparent);
+        --background-pressed: var(--background-hover);
+        background: var(--background);
         border: 0;
         border-radius: var(--border-radius-300);
         color: inherit;
@@ -200,12 +215,8 @@
         padding: var(--size-200) var(--size-300);
         text-align: start;
 
-        &:focus-visible,
-        &:hover {
-            background: color-mix(in srgb, currentColor 8%, transparent);
-        }
-
         &:focus-visible {
+            --background: var(--background-hover);
             outline: 2px solid currentColor;
             outline-offset: -2px;
         }
@@ -215,6 +226,10 @@
         color: var(--color-text-300);
         font-size: var(--font-size-300);
     }
+}
+
+.tooltip-morph-demo-body {
+    @extend %flex-column;
 }
 
 .tooltip-nav-demo {
@@ -249,7 +264,7 @@
         transition: background-color 0.15s ease-out;
 
         &:focus-visible {
-            outline: 2px solid var(--color-text-500);
+            outline: 2px solid var(--color-primary-500);
             outline-offset: -2px;
         }
 
@@ -268,14 +283,13 @@
     }
 
     &-surface.tooltip-shared {
-        --background: var(--color-white-300);
-        --box-shadow: 0 0 0 1px oklch(from var(--color-black-300) l c h / 0.1), var(--box-shadow-300);
+        --background-default: var(--surface-background-default);
         --color: var(--color-text-500);
         --font-size: calc(var(--font-size-400) * 0.875);
         --padding: 6px;
-        --radius: 12px;
+        --radius: var(--border-radius-600);
         --scale: 0.96;
-        --spacer: 8px;
+        --spacer: var(--size-100);
     }
 
     &-title {
@@ -299,7 +313,7 @@
         white-space: nowrap;
 
         &:focus-visible {
-            outline: 2px solid var(--color-text-500);
+            outline: 2px solid var(--color-primary-500);
         }
     }
 

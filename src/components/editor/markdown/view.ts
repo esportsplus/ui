@@ -1,13 +1,11 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
-import icon from '~/components/icon';
 import { clamp } from '~/shared/clamp';
 import { mac } from '~/shared/platform';
 import { observer, observeSize, type Observer } from '~/shared/resize';
 import { copied, read, write } from '../code/clipboard';
 import { addNextOccurrence, deleteCharacter, indent, insertText, lineCommand, toggleComment } from '../code/commands';
 import { composition } from '../code/composition';
-import { write as writeField } from '../code/field';
 import { find } from '../code/find';
 import { mapFolds, outerFolds, type FoldRange } from '../code/folding';
 import { goto } from '../code/goto';
@@ -16,17 +14,19 @@ import { EditorLayout, type Rect } from '../code/layout';
 import { minimap, type Source } from '../code/minimap';
 import { move } from '../code/navigation';
 import { pointer } from '../code/pointer';
-import { inputEdit, NativeText, type Before } from '../code/projection';
+import { NativeText } from '../code/projection';
 import { syntaxCache, type Token } from '../code/syntax';
 import { markdownCommand } from './editing';
+import { reach, widen, type Span } from './erase';
 import { parseInline, type Inline, type References } from './inline';
-import { arrange, cache, headingScale, MarkdownLayout, SCALED_LINE, unitStart, type Unit } from './layout';
+import { arrange, cache, MarkdownLayout, unitStart, type Unit } from './layout';
 import {
     blockAt,
     contentEnd,
     markdownBackspace,
     markdownReferences,
     parseMarkdown,
+    quotePrefix,
     reparse,
     toggleTask,
     type Kind,
@@ -34,14 +34,17 @@ import {
 } from './model';
 import { renderer } from './render';
 import { foldable, foldAt, markdownFolds } from './structure';
-import type { Change, Edit, EditorDocument, Selection, Snapshot } from '../code/document';
+import type { Change, EditorDocument, Selection, Snapshot } from '../code/document';
 import type { Callbacks, Controller, Options } from '../code/view';
-import chevron from '@esportsplus/ui/svg/chevron-down.svg';
+import tooltip from '~/components/tooltip';
 
-
-type Active = { first: number; from: number; last: number; to: number };
 
 type Decoration = { kind: string; style: string };
+
+// Space standing in for the units left undrawn between drawn ones.
+type Gap = { height: number };
+
+type Item = Gap | Unit;
 
 type MarkdownController = Omit<Controller, 'setDocument' | 'setOptions'> & {
     bold(): boolean;
@@ -69,14 +72,33 @@ type Metrics = {
     width: number;
 };
 
+type Point = { node: Node; offset: number };
+
 
 const DECORATIONS = 1000;
+
+// A list item whose text so far is '[]' or '[ ]': a space turns it into a task.
+const ITEM_TASK = /^[ \t]*(?:[-+*]|\d+[.)])[ \t]+\[ ?\]$/;
+
+// Kinds whose text joins a neighbour's when the break between them is deleted.
+const JOINABLE = new Set<Kind>(['heading', 'list', 'paragraph', 'quote']);
+
+const LINE_BREAK = /[\r\n]/;
+
+// Long enough that the hint only shows once the pointer rests on a link, not as it passes over text.
+const LINK_DELAY = 700;
+
+// Source the editor keeps literal, so typing there never turns into markup.
+const LITERAL = new Set<Kind>(['code', 'fence', 'frontmatter', 'html']);
 
 const NAVIGATION = /^(ArrowDown|ArrowLeft|ArrowRight|ArrowUp|End|Home|PageDown|PageUp)$/;
 
 const NONE: readonly number[] = [];
 
 const NO_TOKENS: readonly Token[] = [];
+
+// A line whose text so far is '[]' or '[ ]': a space turns it into a task item.
+const TASK = /^\[ ?\]$/;
 
 const TOKEN_COLORS = ['comment', 'keyword', 'operator', 'property', 'string', 'type', 'variable'] as const;
 
@@ -86,9 +108,9 @@ const VERTICAL = /^(ArrowDown|ArrowUp|PageDown|PageUp)$/;
 let uid = 0;
 
 
-// Brings a reactive list to 'next' with the fewest splices, so units that stay keep their DOM. Both are ordered
-// runs of the same unit list.
-function assign(list: Unit[], next: readonly Unit[]) {
+// Brings a reactive list to 'next' with the fewest splices, so items that stay keep their DOM. Both are ordered runs
+// of the same items.
+function assign(list: Item[], next: readonly Item[]) {
     if (list.length === next.length) {
         let same = true;
 
@@ -151,46 +173,37 @@ function pixels(value: string) {
     return parseFloat(value) || 0;
 }
 
-function prevent(e: Event) {
-    e.preventDefault();
-}
 
-
-// The markdown editor's view: blocks render formatted until the caret enters one, which then edits as source in a
-// native textarea standing in its place. Only units near the viewport are drawn, keyed by block, so edits redraw the
-// block they touched. Returns its template and controller.
+// The markdown editor's view: blocks stay formatted while they edit. The rendered text itself is editable; every input
+// is turned into an edit of the markdown source, and the blocks it touched draw again with the caret put back. Markup
+// never shows: deletions skip over it, and a delimiter left with nothing to wrap goes with what it wrapped. Only units
+// near the viewport are drawn, plus the ones holding the selection's ends. Returns its template and controller.
 const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller: MarkdownController) => void) => {
-    let active: Active | null = null,
-        activeIndex = -1,
-        apple = mac(),
-        before: Before | null = null,
-        beforeRanges: readonly Selection[] = [],
-        beforeSelection: Selection | undefined,
+    let apple = mac(),
         blocks = parseMarkdown(model),
+        // The final text of the composition ending, and the selection it replaces.
+        composed = '',
+        composing: Selection | null = null,
+        content: HTMLElement | undefined,
         decorations = reactive([] as Decoration[]),
         definitions: References = new Map(),
         disposed = false,
-        drag: { anchor: number; head: number } | null = null,
         // Content height the minimap last drew.
         drawn = 0,
         dropAt: number | null = null,
-        editing = false,
+        elements = new Map<Unit, HTMLElement>(),
         escapeTab = false,
-        estimated = false,
-        fieldSource = '',
         folds: FoldRange[] = [],
         frame = 0,
-        geometry: EditorLayout | null = null,
+        gaps: Gap[] = [],
         goals: number[] = [],
         help = `markdown-editor-help-${++uid}`,
         host: HTMLElement | undefined,
         inlines = new WeakMap<MarkdownBlock, { definitions: References; tokens: readonly Inline[] }>(),
-        inputData: string | null = null,
-        inputType = '',
+        items = reactive([] as Item[]),
         keys = keymap(apple),
         layout = new MarkdownLayout(),
         length = model.value.length,
-        listed = { after: reactive([] as Unit[]), before: reactive([] as Unit[]) },
         metrics: Metrics = {
             charWidth: 7.8,
             clientHeight: 320,
@@ -208,9 +221,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         palette: Record<string, string> = {},
         parsed = model.revision,
         pendingValue: string | undefined,
-        pinned = false,
-        pointerId = -1,
-        projection = new NativeText(''),
+        // The native selection this view last set, which maps to the document's but needn't map back to it exactly.
+        placed: { anchor: Point; focus: Point } | null = null,
+        rendered: Unit[] = [],
         resize: Observer | undefined = observer(resized),
         revealing = false,
         ruler: HTMLElement | undefined,
@@ -222,46 +235,27 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             selections: model.selections.map((range) => ({ ...range }))
         }),
         surface: HTMLElement | undefined,
-        textarea: HTMLTextAreaElement | undefined,
         ui = reactive({
-            between: 0,
-            bottom: 0,
-            editing: false,
-            foldable: false,
-            height: 20,
-            input: '',
+            empty: !model.value,
+            fold: false,
             label: 'Markdown editor',
+            // The platform's modifier is held, so links show they open on a click.
+            linking: false,
             minimap: false,
-            name: '',
-            next: 0,
             placeholder: '',
             readonly: false,
             spellcheck: true,
-            style: '',
             tabSize: 4,
-            top: 0,
             wrap: true
         }),
         units = cache(),
         unitsDirty = true,
+        // The document's selection hasn't reached the native one yet, so the native one is stale.
+        unplaced = false,
         unsubscribe: VoidFunction | undefined,
         // Where each document this editor showed was left.
         visited = new WeakMap<EditorDocument, Memo>(),
-        whole: { layout: EditorLayout; projection: NativeText; revision: number } | null = null,
-        writing = false,
-        written = '';
-
-    let activeUnit: Unit = {
-        active: true,
-        block: blocks[0],
-        continuation: false,
-        continues: false,
-        estimate: 0,
-        estimated: -1,
-        height: 0,
-        measured: -1,
-        raw: false
-    };
+        whole: { layout: EditorLayout; projection: NativeText; revision: number } | null = null;
 
     let draw = renderer({
         fold: (unit) => {
@@ -269,18 +263,23 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         },
         foldable: opens,
         inline: inlineOf,
-        press,
         readonly: () => ui.readonly,
         shown: (element, unit) => {
             if (unit) {
+                elements.set(unit, element);
                 shown.set(element, unit);
-
                 resize?.observe(element);
+                return;
             }
-            else {
-                shown.delete(element);
-                resize?.unobserve(element);
+
+            let previous = shown.get(element);
+
+            if (previous && elements.get(previous) === element) {
+                elements.delete(previous);
             }
+
+            shown.delete(element);
+            resize?.unobserve(element);
         },
         task: (block) => {
             if (!disposed && !options.readonly && !ime.busy() && block.task) {
@@ -293,21 +292,29 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         }
     });
 
+    // The input method writes into the drawn text itself; once it ends, its text replaces what it was typed over and
+    // the block draws again, so none of the nodes it made stay behind.
     let ime = composition({
         begin: () => {
             capture();
-            beforeRanges = model.selections;
-            beforeSelection = model.selection;
+            composed = '';
+            composing = { ...model.selection };
             model.breakHistory();
         },
         commit: (conflict) => {
-            if (conflict) {
-                reset();
-                resync();
+            let range = composing;
+
+            composing = null;
+
+            if (range && !conflict && composed && !options.readonly) {
+                model.replace(range.start, range.end, composed, {
+                    selection: { start: range.start + composed.length },
+                    source: 'composition'
+                });
             }
-            else {
-                accept(true);
-            }
+
+            composed = '';
+            invalidate(range?.start ?? model.selection.start);
 
             if (pendingValue !== undefined) {
                 let value = pendingValue;
@@ -351,11 +358,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
     });
 
     let map = minimap({
-        focus: () => {
-            if (editing) {
-                textarea?.focus({ preventScroll: true });
-            }
-        },
+        focus: () => content?.focus({ preventScroll: true }),
         scroll: (top, relative) => {
             scrollTo(relative ? metrics.scrollTop + top : top);
         }
@@ -380,6 +383,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
     });
 
     let size = observeSize(() => measure());
+
+    // Links place the caret on a plain click, so resting on one says how to open it.
+    let tip = tooltip.shared({ delay: { open: LINK_DELAY } });
 
     let source: Source = {
         breaks: () => NONE,
@@ -426,115 +432,29 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         }
     };
 
-    // Applies a native input to the document. 'beforeinput' recorded the field's selection and length, so most inputs
-    // resolve without a diff; the rest diff the field's value.
-    function accept(composed = false) {
-        if (disposed || !textarea || !active) {
-            return;
-        }
-
-        if (options.readonly) {
-            reset();
-            resync();
-            return;
-        }
-
-        let after = { end: textarea.selectionEnd, length: textarea.textLength, start: textarea.selectionStart },
-            base = active.from,
-            direction = textarea.selectionDirection,
-            native = before && !composed ? inputEdit(before, after, inputType, inputData) : null,
-            ranges = beforeRanges.length ? beforeRanges : model.selections,
-            value = textarea.value,
-            edit: Edit;
-
-        if (native) {
-            edit = projection.toSourceEdit(model.value, native.from, native.to, native.insert);
-        }
-        else if (value === projection.value) {
-            reset();
-            capture();
-            return;
-        }
-        else {
-            let selection = beforeSelection
-                ? { end: clamp(beforeSelection.end - base, 0, fieldSource.length), start: clamp(beforeSelection.start - base, 0, fieldSource.length) }
-                : undefined;
-
-            edit = projection.edit(model.value, value, selection, inputType);
-        }
-
-        // A native edit the projection can't map would remove text the field doesn't show; the field goes back.
-        if (edit.from === edit.to && !edit.insert) {
-            reset();
-            resync();
-            return;
-        }
-
-        let group = !composed && /^(deleteContentBackward|deleteContentForward|insertText)$/.test(inputType) ? inputType : undefined,
-            origin = composed ? 'composition' : 'input';
-
-        written = value;
-
-        if (ranges.length > 1) {
-            reset();
-            insertText(model, edit.insert, origin);
-            return;
-        }
-
-        let from = base + edit.from,
-            caret = native
-                ? { direction, end: from + edit.insert.length, start: from + edit.insert.length }
-                : caretAfter(edit, after, direction);
-
-        reset();
-        model.replace(from, base + edit.to, edit.insert, { group, selection: caret, source: origin });
-    }
-
-    // Shows the field for the selection.
-    function activate(focus: boolean) {
-        if (disposed) {
-            return;
-        }
-
-        editing = true;
-        ui.editing = true;
-        refresh();
-        schedule();
-
-        if (focus && textarea && host?.ownerDocument.activeElement !== textarea) {
-            // The field must be displayed before it can take focus.
-            flush();
-            textarea.focus({ preventScroll: true });
-        }
-    }
-
     // Takes over from the previous document: whatever was derived from it goes, and this one's view comes back as
     // this editor left it, folds only while its text is unchanged since.
     function adopt() {
         let memo = visited.get(model),
             { selections, ...single } = model.state;
 
-        reset();
-        active = null;
-        activeIndex = -1;
         blocks = parseMarkdown(model);
-        activeUnit.block = blocks[0];
-        drag = null;
+        composed = '';
+        composing = null;
         dropAt = null;
         escapeTab = false;
-        fieldSource = '';
         folds = memo?.revision === model.revision ? memo.folds : [];
-        geometry = null;
         goals = [];
         length = model.value.length;
         metrics.scrollLeft = memo?.left ?? 0;
         metrics.scrollTop = memo?.top ?? 0;
         parsed = model.revision;
         pendingValue = undefined;
-        projection = new NativeText('');
+        placed = null;
         secondary = selections.length > 1;
+        ui.empty = !model.value;
+        unitsDirty = true;
         whole = null;
-        written = '';
         state.selections.splice(0, state.selections.length, ...selections.map((range) => ({ ...range })));
         Object.assign(state, single, { selection: { ...single.selection } });
         gestures.reset();
@@ -549,21 +469,45 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         search.result();
     }
 
+    // Reads the native selection back into the document, unless it is the one this view placed or the document's is
+    // still waiting to be placed.
     function capture() {
-        if (disposed || !textarea || !active || !editing || ime.busy() || writing || textarea.value !== written) {
+        if (disposed || !content || ime.busy() || unplaced) {
             return;
         }
 
-        let base = active.from,
+        let selection = content.ownerDocument.getSelection(),
+            anchorNode = selection?.anchorNode,
+            focusNode = selection?.focusNode;
+
+        if (!selection || !anchorNode || !focusNode || !content.contains(anchorNode) || !content.contains(focusNode)) {
+            return;
+        }
+
+        if (
+            placed &&
+            placed.anchor.node === anchorNode &&
+            placed.anchor.offset === selection.anchorOffset &&
+            placed.focus.node === focusNode &&
+            placed.focus.offset === selection.focusOffset
+        ) {
+            return;
+        }
+
+        let anchor = sourceAt(anchorNode, selection.anchorOffset),
+            head = sourceAt(focusNode, selection.focusOffset);
+
+        if (anchor === null || head === null) {
+            return;
+        }
+
+        let primary = model.selection,
             next: Selection = {
-                direction: textarea.selectionDirection,
-                end: base + projection.toSource(textarea.selectionEnd),
-                start: base + projection.toSource(textarea.selectionStart)
+                direction: head < anchor ? 'backward' : 'forward',
+                end: Math.max(anchor, head),
+                start: Math.min(anchor, head)
             };
 
-        let primary = model.selection;
-
-        // A field reports a direction even for a caret, and 'forward' where the document has none.
         if (
             next.start === primary.start &&
             next.end === primary.end &&
@@ -575,36 +519,13 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         model.selectMany([next, ...model.selections.slice(1)]);
     }
 
-    function caretAfter(edit: Edit, after: Before, direction: Selection['direction']) {
-        let base = active!.from,
-            next = new NativeText(fieldSource.slice(0, edit.from) + edit.insert + fieldSource.slice(edit.to));
-
-        return { direction, end: base + next.toSource(after.end), start: base + next.toSource(after.start) };
-    }
-
-    // Client rectangle of a source offset: the field's geometry inside it, the drawn text elsewhere, or else the
-    // unit's top.
+    // Client rectangle of a source offset: the drawn text there, or else the unit's top.
     function clientRect(offset: number): Rect | null {
         if (!surface) {
             return null;
         }
 
         current();
-
-        let box = surface.getBoundingClientRect(),
-            originX = box.left + surface.clientLeft - surface.scrollLeft,
-            originY = box.top + surface.clientTop - surface.scrollTop;
-
-        if (active && editing && geometry && offset >= active.from && offset <= active.to) {
-            let rect = geometry.rect(projection.toNative(offset - active.from));
-
-            return {
-                height: rect.height,
-                left: originX + fieldLeft() + rect.left,
-                top: originY + metrics.padTop + layout.top(activeIndex) + rect.top,
-                width: rect.width
-            };
-        }
 
         let index = layout.indexOf(offset),
             unit = layout.units[index];
@@ -619,7 +540,14 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             return rects[0];
         }
 
-        return { height: metrics.lineHeight, left: originX + metrics.padLeft, top: originY + metrics.padTop + layout.top(index), width: 1 };
+        let box = surface.getBoundingClientRect();
+
+        return {
+            height: metrics.lineHeight,
+            left: box.left + surface.clientLeft - surface.scrollLeft + metrics.padLeft,
+            top: box.top + surface.clientTop - surface.scrollTop + metrics.padTop + layout.top(index),
+            width: 1
+        };
     }
 
     function clip(e: ClipboardEvent, cut: boolean) {
@@ -641,13 +569,12 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
     }
 
     function connect() {
-        if (disposed || !host || !ruler || !surface || !textarea || unsubscribe) {
+        if (disposed || !content || !host || !ruler || !surface || unsubscribe) {
             return;
         }
 
         measure();
         subscribe();
-        refresh();
         unitsDirty = true;
         schedule();
         void host.ownerDocument.fonts?.ready.then(() => {
@@ -670,27 +597,12 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         }
     }
 
-    // Hides the field; every block shows formatted again.
-    function deactivate() {
-        if (!editing) {
-            return;
-        }
-
-        ime.flush();
-        editing = false;
-        drag = null;
-        ui.editing = false;
-        gestures.reset();
-        refresh();
-        schedule();
-    }
-
     function decorate() {
         let items: Decoration[] = [],
             ranges = model.selections,
             matches = search.state.open || search.state.query ? search.result() : null;
 
-        if (ranges.length < 2 && !drag && dropAt === null && !matches?.matches.length) {
+        if (ranges.length < 2 && dropAt === null && !matches?.matches.length) {
             if (decorations.length) {
                 decorations.splice(0, decorations.length);
             }
@@ -743,10 +655,6 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             mark(head, head, 'markdown-editor-mark markdown-editor-mark--caret');
         }
 
-        if (drag) {
-            mark(Math.min(drag.anchor, drag.head), Math.max(drag.anchor, drag.head), 'markdown-editor-mark markdown-editor-mark--selection');
-        }
-
         if (dropAt !== null) {
             mark(dropAt, dropAt, 'markdown-editor-mark markdown-editor-mark--caret');
         }
@@ -765,6 +673,106 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         }
     }
 
+    // The native point standing for a source offset: in the drawn text holding it, or after the text before it when it
+    // falls on markup. Offsets in units that aren't drawn go to the nearest drawn edge. Null while the unit's element
+    // has yet to connect.
+    function domAt(offset: number): Point | null {
+        current();
+
+        let unit = layout.units[layout.indexOf(offset)];
+
+        if (!unit || !draw.segments(unit)) {
+            let first = rendered[0],
+                last = rendered[rendered.length - 1];
+
+            if (!first || !last) {
+                return null;
+            }
+
+            if (offset < unitStart(first)) {
+                unit = first;
+                offset = contentStart(first);
+            }
+            else {
+                unit = last;
+                offset = contentEnd(model.value, last.block);
+            }
+        }
+
+        let element = elements.get(unit),
+            segments = draw.segments(unit) ?? [],
+            after: Point | null = null,
+            before: Point | null = null;
+
+        for (let i = 0, n = segments.length; i < n; i++) {
+            let segment = segments[i],
+                at = segment.block.from + segment.from,
+                end = at + segment.node.length;
+
+            if (at <= offset && offset <= end) {
+                return { node: segment.node, offset: offset - at };
+            }
+
+            if (end < offset) {
+                before = { node: segment.node, offset: segment.node.length };
+            }
+            else {
+                after = { node: segment.node, offset: 0 };
+                break;
+            }
+        }
+
+        if (before || after) {
+            return before ?? after;
+        }
+
+        if (!element) {
+            return null;
+        }
+
+        // No text: on the line break that gives the caret its line.
+        let children = element.childNodes;
+
+        for (let i = 0, n = children.length; i < n; i++) {
+            if (children[i].nodeName === 'BR') {
+                return { node: element, offset: i };
+            }
+        }
+
+        return { node: element, offset: children.length };
+    }
+
+    // Source offset at the drawn units' edge nearest a point outside them: on the content root or a spacer.
+    function edgeAt(node: Node, offset: number) {
+        if (!content) {
+            return null;
+        }
+
+        let child: Node | null = node === content ? content.childNodes[offset] ?? null : node;
+
+        while (child && child.parentNode !== content) {
+            child = child.parentNode;
+        }
+
+        for (let at = child; at; at = at.nextSibling) {
+            let unit = shown.get(at as Element);
+
+            if (unit) {
+                return contentStart(unit);
+            }
+        }
+
+        for (let at = child ? child.previousSibling : content.lastChild; at; at = at.previousSibling) {
+            let unit = shown.get(at as Element);
+
+            if (unit) {
+                return contentEnd(model.value, unit.block);
+            }
+        }
+
+        return null;
+    }
+
     function editable(run: () => boolean) {
         if (disposed || options.readonly || ime.busy()) {
             return false;
@@ -772,95 +780,45 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
         capture();
         revealFolds(true);
+        revealing = true;
 
         let changed = run();
 
-        start(true);
+        schedule();
 
         return changed;
     }
 
-    // Lays out the field's text and sizes it; the field's styles must match what this assumes.
-    function fieldGeometry() {
-        if (!active) {
-            geometry = null;
-            return;
+    // Backspace or Delete at a single selection: a selection goes, a caret takes the visible character beside it,
+    // and at a block's edge the blocks join, or the empty line or rule beside it goes.
+    function erase(backward: boolean) {
+        if (model.selections.length > 1) {
+            return backward ? markdownCommand(model, 'backspace', kindAt) : deleteCharacter(model, false);
         }
 
-        let block = blocks[active.first],
-            scale = headingScale(block.level),
-            fontSize = metrics.fontSize * scale,
-            lineHeight = block.level && block.level <= 2 ? fontSize * SCALED_LINE : metrics.lineHeight,
-            wrap = options.wrap !== false,
-            width = Math.max(1, metrics.width - block.quoteDepth * metrics.quoteIndent);
+        current();
 
-        geometry = new EditorLayout(projection, fieldSource, wrap ? width : Number.MAX_SAFE_INTEGER, lineHeight, metrics.charWidth * scale, options.tabSize ?? 4, wrap);
-        estimated = false;
+        let { end, start } = model.selection;
 
-        if (wrap) {
-            for (let i = 0, n = geometry.count; i < n && !estimated; i++) {
-                estimated = geometry.estimated(i);
+        if (start !== end) {
+            return remove({ from: start, to: end });
+        }
+
+        let index = blockAt(blocks, start),
+            block = blocks[index],
+            unit = layout.units[layout.indexOf(start)],
+            span = unit && draw.segments(unit) ? reach(model.value, spans(unit), start, backward) : null;
+
+        if (span) {
+            // The info string and the code under it never merge, nor does code run into a fence.
+            if ((block.kind === 'fence' || block.kind === 'frontmatter') && span.from < block.contentFrom && span.to >= block.contentFrom) {
+                return false;
             }
+
+            return remove(span);
         }
 
-        let height = Math.max(lineHeight, geometry.height),
-            widest = 0;
-
-        if (!wrap) {
-            for (let i = 0, n = geometry.count; i < n; i++) {
-                widest = Math.max(widest, geometry.end(i) - geometry.lineFrom(i));
-            }
-        }
-
-        ui.height = height;
-        ui.input = `markdown-editor-input markdown-editor-input--${block.kind}${block.level ? ` markdown-editor-input--h${block.level}` : ''}${block.quoteDepth ? ' markdown-editor-input--quoted' : ''}`;
-        ui.style = `--depth: ${block.quoteDepth};${wrap ? '' : ` --field-width: ${Math.ceil((widest + 1) * metrics.charWidth * scale)}px;`}`;
-
-        layout.measure(activeUnit, height);
-    }
-
-    // Left edge of the field's text in the surface's padding box.
-    function fieldLeft() {
-        return metrics.padLeft + (active ? blocks[active.first].quoteDepth * metrics.quoteIndent : 0);
-    }
-
-    // Client rectangles of [from, to) inside the field, one per row, from its geometry.
-    function fieldRects(from: number, to: number, out: Rect[]) {
-        if (!active || !geometry || !surface) {
-            return;
-        }
-
-        let box = surface.getBoundingClientRect(),
-            x = box.left + surface.clientLeft - surface.scrollLeft + fieldLeft(),
-            y = box.top + surface.clientTop - surface.scrollTop + metrics.padTop + layout.top(activeIndex),
-            end = geometry.rect(projection.toNative(clamp(to, active.from, active.to) - active.from)),
-            start = geometry.rect(projection.toNative(clamp(from, active.from, active.to) - active.from)),
-            lineHeight = geometry.lineHeight;
-
-        if (from === to) {
-            out.push({ height: lineHeight, left: x + start.left, top: y + start.top, width: 1 });
-            return;
-        }
-
-        for (let top = start.top; top <= end.top && out.length < DECORATIONS; top += lineHeight) {
-            let left = top === start.top ? start.left : 0,
-                right = top === end.top ? end.left : geometry.width;
-
-            out.push({ height: lineHeight, left: x + left, top: y + top, width: Math.max(1, right - left) });
-        }
-    }
-
-    // Applies a drag or click on the drawn text once the pointer comes back up.
-    function finish() {
-        if (!drag) {
-            return;
-        }
-
-        let { anchor, head } = drag;
-
-        drag = null;
-        model.select({ direction: head < anchor ? 'backward' : 'forward', end: Math.max(anchor, head), start: Math.min(anchor, head) });
-        activate(true);
+        return backward ? joinBackward(index, start) : joinForward(index, start);
     }
 
     function inlineOf(block: MarkdownBlock) {
@@ -880,34 +838,79 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         return entry.tokens;
     }
 
-    // The block kind at a source offset, for commands that leave literal source alone.
-    function kindAt(offset: number): Kind | undefined {
-        return blocks[blockAt(blocks, offset)]?.kind;
+    // Drops a block's drawing, for when something other than this view wrote into it.
+    function invalidate(offset: number) {
+        let block = blocks[blockAt(blocks, offset)];
+
+        if (block) {
+            units.folded.delete(block);
+            units.plain.delete(block);
+            units.raw.delete(block);
+        }
+
+        unitsDirty = true;
+        schedule();
     }
 
-    // Whether a plain arrow key at the field's edge leaves it for the neighbouring block.
-    function leaves(key: string) {
-        if (!active || !geometry || !textarea) {
+    // Backspace at the start of a block's text: a list or quote marker goes first, then a heading's, then the break to
+    // the block before.
+    function joinBackward(index: number, offset: number) {
+        if (markdownBackspace(model)) {
+            return true;
+        }
+
+        let block = blocks[index],
+            previous = blocks[index - 1];
+
+        if (block.kind === 'heading' && block.contentFrom > block.from && offset <= block.contentFrom) {
+            let from = block.from + quotePrefix(model.lineText(model.lineAt(block.from))).length;
+
+            return model.replace(from, block.contentFrom, '', { selection: { start: from }, source: 'markdown-unwrap' });
+        }
+
+        if (!previous) {
             return false;
         }
 
-        let head = textarea.selectionDirection === 'backward' ? textarea.selectionStart : textarea.selectionEnd;
-
-        if (key === 'ArrowLeft') {
-            return head === 0 && active.from > 0;
+        if (previous.kind === 'blank' || previous.kind === 'rule') {
+            return model.replace(previous.from, previous.to, '', {
+                selection: { start: offset - (previous.to - previous.from) },
+                source: 'delete'
+            });
         }
 
-        if (key === 'ArrowRight') {
-            return head === textarea.textLength && active.to < model.value.length;
+        if (JOINABLE.has(previous.kind) && (JOINABLE.has(block.kind) || block.kind === 'blank')) {
+            return model.replace(previous.contentTo, offset, '', { selection: { start: previous.contentTo }, source: 'delete' });
         }
 
-        let rect = geometry.rect(head);
+        model.select({ start: previous.contentTo });
 
-        if (key === 'ArrowUp') {
-            return rect.top < geometry.lineHeight / 2 && active.from > 0;
+        return false;
+    }
+
+    // Delete at the end of a block's text: the empty line or rule after it goes, or the next block's text joins it.
+    function joinForward(index: number, offset: number) {
+        let block = blocks[index],
+            next = blocks[index + 1];
+
+        if (!next) {
+            return false;
         }
 
-        return rect.top + geometry.lineHeight >= geometry.height - 0.5 && active.to < model.value.length;
+        if (next.kind === 'blank' || next.kind === 'rule') {
+            return model.replace(next.from, next.to, '', { selection: { start: offset }, source: 'delete' });
+        }
+
+        if (JOINABLE.has(next.kind) && (JOINABLE.has(block.kind) || block.kind === 'blank')) {
+            return model.replace(offset, next.contentFrom, '', { selection: { start: offset }, source: 'delete' });
+        }
+
+        return false;
+    }
+
+    // The block kind at a source offset, for commands that leave literal source alone.
+    function kindAt(offset: number): Kind | undefined {
+        return blocks[blockAt(blocks, offset)]?.kind;
     }
 
     // Source lines [first, last] unit 'index' covers.
@@ -919,12 +922,18 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         return { first: model.lineAt(from), last: model.lineAt(Math.max(from, to)) };
     }
 
-    // Marks which drawn units in [from, to) show a fold marker; only neighbouring blocks are looked at.
-    function markFoldable(from: number, to: number) {
-        let units = layout.units;
+    function linking(e: KeyboardEvent | PointerEvent) {
+        let next = apple ? e.metaKey : e.ctrlKey;
 
-        for (let i = from; i < to; i++) {
-            let unit = units[i],
+        if (ui.linking !== next) {
+            ui.linking = next;
+        }
+    }
+
+    // Marks which drawn units show a fold marker; only neighbouring blocks are looked at.
+    function markFoldable() {
+        for (let i = 0, n = rendered.length; i < n; i++) {
+            let unit = rendered[i],
                 state = draw.state(unit);
 
             if (!state) {
@@ -941,7 +950,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
     // Reads computed geometry and colors on connect, resize, font load or refresh; never per frame.
     function measure() {
-        if (disposed || !host || !ruler || !surface || !textarea) {
+        if (disposed || !host || !ruler || !surface) {
             return;
         }
 
@@ -980,7 +989,6 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             width: metrics.width
         })) {
             whole = null;
-            fieldGeometry();
             map.invalidate();
             unitsDirty = true;
         }
@@ -988,17 +996,39 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         schedule();
     }
 
+    // A single caret moves through the drawn text the way the browser lays it out; several move by source.
     function moveSelection(key: string, extend: boolean, word = false, add = false, boundary = false) {
+        let native = content?.ownerDocument.getSelection();
+
+        if (
+            native &&
+            model.selections.length === 1 &&
+            !add &&
+            !key.startsWith('Page') &&
+            content?.ownerDocument.activeElement === content
+        ) {
+            let vertical = VERTICAL.test(key);
+
+            native.modify(
+                extend ? 'extend' : 'move',
+                key === 'ArrowLeft' || key === 'ArrowUp' || key === 'Home' ? 'backward' : 'forward',
+                vertical ? 'line' : key === 'Home' || key === 'End' ? (boundary ? 'documentboundary' : 'lineboundary') : word ? 'word' : 'character'
+            );
+            capture();
+            start(true);
+            return;
+        }
+
         if (!VERTICAL.test(key) || boundary || add) {
             goals = [];
         }
 
         if (!whole || whole.revision !== model.revision) {
-            let native = new NativeText(model.value);
+            let text = new NativeText(model.value);
 
             whole = {
-                layout: new EditorLayout(native, model.value, Number.MAX_SAFE_INTEGER, metrics.lineHeight, metrics.charWidth, options.tabSize ?? 4, false),
-                projection: native,
+                layout: new EditorLayout(text, model.value, Number.MAX_SAFE_INTEGER, metrics.lineHeight, metrics.charWidth, options.tabSize ?? 4, false),
+                projection: text,
                 revision: model.revision
             };
         }
@@ -1018,7 +1048,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
     }
 
     function offsetAt(clientX: number, clientY: number) {
-        if (disposed || !surface) {
+        if (disposed || !surface || !host) {
             return null;
         }
 
@@ -1030,22 +1060,22 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             return null;
         }
 
-        if (active && editing && textarea && geometry) {
-            let field = textarea.getBoundingClientRect();
+        let doc = host.ownerDocument as Document & {
+                caretPositionFromPoint?: (x: number, y: number) => { offset: number; offsetNode: Node } | null;
+            },
+            point = doc.caretPositionFromPoint?.(clientX, clientY),
+            range = point ? null : doc.caretRangeFromPoint?.(clientX, clientY),
+            node = point?.offsetNode ?? range?.startContainer ?? null;
 
-            if (clientY >= field.top && clientY < field.bottom) {
-                return active.from + projection.toSource(geometry.offset(clientX - field.left + textarea.scrollLeft, clientY - field.top));
+        if (node && content?.contains(node)) {
+            let offset = sourceAt(node, point?.offset ?? range?.startOffset ?? 0);
+
+            if (offset !== null) {
+                return offset;
             }
         }
 
-        let point = pointAt(clientX, clientY);
-
-        if (point !== null) {
-            return point;
-        }
-
-        // Off the text (a marker, padding, an image): the unit under the point.
-        let under = host!.ownerDocument.elementFromPoint(clientX, clientY)?.closest('.markdown-editor-block'),
+        let under = doc.elementFromPoint(clientX, clientY)?.closest('.markdown-editor-block'),
             unit = under && shown.get(under);
 
         if (unit) {
@@ -1059,7 +1089,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
     // Whether a drawn unit shows a fold marker; only neighbouring blocks are looked at.
     function opens(unit: Unit) {
-        return options.fold !== false && !unit.continuation && !unit.raw && !unit.fold && foldable(blocks, blockAt(blocks, unit.block.from), model.value);
+        return !!options.fold && !unit.continuation && !unit.raw && !unit.fold && foldable(blocks, blockAt(blocks, unit.block.from), model.value);
     }
 
     function paint() {
@@ -1071,52 +1101,17 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
         current();
 
-        if (estimated && textarea && editing) {
-            // The arithmetic only estimated some of the field's rows; it takes the height the DOM drew instead.
-            flush();
-
-            let height = textarea.scrollHeight;
-
-            if (height > ui.height + 0.5) {
-                ui.height = height;
-                layout.measure(activeUnit, height);
-            }
-
-            estimated = false;
-        }
-
         if (revealing) {
             revealing = false;
             reveal();
         }
 
-        let n = layout.units.length,
-            a = activeIndex,
-            view = layout.window(metrics.scrollTop - metrics.padTop, metrics.clientHeight),
-            split = a < 0 ? n : a,
-            s1 = Math.min(view.start, split),
-            e1 = Math.min(view.end, split),
-            s2 = Math.max(view.start, split + 1),
-            e2 = Math.max(view.end, s2);
-
-        if (a < 0) {
-            s2 = e2 = n;
+        // An input method owns the drawn text until it commits.
+        if (!ime.busy()) {
+            present();
         }
 
-        if (view.start > split) {
-            s1 = e1 = split;
-        }
-
-        assign(listed.before, layout.units.slice(s1, e1));
-        assign(listed.after, layout.units.slice(s2, e2));
-        ui.top = layout.top(s1);
-        ui.between = a < 0 ? 0 : layout.top(split) - layout.top(e1);
-        ui.next = a < 0 ? 0 : layout.top(s2) - layout.top(a + 1);
-        ui.bottom = layout.total - layout.top(a < 0 ? e1 : e2);
-        ui.foldable = !!active && options.fold !== false && foldable(blocks, active.first, model.value);
-
-        markFoldable(s1, e1);
-        markFoldable(s2, e2);
+        markFoldable();
         // Rectangles come from the drawn text; units this frame added draw in the list's own pass, queued before.
         queueMicrotask(() => {
             if (!disposed) {
@@ -1140,67 +1135,104 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         }
     }
 
-    // Source offset under a client point from the text node there.
-    function pointAt(clientX: number, clientY: number) {
-        let doc = host!.ownerDocument as Document & {
-                caretPositionFromPoint?: (x: number, y: number) => { offset: number; offsetNode: Node } | null;
-            },
-            point = doc.caretPositionFromPoint?.(clientX, clientY),
-            range = point ? null : doc.caretRangeFromPoint?.(clientX, clientY);
+    // Puts the native selection where the document's is, unless it already maps there: moving it anyway would lose
+    // the column the browser keeps for vertical moves.
+    function place() {
+        unplaced = false;
 
-        return draw.offset(point?.offsetNode ?? range?.startContainer ?? null, point?.offset ?? range?.startOffset ?? 0);
+        if (disposed || !content || ime.busy() || content.ownerDocument.activeElement !== content) {
+            return;
+        }
+
+        let native = content.ownerDocument.getSelection();
+
+        if (!native) {
+            return;
+        }
+
+        let selection = model.selection,
+            backward = selection.direction === 'backward',
+            anchorAt = backward ? selection.end : selection.start,
+            headAt = backward ? selection.start : selection.end;
+
+        if (
+            native.anchorNode &&
+            native.focusNode &&
+            content.contains(native.anchorNode) &&
+            content.contains(native.focusNode) &&
+            sourceAt(native.anchorNode, native.anchorOffset) === anchorAt &&
+            sourceAt(native.focusNode, native.focusOffset) === headAt
+        ) {
+            return;
+        }
+
+        let anchor = domAt(anchorAt),
+            focus = anchorAt === headAt ? anchor : domAt(headAt);
+
+        // A unit drawn this frame connects after it; the selection goes there next frame.
+        if (!anchor || !focus) {
+            unplaced = true;
+            schedule();
+            return;
+        }
+
+        native.setBaseAndExtent(anchor.node, anchor.offset, focus.node, focus.offset);
+        placed = { anchor, focus };
+        unplaced = false;
     }
 
-    // Draws the window at the scroll position now rather than next frame, so the surface is as tall as its content
-    // before the position applies.
+    // Draws the units near the viewport and the ones holding the selection's ends, with spacers for the rest, then
+    // puts the native selection back.
     function present() {
-        if (disposed || !surface) {
-            return;
+        let n = layout.units.length,
+            view = layout.window(metrics.scrollTop - metrics.padTop, metrics.clientHeight),
+            selection = model.selection,
+            runs: Span[] = [];
+
+        if (n) {
+            let anchor = layout.indexOf(selection.direction === 'backward' ? selection.end : selection.start),
+                head = layout.indexOf(selection.direction === 'backward' ? selection.start : selection.end);
+
+            runs.push({ from: anchor, to: anchor + 1 }, { from: head, to: head + 1 }, { from: view.start, to: view.end });
+            runs.sort((a, b) => a.from - b.from);
         }
 
-        if (frame) {
-            cancelAnimationFrame(frame);
-        }
+        let cursor = 0,
+            gap = 0,
+            next: Item[] = [];
 
-        paint();
-        flush();
-        surface.scrollLeft = metrics.scrollLeft;
-        surface.scrollTop = metrics.scrollTop;
-    }
+        let space = (height: number) => {
+            let item = gaps[gap++] ??= reactive({ height: 0 });
 
-    // A press on a drawn unit places the caret where it lands, in the same gesture: nothing redraws until the
-    // pointer comes back up, so the press and release meet the same nodes.
-    function press(e: MouseEvent, unit: Unit | null) {
-        if (disposed || ime.busy() || e.button !== 0 || e.altKey || e.defaultPrevented) {
-            return;
-        }
-
-        let target = e.target as Element;
-
-        if ((e.ctrlKey || e.metaKey) && target.closest('a')) {
-            return;
-        }
-
-        e.preventDefault();
-
-        let offset = pointAt(e.clientX, e.clientY) ?? (unit ? contentStart(unit) : offsetAt(e.clientX, e.clientY) ?? 0),
-            selection = model.selection;
-
-        drag = {
-            anchor: e.shiftKey ? (selection.direction === 'backward' ? selection.end : selection.start) : offset,
-            head: offset
+            item.height = height;
+            next.push(item);
         };
 
-        if (pointerId >= 0 && surface?.isConnected) {
-            try {
-                surface.setPointerCapture(pointerId);
+        for (let i = 0, m = runs.length; i < m; i++) {
+            let { from, to } = runs[i];
+
+            from = Math.max(from, cursor);
+
+            if (to <= from) {
+                continue;
             }
-            catch {
-                // The pointer may already be gone.
+
+            if (from > cursor || !next.length) {
+                space(layout.top(from) - layout.top(cursor));
             }
+
+            for (let j = from; j < to; j++) {
+                next.push(layout.units[j]);
+            }
+
+            cursor = to;
         }
 
-        schedule();
+        space(layout.total - layout.top(cursor));
+        assign(items, next);
+        rendered = next.filter((item): item is Unit => 'block' in item);
+        flush();
+        place();
     }
 
     function rangeRects(from: number, to: number) {
@@ -1210,17 +1242,10 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             last = layout.indexOf(to);
 
         for (let i = first; i <= last && out.length < DECORATIONS; i++) {
-            let unit = units[i];
+            let rects = textRects(units[i], from, to);
 
-            if (unit === activeUnit) {
-                fieldRects(from, to, out);
-            }
-            else {
-                let rects = textRects(unit, from, to);
-
-                for (let j = 0, n = rects.length; j < n; j++) {
-                    out.push(rects[j]);
-                }
+            for (let j = 0, n = rects.length; j < n; j++) {
+                out.push(rects[j]);
             }
         }
 
@@ -1241,28 +1266,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             }
         }
 
-        if (active) {
-            activeUnit.block = blocks[active.first];
-        }
-
-        let list = arrange(
-            blocks,
-            model.value,
-            options.fold === false ? [] : folds,
-            units,
-            active && editing ? { first: active.first, last: active.last, unit: activeUnit } : null,
-            raw ? (index) => raw.has(index) : null
-        );
-
-        layout.set(list, model.value);
-        activeIndex = -1;
-
-        if (active && editing) {
-            let index = layout.indexOf(active.from);
-
-            activeIndex = list[index] === activeUnit ? index : list.indexOf(activeUnit);
-        }
-
+        layout.set(arrange(blocks, model.value, options.fold ? folds : [], units, raw ? (index) => raw.has(index) : null), model.value);
         unitsDirty = false;
     }
 
@@ -1289,85 +1293,18 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         unitsDirty = true;
     }
 
-    // Brings the field to the primary selection: which blocks it covers, its text, its selection and its size.
-    function refresh() {
-        if (disposed) {
-            return;
+    // Removes source, widened to take any delimiters it leaves empty.
+    function remove(span: Span) {
+        let block = blocks[blockAt(blocks, span.from)];
+
+        if (block && JOINABLE.has(block.kind) && span.to <= block.to) {
+            span = widen(model.value, inlineOf(block), block.from, span);
         }
 
-        if (!editing || !blocks.length) {
-            if (active) {
-                active = null;
-                geometry = null;
-                unitsDirty = true;
-            }
-
-            return;
-        }
-
-        let selection = model.selection,
-            first = blockAt(blocks, selection.start),
-            last = blockAt(blocks, selection.end) + 1;
-
-        // A drag inside the field never shrinks it under the pointer.
-        if (pinned && active && active.last <= blocks.length) {
-            first = Math.min(first, active.first);
-            last = Math.max(last, active.last);
-        }
-
-        let from = blocks[first].from,
-            to = Math.max(selection.end, contentEnd(model.value, blocks[last - 1]));
-
-        if (!active || active.first !== first || active.last !== last) {
-            unitsDirty = true;
-        }
-
-        active = { first, from, last, to };
-
-        let text = model.value.slice(from, to),
-            shaped = fieldSource !== text || !geometry;
-
-        if (fieldSource !== text) {
-            fieldSource = text;
-            projection = new NativeText(text);
-        }
-
-        if (shaped || activeUnit.block !== blocks[first]) {
-            activeUnit.block = blocks[first];
-            fieldGeometry();
-        }
-
-        if (!textarea || ime.busy()) {
-            return;
-        }
-
-        if (written !== projection.value) {
-            writing = true;
-
-            try {
-                writeField(textarea, written, projection.value, null);
-            }
-            finally {
-                writing = false;
-            }
-
-            written = projection.value;
-        }
-
-        let nativeEnd = projection.toNative(clamp(selection.end - from, 0, text.length)),
-            nativeStart = projection.toNative(clamp(selection.start - from, 0, text.length));
-
-        if (
-            textarea.selectionStart !== nativeStart ||
-            textarea.selectionEnd !== nativeEnd ||
-            (nativeStart !== nativeEnd && selection.direction !== 'none' && textarea.selectionDirection !== selection.direction)
-        ) {
-            textarea.setSelectionRange(nativeStart, nativeEnd, selection.direction);
-        }
+        return model.replace(span.from, span.to, '', { group: 'delete', selection: { start: span.from }, source: 'delete' });
     }
 
-    // Brings the blocks up to the document: only from the edited block until block boundaries line up again. True
-    // when only blocks the field stands for changed, so the units stay as they are.
+    // Brings the blocks up to the document: only from the edited block until block boundaries line up again.
     function reparseBlocks() {
         let deltas = model.deltas(parsed),
             previous = length;
@@ -1379,11 +1316,11 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             blocks = parseMarkdown(model);
             map.invalidate();
             references();
-            return false;
+            return;
         }
 
         if (!deltas.length) {
-            return true;
+            return;
         }
 
         let end = -1,
@@ -1429,7 +1366,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         if (changed) {
             map.invalidate();
             references();
-            return false;
+            return;
         }
 
         // Edits that kept the line count only redraw their lines in the minimap.
@@ -1439,20 +1376,6 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         else {
             map.invalidate(start, end);
         }
-
-        return !!active &&
-            editing &&
-            splice.dropped.length === splice.inserted &&
-            splice.start >= active.first &&
-            splice.start + splice.inserted <= active.last;
-    }
-
-    function reset() {
-        before = null;
-        beforeRanges = [];
-        beforeSelection = undefined;
-        inputData = null;
-        inputType = '';
     }
 
     // Heights the DOM drew for units. Units above the viewport that changed move the view by as much, so it stays on
@@ -1497,28 +1420,29 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         }
     }
 
-    // Writes the field again whatever it holds.
-    function resync() {
-        written = '';
-        refresh();
-        schedule();
-    }
-
     // Scrolls the primary selection's head into view.
     function reveal() {
         let selection = model.selection,
             head = selection.direction === 'backward' ? selection.start : selection.end,
-            height = metrics.lineHeight,
-            y: number;
+            index = layout.indexOf(head),
+            unit = layout.units[index];
 
-        if (active && editing && geometry && head >= active.from && head <= active.to) {
-            let rect = geometry.rect(projection.toNative(head - active.from));
+        if (!unit || !surface) {
+            return;
+        }
+
+        let height = Math.min(layout.height(unit), metrics.clientHeight),
+            y = metrics.padTop + layout.top(index),
+            rect = draw.segments(unit) ? textRects(unit, head, head)[0] : undefined;
+
+        if (rect) {
+            let box = surface.getBoundingClientRect();
 
             height = rect.height;
-            y = metrics.padTop + layout.top(activeIndex) + rect.top;
+            y = rect.top - box.top - surface.clientTop + surface.scrollTop;
 
-            if (options.wrap === false && surface) {
-                let x = fieldLeft() + rect.left;
+            if (options.wrap === false) {
+                let x = rect.left - box.left - surface.clientLeft + surface.scrollLeft;
 
                 if (x < metrics.scrollLeft + metrics.padLeft) {
                     surface.scrollLeft = metrics.scrollLeft = Math.max(0, x - metrics.padLeft);
@@ -1527,17 +1451,6 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                     surface.scrollLeft = metrics.scrollLeft = x + metrics.padLeft - metrics.width;
                 }
             }
-        }
-        else {
-            let index = layout.indexOf(head),
-                unit = layout.units[index];
-
-            if (!unit) {
-                return;
-            }
-
-            y = metrics.padTop + layout.top(index);
-            height = Math.min(layout.height(unit), metrics.clientHeight);
         }
 
         if (y < metrics.scrollTop) {
@@ -1610,12 +1523,92 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         schedule();
     }
 
-    // Shows the selection once a gesture or command set it, revealing it when asked.
-    function start(reveal: boolean) {
-        if (!editing) {
-            activate(false);
+    // A space after '[]' at the start of a line or a list item's text makes it a task, as '- ' makes a list item.
+    function shortcut(text: string) {
+        let { end, start } = model.selection;
+
+        if (text !== ' ' || start !== end || model.selections.length > 1 || LITERAL.has(kindAt(start)!)) {
+            return false;
         }
 
+        let from = model.lineStart(model.lineAt(start)),
+            before = model.value.slice(from, start),
+            at = from + quotePrefix(before).length,
+            rest = model.value.slice(at, start);
+
+        if (TASK.test(rest)) {
+            return model.replace(at, start, '- [ ] ', { selection: { start: at + 6 }, source: 'markdown-task' });
+        }
+
+        if (ITEM_TASK.test(rest)) {
+            let bracket = at + rest.lastIndexOf('[');
+
+            return model.replace(bracket, start, '[ ] ', { selection: { start: bracket + 4 }, source: 'markdown-task' });
+        }
+
+        return false;
+    }
+
+    // Source offset of a native point: in a run of drawn text directly, otherwise from the runs of its unit around it.
+    function sourceAt(node: Node, offset: number): number | null {
+        let direct = draw.offset(node, offset);
+
+        if (direct !== null) {
+            return direct;
+        }
+
+        let element = (node.nodeType === 1 ? node as Element : node.parentElement)?.closest('.markdown-editor-block'),
+            unit = element ? shown.get(element) : undefined;
+
+        if (!unit) {
+            return edgeAt(node, offset);
+        }
+
+        let range = node.ownerDocument!.createRange(),
+            segments = draw.segments(unit) ?? [],
+            after: number | null = null,
+            before: number | null = null;
+
+        range.setStart(node, offset);
+
+        for (let i = 0, n = segments.length; i < n; i++) {
+            let segment = segments[i];
+
+            if (range.comparePoint(segment.node, segment.node.length) <= 0) {
+                before = segment.block.from + segment.from + segment.node.length;
+            }
+            else if (range.comparePoint(segment.node, 0) >= 0) {
+                after = segment.block.from + segment.from;
+                break;
+            }
+        }
+
+        // Just past a line break the caret is on the next row.
+        let broken = node.nodeType === 3 && offset > 0 && LINE_BREAK.test(node.textContent![offset - 1]);
+
+        if (after !== null && (broken || before === null)) {
+            return after;
+        }
+
+        return before ?? contentStart(unit);
+    }
+
+    // Absolute source runs of a drawn unit's text, in order.
+    function spans(unit: Unit) {
+        let out: Span[] = [],
+            segments = draw.segments(unit) ?? [];
+
+        for (let i = 0, n = segments.length; i < n; i++) {
+            let from = segments[i].block.from + segments[i].from;
+
+            out.push({ from, to: from + segments[i].node.length });
+        }
+
+        return out;
+    }
+
+    // Shows the selection once a gesture or command set it, revealing it when asked.
+    function start(reveal: boolean) {
         revealing ||= reveal;
         schedule();
     }
@@ -1635,6 +1628,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             if (change.textChanged) {
                 ime.conflict();
                 textChanged(change);
+                ui.empty = !snapshot.value;
             }
 
             if (change.selectionChanged) {
@@ -1644,8 +1638,12 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 secondary = selections.length > 1;
             }
 
-            refresh();
-            schedule();
+            // Drawn at once, so the text under the caret is current before the next input reads the selection.
+            if (frame) {
+                cancelAnimationFrame(frame);
+            }
+
+            paint();
 
             if (change.selectionChanged) {
                 callbacks.onSelection?.(snapshot.selection, model.position());
@@ -1658,15 +1656,14 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
     }
 
     function textChanged(change: Change) {
-        let local = reparseBlocks();
+        reparseBlocks();
 
         if (folds.length) {
             folds = outerFolds(mapFolds(folds, change.editBatches ?? [], model));
-            local = false;
         }
 
         whole = null;
-        unitsDirty ||= !local || secondary;
+        unitsDirty = true;
     }
 
     // Client rectangles of [from, to) in a drawn unit's text; a collapsed range gives its caret.
@@ -1704,6 +1701,11 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         }
 
         return out;
+    }
+
+    // Typed text, unless it completes a shortcut.
+    function typed(text: string) {
+        return editable(() => shortcut(text) || insertText(model, text, 'input'));
     }
 
     let controller: MarkdownController = {
@@ -1753,12 +1755,16 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         findNext: () => search.next(),
         findPrevious: () => search.previous(),
         focus: () => {
-            if (!disposed) {
-                activate(true);
+            if (disposed || !content) {
+                return;
             }
+
+            content.focus({ preventScroll: true });
+            place();
+            schedule();
         },
         fold: (line) => {
-            if (disposed || ime.busy() || options.fold === false) {
+            if (disposed || ime.busy() || !options.fold) {
                 return false;
             }
 
@@ -1776,26 +1782,18 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 model.select({ start: range.open ?? range.from });
             }
 
-            // A field showing the fold's own lines would hide nothing; the block shows folded instead.
-            if (active && range.from < blocks[active.last - 1].to && range.to > active.from) {
-                deactivate();
-                textarea?.blur();
-            }
-
             unitsDirty = true;
             schedule();
 
             return true;
         },
         foldAll: () => {
-            if (disposed || ime.busy() || options.fold === false) {
+            if (disposed || ime.busy() || !options.fold) {
                 return;
             }
 
             model.select({ start: 0 });
             folds = outerFolds(markdownFolds(model, blocks));
-            deactivate();
-            textarea?.blur();
             unitsDirty = true;
             schedule();
         },
@@ -1858,7 +1856,6 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         refresh: () => {
             if (!disposed) {
                 measure();
-                fieldGeometry();
                 unitsDirty = true;
                 schedule();
             }
@@ -1896,10 +1893,10 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 return;
             }
 
-            let focused = editing && !!textarea && host?.ownerDocument.activeElement === textarea;
+            let focused = !!content && host?.ownerDocument.activeElement === content;
 
-            // Hiding the field commits a composition to the document it started in.
-            deactivate();
+            // A composition commits to the document it started in.
+            ime.flush();
 
             if (surface) {
                 visited.set(model, { folds, left: metrics.scrollLeft, revision: model.revision, top: metrics.scrollTop });
@@ -1908,10 +1905,20 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             model = next;
             adopt();
             controller.setOptions(settings ?? {}, !!settings);
-            present();
+
+            if (frame) {
+                cancelAnimationFrame(frame);
+            }
+
+            paint();
+
+            if (surface) {
+                surface.scrollLeft = metrics.scrollLeft;
+                surface.scrollTop = metrics.scrollTop;
+            }
 
             if (focused) {
-                activate(true);
+                controller.focus();
             }
         },
         setOptions: (next, replace = false) => {
@@ -1926,9 +1933,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 options.indent = '    ';
             }
 
+            ui.fold = !!options.fold;
             ui.label = options.label ?? 'Markdown editor';
             ui.minimap = !!options.minimap;
-            ui.name = options.name ?? '';
             ui.placeholder = options.placeholder ?? '';
             ui.readonly = !!options.readonly;
             ui.spellcheck = options.spellcheck ?? true;
@@ -1936,12 +1943,11 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             ui.wrap = options.wrap !== false;
             search.status();
 
-            if (options.fold === false) {
+            if (!options.fold) {
                 folds = [];
             }
 
             whole = null;
-            fieldGeometry();
             map.invalidate();
             unitsDirty = true;
             schedule();
@@ -1963,9 +1969,6 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         },
         get state() {
             return state as Snapshot;
-        },
-        get textarea() {
-            return textarea!;
         },
         toggleComment: () => editable(() => toggleComment(model, options.lineComment ?? false, options.blockComment ?? ['<!--', '-->'])),
         undo: () => editable(() => model.undo()),
@@ -2012,7 +2015,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         cache: () => syntaxCache(model, 'markdown'),
         capture,
         controller: controller as Controller,
-        deleteVisible: (backwards, word) => deleteCharacter(model, backwards, word),
+        deleteVisible: (backwards, word) => word ? deleteCharacter(model, backwards, true) : erase(backwards),
         get document() {
             return model;
         },
@@ -2026,97 +2029,123 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         }
     });
 
+    // The editable text. The browser never edits it: each input is read as an edit of the source and prevented, the
+    // blocks it touched draw again, and the selection is put back. Only an input method writes into it, until it ends.
     let field: Attributes = {
         'aria-describedby': help,
         'aria-label': () => ui.label,
-        class: () => ui.input,
-        name: () => ui.name,
+        'aria-multiline': 'true',
+        'aria-placeholder': () => ui.placeholder,
+        'aria-readonly': () => ui.readonly ? 'true' : 'false',
+        autocapitalize: 'off',
+        class: 'markdown-editor-content',
+        contenteditable: () => ui.readonly ? 'false' : 'true',
+        'data-placeholder': () => ui.placeholder,
         onbeforeinput: (e: InputEvent) => {
-            if (writing || ime.busy() || e.isComposing || !textarea) {
+            let type = e.inputType;
+
+            if (ime.busy() || e.isComposing || type === 'insertCompositionText' || type === 'deleteCompositionText' || type === 'insertFromComposition') {
+                return;
+            }
+
+            // One the browser applies regardless is drawn over from the document once it lands.
+            if (!e.cancelable) {
+                return;
+            }
+
+            e.preventDefault();
+
+            if (options.readonly) {
                 return;
             }
 
             capture();
-            revealFolds(!e.inputType.startsWith('history') && !options.readonly);
+            revealFolds(!type.startsWith('history'));
 
-            before = { end: textarea.selectionEnd, length: textarea.textLength, start: textarea.selectionStart };
-            beforeRanges = model.selections;
-            beforeSelection = model.selection;
-            inputData = e.data;
-            inputType = e.inputType;
+            switch (type) {
+                case 'deleteContentBackward':
+                case 'deleteContentForward':
+                    editable(() => erase(type === 'deleteContentBackward'));
+                    return;
+                case 'deleteWordBackward':
+                case 'deleteWordForward':
+                    editable(() => deleteCharacter(model, type === 'deleteWordBackward', true));
+                    return;
+                case 'formatBold':
+                    controller.bold();
+                    return;
+                case 'formatItalic':
+                    controller.italic();
+                    return;
+                case 'historyRedo':
+                    controller.redo();
+                    return;
+                case 'historyUndo':
+                    controller.undo();
+                    return;
+                case 'insertLineBreak':
+                    editable(() => insertText(model, model.eol, 'input'));
+                    return;
+                case 'insertParagraph':
+                    controller.newline();
+                    return;
+                case 'insertReplacementText': {
+                    let range = e.getTargetRanges()[0],
+                        from = range ? sourceAt(range.startContainer, range.startOffset) : null,
+                        to = range ? sourceAt(range.endContainer, range.endOffset) : null;
 
-            if (e.inputType === 'historyUndo' || e.inputType === 'historyRedo') {
-                if (e.cancelable) {
-                    e.preventDefault();
-                    e.inputType === 'historyUndo' ? controller.undo() : controller.redo();
+                    if (from !== null && to !== null) {
+                        model.select({ end: Math.max(from, to), start: Math.min(from, to) });
+                    }
+
+                    break;
+                }
+            }
+
+            if (type.startsWith('delete')) {
+                // Deletions to a line's edge cover what the browser says they do.
+                let range = e.getTargetRanges()[0],
+                    from = range ? sourceAt(range.startContainer, range.startOffset) : null,
+                    to = range ? sourceAt(range.endContainer, range.endOffset) : null;
+
+                if (from !== null && to !== null && from !== to) {
+                    editable(() => remove({ from: Math.min(from, to), to: Math.max(from, to) }));
                 }
 
                 return;
             }
 
-            if (!e.cancelable || options.readonly) {
-                return;
-            }
+            let text = e.data ?? e.dataTransfer?.getData('text/plain') ?? '';
 
-            if (model.selections.length > 1) {
-                if (e.inputType === 'insertText' && e.data !== null) {
-                    e.preventDefault();
-                    editable(() => insertText(model, e.data!, 'input'));
-                    return;
-                }
-
-                if (/^delete(?:Content|Word)(?:Backward|Forward)$/.test(e.inputType)) {
-                    e.preventDefault();
-                    editable(() => e.inputType === 'deleteContentBackward'
-                        ? markdownCommand(model, 'backspace', kindAt)
-                        : deleteCharacter(model, e.inputType.endsWith('Backward'), e.inputType.startsWith('deleteWord')));
-                    return;
-                }
-            }
-
-            if (e.inputType === 'insertLineBreak' || e.inputType === 'insertParagraph') {
-                e.preventDefault();
-                controller.newline();
-            }
-            else if (e.inputType === 'deleteContentBackward' && editable(() => markdownBackspace(model))) {
-                e.preventDefault();
+            if (text) {
+                typed(text);
             }
         },
-        oncompositionend: ime.attributes.oncompositionend,
+        oncompositionend: (e: CompositionEvent) => {
+            composed = e.data ?? '';
+            ime.attributes.oncompositionend();
+        },
         oncompositionstart: ime.attributes.oncompositionstart,
         oncopy: (e: ClipboardEvent) => clip(e, false),
         oncut: (e: ClipboardEvent) => clip(e, true),
         ondragstart: gestures.ondragstart,
         onfocus: () => {
-            if (!editing) {
-                activate(false);
-            }
+            let native = content?.ownerDocument.getSelection();
 
-            capture();
+            if (!native?.anchorNode || !content?.contains(native.anchorNode)) {
+                place();
+            }
         },
         oninput: (e: InputEvent) => {
-            if (writing) {
-                return;
-            }
-
             if (ime.input(e)) {
-                // The field grows with a composition the document doesn't hold yet.
-                if (textarea && textarea.scrollHeight > ui.height) {
-                    ui.height = textarea.scrollHeight;
-                }
-
                 return;
             }
 
-            if (e.inputType === 'historyUndo' || e.inputType === 'historyRedo') {
-                e.inputType === 'historyUndo' ? controller.undo() : controller.redo();
-                return;
-            }
-
-            accept();
+            invalidate(model.selection.start);
         },
         onkeydown: (e: KeyboardEvent) => {
             gestures.alt(e);
+            linking(e);
 
             if (ime.busy() || e.isComposing || e.keyCode === 229) {
                 return;
@@ -2163,62 +2192,25 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 return;
             }
 
-            if (mod) {
-                if (e.altKey || !NAVIGATION.test(e.key)) {
-                    return;
-                }
-
-                if (/^(End|Home)$/.test(e.key) || (apple && /^Arrow(Down|Up)$/.test(e.key))) {
-                    e.preventDefault();
-                    moveSelection(e.key, e.shiftKey, false, false, true);
-                }
-                else if (model.selections.length > 1 || (/^Arrow(Left|Right)$/.test(e.key) && leaves(e.key))) {
-                    e.preventDefault();
-                    moveSelection(e.key, e.shiftKey, true);
-                }
-
+            if (NAVIGATION.test(e.key) && !e.altKey && model.selections.length > 1) {
+                e.preventDefault();
+                moveSelection(e.key, e.shiftKey, mod);
                 return;
             }
 
-            if (e.key === 'Tab' && !e.altKey && options.captureTab !== false && !options.readonly) {
-                e.preventDefault();
-                e.shiftKey ? controller.outdent() : controller.indent();
-            }
-            else if (e.key === 'Enter' && !e.altKey && !options.readonly) {
-                e.preventDefault();
-                controller.newline();
-            }
-            else if ((e.key === 'Backspace' || e.key === 'Delete') && !options.readonly && model.selections.length > 1) {
-                e.preventDefault();
-                editable(() => e.key === 'Backspace' && !e.altKey
-                    ? markdownCommand(model, 'backspace', kindAt)
-                    : deleteCharacter(model, e.key === 'Backspace', e.altKey));
-            }
-            else if ((e.key === 'Backspace' || e.key === 'Delete') && !options.readonly && active) {
-                let selection = model.selection,
-                    collapsed = selection.start === selection.end;
+            // Tab nests list items and indents code; in prose, where indentation would make code, it moves focus.
+            if (e.key === 'Tab' && !e.altKey && !mod && options.captureTab !== false && !options.readonly) {
+                let kind = kindAt(model.selection.start);
 
-                if (e.key === 'Backspace' && collapsed && editable(() => markdownBackspace(model))) {
+                if (kind === 'code' || kind === 'fence' || kind === 'list') {
                     e.preventDefault();
+                    e.shiftKey ? controller.outdent() : controller.indent();
                 }
-                else if (e.key === 'Backspace' && collapsed && selection.start === active.from && active.from > 0) {
-                    // The line break before the field isn't in it; joining lines takes the document.
-                    e.preventDefault();
-                    editable(() => deleteCharacter(model, true, e.altKey));
-                }
-                else if (e.key === 'Delete' && collapsed && selection.end === active.to && active.to < model.value.length) {
-                    e.preventDefault();
-                    editable(() => deleteCharacter(model, false, e.altKey));
-                }
-            }
-            else if (NAVIGATION.test(e.key) && (model.selections.length > 1 || e.key.startsWith('Page') || leaves(e.key))) {
-                e.preventDefault();
-                moveSelection(e.key, e.shiftKey, e.altKey);
             }
         },
         onkeyup: (e: KeyboardEvent) => {
             gestures.alt(e);
-            capture();
+            linking(e);
         },
         onpaste: (e: ClipboardEvent) => {
             if (ime.busy() || options.readonly || !e.clipboardData) {
@@ -2231,30 +2223,24 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
             editable(() => insertText(model, text, 'paste'));
         },
-        onpointerdown: () => {
-            goals = [];
-            pinned = true;
-        },
-        onpointerup: () => {
-            pinned = false;
-            capture();
-        },
-        onselect: capture,
-        onselectionchange: capture,
-        placeholder: () => ui.placeholder,
-        readOnly: () => ui.readonly,
+        role: 'textbox',
         spellcheck: () => ui.spellcheck,
-        style: () => `${ui.style} height: ${ui.height}px;`,
-        wrap: () => ui.wrap ? 'soft' : 'off'
+        tabindex: '0'
     };
 
-
     let body: Attributes = {
-        'aria-label': () => ui.label,
         onclick: (e: MouseEvent) => {
-            // Links edit in place on a plain click and open with the platform's modifier.
-            if (!(e.ctrlKey || e.metaKey) && (e.target as Element).closest('a')) {
-                e.preventDefault();
+            let link = (e.target as Element).closest('a');
+
+            if (!link) {
+                return;
+            }
+
+            // Links place the caret on a plain click and open with the platform's modifier.
+            e.preventDefault();
+
+            if ((e.ctrlKey || e.metaKey) && link.href) {
+                window.open(link.href, '_blank', 'noopener');
             }
         },
         onconnect: (element: HTMLElement) => {
@@ -2265,56 +2251,43 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         ondragleave: gestures.ondragleave,
         ondragover: gestures.ondragover,
         ondrop: gestures.ondrop,
-        onfocus: (e: FocusEvent) => {
-            if (e.target === surface) {
-                controller.focus();
-            }
-        },
-        onlostpointercapture: () => {
-            gestures.end();
-            finish();
-        },
+        onlostpointercapture: gestures.end,
+        // A press beside the text, in the padding or past the end, still puts the caret on the nearest text.
         onmousedown: (e: MouseEvent) => {
-            if (e.target === textarea || (e.target as Element).closest('.markdown-editor-block, .markdown-editor-active')) {
+            if (e.button !== 0 || ime.busy() || (e.target !== surface && !(e.target as Element).classList.contains('markdown-editor-spacer'))) {
                 return;
             }
 
-            press(e, null);
+            e.preventDefault();
+            controller.focus();
+            model.select({ start: offsetAt(e.clientX, e.clientY) ?? model.value.length });
         },
-        onpointercancel: () => {
-            gestures.end();
-            finish();
-        },
+        onpointercancel: gestures.end,
         onpointerdown: (e: PointerEvent) => {
-            pointerId = e.pointerId;
+            tip.release();
             gestures.onpointerdown(e);
         },
+        onpointerleave: () => tip.release(),
         onpointermove: (e: PointerEvent) => {
             gestures.onpointermove(e);
+            linking(e);
+        },
+        onpointerover: (e: PointerEvent) => {
+            let link = (e.target as Element).closest<HTMLElement>('a.markdown-editor-link[href]');
 
-            if (!drag) {
-                return;
+            if (link && e.pointerType !== 'touch') {
+                tip.request(link, apple ? '⌘+Click to open' : 'Ctrl+Click to open');
             }
-
-            let offset = offsetAt(e.clientX, e.clientY);
-
-            if (offset !== null && offset !== drag.head) {
-                drag.head = offset;
-                schedule();
+            else {
+                tip.release();
             }
         },
-        onpointerup: () => {
-            pinned = false;
-            pointerId = -1;
-            gestures.end();
-            finish();
-        },
+        onpointerup: gestures.end,
         onscroll: () => {
             metrics.scrollLeft = surface!.scrollLeft;
             metrics.scrollTop = surface!.scrollTop;
             schedule();
-        },
-        tabindex: () => ui.editing ? -1 : 0
+        }
     };
 
     let template = (attributes?: Attributes) => html`
@@ -2325,6 +2298,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 class: [
                     () => ime.state.composing && 'markdown-editor--composing',
                     () => gestures.state.crosshair && 'markdown-editor--crosshair',
+                    () => ui.empty && 'markdown-editor--empty',
+                    () => ui.linking && 'markdown-editor--linking',
+                    () => ui.fold && 'markdown-editor--fold',
                     () => ui.minimap && 'markdown-editor--minimap',
                     () => !ui.wrap && 'markdown-editor--nowrap',
                     () => ui.readonly && 'markdown-editor--readonly'
@@ -2334,13 +2310,10 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                     connect();
                 },
                 ondisconnect: () => controller.dispose(),
-                onfocusout: (e: FocusEvent) => {
-                    let next = e.relatedTarget as Node | null;
-
-                    if (!next || !host?.contains(next)) {
-                        capture();
-                        deactivate();
-                    }
+                ondocumentselectionchange: capture,
+                // A modifier released in another window never reaches this one.
+                onwindowblur: () => {
+                    ui.linking = false;
                 },
                 style: () => `--tab-size: ${ui.tabSize};`
             }}
@@ -2354,44 +2327,20 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                             <div ${{ class: () => decoration.kind, style: () => decoration.style }}></div>
                         `)}
                     </div>
-                    <div aria-hidden='true' class='markdown-editor-spacer' ${{ style: () => `height: ${ui.top}px;` }}></div>
-                    ${html.reactive(listed.before, draw.template)}
-                    <div aria-hidden='true' class='markdown-editor-spacer' ${{ style: () => `height: ${ui.between}px;` }}></div>
-                    <div class='markdown-editor-active' ${{ class: () => ui.editing && '--active' }}>
-                        <button
-                            aria-label='Fold block'
-                            class='markdown-editor-fold'
-                            tabindex='-1'
-                            type='button'
-                            ${{
-                                class: () => !ui.foldable && 'markdown-editor-fold--none',
-                                onclick: () => {
-                                    if (active) {
-                                        controller.fold(model.lineAt(blocks[active.first].from) + 1);
-                                    }
-                                },
-                                onmousedown: prevent
-                            }}
-                        >
-                            ${icon({ 'aria-hidden': 'true', class: 'markdown-editor-fold-icon' }, chevron)}
-                        </button>
-                        <textarea
-                            autocapitalize='off'
-                            autocomplete='off'
-                            autocorrect='off'
-                            dir='ltr'
-                            ${field}
-                            ${{
-                                onconnect: (element: HTMLTextAreaElement) => {
-                                    textarea = element;
-                                    connect();
-                                }
-                            }}
-                        ></textarea>
+                    <div
+                        ${field}
+                        ${{
+                            onconnect: (element: HTMLElement) => {
+                                content = element;
+                                connect();
+                            }
+                        }}
+                    >
+                        ${html.reactive(items, (item) => 'block' in item
+                            ? draw.template(item)
+                            : html`<div aria-hidden='true' class='markdown-editor-spacer' contenteditable='false' ${{ style: () => `height: ${item.height}px;` }}></div>`
+                        )}
                     </div>
-                    <div aria-hidden='true' class='markdown-editor-spacer' ${{ style: () => `height: ${ui.next}px;` }}></div>
-                    ${html.reactive(listed.after, draw.template)}
-                    <div aria-hidden='true' class='markdown-editor-spacer' ${{ style: () => `height: ${ui.bottom}px;` }}></div>
                 </div>
                 ${map.template()}
                 <span
@@ -2406,6 +2355,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 >0000000000000000000000000000000000000000000000000000000000000000</span>
             </div>
             <span class='markdown-editor-help' id='${help}'>Press Escape then Tab to move focus out of the editor.</span>
+            ${tip.render()}
         </div>
     `;
 

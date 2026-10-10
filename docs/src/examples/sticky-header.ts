@@ -22,7 +22,7 @@ function list() {
                         <div class='text' style='font-weight: var(--font-weight-500);'>${invoice.client}</div>
                         <div class='text' style='color: var(--color-text-300); font-size: var(--font-size-200);'>${invoice.id}</div>
                     </div>
-                    <div class='text' style='color: ${invoice.paid ? 'var(--color-text-300)' : 'var(--color-text-500)'};'>
+                    <div class='text' style='color: ${invoice.paid ? 'var(--color-primary-300)' : 'var(--color-primary-500)'};'>
                         ${invoice.amount}
                     </div>
                 </div>

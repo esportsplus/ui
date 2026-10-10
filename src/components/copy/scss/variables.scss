@@ -1,22 +1,19 @@
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+
+
 .copy {
-    --background: var(--background-default);
-    --background-default: transparent;
-    --background-hover: var(--color-grey-400);
-    --border-radius: 6px;
-    --color: var(--color-default);
+    @extend %background-state, %color-state;
+    --background-hover: var(--surface-background-hover);
+    --background-pressed: var(--surface-background-pressed);
+    --border-radius: var(--border-radius-300);
     --color-default: var(--color-text-300);
     --color-hover: var(--color-text-500);
+    --color-pressed: var(--color-hover);
     --draw-duration: 280ms;
     --draw-timing-function: ease;
-    --icon-size: 16px;
+    --icon-size: var(--size-400);
     --outline-color: var(--color-blue-400);
-    --outline-width: 2px;
+    --outline-width: var(--border-width-500);
     --size: 28px;
-    --transition-duration: 150ms;
-    --transition-timing-function: ease-out;
-
-    &:hover {
-        --background: var(--background-hover);
-        --color: var(--color-hover);
-    }
 }

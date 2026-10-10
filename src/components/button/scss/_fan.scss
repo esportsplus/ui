@@ -14,10 +14,6 @@
             pointer-events: auto;
             scale: 1;
             translate: 0 0;
-
-            &:active {
-                scale: var(--option-pressed-scale);
-            }
         }
 
         > .button--fan .button-fan-swap {
@@ -67,7 +63,7 @@
         scale: var(--option-scale);
         transform-origin: var(--origin);
         transition:
-            opacity var(--option-opacity-duration) ease-out var(--delay),
+            opacity var(--option-opacity-duration) var(--option-spring) var(--delay),
             scale var(--option-spring-duration) var(--option-spring) var(--delay),
             translate var(--option-spring-duration) var(--option-spring) var(--delay);
         translate:
@@ -114,12 +110,12 @@
 
         > .button-fan-options > .button-fan-option {
             scale: 1;
-            transition: opacity 0.15s ease-out;
+            transition: opacity var(--option-opacity-duration) var(--option-spring) var(--delay);
             translate: none;
         }
 
         .button-fan-swap > * {
-            transition: opacity 0.15s ease-out;
+            transition: opacity var(--swap-spring-duration) var(--swap-spring);
         }
     }
 }

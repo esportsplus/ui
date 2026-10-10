@@ -1,11 +1,17 @@
 @use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/surface';
 
+// A surface: its own level's background, lifted to match.
 .metric {
+    @extend %background-state, %box-shadow-state, %surface-raised-level;
     --area-color: color-mix(in oklab, var(--line-color) 8%, transparent);
-    --background: var(--color-grey-400);
+    --background-default: var(--surface-background-default);
     --border-radius: var(--border-radius-700);
+    --box-shadow-default: var(--surface-shadow-default);
     --color: var(--color-text-500);
-    --cursor-color: color-mix(in oklab, var(--color-text-300) 40%, transparent);
+    --cursor-color: color-mix(in oklab, var(--color-primary-300) 40%, transparent);
     // Long for a UI animation on purpose: the draw introduces the shape once, and a faster line reads as a flicker.
     --draw-duration: 0.7s;
     // Hidden and undrawn until the plot is shown.
@@ -15,9 +21,9 @@
     --dot-color: var(--line-color);
     --dot-ring-color: var(--background);
     --dot-size: 12px;
-    --focus-color: var(--color-text-500);
+    --focus-color: var(--color-primary-500);
     --font-size: var(--font-size-400);
-    --line-color: var(--color-text-500);
+    --line-color: var(--color-primary-500);
     --line-width: 2.5;
     --muted-color: var(--color-text-300);
     // Shown while the plot is active.
@@ -28,8 +34,8 @@
     --plot-height: clamp(64px, 30cqi, 160px);
     // Never below the tip's height plus its margin, so the tip clears the header.
     --plot-offset: clamp(40px, 9cqi, 48px);
-    --tip-background: var(--color-text-500);
-    --tip-color: var(--color-white-300);
+    --tip-background: var(--color-primary-500);
+    --tip-color: var(--color-surface);
     --tip-font-size: var(--font-size-300);
     --value-font-size: var(--font-size-700);
     --value-font-size-compact: var(--font-size-600);

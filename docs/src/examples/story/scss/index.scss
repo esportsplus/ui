@@ -1,3 +1,7 @@
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+
+
 .story-demo {
     --caption-color: var(--color-text-300);
     align-items: flex-start;
@@ -10,8 +14,12 @@
 
     &--gradient {
         --caption-color: var(--color-white-500);
-        background: linear-gradient(160deg, var(--color-primary-400), var(--color-primary-500));
+        background: linear-gradient(160deg, var(--color-accent-400), var(--color-accent-500));
         color: var(--color-white-500);
+    }
+
+    &-button {
+        @extend %background-primary, %color-surface;
     }
 
     &-caption {

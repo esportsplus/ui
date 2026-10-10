@@ -1,9 +1,17 @@
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+
+
 .relative-time-demo {
     align-items: center;
     display: flex;
     flex-direction: column;
     gap: var(--size-500);
     max-width: 100%;
+
+    &-button {
+        @extend %background-blue, %color-white;
+    }
 
     // Each clause wraps as a unit, so a narrow line never starts on a dot.
     &-clause {

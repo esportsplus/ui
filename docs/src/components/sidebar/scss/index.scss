@@ -1,11 +1,19 @@
+@use 'css-utilities/border';
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
 @use '../../../../../tokens.scss';
 
 
 .sidebar {
+    @extend %surface-sunken-level;
     --content-padding-horizontal: var(--size-600);
-    --scrollbar-color-default: var(--color-border-400);
-    --scrollbar-color-hover: var(--color-border-500);
-    --scrollbar-color-pressed: var(--color-text-300);
+    --scrollbar-color-default: var(--surface-secondary-hover);
+    --scrollbar-color-hover: var(--surface-secondary-pressed);
+    --scrollbar-color-pressed: var(--color-primary-300);
+    --sidebar-background: var(--surface-background-default);
+    --sidebar-border: var(--surface-border-default);
+    // Multiplied so the grain only darkens: laid over normally, its grey lifts a dark sidebar back to the page.
+    background-blend-mode: multiply;
     background-color: var(--sidebar-background);
     background-image: var(--sidebar-texture);
     background-size: 256px 256px;
@@ -43,15 +51,19 @@
 
     // Keep the scrollport unpadded so its blur edges span the entire navigation surface.
     &-content {
-        padding: 0 var(--content-padding-horizontal) var(--size-400);
+        padding: var(--size-100) var(--content-padding-horizontal) var(--size-400);
     }
 
     &-header {
         align-items: center;
         display: flex;
         flex-shrink: 0;
-        gap: 6px;
-        padding: var(--size-300) var(--size-200) 0 46px;
+        gap: var(--size-200);
+        padding: var(--size-400) var(--size-200) 0 46px;
+    }
+
+    &-navtree {
+        --section-gap: var(--size-400);
     }
 
     &-scrollport {
@@ -67,12 +79,10 @@
 
     &-toggle {
         --background-default: transparent;
-        // --background-hover: color-mix(in oklab, var(--color-text-500) 6%, transparent);
-        // --background-pressed: color-mix(in oklab, var(--color-text-500) 10%, transparent);
-        --border-radius: 8px;
+        --border-radius: var(--border-radius-400);
         --color-default: var(--color-text-400);
-        --color-hover: var(--color-black-400);
-        --color-pressed: var(--color-black-500);
+        --color-hover: var(--color-text-400);
+        --color-pressed: var(--color-text-500);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         --size: 32px;
@@ -82,7 +92,7 @@
         height: var(--size);
         left: var(--size-300);
         position: fixed;
-        top: var(--size-200);
+        top: var(--size-300);
         width: var(--size);
         z-index: 40;
 
@@ -98,7 +108,7 @@
     }
 
     &-version {
-        --border-color: var(--color-border-400);
+        @extend %border-surface, %color-text;
         --border-radius: var(--border-radius-300);
         --font-size: var(--font-size-100);
         --font-weight: var(--font-weight-500);
@@ -109,6 +119,12 @@
         @media (max-width: 480px) {
             display: none;
         }
+    }
+
+    // The active link fills with secondary rather than the primary, so it keeps the plain active text color.
+    .nav-tree {
+        --highlight-background-active: var(--surface-secondary-active);
+        --highlight-color: var(--color-text-500);
     }
 
     @include tokens.state(active) {

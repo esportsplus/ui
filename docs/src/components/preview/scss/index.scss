@@ -1,9 +1,13 @@
-@use '../../../../../shared.scss';
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
 
 
 .preview {
+    --border-color-default: var(--surface-secondary-default);
     --border-radius: var(--border-radius-500);
-    border: var(--border-width-400) solid var(--color-grey-500);
+    --border-width: var(--border-width-400);
+    --padding-horizontal: 0px;
+    --padding-vertical: 0px;
     // Keep visited examples' state while the browser skips painting and layout offscreen.
     contain-intrinsic-block-size: auto 420px;
     margin: 0;
@@ -16,15 +20,45 @@
 
     &-code {
         min-width: 0;
+        position: relative;
+
+        &-message {
+            color: var(--color-text-300);
+            padding: var(--size-500);
+        }
     }
 
-    &-code-message {
+    // Floats over the top-right corner of whichever pane is showing.
+    &-copy {
+        position: absolute;
+        right: var(--size-300);
+        top: var(--size-300);
+        z-index: 1;
+    }
+
+    // A surface above the card, so what sits in it (the tabs' highlight, the select) takes its states from the
+    // header's own level. The card can't clip, so the header rounds the corners it fills.
+    &-header {
+        @extend %surface-raised-level;
+        align-items: center;
+        background: var(--surface-background-default);
+        border-bottom: var(--border-width-400) solid var(--surface-secondary-default);
+        border-radius: calc(var(--border-radius-500) - var(--border-width-400))
+            calc(var(--border-radius-500) - var(--border-width-400)) 0 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--size-200) var(--size-300);
+        min-height: 44px;
+        padding: var(--size-200) var(--size-400);
+    }
+
+    &-index {
         color: var(--color-text-300);
-        padding: var(--size-500);
+        font-variant-numeric: tabular-nums;
+        margin-right: var(--size-300);
     }
 
     &-select {
-        --background: var(--color-white-400);
         --font-size: var(--font-size-200);
         --height: 28px;
         --width: auto;
@@ -42,21 +76,21 @@
         display: grid;
         gap: var(--size-400);
         justify-items: center;
+        background: var(--surface-background-default);
+        // The card can't clip (an open selector paints past it), so the stage rounds its own corners.
+        border-radius: calc(var(--border-radius-500) - var(--border-width-400));
         min-height: 160px;
         padding: var(--size-600) var(--size-500);
+        position: relative;
+
+        .preview-header ~ & {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
 
         // Reserve space while an offscreen example waits to mount.
         &--pending {
             min-height: 320px;
-        }
-
-        &::after {
-            @extend %absolute-full;
-            background-image: radial-gradient(var(--color-grey-400) 1px, transparent 1px);
-            background-position: center;
-            background-size: 12px 12px;
-            content: '';
-            z-index: -2;
         }
 
         > * {
@@ -70,23 +104,17 @@
     }
 
     &-title {
-        align-items: center;
-        background: var(--color-grey-400);
-        box-shadow: var(--box-shadow-100);
-        color: var(--color-text-300);
-        display: flex;
-        flex-wrap: wrap;
-        font-size: var(--font-size-200);
-        gap: var(--size-200) var(--size-300);
-        min-height: 40px;
-        padding: var(--size-200) var(--size-400);
-        text-transform: lowercase;
+        color: var(--color-text-500);
+        font-size: var(--font-size-300);
+        font-weight: var(--font-weight-500);
+        margin-right: auto;
     }
 
     &-view {
+        @extend %surface-sunken-level;
         align-items: center;
         align-self: flex-start;
-        background: var(--color-grey-400);
+        background: var(--surface-background-default);
         border-radius: 12px;
         display: inline-flex;
         gap: 2px;
@@ -94,11 +122,15 @@
         width: fit-content;
 
         &-button {
+            @extend %color-state;
+            --color-default: var(--color-text-300);
+            --color-hover: var(--color-text-500);
+            --color-pressed: var(--color-hover);
             align-items: center;
             background: transparent;
             border: 0;
             border-radius: 8px;
-            color: var(--color-text-300);
+            color: var(--color);
             cursor: pointer;
             display: flex;
             font-size: var(--font-size-300);
@@ -112,17 +144,14 @@
                 outline-offset: 2px;
             }
 
-            &:hover {
-                color: var(--color-text-500);
-            }
-
             &[aria-pressed='true'] {
-                color: var(--color-text-500);
+                --color-default: var(--color-text-500);
             }
         }
 
         &-highlight {
-            --background-active: var(--color-white-400);
+            @extend %surface-raised-level;
+            --background-active: var(--surface-background-default);
             --background-default: transparent;
             --background-disabled: transparent;
             --background-hover: transparent;
@@ -131,8 +160,17 @@
         }
 
         &-icon {
-            --size: 16px;
+            --size: var(--size-400);
         }
+    }
+
+    // Sits flush on the card, which shows through the viewer's own raised level, rounding only the corners it
+    // closes off.
+    &-viewer.code-viewer {
+        --background-default: transparent;
+        --border-radius: 0 0 var(--border-radius-500) var(--border-radius-500);
+        --border-width: 0px;
+        --padding: var(--size-400);
     }
 
     // An open selector must paint beyond this card and above the following preview.
@@ -146,9 +184,15 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin: var(--size-800) 0 var(--size-500);
     min-width: 0;
     scroll-margin-top: var(--size-500);
+
+    // Source sits flush and left-aligned in place of the centered stage.
+    &--code .preview-stage {
+        justify-items: stretch;
+        min-height: 0;
+        padding: 0;
+    }
 
     &:has(.preview-select.--active) {
         z-index: 10;

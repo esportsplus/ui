@@ -9,9 +9,10 @@ its color palettes, contrast calculation, clipboard feedback, and swatch styles.
 | Component | Owns |
 | --- | --- |
 | `code` | TypeScript syntax colors, line numbers, preserved source whitespace, scrolling, and a floating copy control |
-| `page` | Docs page headings, inline library card links for Components and CSS Utilities grids, detail pages, and empty states |
-| `page/header` | Library page title and subtitle, optional breadcrumb, and previous/next navigation |
-| `preview` | Example frames and inline Preview/Code controls with the library highlight; render factories mount near the viewport and keep their state after mounting |
+| `directory` | Components and CSS Utilities index grids of library card links, and their detail pages |
+| `page` | Docs page and section layout, and empty states |
+| `page/header` | Library page title and subtitle, optional breadcrumb and note, and previous/next navigation |
+| `preview` | Example frames and inline Preview/Code controls with the library highlight; render factories mount near the viewport and keep their state after mounting. Its `code` option shows source flush in the stage through the library `editor.viewer`, with the copy control floating top right |
 | `root` | Docs-wide theme aliases and shell tokens |
 | `search` | Search state, trigger, and the library `command` palette wired to the library `nav.tree` renderer |
 | `sidebar` | Collapsible documentation navigation that pushes content aside on every screen size |

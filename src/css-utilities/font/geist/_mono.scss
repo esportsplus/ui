@@ -1,0 +1,22 @@
+// Geist Mono, for components that set code and figures in it whatever family the page uses: extending
+// '%font-geist-mono' loads the face with the component and points the element's '--font-family' at it.
+@font-face {
+    font-display: swap;
+    font-family: 'Geist Mono';
+    font-style: normal;
+    font-weight: 100 900;
+    src: url('./GeistMono-Variable.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Geist Mono';
+    font-style: italic;
+    font-weight: 100 900;
+    src: url('./GeistMono-Italic-Variable.woff2') format('woff2');
+}
+
+
+%font-geist-mono {
+    --font-family: 'Geist Mono', monospace;
+}

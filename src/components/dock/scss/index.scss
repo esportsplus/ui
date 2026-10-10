@@ -23,13 +23,8 @@
         transform-origin: 50% 100%;
         transition:
             height var(--magnify-duration) var(--magnify-timing-function),
-            scale 0.15s ease-out,
             width var(--magnify-duration) var(--magnify-timing-function);
         width: var(--size);
-
-        &:active {
-            scale: 0.96;
-        }
 
         &:focus-visible {
             outline: 2px solid var(--color);
@@ -76,15 +71,15 @@
         // 4px under the resting button.
         top: calc(100% - var(--inset) + 4px);
         transition:
-            opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1),
-            scale 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+            opacity var(--duration-fast-exit) var(--easing-spring),
+            scale var(--duration-fast-exit) var(--easing-spring);
         width: var(--light-size);
 
         @include tokens.state(active) {
             opacity: 1;
             scale: 1;
             transition-delay: var(--light-delay);
-            transition-duration: 0.2s;
+            transition-duration: var(--duration-fast);
         }
     }
 }

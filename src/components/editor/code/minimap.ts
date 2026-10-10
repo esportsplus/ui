@@ -62,8 +62,16 @@ const minimapScroll = (y: number, grab: number, height: number, scrollHeight: nu
 };
 
 // The whole document drawn into a fixed-height canvas, with a slider for the viewport. Edits that keep the line
-// count redraw only their band; anything else redraws once per frame at most.
-const minimap = ({ focus, scroll }: { focus: VoidFunction; scroll: (top: number, relative: boolean) => void }) => {
+// count redraw only their band; anything else redraws once per frame at most. 'name' prefixes its classes.
+const minimap = ({
+    focus,
+    name = 'code-editor',
+    scroll
+}: {
+    focus: VoidFunction;
+    name?: string;
+    scroll: (top: number, relative: boolean) => void;
+}) => {
     let canvas: HTMLCanvasElement | undefined,
         colors: Record<string, string> = {},
         content = 0,
@@ -244,10 +252,10 @@ const minimap = ({ focus, scroll }: { focus: VoidFunction; scroll: (top: number,
         },
         state,
         template: (attributes?: Attributes) => html`
-            <div aria-hidden='true' class='code-editor-minimap' ${handlers} ${attributes}>
-                <canvas class='code-editor-minimap-canvas' ${{ onconnect: (element: HTMLCanvasElement) => { canvas = element; } }}></canvas>
+            <div aria-hidden='true' class='${name}-minimap' ${handlers} ${attributes}>
+                <canvas class='${name}-minimap-canvas' ${{ onconnect: (element: HTMLCanvasElement) => { canvas = element; } }}></canvas>
                 <div
-                    class='code-editor-minimap-slider'
+                    class='${name}-minimap-slider'
                     ${{ style: () => `--slider-height: ${state.height}px; --slider-top: ${state.top}px;` }}
                 ></div>
             </div>

@@ -1,0 +1,45 @@
+@use '../tokens/scss' as tokens;
+
+%border-state {
+    --border-color: var(--border-color-default);
+    --border-color-active: var(--border-color-default);
+    --border-color-default: transparent;
+    --border-color-hover: var(--border-color-default);
+    --border-color-pressed: var(--border-color-default);
+
+    @include tokens.state(active) {
+        --border-color: var(--border-color-active);
+    }
+
+    @include tokens.state(hover) {
+        --border-color: var(--border-color-hover);
+    }
+
+    @include tokens.state(pressed) {
+        --border-color: var(--border-color-pressed);
+    }
+}
+
+// After '%border-state', so a color extended alongside it replaces its transparent default.
+%border {
+    @include tokens.state-utility('border-color', tokens.$colors);
+
+    &-default {
+        --border-color: var(--border-color-default);
+        --border-color-active: var(--border-color-default);
+        --border-color-hover: var(--border-color-default);
+        --border-color-pressed: var(--border-color-default);
+    }
+
+    &-radius-responsive {
+        --border-radius: #{"calc( progress((100vi - 100cqi) / 2, 0px, var(--gap-horizontal)) * var(--border-radius) )"};
+    }
+
+    // The surface's edge: faint at rest, a step stronger on hover, strong when pressed.
+    &-surface {
+        --border-color-active: var(--surface-border-active);
+        --border-color-default: var(--surface-border-default);
+        --border-color-hover: var(--surface-border-hover);
+        --border-color-pressed: var(--surface-border-pressed);
+    }
+}

@@ -1,5 +1,5 @@
 import editor from './editor';
-import '~/css-utilities/scrollbar/scss/index.scss';
+import '~/modifiers/scrollbar/scss/index.scss';
 import './scss/index.scss';
 
 

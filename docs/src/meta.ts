@@ -43,11 +43,11 @@ const meta: Record<string, Meta> = {
         description: 'Copy-to-clipboard affordance with click and programmatic variants.'
     },
     'code-editor': {
-        description: 'Source editor with syntax colors for TypeScript, CSS, HTML, JSON, Python and Markdown, undo and redo, find and replace, multiple and rectangular selections, folding, wrap and a minimap; language services add completion, hover and diagnostics, the Markdown editor renders in place one block at a time, and the workspace adds a file explorer, tabs and quick open.',
+        description: 'Source editor with syntax colors for TypeScript, CSS, HTML, JSON, Python and Markdown, undo and redo, find and replace, multiple and rectangular selections, folding, wrap and a minimap; language services add completion, hover and diagnostics, the Markdown editor edits its rendered text directly, the workspace adds a file explorer, tabs and quick open, and the viewer shows source read-only with line numbers, folding, wrap, whitespace, a minimap and copy.',
         label: 'Code Editor'
     },
     'color-picker': {
-        description: 'Saturation pad, hue and opacity sliders, a hex field, and a recent-colors row that reorders as you commit.'
+        description: 'Saturation pad, hue and opacity sliders, a hex field, and a recent-colors row that reorders as you commit, or a compact pad with upright rails under an hsl readout.'
     },
     command: {
         description: 'Keyboard-first ⌘K command palette with fuzzy search, highlighted matches, grouped results, and arrow-key navigation.'
@@ -119,6 +119,9 @@ const meta: Record<string, Meta> = {
     metric: {
         description: 'Metric card with a line chart that draws itself in and redraws to fit its container, with a scrubbable readout for pointer, touch, and arrow keys, plus a live value that marks each change with a directional roll, tint, and arrow.'
     },
+    nav: {
+        description: 'Navigation trees with a highlight that glides between links or a bar that slides along them, an on-this-page table of contents, and a scroll spy that marks the section in view.'
+    },
     notification: {
         description: 'Unread bubble with a rolling counter, optionally mounted on a bell that swings on new notifications.'
     },
@@ -132,7 +135,7 @@ const meta: Record<string, Meta> = {
         description: 'Vertical page scaffold with title, suptitle, and subtitle slots.'
     },
     pagination: {
-        description: 'Numbered page navigation that folds overflow into ellipses, plus a scroll-linked dots indicator whose active pill stretches between dots like a worm, with an optional autoplay countdown.'
+        description: 'Numbered page navigation that folds overflow into ellipses, plus a scroll-linked dots indicator whose active pill stretches between dots like a worm, with an optional autoplay countdown. Previous and next links come as large cards or compact arrow buttons, each nudging its arrow the way it points.'
     },
     progress: {
         description: 'Progress bar with an optional label, percentage, and a status line derived from the value, plus progress shown in the label itself: ink fills the letters, digits roll, and a drawn check lands when done.'
@@ -178,6 +181,10 @@ const meta: Record<string, Meta> = {
     },
     textarea: {
         description: 'Multi-line text field for longer form input.'
+    },
+    'theme-picker': {
+        description: 'Ready-made controls for choosing light, dark or system: a toggle that morphs into a row of every choice, preview cards and swatches, each driving one theme instance.',
+        label: 'Theme Picker'
     },
     toast: {
         description: 'Independent toasters that stack your content: a close button, swipe-to-dismiss, a capped stack that fans out on hover, and a CSS clock that runs only on the front toast.'

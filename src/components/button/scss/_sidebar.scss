@@ -1,28 +1,43 @@
 .button-sidebar {
-    // Hidden panels keep the divider slid out; hover and focus preview the opposite state.
-    &[aria-expanded='false'],
-    &[aria-expanded='true']:focus-visible {
-        --divider-x: var(--divider-travel);
+    // Hidden panels thin the pill to a line; hover and focus preview the opposite state unless a toggle
+    // just happened under them.
+    &[aria-expanded='false'] {
+        --panel-open: 0;
     }
 
-    &[aria-expanded='false']:focus-visible {
-        --divider-x: 0px;
-    }
-
-    @media (hover: hover) {
-        &[aria-expanded='false']:hover {
-            --divider-x: 0px;
+    &:not(&--held) {
+        &[aria-expanded='true']:focus-visible {
+            --panel-open: 0;
         }
 
-        &[aria-expanded='true']:hover {
-            --divider-x: var(--divider-travel);
+        &[aria-expanded='false']:focus-visible {
+            --panel-open: 1;
+        }
+
+        @media (hover: hover) {
+            &[aria-expanded='false']:hover {
+                --panel-open: 1;
+            }
+
+            &[aria-expanded='true']:hover {
+                --panel-open: 0;
+            }
         }
     }
 
-    // The frame clips the divider, so it disappears as it leaves rather than sliding past the glyph.
-    &-divider {
-        transform: translateX(var(--divider-x));
-        transition: transform var(--divider-duration) ease;
+    // A round-capped stroke stays rounded at every width; the shift pins its outer edge against the frame as it thins
+    // from 3 units to 1, whole units that keep the closed line on the pixel grid at the default icon size. Caps add
+    // the width to the 5-unit line, so the stretch restores what thinning takes to hold it 8 units tall.
+    &-panel {
+        stroke-width: calc(1px + 2px * var(--panel-open));
+        transform:
+            translateX(calc((var(--panel-open) - 1) * 1px))
+            scaleY(calc((7 - 2 * var(--panel-open)) / 5));
+        transform-box: fill-box;
+        transform-origin: center;
+        transition:
+            stroke-width var(--panel-duration) var(--easing-spring),
+            transform var(--panel-duration) var(--easing-spring);
 
         @media (prefers-reduced-motion: reduce) {
             transition: none;
@@ -38,10 +53,6 @@
             fill: none;
             overflow: hidden;
         }
-    }
-
-    &-shadow {
-        opacity: var(--shadow-opacity);
     }
 
     &--right &-graphic {

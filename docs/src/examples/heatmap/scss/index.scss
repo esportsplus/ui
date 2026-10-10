@@ -1,3 +1,7 @@
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+
+
 .heatmap-demo {
     align-items: flex-start;
     display: flex;
@@ -5,6 +9,10 @@
     gap: var(--size-400);
     max-width: 100%;
     width: fit-content;
+
+    &-button {
+        @extend %background-blue, %color-white;
+    }
 
     &-count {
         color: var(--color-text-500);
@@ -20,12 +28,12 @@
         color: var(--color-text-500);
         font-weight: var(--font-weight-500);
         text-decoration: underline;
-        text-decoration-color: color-mix(in oklab, var(--color-text-500) 25%, transparent);
+        text-decoration-color: color-mix(in oklab, var(--color-primary-500) 25%, transparent);
         text-underline-offset: 2px;
         transition: text-decoration-color 0.15s ease-out;
 
         &:hover {
-            text-decoration-color: var(--color-text-500);
+            text-decoration-color: var(--color-primary-500);
         }
     }
 

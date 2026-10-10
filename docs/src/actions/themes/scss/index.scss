@@ -1,0 +1,13 @@
+.themes {
+    // Inline tokens and snippets in the prose, set off from the text. Each line of one that wraps gets its own
+    // padding and corners. Ligatures off, since the mono font joins a leading '--' into a dash that spills over the
+    // padding.
+    p code {
+        -webkit-box-decoration-break: clone;
+        background: var(--surface-secondary-default);
+        border-radius: var(--border-radius-200);
+        box-decoration-break: clone;
+        font-variant-ligatures: none;
+        padding-inline: var(--size-100);
+    }
+}

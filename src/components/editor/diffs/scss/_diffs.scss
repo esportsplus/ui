@@ -1,4 +1,8 @@
-@use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
+
 
 .diffs {
     background: var(--background);
@@ -15,7 +19,11 @@
 
 
     &-action {
-        background: var(--action-background);
+        @extend %background-state;
+        --background-default: var(--action-background);
+        --background-hover: var(--action-hover-background);
+        --background-pressed: var(--background-hover);
+        background: var(--background);
         border: var(--border-width) solid var(--border-color);
         border-radius: var(--border-radius);
         color: var(--color);
@@ -27,10 +35,6 @@
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
-        }
-
-        &:hover {
-            background: var(--action-hover-background);
         }
     }
 
@@ -46,11 +50,19 @@
     }
 
     &-button {
+        @extend %background-state, %color-state;
+        --background-active: var(--hover-background);
+        --background-hover: var(--hover-background);
+        --background-pressed: var(--hover-background);
+        --color-active: var(--hover-color);
+        --color-default: var(--muted-color);
+        --color-hover: var(--hover-color);
+        --color-pressed: var(--hover-color);
         align-items: center;
-        background: transparent;
+        background: var(--background);
         border: 0;
         border-radius: var(--border-radius);
-        color: var(--muted-color);
+        color: var(--color);
         cursor: pointer;
         display: inline-flex;
         flex: none;
@@ -62,8 +74,12 @@
         padding: 0;
 
         &--primary {
-            background: var(--accent);
-            color: var(--accent-color);
+            --background-default: var(--accent);
+            --background-hover: var(--accent);
+            --background-pressed: var(--accent);
+            --color-default: var(--accent-color);
+            --color-hover: var(--accent-color);
+            --color-pressed: var(--accent-color);
         }
 
         &--text {
@@ -71,6 +87,10 @@
         }
 
         &:disabled {
+            --background-hover: var(--background-default);
+            --background-pressed: var(--background-default);
+            --color-hover: var(--color-default);
+            --color-pressed: var(--color-default);
             cursor: default;
             opacity: var(--disabled-opacity);
         }
@@ -80,25 +100,13 @@
             outline-offset: calc(var(--focus-width) * -1);
         }
 
-        &:not(:disabled):hover {
-            background: var(--hover-background);
-            color: var(--color);
+        &-icon.icon {
+            --size: var(--button-icon-size);
         }
 
-        @include tokens.state(active) {
-            background: var(--hover-background);
-            color: var(--color);
+        &--primary:not(:disabled):hover {
+            filter: brightness(1.1);
         }
-    }
-
-    &-button--primary:not(:disabled):hover {
-        background: var(--accent);
-        color: var(--accent-color);
-        filter: brightness(1.1);
-    }
-
-    &-button-icon.icon {
-        --size: var(--button-icon-size);
     }
 
     &-cell {
@@ -148,10 +156,17 @@
     }
 
     &-gap {
+        @extend %background-state, %color-state;
+        --background-default: var(--gap-background);
+        --background-hover: var(--gap-hover-background);
+        --background-pressed: var(--background-hover);
+        --color-default: var(--gap-color);
+        --color-hover: var(--hover-color);
+        --color-pressed: var(--color-hover);
         align-items: center;
-        background: var(--gap-background);
+        background: var(--background);
         border: 0;
-        color: var(--gap-color);
+        color: var(--color);
         cursor: pointer;
         display: flex;
         font: inherit;
@@ -166,19 +181,15 @@
             outline-offset: calc(var(--focus-width) * -1);
         }
 
-        &:hover {
-            background: var(--gap-hover-background);
-            color: var(--color);
+        &-icon.icon {
+            --size: var(--button-icon-size);
         }
     }
 
-    &-gap-icon.icon {
-        --size: var(--button-icon-size);
-    }
-
     &-header {
+        @extend %surface-sunken-level;
         align-items: center;
-        background: var(--bar-background);
+        background: var(--surface-background-default);
         border-bottom: var(--border-width) solid var(--border-color);
         display: flex;
         flex: none;
@@ -206,6 +217,9 @@
     }
 
     &-row {
+        @extend %box-shadow-state;
+        --box-shadow-active: inset 2px 0 0 var(--active-outline);
+        box-shadow: var(--box-shadow);
         line-height: var(--line-height);
         min-height: var(--line-height);
         position: relative;
@@ -235,17 +249,13 @@
             }
         }
 
-        @include tokens.state(active) {
-            box-shadow: inset 2px 0 0 var(--active-outline);
+        &--delete .diffs-sign {
+            color: var(--delete-color);
         }
-    }
 
-    &-row--delete &-sign {
-        color: var(--delete-color);
-    }
-
-    &-row--insert &-sign {
-        color: var(--insert-color);
+        &--insert .diffs-sign {
+            color: var(--insert-color);
+        }
     }
 
     &-scroller {

@@ -1,43 +1,38 @@
-@use '/tokens';
-
 .breadcrumb {
     --color: var(--color-text-300);
     --color-active: var(--color-text-500);
-    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
     // Arriving segments fade in slower than leaving ones fade out, so the gap a leaving one opens is already
     // closing by the time the eye looks for it.
-    --enter-duration: 200ms;
-    --exit-duration: 120ms;
-    --focus-color: var(--color-text-500);
+    --enter-duration: var(--duration-moderate);
+    --exit-duration: var(--duration-moderate-exit);
+    --focus-color: var(--color-primary-500);
     --font-size: var(--font-size-300);
     --font-weight-current: var(--font-weight-500);
-    --height: 36px;
-    --hover-background: oklch(from var(--color-text-500) l c h / 0.06);
+    --height: 24px;
+    --hover-background: var(--surface-background-hover);
+    // Resolved here, since a link's color state redefines --color and --color-active on it.
+    --link-color: var(--color);
+    --link-color-hover: var(--color-active);
     --link-padding: 6px;
     --link-radius: var(--border-radius-300);
-    --menu-background: var(--color-grey-400);
-    --menu-box-shadow: 0 0 0 var(--border-width-400) var(--color-border-300), var(--box-shadow-300);
-    --menu-duration-in: 0.18s;
-    --menu-duration-out: 0.1s;
     --menu-radius: var(--border-radius-600);
     --menu-width: 192px;
     // Options are '.link's, and '.text' redefines --color and --color-active on them, so these resolve here first.
     --option-color: var(--color-active);
     --option-icon-color: var(--color);
-    --separator-color: oklch(from var(--color-text-300) l c h / 0.5);
-    --separator-size: 16px;
-    --slide-duration: 310ms;
-    // Critically damped (no bounce) spring: a trail that overshoots reads as unstable.
-    --slide-easing: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
-    --trigger-width: 36px;
-    --underline-color: oklch(from var(--color-text-500) l c h / 0.4);
+    --separator-color: oklch(from var(--color-primary-300) l c h / 0.5);
+    --separator-size: var(--size-400);
+    --slide-duration: var(--duration-moderate);
+    --slide-easing: var(--easing-spring);
+    --trigger-width: var(--height);
+    --underline-color: oklch(from var(--color-primary-500) l c h / 0.4);
 
 
     &--compact {
-        --height: 28px;
+        --height: var(--size-400);
         --link-padding: 4px;
         --separator-size: 14px;
-        --trigger-width: 28px;
+        --trigger-width: var(--height);
     }
 
     // Zeroes every fold timing, so nothing transitions until the first fit has painted.
@@ -47,19 +42,16 @@
         --slide-duration: 0s;
     }
 
+    // A surface through the tooltip content it reuses, so its colors are read at its own level.
     &-menu.tooltip-content {
-        --background-default: var(--menu-background);
+        --background-default: var(--surface-background-default);
         --border-radius: var(--menu-radius);
-        --box-shadow: var(--menu-box-shadow);
+        --box-shadow-default:
+            0 0 0 var(--border-width-400) var(--surface-secondary-default),
+            var(--surface-shadow-default);
         --offset: 0px;
         --scale: 0.95;
         --spacer: 6px;
-        --transition-duration: var(--menu-duration-out);
-        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-
-        @include tokens.state(active) {
-            --transition-duration: var(--menu-duration-in);
-        }
     }
 
     // Clips the body only while folded or unfolding, so focus rings and the menu aren't cut off at rest.

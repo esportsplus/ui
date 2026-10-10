@@ -11,9 +11,9 @@ let notifications = [
         { checked: false, description: 'A short summary of what you missed', id: 'digest', label: 'Weekly digest' }
     ],
     style = `
-        --background-active: var(--color-primary-400);
-        --border-color-active: var(--color-primary-400);
-        --border-color-default: var(--color-border-500);
+        --background-active: var(--color-accent-400);
+        --border-color-active: var(--color-accent-400);
+        --border-color-default: var(--surface-secondary-pressed);
         --border-width: var(--border-width-400);
     `,
     toppings = [

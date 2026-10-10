@@ -1,0 +1,43 @@
+@use '../tokens/scss' as tokens;
+@use 'surface';
+
+%background-state {
+    --background: var(--background-default);
+    --background-active: var(--background-default);
+    --background-default: transparent;
+    --background-hover: var(--background-default);
+    --background-pressed: var(--background-default);
+
+    @include tokens.state(active) {
+        --background: var(--background-active);
+    }
+
+    @include tokens.state(hover) {
+        --background: var(--background-hover);
+    }
+
+    @include tokens.state(pressed) {
+        --background: var(--background-pressed);
+    }
+}
+
+// After '%background-state', so a color extended alongside it replaces its transparent default.
+%background {
+    @include tokens.state-utility('background', tokens.$colors);
+
+    &-default {
+        --background: var(--background-default);
+        --background-active: var(--background-default);
+        --background-hover: var(--background-default);
+        --background-pressed: var(--background-default);
+    }
+
+    // Raised off the surface it sits on, filling toward the text on hover and press.
+    &-surface {
+        @extend %surface-raised-level;
+        --background-active: var(--surface-background-active);
+        --background-default: var(--surface-background-default);
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
+    }
+}

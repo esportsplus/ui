@@ -1,137 +1,172 @@
-@use '../../../../../shared.scss';
+@use 'css-utilities/icon';
 
 
-.token-colors {
-    width: 100%;
-
-    &-caption {
-        color: var(--color-text-300);
-        font-size: var(--font-size-200);
-    }
-
-    &-copy {
-        --size: var(--size-400);
-        color: inherit;
-        flex: 0 0 var(--size-400);
-
-        // The shared check carries no stroke of its own; the copy glyph brings its own and ignores these.
-        svg {
-            @extend %icon-stroke;
-        }
-    }
-
-    &-dot {
-        border-radius: 100%;
-        box-shadow: inset 0 0 0 var(--border-width-400) var(--color-border-400);
-        flex: 0 0 var(--size-300);
-        height: var(--size-300);
-        width: var(--size-300);
-
-        &:focus-visible {
-            outline: var(--border-width-500) solid var(--color-text-500);
-            outline-offset: var(--border-width-600);
-        }
-    }
-
-    &-family {
-        margin: var(--size-800) 0 0;
-        scroll-margin-top: var(--size-600);
-    }
-
-    &-heading {
-        align-items: baseline;
+.token {
+    &-colors {
+        --gap-vertical: var(--size-600);
         display: flex;
-        font-size: var(--font-size-500);
-        font-weight: var(--font-weight-400);
-        gap: var(--size-300);
-        margin: 0 0 var(--size-300);
-        text-transform: capitalize;
-    }
-
-    &-navigation {
-        align-items: center;
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--size-100);
-    }
-
-    &-number {
-        color: var(--color-text-300);
-        font-size: var(--font-size-200);
-    }
-
-    &-shade {
-        bottom: var(--size-400);
-        left: 0;
-        position: absolute;
-        text-align: center;
+        flex-direction: column;
+        gap: var(--gap-vertical);
         width: 100%;
-    }
 
-    &-strip {
-        border-radius: var(--border-radius-600);
-        display: flex;
-        overflow: hidden;
-    }
+        &-copy {
+            --size: var(--size-400);
+            color: inherit;
+            flex: 0 0 var(--size-400);
 
-    &-swatch {
-        --value-opacity: 0;
-        align-items: center;
-        border: 0;
-        cursor: pointer;
-        display: flex;
-        flex: 1 1 0;
-        font-size: var(--font-size-200);
-        justify-content: center;
-        min-height: var(--spacer-500);
-        min-width: 0;
-        padding: var(--size-800) var(--size-100);
-        position: relative;
-
-        &:focus-visible {
-            outline: var(--border-width-500) solid currentColor;
-            outline-offset: calc(var(--border-width-700) * -1);
+            // The shared check carries no stroke of its own; the copy glyph brings its own and ignores these.
+            svg {
+                @extend %icon-stroke;
+            }
         }
 
-        // Reveals the swatch's value.
-        &:focus-visible,
-        &:hover {
-            --value-opacity: 1;
+        &-family {
+            --gap-vertical: var(--size-300);
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-vertical);
         }
-    }
 
-    &-text {
-        min-width: 0;
-    }
-
-    &-toolbar {
-        align-items: center;
-        border-bottom: var(--border-width-400) solid var(--color-border-400);
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--size-400);
-        justify-content: space-between;
-        padding: 0 0 var(--size-400);
-    }
-
-    &-value {
-        align-items: center;
-        display: flex;
-        gap: var(--size-100);
-        justify-content: center;
-        max-width: 100%;
-        opacity: var(--value-opacity);
-        overflow-wrap: anywhere;
-        text-align: center;
-
-        &.--copied {
-            opacity: 1;
+        &-heading {
+            align-items: baseline;
+            display: flex;
+            font-size: var(--font-size-500);
+            font-weight: var(--font-weight-400);
+            gap: var(--size-300);
+            text-transform: capitalize;
         }
-    }
 
-    @media (hover: none) {
+        // The black bar down a theme strip's left edge, naming the mode of each half beside it.
+        &-mode {
+            align-items: center;
+            display: flex;
+            flex: 1 1 0;
+            font-size: var(--font-size-200);
+            justify-content: center;
+            text-transform: capitalize;
+            transform: rotate(180deg);
+            writing-mode: vertical-rl;
+
+            &s {
+                background: var(--color-black-500);
+                color: var(--color-white-300);
+                display: flex;
+                flex: 0 0 var(--size-600);
+                flex-direction: column;
+            }
+        }
+
+        &-number {
+            color: var(--color-text-300);
+            font-size: var(--font-size-200);
+        }
+
+        &-pair {
+            display: flex;
+            flex: 1 1 0;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        &-shade {
+            bottom: var(--size-400);
+            left: 0;
+            position: absolute;
+            text-align: center;
+            width: 100%;
+        }
+
+        &-strip {
+            --border-color-default: light-dark(var(--color-grey-300), var(--color-black-300));
+            --border-radius: var(--border-radius-600);
+            --border-width: var(--border-width-400);
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
+            display: flex;
+            overflow: hidden;
+
+            &--theme .token-colors-swatch {
+                min-height: var(--size-800);
+                padding: var(--size-600) var(--size-100);
+            }
+        }
+
         &-swatch {
-            --value-opacity: 1;
+            --value-opacity: 0;
+            align-items: center;
+            border: 0;
+            cursor: pointer;
+            display: flex;
+            flex: 1 1 0;
+            font-size: var(--font-size-200);
+            justify-content: center;
+            min-height: var(--spacer-500);
+            min-width: 0;
+            padding: var(--size-800) var(--size-100);
+            position: relative;
+
+            &:focus-visible {
+                outline: var(--border-width-500) solid currentColor;
+                outline-offset: calc(var(--border-width-700) * -1);
+            }
+
+            // Reveals the swatch's value.
+            &:focus-visible,
+            &:hover {
+                --value-opacity: 1;
+            }
+        }
+
+        &-text {
+            min-width: 0;
+        }
+
+        &-value {
+            align-items: center;
+            display: flex;
+            gap: var(--size-100);
+            justify-content: center;
+            max-width: 100%;
+            opacity: var(--value-opacity);
+            overflow-wrap: anywhere;
+            text-align: center;
+
+            &.--copied {
+                opacity: 1;
+            }
+        }
+
+        @media (hover: none) {
+            &-swatch {
+                --value-opacity: 1;
+            }
+        }
+    }
+
+    &-table {
+        &--border-radius,
+        &--border-width,
+        &--font-size {
+            .token-table-preview {
+                text-align: center;
+
+                > * {
+                    margin-inline: auto;
+                }
+            }
+        }
+
+        &--border-radius,
+        &--border-width,
+        &--font-size,
+        &--sizing {
+            .token-table-value {
+                text-align: center;
+            }
+        }
+
+        .spec-name {
+            white-space: nowrap;
         }
     }
 }

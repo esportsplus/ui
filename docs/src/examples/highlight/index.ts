@@ -42,7 +42,7 @@ export default {
     variants: [
         {
             render: () => html`
-                <div class='--flex-vertical' style='${row}'>
+                <div class='highlight-demo-row' style='${row}'>
                     ${highlight()}
                     ${labels.map((label) => html`
                         <button class='button' type='button'>${label}</button>
@@ -53,7 +53,7 @@ export default {
         },
         {
             render: () => html`
-                <div class='--flex-column' style='${column}'>
+                <div class='highlight-demo-column' style='${column}'>
                     ${highlight()}
                     ${labels.map((label) => html`
                         <div
@@ -73,7 +73,7 @@ export default {
                 let state = reactive({ active: 0 });
 
                 return html`
-                    <div class='--flex-vertical' style='${row}'>
+                    <div class='highlight-demo-row' style='${row}'>
                         ${highlight()}
                         ${labels.map((label, index) => html`
                             <button
@@ -100,17 +100,17 @@ export default {
                         style='
                             --padding-horizontal: var(--size-300);
                             --padding-vertical: var(--size-300);
-                            background: var(--color-black-400);
-                            color: var(--color-white-400);
+                            background: var(--color-primary-400);
+                            color: var(--surface-background-default);
                         '
                     >
-                        <div class='--flex-vertical' style='${row}'>
-                            ${highlight({ class: '--background-blue' })}
+                        <div class='highlight-demo-row' style='${row}'>
+                            ${highlight({ class: 'highlight-demo-blue' })}
                             ${labels.map((label, index) => html`
                                 <button
                                     class='button ${() => state.active === index && '--active'}'
                                     onclick='${() => state.active = index}'
-                                    style='--color: var(--color-white-400);'
+                                    style='--color: var(--surface-background-default);'
                                     type='button'
                                 >
                                     ${label}
@@ -120,7 +120,7 @@ export default {
                     </div>
                 `;
             },
-            title: '--background-blue utility'
+            title: 'blue background'
         },
         {
             render: () => tabs('bottom', true),

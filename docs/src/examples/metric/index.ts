@@ -162,7 +162,7 @@ export default {
                     <div class='grid metric-demo metric-demo--grid'>
                         ${WALKS.map((walk, i) => metric({ class: 'grid-item', data: series[i], format: walk.format, title: walk.title }))}
                     </div>
-                    <button class='button --background-blue --color-white' onclick=${() => {
+                    <button class='button metric-demo-button' onclick=${() => {
                         view.paused = !view.paused;
                     }} type='button'>
                         ${() => view.paused ? 'resume' : 'pause'}
@@ -190,7 +190,7 @@ export default {
                         <span class='metric-demo-status'>
                             ${() => `${state.active ? 'showing' : 'hidden'}: ${data[state.index].label}`}
                         </span>
-                        <button class='button --background-blue --color-white' onclick=${() => {
+                        <button class='button metric-demo-button' onclick=${() => {
                             state.active = true;
                             state.index = (state.index + 1) % data.length;
                         }} type='button'>

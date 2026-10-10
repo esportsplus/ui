@@ -1,59 +1,77 @@
+@use 'css-utilities/background';
+@use 'css-utilities/surface';
+
+
 .spec {
     &-name {
+        --font-size: var(--font-size-200);
         font-family: ui-monospace, monospace;
-        font-size: var(--spec-font-size, var(--font-size-200));
+        font-size: var(--font-size);
     }
 
-    // Names and values take the table's own text size inside it.
+    // Framed like a preview card: a header strip over the recessed stage surface. Names and values take the table's
+    // own text size inside it.
     &-table {
-        --spec-font-size: 1em;
+        --font-size: var(--font-size-400);
+        background: var(--surface-background-default);
         border-collapse: collapse;
-        font-size: var(--font-size-400);
-        margin: 0 0 var(--size-600);
+        font-size: var(--font-size);
         width: 100%;
-    }
 
-    &-table-cell {
-        border-bottom: var(--border-width-400) solid var(--color-border-300);
-    }
+        .spec-name,
+        .spec-value {
+            --font-size: var(--font-size-400);
+        }
 
-    &-table-cell,
-    &-table-heading {
-        padding: var(--size-300) var(--size-400);
-        vertical-align: middle;
-    }
+        &-cell,
+        &-heading {
+            padding: var(--size-300) var(--size-400);
+            vertical-align: middle;
+        }
 
-    &-table-head {
-        background: var(--color-grey-400);
-        border-radius: var(--border-radius-400);
-        // Row groups need clipping when their table uses collapsed borders.
-        clip-path: inset(0 round var(--border-radius-400));
-    }
+        &-cell {
+            border-top: var(--border-width-400) solid var(--surface-secondary-default);
+        }
 
-    &-table-heading {
-        color: var(--color-text-300);
-        font-weight: var(--font-weight-500);
-        text-align: left;
-    }
+        &-head {
+            @extend %surface-raised-level;
+            background: var(--surface-background-default);
+        }
 
-    &-table-row {
-        transition: background var(--transition-duration) var(--transition-timing-function);
+        &-heading {
+            --font-size: var(--font-size-300);
+            color: var(--color-text-500);
+            font-size: var(--font-size);
+            font-weight: var(--font-weight-500);
+            text-align: left;
+        }
 
-        &:hover {
-            background: color-mix(in oklab, var(--color-grey-500) 45%, transparent);
+        &-row {
+            @extend %background-state;
+            --background-hover: var(--surface-background-hover);
+            --background-pressed: var(--background-hover);
+            background: var(--background);
+            transition: background var(--transition-duration) var(--transition-timing-function);
+        }
+
+        // The card itself, clipping the table's square corners as it scrolls.
+        &-scroll {
+            --border-color-default: var(--surface-secondary-default);
+            --border-radius: var(--border-radius-500);
+            --border-width: var(--border-width-400);
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
+            max-width: 100%;
+            min-width: 0;
+            overflow-x: auto;
+            width: 100%;
         }
     }
 
-    &-table-scroll {
-        max-width: 100%;
-        min-width: 0;
-        overflow-x: auto;
-        width: 100%;
-    }
-
     &-value {
+        --font-size: var(--font-size-200);
         color: var(--color-text-300);
-        font-size: var(--spec-font-size, var(--font-size-200));
+        font-size: var(--font-size);
         word-break: break-word;
     }
 }

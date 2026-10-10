@@ -27,15 +27,13 @@ const ROWS = [
 
 const ROW = 'all: unset; align-items: center; box-sizing: border-box; cursor: pointer; display: flex; gap: 22px; padding: var(--size-300) 22px; width: 100%;';
 
-const STAGE = 'border: 1px dashed var(--color-border-400); border-radius: var(--border-radius-400); height: 280px; overflow: hidden; position: relative; width: 100%;';
+const STAGE = 'border: 1px dashed var(--surface-secondary-hover); border-radius: var(--border-radius-400); height: 280px; overflow: hidden; position: relative; width: 100%;';
 
 const SHEETS: Sheet[] = [
     { description: 'Anyone with the link can view. Invite people to let them edit.', title: 'Share draft' },
     { description: "They'll get an email and can edit right away.", title: 'Invite people' },
     { description: 'Links stop working after the date you choose. Drag down or press Esc to go back.', title: 'Expiry' }
 ];
-
-const SURFACE = 'background: var(--color-card-500, var(--color-grey-300)); box-shadow: var(--box-shadow-400);';
 
 
 function contained(description: string) {
@@ -48,7 +46,7 @@ function contained(description: string) {
                     class: 'card overlay--w',
                     modal: false,
                     state,
-                    style: `--max-width: 220px; --padding-horizontal: var(--size-500); --padding-vertical: var(--size-500); ${SURFACE}`
+                    style: `--max-width: 220px; --padding-horizontal: var(--size-500); --padding-vertical: var(--size-500);`
                 },
                 html`
                     <div class='text'>${description}</div>
@@ -80,7 +78,7 @@ function rail() {
                     'aria-label': 'Navigation',
                     class: 'card overlay--w',
                     rail: true,
-                    style: `--max-width: 220px; --padding-horizontal: 0px; --padding-vertical: var(--size-300); ${SURFACE}`
+                    style: `--max-width: 220px; --padding-horizontal: 0px; --padding-vertical: var(--size-300);`
                 },
                 html`
                     <nav>
@@ -109,7 +107,7 @@ function demo(variant: string, description: string, style = '') {
             {
                 class: `card ${variant}`,
                 state,
-                style: `--padding-horizontal: var(--size-600); --padding-vertical: var(--size-600); ${SURFACE} ${style}`
+                style: `--padding-horizontal: var(--size-600); --padding-vertical: var(--size-600); ${style}`
             },
             html`
                 <h3 style='margin: 0 0 var(--size-400);'>Overlay title</h3>
@@ -136,7 +134,7 @@ function stacked(modal: boolean) {
                 class: 'card overlay--s',
                 modal,
                 state: states[i],
-                style: `--padding-horizontal: var(--size-600); --padding-vertical: var(--size-600); ${SURFACE}`
+                style: `--padding-horizontal: var(--size-600); --padding-vertical: var(--size-600);`
             },
             html`
                 <h3 style='margin: var(--size-300) 0 var(--size-400);'>${title}</h3>
@@ -164,8 +162,8 @@ function stacked(modal: boolean) {
     }
 
     return html`
-        <div style='${STAGE} background: var(--color-border-400); height: 480px; max-width: 360px;'>
-            <div class='overlay-page card' style='${SURFACE} inset: 0; padding: var(--size-600); position: absolute;'>
+        <div style='${STAGE} background: var(--surface-secondary-hover); height: 480px; max-width: 360px;'>
+            <div class='overlay-page card' style='inset: 0; padding: var(--size-600); position: absolute;'>
                 <div class='text' style='color: var(--color-text-300);'>Drafts</div>
                 <h3 style='margin: var(--size-200) 0 var(--size-400);'>Launch notes</h3>
                 <div class='text'>Three fixes, one new component, and a faster index. Ship Thursday after review.</div>

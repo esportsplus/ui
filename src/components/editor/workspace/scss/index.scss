@@ -1,21 +1,28 @@
+@use 'css-utilities/background';
+@use 'css-utilities/border';
+@use 'css-utilities/reset';
+@use 'css-utilities/surface';
+
+
 // Modifiers only set variables; the layout reads them, so combined states never need combined selectors.
 .code-workspace {
-    --accent: var(--color-primary-400);
+    @extend %background-state, %border-state, %surface-raised-level;
+    --accent: var(--color-accent-400);
     --accent-color: var(--color-white-300);
     --aside-track: minmax(0, 1fr);
-    --background: var(--color-white-300);
+    --background-default: var(--surface-background-default);
     --bar-height: var(--size-800);
-    --border-color: var(--color-border-300);
+    --border-color-default: var(--surface-secondary-default);
     --close-icon-size: var(--size-200);
     --close-size: var(--size-400);
     --color: var(--color-text-500);
     --columns: var(--main-track) var(--aside-track);
-    --confirm-background: var(--surface);
+    --confirm-background: var(--surface-background-default);
     --confirm-color: var(--color);
     --confirm-hover: var(--control-active-background);
     --content-delay: 0s;
     --content-visibility: visible;
-    --control-active-background: oklch(from var(--color-text-500) l c h / 0.08);
+    --control-active-background: var(--surface-background-active);
     --control-icon-size: var(--size-300);
     --control-size: var(--size-600);
     --dirty-size: calc(var(--size-100) * 0.75);
@@ -26,7 +33,7 @@
     --drawer-hidden: calc(100% - var(--peek-width));
     --drawer-inset: auto 0;
     --drawer-offset: var(--drawer-hidden);
-    --drawer-shadow: var(--box-shadow-500);
+    --drawer-shadow: var(--surface-shadow-5);
     --drawer-timing-function: var(--transition-timing-function);
     // At least a usable explorer, even when the workspace itself is narrow.
     --drawer-width: min(100%, max(16rem, 46%));
@@ -38,7 +45,7 @@
     --explorer-layer: auto;
     --explorer-position: relative;
     --explorer-row: 1 / 3;
-    --explorer-shadow: none;
+    --explorer-shadow: var(--surface-shadow-0);
     --explorer-size: auto;
     --explorer-span: var(--explorer-column);
     --explorer-start: var(--divider);
@@ -57,15 +64,14 @@
     --muted-color: var(--color-text-300);
     --peek-width: var(--size-400);
     --radius: var(--border-radius-300);
-    --raised: var(--color-white-400);
+    --raised: var(--surface-background-default);
     --rows: minmax(0, 1fr) auto;
     --spacing: var(--size-100);
     --spacing-tight: calc(var(--size-100) / 2);
     --status-font-size: var(--font-size-100);
     --status-row: 2;
-    --surface: var(--color-grey-300);
     --tab-height: var(--size-600);
-    --tab-hover-background: oklch(from var(--color-text-500) l c h / 0.06);
+    --tab-hover-background: var(--surface-background-hover);
     --tab-max-width: 160px;
     --tabs-height: var(--size-700);
     background: var(--background);
@@ -168,7 +174,7 @@
     &-confirm-button--primary {
         --confirm-background: var(--accent);
         --confirm-color: var(--accent-color);
-        --confirm-hover: var(--color-primary-300);
+        --confirm-hover: var(--color-accent-500);
     }
 
     &-confirm-button.button {
@@ -201,11 +207,10 @@
         margin: 0;
     }
 
+    // Background and shadow come from the card's surface.
     &-confirm.card {
-        --background-default: var(--raised);
         --border-radius: var(--border-radius-500);
         --border-width: 0px;
-        --box-shadow-default: var(--box-shadow-500);
         --max-width: 440px;
         --padding-horizontal: var(--size-500);
         --padding-vertical: var(--size-500);
@@ -285,8 +290,10 @@
         text-align: center;
     }
 
+    // A surface, lifted only while it floats as a drawer.
     &-explorer {
-        background: var(--surface);
+        @extend %surface-raised-level;
+        background: var(--surface-background-default);
         border-inline-end: var(--explorer-end);
         border-inline-start: var(--explorer-start);
         border-top: var(--explorer-top);
@@ -305,27 +312,27 @@
         user-select: none;
         width: var(--explorer-size);
         z-index: var(--explorer-layer);
-    }
 
-    &-explorer-content {
-        display: flex;
-        flex: 1;
-        flex-direction: column;
-        min-height: 0;
-        min-width: 0;
-        transition: visibility 0s linear var(--content-delay);
-        visibility: var(--content-visibility);
-    }
+        &-content {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            min-height: 0;
+            min-width: 0;
+            transition: visibility 0s linear var(--content-delay);
+            visibility: var(--content-visibility);
+        }
 
-    &-explorer-header {
-        align-items: center;
-        border-bottom: var(--divider);
-        display: flex;
-        flex: none;
-        gap: var(--spacing-tight);
-        height: var(--bar-height);
-        min-width: 0;
-        padding-inline: var(--spacing);
+        &-header {
+            align-items: center;
+            border-bottom: var(--divider);
+            display: flex;
+            flex: none;
+            gap: var(--spacing-tight);
+            height: var(--bar-height);
+            min-width: 0;
+            padding-inline: var(--spacing);
+        }
     }
 
     &-files.file-tree {
@@ -335,6 +342,12 @@
     &-keys {
         display: inline-flex;
         gap: var(--spacing-tight);
+    }
+
+    // Holds the menus in the top layer, so page content after the workspace never covers them; the workspace's own
+    // stacking context would otherwise cap their z-index.
+    &-layer {
+        @extend %reset-popover;
     }
 
     &-main {
@@ -375,7 +388,7 @@
         text-align: center;
 
         &--cover {
-            background: var(--surface);
+            background: var(--surface-background-default);
             inset: 0;
             position: absolute;
             z-index: 1;
@@ -411,7 +424,7 @@
 
     &-status {
         align-items: center;
-        background: var(--surface);
+        background: var(--surface-background-default);
         border-top: var(--divider);
         color: var(--muted-color);
         display: flex;
@@ -422,29 +435,29 @@
         justify-content: space-between;
         min-width: 0;
         padding: var(--spacing-tight) var(--size-300);
-    }
 
-    &-status-message {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        &-message {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
 
-        &--error {
-            color: var(--error-color);
+            &--error {
+                color: var(--error-color);
+            }
         }
-    }
 
-    &-status-path {
-        flex: 1;
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+        &-path {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
 
-    &-status-position {
-        white-space: nowrap;
+        &-position {
+            white-space: nowrap;
+        }
     }
 
     &-tab-close-icon.icon {
@@ -515,12 +528,12 @@
         overflow-y: hidden;
         padding-inline: var(--spacing);
         position: relative;
-    }
 
-    &-tabs-highlight.highlight {
-        --background-active: var(--control-active-background);
-        --background-default: var(--tab-hover-background);
-        --line-color: var(--accent);
+        &-highlight.highlight {
+            --background-active: var(--control-active-background);
+            --background-default: var(--tab-hover-background);
+            --line-color: var(--accent);
+        }
     }
 
     &-tree {
@@ -532,8 +545,8 @@
     @media (forced-colors: active) {
         --accent: Highlight;
         --accent-color: HighlightText;
-        --background: Canvas;
-        --border-color: CanvasText;
+        --background-default: Canvas;
+        --border-color-default: CanvasText;
         --color: CanvasText;
         --error-color: CanvasText;
         --muted-color: CanvasText;

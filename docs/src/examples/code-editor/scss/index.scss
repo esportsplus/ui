@@ -1,3 +1,8 @@
+@use 'css-utilities/background';
+@use 'css-utilities/border';
+@use 'css-utilities/color';
+
+
 .code-editor-demo {
     display: grid;
     gap: var(--size-300);
@@ -7,6 +12,7 @@
     width: min(850px, 100%);
 
     &-action {
+        @extend %background-surface, %border-surface, %color-text;
         --border-width: var(--border-width-400);
         --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-300);
@@ -30,7 +36,7 @@
 
     // Editors leave framing to their container; workspace documents sit inside the workspace's own frame.
     :where(.code-editor, .markdown-editor):not(.code-workspace-document) {
-        border: var(--border-width-400) solid var(--color-border-300);
+        border: var(--border-width-400) solid var(--surface-secondary-default);
         border-radius: var(--border-radius-300);
     }
 
@@ -90,7 +96,11 @@
     }
 
     &-switch {
-        --background-active: var(--color-primary-400);
-        --background-default: var(--color-border-500);
+        --background-active: var(--color-accent-400);
+        --background-default: var(--surface-secondary-pressed);
+    }
+
+    &-viewer.code-viewer {
+        --max-height: 360px;
     }
 }

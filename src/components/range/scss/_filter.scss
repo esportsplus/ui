@@ -1,5 +1,9 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/absolute';
+@use 'css-utilities/background';
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/color';
+@use 'css-utilities/hidden';
 @use 'variables';
 
 .range-filter {
@@ -23,12 +27,19 @@
     }
 
     &-clear {
+        @extend %background-state, %color-state;
+        --background-default: var(--clear-background);
+        --background-hover: var(--clear-hover);
+        --background-pressed: var(--background-hover);
+        --color-default: var(--muted-color);
+        --color-hover: var(--clear-color-hover);
+        --color-pressed: var(--color-hover);
         align-items: center;
-        background: var(--clear-background);
+        background: var(--background);
         border: 1px solid var(--clear-border);
         border-radius: 6px;
-        box-shadow: 0 1px 2px oklch(from var(--color-black-300) l c h / 0.05);
-        color: var(--muted-color);
+        box-shadow: var(--surface-shadow-default);
+        color: var(--color);
         cursor: pointer;
         display: var(--clear-display);
         flex-shrink: 0;
@@ -41,22 +52,21 @@
         outline-offset: 2px;
         padding: 0 8px;
         transition:
-            background-color 150ms ease-out,
-            color 150ms ease-out,
-            opacity 150ms ease-out;
+            background-color var(--duration-fast) var(--easing-spring),
+            color var(--duration-fast) var(--easing-spring),
+            opacity var(--duration-fast) var(--easing-spring);
 
         &:disabled {
+            --background-hover: var(--background-default);
+            --background-pressed: var(--background-default);
+            --color-hover: var(--color-default);
+            --color-pressed: var(--color-default);
             cursor: default;
             opacity: 0.5;
         }
 
         &:focus-visible {
             outline-width: 2px;
-        }
-
-        &:not(:disabled):hover {
-            background: var(--clear-hover);
-            color: var(--color);
         }
 
         &-icon {
@@ -270,10 +280,13 @@
 
     // Held inside the track like Radix does it: the centre travels from half a thumb in at each end.
     &-thumb {
+        @extend %box-shadow-state;
+        --box-shadow-active: var(--thumb-shadow-active);
+        --box-shadow-default: var(--thumb-shadow);
         background: var(--thumb-background);
         border: var(--thumb-border-width) solid var(--thumb-border);
         border-radius: 50%;
-        box-shadow: var(--thumb-shadow);
+        box-shadow: var(--box-shadow);
         cursor: var(--thumb-cursor);
         height: var(--thumb-size);
         left: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
@@ -298,8 +311,9 @@
             translate: -50% 50%;
         }
 
+        // The default, so a held thumb still takes its press shadow.
         &:focus-visible {
-            box-shadow: var(--thumb-shadow-focus);
+            --box-shadow-default: var(--thumb-shadow-focus);
             outline-width: 3px;
         }
 
@@ -309,7 +323,6 @@
 
         // Last, so a held thumb keeps its press look while hovered or focused.
         @include tokens.state(active) {
-            box-shadow: var(--thumb-shadow-active);
             cursor: var(--thumb-cursor-active);
             scale: var(--thumb-scale-active);
         }

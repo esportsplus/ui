@@ -3,6 +3,8 @@ import { effect, reactive } from '@esportsplus/reactivity';
 import icon from '~/components/icon';
 import next from '@esportsplus/ui/svg/arrow-right.svg';
 import previous from '@esportsplus/ui/svg/arrow-left.svg';
+import arrows from './arrows';
+import cards from './cards';
 import dots from './dots';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
@@ -112,7 +114,8 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
     `;
 };
 
-const pagination: typeof plain & { dots: typeof dots } = Object.assign(plain, { dots });
+const pagination: typeof plain & { arrows: typeof arrows, cards: typeof cards, dots: typeof dots } = Object.assign(plain, { arrows, cards, dots });
 
 
 export default pagination;
+export type { Link as PaginationLink } from './arrows';

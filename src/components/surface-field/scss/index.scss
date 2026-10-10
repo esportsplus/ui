@@ -1,5 +1,8 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/absolute';
+@use 'css-utilities/layer';
+@use 'css-utilities/surface';
+@use 'css-utilities/text';
 @use 'variables';
 
 // Typed, so the canvas can transition it and JS hears it change.
@@ -35,8 +38,10 @@
 
     // Geometry is written every pointer move, so only the lift eases: a scale and the fade of a second shadow, both
     // composited rather than repainted per frame.
+    // A surface of its own, so its background is a level above whatever it floats over.
     &-surface {
-        background: var(--surface-background);
+        @extend %surface-raised-level;
+        background: var(--surface-background-default);
         border-radius: var(--surface-border-radius);
         box-shadow: 0 0 0 1px var(--surface-border-color), var(--surface-box-shadow);
         display: flex;
@@ -153,10 +158,10 @@
             flex: 0 1 auto;
             font-weight: 600;
             min-width: 0;
-        }
 
-        &-title + &-handle {
-            margin-inline-start: auto;
+            & + .surface-field-surface-handle {
+                margin-inline-start: auto;
+            }
         }
     }
 

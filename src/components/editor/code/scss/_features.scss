@@ -1,4 +1,7 @@
 @use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
 
 // Sticky scroll, color swatches, links, unicode warnings, rulers, the git gutter and its peek, and conflict blocks with
 // their lenses. Marks style spans in the rendered rows, so none of them adds width to the text the field lays out.
@@ -51,24 +54,27 @@
         &--readonly .code-editor-lens-action--accept {
             display: none;
         }
-    }
 
-    &-lens-action {
-        appearance: none;
-        background: transparent;
-        border: 0;
-        color: var(--lens-color);
-        cursor: pointer;
-        font: inherit;
-        padding: 0;
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-        }
-
-        &:hover {
+        &-action {
+            @extend %color-state;
+            --color-default: var(--lens-color);
+            --color-hover: var(--lens-color-hover);
+            --color-pressed: var(--color-hover);
+            appearance: none;
+            background: transparent;
+            border: 0;
             color: var(--color);
-            text-decoration: underline;
+            cursor: pointer;
+            font: inherit;
+            padding: 0;
+
+            &:focus-visible {
+                outline: var(--focus-width) solid var(--focus-color);
+            }
+
+            &:hover {
+                text-decoration: underline;
+            }
         }
     }
 
@@ -103,10 +109,11 @@
     }
 
     &-peek {
-        background: var(--background);
+        @extend %surface-raised-level;
+        background: var(--surface-background-default);
         border-bottom: var(--border-width) solid var(--peek-border-color);
         border-top: var(--border-width) solid var(--peek-border-color);
-        box-shadow: var(--popup-shadow);
+        box-shadow: var(--surface-shadow-default);
         box-sizing: border-box;
         display: none;
         flex-direction: column;
@@ -127,65 +134,67 @@
         &--deleted {
             --peek-border-color: var(--gutter-deleted-color);
         }
-    }
 
-    &-peek-bar {
-        align-items: center;
-        background: var(--bar-background);
-        display: flex;
-        flex: none;
-        font-size: var(--bar-font-size);
-        gap: var(--bar-gap);
-        padding: var(--bar-padding);
-    }
-
-    &-peek-button {
-        align-items: center;
-        appearance: none;
-        background: transparent;
-        border: 0;
-        border-radius: var(--border-radius-200);
-        color: inherit;
-        cursor: pointer;
-        display: flex;
-        height: var(--bar-control-height);
-        justify-content: center;
-        padding: 0;
-        width: var(--bar-control-height);
-
-        &:disabled {
-            cursor: default;
-            opacity: var(--disabled-opacity);
+        &-bar {
+            @extend %surface-sunken-level;
+            align-items: center;
+            background: var(--surface-background-default);
+            display: flex;
+            flex: none;
+            font-size: var(--bar-font-size);
+            gap: var(--bar-gap);
+            padding: var(--bar-padding);
         }
 
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
+        &-button {
+            @extend %background-state;
+            --background-hover: var(--active-line-background);
+            --background-pressed: var(--background-hover);
+            align-items: center;
+            appearance: none;
+            background: var(--background);
+            border: 0;
+            border-radius: var(--border-radius-200);
+            color: inherit;
+            cursor: pointer;
+            display: flex;
+            height: var(--bar-control-height);
+            justify-content: center;
+            padding: 0;
+            width: var(--bar-control-height);
+
+            &:disabled {
+                --background-hover: var(--background-default);
+                --background-pressed: var(--background-default);
+                cursor: default;
+                opacity: var(--disabled-opacity);
+            }
+
+            &:focus-visible {
+                outline: var(--focus-width) solid var(--focus-color);
+            }
         }
 
-        &:hover:not(:disabled) {
-            background: var(--active-line-background);
+        &-icon.icon {
+            --size: var(--bar-icon-size);
         }
-    }
 
-    &-peek-icon.icon {
-        --size: var(--bar-icon-size);
-    }
+        &-lines {
+            background: var(--peek-lines-background);
+            flex: 1;
+            font: inherit;
+            margin: 0;
+            min-height: 0;
+            overflow: auto;
+            padding: 0 var(--padding);
+            white-space: pre;
+        }
 
-    &-peek-lines {
-        background: var(--peek-lines-background);
-        flex: 1;
-        font: inherit;
-        margin: 0;
-        min-height: 0;
-        overflow: auto;
-        padding: 0 var(--padding);
-        white-space: pre;
-    }
-
-    &-peek-title {
-        color: var(--muted-color);
-        flex: 1;
-        min-width: 0;
+        &-title {
+            color: var(--muted-color);
+            flex: 1;
+            min-width: 0;
+        }
     }
 
     &-picker-anchor {
@@ -222,39 +231,39 @@
         @include tokens.state(active) {
             display: flex;
         }
-    }
 
-    &-sticky-code {
-        display: block;
-        transition: none;
-        white-space: pre;
-    }
-
-    &-sticky-number {
-        border-right: var(--border-width) solid var(--border-color);
-        box-sizing: border-box;
-        color: var(--gutter-color);
-        flex: none;
-        overflow: hidden;
-        padding-right: var(--fold-width);
-        text-align: right;
-        width: var(--gutter-width);
-    }
-
-    &-sticky-row {
-        cursor: pointer;
-        display: flex;
-        height: var(--line-height);
-
-        &:hover {
-            background: var(--active-line-background);
+        &-code {
+            display: block;
+            transition: none;
+            white-space: pre;
         }
-    }
 
-    &-sticky-text {
-        flex: 1;
-        min-width: 0;
-        overflow: hidden;
+        &-number {
+            border-right: var(--border-width) solid var(--border-color);
+            box-sizing: border-box;
+            color: var(--gutter-color);
+            flex: none;
+            overflow: hidden;
+            padding-right: var(--fold-width);
+            text-align: right;
+            width: var(--gutter-width);
+        }
+
+        &-row {
+            @extend %background-state;
+            --background-hover: var(--active-line-background);
+            --background-pressed: var(--background-hover);
+            background: var(--background);
+            cursor: pointer;
+            display: flex;
+            height: var(--line-height);
+        }
+
+        &-text {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
     }
 
     // Drawn in the gap before the literal, so the text keeps its place.

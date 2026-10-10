@@ -1,5 +1,8 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/font/geist/mono';
+@use 'css-utilities/hidden';
+@use 'css-utilities/icon';
+@use 'css-utilities/surface';
 @use 'variables';
 
 // Pulled out by its own padding, so the text lines up with the surrounding content while the tint still has room.
@@ -26,7 +29,7 @@
 
     // Stays in the cell while editing (hidden), so the field inherits its exact width and starting height.
     &-display {
-        background: transparent;
+        background: var(--background);
         border: 0;
         color: inherit;
         cursor: text;
@@ -36,10 +39,6 @@
         line-height: inherit;
         outline: none;
         transition: background-color var(--transition-duration) var(--transition-timing-function);
-
-        &:hover {
-            background: var(--background-hover);
-        }
 
         &:focus-visible {
             outline: var(--border-width-500) solid var(--outline-color);
@@ -65,18 +64,17 @@
 
     // Always editable, so a click drops the caret where it lands; the field look only shows while editing.
     &-editor {
+        background: var(--background);
         caret-color: currentColor;
         cursor: text;
         outline: none;
         position: relative;
         transition: background-color var(--transition-duration) var(--transition-timing-function);
 
-        &:hover {
-            background: var(--background-hover);
-        }
-
         #{tokens.state(active, '.inline-edit')} > & {
-            background: var(--field-background);
+            @extend %surface-raised-level;
+            --background-default: var(--field-background, var(--surface-background-default));
+            --background-hover: var(--background-default);
             box-shadow: var(--field-ring);
             text-overflow: clip;
         }
@@ -114,8 +112,9 @@
 
         code,
         pre {
-            background: var(--code-background);
-            font-family: var(--font-family-mono);
+            @extend %font-geist-mono, %surface-sunken-level;
+            background: var(--surface-background-default);
+            font-family: var(--font-family);
             font-size: 0.875em;
         }
 
@@ -387,10 +386,17 @@
         transition: none;
     }
 
-    // The block select is a bare trigger here; its own list still opens as a panel.
+    // The block select is a bare trigger here, stepping like the toolbar's buttons; its own list still opens as a
+    // panel.
     &-toolbar-block.select {
-        --background: transparent;
-        --box-shadow: none;
+        --background-active: var(--background-hover);
+        --background-default: transparent;
+        --background-hover: color-mix(in oklab, var(--toolbar-color) 6%, transparent);
+        --background-pressed: var(--background-hover);
+        --box-shadow-active: none;
+        --box-shadow-default: none;
+        --box-shadow-hover: none;
+        --box-shadow-pressed: none;
         --height: var(--toolbar-button-size);
         --width: var(--toolbar-select-width);
         color: var(--toolbar-color);
@@ -410,14 +416,9 @@
         height: var(--toolbar-button-size);
         outline: none;
         transition:
-            background-color var(--toolbar-button-duration) ease-out,
-            color var(--toolbar-button-duration) ease-out,
-            scale var(--toolbar-button-duration) ease-out;
+            background-color var(--duration-fast) var(--easing-spring),
+            color var(--duration-fast) var(--easing-spring);
         width: var(--toolbar-button-size);
-
-        &:active {
-            scale: 0.96;
-        }
 
         &:focus-visible {
             outline: 2px solid var(--toolbar-focus-color);
@@ -471,7 +472,7 @@
     &-toolbar-url.input {
         --background-default: transparent;
         --color-default: var(--toolbar-color);
-        --padding-horizontal: 8px;
+        --padding-horizontal: var(--size-100);
         --padding-vertical: 0px;
         font-size: var(--toolbar-font-size);
         height: var(--toolbar-button-size);
@@ -515,28 +516,22 @@
     }
 }
 
-// Every motion but the icon swap (stilled by '%icon-swap' itself) runs on these durations, so zeroing them stills the
-// component.
+// Only the fades remain; the icon swap is stilled by '%icon-swap' itself.
 @media (prefers-reduced-motion: reduce) {
     .inline-edit {
-        --toolbar-button-duration: 0s;
-
         &-status {
+            --blur: 0px;
             --check-delay: 0s;
             --check-duration: 0s;
-            --enter-duration: 0s;
-            --exit-duration: 0s;
             --move-duration: 0s;
             --pulse-duration: 0s;
             --pulse-stagger: 0s;
+            --shift: 0px;
         }
 
         &-toolbar.tooltip-content {
-            --transition-duration: 0s;
+            --scale: 1;
+            transition-property: opacity;
         }
-    }
-
-    .inline-edit-toolbar-button.button:active {
-        scale: 1;
     }
 }

@@ -1,6 +1,6 @@
 .form-prototype {
-    --demo-accent: var(--color-primary-400);
-    --demo-border: var(--color-border-500);
+    --demo-accent: var(--color-accent-400);
+    --demo-border: var(--surface-secondary-pressed);
     --demo-duration: 280ms;
     --demo-hint: var(--color-text-300);
     --demo-ring: color-mix(in srgb, var(--demo-accent) 24%, transparent);

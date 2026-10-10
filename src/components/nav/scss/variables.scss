@@ -1,20 +1,21 @@
 .nav-tree {
     --focus-color: var(--color-blue-400);
     --focus-width: var(--border-width-400);
-    --highlight-background-active: var(--color-black-400);
-    --highlight-background-hover: var(--color-grey-400);
-    --highlight-background-pressed: var(--color-grey-500);
+    --highlight-background-active: var(--color-primary-400);
+    --highlight-background-hover: var(--surface-secondary-default);
+    --highlight-background-pressed: var(--surface-secondary-hover);
     // Text colour of the active link while the highlight sits under it.
-    --highlight-color: var(--color-white-400);
+    --highlight-color: var(--surface-background-default);
+    // The bar 'border' and 'both' draw down the active link's left edge, over the links' own rule in 'location'.
     --indicator-color: var(--color-blue-400);
     --indicator-width: var(--border-width-400);
-    --link-border-color: var(--color-border-400);
+    --link-border-color: var(--surface-secondary-hover);
     --link-border-color-active: var(--link-border-color);
-    --link-border-color-hover: var(--color-text-400);
+    --link-border-color-hover: var(--color-primary-400);
     --link-border-radius: 0px;
     --link-border-width: var(--border-width-400);
     --link-color: var(--color-text-400);
-    --link-color-active: var(--color-black-500);
+    --link-color-active: var(--color-text-500);
     --link-font-size: var(--font-size-300);
     --link-font-weight: var(--font-weight-300);
     --link-font-weight-active: var(--font-weight-500);
@@ -31,8 +32,8 @@
 
 
     &--command {
-        --highlight-background-active: var(--color-grey-400);
-        --highlight-color: var(--color-text-500);
+        --highlight-background-active: var(--surface-background-active);
+        --highlight-color: var(--color-primary-500);
     }
 
     // The border stays, transparent, so links keep the same box with or without the highlight.
@@ -45,6 +46,18 @@
         --link-inset: var(--size-300);
     }
 
+    // With no fill under it, the active link keeps the plain active text colour rather than the one set for the fill.
+    &--highlight#{&}--border {
+        --link-color-active: var(--color-text-500);
+    }
+
+    // A soft fill over the rule down the links' edge, so the active link keeps its own text colour.
+    &--location {
+        --highlight-background-active: var(--surface-background-active);
+        --highlight-background-hover: var(--surface-background-hover);
+        --highlight-background-pressed: var(--surface-background-pressed);
+    }
+
     &--toc {
         --link-border-color-active: var(--link-color-active);
     }
@@ -55,6 +68,8 @@
         --background-pressed: var(--highlight-background-pressed);
         --glide-duration: 0.2s;
         --glide-duration-active: 0.25s;
+        --line-color: var(--indicator-color);
+        --line-width: var(--indicator-width);
         --scale-hidden: 1;
     }
 }

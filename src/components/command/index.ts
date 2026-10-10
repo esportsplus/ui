@@ -10,7 +10,7 @@ import up from '@esportsplus/ui/svg/arrow-up.svg';
 import enter from '@esportsplus/ui/svg/enter.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
 import '~/components/frame/scss/index.scss';
-import '~/css-utilities/scrollbar/scss/index.scss';
+import '~/modifiers/scrollbar/scss/index.scss';
 import './scss/index.scss';
 
 

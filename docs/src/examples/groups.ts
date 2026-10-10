@@ -25,7 +25,7 @@ const groups: Record<string, Group[]> = {
         { title: 'checkbox', members: ['default', 'checked'] },
         { title: 'group', members: ['group', 'group without descriptions'] }
     ],
-    'color-picker': [{ title: 'color picker', members: ['default', ['recent colors', 'Recent colors'], ['recent: false', 'No recent colors'], ['controlled state', 'Controlled state']] }],
+    'color-picker': [{ title: 'color picker', members: ['default', ['compact', 'Compact'], ['recent colors', 'Recent colors'], ['recent: false', 'No recent colors'], ['controlled state', 'Controlled state']] }],
     command: [{ title: 'command', members: [['default (⌘K / Ctrl+K)', 'Default'], 'centered + blur'] }],
     counter: [
         { title: 'USD (animated)', members: [['USD (animated)', 'Default'], 'shade', 'snap', 'spring'] },
@@ -48,7 +48,7 @@ const groups: Record<string, Group[]> = {
     grid: [{ title: 'auto-fit', members: [['auto-fit (min 200px)', 'Default'], 'min-width 120px'] }],
     heatmap: [{ title: 'heatmap', members: [['default (GitHub contributions)', 'Default'], ['heatmap--blue, custom thresholds and tooltip template', 'Blue, custom thresholds and tooltip'], ['controlled state', 'Controlled state']] }],
     highlight: [
-        { title: 'highlight', members: [['horizontal button group', 'Default'], ['vertical link list', 'Vertical links'], ['rests on --active', 'Active selection'], ['--background-blue utility', 'Blue background']] },
+        { title: 'highlight', members: [['horizontal button group', 'Default'], ['vertical link list', 'Vertical links'], ['rests on --active', 'Active selection'], ['blue background', 'Blue background']] },
         { title: 'tabs', members: [['tabs · background + line', 'Default'], ['tabs · line only', 'Line only'], ['vertical tabs · background + line', 'Vertical']] }
     ],
     icon: [{ title: 'icon', members: [['default size', 'Default'], 'sized & coloured'] }],
@@ -78,6 +78,11 @@ const groups: Record<string, Group[]> = {
         { title: 'grid', members: [['small cards in a grid', 'Default'], ['live data (push to a ReactiveArray)', 'Live data']] },
         { title: 'flash', members: [['flash, price', 'Price'], ['flash, request rate', 'Request rate'], ['flash, large, long hold', 'Large, long hold']] }
     ],
+    nav: [
+        { title: 'tree', members: [['tree', 'Background'], ['tree · border', 'Border'], ['tree · border + background', 'Border + background']] },
+        { title: 'tree: location', members: [['tree: location · background', 'Background'], ['tree: location', 'Border'], ['tree: location · border + background', 'Border + background']] },
+        { title: 'toc with spy', members: [['toc with spy', 'Current section'], ['toc with spy: every visible section', 'Every visible section']] }
+    ],
     notification: [
         { title: 'bubble', members: ['interactive', 'max overflow', 'custom max', 'without counter', ['sizes', 'Sizes']] },
         { title: 'bell', members: [['bell, interactive', 'Interactive'], ['bell, max overflow', 'Max overflow'], ['bell, without counter', 'Without counter'], ['bell, ring on mount', 'Ring on mount'], ['bell, sizes', 'Sizes']] }
@@ -89,7 +94,9 @@ const groups: Record<string, Group[]> = {
     ],
     pagination: [
         { title: 'pages', members: [['overflow', 'Default'], ['few pages', 'Few pages'], ['two siblings', 'Two siblings']] },
-        { title: 'dots', members: [['dots: autoplay carousel', 'Autoplay carousel'], ['dots: scroll-linked', 'Scroll-linked'], ['dots: large (click to jump)', 'Large, click to jump']] }
+        { title: 'dots', members: [['dots: autoplay carousel', 'Autoplay carousel'], ['dots: scroll-linked', 'Scroll-linked'], ['dots: large (click to jump)', 'Large, click to jump']] },
+        { title: 'cards', members: [['cards', 'Default'], ['cards: label and description', 'Label and description'], ['cards: next only', 'Next only'], ['cards: previous only', 'Previous only'], ['cards: tactile', 'Tactile'], ['cards: tactile + ring', 'Tactile + ring'], ['cards: ring', 'Ring']] },
+        { title: 'arrows', members: [['arrows', 'Default'], ['arrows: first page', 'First page'], ['arrows: last page', 'Last page']] }
     ],
     progress: [
         { title: 'progress', members: [['status', 'Status'], ['static values', 'Static values']] },

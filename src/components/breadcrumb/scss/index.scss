@@ -1,5 +1,7 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/color';
+@use 'css-utilities/reset';
+@use 'css-utilities/text';
 @use 'variables';
 
 .breadcrumb {
@@ -11,13 +13,18 @@
 
     &-current {
         @extend %text-truncate;
+        --font-weight: var(--font-weight-current);
         color: var(--color-active);
         display: block;
-        font-weight: var(--font-weight-current);
+        font-weight: var(--font-weight);
         padding-inline: var(--link-padding);
     }
 
     &-link {
+        @extend %color-state;
+        --color-default: var(--link-color);
+        --color-hover: var(--link-color-hover);
+        --color-pressed: var(--color-hover);
         align-items: center;
         border-radius: var(--link-radius);
         color: var(--color);
@@ -30,22 +37,16 @@
         text-underline-offset: 4px;
         touch-action: manipulation;
         transition:
-            color 0.15s ease-out,
-            scale 0.15s ease-out,
-            text-decoration-color 0.15s ease-out;
+            color var(--duration-fast) var(--easing-spring),
+            text-decoration-color var(--duration-fast) var(--easing-spring);
         user-select: none;
         white-space: nowrap;
-
-        &:active {
-            scale: 0.96;
-        }
 
         &:focus-visible {
             outline: 2px solid var(--focus-color);
         }
 
         &:hover {
-            color: var(--color-active);
             text-decoration-color: var(--underline-color);
         }
     }
@@ -133,9 +134,9 @@
         flex-shrink: 0;
         grid-template-columns: 1fr;
         transition:
-            filter var(--enter-duration) var(--ease-out),
+            filter var(--enter-duration) var(--easing-spring),
             grid-template-columns var(--slide-duration) var(--slide-easing),
-            opacity var(--enter-duration) var(--ease-out);
+            opacity var(--enter-duration) var(--easing-spring);
 
         &--current {
             flex-shrink: 1;
@@ -150,7 +151,7 @@
             transition:
                 filter 0s linear var(--exit-duration),
                 grid-template-columns var(--slide-duration) var(--slide-easing),
-                opacity var(--exit-duration) var(--ease-out),
+                opacity var(--exit-duration) var(--easing-spring),
                 visibility 0s linear var(--slide-duration);
             visibility: hidden;
         }
@@ -180,7 +181,8 @@
         padding-inline: var(--link-padding);
 
         &--current {
-            font-weight: var(--font-weight-current);
+            --font-weight: var(--font-weight-current);
+            font-weight: var(--font-weight);
         }
     }
 
@@ -198,15 +200,10 @@
         padding: 0;
         touch-action: manipulation;
         transition:
-            background-color 0.15s ease-out,
-            color 0.15s ease-out,
-            scale 0.15s ease-out;
+            background-color var(--duration-fast) var(--easing-spring),
+            color var(--duration-fast) var(--easing-spring);
         user-select: none;
         width: var(--trigger-width);
-
-        &:active {
-            scale: 0.96;
-        }
 
         &:focus-visible {
             outline: 2px solid var(--focus-color);
@@ -227,31 +224,19 @@
 
 
     @media (prefers-reduced-motion: reduce) {
-        &-link {
-            transition:
-                color 0.15s ease-out,
-                text-decoration-color 0.15s ease-out;
-        }
-
         &-segment {
             filter: none;
-            transition: opacity var(--enter-duration) var(--ease-out);
+            transition: opacity var(--enter-duration) var(--easing-spring);
 
             &--hidden {
                 transition:
-                    opacity var(--exit-duration) var(--ease-out),
+                    opacity var(--exit-duration) var(--easing-spring),
                     visibility 0s linear var(--exit-duration);
             }
 
             &-body {
                 transition-delay: 0s;
             }
-        }
-
-        &-trigger {
-            transition:
-                background-color 0.15s ease-out,
-                color 0.15s ease-out;
         }
     }
 }

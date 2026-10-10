@@ -1,59 +1,28 @@
-import { uri } from 'docs/app';
 import { entries } from 'docs/examples';
 import { groupVariants } from 'docs/examples/groups';
 import { meta } from 'docs/meta';
-import { cardGrid, detailPage, missing } from 'docs/components/page';
+import directory from 'docs/components/directory';
 import type { Router } from 'docs/app';
-import type { Page } from 'docs/types';
+import type { Item } from 'docs/components/directory';
 
 
-let index: Record<string, (typeof entries)[number]> = {};
+const items: Item[] = entries.map((entry) => ({
+    description: meta[entry.name]?.description ?? '',
+    label: meta[entry.name]?.label ?? entry.name,
+    name: entry.name,
+    variants: () => groupVariants(entry.name, entry.variants)
+}));
 
 
-for (let i = 0, n = entries.length; i < n; i++) {
-    index[entries[i].name] = entries[i];
-}
-
-
-function responder(slug: string = ''): Page {
-    if (slug === '') {
-        return cardGrid(
-            'A reactive, themeable component library built on compile-time template transforms. Select a component to see every variant.',
-            'Components',
-            entries.map((entry) => ({
-                description: meta[entry.name]?.description ?? '',
-                href: uri('components.detail', { slug: entry.name }),
-                name: meta[entry.name]?.label ?? entry.name
-            }))
-        );
-    }
-
-    let entry = index[slug];
-
-    if (!entry) {
-        return missing(`No component named "${slug}".`);
-    }
-
-    return detailPage({
-        breadcrumb: [
-            { href: uri('components'), label: 'Components' },
-            { href: uri('components.detail', { slug }), label: meta[slug]?.label ?? entry.name }
-        ],
-        description: meta[slug]?.description ?? '',
-        name: meta[slug]?.label ?? entry.name,
-        variants: groupVariants(slug, entry.variants)
-    });
-}
+const page = (slug?: string) => directory({
+    description: 'A reactive, themeable component library built on compile-time template transforms. Select a component to see every variant.',
+    items,
+    route: 'components',
+    slug,
+    title: 'Components'
+});
 
 
 export default (r: Router) => r
-    .get({
-        name: 'components',
-        path: '/components',
-        responder: () => responder()
-    })
-    .get({
-        name: 'components.detail',
-        path: '/components/:slug',
-        responder: (request) => responder(request.data.parameters?.slug ?? '')
-    });
+    .get({ name: 'components', path: '/components', responder: () => page() })
+    .get({ name: 'components.detail', path: '/components/:slug', responder: (request) => page(request.data.parameters?.slug) });

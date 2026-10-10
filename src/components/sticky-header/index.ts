@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import scrollbar from '~/css-utilities/scrollbar';
+import scrollbar from '~/modifiers/scrollbar';
 import '~/components/card/scss/index.scss';
 import './scss/index.scss';
 

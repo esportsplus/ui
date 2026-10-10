@@ -1,3 +1,8 @@
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
+
+
 .chat-minimap-demo {
     align-items: center;
     display: flex;
@@ -18,7 +23,7 @@
 
 // The rail sits in the thread's right-hand gutter, beside the scrollbar, the way chat apps place it.
 .chat-minimap-thread {
-    border: var(--border-width-400) solid var(--color-border-300);
+    border: var(--border-width-400) solid var(--surface-secondary-default);
     border-radius: var(--border-radius-600);
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -33,14 +38,16 @@
     }
 
     &-ask {
+        @extend %background-blue, %color-white;
         grid-column: 1 / -1;
         justify-self: start;
         margin: var(--size-300);
     }
 
     &-question {
+        @extend %surface-sunken-level;
         align-self: flex-end;
-        background: var(--color-grey-400);
+        background: var(--surface-background-default);
         border-radius: var(--border-radius-600);
         color: var(--color-text-500);
         font-size: 0.875rem;

@@ -1,7 +1,7 @@
 import { accordion } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import scrollbar from '@esportsplus/ui/css-utilities/scrollbar';
+import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
 import chevron from '@esportsplus/ui/svg/chevron-right.svg';
 import 'docs/examples/accordion/scss/index.scss';
 
@@ -28,7 +28,7 @@ const more = (attributes: { lines?: number, style?: string }, content: Renderabl
             ${() => state.expandable && html`
                 <button
                     aria-controls='${id}'
-                    class='link --color-text'
+                    class='link accordion-demo-more'
                     style='--font-size: var(--font-size-300); margin-top: var(--size-300);'
                     type='button'
                     ${{
@@ -106,7 +106,7 @@ export default {
         },
         {
             render: () => more({ lines: 2, style: '--max-height: 160px;' }, html`
-                <div class='text --flex-column'>
+                <div class='text accordion-demo-paragraphs'>
                     ${Array.from({ length: 6 }, (_, i) => html`
                         <p>
                             Paragraph ${i + 1}. Expanded height is capped by the --max-height CSS variable. The region

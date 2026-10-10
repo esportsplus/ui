@@ -1,0 +1,22 @@
+// A loading placeholder: a shimmer sweeping between '--from' and '--to', its content hidden until it loads.
+%skeleton {
+    --animation-duration: 4.8s;
+    animation: var(--animation-duration) linear infinite skeleton;
+    background-image: linear-gradient(270deg, var(--from), var(--to), var(--to), var(--from));
+    background-size: 400% 100%;
+    color: transparent;
+    pointer-events: none;
+
+    * {
+        opacity: 0;
+    }
+}
+
+@keyframes skeleton {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}

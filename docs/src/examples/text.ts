@@ -10,7 +10,7 @@ export default {
                     <div class='text' style='--font-size: var(--font-size-600); --font-weight: var(--font-weight-600);'>Large bold text</div>
                     <div class='text'>Default body text at font-size 400.</div>
                     <div class='text' style='--font-size: var(--font-size-300); --color: var(--color-text-300);'>Small muted caption text.</div>
-                    <div class='text' style='--color: var(--color-purple-300); --font-weight: var(--font-weight-500);'>Coloured emphasis text.</div>
+                    <div class='text' style='--color: light-dark(var(--color-purple-300), oklch(from var(--color-purple-300) 0.75 0.15 h)); --font-weight: var(--font-weight-500);'>Coloured emphasis text.</div>
                 </div>
             `,
             title: 'sizes, weights, colours'

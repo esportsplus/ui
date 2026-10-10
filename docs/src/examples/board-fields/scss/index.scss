@@ -1,14 +1,16 @@
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/surface';
+
+
 .board {
     &-demo {
-        --board-disabled: color-mix(in oklab, var(--color-grey-400) 45%, transparent);
         --board-error: var(--color-red-400);
-        --board-error-surface: color-mix(in oklab, var(--color-red-400) 18%, var(--color-grey-300));
-        --board-focus: var(--color-primary-400);
+        --board-error-surface: color-mix(in oklab, var(--color-red-400) 18%, var(--surface-background-default));
+        --board-focus: var(--color-accent-400);
         --board-muted: var(--color-text-300);
-        --board-radius: 10px;
-        --board-ring-active: color-mix(in oklab, var(--color-text-400) 40%, transparent);
-        --board-ring-hover: color-mix(in oklab, var(--color-text-400) 22%, transparent);
-        --board-surface: var(--color-grey-400);
+        --board-radius: var(--border-radius-500);
+        --board-ring-active: var(--surface-border-active);
+        --board-ring-hover: var(--surface-border-hover);
         --board-text: var(--color-text-400);
         --board-transition: 150ms ease;
         display: grid;
@@ -75,13 +77,14 @@
     }
 
     &-input {
+        @extend %surface-sunken-level;
         --board-field-align: center;
-        --board-field-background: var(--board-surface);
+        --board-field-background: var(--board-surface, var(--surface-background-default));
         --board-field-color: var(--board-muted);
         --board-field-cursor: text;
         --board-field-min-height: auto;
         --board-field-opacity: 1;
-        --board-field-padding: 8px;
+        --board-field-padding: var(--size-100);
         --board-field-shadow: inset 0 0 0 2px transparent;
         --board-note-color: var(--board-muted);
         --board-placeholder-color: var(--board-muted);
@@ -92,7 +95,7 @@
         line-height: 20px;
 
         &--disabled {
-            --board-field-background: var(--board-disabled);
+            --board-field-background: var(--surface-background-hover);
             --board-field-cursor: not-allowed;
             --board-field-opacity: .55;
             --board-field-shadow: none;
@@ -120,13 +123,13 @@
         }
 
         &-control {
-            --background: transparent;
+            --background-default: transparent;
             --border-width: 0px;
             --color-default: var(--board-text);
             --font-size: 14px;
             --padding-horizontal: 4px;
             --padding-vertical: 0px;
-            --size: 20px;
+            --size: var(--size-500);
             line-height: 20px;
             margin: 0;
             outline: none;
@@ -170,10 +173,14 @@
 
         // Hover and focus rings show through the disabled and invalid states.
         &-field {
+            @extend %box-shadow-state;
+            --box-shadow-default: var(--board-field-shadow);
+            --box-shadow-hover: inset 0 0 0 2px var(--board-ring-hover);
+            --box-shadow-pressed: var(--box-shadow-hover);
             align-items: var(--board-field-align);
             background: var(--board-field-background);
             border-radius: var(--board-radius);
-            box-shadow: var(--board-field-shadow);
+            box-shadow: var(--box-shadow);
             color: var(--board-field-color);
             cursor: var(--board-field-cursor);
             display: flex;
@@ -184,11 +191,7 @@
             transition: background-color var(--board-transition), box-shadow var(--board-transition), color var(--board-transition);
 
             &:focus-within {
-                box-shadow: inset 0 0 0 2px var(--board-ring-active);
-            }
-
-            &:hover {
-                box-shadow: inset 0 0 0 2px var(--board-ring-hover);
+                --box-shadow-default: inset 0 0 0 2px var(--board-ring-active);
             }
         }
 
@@ -262,16 +265,19 @@
         }
 
         &-input {
-            --background: var(--board-surface);
+            @extend %surface-sunken-level;
+            --background-default: var(--board-surface, var(--surface-background-default));
             --border-color-default: var(--board-ring-hover);
+            --border-color-hover: var(--board-ring-active);
+            --border-color-pressed: var(--border-color-hover);
             --border-radius: var(--board-radius);
-            --border-width: 1px;
+            --border-width: var(--border-width-400);
             --color-default: var(--board-text);
             --font-size: 20px;
             --padding-horizontal: 0px;
             --padding-vertical: 0px;
             --size: 46px;
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / .18);
+            box-shadow: 0 1px 2px 0 oklch(from var(--color-shadow) l c h / calc(alpha * 1.8));
             font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             font-variant-numeric: tabular-nums;
             font-weight: 500;
@@ -283,19 +289,15 @@
             width: 48px;
 
             &:disabled {
-                --background: var(--board-disabled);
+                --background-default: var(--surface-background-hover);
                 box-shadow: none;
                 color: var(--board-muted);
                 cursor: not-allowed;
             }
 
             &:focus-visible {
-                --border-color: var(--board-focus);
+                --border-color-default: var(--board-focus);
                 box-shadow: 0 0 0 2px var(--board-focus);
-            }
-
-            &:hover {
-                --border-color: var(--board-ring-active);
             }
         }
 

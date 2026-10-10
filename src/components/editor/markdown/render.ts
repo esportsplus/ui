@@ -22,8 +22,6 @@ type Host = {
     foldable: (unit: Unit) => boolean;
     // Inline markup of a block, offsets relative to its start.
     inline: (block: MarkdownBlock) => readonly Inline[];
-    // A press on a unit's text, before the native one does anything.
-    press: (e: MouseEvent, unit: Unit) => void;
     readonly: () => boolean;
     // The unit's element connected or left.
     shown: (element: HTMLElement, unit: Unit | null) => void;
@@ -34,7 +32,10 @@ type Host = {
 };
 
 
-const EOL = /\r\n|\r|\n/;
+const CARRIAGE_RETURN = /\r$/;
+
+// A fence's opening line: everything up to its info string, which shows and edits as the block's label.
+const FENCE_OPEN = /^[ \t>]*(?:`{3,}|~{3,})/;
 
 const ORDERED = /^\d/;
 
@@ -211,6 +212,7 @@ const renderer = (host: Host) => {
                     <button
                         aria-label='Unfold block'
                         class='markdown-editor-chip'
+                        contenteditable='false'
                         type='button'
                         ${{ onclick: () => host.unfold(unit), onmousedown: prevent }}
                     >
@@ -225,20 +227,22 @@ const renderer = (host: Host) => {
             case 'blank':
                 return html`<br>`;
             case 'code':
-            case 'fence':
                 return html`
                     <pre class='markdown-editor-pre'><code class='markdown-editor-code markdown-editor-code--block'>${plain(block, unit.rows ?? relative(block), view, true)}</code></pre>
                 `;
+            case 'fence':
+                return html`
+                    <pre class='markdown-editor-pre'>${unit.continuation ? '' : info(block, view)}<code class='markdown-editor-code markdown-editor-code--block'>${plain(block, unit.rows ?? relative(block), view, true)}</code></pre>
+                `;
             case 'frontmatter':
                 return html`
-                    <span class='markdown-editor-frontmatter'>
-                        frontmatter · ${source.slice(block.contentFrom, block.contentTo).split(EOL).length} lines
-                    </span>
+                    <pre class='markdown-editor-pre markdown-editor-frontmatter'><code class='markdown-editor-code markdown-editor-code--block'>${plain(block, lines(source, block.contentFrom, block.contentTo, block.from), view, true)}</code></pre>
                 `;
             case 'html':
                 parser ??= new DOMParser();
 
-                return safe(sanitizeHtml(source.slice(block.contentFrom, block.contentTo), parser));
+                // Rendered HTML has no source to type into; it selects and deletes as a whole.
+                return html`<div contenteditable='false'>${safe(sanitizeHtml(source.slice(block.contentFrom, block.contentTo), parser))}</div>`;
             case 'list': {
                 let content = marked(block, unit.rows ?? block.lines?.map((row) => relativeRow(block, row)), view);
 
@@ -246,14 +250,17 @@ const renderer = (host: Host) => {
                     return content;
                 }
 
+                if (block.task) {
+                    return task(block, block.task.checked, content);
+                }
+
                 return [
-                    html`<span class='markdown-editor-marker'>${ORDERED.test(block.marker ?? '') ? block.marker : '•'}</span>`,
-                    block.task ? task(block, block.task.checked) : '',
+                    html`<span class='markdown-editor-marker' contenteditable='false'>${ORDERED.test(block.marker ?? '') ? block.marker : '•'}</span>`,
                     content
                 ];
             }
             case 'rule':
-                return html`<hr class='markdown-editor-rule'>`;
+                return html`<hr class='markdown-editor-rule' contenteditable='false'>`;
             default:
                 return marked(block, unit.rows ?? block.lines?.map((row) => relativeRow(block, row)), view);
         }
@@ -294,9 +301,23 @@ const renderer = (host: Host) => {
         return out;
     }
 
-    // Inline markup of rows, joined by line breaks.
+    // A fence's info string, the language label over its code.
+    function info(block: MarkdownBlock, view: View) {
+        let source = host.text(),
+            end = source.indexOf('\n', block.from),
+            line = source.slice(block.from, end < 0 ? source.length : end).replace(CARRIAGE_RETURN, ''),
+            from = FENCE_OPEN.exec(line)?.[0].length ?? line.length;
+
+        return html`<span class='markdown-editor-info'>${piece(line.slice(from), block, from, view)}</span>`;
+    }
+
+    // Inline markup of rows, joined by line breaks. Without any, a line break gives the caret a line to sit on.
     function marked(block: MarkdownBlock, rows: readonly Row[] | undefined, view: View) {
         let tokens = host.inline(block);
+
+        if (!tokens.length) {
+            return html`<br>`;
+        }
 
         if (!rows) {
             return inline(tokens, block, view);
@@ -361,35 +382,41 @@ const renderer = (host: Host) => {
         return { contentFrom: row.contentFrom - base, contentTo: row.contentTo - base, from: row.from - base, to: row.to - base };
     }
 
-    // Toggling redraws the block, so the new checkbox paints the old state first and then flips, letting the checkbox's
-    // own transition play.
-    function task(block: MarkdownBlock, checked: boolean) {
+    // A task's checkbox stands in for its bullet, and its label strikes the text through. Toggling redraws the block, so
+    // both paint the old state first and then flip, letting their own transitions play.
+    function task(block: MarkdownBlock, checked: boolean, content: Renderable<unknown>) {
         let previous = flips.get(block.from),
-            animate = previous !== undefined && previous !== checked;
+            animate = previous !== undefined && previous !== checked,
+            state = reactive({ done: animate ? !!previous : checked });
 
         flips.delete(block.from);
 
-        return checkbox({
-            class: 'markdown-editor-task',
-            onfirstpaint: (element: HTMLElement) => {
-                let input = element.querySelector('input');
+        return [
+            checkbox({
+                class: 'markdown-editor-task',
+                contenteditable: 'false',
+                onfirstpaint: (element: HTMLElement) => {
+                    let input = element.querySelector('input');
 
-                if (animate && input) {
-                    input.checked = checked;
-                }
-            },
-            [checkbox.input]: {
-                'aria-label': 'Toggle task',
-                checked: animate ? previous : checked,
-                disabled: () => host.readonly(),
-                onclick: (e: MouseEvent) => {
-                    e.preventDefault();
-                    flips.set(block.from, checked);
-                    host.task(block);
+                    if (animate && input) {
+                        input.checked = checked;
+                        state.done = checked;
+                    }
                 },
-                onmousedown: prevent
-            }
-        });
+                [checkbox.input]: {
+                    'aria-label': 'Toggle task',
+                    checked: animate ? previous : checked,
+                    disabled: () => host.readonly(),
+                    onclick: (e: MouseEvent) => {
+                        e.preventDefault();
+                        flips.set(block.from, checked);
+                        host.task(block);
+                    },
+                    onmousedown: prevent
+                }
+            }),
+            html`<span class='markdown-editor-label' ${{ class: () => state.done && 'markdown-editor-label--done' }}>${content}</span>`
+        ];
     }
 
     return {
@@ -422,6 +449,7 @@ const renderer = (host: Host) => {
                             block.quoteDepth ? 'markdown-editor-block--quoted' : '',
                             unit.continuation ? 'markdown-editor-block--continuation' : '',
                             unit.continues ? 'markdown-editor-block--continues' : '',
+                            block.task && !unit.continuation ? 'markdown-editor-block--task' : '',
                             unit.raw || unit.fold ? 'markdown-editor-block--raw' : ''
                         ],
                         onconnect: (element: HTMLElement) => host.shown(element, unit),
@@ -432,13 +460,13 @@ const renderer = (host: Host) => {
 
                             host.shown(element, null);
                         },
-                        onmousedown: (e: MouseEvent) => host.press(e, unit),
                         style: `--depth: ${block.quoteDepth}; --indent: ${unit.raw ? 0 : block.indent};`
                     }}
                 >
                     <button
                         aria-label='${unit.fold ? 'Unfold block' : 'Fold block'}'
                         class='markdown-editor-fold'
+                        contenteditable='false'
                         tabindex='-1'
                         type='button'
                         ${{

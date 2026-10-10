@@ -1,5 +1,11 @@
-@use '/shared';
-@use '/tokens';
+@use 'css-utilities/absolute';
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+@use 'css-utilities/hidden';
+@use 'css-utilities/reset';
+@use 'css-utilities/surface';
+@use 'css-utilities/text';
+
 
 .input-tag {
     color: var(--color);
@@ -9,10 +15,12 @@
     width: var(--width);
 
 
+    // The field is a surface, and each chip a surface above it.
     &-box {
-        background: var(--box-background);
+        @extend %surface-raised-level;
+        background: var(--box-background, var(--surface-background-default));
         border-radius: var(--box-border-radius);
-        box-shadow: var(--box-shadow);
+        box-shadow: var(--surface-shadow-default);
         cursor: text;
         outline-offset: 2px;
         padding: var(--box-padding);
@@ -23,8 +31,11 @@
     }
 
     &-chip {
+        @extend %color-state;
+        --color-active: var(--chip-color-active);
+        --color-default: var(--chip-color);
         align-items: center;
-        color: var(--chip-color);
+        color: var(--color);
         display: flex;
         font-size: var(--font-size);
         gap: 2px;
@@ -34,26 +45,29 @@
         position: relative;
         transition: color var(--transition-duration) var(--transition-timing-function);
 
-        @include tokens.state(active) {
-            color: var(--chip-color-active);
-        }
-
         &-body {
-            @extend %absolute-full;
-            background: var(--chip-background);
+            @extend %absolute-full, %surface-raised-level;
+            // The surface's, until an active chip fills with ink and drops its shadow.
+            background: var(--chip-background, var(--surface-background-default));
             border-radius: var(--chip-border-radius);
-            box-shadow: var(--chip-shadow);
+            box-shadow: var(--chip-shadow, var(--surface-shadow-default));
             transition:
                 background-color var(--transition-duration) var(--transition-timing-function),
                 box-shadow var(--transition-duration) var(--transition-timing-function);
         }
 
         &-button {
+            @extend %background-state, %color-state;
+            --background-hover: var(--chip-remove-hover-background);
+            --background-pressed: var(--background-hover);
+            --color-default: var(--chip-remove-color);
+            --color-hover: var(--chip-remove-color-hover);
+            --color-pressed: var(--color-hover);
             align-items: center;
-            background: transparent;
+            background: var(--background);
             border: 0;
             border-radius: var(--border-radius-300);
-            color: var(--chip-remove-color);
+            color: var(--color);
             cursor: pointer;
             display: flex;
             flex-shrink: 0;
@@ -64,8 +78,7 @@
             position: relative;
             transition:
                 background-color var(--transition-duration) var(--transition-timing-function),
-                color var(--transition-duration) var(--transition-timing-function),
-                scale var(--transition-duration) var(--transition-timing-function);
+                color var(--transition-duration) var(--transition-timing-function);
             width: 24px;
 
             // Grows the hit area to 32px without growing the icon.
@@ -73,15 +86,6 @@
                 content: '';
                 inset: -4px;
                 position: absolute;
-            }
-
-            &:hover {
-                background: var(--chip-remove-hover-background);
-                color: var(--chip-remove-color-hover);
-            }
-
-            &:active {
-                scale: 0.96;
             }
 
             &:focus-visible {
@@ -152,11 +156,5 @@
 
     &-live {
         @extend %hidden-visually;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .input-tag-chip-button:active {
-        scale: 1;
     }
 }

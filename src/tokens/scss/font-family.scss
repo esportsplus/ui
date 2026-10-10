@@ -1,5 +1,0 @@
-// Geist Mono ships with the library ('css-utilities/font/geist') but loads only when a host imports it; without it the
-// stack falls back to each platform's own UI monospace.
-$font-family: (
-    mono: ('Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace)
-);

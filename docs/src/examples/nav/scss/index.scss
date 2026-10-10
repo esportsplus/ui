@@ -1,0 +1,43 @@
+.nav-demo {
+    &-copy {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+
+    &-heading {
+        font-size: var(--font-size-400);
+    }
+
+    &-scroller {
+        border: var(--border-width-400) solid var(--surface-secondary-default);
+        border-radius: var(--border-radius-500);
+        height: 240px;
+        overflow-y: auto;
+        padding: 0 var(--size-400);
+    }
+
+    // Tall enough that only a couple fit the panel at once, so the spy has somewhere to move.
+    &-section {
+        --gap-vertical: var(--size-200);
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-vertical);
+        min-height: 140px;
+        padding-block: var(--size-400);
+    }
+
+    &-spy {
+        display: grid;
+        gap: var(--size-500);
+        grid-template-columns: minmax(0, 1fr) 180px;
+        width: min(560px, 100%);
+
+        @media (max-width: 560px) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    &-tree {
+        width: min(240px, 100%);
+    }
+}

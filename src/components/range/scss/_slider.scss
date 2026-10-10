@@ -8,22 +8,23 @@
     cursor: grab;
     height: var(--thumb-size);
     transition:
-        box-shadow 150ms ease-out,
-        scale 150ms ease-out;
+        box-shadow var(--duration-fast) var(--easing-spring),
+        scale var(--duration-fast) var(--easing-spring);
     width: var(--thumb-size);
 }
 
 .range--slider {
-    --focus-color: oklch(from var(--color-text-500) l c h / 0.24);
-    --range-color: var(--color-text-500);
+    --focus-color: var(--surface-border-pressed);
+    --range-color: var(--color-primary-500);
+    // A physical knob stays white in both modes.
     --thumb-background: var(--color-white-300);
-    --thumb-border: var(--color-border-300);
-    --thumb-shadow: 0 1px 2px oklch(from var(--color-black-300) l c h / 0.05), 0 1px oklch(from var(--color-black-300) l c h / 0.04);
-    --thumb-size: 16px;
-    --track-color: var(--color-border-300);
+    --thumb-border: var(--surface-secondary-default);
+    --thumb-shadow: var(--surface-shadow-default);
+    --thumb-size: var(--size-400);
+    --track-color: var(--surface-secondary-default);
 
     @media (pointer: coarse) {
-        --thumb-size: 20px;
+        --thumb-size: var(--size-500);
     }
 }
 
@@ -96,7 +97,7 @@
     --ghost-display: none;
     // The heading's label and value join the header row.
     --header-align: center;
-    --header-gap: 8px;
+    --header-gap: var(--size-100);
     --heading-display: contents;
     --label-color: currentColor;
     --label-font-size: 1em;
@@ -104,7 +105,7 @@
     --label-margin: 0;
     --label-text-transform: none;
     --range-border-radius: 999px;
-    --thumb-border-width: 1px;
+    --thumb-border-width: var(--border-width-400);
     --thumb-cursor: grab;
     --thumb-cursor-active: grabbing;
     --thumb-outline: none;
@@ -113,8 +114,8 @@
     --thumb-shadow-active: none;
     --thumb-shadow-focus: 0 0 0 3px var(--focus-color);
     --thumb-transition:
-        box-shadow 150ms ease-out,
-        scale 150ms ease-out;
+        box-shadow var(--duration-fast) var(--easing-spring),
+        scale var(--duration-fast) var(--easing-spring);
     --track-height: 4px;
     // Match the fill to the existing thumb travel without changing range behavior.
     --track-inset: calc(var(--thumb-size) / 2);
@@ -135,6 +136,6 @@
 
     @media (prefers-reduced-motion: reduce) {
         --thumb-scale-active: 1;
-        --thumb-transition: box-shadow 150ms ease-out;
+        --thumb-transition: box-shadow var(--duration-fast) var(--easing-spring);
     }
 }

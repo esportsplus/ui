@@ -1,0 +1,14 @@
+@use 'css-utilities/surface';
+
+
+.theme-switcher {
+    @extend %surface-raised;
+    border: var(--border-width-400) solid var(--surface-border-default);
+    border-radius: var(--border-radius-500);
+    bottom: var(--size-400);
+    display: grid;
+    padding: var(--size-300);
+    position: fixed;
+    right: var(--size-400);
+    z-index: 1000;
+}

@@ -5,8 +5,18 @@ import {
     type WorkspaceChange,
     type WorkspaceEntry,
     type WorkspaceHost,
-    type WorkspacePreferences
+    type WorkspacePreferences,
+    type WorkspaceSession
 } from '@esportsplus/ui/components/editor/workspace/model';
+
+
+type Options = {
+    // Each file's text at HEAD, which the git gutter diffs against; without it the host has no baseline.
+    head?: Readonly<Record<string, string>>;
+    // Where the session outlives the page, under 'key'; it's kept in memory otherwise.
+    key?: string;
+    storage?: Pick<Storage, 'getItem' | 'setItem'>;
+};
 
 
 /** Deterministic complete host for tests and interactive examples, including watcher and undo receipts.
@@ -15,7 +25,8 @@ import {
 function createMemoryWorkspaceHost(
     files: Readonly<Record<string, string>>,
     initial: Partial<WorkspacePreferences> = {},
-    emptyDirectories: readonly string[] = []
+    emptyDirectories: readonly string[] = [],
+    { head, key = 'workspace-session', storage }: Options = {}
 ) {
     let contents = new Map(Object.entries(files).map(([path, text]) => [workspacePath(path), text])),
         copiedPaths: string[] = [],
@@ -23,6 +34,7 @@ function createMemoryWorkspaceHost(
         id = 0,
         operations = new Map<string, { undo: VoidFunction }>(),
         preferences = { ...DEFAULTS, ...initial },
+        session: WorkspaceSession | null = null,
         watchers = new Set<(event: WorkspaceChange) => void>(),
         writes: { content: string; path: string }[] = [];
 
@@ -90,6 +102,9 @@ function createMemoryWorkspaceHost(
     }
 
     let host: WorkspaceHost = {
+        ...(head && {
+            baseline: async (_cwd: string, path: string) => head[path] ?? null
+        }),
         copyPath: (cwd, path) => {
             copiedPaths.push(`${cwd.replace(/[\\/]+$/, '')}/${path}`);
         },
@@ -123,6 +138,57 @@ function createMemoryWorkspaceHost(
                 changed(paths);
             });
         },
+        export: (_cwd, path) => {
+            let content = contents.get(path);
+
+            if (content === undefined) {
+                return null;
+            }
+
+            return {
+                name: path.slice(path.lastIndexOf('/') + 1),
+                text: content,
+                type: 'text/plain',
+                url: `data:text/plain;charset=utf-8,${encodeURIComponent(content)}`
+            };
+        },
+        import: async (_cwd, target, entries) => {
+            let files: [string, File][] = [],
+                folders: string[] = [];
+
+            for (let entry of entries) {
+                let path = workspacePath(target ? `${target}/${entry.path}` : entry.path);
+
+                if (entry.file) {
+                    if (contents.has(path) || directories.has(path)) {
+                        throw new Error(`Memory workspace: ${path} already exists`);
+                    }
+
+                    files.push([path, entry.file]);
+                }
+                else {
+                    folders.push(path);
+                }
+            }
+
+            let texts: string[] = [];
+
+            for (let [, file] of files) {
+                texts.push(await file.text());
+            }
+
+            for (let path of folders) {
+                directories.add(path);
+                parents(path);
+            }
+
+            for (let i = 0, n = files.length; i < n; i++) {
+                parents(files[i][0]);
+                contents.set(files[i][0], texts[i]);
+            }
+
+            changed([...folders, ...files.map(([path]) => path)]);
+        },
         list: async () => list(),
         preferences: {
             get: async () => ({ ...preferences }),
@@ -136,6 +202,17 @@ function createMemoryWorkspaceHost(
             }
 
             return contents.get(path)!;
+        },
+        session: {
+            get: async () => {
+                let stored = storage?.getItem(key);
+
+                return stored ? JSON.parse(stored) as WorkspaceSession : session;
+            },
+            set: async (next) => {
+                session = next;
+                storage?.setItem(key, JSON.stringify(next));
+            }
         },
         rename: async (_cwd, source, destination) => {
             if (![...contents.keys()].some((path) => containsPath(source, path)) && !directories.has(source)) {

@@ -20,8 +20,6 @@ type Metrics = {
 // What the surface draws for a block, or a slice of a large one. Units keep their block's identity while its text
 // is unchanged, so their DOM and measured height survive edits elsewhere.
 type Unit = {
-    // The editing field, standing in for the blocks under the primary selection.
-    active?: boolean;
     block: MarkdownBlock;
     continuation: boolean;
     continues: boolean;
@@ -166,26 +164,19 @@ function slice(block: MarkdownBlock, text: string, raw: boolean): Unit[] {
 }
 
 
-// The units the surface shows, in order: blocks under a fold are left out and its header stands for it, blocks
-// [active.first, active.last) are the editing field, and blocks 'raw' picks show their source.
+// The units the surface shows, in order: blocks under a fold are left out and its header stands for it, and blocks
+// 'raw' picks show their source.
 const arrange = (
     blocks: readonly MarkdownBlock[],
     text: string,
     folds: readonly FoldRange[],
     cache: Cache,
-    active: { first: number; last: number; unit: Unit } | null,
     raw: ((index: number) => boolean) | null
 ) => {
     let f = 0,
         out: Unit[] = [];
 
     for (let i = 0, n = blocks.length; i < n; i++) {
-        if (active && i === active.first) {
-            out.push(active.unit);
-            i = active.last - 1;
-            continue;
-        }
-
         let block = blocks[i];
 
         while (f < folds.length && folds[f].to <= block.from) {
@@ -442,5 +433,5 @@ class MarkdownLayout {
 }
 
 
-export { arrange, cache, headingScale, MarkdownLayout, SCALED_LINE, SLICE_LINES, unitStart, WINDOW_LIMIT };
+export { arrange, cache, MarkdownLayout, SLICE_LINES, unitStart, WINDOW_LIMIT };
 export type { Unit };

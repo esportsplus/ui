@@ -1,0 +1,31 @@
+@use 'variables';
+
+.section {
+    &,
+    &-header {
+        display: flex;
+        flex-flow: column;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        position: relative;
+        width: 100%;
+    }
+
+    &-subtitle,
+    &-suptitle,
+    &-title {
+        color: var(--color);
+        display: block;
+        position: relative;
+        width: 100%;
+        z-index: 1;
+    }
+
+    &-subtitle,
+    &-suptitle {
+        font-size: var(--font-size);
+    }
+
+    &-title {
+        text-wrap: balance;
+    }
+}

@@ -4,7 +4,7 @@ import { html } from '@esportsplus/template';
 import 'docs/examples/link/scss/index.scss';
 
 
-let color = '--color: var(--color-purple-300);',
+let color = '--color: light-dark(var(--color-purple-300), oklch(from var(--color-purple-300) 0.75 0.15 h));',
     managers = ['pnpm', 'npm', 'yarn', 'bun'];
 
 

@@ -1,6 +1,12 @@
+@use 'css-utilities/background';
+@use 'css-utilities/border';
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
+
+
 .file-tree-demo {
-    background: var(--color-white-300);
-    border: 1px solid var(--color-border-300);
+    @extend %surface-raised;
+    border: 1px solid var(--surface-secondary-default);
     border-radius: 8px;
     height: 300px;
     max-width: 100%;
@@ -10,14 +16,11 @@
 
     // The icons on a dark surface, as a host with a dark color scheme shows them.
     &--dark.file-tree {
-        --color: #d4d4d4;
-        --sticky-background: #1f1f23;
-        background: #1f1f23;
-        border-color: #3a3a40;
         color-scheme: dark;
     }
 
     &-action {
+        @extend %background-surface, %border-surface, %color-text;
         --border-width: var(--border-width-400);
         --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-300);
@@ -105,6 +108,13 @@
             margin: 0;
         }
 
+        &-group {
+            --gap-vertical: var(--size-100);
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-vertical);
+        }
+
         &-list {
             align-items: center;
             display: grid;
@@ -125,7 +135,7 @@
         &-title {
             font-size: var(--font-size-300);
             font-weight: var(--font-weight-500);
-            margin: 0 0 var(--size-100);
+            margin: 0;
         }
 
         &.file-tree {
@@ -135,9 +145,10 @@
 
     // Framed like the tree below it; the input itself is bare.
     &-search.input {
-        --background-default: var(--color-white-300);
-        --border-color-default: var(--color-border-300);
-        --border-width: 1px;
+        @extend %surface-raised-level;
+        --background-default: var(--surface-background-default);
+        --border-color-default: var(--surface-secondary-default);
+        --border-width: var(--border-width-400);
         --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-200);
         --padding-vertical: var(--size-200);

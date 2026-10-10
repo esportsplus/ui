@@ -8,16 +8,16 @@
     // barely overlap and never read as doubled text; the outgoing frame takes the '--swap-exit-*' pair, so it can
     // clear out quicker than the incoming one arrives.
     --swap-blur: 2px;
-    --swap-duration: 0.32s;
-    --swap-exit-duration: var(--swap-duration);
-    --swap-exit-fade-duration: var(--swap-fade-duration);
-    --swap-fade-duration: 0.16s;
+    --swap-duration: var(--duration-moderate);
+    --swap-exit-duration: var(--duration-moderate-exit);
+    --swap-exit-fade-duration: var(--duration-fast-exit);
+    --swap-fade-duration: var(--duration-fast);
     --swap-fade-timing-function: linear;
     // How far off to its side a waiting frame sits; a share of its own size, so short labels and wide views travel alike.
     --swap-shift: 60%;
-    --swap-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    --transition-duration: 0.32s;
-    --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    --swap-timing-function: var(--easing-spring);
+    --transition-duration: var(--duration-moderate);
+    --transition-timing-function: var(--easing-spring);
 
     // Swaps still crossfade, without the drift or blur.
     @media (prefers-reduced-motion: reduce) {

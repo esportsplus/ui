@@ -6,8 +6,8 @@
  *
  *  Desired Result:
  *  - Default Colors Assigned To Element;
- *  - On 'highlight' Or ':hover' Display A Slightly Brighter Version Of
- *    The Default Color;
+ *  - On 'highlight' Or ':hover', And While Active, Display A Slightly
+ *    Brighter Version Of The Default Color;
  *  - On 'pressed' Or ':active' Display Slightly Darker Version Of The
  *    Default Color;
  *
@@ -77,6 +77,7 @@ $state: (
     }
 
     @each $key in $keys {
+        // 400, every color's base, at rest; 300 on hover and while active; 500 pressed.
         &-#{$key} {
             --#{$property}-active: var(--color-#{$key}-300);
             --#{$property}-default: var(--color-#{$key}-400);

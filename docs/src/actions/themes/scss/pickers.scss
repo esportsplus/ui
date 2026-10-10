@@ -1,0 +1,14 @@
+// The showcase of the theme pickers on the themes page.
+.pickers {
+    &-grid {
+        display: grid;
+        gap: var(--size-400);
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        width: 100%;
+    }
+
+    &-note {
+        color: var(--color-text-300);
+        font-size: var(--font-size-200);
+    }
+}

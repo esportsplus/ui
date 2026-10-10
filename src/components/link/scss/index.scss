@@ -1,4 +1,7 @@
-@use '/shared';
+@use 'css-utilities/background';
+@use 'css-utilities/border';
+@use 'css-utilities/color';
+@use 'css-utilities/text';
 @use 'variables';
 
 .link {

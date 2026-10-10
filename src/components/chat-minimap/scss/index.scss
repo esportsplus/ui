@@ -1,4 +1,5 @@
-@use '/shared';
+@use 'css-utilities/color';
+@use 'css-utilities/hidden';
 @use 'variables';
 
 // One line per turn, stacked with no gaps, so the pointer never falls between two lines and the card glides
@@ -82,10 +83,14 @@
 
     // Out of the way until wanted: shown on its own hover or focus, and always on touch, which can't hover to find it.
     &-nav {
+        @extend %color-state;
+        --color-default: var(--color-text-300);
+        --color-hover: var(--nav-color-hover);
+        --color-pressed: var(--color-hover);
         align-items: center;
         background: none;
         border: 0;
-        color: var(--color-text-300);
+        color: var(--color);
         cursor: pointer;
         display: flex;
         height: var(--nav-height);
@@ -93,8 +98,8 @@
         outline: none;
         padding: 0 var(--inset);
         transition:
-            color var(--nav-duration) ease-out,
-            opacity var(--nav-duration) ease-out;
+            color var(--nav-duration) var(--easing-spring),
+            opacity var(--nav-duration) var(--easing-spring);
         width: var(--item-width);
 
         &:disabled {
@@ -102,9 +107,12 @@
             pointer-events: none;
         }
 
+        &:focus-visible {
+            --color: var(--color-hover);
+        }
+
         &:focus-visible,
         &:hover {
-            color: var(--color-active);
             opacity: 1;
         }
 
@@ -121,12 +129,12 @@
                 opacity: 0.4;
             }
         }
-    }
 
-    &-nav-icon {
-        flex-shrink: 0;
-        height: 12px;
-        width: 12px;
+        &-icon {
+            flex-shrink: 0;
+            height: 12px;
+            width: 12px;
+        }
     }
 
     &-title {

@@ -23,7 +23,7 @@ function plain(
     return html`
         <input
             aria-orientation='${orientation}'
-            class='range --border-black ${orientation === 'vertical' && 'range--vertical'}'
+            class='range ${orientation === 'vertical' && 'range--vertical'}'
             style='${() => `--thumb-position: ${((state.value - min) / (max - min)) * 100}%`}'
             type='range'
             ${this?.attributes}

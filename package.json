@@ -23,27 +23,20 @@
         "vite": "^8.3.1"
     },
     "exports": {
-        "./css-utilities.scss": "./build/css-utilities/index.scss",
-        "./css-utilities/*.scss": "./build/css-utilities/*/scss/index.scss",
-        "./css-utilities/font/*.scss": "./build/css-utilities/font/*/scss/index.scss",
-        "./css-utilities": {
-            "types": "./build/css-utilities/index.d.ts",
-            "default": "./build/css-utilities/index.js"
-        },
+        "./css-utilities/*.scss": "./src/css-utilities/*.scss",
+        "./css-utilities/font/*.scss": "./src/css-utilities/font/*/index.scss",
         "./layer.scss": "./layer.scss",
+        "./modifiers": {
+            "types": "./build/modifiers/index.d.ts",
+            "default": "./build/modifiers/index.js"
+        },
+        "./modifiers/*": {
+            "types": "./build/modifiers/*/index.d.ts",
+            "default": "./build/modifiers/*/index.js"
+        },
         "./normalize.scss": "./build/normalize/scss/index.scss",
         "./shared.scss": "./shared.scss",
         "./svg/*.svg": "./storage/svg/*.svg",
-        "./themes/dark": {
-            "types": "./build/themes/dark/index.d.ts",
-            "default": "./build/themes/dark/index.js"
-        },
-        "./themes/dark/*.scss": "./build/themes/dark/*/scss/index.scss",
-        "./themes/light": {
-            "types": "./build/themes/light/index.d.ts",
-            "default": "./build/themes/light/index.js"
-        },
-        "./themes/light/*.scss": "./build/themes/light/*/scss/index.scss",
         "./tokens.scss": "./tokens.scss",
         "./*.scss": "./build/components/*/scss/index.scss",
         "./*": {

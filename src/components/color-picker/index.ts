@@ -6,11 +6,14 @@ import { keystep } from '~/shared/keystep';
 import copy from '~/components/copy';
 import input from '~/components/input';
 import range from '~/components/range';
+import contrast from '@esportsplus/ui/svg/contrast.svg';
 import './scss/index.scss';
 
 
 type A = Attributes & {
     [COLOR_PICKER_SWATCH]?: Attributes;
+    // The pad with upright opacity and hue rails under an hsl readout; no hex field or recent colors.
+    compact?: boolean;
     recent?: false | string[];
     state?: { error: string, value: string };
     value: string;
@@ -48,6 +51,13 @@ function fromHex(hex: string, previous: Hsva): Hsva | null {
     }
 
     return { ...toHsv(rgba.r, rgba.g, rgba.b, previous), a: rgba.a };
+}
+
+function hsl({ a, h, s, v }: Hsva) {
+    let l = v * (1 - s / 2),
+        value = `${Math.round(h)}, ${Math.round((l === 0 || l === 1 ? 0 : (v - l) / Math.min(l, 1 - l)) * 100)}%, ${Math.round(l * 100)}%`;
+
+    return a < 1 ? `hsla(${value}, ${Number(a.toFixed(2))})` : `hsl(${value})`;
 }
 
 function parse(value: string) {
@@ -117,6 +127,7 @@ function toHsv(r: number, g: number, b: number, previous: Hsva) {
 function template(
     this: { attributes?: Pick<A, typeof COLOR_PICKER_SWATCH> } | void,
     {
+        compact = false,
         recent: initial = [],
         state = reactive({ error: '', value: '' }),
         value,
@@ -132,7 +143,7 @@ function template(
     let alpha: Channel = reactive({ active: false, error: '', value: Math.round(start.a * 100) }),
         color = reactive({ a: start.a, h: start.h, s: start.s, v: start.v }),
         dirty = { alpha: false, hue: false, pad: false },
-        history = initial !== false,
+        history = initial !== false && !compact,
         hue: Channel = reactive({ active: false, error: '', value: Math.round(start.h) }),
         id = `color-picker-${++uid}`,
         // Stand-ins for swatches pushed out of the recent list, fading out where they stood.
@@ -340,131 +351,157 @@ function template(
         }
     });
 
+    let alphaChannel = range({
+        'aria-label': 'Opacity',
+        'aria-valuetext': () => `${alpha.value}%`,
+        class: 'color-picker-channel color-picker-channel--alpha',
+        max: 100,
+        min: 0,
+        onblur: () => {
+            if (dirty.alpha && !pointer.alpha) {
+                commit();
+            }
+
+            dirty.alpha = false;
+        },
+        onchange: () => {
+            if (pointer.alpha) {
+                commit();
+            }
+        },
+        onkeydown: (e: KeyboardEvent) => slide('alpha', e),
+        onpointerdown: () => {
+            pointer.alpha = true;
+        },
+        orientation: compact ? 'vertical' : 'horizontal',
+        state: alpha,
+        step: 1
+    });
+
+    let hueChannel = range({
+        'aria-label': 'Hue',
+        'aria-valuetext': () => `${hue.value} degrees`,
+        class: 'color-picker-channel color-picker-channel--hue',
+        max: 360,
+        min: 0,
+        onblur: () => {
+            if (dirty.hue && !pointer.hue) {
+                commit();
+            }
+
+            dirty.hue = false;
+        },
+        onchange: () => {
+            if (pointer.hue) {
+                commit();
+            }
+        },
+        onkeydown: (e: KeyboardEvent) => slide('hue', e),
+        onpointerdown: () => {
+            pointer.hue = true;
+        },
+        orientation: compact ? 'vertical' : 'horizontal',
+        state: hue,
+        step: 1
+    });
+
+    let pad = html`
+        <div
+            aria-label='Saturation and brightness'
+            aria-roledescription='2D slider'
+            aria-valuemax='100'
+            aria-valuemin='0'
+            class='color-picker-pad'
+            role='slider'
+            tabindex='0'
+            ${{
+                'aria-valuenow': () => Math.round(color.s * 100),
+                'aria-valuetext': () => `Saturation ${Math.round(color.s * 100)}%, brightness ${Math.round(color.v * 100)}%`,
+                onblur: () => {
+                    if (dirty.pad) {
+                        commit();
+                    }
+
+                    dirty.pad = false;
+                },
+                onkeydown: (e: KeyboardEvent) => {
+                    let delta = keystep(e, 0.01);
+
+                    if (delta === null) {
+                        return;
+                    }
+
+                    e.preventDefault();
+                    dirty.pad = true;
+
+                    // Left and right move saturation, the rest brightness, matching the axes on screen.
+                    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                        update({ s: clamp(color.s + delta, 0, 1) });
+                    }
+                    else {
+                        update({ v: clamp(color.v + delta, 0, 1) });
+                    }
+                },
+                onpointercancel: (e: PointerEvent) => {
+                    if (e.pointerId === pointer.pad) {
+                        pointer.pad = -1;
+                        commit();
+                    }
+                },
+                // Only the first pointer counts, so a second finger can't make the handle jump.
+                onpointerdown: function(this: HTMLElement, e: PointerEvent) {
+                    if (pointer.pad !== -1 || (e.pointerType === 'mouse' && e.button !== 0)) {
+                        return;
+                    }
+
+                    pointer.pad = e.pointerId;
+                    this.setPointerCapture(e.pointerId);
+                    pick(this, e);
+                },
+                onpointermove: function(this: HTMLElement, e: PointerEvent) {
+                    if (e.pointerId === pointer.pad) {
+                        pick(this, e);
+                    }
+                },
+                onpointerup: (e: PointerEvent) => {
+                    if (e.pointerId === pointer.pad) {
+                        pointer.pad = -1;
+                        commit();
+                    }
+                }
+            }}
+        >
+            <span
+                class='color-picker-thumb'
+                style='${() => `left: ${color.s * 100}%; top: ${(1 - color.v) * 100}%;`}'
+            ></span>
+        </div>
+    `;
+
+    if (compact) {
+        return html`
+            <div class='color-picker color-picker--compact' ${this?.attributes} ${attributes} ${{ style: css }}>
+                <div class='color-picker-header'>
+                    <svg aria-hidden='true' class='color-picker-icon'><use href='#${contrast}' /></svg>
+                    <span class='color-picker-value'>${() => hsl(read())}</span>
+                </div>
+                <div class='color-picker-body'>
+                    ${pad}
+                    ${alphaChannel}
+                    ${hueChannel}
+                </div>
+            </div>
+        `;
+    }
+
     return html`
         <div class='color-picker' ${this?.attributes} ${attributes} ${{ style: css }}>
-            <div
-                aria-label='Saturation and brightness'
-                aria-roledescription='2D slider'
-                aria-valuemax='100'
-                aria-valuemin='0'
-                class='color-picker-pad'
-                role='slider'
-                tabindex='0'
-                ${{
-                    'aria-valuenow': () => Math.round(color.s * 100),
-                    'aria-valuetext': () => `Saturation ${Math.round(color.s * 100)}%, brightness ${Math.round(color.v * 100)}%`,
-                    onblur: () => {
-                        if (dirty.pad) {
-                            commit();
-                        }
-
-                        dirty.pad = false;
-                    },
-                    onkeydown: (e: KeyboardEvent) => {
-                        let delta = keystep(e, 0.01);
-
-                        if (delta === null) {
-                            return;
-                        }
-
-                        e.preventDefault();
-                        dirty.pad = true;
-
-                        // Left and right move saturation, the rest brightness, matching the axes on screen.
-                        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-                            update({ s: clamp(color.s + delta, 0, 1) });
-                        }
-                        else {
-                            update({ v: clamp(color.v + delta, 0, 1) });
-                        }
-                    },
-                    onpointercancel: (e: PointerEvent) => {
-                        if (e.pointerId === pointer.pad) {
-                            pointer.pad = -1;
-                            commit();
-                        }
-                    },
-                    // Only the first pointer counts, so a second finger can't make the handle jump.
-                    onpointerdown: function(this: HTMLElement, e: PointerEvent) {
-                        if (pointer.pad !== -1 || (e.pointerType === 'mouse' && e.button !== 0)) {
-                            return;
-                        }
-
-                        pointer.pad = e.pointerId;
-                        this.setPointerCapture(e.pointerId);
-                        pick(this, e);
-                    },
-                    onpointermove: function(this: HTMLElement, e: PointerEvent) {
-                        if (e.pointerId === pointer.pad) {
-                            pick(this, e);
-                        }
-                    },
-                    onpointerup: (e: PointerEvent) => {
-                        if (e.pointerId === pointer.pad) {
-                            pointer.pad = -1;
-                            commit();
-                        }
-                    }
-                }}
-            >
-                <span
-                    class='color-picker-thumb'
-                    style='${() => `left: ${color.s * 100}%; top: ${(1 - color.v) * 100}%;`}'
-                ></span>
-            </div>
+            ${pad}
 
             <div class='color-picker-channels'>
                 <div class='color-picker-sliders'>
-                    ${range({
-                        'aria-label': 'Hue',
-                        'aria-valuetext': () => `${hue.value} degrees`,
-                        class: 'color-picker-channel color-picker-channel--hue',
-                        max: 360,
-                        min: 0,
-                        onblur: () => {
-                            if (dirty.hue && !pointer.hue) {
-                                commit();
-                            }
-
-                            dirty.hue = false;
-                        },
-                        onchange: () => {
-                            if (pointer.hue) {
-                                commit();
-                            }
-                        },
-                        onkeydown: (e: KeyboardEvent) => slide('hue', e),
-                        onpointerdown: () => {
-                            pointer.hue = true;
-                        },
-                        state: hue,
-                        step: 1
-                    })}
-                    ${range({
-                        'aria-label': 'Opacity',
-                        'aria-valuetext': () => `${alpha.value}%`,
-                        class: 'color-picker-channel color-picker-channel--alpha',
-                        max: 100,
-                        min: 0,
-                        onblur: () => {
-                            if (dirty.alpha && !pointer.alpha) {
-                                commit();
-                            }
-
-                            dirty.alpha = false;
-                        },
-                        onchange: () => {
-                            if (pointer.alpha) {
-                                commit();
-                            }
-                        },
-                        onkeydown: (e: KeyboardEvent) => slide('alpha', e),
-                        onpointerdown: () => {
-                            pointer.alpha = true;
-                        },
-                        state: alpha,
-                        step: 1
-                    })}
+                    ${hueChannel}
+                    ${alphaChannel}
                 </div>
                 <span aria-hidden='true' class='color-picker-preview'></span>
             </div>

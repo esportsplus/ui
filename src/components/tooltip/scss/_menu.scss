@@ -1,5 +1,6 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/layer';
+@use 'css-utilities/text';
 
 // 'tooltip.menu'; the root also carries '.tooltip', for its stacking and positioning.
 .tooltip--menu {
@@ -26,26 +27,25 @@
 
     // Qualified twice so it outranks the tooltip content it composes, and classes paired onto that content.
     > .tooltip-menu-panel.tooltip-menu-panel--expand {
-        // Keep the menu's surface tokens when composing the generic tooltip content.
-        --background: inherit;
+        // Keep the panel's own surface when composing the generic tooltip content.
+        --background-default: var(--surface-background-default);
         --border-radius: inherit;
-        --box-shadow: inherit;
+        --box-shadow-default: var(--surface-shadow-default);
         // Keeps the resting clip outside the menu's shadow.
         --expand-bleed: 24px;
         // Closing swaps this delay: the shape crossfades back into the trigger once it has
         // nearly landed. Items leave together at once.
-        --expand-close-fade-delay: 0.2s;
+        --expand-close-fade-delay: calc(var(--expand-duration) / 2);
         --expand-content-delay: 0.06s;
-        --expand-content-duration: 0.15s;
-        --expand-content-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-        --expand-duration: 0.4s;
+        --expand-content-duration: var(--duration-fast);
+        --expand-content-timing-function: var(--easing-spring);
+        --expand-duration: var(--duration-moderate-exit);
         --expand-fade-delay: var(--expand-close-fade-delay);
-        --expand-fade-duration: 0.15s;
-        --expand-offset: 8px;
+        --expand-fade-duration: var(--duration-fast-exit);
+        --expand-offset: var(--size-100);
         --expand-shift: 0;
         --expand-stagger: 0.02s;
-        // Spring (damping 34, stiffness 380, mass 0.8) sampled into linear().
-        --expand-timing-function: linear(0, 0.072, 0.22, 0.382, 0.529, 0.651, 0.747, 0.82, 0.874, 0.913, 0.94, 0.96, 0.973, 0.982, 0.988, 0.992, 0.995, 0.997, 0.998, 0.999, 1);
+        --expand-timing-function: var(--easing-spring);
         --offset: 0px;
         --scale: 1;
         // Cancels the '100%' every direction pushes the tooltip past the trigger by, so it
@@ -62,7 +62,9 @@
             opacity var(--expand-fade-duration) linear var(--expand-fade-delay);
 
         @include tokens.state(active) {
+            --expand-duration: var(--duration-moderate);
             --expand-fade-delay: 0s;
+            --expand-fade-duration: var(--duration-fast);
             clip-path: inset(calc(var(--expand-bleed) * -1) round calc(var(--border-radius) + var(--expand-bleed)));
 
             &::before {
@@ -128,21 +130,23 @@
             }
         }
 
+        // The shape snaps open and closed and the items arrive in place, so only the fades remain.
         @media (prefers-reduced-motion: reduce) {
             --expand-content-delay: 0s;
-            --expand-content-duration: 0s;
+            --expand-duration: 0s;
             --expand-fade-delay: 0s;
+            --expand-offset: 0px;
             --expand-stagger: 0s;
 
-            &,
-            &::before {
-                transition-duration: 0s;
+            @include tokens.state(active) {
+                --expand-duration: 0s;
             }
         }
     }
 
-    // After the expanding root's own values, which it overrides at the same specificity.
-    &.tooltip--instant > .tooltip-menu-panel--expand {
+    // After the expanding root's own values, open or closed, which it overrides at the same specificity.
+    &.tooltip--instant > .tooltip-menu-panel--expand,
+    &.tooltip--instant > .tooltip-menu-panel--expand.--active {
         --expand-content-delay: 0s;
         --expand-content-duration: 0s;
         --expand-duration: 0s;
@@ -178,6 +182,38 @@
         &--open {
             z-index: 2;
         }
+
+        // Sub-panels start clipped to the row that opened them, so the row reads as the panel's header,
+        // then the clip grows downward. The open clip overhangs the box so the shadow isn't cut off.
+        & > .tooltip-menu-panel {
+            clip-path: inset(
+                var(--padding)
+                var(--padding)
+                calc(100% - var(--padding) - var(--item-height))
+                var(--padding)
+                round var(--item-border-radius)
+            );
+            inset-inline: calc(var(--padding) * -1);
+            pointer-events: none;
+            top: calc(var(--padding) * -1);
+            transition:
+                clip-path var(--close-duration) var(--open-timing-function),
+                visibility 0s linear var(--close-duration);
+            visibility: hidden;
+            width: auto;
+            z-index: 2;
+
+            @include tokens.state(active) {
+                clip-path: inset(-48px round calc(var(--border-radius) + 48px));
+                pointer-events: auto;
+                transition: clip-path var(--open-duration) var(--open-timing-function);
+                visibility: visible;
+
+                &.tooltip-menu-panel--settled {
+                    clip-path: none;
+                }
+            }
+        }
     }
 
     &-header,
@@ -206,7 +242,7 @@
 
     &-item {
         appearance: none;
-        background: transparent;
+        background: var(--background);
         border: 0;
         color: inherit;
         cursor: pointer;
@@ -214,12 +250,11 @@
         outline: none;
         text-align: start;
         text-decoration: none;
-        transition: background var(--close-duration) var(--open-timing-function);
+        transition: background var(--duration-fast) var(--easing-spring);
         width: 100%;
 
-        &:focus,
-        &:hover {
-            background: var(--background-hover);
+        &:focus {
+            --background: var(--background-hover);
         }
 
         // Doubled so it outranks a class paired onto the item, such as '.link'.
@@ -229,7 +264,8 @@
 
         &:disabled,
         &[aria-disabled='true'] {
-            background: transparent;
+            --background-hover: var(--background-default);
+            --background-pressed: var(--background-default);
             color: var(--color-disabled);
             cursor: not-allowed;
         }
@@ -270,38 +306,6 @@
         }
     }
 
-    // Sub-panels start clipped to the row that opened them, so the row reads as the panel's header,
-    // then the clip grows downward. The open clip overhangs the box so the shadow isn't cut off.
-    &-entry > &-panel {
-        clip-path: inset(
-            var(--padding)
-            var(--padding)
-            calc(100% - var(--padding) - var(--item-height))
-            var(--padding)
-            round var(--item-border-radius)
-        );
-        inset-inline: calc(var(--padding) * -1);
-        pointer-events: none;
-        top: calc(var(--padding) * -1);
-        transition:
-            clip-path var(--close-duration) var(--open-timing-function),
-            visibility 0s linear var(--close-duration);
-        visibility: hidden;
-        width: auto;
-        z-index: 2;
-
-        @include tokens.state(active) {
-            clip-path: inset(-48px round calc(var(--border-radius) + 48px));
-            pointer-events: auto;
-            transition: clip-path var(--open-duration) var(--open-timing-function);
-            visibility: visible;
-
-            &.tooltip-menu-panel--settled {
-                clip-path: none;
-            }
-        }
-    }
-
     // Regular and bold copies of the title are stacked; crossfading them morphs the weight
     // without reflowing the label.
     &-title {
@@ -327,6 +331,15 @@
 
     &-trigger {
         cursor: pointer;
+    }
+
+    // Sub-panels snap open and the chevron turns at once; the fades keep their timing.
+    @media (prefers-reduced-motion: reduce) {
+        &-chevron,
+        &-entry > .tooltip-menu-panel,
+        &-entry > .tooltip-menu-panel.--active {
+            transition-duration: 0s;
+        }
     }
 }
 

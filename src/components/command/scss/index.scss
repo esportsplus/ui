@@ -1,4 +1,4 @@
-@use '/shared';
+@use 'css-utilities/text';
 @use 'variables';
 
 .command {
@@ -15,9 +15,9 @@
     }
 
     &-dialog.overlay {
-        background: var(--dialog-background);
+        background: var(--surface-background-default);
         border-radius: var(--dialog-border-radius);
-        box-shadow: var(--raised);
+        box-shadow: var(--surface-shadow-default);
         color: var(--color);
         // Pinned from the top rather than centered, so the input stays put while filtering resizes the list.
         margin-block: var(--dialog-offset) auto;
@@ -176,7 +176,7 @@
         user-select: none;
 
         &:focus-visible {
-            outline: var(--border-width-500) solid var(--color-text-500);
+            outline: var(--border-width-500) solid var(--color-primary-500);
             outline-offset: var(--border-width-500);
         }
 
@@ -214,10 +214,6 @@
             &::backdrop {
                 transition: opacity var(--transition-duration) var(--transition-timing-function);
             }
-        }
-
-        &-trigger.button:active {
-            scale: 1;
         }
     }
 }

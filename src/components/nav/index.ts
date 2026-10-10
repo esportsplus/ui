@@ -10,4 +10,4 @@ const nav: { spy: typeof spy, toc: typeof toc, tree: typeof tree } = { spy, toc,
 export default nav;
 export type { Mode, Spy } from './spy';
 export type { TocLink } from './toc';
-export type { Current, TreeGroup, TreeLink, TreeSection } from './tree';
+export type { Current, Indicator, TreeGroup, TreeLink, TreeSection } from './tree';

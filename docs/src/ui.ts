@@ -2,10 +2,7 @@ import '@esportsplus/ui/layer.scss';
 
 import '@esportsplus/ui/normalize/scss/index.scss';
 
-import '@esportsplus/ui/css-utilities/font/montserrat/scss/index.scss';
-import '@esportsplus/ui/css-utilities/font/geist/scss/index.scss';
-
-import '@esportsplus/ui/css-utilities/index.scss';
+import '@esportsplus/ui/modifiers/scrollbar/scss/index.scss';
 
 import 'docs/components/root/scss/index.scss';
 import 'docs/components/viewer/scss/index.scss';

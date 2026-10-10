@@ -1,0 +1,121 @@
+@use 'css-utilities/color';
+@use 'variables';
+
+.pagination {
+    // Qualified by the root so it wins over the base flex row, which is output after this partial.
+    &#{&}--cards {
+        align-items: stretch;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        @media (max-width: 560px) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    &-card {
+        @extend %color-state;
+        color: var(--color);
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        min-width: 0;
+        outline: none;
+        text-decoration: none;
+
+        // Each card's text leans toward the middle, away from its arrow on the outer edge. Held in the second column
+        // alone too, so a lone next card still sits on the right.
+        &--next {
+            align-items: flex-end;
+            grid-column: 2;
+            text-align: end;
+
+            @media (max-width: 560px) {
+                grid-column: auto;
+            }
+        }
+
+        &--previous {
+            align-items: flex-start;
+            text-align: start;
+        }
+
+        // Clears the text from whichever edge holds the arrow, on top of the card's own padding.
+        &:has(> .pagination-card-arrow:first-child) {
+            padding-left: calc(var(--arrow-inset) + var(--icon-size) + var(--arrow-gap));
+        }
+
+        &:has(> .pagination-card-arrow:last-child) {
+            padding-right: calc(var(--arrow-inset) + var(--icon-size) + var(--arrow-gap));
+        }
+
+        // Pressing sinks the card below where it rests, not just back to it. The shadow steps with the card's state;
+        // keyboard focus lifts it as hover does.
+        &--tactile {
+            &:focus-visible {
+                --box-shadow: var(--box-shadow-hover);
+            }
+
+            &:focus-visible,
+            &:hover {
+                transform: translateY(-1px);
+            }
+
+            &:active {
+                transform: translateY(1px);
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                transform: none !important;
+            }
+        }
+
+        // Shares the hover color with keyboard focus, which the shared color state leaves out.
+        &:focus-visible {
+            --color: var(--color-hover);
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        // Nudges the arrow the way it points, so the card reads as the way to go.
+        &:focus-visible,
+        &:hover {
+            --arrow-offset: calc(var(--arrow-shift) * var(--direction));
+        }
+
+        // Qualified by the card so it wins over the icon's own variables and position regardless of stylesheet order.
+        // Placed by where it sits in its card rather than which card it is, so a lone card keeps its arrow on its side.
+        & &-arrow {
+            --size: var(--icon-size);
+            position: absolute;
+            top: 50%;
+            transition:
+                color var(--transition-duration) var(--transition-timing-function),
+                translate var(--transition-duration) var(--transition-timing-function);
+            translate: var(--arrow-offset, 0) -50%;
+
+            &:first-child {
+                left: var(--arrow-inset);
+            }
+
+            &:last-child {
+                right: var(--arrow-inset);
+            }
+        }
+
+        &-subtitle {
+            color: var(--color);
+            font-size: var(--font-size);
+            transition: color var(--transition-duration) var(--transition-timing-function);
+        }
+
+        &-title {
+            color: var(--color);
+            font-size: var(--font-size);
+            font-weight: var(--font-weight);
+            overflow-wrap: anywhere;
+            text-transform: capitalize;
+            transition: color var(--transition-duration) var(--transition-timing-function);
+        }
+    }
+}

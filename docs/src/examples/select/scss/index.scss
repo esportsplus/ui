@@ -14,7 +14,7 @@
         padding-block: var(--size-300);
 
         &:not(:last-child) {
-            border-bottom: 1px solid var(--color-border-300);
+            border-bottom: 1px solid var(--surface-secondary-default);
         }
     }
 

@@ -1,0 +1,7 @@
+@use 'css-utilities/surface';
+
+
+
+.modifiers-scrollbar {
+    @extend %surface-sunken;
+}

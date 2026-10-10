@@ -1,13 +1,13 @@
 @use '/tokens';
 
 .shortcut-recorder {
-    --background-active: var(--color-white-300);
-    --background-default: var(--color-grey-400);
-    --background-hover: var(--color-white-300);
+    --background-active: var(--surface-background-active);
+    --background-default: var(--surface-background-default);
+    --background-hover: var(--surface-background-hover);
     // Held down it keeps the hover look until the click starts recording.
     --background-pressed: var(--background-hover);
-    --border-color-active: var(--color-text-500);
-    --border-color-default: var(--color-border-400);
+    --border-color-active: var(--color-primary-500);
+    --border-color-default: var(--surface-secondary-hover);
     --border-color-hover: var(--border-color-default);
     --border-color-pressed: var(--border-color-hover);
     --border-radius: var(--border-radius-500);
@@ -18,18 +18,17 @@
     --color-dot: var(--color-red-400);
     --color-error: var(--color-red-400);
     --color-muted: var(--color-text-300);
-    --focus-color: var(--color-text-500);
+    --focus-color: var(--color-primary-500);
     --focus-offset: 2px;
-    --focus-width: 2px;
+    --focus-width: var(--border-width-500);
     --font-size: var(--font-size-400);
     --font-size-small: var(--font-size-300);
     --gap: 4px;
     --height: 36px;
     --min-width: 96px;
     --padding-horizontal: 6px;
-    --timing-function-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --timing-function-out: var(--easing-spring);
     --timing-function-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --transition-duration: 150ms;
 
     #{tokens.state(active)} {
         --border-width: var(--border-width-active);

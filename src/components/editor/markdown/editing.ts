@@ -9,6 +9,37 @@ type Command = 'backspace' | 'bold' | 'enter' | 'italic';
 type KindAt = (offset: number) => Kind | undefined;
 
 
+const FENCE = /^((?: {0,3}>[ \t]?)*) {0,3}(`{3,}|~{3,})[^`]*$/;
+
+
+// Enter at the end of a fence's opening line, when nothing after it closes the fence, adds the closing line too.
+function fence(document: EditorDocument) {
+    let { end, start } = document.selection,
+        index = document.lineAt(start),
+        line = document.lineText(index),
+        open = FENCE.exec(line);
+
+    if (!open || start !== end || start !== document.lineStart(index) + line.length) {
+        return false;
+    }
+
+    let marker = open[2],
+        close = new RegExp(`^${open[1]} {0,3}${marker[0] === '`' ? '`' : '~'}{${marker.length},}[ \\t]*$`);
+
+    for (let i = index + 1, n = document.lineCount; i < n; i++) {
+        if (close.test(document.lineText(i))) {
+            return false;
+        }
+    }
+
+    let eol = document.eol;
+
+    return document.replace(start, start, eol + open[1] + eol + open[1] + marker, {
+        selection: { start: start + eol.length + open[1].length },
+        source: 'markdown-enter'
+    });
+}
+
 function run(document: EditorDocument, command: Command, kind?: KindAt) {
     if (command === 'bold' || command === 'italic') {
         return toggleMarkdown(document, command === 'bold' ? '**' : '*');
@@ -18,14 +49,18 @@ function run(document: EditorDocument, command: Command, kind?: KindAt) {
         return markdownBackspace(document) || deleteCharacter(document, true);
     }
 
-    if (markdownEnter(document, kind?.(document.selection.start))) {
+    let at = kind?.(document.selection.start);
+
+    if (markdownEnter(document, at) || fence(document)) {
         return true;
     }
 
     let { end, start } = document.selection,
-        eol = document.eol;
+        eol = document.eol,
+        // A paragraph's line with text ends in a new paragraph; elsewhere Enter breaks the line.
+        insert = at === 'paragraph' && document.lineText(document.lineAt(start)).trim() ? eol + eol : eol;
 
-    return document.replace(start, end, eol, { selection: { start: start + eol.length }, source: 'markdown-enter' });
+    return document.replace(start, end, insert, { selection: { start: start + insert.length }, source: 'markdown-enter' });
 }
 
 

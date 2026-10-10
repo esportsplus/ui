@@ -56,7 +56,7 @@ function thread() {
                 ${chatMinimap({ onnavigate: spy.scrollTo, side: 'left', state, turns: exchanges })}
             </div>
 
-            <button class='button --background-blue --color-white chat-minimap-thread-ask' type='button' ${{ disabled: () => waiting.done, onclick: ask }}>
+            <button class='button chat-minimap-thread-ask' type='button' ${{ disabled: () => waiting.done, onclick: ask }}>
                 ${() => waiting.done ? 'No more follow-ups' : 'Ask a follow-up'}
             </button>
         </div>

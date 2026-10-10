@@ -1,5 +1,6 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/border';
 @use 'variables';
 
 .shortcut-recorder {

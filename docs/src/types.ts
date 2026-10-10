@@ -19,7 +19,7 @@ type TocItem = {
 };
 
 
-type Utility = {
+type Modifier = {
     description: string;
     name: string;
     variants: Variant[];
@@ -43,4 +43,4 @@ type PreviewOption = {
 };
 
 
-export type { Entry, Page, PreviewOption, TocItem, Utility, Variant };
+export type { Entry, Modifier, Page, PreviewOption, TocItem, Variant };

@@ -1,5 +1,6 @@
-import { nav } from '@esportsplus/ui/components';
+import { nav, pagination } from '@esportsplus/ui/components';
 import { html } from 'docs/app';
+import { adjacent } from 'docs/data/nav';
 import type { Request, Responder, RouteName } from 'docs/app';
 import type { Page } from 'docs/types';
 import 'docs/middleware/layout/scss/index.scss';
@@ -7,12 +8,13 @@ import 'docs/middleware/layout/scss/index.scss';
 
 const routes: readonly (RouteName | null)[] = [
     'home',
-    'docs',
     'components',
     'components.detail',
-    'css-utilities',
-    'css-utilities.detail',
+    'modifiers',
+    'modifiers.detail',
     'fonts',
+    'installation',
+    'surfaces',
     'themes',
     'tokens',
     null // The unmatched-route fallback also returns the installation page.
@@ -34,6 +36,12 @@ export default (request: Request, next: Responder) => {
     return html`
         <main class='main'>
             ${page.render()}
+            ${pagination.cards({
+                ...adjacent(),
+                'aria-label': 'Page navigation',
+                class: 'main-pagination',
+                ring: true
+            })}
         </main>
         <aside
             class='page-nav --scrollbar --scroll-fade'

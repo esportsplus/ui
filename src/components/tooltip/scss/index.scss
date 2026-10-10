@@ -1,5 +1,5 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/layer';
 @use 'center' as *;
 @use 'east' as *;
 @use 'menu';
@@ -93,6 +93,7 @@
         $not-active: '#{tokens.state(inactive, ".tooltip")} > &, #{tokens.state(inactive, ".tooltip")} :not(.tooltip) > &';
 
         #{$active} {
+            --transition-duration: var(--duration-moderate);
             opacity: 1;
             scale: 1;
         }

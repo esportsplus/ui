@@ -1,13 +1,14 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/hidden';
 @use 'variables';
 
 .relative-time {
     border-radius: var(--border-radius-100);
+    color: var(--color);
     display: inline-flex;
     font-variant-numeric: tabular-nums;
     outline: none;
-    transition: color 0.15s ease-out;
+    transition: color var(--duration-fast) var(--easing-spring);
     white-space: nowrap;
 
     // Qualified so it beats the reused tooltip's own cursor.
@@ -16,9 +17,8 @@
     }
 
     // Brightens on hover so the text reads as something with more to say.
-    &:focus-visible,
-    &:hover {
-        color: var(--color-hover);
+    &:focus-visible {
+        --color: var(--color-hover);
     }
 
     &:focus-visible {

@@ -1,6 +1,6 @@
 .counter {
     --blur: 0.05em;
-    --color: var(--color-black-400);
+    --color: var(--color-text-400);
     // A gradient here paints the digits in place of '--color'; 'initial' also stops an ancestor's from leaking in.
     --fill: initial;
     // Sized by the surrounding text; set 'font-size' on the counter or a parent to scale it.

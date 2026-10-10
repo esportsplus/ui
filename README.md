@@ -75,12 +75,15 @@ html`
 | `clipboard` | Copy to clipboard | `clipboard.copy`, `clipboard.write` |
 | `copy` | Icon button copying `value` (a string or a function read on click); the copy icon turns into a check that draws in, then back after `timeout` ms (default `3000`); `label`, `success` and `error` set its accessible name per state | - |
 | `command` | ⌘K/Ctrl+K command palette on `overlay` + `input`: substring-then-subsequence matching with highlighted runs, grouped results, arrow/Enter keys, `onrun`; `tabs` adds a row of tabs under the search, marked by `highlight`, whose views are `frame--swap`s, drifting in from their side, and cycle with Tab/Shift+Tab (All leads with recent commands, persisted through any `store` implementing `get`/`set`, then lists every command; each command group gets its own tab; a Shortcuts tab lists `shortcuts`); setting `state.tab` (`'all'`, `'shortcuts'` or a group name) switches views and clears the search. `render(groups)` supplies custom result markup: each item exposes its `label`, highlighted `content`, command `id`, and `attributes` to spread onto the option element so selection and keyboard navigation keep working. Icons are sprite ids; `.command-trigger` also styles standalone search buttons | `command.dialog` (e.g. `overlay--blur`), `command.input`, `command.option`, `command.trigger`, `command--centered` |
-| `editor` | Editor family under one namespace. `editor.code` is a source editor on a persistent native textarea editing an `EditorDocument` that keeps its own undo history: syntax colors (TypeScript/TSX, JavaScript, CSS/SCSS, HTML, JSON, Python, Markdown), line numbers, multiple and rectangular selections, find/replace, go to line, folding, wrap, visible whitespace and a minimap; `options.services` adds completion, hover and diagnostics from a language-server `transport` (or completes from the document's own words); `editor.markdown` renders Markdown in place and edits one block at a time; `editor.code` adds sticky scroll, color swatches, links, unicode warnings, rulers, a git gutter (`baseline`), keybinding overrides (`keybindings`, exported `commands`) and merge-conflict lenses; `editor.tree` is the file tree, with drops from the desktop (`operations.import`), dragging files out (`export`) and next/previous change or problem; `editor.diffs` is a split or unified diff viewer and `editor.diffs.merge` a three-way merge editor; `editor.workspace` combines them with an explorer, tabs, quick open and file operations over a host you supply | `editor.code`, `editor.diffs`, `editor.diffs.merge`, `editor.markdown`, `editor.tree`, `editor.workspace` |
+| `editor` | Editor family under one namespace. `editor.code` is a source editor on a persistent native textarea editing an `EditorDocument` that keeps its own undo history: syntax colors (TypeScript/TSX, JavaScript, CSS/SCSS, HTML, JSON, Python, Markdown), line numbers, multiple and rectangular selections, find/replace, go to line, folding, wrap, visible whitespace and a minimap; `options.services` adds completion, hover and diagnostics from a language-server `transport` (or completes from the document's own words); `editor.markdown` renders Markdown in place and edits one block at a time; `editor.code` adds sticky scroll, color swatches, links, unicode warnings, rulers, a git gutter (`baseline`), keybinding overrides (`keybindings`, exported `commands`) and merge-conflict lenses; `editor.tree` is the file tree, with drops from the desktop (`operations.import`), dragging files out (`export`) and next/previous change or problem; `editor.diffs` is a split or unified diff viewer and `editor.diffs.merge` a three-way merge editor; `editor.workspace` combines them with an explorer, tabs, quick open and file operations over a host you supply; `editor.viewer` shows source read-only with syntax colors, line numbers, folding, wrap, visible whitespace, a minimap and an optional copy button, without the editor (import `@esportsplus/ui/editor/viewer` directly to leave the rest of the family out of the bundle) | `editor.code`, `editor.diffs`, `editor.diffs.merge`, `editor.markdown`, `editor.tree`, `editor.viewer`, `editor.workspace` |
 | `alert` | Notifications | error, info, success types |
 | `chatMinimap` | Rail of lines mapping a conversation, one per turn: the hovered line swells its two neighbours either side, one gliding `tooltip.shared` card previews each turn's `title` and `description`, previous/next buttons step through the thread, and `state` (`start`/`end`) lights the turns in view. `turns` may be a `ReactiveArray` so the rail grows with the chat; `chatMinimap.spy({ state, turns })` drives `state` from an `IntersectionObserver` on the thread and its `scrollTo` is the `onnavigate` | `chatMinimap.item`, `side: 'left'` |
 | `dock` | macOS-style `card` shelf whose icons swell toward the cursor on a spring, with delayed `tooltip` labels (`group` shares one gliding `tooltip.shared` label) and a hop-and-squash launch that lights a running dot (per-item `state.running`, `onlaunch`) | `dock.button`, `dock--square` |
 | `card.expand` | List of `card--expand` cards that each morph into their own `card` `overlay` and fly back into their slot through a view transition (a plain `overlay` fade where unsupported, a cross-fade under reduced motion); `state.open` is two-way | `card.expand.trigger` |
 | `pagination.dots` | Page indicator driven by a continuous `state.progress`; the pill stretches between dots like a worm, with an optional autoplay countdown | `pagination.dots.dot`, `pagination--dots-large` |
+| `pagination.cards` | Previous and next links as two cards, each a small `label` (default 'Previous'/'Next'), a `title` and an optional `description`; the chevron nudges the way it points on hover and focus, and a lone next card keeps the right column | `{ next, previous }`, each `{ description?, href, label?, title }` |
+| `pagination.arrows` | The same links as two square arrow buttons; a missing side stays in place, disabled, so the pair never shifts | `{ next, previous }` |
+| `nav` | `nav.tree` link tree whose highlight glides between links, solid (`current: 'page'`) or soft over a rule down their edge (`'location'`), marking the active link with a background, a border or both (`indicator: 'background' | 'border' | 'both'`); `nav.toc` table of contents; `nav.spy(ids)` marks the section in view within whichever ancestor scrolls it | `nav.tree`, `nav.toc`, `nav.spy` |
 | `pullToRefresh` | Rubber-band pull gesture (touch and mouse) with a stepped tick spinner; new items above the old first one slide in | - |
 | `sortable` | Drag-and-drop reordering of a reactive list's items, across lists with `group` | `sortable--{effect}` modifiers |
 | `story` | Auto-advancing stories, each any `Renderable`, on a `frame--slide` track with segmented progress bars whose CSS fill is the timer (`--duration`, or `duration` in ms); tap the left third to go back (replaying the first story) and the rest to advance, drag or flick between stories (rubber-banding at the ends), press-and-hold or Space to pause; links and controls inside a story keep their own clicks | `story.toggle` |
@@ -289,7 +292,6 @@ Styles are organized into layers for proper cascade:
 ```
 @layer normalize
 @layer components
-@layer themes
 @layer css-utilities
 ```
 
@@ -309,7 +311,7 @@ Styles are organized into layers for proper cascade:
 @use '@esportsplus/ui/tokens.scss';
 
 // Theme
-@use '@esportsplus/ui/themes/dark/*.scss';
+@use '@esportsplus/ui/theme.scss';
 ```
 
 ### Icons
@@ -330,7 +332,8 @@ plugin. `check.svg` carries no stroke styling, so set `fill: none` and a `stroke
 
 Located in `tokens.scss`:
 
-- **Colors**: `--color-{name}-{300|400|500}` (black, white, red, green, blue, purple, yellow, grey)
+- **Colors**: `--color-{name}` (black, blue, green, grey, purple, red, white, yellow), each written once and weighted at the root as `--color-{name}-{300|400|500}`: 400 itself, 300 and 500 `$weight-step` lightness points lighter and darker
+- **Theme colors**: `--color-surface`, `--color-primary-{300|400|500}`, `--color-shadow` and `--color-text-{300|400|500}`, the only colors that change with the mode, declared by the theme stylesheet (see Theming)
 - **Sizing**: `--size-{300-800}` (12px-80px)
 - **Spacing**: `--spacing-{0-600}`
 - **Border**: `--border-radius-{100-900}`, `--border-width-{100-700}`
@@ -338,19 +341,34 @@ Located in `tokens.scss`:
 
 ### CSS Utilities
 
+The utility classes are `--scrollbar*` and the fonts; `glass()` is spread as attributes.
+
 ```html
-<!-- Layout -->
-<div class="--flex --flex-center --gap-200">
-
-<!-- Spacing -->
-<div class="--margin-400 --padding-200">
-
-<!-- Typography -->
-<p class="--text-uppercase --color-grey-400">
-
-<!-- States -->
-<div class="--skeleton">
+<div class="--scrollbar --scrollbar-hover">
 ```
+
+Layout, color, text and loading helpers are Sass placeholders in `@esportsplus/ui/shared.scss`, extended on your own
+selectors:
+
+```scss
+@use '@esportsplus/ui/shared.scss';
+
+.toolbar {
+    @extend %background-surface, %border-surface, %color-text, %flex-vertical;
+}
+
+.headline {
+    @extend %text-gradient;
+}
+```
+
+- **Flex**: `%flex-{center|column|end|fill|fixed|horizontal|row|start|vertical}`; set `--gap-horizontal` and
+  `--gap-vertical` to space children.
+- **Color**: `%background-*`, `%border-*` and `%color-*` for `primary`, `text` and each palette color, plus `-default`
+  and `-surface`; `%border-radius-responsive`.
+- **Text**: `%text-crop` (`-top`, `-bottom`, `-first-child`, `-last-child`), `%text-gradient`, `%text-line-shadow`,
+  `%text-shiny` and `%text-truncate`.
+- **Other**: `%inline`, `%skeleton` (painted from `--from` to `--to`) and `%surface-raised` / `%surface-sunken`.
 
 ### Component Variables
 
@@ -369,14 +387,57 @@ Each component exposes CSS custom properties:
 ## Theming
 
 ```typescript
-// JavaScript
-import '@esportsplus/ui/themes/dark';
+import theme from '@esportsplus/ui/theme';
 
-// SCSS
-@use '@esportsplus/ui/themes/dark/*.scss';
+let mode = theme();
+
+mode.set('dark'); // 'dark' | 'light' | 'system'
 ```
 
-Themes override component variables. Create custom themes by overriding CSS custom properties.
+`theme.scss` declares the only colors that change with the mode once on `:root`, as a `light-dark()` of their light and
+dark values: `--color-surface` (the page, a 99% neutral in light and `black-400` in dark), `--color-primary-*` (its
+opposite, `black-*` in light and `white-*` in dark), `--color-text` (text, one color, which is `--color-text-400`;
+`--color-text-300` and `-500` derive from it in CSS, each holding `$text-step` contrast against it in both modes, so
+setting `--color-text` on `:root` moves all three) and `--color-shadow` (the one shadow color; shadows and scrims scale
+its alpha). It also sets `--background`, `--color` and `color-scheme: light dark`, so with no script at all the page
+follows the operating system.
+
+`light-dark()` picks its side where a color is used, by that element's `color-scheme`. `data-theme="light"` or
+`data-theme="dark"` pins it: `mode.set()` writes the attribute to `<html>`, and `'system'` removes it. Any element
+can carry the attribute to render its subtree in the other mode. Text and shadows follow the mode on their own; for
+anything else, wrap two palette colors in `light-dark()`, such as
+`light-dark(var(--color-white-300), var(--color-black-300))` for a surface. A palette token alone stays constant.
+
+Layers (cards, popovers, menus, dialogs, buttons) are surfaces: each counts a level above whatever it sits in, through
+the `--surface-level` custom property, and reads its colors from that level instead of naming one. A surface reads its
+parent's level with a container style query, so it counts up even set directly inside another surface; levels stop at 6.
+Its tokens follow the state names components use, `default`, `hover`, `active` and `pressed`, active (a selected item)
+taking secondary's fill so it reads above hover: `--surface-background-*` steps the default from `--color-surface` by
+the lightness points in `$surface-steps` for each mode (in light mode raised levels climb to white, leaving further
+elevation to the shadow), hover and pressed darker in light mode and lighter and darker in dark; `--surface-border-*`
+mixes the primary color in for lines; `--surface-secondary-*` is a quiet fill from each theme's `secondary`, the color
+it shows on the page: every level keeps that color's distance from the page off its own background (lightness points in
+light, contrast in dark), and its hover, active and pressed sit a few points further, by the points in `$surface-
+secondary`; and `--surface-shadow-*` picks the shadow for the level from `--surface-shadow-0` to `-6`, declared once on
+the root, lifting an elevation on hover and settling one when pressed. Dialogs reset the stack to level 1 wherever they
+open. Another level is never a color to paint: a component reaches it by extending `%surface-raised` or `%surface-
+sunken` (painted), or `%surface-raised-level` or `%surface-sunken-level` (counted, for components that route background
+and shadow through their own variables), so whatever sits in it reads its states from the level it shows; sunken layers
+cast no shadow. Style queries on custom properties need Chrome and Edge 111, Safari 18 or Firefox 151; elsewhere every
+surface keeps its parent's level. The ladder, secondary offsets and shadows are `!default` Sass variables in
+`shared/scss/surface.scss` (`$surface-steps`, `$surface-secondary`, `$surface-tint-light`, `$surface-shadow-steps`,
+`$surface-shadow-scale`).
+
+Ready-made pickers drive the same instance:
+
+```typescript
+import { themePicker } from '@esportsplus/ui/components';
+
+themePicker.toggle({ mode });             // the current choice's icon; hover or click morphs it into a row of every choice
+                                          // over the button, closing on a pick, a click outside, Escape or the pointer leaving
+themePicker.cards({ mode });              // miniature page previews
+themePicker.swatches({ mode });           // round swatches
+```
 
 ## Build
 
@@ -396,11 +457,8 @@ build/
 │   │   ├── index.d.ts
 │   │   └── scss/index.scss
 │   └── index.js
-├── css-utilities/
-│   └── font/
-└── themes/
-    ├── dark/
-    └── light/
+└── css-utilities/
+    └── font/
 ```
 
 ## Fonts
@@ -420,7 +478,11 @@ selected with `--font-geist` and `--font-geist-mono`. The aggregate
 Family classes define `--font-family` and their `--font-weight-*` token maps.
 Components consume these variables through their own `font-family` and
 `font-weight` declarations. Nested family classes override the inherited tokens.
-The root component no longer chooses Montserrat automatically.
+The root component no longer chooses Montserrat automatically, and there is no
+fallback: the app sets its family. Components that set code and figures in
+monospace (the editors, `cc`, the color picker, the usage meter, inline edit and
+normalize's `code`/`pre`) load Geist Mono themselves by extending
+`%font-geist-mono`, whatever family the page uses.
 
 Fonts are bundled as local assets for the consuming app to serve; no runtime CDN
 is required. Geist Sans and Geist Mono include variable weights 100–900 in normal

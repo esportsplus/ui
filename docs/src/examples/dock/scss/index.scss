@@ -1,3 +1,7 @@
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+
+
 // Headroom for icons that swell above the shelf and the labels over them.
 .dock-demo {
     align-items: center;
@@ -5,6 +9,10 @@
     flex-direction: column;
     gap: var(--size-500);
     padding-top: 80px;
+
+    &-button {
+        @extend %background-blue, %color-white;
+    }
 
     &-status {
         color: var(--color-text-300);

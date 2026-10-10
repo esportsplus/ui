@@ -70,9 +70,13 @@
         }
     }
 
-    // The layer jumps to its item. Doubled to outrank the active state's own glide.
+    // The layer jumps to its item and only fades in and out. Doubled to outrank the active state's own glide.
     @media (prefers-reduced-motion: reduce) {
-        transition: background var(--transition-duration) var(--transition-timing-function);
+        --scale-hidden: 1;
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            display var(--fade-duration) allow-discrete,
+            opacity var(--fade-duration) var(--transition-timing-function);
 
         &.highlight {
             --glide: 0s;

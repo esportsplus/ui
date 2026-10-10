@@ -262,8 +262,11 @@ function createMenu(context = false) {
                 enabled(node)[0]?.button?.focus();
             }
 
+            // Reduced motion keeps the fades, so '--open-duration' stays set while the reveal clips snap.
             function instant() {
-                return !root.panel || parseFloat(getComputedStyle(root.panel).getPropertyValue('--open-duration')) === 0;
+                return !root.panel
+                    || parseFloat(getComputedStyle(root.panel).getPropertyValue('--open-duration')) === 0
+                    || matchMedia('(prefers-reduced-motion: reduce)').matches;
             }
 
             function open(focus = true) {

@@ -3,7 +3,7 @@ import { html } from '@esportsplus/template';
 import { card } from '@esportsplus/ui/components';
 
 
-let box = '--padding-horizontal: var(--size-500); --padding-vertical: var(--size-500); --border-radius: var(--border-radius-400); --width: 200px; background: var(--color-grey-300);',
+let box = '--padding-horizontal: var(--size-500); --padding-vertical: var(--size-500); --border-radius: var(--border-radius-400); --width: 200px;',
     layers = [
         'Short',
         'A longer layer that wraps onto a few lines, so the card grows taller as well as wider.',
@@ -80,7 +80,7 @@ function morph() {
             </div>
             <div
                 class='card card--morph'
-                style='--padding-horizontal: var(--size-500); --padding-vertical: var(--size-500); --border-radius: var(--border-radius-400); --box-shadow: var(--box-shadow-300); background: var(--color-grey-300);'
+                style='--padding-horizontal: var(--size-500); --padding-vertical: var(--size-500); --border-radius: var(--border-radius-400);'
                 ${{
                     onconnect: (element: HTMLElement) => {
                         shell = element;
@@ -115,7 +115,7 @@ export default {
     variants: [
         {
             render: () => html`
-                <div class='card' style='${box} --box-shadow: var(--box-shadow-300);'>
+                <div class='card' style='${box}'>
                     <div class='text'>Card with shadow</div>
                 </div>
             `,
@@ -136,9 +136,9 @@ export default {
         {
             render: () => card.expand({
                 items: notes,
-                style: '--dialog-backdrop: oklch(from var(--color-black-500) l c h / 0.4); --dialog-width: 520px; --surface-background: var(--color-white-300);'
+                style: '--dialog-backdrop: oklch(from var(--color-shadow) 0 0 0 / calc(alpha + 0.3)); --dialog-width: 520px;'
             }),
-            title: 'card.expand white surfaces, darker backdrop'
+            title: 'card.expand raised surfaces, darker backdrop'
         }
     ]
 };

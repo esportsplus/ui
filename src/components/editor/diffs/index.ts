@@ -1,6 +1,6 @@
 import merge from './merge';
 import view from './view';
-import '~/css-utilities/scrollbar/scss/index.scss';
+import '~/modifiers/scrollbar/scss/index.scss';
 import './scss/index.scss';
 
 

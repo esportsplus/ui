@@ -1,5 +1,6 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/flex';
+@use 'css-utilities/hidden';
 @use 'variables';
 
 .capslock {
@@ -46,7 +47,11 @@
     }
 
     &-live {
-        @extend %hidden-visually;
+        @extend %flex-vertical, %hidden-visually;
+    }
+
+    &-text {
+        @extend %flex-vertical;
     }
 
     @media (prefers-reduced-motion: reduce) {

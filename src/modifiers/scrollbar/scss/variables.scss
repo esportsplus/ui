@@ -1,0 +1,45 @@
+@use '/tokens';
+
+// Scoped descendants inherit defaults and root overrides, even when they also carry the base utility.
+.--scrollbar:not(:where(.--scrollbar-scope *)),
+.--scrollbar-scope {
+    // Share of the hover growth on the window-edge side: 0 hugs the edge, 0.5 grows both ways.
+    --scrollbar-align: 0.5;
+    --scrollbar-behavior: smooth;
+    --scrollbar-color-default: var(--surface-border-default);
+    --scrollbar-color-hover: var(--surface-border-hover);
+    --scrollbar-color-pressed: var(--surface-border-pressed);
+    // Gap between the thumb and the window edge, kept when the thumb grows.
+    --scrollbar-offset: 2px;
+    --scrollbar-overscroll: contain;
+    --scrollbar-rail-color: transparent;
+    --scrollbar-size: 4px;
+    // Keeps the thumb clear of the track's ends.
+    --scrollbar-track-inset: 4px;
+    // Fallback for browsers that can't size the bar through --scrollbar-size.
+    --scrollbar-width: thin;
+}
+
+.--scrollbar {
+    @include tokens.state-utility('scrollbar-color', tokens.$colors);
+
+    &-auto {
+        // An `auto` size can't feed the proportional radius.
+        --scrollbar-border-radius: 3px;
+        --scrollbar-offset: 0px;
+        --scrollbar-size: auto;
+        --scrollbar-width: auto;
+    }
+
+    &-blur {
+        --scroll-blur: 4px;
+        // Move the painted edges over scrollport padding without changing the sticky constraints or layout.
+        --scroll-blur-offset-end: 0px;
+        --scroll-blur-offset-start: 0px;
+        --scroll-blur-size: 3lh;
+    }
+
+    &-fade {
+        --scroll-fade-size: 2lh;
+    }
+}

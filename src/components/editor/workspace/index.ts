@@ -22,6 +22,7 @@ import { mac } from '~/shared/platform';
 import { observe } from '~/shared/resize';
 import codeEditor, { type CodeEditorAttributes } from '../code/editor';
 import type { Controller as EditorController, Options as EditorOptions } from '../code/view';
+import { label as chordLabel, declare, merge, sequence, type Keybindings } from './keybindings';
 import {
     dirty,
     EditorWorkspaceModel,
@@ -32,6 +33,11 @@ import {
     type WorkspaceTab,
     type WorkspaceTarget
 } from './model';
+import navigate from './navigate';
+import hosted from './session';
+import shortcuts, { OPEN, PALETTE } from './shortcuts';
+import statusbar from './statusbar';
+import tabStrip from './strip';
 import left from '@esportsplus/ui/svg/arrow-left.svg';
 import right from '@esportsplus/ui/svg/arrow-right.svg';
 import collapse from '@esportsplus/ui/svg/chevrons-up-down.svg';
@@ -51,6 +57,8 @@ type CodeEditorWorkspaceAttributes = Attributes & {
     addons?: (context: WorkspaceEditorContext) => void | VoidFunction;
     controller?: (controller: CodeEditorWorkspaceController) => void;
     cwd?: string;
+    // The host's own marks, like git status and problems, which the explorer shows and next/previous step between.
+    decorations?: FileTreeDecorations | FileTreeDecorations[];
     // The editor for a tab, such as 'editor.markdown', or undefined for the code editor. A mounted editor stays
     // for the next tab that uses the same one, when its controller can 'setDocument'.
     editor?: (tab: WorkspaceTab) => WorkspaceEditor | undefined;
@@ -67,7 +75,10 @@ type CodeEditorWorkspaceController = {
     dispose(): void;
     readonly editor: WorkspaceEditorController | undefined;
     focus(): void;
+    keybindings(): void;
     readonly model: EditorWorkspaceModel;
+    // The next or previous change or problem, in the shown file and then the next file that has one.
+    navigate(kind: 'change' | 'problem', backward?: boolean): Promise<boolean>;
     open(path: string, line?: number, column?: number): ReturnType<EditorWorkspaceModel['open']>;
     quickOpen(query?: string): void;
     refresh(): Promise<void>;
@@ -128,7 +139,7 @@ type WorkspaceEditorContext = {
 
 // Shared by the code and markdown controllers; narrow with 'isWorkspaceCodeEditor' for code-only addons. Without
 // 'setDocument', every tab switch mounts the editor again.
-type WorkspaceEditorController = Pick<EditorController, 'dispose' | 'document' | 'focus' | 'host' | 'scroller' | 'select' | 'textarea'> &
+type WorkspaceEditorController = Pick<EditorController, 'dispose' | 'document' | 'focus' | 'host' | 'scroller' | 'select'> &
     Partial<Pick<EditorController, 'setDocument'>>;
 
 
@@ -220,6 +231,7 @@ const workspace = ({
     addons,
     controller: receive,
     cwd = '',
+    decorations: provided,
     editor: editorFor,
     editorOptions,
     host,
@@ -234,6 +246,25 @@ const workspace = ({
     let actions: MenuController | undefined,
         active = signal<WorkspaceTab | undefined>(undefined),
         activeId = signal(0),
+        bindings = signal<Keybindings>({}),
+        // The code editor keymap has no chord sequences, so the workspace runs Mod+K Mod+S itself.
+        chords = sequence({
+            // Focus inside only: the page's own Mod+K, like site search, still answers under a resting pointer.
+            accept: (event) => !confirmation && !!container?.contains(event.target as Node | null),
+            actions: { [OPEN[1]]: () => openKeybindings() },
+            apple: mac(),
+            onpending: (pending) => {
+                let text = `${chordLabel(OPEN[0], mac())} was pressed; waiting for the next key…`;
+
+                if (pending) {
+                    model.status(text);
+                }
+                else if (model.state.status === text) {
+                    model.status('');
+                }
+            },
+            prefix: OPEN[0]
+        }),
         confirmation: Confirmation | undefined,
         container: HTMLElement | undefined,
         // Each open tab's path and dirty state as last written to the tree's decorations.
@@ -247,6 +278,7 @@ const workspace = ({
         focusing = false,
         hovered = false,
         id = `code-workspace-${++uid}`,
+        keyboard = reactive({ active: false }),
         model = supplied ?? new EditorWorkspaceModel(host!, cwd),
         mount: Mount | undefined,
         palette = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab }),
@@ -258,6 +290,18 @@ const workspace = ({
         // Runs once the open modal has closed and returned focus, to move it where the user went next.
         settle: VoidFunction | undefined,
         shown = signal<Mount | undefined>(undefined),
+        statusBar = statusbar(model, () => navigation.go('problem')),
+        strip = tabStrip({
+            isFile: (path) => treeStore.get(path)?.type === 'file',
+            model,
+            remount,
+            reveal: (path) => {
+                peek(true, true);
+                treeState.selected = '';
+                flush();
+                treeState.selected = path;
+            }
+        }),
         tabs = signal<readonly WorkspaceTab[]>([]),
         tabsKey = '',
         target = signal<Target | undefined>(undefined),
@@ -286,6 +330,14 @@ const workspace = ({
             tabs: false,
             whitespace: false,
             wrap: false
+        });
+
+    let hosting = hosted(model, () => (mount?.controller ? { controller: mount.controller, tab: mount.tab } : undefined)),
+        navigation = navigate({
+            bindings: () => (mount ? settings(mount.tab, mount.tab.path).keybindings : model.state.preferences.keybindings),
+            hosting,
+            model,
+            tree: () => tree
         });
 
     function ask(next: WorkspaceConfirmation) {
@@ -324,6 +376,7 @@ const workspace = ({
         let controller = current.controller;
 
         detach(current);
+        statusBar.attach(controller);
         write(current.path, current.tab.path);
 
         if (!addons || !controller) {
@@ -366,7 +419,7 @@ const workspace = ({
         }
 
         for (let i = 0, n = list.length; i < n; i++) {
-            key += `${list[i].id}:${list[i].path}\n`;
+            key += `${list[i].id}:${list[i].path}:${list[i].pinned}:${list[i].preview}\n`;
         }
 
         if (key !== tabsKey) {
@@ -376,6 +429,7 @@ const workspace = ({
 
         write(active, current);
         write(activeId, current?.id ?? 0);
+        write(bindings, state.preferences.keybindings);
         show(current);
 
         view.busy = state.busy > 0;
@@ -407,7 +461,7 @@ const workspace = ({
             view.ready = false;
         }
 
-        let path = current?.path ?? '';
+        let path = current && !current.compare ? current.path : '';
 
         if (view.path !== path) {
             view.path = path;
@@ -424,6 +478,11 @@ const workspace = ({
     }
 
     function choose(entry: Command) {
+        if (entry.group === PALETTE.group && entry.id === PALETTE.id) {
+            settle = openKeybindings;
+            return;
+        }
+
         let opened = model.open(entry.id);
 
         settle = () => {
@@ -441,7 +500,11 @@ const workspace = ({
                 });
 
             bridge();
+            // A page-wide palette on Mod+K, like the site search, leaves the chord to a focused element that declares it.
+            element.setAttribute('aria-keyshortcuts', declare(element.getAttribute('aria-keyshortcuts'), OPEN[0]));
             element.ownerDocument.addEventListener('keydown', keydown, { signal: listening.signal });
+            // Capture, so the second chord reaches neither the editor nor the workspace's own Mod+S.
+            element.ownerDocument.addEventListener('keydown', chords.keydown, { capture: true, signal: listening.signal });
             // A closing modal hands focus back to whatever had it before, so ours moves only once it has closed;
             // 'close' doesn't bubble, but capture still passes through the workspace.
             element.addEventListener('close', () => {
@@ -453,8 +516,12 @@ const workspace = ({
             model.setConfirmation(ask);
 
             onCleanup(model.subscribe(bridge));
+            onCleanup(hosting.connect(element));
+            onCleanup(navigation.connect(element));
+            onCleanup(statusBar.connect(element));
             onCleanup(() => {
                 listening.abort();
+                chords.cancel();
                 unobserve();
                 confirmation?.resolve('cancel');
                 model.setConfirmation(undefined);
@@ -472,7 +539,7 @@ const workspace = ({
             effect(() => {
                 let tab = read(active);
 
-                if (!tab) {
+                if (!tab || tab.compare) {
                     view.position = '';
                     return;
                 }
@@ -498,7 +565,7 @@ const workspace = ({
                 if (path && treeStore.get(path)?.type === 'file') {
                     untrack(() => {
                         if (path !== model.state.active?.path) {
-                            void model.open(path);
+                            void model.open(path, undefined, undefined, true);
                         }
                     });
                 }
@@ -521,7 +588,7 @@ const workspace = ({
                 }
             });
 
-            void model.start();
+            void hosting.restore();
 
             return dispose;
         });
@@ -683,6 +750,11 @@ const workspace = ({
         }
     }
 
+    function openKeybindings() {
+        palette.active = false;
+        keyboard.active = true;
+    }
+
     function pane() {
         let next = read(shown);
 
@@ -781,7 +853,9 @@ const workspace = ({
                     <div class='command-group-label' id='${group.id}'>${group.label}</div>
                     ${group.items.map((item) => html`
                         <div class='command-option' ${item.attributes}>
-                            ${fileTreeIcon({ name: name(item.id), type: 'file' }, false)}
+                            ${item.command?.icon
+                                ? icon({ 'aria-hidden': 'true', class: 'code-workspace-command-icon' }, item.command.icon)
+                                : fileTreeIcon({ name: name(item.id), type: 'file' }, false)}
                             ${item.content}
                         </div>
                     `)}
@@ -795,9 +869,21 @@ const workspace = ({
         let element = current.controller!.scroller;
 
         current.tab.scroll = { left: element.scrollLeft, top: element.scrollTop };
+        hosting.remember(current.tab, current.controller!);
+    }
+
+    // A merge starting or ending on the shown tab swaps what the pane shows for it.
+    function remount() {
+        if (mount) {
+            unmount(mount);
+        }
+
+        show(model.state.active);
     }
 
     function restore(current: Mount) {
+        hosting.shown(current.tab, current.controller!);
+
         let element = current.controller!.scroller,
             { left, top } = current.tab.scroll,
             tab = current.tab;
@@ -858,11 +944,19 @@ const workspace = ({
     }
 
     function settings(tab: WorkspaceTab, path: string): EditorOptions {
+        let options = typeof editorOptions === 'function' ? editorOptions(tab) : editorOptions;
+
         return {
             fold: true,
             minimap: true,
-            ...(typeof editorOptions === 'function' ? editorOptions(tab) : editorOptions),
+            onMerge: () => {
+                void strip.merge(tab);
+            },
+            ...options,
+            ...statusBar.options(tab),
+            ...(model.host.baseline ? { baseline: hosting.baseline(path) } : {}),
             fileName: path,
+            keybindings: merge(options?.keybindings, read(bindings)),
             label: path,
             whitespace: view.whitespace,
             wrap: view.wrap
@@ -875,7 +969,7 @@ const workspace = ({
             return;
         }
 
-        let editor = tab && (editorFor?.(tab) ?? codeEditor);
+        let editor = tab && (strip.editor(tab) ?? editorFor?.(tab) ?? codeEditor);
 
         if (tab && mount?.controller?.setDocument && mount.editor === editor) {
             retarget(mount, tab);
@@ -892,7 +986,7 @@ const workspace = ({
 
     function tab(entry: WorkspaceTab) {
         let chosen = () => signal.selector(activeId, entry.id),
-            file = name(entry.path);
+            file = strip.label(entry);
 
         return html`
             <div
@@ -900,7 +994,7 @@ const workspace = ({
                 class='button code-workspace-tab'
                 id='${id}-tab-${entry.id}'
                 role='tab'
-                title='${entry.path}'
+                title='${strip.title(entry)}'
                 ${{
                     'aria-selected': () => (chosen() ? 'true' : 'false'),
                     class: () => chosen() && '--active',
@@ -949,9 +1043,11 @@ const workspace = ({
                     },
                     tabindex: () => (chosen() ? 0 : -1)
                 }}
+                ${strip.attributes(entry)}
             >
                 ${fileTreeIcon({ name: file, type: 'file' }, false)}
                 <span class='code-workspace-tab-name'>${file}</span>
+                ${strip.pin(entry)}
                 ${() => read(flag(entry)) && html`<span aria-label='Unsaved changes' class='code-workspace-tab-dirty' role='img'></span>`}
                 <button
                     aria-label='Close ${file}'
@@ -989,6 +1085,7 @@ const workspace = ({
 
         if (mount === current) {
             mount = undefined;
+            statusBar.attach(undefined);
         }
 
         if (controller?.host.isConnected) {
@@ -1004,13 +1101,16 @@ const workspace = ({
             delete: (paths = selected()) => model.delete(paths),
             dispose: () => {
                 release?.();
+                hosting.dispose();
                 model.dispose();
             },
             get editor() {
                 return mount?.controller;
             },
             focus: focusEditor,
+            keybindings: openKeybindings,
             model,
+            navigate: (kind, backward) => navigation.go(kind, backward),
             open: (path, line, column) => model.open(path, line, column),
             quickOpen,
             refresh: () => model.refresh(),
@@ -1048,6 +1148,7 @@ const workspace = ({
                     void model.copyPath(paths()[0]);
                 }
             },
+            ...strip.items(() => paths()),
             ...(model.host.actions ?? []).map((action): Item => ({
                 danger: action.danger,
                 hidden: () => !paths().length || (!!action.visible && !action.visible(paths())),
@@ -1144,17 +1245,18 @@ const workspace = ({
                         })}
                     </div>
                     <div class='code-workspace-tree'>
-                        ${fileTree({
+                        ${() => hosting.ready() && untrack(() => fileTree({
                             class: 'code-workspace-files',
                             compact: true,
                             controller: (value) => {
                                 tree = value;
                                 value.search(view.search);
                             },
-                            decorations,
+                            decorations: [hosting.marks, ...[provided ?? []].flat(), decorations],
                             editor: treeEditor,
                             elements: treeStore,
                             empty: () => html`<div class='code-workspace-notice'>No files in this workspace</div>`,
+                            export: hosting.export,
                             find: 'filter',
                             menu: (elements, position) => {
                                 if (!elements.length || !actions) {
@@ -1167,13 +1269,14 @@ const workspace = ({
                                 // The tree claims the right click; the context menu opens at the point it reports.
                                 actions.open(position);
                             },
-                            open: (element) => {
-                                void model.open(element.id);
+                            open: (element, open) => {
+                                void model.open(element.id, undefined, undefined, open.mode === 'preview');
                             },
                             operations: {
                                 delete: (elements) => {
                                     void model.delete(elements.map((element) => element.id));
-                                }
+                                },
+                                import: hosting.import
                             },
                             preview: 'immediate',
                             rename: async (element, value) => {
@@ -1186,9 +1289,10 @@ const workspace = ({
                             searched: (query) => {
                                 view.search = query;
                             },
+                            snapshot: hosting.explorer,
                             state: treeState,
                             typing: 'typeahead'
-                        })}
+                        }))}
                         ${() => {
                             if (view.error) {
                                 return html`
@@ -1228,14 +1332,14 @@ const workspace = ({
                 <div class='code-workspace-bar'>
                     ${crumbs}
                     <div class='code-workspace-actions'>
-                        ${control({
+                        ${statusBar.save(() => control({
                             disabled: () => !view.tabs || view.busy,
                             label: label('Save file', ['Mod', 'S']),
                             onclick: () => {
                                 void model.save();
                             },
                             sprite: save
-                        })}
+                        }))}
                         ${control({
                             active: () => view.wrap,
                             label: () => (view.wrap ? 'Disable wrap' : 'Wrap long lines'),
@@ -1270,6 +1374,7 @@ const workspace = ({
             <footer class='code-workspace-status'>
                 <span class='code-workspace-status-path'>${() => view.cwd}</span>
                 <span class='code-workspace-status-position'>${() => view.position}</span>
+                ${statusBar.items}
                 <span
                     aria-live='polite'
                     class='code-workspace-status-message'
@@ -1279,19 +1384,31 @@ const workspace = ({
                     ${() => view.status}
                 </span>
             </footer>
-            ${tooltip.context(
-                {
-                    class: 'code-workspace-menu',
-                    controller: (value: MenuController) => {
-                        actions = value;
+            <div
+                class='code-workspace-layer'
+                popover='manual'
+                ${{
+                    onconnect: (element: HTMLElement) => {
+                        element.showPopover();
+                    }
+                }}
+            >
+                ${tooltip.context(
+                    {
+                        class: 'code-workspace-menu',
+                        controller: (value: MenuController) => {
+                            actions = value;
+                        },
+                        items,
+                        [tooltip.context.panel]: { 'aria-label': 'File actions', class: 'code-workspace-menu-panel' }
                     },
-                    items,
-                    [tooltip.context.panel]: { 'aria-label': 'File actions', class: 'code-workspace-menu-panel' }
-                },
-                ''
-            )}
+                    ''
+                )}
+                ${statusBar.menu}
+                ${strip.menu()}
+            </div>
             ${command({
-                commands: () => read(files).map((path): Command => ({ group: 'Files', id: path, label: path })),
+                commands: () => [PALETTE, ...read(files).map((path): Command => ({ group: 'Files', id: path, label: path }))],
                 hotkey: [],
                 label: 'Go to file',
                 limit: 50,
@@ -1302,6 +1419,13 @@ const workspace = ({
                 state: palette,
                 trigger: false,
                 [command.dialog]: { 'aria-label': 'Go to file' }
+            })}
+            ${shortcuts({
+                apple: mac(),
+                id,
+                keybindings: () => read(bindings),
+                onchange: (next) => model.setPreferences({ keybindings: next }),
+                state: keyboard
             })}
             ${overlay(
                 {
@@ -1347,11 +1471,14 @@ export type {
 };
 export type {
     WorkspaceAction,
+    WorkspaceCompare,
     WorkspaceConfirmation,
     WorkspaceDecision,
     WorkspaceEntry,
     WorkspaceHost,
     WorkspacePreferences,
+    WorkspaceSession,
+    WorkspaceSessionTab,
     WorkspaceTab,
     WorkspaceTarget
 } from './model';

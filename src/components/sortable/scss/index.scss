@@ -1,4 +1,7 @@
-@use '/shared';
+@use 'css-utilities/drag';
+@use 'css-utilities/layer';
+@use 'css-utilities/reset';
+@use 'css-utilities/surface';
 @use 'variables';
 
 // Typed, so the drop can transition them; not inherited, so a write per frame restyles the copy alone.
@@ -55,10 +58,10 @@
     // The copy following the pointer, a popover in the top layer: fixed at the box the item was picked up from,
     // then moved by the pointer's offset and the swing, which JS writes every frame.
     &-drag {
-        @extend %reset-popover;
+        @extend %reset-popover, %surface-raised-level;
         animation: var(--drag-animation);
         border-radius: var(--sortable-radius);
-        box-shadow: var(--drag-box-shadow);
+        box-shadow: var(--surface-shadow-default);
         box-sizing: border-box;
         height: var(--sortable-height);
         left: var(--sortable-left);

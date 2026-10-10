@@ -44,7 +44,7 @@
     --key-duration: 62ms;
     --key-jitter-duration: 64ms;
     --select-duration: 220ms;
-    --selection-color: oklch(from var(--color-text-500) l c h / 0.15);
+    --selection-color: oklch(from var(--color-primary-500) l c h / 0.15);
     --selection-radius: 3px;
 
     // Words land whole and still fade in and get selected, without the blur or the sweep.

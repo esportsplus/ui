@@ -1,5 +1,7 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/reset';
+@use 'css-utilities/surface';
+@use 'css-utilities/text';
 @use 'variables';
 
 // Chained through '.card' so the base transition and padding, emitted after this file, can't override it.
@@ -15,12 +17,7 @@
     outline: none;
     text-align: left;
     touch-action: manipulation;
-    transition: scale 0.15s ease-out;
     user-select: none;
-
-    @include tokens.state(pressed) {
-        scale: var(--pressed-scale);
-    }
 
     &:focus-visible {
         outline: 2px solid var(--focus-ring-color);
@@ -42,10 +39,6 @@
         height: var(--size);
         margin: -8px -8px 0 0;
         width: var(--size);
-
-        @include tokens.state(pressed) {
-            scale: 0.96;
-        }
 
         // Grows the hit area to 44px around the 32px circle.
         &::before {
@@ -107,8 +100,9 @@
     // transition captures the new state; ':has()' on the dialog would restyle the whole document on every DOM change.
     // Chained through '.card' to outrank the card's own states, its pressed scale among them.
     &-item.--active > .card.card--expand {
-        --background: var(--slot-background);
-        --box-shadow: inset 0 0 0 var(--border-width-400) var(--slot-border-color);
+        @extend %surface-sunken-level;
+        --background-default: var(--surface-background-default);
+        --box-shadow-default: inset 0 0 0 var(--border-width-400) var(--slot-border-color);
         cursor: default;
         scale: 1;
 
@@ -215,7 +209,7 @@
 // The snapshots can't carry the shadow through a clip, so the box wears its own.
 ::view-transition-group(card-expand) {
     border-radius: variables.$expand-border-radius;
-    box-shadow: variables.$expand-box-shadow;
+    box-shadow: variables.$expand-transition-box-shadow;
     overflow: clip;
 }
 

@@ -1,5 +1,6 @@
 @use 'sass:list';
 @use 'sass:math';
+@use 'css-utilities/surface';
 @use '../../shared/scss/form';
 
 
@@ -37,18 +38,15 @@
 }
 
 .range-surface {
-    --surface-background: color-mix(in srgb, var(--color-text-400) 8%, transparent);
-    --surface-fill: var(--color-white-400);
-    --surface-fill-shadow: var(--box-shadow-200);
     --surface-height: 32px;
     --surface-radius: var(--border-radius-400);
-    --surface-thumb: 16px;
+    --surface-thumb: var(--size-400);
     --surface-travel: calc(100% - var(--surface-thumb));
     display: grid;
     gap: var(--size-200);
 
     &--inline {
-        --surface-fill: color-mix(in srgb, var(--color-text-400) 20%, var(--color-white-400));
+        --surface-fill: color-mix(in srgb, var(--color-primary-400) 20%, var(--surface-background-default));
         --surface-fill-shadow: none;
         --surface-height: 40px;
         --surface-radius: var(--border-radius-500);
@@ -56,15 +54,16 @@
     }
 
     &-control {
-        background: var(--surface-background);
+        @extend %surface-sunken-level;
+        background: var(--surface-background-default);
         border-radius: var(--surface-radius);
         height: var(--surface-height);
         isolation: isolate;
         position: relative;
 
         &--ticks {
-            --tick-major: color-mix(in srgb, var(--color-text-400) 40%, transparent);
-            --tick-minor: color-mix(in srgb, var(--color-text-400) 20%, transparent);
+            --tick-major: color-mix(in srgb, var(--color-primary-400) 40%, transparent);
+            --tick-minor: color-mix(in srgb, var(--color-primary-400) 20%, transparent);
 
             &::before {
                 background: range-ticks(10, var(--tick-major), 10px);
@@ -82,9 +81,10 @@
     }
 
     &-fill {
-        background: var(--surface-fill);
+        @extend %surface-raised-level;
+        background: var(--surface-fill, var(--surface-background-default));
         border-radius: inherit;
-        box-shadow: var(--surface-fill-shadow);
+        box-shadow: var(--surface-fill-shadow, var(--surface-shadow-default));
         inset: 0 auto 0 0;
         pointer-events: none;
         position: absolute;
@@ -92,7 +92,7 @@
     }
 
     &-handle {
-        background: var(--color-text-400);
+        background: var(--color-primary-400);
         border-radius: var(--border-radius-200);
         height: 40%;
         left: calc(var(--surface-thumb) / 2 + var(--surface-travel) * var(--fraction));

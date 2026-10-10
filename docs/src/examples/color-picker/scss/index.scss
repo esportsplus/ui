@@ -6,18 +6,16 @@
     width: min(320px, 100%);
 
     &-card {
-        --background-default: var(--color-white-300);
         --border-radius: 20px;
-        --box-shadow: var(--box-shadow-300);
         --padding-horizontal: 12px;
         --padding-vertical: 12px;
         --width: min(320px, 100%);
     }
 
     &-chip {
-        background: linear-gradient(var(--chip), var(--chip)), repeating-conic-gradient(var(--color-border-300) 0 25%, var(--color-white-300) 0 50%) 0 0 / 8px 8px;
+        background: linear-gradient(var(--chip), var(--chip)), repeating-conic-gradient(var(--surface-secondary-default) 0 25%, var(--color-white-300) 0 50%) 0 0 / 8px 8px;
         border-radius: var(--border-radius-300);
-        box-shadow: inset 0 0 0 1px oklch(from var(--color-black-500) l c h / 0.1);
+        box-shadow: inset 0 0 0 1px var(--surface-border-default);
         height: var(--size-500);
         width: var(--size-500);
     }

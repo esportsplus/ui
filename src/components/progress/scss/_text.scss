@@ -1,4 +1,7 @@
-@use '/shared';
+@use 'css-utilities/absolute';
+@use 'css-utilities/hidden';
+@use 'css-utilities/icon';
+
 
 // Every part is exactly one line tall, so centring lines them up; baseline alignment breaks on the clipped digit
 // columns.

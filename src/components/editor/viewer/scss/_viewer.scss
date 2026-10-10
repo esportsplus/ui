@@ -1,0 +1,302 @@
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
+
+
+.code-viewer {
+    background: var(--background);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    color: var(--color);
+    display: flex;
+    flex-direction: column;
+    max-height: var(--max-height);
+    min-height: var(--min-height);
+    min-width: 0;
+    overflow: hidden;
+    width: 100%;
+
+
+    &-body {
+        display: flex;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    &-code {
+        flex: 0 1 auto;
+        font: inherit;
+        min-width: 0;
+        overflow-wrap: var(--overflow-wrap);
+        padding-inline-start: var(--code-padding);
+        white-space: var(--white-space);
+
+        // The library root sets every element's line height; tokens take the line's.
+        * {
+            line-height: inherit;
+        }
+    }
+
+    &-copy {
+        margin-inline-start: auto;
+    }
+
+    &-filename {
+        font-weight: 600;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &-fold {
+        @extend %color-state;
+        --color-default: currentColor;
+        --color-hover: var(--hover-color);
+        --color-pressed: var(--color-hover);
+        align-items: center;
+        background: transparent;
+        border: 0;
+        color: var(--color);
+        cursor: pointer;
+        display: flex;
+        flex: none;
+        height: var(--line-height);
+        justify-content: center;
+        padding: 0;
+        width: var(--fold-width);
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
+        }
+
+        &[aria-expanded='false'] {
+            --fold-rotate: -90deg;
+        }
+
+        &-icon.icon {
+            --size: var(--fold-icon-size);
+            rotate: var(--fold-rotate);
+            transition: rotate var(--fold-duration) var(--easing-spring);
+        }
+    }
+
+    // Sticks while the code scrolls sideways, opaque so the code passes beneath it.
+    &-gutter {
+        background: var(--background);
+        border-inline-end: var(--gutter-border-width) solid var(--gutter-border-color);
+        color: var(--gutter-color);
+        display: flex;
+        flex: none;
+        left: 0;
+        position: sticky;
+        user-select: none;
+        z-index: 1;
+    }
+
+    &-header {
+        @extend %surface-sunken-level;
+        align-items: center;
+        background: var(--surface-background-default);
+        border-bottom: var(--border-width) solid var(--border-color);
+        display: flex;
+        flex: none;
+        font-size: var(--label-font-size);
+        gap: var(--bar-gap);
+        padding: var(--bar-padding);
+    }
+
+    // The first and last lines pad the block inside their gutter and code, so the separator runs its full height; the
+    // placeholder's margin keeps it centred on the text.
+    &-line {
+        display: flex;
+        line-height: var(--line-height);
+        min-height: var(--line-height);
+        padding-inline-end: var(--code-padding);
+
+        &:first-child {
+            > .code-viewer-code,
+            > .code-viewer-gutter {
+                padding-top: var(--padding);
+            }
+
+            > .code-viewer-placeholder {
+                margin-top: var(--padding);
+            }
+        }
+
+        &:last-child {
+            > .code-viewer-code,
+            > .code-viewer-gutter {
+                padding-bottom: var(--padding);
+            }
+
+            > .code-viewer-placeholder {
+                margin-bottom: var(--padding);
+            }
+        }
+
+        &[hidden] {
+            display: none;
+        }
+    }
+
+    // Positioned, so the minimap reads each line's offset from the top of the code.
+    &-lines {
+        box-sizing: border-box;
+        min-width: 100%;
+        position: relative;
+        width: var(--line-width);
+    }
+
+    &-minimap {
+        background: var(--background);
+        border-inline-start: var(--border-width) solid var(--border-color);
+        cursor: pointer;
+        flex: none;
+        opacity: var(--minimap-opacity);
+        overflow: hidden;
+        position: relative;
+        touch-action: none;
+        width: var(--minimap-width);
+
+        &-canvas {
+            display: block;
+            height: 100%;
+            width: 100%;
+        }
+
+        &-slider {
+            background: var(--minimap-slider-background);
+            border: var(--border-width) solid var(--border-color);
+            box-sizing: border-box;
+            height: var(--slider-height);
+            left: 0;
+            pointer-events: none;
+            position: absolute;
+            top: var(--slider-top);
+            width: 100%;
+        }
+    }
+
+    // '--digits' is set per render on the lines, so the width resolves here rather than on the root.
+    &-number {
+        font-variant-numeric: tabular-nums;
+        text-align: end;
+        width: calc(var(--digits) * 1ch + var(--number-padding));
+    }
+
+    &-placeholder {
+        @extend %color-state;
+        --color-default: var(--placeholder-color);
+        --color-hover: var(--hover-color);
+        --color-pressed: var(--color-hover);
+        align-self: center;
+        background: var(--placeholder-background);
+        border: 0;
+        border-radius: var(--border-radius-100);
+        color: var(--color);
+        cursor: pointer;
+        font: inherit;
+        line-height: 1.2;
+        margin-inline-start: 1ch;
+        padding: 0 var(--size-100);
+        user-select: none;
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+        }
+
+        &[hidden] {
+            display: none;
+        }
+    }
+
+    &-scroller {
+        flex: 1 1 auto;
+        font-family: var(--font-family);
+        font-size: var(--font-size);
+        min-height: 0;
+        min-width: 0;
+        overflow: auto;
+        tab-size: var(--tab-size);
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
+        }
+    }
+
+    &-space {
+        background: radial-gradient(circle at center, var(--whitespace-color) 1px, transparent 1.4px);
+    }
+
+    // The arrow is drawn, so selection and copy keep the tab itself.
+    &-tab {
+        position: relative;
+
+        &::before {
+            color: var(--whitespace-color);
+            content: '→';
+            left: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+    }
+
+    &-token {
+        &--color {
+            color: var(--literal-color);
+        }
+
+        &--comment {
+            color: var(--comment-color);
+            font-style: italic;
+        }
+
+        &--function {
+            color: var(--function-color);
+        }
+
+        &--keyword {
+            color: var(--keyword-color);
+        }
+
+        &--number {
+            color: var(--number-color);
+        }
+
+        &--operator {
+            color: var(--operator-color);
+        }
+
+        &--property {
+            color: var(--property-color);
+        }
+
+        &--regexp {
+            color: var(--regexp-color);
+        }
+
+        &--selector {
+            color: var(--selector-color);
+        }
+
+        &--string {
+            color: var(--string-color);
+        }
+
+        &--tag {
+            color: var(--tag-color);
+        }
+
+        &--type {
+            color: var(--type-color);
+        }
+
+        &--variable {
+            color: var(--variable-color);
+        }
+    }
+}

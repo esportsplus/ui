@@ -1,5 +1,10 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/absolute';
+@use 'css-utilities/background';
+@use 'css-utilities/drag';
+@use 'css-utilities/reset';
+@use 'css-utilities/surface';
+@use 'css-utilities/text';
 @use 'variables';
 
 // The folder's bottom edge mid-motion, 0 to --motion-rows rows down, read from the element's own progress.
@@ -76,7 +81,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     }
 
     &-chevron {
-        transition: rotate var(--chevron-duration) ease-out;
+        transition: rotate var(--chevron-duration) var(--easing-spring);
 
         // Mirrored to point left, so opening turns it the other way to still point down.
         &:dir(rtl) {
@@ -94,10 +99,10 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
     // The drag moves it to the pointer by its 'translate'.
     &-drag {
-        @extend %reset-popover;
-        background: var(--drag-background);
+        @extend %reset-popover, %surface-raised-level;
+        background: var(--surface-background-default);
         border-radius: var(--drag-radius);
-        box-shadow: var(--drag-box-shadow);
+        box-shadow: 0 0 0 var(--border-width-400) var(--surface-secondary-default), var(--surface-shadow-default);
         color: var(--color);
         font-size: var(--font-size);
         gap: var(--item-gap);
@@ -141,19 +146,24 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         z-index: 2;
 
         &-bar {
+            @extend %surface-raised-level;
             align-items: center;
-            background: var(--find-background);
+            background: var(--surface-background-default);
             border: 1px solid var(--find-border-color);
             border-radius: var(--find-radius);
-            box-shadow: var(--find-shadow);
+            box-shadow: var(--surface-shadow-default);
             display: flex;
             gap: var(--find-gap);
             padding: var(--find-padding);
         }
 
         &-button {
+            @extend %background-state;
+            --background-active: inherit;
+            --background-hover: inherit;
+            --background-pressed: var(--background-hover);
             align-items: center;
-            background: none;
+            background: var(--background);
             border: 0;
             border-radius: var(--input-radius);
             color: inherit;
@@ -167,6 +177,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             width: var(--find-button-size);
 
             &:disabled {
+                --background-hover: var(--background-default);
                 cursor: default;
                 opacity: 0.4;
             }
@@ -175,12 +186,9 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
                 outline-width: 1px;
             }
 
-            &:not(:disabled):hover {
-                background: var(--background-hover);
-            }
-
             &[aria-pressed='true'] {
-                background: var(--background-active);
+                --background-default: var(--background-active);
+                --background-hover: var(--background-active);
                 box-shadow: inset 0 0 0 1px var(--input-border-color);
             }
         }
@@ -199,7 +207,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         }
 
         &-input {
-            background: var(--input-background);
+            background: var(--surface-background-default);
             border: 1px solid transparent;
             border-radius: var(--input-radius);
             color: inherit;
@@ -221,8 +229,9 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         }
 
         &-note {
+            @extend %surface-raised-level;
             align-self: flex-end;
-            background: var(--find-background);
+            background: var(--surface-background-default);
             border: 1px solid var(--find-border-color);
             border-block-start: 0;
             border-end-end-radius: var(--find-radius);
@@ -235,7 +244,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     }
 
     &-input {
-        background: var(--input-background);
+        @extend %surface-raised-level;
+        background: var(--surface-background-default);
         border: 1px solid var(--input-border-color);
         border-radius: var(--input-radius);
         color: inherit;
@@ -357,7 +367,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             inset-inline-start: calc(var(--padding) + var(--twistie-size) / 2 - 0.5px - var(--indent));
             opacity: var(--indicator-opacity, 1);
             position: absolute;
-            transition: opacity var(--indicator-duration) ease-out;
+            transition: opacity var(--indicator-duration) var(--easing-spring);
             // Top-level rows have no parent to draw.
             width: calc(min(var(--depth), 1) * 1px);
         }
@@ -430,7 +440,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
         // A folder's rows fade in a beat behind the opening.
         &--reveal {
-            animation: file-tree-reveal var(--reveal-duration) ease-out var(--reveal-delay) backwards;
+            animation: file-tree-reveal var(--reveal-duration) var(--easing-spring) var(--reveal-delay) backwards;
         }
 
         // A square band across the tree's full width, back past the row's depth inset, so a scope's rows join into
@@ -506,7 +516,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         z-index: 1;
 
         &-rows {
-            background: var(--sticky-background);
+            @extend %surface-raised-level;
+            background: var(--surface-background-default);
             box-shadow: var(--sticky-shadow);
 
             &:not(:has(> .file-tree-row)) {
@@ -586,7 +597,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             }
 
             &-layer--close {
-                animation: file-tree-collapse var(--collapse-duration) var(--motion-easing) forwards, file-tree-conceal var(--conceal-duration) ease-out forwards;
+                animation: file-tree-collapse var(--collapse-duration) var(--motion-easing) forwards, file-tree-conceal var(--conceal-duration) var(--easing-spring) forwards;
                 height: $edge;
                 overflow: hidden;
             }
@@ -606,7 +617,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
             // Marked only while opening.
             &--reveal {
-                animation: file-tree-expand var(--expand-duration) var(--motion-easing) forwards, file-tree-reveal var(--reveal-duration) ease-out var(--reveal-delay) backwards;
+                animation: file-tree-expand var(--expand-duration) var(--motion-easing) forwards, file-tree-reveal var(--reveal-duration) var(--easing-spring) var(--reveal-delay) backwards;
                 // Open at the sides, so the guides drawn outside the row still show.
                 clip-path: inset(
                     0

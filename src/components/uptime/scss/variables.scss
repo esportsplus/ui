@@ -18,8 +18,8 @@
     --dot-size: 6px;
     --font-size: var(--font-size-300);
     --service-gap: var(--size-600);
-    --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-    --transition-duration: 0.2s;
+    --timing-function: var(--easing-spring);
+    --transition-duration: var(--duration-fast);
     --width: min(440px, 100%);
 
     &-bar {
@@ -75,10 +75,10 @@
     }
 
     &-service-tooltip.tooltip-message {
-        --background-default: var(--color-grey-400);
+        --background-default: var(--surface-background-default);
         --border-radius: var(--border-radius-400);
         --color: var(--color-text-400);
-        --padding-horizontal: 8px;
+        --padding-horizontal: var(--size-100);
         --padding-vertical: 4px;
     }
 }

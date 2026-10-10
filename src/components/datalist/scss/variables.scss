@@ -2,8 +2,8 @@
     --background: transparent;
     --border-radius: var(--border-radius-700);
     --color: var(--color-text-500);
-    --focus-color: var(--color-border-500);
-    --focus-width: 2px;
+    --focus-color: var(--surface-secondary-pressed);
+    --focus-width: var(--border-width-500);
     --font-size: var(--font-size-400);
     --font-weight: var(--font-weight-500);
     --height: calc(var(--item-height) * 5);
@@ -17,7 +17,7 @@
     --width: 224px;
 
     &-lens {
-        --background: var(--color-border-300);
+        --background: var(--surface-secondary-default);
         --border-radius: var(--border-radius-600);
     }
 

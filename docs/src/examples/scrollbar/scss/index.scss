@@ -1,0 +1,7 @@
+@use 'css-utilities/surface';
+
+
+
+.scrollbar-demo-tile {
+    @extend %surface-sunken;
+}

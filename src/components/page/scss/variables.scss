@@ -9,6 +9,11 @@
         --font-size: var(--font-size-400);
     }
 
+    &-header {
+        --gap-horizontal: var(--size-400);
+        --gap-vertical: var(--size-100);
+    }
+
     &-title {
         --color: var(--color-default);
         --color-default: var(--color-text-500);

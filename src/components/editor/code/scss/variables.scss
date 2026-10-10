@@ -1,16 +1,20 @@
 @use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/border';
+@use 'css-utilities/font/geist/mono';
+@use 'css-utilities/surface';
 
 .code-editor {
-    --active-line-background: oklch(from var(--color-text-500) l c h / 0.04);
-    --background: var(--color-white-300);
-    --bar-background: var(--color-white-400);
+    @extend %background-state, %border-state, %font-geist-mono, %surface-raised-level;
+    --active-line-background: var(--surface-background-hover);
+    --background-default: var(--surface-background-default);
     --bar-control-height: var(--size-700);
     --bar-font-size: var(--font-size-200);
     --bar-gap: var(--size-100);
     --bar-icon-size: var(--size-300);
     --bar-input-width: 160px;
     --bar-padding: var(--size-100);
-    --border-color: var(--color-border-300);
+    --border-color-default: var(--surface-secondary-default);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
     --bracket-background: oklch(from var(--color-yellow-400) l c h / 0.45);
@@ -27,9 +31,9 @@
     --completion-padding: var(--size-200);
     --completion-rows: 8;
     --completion-width: 240px;
-    --conflict-base-background: oklch(from var(--color-text-300) l c h / 0.12);
+    --conflict-base-background: oklch(from var(--color-primary-300) l c h / 0.12);
     --conflict-current-background: oklch(from var(--color-green-400) l c h / 0.16);
-    --conflict-divider-background: oklch(from var(--color-text-300) l c h / 0.2);
+    --conflict-divider-background: oklch(from var(--color-primary-300) l c h / 0.2);
     --conflict-incoming-background: oklch(from var(--color-blue-400) l c h / 0.16);
     --diagnostic-error-color: var(--invalid-color);
     --diagnostic-hint-color: var(--muted-color);
@@ -41,13 +45,12 @@
     --focus-color: var(--color-blue-400);
     --focus-offset: var(--border-width-400);
     --focus-width: var(--border-width-500);
-    --fold-duration: 0.15s;
+    --fold-duration: var(--duration-fast);
     --fold-icon-size: var(--size-100);
     --fold-rotate: 0deg;
     --fold-width: var(--size-400);
-    --font-family: var(--font-family-mono);
     --font-size: var(--font-size-300);
-    --function-color: var(--color-purple-300);
+    --function-color: light-dark(var(--color-purple-300), oklch(from var(--color-purple-300) 0.8 0.13 h));
     --gutter-active-color: var(--color);
     --gutter-added-color: var(--color-green-400);
     --gutter-color: var(--color-text-300);
@@ -61,13 +64,15 @@
     --input-color: transparent;
     --input-cursor: text;
     --invalid-color: var(--color-red-400);
-    --keyword-color: var(--color-purple-400);
+    --keyword-color: light-dark(var(--color-purple-400), oklch(from var(--color-purple-400) 0.75 0.15 h));
     --lens-color: var(--muted-color);
+    // Resolved here, since a lens action's color state redefines --color on it.
+    --lens-color-hover: var(--color);
     --lens-font-size: 0.85em;
     --lens-gap: var(--size-300);
     --line-height: var(--size-600);
     --line-width: max-content;
-    --link-color: var(--color-blue-400);
+    --link-color: light-dark(var(--color-blue-400), oklch(from var(--color-blue-400) 0.74 0.14 h));
     // CSS color literals.
     --literal-color: var(--number-color);
     --match-active-background: oklch(from var(--color-yellow-500) l c h / 0.6);
@@ -76,10 +81,10 @@
     --minimap-display: none;
     --minimap-offset: 0px;
     --minimap-opacity: 0.7;
-    --minimap-slider-background: oklch(from var(--color-text-500) l c h / 0.1);
+    --minimap-slider-background: oklch(from var(--color-primary-500) l c h / 0.1);
     --minimap-width: 80px;
     --muted-color: var(--color-text-300);
-    --number-color: var(--color-blue-400);
+    --number-color: light-dark(var(--color-blue-400), oklch(from var(--color-blue-400) 0.78 0.12 h));
     --number-display: block;
     --number-padding: var(--size-100);
     --number-width: calc(var(--digits) * 1ch + var(--number-padding));
@@ -91,28 +96,27 @@
     --peek-border-color: var(--gutter-modified-color);
     --peek-lines-background: oklch(from var(--color-red-400) l c h / 0.08);
     --peek-max-height: 160px;
-    --placeholder-background: oklch(from var(--color-text-300) l c h / 0.15);
+    --placeholder-background: oklch(from var(--color-primary-300) l c h / 0.15);
     --placeholder-color: var(--color-text-300);
     --popup-border-radius: var(--border-radius-300);
-    --popup-shadow: var(--box-shadow-400);
-    --problems-max-height: 120px;
-    --property-color: var(--color-blue-500);
-    --regexp-color: var(--color-red-500);
-    --ruler-color: var(--color-border-300);
+    --problems-max-height: var(--spacer-400);
+    --property-color: light-dark(var(--color-blue-500), oklch(from var(--color-blue-500) 0.8 0.1 h));
+    --regexp-color: light-dark(var(--color-red-500), oklch(from var(--color-red-500) 0.75 0.14 h));
+    --ruler-color: var(--surface-secondary-default);
     --ruler-width: var(--border-width-400);
     --selection-background: oklch(from var(--color-blue-400) l c h / 0.22);
-    --selector-color: var(--color-purple-500);
-    --sticky-shadow: 0 2px 4px -2px oklch(from var(--color-text-500) l c h / 0.25);
-    --string-color: oklch(from var(--color-green-500) 45% c h);
+    --selector-color: light-dark(var(--color-purple-500), oklch(from var(--color-purple-500) 0.78 0.13 h));
+    --sticky-shadow: 0 2px 4px -2px oklch(from var(--color-shadow) l c h / calc(alpha * 2.8));
+    --string-color: light-dark(oklch(from var(--color-green-500) 45% c h), oklch(from var(--color-green-500) 0.8 0.15 h));
     --swatch-gap: 1px;
     --swatch-size: 0.75em;
-    --tag-color: var(--color-red-400);
-    --type-color: var(--color-blue-300);
+    --tag-color: light-dark(var(--color-red-400), oklch(from var(--color-red-400) 0.72 0.16 h));
+    --type-color: light-dark(var(--color-blue-300), oklch(from var(--color-blue-300) 0.76 0.13 h));
     --unicode-color: var(--color-yellow-500);
     --unicode-style: solid;
     --variable-color: var(--color);
     --white-space: pre;
-    --whitespace-color: oklch(from var(--color-text-300) l c h / 0.6);
+    --whitespace-color: oklch(from var(--color-primary-300) l c h / 0.6);
 
     &--composing {
         --input-color: var(--color);

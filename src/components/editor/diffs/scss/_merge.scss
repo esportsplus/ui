@@ -1,4 +1,6 @@
-@use '/tokens';
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/surface';
+
 
 .diffs-merge {
     background: var(--background);
@@ -24,8 +26,9 @@
     }
 
     &-header {
+        @extend %surface-sunken-level;
         align-items: center;
-        background: var(--bar-background);
+        background: var(--surface-background-default);
         border-bottom: var(--border-width) solid var(--border-color);
         display: flex;
         flex-wrap: wrap;
@@ -46,15 +49,18 @@
             background: transparent;
             border-top-color: var(--border-color);
         }
-    }
 
-    &-lens-note {
-        color: var(--muted-color);
-        font-family: var(--font-family);
-        font-size: var(--label-font-size);
+        &-note {
+            color: var(--muted-color);
+            font-family: var(--font-family);
+            font-size: var(--label-font-size);
+        }
     }
 
     &-line {
+        @extend %box-shadow-state;
+        --box-shadow-active: inset 2px 0 0 var(--active-outline);
+        box-shadow: var(--box-shadow);
         display: grid;
         grid-template-columns: var(--number-width) minmax(0, 1fr);
         line-height: var(--line-height);
@@ -66,10 +72,6 @@
 
         &--conflict {
             background: var(--conflict-background);
-        }
-
-        @include tokens.state(active) {
-            box-shadow: inset 2px 0 0 var(--active-outline);
         }
     }
 
@@ -111,7 +113,8 @@
     }
 
     &-title {
-        background: var(--bar-background);
+        @extend %surface-sunken-level;
+        background: var(--surface-background-default);
         border-bottom: var(--border-width) solid var(--border-color);
         color: var(--muted-color);
         flex: none;

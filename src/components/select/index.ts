@@ -38,6 +38,9 @@ type A = Attributes & {
 
 
 type Option = {
+    // Replaces the whole row (check, label and detail); a '.select-menu-option-label' inside it keeps the open panel's
+    // text aligned with the trigger's, and a '.select-menu-check' still shows on the chosen row.
+    content?: Renderable<unknown>;
     detail?: string;
     label: Renderable<unknown>;
     selected?: Renderable<unknown>;
@@ -453,8 +456,8 @@ function template(
                     class='select-menu-scroller'
                     ${{
                         onconnect: (element: HTMLElement) => {
-                            parts.label = element.querySelector<HTMLElement>('.select-menu-option-label') ?? undefined;
                             parts.option = element.querySelector<HTMLElement>('.select-menu-option') ?? undefined;
+                            parts.label = element.querySelector<HTMLElement>('.select-menu-option-label') ?? parts.option;
                             parts.scroller = element;
                         },
                         onscroll: function(this: HTMLElement) {
@@ -493,11 +496,13 @@ function template(
                                     }
                                 }}
                             >
-                                <svg aria-hidden='true' class='select-menu-check'><use href='#${check}' /></svg>
-                                <span class='select-menu-option-label'>
-                                    ${option.label}
-                                </span>
-                                ${option.detail && html`<span class='select-menu-option-detail'>${option.detail}</span>`}
+                                ${option.content ?? html`
+                                    <svg aria-hidden='true' class='select-menu-check'><use href='#${check}' /></svg>
+                                    <span class='select-menu-option-label'>
+                                        ${option.label}
+                                    </span>
+                                    ${option.detail && html`<span class='select-menu-option-detail'>${option.detail}</span>`}
+                                `}
                             </div>
                         `)}
                     </div>

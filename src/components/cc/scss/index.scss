@@ -1,5 +1,10 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/absolute';
+@use 'css-utilities/font/geist/mono';
+@use 'css-utilities/hidden';
+@use 'css-utilities/icon';
+@use 'css-utilities/surface';
+@use 'css-utilities/text';
 @use 'variables';
 
 .cc {
@@ -125,9 +130,9 @@
         color: var(--error-color);
         font-size: 13px;
         transition:
-            filter 200ms cubic-bezier(0.23, 1, 0.32, 1),
-            opacity 200ms cubic-bezier(0.23, 1, 0.32, 1),
-            translate 200ms cubic-bezier(0.23, 1, 0.32, 1);
+            filter var(--duration-fast) var(--easing-spring),
+            opacity var(--duration-fast) var(--easing-spring),
+            translate var(--duration-fast) var(--easing-spring);
 
         @starting-style {
             filter: blur(4px);
@@ -143,18 +148,19 @@
         gap: 4px;
 
         &-value {
-            font-family: var(--font-family-mono);
+            @extend %font-geist-mono;
+            font-family: var(--font-family);
             font-size: 15px;
             font-weight: var(--font-weight-500);
         }
     }
 
     &-face {
-        @extend %absolute-full;
+        @extend %absolute-full, %surface-raised-level;
         backface-visibility: hidden;
         background: var(--card-background);
         border-radius: var(--card-border-radius);
-        box-shadow: var(--card-shadow);
+        box-shadow: var(--surface-shadow-default);
         color: var(--card-color);
         display: flex;
         flex-direction: column;
@@ -189,7 +195,8 @@
         &--cvc,
         &--expiry,
         &--number {
-            font-family: var(--font-family-mono);
+            @extend %font-geist-mono;
+            font-family: var(--font-family);
         }
 
         &--number.input {
@@ -203,7 +210,7 @@
             min-height: 0;
             outline: none;
             padding-block: 0;
-            transition: border-color 150ms ease-out;
+            transition: border-color var(--duration-fast) var(--easing-spring);
 
             &:focus-visible {
                 outline: var(--border-width-500) solid var(--outline-color);
@@ -264,8 +271,9 @@
     }
 
     &-number {
+        @extend %font-geist-mono;
         align-self: flex-start;
-        font-family: var(--font-family-mono);
+        font-family: var(--font-family);
         font-size: var(--card-number-font-size);
         letter-spacing: 0.025em;
         white-space: nowrap;
@@ -333,13 +341,14 @@
         padding: 20px 24px 0;
 
         &-value {
+            @extend %font-geist-mono;
             align-items: center;
             background: var(--card-color);
             border-radius: var(--border-radius-300);
             color: var(--card-background);
             display: flex;
             flex: 1;
-            font-family: var(--font-family-mono);
+            font-family: var(--font-family);
             font-size: 15px;
             font-style: italic;
             height: 40px;
@@ -359,11 +368,6 @@
         border: 0;
         height: var(--field-height);
         outline: none;
-        transition: scale 150ms ease-out;
-
-        &:active {
-            scale: 0.96;
-        }
 
         &:focus-visible {
             outline: var(--border-width-500) solid var(--outline-color);
@@ -415,10 +419,6 @@
 
     .cc-face--front {
         opacity: var(--face-front-opacity, 1);
-    }
-
-    .cc-submit.button:active {
-        scale: 1;
     }
 }
 

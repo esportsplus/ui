@@ -1,3 +1,7 @@
+@use 'css-utilities/background';
+@use 'css-utilities/surface';
+
+
 // Registered so a transition can spring the offset. Not inherited, or every item in the feed would restyle on every frame of
 // the spring; the indicator, glyph, spinner, scroller and feed follow the one interpolated value by declaring
 // '--pull-to-refresh-y: inherit', and so can any element of yours whose parent has it.
@@ -8,7 +12,8 @@
 }
 
 .pull-to-refresh {
-    --background: var(--color-white-300);
+    @extend %background-state, %surface-raised-level;
+    --background-default: var(--surface-background-default);
     --color: var(--color-text-500);
     --fade-duration: 0.15s;
     --fade-timing-function: cubic-bezier(0.23, 1, 0.32, 1);

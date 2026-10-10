@@ -1,9 +1,12 @@
-@use '/shared';
+@use 'css-utilities/hidden';
+@use 'css-utilities/surface';
+
 
 .inline-edit-demo {
-    background: var(--color-white-300);
+    @extend %surface-raised-level;
+    background: var(--surface-background-default);
     border-radius: 24px;
-    box-shadow: var(--box-shadow-200);
+    box-shadow: var(--surface-shadow-default);
     color: var(--color-text-500);
     display: flex;
     flex-direction: column;
@@ -24,8 +27,9 @@
     }
 
     &-avatar {
+        @extend %surface-sunken-level;
         align-items: center;
-        background: var(--color-grey-500);
+        background: var(--surface-background-default);
         border-radius: 50%;
         color: var(--color-text-400);
         display: flex;

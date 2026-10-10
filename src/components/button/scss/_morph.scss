@@ -1,5 +1,6 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/hidden';
+@use 'css-utilities/icon';
 
 // Compound selector so these win over `.button`, whose rules follow this partial.
 .button.button--morph {
@@ -10,14 +11,9 @@
     overflow: hidden;
     touch-action: manipulation;
     transition:
-        background-color 200ms ease-out,
-        color 200ms ease-out,
-        scale 200ms ease-out;
+        background-color var(--duration-fast) var(--easing-spring),
+        color var(--duration-fast) var(--easing-spring);
     user-select: none;
-
-    &:active:not([aria-disabled='true']) {
-        scale: var(--morph-scale-pressed);
-    }
 
     &:focus-visible {
         outline: 2px solid var(--morph-focus-color);
@@ -26,16 +22,6 @@
 
     &[aria-disabled='true'] {
         cursor: default;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        transition:
-            background-color 200ms ease-out,
-            color 200ms ease-out;
-
-        &:active:not([aria-disabled='true']) {
-            scale: 1;
-        }
     }
 }
 
@@ -80,20 +66,20 @@
         transform-origin: center;
     }
 
-    // Leaves in 150ms, before the width has closed on it; arrives in 200ms as it opens.
+    // Leaves before the width has closed on it; arrives as it opens.
     &-text {
         filter: blur(4px);
         grid-area: 1 / 1;
         opacity: 0;
         transition:
-            filter 150ms ease-out,
-            opacity 150ms ease-out;
+            filter var(--duration-fast-exit) var(--easing-spring),
+            opacity var(--duration-fast-exit) var(--easing-spring);
         white-space: nowrap;
 
         @include tokens.state(active) {
             filter: blur(0px);
             opacity: 1;
-            transition-duration: 200ms;
+            transition-duration: var(--duration-fast);
         }
     }
 }

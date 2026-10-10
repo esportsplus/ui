@@ -1,4 +1,6 @@
-@use '/shared';
+@use 'css-utilities/absolute';
+@use 'css-utilities/color';
+
 
 .input-scrub {
     align-items: center;
@@ -25,8 +27,12 @@
     }
 
     &-label {
+        @extend %color-state;
+        --color-default: var(--label-color);
+        --color-hover: var(--label-color-active);
+        --color-pressed: var(--color-hover);
         align-items: center;
-        color: var(--label-color);
+        color: var(--color);
         cursor: ew-resize;
         display: flex;
         flex-shrink: 0;
@@ -37,10 +43,6 @@
         transition: color var(--transition-duration) var(--transition-timing-function);
         user-select: none;
         width: var(--label-width);
-
-        &:hover {
-            color: var(--label-color-active);
-        }
 
         svg {
             height: 16px;

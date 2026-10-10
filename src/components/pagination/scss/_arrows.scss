@@ -1,0 +1,66 @@
+@use '/tokens';
+@use 'css-utilities/background';
+@use 'variables';
+
+.pagination {
+    // Qualified by the root so it wins over the base row's full width, which is output after this partial.
+    &#{&}--arrows {
+        flex: none;
+        gap: var(--gap);
+        justify-content: flex-start;
+        width: auto;
+    }
+
+    &-arrow {
+        @extend %background-state;
+        --background-default: var(--arrow-background);
+        --background-hover: var(--arrow-background-hover);
+        --background-pressed: var(--arrow-background-pressed);
+        align-items: center;
+        background: var(--background);
+        border: 0;
+        border-radius: var(--arrow-border-radius);
+        color: var(--arrow-color);
+        cursor: pointer;
+        display: inline-flex;
+        flex: none;
+        height: var(--arrow-size);
+        justify-content: center;
+        outline: none;
+        padding: 0;
+        transition: background-color var(--transition-duration) var(--transition-timing-function);
+        width: var(--arrow-size);
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        // Touch leaves no hover fill behind a tap.
+        @media (hover: none) {
+            --background-hover: var(--background-default);
+        }
+
+        @include tokens.state(disabled) {
+            --background-hover: var(--background-default);
+            --background-pressed: var(--background-default);
+            cursor: default;
+            opacity: var(--disabled-opacity);
+        }
+
+        // Qualified by the button so it wins over the icon's own variables regardless of stylesheet order. The arrow
+        // glyphs sit a quarter of their box off centre, toward their tail; pulling that back centres them.
+        & &-icon {
+            --color: currentColor;
+            --size: var(--icon-size);
+        }
+
+        &--next &-icon {
+            margin-right: calc(var(--icon-size) / -4);
+        }
+
+        &--previous &-icon {
+            margin-left: calc(var(--icon-size) / -4);
+        }
+    }
+}

@@ -1,4 +1,8 @@
+import type { Command } from '../code/keymap';
 import { EditorDocument } from '../code/document';
+import { sanitize } from './keybindings';
+import type { FileTreeExport, FileTreeImportEntry } from '../tree';
+import { closable, compareKey, compareTab, order, place } from './tabs';
 
 
 type FileOperation = {
@@ -24,6 +28,9 @@ type WorkspaceAction = {
 
 type WorkspaceChange = { paths?: readonly string[] };
 
+// A read-only diff of two files, as they read when compared; its tab's document stays empty and never saves.
+type WorkspaceCompare = Readonly<{ modified: string; original: string; paths: readonly [string, string] }>;
+
 type WorkspaceConfirmation = {
     dirty: readonly string[];
     kind: 'close' | 'delete' | 'workspace';
@@ -36,9 +43,15 @@ type WorkspaceEntry = Readonly<{ kind: 'directory' | 'file'; path: string }>;
 
 type WorkspaceHost = {
     actions?: readonly WorkspaceAction[];
+    // The text a file's git gutter diffs against, like its HEAD revision; null for none.
+    baseline?: (cwd: string, path: string) => Promise<string | null>;
     confirm?: (request: WorkspaceConfirmation) => WorkspaceDecision | Promise<WorkspaceDecision>;
     copyPath(cwd: string, path: string): void | Promise<void>;
     delete(cwd: string, paths: readonly string[]): Promise<{ operationId: string }>;
+    // What a file dragged out of the explorer leaves on the desktop or in another app; null for nothing.
+    export?: (cwd: string, path: string) => FileTreeExport | null;
+    // Files and folders dropped in from the OS onto 'target', a folder path or '' for the top level.
+    import?: (cwd: string, target: string, entries: readonly FileTreeImportEntry[]) => Promise<void>;
     list(cwd: string): Promise<readonly WorkspaceEntry[]>;
     preferences?: {
         get(): Promise<Partial<WorkspacePreferences>>;
@@ -46,16 +59,41 @@ type WorkspaceHost = {
     };
     read(cwd: string, path: string): Promise<string>;
     rename(cwd: string, source: string, destination: string): Promise<{ operationId: string }>;
+    session?: {
+        get(): Promise<WorkspaceSession | null>;
+        set(session: WorkspaceSession): Promise<void>;
+    };
     undo(cwd: string, operationId: string): Promise<void>;
     watch(cwd: string, changed: (event: WorkspaceChange) => void): VoidFunction | Promise<VoidFunction>;
     write(cwd: string, path: string, content: string): Promise<void>;
 };
 
 type WorkspacePreferences = {
+    autoSave: 'delay' | 'focus' | 'off';
+    autoSaveDelay: number;
     explorerOpen: boolean;
     explorerSide: 'left' | 'right';
+    // Chords over the default keys, passed to every editor as 'keybindings'.
+    keybindings: Readonly<Record<string, Command | null>>;
     showWhitespace: boolean;
     wrapText: boolean;
+};
+
+type WorkspaceSession = {
+    active: string | null;
+    explorer: { expanded: string[]; scroll: number };
+    tabs: WorkspaceSessionTab[];
+};
+
+type WorkspaceSessionTab = {
+    // Unsaved text restored on load (hot exit); undefined when the tab was saved.
+    draft?: string;
+    folds: number[];
+    path: string;
+    pinned: boolean;
+    preview: boolean;
+    scroll: { left: number; top: number };
+    selection: { anchor: number; head: number };
 };
 
 type WorkspaceState = Readonly<{
@@ -77,10 +115,13 @@ type WorkspaceState = Readonly<{
 }>;
 
 type WorkspaceTab = {
+    readonly compare?: WorkspaceCompare;
     readonly document: EditorDocument;
     readonly id: number;
     missing: boolean;
     path: string;
+    pinned: boolean;
+    preview: boolean;
     saved: string;
     scroll: { left: number; top: number };
 };
@@ -88,9 +129,16 @@ type WorkspaceTab = {
 type WorkspaceTarget = { column?: number; line?: number; path: string; requestId?: number | string };
 
 
+const AUTO_SAVE_DELAY_MAX = 60_000;
+
+const AUTO_SAVE_DELAY_MIN = 100;
+
 const DEFAULTS: WorkspacePreferences = {
+    autoSave: 'off',
+    autoSaveDelay: 1000,
     explorerOpen: true,
     explorerSide: 'right',
+    keybindings: {},
     showWhitespace: false,
     wrapText: false
 };
@@ -178,6 +226,7 @@ class EditorWorkspaceModel {
     private tabId = 0;
     private tabs: WorkspaceTab[] = [];
     private unwatch: VoidFunction | undefined;
+    private watchers = new Set<(event: WorkspaceChange) => void>();
     private watchWork = Promise.resolve();
 
 
@@ -189,6 +238,14 @@ class EditorWorkspaceModel {
 
 
     private applyPreferences(preferences: Partial<WorkspacePreferences>) {
+        if (preferences.autoSave === 'delay' || preferences.autoSave === 'focus' || preferences.autoSave === 'off') {
+            this.preferences.autoSave = preferences.autoSave;
+        }
+
+        if (typeof preferences.autoSaveDelay === 'number' && Number.isFinite(preferences.autoSaveDelay)) {
+            this.preferences.autoSaveDelay = Math.min(Math.max(Math.round(preferences.autoSaveDelay), AUTO_SAVE_DELAY_MIN), AUTO_SAVE_DELAY_MAX);
+        }
+
         for (let key of ['explorerOpen', 'showWhitespace', 'wrapText'] as const) {
             if (typeof preferences[key] === 'boolean') {
                 this.preferences[key] = preferences[key];
@@ -197,6 +254,10 @@ class EditorWorkspaceModel {
 
         if (preferences.explorerSide === 'left' || preferences.explorerSide === 'right') {
             this.preferences.explorerSide = preferences.explorerSide;
+        }
+
+        if (preferences.keybindings !== undefined) {
+            this.preferences.keybindings = sanitize(preferences.keybindings);
         }
     }
 
@@ -246,6 +307,30 @@ class EditorWorkspaceModel {
         }
 
         return revisions;
+    }
+
+    private async closeTabs(tabs: readonly WorkspaceTab[]) {
+        if (!tabs.length) {
+            return true;
+        }
+
+        let paths = tabs.map((tab) => tab.path);
+
+        for (let path of paths) {
+            this.closed.set(path, (this.closed.get(path) ?? 0) + 1);
+        }
+
+        if (!(await this.authorize('close', tabs, paths))) {
+            return false;
+        }
+
+        for (let tab of tabs) {
+            this.removeTab(tab);
+        }
+
+        this.emit();
+
+        return true;
     }
 
     private desire(before: readonly WorkspaceEntry[], after: readonly WorkspaceEntry[]) {
@@ -374,6 +459,38 @@ class EditorWorkspaceModel {
         this.emit();
     }
 
+    /** Adds a tab whose text came from elsewhere, like a restored draft; undefined when the path is open or opening. */
+    adopt(path: string, content: string, saved: string, missing = false) {
+        if (this.disposed || this.opening.has(path) || this.tabs.some((tab) => tab.path === path)) {
+            return;
+        }
+
+        let tab: WorkspaceTab = {
+            document: new EditorDocument(content),
+            id: ++this.tabId,
+            missing,
+            path,
+            pinned: false,
+            preview: false,
+            saved,
+            scroll: { left: 0, top: 0 }
+        };
+
+        this.tabs.push(tab);
+        this.documents.set(tab.id, tab.document.subscribe((_, change) => {
+            if (change.textChanged && dirty(tab) !== this.dirty.get(tab.id)) {
+                if (dirty(tab)) {
+                    tab.preview = false;
+                }
+
+                this.emit();
+            }
+        }));
+        this.emit();
+
+        return tab;
+    }
+
     async close(path = this.state.active?.path) {
         if (!path) {
             return false;
@@ -395,6 +512,66 @@ class EditorWorkspaceModel {
         this.emit();
 
         return true;
+    }
+
+    closeOthers(path = this.state.active?.path) {
+        return this.closeTabs(closable(this.tabs, 'others', path));
+    }
+
+    closeRight(path = this.state.active?.path) {
+        return this.closeTabs(closable(this.tabs, 'right', path));
+    }
+
+    closeSaved() {
+        return this.closeTabs(closable(this.tabs, 'saved'));
+    }
+
+    /** Opens a read-only diff of two files in a tab of its own, or shows the one already open for them. */
+    async compare(original: string, modified: string) {
+        let paths: [string, string];
+
+        try {
+            paths = [workspacePath(original, this.cwd), workspacePath(modified, this.cwd)];
+        }
+        catch (error) {
+            this.status(`Compare failed: ${message(error)}`, true);
+            return;
+        }
+
+        let cwd = this.cwd,
+            epoch = this.epoch,
+            key = compareKey(paths[0], paths[1]),
+            tab = this.tabs.find((tab) => tab.path === key);
+
+        if (!tab) {
+            let texts: string[];
+
+            try {
+                texts = await Promise.all([this.host.read(cwd, paths[0]), this.host.read(cwd, paths[1])]);
+            }
+            catch (error) {
+                if (epoch === this.epoch) {
+                    this.status(`Compare failed: ${message(error)}`, true);
+                }
+
+                return;
+            }
+
+            if (epoch !== this.epoch || this.disposed) {
+                return;
+            }
+
+            tab = this.tabs.find((tab) => tab.path === key);
+
+            if (!tab) {
+                tab = compareTab(++this.tabId, { modified: texts[1], original: texts[0], paths });
+                this.tabs.push(tab);
+            }
+        }
+
+        this.activate(tab);
+
+        return tab;
     }
 
     async copyPath(path: string) {
@@ -481,7 +658,17 @@ class EditorWorkspaceModel {
         this.listeners.clear();
     }
 
-    async open(value: string, line?: number, column = 1) {
+    /** Hears each event the host's watcher reports, once its refresh has started. */
+    onWatch(listener: (event: WorkspaceChange) => void) {
+        this.watchers.add(listener);
+
+        return () => {
+            this.watchers.delete(listener);
+        };
+    }
+
+    // A preview opens in place of the last preview tab; opening the file again without 'preview' keeps its tab.
+    async open(value: string, line?: number, column = 1, preview = false) {
         if (this.disposed) {
             return;
         }
@@ -521,13 +708,24 @@ class EditorWorkspaceModel {
                         id: ++this.tabId,
                         missing: false,
                         path,
+                        pinned: false,
+                        preview,
                         saved: content,
                         scroll: { left: 0, top: 0 }
                     };
 
-                    this.tabs.push(tab);
+                    let replaced = place(this.tabs, tab);
+
+                    if (replaced) {
+                        this.removeTab(replaced);
+                    }
+
                     this.documents.set(tab.id, tab.document.subscribe((_, change) => {
                         if (change.textChanged && dirty(tab) !== this.dirty.get(tab.id)) {
+                            if (dirty(tab)) {
+                                tab.preview = false;
+                            }
+
                             this.emit();
                         }
                     }));
@@ -554,6 +752,10 @@ class EditorWorkspaceModel {
 
         if (!tab || epoch !== this.epoch || !this.tabs.includes(tab)) {
             return;
+        }
+
+        if (!preview) {
+            tab.preview = false;
         }
 
         if (intent === this.openIntent) {
@@ -584,6 +786,19 @@ class EditorWorkspaceModel {
         this.lastTarget = target.requestId;
 
         return this.open(target.path, target.line, target.column);
+    }
+
+    pin(path: string, pinned = true) {
+        let tab = this.tabs.find((tab) => tab.path === path);
+
+        if (!tab || tab.pinned === pinned) {
+            return;
+        }
+
+        tab.pinned = pinned;
+        tab.preview = false;
+        order(this.tabs);
+        this.emit();
     }
 
     async refresh(_paths?: readonly string[]) {
@@ -638,6 +853,10 @@ class EditorWorkspaceModel {
             for (let tab of [...this.tabs]) {
                 if (epoch !== this.epoch || intent !== this.refreshIntent || mutation !== this.mutation) {
                     return;
+                }
+
+                if (tab.compare) {
+                    continue;
                 }
 
                 tab.missing = !entries.has(tab.path);
@@ -756,7 +975,7 @@ class EditorWorkspaceModel {
 
     save(tab = this.state.active) {
         return this.queue('Save', async () => {
-            if (!tab || !this.tabs.includes(tab)) {
+            if (!tab || !this.tabs.includes(tab) || tab.compare) {
                 return false;
             }
 
@@ -903,6 +1122,10 @@ class EditorWorkspaceModel {
                 let stop = await this.host.watch(this.cwd, (event) => {
                     if (epoch === this.epoch) {
                         this.watchWork = this.refresh(event.paths);
+
+                        for (let watcher of [...this.watchers]) {
+                            watcher(event);
+                        }
                     }
                 });
 
@@ -989,6 +1212,10 @@ class EditorWorkspaceModel {
         });
     }
 
+    unpin(path: string) {
+        this.pin(path, false);
+    }
+
     /** Tests/hosts can drain event-driven work without sleeps or polling timers. */
     async whenIdle() {
         for (;;) {
@@ -1012,11 +1239,14 @@ export { containsPath, DEFAULTS, dirty, EditorWorkspaceModel, workspacePath };
 export type {
     WorkspaceAction,
     WorkspaceChange,
+    WorkspaceCompare,
     WorkspaceConfirmation,
     WorkspaceDecision,
     WorkspaceEntry,
     WorkspaceHost,
     WorkspacePreferences,
+    WorkspaceSession,
+    WorkspaceSessionTab,
     WorkspaceState,
     WorkspaceTab,
     WorkspaceTarget

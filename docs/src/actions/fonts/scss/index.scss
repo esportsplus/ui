@@ -1,0 +1,17 @@
+@use 'css-utilities/font/geist';
+@use 'css-utilities/font/montserrat';
+
+
+.fonts {
+    &-geist {
+        @extend %font-geist;
+    }
+
+    &-geist-mono {
+        @extend %font-geist-mono;
+    }
+
+    &-montserrat {
+        @extend %font-montserrat;
+    }
+}

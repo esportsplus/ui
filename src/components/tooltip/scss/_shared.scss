@@ -1,5 +1,5 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/reset';
 
 // A popover, so it sits in the top layer; the UA popover styles are undone here. The padding on the anchor side is
 // the gap to the trigger, which also carries the pointer across to interactive content. 'tooltip.shared' sets the

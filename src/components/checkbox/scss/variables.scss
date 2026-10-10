@@ -17,7 +17,7 @@
     --border-width-offset: 0px;
     --border-width-offset-hover: 1px;
     --box-shadow: var(--box-shadow-default);
-    --box-shadow-active: 0 3px 8px color-mix(in srgb, var(--background-active) 22%, transparent);
+    --box-shadow-active: 0 3px 8px oklch(from var(--color-shadow) l c h / calc(alpha * 2));
     --box-shadow-default: none;
     --box-shadow-hover: var(--box-shadow-default);
     --box-shadow-pressed: var(--box-shadow-default);
@@ -30,7 +30,7 @@
     --dash-offset: 1;
     --focus-color: var(--border-color-active);
     --focus-offset: 2px;
-    --focus-width: 2px;
+    --focus-width: var(--border-width-500);
     --height: var(--size);
     --indicator-color: var(--indicator-color-default);
     --indicator-color-active: var(--indicator-color-default);
@@ -43,15 +43,13 @@
     --scale-hover: 0.96;
     --scale-pressed: var(--scale-default);
     --size: var(--size-500);
-    --transition-duration: 280ms;
-    --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
     --width: var(--height);
 
 
     &--radio,
     &--switch {
         &::before {
-            --box-shadow: 0 2px 4px #0003;
+            --box-shadow: 0 2px 4px oklch(from var(--color-shadow) l c h / calc(alpha * 2));
         }
     }
 
@@ -88,7 +86,7 @@
     }
 
     &-group {
-        --border-color: var(--color-border-300);
+        --border-color: var(--surface-secondary-default);
         --color: var(--color-text-500);
         --color-muted: var(--color-text-300);
         --gap-horizontal: var(--size-300);

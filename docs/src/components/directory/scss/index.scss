@@ -1,0 +1,31 @@
+// A directory grid's entry, framed by the card it sits on.
+.directory-card {
+    --border-color-default: var(--surface-secondary-default);
+    --border-color-hover: var(--color-primary-300);
+    --border-color-pressed: var(--color-primary-300);
+    --border-radius: var(--border-radius-500);
+    --border-width: var(--border-width-400);
+    --gap-vertical: var(--size-200);
+    --padding-horizontal: var(--size-400);
+    --padding-vertical: var(--size-400);
+    color: var(--color-text-400);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-vertical);
+    text-decoration: none;
+
+    &-description {
+        color: var(--color-text-300);
+        font-size: var(--font-size-200);
+    }
+
+    &-name {
+        font-size: var(--font-size-400);
+        font-weight: var(--font-weight-500);
+        text-transform: capitalize;
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+}

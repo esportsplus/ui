@@ -1,5 +1,7 @@
-@use '/shared';
-@use '/tokens';
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/font/geist/mono';
+@use 'css-utilities/hidden';
+@use 'css-utilities/layer';
 @use 'variables';
 
 @mixin thumb {
@@ -28,17 +30,28 @@
     gap: var(--spacing);
 
     &-alpha {
+        @extend %font-geist-mono;
         align-items: center;
         border: 1px solid var(--control-border-color);
         border-radius: var(--control-border-radius);
         color: var(--color-muted);
         display: flex;
         flex: 0 0 56px;
-        font-family: var(--font-family-mono);
+        font-family: var(--font-family);
         font-variant-numeric: tabular-nums;
         height: var(--control-height);
         justify-content: center;
         user-select: none;
+    }
+
+    &-body {
+        display: flex;
+        gap: var(--spacing);
+
+        > .color-picker-pad {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
     }
 
     // Sized by the native range, whose thumb already stops half its width short of each end. Qualified by the root so
@@ -119,8 +132,16 @@
         gap: var(--size-100);
     }
 
+    &-header {
+        align-items: center;
+        color: var(--color);
+        display: flex;
+        gap: var(--size-100);
+    }
+
     &-hex {
-        font-family: var(--font-family-mono);
+        @extend %font-geist-mono;
+        font-family: var(--font-family);
         outline: none;
         text-transform: uppercase;
 
@@ -132,6 +153,12 @@
         &[aria-invalid='true']:focus {
             outline-color: var(--color-invalid);
         }
+    }
+
+    &-icon {
+        flex: 0 0 auto;
+        height: 16px;
+        width: 16px;
     }
 
     // Pure black and white on purpose: the gradients are the color math, not a theme surface.
@@ -192,13 +219,19 @@
     }
 
     &-swatch {
-        background: linear-gradient(var(--swatch), var(--swatch)), var(--checker);
-        border: 0;
-        border-radius: 50%;
-        box-shadow:
+        @extend %box-shadow-state;
+        --box-shadow-active:
+            var(--hairline),
+            0 0 0 2px var(--ring-offset-color),
+            0 0 0 4px var(--color);
+        --box-shadow-default:
             var(--hairline),
             0 0 0 0 var(--ring-offset-color),
             0 0 0 0 var(--color);
+        background: linear-gradient(var(--swatch), var(--swatch)), var(--checker);
+        border: 0;
+        border-radius: 50%;
+        box-shadow: var(--box-shadow);
         cursor: pointer;
         flex: 0 0 auto;
         height: var(--swatch-size);
@@ -207,9 +240,7 @@
         padding: 0;
         position: relative;
         touch-action: manipulation;
-        transition:
-            box-shadow var(--transition-duration) var(--transition-timing-function),
-            scale var(--transition-duration) var(--transition-timing-function);
+        transition: box-shadow var(--transition-duration) var(--transition-timing-function);
         user-select: none;
         width: var(--swatch-size);
 
@@ -221,20 +252,9 @@
             position: absolute;
         }
 
-        &:active {
-            scale: 0.96;
-        }
-
         &:focus-visible {
             outline: var(--focus-width) solid var(--color);
             outline-offset: 4px;
-        }
-
-        @include tokens.state(active) {
-            box-shadow:
-                var(--hairline),
-                0 0 0 2px var(--ring-offset-color),
-                0 0 0 4px var(--color);
         }
 
         // A stand-in for a dropped swatch, whose own node is already gone.
@@ -268,6 +288,55 @@
         z-index: 1;
     }
 
+    &-value {
+        font-variant-numeric: tabular-nums;
+    }
+
+    // Stands the rails up beside the pad; the track fills the input and the thumb is a bar across it. Doubly
+    // qualified so it wins over both the channel styles above and the range's own vertical ones.
+    &#{&}--compact .color-picker-channel {
+        border-radius: var(--rail-radius);
+        flex: 0 0 var(--rail-width);
+        height: auto;
+        width: var(--rail-width);
+        writing-mode: vertical-lr;
+
+        &--alpha {
+            direction: rtl;
+        }
+
+        &--hue {
+            direction: ltr;
+        }
+
+        &::-webkit-slider-runnable-track {
+            border-radius: var(--rail-radius);
+            height: 100%;
+            width: 100%;
+        }
+
+        &::-moz-range-track {
+            border-radius: var(--rail-radius);
+            height: 100%;
+            width: 100%;
+        }
+
+        &::-webkit-slider-thumb {
+            background: none;
+            border-radius: var(--rail-radius);
+            height: var(--rail-thumb-height);
+            margin: 0;
+            width: 100%;
+        }
+
+        &::-moz-range-thumb {
+            background: none;
+            border-radius: var(--rail-radius);
+            height: var(--rail-thumb-height);
+            width: 100%;
+        }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .color-picker-channel {
             &::-webkit-slider-thumb {
@@ -277,14 +346,6 @@
             &::-moz-range-thumb {
                 transition: none;
             }
-        }
-
-        &-swatch:active {
-            scale: 1;
-        }
-
-        &-swatch {
-            transition: box-shadow var(--transition-duration) var(--transition-timing-function);
         }
 
         &-thumb {

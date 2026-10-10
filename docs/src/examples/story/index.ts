@@ -4,7 +4,7 @@ import { story } from '@esportsplus/ui/components';
 import 'docs/examples/story/scss/index.scss';
 
 
-const BUTTON = 'button --background-text --color-white';
+const BUTTON = 'button story-demo-button';
 
 const STATS = [
     { caption: 'People tried the lab this week.', value: '12k' },

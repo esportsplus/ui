@@ -1,0 +1,42 @@
+@use '../../../shared/scss/css-variables' as shared;
+@use 'mono';
+
+
+@font-face {
+    font-display: swap;
+    font-family: 'Geist';
+    font-style: normal;
+    font-weight: 100 900;
+    src: url('./Geist-Variable.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Geist';
+    font-style: italic;
+    font-weight: 100 900;
+    src: url('./Geist-Italic-Variable.woff2') format('woff2');
+}
+
+
+%font-geist {
+    --font-family: 'Geist', sans-serif;
+
+    &,
+    &-mono {
+        @include shared.css-variables(font-weight, (
+            300: 300,
+            400: 400,
+            500: 500,
+            600: 600
+        ));
+    }
+
+    // Geist widens about 0.0115em a character for every 100 of weight; the root tightens tracking by as much, so a
+    // label changing weight keeps its width. Geist Mono keeps one advance at every weight, so it needs none.
+    &-wght {
+        --font-weight-tracking: 0.000115em;
+    }
+}
+
+

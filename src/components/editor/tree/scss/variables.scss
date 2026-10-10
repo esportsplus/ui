@@ -82,7 +82,7 @@ $icons: (
 .file-tree {
     // Git and problem colors, after VS Code's; the token scales are tuned for dark surfaces, so lightness is
     // pinned to stay legible on light ones.
-    --added-color: oklch(from var(--color-green-500) 0.58 c h);
+    --added-color: light-dark(oklch(from var(--color-green-500) 0.58 c h), oklch(from var(--color-green-500) 0.76 0.17 h));
     --additions-color: var(--added-color);
     // Read by the row highlight and the toggle button: the selected row takes the full tint, hover a dimmer one.
     --background-active: color-mix(in srgb, currentColor 10%, transparent);
@@ -92,18 +92,16 @@ $icons: (
     --badge-font-size: var(--font-size-200);
     --badge-font-weight: var(--font-weight-500);
     --badge-gap: 6px;
-    --chevron-duration: 150ms;
+    --chevron-duration: var(--duration-fast);
     // Open and close timings, after the tree view's.
-    --collapse-duration: 0.2s;
+    --collapse-duration: var(--duration-moderate-exit);
     --color: var(--color-text-500);
-    --conceal-duration: 0.12s;
-    --conflict-color: oklch(from var(--color-red-300) 0.6 c h);
+    --conceal-duration: var(--duration-fast-exit);
+    --conflict-color: light-dark(oklch(from var(--color-red-300) 0.6 c h), oklch(from var(--color-red-300) 0.72 0.16 h));
     --cut-opacity: 0.5;
-    --deleted-color: var(--color-red-500);
+    --deleted-color: light-dark(var(--color-red-500), oklch(from var(--color-red-500) 0.7 0.17 h));
     --deletions-color: var(--deleted-color);
     // The label that follows the pointer while dragging, offset so it never covers the row being aimed at.
-    --drag-background: var(--color-grey-400);
-    --drag-box-shadow: 0 0 0 var(--border-width-400) var(--color-border-300), var(--box-shadow-300);
     --drag-offset: var(--size-300);
     --drag-padding: 2px var(--size-100);
     --drag-radius: var(--border-radius-300);
@@ -111,13 +109,12 @@ $icons: (
     --dragged-opacity: 0.5;
     --drop-background: color-mix(in srgb, var(--drop-color) 10%, transparent);
     --drop-border-color: color-mix(in srgb, var(--drop-color) 60%, transparent);
-    --drop-color: var(--color-primary-400);
+    --drop-color: var(--color-accent-400);
     --empty-color: var(--color-text-300);
-    --error-color: var(--color-red-400);
-    --expand-duration: 0.25s;
+    --error-color: light-dark(var(--color-red-400), oklch(from var(--color-red-400) 0.7 0.18 h));
+    --expand-duration: var(--duration-moderate);
     // The find bar over the tree's top corner; the offset keeps it clear of the scrollbar.
-    --find-background: var(--color-white-300);
-    --find-border-color: var(--color-border-300);
+    --find-border-color: var(--surface-secondary-default);
     --find-button-size: var(--size-500);
     --find-gap: 2px;
     --find-input-width: calc(var(--size-900) * 2);
@@ -126,8 +123,7 @@ $icons: (
     --find-offset: var(--size-300);
     --find-padding: 3px;
     --find-radius: var(--border-radius-300);
-    --find-shadow: var(--box-shadow-300);
-    --focus-color: oklch(from var(--color-text-500) l c h / 0.38);
+    --focus-color: var(--surface-border-pressed);
     --font-size: var(--font-size-300);
     // Rows the find bar matches; the current one is outlined.
     --found-background: color-mix(in srgb, var(--found-color) 14%, transparent);
@@ -142,33 +138,32 @@ $icons: (
     // Past '--padding' plus half '--twistie-size', so a nested row, and the highlight on it, starts clear of its
     // parent's guide.
     --indent: var(--size-500);
-    --indicator-color: var(--color-grey-500);
-    --indicator-duration: 0.15s;
-    --indicator-hover: var(--color-border-500);
-    --input-background: var(--color-white-300);
+    --indicator-color: var(--surface-border-default);
+    --indicator-duration: var(--duration-fast);
+    --indicator-hover: var(--surface-secondary-pressed);
     --input-border-color: var(--color-blue-400);
     --input-padding: 3px;
     --input-radius: var(--border-radius-200);
     --item-gap: 4px;
     // The symlink and read-only glyphs beside the name.
-    --marker-color: var(--color-text-300);
+    --marker-color: var(--color-primary-300);
     --marker-size: var(--size-300);
     // Characters a fuzzy query matched: heavier, on a faint wash, in whatever color the name's git tone gives it.
-    --match-background: color-mix(in srgb, var(--color-primary-400) 18%, transparent);
+    --match-background: color-mix(in srgb, var(--color-accent-400) 18%, transparent);
     --match-color: inherit;
     --match-font-weight: var(--font-weight-600);
     --match-radius: var(--border-radius-100);
     // Opaque, since it covers the rows below the input.
-    --message-background: color-mix(in srgb, var(--error-color) 10%, var(--input-background));
+    --message-background: color-mix(in srgb, var(--error-color) 10%, var(--surface-background-default));
     --message-font-size: var(--font-size-200);
     --message-padding: 2px 6px;
-    --modified-color: oklch(from var(--color-yellow-500) 0.62 c h);
-    --motion-easing: cubic-bezier(0.23, 1, 0.32, 1);
+    --modified-color: light-dark(oklch(from var(--color-yellow-500) 0.62 c h), oklch(from var(--color-yellow-500) 0.76 c h));
+    --motion-easing: var(--easing-spring);
     --notice-color: var(--color-text-300);
-    --open-color: var(--color-text-300);
+    --open-color: var(--color-primary-300);
     --padding: var(--size-100);
     --reveal-delay: 0.05s;
-    --reveal-duration: 0.2s;
+    --reveal-duration: var(--duration-fast);
     --root-font-size: var(--font-size-200);
     --root-font-weight: var(--font-weight-600);
     --row-height: 22px;
@@ -176,19 +171,18 @@ $icons: (
     // How much of a scope's color tints its rows; faint, so git colors and the highlight still read over it.
     --scope-tint: 12%;
     // The slash between a compact row's folders.
-    --separator-color: var(--color-text-300);
+    --separator-color: var(--color-primary-300);
     --separator-gap: 1px;
     --staged-padding: 3px;
     --staged-radius: var(--border-radius-100);
     --staged-tint: 18%;
     // Rows scroll under the pinned folders, so these hide them with the surface the tree sits on.
-    --sticky-background: var(--color-white-300);
-    --sticky-shadow: 0 6px 16px -10px oklch(from var(--color-black-300) l c h / 0.4);
-    --submodule-color: oklch(from var(--color-blue-400) 0.6 c h);
+    --sticky-shadow: 0 6px 16px -10px oklch(from var(--color-shadow) l c h / calc(alpha * 4.4));
+    --submodule-color: light-dark(oklch(from var(--color-blue-400) 0.6 c h), oklch(from var(--color-blue-400) 0.74 0.14 h));
     --toggle-color: var(--color);
     --twistie-size: var(--size-400);
     --unsaved-color: var(--color);
-    --warning-color: oklch(from var(--color-yellow-500) 0.62 c calc(h - 25));
+    --warning-color: light-dark(oklch(from var(--color-yellow-500) 0.62 c calc(h - 25)), oklch(from var(--color-yellow-500) 0.76 c calc(h - 25)));
 
     &-chevron.icon {
         --size: var(--twistie-size);
@@ -198,7 +192,7 @@ $icons: (
     &-highlight.highlight {
         --background-active: inherit;
         --background-hover: inherit;
-        --glide-duration: 0.3s;
+        --glide-duration: var(--duration-moderate);
         --glide-duration-active: 0s;
     }
 

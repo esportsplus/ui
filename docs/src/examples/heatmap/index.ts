@@ -120,7 +120,7 @@ export default {
                         <span class='heatmap-demo-status'>
                             ${() => `tab stop: ${data[state.index].date} (${data[state.index].value})`}
                         </span>
-                        <button class='button --background-blue --color-white' onclick=${() => {
+                        <button class='button heatmap-demo-button' onclick=${() => {
                             let busiest = 0;
 
                             for (let i = 0, n = data.length; i < n; i++) {

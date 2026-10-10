@@ -1,11 +1,14 @@
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
+
+
 // 44px outer radius around 10px of bezel leaves 34px for the screen.
 .pull-to-refresh-demo {
-    background: var(--color-grey-400);
+    @extend %surface-raised-level;
+    background: var(--surface-background-default);
     border-radius: 44px;
-    box-shadow:
-        0 0 0 var(--border-width-400) oklch(from var(--color-black-300) l c h / 0.06),
-        0 1px 2px oklch(from var(--color-black-300) l c h / 0.06),
-        0 6px 16px -6px oklch(from var(--color-black-300) l c h / 0.12);
+    box-shadow: var(--surface-shadow-default);
     box-sizing: border-box;
     height: 480px;
     padding: 10px;
@@ -27,6 +30,10 @@
     }
 
     &-body {
+        --gap-vertical: 2px;
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-vertical);
         min-width: 0;
     }
 
@@ -46,7 +53,7 @@
 
     &-header {
         align-items: center;
-        border-bottom: var(--border-width-400) solid var(--color-border-300);
+        border-bottom: var(--border-width-400) solid var(--surface-secondary-default);
         display: flex;
         flex: none;
         height: 56px;
@@ -69,18 +76,24 @@
     }
 
     &-post {
-        border-bottom: var(--border-width-400) solid var(--color-border-300);
+        border-bottom: var(--border-width-400) solid var(--surface-secondary-default);
         display: flex;
         gap: 12px;
         padding: 14px 20px;
     }
 
     &-refresh {
+        @extend %background-state, %color-state;
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--background-hover);
+        --color-default: var(--color-text-300);
+        --color-hover: var(--color-text-500);
+        --color-pressed: var(--color-hover);
         align-items: center;
-        background: none;
+        background: var(--background);
         border: 0;
         border-radius: 999px;
-        color: var(--color-text-300);
+        color: var(--color);
         cursor: pointer;
         display: flex;
         height: 36px;
@@ -103,12 +116,7 @@
         }
 
         &:focus-visible {
-            outline: var(--border-width-500) solid var(--color-text-500);
-        }
-
-        &:hover {
-            background: var(--color-grey-400);
-            color: var(--color-text-500);
+            outline: var(--border-width-500) solid var(--color-primary-500);
         }
 
         &[aria-disabled='true'] {
@@ -117,7 +125,8 @@
     }
 
     &-screen {
-        background: var(--color-white-300);
+        @extend %surface-raised-level;
+        background: var(--surface-background-default);
         border-radius: 34px;
         display: flex;
         flex-direction: column;
@@ -130,7 +139,7 @@
         color: var(--color-text-500);
         font-size: 14px;
         line-height: 20px;
-        margin: 2px 0 0;
+        margin: 0;
         text-wrap: pretty;
     }
 

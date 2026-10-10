@@ -4,22 +4,22 @@ import './ui';
 import { fallback, html, middleware, render } from 'docs/app';
 import { toaster } from 'docs/components/toaster';
 import { modal } from 'docs/components/search';
+import { themeSwitcher } from 'docs/components/theme-switcher';
 import sidebar, { state as sidebarState } from 'docs/components/sidebar';
+import 'docs/data/theme';
 import layout from 'docs/middleware/layout/index';
-import theme from '@esportsplus/ui/css-utilities/theme';
-
-
-let mode = theme();
+import missing from 'docs/middleware/missing/index';
 
 
 render(
     document.body,
     {
-        class: [`--font-montserrat --scrollbar --scrollbar-scope`, () => mode.class]
+        class: '--scrollbar'
     },
     () => html`${middleware(
         (request, next) => html`
             ${modal()}
+            ${themeSwitcher()}
             ${toaster.content}
 
             <div
@@ -37,6 +37,7 @@ render(
         `,
         middleware.match(fallback),
         layout,
+        missing,
         middleware.dispatch
     )}`
 );

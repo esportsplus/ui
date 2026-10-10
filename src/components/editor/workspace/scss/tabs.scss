@@ -1,0 +1,56 @@
+.code-workspace {
+    &-document.diffs,
+    &-merge-editor.diffs-merge {
+        --border-radius: 0px;
+        --border-width: 0px;
+        --height: 100%;
+        flex: 1;
+        min-height: 0;
+    }
+
+    &-merge {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+
+        &-bar {
+            align-items: center;
+            border-bottom: var(--divider);
+            display: flex;
+            flex: none;
+            font-size: var(--font-size-200);
+            gap: var(--spacing);
+            justify-content: space-between;
+            padding: var(--spacing-tight) var(--size-300);
+        }
+
+        &-cancel.button {
+            --background-default: transparent;
+            --background-hover: var(--control-active-background);
+            --border-radius: var(--radius);
+            --color-default: var(--color);
+            --padding-horizontal: var(--size-200);
+            --padding-vertical: var(--spacing-tight);
+            flex: none;
+        }
+
+        &-title {
+            color: var(--muted-color);
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    &-tab--preview &-tab-name {
+        font-style: italic;
+    }
+
+    &-tab-pin.icon {
+        --size: var(--close-icon-size);
+        flex: none;
+    }
+}

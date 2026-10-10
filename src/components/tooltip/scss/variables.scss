@@ -1,30 +1,36 @@
 @use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/surface';
 
 .tooltip {
     // Set a translucent color to review the safe area shape.
     --safe-color: transparent;
 
+    // Floating layers, a level above whatever opened them.
     &-content,
     &-message {
-        --background: var(--background-default);
-        --background-default: transparent;
+        @extend %background-state, %box-shadow-state, %surface-raised-level;
         --border-radius: var(--border-radius-400);
-        --box-shadow: var(--box-shadow-400);
+        --box-shadow-default: var(--surface-shadow-default);
         --max-width: calc(90vw - (var(--size-700) * 2));
         --min-width: auto;
         --offset: calc(var(--spacer) * 2);
         --scale: 1;
         --spacer: var(--size-300);
+        // Closing; the open state swaps in the entrance duration.
+        --transition-duration: var(--duration-moderate-exit);
+        --transition-timing-function: var(--easing-spring);
         --width: auto;
 
         &--morph {
             --morph-blur: 4px;
-            --morph-close-duration: 0.16s;
+            --morph-close-duration: var(--duration-moderate-exit);
             // Starts clearing as soon as content emerges from behind the trigger, settling with the shape.
             --morph-focus-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
             --morph-land: 2px;
-            --morph-open-duration: 0.12s;
-            --morph-timing-function: cubic-bezier(0.2, 0, 0, 1);
+            --morph-open-duration: var(--duration-moderate);
+            --morph-timing-function: var(--easing-spring);
             // Motion comes from the morph, not the slide/scale.
             --offset: 0px;
             --scale: 1;
@@ -38,15 +44,11 @@
         &--scale-spring {
             --offset: var(--spacer);
             --scale: 0.88;
-            --transition-duration: 0.24s;
-            --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         &--spring {
             --offset: calc(var(--spacer) * 3);
             --scale: 0.96;
-            --transition-duration: 0.24s;
-            --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
     }
 
@@ -59,8 +61,8 @@
     }
 
     &-message {
-        --background-default: var(--color-black-400);
-        --color: var(--color-white-400);
+        --background-default: var(--color-primary-400);
+        --color: var(--surface-background-default);
         --font-size: var(--font-size-300);
         --font-weight: var(--font-weight-400);
         --padding-horizontal: var(--size-300);
@@ -70,11 +72,8 @@
 
 
 .tooltip--menu {
-    --background: var(--color-white-400);
-    --background-hover: var(--color-grey-500);
     --border-radius: var(--border-radius-600);
-    --box-shadow: var(--box-shadow-500);
-    --close-duration: 0.12s;
+    --close-duration: var(--duration-moderate-exit);
     --color: var(--color-text-500);
     --color-danger: var(--color-red-400);
     --color-disabled: var(--color-text-300);
@@ -85,10 +84,10 @@
     --item-height: 36px;
     --item-padding: var(--size-200);
     --offset: var(--size-200);
-    --open-duration: 0.28s;
-    --open-timing-function: cubic-bezier(0.2, 0, 0, 1);
+    --open-duration: var(--duration-moderate);
+    --open-timing-function: var(--easing-spring);
     --padding: 4px;
-    --scrim: oklch(from var(--color-black-400) l c h / 0.08);
+    --scrim: oklch(from var(--color-shadow) 0 0 0 / calc(alpha * 0.9));
     --width: 17rem;
 
     &.tooltip--instant {
@@ -99,16 +98,22 @@
     @media (pointer: coarse) {
         --item-height: 44px;
     }
-
-    @media (prefers-reduced-motion: reduce) {
-        --close-duration: 0s;
-        --open-duration: 0s;
-    }
 }
 
-// Read by a branch panel's header title, which crossfades to bold while that panel is open. Every panel sets its
-// own, so a parent panel's state never reaches its children's titles.
+// Items take the hover and pressed steps of the panel they sit in.
+.tooltip-menu-item {
+    @extend %background-state;
+    --background-hover: var(--surface-background-hover);
+    --background-pressed: var(--surface-background-pressed);
+}
+
+// A surface of its own, so a branch panel sits a level above the panel it opened from. The title opacities are read
+// by a branch panel's header title, which crossfades to bold while that panel is open; every panel sets its own, so a
+// parent panel's state never reaches its children's titles.
 .tooltip-menu-panel {
+    @extend %background-state, %box-shadow-state, %surface-raised-level;
+    --background-default: var(--surface-background-default);
+    --box-shadow-default: var(--surface-shadow-default);
     --title-bold-opacity: 0;
     --title-regular-opacity: 1;
 
@@ -122,23 +127,24 @@
 // '--padding' and '--radius' rather than the usual names: the root resets '--padding-*' and '--border-radius' on
 // every element, so the box and layers inside would never see them.
 .tooltip-shared {
-    --background: var(--color-black-400);
+    @extend %background-state, %box-shadow-state, %surface-raised-level;
+    --background-default: var(--color-primary-400);
     --blur: 7px;
-    --box-shadow: var(--box-shadow-400);
-    --close-duration: 0.128s;
-    --color: var(--color-white-400);
+    --box-shadow-default: var(--surface-shadow-default);
+    --close-duration: var(--duration-moderate-exit);
+    --color: var(--surface-background-default);
     --font-size: var(--font-size-300);
     --font-weight: var(--font-weight-400);
-    --glide-duration: 0.4s;
-    --glide-timing-function: cubic-bezier(0.22, 1.12, 0.36, 1);
+    --glide-duration: var(--duration-moderate);
+    --glide-timing-function: var(--easing-spring);
     --max-width: calc(90vw - (var(--size-700) * 2));
-    --open-duration: 0.16s;
+    --open-duration: var(--duration-moderate);
     --padding: var(--size-300);
     --radius: var(--border-radius-400);
     --rise: 4px;
     --scale: 0.94;
     --spacer: var(--size-300);
-    --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --timing-function: var(--easing-spring);
     --white-space: nowrap;
 
     // Read by the box: where it rises from, toward the trigger.

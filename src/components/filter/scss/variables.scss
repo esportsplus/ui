@@ -1,17 +1,18 @@
 // On the list; read by JS when a filter changes which items show.
 .filter {
-    --enter-duration: 200ms;
-    --enter-easing: cubic-bezier(0.23, 1, 0.32, 1);
-    --leave-duration: 140ms;
-    --leave-easing: cubic-bezier(0.4, 0, 1, 1);
-    // Same duration and curve as accordion.more's height transition.
-    --move-duration: 480ms;
-    --move-easing: cubic-bezier(0.22, 1, 0.36, 1);
+    --enter-duration: var(--duration-moderate);
+    --enter-easing: var(--easing-spring);
+    --enter-scale: 0.97;
+    --leave-duration: var(--duration-moderate-exit);
+    --leave-easing: var(--easing-spring);
+    --leave-scale: 0.98;
+    --move-duration: var(--duration-moderate);
+    --move-easing: var(--easing-spring);
 
-    // Items appear and go in place.
+    // Items fade in and out where they land, and the rest jump to their places.
     @media (prefers-reduced-motion: reduce) {
-        --enter-duration: 0s;
-        --leave-duration: 0s;
+        --enter-scale: 1;
+        --leave-scale: 1;
         --move-duration: 0s;
     }
 }

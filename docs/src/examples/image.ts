@@ -26,7 +26,7 @@ export default {
                 <div style='display: flex; flex-wrap: wrap; gap: var(--size-500); align-items: center;'>
                     <div class='image' style='--width: 160px; --height: 120px; --border-radius: var(--border-radius-400); --background: linear-gradient(135deg, var(--color-purple-300), var(--color-black-500));'></div>
                     <div class='image' style='--width: 90px; --height: 90px; --border-radius: 100%; --background: linear-gradient(135deg, var(--color-red-400), var(--color-purple-400));'></div>
-                    <div class='image' style='--width: 120px; --height: 80px; --border-radius: var(--border-radius-300); --background: linear-gradient(to top right, var(--color-black-500), var(--color-grey-500));'></div>
+                    <div class='image' style='--width: 120px; --height: 80px; --border-radius: var(--border-radius-300); --background: linear-gradient(to top right, var(--color-black-500), var(--color-black-300));'></div>
                 </div>
             `,
             title: 'gradient fills'
@@ -38,13 +38,13 @@ export default {
                         <div class='image image--stack' style='--size: var(--size-800); --border-radius: 100%; --background: linear-gradient(135deg, var(--color-red-400), var(--color-purple-400));'></div>
                         <div class='image image--stack' style='--size: var(--size-800); --border-radius: 100%; --background: linear-gradient(135deg, var(--color-purple-300), var(--color-black-500));'></div>
                         <div class='image image--stack' style='--size: var(--size-800); --border-radius: 100%; --background: linear-gradient(135deg, var(--color-green-400), var(--color-blue-400));'></div>
-                        <div class='image image--stack' style='--size: var(--size-800); --border-radius: 100%; --background: var(--color-black-300); color: var(--color-white-300); display: grid; font-size: var(--font-size-300); place-items: center;'>+3</div>
+                        <div class='image image--stack' style='--size: var(--size-800); --border-radius: 100%; --background: var(--color-primary-300); color: var(--color-surface); display: grid; font-size: var(--font-size-300); place-items: center;'>+3</div>
                     </div>
                     <div style='display: flex;'>
                         <div class='image image--stack' style='--size: var(--size-800); --background: linear-gradient(135deg, var(--color-red-400), var(--color-purple-400));'></div>
                         <div class='image image--stack' style='--size: var(--size-800); --background: linear-gradient(135deg, var(--color-purple-300), var(--color-black-500));'></div>
                         <div class='image image--stack' style='--size: var(--size-800); --background: linear-gradient(135deg, var(--color-green-400), var(--color-blue-400));'></div>
-                        <div class='image image--stack' style='--size: var(--size-800); --background: var(--color-black-300); color: var(--color-white-300); display: grid; font-size: var(--font-size-300); place-items: center;'>+3</div>
+                        <div class='image image--stack' style='--size: var(--size-800); --background: var(--color-primary-300); color: var(--color-surface); display: grid; font-size: var(--font-size-300); place-items: center;'>+3</div>
                     </div>
                 </div>
             `,

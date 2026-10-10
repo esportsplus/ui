@@ -1,4 +1,4 @@
-import { responder } from 'docs/actions/docs/index';
+import { responder } from 'docs/actions/installation/index';
 
 
 export default {

@@ -1,0 +1,7 @@
+@use 'css-utilities/surface';
+
+
+
+.frame-demo-panel {
+    @extend %surface-sunken;
+}

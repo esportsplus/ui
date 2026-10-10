@@ -1,19 +1,80 @@
-// Holds whichever page the layout hosts to the reading width.
-.main > .page {
-    max-width: 680px;
-}
+@use 'css-utilities/flex';
+@use 'css-utilities/inline';
+@use 'css-utilities/surface';
+
 
 .page {
+    --gap-vertical: var(--size-800);
+
     &-grid {
         --min-width: 220px;
     }
 
-    &-note {
-        color: var(--color-text-300);
-        font-size: var(--font-size-300);
+    &-header {
+        &-breadcrumb {
+            --link-padding: 0px;
+            text-transform: capitalize;
+
+            // The breadcrumb exposes no separator spacing, so it is set on its separators directly.
+            .breadcrumb-separator {
+                margin-inline: 4px;
+            }
+        }
+
+        &-row {
+            @extend %flex-row;
+        }
+
+        &-title {
+            text-transform: capitalize;
+
+            @media (max-width: 720px) {
+                font-size: var(--font-size-700);
+            }
+        }
     }
 
-    &-section-title {
-        margin: var(--size-800) 0 var(--size-400);
+    &-note {
+        --background-default: var(--surface-background-default);
+        --border-color-default: var(--surface-secondary-default);
+        --border-radius: var(--border-radius-600);
+        --border-width: 1px;
+        --font-size: var(--font-size-300);
+        --gap-horizontal: var(--size-300);
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-300);
+        align-items: center;
+        color: var(--color-text-300);
+        display: flex;
+        font-size: var(--font-size);
+        gap: var(--gap-horizontal);
+        margin: var(--size-200) 0 0;
+
+        &-icon {
+            --size: var(--size-400);
+            color: var(--color-accent-400);
+            flex: none;
+        }
+
+        &-link {
+            @extend %inline;
+            --color-default: var(--color-accent-300);
+            --color-hover: var(--color-accent-500);
+            --color-pressed: var(--color-accent-500);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
     }
+
+    &-section {
+        --gap-vertical: var(--size-400);
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-vertical);
+    }
+}
+
+// A note sinks a level below the page; the card class qualifies it so its level outranks the card's own.
+.page-note.card {
+    @extend %surface-sunken-level;
 }

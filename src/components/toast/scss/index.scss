@@ -1,5 +1,5 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/anchor';
 @use 'variables';
 
 // Hovered or holding focus, the stack fans out and every clock stops.
@@ -30,7 +30,7 @@ $open: ':is(:hover, :focus-within)';
         @extend %anchor--ne;
     }
 
-    @each $placement in shared.$anchor-placements {
+    @each $placement in anchor.$placements {
         &--#{$placement} {
             @extend %anchor--#{$placement};
         }

@@ -24,7 +24,7 @@ type Direction = 'e' | 'en' | 'es' | 'n' | 'ne' | 'nw' | 's' | 'se' | 'sw' | 'w'
 
 
 // The morph tooltip's '--morph-close-duration', plus a frame: a new message reopens once the old one has landed.
-const CLOSE = 180;
+const CLOSE = 210;
 
 
 // Wraps one control, so it works on any element that keeps its error in 'state.error': the control shakes and its

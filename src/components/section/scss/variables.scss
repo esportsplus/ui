@@ -1,0 +1,21 @@
+.section {
+    --gap-horizontal: 0px;
+    --gap-vertical: 0px;
+
+    &-subtitle,
+    &-suptitle {
+        --color: var(--color-default);
+        --color-default: var(--color-text-400);
+        --font-size: var(--font-size-400);
+    }
+
+    &-header {
+        --gap-horizontal: var(--size-300);
+        --gap-vertical: 4px;
+    }
+
+    &-title {
+        --color: var(--color-default);
+        --color-default: var(--color-text-500);
+    }
+}

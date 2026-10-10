@@ -1,30 +1,34 @@
 @use '/tokens';
+@use 'css-utilities/surface';
 
 .range {
-    --background-default: linear-gradient(to right, var(--thumb-background) var(--thumb-position), var(--color-black-300) var(--thumb-position));
+    --background-default: linear-gradient(to right, var(--thumb-background) var(--thumb-position), var(--color-primary-300) var(--thumb-position));
     --border-width: var(--border-width-700);
     --height: var(--size-200);
     --margin-horizontal: 0px;
     --margin-vertical: 0px;
-    --thumb-background: var(--color-white-400);
+    --thumb-background: var(--surface-background-default);
     --thumb-size: var(--size-400);
     --width: 100%;
 
     &-filter {
-        --clear-background: var(--color-white-300);
-        --clear-border: var(--color-border-300);
+        @extend %surface-raised-level;
+        --clear-background: var(--surface-background-default);
+        --clear-border: var(--surface-secondary-default);
         --clear-display: inline-flex;
-        --clear-hover: var(--color-grey-400);
+        // Resolved here, since the clear button's color state redefines --color on it.
+        --clear-color-hover: var(--color);
+        --clear-hover: var(--surface-background-hover);
         --color: var(--color-text-500);
-        --field-background: var(--color-white-300);
+        --field-background: var(--surface-background-default);
         --field-border-radius: var(--border-radius-400);
         --field-cursor: text;
         --field-height: 40px;
-        --focus-color: oklch(from var(--color-text-500) l c h / 0.3);
-        --ghost-color: oklch(from var(--color-text-500) l c h / 0.3);
+        --focus-color: var(--surface-border-pressed);
+        --ghost-color: oklch(from var(--color-primary-500) l c h / 0.3);
         --ghost-display: block;
         --header-align: flex-start;
-        --header-gap: 16px;
+        --header-gap: var(--size-400);
         --heading-display: block;
         --label-color: var(--muted-color);
         --label-font-size: 12px;
@@ -33,27 +37,27 @@
         --label-text-transform: uppercase;
         --muted-color: var(--color-text-300);
         --range-border-radius: 0px;
-        --range-color: var(--color-text-500);
+        --range-color: var(--color-primary-500);
         --roll-duration: 500ms;
         --roll-ease: cubic-bezier(0.23, 1, 0.32, 1);
         --root-cursor: pointer;
-        --thumb-background: var(--color-white-300);
-        --thumb-border: var(--color-text-500);
-        --thumb-border-width: 2px;
+        --thumb-background: var(--surface-background-default);
+        --thumb-border: var(--color-primary-500);
+        --thumb-border-width: var(--border-width-500);
         // Unset, so the thumb takes the cursor around it.
         --thumb-cursor: initial;
         --thumb-cursor-active: initial;
         --thumb-outline: 0 solid var(--focus-color);
         --thumb-scale-active: 1.25;
         --thumb-scale-hover: 1.25;
-        --thumb-shadow: 0 4px 6px -1px oklch(from var(--color-black-300) l c h / 0.1), 0 2px 4px -2px oklch(from var(--color-black-300) l c h / 0.1);
+        --thumb-shadow: var(--surface-shadow-default);
         --thumb-shadow-active: var(--thumb-shadow);
         --thumb-shadow-focus: var(--thumb-shadow);
-        --thumb-size: 20px;
-        --thumb-transition: scale 150ms ease-out;
-        --tick-color: oklch(from var(--color-text-300) l c h / 0.6);
-        --track-color: var(--color-grey-500);
-        --track-height: 8px;
+        --thumb-size: var(--size-500);
+        --thumb-transition: scale var(--duration-fast) var(--easing-spring);
+        --tick-color: oklch(from var(--color-primary-300) l c h / 0.6);
+        --track-color: var(--surface-border-default);
+        --track-height: var(--size-100);
         --track-inset: 0px;
         --track-overflow: hidden;
         --value-font-size: var(--font-size-500);

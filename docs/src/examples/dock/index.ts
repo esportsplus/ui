@@ -64,7 +64,7 @@ export default {
                             }
                         })}
                         <span class='dock-demo-status'>${() => state.last}</span>
-                        <button class='button --background-blue --color-white' onclick=${() => {
+                        <button class='button dock-demo-button' onclick=${() => {
                             for (let item of list) {
                                 item.state.running = false;
                             }

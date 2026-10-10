@@ -1,7 +1,15 @@
+@use '/tokens';
+
+// Collapses a tier faster than it opens.
 .accordion {
+    --transition-duration: var(--duration-moderate-exit);
+
+    @include tokens.state(active) {
+        --transition-duration: var(--duration-moderate);
+    }
+
     &--more {
-        --focus-color: var(--color-primary-400);
+        --focus-color: var(--color-accent-400);
         --max-height: 320px;
-        --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     }
 }

@@ -1,6 +1,9 @@
 .marquee {
     --color: var(--color-text-300);
     --color-hover: var(--color-text-400);
+    // Resolved here, since a link item's color state redefines --color and --color-hover on it.
+    --item-color: var(--color);
+    --item-color-hover: var(--color-hover);
     --copy-display: flex;
     // Read by JS: the share of its speed it drifts at. None holds it still, as a strip to scroll by hand.
     --drift: 1;
@@ -13,7 +16,6 @@
     --item-height: 40px;
     --item-padding-horizontal: var(--size-300);
     --track-will-change: transform;
-    --transition-duration: 0.15s;
     --viewport-overflow-x: hidden;
 
     @media (prefers-reduced-motion: reduce) {

@@ -1,0 +1,36 @@
+@use '../../../shared/scss/css-variables' as shared;
+
+
+@font-face {
+    font-display: swap;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 100 900;
+    src: url('./Montserrat-Variable.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Montserrat';
+    font-style: italic;
+    font-weight: 100 900;
+    src: url('./Montserrat-Italic-Variable.woff2') format('woff2');
+}
+
+
+%font-montserrat {
+    --font-family: 'Montserrat', sans-serif;
+
+    @include shared.css-variables(font-weight, (
+        300: 400,
+        400: 500,
+        500: 600,
+        600: 700
+    ));
+
+    // Montserrat widens about 0.008em a character for every 100 of weight; the root tightens tracking by as much, so a
+    // label changing weight keeps its width.
+    &-wght {
+        --font-weight-tracking: 0.00008em;
+    }
+}

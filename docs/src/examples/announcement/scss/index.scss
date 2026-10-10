@@ -1,9 +1,13 @@
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
+
+
 .announcement-demo {
-    background: var(--color-white-300);
+    @extend %surface-raised-level;
+    background: var(--surface-background-default);
     border-radius: var(--border-radius-700);
-    box-shadow:
-        0 0 0 1px color-mix(in oklab, var(--color-black-300) 6%, transparent),
-        0 6px 16px -6px color-mix(in oklab, var(--color-black-300) 12%, transparent);
+    box-shadow: var(--surface-shadow-default);
     font-size: 14px;
     height: 300px;
     overflow: hidden;
@@ -17,13 +21,12 @@
     // Pinned to the frame, so it stays under the cursor while the banner reopens.
     // Arrives after the banner has closed, leaves at once.
     &-again {
-        background: var(--color-grey-400);
+        @extend %surface-raised-level;
+        background: var(--surface-background-default);
         border: 0;
         border-radius: 999px;
         bottom: 12px;
-        box-shadow:
-            0 0 0 1px color-mix(in oklab, var(--color-black-300) 6%, transparent),
-            0 6px 16px -6px color-mix(in oklab, var(--color-black-300) 12%, transparent);
+        box-shadow: var(--surface-shadow-default);
         color: var(--color-text-500);
         cursor: pointer;
         filter: blur(2px);
@@ -55,7 +58,8 @@
     }
 
     &-avatar {
-        background: var(--color-grey-400);
+        @extend %surface-sunken-level;
+        background: var(--surface-background-default);
         border-radius: 999px;
         height: 28px;
         margin-left: auto;
@@ -63,8 +67,8 @@
     }
 
     &-bar {
-        --bar-background: var(--color-text-500);
-        --bar-color: var(--color-white-300);
+        --bar-background: var(--color-primary-500);
+        --bar-color: var(--color-surface);
 
         align-items: center;
         background: var(--bar-background);
@@ -88,11 +92,17 @@
     }
 
     &-close {
+        @extend %background-state, %color-state;
+        --background-hover: color-mix(in oklab, var(--bar-color) 15%, transparent);
+        --background-pressed: var(--background-hover);
+        --color-default: color-mix(in oklab, var(--bar-color) 70%, transparent);
+        --color-hover: var(--bar-color);
+        --color-pressed: var(--color-hover);
         align-items: center;
-        background: transparent;
+        background: var(--background);
         border: 0;
         border-radius: 999px;
-        color: color-mix(in oklab, var(--bar-color) 70%, transparent);
+        color: var(--color);
         cursor: pointer;
         display: flex;
         flex-shrink: 0;
@@ -131,11 +141,6 @@
 
         &:focus-visible {
             outline: 2px solid var(--bar-color);
-        }
-
-        &:hover {
-            background: color-mix(in oklab, var(--bar-color) 15%, transparent);
-            color: var(--bar-color);
         }
     }
 
@@ -185,7 +190,7 @@
 
     &-nav {
         align-items: center;
-        border-bottom: 1px solid var(--color-border-300);
+        border-bottom: 1px solid var(--surface-secondary-default);
         color: var(--color-text-500);
         display: flex;
         gap: 20px;
@@ -194,7 +199,8 @@
     }
 
     &-stat {
-        background: var(--color-grey-400);
+        @extend %surface-sunken-level;
+        background: var(--surface-background-default);
         border-radius: 12px;
         font-size: 12px;
         padding: 10px 12px;

@@ -1,7 +1,7 @@
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import tooltip from '~/components/tooltip';
-import scrollbar from '~/css-utilities/scrollbar';
+import scrollbar from '~/modifiers/scrollbar';
 import { clamp } from '~/shared/clamp';
 import { onceVisible } from '~/shared/visible';
 import './scss/index.scss';

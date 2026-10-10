@@ -1,0 +1,165 @@
+@use 'css-utilities/surface';
+
+
+
+.surfaces {
+    // Inline tokens in the prose, set off as on the themes page.
+    p code {
+        -webkit-box-decoration-break: clone;
+        background: var(--surface-secondary-default);
+        border-radius: var(--border-radius-200);
+        box-decoration-break: clone;
+        font-variant-ligatures: none;
+        padding-inline: var(--size-100);
+    }
+
+    &-card,
+    &-dialog {
+        border-radius: var(--border-radius-400);
+        padding: var(--size-300);
+    }
+
+    &-card {
+        @extend %surface-raised;
+    }
+
+    &-depth {
+        align-content: start;
+        display: grid;
+        gap: var(--size-200);
+
+        &-label {
+            color: var(--color-text-300);
+            font-size: var(--font-size-200);
+        }
+    }
+
+    &-depths {
+        display: grid;
+        gap: var(--size-400);
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+
+    &-dialog {
+        @extend %surface-root;
+    }
+
+    // Labelled with its own level, read back from the counter so it shows what the style queries settled on. Even
+    // padding around a square core nests the layers as squares.
+    &-layer {
+        @extend %surface-raised;
+        border-radius: var(--border-radius-400);
+        counter-reset: level var(--surface-level);
+        display: grid;
+        min-height: var(--size-700);
+        min-width: var(--size-700);
+        padding: var(--size-500);
+        place-items: center;
+        position: relative;
+
+        &::before {
+            color: var(--color-text-300);
+            content: counter(level);
+            font-size: var(--font-size-100);
+            font-variant-numeric: tabular-nums;
+            left: var(--size-200);
+            position: absolute;
+            top: var(--size-100);
+        }
+    }
+
+    &-ladder {
+        display: grid;
+        gap: var(--size-200);
+        grid-template-columns: repeat(10, minmax(0, 1fr));
+    }
+
+    &-menu {
+        @extend %surface-raised;
+        border: var(--border-width-400) solid var(--surface-border-default);
+        border-radius: var(--border-radius-300);
+        display: grid;
+        padding: var(--size-100);
+
+        &-item {
+            border-radius: var(--border-radius-200);
+            font-size: var(--font-size-200);
+            padding: var(--size-200) var(--size-300);
+
+            &--active {
+                background: var(--surface-background-active);
+                color: var(--color-text-500);
+            }
+
+            &--hover {
+                background: var(--surface-background-hover);
+            }
+        }
+    }
+
+    // A page of its own in each mode: pinned to level 0 in the markup, whatever the preview around it sits at. A zero
+    // basis, since the preview sizes its own height as if a fixed basis' wrapped rows were stacked.
+    &-mode {
+        @extend %surface-raised-level;
+        align-content: start;
+        background: var(--surface-background-default);
+        border-radius: var(--border-radius-500);
+        color: var(--color-text-400);
+        display: grid;
+        flex: 1 1 0;
+        gap: var(--size-400);
+        min-width: 260px;
+        padding: var(--size-500);
+
+        &-title {
+            color: var(--color-text-500);
+            font-size: var(--font-size-200);
+            text-transform: capitalize;
+        }
+    }
+
+    &-modes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--size-400);
+        width: 100%;
+
+        &--stack {
+            flex-direction: column;
+
+            > * {
+                flex: none;
+            }
+        }
+    }
+
+    &-stage {
+        display: grid;
+        min-height: 320px;
+        place-items: center;
+    }
+
+    &-swatch {
+        @extend %surface-raised;
+        align-items: end;
+        aspect-ratio: 1;
+        border-radius: var(--border-radius-300);
+        counter-reset: level var(--surface-level);
+        display: grid;
+        justify-items: center;
+        padding-bottom: var(--size-100);
+
+        &::after {
+            color: var(--color-text-300);
+            content: counter(level);
+            font-size: var(--font-size-100);
+            font-variant-numeric: tabular-nums;
+        }
+    }
+
+    &-viewer {
+        display: grid;
+        gap: var(--size-500);
+        width: 100%;
+    }
+}

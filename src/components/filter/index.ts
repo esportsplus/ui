@@ -47,10 +47,13 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         elements: (HTMLElement | undefined)[] = [],
         // How items come, go and move, from the list's CSS; null where it has no duration.
         enter: KeyframeAnimationOptions | null = null,
+        // What items grow from and shrink to as they come and go.
+        enterScale = '1',
         heldFocus = false,
         id = `filter-${++instance}`,
         leave: KeyframeAnimationOptions | null = null,
         leaving = new Map<HTMLElement, string>(),
+        leaveScale = '1',
         list: HTMLElement | undefined,
         move: KeyframeAnimationOptions | null = null,
         resize: Animation | undefined,
@@ -248,7 +251,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             element.style.top = `${rect.top - origin.top}px`;
             element.style.width = `${rect.width}px`;
 
-            play(element, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(0.98)' }], leave).onfinish = () => {
+            play(element, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: `scale(${leaveScale})` }], leave).onfinish = () => {
                 animations.delete(element);
                 release(element);
                 element.style.display = 'none';
@@ -311,7 +314,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
 
             if (!rect) {
                 if (enter && near(last, view)) {
-                    play(element, [{ opacity: 0, transform: 'scale(0.97)' }, { opacity: 1, transform: 'scale(1)' }], enter);
+                    play(element, [{ opacity: 0, transform: `scale(${enterScale})` }, { opacity: 1, transform: 'scale(1)' }], enter);
                 }
 
                 continue;
@@ -341,7 +344,9 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         let computed = list && getComputedStyle(list);
 
         enter = computed ? timing(computed, 'enter') : null;
+        enterScale = computed?.getPropertyValue('--enter-scale').trim() || '1';
         leave = computed ? timing(computed, 'leave') : null;
+        leaveScale = computed?.getPropertyValue('--leave-scale').trim() || '1';
         move = computed ? timing(computed, 'move') : null;
         update(!!(enter || leave || move));
     });

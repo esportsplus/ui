@@ -1,0 +1,28 @@
+@use '../shared/scss/position';
+
+@each $direction in 'bottom' 'center' 'full' 'horizontal' 'left' 'right' 'top' 'vertical' {
+    %absolute-#{$direction} {
+        @include position.position(absolute, $direction);
+    }
+}
+
+// Centered along one axis and pinned to an edge of the other.
+%absolute-horizontal-bottom {
+    @extend %absolute-horizontal;
+    bottom: 0;
+}
+
+%absolute-horizontal-top {
+    @extend %absolute-horizontal;
+    top: 0;
+}
+
+%absolute-vertical-left {
+    @extend %absolute-vertical;
+    left: 0;
+}
+
+%absolute-vertical-right {
+    @extend %absolute-vertical;
+    right: 0;
+}

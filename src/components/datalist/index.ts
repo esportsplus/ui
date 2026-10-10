@@ -1,7 +1,7 @@
 import { component, html, on, type Attributes, type Element, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import form from '~/components/form';
-import scrollbar from '~/css-utilities/scrollbar';
+import scrollbar from '~/modifiers/scrollbar';
 import { observeSize } from '~/shared/resize';
 import './scss/index.scss';
 

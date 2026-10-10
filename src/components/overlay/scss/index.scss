@@ -1,5 +1,6 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/anchor';
+@use 'css-utilities/surface';
 @use 'variables';
 
 // Zero specificity so paired classes (e.g. '.card') still win over the dialog UA reset.
@@ -18,6 +19,8 @@
 // Outranks pairings like '.card { position: relative }'. Modal overlays pin to the viewport; non-modal ones
 // sit in their positioned container, which may be the viewport too via an inline 'position: fixed'.
 dialog.overlay {
+    // A fresh surface stack above everything; outranks a paired surface, such as '.card', that would count up instead.
+    @extend %surface-root-level;
     position: fixed;
 
     &:not(:modal) {
@@ -87,7 +90,7 @@ dialog.overlay {
     }
 
 
-    @each $placement in shared.$anchor-placements {
+    @each $placement in anchor.$placements {
         &--#{$placement} {
             @extend %anchor--#{$placement};
         }

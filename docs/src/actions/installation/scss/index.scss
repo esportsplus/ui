@@ -1,0 +1,109 @@
+@use 'css-utilities/surface';
+
+
+.installation {
+    --gap-vertical: var(--size-700);
+    font-weight: var(--font-weight-300);
+
+    &-package.link {
+        --color-active: var(--color-text-500);
+        --color-default: var(--color-text-300);
+        --color-hover: var(--color-text-500);
+        --font-size: var(--font-size-300);
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: calc(var(--size-100) / 2);
+        border-radius: var(--border-radius-300);
+
+        &.--active {
+            font-weight: var(--font-weight-500);
+        }
+    }
+
+    &-packages {
+        display: flex;
+        gap: 2px;
+        margin: calc(var(--size-100) * -1) 0;
+
+        &-highlight.highlight {
+            --background-active: var(--surface-background-active);
+            --background-hover: var(--surface-background-hover);
+            --background-pressed: var(--surface-background-pressed);
+            --scale-hidden: 1;
+            border-radius: var(--border-radius-300);
+        }
+    }
+
+    // The number centres on the title's first line box, so both read the same line height.
+    &-step {
+        --gap-vertical: var(--size-500);
+        --installation-step-line: calc(var(--font-size-500) * 1.4);
+        --installation-step-offset: calc((var(--installation-step-line) - var(--size-600)) / 2);
+        padding-left: var(--size-900);
+        scroll-margin-top: var(--size-600);
+
+        &-link {
+            color: var(--color-text-500);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        &-number {
+            @extend %surface-raised-level;
+            background: var(--surface-background-default);
+            border: var(--border-width-400) solid var(--surface-secondary-default);
+            border-radius: 50%;
+            color: var(--color-text-500);
+            display: grid;
+            font-size: var(--font-size-200);
+            font-weight: var(--font-weight-500);
+            height: var(--size-600);
+            left: 0;
+            line-height: 1;
+            place-items: center;
+            position: absolute;
+            top: var(--installation-step-offset);
+            width: var(--size-600);
+        }
+
+        & .section {
+            &-subtitle {
+                --font-size: var(--font-size-300);
+            }
+
+            &-title {
+                --font-size: var(--font-size-500);
+                line-height: var(--installation-step-line);
+            }
+        }
+
+        // Threads each step's number down to the next one, through the gap between steps.
+        &:has(+ .installation-step)::before {
+            background: var(--surface-secondary-default);
+            bottom: calc(var(--size-700) * -1 + var(--size-200));
+            content: '';
+            left: calc(var(--size-600) / 2 - var(--border-width-400) / 2);
+            position: absolute;
+            top: calc(var(--installation-step-offset) + var(--size-600) + var(--size-200));
+            width: var(--border-width-400);
+        }
+    }
+
+    // A prompt that selection and copy both skip.
+    &-viewer--terminal .code-viewer-code::before {
+        color: var(--color-text-300);
+        content: '$ ';
+        user-select: none;
+    }
+
+    // Rings every link and button the guide hosts in its accent, the page head's breadcrumb and arrows included.
+    :is(a, button):focus-visible {
+        outline: var(--border-width-500) solid var(--color-accent-400);
+        outline-offset: 3px;
+    }
+
+    @media (max-width: 720px) {
+        &-step {
+            padding-left: var(--size-800);
+        }
+    }
+}

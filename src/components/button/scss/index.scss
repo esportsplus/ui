@@ -1,5 +1,13 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/absolute';
+@use 'css-utilities/background';
+@use 'css-utilities/border';
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/color';
+@use 'css-utilities/hidden';
+@use 'css-utilities/icon';
+@use 'css-utilities/layer';
+@use 'css-utilities/text';
 @use 'fan';
 @use 'kbd';
 @use 'morph';
@@ -8,7 +16,7 @@
 @use 'variables';
 
 .button {
-    @extend %background-state, %border-state, %color-state, %text;
+    @extend %background-state, %border-state, %box-shadow-state, %color-state, %text;
     align-content: center;
     align-items: center;
     background: var(--background);
@@ -39,10 +47,6 @@
     // Stacks above the options so they reveal from behind it
     &--fan {
         z-index: 1;
-
-        @include tokens.state(pressed) {
-            scale: var(--trigger-pressed-scale);
-        }
     }
 
     &--feedback {

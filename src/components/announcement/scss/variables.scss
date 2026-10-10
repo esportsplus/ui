@@ -1,18 +1,18 @@
 @use '/tokens';
 
 .announcement {
-    --announcement-drawer: cubic-bezier(0.32, 0.72, 0, 1);
-    --announcement-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --announcement-drawer: var(--easing-spring);
+    --announcement-ease: var(--easing-spring);
 
 
     &-content.overlay {
-        --close-duration: 240ms;
+        --close-duration: var(--duration-slow-exit);
         --ease: var(--announcement-drawer);
-        --fade-duration: 120ms;
-        --open-duration: 280ms;
+        --fade-duration: var(--duration-fast-exit);
+        --open-duration: var(--duration-slow);
 
         @include tokens.state(active) {
-            --fade-duration: 200ms;
+            --fade-duration: var(--duration-fast);
         }
 
         @media (prefers-reduced-motion: reduce) {

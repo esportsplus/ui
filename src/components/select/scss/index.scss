@@ -1,5 +1,7 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/hidden';
+@use 'css-utilities/icon';
+@use 'css-utilities/text';
 @use 'variables';
 
 .select {
@@ -36,6 +38,7 @@
 
         &-option {
             align-items: center;
+            background: var(--background);
             border-radius: var(--border-radius-400);
             cursor: default;
             display: flex;
@@ -44,10 +47,11 @@
             padding: 0 var(--size-100);
             user-select: none;
 
-            // No transition on the highlight: it follows every move, so easing would read as lag.
+            // No transition on the highlight: it follows every move, so easing would read as lag. Highlighting moves
+            // the option's resting fill, so the pointer's own hover adds nothing and pressing still steps from it.
             &--highlighted,
             &:focus {
-                background: var(--highlight);
+                --background-default: var(--highlight);
             }
 
             &[aria-selected='true'] .select-menu-check {
@@ -105,7 +109,7 @@
             opacity: 0;
             pointer-events: none;
             position: absolute;
-            transition: opacity 150ms ease-out;
+            transition: opacity var(--duration-fast) var(--easing-spring);
 
             @include tokens.state(active) {
                 opacity: 1;
@@ -155,13 +159,8 @@
             padding: 0 10px 0 var(--size-300);
             text-align: left;
             touch-action: manipulation;
-            transition: scale var(--transition-duration) var(--transition-timing-function);
             user-select: none;
             width: 100%;
-
-            &:active {
-                scale: var(--press-scale);
-            }
 
             &:focus-visible {
                 outline: var(--focus-width) solid var(--color);
@@ -177,19 +176,9 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        &-menu {
-            &-check {
-                filter: none;
-                scale: 1;
-            }
-
-            &-trigger {
-                transition: none;
-
-                &:active {
-                    scale: 1;
-                }
-            }
+        &-menu-check {
+            filter: none;
+            scale: 1;
         }
     }
 }

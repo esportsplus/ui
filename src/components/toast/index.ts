@@ -80,37 +80,35 @@ const UNPLACED: Edge = { x: 1, y: -1 };
 function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void) {
     let element: HTMLElement | undefined,
         frontmost = 0,
-        // 'swipe' is where a swipe holds it, 'thrown' the way a dismissing swipe flings it on.
-        local = reactive({ swipe: null as { x: number, y: number } | null, swiping: false, thrown: null as Fling | null });
+        gesture = drag({
+            // Swiped back toward the edges the stack is pinned to.
+            begin: (e, element) => e.button === 0 ? toward(edge(element.closest('.toaster') ?? element, 'toaster') ?? UNPLACED) : null,
+            capture: () => {
+                local.swiping = true;
+            },
+            move: (_, { x, y }) => {
+                local.swipe = { x, y };
+            },
+            // Dismissing, it is thrown on from where the pointer let go until it has left the screen; under reduced
+            // motion it fades there like any other exit.
+            release: (element, drag, dismiss) => {
+                local.swiping = false;
+                local.thrown = dismiss ? fling(element, drag) : null;
 
-    // Layout height, unaffected by the collapsed scale.
-    let size = observeSize(({ height }) => {
-        toast.measured.height = height;
-    });
+                if (dismiss) {
+                    toast.state.active = false;
+                    return;
+                }
 
-    let gesture = drag({
-        // Swiped back toward the edges the stack is pinned to.
-        begin: (e, element) => e.button === 0 ? toward(edge(element.closest('.toaster') ?? element, 'toaster') ?? UNPLACED) : null,
-        capture: () => {
-            local.swiping = true;
-        },
-        move: (_, { x, y }) => {
-            local.swipe = { x, y };
-        },
-        // Dismissing, it is thrown on from where the pointer let go until it has left the screen; under reduced
-        // motion it fades there like any other exit.
-        release: (element, drag, dismiss) => {
-            local.swiping = false;
-            local.thrown = dismiss ? fling(element, drag) : null;
-
-            if (dismiss) {
-                toast.state.active = false;
-                return;
+                local.swipe = null;
             }
-
-            local.swipe = null;
-        }
-    });
+        }),
+        // 'swipe' is where a swipe holds it, 'thrown' the way a dismissing swipe flings it on.
+        local = reactive({ swipe: null as { x: number, y: number } | null, swiping: false, thrown: null as Fling | null }),
+        // Layout height, unaffected by the collapsed scale.
+        size = observeSize(({ height }) => {
+            toast.measured.height = height;
+        });
 
     return html`
         <div

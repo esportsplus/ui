@@ -1,19 +1,46 @@
 import { html } from 'docs/app';
 import { effect, flush, reactive, untrack } from '@esportsplus/reactivity';
-import { highlight, icon, select } from '@esportsplus/ui/components';
+import { copy, editor, highlight, icon, select } from '@esportsplus/ui/components';
 import { observeIntersection } from '@esportsplus/ui/shared/visible';
 import codeSvg from '@esportsplus/ui/svg/code.svg';
 import eye from '@esportsplus/ui/svg/eye.svg';
-import { code } from 'docs/components/code';
+import type { CodeViewerAttributes } from '@esportsplus/ui/components/editor';
 import type { Renderable } from 'docs/app';
 import type { PreviewOption } from 'docs/types';
 import 'docs/components/preview/scss/index.scss';
 
 
+type Code = Pick<CodeViewerAttributes, 'fold' | 'language' | 'lineNumbers' | 'value' | 'whitespace' | 'wrap'> & { class?: string };
+
 type View = 'preview' | 'code';
 
 
-const preview = (title: string | null, node: Renderable<unknown>, id?: string, options: PreviewOption[] = [], source?: () => Promise<string>) => {
+type Props = {
+    aside?: Renderable<unknown>;
+    class?: string;
+    // Source shown flush in the stage in place of 'node'; its value is what the copy button writes unless 'copy' is set.
+    code?: Code;
+    // Text the copy button writes; a function is read on each click, so it can follow reactive state.
+    copy?: string | (() => string);
+    id?: string;
+    index?: number;
+    node?: Renderable<unknown>;
+    options?: PreviewOption[];
+    source?: () => Promise<string>;
+    title?: string;
+};
+
+
+function viewer({ class: classname, ...attributes }: Code) {
+    return editor.viewer({ ...attributes, class: `preview-viewer ${classname ?? ''}` });
+}
+
+
+const preview = ({ aside, class: classname, code, copy: value = code?.value, id, index, node, options = [], source, title }: Props) => {
+    if (code) {
+        node = viewer(code);
+    }
+
     let frame = 0,
         release: VoidFunction | undefined,
         request = 0,
@@ -97,7 +124,7 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
 
     return html`
         <div
-            class='preview-example'
+            class='preview-example ${code ? 'preview-example--code' : ''} ${classname ?? ''}'
             id='${id ?? ''}'
             ${{
                 onconnect: (element: HTMLElement) => {
@@ -169,13 +196,17 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
                 </div>
             `}
 
-            <div class='preview card --border-default --border-border'>
-                ${title !== null && html`
-                    <div class='preview-title'>
-                        <span>${title}</span>
+            <div class='card preview'>
+                ${(title || aside || options.length > 1) && html`
+                    <div class='preview-header'>
+                        <span class='preview-title'>
+                            ${index !== undefined && html`<span class='preview-index'>${String(index).padStart(2, '0')}</span>`}
+                            ${title}
+                        </span>
+                        ${aside}
                         ${options.length > 1 && select({
                             class: 'preview-select',
-                            label: `${title} variant`,
+                            label: `${title ?? 'Example'} variant`,
                             options: options.map((option) => ({ label: option.label, value: option.id })),
                             state: selection
                         })}
@@ -188,20 +219,34 @@ const preview = (title: string | null, node: Renderable<unknown>, id?: string, o
                     class='preview-stage ${() => !state.mounted && 'preview-stage--pending'}'
                     aria-busy='${() => state.mounted ? 'false' : 'true'}'
                     hidden='${() => state.view !== 'preview'}'
-                >${() => {
-                    if (!state.mounted) {
-                        return;
-                    }
+                >
+                    ${value !== undefined && copy({
+                        class: 'preview-copy',
+                        error: 'Copy unavailable. Select and copy the code.',
+                        label: `Copy ${title ?? 'example'}`,
+                        value
+                    })}
+                    ${() => {
+                        if (!state.mounted) {
+                            return;
+                        }
 
-                    let selected = options.find((option) => option.id === selection.selected);
-
-                    return untrack(selected?.render ?? render);
-                }}</div>
+                        return untrack(
+                            options.find((option) => option.id === selection.selected)?.render ?? render
+                        );
+                    }}
+                </div>
                 ${source && html`
                     <section class='preview-code' aria-label='${title ?? 'Example'} source code' hidden='${() => state.view !== 'code'}' aria-busy='${() => String(state.loading)}'>
                         ${() => state.loading && html`<p class='preview-code-message' role='status'>Loading example source…</p>`}
                         ${() => state.error && html`<p class='preview-code-message' role='alert'>${state.error}</p>`}
-                        ${() => state.code && code(state.code, true)}
+                        ${() => state.code && copy({
+                            class: 'preview-copy',
+                            error: 'Copy unavailable. Select and copy the code.',
+                            label: `Copy ${title ?? 'example'} source`,
+                            value: state.code
+                        })}
+                        ${() => state.code && viewer({ language: 'typescript', value: state.code })}
                     </section>
                 `}
             </div>

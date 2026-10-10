@@ -5,6 +5,7 @@ import './resolve.mjs';
 
 const { EditorDocument } = await import('../src/components/editor/code/document.ts');
 const { markdownCommand } = await import('../src/components/editor/markdown/editing.ts');
+const { reach, widen } = await import('../src/components/editor/markdown/erase.ts');
 const { sanitize } = await import('../src/components/editor/markdown/html.ts');
 const { clipInline, parseInline, safeUrl } = await import('../src/components/editor/markdown/inline.ts');
 const { arrange, cache, MarkdownLayout, SLICE_LINES, unitStart, WINDOW_LIMIT } = await import(
@@ -438,28 +439,23 @@ test('folds follow logical blocks; markers only look at neighbours', () => {
     assert.equal(foldable(list, list.length - 1, nested.value), false);
 });
 
-test('units leave folded blocks out, stand the field in for the active blocks and keep identity', () => {
+test('units leave folded blocks out and keep identity', () => {
     let source = '# A\n\ntext\n\n## B\n\nmore\n\n# C\nend',
         document = new EditorDocument(source),
         blocks = parseMarkdown(document),
         store = cache(),
         fold = foldAt(document, blocks, 0),
-        all = arrange(blocks, source, [], store, null, null),
-        folded = arrange(blocks, source, [fold], store, null, null);
+        all = arrange(blocks, source, [], store, null),
+        folded = arrange(blocks, source, [fold], store, null);
 
     assert.equal(all.length, blocks.length);
     assert.equal(folded[0].fold, fold);
     assert.ok(folded.every((unit) => unitStart(unit) < fold.from || unitStart(unit) >= fold.to));
     assert.equal(unitStart(folded[1]), source.indexOf('# C'));
 
-    let field = { active: true, block: blocks[2] },
-        active = arrange(blocks, source, [], store, { first: 2, last: 4, unit: field }, null);
+    assert.equal(arrange(blocks, source, [], store, null)[5], all[5]);
 
-    assert.equal(active.length, blocks.length - 1);
-    assert.equal(active[2], field);
-    assert.equal(arrange(blocks, source, [], store, null, null)[5], all[5]);
-
-    let raw = arrange(blocks, source, [], store, null, (index) => index === 2);
+    let raw = arrange(blocks, source, [], store, (index) => index === 2);
 
     assert.equal(raw[2].raw, true);
     assert.notEqual(raw[2], all[2]);
@@ -470,7 +466,7 @@ test('variable-height lookup and measurement stay bounded for ten thousand block
         blocks = parseMarkdown(document),
         layout = new MarkdownLayout();
 
-    layout.set(arrange(blocks, document.value, [], cache(), null, null), document.value);
+    layout.set(arrange(blocks, document.value, [], cache(), null), document.value);
     layout.configure({ charWidth: 8, fontSize: 13, lineHeight: 20, quoteIndent: 10, width: 600 });
 
     assert.ok(blocks.length >= 10000);
@@ -504,7 +500,7 @@ test('large logical blocks draw as bounded slices that cover the whole source', 
     let source = '```ts\r\n' + Array.from({ length: 5000 }, (_, i) => `const x${i} = ${i};\r\n`).join('') + '```',
         document = new EditorDocument(source),
         blocks = parseMarkdown(document),
-        units = arrange(blocks, source, [], cache(), null, null);
+        units = arrange(blocks, source, [], cache(), null);
 
     assert.equal(blocks.length, 1);
     assert.ok(units.length > 100);
@@ -515,13 +511,48 @@ test('large logical blocks draw as bounded slices that cover the whole source', 
     assert.deepEqual(blocksAt(blocks, { end: unitStart(units[90]), start: unitStart(units[90]) }), { first: 0, last: 1 });
 
     let line = new EditorDocument('```\n' + 'x'.repeat(20000) + '\n```'),
-        lines = arrange(parseMarkdown(line), line.value, [], cache(), null, null);
+        lines = arrange(parseMarkdown(line), line.value, [], cache(), null);
 
     assert.equal(lines.length, 1);
 
     let paragraph = new EditorDocument('y'.repeat(20000)),
-        pieces = arrange(parseMarkdown(paragraph), paragraph.value, [], cache(), null, null);
+        pieces = arrange(parseMarkdown(paragraph), paragraph.value, [], cache(), null);
 
     assert.ok(pieces.length >= 3);
     assert.equal(pieces.map((unit) => unit.rows.map((row) => paragraph.value.slice(row.contentFrom, row.contentTo)).join('')).join(''), paragraph.value);
+});
+
+test('deletion takes the visible character past hidden markup, and a line break with the markup around it', () => {
+    let text = 'a **b** c',
+        spans = [{ from: 0, to: 2 }, { from: 4, to: 5 }, { from: 7, to: 9 }];
+
+    assert.deepEqual(reach(text, spans, 4, true), { from: 1, to: 2 });
+    assert.deepEqual(reach(text, spans, 5, true), { from: 4, to: 5 });
+    assert.deepEqual(reach(text, spans, 7, true), { from: 4, to: 5 });
+    assert.deepEqual(reach(text, spans, 5, false), { from: 7, to: 8 });
+    assert.deepEqual(reach(text, spans, 0, true), null);
+    assert.deepEqual(reach(text, spans, 9, false), null);
+
+    let quote = '> one\n> two',
+        rows = [{ from: 2, to: 5 }, { from: 8, to: 11 }];
+
+    assert.deepEqual(reach(quote, rows, 8, true), { from: 5, to: 8 });
+    assert.deepEqual(reach(quote, rows, 5, false), { from: 5, to: 8 });
+    assert.deepEqual(reach('x 👍🏽', [{ from: 0, to: 6 }], 6, true), { from: 2, to: 6 });
+});
+
+test('a deletion that empties emphasis or code takes its delimiters, outward through nesting', () => {
+    let text = 'a **b** c',
+        tokens = parseInline(text);
+
+    assert.deepEqual(widen(text, tokens, 0, { from: 4, to: 5 }), { from: 2, to: 7 });
+    assert.deepEqual(widen(text, tokens, 0, { from: 1, to: 2 }), { from: 1, to: 2 });
+
+    let nested = 'x ***y*** z';
+
+    assert.deepEqual(widen(nested, parseInline(nested), 0, { from: 5, to: 6 }), { from: 2, to: 9 });
+
+    let code = 'run ``a`` now';
+
+    assert.deepEqual(widen(code, parseInline(code), 0, { from: 6, to: 7 }), { from: 4, to: 9 });
 });

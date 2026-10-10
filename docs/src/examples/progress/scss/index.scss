@@ -1,3 +1,7 @@
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+
+
 .progress-text-demo {
     align-items: center;
     display: flex;
@@ -11,11 +15,17 @@
     }
 
     &-restart {
+        @extend %background-state, %color-state;
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--background-hover);
+        --color-default: var(--color-text-300);
+        --color-hover: var(--color-text-500);
+        --color-pressed: var(--color-hover);
         align-items: center;
-        background: transparent;
+        background: var(--background);
         border: 0;
         border-radius: 999px;
-        color: var(--color-text-300);
+        color: var(--color);
         cursor: pointer;
         display: flex;
         font: inherit;
@@ -40,13 +50,8 @@
         }
 
         &:focus-visible {
-            outline: 2px solid var(--color-text-500);
+            outline: 2px solid var(--color-primary-500);
             outline-offset: 2px;
-        }
-
-        &:hover {
-            background: var(--color-grey-400);
-            color: var(--color-text-500);
         }
     }
 }

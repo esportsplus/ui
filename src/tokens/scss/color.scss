@@ -1,58 +1,63 @@
 @use 'sass:map';
+@use 'sass:math';
 @use '../../shared/scss/list';
 
 
+// The palette, each color written once as its 400; 'weights()' derives the rest where the color is used.
 $color: (
-    'black': (
-        300: oklch(18.84% 0.0306 277.2),
-        400: oklch(11.47% 0.0361 268.9),
-        500: oklch(10.04% 0.0287 263.4)
-    ),
-    'blue': (
-        300: oklch(54.49% 0.2514 268.2),
-        400: oklch(51.45% 0.2712 266.6),
-        500: oklch(48.45% 0.2617 266.3)
-    ),
-    'border': (
-        300: oklch(92.9% 0.013 255.508),
-        400: oklch(86.9% 0.022 252.894),
-        500: oklch(70.4% 0.04 256.788)
-    ),
-    'green': (
-        300: oklch(87.03% 0.2708 144.9),
-        400: oklch(83.70% 0.2711 144.0),
-        500: oklch(78.97% 0.2560 144.0)
-    ),
-    'grey': (
-        300: oklch(0.9842 0.0034 247.86),
-        400: oklch(0.9683 0.0069 247.9),
-        500: oklch(0.9288 0.0126 255.51)
-    ),
-    'purple': (
-        300: oklch(53.29% 0.2877 292.5),
-        400: oklch(51.66% 0.2929 289.7),
-        500: oklch(48.63% 0.2754 289.9)
-    ),
-    'red': (
-        300: oklch(64.46% 0.2412 23.8),
-        400: oklch(62.87% 0.2567 27.7),
-        500: oklch(59.10% 0.2413 27.6)
-    ),
-    'text': (
-        300: oklch(55.1% 0.027 264.364),
-        400: oklch(37.3% 0.034 259.733),
-        500: oklch(21% 0.034 264.665)
-    ),
-    'white': (
-        300: oklch(100% 0 0),
-        400: oklch(99.2% 0 0),
-        500: oklch(98.5% 0 0)
-    ),
-    'yellow': (
-        300: oklch(90.5% 0.182 98.1),
-        400: oklch(85.2% 0.199 91.9),
-        500: oklch(79.5% 0.184 86.0)
-    )
+    'black': oklch(16% 0.0102 257),
+    'blue': oklch(51.45% 0.2712 266.6),
+    'green': oklch(83.7% 0.2711 144),
+    'grey': oklch(92% 0.0093 257),
+    'purple': oklch(51.66% 0.2929 289.7),
+    'red': oklch(62.87% 0.2567 27.7),
+    'white': oklch(99% 0.0022 257),
+    'yellow': oklch(85.2% 0.199 91.9)
 );
 
-$colors: list.join(primary secondary, map.keys($color));
+$colors: list.join(primary text, map.keys($color));
+
+// How far a color's 300 and 500 sit from its 400, in lightness points: lighter for hover, darker for press.
+$weight-step: 3 !default;
+
+// A color's weights from its one written value: 300 a step lighter, 400 itself and 500 a step darker, keeping its hue
+// and chroma, so hover and press move every color by the same amount.
+@mixin weights($name) {
+    $step: math.div($weight-step, 100);
+
+    --color-#{$name}-300: oklch(from var(--color-#{$name}) min(1, l + #{$step}) c h);
+    --color-#{$name}-400: var(--color-#{$name});
+    --color-#{$name}-500: oklch(from var(--color-#{$name}) max(0, l - #{$step}) c h);
+}
+
+// How far apart the text weights sit: 300 and 500 each hold this contrast against 400, the same in both modes.
+$text-step: 1.5 !default;
+
+
+// The only colors that change with the mode; everything else is the fixed palette above, and each component picks its
+// own pair for light and dark. 'surface' is the page, the base every surface level steps from, kept below white in
+// light so raised surfaces have room to climb to it; 'primary' is its opposite, black on a light page and white on a
+// dark one, the ink that edges and tints mix in, weighted like the palette; 'secondary' the quiet fill as it sits on
+// the page, which every level keeps the same distance from its own background, in its hue; 'shadow' the one shadow
+// color, which every shadow and scrim scales the alpha of; and 'text', one color the theme takes as 400 and derives 300
+// (muted) and 500 (strongest) from where the color is used. Neutrals and text share one hue, 257, each tinted to 24% of
+// the chroma the gamut allows at its lightness, so every tone carries the same faint blue; black takes three quarters
+// of that, 18%, since the dark surfaces step up from it and the tint grows with them. Light text on a dark page reads
+// weaker than its WCAG ratio, so dark 400 sits halfway between light 400's ratio and its perceived (APCA) contrast.
+// Dark drop shadows run deeper to read at all.
+$themes: (
+    dark: (
+        primary: map.get($color, 'white'),
+        secondary: oklch(23% 0.0147 257),
+        shadow: oklch(14% 0.0103 257 / 0.1),
+        surface: map.get($color, 'black'),
+        text: oklch(90% 0.0162 257)
+    ),
+    light: (
+        primary: map.get($color, 'black'),
+        secondary: oklch(94.8% 0.0064 257),
+        shadow: oklch(32% 0.0257 257 / 0.025),
+        surface: map.get($color, 'white'),
+        text: oklch(36% 0.0325 257)
+    )
+);

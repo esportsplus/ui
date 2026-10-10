@@ -5,7 +5,7 @@
     display: grid;
     grid-template-rows: 0fr;
     overflow: hidden;
-    transition: grid-template-rows 240ms var(--announcement-drawer);
+    transition: grid-template-rows var(--duration-slow-exit) var(--announcement-drawer);
 
     // Qualified to outrank the '.overlay' it pairs with.
     &-content.overlay {
@@ -27,7 +27,7 @@
 
     @include tokens.state(active) {
         grid-template-rows: 1fr;
-        transition: grid-template-rows 280ms var(--announcement-drawer);
+        transition: grid-template-rows var(--duration-slow) var(--announcement-drawer);
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -40,7 +40,7 @@
             &,
             #{tokens.state(active)} {
                 filter: none;
-                transition: opacity 200ms var(--announcement-ease);
+                transition: opacity var(--fade-duration) var(--announcement-ease);
             }
         }
     }

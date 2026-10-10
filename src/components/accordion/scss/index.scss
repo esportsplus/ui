@@ -8,7 +8,7 @@
     display: grid;
     grid-template-rows: 1fr;
     overflow: var(--scrollbar-overflow, hidden);
-    transition: grid-template-rows .3s;
+    transition: grid-template-rows var(--transition-duration) var(--transition-timing-function);
 
     @include tokens.state(active) {
         &.accordion--scrollable {

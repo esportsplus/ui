@@ -10,8 +10,8 @@ let privacy = [
         { checked: false, id: 'analytics', label: 'Share usage analytics' }
     ],
     style = `
-        --background-active: var(--color-primary-400);
-        --background-default: var(--color-border-500);
+        --background-active: var(--color-accent-400);
+        --background-default: var(--surface-secondary-pressed);
     `;
 
 

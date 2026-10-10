@@ -1,5 +1,7 @@
-@use '/shared';
 @use '/tokens';
+@use 'css-utilities/color';
+@use 'css-utilities/hidden';
+@use 'css-utilities/icon';
 @use 'variables';
 
 .story {
@@ -83,12 +85,6 @@
         width: 16px;
     }
 
-    // Keyed off the toggle, since the icons are <svg>s, which take no dynamic class.
-    &-toggle:not(.story-toggle--paused) &-pause,
-    &-toggle--paused &-play {
-        @extend %icon-swap-active;
-    }
-
     &-slide {
         min-height: 0;
         overflow: hidden;
@@ -108,7 +104,11 @@
         background: transparent;
         border: 0;
         border-radius: 999px;
-        color: var(--muted-color);
+        @extend %color-state;
+        --color-default: var(--muted-color);
+        --color-hover: var(--toggle-color-hover);
+        --color-pressed: var(--color-hover);
+        color: var(--color);
         cursor: pointer;
         display: grid;
         height: 40px;
@@ -116,21 +116,17 @@
         outline: none;
         padding: 0;
         place-items: center;
-        transition:
-            color 0.15s ease-out,
-            scale 0.15s ease-out;
+        transition: color var(--duration-fast) var(--easing-spring);
         width: 40px;
-
-        &:active {
-            scale: 0.96;
-        }
 
         &:focus-visible {
             outline: 2px solid var(--focus-ring-color);
         }
 
-        &:hover {
-            color: var(--color);
+        // Keyed off the toggle, since the icons are <svg>s, which take no dynamic class.
+        &:not(.story-toggle--paused) .story-pause,
+        &--paused .story-play {
+            @extend %icon-swap-active;
         }
     }
 
@@ -140,7 +136,7 @@
         flex: 1;
         min-height: 0;
         position: relative;
-        transition: opacity 0.2s ease-out;
+        transition: opacity var(--duration-fast) var(--easing-spring);
         z-index: 1;
 
         &--dimmed {
@@ -173,7 +169,7 @@
 
     @media (prefers-reduced-motion: reduce) {
         &-toggle {
-            transition: color 0.15s ease-out;
+            transition: color var(--duration-fast) var(--easing-spring);
         }
     }
 }

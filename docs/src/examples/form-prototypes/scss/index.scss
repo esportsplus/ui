@@ -1,3 +1,4 @@
+@use 'css-utilities/border';
 @use '../../shared/scss/form';
 
 
@@ -8,7 +9,7 @@
     gap: var(--size-200);
 
     &-control {
-        --background: transparent;
+        --background-default: transparent;
         --border-radius: var(--border-radius-500);
         --border-width: 0px;
         --padding-horizontal: var(--size-300);
@@ -23,8 +24,12 @@
     }
 
     &-surface {
+        @extend %border-state;
+        --border-color-default: var(--surface-border-color);
+        --border-color-hover: var(--surface-border-color-active);
+        --border-color-pressed: var(--border-color-hover);
         border: var(--border-width-400) solid;
-        border-color: var(--surface-border-color);
+        border-color: var(--border-color);
         border-radius: var(--border-radius-500);
         position: relative;
         transition:
@@ -104,9 +109,8 @@
             }
         }
 
-        &:focus-within,
-        &:hover {
-            border-color: var(--surface-border-color-active);
+        &:focus-within {
+            --border-color: var(--border-color-hover);
         }
     }
 }

@@ -1,3 +1,5 @@
+@use 'css-utilities/font/geist/mono';
+
 .diffs-demo {
     display: grid;
     gap: var(--size-300);
@@ -17,10 +19,11 @@
     }
 
     &-result {
-        background: var(--color-white-400);
-        border: var(--border-width-400) solid var(--color-border-300);
+        @extend %font-geist-mono;
+        background: var(--surface-background-default);
+        border: var(--border-width-400) solid var(--surface-secondary-default);
         border-radius: var(--border-radius-300);
-        font-family: var(--font-family-mono);
+        font-family: var(--font-family);
         font-size: var(--font-size-200);
         margin: 0;
         max-height: 240px;

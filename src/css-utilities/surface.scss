@@ -1,0 +1,70 @@
+@use 'sass:math';
+@use '../shared/scss/surface';
+
+
+// A layer a level above or below whatever it sits in, counted and colored without being painted: for components that
+// route their background and shadow through their own variables, pointing them at '--surface-background-*' and
+// '--surface-shadow-*'. A sunken layer is recessed, so it casts no shadow.
+%surface-raised-level,
+%surface-sunken-level {
+    @include surface.surface-colors;
+}
+
+// Only a surface already at the top matches no raised query, so it keeps the top shadow.
+%surface-raised-level {
+    @include surface.surface-shadow(6);
+}
+
+%surface-sunken-level {
+    @include surface.surface-shadow(0);
+}
+
+// Its level is its parent's one up or down. Every element is a style container, so a style query reads the parent's
+// level where the surface sets its own, which a 'var()' on the same property could not, and picks the shadow for it.
+// Raised levels stop at 6, where the shadow and the dark steps top out, and sunken ones at -3, so a surface can still
+// sink inside one that already sits below the page; past either, a surface matches no query and keeps its parent's
+// level.
+@for $level from -3 through 5 {
+    @container style(--surface-level: #{$level}) {
+        %surface-raised-level {
+            --surface-level: #{$level + 1};
+            @include surface.surface-shadow(math.max($level + 1, 0));
+        }
+    }
+}
+
+@for $level from -2 through 6 {
+    @container style(--surface-level: #{$level}) {
+        %surface-sunken-level {
+            --surface-level: #{$level - 1};
+        }
+    }
+}
+
+// A fresh stack above everything, for dialogs: level 1 wherever it opens, so whatever opens inside counts up from it,
+// with the deepest shadow since nothing sits above it. Not counted from its parent, so it skips the queries.
+%surface-root-level {
+    @include surface.surface-colors;
+    @include surface.surface-shadow(6);
+    --surface-level: 1;
+}
+
+// The same, painted: the surface's background and shadow on the element itself.
+%surface-raised,
+%surface-root,
+%surface-sunken {
+    background: var(--surface-background-default);
+    box-shadow: var(--surface-shadow-default);
+}
+
+%surface-raised {
+    @extend %surface-raised-level;
+}
+
+%surface-root {
+    @extend %surface-root-level;
+}
+
+%surface-sunken {
+    @extend %surface-sunken-level;
+}

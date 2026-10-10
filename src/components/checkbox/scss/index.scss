@@ -1,5 +1,7 @@
 @use '/shared';
 @use '/tokens';
+@use 'css-utilities/absolute';
+@use 'css-utilities/icon';
 @use 'variables';
 
 .checkbox {

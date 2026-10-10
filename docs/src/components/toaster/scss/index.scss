@@ -1,24 +1,30 @@
+@use 'css-utilities/surface';
+
+
+
+// Floats above everything, like a dialog.
 .docs-toast {
-    --docs-toast-background: var(--color-white-300);
-    --docs-toast-border-color: var(--color-border-400);
+    @extend %surface-root-level;
+    --docs-toast-background: var(--surface-background-default);
+    --docs-toast-border-color: var(--surface-secondary-hover);
     --docs-toast-color: var(--color-text-400);
     background: var(--docs-toast-background);
     border: 1px solid var(--docs-toast-border-color);
     border-radius: var(--border-radius-500);
-    box-shadow: var(--box-shadow-300);
+    box-shadow: var(--surface-shadow-default);
     color: var(--docs-toast-color);
     padding: var(--size-400);
 
     &--dark {
-        --docs-toast-background: var(--color-text-500);
-        --docs-toast-border-color: var(--color-text-500);
-        --docs-toast-color: var(--color-white-300);
+        --docs-toast-background: var(--color-primary-500);
+        --docs-toast-border-color: var(--color-primary-500);
+        --docs-toast-color: var(--color-surface);
     }
 
     &-action {
-        --background-default: var(--color-text-500);
+        --background-default: var(--color-primary-500);
         --border-radius: 999px;
-        --color-default: var(--color-white-300);
+        --color-default: var(--color-surface);
         --padding-horizontal: var(--size-400);
         --padding-vertical: var(--size-200);
         flex-shrink: 0;
@@ -30,20 +36,21 @@
 
     // The same surface, shown as the card peeking out behind the stack with its count.
     &-overflow {
-        --docs-toast-background: var(--color-white-300);
-        --docs-toast-border-color: var(--color-border-400);
+        @extend %surface-root-level;
+        --docs-toast-background: var(--surface-background-default);
+        --docs-toast-border-color: var(--surface-secondary-hover);
         --docs-toast-color: var(--color-text-300);
         background: var(--docs-toast-background);
         border: 1px solid var(--docs-toast-border-color);
         border-radius: var(--border-radius-500);
-        box-shadow: var(--box-shadow-300);
+        box-shadow: var(--surface-shadow-default);
         color: var(--docs-toast-color);
         font-size: var(--font-size-200);
 
         &--dark {
-            --docs-toast-background: var(--color-text-500);
-            --docs-toast-border-color: var(--color-text-500);
-            --docs-toast-color: var(--color-white-300);
+            --docs-toast-background: var(--color-primary-500);
+            --docs-toast-border-color: var(--color-primary-500);
+            --docs-toast-color: var(--color-surface);
         }
     }
 

@@ -1,4 +1,6 @@
 @use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/font/geist/mono';
 
 // Shared by every part so the check, strike, and fade stay in sequence
 .tasklist {
@@ -14,10 +16,11 @@
 
 
     &-checkbox {
-        --background-active: var(--color-text-500);
-        --border-color-active: var(--color-text-500);
-        --border-color-default: var(--color-border-400);
+        --background-active: var(--color-primary-500);
+        --border-color-active: var(--color-primary-500);
+        --border-color-default: var(--surface-secondary-hover);
         --border-width: var(--border-width-400);
+        --indicator-color-default: var(--color-surface);
         --size: var(--size-500);
     }
 
@@ -33,10 +36,10 @@
     }
 
     &-item {
-        --background: var(--background-default);
-        --background-default: transparent;
+        @extend %background-state;
         // Tints the default instead of replacing it, so an opaque row stays opaque while hovered
-        --background-hover: color-mix(in oklch, var(--color-text-500) 3%, var(--background-default));
+        --background-hover: color-mix(in oklch, var(--color-primary-500) 3%, var(--background-default));
+        --background-pressed: var(--background-hover);
         --border-radius: var(--border-radius-400);
         // Read by JS: the slide that carries a row to its new place. Spring with stiffness 320 and damping 30,
         // sampled across its 500ms settle
@@ -45,11 +48,6 @@
         // The strike and fade wait on the check while it draws
         --strike-delay: 0s;
         --strike-length: 0%;
-        --transition-duration: 150ms;
-
-        @include tokens.state(hover) {
-            --background: var(--background-hover);
-        }
 
         &:has(.checkbox-tag:checked) {
             --strike-length: 100%;
@@ -71,25 +69,24 @@
     &-label {
         --color: var(--color-text-500);
         --font-weight: var(--font-weight-500);
-        --strike-color: var(--color-border-400);
+        --strike-color: var(--surface-secondary-hover);
         --strike-width: 2px;
     }
 
     &-row {
         --font-size: var(--font-size-400);
-        --gap: 10px;
+        --gap: var(--size-200);
         --line-height: var(--size-500);
         --padding-horizontal: var(--size-100);
         --padding-vertical: var(--size-100);
 
         &--sortable {
             &::before {
-                --background: var(--color-text-300);
+                --background: var(--color-primary-300);
                 --opacity: var(--opacity-default);
                 --opacity-default: 0;
                 --opacity-hover: 1;
-                --size: 16px;
-                --transition-duration: 150ms;
+                --size: var(--size-400);
             }
 
             @include tokens.state(hover) {
@@ -101,8 +98,8 @@
     }
 
     &--plan .tasklist-label::before {
+        @extend %font-geist-mono;
         --color: var(--color-text-300);
-        --font-family: var(--font-family-mono);
         --font-size: var(--font-size-200);
         --font-weight: var(--font-weight-500);
         --gap: 6px;

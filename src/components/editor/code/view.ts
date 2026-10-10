@@ -51,7 +51,11 @@ type Callbacks = {
 type CodeController = Omit<Controller, 'state'> & {
     // A reactive snapshot for toolbars and status bars; read-only.
     readonly state: State;
+    // Set once the editor connects; the 'controller' callback runs after that.
+    readonly textarea: HTMLTextAreaElement;
     conflicts(): Conflict[];
+    // The lines the folded blocks start on, as 'fold' takes them.
+    folds(): number[];
     // Each moves the caret to the next or previous one, wrapping around; false when there are none.
     nextChange(): boolean;
     nextConflict(): boolean;
@@ -69,14 +73,12 @@ type CodeController = Omit<Controller, 'state'> & {
 // The controller both editors share; the code editor's is 'CodeController'.
 type Controller = {
     readonly document: EditorDocument;
-    // The editor's root element; set once the editor connects, like 'scroller' and 'textarea'.
+    // The editor's root element; set once the editor connects, like 'scroller'.
     readonly host: HTMLElement;
     // The element that scrolls the text.
     readonly scroller: HTMLElement;
     // A reactive snapshot for toolbars and status bars; read-only.
     readonly state: Snapshot;
-    // Set once the editor connects; the 'controller' callback runs after that.
-    readonly textarea: HTMLTextAreaElement;
     addNextOccurrence(all?: boolean): boolean;
     closeFind(): void;
     dispose(): void;
@@ -157,6 +159,8 @@ type Options = {
     lineNumbers?: boolean;
     // URLs open on Mod+click, in a new tab or through the handler, which also gets file URLs and relative paths.
     links?: boolean | ((url: string) => void);
+    // A CSS length, or pixels; left out, the '--min-height' variable applies.
+    minHeight?: number | string;
     minimap?: boolean;
     name?: string;
     // Ctrl/Cmd+Space requests completion; text changes stay observable through onChange.
@@ -285,6 +289,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             highlight: true,
             label: 'Code editor',
             lineNumbers: true,
+            minHeight: '',
             minimap: false,
             name: '',
             placeholder: '',
@@ -1452,6 +1457,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             model.select({ start: 0 });
             rebuild();
         },
+        folds: () => folded.map((fold) => fold.line),
         goToLine: (line, column = 1) => {
             if (disposed || ime.busy()) {
                 return;
@@ -1630,6 +1636,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             ui.highlight = options.highlight !== false;
             ui.label = options.label ?? 'Code editor';
             ui.lineNumbers = options.lineNumbers !== false;
+            ui.minHeight = typeof options.minHeight === 'number' ? `${options.minHeight}px` : options.minHeight ?? '';
             ui.minimap = !!options.minimap;
             ui.name = options.name ?? '';
             ui.placeholder = options.placeholder ?? '';
@@ -2050,7 +2057,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                     receive?.(controller);
                 },
                 ondisconnect: () => controller.dispose(),
-                style: () => `--content-width: ${ui.width}px; --digits: ${ui.digits}; --tab-size: ${ui.tabSize}; --track-height: ${ui.trackHeight}px; --track-width: ${ui.trackWidth}px;`
+                style: () => `--content-width: ${ui.width}px; --digits: ${ui.digits}; --tab-size: ${ui.tabSize}; --track-height: ${ui.trackHeight}px; --track-width: ${ui.trackWidth}px;${ui.minHeight && ` --min-height: ${ui.minHeight};`}`
             }}
         >
             ${search.template()}

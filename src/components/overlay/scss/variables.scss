@@ -1,20 +1,18 @@
-// The same curve run backwards, so an exit plays its entrance in reverse.
-@function reversed($x1, $y1, $x2, $y2) {
-    @return cubic-bezier(1 - $x2, 1 - $y2, 1 - $x1, 1 - $y1);
-}
-
-
 .overlay {
     --backdrop: color-mix(in srgb, var(--color-black-500) 64%, transparent);
+    --close-duration: var(--duration-slow-exit);
+    // Read by JS for a flow overlay's space, which grows and gives way without bouncing.
+    --ease: var(--easing-spring);
     // Read by JS: the longest a dragged-away overlay is thrown for.
     --fling-duration: 500ms;
-    --handle-color: var(--color-border-300);
+    --handle-color: var(--surface-secondary-default);
     --handle-length: 40px;
     --handle-offset: var(--size-200);
     --handle-thickness: 6px;
     --margin-horizontal: 0px;
     --margin-vertical: 0px;
     --max-width: 480px;
+    --open-duration: var(--duration-slow);
     --scale: 1;
     --stack-dim: 0.2;
     --stack-peek: 18px;
@@ -22,6 +20,8 @@
     // Covered layers scale about their anchor, so the far edge moves back by '--stack-span' of the size before it
     // peeks.
     --stack-shift: calc(var(--depth, 0) * var(--stack-peek) + (1 - pow(var(--stack-scale), var(--depth, 0))) * var(--stack-span));
+    --transition-duration: var(--open-duration);
+    --transition-timing-function: var(--easing-spring-bounce);
     --width-closed: 64px;
 
     // Dragged away, it fades where it was let go.
@@ -29,30 +29,10 @@
         --fling-duration: 0s;
     }
 
-    // The root curve, reversed.
+    // Exits get out of the way faster than entrances arrive, and settle without the bounce.
     &:where(:not(.--active)) {
-        --transition-timing-function: #{reversed(0.4, 0, 0.2, 1)};
-    }
-
-    &--e,
-    &--n,
-    &--ne,
-    &--nw,
-    &--s,
-    &--se,
-    &--sw,
-    &--w {
-        --close-duration: 0.3s;
-        // The iOS drawer curve: fast out of the gate, long gentle settle.
-        --ease: cubic-bezier(0.32, 0.72, 0, 1);
-        --open-duration: 0.5s;
-        --transition-duration: var(--open-duration);
-        --transition-timing-function: var(--ease);
-
-        // Exits get out of the way faster than entrances arrive.
-        &:where(:not(.--active)) {
-            --transition-duration: var(--close-duration);
-        }
+        --transition-duration: var(--close-duration);
+        --transition-timing-function: var(--easing-spring);
     }
 
     &--e,
@@ -71,13 +51,7 @@
         --blur: 4px;
         --opacity: 0;
         --scale: 0.95;
-        --transition-duration: 100ms;
-        --transition-timing-function: ease;
         --translate: 0px;
-
-        &:where(:not(.--active)) {
-            --transition-timing-function: #{reversed(0.25, 0.1, 0.25, 1)};
-        }
     }
 
     &--blur {
@@ -99,12 +73,7 @@
     &--spring {
         --opacity: 0;
         --scale: 0.8;
-        --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
         --translate: 0px;
-
-        &:where(:not(.--active)) {
-            --transition-timing-function: #{reversed(0.34, 1.56, 0.64, 1)};
-        }
     }
 }
 
@@ -112,6 +81,6 @@
     --dim: 0.2;
     --peek: 18px;
     --scale: 0.94;
-    --transition-duration: 0.5s;
-    --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    --transition-duration: var(--duration-slow);
+    --transition-timing-function: var(--easing-spring);
 }

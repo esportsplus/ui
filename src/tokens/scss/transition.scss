@@ -1,4 +1,17 @@
-$transition: (
-    duration: 0.16s,
-    timing-function: cubic-bezier(0.4, 0, 0.2, 1)
+// Springs sampled into linear(), so each duration is the spring's full settle. It arrives visually at about 60% of
+// that (fast 80ms, moderate 160ms, slow 240ms), and each exit settles a tier quicker than its entrance.
+$duration: (
+    fast: 130ms,
+    fast-exit: 100ms,
+    moderate: 260ms,
+    moderate-exit: 190ms,
+    slow: 350ms,
+    slow-exit: 260ms
+);
+
+// 'spring' is critically damped, for hovers, toggles, dropdowns and tabs; 'spring-bounce' (bounce 0.12) is for
+// dialogs and drawers.
+$easing: (
+    spring: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
+    spring-bounce: linear(0, 0.0429, 0.1422, 0.2659, 0.3936, 0.5136, 0.6199, 0.71, 0.7838, 0.8427, 0.8885, 0.9232, 0.9489, 0.9675, 0.9806, 0.9896, 0.9955, 0.9992, 1.0013, 1.0025, 1.0029, 1.0029, 1.0027, 1.0024, 1)
 );

@@ -132,7 +132,7 @@ const SECTIONS = Array.from(
 
 function action(label: string, run: VoidFunction, glyph?: string) {
     return html`
-        <button class='button --background-white --border-border --color-text code-editor-demo-action' onclick='${run}' type='button'>
+        <button class='button code-editor-demo-action' onclick='${run}' type='button'>
             ${glyph && icon({ 'aria-hidden': 'true', class: 'code-editor-demo-icon' }, glyph)}
             ${label}
         </button>
@@ -446,7 +446,7 @@ function languages() {
 function markdown() {
     let document = new EditorDocument(workspaceFiles['README.md']),
         controller: MarkdownController | undefined,
-        state = reactive({ dirty: false, minimap: false });
+        state = reactive({ dirty: false, fold: false, minimap: false });
 
     return html`
         <div class='code-editor-demo'>
@@ -457,6 +457,9 @@ function markdown() {
                 ${action('Redo', () => controller?.redo(), redo)}
                 ${action('Load 1,500 sections', () => controller?.setValue(SECTIONS))}
                 ${action('Restore', () => controller?.setValue(workspaceFiles['README.md']))}
+                ${flag('Fold', () => state.fold, (value) => {
+                    state.fold = value;
+                })}
                 ${flag('Minimap', () => state.minimap, (value) => {
                     state.minimap = value;
                 })}
@@ -474,7 +477,7 @@ function markdown() {
                     document.markSaved();
                     state.dirty = false;
                 },
-                options: () => ({ label: 'Markdown example', minimap: state.minimap })
+                options: () => ({ fold: state.fold, label: 'Markdown example', minimap: state.minimap })
             })}
             <div aria-live='polite' class='code-editor-demo-status'>
                 <span>${() => state.dirty ? 'Unsaved changes' : 'Saved'}</span>
@@ -485,7 +488,8 @@ function markdown() {
                 { keys: ['Mod+S'], label: 'Save' }
             ])}
             <p class='code-editor-demo-caption'>
-                Click a block to edit its Markdown source; the rest stay rendered. Task checkboxes toggle in place and
+                Edit the rendered text directly: the Markdown underneath updates as you type and its syntax never shows.
+                Type # for a heading, - for a list, [] for a to-do and > for a quote. Task checkboxes toggle in place and
                 every edit lands in the same document and undo history.
             </p>
         </div>
@@ -633,6 +637,49 @@ function view() {
     `;
 }
 
+function viewer() {
+    let flags = reactive({ minimap: true, whitespace: false, wrap: false }),
+        state = reactive({ active: false, error: '', selected: LANGUAGES[0].value as string });
+
+    return html`
+        <div class='code-editor-demo'>
+            <div class='code-editor-demo-actions'>
+                <div class='code-editor-demo-field'>
+                    <span aria-hidden='true'>Language</span>
+                    ${select({ label: 'Language', options: LANGUAGES.map((language) => ({ ...language })), state })}
+                </div>
+                ${flag('Wrap', () => flags.wrap, (value) => {
+                    flags.wrap = value;
+                })}
+                ${flag('Whitespace', () => flags.whitespace, (value) => {
+                    flags.whitespace = value;
+                })}
+                ${flag('Minimap', () => flags.minimap, (value) => {
+                    flags.minimap = value;
+                })}
+            </div>
+            ${() => {
+                let path = String(state.selected),
+                    { minimap, whitespace, wrap } = flags;
+
+                return untrack(() => editor.viewer({
+                    class: 'code-editor-demo-viewer',
+                    copy: true,
+                    filename: path,
+                    minimap,
+                    value: workspaceFiles[path as keyof typeof workspaceFiles],
+                    whitespace,
+                    wrap
+                }));
+            }}
+            <p class='code-editor-demo-caption'>
+                The viewer renders source without the editor: syntax colors, line numbers, folding, wrap, visible
+                whitespace, a minimap and a copy button, and the text selects and copies like any page text.
+            </p>
+        </div>
+    `;
+}
+
 
 export default {
     name: 'code-editor',
@@ -662,6 +709,10 @@ export default {
             title: 'read-only: selection, find, copy and folding without edits'
         },
         {
+            render: viewer,
+            title: 'viewer: syntax colors, line numbers, folding, wrap, whitespace, minimap and copy, without the editor'
+        },
+        {
             render: services,
             title: 'language services: completion, hover and diagnostics over a transport'
         },
@@ -675,7 +726,7 @@ export default {
         },
         {
             render: markdown,
-            title: 'markdown: rendered in place, edited one block at a time'
+            title: 'markdown: edited as rendered, its syntax never shown'
         },
         workspaceExample
     ]

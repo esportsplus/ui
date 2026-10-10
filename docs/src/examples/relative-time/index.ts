@@ -79,7 +79,7 @@ export default {
                                 synced ${relativeTime({ date: states[2].date, state: states[2] })}
                             </span>
                         </p>
-                        <button class='button --background-blue --color-white' onclick=${play} type='button'>
+                        <button class='button relative-time-demo-button' onclick=${play} type='button'>
                             fast-forward the clock
                         </button>
                     </div>
@@ -119,7 +119,7 @@ export default {
                         <p class='relative-time-demo-feed'>
                             Last saved ${relativeTime({ date: null, state })}
                         </p>
-                        <button class='button --background-blue --color-white' onclick=${() => {
+                        <button class='button relative-time-demo-button' onclick=${() => {
                             state.date = Date.now();
                         }} type='button'>
                             save now

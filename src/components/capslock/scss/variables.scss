@@ -3,15 +3,13 @@
 .capslock {
     --font-size: var(--font-size-300);
     --gap-horizontal: var(--size-200);
-    --icon-height: 10px;
+    --icon-height: var(--size-200);
     --icon-width: 12px;
-    --light-color: var(--color-border-400);
+    --light-color: var(--surface-secondary-hover);
     --light-color-active: var(--color-green-400);
     --light-inset: 3px;
     --light-shadow: none;
     --light-size: 4px;
-    --transition-duration: 150ms;
-    --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
     @include tokens.state(active) {
         --light-color: var(--light-color-active);

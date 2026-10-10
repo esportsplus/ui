@@ -1,4 +1,6 @@
 @use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/surface';
 @use 'field';
 
 .input {
@@ -7,22 +9,23 @@
 
 
 .input-scrub {
-    --background: var(--color-white-300);
+    @extend %background-state, %surface-raised-level;
+    --background-default: var(--surface-background-default);
     --border-radius: var(--border-radius-400);
     --color: var(--color-text-500);
-    --field-padding: 10px;
+    --field-padding: var(--size-200);
     --font-size: var(--font-size-300);
     --height: 40px;
     --label-color: var(--color-text-300);
     --label-color-active: var(--color-text-500);
     --label-width: 36px;
-    --needle-color: var(--color-text-500);
-    --outline-color: var(--color-text-500);
+    --needle-color: var(--color-primary-500);
+    --outline-color: var(--color-primary-500);
     --outline-width: var(--border-width-500);
-    --tape-color: var(--color-text-300);
+    --tape-color: var(--color-primary-300);
     --tape-duration: var(--tape-leave-duration);
     --tape-enter-duration: 150ms;
-    --tape-height: 8px;
+    --tape-height: var(--size-100);
     --tape-leave-duration: 200ms;
     --tape-major-height: 6px;
     --tape-minor-height: 3px;
@@ -51,43 +54,39 @@
 
 
 .input-tag {
-    --box-background: var(--color-grey-400);
     --box-border-radius: 14px;
     --box-padding: 6px;
-    --box-shadow: var(--box-shadow-200);
-    --chip-background: var(--color-white-300);
-    --chip-background-active: var(--color-text-500);
+    --chip-background-active: var(--color-primary-500);
     // Read by JS: how far a chip blurs as it comes and goes; half that leaving.
     --chip-blur: 4px;
     // 8px inside 6px of box padding keeps the 14px box concentric.
     --chip-border-radius: var(--border-radius-400);
     --chip-color: var(--color-text-500);
-    --chip-color-active: var(--color-white-300);
+    --chip-color-active: var(--color-surface);
     --chip-height: 32px;
-    --chip-remove-color: var(--color-text-300);
-    --chip-remove-color-hover: var(--color-text-500);
-    --chip-remove-hover-background: oklch(from var(--color-text-500) l c h / 0.06);
+    --chip-remove-color: var(--color-primary-300);
+    --chip-remove-color-hover: var(--color-primary-500);
+    --chip-remove-hover-background: var(--surface-background-hover);
     // Read by JS: what a formed chip's remove button grows from, what a chip grows from and shrinks to, how far a
     // repeated tag's chip shakes and how dim it goes, and how the row slides (no bounce: closing up reads as settled).
     --chip-remove-scale: 0.25;
     --chip-scale: 0.9;
-    --chip-shadow: var(--box-shadow-100);
     --chip-shake: 4px;
     --chip-shake-opacity: 1;
     --chip-slide-duration: 410ms;
     --chip-slide-easing: linear(0, 0.038, 0.116, 0.219, 0.326, 0.43, 0.518, 0.602, 0.674, 0.731, 0.782, 0.825, 0.858, 0.886, 0.91, 0.928, 0.942, 0.955, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
     --color: var(--color-text-500);
-    --entry-min-width: 120px;
+    --entry-min-width: var(--spacer-400);
     --font-size: var(--font-size-300);
     --gap: 6px;
     --hint-color: var(--color-text-300);
     --hint-font-size: var(--font-size-200);
     --label-font-size: var(--font-size-300);
     --label-font-weight: var(--font-weight-500);
-    --outline-color: var(--color-text-500);
+    --outline-color: var(--color-primary-500);
     --placeholder-color: var(--color-text-300);
     // Shared by a chip's text and the field, so a typed tag becomes a chip without its letters shifting.
-    --text-inset: 10px;
+    --text-inset: var(--size-200);
     --width: min(440px, 100%);
 
     // Chips fade where they stand, and a repeated tag's chip dims instead of shaking.

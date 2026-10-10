@@ -1,12 +1,17 @@
-@use '/shared';
+@use 'css-utilities/background';
+@use 'css-utilities/border';
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/layer';
 @use 'expand';
 @use 'variables';
 @use '../../frame/scss/index';
 
 .card {
-    @extend %background-state, %border-state;
+    @extend %background-state, %border-state, %box-shadow-state;
     background: var(--background);
+    border: var(--border-width) solid var(--border-color);
     border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
     padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
     padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
     position: relative;
@@ -23,6 +28,18 @@
     // Pseudo Element Box Shadow
     &::after {
         @extend %layer-box-shadow;
+    }
+
+
+    // A soft halo around the card, layered over whichever shadow it has at the time. Keyboard focus shows it as
+    // hover does.
+    &--ring {
+        @extend %box-shadow-outline;
+        box-shadow: var(--box-shadow-outline), var(--box-shadow);
+
+        &:focus-visible {
+            --box-shadow-outline-color: var(--box-shadow-outline-color-hover);
+        }
     }
 
 
@@ -57,20 +74,22 @@
     }
 
     // Pinned to its natural size, so text never reflows while the shell morphs around it.
-    &-morph-layer {
-        left: 0;
-        padding-block: var(--padding-vertical);
-        padding-inline: var(--padding-horizontal);
-        position: absolute;
-        top: 0;
-        width: max-content;
-    }
+    &-morph {
+        &-layer {
+            left: 0;
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
+            position: absolute;
+            top: 0;
+            width: max-content;
+        }
 
-    &-morph-viewport {
-        border-radius: inherit;
-        height: 100%;
-        overflow: clip;
-        position: relative;
-        width: 100%;
+        &-viewport {
+            border-radius: inherit;
+            height: 100%;
+            overflow: clip;
+            position: relative;
+            width: 100%;
+        }
     }
 }

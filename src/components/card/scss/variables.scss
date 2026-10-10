@@ -1,33 +1,37 @@
+@use 'css-utilities/surface';
+
+
+
 // Shared with the view transition pseudos, which hang off the root and can't read the card's own variables.
 $expand-border-radius: 18px;
-$expand-box-shadow:
-    0 0 0 var(--border-width-400) oklch(from var(--color-black-500) l c h / 0.06),
-    0 1px 2px oklch(from var(--color-black-500) l c h / 0.06),
-    0 6px 16px -6px oklch(from var(--color-black-500) l c h / 0.12);
+// The pseudos sit above the themed element too, so they see no theme colors: theirs is a constant black shadow.
+$expand-transition-box-shadow:
+    0 0 0 var(--border-width-400) oklch(from var(--color-black-300) l c h / 0.06),
+    0 2px 3px -2px oklch(from var(--color-black-300) l c h / 0.07),
+    0 4px 12px -4px oklch(from var(--color-black-300) l c h / 0.06);
 
+// A surface: a level above whatever it sits in, painted and lifted to match.
 .card {
+    @extend %surface-raised-level;
+    --background-default: var(--surface-background-default);
     --border-color-default: var(--background);
-    // The card draws no border of its own; a consumer adding one sets this, so the box keeps its size.
+    // No border until a consumer sets a width; the padding insets by it, so the box keeps its size.
     --border-width: 0px;
-    --box-shadow: var(--box-shadow-default);
-    --box-shadow-default: none;
-    --padding-horizontal: 0px;
-    --padding-vertical: 0px;
+    --box-shadow-default: var(--surface-shadow-default);
     --width: auto;
 
 
     &--expand,
     &-expand-dialog {
-        --background-default: var(--surface-background);
+        --background-default: var(--expand-background);
         --border-radius: #{$expand-border-radius};
         --border-width: 0px;
-        --box-shadow-default: #{$expand-box-shadow};
+        --box-shadow-default: var(--surface-shadow-default);
     }
 
     &--expand {
         --padding-horizontal: 18px;
-        --padding-vertical: 16px;
-        --pressed-scale: 0.96;
+        --padding-vertical: var(--size-400);
         --width: 100%;
     }
 
@@ -53,21 +57,26 @@ $expand-box-shadow:
         }
     }
 
+    &--ring {
+        --box-shadow-outline-color-active: var(--box-shadow-outline-color-pressed);
+        --box-shadow-outline-color-hover: var(--surface-border-default);
+        --box-shadow-outline-color-pressed: var(--surface-border-hover);
+    }
+
     &-expand {
-        --dialog-backdrop: oklch(from var(--color-text-500) l c h / 0.15);
+        --dialog-backdrop: oklch(from var(--color-shadow) 0 0 0 / calc(alpha + 0.06));
         --dialog-width: 440px;
         --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-        --focus-ring-color: oklch(from var(--color-text-500) l c h / 0.38);
+        --expand-background: var(--surface-background-default);
+        --focus-ring-color: var(--surface-border-pressed);
         --list-gap: 12px;
         --max-width: 400px;
         --muted-color: var(--color-text-300);
-        --slot-background: oklch(from var(--color-text-500) l c h / 0.03);
-        --slot-border-color: var(--color-border-300);
-        --surface-background: var(--color-grey-400);
+        --slot-border-color: var(--surface-secondary-default);
         --text-color: var(--color-text-500);
 
         &-close {
-            --background-hover: var(--color-white-300);
+            --background-hover: var(--surface-background-hover);
             --border-radius: 999px;
             --border-width: 0px;
             --color-default: var(--muted-color);
@@ -82,8 +91,6 @@ $expand-box-shadow:
             --margin-horizontal: 1rem;
             --max-width: var(--dialog-width);
             --padding: 24px;
-            --transition-duration: 0.2s;
-            --transition-timing-function: var(--ease-out);
             --width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
         }
     }
