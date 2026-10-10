@@ -480,19 +480,19 @@ build/
 
 ## Fonts
 
-Use the font's stylesheet and extend its family placeholder on `html` or `body`:
+Use the font's stylesheet and extend one of its family placeholders on `html` or `body`:
 
 ```scss
 @use '@esportsplus/ui/css-utilities/font/montserrat.scss';
 
 body {
-    @extend %font-montserrat, %font-montserrat-wght;
+    @extend %font-montserrat-uniwidth;
 }
 ```
 
 `@esportsplus/ui/css-utilities/font/geist.scss` includes Geist Sans and Geist Mono, extended as `%font-geist` and
-`%font-geist-mono`. The `-wght` placeholders tighten tracking as the weight rises, so a label changing weight keeps its
-width.
+`%font-geist-mono`. Each `-uniwidth` placeholder is its family plus tracking that tightens as the weight rises, so a
+label changing weight keeps its width, as a uniwidth font's would; extend it in place of the family, not beside it.
 
 Family placeholders define `--font-family` and their `--font-weight-*` token maps.
 Components consume these variables through their own `font-family` and

@@ -28,9 +28,11 @@
         600: 700
     ));
 
-    // Montserrat widens about 0.008em a character for every 100 of weight; the root tightens tracking by as much, so a
-    // label changing weight keeps its width.
-    &-wght {
+    // The family with width-stable weights, so it is the one placeholder to extend: Montserrat widens about 0.008em a
+    // character for every 100 of weight, and the root tightens tracking by as much, so a label changing weight keeps
+    // its width.
+    &-uniwidth {
+        @extend %font-montserrat;
         --font-weight-tracking: 0.00008em;
     }
 }

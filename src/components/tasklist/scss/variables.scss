@@ -1,6 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/background';
-@use 'css-utilities/font/geist/mono';
+@use 'css-utilities/font/geist';
 
 // Shared by every part so the check, strike, and fade stay in sequence
 .tasklist {

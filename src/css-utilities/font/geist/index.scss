@@ -1,5 +1,4 @@
 @use '../../../shared/scss/css-variables' as shared;
-@use 'mono';
 
 
 @font-face {
@@ -18,6 +17,24 @@
     src: url('./Geist-Italic-Variable.woff2') format('woff2');
 }
 
+// Geist Mono, for components that set code and figures in it whatever family the page uses: extending
+// '%font-geist-mono' loads the face with the component and points the element's '--font-family' at it.
+@font-face {
+    font-display: swap;
+    font-family: 'Geist Mono';
+    font-style: normal;
+    font-weight: 100 900;
+    src: url('./GeistMono-Variable.woff2') format('woff2');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Geist Mono';
+    font-style: italic;
+    font-weight: 100 900;
+    src: url('./GeistMono-Italic-Variable.woff2') format('woff2');
+}
+
 
 %font-geist {
     --font-family: 'Geist', sans-serif;
@@ -32,11 +49,15 @@
         ));
     }
 
-    // Geist widens about 0.0115em a character for every 100 of weight; the root tightens tracking by as much, so a
-    // label changing weight keeps its width. Geist Mono keeps one advance at every weight, so it needs none.
-    &-wght {
+    &-mono {
+        --font-family: 'Geist Mono', monospace;
+    }
+
+    // The family with width-stable weights, so it is the one placeholder to extend: Geist widens about 0.0115em a
+    // character for every 100 of weight, and the root tightens tracking by as much, so a label changing weight keeps
+    // its width. Geist Mono keeps one advance at every weight, so it needs none.
+    &-uniwidth {
+        @extend %font-geist;
         --font-weight-tracking: 0.000115em;
     }
 }
-
-
