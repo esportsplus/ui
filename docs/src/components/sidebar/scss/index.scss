@@ -121,10 +121,17 @@
         }
     }
 
-    // The active link fills with secondary rather than the primary, so it keeps the plain active text color.
+    // The active link sits on a raised surface rather than the primary, so it keeps the plain active text color.
     .nav-tree {
-        --highlight-background-active: var(--surface-secondary-active);
         --highlight-color: var(--color-text-500);
+    }
+
+    // Read on the highlight, where the level is one above the sidebar's.
+    .nav-tree-highlight.highlight {
+        --background-active: var(--surface-background-default);
+        --surface-level: 2;
+        box-shadow: var(--surface-shadow-default);
+        border: 1px solid var(--surface-border-default);
     }
 
     @include tokens.state(active) {
