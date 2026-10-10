@@ -112,7 +112,7 @@ html`
 ### Layout
 | Component | Description |
 |-----------|-------------|
-| `scrollbar` | `--scrollbar-scope` on a site or subtree root styles that root and its descendants, with smooth scrolling (instant under reduced motion); overscroll containment applies to the scope root and explicit `--scrollbar` containers, allowing clipped descendants to pass wheel input to their scroller. Containers keep their own overflow and gutters, while children can override inherited variables or add scrollbar modifiers without the base class. `--scrollbar-behavior` and `--scrollbar-overscroll` customize scrolling. All visible variants use arrowless custom bars in Chromium/WebKit: `--scrollbar-size` sets the thumb's resting width (default `6px`; `--scrollbar-auto` uses the platform width), widening to `--scrollbar-size-hover` (default `--scrollbar-size` + `2px`, which is also the gutter width) while hovered or dragged; `--scrollbar-align` places that growth (default `0` hugs the window edge and grows toward the content, `0.5` grows both ways), and `--scrollbar-rail-color` paints the track (default `transparent`, also used natively elsewhere); and `--scrollbar-border-radius` rounds it (defaults to a third of `--scrollbar-size`, `3px` under `--scrollbar-auto`; use `0px` for square corners). The thumb follows the token state system: `--scrollbar-color-default`, `--scrollbar-color-hover` and `--scrollbar-color-pressed` (default black `400`/`300`/`500`), or a color modifier such as `--scrollbar-blue`. `--scrollbar-hidden` hides the bar. Other browsers retain native rendering, with `--scrollbar-width` (default `thin`) accepting `auto`, `thin`, or `none`, the default color, and native thumb corners. `--scrollbar-horizontal` scrolls x only; edge effects driven by scroll timelines, each edge reaching full strength once the content has scrolled the effect's size (`--scroll-fade-size`, `--scroll-blur-size`) past it, and running along x when combined with `--scrollbar-horizontal` (`import { scrollbar } from '@esportsplus/ui/css-utilities'`): the `--scrollbar-fade` class works alone and leaves custom bars unfaded, with `scrollbar.fade()` adding a JS fallback only where timelines are unsupported, while blur needs `scrollbar.blur()`, which inserts the sticky blur edges (the `--scrollbar-blur` class alone renders nothing) and adds the same fallback; a horizontal blur lays the scroller out as a flex row so the edges sit beside its content; `scrollbar.drag('horizontal' \| 'vertical' \| 'both')` adds mouse drag-to-scroll (`--scrollbar-drag`) |
+| `scrollbar` | `--scrollbar-scope` on a site or subtree root styles that root and its descendants, with smooth scrolling (instant under reduced motion); overscroll containment applies to the scope root and explicit `--scrollbar` containers, allowing clipped descendants to pass wheel input to their scroller. Containers keep their own overflow and gutters, while children can override inherited variables or add scrollbar modifiers without the base class. `--scrollbar-behavior` and `--scrollbar-overscroll` customize scrolling. All visible variants use arrowless custom bars in Chromium/WebKit: `--scrollbar-size` sets the thumb's resting width (default `6px`; `--scrollbar-auto` uses the platform width), widening to `--scrollbar-size-hover` (default `--scrollbar-size` + `2px`, which is also the gutter width) while hovered or dragged; `--scrollbar-align` places that growth (default `0` hugs the window edge and grows toward the content, `0.5` grows both ways), and `--scrollbar-rail-color` paints the track (default `transparent`, also used natively elsewhere); and `--scrollbar-border-radius` rounds it (defaults to a third of `--scrollbar-size`, `3px` under `--scrollbar-auto`; use `0px` for square corners). The thumb follows the token state system: `--scrollbar-color-default`, `--scrollbar-color-hover` and `--scrollbar-color-pressed` (default black `400`/`300`/`500`), or a color modifier such as `--scrollbar-blue`. `--scrollbar-hidden` hides the bar. Other browsers retain native rendering, with `--scrollbar-width` (default `thin`) accepting `auto`, `thin`, or `none`, the default color, and native thumb corners. `--scrollbar-horizontal` scrolls x only; edge effects driven by scroll timelines, each edge reaching full strength once the content has scrolled the effect's size (`--scroll-fade-size`, `--scroll-blur-size`) past it, and running along x when combined with `--scrollbar-horizontal` (`import { scrollbar } from '@esportsplus/ui/modifiers'`): the `--scrollbar-fade` class works alone and leaves custom bars unfaded, with `scrollbar.fade()` adding a JS fallback only where timelines are unsupported, while blur needs `scrollbar.blur()`, which inserts the sticky blur edges (the `--scrollbar-blur` class alone renders nothing) and adds the same fallback; a horizontal blur lays the scroller out as a flex row so the edges sit beside its content; `scrollbar.drag('horizontal' \| 'vertical' \| 'both')` adds mouse drag-to-scroll (`--scrollbar-drag`) |
 | `card.scss` | Surface (background, radius, shadow and padding variables); `card--morph` makes it a shell that morphs between stacked `card-morph-layer`s inside a clipping `card-morph-viewport`: size it through `--morph-width`/`--morph-height`, each layer is a `frame frame--swap` (mark the shown one `--active`, set `--i` on the viewport and `--n` on each layer), `card--instant` snaps; `--morph-*` variables tune the motion |
 | `frame.scss` | Sibling frames sharing one spot, the `--active` one shown: instant by default, `frame--slide` / `frame--scroll` move them like a horizontal / vertical track, `frame--swap` crossfades in place with a directional drift and blur (the `tooltip.shared` swap); shared by `command`, `tooltip.shared` and `card--morph` |
 | `overlay` | Native `<dialog>` driven by `state.active` (Esc and backdrop click close it), placed by `overlay--c` (default), an edge (`overlay--n`, `overlay--s`, `overlay--w`, `overlay--e`) or a corner (`overlay--ne`, `overlay--se`, `overlay--sw`, `overlay--nw`, which enter and drag off by their top or bottom edge); placements slide in from their side on the iOS drawer curve and square the corners they touch unless `overlay--floating`. Every overlay but a rail drags to dismiss (toward its edge, or downward when centered) past 25% or on a flick, rubber-bands inward and fades the backdrop with the drag; when its own content scrolls, touch drags only from `overlay.handle`. Overlays opened over one another stack: each covered layer shrinks, dims and peeks out from under the one above (`--stack-scale`, `--stack-dim`, `--stack-peek`) and follows the top layer back as it is dragged away; an `overlay-page` direct child of `<body>` (or of a non-modal overlay's container) recedes the same way; `modal: false` opens without a backdrop, leaves the page interactive and sits in its positioned container; `flow: true` keeps it non-modal in the page layout, preserves focus, skips layer stacking, and collapses its parent row during vertical drag dismissal (used by `announcement`); `rail: true` keeps it open non-modal and widens it while a mouse hovers or keyboard focus is inside (or `state.active` is set) from `--width-closed` to `--max-width`, clipping rows rather than reflowing them. Motion: `overlay--fade`, `overlay--scale`, `overlay--spring`, `overlay--alert`, `overlay--blur` |
@@ -292,7 +292,7 @@ Styles are organized into layers for proper cascade:
 ```
 @layer normalize
 @layer components
-@layer css-utilities
+@layer modifiers
 ```
 
 ### Importing Styles
@@ -304,8 +304,8 @@ Styles are organized into layers for proper cascade:
 // Specific component
 @use '@esportsplus/ui/button.scss';
 
-// CSS utilities
-@use '@esportsplus/ui/css-utilities.scss';
+// One family of placeholders, to extend
+@use '@esportsplus/ui/css-utilities/flex.scss';
 
 // Design tokens
 @use '@esportsplus/ui/tokens.scss';
@@ -339,22 +339,27 @@ Located in `tokens.scss`:
 - **Border**: `--border-radius-{100-900}`, `--border-width-{100-700}`
 - **Typography**: `--font-size-*`, `--font-weight-*`; line height adjusts automatically to each element's font size.
 
-### CSS Utilities
+### Modifiers
 
-The utility classes are `--scrollbar*` and the fonts; `glass()` is spread as attributes.
+Modifiers add behavior to existing elements, so each is used through its script, which loads its styles and sets up
+what its `--*` classes need: `scrollbar` (`--scrollbar*`) and `glass()`, spread as attributes.
 
-```html
-<div class="--scrollbar --scrollbar-hover">
+```typescript
+import { glass, scrollbar } from '@esportsplus/ui/modifiers';
 ```
 
-Layout, color, text and loading helpers are Sass placeholders in `@esportsplus/ui/shared.scss`, extended on your own
-selectors:
+### CSS Utilities
+
+Layout, color, text, surface, font and loading styles are Sass placeholders, extended on your own selectors. Each
+family is its own stylesheet, used where it is extended, so a stylesheet only emits what it extends:
 
 ```scss
-@use '@esportsplus/ui/shared.scss';
+@use '@esportsplus/ui/css-utilities/background.scss';
+@use '@esportsplus/ui/css-utilities/flex.scss';
+@use '@esportsplus/ui/css-utilities/text.scss';
 
 .toolbar {
-    @extend %background-surface, %border-surface, %color-text, %flex-vertical;
+    @extend %background-surface, %flex-vertical;
 }
 
 .headline {
@@ -362,13 +367,20 @@ selectors:
 }
 ```
 
-- **Flex**: `%flex-{center|column|end|fill|fixed|horizontal|row|start|vertical}`; set `--gap-horizontal` and
+- **absolute**, **anchor**, **layer** and **reset**: positioning, overlay placement and resets.
+- **background**, **border**, **box-shadow** and **color**: the `%*-state` placeholders, whose `-default`, `-hover`,
+  `-pressed` and `-active` variables drive every state, and `%*-{color}` for `primary`, `text` and each palette color,
+  plus `-default` and `-surface`.
+- **flex**: `%flex-{center|column|end|fill|fixed|horizontal|row|start|vertical}`; set `--gap-horizontal` and
   `--gap-vertical` to space children.
-- **Color**: `%background-*`, `%border-*` and `%color-*` for `primary`, `text` and each palette color, plus `-default`
-  and `-surface`; `%border-radius-responsive`.
-- **Text**: `%text-crop` (`-top`, `-bottom`, `-first-child`, `-last-child`), `%text-gradient`, `%text-line-shadow`,
-  `%text-shiny` and `%text-truncate`.
-- **Other**: `%inline`, `%skeleton` (painted from `--from` to `--to`) and `%surface-raised` / `%surface-sunken`.
+- **text**: `%text`, `%text-crop` (`-top`, `-bottom`, `-first-child`, `-last-child`), `%text-gradient`,
+  `%text-line-shadow`, `%text-shiny` and `%text-truncate`.
+- **surface**: `%surface-raised` / `%surface-sunken` (painted) and their `-level` forms (counted).
+- **font/geist**, **font/montserrat**: see Fonts.
+- **drag**, **hidden**, **icon**, **inline** and **skeleton** (painted from `--from` to `--to`).
+
+Sass functions and mixins (`css-variables`, the surface color mixins, list, map and string helpers) stay in
+`@esportsplus/ui/shared.scss`.
 
 ### Component Variables
 
@@ -457,27 +469,34 @@ build/
 │   │   ├── index.d.ts
 │   │   └── scss/index.scss
 │   └── index.js
+├── modifiers/
+│   └── {modifier}/
+│       ├── index.js
+│       ├── index.d.ts
+│       └── scss/index.scss
 └── css-utilities/
-    └── font/
+    └── font/          # Geist Mono, which components that set code bring with them
 ```
 
 ## Fonts
 
-Import the font stylesheet and apply its family class to `html` or `body`:
+Use the font's stylesheet and extend its family placeholder on `html` or `body`:
 
-```typescript
-import '@esportsplus/ui/css-utilities/font/montserrat.scss';
+```scss
+@use '@esportsplus/ui/css-utilities/font/montserrat.scss';
 
-document.documentElement.classList.add('--font-montserrat');
+body {
+    @extend %font-montserrat, %font-montserrat-wght;
+}
 ```
 
-`@esportsplus/ui/css-utilities/font/geist.scss` includes Geist Sans and Geist Mono,
-selected with `--font-geist` and `--font-geist-mono`. The aggregate
-`@esportsplus/ui/css-utilities.scss` includes all three families.
+`@esportsplus/ui/css-utilities/font/geist.scss` includes Geist Sans and Geist Mono, extended as `%font-geist` and
+`%font-geist-mono`. The `-wght` placeholders tighten tracking as the weight rises, so a label changing weight keeps its
+width.
 
-Family classes define `--font-family` and their `--font-weight-*` token maps.
+Family placeholders define `--font-family` and their `--font-weight-*` token maps.
 Components consume these variables through their own `font-family` and
-`font-weight` declarations. Nested family classes override the inherited tokens.
+`font-weight` declarations. A family extended on a nested element overrides the inherited tokens.
 The root component no longer chooses Montserrat automatically, and there is no
 fallback: the app sets its family. Components that set code and figures in
 monospace (the editors, `cc`, the color picker, the usage meter, inline edit and
