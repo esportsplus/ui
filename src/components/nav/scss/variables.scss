@@ -1,3 +1,5 @@
+@use 'css-utilities/surface';
+
 .nav-tree {
     --focus-color: var(--color-blue-400);
     --focus-width: var(--border-width-400);
@@ -62,7 +64,9 @@
         --link-border-color-active: var(--link-color-active);
     }
 
+    // A level above the tree, so a fill pointed at '--surface-background-*' here reads as a surface sitting on it.
     &-highlight.highlight {
+        @extend %surface-raised-level;
         --background-active: var(--highlight-background-active);
         --background-hover: var(--highlight-background-hover);
         --background-pressed: var(--highlight-background-pressed);
