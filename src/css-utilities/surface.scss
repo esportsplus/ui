@@ -31,10 +31,10 @@
 }
 
 
-// Light chroma at a new lightness, from the origin's: fading to none toward white, and gaining a fixed tint per point
-// darker, so a page carrying more blue than the neutrals doesn't multiply it into every darker fill.
+// Light chroma at a new lightness, holding the origin's ratio of chroma to its distance from white: fading to none at
+// white and deepening toward the darker fills, as dark scales chroma with the distance from black.
 @function light-chroma($light) {
-    @return 'calc(c * min(1, (1 - #{$light}) / max(1 - l, 0.01)) + max(0, l - #{$light}) * #{tokens.$surface-tint-light})';
+    @return 'calc(c * (1 - #{$light}) / max(1 - l, 0.01))';
 }
 
 // A dark contrast ratio as a constant, rounded so the CSS stays short.
@@ -48,8 +48,8 @@
 }
 
 // The background at a level, stepped from the theme's surface by the ladder: light raised levels climb to white, where
-// the shadow alone carries elevation, and dark ones stop 6 levels above it. Chroma keeps the page's tint on its hue, by
-// 'light-chroma()' in light and scaled with the distance from black in dark.
+// the shadow alone carries elevation, and dark ones stop 6 levels above it. Chroma keeps the page's tint on its hue,
+// scaled with the distance from white in light and from black in dark.
 @function surface-background($level) {
     $dark: 'clamp(0, l + #{level-offset($level, dark)}, l + #{6 * ladder-step(dark, raised)})';
     $light: 'clamp(0, l + #{level-offset($level, light)}, 1)';
@@ -98,8 +98,8 @@ $dark-page-default: channel(dark, secondary, 'lightness');
     );
 }
 
-// Secondary's hover or pressed, moved by its offset off the default: darker in light, gaining the tint for its offset
-// as the levels do, and lighter in dark, where the offset reads as points at the dark theme's secondary and holds the
+// Secondary's hover or pressed, moved by its offset off the default: darker in light, its chroma held to the distance
+// from white as the levels do, and lighter in dark, where the offset reads as points at the dark theme's secondary and holds the
 // contrast it gives there.
 @function secondary-offset($origin, $weight, $reference) {
     $points: math.div(map.get(tokens.$surface-secondary, dark, $weight), 100);
@@ -107,7 +107,7 @@ $dark-page-default: channel(dark, secondary, 'lightness');
     $light: math.div(map.get(tokens.$surface-secondary, light, $weight), 100);
 
     @return light-dark(
-        #{'oklch(from var(#{$origin}) calc(l - #{$light}) calc(c + #{$light * tokens.$surface-tint-light}) h)'},
+        #{'oklch(from var(#{$origin}) calc(l - #{$light}) #{light-chroma('calc(l - #{$light})')} h)'},
         #{'oklch(from var(#{$origin}) #{$dark} calc(c * #{$dark} / max(l, 0.01)) h)'}
     );
 }

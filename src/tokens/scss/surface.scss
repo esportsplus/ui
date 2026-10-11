@@ -25,6 +25,3 @@ $surface-secondary: (
     dark: (hover: 3.2, pressed: 6.4),
     light: (hover: 3.2, pressed: 6.4)
 );
-
-// The chroma a light fill gains per unit of lightness darker than what it steps from; 0.11 would match the neutrals.
-$surface-tint-light: 0.16;
