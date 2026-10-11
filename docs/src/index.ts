@@ -10,13 +10,12 @@ import 'docs/data/theme';
 import layout from 'docs/middleware/layout/index';
 import missing from 'docs/middleware/missing/index';
 import redirect from 'docs/middleware/redirect/index';
+import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
 
 
 render(
     document.body,
-    {
-        class: '--scrollbar'
-    },
+    scrollbar(),
     () => html`${middleware(
         (request, next) => html`
             ${modal()}

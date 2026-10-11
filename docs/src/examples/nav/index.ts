@@ -1,6 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { nav } from '@esportsplus/ui/components';
+import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
 import type { Current, Indicator } from '@esportsplus/ui/components/nav';
 import type { Entry } from 'docs/types';
 import 'docs/examples/nav/scss/index.scss';
@@ -49,7 +50,7 @@ function spied(mode?: 'current' | 'visible') {
                 ondisconnect: () => disconnect()
             }}
         >
-            <div class='nav-demo-scroller --scrollbar' ${{ onconnect: (element: HTMLElement) => { scroller = element; } }}>
+            <div class='nav-demo-scroller' ${scrollbar()} ${{ onconnect: (element: HTMLElement) => { scroller = element; } }}>
                 ${TOPICS.map((topic, index) => html`
                     <section class='nav-demo-section' id='${ids[index]}'>
                         <h3 class='nav-demo-heading'>${topic}</h3>

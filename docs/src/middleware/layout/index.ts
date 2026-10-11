@@ -1,4 +1,5 @@
 import { nav, pagination } from '@esportsplus/ui/components';
+import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
 import { html } from 'docs/app';
 import { adjacent } from 'docs/data/nav';
 import type { Request, Responder, RouteName } from 'docs/app';
@@ -42,7 +43,8 @@ export default (request: Request, next: Responder) => {
             })}
         </main>
         <aside
-            class='page-nav --scrollbar --scroll-fade'
+            class='page-nav'
+            ${scrollbar({ fade: true })}
             ${{
                 onconnect: () => {
                     disconnect = spy.connect();

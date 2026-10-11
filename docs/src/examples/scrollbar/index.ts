@@ -30,11 +30,11 @@ export default {
     name: 'scrollbar',
     variants: [
         {
-            render: () => html`<div class='--scrollbar' style='${box}'>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar()} style='${box}'>${rows(14)}</div>`,
             title: 'default bar'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-hover' style='${box}'>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar({ hover: true })} style='${box}'>${rows(14)}</div>`,
             title: 'visible on hover or keyboard focus'
         },
         {
@@ -47,75 +47,75 @@ export default {
             title: 'scope: inherited defaults and child overrides'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-hidden' style='${box}'>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar({ hidden: true })} style='${box}'>${rows(14)}</div>`,
             title: 'hidden bar'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-blue' style='${box}'>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar({ color: 'blue' })} style='${box}'>${rows(14)}</div>`,
             title: 'color states'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box} --scrollbar-rail-color: var(--surface-secondary-default);'>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar()} style='${box} --scrollbar-rail-color: var(--surface-secondary-default);'>${rows(14)}</div>`,
             title: 'rail color'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box} --scrollbar-align: 0; --scrollbar-offset: 0px; --scrollbar-track-inset: 0px; --scrollbar-rail-color: var(--surface-secondary-default); --scrollbar-size-hover: 12px;'>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar()} style='${box} --scrollbar-align: 0; --scrollbar-offset: 0px; --scrollbar-track-inset: 0px; --scrollbar-rail-color: var(--surface-secondary-default); --scrollbar-size-hover: 12px;'>${rows(14)}</div>`,
             title: 'edge-hugging growth'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box} --scrollbar-offset: 6px; --scrollbar-rail-color: var(--surface-secondary-default); --scrollbar-track-inset: 16px;'>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar()} style='${box} --scrollbar-offset: 6px; --scrollbar-rail-color: var(--surface-secondary-default); --scrollbar-track-inset: 16px;'>${rows(14)}</div>`,
             title: 'track inset and edge offset'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-auto --scrollbar-horizontal' style='${box}'>${tiles(16, 1)}</div>`,
+            render: () => html`<div ${scrollbar({ auto: true, horizontal: true })} style='${box}'>${tiles(16, 1)}</div>`,
             title: 'auto (horizontal)'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box} --scrollbar-size: 12px; --scrollbar-width: auto;'>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar()} style='${box} --scrollbar-size: 12px; --scrollbar-width: auto;'>${rows(14)}</div>`,
             title: 'width variable'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}'>${tiles(16, 1)}</div>`,
+            render: () => html`<div ${scrollbar({ horizontal: true })} style='${box}'>${tiles(16, 1)}</div>`,
             title: 'horizontal bar'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar({ drag: 'horizontal' })}>${tiles(16, 1)}</div>`,
+            render: () => html`<div ${scrollbar({ drag: 'horizontal', horizontal: true })} style='${box}'>${tiles(16, 1)}</div>`,
             title: 'drag (horizontal)'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar({ drag: true })}>${tiles(12, 8)}</div>`,
+            render: () => html`<div ${scrollbar({ drag: true })} style='${box}'>${tiles(12, 8)}</div>`,
             title: 'drag (both)'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar({ fade: true })}>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar({ fade: true })} style='${box}'>${rows(14)}</div>`,
             title: 'fade'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar({ blur: true })}>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar({ blur: true })} style='${box}'>${rows(14)}</div>`,
             title: 'blur'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar({ fade: true })}>${tiles(16, 1)}</div>`,
+            render: () => html`<div ${scrollbar({ fade: true, horizontal: true })} style='${box}'>${tiles(16, 1)}</div>`,
             title: 'fade (horizontal)'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar({ blur: true })}>${tiles(16, 1)}</div>`,
+            render: () => html`<div ${scrollbar({ blur: true, horizontal: true })} style='${box}'>${tiles(16, 1)}</div>`,
             title: 'blur (horizontal)'
         },
         {
-            render: () => html`<div class='--scrollbar --scrollbar-horizontal' style='${box}' ${scrollbar({ drag: 'horizontal', fade: true })}>${tiles(16, 1)}</div>`,
+            render: () => html`<div ${scrollbar({ drag: 'horizontal', fade: true, horizontal: true })} style='${box}'>${tiles(16, 1)}</div>`,
             title: 'drag with fade (horizontal)'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar({ blur: true, drag: true })}>${tiles(12, 8)}</div>`,
+            render: () => html`<div ${scrollbar({ blur: true, drag: true })} style='${box}'>${tiles(12, 8)}</div>`,
             title: 'drag with blur (both)'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box}' ${scrollbar({ fade: true })}>${rows(2)}</div>`,
+            render: () => html`<div ${scrollbar({ fade: true })} style='${box}'>${rows(2)}</div>`,
             title: 'fade (content fits)'
         },
         {
-            render: () => html`<div class='--scrollbar' style='${box} --scrollbar-border-radius: 0px;'>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar()} style='${box} --scrollbar-border-radius: 0px;'>${rows(14)}</div>`,
             title: 'square thumb'
         }
     ]

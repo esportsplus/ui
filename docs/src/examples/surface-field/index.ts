@@ -2,6 +2,7 @@ import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { colorPicker, range, select, surfaceField, switch as toggle, tooltip } from '@esportsplus/ui/components';
 import worker from '@esportsplus/ui/components/surface-field/worker?worker&url';
+import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
 import editor from 'docs/examples/surface-field/editor';
 import 'docs/examples/surface-field/scss/index.scss';
 
@@ -165,7 +166,7 @@ function panel(settings: Settings, intro: string, stacked = false) {
     });
 
     return html`
-        <aside class='surface-field-demo-panel --scrollbar ${stacked && 'surface-field-demo-panel--stacked'}'>
+        <aside class='surface-field-demo-panel ${stacked && 'surface-field-demo-panel--stacked'}' ${scrollbar()}>
             <p class='surface-field-demo-intro'>${intro}</p>
 
             <div class='surface-field-demo-group'>

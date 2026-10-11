@@ -97,7 +97,7 @@ export default {
                 <div class='text'>
                     Show more reveals clamped content progressively. Only the container height animates,
                     so the text keeps its layout and never reflows while expanding. The consumer supplies
-                    the button, its label, and any fade styling, here the --scrollbar-fade utility. Content
+                    the button, its label, and any fade styling, here scrollbar({ fade: true }). Content
                     longer than the maximum height scrolls inside the region instead of pushing the page,
                     and the button only renders while there is more to show.
                 </div>

@@ -1,5 +1,6 @@
 import { button, nav } from '@esportsplus/ui/components';
 import { effect, html, reactive, uri } from 'docs/app';
+import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
 import { repository, version } from '@esportsplus/ui/package.json';
 import { sections } from 'docs/data/nav';
 import { trigger as searchTrigger } from 'docs/components/search';
@@ -85,7 +86,7 @@ export default (request: Request) => {
                 ${searchTrigger()}
             </div>
 
-            <div class='sidebar-scrollport --scrollbar --scrollbar-fade --scrollbar-hidden'>
+            <div class='sidebar-scrollport' ${scrollbar({ fade: true, hidden: true })}>
                 <div class='sidebar-content'>
                     ${nav.tree({
                         active: current,
