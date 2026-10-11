@@ -2,12 +2,12 @@ import { reactive, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import copy from '~/components/copy';
 import icon from '~/components/icon';
+import scrollbar from '~/modifiers/scrollbar';
 import { observeSize } from '~/shared/resize';
 import { minimap, type Source } from '../code/minimap';
 import { languageFor, type Language, type Token } from '../code/syntax';
 import { hidden, outline, type Line } from './model';
 import chevron from '@esportsplus/ui/svg/chevron-down.svg';
-import '~/modifiers/scrollbar/scss/index.scss';
 import './scss/index.scss';
 
 
@@ -294,9 +294,10 @@ export default component(
                 <div class='code-viewer-body'>
                     <div
                         aria-label='${filename ?? 'Code'}'
-                        class='code-viewer-scroller --scrollbar --scrollbar-hover'
+                        class='code-viewer-scroller'
                         role='region'
                         tabindex='0'
+                        ${scrollbar({ hover: true })}
                         ${size}
                         ${{ onscroll: () => update() }}
                     >

@@ -177,12 +177,12 @@ export default component(
                 <div class='datalist-lens' aria-hidden='true' ${this?.attributes?.[DATALIST_LENS]} ${attributes[DATALIST_LENS]}></div>
 
                 <div
-                    class='datalist-scroller --scrollbar-hidden'
+                    class='datalist-scroller'
                     role='listbox'
                     tabindex='0'
                     ${this?.attributes?.[DATALIST_SCROLLER]}
                     ${attributes[DATALIST_SCROLLER]}
-                    ${scrollbar({ drag: 'vertical' })}
+                    ${scrollbar({ drag: 'vertical', hidden: true })}
                     ${observeSize(measure)}
                     ${{
                         'aria-activedescendant': () => {

@@ -1,6 +1,7 @@
 import { reactive, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type VirtualSlot } from '@esportsplus/template';
 import icon from '~/components/icon';
+import scrollbar from '~/modifiers/scrollbar';
 import { languageFor, type Language, type Token } from '../code/syntax';
 import { diffTexts, hunks, type Diff, type DiffChange } from './hunks';
 import { highlighter, markup } from './render';
@@ -454,7 +455,7 @@ export default component(
                         </button>
                     </div>
                 </div>
-                <div class='diffs-scroller --scrollbar' tabindex='0'>
+                <div class='diffs-scroller' tabindex='0' ${scrollbar()}>
                     ${slot.fragment}
                 </div>
             </div>

@@ -137,8 +137,8 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
             </div>
 
             <div
-                class='heatmap-scroll --scrollbar --scrollbar-horizontal'
-                ${scrollbar({ drag: 'horizontal' })}
+                class='heatmap-scroll'
+                ${scrollbar({ drag: 'horizontal', horizontal: true })}
                 ${{
                     // On a narrow screen, open on the most recent weeks.
                     onconnect: (element: HTMLElement) => {

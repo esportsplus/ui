@@ -3,7 +3,6 @@ import { component, type Attributes } from '@esportsplus/template';
 import { EditorDocument } from '../code/document';
 import { view, type MarkdownController, type MarkdownOptions } from './view';
 import type { Callbacks } from '../code/view';
-import '~/modifiers/scrollbar/scss/index.scss';
 import '../code/scss/index.scss';
 import './scss/index.scss';
 

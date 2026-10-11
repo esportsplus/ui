@@ -1,5 +1,6 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
+import scrollbar from '~/modifiers/scrollbar';
 import { clamp } from '~/shared/clamp';
 import { mac } from '~/shared/platform';
 import { observeSize } from '~/shared/resize';
@@ -2112,9 +2113,10 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                     autocapitalize='off'
                     autocomplete='off'
                     autocorrect='off'
-                    class='code-editor-input --scrollbar'
+                    class='code-editor-input'
                     dir='ltr'
                     spellcheck='false'
+                    ${scrollbar()}
                     ${field}
                     ${lsp.aria}
                     ${{

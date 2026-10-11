@@ -1,6 +1,7 @@
 import { reactive, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import icon from '~/components/icon';
+import scrollbar from '~/modifiers/scrollbar';
 import codeEditor, { type Controller } from '../code';
 import { EditorDocument } from '../code/document';
 import { languageFor, type Language } from '../code/syntax';
@@ -262,7 +263,7 @@ export default component(
             return html`
                 <div class='diffs-merge-pane diffs-merge-pane--${side}'>
                     <div class='diffs-merge-title'>${side === 'current' ? 'Current' : 'Incoming'}</div>
-                    <div class='diffs-merge-scroller --scrollbar' tabindex='0'>
+                    <div class='diffs-merge-scroller' tabindex='0' ${scrollbar()}>
                         ${panes[side].slot.fragment}
                     </div>
                 </div>

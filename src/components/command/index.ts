@@ -4,13 +4,13 @@ import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import input from '~/components/input';
 import overlay from '~/components/overlay';
+import scrollbar from '~/modifiers/scrollbar';
 import { mac } from '~/shared/platform';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import up from '@esportsplus/ui/svg/arrow-up.svg';
 import enter from '@esportsplus/ui/svg/enter.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
 import '~/components/frame/scss/index.scss';
-import '~/modifiers/scrollbar/scss/index.scss';
 import './scss/index.scss';
 
 
@@ -822,9 +822,10 @@ export default component(
                                     >
                                         <div
                                             aria-label='${view.label}'
-                                            class='command-list --scrollbar'
+                                            class='command-list'
                                             id='${view.key}-listbox'
                                             role='listbox'
+                                            ${scrollbar()}
                                             ${{
                                                 class: () => !read(view.results).flat.length && 'command-list--empty',
                                                 onmouseleave: () => {

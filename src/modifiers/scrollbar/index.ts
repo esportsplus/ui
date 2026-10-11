@@ -6,9 +6,18 @@ import './scss/index.scss';
 
 type Axis = 'both' | 'horizontal' | 'vertical';
 
+// Mirrors tokens' '$colors', which generates a '--scrollbar-<color>' class for each.
+type Color = 'black' | 'blue' | 'green' | 'grey' | 'primary' | 'purple' | 'red' | 'text' | 'white' | 'yellow';
+
 // Blur and fade are both edge effects, so a scroller takes one or the other; drag combines with either.
 type Options = {
+    auto?: boolean;
+    color?: Color;
     drag?: Axis | boolean;
+    hidden?: boolean;
+    horizontal?: boolean;
+    hover?: boolean;
+    snap?: boolean;
 } & (
     { blur?: boolean; fade?: never } |
     { blur?: never; fade?: boolean }
@@ -30,9 +39,9 @@ const SLOP = 4;
 
 // 'size' names the effect's registered length, which computes to pixels: like the scroll-driven animation ranges,
 // each edge reaches full strength once the content has scrolled that far past it.
-function edges(name: string, size: string) {
+function edges(size: string, horizontal: boolean) {
     if (typeof CSS === 'undefined' || CSS.supports('animation-timeline: scroll()')) {
-        return { class: ['--scrollbar', name] };
+        return {};
     }
 
     let mutation: MutationObserver | undefined,
@@ -47,8 +56,7 @@ function edges(name: string, size: string) {
     }
 
     function update(element: HTMLElement) {
-        let horizontal = element.classList.contains('--scrollbar-horizontal'),
-            offset = horizontal ? Math.abs(element.scrollLeft) : element.scrollTop,
+        let offset = horizontal ? Math.abs(element.scrollLeft) : element.scrollTop,
             range = horizontal ? element.scrollWidth - element.clientWidth : element.scrollHeight - element.clientHeight,
             end = range > 0 ? Math.min(1, (range - offset) / ramp) : 0,
             start = range > 0 ? Math.min(1, offset / ramp) : 0;
@@ -66,7 +74,6 @@ function edges(name: string, size: string) {
     // Returned as a reactive style, not set imperatively, because the template rewrites the whole
     // style attribute whenever any other reactive style on the element changes.
     return {
-        class: ['--scrollbar', name],
         onconnect: (element: HTMLElement) => {
             mutation?.disconnect();
             resize?.disconnect();
@@ -117,8 +124,8 @@ function edges(name: string, size: string) {
 }
 
 
-function blur() {
-    let scroll = edges('--scrollbar-blur', '--scroll-blur-size');
+function blur(horizontal: boolean) {
+    let scroll = edges('--scroll-blur-size', horizontal);
 
     return {
         ...scroll,
@@ -203,22 +210,66 @@ function drag(axis: Axis) {
 }
 
 
-// One scroller's attributes: the bar, an edge effect if asked for, and mouse drag along 'drag''s axis, both when true.
-const scrollbar = ({ blur: blurred, drag: dragged, fade: faded }: Options = {}) => {
-    let effect = blurred
-            ? blur()
+// One scroller's attributes: the bar and its variants, an edge effect if asked for, and mouse drag along 'drag''s axis,
+// both when true.
+const scrollbar = ({
+    auto,
+    blur: blurred,
+    color,
+    drag: dragged,
+    fade: faded,
+    hidden,
+    horizontal = false,
+    hover,
+    snap
+}: Options = {}) => {
+    let classes: (string | (() => false | string))[] = ['--scrollbar'],
+        effect = blurred
+            ? blur(horizontal)
             : faded
-                ? edges('--scrollbar-fade', '--scroll-fade-size')
-                : { class: ['--scrollbar'] },
+                ? edges('--scroll-fade-size', horizontal)
+                : {},
         grab = dragged ? drag(dragged === true ? 'both' : dragged) : null;
 
-    if (!grab) {
-        return effect;
+    if (auto) {
+        classes.push('--scrollbar-auto');
     }
 
-    return { ...effect, ...grab, class: [...effect.class, ...grab.class] };
+    if (blurred) {
+        classes.push('--scrollbar-blur');
+    }
+
+    if (color) {
+        classes.push(`--scrollbar-${color}`);
+    }
+
+    if (faded) {
+        classes.push('--scrollbar-fade');
+    }
+
+    if (hidden) {
+        classes.push('--scrollbar-hidden');
+    }
+
+    if (horizontal) {
+        classes.push('--scrollbar-horizontal');
+    }
+
+    if (hover) {
+        classes.push('--scrollbar-hover');
+    }
+
+    if (snap) {
+        classes.push('--scrollbar-snap');
+    }
+
+    if (!grab) {
+        return { ...effect, class: classes };
+    }
+
+    return { ...effect, ...grab, class: [...classes, ...grab.class] };
 };
 
 
 export default scrollbar;
-export type { Axis, Options };
+export type { Axis, Color, Options };

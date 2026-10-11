@@ -50,7 +50,7 @@ export default component<Attributes & {
             <div class='card sticky-header' ${attributes} ${legacy?.root}>
                 <div
                     aria-labelledby='${id}'
-                    class='sticky-header-scroll --scrollbar'
+                    class='sticky-header-scroll'
                     role='region'
                     tabindex='0'
                     ${legacy?.scroll ?? fade}

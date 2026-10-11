@@ -4,6 +4,7 @@ import type { Command as PaletteCommand } from '~/components/command';
 import input from '~/components/input';
 import overlay from '~/components/overlay';
 import shortcutRecorder from '~/components/shortcut-recorder';
+import scrollbar from '~/modifiers/scrollbar';
 import type { Command } from '../code';
 import {
     bind,
@@ -233,7 +234,7 @@ const shortcuts = ({ apple, id, keybindings, onchange, state }: A) => {
                 type: 'search',
                 value: () => ui.query
             })}
-            <div aria-label='Keybindings' class='code-workspace-keybindings-table --scrollbar' role='table'>
+            <div aria-label='Keybindings' class='code-workspace-keybindings-table' role='table' ${scrollbar()}>
                 <div class='code-workspace-keybindings-row code-workspace-keybindings-row--head' role='row'>
                     <span role='columnheader'>Command</span>
                     <span role='columnheader'>Keybinding</span>

@@ -17,6 +17,7 @@ import input from '~/components/input';
 import overlay from '~/components/overlay';
 import tooltip from '~/components/tooltip';
 import type { Controller as MenuController, Item } from '~/components/tooltip/menu';
+import scrollbar from '~/modifiers/scrollbar';
 import fuzzy from '~/shared/fuzzy';
 import { mac } from '~/shared/platform';
 import { observe } from '~/shared/resize';
@@ -1325,7 +1326,7 @@ const workspace = ({
                 `}
             </aside>
             <main class='code-workspace-main' ${{ onpointerenter: () => peek(false) }}>
-                <div aria-label='Open files' class='code-workspace-tabs --scrollbar' role='tablist'>
+                <div aria-label='Open files' class='code-workspace-tabs' role='tablist' ${scrollbar()}>
                     ${highlight({ class: 'code-workspace-tabs-highlight', line: 'bottom' })}
                     ${() => read(tabs).map(tab)}
                 </div>

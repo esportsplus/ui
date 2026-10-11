@@ -1,5 +1,6 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
+import scrollbar from '~/modifiers/scrollbar';
 import { clamp } from '~/shared/clamp';
 import { mac } from '~/shared/platform';
 import { observer, observeSize, type Observer } from '~/shared/resize';
@@ -2321,7 +2322,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             ${search.template()}
             ${jump.template()}
             <div class='markdown-editor-body' ${size}>
-                <div class='markdown-editor-surface --scrollbar' ${body}>
+                <div class='markdown-editor-surface' ${body} ${scrollbar()}>
                     <div aria-hidden='true' class='markdown-editor-overlay'>
                         ${html.reactive(decorations, (decoration) => html`
                             <div ${{ class: () => decoration.kind, style: () => decoration.style }}></div>
