@@ -60,18 +60,17 @@
     );
 }
 
-// The default background moved for a state, so it follows any background a component sets in its place. Dark hovers
-// lighter and presses darker; light does both darker, since its surfaces climb to white and a lighter hover there
-// would not show.
+// The default background moved for a state, so it follows any background a component sets in its place: active and
+// hover lighter, pressed darker, in both modes.
 @function surface-shift($state) {
-    $sign: '-';
+    $sign: '+';
 
-    @if $state == 'hover' {
-        $sign: '+';
+    @if $state == 'pressed' {
+        $sign: '-';
     }
 
     @return light-dark(
-        #{'oklch(from var(--surface-background-default) calc(l - #{ladder-step(light, $state)}) c h)'},
+        #{'oklch(from var(--surface-background-default) calc(l #{$sign} #{ladder-step(light, $state)}) c h)'},
         #{'oklch(from var(--surface-background-default) calc(l #{$sign} #{ladder-step(dark, $state)}) c h)'}
     );
 }
@@ -134,14 +133,13 @@ $dark-page-default: channel(dark, secondary, 'lightness');
 
 
 // A layer's colors, read from its level: 0 the page, each surface a level above the one it sits in, in the states
-// components already name, following any background a component sets in its place. Hover and pressed step the
-// background as 'surface-shift()' sets, and active, a selected item, takes secondary's fill so it reads clearly above
-// hover on every level. Borders mix the primary in, hover and active a step stronger and pressed the strongest.
-// Secondary is a quiet fill a few points off the surface, its hover, active and pressed each a few points off it in
-// turn. Another level is never a color to paint: an element reaches it by extending '%surface-raised' or '%surface-
-// sunken', so whatever sits in it reads its states from the level it shows.
+// components already name, following any background a component sets in its place. Active, hover and pressed step the
+// background as 'surface-shift()' sets. Borders mix the primary in, hover and active a step stronger and pressed the
+// strongest. Secondary is a quiet fill a few points off the surface, its hover, active and pressed each a few points
+// off it in turn. Another level is never a color to paint: an element reaches it by extending '%surface-raised' or
+// '%surface-sunken', so whatever sits in it reads its states from the level it shows.
 @mixin surface-colors {
-    --surface-background-active: var(--surface-secondary-default);
+    --surface-background-active: #{surface-shift('active')};
     --surface-background-default: #{surface-background('var(--surface-level)')};
     --surface-background-hover: #{surface-shift('hover')};
     --surface-background-pressed: #{surface-shift('pressed')};

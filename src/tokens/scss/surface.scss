@@ -12,11 +12,11 @@ $surface-shadow-steps: (
     (20 25 -5 8 10 -6)
 );
 
-// Each mode's ladder in lightness points: how far each raised and sunken level steps from the page, and how far hover
-// and pressed move a surface.
+// Each mode's ladder in lightness points, every one moving the level's default the same way in both modes: active,
+// hover and each raised level lighter, pressed and each sunken level darker.
 $surface-steps: (
-    dark: (hover: 3.2, pressed: 6.4, raised: 2.4, sunken: 2.4),
-    light: (hover: 3.2, pressed: 6.4, raised: 1.2, sunken: 1.2)
+    dark: (active: 2, hover: 1, pressed: 4, raised: 2, sunken: 2),
+    light: (active: 1, hover: 0.5, pressed: 2, raised: 1, sunken: 1)
 );
 
 // Secondary's hover, active and pressed offsets in lightness points off its default, which each theme writes as its
@@ -27,4 +27,4 @@ $surface-secondary: (
 );
 
 // The chroma a light fill gains per unit of lightness darker than what it steps from; 0.11 would match the neutrals.
-$surface-tint-light: 0.12;
+$surface-tint-light: 0.16;

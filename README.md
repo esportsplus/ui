@@ -423,11 +423,11 @@ anything else, wrap two palette colors in `light-dark()`, such as
 Layers (cards, popovers, menus, dialogs, buttons) are surfaces: each counts a level above whatever it sits in, through
 the `--surface-level` custom property, and reads its colors from that level instead of naming one. A surface reads its
 parent's level with a container style query, so it counts up even set directly inside another surface; levels stop at 6.
-Its tokens follow the state names components use, `default`, `hover`, `active` and `pressed`, active (a selected item)
-taking secondary's fill so it reads above hover: `--surface-background-*` steps the default from `--color-surface` by
-the lightness points in `$surface-steps` for each mode (in light mode raised levels climb to white, leaving further
-elevation to the shadow), hover and pressed darker in light mode and lighter and darker in dark; `--surface-border-*`
-mixes the primary color in for lines; `--surface-secondary-*` is a quiet fill from each theme's `secondary`, the color
+Its tokens follow the state names components use, `default`, `hover`, `active` and `pressed`:
+`--surface-background-*` steps the default from `--color-surface` by the lightness points in `$surface-steps` for each
+mode, raised levels lighter and sunken ones darker (in light mode raised levels climb to white, leaving further
+elevation to the shadow), then moves it for each state, active and hover lighter and pressed darker in both modes;
+`--surface-border-*` mixes the primary color in for lines; `--surface-secondary-*` is a quiet fill from each theme's `secondary`, the color
 it shows on the page: every level keeps that color's distance from the page off its own background (lightness points in
 light, contrast in dark), and its hover, active and pressed sit a few points further, by the points in `$surface-
 secondary`; and `--surface-shadow-*` picks the shadow for the level from `--surface-shadow-0` to `-6`, declared once on
