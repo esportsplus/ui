@@ -102,7 +102,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         @extend %reset-popover, %surface-raised-level;
         background: var(--surface-background-default);
         border-radius: var(--drag-radius);
-        box-shadow: 0 0 0 var(--border-width-400) var(--surface-secondary-default), var(--surface-shadow-default);
+        box-shadow: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
         color: var(--color);
         font-size: var(--font-size);
         gap: var(--item-gap);

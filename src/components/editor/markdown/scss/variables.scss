@@ -13,7 +13,7 @@
     --bar-icon-size: var(--size-300);
     --bar-input-width: 160px;
     --bar-padding: var(--size-100);
-    --border-color-default: var(--surface-secondary-default);
+    --border-color-default: var(--surface-border-default);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
     --caret-color: var(--color);
@@ -70,13 +70,13 @@
     --padding: var(--size-200);
     --placeholder-color: var(--color-text-300);
     --property-color: light-dark(var(--color-blue-500), oklch(from var(--color-blue-500) 0.8 0.1 h));
-    --quote-bar-color: var(--surface-secondary-default);
+    --quote-bar-color: var(--surface-border-default);
     --quote-bar-width: var(--border-width-500);
     --quote-color: var(--color-text-400);
     --quote-indent: var(--size-200);
-    --rule-color: var(--surface-secondary-default);
+    --rule-color: var(--surface-border-default);
     --selection-background: oklch(from var(--color-blue-400) l c h / 0.22);
-    --strike-color: var(--surface-secondary-hover);
+    --strike-color: var(--surface-border-hover);
     --strike-duration: 200ms;
     --strike-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
     --strike-width: 2px;

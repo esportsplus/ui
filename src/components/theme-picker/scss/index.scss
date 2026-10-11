@@ -46,7 +46,7 @@
         }
 
         &-preview {
-            border: 1px solid var(--surface-secondary-default);
+            border: 1px solid var(--surface-border-default);
             border-radius: var(--border-radius-300);
             display: grid;
             gap: 5px;
@@ -105,7 +105,7 @@
         gap: var(--size-500);
 
         &-circle {
-            border: 1px solid var(--surface-secondary-hover);
+            border: 1px solid var(--surface-border-hover);
             border-radius: 50%;
             display: block;
             height: 36px;
@@ -174,7 +174,7 @@
                 2 * (var(--padding) + var(--border-width))
             );
             background: var(--surface-background-default);
-            border: var(--border-width) solid var(--surface-secondary-default);
+            border: var(--border-width) solid var(--surface-border-default);
             border-radius: 999px;
             box-shadow: var(--surface-shadow-default);
             clip-path: inset(
@@ -243,7 +243,7 @@
         // The button's faces carry the blur swap; this only sizes and frames it, fading under the open menu.
         &-trigger.button {
             --background-hover: var(--surface-background-hover);
-            --border-color-default: var(--surface-secondary-default);
+            --border-color-default: var(--surface-border-default);
             --border-radius: var(--border-radius-400);
             --border-width: var(--border-width-400);
             --color-default: var(--color-text-400);

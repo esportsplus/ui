@@ -1,24 +1,8 @@
-@use 'sass:color';
 @use 'sass:list';
 @use 'sass:map';
 @use 'sass:math';
 @use '../tokens/scss' as tokens;
 
-
-// A theme color's channel in OKLCH, lightness as a fraction and hue without its unit.
-@function channel($mode, $role, $channel) {
-    $value: color.channel(map.get(tokens.$themes, $mode, $role), $channel, $space: oklch);
-
-    @if $channel == 'lightness' {
-        @return math.div($value, 100%);
-    }
-
-    @if $channel == 'hue' {
-        @return math.div($value, 1deg);
-    }
-
-    @return $value;
-}
 
 // A ladder step as a lightness fraction.
 @function ladder-step($mode, $key) {
@@ -35,16 +19,6 @@
 // white and deepening toward the darker fills, as dark scales chroma with the distance from black.
 @function light-chroma($light) {
     @return 'calc(c * (1 - #{$light}) / max(1 - l, 0.01))';
-}
-
-// A dark contrast ratio as a constant, rounded so the CSS stays short.
-@function ratio($to, $from) {
-    @return math.div(math.round(math.div(math.pow($to, 3) + 0.05, math.pow($from, 3) + 0.05) * 100000), 100000);
-}
-
-// Lightness moved to hold a dark contrast ratio, luminance taken as lightness cubed.
-@function ratio-lightness($ratio) {
-    @return 'pow(#{$ratio} * (pow(l, 3) + 0.05) - 0.05, 1 / 3)';
 }
 
 // The background at a level, stepped from the theme's surface by the ladder: light raised levels climb to white, where
@@ -75,43 +49,6 @@
     );
 }
 
-// Where the dark offsets are measured: secondary's default from the page, hover and pressed from the page's default,
-// which is the dark theme's own secondary.
-$dark-page: channel(dark, surface, 'lightness');
-$dark-page-default: channel(dark, secondary, 'lightness');
-
-// Secondary's default on any level, from the color each theme writes for it on the page: every level keeps that
-// color's distance from the page, so the page shows it exactly and a raised level the same step off its own
-// background, in the theme's hue. Light surfaces all sit near white, so the distance holds as lightness points and
-// chroma added; dark ones don't, so it holds as the contrast it gives on the page, its chroma keeping the color's
-// ratio to its lightness, as the dark levels do.
-@function secondary-default($origin) {
-    $dark: ratio-lightness(ratio($dark-page-default, $dark-page));
-    $dark-tint: math.div(channel(dark, secondary, 'chroma'), $dark-page-default);
-    $light: channel(light, surface, 'lightness') - channel(light, secondary, 'lightness');
-    $light-hue: channel(light, secondary, 'hue');
-    $light-tint: channel(light, secondary, 'chroma') - channel(light, surface, 'chroma');
-
-    @return light-dark(
-        #{'oklch(from var(#{$origin}) calc(l - #{$light}) max(0, c + #{$light-tint}) #{$light-hue})'},
-        #{'oklch(from var(#{$origin}) #{$dark} calc(#{$dark-tint} * #{$dark}) #{channel(dark, secondary, 'hue')})'}
-    );
-}
-
-// Secondary's hover or pressed, moved by its offset off the default: darker in light, its chroma held to the distance
-// from white as the levels do, and lighter in dark, where the offset reads as points at the dark theme's secondary and holds the
-// contrast it gives there.
-@function secondary-offset($origin, $weight, $reference) {
-    $points: math.div(map.get(tokens.$surface-secondary, dark, $weight), 100);
-    $dark: ratio-lightness(ratio($reference + $points, $reference));
-    $light: math.div(map.get(tokens.$surface-secondary, light, $weight), 100);
-
-    @return light-dark(
-        #{'oklch(from var(#{$origin}) calc(l - #{$light}) #{light-chroma('calc(l - #{$light})')} h)'},
-        #{'oklch(from var(#{$origin}) #{$dark} calc(c * #{$dark} / max(l, 0.01)) h)'}
-    );
-}
-
 
 // Both layers of the shadow at an elevation, in the theme's shadow color.
 @function shadow($elevation) {
@@ -135,8 +72,7 @@ $dark-page-default: channel(dark, secondary, 'lightness');
 // A layer's colors, read from its level: 0 the page, each surface a level above the one it sits in, in the states
 // components already name, following any background a component sets in its place. Active, hover and pressed step the
 // background as 'surface-shift()' sets. Borders mix the primary in, hover and active a step stronger and pressed the
-// strongest. Secondary is a quiet fill a few points off the surface, its hover, active and pressed each a few points
-// off it in turn. Another level is never a color to paint: an element reaches it by extending '%surface-raised' or
+// strongest. Another level is never a color to paint: an element reaches it by extending '%surface-raised' or
 // '%surface-sunken', so whatever sits in it reads its states from the level it shows.
 @mixin surface-colors {
     --surface-background-active: #{surface-shift('active')};
@@ -147,10 +83,6 @@ $dark-page-default: channel(dark, secondary, 'lightness');
     --surface-border-default: color-mix(in oklab, var(--color-primary-500) 6%, var(--surface-background-default));
     --surface-border-hover: color-mix(in oklab, var(--color-primary-500) 10.5%, var(--surface-background-default));
     --surface-border-pressed: color-mix(in oklab, var(--color-primary-500) 27%, var(--surface-background-default));
-    --surface-secondary-active: var(--surface-secondary-hover);
-    --surface-secondary-default: #{secondary-default('--surface-background-default')};
-    --surface-secondary-hover: #{secondary-offset('--surface-secondary-default', 'hover', $dark-page-default)};
-    --surface-secondary-pressed: #{secondary-offset('--surface-secondary-default', 'pressed', $dark-page-default)};
     --surface-shadow-active: var(--surface-shadow-hover);
 }
 

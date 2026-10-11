@@ -1,8 +1,10 @@
+@use 'css-utilities/surface';
+
 .datalist {
     --background: transparent;
     --border-radius: var(--border-radius-700);
     --color: var(--color-text-500);
-    --focus-color: var(--surface-secondary-pressed);
+    --focus-color: var(--surface-border-pressed);
     --focus-width: var(--border-width-500);
     --font-size: var(--font-size-400);
     --font-weight: var(--font-weight-500);
@@ -16,8 +18,10 @@
     --scale-falloff: 0.34;
     --width: 224px;
 
+    // A well a level below the list it frames.
     &-lens {
-        --background: var(--surface-secondary-default);
+        @extend %surface-sunken-level;
+        --background: var(--surface-background-default);
         --border-radius: var(--border-radius-600);
     }
 

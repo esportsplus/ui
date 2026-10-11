@@ -427,17 +427,16 @@ Its tokens follow the state names components use, `default`, `hover`, `active` a
 `--surface-background-*` steps the default from `--color-surface` by the lightness points in `$surface-steps` for each
 mode, raised levels lighter and sunken ones darker (in light mode raised levels climb to white, leaving further
 elevation to the shadow), then moves it for each state, active and hover lighter and pressed darker in both modes;
-`--surface-border-*` mixes the primary color in for lines; `--surface-secondary-*` is a quiet fill from each theme's `secondary`, the color
-it shows on the page: every level keeps that color's distance from the page off its own background (lightness points in
-light, contrast in dark), and its hover, active and pressed sit a few points further, by the points in `$surface-
-secondary`; and `--surface-shadow-*` picks the shadow for the level from `--surface-shadow-0` to `-6`, declared once on
-the root, lifting an elevation on hover and settling one when pressed. Dialogs reset the stack to level 1 wherever they
-open. Another level is never a color to paint: a component reaches it by extending `%surface-raised` or `%surface-
-sunken` (painted), or `%surface-raised-level` or `%surface-sunken-level` (counted, for components that route background
-and shadow through their own variables), so whatever sits in it reads its states from the level it shows; sunken layers
-cast no shadow. Style queries on custom properties need Chrome and Edge 111, Safari 18 or Firefox 151; elsewhere every
-surface keeps its parent's level. The ladder, secondary offsets and shadows are `!default` tokens in
-`tokens/scss/surface.scss` (`$surface-steps`, `$surface-secondary`, `$surface-shadow-steps`, `$surface-shadow-scale`).
+`--surface-border-*` mixes the primary color in for lines, rings and small marks; and `--surface-shadow-*` picks the
+shadow for the level from `--surface-shadow-0` to `-6`, declared once on the root, lifting an elevation on hover and
+settling one when pressed. A quiet fill, such as a track or an inline code chip, is a surface of its own a level below
+what holds it. Dialogs reset the stack to level 1 wherever they open. Another level is never a color to paint: a
+component reaches it by extending `%surface-raised` or `%surface-sunken` (painted), or `%surface-raised-level` or
+`%surface-sunken-level` (counted, for components that route background and shadow through their own variables), so
+whatever sits in it reads its states from the level it shows; sunken layers cast no shadow. Style queries on custom
+properties need Chrome and Edge 111, Safari 18 or Firefox 151; elsewhere every surface keeps its parent's level. The
+ladder and shadows are tokens in `tokens/scss/surface.scss` (`$surface-steps`, `$surface-shadow-steps`,
+`$surface-shadow-scale`).
 
 Ready-made pickers drive the same instance:
 

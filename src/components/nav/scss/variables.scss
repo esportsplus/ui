@@ -4,14 +4,14 @@
     --focus-color: var(--color-blue-400);
     --focus-width: var(--border-width-400);
     --highlight-background-active: var(--color-primary-400);
-    --highlight-background-hover: var(--surface-secondary-default);
-    --highlight-background-pressed: var(--surface-secondary-hover);
+    --highlight-background-hover: var(--surface-background-hover);
+    --highlight-background-pressed: var(--surface-background-pressed);
     // Text colour of the active link while the highlight sits under it.
     --highlight-color: var(--surface-background-default);
     // The bar 'border' and 'both' draw down the active link's left edge, over the links' own rule in 'location'.
     --indicator-color: var(--color-blue-400);
     --indicator-width: var(--border-width-400);
-    --link-border-color: var(--surface-secondary-hover);
+    --link-border-color: var(--surface-border-hover);
     --link-border-color-active: var(--link-border-color);
     --link-border-color-hover: var(--color-primary-400);
     --link-border-radius: 0px;

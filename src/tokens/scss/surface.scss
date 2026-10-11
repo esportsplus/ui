@@ -19,9 +19,3 @@ $surface-steps: (
     light: (active: 1, hover: 0.5, pressed: 2, raised: 1, sunken: 1)
 );
 
-// Secondary's hover, active and pressed offsets in lightness points off its default, which each theme writes as its
-// 'secondary'. Dark takes more points than light for the same contrast, since luminance moves less near black.
-$surface-secondary: (
-    dark: (hover: 3.2, pressed: 6.4),
-    light: (hover: 3.2, pressed: 6.4)
-);

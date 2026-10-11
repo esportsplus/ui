@@ -48,7 +48,7 @@
         --background-default: var(--surface-background-default);
         --background-hover: var(--surface-background-hover);
         --background-pressed: var(--surface-background-pressed);
-        --border-color-default: var(--surface-secondary-default);
+        --border-color-default: var(--surface-border-default);
         --border-radius: var(--border-radius-600);
         --border-width: var(--border-width-400);
         --color-default: var(--color-text-300);
@@ -100,7 +100,7 @@
     &-page {
         --background-hover: var(--surface-background-hover);
         --background-pressed: var(--surface-background-pressed);
-        --border-color-default: var(--surface-secondary-default);
+        --border-color-default: var(--surface-border-default);
         --border-radius: var(--border-radius-400);
         --border-width: var(--border-width-400);
         --color-default: var(--color-text-300);
@@ -124,7 +124,7 @@
 
     &-page {
         --background-active: var(--surface-background-default);
-        --border-color-active: var(--surface-secondary-default);
+        --border-color-active: var(--surface-border-default);
         --border-color-default: transparent;
         --box-shadow-active: var(--surface-shadow-default);
         --color-active: var(--color-text-500);

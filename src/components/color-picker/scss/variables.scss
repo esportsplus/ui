@@ -1,9 +1,9 @@
 .color-picker {
-    --checker: repeating-conic-gradient(var(--surface-secondary-default) 0 25%, var(--color-white-300) 0 50%) 0 0 / 8px 8px;
+    --checker: repeating-conic-gradient(var(--surface-border-default) 0 25%, var(--color-white-300) 0 50%) 0 0 / 8px 8px;
     --color: var(--color-text-500);
     --color-invalid: var(--color-red-400);
     --color-muted: var(--color-text-300);
-    --control-border-color: var(--surface-secondary-default);
+    --control-border-color: var(--surface-border-default);
     --control-border-radius: var(--border-radius-400);
     --control-height: 36px;
     --copy-inset: 4px;

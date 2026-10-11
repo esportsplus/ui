@@ -8,7 +8,7 @@
     --background-default: var(--surface-background-default);
     --border-radius: 999px;
     --border-width: 0px;
-    --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-secondary-default), var(--surface-shadow-default);
+    --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
     // Long on purpose: it is the "starting up" signal itself, it plays once per app, and input is never blocked while it plays.
     --hop-duration: 0.7s;
     --icon-ratio: 0.45;
@@ -41,7 +41,7 @@
         @extend %surface-raised-level;
         --background-default: var(--surface-background-default);
         --border-radius: var(--item-radius);
-        --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-secondary-default), var(--surface-shadow-default);
+        --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
         --color: var(--color-text-500);
     }
 

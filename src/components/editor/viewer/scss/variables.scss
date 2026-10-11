@@ -9,7 +9,7 @@
     --background-default: var(--surface-background-default);
     --bar-gap: var(--size-200);
     --bar-padding: var(--size-100) var(--size-100) var(--size-100) var(--size-300);
-    --border-color-default: var(--surface-secondary-default);
+    --border-color-default: var(--surface-border-default);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
     --code-padding: var(--padding);
@@ -23,7 +23,7 @@
     --fold-width: var(--size-400);
     --font-size: var(--font-size-300);
     --function-color: light-dark(var(--color-purple-300), oklch(from var(--color-purple-300) 0.8 0.13 h));
-    --gutter-border-color: var(--surface-secondary-default);
+    --gutter-border-color: var(--surface-border-default);
     --gutter-border-width: var(--border-width-400);
     --gutter-color: var(--color-text-300);
     // Resolved here, since the fold toggle's and placeholder's color states redefine --color on them.

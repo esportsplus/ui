@@ -1,7 +1,7 @@
 @use '/tokens';
 
 .chat-minimap {
-    --card-border: var(--surface-secondary-default);
+    --card-border: var(--surface-border-default);
     --card-description-color: var(--color-text-300);
     --card-title-color: var(--color-text-500);
     --card-width: 256px;

@@ -14,7 +14,7 @@
     --bar-icon-size: var(--size-300);
     --bar-input-width: 160px;
     --bar-padding: var(--size-100);
-    --border-color-default: var(--surface-secondary-default);
+    --border-color-default: var(--surface-border-default);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
     --bracket-background: oklch(from var(--color-yellow-400) l c h / 0.45);
@@ -102,7 +102,7 @@
     --problems-max-height: var(--spacer-400);
     --property-color: light-dark(var(--color-blue-500), oklch(from var(--color-blue-500) 0.8 0.1 h));
     --regexp-color: light-dark(var(--color-red-500), oklch(from var(--color-red-500) 0.75 0.14 h));
-    --ruler-color: var(--surface-secondary-default);
+    --ruler-color: var(--surface-border-default);
     --ruler-width: var(--border-width-400);
     --selection-background: oklch(from var(--color-blue-400) l c h / 0.22);
     --selector-color: light-dark(var(--color-purple-500), oklch(from var(--color-purple-500) 0.78 0.13 h));

@@ -405,7 +405,7 @@
     &-task.checkbox {
         --background-active: var(--task-color);
         --border-color-active: var(--task-color);
-        --border-color-default: var(--surface-secondary-pressed);
+        --border-color-default: var(--surface-border-pressed);
         --border-width: var(--border-width-400);
         display: inline-block;
         margin: 0 var(--task-gap) 0 0;

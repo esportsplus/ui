@@ -114,7 +114,7 @@ $icons: (
     --error-color: light-dark(var(--color-red-400), oklch(from var(--color-red-400) 0.7 0.18 h));
     --expand-duration: var(--duration-moderate);
     // The find bar over the tree's top corner; the offset keeps it clear of the scrollbar.
-    --find-border-color: var(--surface-secondary-default);
+    --find-border-color: var(--surface-border-default);
     --find-button-size: var(--size-500);
     --find-gap: 2px;
     --find-input-width: calc(var(--size-900) * 2);
@@ -140,7 +140,7 @@ $icons: (
     --indent: var(--size-500);
     --indicator-color: var(--surface-border-default);
     --indicator-duration: var(--duration-fast);
-    --indicator-hover: var(--surface-secondary-pressed);
+    --indicator-hover: var(--surface-border-pressed);
     --input-border-color: var(--color-blue-400);
     --input-padding: 3px;
     --input-radius: var(--border-radius-200);
