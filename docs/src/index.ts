@@ -9,6 +9,7 @@ import sidebar, { state as sidebarState } from 'docs/components/sidebar';
 import 'docs/data/theme';
 import layout from 'docs/middleware/layout/index';
 import missing from 'docs/middleware/missing/index';
+import redirect from 'docs/middleware/redirect/index';
 
 
 render(
@@ -36,6 +37,7 @@ render(
             </div>
         `,
         middleware.match(fallback),
+        redirect,
         layout,
         missing,
         middleware.dispatch

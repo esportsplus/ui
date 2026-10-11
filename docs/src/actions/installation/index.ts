@@ -120,4 +120,3 @@ const responder = (): Page => {
 export { responder };
 export default (r: Router) => r
     .get({ name: 'installation', path: '/installation', responder })
-    .get({ name: 'home', path: '/', responder });

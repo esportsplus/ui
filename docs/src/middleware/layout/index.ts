@@ -7,7 +7,6 @@ import 'docs/middleware/layout/scss/index.scss';
 
 
 const routes: readonly (RouteName | null)[] = [
-    'home',
     'components',
     'components.detail',
     'modifiers',
@@ -16,8 +15,7 @@ const routes: readonly (RouteName | null)[] = [
     'installation',
     'surfaces',
     'themes',
-    'tokens',
-    null // The unmatched-route fallback also returns the installation page.
+    'tokens'
 ];
 
 
