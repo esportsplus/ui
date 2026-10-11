@@ -136,7 +136,7 @@ export default {
         {
             render: () => card.expand({
                 items: notes,
-                style: '--dialog-backdrop: oklch(from var(--color-shadow) 0 0 0 / calc(alpha + 0.3)); --dialog-width: 520px;'
+                style: '--dialog-backdrop: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha + 0.3)); --dialog-width: 520px;'
             }),
             title: 'card.expand raised surfaces, darker backdrop'
         }

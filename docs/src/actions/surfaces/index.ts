@@ -39,7 +39,7 @@ const SCSS = `// Counts a level above whatever it sits in, and paints that level
     --tooltip-shadow: var(--surface-shadow-default);
 }
 
-// A fresh stack wherever it opens: level 1, with the deepest shadow.
+// A fresh stack wherever it opens: level 1, with the heaviest shadow.
 .dialog {
     @extend %surface-root;
 }`;
@@ -56,16 +56,15 @@ const TOKENS: [string, string][] = [
     ['--surface-level', 'The layer\'s level: 0 the page, each surface one above or below the one it sits in.'],
     ['--surface-background-{state}', 'The level\'s background, and the step hover, active and pressed move it.'],
     ['--surface-border-{state}', 'The primary color mixed into the background, for lines, rings and edges.'],
-    ['--surface-shadow-{state}', 'The shadow at the layer\'s elevation, lifting on hover and settling when pressed.'],
-    ['--surface-shadow-{0-6}', 'Each elevation\'s shadow: a raised layer takes its level\'s, sunken 0, dialogs 6.']
+    ['--surface-shadow-{state}', 'The shadow at the layer\'s weight, a step heavier on hover, a step lighter pressed.'],
+    ['--surface-shadow-weight', 'Its Tailwind v4 shadow step, 0 to 7: its level by default, sunken 0, dialogs 7.'],
+    ['--surface-shadow-color', 'The color of a shadow falling on the layer: its background deepened in its own hue.']
 ];
 
 
-// A layer pinned to a level skips the style queries that pick its shadow, so it pins that too.
+// A layer pinned to a level skips the style queries that set its shadow weight, so it pins that too.
 function pin(level: number) {
-    let elevation = Math.min(Math.max(level, 0), HIGHEST);
-
-    return `--surface-level: ${level}; --surface-shadow-default: var(--surface-shadow-${elevation});`;
+    return `--surface-level: ${level}; --surface-shadow-weight: ${Math.max(level, 0)};`;
 }
 
 function ladder(mode: Mode) {
@@ -132,9 +131,10 @@ const responder = (): Page => {
                     <h2>The ladder</h2>
                     <p>
                         Every layer sits on a level: <code>0</code> is the page, each raised surface one above whatever
-                        holds it and each sunken one below. Light mode climbs to white in half-point steps and then leaves
-                        elevation to the shadow; dark mode lightens 2.25 points a level up to 6 above the page. Sunken
-                        levels step darker in both, and cast no shadow.
+                        holds it and each sunken one below. Raised levels step lighter and sunken ones darker, by each
+                        mode's <code>$surface-steps</code>: light mode climbs to white and then leaves elevation to the
+                        shadow, and dark mode stops 6 levels above the page. A raised layer's shadow takes the Tailwind v4
+                        step matching its level, in the color of what it falls on; sunken levels cast none.
                     </p>
                     ${preview({ node: html`<div class='surfaces-modes surfaces-modes--stack'>${MODES.map(ladder)}</div>` })}
                 </section>

@@ -298,7 +298,7 @@
             background: var(--surface-background-default);
             border-radius: 12px;
             bottom: 16px;
-            box-shadow: 0 0 0 1px var(--surface-border-default), 0 6px 16px -8px oklch(from var(--color-shadow) l c h / calc(alpha * 2.2));
+            box-shadow: 0 0 0 1px var(--surface-border-default), 0 6px 16px -8px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 2.2));
             display: flex;
             gap: 2px;
             left: 50%;
@@ -320,7 +320,7 @@
             aspect-ratio: 1200 / 660;
             background: var(--surface-background-default);
             border-radius: 10px;
-            box-shadow: 0 0 0 1px var(--surface-border-default), 0 6px 16px -8px oklch(from var(--color-shadow) l c h / calc(alpha * 2.2));
+            box-shadow: 0 0 0 1px var(--surface-border-default), 0 6px 16px -8px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 2.2));
             cursor: pointer;
             overflow: hidden;
             position: absolute;

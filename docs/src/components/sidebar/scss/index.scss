@@ -126,8 +126,8 @@
         --highlight-color: var(--color-text-500);
     }
 
-    // Levels are set rather than counted, so the shadow names the same elevation: the counted one would come from the
-    // sidebar's level and cast none. Hover and pressed sit a level below active and stay flat.
+    // Every state reads the one level the highlight counts. The active pill sets its shadow weight, since the weight
+    // counted on the sunken sidebar casts none; hover and pressed stay flat.
     .nav-tree-highlight.highlight {
         &.highlight--hover,
         &.highlight--pressed {
@@ -137,7 +137,8 @@
 
         @include tokens.state(active) {
             --background-active: var(--surface-background-active);
-            box-shadow: var(--surface-shadow-2);
+            --surface-shadow-weight: 2;
+            box-shadow: var(--surface-shadow-default);
         }
     }
 
