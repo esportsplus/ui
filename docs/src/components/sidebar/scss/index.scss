@@ -133,12 +133,10 @@
         &.highlight--pressed {
             --background-hover: var(--surface-background-hover);
             --background-pressed: var(--surface-background-pressed);
-            --surface-level: 0;
         }
 
         @include tokens.state(active) {
-            --background-active: var(--surface-background-default);
-            --surface-level: 1;
+            --background-active: var(--surface-background-active);
             box-shadow: var(--surface-shadow-2);
         }
     }
