@@ -20,7 +20,7 @@
     // plain select defines the variables without drawing an edge at all, so it draws one here from them.
     &-input,
     &-select {
-        --border-color-default: var(--surface-secondary-hover);
+        --border-color-default: var(--surface-border-hover);
         --border-width: var(--border-width-400);
     }
 

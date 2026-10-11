@@ -33,7 +33,7 @@
     }
 
     &-row:not(:last-child) {
-        border-bottom: 1px solid var(--surface-secondary-hover);
+        border-bottom: 1px solid var(--surface-border-hover);
     }
 
     &-toggle {

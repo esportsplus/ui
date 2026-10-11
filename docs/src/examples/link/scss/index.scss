@@ -2,13 +2,13 @@
 
 // Tab-style links over a rule; the highlight's line sits on that rule, so it reads as the active link's underline.
 .link-demo-group {
-    border-bottom: var(--border-width-400) solid var(--surface-secondary-default);
+    border-bottom: var(--border-width-400) solid var(--surface-border-default);
     display: flex;
     gap: 2px;
 
     &--vertical {
         border-bottom: 0;
-        border-left: var(--border-width-400) solid var(--surface-secondary-default);
+        border-left: var(--border-width-400) solid var(--surface-border-default);
         flex-direction: column;
         width: 160px;
     }

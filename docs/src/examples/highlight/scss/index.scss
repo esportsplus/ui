@@ -58,14 +58,14 @@
     }
 
     &-tabs {
-        border-bottom: var(--border-width-400) solid var(--surface-secondary-default);
+        border-bottom: var(--border-width-400) solid var(--surface-border-default);
         display: flex;
         gap: 2px;
         padding-inline: 2px;
 
         &--vertical {
             border-bottom: 0;
-            border-left: var(--border-width-400) solid var(--surface-secondary-default);
+            border-left: var(--border-width-400) solid var(--surface-border-default);
             flex-direction: column;
             padding-block: 2px;
             padding-inline: 0;

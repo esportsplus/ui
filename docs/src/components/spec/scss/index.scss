@@ -30,7 +30,7 @@
         }
 
         &-cell {
-            border-top: var(--border-width-400) solid var(--surface-secondary-default);
+            border-top: var(--border-width-400) solid var(--surface-border-default);
         }
 
         &-head {
@@ -56,7 +56,7 @@
 
         // The card itself, clipping the table's square corners as it scrolls.
         &-scroll {
-            --border-color-default: var(--surface-secondary-default);
+            --border-color-default: var(--surface-border-default);
             --border-radius: var(--border-radius-500);
             --border-width: var(--border-width-400);
             --padding-horizontal: 0px;

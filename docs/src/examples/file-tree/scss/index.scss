@@ -6,7 +6,7 @@
 
 .file-tree-demo {
     @extend %surface-raised;
-    border: 1px solid var(--surface-secondary-default);
+    border: 1px solid var(--surface-border-default);
     border-radius: 8px;
     height: 300px;
     max-width: 100%;
@@ -147,7 +147,7 @@
     &-search.input {
         @extend %surface-raised-level;
         --background-default: var(--surface-background-default);
-        --border-color-default: var(--surface-secondary-default);
+        --border-color-default: var(--surface-border-default);
         --border-width: var(--border-width-400);
         --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-200);

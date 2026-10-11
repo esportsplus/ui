@@ -6,7 +6,7 @@
 .docs-toast {
     @extend %surface-root-level;
     --docs-toast-background: var(--surface-background-default);
-    --docs-toast-border-color: var(--surface-secondary-hover);
+    --docs-toast-border-color: var(--surface-border-hover);
     --docs-toast-color: var(--color-text-400);
     background: var(--docs-toast-background);
     border: 1px solid var(--docs-toast-border-color);
@@ -38,7 +38,7 @@
     &-overflow {
         @extend %surface-root-level;
         --docs-toast-background: var(--surface-background-default);
-        --docs-toast-border-color: var(--surface-secondary-hover);
+        --docs-toast-border-color: var(--surface-border-hover);
         --docs-toast-color: var(--color-text-300);
         background: var(--docs-toast-background);
         border: 1px solid var(--docs-toast-border-color);

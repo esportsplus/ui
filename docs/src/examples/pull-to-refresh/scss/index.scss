@@ -53,7 +53,7 @@
 
     &-header {
         align-items: center;
-        border-bottom: var(--border-width-400) solid var(--surface-secondary-default);
+        border-bottom: var(--border-width-400) solid var(--surface-border-default);
         display: flex;
         flex: none;
         height: 56px;
@@ -76,7 +76,7 @@
     }
 
     &-post {
-        border-bottom: var(--border-width-400) solid var(--surface-secondary-default);
+        border-bottom: var(--border-width-400) solid var(--surface-border-default);
         display: flex;
         gap: 12px;
         padding: 14px 20px;

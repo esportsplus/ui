@@ -56,7 +56,6 @@ const TOKENS: [string, string][] = [
     ['--surface-level', 'The layer\'s level: 0 the page, each surface one above or below the one it sits in.'],
     ['--surface-background-{state}', 'The level\'s background, and the step hover, active and pressed move it.'],
     ['--surface-border-{state}', 'The primary color mixed into the background, for lines, rings and edges.'],
-    ['--surface-secondary-{state}', 'The theme\'s secondary, kept the same distance off every level\'s background.'],
     ['--surface-shadow-{state}', 'The shadow at the layer\'s elevation, lifting on hover and settling when pressed.'],
     ['--surface-shadow-{0-6}', 'Each elevation\'s shadow: a raised layer takes its level\'s, sunken 0, dialogs 6.']
 ];

@@ -106,7 +106,7 @@
     &-row {
         @extend %surface-raised;
         align-items: center;
-        border: 1px solid var(--surface-secondary-default);
+        border: 1px solid var(--surface-border-default);
         border-radius: 10px;
         display: flex;
         font-size: var(--font-size-400);
@@ -138,7 +138,7 @@
         @extend %surface-raised-level;
         align-items: center;
         background: var(--surface-background-default);
-        border: 1px solid var(--surface-secondary-default);
+        border: 1px solid var(--surface-border-default);
         border-radius: 10px;
         color: var(--color-text-500);
         cursor: pointer;

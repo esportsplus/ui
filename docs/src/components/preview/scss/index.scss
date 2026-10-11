@@ -3,7 +3,7 @@
 
 
 .preview {
-    --border-color-default: var(--surface-secondary-default);
+    --border-color-default: var(--surface-border-default);
     --border-radius: var(--border-radius-500);
     --border-width: var(--border-width-400);
     --padding-horizontal: 0px;
@@ -42,7 +42,7 @@
         @extend %surface-raised-level;
         align-items: center;
         background: var(--surface-background-default);
-        border-bottom: var(--border-width-400) solid var(--surface-secondary-default);
+        border-bottom: var(--border-width-400) solid var(--surface-border-default);
         border-radius: calc(var(--border-radius-500) - var(--border-width-400))
             calc(var(--border-radius-500) - var(--border-width-400)) 0 0;
         display: flex;

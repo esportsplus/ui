@@ -8,26 +8,22 @@ let privacy = [
         { checked: true, id: 'receipts', label: 'Send read receipts' },
         { checked: false, id: 'search', label: 'Appear in search results' },
         { checked: false, id: 'analytics', label: 'Share usage analytics' }
-    ],
-    style = `
-        --background-active: var(--color-accent-400);
-        --background-default: var(--surface-secondary-pressed);
-    `;
+    ];
 
 
 export default {
     name: 'switch',
     variants: [
         {
-            render: () => switchComponent({ style, [switchComponent.input]: { 'aria-label': 'Notifications' } }),
+            render: () => switchComponent({ class: 'switch-demo-switch', [switchComponent.input]: { 'aria-label': 'Notifications' } }),
             title: 'default'
         },
         {
-            render: () => switchComponent({ style: `${style} --border-radius: var(--border-radius-300);`, [switchComponent.input]: { 'aria-label': 'Notifications' } }),
+            render: () => switchComponent({ class: 'switch-demo-switch', style: '--border-radius: var(--border-radius-300);', [switchComponent.input]: { 'aria-label': 'Notifications' } }),
             title: 'squared'
         },
         {
-            render: () => switchComponent({ style, [switchComponent.input]: { 'aria-label': 'Sound effects', checked: true } }),
+            render: () => switchComponent({ class: 'switch-demo-switch', [switchComponent.input]: { 'aria-label': 'Sound effects', checked: true } }),
             title: 'on'
         },
         {

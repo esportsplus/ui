@@ -1,10 +1,13 @@
+@use 'css-utilities/surface';
+
 .themes {
     // Inline tokens and snippets in the prose, set off from the text. Each line of one that wraps gets its own
     // padding and corners. Ligatures off, since the mono font joins a leading '--' into a dash that spills over the
     // padding.
     p code {
+        @extend %surface-sunken-level;
         -webkit-box-decoration-break: clone;
-        background: var(--surface-secondary-default);
+        background: var(--surface-background-default);
         border-radius: var(--border-radius-200);
         box-decoration-break: clone;
         font-variant-ligatures: none;

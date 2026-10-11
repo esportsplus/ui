@@ -7,8 +7,8 @@
 .sidebar {
     @extend %surface-sunken-level;
     --content-padding-horizontal: var(--size-600);
-    --scrollbar-color-default: var(--surface-secondary-hover);
-    --scrollbar-color-hover: var(--surface-secondary-pressed);
+    --scrollbar-color-default: var(--surface-border-hover);
+    --scrollbar-color-hover: var(--surface-border-pressed);
     --scrollbar-color-pressed: var(--color-primary-300);
     --sidebar-background: var(--surface-background-default);
     --sidebar-border: var(--surface-border-default);

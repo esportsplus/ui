@@ -27,7 +27,7 @@ const ROWS = [
 
 const ROW = 'all: unset; align-items: center; box-sizing: border-box; cursor: pointer; display: flex; gap: 22px; padding: var(--size-300) 22px; width: 100%;';
 
-const STAGE = 'border: 1px dashed var(--surface-secondary-hover); border-radius: var(--border-radius-400); height: 280px; overflow: hidden; position: relative; width: 100%;';
+const STAGE = 'border: 1px dashed var(--surface-border-hover); border-radius: var(--border-radius-400); height: 280px; overflow: hidden; position: relative; width: 100%;';
 
 const SHEETS: Sheet[] = [
     { description: 'Anyone with the link can view. Invite people to let them edit.', title: 'Share draft' },
@@ -162,7 +162,7 @@ function stacked(modal: boolean) {
     }
 
     return html`
-        <div style='${STAGE} background: var(--surface-secondary-hover); height: 480px; max-width: 360px;'>
+        <div style='${STAGE} height: 480px; max-width: 360px;'>
             <div class='overlay-page card' style='inset: 0; padding: var(--size-600); position: absolute;'>
                 <div class='text' style='color: var(--color-text-300);'>Drafts</div>
                 <h3 style='margin: var(--size-200) 0 var(--size-400);'>Launch notes</h3>

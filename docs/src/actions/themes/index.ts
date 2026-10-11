@@ -101,14 +101,13 @@ const responder = (): Page => {
                 <section class='page-section' id='how-it-works'>
                     <h2>How it works</h2>
                     <p>
-                        Five roles change with the mode, each declared once on <code>:root</code> as a
+                        Four roles change with the mode, each declared once on <code>:root</code> as a
                         <code>light-dark()</code> of its two values: <code>--color-surface</code> the page,
                         <code>--color-primary-{weight}</code> its opposite (black on a light page, white on a dark one),
-                        <code>--color-secondary</code> the quiet fill as it sits on the page, <code>--color-text-{weight}</code>
-                        text (300 muted to 500 strongest) and <code>--color-shadow</code>, the one shadow color every shadow
-                        scales. Layers step their backgrounds from the page, keep secondary's distance from the page off their
-                        own, and mix the primary into their borders and states, so they follow the mode without naming
-                        colors. Everything else comes
+                        <code>--color-text-{weight}</code> text (300 muted to 500 strongest) and
+                        <code>--color-shadow</code>, the one shadow color every shadow scales. Layers step their
+                        backgrounds from the page and mix the primary into their borders, so they follow the mode without
+                        naming colors. Everything else comes
                         from the fixed palette, and a component that needs its own pair wraps two palette colors in
                         <code>light-dark()</code>.
                     </p>

@@ -1,6 +1,6 @@
 // A directory grid's entry, framed by the card it sits on.
 .directory-card {
-    --border-color-default: var(--surface-secondary-default);
+    --border-color-default: var(--surface-border-default);
     --border-color-hover: var(--color-primary-300);
     --border-color-pressed: var(--color-primary-300);
     --border-radius: var(--border-radius-500);

@@ -50,7 +50,7 @@
         &-number {
             @extend %surface-raised-level;
             background: var(--surface-background-default);
-            border: var(--border-width-400) solid var(--surface-secondary-default);
+            border: var(--border-width-400) solid var(--surface-border-default);
             border-radius: 50%;
             color: var(--color-text-500);
             display: grid;
@@ -78,7 +78,7 @@
 
         // Threads each step's number down to the next one, through the gap between steps.
         &:has(+ .installation-step)::before {
-            background: var(--surface-secondary-default);
+            background: var(--surface-border-default);
             bottom: calc(var(--size-700) * -1 + var(--size-200));
             content: '';
             left: calc(var(--size-600) / 2 - var(--border-width-400) / 2);

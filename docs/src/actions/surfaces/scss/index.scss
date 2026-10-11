@@ -5,8 +5,9 @@
 .surfaces {
     // Inline tokens in the prose, set off as on the themes page.
     p code {
+        @extend %surface-sunken-level;
         -webkit-box-decoration-break: clone;
-        background: var(--surface-secondary-default);
+        background: var(--surface-background-default);
         border-radius: var(--border-radius-200);
         box-decoration-break: clone;
         font-variant-ligatures: none;

@@ -12,7 +12,7 @@
         align-items: center;
         background: var(--surface-background-default);
         border-radius: var(--border-radius-700);
-        box-shadow: 0 0 0 var(--border-width-400) var(--surface-secondary-default), var(--surface-shadow-default);
+        box-shadow: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
         display: flex;
         height: 56px;
         max-width: 100%;
@@ -41,7 +41,7 @@
 
     // A 24px wide hit area around a 6px grip, centred on the edge.
     &-handle {
-        --grip-background: var(--surface-secondary-default);
+        --grip-background: var(--surface-border-default);
         --grip-scale: none;
         align-items: center;
         border-radius: 999px;

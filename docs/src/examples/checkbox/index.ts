@@ -13,7 +13,7 @@ let notifications = [
     style = `
         --background-active: var(--color-accent-400);
         --border-color-active: var(--color-accent-400);
-        --border-color-default: var(--surface-secondary-pressed);
+        --border-color-default: var(--surface-border-pressed);
         --border-width: var(--border-width-400);
     `,
     toppings = [

@@ -23,7 +23,7 @@
 
 // The rail sits in the thread's right-hand gutter, beside the scrollbar, the way chat apps place it.
 .chat-minimap-thread {
-    border: var(--border-width-400) solid var(--surface-secondary-default);
+    border: var(--border-width-400) solid var(--surface-border-default);
     border-radius: var(--border-radius-600);
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;

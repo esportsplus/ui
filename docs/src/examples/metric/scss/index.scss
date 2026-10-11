@@ -20,7 +20,7 @@
 
     // Drag the corner to watch the chart redraw at every width.
     &--resizable {
-        border: 1px dashed var(--surface-secondary-default);
+        border: 1px dashed var(--surface-border-default);
         border-radius: var(--border-radius-700);
         min-width: 160px;
         overflow: hidden;

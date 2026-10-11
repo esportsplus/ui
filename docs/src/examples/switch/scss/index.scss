@@ -1,3 +1,5 @@
+@use 'css-utilities/surface';
+
 .switch-demo {
     width: min(360px, 100%);
 
@@ -9,8 +11,11 @@
         user-select: none;
     }
 
+    // The track a level below what holds it, filling with the accent when on.
+    &-switch.checkbox,
     .checkbox {
+        @extend %surface-sunken-level;
         --background-active: var(--color-accent-400);
-        --background-default: var(--surface-secondary-pressed);
+        --background-default: var(--surface-background-default);
     }
 }

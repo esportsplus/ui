@@ -21,7 +21,7 @@
     &-result {
         @extend %font-geist-mono;
         background: var(--surface-background-default);
-        border: var(--border-width-400) solid var(--surface-secondary-default);
+        border: var(--border-width-400) solid var(--surface-border-default);
         border-radius: var(--border-radius-300);
         font-family: var(--font-family);
         font-size: var(--font-size-200);
