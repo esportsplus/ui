@@ -1,5 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/background';
+@use 'css-utilities/surface';
 @use 'variables';
 
 .pagination {
@@ -12,10 +13,12 @@
     }
 
     &-arrow {
-        @extend %background-state;
-        --background-default: var(--arrow-background);
-        --background-hover: var(--arrow-background-hover);
-        --background-pressed: var(--arrow-background-pressed);
+        @extend %background-state, %surface-raised-level;
+        // A surface a level above what holds it. The fallbacks resolve here, on the arrow's own level; a value set on
+        // the parent would resolve at the parent's.
+        --background-default: var(--arrow-background, var(--surface-background-default));
+        --background-hover: var(--arrow-background-hover, var(--surface-background-hover));
+        --background-pressed: var(--arrow-background-pressed, var(--surface-background-pressed));
         align-items: center;
         background: var(--background);
         border: 0;

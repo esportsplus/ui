@@ -3,10 +3,6 @@
     --size: 32px;
 
     &--arrows {
-        // Fills off the surface the arrows sit on, deepening a step at a time.
-        --arrow-background: var(--surface-secondary-default);
-        --arrow-background-hover: var(--surface-secondary-hover);
-        --arrow-background-pressed: var(--surface-secondary-pressed);
         --arrow-border-radius: var(--border-radius-400);
         --arrow-color: var(--color-text-500);
         --arrow-size: var(--size-600);
