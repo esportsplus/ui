@@ -32,7 +32,7 @@
     --thumb-scale-pressed: 1.1;
     --thumb-shadow:
         0 0 0 1px var(--surface-border-default),
-        0 1px 3px oklch(from var(--color-shadow) l c h / calc(alpha * 3));
+        0 1px 3px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 3));
     --thumb-size: var(--size-500);
     --track-height: 12px;
 

@@ -17,7 +17,7 @@
     --border-width-offset: 0px;
     --border-width-offset-hover: 1px;
     --box-shadow: var(--box-shadow-default);
-    --box-shadow-active: 0 3px 8px oklch(from var(--color-shadow) l c h / calc(alpha * 2));
+    --box-shadow-active: 0 3px 8px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 2));
     --box-shadow-default: none;
     --box-shadow-hover: var(--box-shadow-default);
     --box-shadow-pressed: var(--box-shadow-default);
@@ -60,7 +60,7 @@
     &--radio,
     &--switch {
         &::before {
-            --box-shadow: 0 2px 4px oklch(from var(--color-shadow) l c h / calc(alpha * 2));
+            --box-shadow: 0 2px 4px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 2));
         }
     }
 

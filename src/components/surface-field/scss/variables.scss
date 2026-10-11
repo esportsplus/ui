@@ -9,8 +9,8 @@
     --surface-body-font-size: calc(var(--font-size-400) * 0.8125);
     --surface-border-color: var(--surface-border-default);
     --surface-border-radius: 14px;
-    --surface-box-shadow: 0 1px 2px oklch(from var(--color-shadow) l c h / calc(alpha * 0.6)), 0 8px 24px -8px oklch(from var(--color-shadow) l c h / calc(alpha * 1.55));
-    --surface-box-shadow-active: 0 2px 4px oklch(from var(--color-shadow) l c h / calc(alpha * 0.8)), 0 20px 40px -12px oklch(from var(--color-shadow) l c h / calc(alpha * 2.7));
+    --surface-box-shadow: 0 1px 2px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 0.6)), 0 8px 24px -8px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 1.55));
+    --surface-box-shadow-active: 0 2px 4px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 0.8)), 0 20px 40px -12px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 2.7));
     --surface-grip-color: var(--color-primary-300);
     --surface-grip-width: 32px;
     --surface-handle-height: 28px;

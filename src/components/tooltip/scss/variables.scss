@@ -88,7 +88,7 @@
         --open-duration: var(--duration-moderate);
         --open-timing-function: var(--easing-spring);
         --padding: 4px;
-        --scrim: oklch(from var(--color-shadow) 0 0 0 / calc(alpha * 0.9));
+        --scrim: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha * 0.9));
         --width: 17rem;
 
         &.tooltip--instant {

@@ -6,7 +6,7 @@
     --color-muted: var(--color-text-300);
     --count-fade: 48px;
     // Black at the theme's shadow strength, so the scrim still dims under a colored or glowing shadow.
-    --dialog-backdrop: oklch(from var(--color-shadow) 0 0 0 / calc(alpha + 0.01));
+    --dialog-backdrop: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha + 0.01));
     --dialog-border-radius: var(--border-radius-600);
     --dialog-offset: 20vh;
     --dialog-scale: 0.98;

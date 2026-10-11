@@ -333,7 +333,7 @@ plugin. `check.svg` carries no stroke styling, so set `fill: none` and a `stroke
 Located in `tokens.scss`:
 
 - **Colors**: `--color-{name}` (black, blue, green, grey, purple, red, white, yellow), each written once and weighted at the root as `--color-{name}-{300|400|500}`: 400 itself, 300 and 500 `$weight-step` lightness points lighter and darker
-- **Theme colors**: `--color-surface`, `--color-primary-{300|400|500}`, `--color-shadow` and `--color-text-{300|400|500}`, the only colors that change with the mode, declared by the theme stylesheet (see Theming)
+- **Theme colors**: `--color-surface`, `--color-primary-{300|400|500}` and `--color-text-{300|400|500}`, the only colors that change with the mode, declared by the theme stylesheet (see Theming)
 - **Sizing**: `--size-{300-800}` (12px-80px)
 - **Spacing**: `--spacing-{0-600}`
 - **Border**: `--border-radius-{100-900}`, `--border-width-{100-700}`
@@ -410,8 +410,7 @@ mode.set('dark'); // 'dark' | 'light' | 'system'
 dark values: `--color-surface` (the page, a 99% neutral in light and `black-400` in dark), `--color-primary-*` (its
 opposite, `black-*` in light and `white-*` in dark), `--color-text` (text, one color, which is `--color-text-400`;
 `--color-text-300` and `-500` derive from it in CSS, each holding `$text-step` contrast against it in both modes, so
-setting `--color-text` on `:root` moves all three) and `--color-shadow` (the one shadow color; shadows and scrims scale
-its alpha). It also sets `--background`, `--color` and `color-scheme: light dark`, so with no script at all the page
+setting `--color-text` on `:root` moves all three). It also sets `--background`, `--color` and `color-scheme: light dark`, so with no script at all the page
 follows the operating system.
 
 `light-dark()` picks its side where a color is used, by that element's `color-scheme`. `data-theme="light"` or
@@ -427,16 +426,20 @@ Its tokens follow the state names components use, `default`, `hover`, `active` a
 `--surface-background-*` steps the default from `--color-surface` by the lightness points in `$surface-steps` for each
 mode, raised levels lighter and sunken ones darker (in light mode raised levels climb to white, leaving further
 elevation to the shadow), then moves it for each state, active and hover lighter and pressed darker in both modes;
-`--surface-border-*` mixes the primary color in for lines, rings and small marks; and `--surface-shadow-*` picks the
-shadow for the level from `--surface-shadow-0` to `-6`, declared once on the root, lifting an elevation on hover and
-settling one when pressed. A quiet fill, such as a track or an inline code chip, is a surface of its own a level below
+`--surface-border-*` mixes the primary color in for lines, rings and small marks; and `--surface-shadow-*` is the
+shadow at the layer's `--surface-shadow-weight`, a step on Tailwind v4's `shadow-2xs` to `shadow-2xl` ladder (1 to 7),
+a step heavier on hover and a step lighter when pressed. The weight follows the level (sunken layers 0, dialogs 7);
+set it on a surface to pick another step, a fraction landing between two. A shadow takes the color of what it falls
+on, that background deepened in its own hue, at the mode's `shadow` opacity in `$surface-steps`; `--surface-shadow-
+color` is that color for whatever casts onto a layer, for component shadows and scrims. A quiet fill, such as a track or an inline code chip, is a surface of its own a level below
 what holds it. Dialogs reset the stack to level 1 wherever they open. Another level is never a color to paint: a
 component reaches it by extending `%surface-raised` or `%surface-sunken` (painted), or `%surface-raised-level` or
 `%surface-sunken-level` (counted, for components that route background and shadow through their own variables), so
 whatever sits in it reads its states from the level it shows; sunken layers cast no shadow. Style queries on custom
 properties need Chrome and Edge 111, Safari 18 or Firefox 151; elsewhere every surface keeps its parent's level. The
-ladder and shadows are tokens in `tokens/scss/surface.scss` (`$surface-steps`, `$surface-shadow-steps`,
-`$surface-shadow-scale`).
+ladder and shadows are tokens in `tokens/scss/surface.scss` (`$surface-steps`, `$surface-shadow-scale`,
+`$surface-shadow-depth`); the Tailwind shadow ladder itself sits with the surface utilities, and
+`surface.shadow($weight)` writes a fixed step's shadow.
 
 Ready-made pickers drive the same instance:
 

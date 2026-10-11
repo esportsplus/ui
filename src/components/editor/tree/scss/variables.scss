@@ -177,7 +177,7 @@ $icons: (
     --staged-radius: var(--border-radius-100);
     --staged-tint: 18%;
     // Rows scroll under the pinned folders, so these hide them with the surface the tree sits on.
-    --sticky-shadow: 0 6px 16px -10px oklch(from var(--color-shadow) l c h / calc(alpha * 4.4));
+    --sticky-shadow: 0 6px 16px -10px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 4.4));
     --submodule-color: light-dark(oklch(from var(--color-blue-400) 0.6 c h), oklch(from var(--color-blue-400) 0.74 0.14 h));
     --toggle-color: var(--color);
     --twistie-size: var(--size-400);

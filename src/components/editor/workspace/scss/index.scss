@@ -33,7 +33,7 @@
     --drawer-hidden: calc(100% - var(--peek-width));
     --drawer-inset: auto 0;
     --drawer-offset: var(--drawer-hidden);
-    --drawer-shadow: var(--surface-shadow-5);
+    --drawer-shadow: #{surface.shadow(5)};
     --drawer-timing-function: var(--transition-timing-function);
     // At least a usable explorer, even when the workspace itself is narrow.
     --drawer-width: min(100%, max(16rem, 46%));
@@ -45,7 +45,7 @@
     --explorer-layer: auto;
     --explorer-position: relative;
     --explorer-row: 1 / 3;
-    --explorer-shadow: var(--surface-shadow-0);
+    --explorer-shadow: none;
     --explorer-size: auto;
     --explorer-span: var(--explorer-column);
     --explorer-start: var(--divider);

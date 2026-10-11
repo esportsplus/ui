@@ -64,7 +64,7 @@ $expand-transition-box-shadow:
     }
 
     &-expand {
-        --dialog-backdrop: oklch(from var(--color-shadow) 0 0 0 / calc(alpha + 0.06));
+        --dialog-backdrop: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha + 0.06));
         --dialog-width: 440px;
         --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
         --expand-background: var(--surface-background-default);

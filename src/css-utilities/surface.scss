@@ -1,7 +1,26 @@
 @use 'sass:list';
 @use 'sass:map';
 @use 'sass:math';
+@use 'sass:meta';
 @use '../tokens/scss' as tokens;
+
+
+// The shadow at each weight, 0 to 7, as two layers of y offset, blur, spread in px and opacity: Tailwind v4's
+// 'shadow-2xs' through 'shadow-2xl', a missing second layer written as zeros. Every length runs at the token scale,
+// and every opacity at the mode's '$surface-steps' shadow over Tailwind's 10%.
+$shadow-steps: (
+    ((0 0 0 0), (0 0 0 0)),
+    ((1 0 0 0.05), (0 0 0 0)),
+    ((1 2 0 0.05), (0 0 0 0)),
+    ((1 3 0 0.1), (1 2 -1 0.1)),
+    ((4 6 -1 0.1), (2 4 -2 0.1)),
+    ((10 15 -3 0.1), (4 6 -4 0.1)),
+    ((20 25 -5 0.1), (8 10 -6 0.1)),
+    ((25 50 -12 0.25), (0 0 0 0))
+);
+
+// The heaviest shadow weight, the ladder's last step.
+$shadow-weight-max: list.length($shadow-steps) - 1;
 
 
 // A ladder step as a lightness fraction.
@@ -13,7 +32,6 @@
 @function level-offset($level, $mode) {
     @return 'max(#{$level}, 0) * #{ladder-step($mode, raised)} + min(#{$level}, 0) * #{ladder-step($mode, sunken)}';
 }
-
 
 // Light chroma at a new lightness, holding the origin's ratio of chroma to its distance from white: fading to none at
 // white and deepening toward the darker fills, as dark scales chroma with the distance from black.
@@ -49,20 +67,80 @@
     );
 }
 
+// The opacity a Tailwind 10% shadow step takes in a mode, as a fraction.
+@function shadow-opacity($mode) {
+    @return math.div(map.get(tokens.$surface-steps, $mode, shadow), 100);
+}
 
-// Both layers of the shadow at an elevation, in the theme's shadow color.
-@function shadow($elevation) {
-    $lengths: list.nth(tokens.$surface-shadow-steps, $elevation + 1);
+// The color of a shadow falling on a background: that background deepened in its own hue, at a 10% step's opacity.
+@function shadow-color($background) {
+    $depth: tokens.$surface-shadow-depth;
+
+    @return light-dark(
+        #{'oklch(from #{$background} calc(l * #{$depth}) calc(c * #{$depth}) h / #{shadow-opacity(light)})'},
+        #{'oklch(from #{$background} calc(l * #{$depth}) calc(c * #{$depth}) h / #{shadow-opacity(dark)})'}
+    );
+}
+
+// One of a layer's y, blur, spread or opacity at a weight. A number reads its step; anything else, such as a custom
+// property, sums each step's change, in full once the weight passes the step and in part between steps, so a weight
+// set where the shadow is used picks its step without a query and a fraction lands between two.
+@function shadow-value($layer, $index, $weight) {
+    $steps: $shadow-steps;
+
+    @if meta.type-of($weight) == 'number' {
+        @return list.nth(list.nth(list.nth($steps, $weight + 1), $layer), $index);
+    }
+
+    $terms: '0';
+
+    @for $i from 2 through list.length($steps) {
+        $delta: list.nth(list.nth(list.nth($steps, $i), $layer), $index) -
+            list.nth(list.nth(list.nth($steps, $i - 1), $layer), $index);
+
+        @if $delta != 0 {
+            $terms: '#{$terms} + #{$delta} * clamp(0, #{$weight} - #{$i - 2}, 1)';
+        }
+    }
+
+    @return '(#{$terms})';
+}
+
+// Both layers of the shadow at a weight, in a shadow color: by default the color of a shadow falling on the surface it
+// is used in.
+@function shadow($weight, $color: 'var(--surface-shadow-color)') {
     $layers: ();
 
-    @each $layer in (1, 4) {
-        $parts: ();
+    @each $layer in (1, 2) {
+        $lengths: ();
 
-        @for $i from $layer through $layer + 2 {
-            $parts: list.append($parts, list.nth($lengths, $i) * tokens.$surface-shadow-scale * 1px);
+        $fixed: meta.type-of($weight) == 'number';
+
+        @for $i from 1 through 3 {
+            $length: shadow-value($layer, $i, $weight);
+
+            @if $fixed {
+                $length: $length * tokens.$surface-shadow-scale * 1px;
+            }
+            @else {
+                $length: 'calc(#{$length} * #{tokens.$surface-shadow-scale * 1px})';
+            }
+
+            $lengths: list.append($lengths, $length);
         }
 
-        $layers: list.append($layers, '0 #{$parts} var(--color-shadow)');
+        // The step's opacity over a 10% step, the opacity the shadow color carries.
+        $share: shadow-value($layer, 4, $weight);
+
+        @if $fixed {
+            $share: $share * 10;
+        }
+        @else {
+            $share: '#{$share} * 10';
+        }
+
+        $opacity: 'calc(alpha * #{$share})';
+        $layers: list.append($layers, '0 #{$lengths} oklch(from #{$color} l c h / #{$opacity})');
     }
 
     @return list.join($layers, (), comma);
@@ -84,24 +162,28 @@
     --surface-border-hover: color-mix(in oklab, var(--color-primary-500) 10.5%, var(--surface-background-default));
     --surface-border-pressed: color-mix(in oklab, var(--color-primary-500) 27%, var(--surface-background-default));
     --surface-shadow-active: var(--surface-shadow-hover);
+    --surface-shadow-color: #{shadow-color('var(--surface-background-default)')};
 }
 
-// A layer's shadows at its elevation: lifted one on hover and while active, settled one when pressed.
-@mixin surface-shadow($elevation) {
-    --surface-shadow-default: var(--surface-shadow-#{$elevation});
-    --surface-shadow-hover: var(--surface-shadow-#{math.min($elevation + 1, 6)});
-    --surface-shadow-pressed: var(--surface-shadow-#{math.max($elevation - 1, 0)});
+// A layer's shadow weight, which picks its step on the ladder. Each surface sets it from its level; set it on a surface
+// to choose another step without moving the level.
+@mixin surface-shadow($weight) {
+    --surface-shadow-weight: #{$weight};
 }
 
-// Every elevation's shadow, declared once on the root for the layers to pick from.
+// A layer's shadows at its weight, cast on what it sits in, a level below: lifted one step on hover and while active,
+// settled one when pressed.
 @mixin surface-shadows {
-    @for $elevation from 0 through list.length(tokens.$surface-shadow-steps) - 1 {
-        --surface-shadow-#{$elevation}: #{shadow($elevation)};
-    }
+    --surface-shadow-cast: #{shadow-color(surface-background('calc(var(--surface-level) - 1)'))};
+    --surface-shadow-default: #{shadow('var(--surface-shadow-weight)', 'var(--surface-shadow-cast)')};
+    --surface-shadow-hover: #{
+        shadow('min(var(--surface-shadow-weight) + 1, #{$shadow-weight-max})', 'var(--surface-shadow-cast)')
+    };
+    --surface-shadow-pressed: #{shadow('max(var(--surface-shadow-weight) - 1, 0)', 'var(--surface-shadow-cast)')};
 }
 
 
-// Only a surface already at the top matches no raised query, so it keeps the top shadow.
+// Only a surface already at the top matches no raised query, so it keeps the top level's weight.
 %surface-raised-level {
     @include surface-shadow(6);
 }
@@ -112,6 +194,7 @@
 %surface-raised-level,
 %surface-sunken-level {
     @include surface-colors;
+    @include surface-shadows;
 }
 
 %surface-sunken-level {
@@ -119,8 +202,8 @@
 }
 
 // Its level is its parent's one up or down. Every element is a style container, so a style query reads the parent's
-// level where the surface sets its own, which a 'var()' on the same property could not, and picks the shadow for it.
-// Raised levels stop at 6, where the shadow and the dark steps top out, and sunken ones at -3, so a surface can still
+// level where the surface sets its own, which a 'var()' on the same property could not, and sets the shadow weight to
+// match. Raised levels stop at 6, where the dark steps top out, and sunken ones at -3, so a surface can still
 // sink inside one that already sits below the page; past either, a surface matches no query and keeps its parent's
 // level.
 @for $level from -3 through 5 {
@@ -157,10 +240,11 @@
 }
 
 // A fresh stack above everything, for dialogs: level 1 wherever it opens, so whatever opens inside counts up from it,
-// with the deepest shadow since nothing sits above it. Not counted from its parent, so it skips the queries.
+// with the heaviest shadow since nothing sits above it. Not counted from its parent, so it skips the queries.
 %surface-root-level {
     @include surface-colors;
-    @include surface-shadow(6);
+    @include surface-shadow($shadow-weight-max);
+    @include surface-shadows;
     --surface-level: 1;
 }
 
