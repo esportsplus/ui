@@ -126,12 +126,21 @@
         --highlight-color: var(--color-text-500);
     }
 
-    // Read on the highlight, where the level is one above the sidebar's.
+    // Levels are set rather than counted, so the shadow names the same elevation: the counted one would come from the
+    // sidebar's level and cast none. Hover and pressed sit a level below active and stay flat.
     .nav-tree-highlight.highlight {
-        --background-active: var(--surface-background-default);
-        --surface-level: 2;
-        box-shadow: var(--surface-shadow-default);
-        border: 1px solid var(--surface-border-default);
+        &.highlight--hover,
+        &.highlight--pressed {
+            --background-hover: var(--surface-background-hover);
+            --background-pressed: var(--surface-background-pressed);
+            --surface-level: 0;
+        }
+
+        @include tokens.state(active) {
+            --background-active: var(--surface-background-default);
+            --surface-level: 1;
+            box-shadow: var(--surface-shadow-2);
+        }
     }
 
     @include tokens.state(active) {
