@@ -1,6 +1,6 @@
 // The shadow at each elevation, 0 to 6, as two layers of y offset, blur and spread in px. 1, 3, 5 and 6 are Tailwind's
 // 'shadow-sm', 'shadow-md', 'shadow-lg' and 'shadow-xl', 2 and 4 sit halfway, and every length runs at the scale.
-$surface-shadow-scale: 1.5;
+$surface-shadow-scale: 1;
 
 $surface-shadow-steps: (
     (0 0 0 0 0 0),
@@ -15,16 +15,16 @@ $surface-shadow-steps: (
 // Each mode's ladder in lightness points: how far each raised and sunken level steps from the page, and how far hover
 // and pressed move a surface.
 $surface-steps: (
-    dark: (hover: 2.5, pressed: 2.5, raised: 2.25, sunken: 2.25),
-    light: (hover: 1.5, pressed: 1, raised: 0.5, sunken: 1)
+    dark: (hover: 3.2, pressed: 6.4, raised: 2.4, sunken: 2.4),
+    light: (hover: 3.2, pressed: 6.4, raised: 1.2, sunken: 1.2)
 );
 
 // Secondary's hover, active and pressed offsets in lightness points off its default, which each theme writes as its
 // 'secondary'. Dark takes more points than light for the same contrast, since luminance moves less near black.
 $surface-secondary: (
-    dark: (hover: 3.7, pressed: 7),
+    dark: (hover: 3.2, pressed: 6.4),
     light: (hover: 3.2, pressed: 6.4)
 );
 
 // The chroma a light fill gains per unit of lightness darker than what it steps from; 0.11 would match the neutrals.
-$surface-tint-light: 0.1;
+$surface-tint-light: 0.12;

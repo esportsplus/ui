@@ -49,14 +49,14 @@ $themes: (
     dark: (
         primary: map.get($color, 'white'),
         secondary: oklch(23% 0.0147 257),
-        shadow: oklch(14% 0.0103 257 / 0.1),
+        shadow: oklch(14% 0.0103 257 / 0.16),
         surface: map.get($color, 'black'),
         text: oklch(90% 0.0162 257)
     ),
     light: (
         primary: map.get($color, 'black'),
         secondary: oklch(94.8% 0.0064 257),
-        shadow: oklch(32% 0.0257 257 / 0.025),
+        shadow: oklch(32% 0.0257 257 / 0.032),
         surface: map.get($color, 'white'),
         text: oklch(36% 0.0325 257)
     )
