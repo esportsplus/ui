@@ -1,29 +1,6 @@
 @use '../tokens/scss' as tokens;
 
-// A ring around the box, its color stepping with the state. Composed into '--box-shadow-outline' for the consumer
-// to layer over its own shadow, so the two combine rather than one replacing the other.
-%box-shadow-outline {
-    --box-shadow-outline: 0 0 0 var(--box-shadow-outline-width) var(--box-shadow-outline-color);
-    --box-shadow-outline-color: var(--box-shadow-outline-color-default);
-    --box-shadow-outline-color-active: var(--box-shadow-outline-color-default);
-    --box-shadow-outline-color-default: transparent;
-    --box-shadow-outline-color-hover: var(--box-shadow-outline-color-default);
-    --box-shadow-outline-color-pressed: var(--box-shadow-outline-color-default);
-    --box-shadow-outline-width: var(--border-width-700);
-
-    @include tokens.state(active) {
-        --box-shadow-outline-color: var(--box-shadow-outline-color-active);
-    }
-
-    @include tokens.state(hover) {
-        --box-shadow-outline-color: var(--box-shadow-outline-color-hover);
-    }
-
-    @include tokens.state(pressed) {
-        --box-shadow-outline-color: var(--box-shadow-outline-color-pressed);
-    }
-}
-
+%box-shadow-outline,
 %box-shadow-state {
     --box-shadow: var(--box-shadow-default);
     --box-shadow-active: var(--box-shadow-default);
@@ -42,4 +19,11 @@
     @include tokens.state(pressed) {
         --box-shadow: var(--box-shadow-pressed);
     }
+}
+
+// A ring around the box, its color stepping with the state. It shares '--box-shadow*' with %box-shadow-state, so
+// the state values here are colors and the ring replaces whatever shadow the box had.
+%box-shadow-outline {
+    box-shadow: 0 0 0 var(--box-shadow-width) var(--box-shadow);
+    --box-shadow-width: var(--border-width-700);
 }

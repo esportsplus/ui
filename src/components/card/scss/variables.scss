@@ -1,7 +1,6 @@
 @use 'css-utilities/surface';
 
 
-
 // Shared with the view transition pseudos, which hang off the root and can't read the card's own variables.
 $expand-border-radius: 18px;
 // The pseudos sit above the themed element too, so they see no theme colors: theirs is a constant black shadow.
@@ -9,6 +8,7 @@ $expand-transition-box-shadow:
     0 0 0 var(--border-width-400) oklch(from var(--color-black-300) l c h / 0.06),
     0 2px 3px -2px oklch(from var(--color-black-300) l c h / 0.07),
     0 4px 12px -4px oklch(from var(--color-black-300) l c h / 0.06);
+
 
 // A surface: a level above whatever it sits in, painted and lifted to match.
 .card {
@@ -57,10 +57,12 @@ $expand-transition-box-shadow:
         }
     }
 
+    // Doubled class so the ring's colors outrank consumers' elevation shadows (e.g. 'pagination-card--tactile').
     &--ring {
-        --box-shadow-outline-color-active: var(--box-shadow-outline-color-pressed);
-        --box-shadow-outline-color-hover: var(--surface-border-default);
-        --box-shadow-outline-color-pressed: var(--surface-border-hover);
+        --box-shadow-active: var(--surface-border-active);
+        --box-shadow-default: transparent;
+        --box-shadow-hover: var(--surface-border-hover);
+        --box-shadow-pressed: var(--surface-shadow-pressed);
     }
 
     &-expand {

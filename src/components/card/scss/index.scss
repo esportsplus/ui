@@ -56,14 +56,14 @@
     }
 
 
-    // A soft halo around the card, layered over whichever shadow it has at the time. Keyboard focus shows it as
-    // hover does.
+    // A soft halo in place of the card's elevation. Keyboard focus shows it as hover does. Restated because the
+    // placeholder's own declaration is emitted ahead of '.card' and loses to it.
     &--ring {
         @extend %box-shadow-outline;
-        box-shadow: var(--box-shadow-outline), var(--box-shadow);
+        box-shadow: 0 0 0 var(--box-shadow-width) var(--box-shadow);
 
         &:focus-visible {
-            --box-shadow-outline-color: var(--box-shadow-outline-color-hover);
+            --box-shadow: var(--box-shadow-hover);
         }
     }
 
