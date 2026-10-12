@@ -20,14 +20,14 @@
     // Hidden and undrawn until the plot is shown.
     --draw-offset: 1;
     --draw-opacity: 0;
-    --draw-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    --draw-timing-function: var(--easing-out);
     --focus-color: var(--color-primary-500);
     --font-size: var(--font-size-400);
     --line-color: var(--color-primary-500);
     --line-width: 2.5;
     --muted-color: var(--color-text-300);
     // Shown while the plot is active.
-    --overlay-duration: 0.15s;
+    --overlay-duration: var(--duration-fast);
     --overlay-opacity: 0;
     --padding: var(--size-500);
     // Tracks the card's width (cqi) between a floor that keeps small cards readable and the full-size chart.
@@ -68,14 +68,14 @@
     --arrow-size: 0.68em;
     --border-radius: var(--border-radius-300);
     --cell: linear(0, 0.092, 0.262, 0.426, 0.567, 0.679, 0.764, 0.827, 0.874, 0.908, 0.933, 0.951, 0.964, 0.974, 0.981, 0.986, 0.99, 0.993, 0.995, 0.996, 0.997, 0.998, 0.999, 0.999, 1);
-    --cell-duration: 360ms;
+    --cell-duration: var(--duration-slow);
     --clear: cubic-bezier(0.4, 0, 1, 1);
-    --clear-duration: 160ms;
+    --clear-duration: var(--duration-fast);
     --color-down: var(--color-red-500);
     // The green scale is tuned for dark surfaces; drop lightness so text stays legible on light ones.
     --color-up: oklch(from var(--color-green-500) 0.6 c h);
     --drop-blur: 4px;
-    --drop-duration: 140ms;
+    --drop-duration: var(--duration-fast);
     --drop-offset: 0.7em;
     --font-size: var(--font-size-300);
     --font-weight: var(--font-weight-500);
@@ -88,12 +88,12 @@
     --pop-duration: 460ms;
     --roll: linear(0, 0.065, 0.201, 0.348, 0.487, 0.606, 0.703, 0.779, 0.837, 0.881, 0.913, 0.937, 0.955, 0.968, 0.977, 0.984, 0.988, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 0.999, 1);
     --roll-blur: 5px;
-    --roll-duration: 340ms;
+    --roll-duration: var(--duration-slow);
     --roll-offset: 0.85em;
     --settle: linear(0, 0.086, 0.242, 0.399, 0.533, 0.641, 0.725, 0.79, 0.84, 0.879, 0.908, 0.93, 0.947, 0.96, 0.969, 0.977, 0.982, 0.987, 0.99, 0.992, 0.994, 0.995, 0.997, 0.997, 1);
     --settle-duration: 660ms;
     --tint-opacity: 14%;
-    --tone-duration: 200ms;
+    --tone-duration: var(--duration-moderate);
 
     &--down {
         --tone: var(--color-down);

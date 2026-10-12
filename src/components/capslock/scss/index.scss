@@ -14,7 +14,7 @@
     @include tokens.state(active) {
         filter: none;
         opacity: 1;
-        transition-duration: 200ms;
+        transition-duration: var(--duration-moderate);
     }
 
     @include tokens.state(inactive) {
@@ -40,8 +40,8 @@
             position: absolute;
             top: var(--light-inset);
             transition:
-                background-color 300ms ease-out,
-                box-shadow 300ms ease-out;
+                background-color var(--duration-moderate) var(--easing-out),
+                box-shadow var(--duration-moderate) var(--easing-out);
             width: var(--light-size);
         }
     }

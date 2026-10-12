@@ -207,7 +207,7 @@
             translate: calc((var(--i) - 1) * var(--dot-gap));
 
             &::before {
-                animation: inline-edit-status-pulse var(--pulse-duration) ease-in-out calc(var(--i) * var(--pulse-stagger)) infinite;
+                animation: inline-edit-status-pulse var(--pulse-duration) var(--easing-in-out) calc(var(--i) * var(--pulse-stagger)) infinite;
             }
         }
 

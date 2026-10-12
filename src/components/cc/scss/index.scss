@@ -109,11 +109,11 @@
         }
 
         &--roll-1 {
-            animation: cc-digit-1 var(--digit-duration) ease-out;
+            animation: cc-digit-1 var(--digit-duration) var(--easing-out);
         }
 
         &--roll-2 {
-            animation: cc-digit-2 var(--digit-duration) ease-out;
+            animation: cc-digit-2 var(--digit-duration) var(--easing-out);
         }
     }
 
@@ -165,7 +165,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        transition: opacity 200ms ease-out;
+        transition: opacity var(--duration-moderate) var(--easing-out);
 
         &--back {
             transform: rotateY(180deg);
@@ -299,7 +299,7 @@
         transition:
             height var(--ring-duration) var(--spring),
             left var(--ring-duration) var(--spring),
-            opacity 120ms ease-out,
+            opacity var(--duration-fast) var(--easing-out),
             top var(--ring-duration) var(--spring),
             width var(--ring-duration) var(--spring);
 
@@ -308,7 +308,7 @@
             transition:
                 height var(--ring-duration) var(--spring),
                 left var(--ring-duration) var(--spring),
-                opacity 200ms ease-out,
+                opacity var(--duration-moderate) var(--easing-out),
                 top var(--ring-duration) var(--spring),
                 width var(--ring-duration) var(--spring);
         }

@@ -99,7 +99,7 @@
         gap: var(--size-200);
         height: var(--size-700);
         padding: 0 var(--size-300);
-        transition: background-color 0.16s, border-color 0.16s, color 0.16s;
+        transition: background-color var(--duration-fast), border-color var(--duration-fast), color var(--duration-fast);
 
         &.--active {
             --count-color: currentColor;

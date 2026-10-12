@@ -141,9 +141,9 @@
         position: relative;
         touch-action: manipulation;
         transition:
-            background-color 0.15s ease-out,
-            color 0.15s ease-out,
-            scale 0.15s ease-out;
+            background-color var(--duration-fast) var(--easing-out),
+            color var(--duration-fast) var(--easing-out),
+            scale var(--duration-fast) var(--easing-out);
         width: 32px;
 
         &::after {
@@ -172,8 +172,8 @@
 
         &-toggle {
             transition:
-                background-color 0.15s ease-out,
-                color 0.15s ease-out;
+                background-color var(--duration-fast) var(--easing-out),
+                color var(--duration-fast) var(--easing-out);
 
             &:active {
                 scale: none;

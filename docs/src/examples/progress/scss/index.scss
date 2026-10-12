@@ -36,9 +36,9 @@
         outline: none;
         padding-inline: 12px;
         transition:
-            background-color 150ms ease-out,
-            color 150ms ease-out,
-            scale 150ms ease-out;
+            background-color var(--duration-fast) var(--easing-out),
+            color var(--duration-fast) var(--easing-out),
+            scale var(--duration-fast) var(--easing-out);
 
         &-icon {
             height: 14px;

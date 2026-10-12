@@ -1,7 +1,7 @@
 @use '../../input/scss/field';
 
 .textarea {
-    --resize-duration: 240ms;
+    --resize-duration: var(--duration-moderate);
     --resize-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     @include field.variables;
 }

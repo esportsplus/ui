@@ -108,7 +108,7 @@
     }
 
     &-message {
-        transition: color 200ms;
+        transition: color var(--duration-moderate);
     }
 
     &-separator {
@@ -153,7 +153,7 @@
         display: grid;
         height: 14px;
         place-items: center;
-        transition: background 200ms, border-color 200ms;
+        transition: background var(--duration-moderate), border-color var(--duration-moderate);
         width: 14px;
     }
 
@@ -173,7 +173,7 @@
         display: flex;
         font-size: var(--font-size-300);
         gap: var(--size-200);
-        transition: color 200ms;
+        transition: color var(--duration-moderate);
 
         &.--met {
             --check-background: var(--demo-safe);
@@ -194,7 +194,7 @@
     &-score {
         color: var(--status-color);
         font-weight: 600;
-        transition: color 200ms;
+        transition: color var(--duration-moderate);
     }
 
     &-segment {
@@ -216,7 +216,7 @@
             position: absolute;
             transform: scaleX(0);
             transform-origin: left;
-            transition: background 200ms, transform var(--demo-duration) var(--demo-spring);
+            transition: background var(--duration-moderate), transform var(--demo-duration) var(--demo-spring);
         }
     }
 
@@ -238,7 +238,7 @@
         stroke-linecap: round;
         stroke-linejoin: round;
         stroke-width: 2.5;
-        transition: stroke-dashoffset var(--demo-duration) ease-out;
+        transition: stroke-dashoffset var(--demo-duration) var(--easing-out);
         width: 10px;
     }
 
@@ -302,7 +302,7 @@
         stroke-linejoin: round;
         stroke-width: 2;
         transform: var(--check-transform);
-        transition: opacity var(--demo-duration), stroke-dashoffset var(--demo-duration) ease-out, transform var(--demo-duration) var(--demo-spring);
+        transition: opacity var(--demo-duration), stroke-dashoffset var(--demo-duration) var(--easing-out), transform var(--demo-duration) var(--demo-spring);
         width: 16px;
     }
 

@@ -29,7 +29,7 @@
         &--launching {
             animation:
                 dock-hop var(--hop-duration),
-                dock-squash var(--hop-duration) ease-in-out;
+                dock-squash var(--hop-duration) var(--easing-in-out);
         }
 
         &:focus-visible {
@@ -88,7 +88,7 @@
 // Up fast and down with gravity; each landing is the quickest part.
 @keyframes dock-hop {
     0% {
-        animation-timing-function: ease-out;
+        animation-timing-function: var(--easing-out);
         translate: 0 0;
     }
     30% {
@@ -96,7 +96,7 @@
         translate: 0 -22px;
     }
     55% {
-        animation-timing-function: ease-out;
+        animation-timing-function: var(--easing-out);
         translate: 0 0;
     }
     78% {

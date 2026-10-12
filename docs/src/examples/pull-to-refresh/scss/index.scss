@@ -101,9 +101,9 @@
         outline: none;
         padding: 0;
         transition:
-            background-color 0.15s ease-out,
-            color 0.15s ease-out,
-            scale 0.15s ease-out;
+            background-color var(--duration-fast) var(--easing-out),
+            color var(--duration-fast) var(--easing-out),
+            scale var(--duration-fast) var(--easing-out);
         width: 36px;
 
         &-icon {
@@ -154,8 +154,8 @@
     @media (prefers-reduced-motion: reduce) {
         &-refresh {
             transition:
-                background-color 0.15s ease-out,
-                color 0.15s ease-out;
+                background-color var(--duration-fast) var(--easing-out),
+                color var(--duration-fast) var(--easing-out);
 
             &:active {
                 scale: none;

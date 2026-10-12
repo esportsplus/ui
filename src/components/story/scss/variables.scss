@@ -18,7 +18,7 @@
     --fill-color: var(--color-primary-500);
     --focus-ring-color: var(--surface-border-pressed);
     --height: 480px;
-    --icon-swap-duration: 0.3s;
+    --icon-swap-duration: var(--duration-moderate);
     --icon-swap-timing-function: var(--spring);
     --max-width: 320px;
     --muted-color: var(--color-text-300);

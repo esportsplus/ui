@@ -6,7 +6,7 @@
     --font-weight: var(--font-weight-500);
     --outline-color: var(--surface-background-default);
     --outline-width: var(--border-width-500);
-    --roll-duration: 400ms;
+    --roll-duration: var(--duration-slow);
     --roll-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     --size: var(--size-500);
     --timing-function: var(--easing-spring);

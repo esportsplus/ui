@@ -15,7 +15,7 @@
     --surface-grip-width: 32px;
     --surface-handle-height: 28px;
     --surface-header-cursor: grab;
-    --surface-lift-duration: 200ms;
+    --surface-lift-duration: var(--duration-moderate);
     --surface-lift-opacity: 0;
     --surface-title-color: var(--color-text-500);
 

@@ -30,7 +30,7 @@
         &-option {
             @extend %background-state;
             --background-pressed: var(--highlight-pressed);
-            --icon-swap-duration: 300ms;
+            --icon-swap-duration: var(--duration-moderate);
             --icon-swap-timing-function: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.897, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
         }
 

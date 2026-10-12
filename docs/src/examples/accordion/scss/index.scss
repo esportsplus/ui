@@ -13,7 +13,7 @@
         flex-shrink: 0;
         height: 16px;
         rotate: var(--chevron-rotate, none);
-        transition: rotate 150ms ease-out;
+        transition: rotate var(--duration-fast) var(--easing-out);
         width: 16px;
     }
 

@@ -25,13 +25,13 @@
         --outline-width: var(--border-width-500);
         --tape-color: var(--color-primary-300);
         --tape-duration: var(--tape-leave-duration);
-        --tape-enter-duration: 150ms;
+        --tape-enter-duration: var(--duration-fast);
         --tape-height: var(--size-100);
-        --tape-leave-duration: 200ms;
+        --tape-leave-duration: var(--duration-moderate);
         --tape-major-height: 6px;
         --tape-minor-height: 3px;
         --tape-opacity: 0;
-        --tape-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --tape-timing-function: var(--easing-out);
         --tape-translate: 0 4px;
         // Keep in sync with the component's TICK constant; the tape offset is computed against it.
         --tick: 6px;

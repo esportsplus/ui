@@ -9,15 +9,15 @@
 
 
     &--feedback {
-        --draw-duration: 0.26s;
-        --draw-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --draw-duration: var(--duration-moderate);
+        --draw-timing-function: var(--easing-out);
         --error-color: var(--color-red-400);
         --face-blur: 3px;
         // Stands in for an overdamped spring (stiffness 260, damping 34, mass 0.8), which never overshoots.
-        --face-duration: 0.4s;
+        --face-duration: var(--duration-slow);
         --face-gap: 0.375em;
         --face-offset: 3px;
-        --face-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --face-timing-function: var(--easing-out);
         --icon-size: 0.875em;
         --spin-duration: 0.85s;
         --success-color: var(--color-green-500);
@@ -70,7 +70,7 @@
         --color-default: var(--morph-color);
         --font-size: var(--morph-font-size);
         --font-weight: var(--font-weight-500);
-        --icon-swap-duration: 300ms;
+        --icon-swap-duration: var(--duration-moderate);
         --icon-swap-timing-function: var(--morph-spring);
         --line-height: 20px;
         --morph-background: var(--color-primary-500);
@@ -84,8 +84,8 @@
         // JS measures the width morph; CSS owns the failed-save shake.
         --morph-resize-duration: var(--duration-moderate);
         --morph-resize-easing: var(--morph-spring);
-        --morph-shake-duration: 350ms;
-        --morph-shake-easing: ease-in-out;
+        --morph-shake-duration: var(--duration-slow);
+        --morph-shake-easing: var(--easing-in-out);
         --morph-spring: var(--easing-spring);
         --padding-horizontal: var(--size-500);
         --padding-vertical: 0px;

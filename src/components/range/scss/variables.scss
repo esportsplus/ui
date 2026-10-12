@@ -39,7 +39,7 @@
         --range-border-radius: 0px;
         --range-color: var(--color-primary-500);
         --roll-duration: 500ms;
-        --roll-ease: cubic-bezier(0.23, 1, 0.32, 1);
+        --roll-ease: var(--easing-out);
         --root-cursor: pointer;
         --thumb-background: var(--surface-background-default);
         --thumb-border: var(--color-primary-500);

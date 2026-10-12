@@ -70,8 +70,8 @@
         --background-active: var(--highlight-background-active);
         --background-hover: var(--highlight-background-hover);
         --background-pressed: var(--highlight-background-pressed);
-        --glide-duration: 0.2s;
-        --glide-duration-active: 0.25s;
+        --glide-duration: var(--duration-moderate);
+        --glide-duration-active: var(--duration-moderate);
         --line-color: var(--indicator-color);
         --line-width: var(--indicator-width);
         --scale-hidden: 1;

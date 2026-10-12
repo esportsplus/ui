@@ -29,11 +29,11 @@
     }
 
     &.error--shake-1 > :not(.error-live, .error-message) {
-        animation: error-shake-1 320ms ease-out;
+        animation: error-shake-1 var(--duration-slow) var(--easing-out);
     }
 
     &.error--shake-2 > :not(.error-live, .error-message) {
-        animation: error-shake-2 320ms ease-out;
+        animation: error-shake-2 var(--duration-slow) var(--easing-out);
     }
 
     // The tooltip's repaint behind its trigger, which the goo bridges from while the morph runs, so the neck reads as

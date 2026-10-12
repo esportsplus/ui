@@ -82,7 +82,7 @@
         @extend %absolute-full;
         opacity: var(--overlay-opacity);
         pointer-events: none;
-        transition: opacity var(--overlay-duration) ease-out;
+        transition: opacity var(--overlay-duration) var(--easing-out);
     }
 
     &-plot {
