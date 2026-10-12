@@ -1,8 +1,8 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import diffs, { acceptChange, revertChange, type DiffsController } from '@esportsplus/ui/components/editor/diffs';
-import type { Entry } from 'docs/types';
-import 'docs/examples/diffs/scss/index.scss';
+import type { Variant } from 'docs/types';
+import 'docs/examples/editor/scss/diffs.scss';
 
 
 const BASE = `import { clamp } from './math';
@@ -231,54 +231,51 @@ function reviewing() {
 }
 
 
-export default {
-    name: 'diffs',
-    variants: [
-        {
-            render: reviewing,
-            title: 'split: syntax colors, accept and revert'
-        },
-        {
-            render: () => html`
-                <div class='diffs-demo'>
-                    ${diffs({ filename: 'src/animate.ts', mode: 'unified', modified: MODIFIED, original: ORIGINAL })}
-                </div>
-            `,
-            title: 'unified'
-        },
-        {
-            render: () => html`
-                <div class='diffs-demo'>
-                    ${diffs({ class: 'diffs-demo-compact', filename: 'pangrams.txt', modified: PROSE_MODIFIED, original: PROSE_ORIGINAL })}
-                    ${diffs({ class: 'diffs-demo-compact', filename: 'pangrams.txt', modified: PROSE_MODIFIED, original: PROSE_ORIGINAL, wordDiff: false })}
-                </div>
-            `,
-            title: 'word diff: on and off'
-        },
-        {
-            render: () => html`
-                <div class='diffs-demo'>
-                    ${diffs({ class: 'diffs-demo-compact', filename: 'total.js', modified: REFORMATTED, original: SPACED })}
-                    ${diffs({ class: 'diffs-demo-compact', filename: 'total.js', ignoreWhitespace: true, modified: REFORMATTED, original: SPACED })}
-                </div>
-            `,
-            title: 'ignore whitespace: off and on'
-        },
-        {
-            render: () => {
-                let { modified, original } = large();
+export default [
+    {
+        render: reviewing,
+        title: 'split: syntax colors, accept and revert'
+    },
+    {
+        render: () => html`
+            <div class='diffs-demo'>
+                ${diffs({ filename: 'src/animate.ts', mode: 'unified', modified: MODIFIED, original: ORIGINAL })}
+            </div>
+        `,
+        title: 'unified'
+    },
+    {
+        render: () => html`
+            <div class='diffs-demo'>
+                ${diffs({ class: 'diffs-demo-compact', filename: 'pangrams.txt', modified: PROSE_MODIFIED, original: PROSE_ORIGINAL })}
+                ${diffs({ class: 'diffs-demo-compact', filename: 'pangrams.txt', modified: PROSE_MODIFIED, original: PROSE_ORIGINAL, wordDiff: false })}
+            </div>
+        `,
+        title: 'word diff: on and off'
+    },
+    {
+        render: () => html`
+            <div class='diffs-demo'>
+                ${diffs({ class: 'diffs-demo-compact', filename: 'total.js', modified: REFORMATTED, original: SPACED })}
+                ${diffs({ class: 'diffs-demo-compact', filename: 'total.js', ignoreWhitespace: true, modified: REFORMATTED, original: SPACED })}
+            </div>
+        `,
+        title: 'ignore whitespace: off and on'
+    },
+    {
+        render: () => {
+            let { modified, original } = large();
 
-                return html`
-                    <div class='diffs-demo'>
-                        ${diffs({ context: 5, filename: 'src/values.ts', modified, original })}
-                    </div>
-                `;
-            },
-            title: 'large file: 20,000 lines, virtualized'
+            return html`
+                <div class='diffs-demo'>
+                    ${diffs({ context: 5, filename: 'src/values.ts', modified, original })}
+                </div>
+            `;
         },
-        {
-            render: merging,
-            title: 'merge: incoming, current and an editable result'
-        }
-    ]
-} satisfies Entry;
+        title: 'large file: 20,000 lines, virtualized'
+    },
+    {
+        render: merging,
+        title: 'merge: incoming, current and an editable result'
+    }
+] satisfies Variant[];

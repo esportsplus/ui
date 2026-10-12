@@ -11,11 +11,11 @@ import save from '@esportsplus/ui/svg/save.svg';
 import search from '@esportsplus/ui/svg/search.svg';
 import undo from '@esportsplus/ui/svg/undo.svg';
 import type { CodeEditorState, Command, Conflict, Controller, MarkdownController, Selection } from '@esportsplus/ui/components/editor';
-import type { Entry } from 'docs/types';
+import type { Variant } from 'docs/types';
 import { samples, workspaceFiles } from './fixtures/files';
 import { demoLanguageTransport } from './fixtures/language';
 import { workspaceExample } from './workspace-example';
-import 'docs/examples/code-editor/scss/index.scss';
+import 'docs/examples/editor/scss/code.scss';
 
 
 type Hint = {
@@ -681,53 +681,50 @@ function viewer() {
 }
 
 
-export default {
-    name: 'code-editor',
-    variants: [
-        {
-            render: editing,
-            title: 'editing: undo and redo, find and replace, go to line'
-        },
-        {
-            render: languages,
-            title: 'syntax colors: TypeScript, TSX, CSS, SCSS, HTML, JSON, Python and Markdown'
-        },
-        {
-            render: view,
-            title: 'view options: wrap, whitespace, folding, minimap, line numbers and tab size'
-        },
-        {
-            render: multiple,
-            title: 'multiple cursors and rectangular selection'
-        },
-        {
-            render: () => editor.code({
-                class: 'code-editor-demo-editor code-editor-demo-editor--compact',
-                options: { fileName: 'settings.json', label: 'Read-only settings', readonly: true },
-                value: samples.settings
-            }),
-            title: 'read-only: selection, find, copy and folding without edits'
-        },
-        {
-            render: viewer,
-            title: 'viewer: syntax colors, line numbers, folding, wrap, whitespace, minimap and copy, without the editor'
-        },
-        {
-            render: services,
-            title: 'language services: completion, hover and diagnostics over a transport'
-        },
-        {
-            render: annotated,
-            title: 'features: sticky scroll, color swatches, links, unicode warnings, rulers, git gutter and keybindings'
-        },
-        {
-            render: conflicts,
-            title: 'merge conflicts: accept current, incoming or both, and compare'
-        },
-        {
-            render: markdown,
-            title: 'markdown: edited as rendered, its syntax never shown'
-        },
-        workspaceExample
-    ]
-} satisfies Entry;
+export default [
+    {
+        render: editing,
+        title: 'editing: undo and redo, find and replace, go to line'
+    },
+    {
+        render: languages,
+        title: 'syntax colors: TypeScript, TSX, CSS, SCSS, HTML, JSON, Python and Markdown'
+    },
+    {
+        render: view,
+        title: 'view options: wrap, whitespace, folding, minimap, line numbers and tab size'
+    },
+    {
+        render: multiple,
+        title: 'multiple cursors and rectangular selection'
+    },
+    {
+        render: () => editor.code({
+            class: 'code-editor-demo-editor code-editor-demo-editor--compact',
+            options: { fileName: 'settings.json', label: 'Read-only settings', readonly: true },
+            value: samples.settings
+        }),
+        title: 'read-only: selection, find, copy and folding without edits'
+    },
+    {
+        render: viewer,
+        title: 'viewer: syntax colors, line numbers, folding, wrap, whitespace, minimap and copy, without the editor'
+    },
+    {
+        render: services,
+        title: 'language services: completion, hover and diagnostics over a transport'
+    },
+    {
+        render: annotated,
+        title: 'features: sticky scroll, color swatches, links, unicode warnings, rulers, git gutter and keybindings'
+    },
+    {
+        render: conflicts,
+        title: 'merge conflicts: accept current, incoming or both, and compare'
+    },
+    {
+        render: markdown,
+        title: 'markdown: edited as rendered, its syntax never shown'
+    },
+    workspaceExample
+] satisfies Variant[];

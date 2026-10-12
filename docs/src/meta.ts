@@ -42,10 +42,6 @@ const meta: Record<string, Meta> = {
     clipboard: {
         description: 'Copy-to-clipboard affordance with click and programmatic variants.'
     },
-    'code-editor': {
-        description: 'Source editor with syntax colors for TypeScript, CSS, HTML, JSON, Python and Markdown, undo and redo, find and replace, multiple and rectangular selections, folding, wrap and a minimap; language services add completion, hover and diagnostics, the Markdown editor edits its rendered text directly, the workspace adds a file explorer, tabs and quick open, and the viewer shows source read-only with line numbers, folding, wrap, whitespace, a minimap and copy.',
-        label: 'Code Editor'
-    },
     'color-picker': {
         description: 'Saturation pad, hue and opacity sliders, a hex field, and a recent-colors row that reorders as you commit, or a compact pad with upright rails under an hsl readout.'
     },
@@ -64,18 +60,15 @@ const meta: Record<string, Meta> = {
     datalist: {
         description: 'Scroll-snapped wheel picker where the scroll position is the selection.'
     },
-    diffs: {
-        description: 'Side-by-side or unified diff viewer with syntax colors, word-level highlights, collapsible unchanged lines, change navigation and per-change accept and revert, virtualized for large files; diffs.merge is a three-way merge editor with an editable result.',
-        label: 'Diffs'
-    },
     dock: {
         description: 'macOS-style dock whose icons swell toward the cursor and launch with a bounce and a running light.'
     },
+    editor: {
+        description: 'Code, markdown, file tree, workspace and diff editing in one family. editor.code edits source with syntax colors, undo and redo, find and replace, multiple and rectangular selections, folding, wrap, a minimap and language services; editor.markdown edits rendered markdown directly; editor.tree is a collapsible, virtualized file tree with git and problem decorations, drag and drop and desktop import and export; editor.workspace adds an explorer, tabs and quick open; editor.viewer shows source read-only; and editor.diffs compares two texts side by side or unified, with editor.diffs.merge for three-way merges.',
+        label: 'Editor'
+    },
     error: {
         description: 'Wraps any control that keeps its error in state.error: the control shakes and turns red, and the message grows out of it in the morph tooltip on any side.'
-    },
-    'file-tree': {
-        description: 'Collapsible file and folder tree with guide lines, locked items, natural sorting, and expand or collapse all (Magic UI).'
     },
     filter: {
         description: 'Headless filter controller: bring your own triggers and layout, and matching items shift, scale, and fade into place.'
