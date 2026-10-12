@@ -6,8 +6,8 @@
 
 
 // The shadow at each weight, 0 to 7, as two layers of y offset, blur, spread in px and opacity: Tailwind v4's
-// 'shadow-2xs' through 'shadow-2xl', a missing second layer written as zeros. Every length runs at the token scale,
-// and every opacity at the mode's 'steps' shadow in the surface tokens over Tailwind's 10%.
+// 'shadow-2xs' through 'shadow-2xl', a missing second layer written as zeros. Every opacity runs at the mode's shadow
+// 'opacity' in the theme's surface tokens over Tailwind's 10%.
 $shadow-steps: (
     ((0 0 0 0), (0 0 0 0)),
     ((1 0 0 0.05), (0 0 0 0)),
@@ -19,15 +19,13 @@ $shadow-steps: (
     ((25 50 -12 0.25), (0 0 0 0))
 );
 
-$shadow-scale: map.get(tokens.$surface, shadow, scale);
-
 // The heaviest shadow weight, the ladder's last step.
 $shadow-weight-max: list.length($shadow-steps) - 1;
 
 
 // A ladder step as a lightness fraction.
 @function ladder-step($mode, $key) {
-    @return math.div(map.get(tokens.$surface, steps, $mode, $key), 100);
+    @return math.div(map.get(tokens.$themes, $mode, surface, $key), 100);
 }
 
 // The lightness a level moves from the page in a mode: raised levels by one step, sunken ones by another.
@@ -69,19 +67,32 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     );
 }
 
-// The opacity a Tailwind 10% shadow step takes in a mode, as a fraction.
-@function shadow-opacity($mode) {
-    @return math.div(map.get(tokens.$surface, steps, $mode, shadow), 100);
+// A state's background moved by the mode's border step, darker in light and lighter in dark, so each border follows the
+// background it edges in that state and stands out from it in both modes.
+@function surface-border($state) {
+    @return light-dark(
+        #{'oklch(from var(--surface-background-#{$state}) max(0, l - #{ladder-step(light, border)}) c h)'},
+        #{'oklch(from var(--surface-background-#{$state}) min(1, l + #{ladder-step(dark, border)}) c h)'}
+    );
 }
 
-// The color of a shadow falling on a background: that background deepened in its own hue, at a 10% step's opacity.
-@function shadow-color($background) {
-    $depth: map.get(tokens.$surface, shadow, depth);
+// A mode's shadow token.
+@function shadow-token($mode, $key) {
+    @return map.get(tokens.$themes, $mode, surface, shadow, $key);
+}
 
-    @return light-dark(
-        #{'oklch(from #{$background} calc(l * #{$depth}) calc(c * #{$depth}) h / #{shadow-opacity(light)})'},
-        #{'oklch(from #{$background} calc(l * #{$depth}) calc(c * #{$depth}) h / #{shadow-opacity(dark)})'}
-    );
+// The color of a shadow falling on a background in a mode: that background deepened in its own hue by the mode's depth,
+// at its 10% step's opacity.
+@function shadow-color-in($background, $mode) {
+    $depth: shadow-token($mode, depth);
+    $opacity: math.div(shadow-token($mode, opacity), 100);
+
+    @return 'oklch(from #{$background} calc(l * #{$depth}) calc(c * #{$depth}) h / #{$opacity})';
+}
+
+// The color of a shadow falling on a background, in each mode.
+@function shadow-color($background) {
+    @return light-dark(#{shadow-color-in($background, light)}, #{shadow-color-in($background, dark)});
 }
 
 // One of a layer's y, blur, spread or opacity at a weight. A number reads its step; anything else, such as a custom
@@ -122,10 +133,10 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
             $length: shadow-value($layer, $i, $weight);
 
             @if $fixed {
-                $length: $length * $shadow-scale * 1px;
+                $length: $length * 1px;
             }
             @else {
-                $length: 'calc(#{$length} * #{$shadow-scale * 1px})';
+                $length: 'calc(#{$length} * 1px)';
             }
 
             $lengths: list.append($lengths, $length);
@@ -151,18 +162,18 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 
 // A layer's colors, read from its level: 0 the page, each surface a level above the one it sits in, in the states
 // components already name, following any background a component sets in its place. Active, hover and pressed step the
-// background as 'surface-shift()' sets. Borders mix the primary in, hover and active a step stronger and pressed the
-// strongest. Another level is never a color to paint: an element reaches it by extending '%surface-raised' or
-// '%surface-sunken', so whatever sits in it reads its states from the level it shows.
+// background as 'surface-shift()' sets. Each state's border is that state's background moved by the border step,
+// darker in light and lighter in dark. Another level is never a color to paint: an element reaches it by extending
+// '%surface-raised' or '%surface-sunken', so whatever sits in it reads its states from the level it shows.
 @mixin surface-colors {
     --surface-background-active: #{surface-shift('active')};
     --surface-background-default: #{surface-background('var(--surface-level)')};
     --surface-background-hover: #{surface-shift('hover')};
     --surface-background-pressed: #{surface-shift('pressed')};
-    --surface-border-active: var(--surface-border-hover);
-    --surface-border-default: color-mix(in oklab, var(--color-primary-500) 6%, var(--surface-background-default));
-    --surface-border-hover: color-mix(in oklab, var(--color-primary-500) 10.5%, var(--surface-background-default));
-    --surface-border-pressed: color-mix(in oklab, var(--color-primary-500) 27%, var(--surface-background-default));
+    --surface-border-active: #{surface-border('active')};
+    --surface-border-default: #{surface-border('default')};
+    --surface-border-hover: #{surface-border('hover')};
+    --surface-border-pressed: #{surface-border('pressed')};
     --surface-shadow-active: var(--surface-shadow-hover);
     --surface-shadow-color: #{shadow-color('var(--surface-background-default)')};
 }

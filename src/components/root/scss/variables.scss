@@ -27,7 +27,11 @@
     @include shared.css-variables(spacer, tokens.$spacer);
 
     @each $name in map.keys(tokens.$color) {
-        @include shared.color-weights($name, map.get(tokens.$step, color));
+        @include shared.color-weights(
+            $name,
+            map.get(tokens.$themes, light, surface, color),
+            map.get(tokens.$themes, dark, surface, color)
+        );
     }
 
     --font-size: var(--font-size-400);

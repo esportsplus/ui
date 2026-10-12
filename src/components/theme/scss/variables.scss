@@ -5,29 +5,31 @@
 @use 'css-utilities/surface';
 
 
-// Each role and weight as one 'light-dark()' of its light and dark values; a role with a single color has no weights.
+// Each color role and weight as one 'light-dark()' of its light and dark values; a role with a single color has no
+// weights.
 @function schemes($themes) {
     $colors: ();
 
-    @each $role, $weights in map.get($themes, light) {
+    @each $role, $weights in map.get($themes, light, color) {
         @if meta.type-of($weights) == 'map' {
             @each $weight, $light in $weights {
-                $colors: map.set($colors, $role, $weight, light-dark($light, map.get($themes, dark, $role, $weight)));
+                $dark: map.get($themes, dark, color, $role, $weight);
+                $colors: map.set($colors, $role, $weight, light-dark($light, $dark));
             }
         }
         @else {
-            $colors: map.set($colors, $role, light-dark($weights, map.get($themes, dark, $role)));
+            $colors: map.set($colors, $role, light-dark($weights, map.get($themes, dark, color, $role)));
         }
     }
 
     @return $colors;
 }
 
-// A text weight from the theme's text, holding the text 'step' token's contrast against it, lighter or darker.
+// A text weight from the theme's text, holding the mode's text step contrast against it, lighter or darker.
 // Luminance is taken as lightness cubed, exact for a neutral and close for text's faint tint, so the step solves in
 // closed form where the color is used. Chroma fades toward the end the weight moves to, never above 400's.
-@function text-weight($direction) {
-    $step: map.get(tokens.$step, text);
+@function text-weight($direction, $mode) {
+    $step: map.get(tokens.$themes, $mode, text);
     $l: 'pow(max(0, (pow(l, 3) + 0.05) / #{$step} - 0.05), 1 / 3)';
     $fade: '#{$l} / max(l, 0.01)';
 
@@ -49,16 +51,20 @@
     @include surface.surface-shadow(0);
     @include surface.surface-shadows;
 
-    @include shared.color-weights(primary, map.get(tokens.$step, color));
+    @include shared.color-weights(
+        primary,
+        map.get(tokens.$themes, light, surface, color),
+        map.get(tokens.$themes, dark, surface, color)
+    );
 
     --background: var(--surface-background-default);
     --color: var(--color-text-400);
     // The text is 400; 300 is muted, toward the page, and 500 strongest, away from it: lighter and darker in light,
     // the reverse in dark.
-    --color-text-300: light-dark(#{text-weight(lighter)}, #{text-weight(darker)});
+    --color-text-300: light-dark(#{text-weight(lighter, light)}, #{text-weight(darker, dark)});
 
     --color-text-400: var(--color-text);
-    --color-text-500: light-dark(#{text-weight(darker)}, #{text-weight(lighter)});
+    --color-text-500: light-dark(#{text-weight(darker, light)}, #{text-weight(lighter, dark)});
     color-scheme: light dark;
 }
 

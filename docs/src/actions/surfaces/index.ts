@@ -55,7 +55,7 @@ const TOC: TocItem[] = [
 const TOKENS: [string, string][] = [
     ['--surface-level', 'The layer\'s level: 0 the page, each surface one above or below the one it sits in.'],
     ['--surface-background-{state}', 'The level\'s background, and the step hover, active and pressed move it.'],
-    ['--surface-border-{state}', 'The primary color mixed into the background, for lines, rings and edges.'],
+    ['--surface-border-{state}', 'The matching state\'s background moved by the mode\'s border step (darker in light, lighter in dark), for lines, rings and edges.'],
     ['--surface-shadow-{state}', 'The shadow at the layer\'s weight, a step heavier on hover, a step lighter pressed.'],
     ['--surface-shadow-weight', 'Its Tailwind v4 shadow step, 0 to 7: its level by default, sunken 0, dialogs 7.'],
     ['--surface-shadow-color', 'The color of a shadow falling on the layer: its background deepened in its own hue.']
@@ -132,7 +132,7 @@ const responder = (): Page => {
                     <p>
                         Every layer sits on a level: <code>0</code> is the page, each raised surface one above whatever
                         holds it and each sunken one below. Raised levels step lighter and sunken ones darker, by each
-                        mode's surface <code>steps</code> token: light mode climbs to white and then leaves elevation to the
+                        mode's <code>surface</code> theme tokens: light mode climbs to white and then leaves elevation to the
                         shadow, and dark mode stops 6 levels above the page. A raised layer's shadow takes the Tailwind v4
                         step matching its level, in the color of what it falls on; sunken levels cast none.
                     </p>

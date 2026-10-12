@@ -105,8 +105,8 @@ const responder = (): Page => {
                         <code>light-dark()</code> of its two values: <code>--color-surface</code> the page,
                         <code>--color-primary-{weight}</code> its opposite (black on a light page, white on a dark one)
                         and <code>--color-text-{weight}</code> text (300 muted to 500 strongest). Layers step their
-                        backgrounds from the page, mix the primary into their borders and deepen the background a shadow
-                        falls on for its color, so they follow the mode without naming colors. Everything else comes
+                        backgrounds from the page, move their own background for their borders and deepen the
+                        background a shadow falls on for its color, so they follow the mode without naming colors. Everything else comes
                         from the fixed palette, and a component that needs its own pair wraps two palette colors in
                         <code>light-dark()</code>.
                     </p>

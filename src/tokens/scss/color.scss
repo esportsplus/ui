@@ -16,32 +16,67 @@ $color: (
 
 $colors: list.join(primary text, map.keys($color));
 
-$step: (
-    // How far a color's 300 and 500 sit from its 400, in lightness points: lighter for hover, darker for press.
-    color: 3,
-    // How far apart the text weights sit: 300 and 500 each hold this contrast against 400, the same in both modes.
-    text: 1.5
-);
-
-
-// The only colors that change with the mode; everything else is the fixed palette above, and each component picks its
-// own pair for light and dark. 'surface' is the page, the base every surface level steps from, kept below white in
-// light so raised surfaces have room to climb to it; 'primary' is its opposite, black on a light page and white on a
-// dark one, the ink that edges and tints mix in, weighted like the palette; and 'text', one color the theme takes as
-// 400 and derives 300 (muted) and 500 (strongest) from where the color is used. Neutrals and text share one hue, 257,
-// each tinted to 24% of the chroma the gamut allows at its lightness, so every tone carries the same faint blue; black
-// takes three quarters of that, 18%, since the dark surfaces step up from it and the tint grows with them. Light text
-// on a dark page reads weaker than its WCAG ratio, so dark 400 sits halfway between light 400's ratio and its perceived
+// Everything that changes with the mode.
+//
+// 'color' holds the only colors that do; everything else is the fixed palette above, and each component picks its own
+// pair for light and dark. 'surface' is the page, the base every surface level steps from, kept below white in light so
+// raised surfaces have room to climb to it; 'primary' is its opposite, black on a light page and white on a dark one,
+// the ink that edges and tints mix in, weighted like the palette; and 'text', one color the theme takes as 400 and
+// derives 300 (muted) and 500 (strongest) from where the color is used. Neutrals and text share one hue, 257, each
+// tinted to 24% of the chroma the gamut allows at its lightness, so every tone carries the same faint blue; black takes
+// three quarters of that, 18%, since the dark surfaces step up from it and the tint grows with them. Light text on a
+// dark page reads weaker than its WCAG ratio, so dark 400 sits halfway between light 400's ratio and its perceived
 // (APCA) contrast.
+//
+// 'surface' is the ladder in lightness points, every step moving the level's default the same way in both modes:
+// active, hover and each raised level lighter, pressed and each sunken level darker. 'border' moves each state's
+// background for that state's border, darker in light and lighter in dark; 'color' sets how far every color's 300 and
+// 500 sit from its 400, lighter for hover and darker for press. Its 'shadow' is a shadow falling on a background:
+// 'depth' the shadow color's lightness as a share of that background's, its chroma scaled alike, so a shadow is the
+// background deepened in its own hue; and 'opacity' the percent a Tailwind 10% shadow step takes.
+//
+// 'text' is a contrast ratio, not points: text 300 and 500 each hold it against 400.
 $themes: (
     dark: (
-        primary: map.get($color, 'white'),
-        surface: map.get($color, 'black'),
-        text: oklch(90% 0.0162 257)
+        color: (
+            primary: map.get($color, 'white'),
+            surface: map.get($color, 'black'),
+            text: oklch(90% 0.0162 257)
+        ),
+        surface: (
+            active: 2,
+            border: 6,
+            color: 3,
+            hover: 1,
+            pressed: 4,
+            raised: 2,
+            shadow: (
+                depth: 0.24,
+                opacity: 16
+            ),
+            sunken: 2
+        ),
+        text: 1.5
     ),
     light: (
-        primary: map.get($color, 'black'),
-        surface: map.get($color, 'white'),
-        text: oklch(36% 0.0325 257)
+        color: (
+            primary: map.get($color, 'black'),
+            surface: map.get($color, 'white'),
+            text: oklch(36% 0.0325 257)
+        ),
+        surface: (
+            active: 1,
+            border: 4,
+            color: 3,
+            hover: 0.5,
+            pressed: 2,
+            raised: 1,
+            shadow: (
+                depth: 0.24,
+                opacity: 8
+            ),
+            sunken: 1
+        ),
+        text: 1.5
     )
 );

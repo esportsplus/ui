@@ -176,12 +176,18 @@ const map = (scss: string | undefined, name: string): Node | null => {
     return out;
 };
 
-// '$themes' read as mode, then role, then the role's one color. Palette references read as the palette's variables, and
-// a weighted role lists the weights the theme derives from its color.
+// '$themes' colors read as mode, then role, then the role's one color. Palette references read as the palette's
+// variables, and a weighted role lists the weights the theme derives from its color.
 const themes = (scss: string | undefined) => {
-    let out = tree(scss, 'themes') as Record<string, Record<string, Record<string, string> | string>>;
+    let out: Record<string, Record<string, Record<string, string> | string>> = {};
 
-    for (let roles of Object.values(out)) {
+    for (let [mode, theme] of Object.entries(tree(scss, 'themes'))) {
+        if (typeof theme === 'string' || typeof theme.color !== 'object') {
+            continue;
+        }
+
+        let roles = out[mode] = theme.color as Record<string, Record<string, string> | string>;
+
         for (let [role, value] of Object.entries(roles)) {
             if (typeof value !== 'string') {
                 continue;
