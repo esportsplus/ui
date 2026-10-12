@@ -16,11 +16,12 @@ $color: (
 
 $colors: list.join(primary text, map.keys($color));
 
-// How far a color's 300 and 500 sit from its 400, in lightness points: lighter for hover, darker for press.
-$weight-step: 3;
-
-// How far apart the text weights sit: 300 and 500 each hold this contrast against 400, the same in both modes.
-$text-step: 1.5;
+$step: (
+    // How far a color's 300 and 500 sit from its 400, in lightness points: lighter for hover, darker for press.
+    color: 3,
+    // How far apart the text weights sit: 300 and 500 each hold this contrast against 400, the same in both modes.
+    text: 1.5
+);
 
 
 // The only colors that change with the mode; everything else is the fixed palette above, and each component picks its

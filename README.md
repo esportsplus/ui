@@ -332,7 +332,7 @@ plugin. `check.svg` carries no stroke styling, so set `fill: none` and a `stroke
 
 Located in `tokens.scss`:
 
-- **Colors**: `--color-{name}` (black, blue, green, grey, purple, red, white, yellow), each written once and weighted at the root as `--color-{name}-{300|400|500}`: 400 itself, 300 and 500 `$weight-step` lightness points lighter and darker
+- **Colors**: `--color-{name}` (black, blue, green, grey, purple, red, white, yellow), each written once and weighted at the root as `--color-{name}-{300|400|500}`: 400 itself, 300 and 500 `$step` `color` lightness points lighter and darker
 - **Theme colors**: `--color-surface`, `--color-primary-{300|400|500}` and `--color-text-{300|400|500}`, the only colors that change with the mode, declared by the theme stylesheet (see Theming)
 - **Sizing**: `--size-{300-800}` (12px-80px)
 - **Spacing**: `--spacing-{0-600}`
@@ -410,7 +410,7 @@ mode.set('dark'); // 'dark' | 'light' | 'system'
 `theme.scss` declares the only colors that change with the mode once on `:root`, as a `light-dark()` of their light and
 dark values: `--color-surface` (the page, a 99% neutral in light and `black-400` in dark), `--color-primary-*` (its
 opposite, `black-*` in light and `white-*` in dark), `--color-text` (text, one color, which is `--color-text-400`;
-`--color-text-300` and `-500` derive from it in CSS, each holding `$text-step` contrast against it in both modes, so
+`--color-text-300` and `-500` derive from it in CSS, each holding `$step` `text` contrast against it in both modes, so
 setting `--color-text` on `:root` moves all three). It also sets `--background`, `--color` and `color-scheme: light dark`, so with no script at all the page
 follows the operating system.
 
