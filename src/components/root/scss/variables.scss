@@ -19,8 +19,8 @@
     @include shared.css-variables(border-radius, tokens.$border-radius);
     @include shared.css-variables(border-width, tokens.$border-width);
     @include shared.css-variables(color, tokens.$color);
-    @include shared.css-variables(duration, tokens.$duration);
-    @include shared.css-variables(easing, tokens.$easing);
+    @include shared.css-variables(duration, map.get(tokens.$transition, duration));
+    @include shared.css-variables(easing, map.get(tokens.$transition, easing));
     @include shared.css-variables(font-size, tokens.$font-size);
     @include shared.css-variables(size, tokens.$size);
     @include shared.css-variables(spacer, tokens.$spacer);

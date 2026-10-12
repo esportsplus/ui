@@ -7,7 +7,7 @@
 
 // The shadow at each weight, 0 to 7, as two layers of y offset, blur, spread in px and opacity: Tailwind v4's
 // 'shadow-2xs' through 'shadow-2xl', a missing second layer written as zeros. Every length runs at the token scale,
-// and every opacity at the mode's '$surface-steps' shadow over Tailwind's 10%.
+// and every opacity at the mode's 'steps' shadow in the surface tokens over Tailwind's 10%.
 $shadow-steps: (
     ((0 0 0 0), (0 0 0 0)),
     ((1 0 0 0.05), (0 0 0 0)),
@@ -19,13 +19,15 @@ $shadow-steps: (
     ((25 50 -12 0.25), (0 0 0 0))
 );
 
+$shadow-scale: map.get(tokens.$surface, shadow, scale);
+
 // The heaviest shadow weight, the ladder's last step.
 $shadow-weight-max: list.length($shadow-steps) - 1;
 
 
 // A ladder step as a lightness fraction.
 @function ladder-step($mode, $key) {
-    @return math.div(map.get(tokens.$surface-steps, $mode, $key), 100);
+    @return math.div(map.get(tokens.$surface, steps, $mode, $key), 100);
 }
 
 // The lightness a level moves from the page in a mode: raised levels by one step, sunken ones by another.
@@ -69,12 +71,12 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 
 // The opacity a Tailwind 10% shadow step takes in a mode, as a fraction.
 @function shadow-opacity($mode) {
-    @return math.div(map.get(tokens.$surface-steps, $mode, shadow), 100);
+    @return math.div(map.get(tokens.$surface, steps, $mode, shadow), 100);
 }
 
 // The color of a shadow falling on a background: that background deepened in its own hue, at a 10% step's opacity.
 @function shadow-color($background) {
-    $depth: tokens.$surface-shadow-depth;
+    $depth: map.get(tokens.$surface, shadow, depth);
 
     @return light-dark(
         #{'oklch(from #{$background} calc(l * #{$depth}) calc(c * #{$depth}) h / #{shadow-opacity(light)})'},
@@ -120,10 +122,10 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
             $length: shadow-value($layer, $i, $weight);
 
             @if $fixed {
-                $length: $length * tokens.$surface-shadow-scale * 1px;
+                $length: $length * $shadow-scale * 1px;
             }
             @else {
-                $length: 'calc(#{$length} * #{tokens.$surface-shadow-scale * 1px})';
+                $length: 'calc(#{$length} * #{$shadow-scale * 1px})';
             }
 
             $lengths: list.append($lengths, $length);

@@ -423,23 +423,23 @@ Layers (cards, popovers, menus, dialogs, buttons) are surfaces: each counts a le
 the `--surface-level` custom property, and reads its colors from that level instead of naming one. A surface reads its
 parent's level with a container style query, so it counts up even set directly inside another surface; levels stop at 6.
 Its tokens follow the state names components use, `default`, `hover`, `active` and `pressed`:
-`--surface-background-*` steps the default from `--color-surface` by the lightness points in `$surface-steps` for each
+`--surface-background-*` steps the default from `--color-surface` by the lightness points in `$surface` `steps` for each
 mode, raised levels lighter and sunken ones darker (in light mode raised levels climb to white, leaving further
 elevation to the shadow), then moves it for each state, active and hover lighter and pressed darker in both modes;
 `--surface-border-*` mixes the primary color in for lines, rings and small marks; and `--surface-shadow-*` is the
 shadow at the layer's `--surface-shadow-weight`, a step on Tailwind v4's `shadow-2xs` to `shadow-2xl` ladder (1 to 7),
 a step heavier on hover and a step lighter when pressed. The weight follows the level (sunken layers 0, dialogs 7);
 set it on a surface to pick another step, a fraction landing between two. A shadow takes the color of what it falls
-on, that background deepened in its own hue, at the mode's `shadow` opacity in `$surface-steps`; `--surface-shadow-
-color` is that color for whatever casts onto a layer, for component shadows and scrims. A quiet fill, such as a track or an inline code chip, is a surface of its own a level below
-what holds it. Dialogs reset the stack to level 1 wherever they open. Another level is never a color to paint: a
+on, that background deepened in its own hue, at the mode's `shadow` opacity in `$surface` `steps`; `--surface-shadow-
+color` is that color for whatever casts onto a layer, for component shadows and scrims. A quiet fill, such as a track
+or an inline code chip, is a surface of its own a level below what holds it. Dialogs reset the stack to level 1 wherever they open. Another level is never a color to paint: a
 component reaches it by extending `%surface-raised` or `%surface-sunken` (painted), or `%surface-raised-level` or
 `%surface-sunken-level` (counted, for components that route background and shadow through their own variables), so
 whatever sits in it reads its states from the level it shows; sunken layers cast no shadow. Style queries on custom
 properties need Chrome and Edge 111, Safari 18 or Firefox 151; elsewhere every surface keeps its parent's level. The
-ladder and shadows are tokens in `tokens/scss/surface.scss` (`$surface-steps`, `$surface-shadow-scale`,
-`$surface-shadow-depth`); the Tailwind shadow ladder itself sits with the surface utilities, and
-`surface.shadow($weight)` writes a fixed step's shadow.
+ladder and shadows are one `$surface` token map in `tokens/scss/surface.scss`: `steps` per mode, and `shadow` with its
+`depth` and `scale`; the Tailwind shadow ladder itself sits with the surface utilities, and `surface.shadow($weight)`
+writes a fixed step's shadow.
 
 Ready-made pickers drive the same instance:
 

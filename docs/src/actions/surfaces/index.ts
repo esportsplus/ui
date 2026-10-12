@@ -132,7 +132,7 @@ const responder = (): Page => {
                     <p>
                         Every layer sits on a level: <code>0</code> is the page, each raised surface one above whatever
                         holds it and each sunken one below. Raised levels step lighter and sunken ones darker, by each
-                        mode's <code>$surface-steps</code>: light mode climbs to white and then leaves elevation to the
+                        mode's surface <code>steps</code> token: light mode climbs to white and then leaves elevation to the
                         shadow, and dark mode stops 6 levels above the page. A raised layer's shadow takes the Tailwind v4
                         step matching its level, in the color of what it falls on; sunken levels cast none.
                     </p>
