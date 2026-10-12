@@ -337,6 +337,7 @@ Located in `tokens.scss`:
 - **Sizing**: `--size-{300-800}` (12px-80px)
 - **Spacing**: `--spacing-{0-600}`
 - **Border**: `--border-radius-{100-900}`, `--border-width-{100-700}`
+- **Blur**: `--blur-{300|400|500}` (2px, 4px, 8px)
 - **Typography**: `--font-size-*`, `--font-weight-*`; line height adjusts automatically to each element's font size.
 
 ### Modifiers
