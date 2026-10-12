@@ -31,9 +31,8 @@
         --header-gap: var(--size-400);
         --heading-display: block;
         --label-color: var(--muted-color);
-        --label-font-size: 12px;
-        --label-letter-spacing: 0.05em;
-        --label-margin: 0 0 4px;
+        --label-font-size: var(--font-size-300);
+        --label-margin: 0 0 calc(var(--size-100) / 2);
         --label-text-transform: uppercase;
         --muted-color: var(--color-text-300);
         --range-border-radius: 0px;

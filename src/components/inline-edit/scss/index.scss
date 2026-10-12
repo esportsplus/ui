@@ -94,7 +94,7 @@
             color: inherit;
             text-decoration: underline;
             text-decoration-color: var(--link-underline-color);
-            text-underline-offset: 4px;
+            text-underline-offset: calc(var(--size-100) / 2);
         }
 
         blockquote {
@@ -164,7 +164,7 @@
 
         pre {
             border-radius: var(--border-radius-400);
-            padding: 8px 12px;
+            padding: var(--size-100) 12px;
             white-space: pre-wrap;
         }
 
@@ -320,8 +320,8 @@
         color: var(--icon-color);
         display: grid;
         height: 24px;
-        inset-block-start: 4px;
-        inset-inline-end: 6px;
+        inset-block-start: calc(var(--size-100) / 2);
+        inset-inline-end: calc(var(--size-300) / 2);
         place-items: center;
         pointer-events: none;
         position: absolute;
@@ -426,8 +426,8 @@
     &-toolbar-divider {
         background: var(--toolbar-divider-color);
         flex: none;
-        height: 20px;
-        margin-inline: 4px;
+        height: var(--size-500);
+        margin-inline: calc(var(--size-100) / 2);
         width: 1px;
     }
 
@@ -439,7 +439,7 @@
     &-toolbar-format,
     &-toolbar-link {
         align-items: center;
-        gap: 2px;
+        gap: calc(var(--size-100) / 4);
     }
 
     // Only the shared check takes the stroke; it carries none of its own and is drawn on a 24 unit grid.
@@ -479,7 +479,7 @@
     &-toolbar.tooltip-content {
         left: 0;
         overflow: visible;
-        padding: 4px;
+        padding: calc(var(--size-100) / 2);
         top: 0;
         transform-origin: var(--toolbar-origin);
         translate: var(--toolbar-x) var(--toolbar-y);

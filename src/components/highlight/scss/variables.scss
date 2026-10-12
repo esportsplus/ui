@@ -50,7 +50,7 @@
     --inset-inline: 0px;
     --line-color: currentColor;
     // How far the fills keep clear of the line's side, and the one across from it.
-    --line-inset: 6px;
+    --line-inset: calc(var(--size-300) / 2);
     // In from the item's edge; negative pushes the line out, e.g. over the container's own border.
     --line-offset: 0px;
     --line-radius: calc(var(--line-width) / 2);

@@ -32,7 +32,7 @@
     // Motion modifiers follow placement so they win when paired with an edge.
     &--alert {
         --backdrop: rgb(0 0 0 / 10%);
-        --blur: 4px;
+        --blur: var(--blur-400);
         --opacity: 0;
         --scale: 0.95;
         --translate: 0px;
@@ -40,7 +40,7 @@
 
     &--blur {
         --backdrop: color-mix(in srgb, var(--color-black-500) 32%, transparent);
-        --blur: 8px;
+        --blur: var(--blur-500);
     }
 
     &--e,

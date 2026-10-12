@@ -16,7 +16,7 @@
         display: flex;
         height: 56px;
         max-width: 100%;
-        padding-inline: 10px;
+        padding-inline: var(--size-200);
         position: relative;
 
         // Sits straight on the page, the way most sites place a trail above a heading.
@@ -75,6 +75,6 @@
         color: var(--color-text-300);
         font-size: var(--font-size-300);
         margin: 0;
-        padding-inline: 4px;
+        padding-inline: calc(var(--size-100) / 2);
     }
 }

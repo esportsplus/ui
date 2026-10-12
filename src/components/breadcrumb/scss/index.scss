@@ -34,7 +34,7 @@
         padding-inline: var(--link-padding);
         text-decoration: underline;
         text-decoration-color: transparent;
-        text-underline-offset: 4px;
+        text-underline-offset: calc(var(--size-100) / 2);
         touch-action: manipulation;
         transition:
             color var(--duration-fast) var(--easing-spring),
@@ -69,7 +69,7 @@
         display: flex;
         flex-direction: column;
         outline: none;
-        padding: 4px;
+        padding: calc(var(--size-100) / 2);
         // Grows out of the dots.
         transform-origin: calc(var(--trigger-width) / 2) 0;
         width: var(--menu-width);
@@ -78,8 +78,8 @@
     &-option-icon {
         color: var(--option-icon-color);
         flex-shrink: 0;
-        height: 16px;
-        width: 16px;
+        height: var(--size-400);
+        width: var(--size-400);
     }
 
     // Paired with '.link', which the tooltip menu gives every option, so these win over its padding, wrapping,
@@ -93,10 +93,10 @@
         display: flex;
         flex-shrink: 0;
         flex-wrap: nowrap;
-        gap: 10px;
+        gap: var(--size-200);
         height: 36px;
         outline: none;
-        padding: 0 8px;
+        padding: 0 var(--size-100);
         text-decoration: none;
         transition: none;
         user-select: none;
@@ -145,7 +145,7 @@
 
         // Blur only matters on the way in, so it switches on after the fade out.
         &--hidden {
-            filter: blur(4px);
+            filter: blur(var(--blur-400));
             grid-template-columns: 0fr;
             opacity: 0;
             transition:
@@ -206,8 +206,8 @@
         width: var(--trigger-width);
 
         &-icon {
-            height: 16px;
-            width: 16px;
+            height: var(--size-400);
+            width: var(--size-400);
         }
 
         &:focus-visible {

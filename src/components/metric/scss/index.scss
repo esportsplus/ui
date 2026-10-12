@@ -97,7 +97,7 @@
 
         &:focus-visible {
             outline: 2px solid var(--focus-color);
-            outline-offset: 4px;
+            outline-offset: calc(var(--size-100) / 2);
         }
     }
 
@@ -121,8 +121,8 @@
         display: flex;
         font-size: var(--tip-font-size);
         gap: var(--size-300);
-        margin-bottom: 10px;
-        padding: 6px 12px;
+        margin-bottom: var(--size-200);
+        padding: calc(var(--size-300) / 2) 12px;
         position: absolute;
         translate: -50% 0;
         white-space: nowrap;
@@ -145,7 +145,6 @@
         font-size: var(--value-font-size);
         font-variant-numeric: tabular-nums;
         font-weight: var(--value-font-weight);
-        letter-spacing: -0.025em;
         line-height: 1.2;
     }
 

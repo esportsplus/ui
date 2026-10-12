@@ -19,7 +19,7 @@
     }
 
     &-dot {
-        padding-inline-start: 6px;
+        padding-inline-start: calc(var(--size-300) / 2);
     }
 
     &-feed {

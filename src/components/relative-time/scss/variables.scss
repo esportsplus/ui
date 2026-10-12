@@ -8,7 +8,7 @@
     --color-hover: var(--color-text-500);
     --focus-color: var(--color-primary-500);
     --placeholder: '0 min ago';
-    --roll-blur: 3px;
+    --roll-blur: var(--blur-400);
     // Long enough to read as motion, short enough that a seconds counter never has two rolls overlapping.
     --roll-duration: var(--duration-moderate);
     --roll-enter-offset: 0.55em;
@@ -29,7 +29,7 @@
     --box-shadow-default: var(--surface-shadow-default);
     --font-size: var(--font-size-300);
     --font-weight: var(--font-weight-500);
-    --offset: 3px;
+    --offset: calc(var(--size-300) / 4);
     --padding-horizontal: var(--size-100);
     --padding-vertical: calc(var(--size-100) / 2);
     --scale: 0.9;

@@ -4,7 +4,7 @@
 @use 'variables';
 
 .capslock {
-    filter: blur(2px);
+    filter: blur(var(--blur-300));
     opacity: 0;
     transition:
         filter var(--transition-duration) var(--transition-timing-function),

@@ -6,7 +6,7 @@
     &-field-demo {
         // How tall the stage stands once the panel moves underneath it.
         --stage-height: 480px;
-        border-radius: 16px;
+        border-radius: var(--border-radius-700);
         box-shadow: 0 0 0 1px var(--surface-border-default);
         display: flex;
         height: 600px;
@@ -14,7 +14,7 @@
         width: 100%;
 
         &-backdrop {
-            border-radius: 16px;
+            border-radius: var(--border-radius-700);
             box-shadow: 0 0 0 1px var(--surface-border-default);
             height: 360px;
             overflow: hidden;
@@ -28,9 +28,9 @@
             box-shadow: 0 0 0 1px var(--surface-border-color), var(--surface-box-shadow);
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: var(--size-100);
             max-width: 360px;
-            padding: 20px 24px;
+            padding: var(--size-500) 24px;
         }
 
         &-group {
@@ -38,7 +38,7 @@
             display: flex;
             flex-direction: column;
             gap: 14px;
-            padding-top: 16px;
+            padding-top: var(--size-400);
         }
 
         &-heading {
@@ -58,9 +58,9 @@
             &-code {
                 @extend %surface-sunken-level;
                 background: var(--surface-background-default);
-                border-radius: 4px;
+                border-radius: var(--border-radius-200);
                 font-size: 0.9em;
-                padding: 1px 4px;
+                padding: 1px calc(var(--size-100) / 2);
             }
 
             &-text {
@@ -72,7 +72,6 @@
 
             &-title {
                 font-size: calc(var(--font-size-400) * 1.25);
-                letter-spacing: -0.02em;
                 margin: 0;
             }
         }
@@ -88,7 +87,7 @@
             display: flex;
             flex-direction: column;
             font-size: calc(var(--font-size-400) * 0.8125);
-            gap: 2px;
+            gap: calc(var(--size-100) / 4);
             justify-content: space-between;
 
             &-hint {
@@ -123,9 +122,9 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
-            gap: 16px;
+            gap: var(--size-400);
             overflow-y: auto;
-            padding: 20px;
+            padding: var(--size-500);
             width: 248px;
 
             // The node editor wants the full width, so its panel moves underneath and lays its groups out side by side.
@@ -134,7 +133,7 @@
                 border-right: 0;
                 border-top: 1px solid var(--surface-border-default);
                 display: grid;
-                gap: 16px 24px;
+                gap: var(--size-400) 24px;
                 grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
                 max-height: 320px;
                 width: 100%;
@@ -144,7 +143,7 @@
         // As wide as the panel's content, so the panel's scroll box never clips it.
         &-picker {
             --width: 208px;
-            padding: 10px;
+            padding: var(--size-200);
         }
 
         &-pill {
@@ -159,7 +158,7 @@
         &-preset {
             align-items: center;
             display: flex;
-            gap: 8px;
+            gap: var(--size-100);
         }
 
         &-reset {
@@ -180,7 +179,7 @@
         &-row {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: var(--size-100);
 
             &--inline {
                 align-items: center;
@@ -214,7 +213,7 @@
         &-swatch {
             background: var(--swatch);
             border: 0;
-            border-radius: 8px;
+            border-radius: var(--border-radius-400);
             box-shadow: inset 0 0 0 1px var(--surface-border-default);
             cursor: pointer;
             height: 28px;
@@ -222,7 +221,7 @@
 
             &:focus-visible {
                 outline: 2px solid var(--surface-border-pressed);
-                outline-offset: 2px;
+                outline-offset: calc(var(--size-100) / 4);
             }
         }
 
@@ -274,7 +273,7 @@
             align-items: center;
             background: var(--background);
             border: 0;
-            border-radius: 8px;
+            border-radius: var(--border-radius-400);
             color: var(--color-text-400);
             cursor: pointer;
             display: flex;
@@ -284,8 +283,8 @@
             width: 32px;
 
             &-icon {
-                height: 16px;
-                width: 16px;
+                height: var(--size-400);
+                width: var(--size-400);
             }
 
             &:focus-visible {
@@ -296,13 +295,13 @@
         &-controls {
             @extend %surface-raised-level;
             background: var(--surface-background-default);
-            border-radius: 12px;
+            border-radius: var(--border-radius-600);
             bottom: 16px;
             box-shadow: 0 0 0 1px var(--surface-border-default), 0 6px 16px -8px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 2.2));
             display: flex;
-            gap: 2px;
+            gap: calc(var(--size-100) / 4);
             left: 50%;
-            padding: 4px;
+            padding: calc(var(--size-100) / 2);
             position: absolute;
             translate: -50% 0;
             z-index: 2;
@@ -319,7 +318,7 @@
             @extend %surface-raised-level;
             aspect-ratio: 1200 / 660;
             background: var(--surface-background-default);
-            border-radius: 10px;
+            border-radius: var(--border-radius-500);
             box-shadow: 0 0 0 1px var(--surface-border-default), 0 6px 16px -8px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 2.2));
             cursor: pointer;
             overflow: hidden;
@@ -332,7 +331,7 @@
             &-node {
                 @extend %surface-sunken-level;
                 background: var(--surface-background-default);
-                border-radius: 2px;
+                border-radius: var(--border-radius-100);
                 position: absolute;
             }
         }
@@ -346,8 +345,7 @@
 
             &-kind {
                 color: var(--color-text-300);
-                font-size: 9px;
-                letter-spacing: 0.06em;
+                font-size: var(--font-size-200);
                 text-transform: uppercase;
             }
 
@@ -376,8 +374,8 @@
             .surface {
                 // The field exposes no variables for its surface parts, so a compact card reaches them directly.
                 &-field-surface-content {
-                    gap: 2px;
-                    padding: 0 14px 10px;
+                    gap: calc(var(--size-100) / 4);
+                    padding: 0 14px var(--size-200);
                 }
 
                 &-field-surface-header {

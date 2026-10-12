@@ -5,7 +5,7 @@
 // Shared by every part so the check, strike, and fade stay in sequence
 .tasklist {
     --check-duration: var(--duration-fast);
-    --gap: 2px;
+    --gap: calc(var(--size-100) / 4);
     --strike-duration: var(--duration-moderate);
     --timing-function: cubic-bezier(0.65, 0, 0.35, 1);
 
@@ -20,7 +20,7 @@
         --color: var(--color-text-300);
         --font-size: var(--font-size-200);
         --font-weight: var(--font-weight-500);
-        --gap: 6px;
+        --gap: calc(var(--size-300) / 2);
     }
 
     &-checkbox {

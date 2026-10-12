@@ -69,9 +69,9 @@
 
     &-label.tooltip-message {
         --border-radius: var(--border-radius-300);
-        --offset: 4px;
+        --offset: calc(var(--size-100) / 2);
         --padding-horizontal: var(--size-100);
-        --padding-vertical: 4px;
+        --padding-vertical: calc(var(--size-100) / 2);
     }
 
     // Both anchor to the item's top, which is the shelf's; clears an icon at full swell by 12px.
@@ -83,7 +83,7 @@
     }
 
     &-label.tooltip-shared {
-        --padding: 4px 8px;
+        --padding: calc(var(--size-100) / 2) var(--size-100);
         --radius: var(--border-radius-300);
     }
 

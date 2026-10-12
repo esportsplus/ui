@@ -11,7 +11,7 @@
     --color-rest: color-mix(in oklab, var(--color-primary-300) 40%, transparent);
     --focus-color: var(--color-primary-500);
     // Lines sit this far in from the rail's leading edge, inside a hit area wider than the longest line.
-    --inset: 4px;
+    --inset: calc(var(--size-100) / 2);
     --item-height: var(--size-100);
     --item-width: 32px;
     // At rest every line shares one length; the hovered one peaks and its two neighbours either side step back down.
@@ -71,7 +71,7 @@
     }
 
     &-label.tooltip-shared {
-        --padding: 4px 10px;
+        --padding: calc(var(--size-100) / 2) var(--size-200);
         --radius: var(--border-radius-500);
         --spacer: 4px;
     }

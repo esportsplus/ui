@@ -6,7 +6,7 @@
     align-items: center;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--size-500);
     width: 100%;
 
     &-range {
@@ -29,9 +29,9 @@
         cursor: pointer;
         display: flex;
         font: inherit;
-        font-size: 13px;
+        font-size: var(--font-size-300);
         font-weight: var(--font-weight-500);
-        gap: 6px;
+        gap: calc(var(--size-300) / 2);
         height: 32px;
         outline: none;
         padding-inline: 12px;
@@ -51,7 +51,7 @@
 
         &:focus-visible {
             outline: 2px solid var(--color-primary-500);
-            outline-offset: 2px;
+            outline-offset: calc(var(--size-100) / 4);
         }
     }
 }

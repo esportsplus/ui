@@ -8,7 +8,7 @@
     background: var(--surface-background-default);
     border-radius: var(--border-radius-700);
     box-shadow: var(--surface-shadow-default);
-    font-size: 14px;
+    font-size: var(--font-size-300);
     height: 300px;
     overflow: hidden;
     position: relative;
@@ -29,7 +29,7 @@
         box-shadow: var(--surface-shadow-default);
         color: var(--color-text-500);
         cursor: pointer;
-        filter: blur(2px);
+        filter: blur(var(--blur-300));
         font: inherit;
         font-weight: var(--font-weight-500);
         height: 36px;
@@ -74,9 +74,9 @@
         background: var(--bar-background);
         color: var(--bar-color);
         display: flex;
-        gap: 10px;
+        gap: var(--size-200);
         height: 44px;
-        padding-inline: 16px 6px;
+        padding-inline: var(--size-400) calc(var(--size-300) / 2);
 
         &--blue {
             --bar-background: var(--color-blue-400);
@@ -84,7 +84,7 @@
     }
 
     &-body {
-        padding: 20px 20px 0;
+        padding: var(--size-500) var(--size-500) 0;
     }
 
     &-brand {
@@ -120,18 +120,18 @@
 
         &-icon {
             fill: none;
-            height: 16px;
+            height: var(--size-400);
             stroke: currentColor;
             stroke-linecap: round;
             stroke-width: 1.5;
-            width: 16px;
+            width: var(--size-400);
         }
 
         // Grows the hit area to 40px without growing the circle.
         &::before {
             border-radius: 999px;
             content: '';
-            inset: -4px;
+            inset: calc(var(--size-100) / -2);
             position: absolute;
         }
 
@@ -145,21 +145,21 @@
     }
 
     &-heading {
-        --font-size: 18px;
+        --font-size: var(--font-size-400);
 
         color: var(--color-text-500);
         font-weight: var(--font-weight-600);
-        margin-bottom: 4px;
+        margin-bottom: calc(var(--size-100) / 2);
     }
 
     &-icon {
         fill: none;
         flex-shrink: 0;
-        height: 16px;
+        height: var(--size-400);
         stroke: currentColor;
         stroke-linejoin: round;
         stroke-width: 1.5;
-        width: 16px;
+        width: var(--size-400);
     }
 
     &-link {
@@ -170,12 +170,12 @@
         outline: none;
         text-decoration: underline;
         text-decoration-color: color-mix(in oklab, var(--bar-color) 40%, transparent);
-        text-underline-offset: 3px;
+        text-underline-offset: calc(var(--size-300) / 4);
         transition: text-decoration-color var(--duration-fast) var(--easing-out);
 
         &:focus-visible {
             outline: 2px solid var(--bar-color);
-            outline-offset: 2px;
+            outline-offset: calc(var(--size-100) / 4);
         }
 
         &:hover {
@@ -193,24 +193,24 @@
         border-bottom: 1px solid var(--surface-border-default);
         color: var(--color-text-500);
         display: flex;
-        gap: 20px;
+        gap: var(--size-500);
         height: 48px;
-        padding-inline: 20px;
+        padding-inline: var(--size-500);
     }
 
     &-stat {
         @extend %surface-sunken-level;
         background: var(--surface-background-default);
-        border-radius: 12px;
-        font-size: 12px;
-        padding: 10px 12px;
+        border-radius: var(--border-radius-600);
+        font-size: var(--font-size-300);
+        padding: var(--size-200) 12px;
     }
 
     &-stats {
         display: grid;
-        gap: 8px;
+        gap: var(--size-100);
         grid-template-columns: repeat(3, 1fr);
-        margin-top: 16px;
+        margin-top: var(--size-400);
     }
 
     &-text {
@@ -225,7 +225,7 @@
 
     &-value {
         color: var(--color-text-500);
-        font-size: 15px;
+        font-size: var(--font-size-400);
         font-variant-numeric: tabular-nums;
         font-weight: var(--font-weight-500);
         margin: 0;

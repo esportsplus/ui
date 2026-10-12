@@ -26,7 +26,7 @@
     &-text {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: calc(var(--size-100) / 4);
     }
 
     .checkbox {

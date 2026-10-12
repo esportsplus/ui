@@ -12,7 +12,7 @@
     }
 
     &-blur {
-        --scroll-blur: 4px;
+        --scroll-blur: var(--blur-400);
         // Move the painted edges over scrollport padding without changing the sticky constraints or layout.
         --scroll-blur-offset-end: 0px;
         --scroll-blur-offset-start: 0px;
@@ -34,12 +34,12 @@
     --scrollbar-color-hover: var(--surface-border-hover);
     --scrollbar-color-pressed: var(--surface-border-pressed);
     // Gap between the thumb and the window edge, kept when the thumb grows.
-    --scrollbar-offset: 2px;
+    --scrollbar-offset: calc(var(--size-100) / 4);
     --scrollbar-overscroll: contain;
     --scrollbar-rail-color: transparent;
     --scrollbar-size: 4px;
     // Keeps the thumb clear of the track's ends.
-    --scrollbar-track-inset: 4px;
+    --scrollbar-track-inset: calc(var(--size-100) / 2);
     // Fallback for browsers that can't size the bar through --scrollbar-size.
     --scrollbar-width: thin;
 }

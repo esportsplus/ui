@@ -7,11 +7,11 @@
 .file-tree-demo {
     @extend %surface-raised;
     border: 1px solid var(--surface-border-default);
-    border-radius: 8px;
+    border-radius: var(--border-radius-400);
     height: 300px;
     max-width: 100%;
     overflow: hidden;
-    padding: 8px;
+    padding: var(--size-100);
     width: 384px;
 
     // The icons on a dark surface, as a host with a dark color scheme shows them.
@@ -38,12 +38,12 @@
         align-items: center;
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: var(--size-100);
     }
 
     &-caption {
         color: var(--color-text-300);
-        font-size: 13px;
+        font-size: var(--font-size-300);
         margin: 0;
     }
 
@@ -51,14 +51,14 @@
     &-field {
         align-items: center;
         display: flex;
-        font-size: 13px;
-        gap: 8px;
+        font-size: var(--font-size-300);
+        gap: var(--size-100);
     }
 
     &-figure {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: var(--size-100);
         margin: 0;
 
         .file-tree-demo {
@@ -69,11 +69,11 @@
 
     &-history {
         color: var(--color-text-300);
-        font-size: 13px;
+        font-size: var(--font-size-300);
         margin: 0;
         max-width: 100%;
-        min-height: 20px;
-        padding-left: 20px;
+        min-height: var(--size-500);
+        padding-left: var(--size-500);
         width: 384px;
 
         &-step.--undone {

@@ -41,7 +41,7 @@
     }
 
     &-icon {
-        filter: blur(4px);
+        filter: blur(var(--blur-400));
         grid-area: 1 / 1;
         opacity: 0;
         scale: 0.25;
@@ -59,13 +59,13 @@
 
     &-note {
         color: var(--color-text-300);
-        font-size: 15px;
-        margin: 2px 0 0;
+        font-size: var(--font-size-400);
+        margin: calc(var(--size-100) / 4) 0 0;
     }
 
     &-number {
         color: var(--color-text-300);
-        font-size: 14px;
+        font-size: var(--font-size-300);
         font-variant-numeric: tabular-nums;
         margin: 0;
     }
@@ -101,7 +101,7 @@
 
         &:focus-visible {
             outline: var(--border-width-500) solid var(--color-primary-500);
-            outline-offset: 2px;
+            outline-offset: calc(var(--size-100) / 4);
         }
     }
 
@@ -113,9 +113,9 @@
 
     &-title {
         color: var(--color-text-500);
-        font-size: 18px;
+        font-size: var(--font-size-400);
         font-weight: var(--font-weight-500);
-        margin: 6px 0 0;
+        margin: calc(var(--size-300) / 2) 0 0;
     }
 
     &-toggle {
@@ -149,7 +149,7 @@
         &::after {
             border-radius: 999px;
             content: '';
-            inset: -6px;
+            inset: calc(var(--size-300) / -2);
             position: absolute;
         }
 

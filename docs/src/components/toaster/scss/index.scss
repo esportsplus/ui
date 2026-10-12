@@ -57,9 +57,9 @@
     // Drawn from the toast's clock ('--toast-progress'), so it drains, pauses and holds exactly as the toast does.
     &-ring {
         flex-shrink: 0;
-        height: 20px;
+        height: var(--size-500);
         rotate: -90deg;
-        width: 20px;
+        width: var(--size-500);
 
         circle {
             fill: none;

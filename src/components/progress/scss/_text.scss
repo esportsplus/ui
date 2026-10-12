@@ -29,7 +29,7 @@
     &-done {
         align-items: center;
         display: flex;
-        filter: blur(4px);
+        filter: blur(var(--blur-400));
         gap: var(--done-gap);
         grid-area: 1 / 1;
         opacity: 0;
@@ -67,7 +67,7 @@
         white-space: nowrap;
 
         &.--done {
-            filter: blur(4px);
+            filter: blur(var(--blur-400));
             opacity: 0;
             transition-duration: var(--duration-moderate);
             translate: 0 -4px;
@@ -87,7 +87,7 @@
             opacity var(--duration-moderate) var(--ease-out);
 
         &.--done {
-            filter: blur(4px);
+            filter: blur(var(--blur-400));
             opacity: 0;
             transition-duration: var(--duration-moderate);
         }

@@ -20,16 +20,16 @@
         &-check {
             @extend %icon-stroke, %icon-swap;
             flex: 0 0 auto;
-            height: 16px;
+            height: var(--size-400);
             stroke-width: 2.25;
-            width: 16px;
+            width: var(--size-400);
         }
 
         &-chevron {
             color: var(--color-muted);
             flex: 0 0 auto;
-            height: 16px;
-            width: 16px;
+            height: var(--size-400);
+            width: var(--size-400);
         }
 
         &-label {
@@ -156,7 +156,7 @@
             height: var(--height);
             margin: 0;
             outline: none;
-            padding: 0 10px 0 var(--size-300);
+            padding: 0 var(--size-200) 0 var(--size-300);
             text-align: left;
             touch-action: manipulation;
             user-select: none;
@@ -164,7 +164,7 @@
 
             &:focus-visible {
                 outline: var(--focus-width) solid var(--color);
-                outline-offset: 2px;
+                outline-offset: calc(var(--size-100) / 4);
             }
         }
 

@@ -6,7 +6,7 @@
     --height: 6px;
     --indicator-color: var(--color-primary-500);
     --muted-color: var(--color-text-300);
-    --status-font-size: 12px;
+    --status-font-size: var(--font-size-300);
     --track-color: var(--surface-border-default);
 }
 
@@ -17,7 +17,7 @@
     --check-offset: 1;
     --check-size: var(--size-400);
     --color: var(--color-text-500);
-    --done-gap: 6px;
+    --done-gap: calc(var(--size-300) / 2);
     --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
     --ease-out: var(--easing-out);
     --font-size: var(--font-size-400);

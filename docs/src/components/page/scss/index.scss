@@ -17,7 +17,7 @@
 
             // The breadcrumb exposes no separator spacing, so it is set on its separators directly.
             .breadcrumb-separator {
-                margin-inline: 4px;
+                margin-inline: calc(var(--size-100) / 2);
             }
         }
 
@@ -38,7 +38,7 @@
         --background-default: var(--surface-background-default);
         --border-color-default: var(--surface-border-default);
         --border-radius: var(--border-radius-600);
-        --border-width: 1px;
+        --border-width: var(--border-width-400);
         --font-size: var(--font-size-300);
         --gap-horizontal: var(--size-300);
         --padding-horizontal: var(--size-400);
@@ -62,7 +62,7 @@
             --color-hover: var(--color-accent-500);
             --color-pressed: var(--color-accent-500);
             text-decoration: underline;
-            text-underline-offset: 3px;
+            text-underline-offset: calc(var(--size-300) / 4);
         }
     }
 

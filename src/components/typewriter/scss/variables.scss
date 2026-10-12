@@ -1,7 +1,7 @@
 .typewriter {
     &-retype {
         --ease-out: var(--easing-out);
-        --ink-blur: 2px;
+        --ink-blur: var(--blur-300);
         --ink-duration: var(--duration-fast);
         // Read by JS: each key's delay, a base plus up to the jitter, which lands around 8 to 14 keys a second, the pace
         // of someone who knows the word.
@@ -46,7 +46,7 @@
     --caret-color: currentColor;
     --caret-duration: 1.06s;
     --caret-height: 1.1em;
-    --caret-offset: 2px;
+    --caret-offset: calc(var(--size-100) / 4);
     --caret-radius: 999px;
     --caret-timing-function: linear;
     --caret-width: 2px;

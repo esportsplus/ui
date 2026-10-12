@@ -7,7 +7,7 @@
     // 'frame--swap'. The drift and blur take '--swap-duration', the fade '--swap-fade-duration', shorter so two frames
     // barely overlap and never read as doubled text; the outgoing frame takes the '--swap-exit-*' pair, so it can
     // clear out quicker than the incoming one arrives.
-    --swap-blur: 2px;
+    --swap-blur: var(--blur-300);
     --swap-duration: var(--duration-moderate);
     --swap-exit-duration: var(--duration-moderate-exit);
     --swap-exit-fade-duration: var(--duration-fast-exit);

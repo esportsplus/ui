@@ -16,20 +16,20 @@
     &-close {
         flex-shrink: 0;
         height: var(--size);
-        margin: -8px -8px 0 0;
+        margin: calc(var(--size-100) * -1) calc(var(--size-100) * -1) 0 0;
         width: var(--size);
 
         // Grows the hit area to 44px around the 32px circle.
         &::before {
             border-radius: inherit;
             content: '';
-            inset: -6px;
+            inset: calc(var(--size-300) / -2);
             position: absolute;
         }
 
         &:focus-visible {
             outline: 2px solid var(--focus-ring-color);
-            outline-offset: 2px;
+            outline-offset: calc(var(--size-100) / 4);
         }
     }
 
@@ -40,9 +40,9 @@
 
     &-detail {
         color: var(--muted-color);
-        font-size: 15px;
+        font-size: var(--font-size-400);
         line-height: 24px;
-        margin: 10px 0 0;
+        margin: var(--size-200) 0 0;
         text-wrap: pretty;
     }
 
@@ -58,7 +58,7 @@
     &-header {
         align-items: flex-start;
         display: flex;
-        gap: 16px;
+        gap: var(--size-400);
         justify-content: space-between;
     }
 
@@ -66,7 +66,7 @@
         align-items: flex-start;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: calc(var(--size-100) / 2);
     }
 
     &-icon {
@@ -101,7 +101,7 @@
     &-meta {
         color: var(--muted-color);
         flex-shrink: 0;
-        font-size: 13px;
+        font-size: var(--font-size-300);
         font-variant-numeric: tabular-nums;
         margin: 0;
         view-transition-name: var(--meta-transition-name, none);
@@ -117,7 +117,7 @@
     &-row {
         align-items: baseline;
         display: flex;
-        gap: 16px;
+        gap: var(--size-400);
         justify-content: space-between;
         width: 100%;
     }
@@ -125,15 +125,15 @@
     &-summary {
         @extend %text-truncate;
         color: var(--muted-color);
-        font-size: 14px;
+        font-size: var(--font-size-300);
         margin: 0;
         view-transition-name: var(--summary-transition-name, none);
 
         // In the open panel, where it shows in full.
         &--full {
-            font-size: 15px;
+            font-size: var(--font-size-400);
             line-height: 24px;
-            margin-top: 16px;
+            margin-top: var(--size-400);
             white-space: normal;
         }
     }
@@ -141,8 +141,8 @@
     &-title {
         @extend %text-truncate;
         color: var(--text-color);
-        font-size: 15px;
-        font-weight: 500;
+        font-size: var(--font-size-400);
+        font-weight: var(--font-weight-500);
         margin: 0;
         view-transition-name: var(--title-transition-name, none);
     }
@@ -179,7 +179,7 @@
     display: flex;
     flex-direction: column;
     font: inherit;
-    gap: 6px;
+    gap: calc(var(--size-300) / 2);
     outline: none;
     text-align: left;
     touch-action: manipulation;
@@ -187,7 +187,7 @@
 
     &:focus-visible {
         outline: 2px solid var(--focus-ring-color);
-        outline-offset: 2px;
+        outline-offset: calc(var(--size-100) / 4);
     }
 }
 
@@ -227,7 +227,7 @@
 
 @keyframes card-expand-reveal {
     from {
-        filter: blur(4px);
+        filter: blur(var(--blur-400));
         opacity: 0;
         translate: 0 4px;
     }

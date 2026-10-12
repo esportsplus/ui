@@ -91,7 +91,7 @@ $icons: (
     --background-selected: var(--background-active);
     --badge-font-size: var(--font-size-200);
     --badge-font-weight: var(--font-weight-500);
-    --badge-gap: 6px;
+    --badge-gap: calc(var(--size-300) / 2);
     --chevron-duration: var(--duration-fast);
     // Open and close timings, after the tree view's.
     --collapse-duration: var(--duration-moderate-exit);
@@ -103,7 +103,7 @@ $icons: (
     --deletions-color: var(--deleted-color);
     // The label that follows the pointer while dragging, offset so it never covers the row being aimed at.
     --drag-offset: var(--size-300);
-    --drag-padding: 2px var(--size-100);
+    --drag-padding: calc(var(--size-100) / 4) var(--size-100);
     --drag-radius: var(--border-radius-300);
     // Rows being moved, not copied, dim while they travel.
     --dragged-opacity: 0.5;
@@ -116,12 +116,12 @@ $icons: (
     // The find bar over the tree's top corner; the offset keeps it clear of the scrollbar.
     --find-border-color: var(--surface-border-default);
     --find-button-size: var(--size-500);
-    --find-gap: 2px;
+    --find-gap: calc(var(--size-100) / 4);
     --find-input-width: calc(var(--size-900) * 2);
     --find-note-color: var(--color-text-300);
     --find-note-font-size: var(--font-size-200);
     --find-offset: var(--size-300);
-    --find-padding: 3px;
+    --find-padding: calc(var(--size-300) / 4);
     --find-radius: var(--border-radius-300);
     --focus-color: var(--surface-border-pressed);
     --font-size: var(--font-size-300);
@@ -142,9 +142,9 @@ $icons: (
     --indicator-duration: var(--duration-fast);
     --indicator-hover: var(--surface-border-pressed);
     --input-border-color: var(--color-blue-400);
-    --input-padding: 3px;
+    --input-padding: calc(var(--size-300) / 4);
     --input-radius: var(--border-radius-200);
-    --item-gap: 4px;
+    --item-gap: calc(var(--size-100) / 2);
     // The symlink and read-only glyphs beside the name.
     --marker-color: var(--color-primary-300);
     --marker-size: var(--size-300);
@@ -156,7 +156,7 @@ $icons: (
     // Opaque, since it covers the rows below the input.
     --message-background: color-mix(in srgb, var(--error-color) 10%, var(--surface-background-default));
     --message-font-size: var(--font-size-200);
-    --message-padding: 2px 6px;
+    --message-padding: calc(var(--size-100) / 4) calc(var(--size-300) / 2);
     --modified-color: light-dark(oklch(from var(--color-yellow-500) 0.62 c h), oklch(from var(--color-yellow-500) 0.76 c h));
     --motion-easing: var(--easing-spring);
     --notice-color: var(--color-text-300);
@@ -173,7 +173,7 @@ $icons: (
     // The slash between a compact row's folders.
     --separator-color: var(--color-primary-300);
     --separator-gap: 1px;
-    --staged-padding: 3px;
+    --staged-padding: calc(var(--size-300) / 4);
     --staged-radius: var(--border-radius-100);
     --staged-tint: 18%;
     // Rows scroll under the pinned folders, so these hide them with the surface the tree sits on.

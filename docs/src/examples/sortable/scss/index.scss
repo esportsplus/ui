@@ -34,7 +34,7 @@
     &-card {
         align-items: center;
         background: var(--color-primary-500);
-        border-radius: 10px;
+        border-radius: var(--border-radius-500);
         color: var(--color-surface);
         display: flex;
         font-size: var(--font-size-400);
@@ -47,7 +47,7 @@
             border-radius: 999px;
             font-size: var(--font-size-200);
             margin-inline-start: auto;
-            padding: 2px var(--size-200);
+            padding: calc(var(--size-100) / 4) var(--size-200);
         }
     }
 
@@ -60,7 +60,6 @@
     &-handle {
         color: var(--color-text-300);
         cursor: grab;
-        letter-spacing: -2px;
         padding-inline: var(--size-200);
         touch-action: none;
     }
@@ -107,7 +106,7 @@
         @extend %surface-raised;
         align-items: center;
         border: 1px solid var(--surface-border-default);
-        border-radius: 10px;
+        border-radius: var(--border-radius-500);
         display: flex;
         font-size: var(--font-size-400);
         gap: var(--size-300);
@@ -139,7 +138,7 @@
         align-items: center;
         background: var(--surface-background-default);
         border: 1px solid var(--surface-border-default);
-        border-radius: 10px;
+        border-radius: var(--border-radius-500);
         color: var(--color-text-500);
         cursor: pointer;
         display: flex;
@@ -167,9 +166,8 @@
         }
 
         &-overlay {
-            font-size: 10px;
+            font-size: var(--font-size-200);
             font-weight: var(--font-weight-600);
-            letter-spacing: 0.02em;
         }
     }
 

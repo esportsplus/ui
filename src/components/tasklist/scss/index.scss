@@ -41,7 +41,7 @@
         color: var(--color);
         display: block;
         font-size: var(--font-size);
-        margin-top: 2px;
+        margin-top: calc(var(--size-100) / 4);
     }
 
     &-item {

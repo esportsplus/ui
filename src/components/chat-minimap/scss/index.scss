@@ -24,7 +24,7 @@
     &-card {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: calc(var(--size-100) / 4);
         padding: 12px;
         width: var(--card-width);
     }
@@ -139,7 +139,7 @@
 
     &-title {
         color: var(--card-title-color);
-        font-size: 0.875rem;
+        font-size: var(--font-size-300);
         font-weight: var(--font-weight-500);
         overflow: hidden;
         text-overflow: ellipsis;

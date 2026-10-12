@@ -11,14 +11,14 @@
     color: var(--color);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--size-500);
     width: var(--width);
 
 
     &-actions {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: var(--size-200);
     }
 
     // A sprite <svg> has no viewBox of its own, so the cell must be definite for the marks' 100% to resolve.
@@ -55,8 +55,7 @@
     }
 
     &-caption {
-        font-size: 12px;
-        letter-spacing: 0.025em;
+        font-size: var(--font-size-300);
         opacity: 0.6;
         text-transform: uppercase;
     }
@@ -118,24 +117,24 @@
     }
 
     &-disclaimer {
-        font-size: 12px;
+        font-size: var(--font-size-300);
         margin: auto 0 0;
         opacity: 0.6;
-        padding: 0 24px 20px;
+        padding: 0 24px var(--size-500);
     }
 
     // Shares the label's row, so showing it never shifts the fields below.
     &-error {
         @extend %text-truncate;
         color: var(--error-color);
-        font-size: 13px;
+        font-size: var(--font-size-300);
         transition:
             filter var(--duration-fast) var(--easing-spring),
             opacity var(--duration-fast) var(--easing-spring),
             translate var(--duration-fast) var(--easing-spring);
 
         @starting-style {
-            filter: blur(4px);
+            filter: blur(var(--blur-400));
             opacity: 0;
             translate: 0 2px;
         }
@@ -145,12 +144,12 @@
         display: flex;
         flex-direction: column;
         flex-shrink: 0;
-        gap: 4px;
+        gap: calc(var(--size-100) / 2);
 
         &-value {
             @extend %font-geist-mono;
             font-family: var(--font-family);
-            font-size: 15px;
+            font-size: var(--font-size-400);
             font-weight: var(--font-weight-500);
         }
     }
@@ -226,19 +225,19 @@
     &-fields {
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: var(--size-400);
     }
 
     &-holder {
         display: flex;
         flex: 1;
         flex-direction: column;
-        gap: 4px;
+        gap: calc(var(--size-100) / 2);
         min-width: 0;
 
         &-value {
             @extend %text-truncate;
-            font-size: 15px;
+            font-size: var(--font-size-400);
             font-weight: var(--font-weight-500);
             text-transform: uppercase;
         }
@@ -258,8 +257,8 @@
         align-items: center;
         color: var(--muted-color);
         display: flex;
-        font-size: 13px;
-        gap: 6px;
+        font-size: var(--font-size-300);
+        gap: calc(var(--size-300) / 2);
         justify-content: center;
         margin: 0;
 
@@ -275,7 +274,6 @@
         align-self: flex-start;
         font-family: var(--font-family);
         font-size: var(--card-number-font-size);
-        letter-spacing: 0.025em;
         white-space: nowrap;
     }
 
@@ -323,13 +321,13 @@
     &-shell {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: var(--size-100);
         min-width: 0;
 
         &-header {
             align-items: baseline;
             display: flex;
-            gap: 8px;
+            gap: var(--size-100);
             justify-content: space-between;
         }
     }
@@ -338,7 +336,7 @@
         align-items: center;
         display: flex;
         gap: 12px;
-        padding: 20px 24px 0;
+        padding: var(--size-500) 24px 0;
 
         &-value {
             @extend %font-geist-mono;
@@ -349,7 +347,7 @@
             display: flex;
             flex: 1;
             font-family: var(--font-family);
-            font-size: 15px;
+            font-size: var(--font-size-400);
             font-style: italic;
             height: 40px;
             justify-content: flex-end;
@@ -371,14 +369,14 @@
 
         &:focus-visible {
             outline: var(--border-width-500) solid var(--outline-color);
-            outline-offset: 2px;
+            outline-offset: calc(var(--size-100) / 4);
         }
     }
 }
 
 @keyframes cc-digit-1 {
     from {
-        filter: blur(2px);
+        filter: blur(var(--blur-300));
         opacity: 0;
         translate: 0 -4px;
     }
@@ -386,7 +384,7 @@
 
 @keyframes cc-digit-2 {
     from {
-        filter: blur(2px);
+        filter: blur(var(--blur-300));
         opacity: 0;
         translate: 0 -4px;
     }

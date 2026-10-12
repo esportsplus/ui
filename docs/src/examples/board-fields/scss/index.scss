@@ -33,11 +33,11 @@
     }
 
     &-flag {
-        border-radius: 2px;
+        border-radius: var(--border-radius-100);
         box-shadow: inset 0 0 0 1px rgb(0 0 0 / .15);
         flex: 0 0 auto;
         height: 12px;
-        width: 16px;
+        width: var(--size-400);
 
         &--de {
             background: linear-gradient(#000 0 33.3%, #dd0000 33.3% 66.6%, #ffce00 66.6%);
@@ -61,8 +61,8 @@
     &-icon {
         color: var(--board-muted);
         flex: 0 0 auto;
-        height: 20px;
-        width: 20px;
+        height: var(--size-500);
+        width: var(--size-500);
 
         &--chevron {
             height: 14px;
@@ -90,9 +90,9 @@
         --board-placeholder-color: var(--board-muted);
         color: var(--board-text);
         display: grid;
-        font-size: 14px;
-        gap: 4px;
-        line-height: 20px;
+        font-size: var(--font-size-300);
+        gap: calc(var(--size-100) / 2);
+        line-height: var(--size-500);
 
         &--disabled {
             --board-field-background: var(--surface-background-hover);
@@ -110,12 +110,12 @@
         }
 
         &--phone {
-            --board-field-padding: 4px 8px 4px 4px;
+            --board-field-padding: calc(var(--size-100) / 2) var(--size-100) calc(var(--size-100) / 2) calc(var(--size-100) / 2);
         }
 
         &--small {
             --board-field-min-height: 32px;
-            --board-field-padding: 6px;
+            --board-field-padding: calc(var(--size-300) / 2);
         }
 
         &--textarea {
@@ -126,11 +126,11 @@
             --background-default: transparent;
             --border-width: 0px;
             --color-default: var(--board-text);
-            --font-size: 14px;
-            --padding-horizontal: 4px;
+            --font-size: var(--font-size-300);
+            --padding-horizontal: calc(var(--size-100) / 2);
             --padding-vertical: 0px;
             --size: var(--size-500);
-            line-height: 20px;
+            line-height: var(--size-500);
             margin: 0;
             outline: none;
 
@@ -156,14 +156,14 @@
         &-country {
             align-items: center;
             background: color-mix(in oklab, var(--board-text) 7%, transparent);
-            border-radius: 6px;
+            border-radius: var(--border-radius-300);
             color: var(--board-text);
             cursor: pointer;
             display: flex;
             flex: 0 0 auto;
-            gap: 4px;
+            gap: calc(var(--size-100) / 2);
             height: 28px;
-            padding: 0 6px;
+            padding: 0 calc(var(--size-300) / 2);
             position: relative;
 
             &:focus-within {
@@ -184,7 +184,7 @@
             color: var(--board-field-color);
             cursor: var(--board-field-cursor);
             display: flex;
-            gap: 6px;
+            gap: calc(var(--size-300) / 2);
             min-height: var(--board-field-min-height);
             opacity: var(--board-field-opacity);
             padding: var(--board-field-padding);
@@ -203,16 +203,15 @@
         &-label {
             align-items: center;
             display: flex;
-            font-weight: 500;
-            gap: 2px;
+            font-weight: var(--font-weight-500);
+            gap: calc(var(--size-100) / 4);
         }
 
         &-note {
             color: var(--board-note-color);
-            font-size: 12px;
-            font-weight: 500;
-            letter-spacing: .15px;
-            line-height: 16px;
+            font-size: var(--font-size-300);
+            font-weight: var(--font-weight-500);
+            line-height: var(--size-400);
             padding-top: 1px;
         }
 
@@ -261,7 +260,7 @@
         &-boxes {
             align-items: center;
             display: flex;
-            gap: 8px;
+            gap: var(--size-100);
         }
 
         &-input {
@@ -273,14 +272,14 @@
             --border-radius: var(--board-radius);
             --border-width: var(--border-width-400);
             --color-default: var(--board-text);
-            --font-size: 20px;
+            --font-size: var(--font-size-500);
             --padding-horizontal: 0px;
             --padding-vertical: 0px;
             --size: 46px;
             box-shadow: 0 1px 2px 0 oklch(from var(--surface-shadow-color) l c h / calc(alpha * 1.8));
             font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             font-variant-numeric: tabular-nums;
-            font-weight: 500;
+            font-weight: var(--font-weight-500);
             height: 48px;
             justify-content: center;
             margin: 0;
@@ -303,7 +302,7 @@
 
         &-status {
             color: var(--board-muted);
-            font-size: 12px;
+            font-size: var(--font-size-300);
             font-variant-numeric: tabular-nums;
         }
     }

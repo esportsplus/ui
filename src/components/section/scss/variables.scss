@@ -4,7 +4,7 @@
 
     &-header {
         --gap-horizontal: var(--size-300);
-        --gap-vertical: 4px;
+        --gap-vertical: calc(var(--size-100) / 2);
     }
 
     &-subtitle,

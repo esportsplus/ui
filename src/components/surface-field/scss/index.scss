@@ -67,10 +67,10 @@
             display: flex;
             flex: 1;
             flex-direction: column;
-            gap: 8px;
+            gap: var(--size-100);
             min-height: 0;
             overflow: hidden;
-            padding: 0 16px 16px;
+            padding: 0 var(--size-400) var(--size-400);
         }
 
         &-handle {
@@ -98,7 +98,7 @@
             &:only-child {
                 border-radius: var(--surface-border-radius) var(--surface-border-radius) 0 0;
                 flex: 1;
-                margin-inline-start: -16px;
+                margin-inline-start: calc(var(--size-400) * -1);
             }
         }
 
@@ -112,7 +112,7 @@
 
             &:focus-visible {
                 outline: 2px solid oklch(from var(--color) l c h / 0.4);
-                outline-offset: -2px;
+                outline-offset: calc(var(--size-100) / -4);
             }
         }
 
@@ -122,9 +122,9 @@
             cursor: var(--surface-header-cursor);
             display: flex;
             flex-shrink: 0;
-            gap: 4px;
+            gap: calc(var(--size-100) / 2);
             min-height: var(--surface-handle-height);
-            padding-inline-start: 16px;
+            padding-inline-start: var(--size-400);
             touch-action: none;
         }
 
@@ -156,7 +156,7 @@
             @extend %text-truncate;
             color: var(--surface-title-color);
             flex: 0 1 auto;
-            font-weight: 600;
+            font-weight: var(--font-weight-600);
             min-width: 0;
 
             & + .surface-field-surface-handle {

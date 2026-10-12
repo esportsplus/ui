@@ -9,10 +9,10 @@
     @extend %surface-sunken-level;
     align-items: center;
     background: var(--surface-background-default);
-    border-radius: 12px;
+    border-radius: var(--border-radius-600);
     display: inline-flex;
-    gap: 2px;
-    padding: 4px;
+    gap: calc(var(--size-100) / 4);
+    padding: calc(var(--size-100) / 2);
 
     &-button.button {
         --background-active: transparent;
@@ -27,12 +27,12 @@
         --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-200);
         --padding-vertical: 0px;
-        gap: 6px;
+        gap: calc(var(--size-300) / 2);
         height: 28px;
 
         &:focus-visible {
             outline: 2px solid var(--color-blue-400);
-            outline-offset: 2px;
+            outline-offset: calc(var(--size-100) / 4);
         }
     }
 
@@ -48,7 +48,7 @@
         --background-hover: transparent;
         --background-pressed: transparent;
         --scale-hidden: 1;
-        border-radius: 8px;
+        border-radius: var(--border-radius-400);
     }
 
     &-icon {

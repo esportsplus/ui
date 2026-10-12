@@ -84,7 +84,7 @@
     // Resolved on the editor, since the checkbox derives its own '--focus-color' from these.
     --task-color: var(--focus-color);
     --task-gap: var(--size-100);
-    --task-spacing: 4px;
+    --task-spacing: calc(var(--size-100) / 2);
     --type-color: light-dark(var(--color-blue-300), oklch(from var(--color-blue-300) 0.76 0.13 h));
     --variable-color: var(--color);
     --white-space: pre-wrap;

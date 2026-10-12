@@ -159,8 +159,8 @@
 
     &-icon {
         flex: 0 0 auto;
-        height: 16px;
-        width: 16px;
+        height: var(--size-400);
+        width: var(--size-400);
     }
 
     // Pure black and white on purpose: the gradients are the color math, not a theme surface.
@@ -183,7 +183,7 @@
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--color);
-            outline-offset: 2px;
+            outline-offset: calc(var(--size-100) / 4);
         }
     }
 
@@ -212,7 +212,7 @@
         display: flex;
         flex: 1;
         flex-direction: column;
-        gap: 4px;
+        gap: calc(var(--size-100) / 2);
         min-width: 0;
     }
 
@@ -257,13 +257,13 @@
         &::after {
             border-radius: 50%;
             content: '';
-            inset: -4px;
+            inset: calc(var(--size-100) / -2);
             position: absolute;
         }
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--color);
-            outline-offset: 4px;
+            outline-offset: calc(var(--size-100) / 2);
         }
     }
 

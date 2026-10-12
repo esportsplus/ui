@@ -43,13 +43,13 @@
 
     &-bars {
         display: flex;
-        gap: 4px;
+        gap: calc(var(--size-100) / 2);
         padding: 12px 12px 0;
     }
 
     &-count {
         color: var(--muted-color);
-        font-size: 12px;
+        font-size: var(--font-size-300);
         font-variant-numeric: tabular-nums;
     }
 
@@ -68,7 +68,7 @@
         display: flex;
         height: 44px;
         justify-content: space-between;
-        padding: 0 16px;
+        padding: 0 var(--size-400);
     }
 
     // Static cue for the paused state, so the frozen bar isn't the only signal.
@@ -76,8 +76,8 @@
     &-play {
         @extend %icon-swap;
         grid-area: 1 / 1;
-        height: 16px;
-        width: 16px;
+        height: var(--size-400);
+        width: var(--size-400);
     }
 
     &-slide {
@@ -107,7 +107,7 @@
         cursor: pointer;
         display: grid;
         height: 40px;
-        margin-right: -8px;
+        margin-right: calc(var(--size-100) * -1);
         outline: none;
         padding: 0;
         place-items: center;
@@ -164,7 +164,7 @@
 
     &:focus-visible {
         outline: 2px solid var(--focus-ring-color);
-        outline-offset: 2px;
+        outline-offset: calc(var(--size-100) / 4);
     }
 
     @media (prefers-reduced-motion: reduce) {

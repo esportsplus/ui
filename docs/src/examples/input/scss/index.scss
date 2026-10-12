@@ -10,14 +10,14 @@
         box-shadow: var(--surface-shadow-default);
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: var(--size-200);
         max-width: 100%;
-        padding: 10px;
+        padding: var(--size-200);
         width: 380px;
 
         &-grid {
             display: grid;
-            gap: 10px;
+            gap: var(--size-200);
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
@@ -49,7 +49,7 @@
             color: var(--color-text-500);
             font-size: var(--font-size-300);
             font-weight: var(--font-weight-500);
-            padding: 2px var(--size-200) 0;
+            padding: calc(var(--size-100) / 4) var(--size-200) 0;
         }
     }
 

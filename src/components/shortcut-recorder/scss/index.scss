@@ -63,8 +63,8 @@
         color: var(--color-muted);
         display: flex;
         font-size: var(--font-size-small);
-        gap: 6px;
-        padding: 0 6px;
+        gap: calc(var(--size-300) / 2);
+        padding: 0 calc(var(--size-300) / 2);
         transition: color var(--transition-duration) var(--timing-function-out);
 
         &--fade {
@@ -91,7 +91,7 @@
 
 @keyframes shortcut-recorder-enter {
     from {
-        filter: blur(3px);
+        filter: blur(var(--blur-400));
         opacity: 0;
         scale: 0.8;
     }

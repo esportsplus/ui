@@ -36,7 +36,7 @@ $expand-transition-box-shadow:
     }
 
     &--morph {
-        --morph-blur: 4px;
+        --morph-blur: var(--blur-400);
         --morph-duration: var(--duration-moderate);
         // The outgoing layer clears out faster than the incoming one arrives, so the two never read as
         // overlapping text.

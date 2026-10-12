@@ -100,7 +100,7 @@
         &:focus-visible {
             --color: var(--color-hover);
             outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: 2px;
+            outline-offset: calc(var(--size-100) / 4);
         }
 
         // Nudges the arrow the way it points, so the card reads as the way to go.

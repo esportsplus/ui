@@ -34,7 +34,7 @@
 
     &-answer {
         color: var(--color-text-400);
-        font-size: 0.875rem;
+        font-size: var(--font-size-300);
     }
 
     &-ask {
@@ -50,7 +50,7 @@
         background: var(--surface-background-default);
         border-radius: var(--border-radius-600);
         color: var(--color-text-500);
-        font-size: 0.875rem;
+        font-size: var(--font-size-300);
         max-width: 80%;
         padding: var(--size-100) var(--size-300);
         width: fit-content;

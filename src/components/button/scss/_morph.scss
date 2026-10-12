@@ -46,7 +46,7 @@
 
         // Leaves before the width has closed on it; arrives as it opens.
         &-text {
-            filter: blur(4px);
+            filter: blur(var(--blur-400));
             grid-area: 1 / 1;
             opacity: 0;
             transition:
@@ -78,7 +78,7 @@
 
     &:focus-visible {
         outline: 2px solid var(--morph-focus-color);
-        outline-offset: 2px;
+        outline-offset: calc(var(--size-100) / 4);
     }
 
     &[aria-disabled='true'] {

@@ -4,7 +4,7 @@
 .inline-edit {
     --box-border-radius: var(--border-radius-400);
     --box-overflow-wrap: normal;
-    --box-padding-block: 4px;
+    --box-padding-block: calc(var(--size-100) / 2);
     --box-padding-end: 36px;
     --box-padding-start: var(--size-100);
     --box-text-overflow: ellipsis;
@@ -26,7 +26,7 @@
     --placeholder-color: var(--color-text-300);
     --quote-border-color: var(--surface-border-default);
     --quote-color: var(--color-text-400);
-    --status-margin-top: 4px;
+    --status-margin-top: calc(var(--size-100) / 2);
     --task-border-color: var(--color-primary-300);
     --task-check-color: var(--color-surface);
     --task-checked-color: var(--color-primary-500);
@@ -53,7 +53,7 @@
 
     // The save status, as wide as its longest label so the icon never shifts and old and new words cross in one spot.
     &-status {
-        --blur: 3px;
+        --blur: var(--blur-400);
         --check-color: var(--color-primary-500);
         --check-delay: 0.12s;
         --check-duration: var(--duration-slow);

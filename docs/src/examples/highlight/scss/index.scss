@@ -48,7 +48,7 @@
 
         &:focus-visible {
             outline: 2px solid var(--color-primary-500);
-            outline-offset: -4px;
+            outline-offset: calc(var(--size-100) / -2);
         }
 
         &:hover,
@@ -60,14 +60,14 @@
     &-tabs {
         border-bottom: var(--border-width-400) solid var(--surface-border-default);
         display: flex;
-        gap: 2px;
-        padding-inline: 2px;
+        gap: calc(var(--size-100) / 4);
+        padding-inline: calc(var(--size-100) / 4);
 
         &--vertical {
             border-bottom: 0;
             border-left: var(--border-width-400) solid var(--surface-border-default);
             flex-direction: column;
-            padding-block: 2px;
+            padding-block: calc(var(--size-100) / 4);
             padding-inline: 0;
             width: 200px;
         }

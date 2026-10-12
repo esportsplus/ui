@@ -196,7 +196,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             }
 
             &:focus-visible {
-                outline-width: 1px;
+                outline-width: var(--border-width-400);
             }
 
             &[aria-pressed='true'] {
@@ -475,7 +475,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         }
 
         .file-tree-viewport:focus-visible &--focused {
-            outline-width: 1px;
+            outline-width: var(--border-width-400);
         }
     }
 
@@ -531,11 +531,11 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         height: 32px;
         inset-inline-end: var(--size-100);
         outline: 0 solid var(--focus-color);
-        outline-offset: 2px;
+        outline-offset: calc(var(--size-100) / 4);
         position: absolute;
 
         &:focus-visible {
-            outline-width: 2px;
+            outline-width: var(--border-width-500);
         }
     }
 
@@ -714,7 +714,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
 @keyframes file-tree-conceal {
     to {
-        filter: blur(2px);
+        filter: blur(var(--blur-300));
         opacity: 0;
     }
 }
@@ -737,7 +737,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
 @keyframes file-tree-reveal {
     from {
-        filter: blur(2px);
+        filter: blur(var(--blur-300));
         opacity: 0;
     }
 }

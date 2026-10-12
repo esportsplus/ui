@@ -92,8 +92,8 @@
         --font-size: calc(var(--font-size-400) * 0.875);
         --gap-horizontal: var(--size-100);
         --line-height: 24px;
-        --padding-horizontal: 6px;
-        --padding-vertical: 6px;
+        --padding-horizontal: calc(var(--size-300) / 2);
+        --padding-vertical: calc(var(--size-300) / 2);
         --width: 240px;
     }
 

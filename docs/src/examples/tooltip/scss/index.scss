@@ -122,14 +122,13 @@
         display: block;
         font-size: calc(var(--font-size-400) * 0.9375);
         font-weight: var(--font-weight-600, var(--font-weight-500));
-        letter-spacing: -0.01em;
         margin-top: var(--size-300);
     }
 
     // Fixed width, so the card keeps its shape from one person to the next.
     &-profile {
         display: block;
-        line-height: 20px;
+        line-height: var(--size-500);
         padding: var(--size-400);
         width: 300px;
     }
@@ -162,7 +161,7 @@
         text-decoration: underline;
         text-decoration-color: color-mix(in srgb, var(--color-primary-500) 25%, transparent);
         text-decoration-thickness: 1px;
-        text-underline-offset: 4px;
+        text-underline-offset: calc(var(--size-100) / 2);
         transition: text-decoration-color var(--duration-fast) var(--easing-out);
         white-space: nowrap;
 
@@ -218,7 +217,7 @@
         &:focus-visible {
             --background: var(--background-hover);
             outline: 2px solid currentColor;
-            outline-offset: -2px;
+            outline-offset: calc(var(--size-100) / -4);
         }
     }
 
@@ -237,7 +236,7 @@
     align-items: flex-start;
     display: flex;
     font-size: calc(var(--font-size-400) * 0.875);
-    gap: 8px;
+    gap: var(--size-100);
     height: 360px;
 
     &-description {
@@ -253,19 +252,19 @@
     }
 
     &-link {
-        border-radius: 8px;
+        border-radius: var(--border-radius-400);
         color: var(--color-text-500);
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: calc(var(--size-100) / 4);
         outline: none;
-        padding: 8px 12px;
+        padding: var(--size-100) 12px;
         text-decoration: none;
         transition: background-color var(--duration-fast) var(--easing-out);
 
         &:focus-visible {
             outline: 2px solid var(--color-primary-500);
-            outline-offset: -2px;
+            outline-offset: calc(var(--size-100) / -4);
         }
 
         &:hover,
@@ -276,7 +275,7 @@
 
     &-panel {
         display: grid;
-        gap: 4px;
+        gap: calc(var(--size-100) / 2);
         grid-template-columns: repeat(2, minmax(0, 1fr));
         max-width: calc(100vw - 40px);
         width: 32rem;
@@ -286,7 +285,7 @@
         --background-default: var(--surface-background-default);
         --color: var(--color-text-500);
         --font-size: calc(var(--font-size-400) * 0.875);
-        --padding: 6px;
+        --padding: calc(var(--size-300) / 2);
         --radius: var(--border-radius-600);
         --scale: 0.96;
         --spacer: var(--size-100);

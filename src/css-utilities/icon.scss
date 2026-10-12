@@ -16,7 +16,7 @@
 // One of several icons sharing a spot: blurred and shrunk away until '%icon-swap-active' brings it in, over the
 // block's '--icon-swap-duration' and '--icon-swap-timing-function'. Reduced motion swaps instantly.
 %icon-swap {
-    filter: blur(4px);
+    filter: blur(var(--blur-400));
     opacity: 0;
     scale: 0.25;
     transition:

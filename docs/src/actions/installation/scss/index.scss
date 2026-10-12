@@ -21,7 +21,7 @@
 
     &-packages {
         display: flex;
-        gap: 2px;
+        gap: calc(var(--size-100) / 4);
         margin: calc(var(--size-100) * -1) 0;
 
         &-highlight.highlight {
@@ -44,7 +44,7 @@
         &-link {
             color: var(--color-text-500);
             text-decoration: underline;
-            text-underline-offset: 3px;
+            text-underline-offset: calc(var(--size-300) / 4);
         }
 
         &-number {
@@ -98,7 +98,7 @@
     // Rings every link and button the guide hosts in its accent, the page head's breadcrumb and arrows included.
     :is(a, button):focus-visible {
         outline: var(--border-width-500) solid var(--color-accent-400);
-        outline-offset: 3px;
+        outline-offset: calc(var(--size-300) / 4);
     }
 
     @media (max-width: 720px) {

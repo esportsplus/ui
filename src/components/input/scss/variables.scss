@@ -56,10 +56,10 @@
 
     &-tag {
         --box-border-radius: 14px;
-        --box-padding: 6px;
+        --box-padding: calc(var(--size-300) / 2);
         --chip-background-active: var(--color-primary-500);
         // Read by JS: how far a chip blurs as it comes and goes; half that leaving.
-        --chip-blur: 4px;
+        --chip-blur: var(--blur-400);
         // 8px inside 6px of box padding keeps the 14px box concentric.
         --chip-border-radius: var(--border-radius-400);
         --chip-color: var(--color-text-500);
@@ -79,7 +79,7 @@
         --color: var(--color-text-500);
         --entry-min-width: var(--spacer-400);
         --font-size: var(--font-size-300);
-        --gap: 6px;
+        --gap: calc(var(--size-300) / 2);
         --hint-color: var(--color-text-300);
         --hint-font-size: var(--font-size-200);
         --label-font-size: var(--font-size-300);

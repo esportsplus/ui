@@ -4,7 +4,7 @@
 .counter {
     color: var(--color);
     display: flex;
-    gap: 2px;
+    gap: calc(var(--size-100) / 4);
     place-items: center;
     transition: transform calc(var(--transition-duration) / 4) var(--transition-duration);
 

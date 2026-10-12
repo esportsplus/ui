@@ -56,7 +56,7 @@
 
     // Opens from slightly below, smaller and blurred; closes faster than it opens.
     &-tooltip.tooltip-message {
-        filter: blur(2px);
+        filter: blur(var(--blur-300));
         transform-origin: bottom center;
         transition:
             filter var(--transition-duration) var(--transition-timing-function),
@@ -85,7 +85,7 @@
 
     &:focus-visible {
         outline: 2px solid var(--focus-color);
-        outline-offset: 2px;
+        outline-offset: calc(var(--size-100) / 4);
     }
 
     @media (prefers-reduced-motion: reduce) {

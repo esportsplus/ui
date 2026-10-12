@@ -9,7 +9,7 @@
     --error-color: var(--color-red-400);
     --field-border-color: var(--surface-border-default);
     --field-border-radius: var(--border-radius-600);
-    --field-font-size: 15px;
+    --field-font-size: var(--font-size-400);
     --field-height: 44px;
     // A half turn across the card's full width reads as a rush under ~400ms, and nobody waits on it.
     --flip-duration: 764ms;

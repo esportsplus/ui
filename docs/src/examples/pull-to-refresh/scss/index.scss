@@ -11,7 +11,7 @@
     box-shadow: var(--surface-shadow-default);
     box-sizing: border-box;
     height: 480px;
-    padding: 10px;
+    padding: var(--size-200);
     width: min(320px, 100%);
 
     &-avatar {
@@ -20,7 +20,7 @@
         color: oklch(30% 0.05 260);
         display: flex;
         flex: none;
-        font-size: 12px;
+        font-size: var(--font-size-300);
         font-weight: var(--font-weight-600);
         height: 36px;
         justify-content: center;
@@ -30,7 +30,7 @@
     }
 
     &-body {
-        --gap-vertical: 2px;
+        --gap-vertical: calc(var(--size-100) / 4);
         display: flex;
         flex-direction: column;
         gap: var(--gap-vertical);
@@ -40,8 +40,8 @@
     &-byline {
         align-items: baseline;
         display: flex;
-        font-size: 14px;
-        gap: 6px;
+        font-size: var(--font-size-300);
+        gap: calc(var(--size-300) / 2);
         margin: 0;
     }
 
@@ -58,13 +58,13 @@
         flex: none;
         height: 56px;
         justify-content: space-between;
-        padding: 0 12px 0 20px;
+        padding: 0 12px 0 var(--size-500);
     }
 
     &-meta {
         color: var(--color-text-300);
         flex: none;
-        font-size: 13px;
+        font-size: var(--font-size-300);
     }
 
     &-name {
@@ -79,7 +79,7 @@
         border-bottom: var(--border-width-400) solid var(--surface-border-default);
         display: flex;
         gap: 12px;
-        padding: 14px 20px;
+        padding: 14px var(--size-500);
     }
 
     &-refresh {
@@ -107,8 +107,8 @@
         width: 36px;
 
         &-icon {
-            height: 16px;
-            width: 16px;
+            height: var(--size-400);
+            width: var(--size-400);
         }
 
         &:active {
@@ -137,17 +137,16 @@
 
     &-text {
         color: var(--color-text-500);
-        font-size: 14px;
-        line-height: 20px;
+        font-size: var(--font-size-300);
+        line-height: var(--size-500);
         margin: 0;
         text-wrap: pretty;
     }
 
     &-title {
         color: var(--color-text-500);
-        font-size: 17px;
+        font-size: var(--font-size-400);
         font-weight: var(--font-weight-600);
-        letter-spacing: -0.01em;
         margin: 0;
     }
 

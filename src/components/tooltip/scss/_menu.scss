@@ -164,7 +164,7 @@
             border-width: 0 1.5px 1.5px 0;
             flex-shrink: 0;
             height: 6px;
-            margin-inline: 2px;
+            margin-inline: calc(var(--size-100) / 4);
             opacity: 0.6;
             rotate: -45deg;
             transition: rotate var(--open-duration) var(--open-timing-function);
@@ -233,7 +233,7 @@
 
         &-hint {
             color: var(--color-hint);
-            font-size: 0.75rem;
+            font-size: var(--font-size-300);
         }
 
         &-icon {
@@ -313,7 +313,7 @@
             display: grid;
 
             &-bold {
-                font-weight: 600;
+                font-weight: var(--font-weight-600);
                 opacity: var(--title-bold-opacity);
             }
 

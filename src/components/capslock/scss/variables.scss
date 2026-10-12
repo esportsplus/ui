@@ -7,7 +7,7 @@
     --icon-width: 12px;
     --light-color: var(--surface-border-hover);
     --light-color-active: var(--color-green-400);
-    --light-inset: 3px;
+    --light-inset: calc(var(--size-300) / 4);
     --light-shadow: none;
     --light-size: 4px;
 

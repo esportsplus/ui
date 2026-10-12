@@ -10,7 +10,7 @@
     color: var(--color);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--size-500);
     margin-inline: auto;
     max-width: 100%;
     width: var(--width);
@@ -18,7 +18,7 @@
     &-body {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: var(--size-100);
 
         &--vertical {
             align-self: center;
@@ -37,20 +37,20 @@
         align-items: center;
         background: var(--background);
         border: 1px solid var(--clear-border);
-        border-radius: 6px;
+        border-radius: var(--border-radius-300);
         box-shadow: var(--surface-shadow-default);
         color: var(--color);
         cursor: pointer;
         display: var(--clear-display);
         flex-shrink: 0;
         font: inherit;
-        font-size: 12px;
+        font-size: var(--font-size-300);
         font-weight: var(--font-weight-500);
-        gap: 4px;
+        gap: calc(var(--size-100) / 2);
         height: 24px;
         outline: 0 solid var(--focus-color);
-        outline-offset: 2px;
-        padding: 0 8px;
+        outline-offset: calc(var(--size-100) / 4);
+        padding: 0 var(--size-100);
         transition:
             background-color var(--duration-fast) var(--easing-spring),
             color var(--duration-fast) var(--easing-spring),
@@ -71,7 +71,7 @@
         }
 
         &:focus-visible {
-            outline-width: 2px;
+            outline-width: var(--border-width-500);
         }
     }
 
@@ -124,18 +124,17 @@
         cursor: var(--field-cursor);
         display: flex;
         flex: 1 1 0;
-        gap: 6px;
+        gap: calc(var(--size-300) / 2);
         height: var(--field-height);
         min-width: 0;
         outline: 0 solid var(--focus-color);
-        outline-offset: 2px;
+        outline-offset: calc(var(--size-100) / 4);
         padding-inline: 12px;
 
         &-label {
             color: var(--muted-color);
-            font-size: 12px;
+            font-size: var(--font-size-300);
             font-weight: var(--font-weight-500);
-            letter-spacing: 0.05em;
             text-transform: uppercase;
         }
 
@@ -149,7 +148,7 @@
         }
 
         &:has(:focus-visible) {
-            outline-width: 2px;
+            outline-width: var(--border-width-500);
         }
 
         // Qualified by the field so it wins over the reused input styles regardless of stylesheet order.
@@ -217,7 +216,6 @@
         color: var(--label-color);
         font-size: var(--label-font-size);
         font-weight: var(--font-weight-500);
-        letter-spacing: var(--label-letter-spacing);
         margin: var(--label-margin);
         text-transform: var(--label-text-transform);
     }
@@ -291,7 +289,7 @@
         height: var(--thumb-size);
         left: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
         outline: var(--thumb-outline);
-        outline-offset: 2px;
+        outline-offset: calc(var(--size-100) / 4);
         position: absolute;
         top: 50%;
         transition: var(--thumb-transition);
@@ -314,7 +312,7 @@
         // The default, so a held thumb still takes its press shadow.
         &:focus-visible {
             --box-shadow-default: var(--thumb-shadow-focus);
-            outline-width: 3px;
+            outline-width: var(--border-width-600);
         }
 
         &:hover {
@@ -331,7 +329,7 @@
     &-ticks {
         color: var(--tick-color);
         display: flex;
-        font-size: 11px;
+        font-size: var(--font-size-200);
         font-weight: var(--font-weight-500);
         justify-content: space-between;
         user-select: none;
@@ -370,7 +368,7 @@
     &-values {
         align-items: center;
         display: flex;
-        gap: 6px;
+        gap: calc(var(--size-300) / 2);
     }
 
     &.--disabled {

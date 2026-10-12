@@ -49,7 +49,7 @@
 
         &--fade {
             background: linear-gradient(var(--background), transparent);
-            height: 20px;
+            height: var(--size-500);
         }
 
         &--line {

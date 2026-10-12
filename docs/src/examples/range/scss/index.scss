@@ -33,7 +33,7 @@
 
     &-status {
         color: var(--color-text-300);
-        font-size: 13px;
+        font-size: var(--font-size-300);
     }
 }
 
@@ -145,7 +145,7 @@
 
         &:focus-visible {
             outline: var(--border-width-500) solid var(--demo-accent);
-            outline-offset: 4px;
+            outline-offset: calc(var(--size-100) / 2);
         }
     }
 

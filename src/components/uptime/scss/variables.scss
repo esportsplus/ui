@@ -4,11 +4,11 @@
     --bar-active-scale: 1.15;
     --bar-border-radius: var(--border-radius-100);
     --bar-dim: 0.35;
-    --bar-gap: 3px;
+    --bar-gap: calc(var(--size-300) / 4);
     --bar-height: var(--size-600);
     --bar-opacity: 1;
-    --caption-blur: 4px;
-    --caption-offset: 4px;
+    --caption-blur: var(--blur-400);
+    --caption-offset: calc(var(--size-100) / 2);
     --color: var(--color-text-400);
     --color-degraded: oklch(0.8 0.15 78);
     --color-muted: var(--color-text-300);
@@ -79,6 +79,6 @@
         --border-radius: var(--border-radius-400);
         --color: var(--color-text-400);
         --padding-horizontal: var(--size-100);
-        --padding-vertical: 4px;
+        --padding-vertical: calc(var(--size-100) / 2);
     }
 }

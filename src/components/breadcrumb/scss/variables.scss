@@ -13,7 +13,7 @@
     // Resolved here, since a link's color state redefines --color and --color-active on it.
     --link-color: var(--color);
     --link-color-hover: var(--color-active);
-    --link-padding: 6px;
+    --link-padding: calc(var(--size-300) / 2);
     --link-radius: var(--border-radius-300);
     --menu-radius: var(--border-radius-600);
     --menu-width: 192px;
@@ -30,7 +30,7 @@
 
     &--compact {
         --height: var(--size-400);
-        --link-padding: 4px;
+        --link-padding: calc(var(--size-100) / 2);
         --separator-size: 14px;
         --trigger-width: var(--height);
     }

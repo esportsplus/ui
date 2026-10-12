@@ -148,7 +148,7 @@
     }
 
     &-filename {
-        font-weight: 600;
+        font-weight: var(--font-weight-600);
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -200,7 +200,7 @@
 
     &-modes {
         display: flex;
-        gap: 2px;
+        gap: calc(var(--size-100) / 4);
     }
 
     &-number {
@@ -349,7 +349,7 @@
     }
 
     &-word {
-        border-radius: 2px;
+        border-radius: var(--border-radius-100);
 
         &--delete {
             background: var(--delete-word-background);
