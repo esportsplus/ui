@@ -1,0 +1,12 @@
+@use 'sass:math';
+
+
+// A color's weights from its one written value: 300 a step lighter, 400 itself and 500 a step darker, keeping its hue
+// and chroma, so hover and press move every color by the same amount. '$step' is in lightness points.
+@mixin color-weights($name, $step) {
+    $step: math.div($step, 100);
+
+    --color-#{$name}-300: oklch(from var(--color-#{$name}) min(1, l + #{$step}) c h);
+    --color-#{$name}-400: var(--color-#{$name});
+    --color-#{$name}-500: oklch(from var(--color-#{$name}) max(0, l - #{$step}) c h);
+}

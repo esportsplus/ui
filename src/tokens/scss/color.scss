@@ -1,9 +1,8 @@
 @use 'sass:map';
-@use 'sass:math';
 @use '../../shared/scss/list';
 
 
-// The palette, each color written once as its 400; 'weights()' derives the rest where the color is used.
+// The palette, each color written once as its 400; shared 'color-weights()' derives the rest where the color is used.
 $color: (
     'black': oklch(16% 0.0102 257),
     'blue': oklch(51.45% 0.2712 266.6),
@@ -19,16 +18,6 @@ $colors: list.join(primary text, map.keys($color));
 
 // How far a color's 300 and 500 sit from its 400, in lightness points: lighter for hover, darker for press.
 $weight-step: 3;
-
-// A color's weights from its one written value: 300 a step lighter, 400 itself and 500 a step darker, keeping its hue
-// and chroma, so hover and press move every color by the same amount.
-@mixin weights($name) {
-    $step: math.div($weight-step, 100);
-
-    --color-#{$name}-300: oklch(from var(--color-#{$name}) min(1, l + #{$step}) c h);
-    --color-#{$name}-400: var(--color-#{$name});
-    --color-#{$name}-500: oklch(from var(--color-#{$name}) max(0, l - #{$step}) c h);
-}
 
 // How far apart the text weights sit: 300 and 500 each hold this contrast against 400, the same in both modes.
 $text-step: 1.5;

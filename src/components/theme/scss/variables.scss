@@ -49,7 +49,7 @@
     @include surface.surface-shadow(0);
     @include surface.surface-shadows;
 
-    @include tokens.weights(primary);
+    @include shared.color-weights(primary, tokens.$weight-step);
 
     --background: var(--surface-background-default);
     --color: var(--color-text-400);
