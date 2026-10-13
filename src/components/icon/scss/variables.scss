@@ -3,4 +3,9 @@
     --height: var(--size);
     --size: var(--size-400);
     --width: var(--size);
+
+
+    &--rotate {
+        --rotate: 0deg;
+    }
 }

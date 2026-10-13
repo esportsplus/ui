@@ -9,12 +9,7 @@
     width: 420px;
 
     &-chevron {
-        color: var(--color-text-300);
-        flex-shrink: 0;
-        height: var(--size-400);
-        rotate: var(--chevron-rotate, none);
-        transition: rotate var(--duration-fast) var(--easing-out);
-        width: var(--size-400);
+        --color: var(--color-text-300);
     }
 
     &-description {
@@ -62,14 +57,8 @@
             outline-offset: calc(var(--size-300) / 4);
         }
 
-        &[aria-expanded='true'] {
-            --chevron-rotate: 90deg;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &-chevron {
-            transition: none;
+        &[aria-expanded='true'] .icon--rotate {
+            --rotate: 90deg;
         }
     }
 }

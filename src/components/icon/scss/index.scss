@@ -9,6 +9,16 @@
     width: var(--width);
 
 
+    // Turns by '--rotate', easing between turns, so a chevron can follow its control's state.
+    &--rotate {
+        rotate: var(--rotate);
+        transition: rotate var(--duration-fast) var(--easing-out);
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
     svg {
         fill: currentColor;
         height: 100%;

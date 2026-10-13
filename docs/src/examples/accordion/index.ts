@@ -1,4 +1,4 @@
-import { accordion } from '@esportsplus/ui/components';
+import { accordion, icon } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
@@ -73,7 +73,7 @@ const toggles = (group?: ReturnType<typeof accordion.group>) => {
                             }}
                         >
                             <span>${label}</span>
-                            <svg aria-hidden='true' class='accordion-demo-chevron'><use href='#${chevron}' /></svg>
+                            ${icon({ 'aria-hidden': 'true', class: 'accordion-demo-chevron icon--rotate' }, chevron)}
                         </button>
                         ${accordion({
                             'aria-labelledby': `${id}-toggle`,
