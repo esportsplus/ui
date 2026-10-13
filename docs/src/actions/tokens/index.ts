@@ -1,5 +1,5 @@
 import { html, uri } from 'docs/app';
-import { cssValue, map, themes, themeTokens, tokenSources, WEIGHTS } from 'docs/data/scss';
+import { cssValue, map, themeColors, themes, themeTokens, tokenSources, WEIGHTS } from 'docs/data/scss';
 import { clipboard, icon } from '@esportsplus/ui/components';
 import check from '@esportsplus/ui/svg/check.svg';
 import copy from '@esportsplus/ui/svg/copy.svg';
@@ -184,22 +184,14 @@ function swatch(token: Token, shade: string, ink: string, mode?: Mode) {
 }
 
 function themed(mode: Mode): Token[] {
-    let out: Token[] = [],
-        probe = document.createElement('div');
+    let roles = themeTokens(themes(tokenSources.color)[mode] ?? {}),
+        resolved = themeColors(mode, roles.map((token) => token.name));
 
-    probe.dataset.theme = mode;
-    document.body.append(probe);
-
-    let style = getComputedStyle(probe);
-
-    for (let { name, role, weight } of themeTokens(themes(tokenSources.color)[mode] ?? {})) {
-        probe.style.color = `var(${name})`;
-        out.push({ label: weight ? `${role}-${weight}` : role, name, value: style.color });
-    }
-
-    probe.remove();
-
-    return out;
+    return roles.map(({ name, role, weight }) => ({
+        label: weight ? `${role}-${weight}` : role,
+        name,
+        value: resolved[name]
+    }));
 }
 
 function tokens(group: Group): Token[] {

@@ -176,6 +176,27 @@ const map = (scss: string | undefined, name: string): Node | null => {
     return out;
 };
 
+// Each color variable as a mode computes it, read through a probe pinned to that mode, so it shows exactly what the
+// stylesheet ships. A token reads back as its unresolved 'light-dark()', so each resolves through the probe's own color.
+const themeColors = (mode: string, names: string[]) => {
+    let out: Record<string, string> = {},
+        probe = document.createElement('div');
+
+    probe.dataset.theme = mode;
+    document.body.append(probe);
+
+    let style = getComputedStyle(probe);
+
+    for (let i = 0, n = names.length; i < n; i++) {
+        probe.style.color = `var(${names[i]})`;
+        out[names[i]] = style.color;
+    }
+
+    probe.remove();
+
+    return out;
+};
+
 // '$themes' colors read as mode, then role, then the role's one color. Palette references read as the palette's
 // variables, and a weighted role lists the weights the theme derives from its color.
 const themes = (scss: string | undefined) => {
@@ -220,4 +241,4 @@ const tree = (scss: string | undefined, name: string) => {
 };
 
 
-export { cssValue, fonts, map, themes, themeTokens, tokenSources, WEIGHTS };
+export { cssValue, fonts, map, themeColors, themes, themeTokens, tokenSources, WEIGHTS };

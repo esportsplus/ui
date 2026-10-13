@@ -1,7 +1,7 @@
 import header from 'docs/components/page/header';
 import layout from 'docs/components/layout';
 import { html, uri } from 'docs/app';
-import { themes, themeTokens, tokenSources, WEIGHTS } from 'docs/data/scss';
+import { themeColors, themes, themeTokens, tokenSources, WEIGHTS } from 'docs/data/scss';
 import { pickers } from 'docs/actions/themes/pickers';
 import { preview } from 'docs/components/preview';
 import type { Router } from 'docs/app';
@@ -51,27 +51,6 @@ function sample(mode: Mode) {
     `;
 }
 
-// Read through a probe pinned to each mode, so the table shows exactly what the stylesheet ships. A token reads back as
-// its unresolved 'light-dark()', so each is resolved through the probe's own color.
-function values(mode: Mode) {
-    let out: Record<string, string> = {},
-        probe = document.createElement('div');
-
-    probe.dataset.theme = mode;
-    document.body.append(probe);
-
-    let style = getComputedStyle(probe);
-
-    for (let name of tokens()) {
-        probe.style.color = `var(${name})`;
-        out[name] = style.color;
-    }
-
-    probe.remove();
-
-    return out;
-}
-
 // The values as written in '$themes', where token references survive; computed values resolve them away.
 function sources(mode: Mode) {
     let out: Record<string, string> = {};
@@ -91,7 +70,8 @@ function tokens() {
 
 
 const page = (): Page => {
-    let resolved = { dark: values('dark'), light: values('light') },
+    let names = tokens(),
+        resolved = { dark: themeColors('dark', names), light: themeColors('light', names) },
         source = { dark: sources('dark'), light: sources('light') };
 
     return {
