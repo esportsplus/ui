@@ -1,5 +1,6 @@
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
+@use 'css-utilities/text';
 
 
 .preview {
@@ -197,4 +198,9 @@
     &:has(.preview-select.--active) {
         z-index: 10;
     }
+}
+
+// Plain labels inside examples, set in the text styles components extend.
+.preview-text {
+    @extend %text;
 }

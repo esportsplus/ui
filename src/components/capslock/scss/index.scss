@@ -1,9 +1,11 @@
 @use '/tokens';
 @use 'css-utilities/flex';
 @use 'css-utilities/hidden';
+@use 'css-utilities/text';
 @use 'variables';
 
 .capslock {
+    @extend %text;
     filter: blur(var(--blur-300));
     opacity: 0;
     transition:

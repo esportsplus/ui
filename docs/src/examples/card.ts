@@ -100,7 +100,7 @@ function morph() {
                                 }
                             }}
                         >
-                            <div class='text' style='max-width: 240px;'>${text}</div>
+                            <div class='preview-text' style='max-width: 240px;'>${text}</div>
                         </div>
                     `)}
                 </div>
@@ -116,7 +116,7 @@ export default {
         {
             render: () => html`
                 <div class='card' style='${box}'>
-                    <div class='text'>Card with shadow</div>
+                    <div class='preview-text'>Card with shadow</div>
                 </div>
             `,
             title: 'default'

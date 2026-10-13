@@ -107,7 +107,7 @@ export default {
         },
         {
             render: () => more({}, html`
-                <div class='text'>
+                <div class='preview-text'>
                     Show more reveals clamped content progressively. Only the container height animates,
                     so the text keeps its layout and never reflows while expanding. The consumer supplies
                     the button, its label, and any fade styling, here scrollbar({ fade: true }). Content
@@ -119,7 +119,7 @@ export default {
         },
         {
             render: () => more({ lines: 2, style: '--max-height: 160px;' }, html`
-                <div class='text accordion-demo-paragraphs'>
+                <div class='preview-text accordion-demo-paragraphs'>
                     ${Array.from({ length: 6 }, (_, i) => html`
                         <p>
                             Paragraph ${i + 1}. Expanded height is capped by the --max-height CSS variable. The region
@@ -132,7 +132,7 @@ export default {
         },
         {
             render: () => more({}, html`
-                <div class='text'>Short content fits without clamping, so there is nothing to expand and no button is shown.</div>
+                <div class='preview-text'>Short content fits without clamping, so there is nothing to expand and no button is shown.</div>
             `),
             title: 'fits'
         }

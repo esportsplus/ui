@@ -31,7 +31,7 @@ export default component(
 
         return html`
             <div
-                class='capslock text'
+                class='capslock'
                 ${this?.attributes}
                 ${attributes}
                 ${{

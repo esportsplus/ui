@@ -19,10 +19,10 @@ function list() {
             ${invoices.map((invoice) => html`
                 <div style='${row}'>
                     <div>
-                        <div class='text' style='font-weight: var(--font-weight-500);'>${invoice.client}</div>
-                        <div class='text' style='color: var(--color-text-300); font-size: var(--font-size-200);'>${invoice.id}</div>
+                        <div class='preview-text' style='font-weight: var(--font-weight-500);'>${invoice.client}</div>
+                        <div class='preview-text' style='color: var(--color-text-300); font-size: var(--font-size-200);'>${invoice.id}</div>
                     </div>
-                    <div class='text' style='color: ${invoice.paid ? 'var(--color-primary-300)' : 'var(--color-primary-500)'};'>
+                    <div class='preview-text' style='color: ${invoice.paid ? 'var(--color-primary-300)' : 'var(--color-primary-500)'};'>
                         ${invoice.amount}
                     </div>
                 </div>
@@ -38,10 +38,10 @@ export default {
         {
             render: () => stickyHeader({
                 style: 'width: min(100%, 360px);',
-                after: html`<div class='text' style='${compact}'>Invoices</div>`,
+                after: html`<div class='preview-text' style='${compact}'>Invoices</div>`,
                 before: html`
-                    <div class='text' style='${title}'>Invoices</div>
-                    <div class='text' style='${subtitle}'>${invoices.filter((invoice) => !invoice.paid).length} awaiting payment</div>
+                    <div class='preview-text' style='${title}'>Invoices</div>
+                    <div class='preview-text' style='${subtitle}'>${invoices.filter((invoice) => !invoice.paid).length} awaiting payment</div>
                 `
             }, list()),
             title: 'title and subtitle'
@@ -51,15 +51,15 @@ export default {
                 after: html`
                     <div style='align-items: center; display: flex; gap: var(--size-300); width: 100%;'>
                         <div class='button' style='--width: auto;' tabindex='0'>back</div>
-                        <div class='text' style='${compact} flex: 1;'>Invoices</div>
+                        <div class='preview-text' style='${compact} flex: 1;'>Invoices</div>
                         <div class='button' style='--width: auto;' tabindex='0'>new</div>
                     </div>
                 `,
                 before: html`
                     <div style='align-items: flex-start; display: flex; gap: var(--size-300);'>
                         <div style='flex: 1; min-width: 0;'>
-                            <div class='text' style='${subtitle}'>Billing</div>
-                            <div class='text' style='${title}'>Invoices</div>
+                            <div class='preview-text' style='${subtitle}'>Billing</div>
+                            <div class='preview-text' style='${title}'>Invoices</div>
                         </div>
                         <div class='button' style='--width: auto;' tabindex='0'>new</div>
                     </div>

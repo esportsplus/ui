@@ -169,9 +169,6 @@ const meta: Record<string, Meta> = {
     switch: {
         description: 'Toggle control for binary on and off settings, plus switch groups with a select-all header and Shift-click ranges.'
     },
-    text: {
-        description: 'Typographic primitives for headings, body copy, and captions.'
-    },
     textarea: {
         description: 'Multi-line text field for longer form input.'
     },

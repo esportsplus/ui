@@ -49,7 +49,7 @@ function contained(description: string) {
                     style: `--max-width: 220px; --padding-horizontal: var(--size-500); --padding-vertical: var(--size-500);`
                 },
                 html`
-                    <div class='text'>${description}</div>
+                    <div class='preview-text'>${description}</div>
                     <div
                         class='button'
                         style='${BUTTON}'
@@ -111,7 +111,7 @@ function demo(variant: string, description: string, style = '') {
             },
             html`
                 <h3 style='margin: 0 0 var(--size-400);'>Overlay title</h3>
-                <div class='text'>${description}</div>
+                <div class='preview-text'>${description}</div>
                 <div
                     class='button'
                     style='${BUTTON}'
@@ -138,7 +138,7 @@ function stacked(modal: boolean) {
             },
             html`
                 <h3 style='margin: var(--size-300) 0 var(--size-400);'>${title}</h3>
-                <div class='text'>${description}</div>
+                <div class='preview-text'>${description}</div>
                 <div style='display: flex; gap: var(--size-300); margin-top: var(--size-500);'>
                     ${i + 1 < SHEETS.length && html`
                         <div class='button' style='--width: auto;' onclick='${() => states[i + 1].active = true}'>
@@ -164,9 +164,9 @@ function stacked(modal: boolean) {
     return html`
         <div style='${STAGE} height: 480px; max-width: 360px;'>
             <div class='overlay-page card' style='inset: 0; padding: var(--size-600); position: absolute;'>
-                <div class='text' style='color: var(--color-text-300);'>Drafts</div>
+                <div class='preview-text' style='color: var(--color-text-300);'>Drafts</div>
                 <h3 style='margin: var(--size-200) 0 var(--size-400);'>Launch notes</h3>
-                <div class='text'>Three fixes, one new component, and a faster index. Ship Thursday after review.</div>
+                <div class='preview-text'>Three fixes, one new component, and a faster index. Ship Thursday after review.</div>
                 <div class='button' style='${BUTTON}' onclick='${() => states[0].active = true}'>
                     share
                 </div>

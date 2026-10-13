@@ -9,7 +9,7 @@ function tiles(columns: number, rows: number) {
     return html`
         <div style='display: grid; gap: var(--size-300); grid-template-columns: repeat(${columns}, 96px); padding: var(--size-500); width: max-content;'>
             ${Array.from({ length: columns * rows }).map((_, i) => html`
-                <div class='scrollbar-demo-tile text' style='align-items: center; border-radius: var(--border-radius-300); height: 56px; justify-content: center;'>${i + 1}</div>
+                <div class='scrollbar-demo-tile preview-text' style='align-items: center; border-radius: var(--border-radius-300); height: 56px; justify-content: center;'>${i + 1}</div>
             `)}
         </div>
     `;
@@ -19,7 +19,7 @@ function rows(count: number) {
     return html`
         <div style='display: flex; flex-direction: column; gap: var(--size-400); padding: var(--size-500); width: 100%;'>
             ${Array.from({ length: count }).map((_, i) => html`
-                <div class='text'>Row ${i + 1}</div>
+                <div class='preview-text'>Row ${i + 1}</div>
             `)}
         </div>
     `;

@@ -12,7 +12,7 @@ export default {
             render: () => html`
                 <div style='${stage}'>
                     <div class='banner banner--gradient' style='--from: var(--color-purple-400); --to: var(--color-black-500);'></div>
-                    <div class='text' style='${label}'>--gradient</div>
+                    <div class='preview-text' style='${label}'>--gradient</div>
                 </div>
             `,
             title: 'gradient'
@@ -21,7 +21,7 @@ export default {
             render: () => html`
                 <div style='${stage}'>
                     <div class='banner banner--blur' style='background: linear-gradient(120deg, var(--color-purple-300), var(--color-red-400)); --blur: 14px;'></div>
-                    <div class='text' style='${label}'>--blur</div>
+                    <div class='preview-text' style='${label}'>--blur</div>
                 </div>
             `,
             title: 'blur'
@@ -30,7 +30,7 @@ export default {
             render: () => html`
                 <div style='${stage}'>
                     <div class='banner banner--backdrop' style='background: linear-gradient(to top, var(--color-black-500), transparent);'></div>
-                    <div class='text' style='${label}'>--backdrop</div>
+                    <div class='preview-text' style='${label}'>--backdrop</div>
                 </div>
             `,
             title: 'backdrop'

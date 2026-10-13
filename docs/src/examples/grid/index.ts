@@ -12,7 +12,7 @@ export default {
             render: () => html`
                 <div class='grid'>
                     ${Array.from({ length: 6 }).map((_, i) => html`
-                        <div class='grid-demo-item grid-item text' style='${cell}'>Item ${i + 1}</div>
+                        <div class='grid-demo-item grid-item preview-text' style='${cell}'>Item ${i + 1}</div>
                     `)}
                 </div>
             `,
@@ -22,7 +22,7 @@ export default {
             render: () => html`
                 <div class='grid' style='--min-width: 120px;'>
                     ${Array.from({ length: 6 }).map((_, i) => html`
-                        <div class='grid-demo-item grid-item text' style='${cell}'>${i + 1}</div>
+                        <div class='grid-demo-item grid-item preview-text' style='${cell}'>${i + 1}</div>
                     `)}
                 </div>
             `,

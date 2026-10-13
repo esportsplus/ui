@@ -11,10 +11,10 @@ export default {
         {
             render: () => html`
                 <div style='display: flex; flex-direction: column; gap: var(--size-300); word-break: break-all;'>
-                    <div class='text'>full: ${address}</div>
-                    <div class='text'>center: ${truncate.center(address, { prefix: 6, suffix: 6 })}</div>
-                    <div class='text'>start: ${truncate.start(address, 8)}</div>
-                    <div class='text'>end: ${truncate.end(address, 8)}</div>
+                    <div class='preview-text'>full: ${address}</div>
+                    <div class='preview-text'>center: ${truncate.center(address, { prefix: 6, suffix: 6 })}</div>
+                    <div class='preview-text'>start: ${truncate.start(address, 8)}</div>
+                    <div class='preview-text'>end: ${truncate.end(address, 8)}</div>
                 </div>
             `,
             title: 'center / start / end'
