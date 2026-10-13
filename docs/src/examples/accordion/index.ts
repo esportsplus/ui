@@ -44,53 +44,66 @@ const more = (attributes: { lines?: number, style?: string }, content: Renderabl
 };
 
 
+// Each row owns its state; a group closes the others when one opens, and a required group keeps one open.
+const toggles = (group?: ReturnType<typeof accordion.group>) => {
+    let rows = [
+        { label: 'Export options', content: 'PNG at 2×, with the canvas background. SVG keeps text as text. PDF bundles every region as a page.', active: true },
+        { label: 'Sharing', content: 'Invite people to view or edit this project, or share a link with your team.' },
+        { label: 'History', content: 'Review previous versions and restore an earlier version of this project.' },
+        { label: 'Billing (owners only)', content: 'Manage your plan and payment details.', disabled: true }
+    ];
+
+    return html`
+        <div class='accordion-demo'>
+            ${rows.map(({ active = false, content, disabled = false, label }) => {
+                let id = `accordion-toggle-${crypto.randomUUID()}`,
+                    state = reactive({ active });
+
+                return html`
+                    <div class='accordion-demo-row'>
+                        <button
+                            aria-controls='${id}'
+                            class='accordion-demo-toggle'
+                            disabled='${disabled}'
+                            id='${id}-toggle'
+                            type='button'
+                            ${{
+                                'aria-expanded': () => state.active ? 'true' : 'false',
+                                onclick: () => state.active = !state.active
+                            }}
+                        >
+                            <span>${label}</span>
+                            <svg aria-hidden='true' class='accordion-demo-chevron'><use href='#${chevron}' /></svg>
+                        </button>
+                        ${accordion({
+                            'aria-labelledby': `${id}-toggle`,
+                            group,
+                            id,
+                            role: 'region',
+                            state
+                        }, html`<p class='accordion-demo-description'>${content}</p>`)}
+                    </div>
+                `;
+            })}
+        </div>
+    `;
+};
+
+
 export default {
     name: 'accordion',
     variants: [
         {
-            render: () => {
-                let rows = [
-                    { label: 'Export options', content: 'PNG at 2×, with the canvas background. SVG keeps text as text. PDF bundles every region as a page.', active: true },
-                    { label: 'Sharing', content: 'Invite people to view or edit this project, or share a link with your team.' },
-                    { label: 'History', content: 'Review previous versions and restore an earlier version of this project.' },
-                    { label: 'Billing (owners only)', content: 'Manage your plan and payment details.', disabled: true }
-                ];
-
-                return html`
-                    <div class='accordion-demo'>
-                        ${rows.map(({ active = false, content, disabled = false, label }) => {
-                            let id = `accordion-toggle-${crypto.randomUUID()}`,
-                                state = reactive({ active });
-
-                            return html`
-                                <div class='accordion-demo-row'>
-                                    <button
-                                        aria-controls='${id}'
-                                        class='accordion-demo-toggle'
-                                        disabled='${disabled}'
-                                        id='${id}-toggle'
-                                        type='button'
-                                        ${{
-                                            'aria-expanded': () => state.active ? 'true' : 'false',
-                                            onclick: () => state.active = !state.active
-                                        }}
-                                    >
-                                        <span>${label}</span>
-                                        <svg aria-hidden='true' class='accordion-demo-chevron'><use href='#${chevron}' /></svg>
-                                    </button>
-                                    ${accordion({
-                                        'aria-labelledby': `${id}-toggle`,
-                                        id,
-                                        role: 'region',
-                                        state
-                                    }, html`<p class='accordion-demo-description'>${content}</p>`)}
-                                </div>
-                            `;
-                        })}
-                    </div>
-                `;
-            },
+            render: () => toggles(),
             title: 'toggle'
+        },
+        {
+            render: () => toggles(accordion.group()),
+            title: 'grouped'
+        },
+        {
+            render: () => toggles(accordion.group({ required: true })),
+            title: 'grouped, required'
         },
         {
             render: () => more({}, html`
