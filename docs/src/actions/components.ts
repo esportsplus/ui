@@ -2,6 +2,7 @@ import { entries } from 'docs/examples';
 import { groupVariants } from 'docs/examples/groups';
 import { meta } from 'docs/meta';
 import directory from 'docs/components/directory';
+import layout from 'docs/components/layout';
 import type { Router } from 'docs/app';
 import type { Item } from 'docs/components/directory';
 
@@ -14,13 +15,13 @@ const items: Item[] = entries.map((entry) => ({
 }));
 
 
-const page = (slug?: string) => directory({
+const page = (slug?: string) => layout(directory({
     description: 'A reactive, themeable component library built on compile-time template transforms. Select a component to see every variant.',
     items,
     route: 'components',
     slug,
     title: 'Components'
-});
+}));
 
 
 export default (r: Router) => r

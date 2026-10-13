@@ -4,6 +4,7 @@ import { preview } from 'docs/components/preview';
 import type { Renderable, Router } from 'docs/app';
 import type { Page } from 'docs/types';
 import header from 'docs/components/page/header';
+import layout from 'docs/components/layout';
 
 import '@esportsplus/ui/components/link/scss/index.scss';
 import '@esportsplus/ui/components/section/scss/index.scss';
@@ -32,7 +33,7 @@ const managers = ['pnpm', 'npm', 'yarn', 'bun'] as const;
 const styles = "@use '@esportsplus/ui/button.scss';\n@use '@esportsplus/ui/theme.scss';";
 
 
-const responder = (): Page => {
+const page = (): Page => {
     let state = reactive({ manager: 'pnpm' as typeof managers[number] }),
         sections: Section[] = [
             {
@@ -117,6 +118,5 @@ const responder = (): Page => {
 };
 
 
-export { responder };
 export default (r: Router) => r
-    .get({ name: 'installation', path: '/installation', responder })
+    .get({ name: 'installation', path: '/installation', responder: () => layout(page()) })

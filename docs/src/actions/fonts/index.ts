@@ -4,6 +4,7 @@ import type { Router } from 'docs/app';
 import type { Page, TocItem } from 'docs/types';
 import 'docs/actions/fonts/scss/index.scss';
 import header from 'docs/components/page/header';
+import layout from 'docs/components/layout';
 
 
 type Face = {
@@ -98,7 +99,7 @@ function families(): Family[] {
 }
 
 
-const responder = (): Page => {
+const page = (): Page => {
     let rendered = families(),
         toc: TocItem[] = rendered.map((family) => ({ id: family.id, label: family.family }));
 
@@ -148,4 +149,4 @@ const responder = (): Page => {
 
 
 export default (r: Router) => r
-    .get({ name: 'fonts', path: '/fonts', responder });
+    .get({ name: 'fonts', path: '/fonts', responder: () => layout(page()) });

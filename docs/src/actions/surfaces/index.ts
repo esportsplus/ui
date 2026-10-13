@@ -1,4 +1,5 @@
 import header from 'docs/components/page/header';
+import layout from 'docs/components/layout';
 import { html, reactive, uri } from 'docs/app';
 import { range } from '@esportsplus/ui/components';
 import { preview } from 'docs/components/preview';
@@ -119,7 +120,7 @@ function viewer(state: { high: number, low: number }) {
 }
 
 
-const responder = (): Page => {
+const page = (): Page => {
     let state = reactive({ high: 4, low: 0 });
 
     return {
@@ -235,4 +236,4 @@ const responder = (): Page => {
 
 
 export default (r: Router) => r
-    .get({ name: 'surfaces', path: '/surfaces', responder });
+    .get({ name: 'surfaces', path: '/surfaces', responder: () => layout(page()) });

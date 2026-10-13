@@ -8,12 +8,11 @@ import type { Request } from 'docs/app';
 import 'docs/components/sidebar/scss/index.scss';
 
 
-const release = version.split('.').slice(0, 2).join('.');
+let release = version.split('.').slice(0, 2).join('.'),
+    state = reactive({ active: !matchMedia('(max-width: 1024px)').matches });
 
-const state = reactive({ active: !matchMedia('(max-width: 1024px)').matches });
 
-
-export default (request: Request) => {
+export default Object.assign((request: Request) => {
     let navigation = sections(),
         routes = new Set(navigation.flatMap((section) => section.links.map(key)));
 
@@ -106,7 +105,4 @@ export default (request: Request) => {
             </div>
         </aside>
     `;
-};
-
-
-export { state };
+}, { state });

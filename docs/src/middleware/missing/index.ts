@@ -3,6 +3,7 @@ import { modifiers } from 'docs/data/modifiers';
 import { entries } from 'docs/examples';
 import type { Request, Responder, RouteName } from 'docs/app';
 import header from 'docs/components/page/header';
+import layout from 'docs/components/layout';
 
 
 const lookup: Partial<Record<RouteName, { label: string, names: Set<string> }>> = {
@@ -19,12 +20,12 @@ export default (request: Request, next: Responder) => {
         return next(request);
     }
 
-    return {
+    return layout({
         render: () => html`
             <div class='page'>
                 ${header({ title: 'Not found', description: `No ${target.label} named "${slug}".` })}
             </div>
         `,
         toc: []
-    };
+    });
 };

@@ -1,4 +1,5 @@
 import header from 'docs/components/page/header';
+import layout from 'docs/components/layout';
 import { html, uri } from 'docs/app';
 import { themes, themeTokens, tokenSources, WEIGHTS } from 'docs/data/scss';
 import { pickers } from 'docs/actions/themes/pickers';
@@ -89,7 +90,7 @@ function tokens() {
 }
 
 
-const responder = (): Page => {
+const page = (): Page => {
     let resolved = { dark: values('dark'), light: values('light') },
         source = { dark: sources('dark'), light: sources('light') };
 
@@ -179,4 +180,4 @@ const responder = (): Page => {
 
 
 export default (r: Router) => r
-    .get({ name: 'themes', path: '/themes', responder });
+    .get({ name: 'themes', path: '/themes', responder: () => layout(page()) });

@@ -1,7 +1,6 @@
 import type { Next, Request as Req, Router as R } from '@esportsplus/routing/client';
 import { router } from '@esportsplus/routing/client';
 import type { Renderable } from '@esportsplus/template';
-import type { Page } from 'docs/types';
 import components from 'docs/actions/components';
 import modifiers from 'docs/actions/modifiers';
 import fallback from 'docs/actions/fallback';
@@ -12,7 +11,7 @@ import themes from 'docs/actions/themes';
 import tokens from 'docs/actions/tokens/index';
 
 
-type Response = Page | Renderable<unknown>;
+type Response = Renderable<unknown>;
 
 type Request = Req<Response>;
 

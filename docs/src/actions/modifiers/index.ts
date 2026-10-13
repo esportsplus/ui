@@ -1,5 +1,6 @@
 import { modifiers } from 'docs/data/modifiers';
 import directory from 'docs/components/directory';
+import layout from 'docs/components/layout';
 import type { Router } from 'docs/app';
 import type { Item } from 'docs/components/directory';
 import 'docs/actions/modifiers/scss/index.scss';
@@ -13,13 +14,13 @@ const items: Item[] = modifiers.map((modifier) => ({
 }));
 
 
-const page = (slug?: string) => directory({
+const page = (slug?: string) => layout(directory({
     description: 'Behavior added onto existing elements, each a script that sets up what its classes need.',
     items,
     route: 'modifiers',
     slug,
     title: 'Modifiers'
-});
+}));
 
 
 export default (r: Router) => r

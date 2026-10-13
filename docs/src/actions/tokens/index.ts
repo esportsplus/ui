@@ -5,6 +5,7 @@ import check from '@esportsplus/ui/svg/check.svg';
 import copy from '@esportsplus/ui/svg/copy.svg';
 import toast from 'docs/components/toaster';
 import header from 'docs/components/page/header';
+import layout from 'docs/components/layout';
 import type { Renderable, Router } from 'docs/app';
 import type { Page, TocItem } from 'docs/types';
 import 'docs/actions/tokens/scss/index.scss';
@@ -239,7 +240,7 @@ function tokens(group: Group): Token[] {
 }
 
 
-const responder = (): Page => {
+const page = (): Page => {
     let rendered = groups
             .map((group) => ({ group, tokens: tokens(group) }))
             .filter((entry) => entry.tokens.length > 0),
@@ -289,4 +290,4 @@ const responder = (): Page => {
 
 
 export default (r: Router) => r
-    .get({ name: 'tokens', path: '/tokens', responder });
+    .get({ name: 'tokens', path: '/tokens', responder: () => layout(page()) });

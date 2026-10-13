@@ -10,6 +10,7 @@ its color palettes, contrast calculation, clipboard feedback, and swatch styles.
 | --- | --- |
 | `code` | TypeScript syntax colors, line numbers, preserved source whitespace, scrolling, and a floating copy control |
 | `directory` | Components and CSS Utilities index grids of library card links, and their detail pages |
+| `layout` | A page's main content, previous/next cards and scroll-spied TOC; every action returns its page through it |
 | `page` | Docs page and section layout, and empty states |
 | `page/header` | Library page title and subtitle, optional breadcrumb and note, and previous/next navigation |
 | `preview` | Example frames and inline Preview/Code controls with the library highlight; render factories mount near the viewport and keep their state after mounting. Its `code` option shows source flush in the stage through the library `editor.viewer`, with the copy control floating top right |
@@ -25,10 +26,10 @@ global shell and shared page/table styles. Use the library's components and CSS
 variables for base behavior and appearance; docs styles add only docs-specific
 layout or presentation.
 
-Routes return page data. `middleware/layout/index.ts` lists the routes whose responses
-are wrapped in the shared main content and TOC layout, including the fallback.
-The TOC is the library `nav.toc`, driven by a `nav.spy` scroll spy over the page's headings.
-The middleware owns that markup and its styles in `middleware/layout/scss/index.scss`.
+Every response is renderable. Actions build their page data and pass it to `layout`,
+which wraps it in the shared main content, previous/next cards and TOC, and return
+that; the not-found middleware does the same. The TOC is the library `nav.toc`,
+driven by a `nav.spy` scroll spy over the page's headings.
 
 Shell classes use component names such as `.page` and `.sidebar`.
 The sidebar and routed content share the viewer shell and one open state. The

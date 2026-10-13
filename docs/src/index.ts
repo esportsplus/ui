@@ -5,26 +5,23 @@ import { fallback, html, middleware, render } from 'docs/app';
 import { toaster } from 'docs/components/toaster';
 import { modal } from 'docs/components/search';
 import { themeSwitcher } from 'docs/components/theme-switcher';
-import sidebar, { state as sidebarState } from 'docs/components/sidebar';
-import 'docs/data/theme';
-import layout from 'docs/middleware/layout/index';
+import sidebar from 'docs/components/sidebar';
 import missing from 'docs/middleware/missing/index';
 import redirect from 'docs/middleware/redirect/index';
 import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
+import 'docs/data/theme';
 
 
 render(
     document.body,
     scrollbar(),
-    () => html`${middleware(
+    () => middleware(
         (request, next) => html`
             ${modal()}
             ${themeSwitcher()}
             ${toaster.content}
 
-            <div
-                class='viewer-body ${() => sidebarState.active && '--sidebar-open'}'
-            >
+            <div class='viewer-body ${() => sidebar.state.active && '--sidebar-open'}'>
                 ${sidebar(request)}
                 <div class='viewer-content'>
                     ${() => {
@@ -37,8 +34,7 @@ render(
         `,
         middleware.match(fallback),
         redirect,
-        layout,
         missing,
         middleware.dispatch
-    )}`
+    )
 );

@@ -2,35 +2,13 @@ import { nav, pagination } from '@esportsplus/ui/components';
 import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
 import { html } from 'docs/app';
 import { adjacent } from 'docs/data/nav';
-import type { Request, Responder, RouteName } from 'docs/app';
 import type { Page } from 'docs/types';
-import 'docs/middleware/layout/scss/index.scss';
+import 'docs/components/layout/scss/index.scss';
 
 
-const routes: readonly (RouteName | null)[] = [
-    'components',
-    'components.detail',
-    'modifiers',
-    'modifiers.detail',
-    'fonts',
-    'installation',
-    'surfaces',
-    'themes',
-    'tokens'
-];
-
-
-export default (request: Request, next: Responder) => {
-    let response = next(request),
-        route = request.data.route?.name as typeof routes[0];
-
-    if (routes.indexOf(route) === -1) {
-        return response;
-    }
-
-    let page = response as Page,
-        disconnect = () => {},
-        spy = nav.spy( page.toc.map((item) => item.id) );
+export default (page: Page) => {
+    let disconnect = () => {},
+        spy = nav.spy(page.toc.map((item) => item.id));
 
     return html`
         <main class='main'>
