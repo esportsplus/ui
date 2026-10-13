@@ -7,20 +7,22 @@
         // An `auto` size can't feed the proportional radius.
         --scrollbar-border-radius: 3px;
         --scrollbar-offset: 0px;
+        --scrollbar-growth: 0px;
         --scrollbar-size: auto;
+        --scrollbar-track-size: 0px;
         --scrollbar-width: auto;
     }
 
     &-blur {
-        --scroll-blur: var(--blur-400);
+        --scrollbar-blur: var(--blur-400);
         // Move the painted edges over scrollport padding without changing the sticky constraints or layout.
-        --scroll-blur-offset-end: 0px;
-        --scroll-blur-offset-start: 0px;
-        --scroll-blur-size: 3lh;
+        --scrollbar-blur-offset-end: 0px;
+        --scrollbar-blur-offset-start: 0px;
+        --scrollbar-blur-size: 3lh;
     }
 
     &-fade {
-        --scroll-fade-size: 2lh;
+        --scrollbar-fade-size: 2lh;
     }
 }
 

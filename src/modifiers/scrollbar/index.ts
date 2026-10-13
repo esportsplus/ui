@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { observer, type Observer } from '~/shared/resize';
-import { createOverlay } from '../glass';
+import { overlay } from '../glass';
 import './scss/index.scss';
 
 
@@ -119,23 +119,23 @@ function edges(size: string, horizontal: boolean) {
         onscroll: function(this: HTMLElement) {
             update(this);
         },
-        style: () => state.toggle !== undefined && `--scroll-overflow-end: ${overflow.end}; --scroll-overflow-start: ${overflow.start};`
+        style: () => state.toggle !== undefined && `--scrollbar-overflow-end: ${overflow.end}; --scrollbar-overflow-start: ${overflow.start};`
     };
 }
 
 
 function blur(horizontal: boolean) {
-    let scroll = edges('--scroll-blur-size', horizontal);
+    let scroll = edges('--scrollbar-blur-size', horizontal);
 
     return {
         ...scroll,
         onconnect: (element: HTMLElement) => {
             if (!element.querySelector(':scope > .--scrollbar-blur-start')) {
-                element.prepend(createOverlay(element, 'progressive', '--scrollbar-blur-edge --scrollbar-blur-start'));
+                element.prepend(overlay('progressive', '--scrollbar-blur-edge --scrollbar-blur-start'));
             }
 
             if (!element.querySelector(':scope > .--scrollbar-blur-end')) {
-                element.appendChild(createOverlay(element, 'progressive', '--scrollbar-blur-edge --scrollbar-blur-end'));
+                element.appendChild(overlay('progressive', '--scrollbar-blur-edge --scrollbar-blur-end'));
             }
 
             scroll.onconnect?.(element);
@@ -227,7 +227,7 @@ const scrollbar = ({
         effect = blurred
             ? blur(horizontal)
             : faded
-                ? edges('--scroll-fade-size', horizontal)
+                ? edges('--scrollbar-fade-size', horizontal)
                 : {},
         grab = dragged ? drag(dragged === true ? 'both' : dragged) : null;
 

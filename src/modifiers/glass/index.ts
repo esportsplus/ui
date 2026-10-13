@@ -1,3 +1,4 @@
+import { html } from '@esportsplus/template';
 import './scss/index.scss';
 
 
@@ -5,38 +6,39 @@ type GlassMode = 'uniform' | 'progressive';
 
 
 // Uniform glass uses one full-strength layer; progressive glass uses seven masked layers.
-function createOverlay(element: HTMLElement, mode: GlassMode = 'uniform', className = '') {
-    let overlay = element.ownerDocument.createElement('div');
-
-    overlay.className = className ? `--glass-blur ${className}` : '--glass-blur';
-    overlay.setAttribute('aria-hidden', 'true');
-
-    if (mode === 'progressive') {
-        overlay.classList.add('--glass-blur-progressive');
-    }
-
-    for (let i = 0, count = mode === 'progressive' ? 7 : 1; i < count; i++) {
-        overlay.appendChild(element.ownerDocument.createElement('span'));
-    }
-
-    return overlay;
-}
+const overlay = (mode: GlassMode = 'uniform', classes = '') => mode === 'progressive'
+    ? html`
+        <div aria-hidden='true' class='--glass-blur --glass-blur-progressive ${classes}'>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    `
+    : html`
+        <div aria-hidden='true' class='--glass-blur ${classes}'>
+            <span></span>
+        </div>
+    `;
 
 
 export default (mode: GlassMode = 'uniform') => ({
     class: mode === 'progressive' ? ['--glass', '--glass-progressive'] : ['--glass'],
     onconnect: (element: HTMLElement) => {
-        let overlay = element.querySelector(':scope > .--glass-blur');
+        let container = element.querySelector(':scope > .--glass-blur');
 
-        if (!overlay) {
-            element.appendChild( createOverlay(element, mode) );
+        if (!container) {
+            element.appendChild( overlay(mode) );
         }
-        else if (overlay.classList.contains('--glass-blur-progressive') !== (mode === 'progressive')) {
-            overlay.replaceWith( createOverlay(element, mode) );
+        else if (container.classList.contains('--glass-blur-progressive') !== (mode === 'progressive')) {
+            container.replaceWith( overlay(mode) );
         }
     }
 });
 
 
-export { createOverlay };
+export { overlay };
 export type { GlassMode };

@@ -10,7 +10,7 @@
 }
 
 .--glass {
-    backdrop-filter: blur(var(--blur));
+    backdrop-filter: blur(var(--glass-blur));
 
     &-blur {
         border-radius: inherit;
@@ -22,7 +22,7 @@
         z-index: -1;
 
         // Seven overlapping masks and blur steps from https://www.spaceui.one/components/frost-blurred.
-        // --blur is the uniform radius or the strongest progressive radius.
+        // --glass-blur is the uniform radius or the strongest progressive radius.
         &.--glass-blur-progressive {
             $steps: 0.084, 0.125, 0.214, 0.386, 0.664, 0.986, 1.15;
             $count: list.length($steps);
@@ -42,9 +42,9 @@
                 }
 
                 > span:nth-child(#{$layer}) {
-                    -webkit-backdrop-filter: blur(calc(var(--blur, 24px) * #{math.div(list.nth($steps, $layer), 1.15)}));
+                    -webkit-backdrop-filter: blur(calc(var(--glass-blur, 24px) * #{math.div(list.nth($steps, $layer), 1.15)}));
                     -webkit-mask-image: $mask;
-                    backdrop-filter: blur(calc(var(--blur, 24px) * #{math.div(list.nth($steps, $layer), 1.15)}));
+                    backdrop-filter: blur(calc(var(--glass-blur, 24px) * #{math.div(list.nth($steps, $layer), 1.15)}));
                     mask-image: $mask;
                     z-index: $layer;
                 }
@@ -52,8 +52,8 @@
         }
 
         > span {
-            -webkit-backdrop-filter: blur(var(--blur, 24px));
-            backdrop-filter: blur(var(--blur, 24px));
+            -webkit-backdrop-filter: blur(var(--glass-blur, 24px));
+            backdrop-filter: blur(var(--glass-blur, 24px));
             border-radius: inherit;
             inset: 0;
             opacity: var(--glass-opacity, 1);

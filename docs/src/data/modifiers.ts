@@ -7,7 +7,7 @@ import type { Modifier } from 'docs/types';
 
 const modifiers: Modifier[] = [
     {
-        description: 'Uniform or progressive backdrop blur; glass() adds a uniform overlay, glass(\'progressive\') adds seven masked layers, and --blur sets the blur radius.',
+        description: 'Uniform or progressive backdrop blur; glass() adds a uniform overlay, glass(\'progressive\') adds seven masked layers, and --glass-blur sets the blur radius.',
         name: 'glass',
         variants: [
             {

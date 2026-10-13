@@ -3,25 +3,25 @@
 
 // The sizes are registered so they compute to pixels, which the fallback reads as its ramp and the animation
 // ranges accept; the fade lengths so the scroll-driven animations below can interpolate them.
-@property --scroll-blur-size {
+@property --scrollbar-blur-size {
     inherits: true;
     initial-value: 0px;
     syntax: '<length>';
 }
 
-@property --scroll-fade-end {
+@property --scrollbar-fade-end {
     inherits: false;
     initial-value: 0px;
     syntax: '<length>';
 }
 
-@property --scroll-fade-size {
+@property --scrollbar-fade-size {
     inherits: true;
     initial-value: 0px;
     syntax: '<length>';
 }
 
-@property --scroll-fade-start {
+@property --scrollbar-fade-start {
     inherits: false;
     initial-value: 0px;
     syntax: '<length>';
@@ -31,13 +31,6 @@
 .--scrollbar {
     overflow: var(--scrollbar-overflow, auto);
     scrollbar-gutter: var(--scrollbar-gutter, stable);
-
-    // An `auto` size has no width to inset from, so the platform bar paints at full width. Its width is unknown,
-    // so a fade covers it rather than leaving a strip of the wrong size.
-    &-auto {
-        --scrollbar-growth: 0px;
-        --scrollbar-track-size: 0px;
-    }
 
     // Sticky edges pin to the scrollport and cancel their own size with a negative margin. Scoped under the
     // scroller to outrank the overlay's own absolute '--glass-blur' placement whatever order the stylesheets load
@@ -55,46 +48,46 @@
 
             > .--scrollbar-blur-edge {
                 height: auto;
-                width: var(--scroll-blur-size);
+                width: var(--scrollbar-blur-size);
             }
 
             > .--scrollbar-blur-end {
                 --glass-direction: to right;
                 inset: auto 0 auto auto;
-                margin: 0 0 0 calc(var(--scroll-blur-size) * -1);
-                translate: var(--scroll-blur-offset-end) 0;
+                margin: 0 0 0 calc(var(--scrollbar-blur-size) * -1);
+                translate: var(--scrollbar-blur-offset-end) 0;
             }
 
             > .--scrollbar-blur-start {
                 --glass-direction: to left;
                 inset: auto auto auto 0;
-                margin: 0 calc(var(--scroll-blur-size) * -1) 0 0;
-                translate: var(--scroll-blur-offset-start) 0;
+                margin: 0 calc(var(--scrollbar-blur-size) * -1) 0 0;
+                translate: var(--scrollbar-blur-offset-start) 0;
             }
         }
 
         > .--scrollbar-blur-edge {
-            --blur: var(--scroll-blur);
+            --glass-blur: var(--scrollbar-blur);
             flex-shrink: 0;
-            height: var(--scroll-blur-size);
+            height: var(--scrollbar-blur-size);
             position: sticky;
             z-index: 1;
         }
 
         > .--scrollbar-blur-end {
             --glass-direction: to bottom;
-            --glass-opacity: calc(var(--scroll-overflow-end, 0) * 0.9);
+            --glass-opacity: calc(var(--scrollbar-overflow-end, 0) * 0.9);
             inset: auto 0 0;
-            margin-top: calc(var(--scroll-blur-size) * -1);
-            translate: 0 var(--scroll-blur-offset-end);
+            margin-top: calc(var(--scrollbar-blur-size) * -1);
+            translate: 0 var(--scrollbar-blur-offset-end);
         }
 
         > .--scrollbar-blur-start {
             --glass-direction: to top;
-            --glass-opacity: calc(var(--scroll-overflow-start, 0) * 0.9);
+            --glass-opacity: calc(var(--scrollbar-overflow-start, 0) * 0.9);
             inset: 0 0 auto;
-            margin-bottom: calc(var(--scroll-blur-size) * -1);
-            translate: 0 var(--scroll-blur-offset-start);
+            margin-bottom: calc(var(--scrollbar-blur-size) * -1);
+            translate: 0 var(--scrollbar-blur-offset-start);
         }
 
         // The scroller is the edges' nearest scroll container, so they follow its own scroll. Each edge reaches
@@ -106,13 +99,13 @@
 
             > .--scrollbar-blur-end {
                 animation: scrollbar-blur-end 1ms linear both;
-                animation-range: calc(100% - var(--scroll-blur-size)) 100%;
+                animation-range: calc(100% - var(--scrollbar-blur-size)) 100%;
                 animation-timeline: scroll(nearest);
             }
 
             > .--scrollbar-blur-start {
                 animation: scrollbar-blur-start 1ms linear both;
-                animation-range: 0px var(--scroll-blur-size);
+                animation-range: 0px var(--scrollbar-blur-size);
                 animation-timeline: scroll(nearest);
             }
         }
@@ -147,13 +140,13 @@
         user-select: none;
     }
 
-    // Unsupported browsers get --scroll-overflow-* from the scrollbar.fade() fallback instead of the timeline. The
+    // Unsupported browsers get --scrollbar-overflow-* from the scrollbar.fade() fallback instead of the timeline. The
     // mask spans the scrollbar too, so a second, opaque layer keeps the custom bar's strip out of the fade.
     &-fade {
-        --scroll-fade-end: calc(var(--scroll-fade-size) * var(--scroll-overflow-end, 0));
-        --scroll-fade-start: calc(var(--scroll-fade-size) * var(--scroll-overflow-start, 0));
+        --scrollbar-fade-end: calc(var(--scrollbar-fade-size) * var(--scrollbar-overflow-end, 0));
+        --scrollbar-fade-start: calc(var(--scrollbar-fade-size) * var(--scrollbar-overflow-start, 0));
         mask-image:
-            linear-gradient(to bottom, transparent, #000 var(--scroll-fade-start), #000 calc(100% - var(--scroll-fade-end)), transparent),
+            linear-gradient(to bottom, transparent, #000 var(--scrollbar-fade-start), #000 calc(100% - var(--scrollbar-fade-end)), transparent),
             linear-gradient(#000 0 0);
         mask-position: left, right;
         mask-repeat: no-repeat;
@@ -161,7 +154,7 @@
 
         &.--scrollbar-horizontal {
             mask-image:
-                linear-gradient(to right, transparent, #000 var(--scroll-fade-start), #000 calc(100% - var(--scroll-fade-end)), transparent),
+                linear-gradient(to right, transparent, #000 var(--scrollbar-fade-start), #000 calc(100% - var(--scrollbar-fade-end)), transparent),
                 linear-gradient(#000 0 0);
             mask-position: top, bottom;
             mask-size: 100% calc(100% - var(--scrollbar-track-size, 0px)), 100% var(--scrollbar-track-size, 0px);
@@ -171,7 +164,7 @@
         // content is.
         @supports (animation-timeline: scroll()) {
             animation: scrollbar-fade-end 1ms linear both, scrollbar-fade-start 1ms linear both;
-            animation-range: calc(100% - var(--scroll-fade-size)) 100%, 0px var(--scroll-fade-size);
+            animation-range: calc(100% - var(--scrollbar-fade-size)) 100%, 0px var(--scrollbar-fade-size);
             animation-timeline: scroll(self);
 
             &.--scrollbar-horizontal {
@@ -181,21 +174,21 @@
 
         @keyframes scrollbar-fade-end {
             from {
-                --scroll-fade-end: var(--scroll-fade-size);
+                --scrollbar-fade-end: var(--scrollbar-fade-size);
             }
 
             to {
-                --scroll-fade-end: 0px;
+                --scrollbar-fade-end: 0px;
             }
         }
 
         @keyframes scrollbar-fade-start {
             from {
-                --scroll-fade-start: 0px;
+                --scrollbar-fade-start: 0px;
             }
 
             to {
-                --scroll-fade-start: var(--scroll-fade-size);
+                --scrollbar-fade-start: var(--scrollbar-fade-size);
             }
         }
     }
