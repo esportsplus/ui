@@ -1,7 +1,39 @@
+@use 'sass:list';
 @use '/tokens';
 @use 'css-utilities/anchor';
 @use 'css-utilities/surface';
 @use 'variables';
+
+
+// How far the edge fill reaches past each placement's sides, top, right, bottom and left.
+$edge-fill: (
+    e: (0 50vw 0 0),
+    n: (50vh 0 0 0),
+    ne: (50vh 50vw 0 0),
+    nw: (50vh 0 0 50vw),
+    s: (0 0 50vh 0),
+    se: (0 50vw 50vh 0),
+    sw: (0 0 50vh 50vw),
+    w: (0 0 0 50vw)
+);
+
+
+// Each side that reaches out, 1px deeper so it tucks under the box's edge.
+@function edge-fill-width($sides) {
+    $widths: ();
+
+    @each $side in $sides {
+        @if $side == 0 {
+            $widths: list.append($widths, 0);
+        }
+        @else {
+            $widths: list.append($widths, calc(#{$side} + 1px));
+        }
+    }
+
+    @return $widths;
+}
+
 
 .overlay {
     @extend %anchor;
@@ -231,45 +263,21 @@
         }
     }
 
-    // Border paint reaches outside a scrolling surface without adding overflow or using its pseudo-elements.
-    // Matching width and outset keeps the fill entirely outside the original border box.
+    // Border paint reaches outside a scrolling surface without adding overflow or using its pseudo-elements. The
+    // fill reaches 1px past its outset into the box, under the content: two paints meeting on one fractional edge
+    // each antialias it, and the page shows through the seam.
     &.overlay--edge-fill {
         border-image-outset: var(--edge-fill);
         border-image-repeat: stretch;
         border-image-slice: 1;
         border-image-source: linear-gradient(var(--edge-background), var(--edge-background));
-        border-image-width: var(--edge-fill);
+        border-image-width: var(--edge-fill-width);
 
-        &.overlay--e {
-            --edge-fill: 0 50vw 0 0;
-        }
-
-        &.overlay--n {
-            --edge-fill: 50vh 0 0 0;
-        }
-
-        &.overlay--ne {
-            --edge-fill: 50vh 50vw 0 0;
-        }
-
-        &.overlay--nw {
-            --edge-fill: 50vh 0 0 50vw;
-        }
-
-        &.overlay--s {
-            --edge-fill: 0 0 50vh 0;
-        }
-
-        &.overlay--se {
-            --edge-fill: 0 50vw 50vh 0;
-        }
-
-        &.overlay--sw {
-            --edge-fill: 0 0 50vh 50vw;
-        }
-
-        &.overlay--w {
-            --edge-fill: 0 0 0 50vw;
+        @each $placement, $sides in $edge-fill {
+            &.overlay--#{$placement} {
+                --edge-fill: #{$sides};
+                --edge-fill-width: #{edge-fill-width($sides)};
+            }
         }
     }
 
