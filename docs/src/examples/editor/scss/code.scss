@@ -1,6 +1,7 @@
 @use 'css-utilities/background';
 @use 'css-utilities/border';
 @use 'css-utilities/color';
+@use 'css-utilities/group';
 @use 'css-utilities/surface';
 
 
@@ -23,10 +24,10 @@
     }
 
     &-actions {
+        @extend %group;
+        --gap-horizontal: var(--size-400);
+        --gap-vertical: var(--size-200);
         align-items: center;
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--size-200) var(--size-400);
     }
 
     &-caption {

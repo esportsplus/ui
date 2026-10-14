@@ -1,4 +1,5 @@
 @use 'css-utilities/background';
+@use 'css-utilities/group';
 @use 'css-utilities/surface';
 
 
@@ -293,13 +294,13 @@
         }
 
         &-controls {
-            @extend %surface-raise;
+            @extend %group, %surface-raise;
+            --gap-horizontal: calc(var(--size-100) / 4);
+            --gap-vertical: calc(var(--size-100) / 4);
             background: var(--surface-background-default);
             border-radius: var(--border-radius-600);
             bottom: 16px;
             box-shadow: 0 0 0 1px var(--surface-border-default), 0 6px 16px -8px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 2.2));
-            display: flex;
-            gap: calc(var(--size-100) / 4);
             left: 50%;
             padding: calc(var(--size-100) / 2);
             position: absolute;

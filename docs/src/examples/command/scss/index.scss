@@ -1,3 +1,4 @@
+@use 'css-utilities/group';
 .command-demo {
     align-items: center;
     display: flex;
@@ -5,9 +6,9 @@
     gap: var(--size-300);
 
     &-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--size-300);
+        @extend %group;
+        --gap-horizontal: var(--size-300);
+        --gap-vertical: var(--size-300);
         justify-content: center;
     }
 

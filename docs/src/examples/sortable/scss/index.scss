@@ -1,4 +1,5 @@
 @use 'css-utilities/border';
+@use 'css-utilities/group';
 @use 'css-utilities/surface';
 
 
@@ -174,8 +175,9 @@
     }
 
     &-toolbar {
+        @extend %group;
+        --gap-horizontal: var(--size-200);
+        --gap-vertical: var(--size-200);
         align-items: center;
-        display: flex;
-        gap: var(--size-200);
     }
 }

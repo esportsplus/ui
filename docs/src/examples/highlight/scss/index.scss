@@ -1,5 +1,6 @@
 @use 'css-utilities/background';
 @use 'css-utilities/flex';
+@use 'css-utilities/group';
 
 
 // A pill that glides under the pointer and a line whose leading end outruns the tail, stretching toward the new tab
@@ -58,9 +59,10 @@
     }
 
     &-tabs {
+        @extend %group;
+        --gap-horizontal: calc(var(--size-100) / 4);
+        --gap-vertical: calc(var(--size-100) / 4);
         border-bottom: var(--border-width-400) solid var(--surface-border-default);
-        display: flex;
-        gap: calc(var(--size-100) / 4);
         padding-inline: calc(var(--size-100) / 4);
 
         &--vertical {

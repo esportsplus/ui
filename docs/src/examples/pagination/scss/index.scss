@@ -1,5 +1,6 @@
 @use 'css-utilities/background';
 @use 'css-utilities/color';
+@use 'css-utilities/group';
 @use 'css-utilities/surface';
 
 
@@ -37,9 +38,10 @@
 
     // The toggle sits on the right with a matching spacer on the left, so the dots stay centered under the cards.
     &-controls {
+        @extend %group;
+        --gap-horizontal: var(--size-400);
+        --gap-vertical: var(--size-400);
         align-items: center;
-        display: flex;
-        gap: var(--size-400);
     }
 
     &-icon {

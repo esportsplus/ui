@@ -1,6 +1,7 @@
 @use 'css-utilities/background';
 @use 'css-utilities/color';
 @use 'css-utilities/flex';
+@use 'css-utilities/group';
 @use 'css-utilities/surface';
 
 
@@ -334,8 +335,10 @@
 
 // A row, or column, of buttons delegating to one shared tooltip.
 .tooltip-toolbar-demo {
+    @extend %group;
+    --gap-horizontal: var(--size-200);
+    --gap-vertical: var(--size-200);
     display: inline-flex;
-    gap: var(--size-200);
 
     &--column {
         flex-direction: column;

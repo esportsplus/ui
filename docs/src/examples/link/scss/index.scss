@@ -1,10 +1,12 @@
+@use 'css-utilities/group';
 @use '../../../../../tokens.scss';
 
 // Tab-style links over a rule; the highlight's line sits on that rule, so it reads as the active link's underline.
 .link-demo-group {
+    @extend %group;
+    --gap-horizontal: calc(var(--size-100) / 4);
+    --gap-vertical: calc(var(--size-100) / 4);
     border-bottom: var(--border-width-400) solid var(--surface-border-default);
-    display: flex;
-    gap: calc(var(--size-100) / 4);
 
     &--vertical {
         border-bottom: 0;

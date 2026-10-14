@@ -1,5 +1,6 @@
 @use 'css-utilities/background';
 @use 'css-utilities/color';
+@use 'css-utilities/group';
 @use 'css-utilities/surface';
 
 
@@ -23,8 +24,9 @@
     }
 
     &-packages {
-        display: flex;
-        gap: calc(var(--size-100) / 4);
+        @extend %group;
+        --gap-horizontal: calc(var(--size-100) / 4);
+        --gap-vertical: calc(var(--size-100) / 4);
         margin: calc(var(--size-100) * -1) 0;
 
         // Declares its own surface colors, so they resolve at its level rather than inheriting the row's.

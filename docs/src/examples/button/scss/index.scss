@@ -1,16 +1,19 @@
 @use 'css-utilities/background';
 @use 'css-utilities/border';
 @use 'css-utilities/color';
+@use 'css-utilities/group';
 @use 'css-utilities/surface';
 
 
 // A segmented control: the active button rests on a lowered pill, which the highlight glides between buttons. Each
 // button fills itself on hover and press from the same lowered level.
 .button-demo-group {
+    @extend %group;
+    --gap-horizontal: calc(var(--size-100) / 4);
+    --gap-vertical: calc(var(--size-100) / 4);
     align-items: center;
     border-radius: var(--border-radius-600);
     display: inline-flex;
-    gap: calc(var(--size-100) / 4);
     padding: calc(var(--size-100) / 2);
 
     &-button.button {
