@@ -27,8 +27,8 @@
     @each $name in map.keys(tokens.$color) {
         @include shared.color-weights(
             $name,
-            map.get(tokens.$themes, light, surface, color),
-            map.get(tokens.$themes, dark, surface, color)
+            map.get(tokens.$themes, light, weights, color),
+            map.get(tokens.$themes, dark, weights, color)
         );
     }
 
