@@ -11,31 +11,31 @@
         --background-pressed: var(--background-default);
     }
 
+    &-state {
+        --background: var(--background-default);
+        --background-active: var(--background-default);
+        --background-default: transparent;
+        --background-hover: var(--background-default);
+        --background-pressed: var(--background-default);
+
+        @include tokens.state(active) {
+            --background: var(--background-active);
+        }
+
+        @include tokens.state(hover) {
+            --background: var(--background-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --background: var(--background-pressed);
+        }
+    }
+
     // The surface's own fill and its states; the level is set apart, by '%surface' and its kin.
     &-surface {
         --background-active: var(--surface-background-active);
         --background-default: var(--surface-background-default);
         --background-hover: var(--surface-background-hover);
         --background-pressed: var(--surface-background-pressed);
-    }
-}
-
-%background-state {
-    --background: var(--background-default);
-    --background-active: var(--background-default);
-    --background-default: transparent;
-    --background-hover: var(--background-default);
-    --background-pressed: var(--background-default);
-
-    @include tokens.state(active) {
-        --background: var(--background-active);
-    }
-
-    @include tokens.state(hover) {
-        --background: var(--background-hover);
-    }
-
-    @include tokens.state(pressed) {
-        --background: var(--background-pressed);
     }
 }
