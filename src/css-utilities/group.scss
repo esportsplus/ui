@@ -1,0 +1,7 @@
+@use './flex';
+
+%group {
+    @extend %flex-start;
+    gap: var(--gap-vertical) var(--gap-horizontal);
+    position: relative;
+}
