@@ -43,18 +43,37 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 // the shadow alone carries elevation, and dark ones stop 6 levels above it. Chroma keeps the page's tint on its hue,
 // scaled with the distance from white in light and from black in dark.
 @function surface-background($level) {
+    @return light-dark(#{surface-background-in($level, light)}, #{surface-background-in($level, dark)});
+}
+
+// The background at a level in one mode, for colors that read a different level in each.
+@function surface-background-in($level, $mode) {
+    @if $mode == light {
+        $light: 'clamp(0, l + #{level-offset($level, light)}, 1)';
+
+        @return 'oklch(from var(--color-surface) #{$light} #{light-chroma($light)} h)';
+    }
+
     $dark: 'clamp(0, l + #{level-offset($level, dark)}, l + #{6 * ladder-step(dark, raised)})';
-    $light: 'clamp(0, l + #{level-offset($level, light)}, 1)';
+
+    @return 'oklch(from var(--color-surface) #{$dark} calc(c * #{$dark} / max(l, 0.01)) h)';
+}
+
+// A primary fill on the surface it sits on: the mode's 'primary' levels from the surface, below it in light and above
+// it in dark, so it reads as a quiet fill set into the light page and lifted off the dark one.
+@function surface-primary() {
+    $dark: map.get(tokens.$themes, dark, surface, primary);
+    $light: map.get(tokens.$themes, light, surface, primary);
 
     @return light-dark(
-        #{'oklch(from var(--color-surface) #{$light} #{light-chroma($light)} h)'},
-        #{'oklch(from var(--color-surface) #{$dark} calc(c * #{$dark} / max(l, 0.01)) h)'}
+        #{surface-background-in('calc(var(--surface-level) - #{$light})', light)},
+        #{surface-background-in('calc(var(--surface-level) + #{$dark})', dark)}
     );
 }
 
-// The default background moved for a state, so it follows any background a component sets in its place: active and
+// A default background moved for a state, so it follows any background a component sets in its place: active and
 // hover lighter, pressed darker, in both modes.
-@function surface-shift($state) {
+@function surface-shift($state, $base: 'var(--surface-background-default)') {
     $sign: '+';
 
     @if $state == 'pressed' {
@@ -62,8 +81,8 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     }
 
     @return light-dark(
-        #{'oklch(from var(--surface-background-default) calc(l #{$sign} #{ladder-step(light, $state)}) c h)'},
-        #{'oklch(from var(--surface-background-default) calc(l #{$sign} #{ladder-step(dark, $state)}) c h)'}
+        #{'oklch(from #{$base} calc(l #{$sign} #{ladder-step(light, $state)}) c h)'},
+        #{'oklch(from #{$base} calc(l #{$sign} #{ladder-step(dark, $state)}) c h)'}
     );
 }
 
@@ -162,9 +181,9 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 
 // A layer's colors, read from its level: 0 the page, each surface a level above the one it sits in, in the states
 // components already name, following any background a component sets in its place. Active, hover and pressed step the
-// background as 'surface-shift()' sets. Each state's border is that state's background moved by the border step,
-// darker in light and lighter in dark. Another level is never a color to paint: an element reaches it by extending
-// '%surface' or one of its kin, so whatever sits in it reads its states from the level it shows.
+// background, and the primary fill, as 'surface-shift()' sets. Each state's border is that state's background moved by
+// the border step, darker in light and lighter in dark. Another level is never a color to paint: an element reaches it
+// by extending '%surface' or one of its kin, so whatever sits in it reads its states from the level it shows.
 @mixin surface-colors {
     --surface-background-active: #{surface-shift('active')};
     --surface-background-default: #{surface-background('var(--surface-level)')};
@@ -174,6 +193,10 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     --surface-border-default: #{surface-border('default')};
     --surface-border-hover: #{surface-border('hover')};
     --surface-border-pressed: #{surface-border('pressed')};
+    --surface-primary-active: #{surface-shift('active', 'var(--surface-primary-default)')};
+    --surface-primary-default: #{surface-primary()};
+    --surface-primary-hover: #{surface-shift('hover', 'var(--surface-primary-default)')};
+    --surface-primary-pressed: #{surface-shift('pressed', 'var(--surface-primary-default)')};
     --surface-shadow-active: var(--surface-shadow-hover);
     --surface-shadow-color: #{shadow-color('var(--surface-background-default)')};
 }

@@ -30,9 +30,11 @@ $colors: list.join(primary text, map.keys($color));
 //
 // 'surface' is the ladder in lightness points, every step moving the level's default the same way in both modes:
 // active, hover and each raised level lighter, pressed and each lowered level darker. 'border' moves each state's
-// background for that state's border, darker in light and lighter in dark. Its 'shadow' is a shadow falling on a
-// background: 'depth' the shadow color's lightness as a share of that background's, its chroma scaled alike, so a
-// shadow is the background deepened in its own hue; and 'opacity' the percent a Tailwind 10% shadow step takes.
+// background for that state's border, darker in light and lighter in dark. 'primary' counts levels, not points: how
+// far a primary fill sits from the surface it is on, below it in light and above it in dark, its states then stepped
+// from it as the surface's own are. Its 'shadow' is a shadow falling on a background: 'depth' the shadow color's
+// lightness as a share of that background's, its chroma scaled alike, so a shadow is the background deepened in its
+// own hue; and 'opacity' the percent a Tailwind 10% shadow step takes.
 //
 // 'weights' sets how far each color's 300 and 500 sit from its 400: 'color' in lightness points for the palette and
 // 'primary', lighter for hover and darker for press; 'text' as a contrast ratio, text 300 and 500 each holding it
@@ -50,6 +52,7 @@ $themes: (
             hover: 1,
             lowered: 2,
             pressed: 4,
+            primary: 2,
             raised: 2,
             shadow: (
                 depth: 0.24,
@@ -73,6 +76,7 @@ $themes: (
             hover: 0.5,
             lowered: 1,
             pressed: 2,
+            primary: 4,
             raised: 1,
             shadow: (
                 depth: 0.24,

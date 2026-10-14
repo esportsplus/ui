@@ -434,7 +434,9 @@ shadow at the layer's `--surface-shadow-weight`, a step on Tailwind v4's `shadow
 a step heavier on hover and a step lighter when pressed. The weight follows the level (lowered layers 0, dialogs 7);
 set it on a surface to pick another step, a fraction landing between two. A shadow takes the color of what it falls
 on, that background deepened in its own hue, at the mode's shadow `opacity`; `--surface-shadow-
-color` is that color for whatever casts onto a layer, for component shadows and scrims. A quiet fill, such as a track
+color` is that color for whatever casts onto a layer, for component shadows and scrims. `--surface-primary-{state}` is a
+primary fill on a layer, the mode's `primary` levels below it in light and above it in dark, its states stepped from it as
+the layer's own are. A quiet fill, such as a track
 or an inline code chip, is a surface of its own a level below what holds it. Dialogs reset the stack to level 1 wherever they open. Another level is never a color to paint: a
 component reaches it by extending `%surface-raise` or `%surface-lower` (one level up or down), `%surface` (moved by
 `--surface-step`, a signed whole number, 0 by default and never inherited) or `%surface-root`, so whatever sits in it

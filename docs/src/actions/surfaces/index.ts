@@ -68,7 +68,8 @@ const TOKENS: [string, string][] = [
     ['--surface-border-{state}', 'The matching state\'s background moved by the mode\'s border step (darker in light, lighter in dark), for lines, rings and edges.'],
     ['--surface-shadow-{state}', 'The shadow at the layer\'s weight, a step heavier on hover, a step lighter pressed.'],
     ['--surface-shadow-weight', 'Its Tailwind v4 shadow step, 0 to 7: its level by default, lowered 0, dialogs 7.'],
-    ['--surface-shadow-color', 'The color of a shadow falling on the layer: its background deepened in its own hue.']
+    ['--surface-shadow-color', 'The color of a shadow falling on the layer: its background deepened in its own hue.'],
+    ['--surface-primary-{state}', 'A primary fill on the layer: the mode\'s primary levels below it in light and above it in dark, its states stepped from it as the layer\'s own are.']
 ];
 
 
