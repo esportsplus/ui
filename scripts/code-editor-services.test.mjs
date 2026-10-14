@@ -9,7 +9,7 @@ const { session: services } = await import('../src/components/editor/code/servic
 const { applyCompletion, expandSnippet, fileUri, languageIdFor, localWords, mapStops, offsetAt, positionAt } =
     await import('../src/components/editor/code/services/model.ts');
 const { referenceRpcTransport } = await import('../src/components/editor/code/services/transport.ts');
-const { mockLanguageTransport } = await import('../docs/src/examples/code-editor/fixtures/language.ts');
+const { mockLanguageTransport } = await import('../docs/src/examples/editor/fixtures/language.ts');
 
 
 function key(key, extra = {}) {

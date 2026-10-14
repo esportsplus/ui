@@ -4,7 +4,7 @@ import './resolve.mjs';
 const { EditorWorkspaceModel, dirty } = await import('../src/components/editor/workspace/model.ts');
 const { default: hosted, parse } = await import('../src/components/editor/workspace/session.ts');
 const { default: navigate, step } = await import('../src/components/editor/workspace/navigate.ts');
-const { createMemoryWorkspaceHost } = await import('../docs/src/examples/code-editor/fixtures/workspace.ts');
+const { createMemoryWorkspaceHost } = await import('../docs/src/examples/editor/fixtures/workspace.ts');
 
 const FILES = { 'src/a.ts': 'alpha\nbeta\ngamma\n', 'src/b.ts': 'one\ntwo\n', 'c.md': '# C\n' };
 

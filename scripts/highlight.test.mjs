@@ -4,8 +4,9 @@ import test from 'node:test';
 import { easing } from '../src/components/highlight/easing.ts';
 
 
-const spring = readFileSync(new URL('../src/components/highlight/scss/variables.scss', import.meta.url), 'utf8')
-    .match(/--glide-timing-function: (linear\([^;]+\));/)[1];
+// The highlight glides on the transition tokens' spring.
+const spring = readFileSync(new URL('../src/tokens/scss/transition.scss', import.meta.url), 'utf8')
+    .match(/\bspring: (linear\([^)]+\))/)[1];
 const samples = (curve) => curve.slice(7, -1).split(',').map(parseFloat);
 
 

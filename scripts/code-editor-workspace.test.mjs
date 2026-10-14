@@ -3,7 +3,7 @@ import test from 'node:test';
 import './resolve.mjs';
 const { EditorWorkspaceModel, dirty, workspacePath } =
     await import('../src/components/editor/workspace/model.ts');
-const { createMemoryWorkspaceHost } = await import('../docs/src/examples/code-editor/fixtures/workspace.ts');
+const { createMemoryWorkspaceHost } = await import('../docs/src/examples/editor/fixtures/workspace.ts');
 const deferred = () => {
     let resolve, reject;
     const promise = new Promise((yes, no) => {

@@ -5,7 +5,7 @@ const { EditorDocument } = await import('../src/components/editor/code/document.
 const { EditorWorkspaceModel } = await import('../src/components/editor/workspace/model.ts');
 const { AUTO_SAVE_MODES, AutoSave, indentation, indentLabel, LANGUAGES, lineEndings } =
     await import('../src/components/editor/workspace/status.ts');
-const { createMemoryWorkspaceHost } = await import('../docs/src/examples/code-editor/fixtures/workspace.ts');
+const { createMemoryWorkspaceHost } = await import('../docs/src/examples/editor/fixtures/workspace.ts');
 const deferred = () => {
     let resolve, reject;
     const promise = new Promise((yes, no) => {

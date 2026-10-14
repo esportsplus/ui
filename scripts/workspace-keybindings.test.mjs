@@ -5,7 +5,7 @@ const { bind, conflict, declare, fromChord, fromRecorder, label, matches, merge,
     await import('../src/components/editor/workspace/keybindings.ts');
 const { COMMANDS, keymap } = await import('../src/components/editor/code/keymap.ts');
 const { EditorWorkspaceModel } = await import('../src/components/editor/workspace/model.ts');
-const { createMemoryWorkspaceHost } = await import('../docs/src/examples/code-editor/fixtures/workspace.ts');
+const { createMemoryWorkspaceHost } = await import('../docs/src/examples/editor/fixtures/workspace.ts');
 const find = (list, id) => list.find((row) => row.id === id);
 const key = (key, modifiers = {}) => {
     const event = {

@@ -3,7 +3,7 @@ import test from 'node:test';
 import './resolve.mjs';
 const { EditorWorkspaceModel, dirty } = await import('../src/components/editor/workspace/model.ts');
 const { closable, compareKey, order, place, sides } = await import('../src/components/editor/workspace/tabs.ts');
-const { createMemoryWorkspaceHost } = await import('../docs/src/examples/code-editor/fixtures/workspace.ts');
+const { createMemoryWorkspaceHost } = await import('../docs/src/examples/editor/fixtures/workspace.ts');
 async function fixture(files = { 'a.ts': 'a', 'b.ts': 'b', 'c.ts': 'c', 'd.ts': 'd' }) {
     const host = createMemoryWorkspaceHost(files),
         model = new EditorWorkspaceModel(host, '/project');
