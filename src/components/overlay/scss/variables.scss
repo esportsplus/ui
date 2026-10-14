@@ -1,8 +1,8 @@
 .overlay {
     --backdrop: color-mix(in srgb, var(--color-black-500) 64%, transparent);
-    --close-duration: var(--duration-slow-exit);
+    --close-duration: 0.3s;
     // Read by JS for a flow overlay's space, which grows and gives way without bouncing.
-    --ease: var(--easing-spring);
+    --ease: cubic-bezier(0.32, 0.72, 0, 1);
     // Read by JS: the longest a dragged-away overlay is thrown for.
     --fling-duration: 500ms;
     --handle-color: var(--surface-border-default);
@@ -12,7 +12,7 @@
     --margin-horizontal: 0px;
     --margin-vertical: 0px;
     --max-width: 480px;
-    --open-duration: var(--duration-slow);
+    --open-duration: 0.5s;
     --scale: 1;
     --stack-dim: 0.2;
     --stack-peek: 18px;
@@ -21,7 +21,7 @@
     // peeks.
     --stack-shift: calc(var(--depth, 0) * var(--stack-peek) + (1 - pow(var(--stack-scale), var(--depth, 0))) * var(--stack-span));
     --transition-duration: var(--open-duration);
-    --transition-timing-function: var(--easing-spring-bounce);
+    --transition-timing-function: var(--ease);
     --width-closed: 64px;
 
     // Dragged away, it fades where it was let go.
@@ -73,7 +73,7 @@
     // Exits get out of the way faster than entrances arrive, and settle without the bounce.
     &:where(:not(.--active)) {
         --transition-duration: var(--close-duration);
-        --transition-timing-function: var(--easing-spring);
+        --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
     }
 }
 
@@ -81,6 +81,6 @@
     --dim: 0.2;
     --peek: 18px;
     --scale: 0.94;
-    --transition-duration: var(--duration-slow);
-    --transition-timing-function: var(--easing-spring);
+    --transition-duration: 0.5s;
+    --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 }

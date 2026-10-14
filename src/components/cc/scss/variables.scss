@@ -5,7 +5,7 @@
     --card-color: var(--color-white-300);
     --card-number-font-size: clamp(16px, 5.2vw, 21px);
     --color: var(--color-text-500);
-    --digit-duration: var(--duration-fast);
+    --digit-duration: 150ms;
     --error-color: var(--color-red-400);
     --field-border-color: var(--surface-border-default);
     --field-border-radius: var(--border-radius-600);
@@ -20,11 +20,11 @@
     --label-font-weight: var(--font-weight-500);
     --muted-color: var(--color-text-300);
     --outline-color: var(--color-primary-500);
-    --ring-duration: var(--duration-moderate);
+    --ring-duration: 300ms;
     --spring: linear(0, 0.035, 0.118, 0.216, 0.319, 0.424, 0.515, 0.6, 0.669, 0.728, 0.781, 0.822, 0.856, 0.885, 0.908, 0.927, 0.942, 0.954, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
     --submit-background: var(--color-primary-500);
     --submit-color: var(--color-surface);
-    --swap-duration: var(--duration-moderate);
+    --swap-duration: 300ms;
     --width: min(400px, 100%);
 
     // The ring jumps between fields, still fading in and out.

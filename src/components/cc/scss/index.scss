@@ -108,11 +108,11 @@
         }
 
         &--roll-1 {
-            animation: cc-digit-1 var(--digit-duration) var(--easing-out);
+            animation: cc-digit-1 var(--digit-duration) ease-out;
         }
 
         &--roll-2 {
-            animation: cc-digit-2 var(--digit-duration) var(--easing-out);
+            animation: cc-digit-2 var(--digit-duration) ease-out;
         }
     }
 
@@ -129,9 +129,9 @@
         color: var(--error-color);
         font-size: var(--font-size-300);
         transition:
-            filter var(--duration-fast) var(--easing-spring),
-            opacity var(--duration-fast) var(--easing-spring),
-            translate var(--duration-fast) var(--easing-spring);
+            filter 200ms cubic-bezier(0.23, 1, 0.32, 1),
+            opacity 200ms cubic-bezier(0.23, 1, 0.32, 1),
+            translate 200ms cubic-bezier(0.23, 1, 0.32, 1);
 
         @starting-style {
             filter: blur(var(--blur-400));
@@ -164,7 +164,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        transition: opacity var(--duration-moderate) var(--easing-out);
+        transition: opacity 200ms ease-out;
 
         &--back {
             transform: rotateY(180deg);
@@ -209,7 +209,7 @@
             min-height: 0;
             outline: none;
             padding-block: 0;
-            transition: border-color var(--duration-fast) var(--easing-spring);
+            transition: border-color 150ms ease-out;
 
             &::placeholder {
                 color: oklch(from var(--muted-color) l c h / 0.7);
@@ -297,7 +297,7 @@
         transition:
             height var(--ring-duration) var(--spring),
             left var(--ring-duration) var(--spring),
-            opacity var(--duration-fast) var(--easing-out),
+            opacity 120ms ease-out,
             top var(--ring-duration) var(--spring),
             width var(--ring-duration) var(--spring);
 
@@ -306,7 +306,7 @@
             transition:
                 height var(--ring-duration) var(--spring),
                 left var(--ring-duration) var(--spring),
-                opacity var(--duration-moderate) var(--easing-out),
+                opacity 200ms ease-out,
                 top var(--ring-duration) var(--spring),
                 width var(--ring-duration) var(--spring);
         }

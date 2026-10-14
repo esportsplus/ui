@@ -15,8 +15,8 @@
     --toast-content-opacity: 1;
     // Written by the toast: its duration, and the same in whole seconds for a countdown in its content.
     --toast-duration: 0ms;
-    --toast-exit-duration: var(--duration-slow-exit);
-    --toast-exit-timing-function: var(--easing-spring);
+    --toast-exit-duration: 0.3s;
+    --toast-exit-timing-function: var(--toast-transition-timing-function);
     --toast-expanded-y: calc((var(--toast-offset-y) + var(--toast-index) * var(--toast-gap)) * var(--toast-direction));
     --toast-height: 0px;
     --toast-index: 0;
@@ -67,8 +67,8 @@
     // How far the overflow card reaches past the last visible layer: room for its line of text.
     --toast-overflow-peek: 24px;
     --toast-stack-height: 0px;
-    --toast-transition-duration: var(--duration-slow);
-    --toast-transition-timing-function: var(--easing-spring-bounce);
+    --toast-transition-duration: 0.4s;
+    --toast-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     --toast-width: 360px;
 
 

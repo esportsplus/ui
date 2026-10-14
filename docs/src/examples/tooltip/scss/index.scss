@@ -42,7 +42,7 @@
         --close-duration: 0.1s;
         --color: var(--color-text-500);
         --font-size: calc(var(--font-size-400) * 0.875);
-        --open-duration: var(--duration-fast);
+        --open-duration: 0.15s;
         --padding: 0px;
         --radius: var(--size-500);
         --scale: 0.96;
@@ -72,10 +72,10 @@
         height: 36px;
         padding-inline: var(--size-400);
         transition:
-            background-color var(--duration-fast) var(--easing-out),
-            box-shadow var(--duration-fast) var(--easing-out),
-            color var(--duration-fast) var(--easing-out),
-            scale var(--duration-fast) var(--easing-out);
+            background-color 0.15s ease-out,
+            box-shadow 0.15s ease-out,
+            color 0.15s ease-out,
+            scale 0.15s ease-out;
 
         &.--active {
             --follow-opacity: 0;
@@ -95,7 +95,7 @@
             align-self: center;
             grid-area: 1 / 1;
             opacity: var(--follow-opacity);
-            transition: opacity var(--duration-fast);
+            transition: opacity 0.15s;
 
             &--following {
                 opacity: var(--following-opacity);
@@ -163,7 +163,7 @@
         text-decoration-color: color-mix(in srgb, var(--color-primary-500) 25%, transparent);
         text-decoration-thickness: 1px;
         text-underline-offset: calc(var(--size-100) / 2);
-        transition: text-decoration-color var(--duration-fast) var(--easing-out);
+        transition: text-decoration-color 0.15s ease-out;
         white-space: nowrap;
 
         &:focus-visible {
@@ -261,7 +261,7 @@
         outline: none;
         padding: var(--size-100) 12px;
         text-decoration: none;
-        transition: background-color var(--duration-fast) var(--easing-out);
+        transition: background-color 0.15s ease-out;
 
         &:focus-visible {
             outline: 2px solid var(--color-primary-500);

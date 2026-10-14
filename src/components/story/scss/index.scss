@@ -111,7 +111,7 @@
         outline: none;
         padding: 0;
         place-items: center;
-        transition: color var(--duration-fast) var(--easing-spring);
+        transition: color 0.15s ease-out;
         width: 40px;
 
         &:focus-visible {
@@ -131,7 +131,7 @@
         flex: 1;
         min-height: 0;
         position: relative;
-        transition: opacity var(--duration-fast) var(--easing-spring);
+        transition: opacity 0.2s ease-out;
         z-index: 1;
 
         &--dimmed {
@@ -169,7 +169,7 @@
 
     @media (prefers-reduced-motion: reduce) {
         &-toggle {
-            transition: color var(--duration-fast) var(--easing-spring);
+            transition: color 0.15s ease-out;
         }
     }
 }

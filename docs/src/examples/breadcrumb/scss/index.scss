@@ -34,8 +34,8 @@
         height: 24px;
         scale: var(--grip-scale);
         transition:
-            background-color var(--duration-fast) var(--easing-out),
-            scale var(--duration-fast) var(--easing-out);
+            background-color 0.15s ease-out,
+            scale 0.15s ease-out;
         width: 6px;
     }
 

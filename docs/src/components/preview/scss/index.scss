@@ -138,7 +138,7 @@
             gap: calc(var(--size-300) / 2);
             height: 28px;
             padding: 0 var(--size-200);
-            transition: background-color var(--duration-fast) var(--easing-out), color var(--duration-fast) var(--easing-out);
+            transition: background-color 150ms ease-out, color 150ms ease-out;
 
             &:focus-visible {
                 outline: 2px solid var(--color-blue-400);

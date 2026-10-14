@@ -21,7 +21,7 @@
     --length-rest: 12px;
     // Resolved here, since the nav's color state redefines --color-active on it.
     --nav-color-hover: var(--color-active);
-    --nav-duration: var(--duration-fast);
+    --nav-duration: 0.15s;
     --nav-height: var(--size-500);
     --stroke: 2px;
 

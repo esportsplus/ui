@@ -3,8 +3,8 @@
     --color-active: var(--color-text-500);
     // Arriving segments fade in slower than leaving ones fade out, so the gap a leaving one opens is already
     // closing by the time the eye looks for it.
-    --enter-duration: var(--duration-moderate);
-    --exit-duration: var(--duration-moderate-exit);
+    --enter-duration: 200ms;
+    --exit-duration: 120ms;
     --focus-color: var(--color-primary-500);
     --font-size: var(--font-size-300);
     --font-weight-current: var(--font-weight-500);
@@ -22,8 +22,8 @@
     --option-icon-color: var(--color);
     --separator-color: oklch(from var(--color-primary-300) l c h / 0.5);
     --separator-size: var(--size-400);
-    --slide-duration: var(--duration-moderate);
-    --slide-easing: var(--easing-spring);
+    --slide-duration: 310ms;
+    --slide-easing: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
     --trigger-width: var(--height);
     --underline-color: oklch(from var(--color-primary-500) l c h / 0.4);
 

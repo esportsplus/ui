@@ -192,9 +192,9 @@
             position: absolute;
             top: calc((var(--trigger-size) - var(--option-size)) / 2 - var(--padding) - var(--border-width));
             transition:
-                clip-path var(--duration-moderate-exit) var(--easing-spring),
-                opacity var(--duration-fast) var(--easing-spring),
-                visibility 0s linear var(--duration-moderate-exit);
+                clip-path 190ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
+                opacity 130ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
+                visibility 0s linear 190ms;
             visibility: hidden;
             width: var(--width);
             z-index: 10;
@@ -203,15 +203,15 @@
                 clip-path: inset(0 round 999px);
                 opacity: 1;
                 transition:
-                    clip-path var(--duration-moderate) var(--easing-spring),
-                    opacity var(--duration-fast-exit) var(--easing-spring);
+                    clip-path 240ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
+                    opacity 100ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
                 visibility: visible;
             }
 
             @media (prefers-reduced-motion: reduce) {
                 &,
                 .theme-picker-toggle.--active > & {
-                    transition: opacity var(--duration-fast) var(--easing-spring), visibility 0s linear var(--duration-fast);
+                    transition: opacity 130ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1), visibility 0s linear 130ms;
                 }
             }
         }
@@ -227,8 +227,8 @@
             height: var(--option-size);
             justify-content: center;
             transition:
-                background-color var(--duration-fast) var(--easing-spring),
-                color var(--duration-fast) var(--easing-spring);
+                background-color 130ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
+                color 130ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
 
             &:hover,
             &[aria-checked='true'] {
@@ -253,7 +253,7 @@
             --padding-vertical: 0px;
             border: var(--border-width) solid var(--border-color);
             height: var(--trigger-size);
-            transition: opacity var(--duration-fast) var(--easing-spring);
+            transition: opacity 130ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
             width: var(--trigger-size);
 
             .theme-picker-toggle.--active > & {

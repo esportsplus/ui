@@ -23,18 +23,18 @@
         --scale: 1;
         --spacer: var(--size-300);
         // Closing; the open state swaps in the entrance duration.
-        --transition-duration: var(--duration-moderate-exit);
-        --transition-timing-function: var(--easing-spring);
+        --transition-duration: 0.24s;
+        --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
         --width: auto;
 
         &--morph {
             --morph-blur: var(--blur-400);
-            --morph-close-duration: var(--duration-moderate-exit);
+            --morph-close-duration: 0.16s;
             // Starts clearing as soon as content emerges from behind the trigger, settling with the shape.
             --morph-focus-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
             --morph-land: 2px;
-            --morph-open-duration: var(--duration-moderate);
-            --morph-timing-function: var(--easing-spring);
+            --morph-open-duration: 0.12s;
+            --morph-timing-function: cubic-bezier(0.2, 0, 0, 1);
             // Motion comes from the morph, not the slide/scale.
             --offset: 0px;
             --scale: 1;
@@ -74,7 +74,7 @@
 .tooltip {
     &--menu {
         --border-radius: var(--border-radius-600);
-        --close-duration: var(--duration-moderate-exit);
+        --close-duration: 0.128s;
         --color: var(--color-text-500);
         --color-danger: var(--color-red-400);
         --color-disabled: var(--color-text-300);
@@ -85,8 +85,8 @@
         --item-height: 36px;
         --item-padding: var(--size-200);
         --offset: var(--size-200);
-        --open-duration: var(--duration-moderate);
-        --open-timing-function: var(--easing-spring);
+        --open-duration: 0.16s;
+        --open-timing-function: cubic-bezier(0.2, 0, 0, 1);
         --padding: calc(var(--size-100) / 2);
         --scrim: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha * 0.9));
         --width: 17rem;
@@ -132,20 +132,20 @@
         --background-default: var(--color-primary-400);
         --blur: var(--blur-500);
         --box-shadow-default: var(--surface-shadow-default);
-        --close-duration: var(--duration-moderate-exit);
+        --close-duration: 0.128s;
         --color: var(--surface-background-default);
         --font-size: var(--font-size-300);
         --font-weight: var(--font-weight-400);
-        --glide-duration: var(--duration-moderate);
-        --glide-timing-function: var(--easing-spring);
+        --glide-duration: 0.4s;
+        --glide-timing-function: cubic-bezier(0.22, 1.12, 0.36, 1);
         --max-width: calc(90vw - (var(--size-700) * 2));
-        --open-duration: var(--duration-moderate);
+        --open-duration: 0.16s;
         --padding: var(--size-300);
         --radius: var(--border-radius-400);
         --rise: 4px;
         --scale: 0.94;
         --spacer: var(--size-300);
-        --timing-function: var(--easing-spring);
+        --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
         --white-space: nowrap;
 
         // Read by the box: where it rises from, toward the trigger.

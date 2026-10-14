@@ -50,14 +50,14 @@
             grid-area: 1 / 1;
             opacity: 0;
             transition:
-            filter var(--duration-fast-exit) var(--easing-spring),
-            opacity var(--duration-fast-exit) var(--easing-spring);
+            filter 150ms ease-out,
+            opacity 150ms ease-out;
             white-space: nowrap;
 
             @include tokens.state(active) {
                 filter: blur(0px);
                 opacity: 1;
-                transition-duration: var(--duration-fast);
+                transition-duration: 200ms;
             }
         }
     }
@@ -72,8 +72,8 @@
     overflow: hidden;
     touch-action: manipulation;
     transition:
-        background-color var(--duration-fast) var(--easing-spring),
-        color var(--duration-fast) var(--easing-spring);
+        background-color 200ms ease-out,
+        color 200ms ease-out;
     user-select: none;
 
     &:focus-visible {

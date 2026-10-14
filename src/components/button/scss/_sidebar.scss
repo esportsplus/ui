@@ -25,8 +25,8 @@
         transform-box: fill-box;
         transform-origin: center;
         transition:
-            stroke-width var(--panel-duration) var(--easing-spring),
-            transform var(--panel-duration) var(--easing-spring);
+            stroke-width var(--panel-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
+            transform var(--panel-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
 
         @media (prefers-reduced-motion: reduce) {
             transition: none;

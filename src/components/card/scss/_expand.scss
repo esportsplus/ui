@@ -208,7 +208,7 @@
 ::view-transition-group(card-expand-meta),
 ::view-transition-group(card-expand-summary),
 ::view-transition-group(card-expand-title) {
-    animation-duration: var(--duration-slow);
+    animation-duration: 0.35s;
     // Critically damped spring: a card overshooting its own slot reads as a glitch, not play.
     animation-timing-function: linear(0, 0.0575, 0.1803, 0.3208, 0.4551, 0.5729, 0.6711, 0.7501, 0.8122, 0.8601, 0.8966, 0.924, 0.9445, 0.9596, 0.9708, 0.9789, 0.9848, 0.9891, 0.9922, 0.9944, 0.996, 0.9972, 0.998, 0.9986, 1);
 }

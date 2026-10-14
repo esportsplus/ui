@@ -1,8 +1,8 @@
 .typewriter {
     &-retype {
-        --ease-out: var(--easing-out);
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
         --ink-blur: var(--blur-300);
-        --ink-duration: var(--duration-fast);
+        --ink-duration: 140ms;
         // Read by JS: each key's delay, a base plus up to the jitter, which lands around 8 to 14 keys a second, the pace
         // of someone who knows the word.
         --key-duration: 62ms;

@@ -17,7 +17,7 @@
     --icon-color: var(--color-primary-300);
     --icon-color-saved: var(--color-primary-500);
     --icon-size: var(--size-400);
-    --icon-swap-duration: var(--duration-moderate);
+    --icon-swap-duration: 300ms;
     --icon-swap-timing-function: linear(0, 0.035, 0.118, 0.216, 0.319, 0.424, 0.515, 0.6, 0.669, 0.728, 0.781, 0.822, 0.856, 0.885, 0.908, 0.927, 0.942, 0.954, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
     --link-underline-color: oklch(from var(--color-primary-500) l c h / 0.4);
     --mark-background: oklch(from var(--color-primary-500) l c h / 0.15);
@@ -56,21 +56,21 @@
         --blur: var(--blur-400);
         --check-color: var(--color-primary-500);
         --check-delay: 0.12s;
-        --check-duration: var(--duration-slow);
+        --check-duration: 0.35s;
         --check-stroke-width: 2.4;
         --color: var(--color-text-300);
         --dot-gap: calc(var(--icon-size) * 0.3125);
         --dot-size: calc(var(--icon-size) / 4);
-        --enter-duration: var(--duration-moderate);
-        --exit-duration: var(--duration-moderate-exit);
+        --enter-duration: 0.22s;
+        --exit-duration: 0.12s;
         --font-size: var(--font-size-300);
         --gap: 0.5rem;
         --icon-size: 1.25em;
-        --move-duration: var(--duration-slow);
+        --move-duration: 0.4s;
         --pulse-duration: 1s;
         --pulse-stagger: 0.16s;
         --shift: 3px;
-        --timing-function: var(--easing-spring);
+        --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
         --width: 11em;
     }
 

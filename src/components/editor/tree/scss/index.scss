@@ -81,7 +81,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     }
 
     &-chevron {
-        transition: rotate var(--chevron-duration) var(--easing-spring);
+        transition: rotate var(--chevron-duration) ease-out;
 
         // Mirrored to point left, so opening turns it the other way to still point down.
         &:dir(rtl) {
@@ -414,7 +414,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
         // A folder's rows fade in a beat behind the opening.
         &--reveal {
-            animation: file-tree-reveal var(--reveal-duration) var(--easing-spring) var(--reveal-delay) backwards;
+            animation: file-tree-reveal var(--reveal-duration) ease-out var(--reveal-delay) backwards;
         }
 
         // A root's header, set apart from the folders under it as VS Code sets its workspace folders.
@@ -465,7 +465,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             inset-inline-start: calc(var(--padding) + var(--twistie-size) / 2 - 0.5px - var(--indent));
             opacity: var(--indicator-opacity, 1);
             position: absolute;
-            transition: opacity var(--indicator-duration) var(--easing-spring);
+            transition: opacity var(--indicator-duration) ease-out;
             // Top-level rows have no parent to draw.
             width: calc(min(var(--depth), 1) * 1px);
         }
@@ -597,7 +597,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             }
 
             &-layer--close {
-                animation: file-tree-collapse var(--collapse-duration) var(--motion-easing) forwards, file-tree-conceal var(--conceal-duration) var(--easing-spring) forwards;
+                animation: file-tree-collapse var(--collapse-duration) var(--motion-easing) forwards, file-tree-conceal var(--conceal-duration) ease-out forwards;
                 height: $edge;
                 overflow: hidden;
             }
@@ -617,7 +617,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
             // Marked only while opening.
             &--reveal {
-                animation: file-tree-expand var(--expand-duration) var(--motion-easing) forwards, file-tree-reveal var(--reveal-duration) var(--easing-spring) var(--reveal-delay) backwards;
+                animation: file-tree-expand var(--expand-duration) var(--motion-easing) forwards, file-tree-reveal var(--reveal-duration) ease-out var(--reveal-delay) backwards;
                 // Open at the sides, so the guides drawn outside the row still show.
                 clip-path: inset(
                     0

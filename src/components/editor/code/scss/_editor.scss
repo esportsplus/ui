@@ -143,7 +143,7 @@
         &-icon.icon {
             --size: var(--fold-icon-size);
             rotate: var(--fold-rotate);
-            transition: rotate var(--fold-duration) var(--easing-spring);
+            transition: rotate var(--fold-duration) ease-out;
         }
     }
 

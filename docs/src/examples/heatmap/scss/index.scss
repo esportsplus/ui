@@ -30,7 +30,7 @@
         text-decoration: underline;
         text-decoration-color: color-mix(in oklab, var(--color-primary-500) 25%, transparent);
         text-underline-offset: calc(var(--size-100) / 4);
-        transition: text-decoration-color var(--duration-fast) var(--easing-out);
+        transition: text-decoration-color 0.15s ease-out;
 
         &:hover {
             text-decoration-color: var(--color-primary-500);

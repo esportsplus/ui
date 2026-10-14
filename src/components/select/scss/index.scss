@@ -109,7 +109,7 @@
             opacity: 0;
             pointer-events: none;
             position: absolute;
-            transition: opacity var(--duration-fast) var(--easing-spring);
+            transition: opacity 150ms ease-out;
 
             @include tokens.state(active) {
                 opacity: 1;

@@ -38,7 +38,7 @@
         --range-border-radius: 0px;
         --range-color: var(--color-primary-500);
         --roll-duration: 500ms;
-        --roll-ease: var(--easing-out);
+        --roll-ease: cubic-bezier(0.23, 1, 0.32, 1);
         --root-cursor: pointer;
         --thumb-background: var(--surface-background-default);
         --thumb-border: var(--color-primary-500);
@@ -53,7 +53,7 @@
         --thumb-shadow-active: var(--thumb-shadow);
         --thumb-shadow-focus: var(--thumb-shadow);
         --thumb-size: var(--size-500);
-        --thumb-transition: scale var(--duration-fast) var(--easing-spring);
+        --thumb-transition: scale 150ms ease-out;
         --tick-color: oklch(from var(--color-primary-300) l c h / 0.6);
         --track-color: var(--surface-border-default);
         --track-height: var(--size-100);

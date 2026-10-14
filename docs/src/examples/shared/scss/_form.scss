@@ -1,7 +1,7 @@
 .form-prototype {
     --demo-accent: var(--color-accent-400);
     --demo-border: var(--surface-border-pressed);
-    --demo-duration: var(--duration-moderate);
+    --demo-duration: 280ms;
     --demo-hint: var(--color-text-300);
     --demo-ring: color-mix(in srgb, var(--demo-accent) 24%, transparent);
     --demo-spring: cubic-bezier(.34, 1.56, .64, 1);

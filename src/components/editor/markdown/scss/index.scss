@@ -192,7 +192,7 @@
         &-icon.icon {
             --size: var(--fold-icon-size);
             rotate: var(--fold-rotate);
-            transition: rotate var(--fold-duration) var(--easing-spring);
+            transition: rotate var(--fold-duration) ease-out;
         }
     }
 
@@ -371,7 +371,7 @@
         &-icon.icon {
             --size: var(--fold-icon-size);
             rotate: -90deg;
-            transition: rotate var(--fold-duration) var(--easing-spring);
+            transition: rotate var(--fold-duration) ease-out;
 
             details[open] > .markdown-editor-summary > & {
                 rotate: 0deg;

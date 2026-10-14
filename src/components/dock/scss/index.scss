@@ -29,7 +29,7 @@
         &--launching {
             animation:
                 dock-hop var(--hop-duration),
-                dock-squash var(--hop-duration) var(--easing-in-out);
+                dock-squash var(--hop-duration) ease-in-out;
         }
 
         &:focus-visible {
@@ -71,15 +71,15 @@
         // 4px under the resting button.
         top: calc(100% - var(--inset) + 4px);
         transition:
-            opacity var(--duration-fast-exit) var(--easing-spring),
-            scale var(--duration-fast-exit) var(--easing-spring);
+            opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1),
+            scale 0.15s cubic-bezier(0.23, 1, 0.32, 1);
         width: var(--light-size);
 
         @include tokens.state(active) {
             opacity: 1;
             scale: 1;
             transition-delay: var(--light-delay);
-            transition-duration: var(--duration-fast);
+            transition-duration: 0.2s;
         }
     }
 }
@@ -88,7 +88,7 @@
 // Up fast and down with gravity; each landing is the quickest part.
 @keyframes dock-hop {
     0% {
-        animation-timing-function: var(--easing-out);
+        animation-timing-function: ease-out;
         translate: 0 0;
     }
     30% {
@@ -96,7 +96,7 @@
         translate: 0 -22px;
     }
     55% {
-        animation-timing-function: var(--easing-out);
+        animation-timing-function: ease-out;
         translate: 0 0;
     }
     78% {

@@ -5,10 +5,10 @@
     // Reserve the gutter throughout so enabling the bar cannot reflow and remeasure content.
     --scrollbar-gutter: stable;
     --scrollbar-overflow: hidden;
-    --transition-duration: var(--duration-moderate-exit);
+    --transition-duration: 190ms;
 
     @include tokens.state(active) {
-        --transition-duration: var(--duration-moderate);
+        --transition-duration: 240ms;
 
         &.accordion--scrollable {
             --scrollbar-overflow: auto;

@@ -92,11 +92,11 @@ $icons: (
     --badge-font-size: var(--font-size-200);
     --badge-font-weight: var(--font-weight-500);
     --badge-gap: calc(var(--size-300) / 2);
-    --chevron-duration: var(--duration-fast);
+    --chevron-duration: 150ms;
     // Open and close timings, after the tree view's.
-    --collapse-duration: var(--duration-moderate-exit);
+    --collapse-duration: 0.2s;
     --color: var(--color-text-500);
-    --conceal-duration: var(--duration-fast-exit);
+    --conceal-duration: 0.12s;
     --conflict-color: light-dark(oklch(from var(--color-red-300) 0.6 c h), oklch(from var(--color-red-300) 0.72 0.16 h));
     --cut-opacity: 0.5;
     --deleted-color: light-dark(var(--color-red-500), oklch(from var(--color-red-500) 0.7 0.17 h));
@@ -112,7 +112,7 @@ $icons: (
     --drop-color: var(--color-accent-400);
     --empty-color: var(--color-text-300);
     --error-color: light-dark(var(--color-red-400), oklch(from var(--color-red-400) 0.7 0.18 h));
-    --expand-duration: var(--duration-moderate);
+    --expand-duration: 0.25s;
     // The find bar over the tree's top corner; the offset keeps it clear of the scrollbar.
     --find-border-color: var(--surface-border-default);
     --find-button-size: var(--size-500);
@@ -139,7 +139,7 @@ $icons: (
     // parent's guide.
     --indent: var(--size-500);
     --indicator-color: var(--surface-border-default);
-    --indicator-duration: var(--duration-fast);
+    --indicator-duration: 0.15s;
     --indicator-hover: var(--surface-border-pressed);
     --input-border-color: var(--color-blue-400);
     --input-padding: calc(var(--size-300) / 4);
@@ -158,12 +158,12 @@ $icons: (
     --message-font-size: var(--font-size-200);
     --message-padding: calc(var(--size-100) / 4) calc(var(--size-300) / 2);
     --modified-color: light-dark(oklch(from var(--color-yellow-500) 0.62 c h), oklch(from var(--color-yellow-500) 0.76 c h));
-    --motion-easing: var(--easing-spring);
+    --motion-easing: cubic-bezier(0.23, 1, 0.32, 1);
     --notice-color: var(--color-text-300);
     --open-color: var(--color-primary-300);
     --padding: var(--size-100);
     --reveal-delay: 0.05s;
-    --reveal-duration: var(--duration-fast);
+    --reveal-duration: 0.2s;
     --root-font-size: var(--font-size-200);
     --root-font-weight: var(--font-weight-600);
     --row-height: 22px;
@@ -201,7 +201,7 @@ $icons: (
     &-highlight.highlight {
         --background-active: inherit;
         --background-hover: inherit;
-        --glide-duration: var(--duration-moderate);
+        --glide-duration: 0.3s;
         --glide-duration-active: 0s;
     }
 

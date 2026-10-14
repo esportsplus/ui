@@ -15,11 +15,11 @@
     @extend %background-state, %surface-raise;
     --background-default: var(--surface-background-default);
     --color: var(--color-text-500);
-    --fade-duration: var(--duration-fast);
-    --fade-timing-function: var(--easing-out);
+    --fade-duration: 0.15s;
+    --fade-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     --fresh-blur: var(--blur-400);
-    --fresh-duration: var(--duration-moderate);
-    --fresh-timing-function: var(--easing-out);
+    --fresh-duration: 0.3s;
+    --fresh-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     --height: 100%;
     // Critically damped at a 0.35s visual duration: an indicator that overshoots would bounce the feed.
     --settle-duration: 617ms;

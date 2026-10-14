@@ -19,8 +19,8 @@
     // The running light comes on as the icon first lands (55% into 'dock-hop'), not on click.
     --light-delay: calc(var(--hop-duration) * 0.55);
     --light-size: 4px;
-    --magnify-duration: var(--duration-fast);
-    --magnify-timing-function: var(--easing-spring);
+    --magnify-duration: 0.3s;
+    --magnify-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     --padding-horizontal: calc(var(--inset) - var(--spacing) / 2);
     --padding-vertical: 0px;
     // The hovered icon peaks and each neighbour steps a third of the way back to rest.

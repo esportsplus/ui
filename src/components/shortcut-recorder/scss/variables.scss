@@ -27,7 +27,7 @@
     --height: 36px;
     --min-width: 96px;
     --padding-horizontal: calc(var(--size-300) / 2);
-    --timing-function-out: var(--easing-spring);
+    --timing-function-out: cubic-bezier(0.23, 1, 0.32, 1);
     --timing-function-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
     #{tokens.state(active)} {

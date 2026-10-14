@@ -37,15 +37,15 @@ $expand-transition-box-shadow:
 
     &--morph {
         --morph-blur: var(--blur-400);
-        --morph-duration: var(--duration-moderate);
+        --morph-duration: 0.3s;
         // The outgoing layer clears out faster than the incoming one arrives, so the two never read as
         // overlapping text.
-        --morph-enter-duration: var(--duration-moderate);
+        --morph-enter-duration: 0.25s;
         --morph-exit-duration: 0.18s;
         --morph-fade-duration: var(--transition-duration);
         --morph-fade-timing-function: var(--transition-timing-function);
         --morph-shift: 48px;
-        --morph-swap-timing-function: var(--easing-out);
+        --morph-swap-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
         // Critically damped spring: an overshooting shell would uncover empty space.
         --morph-timing-function: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
 
@@ -68,7 +68,7 @@ $expand-transition-box-shadow:
     &-expand {
         --dialog-backdrop: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha + 0.06));
         --dialog-width: 440px;
-        --ease-out: var(--easing-out);
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
         --expand-background: var(--surface-background-default);
         --focus-ring-color: var(--surface-border-pressed);
         --list-gap: 12px;

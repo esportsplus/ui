@@ -12,7 +12,7 @@
     // Turns by '--rotate', easing between turns, so a chevron can follow its control's state.
     &--rotate {
         rotate: var(--rotate);
-        transition: rotate var(--duration-fast) var(--easing-out);
+        transition: rotate 130ms cubic-bezier(0.23, 1, 0.32, 1);
 
         @media (prefers-reduced-motion: reduce) {
             transition: none;

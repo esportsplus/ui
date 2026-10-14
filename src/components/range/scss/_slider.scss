@@ -9,8 +9,8 @@
     cursor: grab;
     height: var(--thumb-size);
     transition:
-        box-shadow var(--duration-fast) var(--easing-spring),
-        scale var(--duration-fast) var(--easing-spring);
+        box-shadow 150ms ease-out,
+        scale 150ms ease-out;
     width: var(--thumb-size);
 }
 
@@ -52,8 +52,8 @@
     --thumb-shadow-active: none;
     --thumb-shadow-focus: 0 0 0 3px var(--focus-color);
     --thumb-transition:
-        box-shadow var(--duration-fast) var(--easing-spring),
-        scale var(--duration-fast) var(--easing-spring);
+        box-shadow 150ms ease-out,
+        scale 150ms ease-out;
     --track-height: 4px;
     // Match the fill to the existing thumb travel without changing range behavior.
     --track-inset: calc(var(--thumb-size) / 2);
@@ -74,7 +74,7 @@
 
     @media (prefers-reduced-motion: reduce) {
         --thumb-scale-active: 1;
-        --thumb-transition: box-shadow var(--duration-fast) var(--easing-spring);
+        --thumb-transition: box-shadow 150ms ease-out;
     }
 }
 

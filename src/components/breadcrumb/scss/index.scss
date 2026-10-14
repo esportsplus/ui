@@ -37,8 +37,8 @@
         text-underline-offset: calc(var(--size-100) / 2);
         touch-action: manipulation;
         transition:
-            color var(--duration-fast) var(--easing-spring),
-            text-decoration-color var(--duration-fast) var(--easing-spring);
+            color 0.15s ease-out,
+            text-decoration-color 0.15s ease-out;
         user-select: none;
         white-space: nowrap;
 
@@ -134,9 +134,9 @@
         flex-shrink: 0;
         grid-template-columns: 1fr;
         transition:
-            filter var(--enter-duration) var(--easing-spring),
+            filter var(--enter-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
             grid-template-columns var(--slide-duration) var(--slide-easing),
-            opacity var(--enter-duration) var(--easing-spring);
+            opacity var(--enter-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
 
         &--current {
             flex-shrink: 1;
@@ -151,7 +151,7 @@
             transition:
                 filter 0s linear var(--exit-duration),
                 grid-template-columns var(--slide-duration) var(--slide-easing),
-                opacity var(--exit-duration) var(--easing-spring),
+                opacity var(--exit-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
                 visibility 0s linear var(--slide-duration);
             visibility: hidden;
         }
@@ -200,8 +200,8 @@
         padding: 0;
         touch-action: manipulation;
         transition:
-            background-color var(--duration-fast) var(--easing-spring),
-            color var(--duration-fast) var(--easing-spring);
+            background-color 0.15s ease-out,
+            color 0.15s ease-out;
         user-select: none;
         width: var(--trigger-width);
 
@@ -226,11 +226,11 @@
     @media (prefers-reduced-motion: reduce) {
         &-segment {
             filter: none;
-            transition: opacity var(--enter-duration) var(--easing-spring);
+            transition: opacity var(--enter-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
 
             &--hidden {
                 transition:
-                    opacity var(--exit-duration) var(--easing-spring),
+                    opacity var(--exit-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
                     visibility 0s linear var(--exit-duration);
             }
 

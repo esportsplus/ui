@@ -52,9 +52,9 @@
         outline-offset: calc(var(--size-100) / 4);
         padding: 0 var(--size-100);
         transition:
-            background-color var(--duration-fast) var(--easing-spring),
-            color var(--duration-fast) var(--easing-spring),
-            opacity var(--duration-fast) var(--easing-spring);
+            background-color 150ms ease-out,
+            color 150ms ease-out,
+            opacity 150ms ease-out;
 
         &-icon {
             height: 12px;
@@ -179,9 +179,9 @@
         position: absolute;
         top: 50%;
         transition:
-            left 75ms var(--easing-out),
-            opacity 100ms var(--easing-out),
-            width 75ms var(--easing-out);
+            left 75ms ease-out,
+            opacity 100ms ease-out,
+            width 75ms ease-out;
         translate: 0 -50%;
         z-index: 1;
 
@@ -193,9 +193,9 @@
             left: 50%;
             top: auto;
             transition:
-                bottom 75ms var(--easing-out),
-                opacity 100ms var(--easing-out),
-                height 75ms var(--easing-out);
+                bottom 75ms ease-out,
+                opacity 100ms ease-out,
+                height 75ms ease-out;
             translate: -50% 0;
             width: var(--track-height);
         }

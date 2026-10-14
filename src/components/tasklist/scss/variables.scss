@@ -4,9 +4,9 @@
 
 // Shared by every part so the check, strike, and fade stay in sequence
 .tasklist {
-    --check-duration: var(--duration-fast);
+    --check-duration: 150ms;
     --gap: calc(var(--size-100) / 4);
-    --strike-duration: var(--duration-moderate);
+    --strike-duration: 200ms;
     --timing-function: cubic-bezier(0.65, 0, 0.35, 1);
 
     @media (prefers-reduced-motion: reduce) {

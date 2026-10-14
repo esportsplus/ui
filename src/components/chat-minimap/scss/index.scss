@@ -98,8 +98,8 @@
         outline: none;
         padding: 0 var(--inset);
         transition:
-            color var(--nav-duration) var(--easing-spring),
-            opacity var(--nav-duration) var(--easing-spring);
+            color var(--nav-duration) ease-out,
+            opacity var(--nav-duration) ease-out;
         width: var(--item-width);
 
         &:disabled {

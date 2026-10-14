@@ -8,7 +8,7 @@
     display: inline-flex;
     font-variant-numeric: tabular-nums;
     outline: none;
-    transition: color var(--duration-fast) var(--easing-spring);
+    transition: color 0.15s ease-out;
     white-space: nowrap;
 
     &-digit,

@@ -65,7 +65,7 @@
 
     // Qualified to outrank the '.icon' it pairs with.
     &-icon.icon {
-        animation: var(--ring-animation-name) var(--ring-duration) var(--easing-in-out);
+        animation: var(--ring-animation-name) var(--ring-duration) ease-in-out;
         transform-origin: 50% 8%;
 
         svg {

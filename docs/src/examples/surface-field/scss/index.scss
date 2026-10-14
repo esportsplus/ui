@@ -280,7 +280,7 @@
             display: flex;
             height: 32px;
             justify-content: center;
-            transition: background-color var(--duration-fast) ease;
+            transition: background-color 150ms ease;
             width: 32px;
 
             &-icon {

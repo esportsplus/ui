@@ -17,9 +17,9 @@
     &-highlight.highlight {
         --background-hover: var(--surface-background-hover);
         --background-pressed: var(--surface-background-pressed);
-        --fade-duration: var(--duration-fast);
+        --fade-duration: 0.15s;
         --glide-duration: 0.19s;
-        --glide-duration-active: var(--duration-moderate);
+        --glide-duration-active: 0.25s;
         --glide-tail-duration-active: 0.425s;
         --glide-timing-function: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
         --line-color: var(--color-primary-500);
@@ -44,7 +44,7 @@
         outline: none;
         padding-inline: var(--size-400);
         text-align: start;
-        transition: color var(--duration-fast) var(--easing-out);
+        transition: color 0.15s ease-out;
         white-space: nowrap;
 
         &:focus-visible {

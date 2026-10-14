@@ -82,7 +82,7 @@
         $not-active: '#{tokens.state(inactive, ".tooltip")} > &, #{tokens.state(inactive, ".tooltip")} :not(.tooltip) > &';
 
         #{$active} {
-            --transition-duration: var(--duration-moderate);
+            --transition-duration: 240ms;
             opacity: 1;
             scale: 1;
         }
