@@ -1,3 +1,5 @@
+@use 'css-utilities/background';
+@use 'css-utilities/color';
 @use 'css-utilities/surface';
 
 
@@ -6,12 +8,13 @@
     font-weight: var(--font-weight-300);
 
     &-package.link {
-        --color-active: var(--color-text-500);
-        --color-default: var(--color-text-300);
-        --color-hover: var(--color-text-500);
+        @extend %background-surface, %color-text, %surface-lower;
+        --background-active: transparent;
+        --background-default: transparent;
         --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-200);
         --padding-vertical: calc(var(--size-100) / 2);
+        --surface-level: -2;
         border-radius: var(--border-radius-300);
 
         &.--active {
@@ -24,11 +27,11 @@
         gap: calc(var(--size-100) / 4);
         margin: calc(var(--size-100) * -1) 0;
 
+        // Declares its own surface colors, so they resolve at its level rather than inheriting the row's.
         &-highlight.highlight {
-            --background-active: var(--surface-background-active);
-            --background-hover: var(--surface-background-hover);
-            --background-pressed: var(--surface-background-pressed);
+            @extend %background-surface, %surface-lower;
             --scale-hidden: 1;
+            --surface-level: -2;
             border-radius: var(--border-radius-300);
         }
     }

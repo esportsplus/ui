@@ -4,29 +4,25 @@
 @use 'css-utilities/surface';
 
 
-// A segmented control: the active button rests on a white pill, which the highlight glides between buttons.
+// A segmented control: the active button rests on a lowered pill, which the highlight glides between buttons. Each
+// button fills itself on hover and press from the same lowered level.
 .button-demo-group {
-    @extend %surface-lower;
     align-items: center;
-    background: var(--surface-background-default);
     border-radius: var(--border-radius-600);
     display: inline-flex;
     gap: calc(var(--size-100) / 4);
     padding: calc(var(--size-100) / 2);
 
     &-button.button {
+        @extend %background-surface, %color-text, %surface-lower;
         --background-active: transparent;
         --background-default: transparent;
         --background-hover: transparent;
-        --background-pressed: transparent;
         --border-radius: var(--border-radius-400);
-        --color-active: var(--color-text-500);
-        --color-default: var(--color-text-300);
-        --color-hover: var(--color-text-500);
-        --color-pressed: var(--color-text-500);
         --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-200);
         --padding-vertical: 0px;
+        --surface-level: -2;
         gap: calc(var(--size-300) / 2);
         height: 28px;
 
@@ -38,16 +34,14 @@
 
     // Without a highlight the pill sits on the active button itself and swaps instantly.
     &--static &-button.button {
-        --background-active: var(--surface-background-default);
+        --background-active: var(--surface-background-active);
     }
 
+    // Declares its own surface colors, so they resolve at its level rather than inheriting the group's.
     &-highlight.highlight {
-        @extend %surface-raise;
-        --background-active: var(--surface-background-default);
-        --background-default: transparent;
-        --background-hover: transparent;
-        --background-pressed: transparent;
+        @extend %background-surface, %surface-lower;
         --scale-hidden: 1;
+        --surface-level: -2;
         border-radius: var(--border-radius-400);
     }
 
