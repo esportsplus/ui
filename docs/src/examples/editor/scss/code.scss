@@ -13,7 +13,7 @@
     width: min(850px, 100%);
 
     &-action {
-        @extend %background-surface, %border-surface, %color-text;
+        @extend %background-surface, %border-surface, %color-text, %surface-raise;
         --border-width: var(--border-width-400);
         --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-300);
@@ -97,7 +97,7 @@
     }
 
     &-switch {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         --background-active: var(--color-accent-400);
         --background-default: var(--surface-background-default);
     }

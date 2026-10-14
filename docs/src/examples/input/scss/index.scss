@@ -4,7 +4,7 @@
 
 .input {
     &-scrub-demo {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         background: var(--surface-background-default);
         border-radius: 18px;
         box-shadow: var(--surface-shadow-default);
@@ -28,7 +28,7 @@
         }
 
         &-preview {
-            @extend %surface-raised-level;
+            @extend %surface-raise;
             align-items: center;
             background: var(--surface-background-default);
             border-radius: var(--border-radius-400);

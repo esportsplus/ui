@@ -4,7 +4,7 @@
 @use 'css-utilities/surface';
 
 .markdown-editor {
-    @extend %background-state, %border-state, %surface-raised-level;
+    @extend %background-state, %border-state, %surface-raise;
     --active-line-background: var(--surface-background-hover);
     --background-default: var(--surface-background-default);
     --bar-control-height: var(--size-700);

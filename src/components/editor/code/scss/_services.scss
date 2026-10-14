@@ -58,7 +58,7 @@
 
     &-completions,
     &-hover {
-        @extend %reset-popover, %surface-raised-level;
+        @extend %reset-popover, %surface-raise;
         background: var(--surface-background-default);
         border: var(--border-width) solid var(--border-color);
         border-radius: var(--popup-border-radius);
@@ -137,7 +137,7 @@
     }
 
     &-problems {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         background: var(--surface-background-default);
         border-top: var(--border-width) solid var(--border-color);
         display: none;

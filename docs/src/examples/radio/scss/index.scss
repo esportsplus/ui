@@ -12,7 +12,7 @@
     width: min(420px, 100%);
 
     &-badge {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         background: var(--surface-background-default);
         border-radius: 999px;
         color: var(--color-text-300);

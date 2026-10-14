@@ -12,7 +12,7 @@
     --width: 100%;
 
     &-filter {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         --clear-background: var(--surface-background-default);
         --clear-border: var(--surface-border-default);
         // Resolved here, since the clear button's color state redefines --color on it.

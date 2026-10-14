@@ -40,7 +40,7 @@
     // composited rather than repainted per frame.
     // A surface of its own, so its background is a level above whatever it floats over.
     &-surface {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         background: var(--surface-background-default);
         border-radius: var(--surface-border-radius);
         box-shadow: 0 0 0 1px var(--surface-border-color), var(--surface-box-shadow);

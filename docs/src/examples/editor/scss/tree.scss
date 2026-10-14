@@ -5,9 +5,11 @@
 
 
 .file-tree-demo {
-    @extend %surface-raised;
+    @extend %surface-raise;
+    background: var(--surface-background-default);
     border: 1px solid var(--surface-border-default);
     border-radius: var(--border-radius-400);
+    box-shadow: var(--surface-shadow-default);
     height: 300px;
     max-width: 100%;
     overflow: hidden;
@@ -20,7 +22,7 @@
     }
 
     &-action {
-        @extend %background-surface, %border-surface, %color-text;
+        @extend %background-surface, %border-surface, %color-text, %surface-raise;
         --border-width: var(--border-width-400);
         --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-300);
@@ -145,7 +147,7 @@
 
     // Framed like the tree below it; the input itself is bare.
     &-search.input {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         --background-default: var(--surface-background-default);
         --border-color-default: var(--surface-border-default);
         --border-width: var(--border-width-400);

@@ -373,7 +373,7 @@ $edge-fill: (
 // sit in their positioned container, which may be the viewport too via an inline 'position: fixed'.
 dialog.overlay {
     // A fresh surface stack above everything; outranks a paired surface, such as '.card', that would count up instead.
-    @extend %surface-root-level;
+    @extend %surface-root;
     position: fixed;
 
     // A flow overlay occupies a row in its parent instead of covering that parent's content.

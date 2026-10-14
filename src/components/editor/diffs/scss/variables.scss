@@ -7,7 +7,7 @@
 // Shared by the viewer and the merge editor, whose sides reuse the viewer's numbers, code and buttons.
 .diffs,
 .diffs-merge {
-    @extend %background-state, %border-state, %font-geist-mono, %surface-raised-level;
+    @extend %background-state, %border-state, %font-geist-mono, %surface-raise;
     --accent: var(--color-blue-400);
     --accent-color: var(--color-white-300);
     --action-background: var(--background);

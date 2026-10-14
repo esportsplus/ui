@@ -72,7 +72,7 @@
         transition: background-color var(--transition-duration) var(--transition-timing-function);
 
         #{tokens.state(active, '.inline-edit')} > & {
-            @extend %surface-raised-level;
+            @extend %surface-raise;
             --background-default: var(--field-background, var(--surface-background-default));
             --background-hover: var(--background-default);
             box-shadow: var(--field-ring);
@@ -121,7 +121,7 @@
 
         code,
         pre {
-            @extend %font-geist-mono, %surface-sunken-level;
+            @extend %font-geist-mono, %surface-lower;
             background: var(--surface-background-default);
             font-family: var(--font-family);
             font-size: 0.875em;

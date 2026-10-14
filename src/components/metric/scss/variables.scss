@@ -5,7 +5,7 @@
 
 // A surface: its own level's background, lifted to match.
 .metric {
-    @extend %background-state, %box-shadow-state, %surface-raised-level;
+    @extend %background-state, %box-shadow-state, %surface-raise;
     --area-color: color-mix(in oklab, var(--line-color) 8%, transparent);
     --background-default: var(--surface-background-default);
     --border-radius: var(--border-radius-700);

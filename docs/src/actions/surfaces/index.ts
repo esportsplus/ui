@@ -23,21 +23,30 @@ const LOWEST = -3;
 
 const MODES = ['light', 'dark'] as const;
 
-const SCSS = `// Counts a level above whatever it sits in, and paints that level's background and shadow.
+const SCSS = `// Raises a level above whatever it sits in, and paints that level's background and shadow.
 .menu {
-    @extend %surface-raised;
+    @extend %surface-raise;
+    background: var(--surface-background-default);
+    box-shadow: var(--surface-shadow-default);
 }
 
-// Counts a level below; a sunken layer casts no shadow.
+// Lowers a level below; a lowered layer casts no shadow.
 .toolbar {
-    @extend %surface-sunken;
+    @extend %surface-lower;
+    background: var(--surface-background-default);
 }
 
-// Counts only, for a component that routes its colors through its own variables.
-.tooltip {
-    @extend %surface-raised-level;
-    --tooltip-background: var(--surface-background-default);
-    --tooltip-shadow: var(--surface-shadow-default);
+// Moves any number of levels, up or down; a bare '%surface' stays at its parent's level.
+.well {
+    @extend %surface;
+    --surface-step: -2;
+}
+
+// Routes its fill and shadow through its own states, stepping on hover and press.
+.chip {
+    @extend %background-state, %background-surface, %box-shadow-state, %box-shadow-surface, %surface-raise;
+    background: var(--background);
+    box-shadow: var(--box-shadow);
 }
 
 // A fresh stack wherever it opens: level 1, with the heaviest shadow.
@@ -58,7 +67,7 @@ const TOKENS: [string, string][] = [
     ['--surface-background-{state}', 'The level\'s background, and the step hover, active and pressed move it.'],
     ['--surface-border-{state}', 'The matching state\'s background moved by the mode\'s border step (darker in light, lighter in dark), for lines, rings and edges.'],
     ['--surface-shadow-{state}', 'The shadow at the layer\'s weight, a step heavier on hover, a step lighter pressed.'],
-    ['--surface-shadow-weight', 'Its Tailwind v4 shadow step, 0 to 7: its level by default, sunken 0, dialogs 7.'],
+    ['--surface-shadow-weight', 'Its Tailwind v4 shadow step, 0 to 7: its level by default, lowered 0, dialogs 7.'],
     ['--surface-shadow-color', 'The color of a shadow falling on the layer: its background deepened in its own hue.']
 ];
 
@@ -132,10 +141,10 @@ const page = (): Page => {
                     <h2>The ladder</h2>
                     <p>
                         Every layer sits on a level: <code>0</code> is the page, each raised surface one above whatever
-                        holds it and each sunken one below. Raised levels step lighter and sunken ones darker, by each
+                        holds it and each lowered one below. Raised levels step lighter and lowered ones darker, by each
                         mode's <code>surface</code> theme tokens: light mode climbs to white and then leaves elevation to the
                         shadow, and dark mode stops 6 levels above the page. A raised layer's shadow takes the Tailwind v4
-                        step matching its level, in the color of what it falls on; sunken levels cast none.
+                        step matching its level, in the color of what it falls on; lowered levels cast none.
                     </p>
                     ${preview({ node: html`<div class='surfaces-modes surfaces-modes--stack'>${MODES.map(ladder)}</div>` })}
                 </section>
@@ -197,9 +206,12 @@ const page = (): Page => {
                 <section class='page-section' id='usage'>
                     <h2>Usage</h2>
                     <p>
-                        Components reach a level by extending a placeholder: <code>%surface-raised</code> and
-                        <code>%surface-sunken</code> count and paint, their <code>-level</code> variants only count, and
-                        <code>%surface-root</code> starts a fresh stack for dialogs.
+                        Components reach a level by extending a placeholder, which counts and colors it without painting:
+                        <code>%surface-raise</code> and <code>%surface-lower</code> move one level,
+                        <code>%surface</code> moves by <code>--surface-step</code> (any whole number, 0 by default), and
+                        <code>%surface-root</code> starts a fresh stack for dialogs. Paint with the surface variables
+                        directly, or through <code>%background-surface</code>, <code>%border-surface</code> and
+                        <code>%box-shadow-surface</code> for fills that step with the state.
                     </p>
                     ${preview({ code: { language: 'scss', value: SCSS }, title: 'menu.scss' })}
                 </section>

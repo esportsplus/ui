@@ -28,9 +28,9 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     @return math.div(map.get(tokens.$themes, $mode, surface, $key), 100);
 }
 
-// The lightness a level moves from the page in a mode: raised levels by one step, sunken ones by another.
+// The lightness a level moves from the page in a mode: raised levels by one step, lowered ones by another.
 @function level-offset($level, $mode) {
-    @return 'max(#{$level}, 0) * #{ladder-step($mode, raised)} + min(#{$level}, 0) * #{ladder-step($mode, sunken)}';
+    @return 'max(#{$level}, 0) * #{ladder-step($mode, raised)} + min(#{$level}, 0) * #{ladder-step($mode, lowered)}';
 }
 
 // Light chroma at a new lightness, holding the origin's ratio of chroma to its distance from white: fading to none at
@@ -164,7 +164,7 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 // components already name, following any background a component sets in its place. Active, hover and pressed step the
 // background as 'surface-shift()' sets. Each state's border is that state's background moved by the border step,
 // darker in light and lighter in dark. Another level is never a color to paint: an element reaches it by extending
-// '%surface-raised' or '%surface-sunken', so whatever sits in it reads its states from the level it shows.
+// '%surface' or one of its kin, so whatever sits in it reads its states from the level it shows.
 @mixin surface-colors {
     --surface-background-active: #{surface-shift('active')};
     --surface-background-default: #{surface-background('var(--surface-level)')};
@@ -196,71 +196,60 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 }
 
 
-// Only a surface already at the top matches no raised query, so it keeps the top level's weight.
-%surface-raised-level {
-    @include surface-shadow(6);
-}
-
-// A layer a level above or below whatever it sits in, counted and colored without being painted: for components that
-// route their background and shadow through their own variables, pointing them at '--surface-background-*' and
-// '--surface-shadow-*'. A sunken layer is recessed, so it casts no shadow.
-%surface-raised-level,
-%surface-sunken-level {
+// A layer counted and colored from its level without being painted: it sets '--surface-level' and the
+// '--surface-*' colors and shadows read from it, and leaves painting to '%background-surface', '%border-surface' and
+// '%box-shadow-surface' or the component's own declarations.
+%surface,
+%surface-lower,
+%surface-raise,
+%surface-root {
     @include surface-colors;
     @include surface-shadows;
 }
 
-%surface-sunken-level {
+// The weights a layer keeps when no query matches it, past either end of the ladder: a raised layer already at the
+// top keeps the top level's weight, and the others cast no shadow.
+%surface,
+%surface-lower {
     @include surface-shadow(0);
 }
 
-// Its level is its parent's one up or down. Every element is a style container, so a style query reads the parent's
-// level where the surface sets its own, which a 'var()' on the same property could not, and sets the shadow weight to
-// match. Raised levels stop at 6, where the dark steps top out, and sunken ones at -3, so a surface can still
-// sink inside one that already sits below the page; past either, a surface matches no query and keeps its parent's
-// level.
-@for $level from -3 through 5 {
+%surface-raise {
+    @include surface-shadow(6);
+}
+
+// Its level is its parent's moved: by '--surface-step' for '%surface', one up for '%surface-raise' and one down for
+// '%surface-lower'. Every element is a style container, so a style query reads the parent's level where the layer
+// sets its own, which a 'var()' on the same property could not. Levels run from -3 to 6, where the dark steps top
+// out; a layer past either end matches no query and keeps its parent's level. Only a layer moved up casts a shadow,
+// at its new level's weight.
+@for $level from -3 through 6 {
     @container style(--surface-level: #{$level}) {
-        %surface-raised-level {
-            --surface-level: #{$level + 1};
-            @include surface-shadow(math.max($level + 1, 0));
+        %surface {
+            --surface-level: clamp(-3, #{$level} + var(--surface-step), 6);
+            @include surface-shadow(
+                'calc(max(#{$level} + var(--surface-step), 0) * clamp(0, var(--surface-step), 1))'
+            );
+        }
+
+        @if $level > -3 {
+            %surface-lower {
+                --surface-level: #{$level - 1};
+            }
+        }
+
+        @if $level < 6 {
+            %surface-raise {
+                --surface-level: #{$level + 1};
+                @include surface-shadow(math.max($level + 1, 0));
+            }
         }
     }
-}
-
-@for $level from -2 through 6 {
-    @container style(--surface-level: #{$level}) {
-        %surface-sunken-level {
-            --surface-level: #{$level - 1};
-        }
-    }
-}
-
-%surface-raised {
-    @extend %surface-raised-level;
-}
-
-// The same, painted: the surface's background and shadow on the element itself.
-%surface-raised,
-%surface-root,
-%surface-sunken {
-    background: var(--surface-background-default);
-    box-shadow: var(--surface-shadow-default);
-}
-
-%surface-root {
-    @extend %surface-root-level;
 }
 
 // A fresh stack above everything, for dialogs: level 1 wherever it opens, so whatever opens inside counts up from it,
 // with the heaviest shadow since nothing sits above it. Not counted from its parent, so it skips the queries.
-%surface-root-level {
-    @include surface-colors;
+%surface-root {
     @include surface-shadow($shadow-weight-max);
-    @include surface-shadows;
     --surface-level: 1;
-}
-
-%surface-sunken {
-    @extend %surface-sunken-level;
 }

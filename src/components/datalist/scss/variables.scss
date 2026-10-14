@@ -20,7 +20,7 @@
 
     // A well a level below the list it frames.
     &-lens {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         --background: var(--surface-background-default);
         --border-radius: var(--border-radius-600);
     }

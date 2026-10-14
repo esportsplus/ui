@@ -155,7 +155,7 @@
     }
 
     &-face {
-        @extend %absolute-full, %surface-raised-level;
+        @extend %absolute-full, %surface-raise;
         backface-visibility: hidden;
         background: var(--card-background);
         border-radius: var(--card-border-radius);

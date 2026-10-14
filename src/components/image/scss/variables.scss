@@ -35,7 +35,7 @@
 
 
     &-lazyload {
-        @extend %background-state, %surface-sunken-level;
+        @extend %background-state, %surface-lower;
         --aspect-ratio: auto;
         --background-default: var(--surface-background-default);
         --border-radius: var(--border-radius-600);

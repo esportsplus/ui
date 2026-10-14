@@ -187,7 +187,7 @@
     }
 
     &-header {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         align-items: center;
         background: var(--surface-background-default);
         border-bottom: var(--border-width) solid var(--border-color);

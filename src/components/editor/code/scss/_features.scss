@@ -109,7 +109,7 @@
     }
 
     &-peek {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         background: var(--surface-background-default);
         border-bottom: var(--border-width) solid var(--peek-border-color);
         border-top: var(--border-width) solid var(--peek-border-color);
@@ -136,7 +136,7 @@
         }
 
         &-bar {
-            @extend %surface-sunken-level;
+            @extend %surface-lower;
             align-items: center;
             background: var(--surface-background-default);
             display: flex;

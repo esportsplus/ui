@@ -4,7 +4,7 @@
 
 // Floats above everything, like a dialog.
 .docs-toast {
-    @extend %surface-root-level;
+    @extend %surface-root;
     --docs-toast-background: var(--surface-background-default);
     --docs-toast-border-color: var(--surface-border-hover);
     --docs-toast-color: var(--color-text-400);
@@ -36,7 +36,7 @@
 
     // The same surface, shown as the card peeking out behind the stack with its count.
     &-overflow {
-        @extend %surface-root-level;
+        @extend %surface-root;
         --docs-toast-background: var(--surface-background-default);
         --docs-toast-border-color: var(--surface-border-hover);
         --docs-toast-color: var(--color-text-300);

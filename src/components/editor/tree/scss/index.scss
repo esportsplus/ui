@@ -99,7 +99,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
     // The drag moves it to the pointer by its 'translate'.
     &-drag {
-        @extend %reset-popover, %surface-raised-level;
+        @extend %reset-popover, %surface-raise;
         background: var(--surface-background-default);
         border-radius: var(--drag-radius);
         box-shadow: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
@@ -159,7 +159,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         z-index: 2;
 
         &-bar {
-            @extend %surface-raised-level;
+            @extend %surface-raise;
             align-items: center;
             background: var(--surface-background-default);
             border: 1px solid var(--find-border-color);
@@ -242,7 +242,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         }
 
         &-note {
-            @extend %surface-raised-level;
+            @extend %surface-raise;
             align-self: flex-end;
             background: var(--surface-background-default);
             border: 1px solid var(--find-border-color);
@@ -257,7 +257,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     }
 
     &-input {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         background: var(--surface-background-default);
         border: 1px solid var(--input-border-color);
         border-radius: var(--input-radius);
@@ -516,7 +516,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         z-index: 1;
 
         &-rows {
-            @extend %surface-raised-level;
+            @extend %surface-raise;
             background: var(--surface-background-default);
             box-shadow: var(--sticky-shadow);
 

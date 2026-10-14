@@ -4,7 +4,7 @@
 // A surface, so its fills and whatever sits in it read from a level above its parent. Flat by default, since most
 // buttons are transparent; a tactile one rises off its parent with the surface's shadow.
 .button {
-    @extend %surface-raised-level;
+    @extend %surface-raise;
     --border-color-default: var(--background);
 
 

@@ -376,7 +376,8 @@ family is its own stylesheet, used where it is extended, so a stylesheet only em
   `--gap-vertical` to space children.
 - **text**: `%text`, `%text-crop` (`-top`, `-bottom`, `-first-child`, `-last-child`), `%text-gradient`,
   `%text-line-shadow`, `%text-shiny` and `%text-truncate`.
-- **surface**: `%surface-raised` / `%surface-sunken` (painted) and their `-level` forms (counted).
+- **surface**: `%surface-raise` / `%surface-lower` (one level up or down), `%surface` (moved by `--surface-step`) and
+  `%surface-root`; all count and color without painting.
 - **font/geist**, **font/montserrat**: see Fonts.
 - **drag**, **hidden**, **icon**, **inline** and **skeleton** (painted from `--from` to `--to`).
 
@@ -425,19 +426,22 @@ the `--surface-level` custom property, and reads its colors from that level inst
 parent's level with a container style query, so it counts up even set directly inside another surface; levels stop at 6.
 Its tokens follow the state names components use, `default`, `hover`, `active` and `pressed`:
 `--surface-background-*` steps the default from `--color-surface` by the lightness points in each mode's `$themes`
-`surface` map, raised levels lighter and sunken ones darker (in light mode raised levels climb to white, leaving further
+`surface` map, raised levels lighter and lowered ones darker (in light mode raised levels climb to white, leaving further
 elevation to the shadow), then moves it for each state, active and hover lighter and pressed darker in both modes;
 `--surface-border-*` moves the matching `--surface-background-*` by the mode's `border` step, darker in light and
 lighter in dark, for lines, rings and small marks; and `--surface-shadow-*` is the
 shadow at the layer's `--surface-shadow-weight`, a step on Tailwind v4's `shadow-2xs` to `shadow-2xl` ladder (1 to 7),
-a step heavier on hover and a step lighter when pressed. The weight follows the level (sunken layers 0, dialogs 7);
+a step heavier on hover and a step lighter when pressed. The weight follows the level (lowered layers 0, dialogs 7);
 set it on a surface to pick another step, a fraction landing between two. A shadow takes the color of what it falls
 on, that background deepened in its own hue, at the mode's shadow `opacity`; `--surface-shadow-
 color` is that color for whatever casts onto a layer, for component shadows and scrims. A quiet fill, such as a track
 or an inline code chip, is a surface of its own a level below what holds it. Dialogs reset the stack to level 1 wherever they open. Another level is never a color to paint: a
-component reaches it by extending `%surface-raised` or `%surface-sunken` (painted), or `%surface-raised-level` or
-`%surface-sunken-level` (counted, for components that route background and shadow through their own variables), so
-whatever sits in it reads its states from the level it shows; sunken layers cast no shadow. Style queries on custom
+component reaches it by extending `%surface-raise` or `%surface-lower` (one level up or down), `%surface` (moved by
+`--surface-step`, a signed whole number, 0 by default and never inherited) or `%surface-root`, so whatever sits in it
+reads its states from the level it shows; only a layer moved up casts a shadow. None of them paint: set
+`background`/`box-shadow` from `--surface-background-default`/`--surface-shadow-default`, or extend
+`%background-surface`, `%border-surface` and `%box-shadow-surface` with their state placeholders for fills that step with
+the state. Style queries on custom
 properties need Chrome and Edge 111, Safari 18 or Firefox 151; elsewhere every surface keeps its parent's level. The
 ladder and shadows live in each mode's `surface` map in `$themes` (`tokens/scss/color.scss`), with `shadow` holding its
 `depth` and `opacity`; the Tailwind shadow ladder itself sits with the surface utilities, and `surface.shadow($weight)`

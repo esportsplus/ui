@@ -87,7 +87,7 @@
     // transition captures the new state; ':has()' on the dialog would restyle the whole document on every DOM change.
     // Chained through '.card' to outrank the card's own states, its pressed scale among them.
     &-item.--active > .card.card--expand {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         --background-default: var(--surface-background-default);
         --box-shadow-default: inset 0 0 0 var(--border-width-400) var(--slot-border-color);
         cursor: default;

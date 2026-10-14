@@ -13,7 +13,7 @@
     }
 
     &-arrow {
-        @extend %background-state, %surface-raised-level;
+        @extend %background-state, %surface-raise;
         // A surface a level above what holds it. The fallbacks resolve here, on the arrow's own level; a value set on
         // the parent would resolve at the parent's.
         --background-default: var(--arrow-background, var(--surface-background-default));

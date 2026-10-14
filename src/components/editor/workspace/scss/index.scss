@@ -6,7 +6,7 @@
 
 // Modifiers only set variables; the layout reads them, so combined states never need combined selectors.
 .code-workspace {
-    @extend %background-state, %border-state, %surface-raised-level;
+    @extend %background-state, %border-state, %surface-raise;
     --accent: var(--color-accent-400);
     --accent-color: var(--color-white-300);
     --aside-track: minmax(0, 1fr);
@@ -292,7 +292,7 @@
 
     // A surface, lifted only while it floats as a drawer.
     &-explorer {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         background: var(--surface-background-default);
         border-inline-end: var(--explorer-end);
         border-inline-start: var(--explorer-start);

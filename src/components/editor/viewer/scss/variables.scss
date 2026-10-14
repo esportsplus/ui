@@ -5,7 +5,7 @@
 
 
 .code-viewer {
-    @extend %background-state, %border-state, %font-geist-mono, %surface-raised-level;
+    @extend %background-state, %border-state, %font-geist-mono, %surface-raise;
     --background-default: var(--surface-background-default);
     --bar-gap: var(--size-200);
     --bar-padding: var(--size-100) var(--size-100) var(--size-100) var(--size-300);

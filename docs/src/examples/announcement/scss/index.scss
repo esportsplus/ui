@@ -4,7 +4,7 @@
 
 
 .announcement-demo {
-    @extend %surface-raised-level;
+    @extend %surface-raise;
     background: var(--surface-background-default);
     border-radius: var(--border-radius-700);
     box-shadow: var(--surface-shadow-default);
@@ -21,7 +21,7 @@
     // Pinned to the frame, so it stays under the cursor while the banner reopens.
     // Arrives after the banner has closed, leaves at once.
     &-again {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         background: var(--surface-background-default);
         border: 0;
         border-radius: 999px;
@@ -58,7 +58,7 @@
     }
 
     &-avatar {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         background: var(--surface-background-default);
         border-radius: 999px;
         height: 28px;
@@ -199,7 +199,7 @@
     }
 
     &-stat {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         background: var(--surface-background-default);
         border-radius: var(--border-radius-600);
         font-size: var(--font-size-300);

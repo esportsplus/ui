@@ -14,7 +14,7 @@
     // Floating layers, a level above whatever opened them.
     &-content,
     &-message {
-        @extend %background-state, %box-shadow-state, %surface-raised-level;
+        @extend %background-state, %box-shadow-state, %surface-raise;
         --border-radius: var(--border-radius-400);
         --box-shadow-default: var(--surface-shadow-default);
         --max-width: calc(90vw - (var(--size-700) * 2));
@@ -112,7 +112,7 @@
     // by a branch panel's header title, which crossfades to bold while that panel is open; every panel sets its own, so a
     // parent panel's state never reaches its children's titles.
     &-menu-panel {
-        @extend %background-state, %box-shadow-state, %surface-raised-level;
+        @extend %background-state, %box-shadow-state, %surface-raise;
         --background-default: var(--surface-background-default);
         --box-shadow-default: var(--surface-shadow-default);
         --title-bold-opacity: 0;
@@ -128,7 +128,7 @@
     // '--padding' and '--radius' rather than the usual names: the root resets '--padding-*' and '--border-radius' on
     // every element, so the box and layers inside would never see them.
     &-shared {
-        @extend %background-state, %box-shadow-state, %surface-raised-level;
+        @extend %background-state, %box-shadow-state, %surface-raise;
         --background-default: var(--color-primary-400);
         --blur: var(--blur-500);
         --box-shadow-default: var(--surface-shadow-default);

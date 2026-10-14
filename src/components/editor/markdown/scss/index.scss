@@ -126,7 +126,7 @@
     }
 
     &-code {
-        @extend %font-geist-mono, %surface-sunken-level;
+        @extend %font-geist-mono, %surface-lower;
         background: var(--surface-background-default);
         border-radius: var(--code-radius);
         font-family: var(--font-family);
@@ -317,7 +317,7 @@
     }
 
     &-pre {
-        @extend %font-geist-mono, %surface-sunken-level;
+        @extend %font-geist-mono, %surface-lower;
         background: var(--surface-background-default);
         border-radius: var(--code-radius);
         font-family: var(--font-family);

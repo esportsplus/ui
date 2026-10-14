@@ -54,7 +54,7 @@
     }
 
     &-control {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         background: var(--surface-background-default);
         border-radius: var(--surface-radius);
         height: var(--surface-height);
@@ -81,7 +81,7 @@
     }
 
     &-fill {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         background: var(--surface-fill, var(--surface-background-default));
         border-radius: inherit;
         box-shadow: var(--surface-fill-shadow, var(--surface-shadow-default));

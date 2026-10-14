@@ -159,7 +159,7 @@
         // match the trigger's own box and opening reads as the button growing into the row. A surface, opening a
         // level above whatever holds the toggle.
         &-menu {
-            @extend %surface-raised-level;
+            @extend %surface-raise;
             --border-width: var(--border-width-400);
             --center: calc(
                 var(--border-width) + var(--padding) + var(--index) * (var(--option-size) + var(--gap)) +

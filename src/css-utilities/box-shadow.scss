@@ -27,3 +27,12 @@
     box-shadow: 0 0 0 var(--box-shadow-width) var(--box-shadow);
     --box-shadow-width: var(--border-width-700);
 }
+
+// The surface's own shadow and its states, lifting on hover and settling when pressed; the level is set apart, by
+// '%surface' and its kin.
+%box-shadow-surface {
+    --box-shadow-active: var(--surface-shadow-active);
+    --box-shadow-default: var(--surface-shadow-default);
+    --box-shadow-hover: var(--surface-shadow-hover);
+    --box-shadow-pressed: var(--surface-shadow-pressed);
+}

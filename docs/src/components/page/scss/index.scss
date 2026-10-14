@@ -74,7 +74,7 @@
     }
 }
 
-// A note sinks a level below the page; the card class qualifies it so its level outranks the card's own.
+// A note lowers a level below the page; the card class qualifies it so its level outranks the card's own.
 .page-note.card {
-    @extend %surface-sunken-level;
+    @extend %surface-lower;
 }

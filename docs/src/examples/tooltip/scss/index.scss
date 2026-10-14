@@ -13,7 +13,7 @@
     text-wrap: pretty;
 
     &-avatar {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         background: var(--surface-background-default);
         border-radius: 50%;
         flex-shrink: 0;
@@ -56,7 +56,7 @@
 
     // Read by its two labels, which crossfade as it toggles.
     &-follow {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         --follow-opacity: 1;
         --following-opacity: 0;
         background: var(--color-primary-500);

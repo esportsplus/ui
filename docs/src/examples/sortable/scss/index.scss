@@ -71,7 +71,7 @@
         width: min(320px, 100%);
 
         &--group {
-            @extend %surface-sunken-level;
+            @extend %surface-lower;
             background: var(--surface-background-default);
             border-radius: 14px;
             flex: 1;
@@ -103,10 +103,12 @@
     }
 
     &-row {
-        @extend %surface-raised;
+        @extend %surface-raise;
         align-items: center;
+        background: var(--surface-background-default);
         border: 1px solid var(--surface-border-default);
         border-radius: var(--border-radius-500);
+        box-shadow: var(--surface-shadow-default);
         display: flex;
         font-size: var(--font-size-400);
         gap: var(--size-300);
@@ -134,7 +136,7 @@
     }
 
     &-tool {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         align-items: center;
         background: var(--surface-background-default);
         border: 1px solid var(--surface-border-default);

@@ -5,7 +5,7 @@
 
 
 .sidebar {
-    @extend %surface-sunken-level;
+    @extend %surface-lower;
     --content-padding-horizontal: var(--size-600);
     --scrollbar-color-default: var(--surface-border-hover);
     --scrollbar-color-hover: var(--surface-border-pressed);
@@ -127,7 +127,7 @@
     }
 
     // Every state reads the one level the highlight counts. The active pill sets its shadow weight, since the weight
-    // counted on the sunken sidebar casts none; hover and pressed stay flat.
+    // counted on the lowered sidebar casts none; hover and pressed stay flat.
     .nav-tree-highlight.highlight {
         &.highlight--hover,
         &.highlight--pressed {

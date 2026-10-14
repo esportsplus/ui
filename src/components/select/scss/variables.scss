@@ -6,7 +6,7 @@
 // The trigger is a surface, lifting on hover, settling when pressed and holding the selected fill while open; its panel
 // is a surface above it, whose options take the panel's own hover and pressed steps.
 .select {
-    @extend %background-state, %box-shadow-state, %surface-raised-level;
+    @extend %background-state, %box-shadow-state, %surface-raise;
     --background-active: var(--surface-background-active);
     --background-default: var(--surface-background-default);
     --background-hover: var(--surface-background-hover);
@@ -35,7 +35,7 @@
         }
 
         &-panel {
-            @extend %background-state, %box-shadow-state, %surface-raised-level;
+            @extend %background-state, %box-shadow-state, %surface-raise;
             --background-default: var(--surface-background-default);
             --border-radius: var(--border-radius-600);
             --box-shadow-default: var(--surface-shadow-default);

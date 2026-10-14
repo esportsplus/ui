@@ -77,7 +77,7 @@
     }
 
     &-input {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         --board-field-align: center;
         --board-field-background: var(--board-surface, var(--surface-background-default));
         --board-field-color: var(--board-muted);
@@ -264,7 +264,7 @@
         }
 
         &-input {
-            @extend %surface-sunken-level;
+            @extend %surface-lower;
             --background-default: var(--board-surface, var(--surface-background-default));
             --border-color-default: var(--board-ring-hover);
             --border-color-hover: var(--board-ring-active);

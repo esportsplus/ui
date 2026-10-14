@@ -40,7 +40,7 @@
     // A surface above the card, so what sits in it (the tabs' highlight, the select) takes its states from the
     // header's own level. The card can't clip, so the header rounds the corners it fills.
     &-header {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         align-items: center;
         background: var(--surface-background-default);
         border-bottom: var(--border-width-400) solid var(--surface-border-default);
@@ -112,7 +112,7 @@
     }
 
     &-view {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         align-items: center;
         align-self: flex-start;
         background: var(--surface-background-default);
@@ -151,7 +151,7 @@
         }
 
         &-highlight {
-            @extend %surface-raised-level;
+            @extend %surface-raise;
             --background-active: var(--surface-background-default);
             --background-default: transparent;
             --background-disabled: transparent;

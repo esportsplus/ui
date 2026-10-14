@@ -4,7 +4,7 @@
 
 // A surface, and each button a surface above it.
 .dock {
-    @extend %surface-raised-level;
+    @extend %surface-raise;
     --background-default: var(--surface-background-default);
     --border-radius: 999px;
     --border-width: 0px;
@@ -38,7 +38,7 @@
     }
 
     &-button {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         --background-default: var(--surface-background-default);
         --border-radius: var(--item-radius);
         --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);

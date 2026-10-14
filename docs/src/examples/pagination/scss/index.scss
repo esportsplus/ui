@@ -18,9 +18,11 @@
     }
 
     &-card {
-        @extend %surface-raised;
+        @extend %surface-raise;
+        background: var(--surface-background-default);
         border: var(--border-width-400) solid var(--surface-border-default);
         border-radius: 20px;
+        box-shadow: var(--surface-shadow-default);
         box-sizing: border-box;
         display: flex;
         flex: none;

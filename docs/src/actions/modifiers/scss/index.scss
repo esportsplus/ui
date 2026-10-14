@@ -3,5 +3,6 @@
 
 
 .modifiers-scrollbar {
-    @extend %surface-sunken;
+    @extend %surface-lower;
+    background: var(--surface-background-default);
 }

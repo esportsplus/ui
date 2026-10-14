@@ -10,7 +10,7 @@
 
 .input {
     &-scrub {
-        @extend %background-state, %surface-raised-level;
+        @extend %background-state, %surface-raise;
         --background-default: var(--surface-background-default);
         --border-radius: var(--border-radius-400);
         --color: var(--color-text-500);

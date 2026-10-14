@@ -5,7 +5,7 @@
 
 // 44px outer radius around 10px of bezel leaves 34px for the screen.
 .pull-to-refresh-demo {
-    @extend %surface-raised-level;
+    @extend %surface-raise;
     background: var(--surface-background-default);
     border-radius: 44px;
     box-shadow: var(--surface-shadow-default);
@@ -125,7 +125,7 @@
     }
 
     &-screen {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         background: var(--surface-background-default);
         border-radius: 34px;
         display: flex;

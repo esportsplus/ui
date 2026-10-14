@@ -17,7 +17,7 @@
 
     // The field is a surface, and each chip a surface above it.
     &-box {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         background: var(--box-background, var(--surface-background-default));
         border-radius: var(--box-border-radius);
         box-shadow: var(--surface-shadow-default);
@@ -46,7 +46,7 @@
         transition: color var(--transition-duration) var(--transition-timing-function);
 
         &-body {
-            @extend %absolute-full, %surface-raised-level;
+            @extend %absolute-full, %surface-raise;
             // The surface's, until an active chip fills with ink and drops its shadow.
             background: var(--chip-background, var(--surface-background-default));
             border-radius: var(--chip-border-radius);

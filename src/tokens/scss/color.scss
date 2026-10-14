@@ -29,7 +29,7 @@ $colors: list.join(primary text, map.keys($color));
 // (APCA) contrast.
 //
 // 'surface' is the ladder in lightness points, every step moving the level's default the same way in both modes:
-// active, hover and each raised level lighter, pressed and each sunken level darker. 'border' moves each state's
+// active, hover and each raised level lighter, pressed and each lowered level darker. 'border' moves each state's
 // background for that state's border, darker in light and lighter in dark; 'color' sets how far every color's 300 and
 // 500 sit from its 400, lighter for hover and darker for press. Its 'shadow' is a shadow falling on a background:
 // 'depth' the shadow color's lightness as a share of that background's, its chroma scaled alike, so a shadow is the
@@ -48,13 +48,13 @@ $themes: (
             border: 6,
             color: 3,
             hover: 1,
+            lowered: 2,
             pressed: 4,
             raised: 2,
             shadow: (
                 depth: 0.24,
                 opacity: 16
-            ),
-            sunken: 2
+            )
         ),
         text: 1.5
     ),
@@ -69,13 +69,13 @@ $themes: (
             border: 4,
             color: 3,
             hover: 0.5,
+            lowered: 1,
             pressed: 2,
             raised: 1,
             shadow: (
                 depth: 0.24,
                 opacity: 8
-            ),
-            sunken: 1
+            )
         ),
         text: 1.5
     )

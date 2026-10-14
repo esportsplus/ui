@@ -14,7 +14,7 @@
     // The track a level below what holds it, filling with the accent when on.
     &-switch.checkbox,
     .checkbox {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         --background-active: var(--color-accent-400);
         --background-default: var(--surface-background-default);
     }

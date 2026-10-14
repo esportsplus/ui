@@ -27,7 +27,7 @@
     // The copy following the pointer, a popover in the top layer: fixed at the box the item was picked up from,
     // then moved by the pointer's offset and the swing, which JS writes every frame.
     &-drag {
-        @extend %reset-popover, %surface-raised-level;
+        @extend %reset-popover, %surface-raise;
         animation: var(--drag-animation);
         border-radius: var(--sortable-radius);
         box-shadow: var(--surface-shadow-default);

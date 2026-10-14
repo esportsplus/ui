@@ -12,7 +12,7 @@ $expand-transition-box-shadow:
 
 // A surface: a level above whatever it sits in, painted and lifted to match.
 .card {
-    @extend %surface-raised-level;
+    @extend %surface-raise;
     --background-default: var(--surface-background-default);
     --border-color-default: var(--background);
     // No border until a consumer sets a width; the padding insets by it, so the box keeps its size.

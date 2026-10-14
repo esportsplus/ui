@@ -34,7 +34,7 @@
         }
 
         &-head {
-            @extend %surface-raised-level;
+            @extend %surface-raise;
             background: var(--surface-background-default);
         }
 

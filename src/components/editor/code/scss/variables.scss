@@ -5,7 +5,7 @@
 @use 'css-utilities/surface';
 
 .code-editor {
-    @extend %background-state, %border-state, %font-geist-mono, %surface-raised-level;
+    @extend %background-state, %border-state, %font-geist-mono, %surface-raise;
     --active-line-background: var(--surface-background-hover);
     --background-default: var(--surface-background-default);
     --bar-control-height: var(--size-700);

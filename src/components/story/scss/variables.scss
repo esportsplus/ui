@@ -6,7 +6,7 @@
 
 // A surface: a level above whatever it sits in.
 .story {
-    @extend %background-state, %box-shadow-state, %surface-raised-level;
+    @extend %background-state, %box-shadow-state, %surface-raise;
     --background-default: var(--surface-background-default);
     --bar-color: oklch(from var(--color-primary-500) l c h / 0.15);
     --bar-height: 3px;

@@ -45,7 +45,7 @@
     }
 
     &-question {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         align-self: flex-end;
         background: var(--surface-background-default);
         border-radius: var(--border-radius-600);

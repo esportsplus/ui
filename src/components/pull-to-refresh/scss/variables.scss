@@ -12,7 +12,7 @@
 }
 
 .pull-to-refresh {
-    @extend %background-state, %surface-raised-level;
+    @extend %background-state, %surface-raise;
     --background-default: var(--surface-background-default);
     --color: var(--color-text-500);
     --fade-duration: var(--duration-fast);

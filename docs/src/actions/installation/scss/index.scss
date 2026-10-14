@@ -48,7 +48,7 @@
         }
 
         &-number {
-            @extend %surface-raised-level;
+            @extend %surface-raise;
             background: var(--surface-background-default);
             border: var(--border-width-400) solid var(--surface-border-default);
             border-radius: 50%;

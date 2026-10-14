@@ -5,7 +5,7 @@
 .surfaces {
     // Inline tokens in the prose, set off as on the themes page.
     p code {
-        @extend %surface-sunken-level;
+        @extend %surface-lower;
         -webkit-box-decoration-break: clone;
         background: var(--surface-background-default);
         border-radius: var(--border-radius-200);
@@ -21,7 +21,9 @@
     }
 
     &-card {
-        @extend %surface-raised;
+        @extend %surface-raise;
+        background: var(--surface-background-default);
+        box-shadow: var(--surface-shadow-default);
     }
 
     &-depth {
@@ -43,13 +45,17 @@
 
     &-dialog {
         @extend %surface-root;
+        background: var(--surface-background-default);
+        box-shadow: var(--surface-shadow-default);
     }
 
     // Labelled with its own level, read back from the counter so it shows what the style queries settled on. Even
     // padding around a square core nests the layers as squares.
     &-layer {
-        @extend %surface-raised;
+        @extend %surface-raise;
+        background: var(--surface-background-default);
         border-radius: var(--border-radius-400);
+        box-shadow: var(--surface-shadow-default);
         counter-reset: level var(--surface-level);
         display: grid;
         min-height: var(--size-700);
@@ -76,9 +82,11 @@
     }
 
     &-menu {
-        @extend %surface-raised;
+        @extend %surface-raise;
+        background: var(--surface-background-default);
         border: var(--border-width-400) solid var(--surface-border-default);
         border-radius: var(--border-radius-300);
+        box-shadow: var(--surface-shadow-default);
         display: grid;
         padding: var(--size-100);
 
@@ -101,7 +109,7 @@
     // A page of its own in each mode: pinned to level 0 in the markup, whatever the preview around it sits at. A zero
     // basis, since the preview sizes its own height as if a fixed basis' wrapped rows were stacked.
     &-mode {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         align-content: start;
         background: var(--surface-background-default);
         border-radius: var(--border-radius-500);
@@ -141,10 +149,12 @@
     }
 
     &-swatch {
-        @extend %surface-raised;
+        @extend %surface-raise;
         align-items: end;
         aspect-ratio: 1;
+        background: var(--surface-background-default);
         border-radius: var(--border-radius-300);
+        box-shadow: var(--surface-shadow-default);
         counter-reset: level var(--surface-level);
         display: grid;
         justify-items: center;

@@ -6,7 +6,7 @@
 
 // A segmented control: the active button rests on a white pill, which the highlight glides between buttons.
 .button-demo-group {
-    @extend %surface-sunken-level;
+    @extend %surface-lower;
     align-items: center;
     background: var(--surface-background-default);
     border-radius: var(--border-radius-600);
@@ -42,7 +42,7 @@
     }
 
     &-highlight.highlight {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         --background-active: var(--surface-background-default);
         --background-default: transparent;
         --background-hover: transparent;
@@ -57,5 +57,5 @@
 }
 
 .button-demo-surface {
-    @extend %background-surface, %border-surface, %color-text;
+    @extend %background-surface, %border-surface, %color-text, %surface-raise;
 }

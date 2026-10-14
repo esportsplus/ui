@@ -8,7 +8,7 @@
     width: min(520px, 100%);
 
     &-frame {
-        @extend %surface-raised-level;
+        @extend %surface-raise;
         align-items: center;
         background: var(--surface-background-default);
         border-radius: var(--border-radius-700);
