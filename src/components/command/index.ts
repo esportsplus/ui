@@ -626,10 +626,15 @@ export default component(
                 return;
             }
 
-            let declared = (e.target as Element | null)?.closest?.('[aria-keyshortcuts]')?.getAttribute('aria-keyshortcuts')?.toLowerCase().split(/\s+/) ?? [];
+            let owner = (e.target as Element | null)?.closest?.('[aria-keyshortcuts]'),
+                declared = owner?.getAttribute('aria-keyshortcuts')?.toLowerCase().split(/\s+/) ?? [];
 
-            // A focused element that declares the hotkey as its own (an editor's link shortcut) keeps it.
-            if (declared.includes(aria(keys, 'Control').toLowerCase()) || declared.includes(aria(keys, 'Meta').toLowerCase())) {
+            // A focused element that declares the hotkey as its own (an editor's link shortcut) keeps it; a palette
+            // trigger declares it on the palette's behalf.
+            if (
+                !owner?.classList.contains('command-trigger') &&
+                (declared.includes(aria(keys, 'Control').toLowerCase()) || declared.includes(aria(keys, 'Meta').toLowerCase()))
+            ) {
                 return;
             }
 
