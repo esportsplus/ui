@@ -3,6 +3,10 @@
 @use 'sass:math';
 @use 'sass:meta';
 @use '../tokens/scss' as tokens;
+@use './background';
+@use './border';
+@use './box-shadow';
+@use './color';
 
 
 // The shadow at each weight, 0 to 7, as two layers of y offset, blur, spread in px and opacity: Tailwind v4's
@@ -59,16 +63,25 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     @return 'oklch(from var(--color-surface) #{$dark} calc(c * #{$dark} / max(l, 0.01)) h)';
 }
 
-// A primary fill on the surface it sits on: the mode's 'primary' levels from the surface, below it in light and above
-// it in dark, so it reads as a quiet fill set into the light page and lifted off the dark one.
+// A primary fill on the surface it sits on, at its offset level, so it reads as a quiet fill set into the light page
+// and lifted off the dark one.
 @function surface-primary() {
-    $dark: map.get(tokens.$themes, dark, surface, primary);
-    $light: map.get(tokens.$themes, light, surface, primary);
-
     @return light-dark(
-        #{surface-background-in('calc(var(--surface-level) - #{$light})', light)},
-        #{surface-background-in('calc(var(--surface-level) + #{$dark})', dark)}
+        #{surface-background-in('calc(var(--surface-level) + #{surface-primary-offset(light)})', light)},
+        #{surface-background-in('calc(var(--surface-level) + #{surface-primary-offset(dark)})', dark)}
     );
+}
+
+// The levels a primary fill sits from its surface in a mode: the mode's 'primary', below it in light and above it in
+// dark.
+@function surface-primary-offset($mode) {
+    $levels: map.get(tokens.$themes, $mode, surface, primary);
+
+    @if $mode == light {
+        @return -$levels;
+    }
+
+    @return $levels;
 }
 
 // A default background moved for a state, so it follows any background a component sets in its place: active and
@@ -88,10 +101,10 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 
 // A state's background moved by the mode's border step, darker in light and lighter in dark, so each border follows the
 // background it edges in that state and stands out from it in both modes.
-@function surface-border($state) {
+@function surface-border($state, $background: 'var(--surface-background-#{$state})') {
     @return light-dark(
-        #{'oklch(from var(--surface-background-#{$state}) max(0, l - #{ladder-step(light, border)}) c h)'},
-        #{'oklch(from var(--surface-background-#{$state}) min(1, l + #{ladder-step(dark, border)}) c h)'}
+        #{'oklch(from #{$background} max(0, l - #{ladder-step(light, border)}) c h)'},
+        #{'oklch(from #{$background} min(1, l + #{ladder-step(dark, border)}) c h)'}
     );
 }
 
@@ -269,6 +282,28 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
                 }
             }
         }
+    }
+
+    // A primary fill painted on the layer it sits in, with text, edges and shadows that follow its states. Only a fill
+    // lifted above its layer casts a shadow, at the weight of the level it sits at; '--surface-primary-offset' carries that
+    // level per mode from the theme, since 'light-dark()' takes colors and a weight is a number.
+    &-primary {
+        @extend %background-state, %border-state, %box-shadow-state, %color-state, %color-text;
+        $weight: 'clamp(0, var(--surface-level) + var(--surface-primary-offset), 6) * ' +
+            'clamp(0, var(--surface-primary-offset), 1)';
+
+        --background-active: var(--surface-primary-active);
+        --background-default: var(--surface-primary-default);
+        --background-hover: var(--surface-primary-hover);
+        --background-pressed: var(--surface-primary-pressed);
+        --border-color-active: #{surface-border('active', 'var(--surface-primary-active)')};
+        --border-color-default: #{surface-border('default', 'var(--surface-primary-default)')};
+        --border-color-hover: #{surface-border('hover', 'var(--surface-primary-hover)')};
+        --border-color-pressed: #{surface-border('pressed', 'var(--surface-primary-pressed)')};
+        --box-shadow-active: var(--box-shadow-hover);
+        --box-shadow-default: #{shadow('calc(#{$weight})')};
+        --box-shadow-hover: #{shadow('min(#{$weight} + 1, #{$shadow-weight-max})')};
+        --box-shadow-pressed: #{shadow('max(#{$weight} - 1, 0)')};
     }
 
     // A fresh stack above everything, for dialogs: level 1 wherever it opens, so whatever opens inside counts up from it,
