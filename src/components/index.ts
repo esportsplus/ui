@@ -30,6 +30,7 @@ export {
 export { default as error } from './error';
 export { default as filter } from './filter';
 export { default as form } from './form';
+export { default as group } from './group';
 export { default as heatmap } from './heatmap';
 export { default as highlight } from './highlight';
 export { default as icon } from './icon';

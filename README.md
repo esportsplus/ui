@@ -95,6 +95,7 @@ html`
 | `loader` | Loading spinner |
 | `loading` | Border loading indicator |
 | `typewriter` | Animated typing effect; `typewriter.retype` is a headline word that is selected and typed over with a jittered, human rhythm, landing whole words under reduced motion. Both share the caret variables and `--block`/`--hard`/`--underscore` modifiers. `typewriter.rotate` is a rotating word (`state.index`, `state.paused`) whose shared letters glide into place while the others blur out and in; `typewriter-rotate--accent` |
+| `group` | Row of items on `%group`, spaced by `--gap-horizontal` / `--gap-vertical` (a quarter of `--size-100`); attributes under `[group.highlight]` add a `highlight` behind the items, none without them; `button--group` items make a segmented control, medium weight while `--active` | `group.highlight` |
 | `highlight` | Layer that glides behind its parent's children on hover and focus and rests on the `--active` one (`target` for nested items, `hover: false` for the active layer only); `line: 'bottom' \| 'left' \| 'right' \| 'top'` adds an edge line to the active layer with both fills kept `--line-inset` clear of it, `fill: false` drops the active background, `--glide-tail-duration-active` longer than `--glide-duration-active` stretches it toward the next item, `--inset-block` / `--inset-inline` pull the fill in from the item |
 | `ellipsis` | Animated dots |
 | `icon` | SVG sprite wrapper; `icon--rotate` turns it by `--rotate` (default `0deg`) with an eased transition, skipped under reduced motion |

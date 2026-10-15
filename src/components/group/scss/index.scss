@@ -1,0 +1,6 @@
+@use 'css-utilities/group';
+@use 'variables';
+
+.group {
+    @extend %group;
+}

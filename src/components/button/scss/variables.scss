@@ -23,6 +23,12 @@
         --success-color: var(--color-green-500);
     }
 
+    &--group {
+        @include tokens.state(active) {
+            --font-weight: var(--font-weight-500);
+        }
+    }
+
     &--hold {
         // Inverts the button as the sweep passes; buttons with a transparent background must set --fill-color.
         --fill-background: var(--color);
