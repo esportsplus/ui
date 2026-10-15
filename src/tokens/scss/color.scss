@@ -10,7 +10,7 @@ $color: (
     'grey': oklch(92% 0.0093 257),
     'purple': oklch(51.66% 0.2929 289.7),
     'red': oklch(62.87% 0.2567 27.7),
-    'white': oklch(98% 0.0032 257),
+    'white': oklch(98% 0.0028 257),
     'yellow': oklch(85.2% 0.199 91.9)
 );
 
@@ -48,16 +48,18 @@ $themes: (
         ),
         surface: (
             active: 3,
-            border: 6,
-            hover: 1.5,
-            lowered: 2,
+            hover: 2,
             pressed: 3,
+
+            border: 4,
             primary: 3,
-            raised: 2,
             shadow: (
                 depth: 0.24,
                 opacity: 16
-            )
+            ),
+
+            lowered: 2,
+            raised: 2,
         ),
         weights: (
             color: 3,
@@ -72,16 +74,18 @@ $themes: (
         ),
         surface: (
             active: 2,
-            border: 4,
             hover: 1,
-            lowered: 1,
             pressed: 2,
-            primary: 4,
-            raised: 1,
+
+            border: 4,
+            primary: 5,
             shadow: (
                 depth: 0.24,
                 opacity: 8
-            )
+            ),
+
+            lowered: 1,
+            raised: 1,
         ),
         weights: (
             color: 3,
