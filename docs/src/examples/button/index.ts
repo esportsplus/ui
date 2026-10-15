@@ -1,4 +1,4 @@
-import { button, highlight, icon } from '@esportsplus/ui/components';
+import { button, group, icon } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import toast from 'docs/components/toaster';
@@ -47,25 +47,28 @@ let swap = (open: Renderable<unknown>) => html`
 `;
 
 
-function group(glide: boolean) {
+function segmented(glide: boolean) {
     let state = reactive({ active: 0 });
 
-    return html`
-        <div aria-label='View' class='button-demo-group ${!glide && 'button-demo-group--static'}' role='group'>
-            ${glide && highlight({ class: 'button-demo-group-highlight' })}
-            ${views.map(({ glyph, label }, index) => html`
-                <button
-                    class='button button-demo-group-button ${() => state.active === index && '--active'}'
-                    onclick='${() => state.active = index}'
-                    type='button'
-                    ${{ 'aria-pressed': () => String(state.active === index) }}
-                >
-                    ${icon({ 'aria-hidden': 'true', class: 'button-demo-group-icon' }, glyph)}
-                    ${label}
-                </button>
-            `)}
-        </div>
-    `;
+    return group(
+        {
+            [group.highlight]: glide ? { class: 'button-demo-group-highlight' } : undefined,
+            'aria-label': 'View',
+            class: ['button-demo-group', !glide && 'button-demo-group--static'],
+            role: 'group'
+        },
+        views.map(({ glyph, label }, index) => html`
+            <button
+                class='button button--group button-demo-group-button ${() => state.active === index && '--active'}'
+                onclick='${() => state.active = index}'
+                type='button'
+                ${{ 'aria-pressed': () => String(state.active === index) }}
+            >
+                ${icon({ 'aria-hidden': 'true', class: 'button-demo-group-icon' }, glyph)}
+                ${label}
+            </button>
+        `)
+    );
 }
 
 function wait(ms: number) {
@@ -171,11 +174,11 @@ export default {
             title: 'copy'
         },
         {
-            render: () => group(true),
+            render: () => segmented(true),
             title: 'group'
         },
         {
-            render: () => group(false),
+            render: () => segmented(false),
             title: 'group without highlight'
         },
         {
