@@ -1,4 +1,5 @@
 @use '/tokens';
+@use 'css-utilities/color';
 @use 'css-utilities/font/geist';
 @use 'css-utilities/hidden';
 @use 'css-utilities/icon';
@@ -391,11 +392,10 @@
     }
 
     &-toolbar-button.button {
+        @extend %color-text;
         --background-default: transparent;
         --background-hover: color-mix(in oklab, var(--toolbar-color) 6%, transparent);
         --border-radius: var(--border-radius-400);
-        --color-default: var(--toolbar-color-muted);
-        --color-hover: var(--toolbar-color);
         --icon-size: var(--toolbar-icon-size);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;

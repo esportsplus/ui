@@ -27,10 +27,7 @@
     }
 
     &-label {
-        @extend %color-state;
-        --color-default: var(--label-color);
-        --color-hover: var(--label-color-active);
-        --color-pressed: var(--color-hover);
+        @extend %color-state, %color-text;
         align-items: center;
         color: var(--color);
         cursor: ew-resize;

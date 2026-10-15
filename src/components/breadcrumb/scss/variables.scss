@@ -10,9 +10,6 @@
     --font-weight-current: var(--font-weight-500);
     --height: 24px;
     --hover-background: var(--surface-background-hover);
-    // Resolved here, since a link's color state redefines --color and --color-active on it.
-    --link-color: var(--color);
-    --link-color-hover: var(--color-active);
     --link-padding: calc(var(--size-300) / 2);
     --link-radius: var(--border-radius-300);
     --menu-radius: var(--border-radius-600);

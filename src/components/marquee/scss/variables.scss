@@ -9,9 +9,6 @@
     --font-size: var(--font-size-300);
     --font-weight: var(--font-weight-500);
     --item-border-radius: var(--border-radius-300);
-    // Resolved here, since a link item's color state redefines --color and --color-hover on it.
-    --item-color: var(--color);
-    --item-color-hover: var(--color-hover);
     --item-gap: 40px;
     --item-height: 40px;
     --item-padding-horizontal: var(--size-300);

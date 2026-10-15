@@ -1,3 +1,4 @@
+@use 'css-utilities/color';
 @use 'css-utilities/surface';
 
 
@@ -242,12 +243,11 @@
 
         // The button's faces carry the blur swap; this only sizes and frames it, fading under the open menu.
         &-trigger.button {
+            @extend %color-text;
             --background-hover: var(--surface-background-hover);
             --border-color-default: var(--surface-border-default);
             --border-radius: var(--border-radius-400);
             --border-width: var(--border-width-400);
-            --color-default: var(--color-text-400);
-            --color-hover: var(--color-text-500);
             --icon-size: var(--size-400);
             --padding-horizontal: 0px;
             --padding-vertical: 0px;

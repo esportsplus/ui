@@ -188,10 +188,7 @@
     }
 
     &-placeholder {
-        @extend %color-state;
-        --color-default: var(--placeholder-color);
-        --color-hover: var(--hover-color);
-        --color-pressed: var(--color-hover);
+        @extend %color-state, %color-text;
         align-self: center;
         background: var(--placeholder-background);
         border: 0;

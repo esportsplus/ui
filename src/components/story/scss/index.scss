@@ -99,10 +99,7 @@
         background: transparent;
         border: 0;
         border-radius: 999px;
-        @extend %color-state;
-        --color-default: var(--muted-color);
-        --color-hover: var(--toggle-color-hover);
-        --color-pressed: var(--color-hover);
+        @extend %color-state, %color-text;
         color: var(--color);
         cursor: pointer;
         display: grid;

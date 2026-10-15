@@ -14,7 +14,7 @@
     }
 
     &-card {
-        @extend %color-state;
+        @extend %color-state, %color-text;
         color: var(--color);
         display: flex;
         flex-direction: column;

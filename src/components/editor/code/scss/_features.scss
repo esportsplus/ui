@@ -56,10 +56,7 @@
         }
 
         &-action {
-            @extend %color-state;
-            --color-default: var(--lens-color);
-            --color-hover: var(--lens-color-hover);
-            --color-pressed: var(--color-hover);
+            @extend %color-state, %color-text;
             appearance: none;
             background: transparent;
             border: 0;

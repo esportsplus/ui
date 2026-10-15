@@ -50,14 +50,10 @@
     }
 
     &-button {
-        @extend %background-state, %color-state;
+        @extend %background-state, %color-state, %color-text;
         --background-active: var(--hover-background);
         --background-hover: var(--hover-background);
         --background-pressed: var(--hover-background);
-        --color-active: var(--hover-color);
-        --color-default: var(--muted-color);
-        --color-hover: var(--hover-color);
-        --color-pressed: var(--hover-color);
         align-items: center;
         background: var(--background);
         border: 0;

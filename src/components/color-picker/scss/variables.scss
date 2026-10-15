@@ -80,8 +80,6 @@
     // Qualified by the row so it wins over the reused input styles regardless of stylesheet order.
     .color-picker-copy {
         --border-radius: calc(var(--control-border-radius) - var(--copy-inset));
-        --color-default: var(--color-muted);
-        --color-hover: var(--color);
         --size: calc(var(--control-height) - var(--copy-inset) * 2);
     }
 

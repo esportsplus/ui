@@ -25,8 +25,6 @@
     --radius: 24px;
     // Critically damped spring (no bounce) sampled over its duration.
     --spring: linear(0, 0.0575, 0.1803, 0.3208, 0.4551, 0.5729, 0.6711, 0.7501, 0.8122, 0.8601, 0.8966, 0.924, 0.9445, 0.9596, 0.9708, 0.9789, 0.9848, 0.9891, 0.9922, 0.9944, 0.996, 0.9972, 0.998, 0.9986, 1);
-    // Resolved here, since the toggle's color state redefines --color on it.
-    --toggle-color-hover: var(--color);
 
     // Neighbours dragged into view read at full strength, like the story they are about to become.
     &-slide.frame {

@@ -3,13 +3,10 @@
 
 
 .copy {
-    @extend %background-state, %color-state;
+    @extend %background-state, %color-state, %color-text;
     --background-hover: var(--surface-background-hover);
     --background-pressed: var(--surface-background-pressed);
     --border-radius: var(--border-radius-300);
-    --color-default: var(--color-text-300);
-    --color-hover: var(--color-text-500);
-    --color-pressed: var(--color-hover);
     --draw-duration: 280ms;
     --draw-timing-function: ease;
     --icon-size: var(--size-400);

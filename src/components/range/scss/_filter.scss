@@ -27,13 +27,10 @@
     }
 
     &-clear {
-        @extend %background-state, %color-state;
+        @extend %background-state, %color-state, %color-text;
         --background-default: var(--clear-background);
         --background-hover: var(--clear-hover);
         --background-pressed: var(--background-hover);
-        --color-default: var(--muted-color);
-        --color-hover: var(--clear-color-hover);
-        --color-pressed: var(--color-hover);
         align-items: center;
         background: var(--background);
         border: 1px solid var(--clear-border);

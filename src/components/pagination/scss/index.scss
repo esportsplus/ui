@@ -1,4 +1,5 @@
 @use '/tokens';
+@use 'css-utilities/color';
 @use 'arrows';
 @use 'cards';
 @use 'dots';
@@ -33,6 +34,7 @@
 
     &-control,
     &-page {
+        @extend %color-text;
         border: var(--border-width) solid var(--border-color);
         height: var(--size);
     }

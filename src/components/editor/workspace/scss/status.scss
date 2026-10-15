@@ -1,3 +1,6 @@
+@use 'css-utilities/color';
+
+
 .code-workspace {
     --status-icon-size: var(--size-200);
     --status-item-height: var(--size-500);
@@ -13,11 +16,10 @@
     }
 
     &-autosave.button {
+        @extend %color-text;
         --background-default: transparent;
         --background-hover: var(--control-active-background);
         --border-radius: var(--radius);
-        --color-default: var(--muted-color);
-        --color-hover: var(--color);
         --padding-horizontal: var(--spacing);
         --padding-vertical: 0px;
         flex: none;

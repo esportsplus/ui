@@ -1,5 +1,6 @@
 @use 'css-utilities/background';
 @use 'css-utilities/border';
+@use 'css-utilities/color';
 @use 'css-utilities/reset';
 @use 'css-utilities/surface';
 
@@ -223,13 +224,11 @@
     }
 
     &-control.button {
+        @extend %color-text;
         --background-active: var(--control-active-background);
         --background-default: transparent;
         --background-hover: var(--control-active-background);
         --border-radius: var(--radius);
-        --color-active: var(--color);
-        --color-default: var(--muted-color);
-        --color-hover: var(--color);
         // Sizes the sidebar toggle's glyph like the other control icons.
         --icon-size: var(--control-icon-size);
         --padding-horizontal: 0px;
@@ -494,14 +493,12 @@
 
     // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
     &-tab.button {
+        @extend %color-text;
         --background-active: transparent;
         --background-default: transparent;
         --background-hover: transparent;
         --background-pressed: transparent;
         --border-radius: var(--radius);
-        --color-active: var(--color);
-        --color-default: var(--muted-color);
-        --color-hover: var(--color);
         --gap-horizontal: var(--spacing-tight);
         --padding-horizontal: var(--spacing);
         --padding-vertical: 0px;

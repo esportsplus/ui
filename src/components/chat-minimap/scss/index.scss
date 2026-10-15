@@ -83,10 +83,7 @@
 
     // Out of the way until wanted: shown on its own hover or focus, and always on touch, which can't hover to find it.
     &-nav {
-        @extend %color-state;
-        --color-default: var(--color-text-300);
-        --color-hover: var(--nav-color-hover);
-        --color-pressed: var(--color-hover);
+        @extend %color-state, %color-text;
         align-items: center;
         background: none;
         border: 0;

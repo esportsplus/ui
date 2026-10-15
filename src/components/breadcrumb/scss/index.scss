@@ -21,10 +21,7 @@
     }
 
     &-link {
-        @extend %color-state;
-        --color-default: var(--link-color);
-        --color-hover: var(--link-color-hover);
-        --color-pressed: var(--color-hover);
+        @extend %color-state, %color-text;
         align-items: center;
         border-radius: var(--link-radius);
         color: var(--color);

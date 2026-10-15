@@ -50,10 +50,7 @@
         white-space: nowrap;
 
         &--link {
-            @extend %color-state;
-            --color-default: var(--item-color);
-            --color-hover: var(--item-color-hover);
-            --color-pressed: var(--color-hover);
+            @extend %color-state, %color-text;
             background: none;
             border: 0;
             cursor: pointer;

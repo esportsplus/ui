@@ -45,7 +45,6 @@
     --overflow-wrap: normal;
     --padding: var(--size-200);
     --placeholder-background: oklch(from var(--color-primary-300) l c h / 0.15);
-    --placeholder-color: var(--color-text-300);
     --property-color: light-dark(var(--color-blue-500), oklch(from var(--color-blue-500) 0.8 0.1 h));
     --regexp-color: light-dark(var(--color-red-500), oklch(from var(--color-red-500) 0.75 0.14 h));
     --selector-color: light-dark(var(--color-purple-500), oklch(from var(--color-purple-500) 0.78 0.13 h));

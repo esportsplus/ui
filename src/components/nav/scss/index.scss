@@ -29,13 +29,11 @@
     }
 
     &-link {
-        @extend %border-state, %color-state, %text;
+        @extend %border-state, %color-state, %color-text, %text;
         --border-color-active: var(--link-border-color-active);
         --border-color-default: var(--link-border-color);
         --border-color-hover: var(--link-border-color-hover);
         --border-color-pressed: var(--border-color-hover);
-        --color-active: var(--link-color-active);
-        --color-default: var(--link-color);
         --font-size: var(--link-font-size);
         --font-weight: var(--link-font-weight);
         align-content: center;

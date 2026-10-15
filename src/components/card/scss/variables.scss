@@ -1,3 +1,4 @@
+@use 'css-utilities/color';
 @use 'css-utilities/surface';
 
 
@@ -78,11 +79,10 @@ $expand-transition-box-shadow:
         --text-color: var(--color-text-500);
 
         &-close {
+            @extend %color-text;
             --background-hover: var(--surface-background-hover);
             --border-radius: 999px;
             --border-width: 0px;
-            --color-default: var(--muted-color);
-            --color-hover: var(--text-color);
             --padding-horizontal: 0px;
             --padding-vertical: 0px;
             --size: 32px;

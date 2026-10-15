@@ -68,10 +68,8 @@
 
     // The highlight paints the tab backgrounds, so the buttons only carry colour.
     &-tab.button {
+        @extend %color-text;
         --border-radius: var(--border-radius-400);
-        --color-active: var(--color);
-        --color-default: var(--color-muted);
-        --color-hover: var(--color);
         --font-size: calc(var(--font-size-400) * 0.875);
         --font-weight: var(--font-weight-500);
         --padding-horizontal: var(--size-300);
@@ -84,11 +82,10 @@
 
     // One 24px keycap line plus 6px either side makes the 36px trigger.
     &-trigger.button {
+        @extend %color-text;
         --background-default: var(--surface-background-default);
         --border-radius: var(--border-radius-400);
         --box-shadow-default: var(--surface-shadow-default);
-        --color-default: var(--color-text-300);
-        --color-hover: var(--color-text-500);
         --font-size: calc(var(--font-size-400) * 0.875);
         --gap-horizontal: var(--size-100);
         --line-height: 24px;

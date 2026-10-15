@@ -65,9 +65,6 @@
     --input-cursor: text;
     --invalid-color: var(--color-red-400);
     --keyword-color: light-dark(var(--color-purple-400), oklch(from var(--color-purple-400) 0.75 0.15 h));
-    --lens-color: var(--muted-color);
-    // Resolved here, since a lens action's color state redefines --color on it.
-    --lens-color-hover: var(--color);
     --lens-font-size: 0.85em;
     --lens-gap: var(--size-300);
     --line-height: var(--size-600);
