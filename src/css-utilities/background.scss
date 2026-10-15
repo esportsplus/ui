@@ -1,16 +1,7 @@
 @use '../tokens/scss' as tokens;
 
-// After '%background-state', so a color extended alongside it replaces its transparent default.
 %background {
-    @include tokens.state-utility('background', tokens.$colors);
-
-    &-default {
-        --background: var(--background-default);
-        --background-active: var(--background-default);
-        --background-hover: var(--background-default);
-        --background-pressed: var(--background-default);
-    }
-
+    // First, so a color extended alongside it replaces its transparent default.
     &-state {
         --background: var(--background-default);
         --background-active: var(--background-default);
@@ -29,6 +20,15 @@
         @include tokens.state(pressed) {
             --background: var(--background-pressed);
         }
+    }
+
+    @include tokens.state-utility('background', tokens.$colors);
+
+    &-default {
+        --background: var(--background-default);
+        --background-active: var(--background-default);
+        --background-hover: var(--background-default);
+        --background-pressed: var(--background-default);
     }
 
     // The surface's own fill and its states; the level is set apart, by '%surface' and its kin.

@@ -1,7 +1,29 @@
 @use '../tokens/scss' as tokens;
+// Loaded first so its text defaults sit before the states and colors below, which replace them.
+@use './text';
 
-// After '%color-state', so a color extended alongside it replaces its text default.
 %color {
+    // First, so a color extended alongside it replaces its text default.
+    &-state {
+        --color: var(--color-default);
+        --color-active: var(--color-default);
+        --color-default: var(--color-text-400);
+        --color-hover: var(--color-default);
+        --color-pressed: var(--color-default);
+
+        @include tokens.state(active) {
+            --color: var(--color-active);
+        }
+
+        @include tokens.state(hover) {
+            --color: var(--color-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --color: var(--color-pressed);
+        }
+    }
+
     @include tokens.state-utility('color', tokens.$colors);
 
     &-default {
@@ -17,25 +39,5 @@
         --color-default: var(--surface-background-default);
         --color-hover: var(--surface-background-default);
         --color-pressed: var(--surface-background-default);
-    }
-}
-
-%color-state {
-    --color: var(--color-default);
-    --color-active: var(--color-default);
-    --color-default: var(--color-text-400);
-    --color-hover: var(--color-default);
-    --color-pressed: var(--color-default);
-
-    @include tokens.state(active) {
-        --color: var(--color-active);
-    }
-
-    @include tokens.state(hover) {
-        --color: var(--color-hover);
-    }
-
-    @include tokens.state(pressed) {
-        --color: var(--color-pressed);
     }
 }
