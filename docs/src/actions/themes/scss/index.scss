@@ -5,9 +5,9 @@
     // padding and corners. Ligatures off, since the mono font joins a leading '--' into a dash that spills over the
     // padding.
     p code {
-        @extend %surface-lower;
+        @extend %surface-primary;
         -webkit-box-decoration-break: clone;
-        background: var(--surface-background-default);
+        background: var(--background);
         border-radius: var(--border-radius-200);
         box-decoration-break: clone;
         font-variant-ligatures: none;

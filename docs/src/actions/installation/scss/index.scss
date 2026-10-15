@@ -1,5 +1,3 @@
-@use 'css-utilities/background';
-@use 'css-utilities/color';
 @use 'css-utilities/group';
 @use 'css-utilities/surface';
 
@@ -8,14 +6,14 @@
     --gap-vertical: var(--size-700);
     font-weight: var(--font-weight-300);
 
+    // Clear at rest and while active, so only the highlight's pill marks the chosen manager.
     &-package.link {
-        @extend %background-surface, %color-text, %surface-lower;
+        @extend %surface-primary;
         --background-active: transparent;
         --background-default: transparent;
         --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-200);
         --padding-vertical: calc(var(--size-100) / 2);
-        --surface-level: -2;
         border-radius: var(--border-radius-300);
 
         &.--active {
@@ -29,11 +27,9 @@
         --gap-vertical: calc(var(--size-100) / 4);
         margin: calc(var(--size-100) * -1) 0;
 
-        // Declares its own surface colors, so they resolve at its level rather than inheriting the row's.
         &-highlight.highlight {
-            @extend %background-surface, %surface-lower;
+            @extend %surface-primary;
             --scale-hidden: 1;
-            --surface-level: -2;
             border-radius: var(--border-radius-300);
         }
     }

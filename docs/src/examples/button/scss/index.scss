@@ -6,7 +6,7 @@
 
 
 // A segmented control: the active button rests on a pill in the surface's primary fill, which the highlight glides
-// between buttons, stepping lighter on hover and darker while pressed.
+// between buttons. Buttons stay clear at rest and while active, so only the pill marks the active one.
 .button-demo-group {
     @extend %group;
     --gap-horizontal: calc(var(--size-100) / 4);
@@ -17,12 +17,12 @@
     padding: calc(var(--size-100) / 2);
 
     &-button.button {
-        @extend %color-text;
+        @extend %surface-primary;
         --background-active: transparent;
         --background-default: transparent;
-        --background-hover: var(--surface-primary-hover);
-        --background-pressed: var(--surface-primary-pressed);
         --border-radius: var(--border-radius-400);
+        --box-shadow-active: none;
+        --box-shadow-default: none;
         --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-200);
         --padding-vertical: 0px;
@@ -42,12 +42,11 @@
     // Without a highlight the pill sits on the active button itself and swaps instantly.
     &--static &-button.button {
         --background-active: var(--surface-primary-active);
+        --box-shadow-active: var(--box-shadow-hover);
     }
 
     &-highlight.highlight {
-        --background-active: var(--surface-primary-active);
-        --background-hover: var(--surface-primary-hover);
-        --background-pressed: var(--surface-primary-pressed);
+        @extend %surface-primary;
         --scale-hidden: 1;
         border-radius: var(--border-radius-400);
     }
