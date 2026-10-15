@@ -33,6 +33,22 @@
     width: min(var(--sidebar-width), 100%);
     z-index: 31;
 
+
+    @include tokens.state(active) {
+        transition-delay: 0s;
+        translate: 0 0;
+        visibility: visible;
+    }
+
+    @media (max-width: 720px) {
+        --content-padding-horizontal: var(--size-400);
+
+        &-content {
+            padding-bottom: var(--spacer-100);
+        }
+    }
+
+
     &-brand {
         align-items: baseline;
         color: var(--color-text-500);
@@ -70,11 +86,6 @@
         flex: 1;
         min-height: 0;
         overflow: hidden auto;
-    }
-
-    &-search {
-        --padding-horizontal: var(--size-200);
-        --width: 100%;
     }
 
     &-toggle {
@@ -122,37 +133,25 @@
     }
 
     // The active link sits on a raised surface rather than the primary, so it keeps the plain active text color.
-    .nav-tree {
-        --highlight-color: var(--color-text-500);
-    }
+    .nav {
+        &-tree {
+            --highlight-color: var(--color-text-500);
 
-    // Every state reads the one level the highlight counts. The active pill sets its shadow weight, since the weight
-    // counted on the lowered sidebar casts none; hover and pressed stay flat.
-    .nav-tree-highlight.highlight {
-        &.highlight--hover,
-        &.highlight--pressed {
-            --background-hover: var(--surface-background-hover);
-            --background-pressed: var(--surface-background-pressed);
-        }
+            // Every state reads the one level the highlight counts. The active pill sets its shadow weight, since the weight
+            // counted on the lowered sidebar casts none; hover and pressed stay flat.
+            &-highlight {
+                &.highlight--hover,
+                &.highlight--pressed {
+                    --background-hover: var(--surface-background-hover);
+                    --background-pressed: var(--surface-background-pressed);
+                }
 
-        @include tokens.state(active) {
-            --background-active: var(--surface-background-active);
-            --surface-shadow-weight: 2;
-            box-shadow: var(--surface-shadow-default);
-        }
-    }
-
-    @include tokens.state(active) {
-        transition-delay: 0s;
-        translate: 0 0;
-        visibility: visible;
-    }
-
-    @media (max-width: 720px) {
-        --content-padding-horizontal: var(--size-400);
-
-        &-content {
-            padding-bottom: var(--spacer-100);
+                @include tokens.state(active) {
+                    --background-active: var(--surface-background-active);
+                    --surface-shadow-weight: 2;
+                    box-shadow: var(--surface-shadow-default);
+                }
+            }
         }
     }
 }
