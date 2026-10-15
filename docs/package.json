@@ -9,7 +9,7 @@
     "dependencies": {
         "@esportsplus/reactivity": "^0.39.1",
         "@esportsplus/routing": "^0.11.7",
-        "@esportsplus/template": "^0.55.2",
+        "@esportsplus/template": "^0.55.3",
         "@esportsplus/ui": "workspace:*"
     },
     "devDependencies": {
