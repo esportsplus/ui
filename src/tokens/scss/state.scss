@@ -70,24 +70,34 @@ $state: (
 }
 
 @mixin state-utility($property, $values) {
-    $active: 300;
     $keys: $values;
 
     @if meta.type-of($keys) == 'map' {
         $keys: map.keys($keys);
     }
 
-    @if $property == 'color' {
-        $active: 500;
-    }
-
     @each $key in $keys {
-        // 400, every color's base, at rest; 300 on hover; 500 pressed; while active 300, or 500 for 'color'.
         &-#{$key} {
-            --#{$property}-active: var(--color-#{$key}-#{$active});
+            --#{$property}-active: var(--color-#{$key}-300);
             --#{$property}-default: var(--color-#{$key}-400);
             --#{$property}-hover: var(--color-#{$key}-300);
             --#{$property}-pressed: var(--color-#{$key}-500);
+
+            @if $property == 'color' {
+                [data-theme='dark'] & {
+                    --#{$property}-active: var(--color-#{$key}-500);
+                    --#{$property}-default: var(--color-#{$key}-400);
+                    --#{$property}-hover: var(--color-#{$key}-500);
+                    --#{$property}-pressed: var(--color-#{$key}-300);
+                }
+
+                [data-theme='light'] & {
+                    --#{$property}-active: var(--color-#{$key}-500);
+                    --#{$property}-default: var(--color-#{$key}-400);
+                    --#{$property}-hover: var(--color-#{$key}-300);
+                    --#{$property}-pressed: var(--color-#{$key}-500);
+                }
+            }
         }
     }
 }
