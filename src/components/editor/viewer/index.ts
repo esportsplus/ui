@@ -296,6 +296,7 @@ export default component(
                         aria-label='${filename ?? 'Code'}'
                         class='code-viewer-scroller'
                         role='region'
+                        style='--scrollbar-offset: 0px; --scrollbar-size-hover: var(--scrollbar-size);'
                         tabindex='0'
                         ${scrollbar({ hover: true })}
                         ${size}
