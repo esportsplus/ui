@@ -1,0 +1,45 @@
+// Qualified by the class each part shares an element with (card, select, button, highlight, icon, code viewer), so
+// these win over that component's own variables whatever order the stylesheets load in.
+.preview {
+    &.card {
+        --border-color-default: var(--surface-border-default);
+        --border-radius: var(--border-radius-500);
+        --border-width: var(--border-width-400);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        // The card's fill, resolved here, for anything inside that must cover what scrolls beneath it.
+        --preview-background: var(--background);
+    }
+
+    &-select.select {
+        --font-size: var(--font-size-200);
+        --height: 28px;
+        --width: auto;
+    }
+
+    &-view {
+        --surface-level: -3;
+
+        &-button {
+            --background-active: transparent;
+            --background-default: transparent;
+            --border-radius: var(--border-radius-400);
+            --font-size: var(--font-size-300);
+            --surface-level: 4;
+        }
+
+        &-highlight {
+            --scale-hidden: 1;
+            --surface-level: 1;
+        }
+    }
+
+    // Sits flush on the card, which shows through the viewer's own raised level, rounding only the corners it
+    // closes off.
+    &-viewer.code-viewer {
+        --background-default: transparent;
+        --border-radius: 0 0 var(--border-radius-500) var(--border-radius-500);
+        --border-width: 0px;
+        --padding: var(--size-400);
+    }
+}

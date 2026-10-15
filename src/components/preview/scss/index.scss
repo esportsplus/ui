@@ -1,0 +1,166 @@
+@use 'css-utilities/background';
+@use 'css-utilities/surface';
+@use 'css-utilities/text';
+@use 'variables';
+
+
+.preview {
+    // Keep visited examples' state while the browser skips painting and layout offscreen.
+    contain-intrinsic-block-size: auto 420px;
+    margin: 0;
+    min-width: 0;
+    scroll-margin-top: var(--size-500);
+
+    &-anchor {
+        position: absolute;
+        scroll-margin-top: var(--size-500);
+    }
+
+    // A zero-minimum column, so long lines scroll inside the viewer instead of widening the card.
+    &-code {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
+        position: relative;
+    }
+
+    // Floats over the top-right corner of whichever pane is showing.
+    &-copy {
+        position: absolute;
+        right: var(--size-300);
+        top: var(--size-300);
+        z-index: 1;
+    }
+
+    // A surface above the card, so what sits in it (the tabs' highlight, the select) takes its states from the
+    // header's own level. The card can't clip, so the header rounds the corners it fills.
+    &-header {
+        @extend %surface-raise;
+        align-items: center;
+        background: var(--surface-background-default);
+        border-bottom: var(--border-width-400) solid var(--surface-border-default);
+        border-radius: calc(var(--border-radius-500) - var(--border-width-400))
+            calc(var(--border-radius-500) - var(--border-width-400)) 0 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--size-200) var(--size-300);
+        min-height: 44px;
+        padding: var(--size-200) var(--size-400);
+    }
+
+    &-index {
+        color: var(--color-text-300);
+        font-variant-numeric: tabular-nums;
+        margin-right: var(--size-300);
+    }
+
+    &-select {
+        max-width: 100%;
+        text-transform: none;
+
+        // The select exposes no trigger width, so its trigger is capped directly.
+        .select-menu-trigger {
+            max-width: 100%;
+        }
+    }
+
+    &-stage {
+        align-content: center;
+        display: grid;
+        gap: var(--size-400);
+        justify-items: center;
+        background: var(--surface-background-default);
+        // The card can't clip (an open selector paints past it), so the stage rounds its own corners.
+        border-radius: calc(var(--border-radius-500) - var(--border-width-400));
+        min-height: 160px;
+        padding: var(--size-600) var(--size-500);
+        position: relative;
+
+        .preview-header ~ & {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+
+        // Reserve space while an offscreen example waits to mount.
+        &--pending {
+            min-height: 320px;
+        }
+
+        > * {
+            max-width: 100%;
+        }
+    }
+
+    &-source {
+        min-width: 0;
+
+        &-message {
+            color: var(--color-text-300);
+            padding: var(--size-500);
+        }
+    }
+
+    &-source[hidden],
+    &-stage[hidden] {
+        display: none;
+    }
+
+    // Plain labels inside examples, set in the text styles components extend.
+    &-text {
+        @extend %text;
+    }
+
+    &-title {
+        color: var(--color-text-500);
+        font-size: var(--font-size-300);
+        font-weight: var(--font-weight-500);
+        margin-right: auto;
+    }
+
+    // Sits on the card that follows it, pulled up from the page's gap; that card's scroll margin clears it, so
+    // scrolling to the example still shows the buttons.
+    &-view {
+        @extend %surface-lower;
+        align-self: flex-start;
+        background: var(--surface-background-default);
+        border-radius: var(--border-radius-600);
+        padding: calc(var(--size-100) / 2);
+        width: fit-content;
+
+        &:has(+ .preview) {
+            margin-bottom: calc(var(--size-100) - var(--size-800));
+        }
+
+        + .preview {
+            scroll-margin-top: calc(var(--size-500) + var(--size-800) + var(--size-100));
+        }
+
+        // Clear at rest and while active, so only the highlight's pill marks the active view. Qualified, like the
+        // variables, so the fills outrank the button's and highlight's own defaults.
+        &-button {
+            @extend %background-surface, %surface-raise;
+            --background-hover: transparent;
+
+            &:focus-visible {
+                outline: 2px solid var(--color-blue-400);
+                outline-offset: calc(var(--size-100) / 4);
+            }
+        }
+
+        &-highlight {
+            @extend %background-surface, %surface-raise;
+        }
+    }
+
+    // The viewer shows the card through it, so its pinned line numbers take the card's fill to hide the code
+    // scrolling under them.
+    &-viewer .code-viewer-gutter {
+        background: var(--preview-background);
+    }
+
+    // An open selector must paint beyond this card and above the following preview.
+    &:has(.preview-select.--active) {
+        content-visibility: visible;
+        z-index: 10;
+    }
+}
