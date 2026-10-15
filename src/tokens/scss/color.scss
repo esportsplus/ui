@@ -47,12 +47,12 @@ $themes: (
             text: oklch(90% 0.0162 257)
         ),
         surface: (
-            active: 2,
+            active: 3,
             border: 6,
-            hover: 1,
+            hover: 1.5,
             lowered: 2,
-            pressed: 4,
-            primary: 2,
+            pressed: 3,
+            primary: 3,
             raised: 2,
             shadow: (
                 depth: 0.24,
@@ -71,9 +71,9 @@ $themes: (
             text: oklch(36% 0.0325 257)
         ),
         surface: (
-            active: 1,
+            active: 2,
             border: 4,
-            hover: 0.5,
+            hover: 1,
             lowered: 1,
             pressed: 2,
             primary: 4,
