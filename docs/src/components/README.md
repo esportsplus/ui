@@ -9,11 +9,10 @@ its color palettes, contrast calculation, clipboard feedback, and swatch styles.
 | Component | Owns |
 | --- | --- |
 | `code` | TypeScript syntax colors, line numbers, preserved source whitespace, scrolling, and a floating copy control |
-| `directory` | Components and CSS Utilities index grids of library card links, and their detail pages |
+| `directory` | Components and CSS Utilities index grids of library card links, and their detail pages, each example composed from the library `preview` with its variant select and view buttons |
 | `layout` | A page's main content, previous/next cards and scroll-spied TOC; every action returns its page through it |
 | `page` | Docs page and section layout, and empty states |
 | `page/header` | Library page title and subtitle, optional breadcrumb and note, and previous/next navigation |
-| `preview` | Example frames and inline Preview/Code controls with the library highlight; render factories mount near the viewport and keep their state after mounting. Its `code` option shows source flush in the stage through the library `editor.viewer`, with the copy control floating top right |
 | `root` | Docs-wide theme aliases and shell tokens |
 | `search` | Search state, trigger, and the library `command` palette wired to the library `nav.tree` renderer |
 | `sidebar` | Collapsible documentation navigation that pushes content aside on every screen size |
@@ -51,7 +50,7 @@ the tree's `nav-tree--command` variant changes the active highlight and text col
 Scope documentation page styles under `.main > .page` so library pages in live
 examples keep their own presentation.
 
-Detail pages pass `variant.render` to `preview` so offscreen examples are not constructed yet.
+Detail pages pass `variant.render` to the library `preview.stage` so offscreen examples are not constructed yet.
 Pre-rendered theme content still mounts immediately. Focus and hash navigation mount a targeted
 example before scrolling to it; visited examples retain their state while the browser skips
 rendering their offscreen contents.

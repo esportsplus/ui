@@ -1,12 +1,10 @@
-import { highlight } from '@esportsplus/ui/components';
+import { group, preview } from '@esportsplus/ui/components';
 import { html, reactive, uri } from 'docs/app';
-import { preview } from 'docs/components/preview';
 import type { Renderable, Router } from 'docs/app';
 import type { Page } from 'docs/types';
 import header from 'docs/components/page/header';
 import layout from 'docs/components/layout';
 
-import '@esportsplus/ui/components/link/scss/index.scss';
 import '@esportsplus/ui/components/section/scss/index.scss';
 import 'docs/actions/installation/scss/index.scss';
 
@@ -39,54 +37,54 @@ const page = (): Page => {
             {
                 description: 'Use your preferred package manager to add the library to your project.',
                 id: 'installation-package',
-                preview: preview({
-                    aside: html`
-                        <div class='installation-packages' role='group' aria-label='Package manager'>
-                            ${highlight({ class: 'installation-packages-highlight' })}
-                            ${managers.map((manager) => html`
-                                <button
-                                    class='link installation-package ${() => state.manager === manager && '--active'}'
-                                    type='button'
-                                    ${{
-                                        'aria-pressed': () => String(state.manager === manager),
-                                        onclick: () => {
-                                            state.manager = manager;
-                                        }
-                                    }}
-                                >
-                                    ${manager}
-                                </button>
-                            `)}
-                        </div>
-                    `,
-                    class: 'installation-code',
-                    code: {
+                preview: preview([
+                    preview.header({ title: 'Terminal' }, group(
+                        {
+                            [group.highlight]: { class: 'installation-packages-highlight' },
+                            'aria-label': 'Package manager',
+                            class: 'installation-packages',
+                            role: 'group'
+                        },
+                        managers.map((manager) => html`
+                            <button
+                                class='button button--group installation-package ${() => state.manager === manager && '--active'}'
+                                type='button'
+                                ${{
+                                    'aria-pressed': () => String(state.manager === manager),
+                                    onclick: () => {
+                                        state.manager = manager;
+                                    }
+                                }}
+                            >
+                                ${manager}
+                            </button>
+                        `)
+                    )),
+                    preview.code({
                         class: 'installation-viewer--terminal',
+                        label: 'Copy command',
                         lineNumbers: false,
                         value: () => commands[state.manager]
-                    },
-                    title: 'Terminal'
-                }),
+                    })
+                ]),
                 title: 'Install the package'
             },
             {
                 description: html`Start with the component styles and a theme. You can customize the colors and sizing with <a class='installation-step-link' href='/tokens'>design tokens</a>.`,
                 id: 'installation-styles',
-                preview: preview({
-                    class: 'installation-code',
-                    code: { language: 'scss', value: styles },
-                    title: 'app.scss'
-                }),
+                preview: preview([
+                    preview.header({ title: 'app.scss' }),
+                    preview.code({ label: 'Copy app.scss', language: 'scss', value: styles })
+                ]),
                 title: 'Import the styles'
             },
             {
                 description: html`Add the button classes to your template. Explore the <a class='installation-step-link' href='/components/button'>button reference</a> for colors, modifiers, and hold-to-confirm behavior.`,
                 id: 'installation-component',
-                preview: preview({
-                    class: 'installation-code',
-                    code: { language: 'typescript', value: example },
-                    title: 'app.ts'
-                }),
+                preview: preview([
+                    preview.header({ title: 'app.ts' }),
+                    preview.code({ label: 'Copy app.ts', language: 'typescript', value: example })
+                ]),
                 title: 'Use a component'
             }
         ];

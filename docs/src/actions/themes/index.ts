@@ -3,7 +3,7 @@ import layout from 'docs/components/layout';
 import { html, uri } from 'docs/app';
 import { themeColors, themes, themeTokens, tokenSources, WEIGHTS } from 'docs/data/scss';
 import { pickers } from 'docs/actions/themes/pickers';
-import { preview } from 'docs/components/preview';
+import { preview } from '@esportsplus/ui/components';
 import type { Router } from 'docs/app';
 import type { Page, TocItem } from 'docs/types';
 import 'docs/actions/themes/scss/index.scss';
@@ -99,7 +99,9 @@ const page = (): Page => {
                         subtree in the other mode. <code>--background</code> and <code>--color</code> read the page's background
                         and text, and native controls and scrollbars follow <code>color-scheme</code> too.
                     </p>
-                    ${preview({ node: html`<div style='display: flex; flex-wrap: wrap; gap: var(--size-400); width: 100%;'>${MODES.map(sample)}</div>` })}
+                    ${preview(preview.stage(() => html`
+                        <div style='display: flex; flex-wrap: wrap; gap: var(--size-400); width: 100%;'>${MODES.map(sample)}</div>
+                    `))}
                 </section>
 
                 <section class='page-section' id='tokens'>
@@ -135,7 +137,10 @@ const page = (): Page => {
                         Create one theme instance at startup. It follows the operating system until the user picks a mode, then
                         writes <code>data-theme</code> to <code>&lt;html&gt;</code>; picking <code>'system'</code> removes it again.
                     </p>
-                    ${preview({ code: { language: 'typescript', value: TYPESCRIPT }, title: 'theme.ts' })}
+                    ${preview([
+                        preview.header({ title: 'theme.ts' }),
+                        preview.code({ label: 'Copy theme.ts', language: 'typescript', value: TYPESCRIPT })
+                    ])}
                 </section>
 
                 <section class='page-section' id='usage'>
@@ -148,7 +153,10 @@ const page = (): Page => {
                         brand fill, uses its palette token alone. Brand colors such as <code>--color-accent-*</code> are not
                         part of the theme.
                     </p>
-                    ${preview({ code: { language: 'scss', value: SCSS }, title: 'badge.scss' })}
+                    ${preview([
+                        preview.header({ title: 'badge.scss' }),
+                        preview.code({ label: 'Copy badge.scss', language: 'scss', value: SCSS })
+                    ])}
                 </section>
 
                 ${pickers()}

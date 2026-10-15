@@ -1,7 +1,9 @@
-import { html, uri } from 'docs/app';
-import { preview } from 'docs/components/preview';
+import { html, reactive, uri } from 'docs/app';
+import { icon, preview, select } from '@esportsplus/ui/components';
 import type { Page, TocItem, Variant } from 'docs/types';
 import header from 'docs/components/page/header';
+import code from '@esportsplus/ui/svg/code.svg';
+import eye from '@esportsplus/ui/svg/eye.svg';
 import 'docs/components/directory/scss/index.scss';
 import 'docs/components/page/scss/index.scss';
 
@@ -43,18 +45,44 @@ function detail({ items, route, slug, title }: Directory): Page {
 
                 ${variants.length === 0
                     ? html`<p class='page-note'>No examples yet.</p>`
-                    : variants.map((variant, index) => preview({
-                        id: toc[index].id,
-                        index: index + 1,
-                        node: variant.render,
-                        options: variant.options,
-                        source: variant.source,
-                        title: variant.title
-                    }))}
+                    : variants.map((variant, index) => example(variant, index, toc[index].id))}
             </div>
         `,
         toc
     };
+}
+
+// An example and its variants: a select swaps the variant, the view buttons swap in its source, and a hash naming
+// either reveals it.
+function example(variant: Variant, index: number, id: string) {
+    let options = variant.options ?? [],
+        selection = reactive({ active: false, error: '', selected: options[0]?.id ?? '' }),
+        state = preview.state();
+
+    function current() {
+        return options.find((option) => option.id === selection.selected);
+    }
+
+    return [
+        variant.source && preview.buttons({ 'aria-label': `${variant.title} view`, state }, [
+            { content: [icon({ 'aria-hidden': 'true', class: 'preview-view-icon' }, eye), 'Preview'], view: 'preview' },
+            { content: [icon({ 'aria-hidden': 'true', class: 'preview-view-icon' }, code), 'Code'], view: 'code' }
+        ]),
+        preview({ anchors: options.map((option) => option.id), id, selection, state }, [
+            preview.header({ index: index + 1, title: variant.title }, options.length > 1 && select({
+                class: 'preview-select',
+                label: `${variant.title} variant`,
+                options: options.map((option) => ({ label: option.label, value: option.id })),
+                state: selection
+            })),
+            () => preview.stage({ state }, current()?.render ?? variant.render),
+            () => {
+                let source = variant.source && (current()?.source ?? variant.source);
+
+                return source && preview.source({ label: `Copy ${variant.title} source`, state }, source);
+            }
+        ])
+    ];
 }
 
 function grid({ description, items, route, title }: Directory): Page {

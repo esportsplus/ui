@@ -1,8 +1,7 @@
 import header from 'docs/components/page/header';
 import layout from 'docs/components/layout';
 import { html, reactive, uri } from 'docs/app';
-import { range } from '@esportsplus/ui/components';
-import { preview } from 'docs/components/preview';
+import { preview, range } from '@esportsplus/ui/components';
 import type { Renderable, Router } from 'docs/app';
 import type { Page, TocItem } from 'docs/types';
 import 'docs/actions/surfaces/scss/index.scss';
@@ -147,7 +146,9 @@ const page = (): Page => {
                         shadow, and dark mode stops 6 levels above the page. A raised layer's shadow takes the Tailwind v4
                         step matching its level, in the color of what it falls on; lowered levels cast none.
                     </p>
-                    ${preview({ node: html`<div class='surfaces-modes surfaces-modes--stack'>${MODES.map(ladder)}</div>` })}
+                    ${preview(preview.stage(() => html`
+                        <div class='surfaces-modes surfaces-modes--stack'>${MODES.map(ladder)}</div>
+                    `))}
                 </section>
 
                 <section class='page-section' id='levels'>
@@ -157,24 +158,22 @@ const page = (): Page => {
                         knob; every layer inside is an ordinary surface that counts one above the one it sits in. Switch
                         the theme to see the same slice in the other mode.
                     </p>
-                    ${preview({
-                        node: html`
-                            <div class='surfaces-viewer'>
-                                ${viewer(state)}
-                                ${range.filter({
-                                    format: (value: number) => String(value),
-                                    label: 'Levels',
-                                    max: HIGHEST,
-                                    min: LOWEST,
-                                    prefix: '',
-                                    state,
-                                    step: 1,
-                                    ticks: HIGHEST - LOWEST + 1,
-                                    value: [state.low, state.high]
-                                })}
-                            </div>
-                        `
-                    })}
+                    ${preview(preview.stage(() => html`
+                        <div class='surfaces-viewer'>
+                            ${viewer(state)}
+                            ${range.filter({
+                                format: (value: number) => String(value),
+                                label: 'Levels',
+                                max: HIGHEST,
+                                min: LOWEST,
+                                prefix: '',
+                                state,
+                                step: 1,
+                                ticks: HIGHEST - LOWEST + 1,
+                                value: [state.low, state.high]
+                            })}
+                        </div>
+                    `))}
                 </section>
 
                 <section class='page-section' id='depth'>
@@ -183,25 +182,23 @@ const page = (): Page => {
                         A component never names its level. The same menu opened on the page, inside a card or inside a
                         dialog lifts one step off whatever it opened in, and its hover and selected rows step from that.
                     </p>
-                    ${preview({
-                        node: html`
-                            <div class='surfaces-modes'>
-                                ${MODES.map((mode) => html`
-                                    <div class='surfaces-mode' data-theme='${mode}' style='--surface-level: 0;'>
-                                        <strong class='surfaces-mode-title'>${mode}</strong>
-                                        <div class='surfaces-depths'>
-                                            ${DEPTHS.map(({ label, wrap }) => html`
-                                                <div class='surfaces-depth'>
-                                                    <span class='surfaces-depth-label'>${label}</span>
-                                                    ${wrap(menu())}
-                                                </div>
-                                            `)}
-                                        </div>
+                    ${preview(preview.stage(() => html`
+                        <div class='surfaces-modes'>
+                            ${MODES.map((mode) => html`
+                                <div class='surfaces-mode' data-theme='${mode}' style='--surface-level: 0;'>
+                                    <strong class='surfaces-mode-title'>${mode}</strong>
+                                    <div class='surfaces-depths'>
+                                        ${DEPTHS.map(({ label, wrap }) => html`
+                                            <div class='surfaces-depth'>
+                                                <span class='surfaces-depth-label'>${label}</span>
+                                                ${wrap(menu())}
+                                            </div>
+                                        `)}
                                     </div>
-                                `)}
-                            </div>
-                        `
-                    })}
+                                </div>
+                            `)}
+                        </div>
+                    `))}
                 </section>
 
                 <section class='page-section' id='usage'>
@@ -214,7 +211,10 @@ const page = (): Page => {
                         directly, or through <code>%background-surface</code>, <code>%border-surface</code> and
                         <code>%box-shadow-surface</code> for fills that step with the state.
                     </p>
-                    ${preview({ code: { language: 'scss', value: SCSS }, title: 'menu.scss' })}
+                    ${preview([
+                        preview.header({ title: 'menu.scss' }),
+                        preview.code({ label: 'Copy menu.scss', language: 'scss', value: SCSS })
+                    ])}
                 </section>
 
                 <section class='page-section' id='tokens'>
