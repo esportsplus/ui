@@ -10,6 +10,7 @@ import down from '@esportsplus/ui/svg/arrow-down.svg';
 import up from '@esportsplus/ui/svg/arrow-up.svg';
 import enter from '@esportsplus/ui/svg/enter.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
+import search from './search';
 import '~/components/frame/scss/index.scss';
 import './scss/index.scss';
 
@@ -867,4 +868,5 @@ export default component(
         trigger: COMMAND_TRIGGER
     }
 );
+export { search };
 export type { Command, Matcher, Result, ResultGroup, Shortcut, State, Store, Tab };

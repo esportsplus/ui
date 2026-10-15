@@ -1,3 +1,4 @@
+@use 'css-utilities/surface';
 @use 'css-utilities/text';
 @use 'variables';
 
@@ -153,7 +154,7 @@
         padding-inline: var(--size-400);
     }
 
-    &-tab.button {
+    &-tab {
         flex-shrink: 0;
         height: var(--tab-height);
         user-select: none;
@@ -171,13 +172,7 @@
         scrollbar-width: none;
     }
 
-    &-trigger-label {
-        @extend %text-truncate;
-        flex: 1 1 auto;
-        text-align: left;
-    }
-
-    &-trigger.button {
+    &-trigger {
         touch-action: manipulation;
         user-select: none;
 
@@ -189,6 +184,22 @@
         // Pages with their own search buttons hide this one; `display: flex` from `.button` would otherwise override `hidden`.
         &[hidden] {
             display: none;
+        }
+
+
+        &--search {
+            @extend %surface;
+            --padding-horizontal: var(--size-200);
+            --surface-level: 1;
+            --width: 100%;
+            border: var(--border-width-400) solid var(--border-color);
+        }
+
+
+        &-label {
+            @extend %text-truncate;
+            flex: 1 1 auto;
+            text-align: left;
         }
     }
 

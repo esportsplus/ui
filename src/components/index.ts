@@ -9,7 +9,7 @@ export { default as chatMinimap } from './chat-minimap';
 export { default as checkbox } from './checkbox';
 export { default as clipboard } from './clipboard';
 export { default as colorPicker } from './color-picker';
-export { default as command } from './command';
+export { default as command, search } from './command';
 export { default as copy } from './copy';
 export { default as counter } from './counter';
 export { default as datalist } from './datalist';
