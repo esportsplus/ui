@@ -1,5 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/background';
 @use 'css-utilities/surface';
 @use 'variables';
 
@@ -13,17 +12,12 @@
     }
 
     &-arrow {
-        @extend %background-state, %surface-raise;
-        // A surface a level above what holds it. The fallbacks resolve here, on the arrow's own level; a value set on
-        // the parent would resolve at the parent's.
-        --background-default: var(--arrow-background, var(--surface-background-default));
-        --background-hover: var(--arrow-background-hover, var(--surface-background-hover));
-        --background-pressed: var(--arrow-background-pressed, var(--surface-background-pressed));
+        @extend %surface-primary;
         align-items: center;
         background: var(--background);
         border: 0;
         border-radius: var(--arrow-border-radius);
-        color: var(--arrow-color);
+        color: var(--color);
         cursor: pointer;
         display: inline-flex;
         flex: none;
@@ -31,7 +25,9 @@
         justify-content: center;
         outline: none;
         padding: 0;
-        transition: background-color var(--transition-duration) var(--transition-timing-function);
+        transition:
+            background-color var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
         width: var(--arrow-size);
 
         &:focus-visible {
