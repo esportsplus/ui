@@ -219,60 +219,63 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 }
 
 
-// A layer counted and colored from its level without being painted: it sets '--surface-level' and the
-// '--surface-*' colors and shadows read from it, and leaves painting to '%background-surface', '%border-surface' and
-// '%box-shadow-surface' or the component's own declarations.
-%surface,
-%surface-lower,
-%surface-raise,
-%surface-root {
-    @include surface-colors;
-    @include surface-shadows;
-}
+%surface {
+    // A layer counted and colored from its level without being painted: it sets '--surface-level' and the
+    // '--surface-*' colors and shadows read from it, and leaves painting to '%background-surface', '%border-surface' and
+    // '%box-shadow-surface' or the component's own declarations.
+    &,
+    &-lower,
+    &-raise,
+    &-root {
+        @include surface-colors;
+        @include surface-shadows;
+    }
 
-// The weights a layer keeps when no query matches it, past either end of the ladder: a raised layer already at the
-// top keeps the top level's weight, and the others cast no shadow.
-%surface,
-%surface-lower {
-    @include surface-shadow(0);
-}
+    // The weights a layer keeps when no query matches it, past either end of the ladder: a raised layer already at the
+    // top keeps the top level's weight, and the others cast no shadow.
+    &,
+    &-lower {
+        @include surface-shadow(0);
+    }
 
-%surface-raise {
-    @include surface-shadow(6);
-}
+    &-raise {
+        @include surface-shadow(6);
+    }
 
-// Its level is its parent's moved: by '--surface-step' for '%surface', one up for '%surface-raise' and one down for
-// '%surface-lower'. Every element is a style container, so a style query reads the parent's level where the layer
-// sets its own, which a 'var()' on the same property could not. Levels run from -3 to 6, where the dark steps top
-// out; a layer past either end matches no query and keeps its parent's level. Only a layer moved up casts a shadow,
-// at its new level's weight.
-@for $level from -3 through 6 {
-    @container style(--surface-level: #{$level}) {
-        %surface {
-            --surface-level: clamp(-3, #{$level} + var(--surface-step), 6);
-            @include surface-shadow(
-                'calc(max(#{$level} + var(--surface-step), 0) * clamp(0, var(--surface-step), 1))'
-            );
-        }
-
-        @if $level > -3 {
-            %surface-lower {
-                --surface-level: #{$level - 1};
+    // Its level is its parent's moved: by '--surface-step' for '%surface', one up for '%surface-raise' and one down for
+    // '%surface-lower'. Every element is a style container, so a style query reads the parent's level where the layer
+    // sets its own, which a 'var()' on the same property could not. Levels run from -3 to 6, where the dark steps top
+    // out; a layer past either end matches no query and keeps its parent's level. Only a layer moved up casts a shadow,
+    // at its new level's weight.
+    @for $level from -3 through 6 {
+        @container style(--surface-level: #{$level}) {
+            & {
+                --surface-level: clamp(-3, #{$level} + var(--surface-step), 6);
+                @include surface-shadow(
+                    'calc(max(#{$level} + var(--surface-step), 0) * clamp(0, var(--surface-step), 1))'
+                );
             }
-        }
 
-        @if $level < 6 {
-            %surface-raise {
-                --surface-level: #{$level + 1};
-                @include surface-shadow(math.max($level + 1, 0));
+            @if $level > -3 {
+                &-lower {
+                    --surface-level: #{$level - 1};
+                }
+            }
+
+            @if $level < 6 {
+                &-raise {
+                    --surface-level: #{$level + 1};
+                    @include surface-shadow(math.max($level + 1, 0));
+                }
             }
         }
     }
+
+    // A fresh stack above everything, for dialogs: level 1 wherever it opens, so whatever opens inside counts up from it,
+    // with the heaviest shadow since nothing sits above it. Not counted from its parent, so it skips the queries.
+    &-root {
+        @include surface-shadow($shadow-weight-max);
+        --surface-level: 1;
+    }
 }
 
-// A fresh stack above everything, for dialogs: level 1 wherever it opens, so whatever opens inside counts up from it,
-// with the heaviest shadow since nothing sits above it. Not counted from its parent, so it skips the queries.
-%surface-root {
-    @include surface-shadow($shadow-weight-max);
-    --surface-level: 1;
-}

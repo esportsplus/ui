@@ -1,38 +1,40 @@
 @use '../tokens/scss' as tokens;
 
-%box-shadow-outline,
-%box-shadow-state {
-    --box-shadow: var(--box-shadow-default);
-    --box-shadow-active: var(--box-shadow-default);
-    --box-shadow-default: none;
-    --box-shadow-hover: var(--box-shadow-default);
-    --box-shadow-pressed: var(--box-shadow-default);
+%box-shadow {
+    &-outline,
+    &-state {
+        --box-shadow: var(--box-shadow-default);
+        --box-shadow-active: var(--box-shadow-default);
+        --box-shadow-default: none;
+        --box-shadow-hover: var(--box-shadow-default);
+        --box-shadow-pressed: var(--box-shadow-default);
 
-    @include tokens.state(active) {
-        --box-shadow: var(--box-shadow-active);
+        @include tokens.state(active) {
+            --box-shadow: var(--box-shadow-active);
+        }
+
+        @include tokens.state(hover) {
+            --box-shadow: var(--box-shadow-hover);
+        }
+
+        @include tokens.state(pressed) {
+            --box-shadow: var(--box-shadow-pressed);
+        }
     }
 
-    @include tokens.state(hover) {
-        --box-shadow: var(--box-shadow-hover);
+    // A ring around the box, its color stepping with the state. It shares '--box-shadow*' with %box-shadow-state, so
+    // the state values here are colors and the ring replaces whatever shadow the box had.
+    &-outline {
+        box-shadow: 0 0 0 var(--box-shadow-width) var(--box-shadow);
+        --box-shadow-width: var(--border-width-700);
     }
 
-    @include tokens.state(pressed) {
-        --box-shadow: var(--box-shadow-pressed);
+    // The surface's own shadow and its states, lifting on hover and settling when pressed; the level is set apart, by
+    // '%surface' and its kin.
+    &-surface {
+        --box-shadow-active: var(--surface-shadow-active);
+        --box-shadow-default: var(--surface-shadow-default);
+        --box-shadow-hover: var(--surface-shadow-hover);
+        --box-shadow-pressed: var(--surface-shadow-pressed);
     }
-}
-
-// A ring around the box, its color stepping with the state. It shares '--box-shadow*' with %box-shadow-state, so
-// the state values here are colors and the ring replaces whatever shadow the box had.
-%box-shadow-outline {
-    box-shadow: 0 0 0 var(--box-shadow-width) var(--box-shadow);
-    --box-shadow-width: var(--border-width-700);
-}
-
-// The surface's own shadow and its states, lifting on hover and settling when pressed; the level is set apart, by
-// '%surface' and its kin.
-%box-shadow-surface {
-    --box-shadow-active: var(--surface-shadow-active);
-    --box-shadow-default: var(--surface-shadow-default);
-    --box-shadow-hover: var(--surface-shadow-hover);
-    --box-shadow-pressed: var(--surface-shadow-pressed);
 }

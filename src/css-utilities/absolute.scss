@@ -1,64 +1,66 @@
-%absolute-bottom {
-    inset: auto 0 0;
-    position: absolute;
-}
+%absolute {
+    &-bottom {
+        inset: auto 0 0;
+        position: absolute;
+    }
 
-%absolute-center {
-    bottom: 50%;
-    position: absolute;
-    right: 50%;
-    translate: 50% 50%;
-}
+    &-center {
+        bottom: 50%;
+        position: absolute;
+        right: 50%;
+        translate: 50% 50%;
+    }
 
-%absolute-full {
-    inset: 0;
-    position: absolute;
-}
+    &-full {
+        inset: 0;
+        position: absolute;
+    }
 
-%absolute-horizontal {
-    position: absolute;
-    right: 50%;
-    translate: 50%;
-}
+    &-horizontal {
+        position: absolute;
+        right: 50%;
+        translate: 50%;
+    }
 
-// Centered along one axis and pinned to an edge of the other.
-%absolute-horizontal-bottom {
-    @extend %absolute-horizontal;
-    bottom: 0;
-}
+    // Centered along one axis and pinned to an edge of the other.
+    &-horizontal-bottom {
+        @extend %absolute-horizontal;
+        bottom: 0;
+    }
 
-%absolute-horizontal-top {
-    @extend %absolute-horizontal;
-    top: 0;
-}
+    &-horizontal-top {
+        @extend %absolute-horizontal;
+        top: 0;
+    }
 
-%absolute-left {
-    inset: 0 auto 0 0;
-    position: absolute;
-}
+    &-left {
+        inset: 0 auto 0 0;
+        position: absolute;
+    }
 
-%absolute-right {
-    inset: 0 0 0 auto;
-    position: absolute;
-}
+    &-right {
+        inset: 0 0 0 auto;
+        position: absolute;
+    }
 
-%absolute-top {
-    inset: 0 0 auto;
-    position: absolute;
-}
+    &-top {
+        inset: 0 0 auto;
+        position: absolute;
+    }
 
-%absolute-vertical {
-    bottom: 50%;
-    position: absolute;
-    translate: 0 50%;
-}
+    &-vertical {
+        bottom: 50%;
+        position: absolute;
+        translate: 0 50%;
+    }
 
-%absolute-vertical-left {
-    @extend %absolute-vertical;
-    left: 0;
-}
+    &-vertical-left {
+        @extend %absolute-vertical;
+        left: 0;
+    }
 
-%absolute-vertical-right {
-    @extend %absolute-vertical;
-    right: 0;
+    &-vertical-right {
+        @extend %absolute-vertical;
+        right: 0;
+    }
 }
