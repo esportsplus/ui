@@ -8,22 +8,22 @@ const PLACEMENTS = ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'];
 
 
 // A second toaster, independent of the docs' own: its own queue, placement, limit and look.
-let alerts = createToaster({ [createToaster.overflow]: { class: 'docs-toast-overflow docs-toast-overflow--dark' }, class: 'toaster--n', limit: 2 }),
+let alerts = createToaster({ [createToaster.overflow]: { class: 'toast-overflow toast-overflow--dark' }, class: 'toaster--n', limit: 2 }),
     burst = 0,
     timer: { active: boolean, duration: number } | undefined,
     trigger = 'button';
 
-let alert = alerts.toast.bind({ attributes: { class: 'docs-toast docs-toast--dark' } });
+let alert = alerts.toast.bind({ attributes: { class: 'toast toast--dark' } });
 
 
 // The action is part of the content, so it closes its own toast through the state it is given.
 let action = () => toast((state) => html`
-    <div class='docs-toast-text'>
-        <span class='docs-toast-title'>Message archived.</span>
-        <span class='docs-toast-description'>Undo closes this toast through its own state.</span>
+    <div class='toast-text'>
+        <span class='toast-title'>Message archived.</span>
+        <span class='toast-description'>Undo closes this toast through its own state.</span>
     </div>
     <button
-        class='button docs-toast-action'
+        class='button toast-action'
         type='button'
         onclick='${() => {
             state.active = false;
@@ -35,9 +35,9 @@ let action = () => toast((state) => html`
 `);
 
 let detail = () => toast(() => html`
-    <div class='docs-toast-text'>
-        <span class='docs-toast-title'>Saved successfully.</span>
-        <span class='docs-toast-description'>Your changes are live.</span>
+    <div class='toast-text'>
+        <span class='toast-title'>Saved successfully.</span>
+        <span class='toast-description'>Your changes are live.</span>
     </div>
 `);
 
@@ -81,11 +81,11 @@ export default {
                             onclick='${() => {
                                 timer = reactive({ active: true, duration: 8000 });
                                 toast({ state: timer }, () => html`
-                                    <svg aria-hidden='true' class='docs-toast-ring' viewBox='0 0 20 20'>
+                                    <svg aria-hidden='true' class='toast-ring' viewBox='0 0 20 20'>
                                         <circle cx='10' cy='10' r='8' />
                                         <circle cx='10' cy='10' r='8' />
                                     </svg>
-                                    <span>Closing in <span class='docs-toast-seconds'></span>s.</span>
+                                    <span>Closing in <span class='toast-seconds'></span>s.</span>
                                 `);
                             }}'
                         >

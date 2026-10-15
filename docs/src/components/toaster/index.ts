@@ -8,11 +8,11 @@ const placement = reactive({ value: 'se' });
 
 // The docs' own toaster, placed once by the viewer shell; its toasts wear the docs' surface.
 const toaster = createToaster({
-    [createToaster.overflow]: { class: 'docs-toast-overflow' },
+    [createToaster.overflow]: { class: 'toast-overflow' },
     class: () => `toaster--${placement.value}`
 });
 
-const toast = toaster.toast.bind({ attributes: { class: 'docs-toast' } });
+const toast = toaster.toast.bind({ attributes: { class: 'toast' } });
 
 
 export default toast;

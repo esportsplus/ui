@@ -1,24 +1,22 @@
 @use 'css-utilities/surface';
 
-
-
 // Floats above everything, like a dialog.
-.docs-toast {
+.toast {
     @extend %surface-root;
-    --docs-toast-background: var(--surface-background-default);
-    --docs-toast-border-color: var(--surface-border-hover);
-    --docs-toast-color: var(--color-text-400);
-    background: var(--docs-toast-background);
-    border: 1px solid var(--docs-toast-border-color);
+    --toast-background: var(--surface-background-default);
+    --toast-border-color: var(--surface-border-hover);
+    --toast-color: var(--color-text-400);
+    background: var(--toast-background);
+    border: 1px solid var(--toast-border-color);
     border-radius: var(--border-radius-500);
     box-shadow: var(--surface-shadow-default);
-    color: var(--docs-toast-color);
+    color: var(--toast-color);
     padding: var(--size-400);
 
     &--dark {
-        --docs-toast-background: var(--color-primary-500);
-        --docs-toast-border-color: var(--color-primary-500);
-        --docs-toast-color: var(--color-surface);
+        --toast-background: var(--color-primary-500);
+        --toast-border-color: var(--color-primary-500);
+        --toast-color: var(--color-surface);
     }
 
     &-action {
@@ -37,20 +35,20 @@
     // The same surface, shown as the card peeking out behind the stack with its count.
     &-overflow {
         @extend %surface-root;
-        --docs-toast-background: var(--surface-background-default);
-        --docs-toast-border-color: var(--surface-border-hover);
-        --docs-toast-color: var(--color-text-300);
-        background: var(--docs-toast-background);
-        border: 1px solid var(--docs-toast-border-color);
+        --toast-background: var(--surface-background-default);
+        --toast-border-color: var(--surface-border-hover);
+        --toast-color: var(--color-text-300);
+        background: var(--toast-background);
+        border: 1px solid var(--toast-border-color);
         border-radius: var(--border-radius-500);
         box-shadow: var(--surface-shadow-default);
-        color: var(--docs-toast-color);
+        color: var(--toast-color);
         font-size: var(--font-size-200);
 
         &--dark {
-            --docs-toast-background: var(--color-primary-500);
-            --docs-toast-border-color: var(--color-primary-500);
-            --docs-toast-color: var(--color-surface);
+            --toast-background: var(--color-primary-500);
+            --toast-border-color: var(--color-primary-500);
+            --toast-color: var(--color-surface);
         }
     }
 
@@ -80,10 +78,10 @@
 
     // Whole seconds left on the toast's clock.
     &-seconds {
-        counter-reset: docs-toast-seconds round(up, calc(var(--toast-seconds) * (1 - var(--toast-progress))), 1);
+        counter-reset: toast-seconds round(up, calc(var(--toast-seconds) * (1 - var(--toast-progress))), 1);
 
         &::before {
-            content: counter(docs-toast-seconds);
+            content: counter(toast-seconds);
         }
     }
 
