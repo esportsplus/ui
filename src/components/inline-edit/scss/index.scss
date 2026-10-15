@@ -391,7 +391,7 @@
         color: var(--toolbar-color);
     }
 
-    &-toolbar-button.button {
+    &-toolbar-button {
         @extend %color-text;
         --background-default: transparent;
         --background-hover: color-mix(in oklab, var(--toolbar-color) 6%, transparent);

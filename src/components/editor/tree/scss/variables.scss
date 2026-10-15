@@ -198,7 +198,7 @@ $icons: (
     }
 
     // The highlight declares its own defaults, so the tree's values are pulled through explicitly.
-    &-highlight.highlight {
+    &-highlight {
         --background-active: inherit;
         --background-hover: inherit;
         --glide-duration: 0.3s;
@@ -240,7 +240,7 @@ $icons: (
         --size: var(--icon-size);
     }
 
-    &-toggle.button {
+    &-toggle {
         --background-hover: inherit;
         --color-default: var(--toggle-color);
         --padding-horizontal: var(--size-100);

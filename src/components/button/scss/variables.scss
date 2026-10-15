@@ -94,11 +94,11 @@
             --morph-resize-duration: 0s;
             --morph-shake-duration: 0s;
         }
-    }
 
-    &--morph-error {
-        --background-default: var(--morph-background-error);
-        --color-default: var(--morph-color-error);
+        &-error {
+            --background-default: var(--morph-background-error);
+            --color-default: var(--morph-color-error);
+        }
     }
 
     &--processing {
@@ -111,9 +111,8 @@
     &--skeleton {
         --animation-duration: 6.4s;
     }
-}
 
-.button {
+
     &-fan {
         --focus-color: currentColor;
         --focus-offset: calc(var(--size-100) / 4);

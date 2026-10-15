@@ -14,7 +14,7 @@
         @extend %flex-column;
     }
 
-    &-highlight.highlight {
+    &-highlight {
         --background-hover: var(--surface-background-hover);
         --background-pressed: var(--surface-background-pressed);
         --fade-duration: 0.15s;

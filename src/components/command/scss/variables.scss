@@ -36,7 +36,7 @@
     }
 
     // Rests on the active option; the palette moves `--active` for both pointer and keys.
-    &-highlight.highlight {
+    &-highlight {
         --background-active: var(--option-background);
     }
 
@@ -67,7 +67,7 @@
     }
 
     // The highlight paints the tab backgrounds, so the buttons only carry colour.
-    &-tab.button {
+    &-tab {
         @extend %color-text;
         --border-radius: var(--border-radius-400);
         --font-size: calc(var(--font-size-400) * 0.875);
@@ -76,12 +76,12 @@
         --padding-vertical: 0px;
     }
 
-    &-tabs-highlight.highlight {
+    &-tabs-highlight {
         --background-active: var(--option-background);
     }
 
     // One 24px keycap line plus 6px either side makes the 36px trigger.
-    &-trigger.button {
+    &-trigger {
         @extend %color-text;
         --background-default: var(--surface-background-default);
         --border-radius: var(--border-radius-400);

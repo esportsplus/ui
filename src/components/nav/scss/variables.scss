@@ -65,7 +65,7 @@
     }
 
     // A level above the tree, so a fill pointed at '--surface-background-*' here reads as a surface sitting on it.
-    &-highlight.highlight {
+    &-highlight {
         @extend %surface-raise;
         --background-active: var(--highlight-background-active);
         --background-hover: var(--highlight-background-hover);

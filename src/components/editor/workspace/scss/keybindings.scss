@@ -23,7 +23,7 @@
         --confirm-hover: var(--color-accent-500);
     }
 
-    &-button.button {
+    &-button {
         --background-default: var(--confirm-background, transparent);
         --background-hover: var(--confirm-hover, var(--control-active-background));
         --border-radius: var(--radius);
@@ -90,13 +90,13 @@
         text-overflow: ellipsis;
     }
 
-    &-key--builtin.button {
-        cursor: help;
-        opacity: 0.75;
-    }
-
-    &-key.button {
+    &-key {
         flex: none;
+
+        &--builtin {
+            cursor: help;
+            opacity: 0.75;
+        }
     }
 
     &-keys {

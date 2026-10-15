@@ -272,7 +272,7 @@ $open: ':is(:hover, :focus-within)';
     }
 
     // Pinned over the toast's corner; qualified to outrank the '.button' layout it pairs with.
-    &-close.button {
+    &-close {
         height: var(--size);
         inset-inline-end: var(--offset);
         opacity: var(--toast-content-opacity);

@@ -362,7 +362,7 @@
     }
 
     // Chained through '.button' so it wins over the shared button styles regardless of stylesheet order.
-    &-submit.button {
+    &-submit {
         border: 0;
         height: var(--field-height);
         outline: none;

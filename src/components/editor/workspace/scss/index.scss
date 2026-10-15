@@ -178,7 +178,7 @@
         --confirm-hover: var(--color-accent-500);
     }
 
-    &-confirm-button.button {
+    &-confirm-button {
         --background-default: var(--confirm-background);
         --background-hover: var(--confirm-hover);
         --border-radius: var(--radius);
@@ -223,7 +223,7 @@
         --size: var(--control-icon-size);
     }
 
-    &-control.button {
+    &-control {
         @extend %color-text;
         --background-active: var(--control-active-background);
         --background-default: transparent;
@@ -394,7 +394,7 @@
         }
     }
 
-    &-retry.button {
+    &-retry {
         --background-default: var(--background);
         --background-hover: var(--control-active-background);
         --border-radius: var(--radius);
@@ -463,7 +463,7 @@
         --size: var(--close-icon-size);
     }
 
-    &-tab-close.button {
+    &-tab-close {
         --background-default: transparent;
         --background-hover: var(--control-active-background);
         --border-radius: var(--border-radius-100);
@@ -492,7 +492,7 @@
     }
 
     // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
-    &-tab.button {
+    &-tab {
         @extend %color-text;
         --background-active: transparent;
         --background-default: transparent;
@@ -526,7 +526,7 @@
         padding-inline: var(--spacing);
         position: relative;
 
-        &-highlight.highlight {
+        &-highlight {
             --background-active: var(--control-active-background);
             --background-default: var(--tab-hover-background);
             --line-color: var(--accent);

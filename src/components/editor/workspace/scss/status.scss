@@ -15,7 +15,7 @@
         padding-inline-start: 0;
     }
 
-    &-autosave.button {
+    &-autosave {
         @extend %color-text;
         --background-default: transparent;
         --background-hover: var(--control-active-background);
@@ -60,25 +60,25 @@
                 }
             }
 
-            &--eol.button {
+            &--eol {
                 @container workspace-status (width < 48em) {
                     display: none;
                 }
             }
 
-            &--indent.button {
+            &--indent {
                 @container workspace-status (width < 45em) {
                     display: none;
                 }
             }
 
-            &--language.button {
+            &--language {
                 @container workspace-status (width < 38em) {
                     display: none;
                 }
             }
 
-            &--problems.button {
+            &--problems {
                 @container workspace-status (width < 30em) {
                     display: none;
                 }

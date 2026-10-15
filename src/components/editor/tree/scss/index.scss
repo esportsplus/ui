@@ -526,7 +526,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         }
     }
 
-    &-toggle.button {
+    &-toggle {
         bottom: 4px;
         height: 32px;
         inset-inline-end: var(--size-100);

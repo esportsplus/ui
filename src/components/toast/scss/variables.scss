@@ -34,7 +34,7 @@
         --fling-duration: 0s;
     }
 
-    &-close.button {
+    &-close {
         @extend %color-text;
         --background-default: var(--surface-background-default);
         --background-hover: var(--surface-background-hover);

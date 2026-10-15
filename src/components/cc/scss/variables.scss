@@ -51,7 +51,7 @@
     }
 
     // Chained through '.button' so it wins over the shared button styles regardless of stylesheet order.
-    &-submit.button {
+    &-submit {
         --background-default: var(--submit-background);
         --border-radius: var(--field-border-radius);
         --color-default: var(--submit-color);

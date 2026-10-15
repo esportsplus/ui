@@ -67,14 +67,16 @@
     }
 
     // Horizontal and vertical lines look alike: the fills stop short of the line, which runs along the item's edge.
-    &--line-bottom,
-    &--line-top {
-        --inset-block: var(--line-inset);
-    }
+    &--line {
+        &-bottom,
+        &-top {
+            --inset-block: var(--line-inset);
+        }
 
-    &--line-left,
-    &--line-right {
-        --inset-inline: var(--line-inset);
+        &-left,
+        &-right {
+            --inset-inline: var(--line-inset);
+        }
     }
 
     &--pressed {
