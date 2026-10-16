@@ -53,7 +53,8 @@ const catalog: Catalog = {
         render: () => html`
             <div class='panels-demo-surface panels-demo-surface--text'>
                 <p>Drag a tab along the strip to reorder it, into another group to move it, onto a group's half to split
-                it, or onto the bottom strip to dock it. Drag a separator to resize, double-click a header to maximize.</p>
+                it, or onto the bottom strip to dock it. Drag a separator to resize, double-click a header to maximize.
+                Hold Ctrl (⌘ on a Mac) and click panels, then let go, to focus on them.</p>
             </div>
         `,
         shortcut: 'R',
@@ -62,10 +63,33 @@ const catalog: Catalog = {
 };
 
 
-function demo(root: Node | null = null) {
+// Rows of counters, each in a group of its own, to pick and zoom to.
+function grid(rows: number, columns: number): Node {
+    let n = 0;
+
+    return {
+        children: Array.from({ length: rows }, (_, row) => ({
+            children: Array.from({ length: columns }, () => {
+                let id = `counter-${++n}`;
+
+                return { active: id, id: `group-${n}`, kind: 'group' as const, surfaces: [{ id, kind: 'counter' }] };
+            }),
+            direction: 'row' as const,
+            id: `split-${row + 2}`,
+            kind: 'split' as const,
+            sizes: Array.from({ length: columns }, () => 1 / columns)
+        })),
+        direction: 'column',
+        id: 'split-1',
+        kind: 'split',
+        sizes: Array.from({ length: rows }, () => 1 / rows)
+    };
+}
+
+function demo(root: Node | null = null, icons = false) {
     return html`
         <div class='panels-demo'>
-            ${panels({ catalog, state: panels.state({ root }) })}
+            ${panels({ catalog, icons, state: panels.state({ root }) })}
         </div>
     `;
 }
@@ -96,6 +120,24 @@ export default {
                 sizes: [0.5, 0.5]
             }),
             title: 'workspace'
+        },
+        {
+            render: () => demo(grid(2, 3)),
+            title: 'zoom'
+        },
+        {
+            render: () => demo({
+                active: 'readme',
+                id: 'group-1',
+                kind: 'group',
+                surfaces: [
+                    { id: 'readme', kind: 'readme' },
+                    { id: 'notes', kind: 'notes' },
+                    { id: 'counter-1', kind: 'counter' },
+                    { id: 'inbox', kind: 'inbox' }
+                ]
+            }, true),
+            title: 'icons'
         },
         {
             render: () => demo(),
