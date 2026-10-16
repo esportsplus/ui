@@ -49,6 +49,8 @@ type Options = {
     // On press: the ways it may be dismissed, or null when this press must not drag.
     begin: (e: PointerEvent, element: HTMLElement) => Direction[] | null;
     capture?: (element: HTMLElement) => void;
+    // The element whose size the drag is measured against, when it moves something other than what is pressed.
+    measure?: (element: HTMLElement) => HTMLElement;
     move: (element: HTMLElement, drag: Drag, progress: number) => void;
     release: (element: HTMLElement, drag: Drag, dismiss: boolean) => void;
 };
@@ -160,7 +162,7 @@ function outward(directions: Direction[], axis: Direction['axis'], value: number
 }
 
 
-const drag = ({ begin, capture, move, release }: Options) => {
+const drag = ({ begin, capture, measure, move, release }: Options) => {
     let current: Drag | null = null;
 
     return {
@@ -224,8 +226,11 @@ const drag = ({ begin, capture, move, release }: Options) => {
                 element.setPointerCapture(e.pointerId);
                 getSelection()?.removeAllRanges();
                 capture?.(element);
-                current.height = element.offsetHeight;
-                current.width = element.offsetWidth;
+
+                let sized = measure?.(element) ?? element;
+
+                current.height = sized.offsetHeight;
+                current.width = sized.offsetWidth;
             }
 
             let now = performance.now(),
