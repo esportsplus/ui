@@ -1,0 +1,294 @@
+import { button } from '@esportsplus/ui/components';
+import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
+import { drag } from '@esportsplus/ui/shared/drag';
+import { html, reactive } from 'docs/app';
+import type { Renderable } from 'docs/app';
+import '@esportsplus/ui/components/card/scss/index.scss';
+import 'docs/components/shell/scss/index.scss';
+
+
+type Edge = 'left' | 'right';
+
+// Which closed sidebars are showing for as long as the pointer stays over them.
+type Peeking = Record<Edge, boolean>;
+
+type Side = {
+    class?: string;
+    content?: Renderable<unknown>;
+    // A closed sidebar opens while the pointer rests on its edge and closes the moment the pointer leaves it; its toggle
+    // keeps it open.
+    hover?: boolean;
+    id: string;
+    label: string;
+    state: { active: boolean };
+};
+
+type Sides = Record<Edge, Side>;
+
+
+// Below this width an open sidebar pushes the card aside rather than narrowing it, so only one opens at a time.
+const NARROW = '(max-width: 1024px)';
+
+// Presses in these keep their own text editing rather than dragging the sidebar.
+const FIELDS = 'input, select, textarea, [contenteditable]';
+
+
+function close(side: Pick<Side, 'id' | 'state'>) {
+    if (document.getElementById(side.id)?.contains(document.activeElement)) {
+        document.getElementById(`${side.id}-toggle`)?.focus({ preventScroll: true });
+    }
+
+    side.state.active = false;
+}
+
+// The direction a drag toward the center takes from this edge.
+function direction(edge: Edge): -1 | 1 {
+    return edge === 'left' ? 1 : -1;
+}
+
+// A strip along the window edge while the sidebar is closed: its handle follows the pointer up and down and stays where
+// the pointer left it. Clicking it opens the sidebar, and dragging from it pulls the sidebar out, with the overlay's drag:
+// past a quarter of the sidebar or flicked it opens, otherwise it slides back. Resting on it peeks a sidebar that opens
+// on hover.
+function grip(sides: Sides, peeking: Peeking, edge: Edge) {
+    let side = sides[edge],
+        sign = direction(edge),
+        gesture = drag({
+            begin: (e) => e.button === 0 && !side.state.active ? [{ axis: 'x', sign }] : null,
+            capture: () => sidebar()?.classList.add('shell-sidebar--dragging'),
+            measure: (element) => sidebar() ?? element,
+            move: (_, { x }) => {
+                let element = sidebar();
+
+                if (element) {
+                    reveal(element, edge, x * sign);
+                }
+            },
+            release: (_, __, dismiss) => {
+                settle(sidebar(), edge);
+
+                if (dismiss) {
+                    open(sides, peeking, edge);
+                }
+            }
+        });
+
+    function sidebar() {
+        return document.getElementById(side.id);
+    }
+
+    return html`
+        <div
+            aria-hidden='true'
+            class='shell-edge shell-edge--${edge}'
+            id='${side.id}-edge'
+            ${{
+                ...gesture,
+                // A drag swallows the click it ends with, so this is a tap or a click: either opens the sidebar.
+                onclick: () => {
+                    if (!side.state.active) {
+                        open(sides, peeking, edge);
+                    }
+                },
+                onpointerenter: () => {
+                    if (side.hover && !side.state.active) {
+                        peeking[edge] = true;
+                    }
+                },
+                onpointerleave: (e: PointerEvent) => leave(side, peeking, edge, e),
+                onpointermove: function(this: HTMLElement, e: PointerEvent) {
+                    let bounds = this.getBoundingClientRect();
+
+                    this.style.setProperty('--handle-offset', `${e.clientY - bounds.top - bounds.height / 2}px`);
+                    gesture.onpointermove(e);
+                }
+            }}
+        >
+            <span class='shell-handle'></span>
+        </div>
+    `;
+}
+
+// A peeking sidebar closes once the pointer leaves it, unless it went on to the sidebar's own toggle or edge.
+function leave(side: Side, peeking: Peeking, edge: Edge, e: PointerEvent) {
+    let to = e.relatedTarget as Node | null;
+
+    if (!peeking[edge] || (to && [side.id, `${side.id}-edge`, `${side.id}-toggle`].some((id) => document.getElementById(id)?.contains(to)))) {
+        return;
+    }
+
+    peeking[edge] = false;
+}
+
+function open(sides: Sides, peeking: Peeking, edge: Edge) {
+    if (matchMedia(NARROW).matches) {
+        close(sides[edge === 'left' ? 'right' : 'left']);
+    }
+
+    peeking[edge] = false;
+    sides[edge].state.active = true;
+}
+
+// Dragged toward its edge with the overlay's drag, the sidebar follows the pointer; past a quarter of its width or
+// flicked it closes, otherwise it slides back.
+function panel(side: Side, peeking: Peeking, edge: Edge) {
+    let gesture = drag({
+            begin: (e) => {
+                let target = e.target as HTMLElement;
+
+                // A press past the target's client box is on its scrollbar.
+                if (
+                    e.button !== 0 ||
+                    !(side.state.active || peeking[edge]) ||
+                    target.closest(FIELDS) ||
+                    (target.clientWidth > 0 && (e.offsetX > target.clientWidth || e.offsetY > target.clientHeight))
+                ) {
+                    return null;
+                }
+
+                return [{ axis: 'x', sign: direction(edge) === 1 ? -1 : 1 }];
+            },
+            capture: (element) => element.classList.add('shell-sidebar--dragging'),
+            move: (element, { x }) => {
+                reveal(element, edge, element.offsetWidth + x * direction(edge));
+            },
+            release: (element, _, dismiss) => {
+                settle(element, edge);
+
+                if (dismiss) {
+                    hide();
+                }
+            }
+        }),
+        listening: AbortController | undefined;
+
+    function hide() {
+        if (peeking[edge]) {
+            peeking[edge] = false;
+        }
+        else {
+            close(side);
+        }
+    }
+
+    return html`
+        <aside
+            aria-label='${side.label}'
+            class='shell-sidebar shell-sidebar--${edge} ${side.class ?? ''}'
+            id='${side.id}'
+            ${{
+                class: () => side.state.active ? '--active' : peeking[edge] && '--peek',
+                inert: () => !side.state.active && !peeking[edge],
+                // Delegated handlers stop at the nearest bound element, and the sidebar's content binds pointer events
+                // of its own, so the drag listens on the sidebar directly.
+                onconnect: (element: HTMLElement) => {
+                    listening?.abort();
+                    listening = new AbortController();
+
+                    let signal = listening.signal;
+
+                    // Links would otherwise start a native drag-and-drop mid-swipe and cancel the pointer.
+                    element.addEventListener('dragstart', (e) => e.preventDefault(), { signal });
+                    element.addEventListener('pointercancel', gesture.onpointercancel, { signal });
+                    element.addEventListener('pointerdown', gesture.onpointerdown, { signal });
+                    element.addEventListener('pointerleave', (e) => leave(side, peeking, edge, e), { signal });
+                    element.addEventListener('pointermove', gesture.onpointermove, { signal });
+                    element.addEventListener('pointerup', gesture.onpointerup, { signal });
+                },
+                ondisconnect: () => listening?.abort(),
+                onkeydown: (e: KeyboardEvent) => {
+                    if (e.key === 'Escape' && !e.defaultPrevented) {
+                        e.preventDefault();
+                        hide();
+                    }
+                }
+            }}
+        >
+            ${side.content}
+        </aside>
+    `;
+}
+
+// Shows 'shown' pixels of the sidebar and moves the card's edge to meet it, narrowing its gap to none as it comes. The card's surface moves while its content
+// keeps its layout, clipped where the sidebar covers it, until the sidebar settles; on small screens the card keeps its
+// width and slides, so it moves outright. The shell's transitions stand down so both follow the pointer.
+function reveal(element: HTMLElement, edge: Edge, shown: number) {
+    let shell = element.parentElement!,
+        width = element.offsetWidth,
+        clamped = Math.max(0, Math.min(width, shown)),
+        rest = `calc(var(--shell-gap) * ${width ? 1 - clamped / width : 1})`;
+
+    element.style.translate = `${(clamped - width) * direction(edge)}px 0`;
+    shell.classList.add('shell--dragging');
+
+    if (matchMedia(NARROW).matches) {
+        shell.style.setProperty(`--${edge}-gap`, rest);
+        shell.style.setProperty(`--${edge}-space`, `${clamped}px`);
+    }
+    else {
+        shell.style.setProperty(`--${edge}-edge`, `calc(${clamped}px + ${rest})`);
+    }
+}
+
+// Hands the sidebar and the card back to their transitions, which carry both from where the drag left them to open or
+// closed.
+function settle(element: HTMLElement | null, edge: Edge) {
+    let shell = element?.parentElement;
+
+    element?.classList.remove('shell-sidebar--dragging');
+    element?.style.removeProperty('translate');
+    shell?.classList.remove('shell--dragging');
+    shell?.style.removeProperty(`--${edge}-edge`);
+    shell?.style.removeProperty(`--${edge}-gap`);
+    shell?.style.removeProperty(`--${edge}-space`);
+}
+
+// Clicked while its sidebar peeks, the toggle keeps it open.
+function toggle(sides: Sides, peeking: Peeking, edge: Edge) {
+    let side = sides[edge];
+
+    function label() {
+        return `${side.state.active ? 'Close' : 'Open'} ${side.label.toLowerCase()}`;
+    }
+
+    return button.sidebar({
+        'aria-controls': side.id,
+        'aria-label': label,
+        class: `shell-toggle shell-toggle--${edge}`,
+        id: `${side.id}-toggle`,
+        onclick: () => side.state.active ? close(side) : open(sides, peeking, edge),
+        // The button keeps 'pointerleave' for itself; moves into its own glyph are ignored like any within the sidebar.
+        onpointerout: (e: PointerEvent) => leave(side, peeking, edge, e),
+        open: () => side.state.active,
+        side: edge,
+        title: label
+    });
+}
+
+
+// The app frame: a sidebar on either edge, each with its toggle in its own top corner, around a card the page scrolls
+// in. The card insets from the window by a gap that closes on the side of an open sidebar, and a closed sidebar's gap
+// holds a handle to drag it open by, which slides in over the card while the pointer is on that edge.
+const shell = (sides: Sides, content: Renderable<unknown>) => {
+    let peeking = reactive<Peeking>({ left: false, right: false });
+
+    return html`
+        <div class='shell ${() => sides.left.state.active && '--left-open'} ${() => sides.right.state.active && '--right-open'}'>
+            <div aria-hidden='true' class='shell-backdrop'></div>
+            <div aria-hidden='true' class='shell-surface'></div>
+            ${panel(sides.left, peeking, 'left')}
+            ${panel(sides.right, peeking, 'right')}
+            ${grip(sides, peeking, 'left')}
+            ${grip(sides, peeking, 'right')}
+            ${toggle(sides, peeking, 'left')}
+            ${toggle(sides, peeking, 'right')}
+            <div class='card shell-main' ${scrollbar()}>
+                ${content}
+            </div>
+        </div>
+    `;
+};
+
+
+export default Object.assign(shell, { close });
+export type { Side };

@@ -1,0 +1,263 @@
+@use 'css-utilities/surface';
+@use '../../../../../tokens.scss';
+
+
+.shell {
+    --handle-color: var(--surface-border-hover);
+    --handle-color-hover: var(--color-black-300);
+    // How far inside the card's edge the handle comes to rest.
+    --handle-inset: 4px;
+    --handle-width: 3px;
+    // How far the card's surface stands from each side of the window. It matches the laid-out card until hover or a drag
+    // moves it on its own, ahead of the layout.
+    --left-edge: calc(var(--left-space) + var(--left-gap));
+    --left-gap: var(--shell-gap);
+    --left-space: 0px;
+    --right-edge: calc(var(--right-space) + var(--right-gap));
+    --right-gap: var(--shell-gap);
+    --right-space: 0px;
+    --shell-gap: 4px;
+    --shell-height: calc(100dvh - var(--shell-gap) * 2);
+    display: grid;
+    grid-template-columns: var(--left-space) minmax(0, 1fr) var(--right-space);
+    height: 100dvh;
+    overflow: clip;
+    transition: grid-template-columns var(--sidebar-duration) var(--sidebar-ease);
+
+    // A dragged drawer sets the space beside the card itself, which follows it without easing.
+    &--dragging,
+    &--dragging &-main,
+    &--dragging &-surface {
+        transition: none;
+    }
+
+    &.--left-open {
+        --left-gap: 0px;
+        --left-space: var(--sidebar-width);
+    }
+
+    &.--right-open {
+        --right-gap: 0px;
+        --right-space: var(--sidebar-width);
+    }
+
+    // Keep the page readable on small screens: the left sidebar pushes the card aside, the right one slides it over.
+    @media (max-width: 1024px) {
+        grid-template-columns: var(--left-space) 100% 0px;
+    }
+
+
+    &-backdrop {
+        inset: 0;
+        position: fixed;
+    }
+
+    // The gaps around the card show the sidebars' surface, so the card reads as set into it.
+    &-backdrop,
+    &-sidebar {
+        @extend %surface;
+        --sidebar-background: var(--surface-background-default);
+        --sidebar-border: var(--surface-border-default);
+        // Multiplied so the grain only darkens: laid over normally, its grey lifts a dark sidebar back to the page.
+        background-blend-mode: multiply;
+        background-color: var(--sidebar-background);
+        background-image: var(--sidebar-texture);
+        background-size: 256px 256px;
+    }
+
+    &-edge {
+        bottom: 0;
+        position: fixed;
+        top: 0;
+        touch-action: none;
+        transition: visibility 0s var(--sidebar-duration);
+        user-select: none;
+        width: 24px;
+        z-index: 30;
+
+        // A single arrow the way the sidebar opens; platforms draw the resize fallbacks double-headed.
+        &--left {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12h15M13 6l6 6-6 6' stroke='white' stroke-width='5'/%3E%3Cpath d='M4 12h15M13 6l6 6-6 6' stroke='black' stroke-width='2'/%3E%3C/svg%3E") 12 12, e-resize;
+            left: 0;
+        }
+
+        &--right {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 12H5M11 6l-6 6 6 6' stroke='white' stroke-width='5'/%3E%3Cpath d='M20 12H5M11 6l-6 6 6 6' stroke='black' stroke-width='2'/%3E%3C/svg%3E") 12 12, w-resize;
+            right: 0;
+        }
+
+        &:active {
+            cursor: grabbing;
+        }
+
+        &:hover {
+            --handle-color: var(--handle-color-hover);
+        }
+    }
+
+    // Off the window until the pointer is on the edge, then over the card, just inside its edge.
+    &-edge--left &-handle {
+        left: calc(var(--handle-width) * -1);
+    }
+
+    &-edge--left:is(:active, :hover) &-handle {
+        left: calc(var(--left-gap) + var(--handle-inset));
+    }
+
+    &-edge--right &-handle {
+        right: calc(var(--handle-width) * -1);
+    }
+
+    &-edge--right:is(:active, :hover) &-handle {
+        right: calc(var(--right-gap) + var(--handle-inset));
+    }
+
+    // Centered on the window until the pointer in the strip moves it; it stays where the pointer leaves it.
+    &-handle {
+        background: var(--handle-color);
+        border-radius: 4px;
+        height: 10svh;
+        position: absolute;
+        top: 50%;
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            left var(--sidebar-duration) var(--sidebar-ease),
+            opacity var(--sidebar-duration) var(--sidebar-ease),
+            right var(--sidebar-duration) var(--sidebar-ease);
+        translate: 0 calc(var(--handle-offset, 0px) - 50%);
+        width: var(--handle-width);
+    }
+
+    // The surface paints the card, so its content keeps its layout while the surface draws back from it, cut off where
+    // the surface no longer reaches; it reflows once a sidebar settles open or closed.
+    &-main {
+        @extend %surface-root;
+        --border-radius: var(--border-radius-500);
+        // The card draws its shadow on a layer of its own as well, from this.
+        --box-shadow: none;
+        background: transparent;
+        clip-path: inset(
+            0
+            max(0px, calc(var(--right-edge) - var(--right-space) - var(--right-gap)))
+            0
+            max(0px, calc(var(--left-edge) - var(--left-space) - var(--left-gap)))
+            round var(--border-radius)
+        );
+        grid-column: 2;
+        height: var(--shell-height);
+        margin: var(--shell-gap) var(--right-gap) var(--shell-gap) var(--left-gap);
+        overflow: hidden auto;
+        transition:
+            clip-path var(--sidebar-duration) var(--sidebar-ease),
+            margin var(--sidebar-duration) var(--sidebar-ease),
+            translate var(--sidebar-duration) var(--sidebar-ease);
+
+        // The card keeps its width and slides on small screens, so it paints itself and moves outright.
+        @media (max-width: 1024px) {
+            background: var(--background);
+            clip-path: none;
+            translate: calc(var(--right-space) * -1) 0;
+        }
+    }
+
+    &-sidebar {
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: fixed;
+        top: 0;
+        touch-action: pan-y;
+        transition:
+            translate var(--sidebar-duration) var(--sidebar-ease),
+            visibility 0s var(--sidebar-duration);
+        visibility: hidden;
+        width: min(var(--sidebar-width), 100%);
+        z-index: 31;
+
+        // Follows the pointer for the length of a drag, shown even while closed so it can be pulled out.
+        &--dragging {
+            cursor: grabbing;
+            transition: none;
+            visibility: visible;
+        }
+
+        &--left {
+            left: 0;
+            translate: -100% 0;
+        }
+
+        &--right {
+            right: 0;
+            translate: 100% 0;
+        }
+
+        // Peeking shows it over the card, which keeps its place; only an open sidebar makes room.
+        &.--peek,
+        #{tokens.state(active)} {
+            transition-delay: 0s;
+            translate: 0 0;
+            visibility: visible;
+        }
+    }
+
+    &-surface {
+        @extend %surface-root;
+        background: var(--surface-background-default);
+        border-radius: var(--border-radius-500);
+        inset-block: var(--shell-gap);
+        left: var(--left-edge);
+        position: fixed;
+        right: var(--right-edge);
+        transition:
+            left var(--sidebar-duration) var(--sidebar-ease),
+            right var(--sidebar-duration) var(--sidebar-ease);
+
+        @media (max-width: 1024px) {
+            display: none;
+        }
+    }
+
+    &-toggle {
+        --background-default: transparent;
+        --border-radius: var(--border-radius-400);
+        --color-default: var(--color-text-400);
+        --color-hover: var(--color-text-400);
+        --color-pressed: var(--color-text-500);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --size: 32px;
+        --width: var(--size);
+        display: flex;
+        flex-shrink: 0;
+        height: var(--size);
+        position: fixed;
+        top: var(--size-300);
+        width: var(--size);
+        z-index: 40;
+
+        &--left {
+            left: var(--size-300);
+        }
+
+        &--right {
+            right: var(--size-300);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-blue-400);
+            outline-offset: calc(var(--size-100) / 4);
+        }
+    }
+
+    &.--left-open &-edge--left &-handle,
+    &.--right-open &-edge--right &-handle {
+        opacity: 0;
+    }
+
+    &.--left-open &-edge--left,
+    &.--right-open &-edge--right {
+        transition-delay: 0s;
+        visibility: hidden;
+    }
+}

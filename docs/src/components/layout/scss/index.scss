@@ -17,7 +17,7 @@
 
 .page-nav {
     align-self: start;
-    max-height: 100svh;
+    max-height: var(--shell-height);
     padding: var(--spacer-100) var(--size-200) var(--spacer-100) 0;
     position: sticky;
     top: 0;
