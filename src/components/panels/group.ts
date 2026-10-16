@@ -1,4 +1,4 @@
-import { computed, effect, read, reactive, write, type Signal } from '@esportsplus/reactivity';
+import { computed, effect, read, reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import highlight from '~/components/highlight';
 import icon from '~/components/icon';
@@ -6,13 +6,11 @@ import scrollbar from '~/modifiers/scrollbar';
 import type manager from './dnd';
 import type { Group, Layout, Surface } from './model';
 import type state from './model';
-import { resize } from './resize';
 import subtree from './subtree';
 import close from '@esportsplus/ui/svg/close.svg';
 import collapse from '@esportsplus/ui/svg/collapse.svg';
 import expand from '@esportsplus/ui/svg/expand.svg';
 import plus from '@esportsplus/ui/svg/plus.svg';
-import stack from '@esportsplus/ui/svg/stack.svg';
 
 
 type Catalog = Record<string, Kind>;
@@ -23,10 +21,16 @@ type Context = {
     catalog: Catalog;
     // Opens the add menu under the pressed button, adding to the group.
     choose: (e: MouseEvent, group: string) => void;
-    heights: Signal<Record<string, number>>;
+    // Whether the press holds the modifier that picks tabs to zoom to: ⌘ on Apple platforms, Ctrl elsewhere.
+    held: (e: MouseEvent) => boolean;
+    // Tabs show their kind's icon alone, closing from their menu.
+    icons: boolean;
     manager: ReturnType<typeof manager>;
     // Opens the tab context menu for the surface.
     menu: (e: MouseEvent, group: string, surface: string) => void;
+    // Picks or unpicks the group for the zoom made when the modifier is let go.
+    pick: (group: string) => void;
+    picked: (group: string) => boolean;
     // The slot a surface's long-lived host moves into while it shows.
     slot: (surface: string) => Renderable<unknown>;
     state: ReturnType<typeof state>;
@@ -62,7 +66,7 @@ function edge(context: Context, live: Live, side: Side) {
             aria-hidden='true'
             class='panels-edge panels-edge--${side}'
             ${context.manager.droppable(() => ({
-                data: { group: group.id, kind: 'edge', scrollable: live().group.scrollable === true, side },
+                data: { group: group.id, kind: 'edge', side },
                 id: `edge:${group.id}:${side}`
             }))}
         ></div>
@@ -75,54 +79,11 @@ function glyph(context: Context, surface: Surface) {
     return kind?.icon && icon({ 'aria-hidden': 'true', class: 'panels-tab-icon' }, kind.icon);
 }
 
-// A surface section in a scrolling group, holding its own height so a resize outlives the list rendering again.
-function section(context: Context, surface: Surface, last: boolean) {
-    let element: HTMLElement | undefined;
-
-    return html`
-        <div
-            class='panels-section'
-            data-surface='${surface.id}'
-            ${{
-                onconnect: (node: HTMLElement) => {
-                    element = node;
-                },
-                style: () => {
-                    let height = read(context.heights)[surface.id];
-
-                    return height === undefined ? '' : `height: ${height}px;`;
-                }
-            }}
-        >
-            ${context.slot(surface.id)}
-        </div>
-        ${!last && html`
-            <div
-                aria-label='Resize stacked panel'
-                aria-orientation='horizontal'
-                class='panels-handle panels-handle--y'
-                role='separator'
-                ${resize('y', () => {
-                    if (!element) {
-                        return null;
-                    }
-
-                    let floor = parseFloat(getComputedStyle(element).minHeight) || 0,
-                        height = element.getBoundingClientRect().height;
-
-                    return (delta) => {
-                        write(context.heights, { ...read(context.heights), [surface.id]: Math.max(floor, height + delta) });
-                    };
-                })}
-            ></div>
-        `}
-    `;
-}
-
 function tab(context: Context, live: Live, surface: Surface) {
     let active = () => live().group.active === surface.id,
         { group } = live(),
-        label = title(context, surface);
+        label = title(context, surface),
+        only = context.icons && !!context.catalog[surface.kind]?.icon;
 
     return html`
         <div
@@ -134,6 +95,7 @@ function tab(context: Context, live: Live, surface: Surface) {
             ${{
                 class: () => [
                     active() && '--active',
+                    only && 'panels-tab--icon',
                     read(context.manager.active)?.id === surface.id && 'panels-tab--dragging'
                 ].filter(Boolean).join(' '),
                 onauxclick: (e: MouseEvent) => {
@@ -161,28 +123,34 @@ function tab(context: Context, live: Live, surface: Surface) {
                     }
                 },
                 onpointerdown: function(this: HTMLElement, e: PointerEvent) {
+                    if (context.held(e)) {
+                        return;
+                    }
+
                     context.manager.drag({ data: { group: group.id, surface: surface.id }, id: surface.id, node: this }, e);
                 },
                 tabindex: () => active() ? 0 : -1
             }}
         >
             ${glyph(context, surface)}
-            <span class='panels-tab-label'>${label}</span>
-            <button
-                aria-label='Close ${label}'
-                class='button panels-tab-close'
-                tabindex='-1'
-                type='button'
-                ${{
-                    onclick: (e: MouseEvent) => {
-                        e.stopPropagation();
-                        context.state.close(surface.id);
-                    },
-                    onpointerdown: (e: PointerEvent) => e.stopPropagation()
-                }}
-            >
-                ${icon({ 'aria-hidden': 'true' }, close)}
-            </button>
+            ${!only && html`
+                <span class='panels-tab-label'>${label}</span>
+                <button
+                    aria-label='Close ${label}'
+                    class='button panels-tab-close'
+                    tabindex='-1'
+                    type='button'
+                    ${{
+                        onclick: (e: MouseEvent) => {
+                            e.stopPropagation();
+                            context.state.close(surface.id);
+                        },
+                        onpointerdown: (e: PointerEvent) => e.stopPropagation()
+                    }}
+                >
+                    ${icon({ 'aria-hidden': 'true' }, close)}
+                </button>
+            `}
         </div>
     `;
 }
@@ -307,8 +275,8 @@ const launcher = (context: Context, group?: string) => {
     `;
 };
 
-// One group: its tabs, the add menu and group actions, then the active surface or a scrolling stack of all of them,
-// with a drop zone on each half while a tab is dragged.
+// One group: its tabs, the add menu and group actions, then the active surface, with a drop zone on each half while a
+// tab is dragged.
 const group = (context: Context, live: Live) => {
     // Tabs and placement render once from this snapshot: a change to either is structural and rebuilds the tree,
     // whereas reading the live layout would rebuild every tab when a press focuses the group, mid-press.
@@ -322,8 +290,16 @@ const group = (context: Context, live: Live) => {
         selected = computed(() => live().group.active),
         tabs: HTMLElement | undefined;
 
+    // Inside a zoom, a double click returns to the view before it instead.
     function maximize(e: MouseEvent) {
-        if (!(e.target as HTMLElement).closest('.panels-action, .panels-add, .panels-tab-close')) {
+        if ((e.target as HTMLElement).closest('.panels-action, .panels-add, .panels-tab-close')) {
+            return;
+        }
+
+        if (context.state.layout.zoom.length) {
+            context.state.unzoom();
+        }
+        else {
             context.state.maximize(group.id);
         }
     }
@@ -344,7 +320,8 @@ const group = (context: Context, live: Live) => {
                 class: () => [
                     drop.class(),
                     context.state.layout.active === group.id && '--active',
-                    live().group.placement === 'bottom' && 'panels-group--bottom'
+                    live().group.placement === 'bottom' && 'panels-group--bottom',
+                    context.picked(group.id) && 'panels-group--picked'
                 ].filter(Boolean).join(' '),
                 // Listened to directly: the tabs bind presses of their own, which delegation would stop at.
                 onconnect: (element: HTMLElement) => {
@@ -352,6 +329,14 @@ const group = (context: Context, live: Live) => {
                     listening?.abort();
                     listening = new AbortController();
                     element.addEventListener('pointerdown', () => context.state.focus(group.id), { signal: listening.signal });
+                    // Captured, so a picking click reaches neither the tabs nor the surface.
+                    element.addEventListener('click', (e) => {
+                        if (context.held(e)) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            context.pick(group.id);
+                        }
+                    }, { capture: true, signal: listening.signal });
                 },
                 ondisconnect: () => {
                     drop.ondisconnect();
@@ -407,19 +392,6 @@ const group = (context: Context, live: Live) => {
                     </button>
                 `}
                 <button
-                    class='button panels-action'
-                    type='button'
-                    ${{
-                        'aria-label': () => live().group.scrollable ? 'Stop stacking panels' : 'Stack panels',
-                        'aria-pressed': () => String(live().group.scrollable === true),
-                        class: () => live().group.scrollable && '--active',
-                        onclick: () => context.state.scrollable(group.id),
-                        title: () => live().group.scrollable ? 'Stop stacking panels' : 'Stack panels'
-                    }}
-                >
-                    ${icon({ 'aria-hidden': 'true' }, stack)}
-                </button>
-                <button
                     aria-label='Close group'
                     class='button panels-action'
                     title='Close group'
@@ -429,25 +401,14 @@ const group = (context: Context, live: Live) => {
                     ${icon({ 'aria-hidden': 'true' }, close)}
                 </button>
             </div>
-            <div
-                class='panels-body'
-                ${{ class: () => live().group.scrollable && 'panels-body--scrollable' }}
-            >
+            <div class='panels-body'>
                 ${subtree(
+                    () => live().group.active ?? '',
                     () => {
-                        let { active, scrollable, surfaces } = live().group;
-
-                        return scrollable ? `stack:${surfaces.map((surface) => surface.id).join(',')}` : `active:${active ?? ''}`;
-                    },
-                    () => {
-                        let { active, scrollable, surfaces } = live().group;
+                        let { active, surfaces } = live().group;
 
                         if (surfaces.length === 0) {
                             return launcher(context, group.id);
-                        }
-
-                        if (scrollable) {
-                            return surfaces.map((surface, index) => section(context, surface, index === surfaces.length - 1));
                         }
 
                         return active === null ? '' : context.slot(active);

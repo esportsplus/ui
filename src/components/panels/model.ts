@@ -9,8 +9,6 @@ type Group = {
     kind: 'group';
     // Docked groups span the whole layout's width below everything else, and show and hide together.
     placement?: 'bottom';
-    // Stacks every surface in a scrolling column instead of showing the active one.
-    scrollable?: boolean;
     surfaces: Surface[];
 };
 
@@ -19,6 +17,8 @@ type Layout = {
     bottom: { maximized: boolean; open: boolean; size: number };
     maximized: string | null;
     root: Node | null;
+    // Each zoom narrows the view to a set of groups, the last one showing; leaving a zoom returns to the one before.
+    zoom: string[][];
 };
 
 type Node = Group | Split;
@@ -64,6 +64,10 @@ function allGroups(node: Node | null): Group[] {
 
 function bounded(size: number) {
     return Math.min(1 - MIN_FRACTION, Math.max(MIN_FRACTION, size));
+}
+
+function contains(node: Node, id: string): boolean {
+    return node.id === id || (node.kind === 'split' && node.children.some((child) => contains(child, id)));
 }
 
 function equalSizes(count: number) {
@@ -261,6 +265,19 @@ function take(root: Node | null, source: Group, id: string) {
     }));
 }
 
+// Keeps every zoom to groups that still exist, and adds groups created while zoomed to each, so a split made in a zoom
+// shows there and in the views it returns to; a zoom left without groups is dropped.
+function zoomed(previous: Layout, next: Layout) {
+    let before = new Set(allGroups(previous.root).map((group) => group.id)),
+        after = allGroups(next.root).map((group) => group.id),
+        created = after.filter((id) => !before.has(id)),
+        existing = new Set(after);
+
+    return next.zoom
+        .map((level) => [...level.filter((id) => existing.has(id)), ...created])
+        .filter((level) => level.length > 0);
+}
+
 function updateGroup(node: Node | null, id: string, update: (group: Group) => Group): Node | null {
     if (node === null) {
         return null;
@@ -294,7 +311,8 @@ const state = ({ root = null, storage }: Options = {}) => {
             active: null,
             bottom: { maximized: false, open: true, size: BOTTOM_SIZE },
             maximized: null,
-            root: load() ?? root
+            root: load() ?? root,
+            zoom: []
         }));
 
     // Generated ids continue past every id the restored tree holds, so a new group never collides with an old one.
@@ -324,7 +342,12 @@ const state = ({ root = null, storage }: Options = {}) => {
     }
 
     function update(change: (current: Layout) => Layout) {
-        let next = normalizeLayout(change(read(layout)));
+        let previous = read(layout),
+            next = normalizeLayout(change(previous));
+
+        if (next.zoom.length) {
+            next = { ...next, zoom: zoomed(previous, next) };
+        }
 
         write(layout, next);
 
@@ -535,11 +558,35 @@ const state = ({ root = null, storage }: Options = {}) => {
             });
         },
 
-        resize(split: string, sizes: number[]) {
+        // 'shown' names the nodes a zoomed view shows of the split, one per size: their new shares are fitted into the
+        // space those children held, leaving the hidden ones theirs.
+        resize(split: string, sizes: number[], shown?: string[]) {
             update((current) => {
                 let found = findSplit(current.root, split);
 
-                if (!found || found.children.length !== sizes.length) {
+                if (!found) {
+                    return current;
+                }
+
+                if (shown && shown.length === sizes.length && shown.length < found.children.length) {
+                    let indices = shown.map((id) => found.children.findIndex((child) => contains(child, id)));
+
+                    if (indices.includes(-1)) {
+                        return current;
+                    }
+
+                    let next = [...found.sizes],
+                        share = indices.reduce((sum, i) => sum + (found.sizes[i] ?? 0), 0),
+                        total = sizes.reduce((sum, size) => sum + size, 0) || 1;
+
+                    indices.forEach((i, j) => {
+                        next[i] = share * sizes[j] / total;
+                    });
+
+                    return { ...current, root: updateSplit(current.root, split, normalizeSizes(next, next.length)) };
+                }
+
+                if (found.children.length !== sizes.length) {
                     return current;
                 }
 
@@ -549,13 +596,6 @@ const state = ({ root = null, storage }: Options = {}) => {
 
         resizeBottom(size: number) {
             update((current) => ({ ...current, bottom: { ...current.bottom, size } }));
-        },
-
-        scrollable(group: string) {
-            update((current) => ({
-                ...current,
-                root: updateGroup(current.root, group, ({ scrollable, ...entry }) => scrollable ? entry : { ...entry, scrollable: true })
-            }));
         },
 
         // Moves the surface into a new group beside 'group', splitting along 'direction'.
@@ -600,11 +640,36 @@ const state = ({ root = null, storage }: Options = {}) => {
                     root: current.root === null ? group : insertRoot(current.root, 'column', group, 'after', id)
                 };
             });
+        },
+
+        // Returns to the view before the current zoom.
+        unzoom() {
+            update((current) => current.zoom.length ? { ...current, maximized: null, zoom: current.zoom.slice(0, -1) } : current);
+        },
+
+        // Narrows the view to these groups, filling the layout with them in their arrangement.
+        zoom(groups: string[]) {
+            update((current) => {
+                let existing = new Set(allGroups(current.root).map((group) => group.id)),
+                    level = groups.filter((id) => existing.has(id));
+
+                if (level.length === 0) {
+                    return current;
+                }
+
+                return {
+                    ...current,
+                    active: level.includes(current.active ?? '') ? current.active : level[0],
+                    bottom: { ...current.bottom, maximized: false },
+                    maximized: null,
+                    zoom: [...current.zoom, level]
+                };
+            });
         }
     };
 };
 
 
 export default state;
-export { allGroups, bounded, findGroup, MIN_FRACTION };
+export { allGroups, bounded, contains, findGroup, MIN_FRACTION };
 export type { Direction, Group, Layout, Node, Side, Split, Surface };

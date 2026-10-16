@@ -1,12 +1,13 @@
-import { flush, onCleanup, reactive, read, root, signal, untrack } from '@esportsplus/reactivity';
+import { flush, onCleanup, reactive, read, root, signal, untrack, write } from '@esportsplus/reactivity';
 import { component, html, render, type Attributes, type Renderable } from '@esportsplus/template';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import type { Controller } from '~/components/tooltip/menu';
+import { mac } from '~/shared/platform';
 import { observe } from '~/shared/resize';
 import manager, { type Active, type Point, type Target } from './dnd';
 import { group, launcher, title, type Catalog, type Context, type Kind } from './group';
-import state, { allGroups, bounded, findGroup, MIN_FRACTION, type Group, type Layout, type Node, type Split, type Surface } from './model';
+import state, { allGroups, bounded, contains, findGroup, MIN_FRACTION, type Group, type Layout, type Node, type Split, type Surface } from './model';
 import { resize, resized } from './resize';
 import subtree from './subtree';
 import './scss/index.scss';
@@ -14,6 +15,8 @@ import './scss/index.scss';
 
 type A = Attributes & {
     catalog: Catalog;
+    // Tabs show their kind's icon alone, closing from their menu.
+    icons?: boolean;
     onconnect?: never;
     state: ReturnType<typeof state>;
 };
@@ -34,10 +37,6 @@ const EDGES = {
     top: ['column', 'before']
 } as const;
 
-
-function contains(node: Node, id: string): boolean {
-    return node.kind === 'group' ? node.id === id : node.children.some((child) => contains(child, id));
-}
 
 // The groups on one side of the dock, as their own tree: every split keeps its children there, resized to share what
 // the dropped ones leave.
@@ -105,22 +104,13 @@ function findSurface(node: Node | null, id: string) {
     return null;
 }
 
-// Every surface that should own a place on screen: the whole stack of a scrolling group, the active surface of any
-// other, on whichever sides are showing.
+// Every surface that should own a place on screen: the active surface of each group showing.
 function mounted(layout: Layout) {
-    let ids = new Set<string>();
+    let ids = new Set<string>(),
+        { docked, main } = shown(layout);
 
-    for (let group of allGroups(layout.root)) {
-        if (group.placement === 'bottom' && !layout.bottom.open) {
-            continue;
-        }
-
-        if (group.scrollable) {
-            for (let surface of group.surfaces) {
-                ids.add(surface.id);
-            }
-        }
-        else if (group.active !== null) {
+    for (let group of [...allGroups(main), ...allGroups(docked)]) {
+        if (group.active !== null) {
             ids.add(group.active);
         }
     }
@@ -184,7 +174,24 @@ function position(strip: HTMLElement, dragged: HTMLElement, x: number) {
     return index;
 }
 
-// The parts of the tree a layout change rebuilds: kinds, ids and order, group membership, placement and stacking.
+// What the layout shows: under a zoom, its groups fill the layout together, docked or not; otherwise the main groups,
+// with the docked ones below while the dock is open.
+function shown(layout: Layout) {
+    let zoom = layout.zoom.at(-1);
+
+    if (zoom) {
+        let ids = new Set(zoom);
+
+        return { docked: null, main: filter(layout.root, (group) => ids.has(group.id)) };
+    }
+
+    return {
+        docked: layout.bottom.open ? filter(layout.root, (group) => group.placement === 'bottom') : null,
+        main: filter(layout.root, (group) => group.placement !== 'bottom')
+    };
+}
+
+// The parts of the tree a layout change rebuilds: kinds, ids and order, group membership and placement.
 // Sizes, the active tab and group, maximizing and the dock's size bind in place instead.
 function structure(node: Node | null): unknown {
     if (node === null) {
@@ -192,7 +199,7 @@ function structure(node: Node | null): unknown {
     }
 
     if (node.kind === 'group') {
-        return [node.id, node.placement ?? '', node.scrollable === true, node.surfaces.map((surface) => surface.id)];
+        return [node.id, node.placement ?? '', node.surfaces.map((surface) => surface.id)];
     }
 
     return [node.id, node.direction, node.children.map(structure)];
@@ -200,15 +207,17 @@ function structure(node: Node | null): unknown {
 
 
 // Tabbed groups of surfaces in resizable splits. Tabs drag to reorder, into another group, onto a group's edge to
-// split beside it, or onto the bottom strip to dock; an empty group offers the catalog. A surface's content is
+// split beside it, or onto the bottom strip to dock; groups clicked with ⌘ (Ctrl elsewhere) held fill the layout
+// together once it is let go. An empty group offers the catalog. A surface's content is
 // rendered once and moved, never rebuilt, so it keeps its state across every layout change until its tab closes.
 const panels = component(
-    function({ catalog, state, ...attributes }: A) {
+    function({ catalog, icons = false, state, ...attributes }: A) {
         let adding: Controller | undefined,
+            apple = mac(),
             controller: Controller | undefined,
-            heights = signal<Record<string, number>>({}),
             hosts = new Map<string, Host>(),
             parking = document.createElement('div'),
+            picks = signal<string[]>([]),
             size = reactive({ height: 0 }),
             slots = new Map<string, HTMLElement>(),
             subject = reactive({ group: '', surface: '' }),
@@ -244,12 +253,7 @@ const panels = component(
                     return;
                 }
 
-                if (data.scrollable) {
-                    state.move(surface, target);
-                }
-                else {
-                    state.split(surface, target, direction, side);
-                }
+                state.split(surface, target, direction, side);
             },
             label: (active) => {
                 let surface = findSurface(state.layout.root, active.id);
@@ -291,7 +295,8 @@ const panels = component(
                 flush();
                 adding.open({ x: left, y: bottom });
             },
-            heights,
+            held: (e: MouseEvent) => apple ? e.metaKey : e.ctrlKey,
+            icons,
             manager: drag,
             menu(e: MouseEvent, group: string, surface: string) {
                 if (!controller) {
@@ -304,6 +309,12 @@ const panels = component(
                 flush();
                 controller.open(e.button === 2 ? { x: e.clientX, y: e.clientY } : undefined);
             },
+            pick(group: string) {
+                let current = read(picks);
+
+                write(picks, current.includes(group) ? current.filter((id) => id !== group) : [...current, group]);
+            },
+            picked: (group: string) => read(picks).includes(group),
             slot: (surface: string) => html`
                 <div
                     class='panels-slot'
@@ -460,8 +471,10 @@ const panels = component(
                 box = reactive({ length: 0 }),
                 unobserve: VoidFunction | undefined;
 
+            // As shown: a zoom shows a split with only some of its children, sharing the space between them.
             function sizes() {
-                let found = find(state.layout.root, current.id);
+                let { docked, main } = shown(state.layout),
+                    found = find(main, current.id) ?? find(docked, current.id);
 
                 return found?.kind === 'split' ? [...found.sizes] : [...current.sizes];
             }
@@ -497,16 +510,14 @@ const panels = component(
                         >
                             ${node(child)}
                         </div>
-                        ${index < current.children.length - 1 && handle(axis, sizes, index, () => box.length, (next) => state.resize(current.id, next))}
+                        ${index < current.children.length - 1 && handle(axis, sizes, index, () => box.length, (next) => state.resize(current.id, next, current.children.map((child) => child.id)))}
                     `)}
                 </div>
             `;
         }
 
         function tree(): Renderable<unknown> {
-            let layout = state.layout,
-                docked = layout.bottom.open ? filter(layout.root, (group) => group.placement === 'bottom') : null,
-                main = filter(layout.root, (group) => group.placement !== 'bottom');
+            let { docked, main } = shown(state.layout);
 
             return html`
                 <div class='panels-main'>
@@ -585,13 +596,30 @@ const panels = component(
                             size.height = entry.contentRect.height;
                         });
                     },
-                    ondisconnect: () => unobserve?.()
+                    ondisconnect: () => unobserve?.(),
+                    onwindowblur: () => write(picks, []),
+                    onwindowkeydown: (e: KeyboardEvent) => {
+                        if (e.key === 'Escape' && read(picks).length) {
+                            e.preventDefault();
+                            write(picks, []);
+                        }
+                    },
+                    onwindowkeyup: (e: KeyboardEvent) => {
+                        let chosen = read(picks);
+
+                        if (e.key !== (apple ? 'Meta' : 'Control') || chosen.length === 0) {
+                            return;
+                        }
+
+                        write(picks, []);
+                        state.zoom(chosen);
+                    }
                 }}
             >
                 ${subtree(
                     () => {
                         let layout = state.layout,
-                            key = JSON.stringify([layout.bottom.open, structure(layout.root)]),
+                            key = JSON.stringify([layout.bottom.open, layout.zoom.at(-1) ?? null, structure(layout.root)]),
                             changed = key !== last;
 
                         if (changed) {

@@ -204,3 +204,59 @@ test('new ids continue past the ones the layout starts with', () => {
     panels.dock('four');
     assert.ok(tabs(panels.layout).some((group) => group.startsWith('group-3:')));
 });
+
+// Three groups in a row: a, b and c.
+const row = () => state({
+    root: {
+        children: ['a', 'b', 'c'].map((name, i) => ({ active: name, id: `group-${i + 1}`, kind: 'group', surfaces: [surface(name)] })),
+        direction: 'row',
+        id: 'split-1',
+        kind: 'split',
+        sizes: [0.5, 0.25, 0.25]
+    }
+});
+
+test('zooming narrows the view, and each zoom returns to the one before', () => {
+    let panels = row();
+
+    panels.zoom(['group-1', 'group-2']);
+    assert.deepEqual(panels.layout.zoom, [['group-1', 'group-2']]);
+
+    panels.zoom(['group-2']);
+    assert.deepEqual(panels.layout.zoom.at(-1), ['group-2']);
+    assert.equal(panels.layout.active, 'group-2');
+
+    panels.unzoom();
+    assert.deepEqual(panels.layout.zoom, [['group-1', 'group-2']]);
+
+    panels.unzoom();
+    assert.deepEqual(panels.layout.zoom, []);
+
+    // Groups that no longer exist are not zoomed to.
+    panels.zoom(['group-9']);
+    assert.deepEqual(panels.layout.zoom, []);
+});
+
+test('a zoom keeps to the groups that exist and takes in groups made inside it', () => {
+    let panels = row();
+
+    panels.zoom(['group-1', 'group-2']);
+    panels.closeGroup('group-2');
+    assert.deepEqual(panels.layout.zoom, [['group-1']]);
+
+    panels.open(surface('d'), 'group-1');
+    panels.split('d', 'group-1', 'column', 'after');
+    assert.deepEqual(panels.layout.zoom, [['group-1', 'group-4']]);
+
+    panels.closeGroup('group-1');
+    panels.closeGroup('group-4');
+    assert.deepEqual(panels.layout.zoom, []);
+});
+
+test('resizing a zoomed split fits the shown children into the space they held', () => {
+    let panels = row();
+
+    // Shown: groups 1 and 2, holding 0.75 between them; dragged to an even split of that.
+    panels.resize('split-1', [0.5, 0.5], ['group-1', 'group-2']);
+    assert.deepEqual(panels.layout.root.sizes.map((size) => +size.toFixed(3)), [0.375, 0.375, 0.25]);
+});
