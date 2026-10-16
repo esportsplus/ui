@@ -1,0 +1,413 @@
+@use 'css-utilities/text';
+@use 'variables';
+
+.panels {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    position: relative;
+    width: 100%;
+
+
+    &--dragging &-dock-target,
+    &--dragging &-edge {
+        pointer-events: auto;
+    }
+
+    &-action,
+    &-add {
+        flex: none;
+        height: var(--action-size);
+        width: var(--action-size);
+    }
+
+    &-add {
+        height: var(--add-size);
+        width: var(--add-size);
+    }
+
+    &-body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 200px;
+        overflow: hidden;
+        position: relative;
+
+        &--scrollable {
+            overflow: hidden auto;
+        }
+    }
+
+    &-dock {
+        display: flex;
+        min-height: 80px;
+        min-width: 0;
+        overflow: hidden;
+
+        &--maximized {
+            background: var(--background);
+            inset: 0;
+            position: absolute;
+            z-index: 3;
+        }
+    }
+
+    // Covers the bottom of the layout while a tab is dragged, so dropping it there docks it across the whole width.
+    &-dock-target {
+        bottom: 0;
+        height: 48px;
+        inset-inline: 0;
+        pointer-events: none;
+        position: absolute;
+        z-index: 4;
+    }
+
+    &-dock-target,
+    &-edge {
+        &.--over {
+            background: var(--drop-background);
+            box-shadow: inset 0 0 0 2px var(--drop-ring);
+        }
+    }
+
+    // Each half of a group toward its edge, lit while a dragged tab would split the group that way.
+    &-edge {
+        pointer-events: none;
+        position: absolute;
+        z-index: 2;
+
+        &--bottom {
+            bottom: 0;
+            height: 50%;
+            inset-inline: 0;
+        }
+
+        &--left {
+            inset-block: 0;
+            left: 0;
+            width: 50%;
+        }
+
+        &--right {
+            inset-block: 0;
+            right: 0;
+            width: 50%;
+        }
+
+        &--top {
+            height: 50%;
+            inset-inline: 0;
+            top: 0;
+        }
+    }
+
+    // Collapsed beside a maximized group; a press anywhere on it maximizes it instead.
+    &-expand {
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        inset: 0;
+        position: absolute;
+        z-index: 2;
+    }
+
+    &-ghost {
+        background: var(--background);
+        border-radius: var(--border-radius-300);
+        box-shadow: var(--surface-shadow-default);
+        font-size: calc(var(--font-size-400) * 0.75);
+        padding: calc(var(--size-100) / 2) var(--size-200);
+        pointer-events: none;
+        position: fixed;
+        white-space: nowrap;
+        z-index: 1000;
+    }
+
+    // A section: the normalize wraps sections' flex lines, which would stop the body stretching across the group.
+    &-group {
+        border: var(--border-width-400) solid transparent;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        min-height: 0;
+        min-width: 0;
+        overflow: hidden;
+        position: relative;
+
+        &.--active {
+            border-color: var(--border-color);
+        }
+
+        // The tab strip is where a dragged tab joins the group rather than splitting it.
+        &.--over {
+            box-shadow: inset 0 0 0 1px var(--drop-ring);
+        }
+    }
+
+    &-handle {
+        flex-shrink: 0;
+        position: relative;
+        touch-action: none;
+        user-select: none;
+        z-index: 1;
+
+        &--x {
+            cursor: col-resize;
+            height: 100%;
+            margin-inline: calc(var(--handle-size) / -2);
+            width: var(--handle-size);
+
+            &::after {
+                inset-block: 0;
+                left: 50%;
+                translate: -50% 0;
+                width: 1px;
+            }
+        }
+
+        &--y {
+            cursor: row-resize;
+            height: var(--handle-size);
+            margin-block: calc(var(--handle-size) / -2);
+            width: 100%;
+
+            &::after {
+                height: 1px;
+                inset-inline: 0;
+                top: 50%;
+                translate: 0 -50%;
+            }
+        }
+
+        // The line is a pixel; the separator around it is wider to grab, overlapping the panes on either side.
+        &::after {
+            background: var(--handle-color);
+            content: '';
+            pointer-events: none;
+            position: absolute;
+            transition: background var(--transition-duration) var(--transition-timing-function);
+        }
+
+        &:active::after {
+            background: var(--handle-color-pressed);
+        }
+
+        &:hover:not(:active)::after {
+            background: var(--handle-color-hover);
+        }
+
+        &[hidden] {
+            display: none;
+        }
+    }
+
+    &-header {
+        align-items: center;
+        display: flex;
+        flex-shrink: 0;
+        gap: calc(var(--spacing) / 2);
+        height: var(--header-height);
+        padding-inline: var(--spacing);
+    }
+
+    // A surface's long-lived host and the slot it moves into add no box, so its content lays out in the group's body.
+    &-host,
+    &-slot,
+    &-subtree {
+        display: contents;
+    }
+
+    &-launcher {
+        align-items: center;
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        min-height: 0;
+        outline: none;
+        overflow-y: auto;
+        padding: var(--size-600);
+
+        &-card {
+            align-items: flex-start;
+            border: var(--border-width) solid var(--border-color);
+            flex-direction: column;
+            gap: calc(var(--size-100) / 2);
+            justify-content: flex-start;
+            position: relative;
+            text-align: left;
+            white-space: normal;
+            width: 100%;
+
+            &-description {
+                color: var(--muted-color);
+                font-size: calc(var(--font-size-400) * 0.75);
+                line-height: 1.5;
+            }
+
+            &-icon {
+                --size: 16px;
+            }
+
+            &-key {
+                inset-block-start: var(--size-300);
+                inset-inline-end: var(--size-300);
+                position: absolute;
+            }
+
+            &-title {
+                align-items: center;
+                display: flex;
+                font-size: calc(var(--font-size-400) * 0.875);
+                font-weight: var(--font-weight-500);
+                gap: var(--size-200);
+                padding-inline-end: var(--size-700);
+            }
+        }
+
+        &-cards {
+            display: grid;
+            gap: var(--size-200);
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        }
+
+        &-content {
+            max-width: 512px;
+            width: 100%;
+        }
+
+        &-description {
+            color: var(--muted-color);
+            font-size: calc(var(--font-size-400) * 0.75);
+        }
+
+        &-header {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--size-100) / 2);
+            margin-bottom: var(--size-500);
+            text-align: center;
+        }
+
+        &-title {
+            font-size: calc(var(--font-size-400) * 0.875);
+            font-weight: var(--font-weight-500);
+        }
+    }
+
+    &-main {
+        display: flex;
+        flex: 1;
+        min-height: 0;
+        min-width: 0;
+        overflow: hidden;
+        position: relative;
+    }
+
+    // Only reached through its controller, so the region takes no space; the root leaves its overflow visible for it.
+    &-menu {
+        height: 0;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 0;
+    }
+
+    &-pane {
+        display: flex;
+        min-height: 0;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    &-parking {
+        display: none;
+    }
+
+    &-section {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        height: 100%;
+        min-height: var(--section-min-height);
+    }
+
+    &-split {
+        display: flex;
+        height: 100%;
+        min-height: 0;
+        min-width: 0;
+        width: 100%;
+
+        &--column {
+            flex-direction: column;
+        }
+    }
+
+    &-tab {
+        flex: none;
+        gap: calc(var(--spacing) / 2);
+        height: var(--tab-height);
+        max-width: var(--tab-max-width);
+        padding-inline-end: calc(var(--spacing) / 2);
+        user-select: none;
+
+        &--dragging {
+            opacity: 0.45;
+        }
+
+        &-close {
+            flex: none;
+            height: 16px;
+            width: 16px;
+
+            .icon {
+                --size: 12px;
+            }
+        }
+
+        &-icon {
+            --size: 12px;
+            flex: none;
+        }
+
+        &-label {
+            @extend %text-truncate;
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    &-tabs {
+        align-items: center;
+        display: flex;
+        flex: 1;
+        gap: calc(var(--spacing) / 2);
+        height: 100%;
+        min-width: 0;
+        overflow: auto hidden;
+        position: relative;
+    }
+}
+
+// The page takes the separator's cursor for the length of a resize, and selects nothing it sweeps over.
+:root.panels-resizing {
+    &,
+    * {
+        user-select: none;
+    }
+
+    &--x,
+    &--x * {
+        cursor: col-resize;
+    }
+
+    &--y,
+    &--y * {
+        cursor: row-resize;
+    }
+}

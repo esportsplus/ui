@@ -1,0 +1,75 @@
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
+
+.panels {
+    --action-size: 28px;
+    --add-size: 24px;
+    --border-color: var(--surface-border-default);
+    --drop-background: oklch(from var(--color-primary-400) l c h / 0.12);
+    --drop-ring: oklch(from var(--color-primary-400) l c h / 0.5);
+    --handle-color: var(--surface-border-default);
+    --handle-color-hover: var(--surface-border-pressed);
+    --handle-color-pressed: var(--color-primary-400);
+    --handle-size: 8px;
+    --header-height: 36px;
+    --muted-color: var(--color-text-300);
+    --section-min-height: 240px;
+    --spacing: calc(var(--size-300) / 2);
+    --tab-font-size: calc(var(--font-size-400) * 0.75);
+    --tab-height: 24px;
+    --tab-max-width: 144px;
+
+
+    &-action {
+        --background-active: var(--surface-background-active);
+    }
+
+    &-action,
+    &-add,
+    &-tab-close {
+        @extend %color-text;
+        --background-default: transparent;
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
+        --border-radius: var(--border-radius-300);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+    }
+
+    &-ghost {
+        @extend %surface-raise;
+        --background: var(--surface-background-default);
+    }
+
+    &-launcher-card {
+        @extend %color-text;
+        --background-active: var(--surface-background-hover);
+        --background-default: transparent;
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
+        --border-color-default: var(--surface-border-default);
+        --border-radius: var(--border-radius-400);
+        --border-width: var(--border-width-400);
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-400);
+    }
+
+    // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
+    &-tab {
+        @extend %color-text;
+        --background-active: transparent;
+        --background-default: transparent;
+        --background-hover: transparent;
+        --background-pressed: transparent;
+        --border-radius: var(--border-radius-300);
+        --font-size: var(--tab-font-size);
+        --padding-horizontal: var(--spacing);
+        --padding-vertical: 0px;
+    }
+
+    &-tabs-highlight {
+        --background-active: var(--surface-background-active);
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
+    }
+}

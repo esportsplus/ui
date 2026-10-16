@@ -46,6 +46,7 @@ export { default as notification } from './notification';
 export { default as number } from './number';
 export { default as overlay } from './overlay';
 export { default as pagination } from './pagination';
+export { default as panels } from './panels';
 export { default as preview } from './preview';
 export { default as progress } from './progress';
 export { default as pullToRefresh } from './pull-to-refresh';
