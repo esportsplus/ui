@@ -48,6 +48,11 @@
         --link-inset: var(--size-300);
     }
 
+    // The palette's list already pads its rows, so links pulled out past it would overflow and clip.
+    &--highlight#{&}--command {
+        --link-inset: 0px;
+    }
+
     // With no fill under it, the active link keeps the plain active text colour rather than the one set for the fill.
     &--highlight#{&}--border {
         --link-color-active: var(--color-text-500);

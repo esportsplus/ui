@@ -10,8 +10,15 @@
     gap: var(--section-gap);
 
     // Command results mark their matches; inside the tree they take the link's state colour instead.
-    &--command :is(.command-label, .command-match) {
-        color: inherit;
+    &--command {
+        :is(.command-label, .command-match) {
+            color: inherit;
+        }
+
+        // Links stay inside the palette's padding rather than pulling out, so titles step in to their text instead.
+        .nav-tree-title:not(.nav-tree-link) {
+            padding-inline: var(--link-padding-horizontal);
+        }
     }
 
     &-group,
