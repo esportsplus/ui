@@ -1,14 +1,4 @@
-@use 'css-utilities/color';
 @use 'css-utilities/surface';
-
-
-// Shared with the view transition pseudos, which hang off the root and can't read the card's own variables.
-$expand-border-radius: 18px;
-// The pseudos sit above the themed element too, so they see no theme colors: theirs is a constant black shadow.
-$expand-transition-box-shadow:
-    0 0 0 var(--border-width-400) oklch(from var(--color-black-300) l c h / 0.06),
-    0 2px 3px -2px oklch(from var(--color-black-300) l c h / 0.07),
-    0 4px 12px -4px oklch(from var(--color-black-300) l c h / 0.06);
 
 
 // A surface: a level above whatever it sits in, painted and lifted to match.
@@ -21,20 +11,6 @@ $expand-transition-box-shadow:
     --box-shadow-default: var(--surface-shadow-default);
     --width: auto;
 
-
-    &--expand {
-        --padding-horizontal: 18px;
-        --padding-vertical: var(--size-400);
-        --width: 100%;
-    }
-
-    &--expand,
-    &-expand-dialog {
-        --background-default: var(--expand-background);
-        --border-radius: #{$expand-border-radius};
-        --border-width: 0px;
-        --box-shadow-default: var(--surface-shadow-default);
-    }
 
     &--morph {
         --morph-blur: var(--blur-400);
@@ -64,37 +40,6 @@ $expand-transition-box-shadow:
         --box-shadow-default: transparent;
         --box-shadow-hover: var(--surface-border-hover);
         --box-shadow-pressed: var(--surface-shadow-pressed);
-    }
-
-    &-expand {
-        --dialog-backdrop: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha + 0.06));
-        --dialog-width: 440px;
-        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-        --expand-background: var(--surface-background-default);
-        --focus-ring-color: var(--surface-border-pressed);
-        --list-gap: 12px;
-        --max-width: 400px;
-        --muted-color: var(--color-text-300);
-        --slot-border-color: var(--surface-border-default);
-        --text-color: var(--color-text-500);
-
-        &-close {
-            @extend %color-text;
-            --background-hover: var(--surface-background-hover);
-            --border-radius: 999px;
-            --border-width: 0px;
-            --padding-horizontal: 0px;
-            --padding-vertical: 0px;
-            --size: 32px;
-        }
-
-        &-dialog.overlay {
-            --backdrop: var(--dialog-backdrop);
-            --margin-horizontal: 1rem;
-            --max-width: var(--dialog-width);
-            --padding: 24px;
-            --width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
-        }
     }
 
     &-morph-layer.frame {

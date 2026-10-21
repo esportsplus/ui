@@ -19,8 +19,7 @@ const groups: Record<string, Group[]> = {
     ],
     capslock: [{ title: 'caps lock', members: [['toggle caps lock to show', 'Default'], 'active'] }],
     card: [
-        { title: 'card', members: ['default', ['card--morph', 'Morph']] },
-        { title: 'card.expand', members: ['card.expand', ['card.expand controlled state', 'Controlled state'], ['card.expand white surfaces, darker backdrop', 'White surface, dark backdrop']] }
+        { title: 'card', members: ['default', ['card--morph', 'Morph']] }
     ],
     cc: [{ title: 'card details', members: ['default', ['prefilled amex + onvalid', 'Prefilled Amex, validation callback']] }],
     checkbox: [

@@ -1,6 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { card } from '@esportsplus/ui/components';
 
 
 let box = '--padding-horizontal: var(--size-500); --padding-vertical: var(--size-500); --border-radius: var(--border-radius-400); --width: 200px;',
@@ -8,49 +7,7 @@ let box = '--padding-horizontal: var(--size-500); --padding-vertical: var(--size
         'Short',
         'A longer layer that wraps onto a few lines, so the card grows taller as well as wider.',
         'A medium length layer'
-    ],
-    notes = [
-        {
-            detail: 'Name the card and its dialog alike and the browser morphs one into the other, measuring both boxes and bridging them in CSS.',
-            id: 'layouts',
-            meta: 'Sep 18',
-            summary: 'Cards morph into their detail view.',
-            title: 'Shared layouts'
-        },
-        {
-            detail: 'Describe a spring by how long it should feel and how much it should overshoot, instead of tuning stiffness and damping by hand.',
-            id: 'springs',
-            meta: 'Aug 30',
-            summary: 'Springs take a duration and bounce.',
-            title: 'Spring timing'
-        },
-        {
-            detail: 'When the system asks for less motion, the card and its detail view cross-fade in place with nothing flying across the screen.',
-            id: 'motion',
-            meta: 'Aug 12',
-            summary: 'Morphs become a plain swap.',
-            title: 'Reduced motion'
-        }
     ];
-
-
-function controlled() {
-    let state = reactive({ open: null as string | null });
-
-    return html`
-        <div style='align-items: center; display: flex; flex-direction: column; gap: var(--size-500); width: 100%;'>
-            ${card.expand({ items: notes, state })}
-            <div style='align-items: center; display: flex; gap: var(--size-300);'>
-                <button class='button' onclick='${() => state.open = 'springs'}' style='--width: auto;' type='button'>
-                    open "Spring timing"
-                </button>
-                <span style='color: var(--color-text-300); font-size: var(--font-size-300);'>
-                    ${() => `state.open: ${state.open ?? 'null'}`}
-                </span>
-            </div>
-        </div>
-    `;
-}
 
 
 function morph() {
@@ -124,21 +81,6 @@ export default {
         {
             render: morph,
             title: 'card--morph'
-        },
-        {
-            render: () => card.expand({ items: notes }),
-            title: 'card.expand'
-        },
-        {
-            render: controlled,
-            title: 'card.expand controlled state'
-        },
-        {
-            render: () => card.expand({
-                items: notes,
-                style: '--dialog-backdrop: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha + 0.3)); --dialog-width: 520px;'
-            }),
-            title: 'card.expand raised surfaces, darker backdrop'
         }
     ]
 };

@@ -3,7 +3,6 @@ export { default as announcement } from './announcement';
 export { default as breadcrumb } from './breadcrumb';
 export { default as button } from './button';
 export { default as capslock } from './capslock';
-export { default as card } from './card';
 export { default as cc } from './cc';
 export { default as chatMinimap } from './chat-minimap';
 export { default as checkbox } from './checkbox';
