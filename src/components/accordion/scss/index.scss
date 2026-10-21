@@ -11,6 +11,7 @@
         grid-template-rows: 0fr;
     }
 
+
     &--more {
         display: block;
         // Animate the outer box while content retains its natural height for measurement.
@@ -21,12 +22,6 @@
 
         &.accordion--instant {
             transition: none;
-        }
-
-        &:focus-visible {
-            border-radius: var(--border-radius-300);
-            outline: var(--border-width-400) solid var(--focus-color);
-            outline-offset: var(--size-100);
         }
 
         @include tokens.state(active) {

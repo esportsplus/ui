@@ -6,7 +6,7 @@ import group, { settle, type Group } from './group';
 import './scss/index.scss';
 
 
-const accordion = component<Attributes & {
+export default component<Attributes & {
     group?: Group,
     lines?: number,
     state?: { active: boolean | number, expandable?: boolean }
@@ -104,9 +104,7 @@ const accordion = component<Attributes & {
                 <div class='accordion-content' ${c}>${content}</div>
             </div>
         `;
-    }
+    },
+    { group }
 );
-
-
-export default Object.assign(accordion, { group });
 export type { Group };
