@@ -310,7 +310,7 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     // with the heaviest shadow since nothing sits above it. Not counted from its parent, so it skips the queries.
     &-root {
         @include surface-shadow($shadow-weight-max);
-        --surface-level: 1;
+        --surface-level: 0;
     }
 }
 
