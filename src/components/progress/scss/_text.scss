@@ -18,12 +18,9 @@
     // The shared check carries no stroke of its own; the dash values inherit into it, so it draws in.
     &-check {
         @extend %icon-stroke, %icon-stroke-draw;
-        flex-shrink: 0;
-        height: var(--check-size);
         stroke-dashoffset: var(--check-offset);
         stroke-width: 3;
         transition: stroke-dashoffset var(--check-duration) var(--ease-in-out) 150ms;
-        width: var(--check-size);
     }
 
     &-done {

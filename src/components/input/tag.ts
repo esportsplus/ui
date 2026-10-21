@@ -1,6 +1,7 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
 import close from '@esportsplus/ui/svg/close.svg';
+import icon from '~/components/icon';
 import { measure, slides, timing } from '~/shared/animation';
 import input from './field';
 
@@ -136,7 +137,7 @@ export default component(
                                 }
                             }}
                         >
-                            <svg aria-hidden='true' class='input-tag-chip-icon'><use href='#${close}' /></svg>
+                            ${icon({ 'aria-hidden': 'true', class: 'input-tag-chip-icon' }, close)}
                         </button>
                     </span>
                     ${name && html`<input name='${name}[]' type='hidden' value='${tag}' />`}
@@ -170,7 +171,7 @@ export default component(
                     <span aria-hidden='true' class='input-tag-chip-body'></span>
                     <span class='input-tag-chip-text'>${ghost.tag}</span>
                     <span class='input-tag-chip-remove'>
-                        <span class='input-tag-chip-button'><svg aria-hidden='true' class='input-tag-chip-icon'><use href='#${close}' /></svg></span>
+                        <span class='input-tag-chip-button'>${icon({ 'aria-hidden': 'true', class: 'input-tag-chip-icon' }, close)}</span>
                     </span>
                 </li>
             `);

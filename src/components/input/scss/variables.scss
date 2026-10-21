@@ -109,6 +109,12 @@
                 --chip-remove-hover-background: transparent;
                 --chip-shadow: none;
             }
+
+            // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
+            &-icon.icon {
+                --color: currentColor;
+                --size: 14px;
+            }
         }
 
         // Qualified so it wins over the reused input styles regardless of stylesheet order.

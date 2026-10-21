@@ -3,7 +3,8 @@ import { effect, reactive } from '@esportsplus/reactivity';
 import { measure, slides, timing } from '~/shared/animation';
 import { clamp } from '~/shared/clamp';
 import { keystep } from '~/shared/keystep';
-import copy from '~/components/copy';
+import copy from '~/components/button/copy';
+import icon from '~/components/icon';
 import input from '~/components/input';
 import range from '~/components/range';
 import contrast from '@esportsplus/ui/svg/contrast.svg';
@@ -482,7 +483,7 @@ function template(
         return html`
             <div class='color-picker color-picker--compact' ${this?.attributes} ${attributes} ${{ style: css }}>
                 <div class='color-picker-header'>
-                    <svg aria-hidden='true' class='color-picker-icon'><use href='#${contrast}' /></svg>
+                    ${icon({ 'aria-hidden': 'true', class: 'color-picker-icon' }, contrast)}
                     <span class='color-picker-value'>${() => hsl(read())}</span>
                 </div>
                 <div class='color-picker-body'>

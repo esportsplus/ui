@@ -194,7 +194,7 @@
         white-space: nowrap;
         width: var(--width);
 
-        &--saved &-check {
+        &--saved &-check.icon {
             opacity: 1;
             stroke-dashoffset: 0;
             transition:
@@ -221,9 +221,9 @@
             @extend %hidden-visually;
         }
 
-        &-check {
+        // Chained through '.icon' so it wins over the icon's own position regardless of stylesheet order.
+        &-check.icon {
             fill: none;
-            height: 100%;
             inset: 0;
             opacity: 0;
             position: absolute;
@@ -236,7 +236,6 @@
             transition:
                 opacity var(--exit-duration) var(--timing-function),
                 stroke-dashoffset var(--exit-duration) var(--timing-function);
-            width: 100%;
         }
 
         &-dot {
@@ -328,18 +327,12 @@
         position: absolute;
         width: 24px;
 
-        &-check {
-            color: var(--icon-color-saved);
-        }
-
         // Only the shared check takes these; it carries no stroke of its own and is drawn on a 24 unit grid.
         &-check,
         &-pencil {
             @extend %icon-stroke, %icon-swap;
             grid-area: 1 / 1;
-            height: var(--icon-size);
             stroke-width: 2.25;
-            width: var(--icon-size);
         }
 
         // The pencil rests in place but faded, showing only on hover or keyboard focus.
@@ -445,12 +438,10 @@
     // Only the shared check takes the stroke; it carries none of its own and is drawn on a 24 unit grid.
     &-toolbar-icon {
         fill: none;
-        height: var(--toolbar-icon-size);
         stroke: currentColor;
         stroke-linecap: round;
         stroke-linejoin: round;
         stroke-width: 2.25;
-        width: var(--toolbar-icon-size);
     }
 
     &-toolbar-link {

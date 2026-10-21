@@ -50,4 +50,10 @@
         --part-gap: 14px;
         --part-height: 32px;
     }
+
+    // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
+    &-check.icon {
+        --color: currentColor;
+        --size: var(--check-size);
+    }
 }

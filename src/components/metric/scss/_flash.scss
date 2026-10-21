@@ -55,12 +55,6 @@
         }
     }
 
-    &-icon {
-        display: block;
-        height: var(--arrow-size);
-        width: var(--arrow-size);
-    }
-
     &-text {
         grid-area: 1 / 1;
 

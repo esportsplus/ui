@@ -101,6 +101,11 @@
         }
     }
 
+    // Chained through '.icon' so it wins over the icon's own color regardless of stylesheet order.
+    &-icon.icon {
+        --color: currentColor;
+    }
+
     &-pad:active {
         --thumb-scale: var(--thumb-scale-pressed);
     }

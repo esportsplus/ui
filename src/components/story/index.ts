@@ -1,5 +1,6 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import icon from '~/components/icon';
 import { drag, INTERACTIVE, type Direction } from '~/shared/drag';
 import pause from '@esportsplus/ui/svg/pause.svg';
 import play from '@esportsplus/ui/svg/play.svg';
@@ -251,8 +252,8 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                         onpointerup: () => {}
                     }}
                 >
-                    <svg aria-hidden='true' class='story-pause'><use href='#${pause}' /></svg>
-                    <svg aria-hidden='true' class='story-play'><use href='#${play}' /></svg>
+                    ${icon({ 'aria-hidden': 'true', class: 'story-pause' }, pause)}
+                    ${icon({ 'aria-hidden': 'true', class: 'story-play' }, play)}
                 </button>
             </div>
 

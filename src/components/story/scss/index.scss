@@ -76,8 +76,6 @@
     &-play {
         @extend %icon-swap;
         grid-area: 1 / 1;
-        height: var(--size-400);
-        width: var(--size-400);
     }
 
     &-slide {
@@ -115,7 +113,7 @@
             outline: 2px solid var(--focus-ring-color);
         }
 
-        // Keyed off the toggle, since the icons are <svg>s, which take no dynamic class.
+        // Keyed off the toggle, so each icon keeps a static class.
         &:not(.story-toggle--paused) .story-pause,
         &--paused .story-play {
             @extend %icon-swap-active;

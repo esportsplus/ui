@@ -45,6 +45,11 @@
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         --size: var(--size-500);
+
+        // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
+        &-icon.icon {
+            --size: var(--icon-size);
+        }
     }
 }
 

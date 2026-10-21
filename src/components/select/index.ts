@@ -2,6 +2,7 @@ import { component, html, type Attributes, type Renderable } from '@esportsplus/
 import { effect, onCleanup, reactive, signal, write } from '@esportsplus/reactivity';
 import { clamp } from '~/shared/clamp';
 import form from '~/components/form';
+import icon from '~/components/icon';
 import overlay from '~/components/overlay';
 import place, { ROWS } from './placement';
 import check from '@esportsplus/ui/svg/check.svg';
@@ -414,7 +415,15 @@ function template(
                         return option?.selected ?? option?.label ?? '';
                     })}
                 </span>
-                <svg aria-hidden='true' class='select-menu-chevron' ${this?.attributes?.[SELECT_ARROW]} ${attributes[SELECT_ARROW]}><use href='#${chevrons}' /></svg>
+                ${icon(
+                    {
+                        ...this?.attributes?.[SELECT_ARROW],
+                        ...attributes[SELECT_ARROW],
+                        'aria-hidden': 'true',
+                        class: ['select-menu-chevron', this?.attributes?.[SELECT_ARROW]?.class ?? [], attributes[SELECT_ARROW]?.class ?? []].flat()
+                    },
+                    chevrons
+                )}
             </button>
             <input
                 class='select-menu-tag'
@@ -497,7 +506,7 @@ function template(
                                 }}
                             >
                                 ${option.content ?? html`
-                                    <svg aria-hidden='true' class='select-menu-check'><use href='#${check}' /></svg>
+                                    ${icon({ 'aria-hidden': 'true', class: 'select-menu-check' }, check)}
                                     <span class='select-menu-option-label'>
                                         ${option.label}
                                     </span>
@@ -516,7 +525,7 @@ function template(
                         onpointerleave: stop
                     }}
                 >
-                    <svg class='select-menu-scroll-icon'><use href='#${chevronUp}' /></svg>
+                    ${icon({ class: 'select-menu-scroll-icon' }, chevronUp)}
                 </div>
                 <div
                     aria-hidden='true'
@@ -527,7 +536,7 @@ function template(
                         onpointerleave: stop
                     }}
                 >
-                    <svg class='select-menu-scroll-icon'><use href='#${chevronDown}' /></svg>
+                    ${icon({ class: 'select-menu-scroll-icon' }, chevronDown)}
                 </div>
             </div>
         </div>

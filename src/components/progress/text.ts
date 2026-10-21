@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
+import icon from '~/components/icon';
 import { timing } from '~/shared/animation';
 import check from '@esportsplus/ui/svg/check.svg';
 
@@ -139,7 +140,7 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
                     </span>
                 </span>
                 <span class='progress-text-done ${() => done() && '--done'}'>
-                    <svg class='progress-text-check'><use href='#${check}' /></svg>
+                    ${icon({ class: 'progress-text-check' }, check)}
                     ${doneLabel}
                 </span>
             </span>

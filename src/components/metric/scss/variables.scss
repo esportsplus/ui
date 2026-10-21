@@ -111,6 +111,12 @@
         }
     }
 
+    // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
+    &-icon.icon {
+        --color: currentColor;
+        --size: var(--arrow-size);
+    }
+
     &-text {
         &--down {
             --from: calc(var(--roll-offset) * -1);

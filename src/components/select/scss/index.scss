@@ -19,17 +19,7 @@
     &-menu {
         &-check {
             @extend %icon-stroke, %icon-swap;
-            flex: 0 0 auto;
-            height: var(--size-400);
             stroke-width: 2.25;
-            width: var(--size-400);
-        }
-
-        &-chevron {
-            color: var(--color-muted);
-            flex: 0 0 auto;
-            height: var(--size-400);
-            width: var(--size-400);
         }
 
         &-label {
@@ -122,11 +112,6 @@
 
             &--up {
                 top: 0;
-            }
-
-            &-icon {
-                height: 14px;
-                width: 14px;
             }
         }
 

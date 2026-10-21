@@ -50,6 +50,19 @@
         --background-pressed: var(--background-hover);
     }
 
+    // The icons are chained through '.icon' so they win over its own size and color regardless of stylesheet order.
+    &-icon {
+        &-check.icon {
+            --color: var(--icon-color-saved);
+            --size: var(--icon-size);
+        }
+
+        &-pencil.icon {
+            --color: currentColor;
+            --size: var(--icon-size);
+        }
+    }
+
     // The save status, as wide as its longest label so the icon never shifts and old and new words cross in one spot.
     &-status {
         --blur: var(--blur-400);
@@ -71,12 +84,21 @@
         --shift: 3px;
         --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
         --width: 11em;
+
+        &-check.icon {
+            --height: 100%;
+            --width: 100%;
+        }
     }
 
     // Setting a link swaps the formatting buttons for the link field.
     &-toolbar--link {
         --toolbar-format-display: none;
         --toolbar-link-display: flex;
+    }
+
+    &-toolbar-icon.icon {
+        --size: var(--toolbar-icon-size);
     }
 
     // Feeds the reused tooltip content; qualified so it wins over the tooltip defaults regardless of stylesheet order.

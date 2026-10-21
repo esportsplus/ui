@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, isPromise, onCleanup, reactive } from '@esportsplus/reactivity';
+import icon from '~/components/icon';
 import check from '@esportsplus/ui/svg/check.svg';
 
 
@@ -139,7 +140,7 @@ const render = (status: Status, context?: Attributes, attributes?: Attributes) =
                 <span class='inline-edit-status-dot' style='--i: 0;'></span>
                 <span class='inline-edit-status-dot' style='--i: 1;'></span>
                 <span class='inline-edit-status-dot' style='--i: 2;'></span>
-                <svg class='inline-edit-status-check'><use href='#${check}' /></svg>
+                ${icon({ class: 'inline-edit-status-check' }, check)}
             </span>
             <span class='inline-edit-status-label'>
                 ${slots.map((slot) => html`

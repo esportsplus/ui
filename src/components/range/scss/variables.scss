@@ -74,6 +74,12 @@
             --thumb-transition: none;
         }
 
+        // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
+        &-clear-icon.icon {
+            --color: currentColor;
+            --size: 12px;
+        }
+
         // A symbol column shows its character in place of the rolling digit strip.
         &-column {
             --strip-display: flex;

@@ -26,6 +26,16 @@
 
 
     &-menu {
+        // The icons are chained through '.icon' so they win over its own size and color regardless of stylesheet
+        // order.
+        &-check.icon {
+            --color: currentColor;
+        }
+
+        &-chevron.icon {
+            --color: var(--color-muted);
+        }
+
         // Read by the option's check, which pops in once the option is chosen.
         &-option {
             @extend %background-state;
@@ -57,6 +67,11 @@
             @media (prefers-reduced-motion: reduce) {
                 --scale: 1;
             }
+        }
+
+        &-scroll-icon.icon {
+            --color: currentColor;
+            --size: 14px;
         }
 
         &-scroller {

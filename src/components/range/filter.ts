@@ -2,6 +2,7 @@ import { computed, reactive, read } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
 import { clamp } from '~/shared/clamp';
 import { keystep } from '~/shared/keystep';
+import icon from '~/components/icon';
 import input from '~/components/input';
 import close from '@esportsplus/ui/svg/close.svg';
 
@@ -248,7 +249,7 @@ export default ({
                     type='button'
                     ${{ disabled: () => disabled || (s.low === min && s.high === (single ? min : max)) }}
                 >
-                    <svg aria-hidden='true' class='range-filter-clear-icon'><use href='#${close}' /></svg>
+                    ${icon({ 'aria-hidden': 'true', class: 'range-filter-clear-icon' }, close)}
                     Clear
                 </button>
             </div>

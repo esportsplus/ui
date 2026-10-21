@@ -53,11 +53,6 @@
             color 150ms ease-out,
             opacity 150ms ease-out;
 
-        &-icon {
-            height: 12px;
-            width: 12px;
-        }
-
         &:disabled {
             --background-hover: var(--background-default);
             --background-pressed: var(--background-default);

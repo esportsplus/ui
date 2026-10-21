@@ -1,5 +1,6 @@
 import { computed, reactive, read } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import icon from '~/components/icon';
 import { edge, type Edge } from '~/shared/anchor';
 import { drag, fling, toward, type Fling } from '~/shared/drag';
 import { observeSize } from '~/shared/resize';
@@ -187,7 +188,7 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
                         }
                     }}
                 >
-                    <svg aria-hidden='true' class='toast-close-icon'><use href='#${close}' /></svg>
+                    ${icon({ 'aria-hidden': 'true', class: 'toast-close-icon' }, close)}
                 </button>
             `}
         </div>

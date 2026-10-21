@@ -1,5 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { flush, reactive } from '@esportsplus/reactivity';
+import icon from '~/components/icon';
 import input from '~/components/input';
 import textarea from '~/components/textarea';
 import rich from './rich';
@@ -165,8 +166,8 @@ function template(
             </button>
             ${() => state.editing && field()}
             <span aria-hidden='true' class='inline-edit-icon'>
-                <svg class='inline-edit-icon-pencil'><use href='#${pencil}' /></svg>
-                <svg class='inline-edit-icon-check'><use href='#${check}' /></svg>
+                ${icon({ class: 'inline-edit-icon-pencil' }, pencil)}
+                ${icon({ class: 'inline-edit-icon-check' }, check)}
             </span>
             ${saving.status && status.render(saving.status, this?.attributes?.[INLINE_EDIT_STATUS], attributes[INLINE_EDIT_STATUS])}
         </div>

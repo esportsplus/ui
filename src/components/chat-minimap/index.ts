@@ -1,5 +1,6 @@
 import { effect, reactive, ReactiveArray, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
+import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import subscribe from '~/shared/subscribe';
 import down from '@esportsplus/ui/svg/chevron-down.svg';
@@ -100,7 +101,7 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
                     }
                 }}
             >
-                <svg aria-hidden='true' class='chat-minimap-nav-icon'><use href='#${direction === -1 ? up : down}' /></svg>
+                ${icon({ 'aria-hidden': 'true', class: 'chat-minimap-nav-icon' }, direction === -1 ? up : down)}
             </button>
         `;
     }

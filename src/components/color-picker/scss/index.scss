@@ -157,12 +157,6 @@
         }
     }
 
-    &-icon {
-        flex: 0 0 auto;
-        height: var(--size-400);
-        width: var(--size-400);
-    }
-
     // Pure black and white on purpose: the gradients are the color math, not a theme surface.
     &-pad {
         background-color: hsl(var(--hue) 100% 50%);

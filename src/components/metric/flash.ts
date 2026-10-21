@@ -1,5 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import icon from '~/components/icon';
 import triangle from '@esportsplus/ui/svg/triangle.svg';
 
 
@@ -118,7 +119,7 @@ export default ({ announceAfter = 700, format = String, hold = 900, label, state
                 aria-hidden='true'
                 class='metric-flash-arrow ${() => state.direction === 'down' && 'metric-flash-arrow--down'} ${() => phase() && `metric-flash-arrow--${phase()}`}'
             >
-                <svg class='metric-flash-icon'><use href='#${triangle}' /></svg>
+                ${icon({ class: 'metric-flash-icon' }, triangle)}
             </span>
             <span aria-live='polite' class='metric-flash-announcement'>
                 ${() => label ? `${label}: ${state.settled}` : state.settled}

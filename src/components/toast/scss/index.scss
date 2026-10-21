@@ -266,11 +266,6 @@ $open: ':is(:hover, :focus-within)';
 
 
 .toast {
-    &-close-icon {
-        height: var(--icon-size);
-        width: var(--icon-size);
-    }
-
     // Pinned over the toast's corner; qualified to outrank the '.button' layout it pairs with.
     &-close {
         height: var(--size);

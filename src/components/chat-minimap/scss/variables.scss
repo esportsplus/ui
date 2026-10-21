@@ -74,6 +74,12 @@
         --spacer: 4px;
     }
 
+    // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
+    &-nav-icon.icon {
+        --color: currentColor;
+        --size: 12px;
+    }
+
     // A white card rather than the dark label bubble; '--padding' stays 0 so the card sets its own width.
     // A surface through the shared tooltip, so its colors are read at its own level.
     &-preview.tooltip-shared {
