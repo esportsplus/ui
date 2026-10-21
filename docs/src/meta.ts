@@ -12,9 +12,6 @@ const meta: Record<string, Meta> = {
     announcement: {
         description: 'Animated container that slides announcement content in from the top and folds its space away when state.active turns off.'
     },
-    banner: {
-        description: 'Full-width promotional strip for announcements and notices.'
-    },
     breadcrumb: {
         description: 'Path trail that folds middle segments into a menu as space runs out, sliding the rest to close the gap.'
     },

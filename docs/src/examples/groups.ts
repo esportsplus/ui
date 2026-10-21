@@ -10,7 +10,6 @@ const groups: Record<string, Group[]> = {
         { title: 'show more', members: [['show more', 'Default'], ['max height', 'Max height'], ['fits', 'Fits']] }
     ],
     announcement: [{ title: 'announcement', members: [['dashboard', 'Default'], 'blue, no link'] }],
-    banner: [{ title: 'banner', members: ['gradient', 'blur', 'backdrop'] }],
     breadcrumb: [{ title: 'breadcrumb', members: [['default (drag the edge to resize)', 'Default'], ["separator: 'chevron'", 'Chevron'], ['no background', 'No background'], ["no background, separator: 'chevron'", 'No background, chevron'], ['breadcrumb--compact', 'Compact'], ['onnavigate', 'Navigation callback']] }],
     button: [
         { title: 'fan', members: ['fan', 'fan directions', 'fan text'] },
