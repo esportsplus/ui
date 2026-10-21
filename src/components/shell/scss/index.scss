@@ -1,44 +1,20 @@
+@use '/tokens';
 @use 'css-utilities/surface';
-@use '../../../../../tokens.scss';
-
+@use 'variables';
 
 .shell {
-    --handle-color: var(--surface-border-hover);
-    --handle-color-hover: var(--color-black-300);
-    // How far inside the card's edge the handle comes to rest.
-    --handle-inset: 4px;
-    --handle-width: 3px;
-    // How far the card's surface stands from each side of the window. It matches the laid-out card until hover or a drag
-    // moves it on its own, ahead of the layout.
-    --left-edge: calc(var(--left-space) + var(--left-gap));
-    --left-gap: var(--shell-gap);
-    --left-space: 0px;
-    --right-edge: calc(var(--right-space) + var(--right-gap));
-    --right-gap: var(--shell-gap);
-    --right-space: 0px;
-    --shell-gap: 4px;
-    --shell-height: calc(100dvh - var(--shell-gap) * 2);
+    @extend %surface-root;
     display: grid;
     grid-template-columns: var(--left-space) minmax(0, 1fr) var(--right-space);
     height: 100dvh;
     overflow: clip;
-    transition: grid-template-columns var(--sidebar-duration) var(--sidebar-ease);
+    transition: grid-template-columns var(--slide-duration) var(--slide-easing);
 
     // A dragged drawer sets the space beside the card itself, which follows it without easing.
     &--dragging,
     &--dragging &-main,
     &--dragging &-surface {
         transition: none;
-    }
-
-    &.--left-open {
-        --left-gap: 0px;
-        --left-space: var(--sidebar-width);
-    }
-
-    &.--right-open {
-        --right-gap: 0px;
-        --right-space: var(--sidebar-width);
     }
 
     // Keep the page readable on small screens: the left sidebar pushes the card aside, the right one slides it over.
@@ -54,15 +30,9 @@
 
     // The gaps around the card show the sidebars' surface, so the card reads as set into it.
     &-backdrop,
-    &-sidebar {
-        @extend %surface;
-        --sidebar-background: var(--surface-background-default);
-        --sidebar-border: var(--surface-border-default);
-        // Multiplied so the grain only darkens: laid over normally, its grey lifts a dark sidebar back to the page.
-        background-blend-mode: multiply;
-        background-color: var(--sidebar-background);
-        background-image: var(--sidebar-texture);
-        background-size: 256px 256px;
+    &-sidebar,
+    &-main {
+        background-color: var(--surface-background-default);
     }
 
     &-edge {
@@ -70,7 +40,7 @@
         position: fixed;
         top: 0;
         touch-action: none;
-        transition: visibility 0s var(--sidebar-duration);
+        transition: visibility 0s var(--slide-duration);
         user-select: none;
         width: 24px;
         z-index: 30;
@@ -89,52 +59,45 @@
         &:active {
             cursor: grabbing;
         }
-
-        &:hover {
-            --handle-color: var(--handle-color-hover);
-        }
     }
 
     // Off the window until the pointer is on the edge, then over the card, just inside its edge.
     &-edge--left &-handle {
-        left: calc(var(--handle-width) * -1);
+        left: calc(var(--width) * -1);
     }
 
     &-edge--left:is(:active, :hover) &-handle {
-        left: calc(var(--left-gap) + var(--handle-inset));
+        left: calc(var(--left-gap) + var(--inset));
     }
 
     &-edge--right &-handle {
-        right: calc(var(--handle-width) * -1);
+        right: calc(var(--width) * -1);
     }
 
     &-edge--right:is(:active, :hover) &-handle {
-        right: calc(var(--right-gap) + var(--handle-inset));
+        right: calc(var(--right-gap) + var(--inset));
     }
 
     // Centered on the window until the pointer in the strip moves it; it stays where the pointer leaves it.
     &-handle {
-        background: var(--handle-color);
+        background: var(--color);
         border-radius: 4px;
         height: 10svh;
         position: absolute;
         top: 50%;
         transition:
             background var(--transition-duration) var(--transition-timing-function),
-            left var(--sidebar-duration) var(--sidebar-ease),
-            opacity var(--sidebar-duration) var(--sidebar-ease),
-            right var(--sidebar-duration) var(--sidebar-ease);
-        translate: 0 calc(var(--handle-offset, 0px) - 50%);
-        width: var(--handle-width);
+            left var(--slide-duration) var(--slide-easing),
+            opacity var(--slide-duration) var(--slide-easing),
+            right var(--slide-duration) var(--slide-easing);
+        translate: 0 calc(var(--offset, 0px) - 50%);
+        width: var(--width);
     }
 
     // The surface paints the card, so its content keeps its layout while the surface draws back from it, cut off where
     // the surface no longer reaches; it reflows once a sidebar settles open or closed.
     &-main {
-        @extend %surface-root;
-        --border-radius: var(--border-radius-500);
-        // The card draws its shadow on a layer of its own as well, from this.
-        --box-shadow: none;
+        @extend %surface-raise;
         background: transparent;
         clip-path: inset(
             0
@@ -144,13 +107,13 @@
             round var(--border-radius)
         );
         grid-column: 2;
-        height: var(--shell-height);
-        margin: var(--shell-gap) var(--right-gap) var(--shell-gap) var(--left-gap);
+        height: var(--height);
+        margin: var(--gap) var(--right-gap) var(--gap) var(--left-gap);
         overflow: hidden auto;
         transition:
-            clip-path var(--sidebar-duration) var(--sidebar-ease),
-            margin var(--sidebar-duration) var(--sidebar-ease),
-            translate var(--sidebar-duration) var(--sidebar-ease);
+            clip-path var(--slide-duration) var(--slide-easing),
+            margin var(--slide-duration) var(--slide-easing),
+            translate var(--slide-duration) var(--slide-easing);
 
         // The card keeps its width and slides on small screens, so it paints itself and moves outright.
         @media (max-width: 1024px) {
@@ -161,6 +124,7 @@
     }
 
     &-sidebar {
+        @extend %surface-lower;
         bottom: 0;
         display: flex;
         flex-direction: column;
@@ -169,10 +133,10 @@
         top: 0;
         touch-action: pan-y;
         transition:
-            translate var(--sidebar-duration) var(--sidebar-ease),
-            visibility 0s var(--sidebar-duration);
+            translate var(--slide-duration) var(--slide-easing),
+            visibility 0s var(--slide-duration);
         visibility: hidden;
-        width: min(var(--sidebar-width), 100%);
+        width: min(var(--space), 100%);
         z-index: 31;
 
         // Follows the pointer for the length of a drag, shown even while closed so it can be pulled out.
@@ -205,13 +169,13 @@
         @extend %surface-root;
         background: var(--surface-background-default);
         border-radius: var(--border-radius-500);
-        inset-block: var(--shell-gap);
+        inset-block: var(--gap);
         left: var(--left-edge);
         position: fixed;
         right: var(--right-edge);
         transition:
-            left var(--sidebar-duration) var(--sidebar-ease),
-            right var(--sidebar-duration) var(--sidebar-ease);
+            left var(--slide-duration) var(--slide-easing),
+            right var(--slide-duration) var(--slide-easing);
 
         @media (max-width: 1024px) {
             display: none;
@@ -219,15 +183,6 @@
     }
 
     &-toggle {
-        --background-default: transparent;
-        --border-radius: var(--border-radius-400);
-        --color-default: var(--color-text-400);
-        --color-hover: var(--color-text-400);
-        --color-pressed: var(--color-text-500);
-        --padding-horizontal: 0px;
-        --padding-vertical: 0px;
-        --size: 32px;
-        --width: var(--size);
         display: flex;
         flex-shrink: 0;
         height: var(--size);

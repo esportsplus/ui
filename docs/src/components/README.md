@@ -13,10 +13,9 @@ its color palettes, contrast calculation, clipboard feedback, and swatch styles.
 | `layout` | A page's main content, previous/next cards and scroll-spied TOC; every action returns its page through it |
 | `page` | Docs page and section layout, and empty states |
 | `page/header` | Library page title and subtitle, optional breadcrumb and note, and previous/next navigation |
-| `root` | Docs-wide theme aliases and shell tokens |
+| `root` | Docs-wide theme aliases |
 | `search` | Search state, trigger, and the library `command` palette wired to the library `nav.tree` renderer |
-| `shell` | App frame: a sidebar on either edge, each with a mirrored `button.sidebar` toggle in its top corner, around a root-surface `card` the page scrolls in. The card insets 4px from the window, and from either side only while that side's sidebar is closed; a closed side's gap holds a handle that follows the pointer within 8px of the edge, and dragging from the edge opens the sidebar while dragging a sidebar toward the edge closes it. Below 1024px one sidebar opens at a time |
-| `sidebar` | Documentation navigation, rendered as the shell's left sidebar |
+| `sidebar` | Documentation navigation, rendered as the library `shell`'s left sidebar |
 | `spec` | Shared data tables, token/value typography, and table-header surface and corner styling |
 | `toaster` | The shared docs toast queue, placement, and toast surface styles |
 | `viewer` | Routed content grid inside the shell's card, with the TOC column |
@@ -32,13 +31,13 @@ that; the not-found middleware does the same. The TOC is the library `nav.toc`,
 driven by a `nav.spy` scroll spy over the page's headings.
 
 Shell classes use component names such as `.page` and `.sidebar`.
-The shell owns each sidebar's frame, surface, toggle, Escape handling and swipe; the docs pass
+The library `shell` owns each sidebar's frame, surface, toggle, Escape handling and swipe; the docs pass
 the navigation as its left sidebar and an empty right one for now. The navigation
 sidebar starts open on desktop and closed on small screens. An effect watches
 the request path and closes the sidebar after route changes on small screens;
 desktop navigation preserves its open state. CSS media queries control the
 layout; on small screens the card keeps its width as it shifts.
-The sidebar holds the brand, release badge and search control, so they slide with the shell's textured
+The sidebar holds the brand, release badge and search control, so they slide with the shell's
 drawer. Header padding sizes the brand row and aligns the fixed sidebar toggle. The search control sits in a tools row below the brand, and
 the command palette mounts beside the shell
 so its keyboard shortcut also works with the sidebar closed. Navigation scrolls below

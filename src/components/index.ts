@@ -52,6 +52,7 @@ export { default as radio } from './radio';
 export { default as range } from './range';
 export { default as relativeTime } from './relative-time';
 export { default as select } from './select';
+export { default as shell } from './shell';
 export { default as shortcutRecorder } from './shortcut-recorder';
 export { default as sortable } from './sortable';
 export { default as stickyHeader } from './sticky-header';

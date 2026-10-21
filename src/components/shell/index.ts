@@ -1,10 +1,10 @@
-import { button } from '@esportsplus/ui/components';
-import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
-import { drag } from '@esportsplus/ui/shared/drag';
-import { html, reactive } from 'docs/app';
-import type { Renderable } from 'docs/app';
-import '@esportsplus/ui/components/card/scss/index.scss';
-import 'docs/components/shell/scss/index.scss';
+import { reactive } from '@esportsplus/reactivity';
+import { html, type Renderable } from '@esportsplus/template';
+import { drag } from '~/shared/drag';
+import button from '~/components/button';
+import scrollbar from '~/modifiers/scrollbar';
+import '~/components/card/scss/index.scss';
+import './scss/index.scss';
 
 
 type Edge = 'left' | 'right';
@@ -99,7 +99,7 @@ function grip(sides: Sides, peeking: Peeking, edge: Edge) {
                 onpointermove: function(this: HTMLElement, e: PointerEvent) {
                     let bounds = this.getBoundingClientRect();
 
-                    this.style.setProperty('--handle-offset', `${e.clientY - bounds.top - bounds.height / 2}px`);
+                    this.style.setProperty('--offset', `${e.clientY - bounds.top - bounds.height / 2}px`);
                     gesture.onpointermove(e);
                 }
             }}
@@ -216,7 +216,7 @@ function reveal(element: HTMLElement, edge: Edge, shown: number) {
     let shell = element.parentElement!,
         width = element.offsetWidth,
         clamped = Math.max(0, Math.min(width, shown)),
-        rest = `calc(var(--shell-gap) * ${width ? 1 - clamped / width : 1})`;
+        rest = `calc(var(--gap) * ${width ? 1 - clamped / width : 1})`;
 
     element.style.translate = `${(clamped - width) * direction(edge)}px 0`;
     shell.classList.add('shell--dragging');

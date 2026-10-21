@@ -73,6 +73,10 @@
         flex-shrink: 0;
         padding: calc(var(--size-100) / 4) calc(var(--size-300) / 2);
 
+        &:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 480px) {
             display: none;
         }

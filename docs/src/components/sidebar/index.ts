@@ -1,11 +1,11 @@
 import { nav } from '@esportsplus/ui/components';
 import { effect, html, reactive, uri } from 'docs/app';
 import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
+import shell from '@esportsplus/ui/components/shell';
 import { repository, version } from '@esportsplus/ui/package.json';
 import { sections } from 'docs/data/nav';
 import { trigger as searchTrigger } from 'docs/components/search';
 import type { Request } from 'docs/app';
-import shell from 'docs/components/shell';
 import 'docs/components/sidebar/scss/index.scss';
 
 
@@ -53,7 +53,7 @@ export default (request: Request) => {
                     esportsplus<span class='sidebar-brand-ui'> / ui</span>
                 </a>
                 <a
-                    class='sidebar-version button button--underline'
+                    class='sidebar-version button'
                     href='${repository.url}'
                     rel='noopener noreferrer'
                     target='_blank'

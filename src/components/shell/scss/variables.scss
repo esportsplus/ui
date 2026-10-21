@@ -1,0 +1,61 @@
+.shell {
+    // How far the card stands from the window.
+    --gap: 0px;
+    --height: calc(100dvh - var(--gap) * 2);
+    // How far the card's surface stands from each side of the window. It matches the laid-out card until hover or a drag
+    // moves it on its own, ahead of the layout.
+    --left-edge: calc(var(--left-space) + var(--left-gap));
+    --left-gap: 0px;
+    --left-space: 0px;
+    --right-edge: calc(var(--right-space) + var(--right-gap));
+    --right-gap: 0px;
+    --right-space: 0px;
+    --slide-duration: 300ms;
+    --slide-easing: cubic-bezier(0.32, 0.72, 0, 1);
+    // How wide an open sidebar is, and so the room it makes beside the card.
+    --space: min(280px, calc(100vw - 88px));
+
+    &.--left-open {
+        --left-gap: 0px;
+        --left-space: var(--space);
+    }
+
+    &.--right-open {
+        --right-gap: 0px;
+        --right-space: var(--space);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --slide-duration: 0s;
+    }
+
+
+    &-edge:hover &-handle {
+        --color: var(--color-black-300);
+    }
+
+    &-handle {
+        --color: var(--surface-border-hover);
+        // How far inside the card's edge the handle comes to rest.
+        --inset: 3px;
+        --width: 3px;
+    }
+
+    &-main {
+        --border-radius: var(--border-radius-500);
+        // The card draws its shadow on a layer of its own as well, from this.
+        --box-shadow: none;
+    }
+
+    &-toggle {
+        --background-default: transparent;
+        --border-radius: var(--border-radius-400);
+        --color-default: var(--color-text-400);
+        --color-hover: var(--color-text-400);
+        --color-pressed: var(--color-text-500);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --size: 32px;
+        --width: var(--size);
+    }
+}
