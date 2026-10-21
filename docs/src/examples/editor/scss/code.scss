@@ -36,6 +36,19 @@
         margin: 0;
     }
 
+    // One shortcut's 'button--kbd' keycaps, joined by a muted plus.
+    &-chord {
+        align-items: center;
+        display: inline-flex;
+        gap: var(--size-200);
+
+        // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
+        &-plus.icon {
+            --color: color-mix(in srgb, currentColor 60%, transparent);
+            --size: var(--size-300);
+        }
+    }
+
     // Editors leave framing to their container; workspace documents sit inside the workspace's own frame.
     :where(.code-editor, .markdown-editor):not(.code-workspace-document) {
         border: var(--border-width-400) solid var(--surface-border-default);

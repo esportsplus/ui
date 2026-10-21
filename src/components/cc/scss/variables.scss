@@ -32,6 +32,20 @@
         --ring-duration: 0s;
     }
 
+    // The icons are chained through '.icon' so they win over its own size and color regardless of stylesheet order,
+    // and take the text color around them.
+    &-brand-icon.icon {
+        --color: currentColor;
+        --height: 100%;
+        --width: 100%;
+    }
+
+    &-chip.icon {
+        --color: currentColor;
+        --height: 32px;
+        --width: 44px;
+    }
+
     // Chained through '.input' so it wins over the reused input styles regardless of stylesheet order.
     &-field.input {
         --background-default: var(--field-background);
@@ -51,6 +65,11 @@
     }
 
     // Chained through '.button' so it wins over the shared button styles regardless of stylesheet order.
+    &-note-icon.icon {
+        --color: currentColor;
+        --size: 14px;
+    }
+
     &-submit {
         --background-default: var(--submit-background);
         --border-radius: var(--field-border-radius);

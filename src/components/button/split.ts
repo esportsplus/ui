@@ -1,4 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import type { A as MenuAttributes } from '~/components/tooltip/menu';
 import chevronSvg from '@esportsplus/ui/svg/chevron-down.svg';
@@ -20,9 +21,6 @@ type A = Attributes & Pick<MenuAttributes, 'animate' | 'controller' | 'expand' |
     [SPLIT_TRIGGER]?: Attributes & { onclick?: never },
     trigger?: Renderable<unknown>
 };
-
-
-const chevron = () => html`<svg aria-hidden='true' class='button-icon button-split-chevron'><use href='#${chevronSvg}' /></svg>`;
 
 
 export default component(
@@ -51,7 +49,7 @@ export default component(
                             class: ['button button-split-trigger', attributes[SPLIT_TRIGGER]?.class ?? []].flat()
                         }
                     },
-                    trigger ?? chevron()
+                    trigger ?? icon({ 'aria-hidden': 'true', class: 'button-icon button-split-chevron' }, chevronSvg)
                 )}
             </div>
         `;

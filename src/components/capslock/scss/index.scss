@@ -27,24 +27,19 @@
     &-key {
         pointer-events: none;
 
-        &-icon {
-            height: var(--icon-height);
-            width: var(--icon-width);
-        }
-
         // Pinned to the corner so the icon stays centered on the cap
         &-light {
-            background: var(--light-color);
+            background: var(--color);
             border-radius: 50%;
-            box-shadow: var(--light-shadow);
-            height: var(--light-size);
-            left: var(--light-inset);
+            box-shadow: var(--box-shadow);
+            height: var(--size);
+            left: var(--inset);
             position: absolute;
-            top: var(--light-inset);
+            top: var(--inset);
             transition:
                 background-color 300ms ease-out,
                 box-shadow 300ms ease-out;
-            width: var(--light-size);
+            width: var(--size);
         }
     }
 

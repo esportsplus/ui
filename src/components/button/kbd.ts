@@ -1,22 +1,14 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import icon from '~/components/icon';
-import plus from '@esportsplus/ui/svg/plus.svg';
-
-
-const KBD_KEY = Symbol.for('@esportsplus/ui/button.kbd.key');
 
 
 type A = Attributes & {
-    [KBD_KEY]?: Attributes,
-    keys: string[],
+    key: string,
     ontrigger?: () => void,
     onwindowblur?: never,
     onwindowkeydown?: never,
     onwindowkeyup?: never
 };
-
-type Key = { code: string, key: string, keyboard: boolean, legend: string, pointer: boolean };
 
 
 const KEYS: Record<string, [key: string, legend: string]> = {
@@ -34,34 +26,18 @@ const KEYS: Record<string, [key: string, legend: string]> = {
 };
 
 
-function held(keys: Key[]) {
-    for (let i = 0, n = keys.length; i < n; i++) {
-        if (!keys[i].keyboard && !keys[i].pointer) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function parse(name: string): Key {
-    let [key, legend] = KEYS[name.toLowerCase()] ?? [name.toLowerCase(), name.length === 1 ? name.toUpperCase() : name];
-
-    return reactive({ code: '', key, keyboard: false, legend, pointer: false });
-}
-
-
 export default component(
-    ({ keys: names, ontrigger, ...attributes }: A) => {
-        let keys = names.map(parse);
+    ({ key: name, ontrigger, ...attributes }: A) => {
+        let [key, legend] = KEYS[name.toLowerCase()] ?? [name.toLowerCase(), name.length === 1 ? name.toUpperCase() : name],
+            state = reactive({ code: '', keyboard: false, pointer: false });
 
-        // Only a key going from up to down can complete the combo, so holding it fires once.
-        function press(key: Key, source: 'keyboard' | 'pointer') {
-            let down = key.keyboard || key.pointer;
+        // Only going from up to down triggers, so holding the key fires once.
+        function press(source: 'keyboard' | 'pointer') {
+            let down = state.keyboard || state.pointer;
 
-            key[source] = true;
+            state[source] = true;
 
-            if (down || !held(keys)) {
+            if (down) {
                 return false;
             }
 
@@ -71,86 +47,48 @@ export default component(
         }
 
         function release() {
-            for (let i = 0, n = keys.length; i < n; i++) {
-                keys[i].keyboard = false;
-            }
+            state.pointer = false;
         }
 
         return html`
             <kbd
-                class='button-kbd'
+                class='button button--kbd'
                 ${attributes}
                 ${{
-                    onwindowblur: release,
+                    class: () => (state.keyboard || state.pointer) && '--active',
+                    onpointercancel: release,
+                    onpointerdown: () => {
+                        press('pointer');
+                    },
+                    onpointerleave: release,
+                    onpointerup: release,
+                    onwindowblur: () => {
+                        state.keyboard = false;
+                    },
                     onwindowkeydown: (e: KeyboardEvent) => {
-                        if (!e.key) {
+                        if (e.key?.toLowerCase() !== key) {
                             return;
                         }
 
-                        let name = e.key.toLowerCase();
+                        state.code = e.code;
 
-                        for (let i = 0, n = keys.length; i < n; i++) {
-                            let key = keys[i];
-
-                            if (key.key !== name) {
-                                continue;
-                            }
-
-                            key.code = e.code;
-
-                            if (press(key, 'keyboard')) {
-                                e.preventDefault();
-                            }
-
-                            break;
+                        if (press('keyboard')) {
+                            e.preventDefault();
                         }
                     },
                     onwindowkeyup: (e: KeyboardEvent) => {
                         let name = e.key?.toLowerCase();
 
-                        // macOS drops the keyup of every key released while Meta is held.
-                        if (name === 'meta') {
-                            release();
-                            return;
-                        }
-
-                        // Modifiers change 'key' mid-press (shift + '/' is '?'), 'code' is stable.
-                        for (let i = 0, n = keys.length; i < n; i++) {
-                            let key = keys[i];
-
-                            if (key.code === e.code || key.key === name) {
-                                key.keyboard = false;
-                            }
+                        // Modifiers change 'key' mid-press (shift + '/' is '?'), 'code' is stable. macOS drops the keyup
+                        // of every key released while Meta is held, so Meta's own keyup releases it too.
+                        if (e.code === state.code || name === key || name === 'meta') {
+                            state.keyboard = false;
                         }
                     }
                 }}
             >
-                ${keys.map((key, i) => html`
-                    ${i > 0 && icon({ 'aria-hidden': true, class: 'button-kbd-plus' }, plus)}
-                    <kbd
-                        class='button button--kbd'
-                        ${attributes[KBD_KEY]}
-                        ${{
-                            class: () => (key.keyboard || key.pointer) && '--active',
-                            onpointercancel: () => {
-                                key.pointer = false;
-                            },
-                            onpointerdown: () => {
-                                press(key, 'pointer');
-                            },
-                            onpointerleave: () => {
-                                key.pointer = false;
-                            },
-                            onpointerup: () => {
-                                key.pointer = false;
-                            }
-                        }}
-                    >
-                        ${key.legend}
-                    </kbd>
-                `)}
+                ${legend}
             </kbd>
         `;
-    },
-    { key: KBD_KEY }
+    }
 );

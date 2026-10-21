@@ -1,10 +1,11 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { computed, effect, onCleanup, reactive, read } from '@esportsplus/reactivity';
 import faces from '~/components/button/faces';
-import { check as checkmark } from '~/components/button/icons';
+import icon from '~/components/icon';
 import input from '~/components/input';
 import amex from '@esportsplus/ui/svg/amex.svg';
 import card from '@esportsplus/ui/svg/card.svg';
+import checkSvg from '@esportsplus/ui/svg/check.svg';
 import chip from '@esportsplus/ui/svg/chip.svg';
 import discover from '@esportsplus/ui/svg/discover.svg';
 import lock from '@esportsplus/ui/svg/lock.svg';
@@ -161,7 +162,7 @@ function mark(brand: () => Brand, size: 'large' | 'small') {
         <span aria-hidden='true' class='cc-brand cc-brand--${size}'>
             ${(Object.keys(BRANDS) as Brand[]).map((b) => html`
                 <span class='cc-brand-mark ${() => brand() === b && '--active'}'>
-                    <svg class='cc-brand-icon'><use href='#${BRANDS[b].icon}' /></svg>
+                    ${icon({ class: 'cc-brand-icon' }, BRANDS[b].icon)}
                 </span>
             `)}
         </span>
@@ -443,7 +444,7 @@ export default component(
                                 ${{ onconnect: (element: HTMLElement) => { ring = element; } }}
                             ></span>
                             <div class='cc-face-top'>
-                                <svg class='cc-chip'><use href='#${chip}' /></svg>
+                                ${icon({ class: 'cc-chip' }, chip)}
                                 ${mark(brand, 'large')}
                             </div>
                             <div class='cc-number' ${{ onconnect: (element: HTMLElement) => { regions.number = element; } }}>
@@ -539,12 +540,12 @@ export default component(
                     >
                         ${faces(() => local.confirmed ? 'valid' : 'idle', [
                             { content: submit, key: 'idle' },
-                            { content: 'Details look valid', icon: checkmark, key: 'valid' }
+                            { content: html`${icon({ 'aria-hidden': 'true', class: 'button-icon button-icon--draw' }, checkSvg)}Details look valid`, key: 'valid' }
                         ])}
                     </button>
                     ${!!note && html`
                         <p class='cc-note'>
-                            <svg aria-hidden='true' class='cc-note-icon'><use href='#${lock}' /></svg>
+                            ${icon({ 'aria-hidden': 'true', class: 'cc-note-icon' }, lock)}
                             ${note}
                         </p>
                     `}

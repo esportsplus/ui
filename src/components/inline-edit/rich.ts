@@ -1,9 +1,9 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, flush, reactive, ReactiveArray, read, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import faces from '~/components/button/faces';
-import { check as checked, copy as copied, cross } from '~/components/button/icons';
 import checkbox from '~/components/checkbox';
 import clipboard from '~/components/clipboard/write';
+import icon from '~/components/icon';
 import input from '~/components/input';
 import selectInput from '~/components/select';
 import tooltip from '~/components/tooltip';
@@ -20,7 +20,9 @@ import { INLINE_LINE_BREAKS, safe } from './utilities';
 import boldSvg from '@esportsplus/ui/svg/bold.svg';
 import checkSvg from '@esportsplus/ui/svg/check.svg';
 import clearSvg from '@esportsplus/ui/svg/clear-format.svg';
+import closeSvg from '@esportsplus/ui/svg/close.svg';
 import codeSvg from '@esportsplus/ui/svg/code.svg';
+import copySvg from '@esportsplus/ui/svg/copy.svg';
 import highlightSvg from '@esportsplus/ui/svg/highlight.svg';
 import italicSvg from '@esportsplus/ui/svg/italic.svg';
 import linkSvg from '@esportsplus/ui/svg/link.svg';
@@ -230,6 +232,10 @@ function follows(view: View, next: Block) {
     return true;
 }
 
+function glyph(action: Exclude<Action, 'copy'> | 'apply' | 'open' | 'unlink') {
+    return icon({ 'aria-hidden': 'true', class: 'inline-edit-toolbar-icon' }, ICONS[action]);
+}
+
 function hint(label: string, shortcut?: string) {
     if (!shortcut) {
         return label;
@@ -238,10 +244,6 @@ function hint(label: string, shortcut?: string) {
     return mac()
         ? `${label} ${shortcut.replace('Shift+', '⇧')}`.replace(MAC_SHORTCUT, '$1⌘$2')
         : `${label} Ctrl+${shortcut}`;
-}
-
-function icon(action: Exclude<Action, 'copy'> | 'apply' | 'open' | 'unlink') {
-    return html`<svg aria-hidden='true' class='inline-edit-toolbar-icon'><use href='#${ICONS[action]}' /></svg>`;
 }
 
 // Runs as elements; a line break is a <br>.
@@ -1433,17 +1435,17 @@ export default component(
                                 })}
                                 ${(marks.length > 0 || tools.length > 0) && html`<span aria-hidden='true' class='inline-edit-toolbar-divider'></span>`}
                             `}
-                            ${marks.map((item, i) => button(item, icon(item.action as Exclude<Action, 'copy'>), lead + i))}
+                            ${marks.map((item, i) => button(item, glyph(item.action as Exclude<Action, 'copy'>), lead + i))}
                             ${marks.length > 0 && tools.length > 0 && html`<span aria-hidden='true' class='inline-edit-toolbar-divider'></span>`}
                             ${tools.map((item, i) => button(
                                 item,
                                 item.action === 'copy'
                                     ? faces(() => local.copied, [
-                                        { content: '', icon: copied, key: 'idle' },
-                                        { content: '', icon: checked, key: 'success', tone: 'success' },
-                                        { content: '', icon: cross, key: 'error', tone: 'error' }
+                                        { content: icon({ 'aria-hidden': 'true', class: 'button-icon' }, copySvg), key: 'idle' },
+                                        { content: icon({ 'aria-hidden': 'true', class: 'button-icon button-icon--draw' }, checkSvg), key: 'success', tone: 'success' },
+                                        { content: icon({ 'aria-hidden': 'true', class: 'button-icon button-icon--draw' }, closeSvg), key: 'error', tone: 'error' }
                                     ])
-                                    : icon(item.action as Exclude<Action, 'copy'>),
+                                    : glyph(item.action as Exclude<Action, 'copy'>),
                                 lead + marks.length + i
                             ))}
                             ${tip.render()}
@@ -1470,7 +1472,7 @@ export default component(
                                     type='button'
                                     ${{ onclick: () => apply(hyperlink.url) }}
                                 >
-                                    ${icon('apply')}
+                                    ${glyph('apply')}
                                 </button>
                                 <button
                                     aria-label='Open link in a new tab'
@@ -1486,7 +1488,7 @@ export default component(
                                         }
                                     }}
                                 >
-                                    ${icon('open')}
+                                    ${glyph('open')}
                                 </button>
                                 <button
                                     aria-label='Remove link'
@@ -1497,15 +1499,15 @@ export default component(
                                         onclick: () => apply(null)
                                     }}
                                 >
-                                    ${icon('unlink')}
+                                    ${glyph('unlink')}
                                 </button>
                             </div>
                         `}
                     </div>
                 </div>
                 <span aria-hidden='true' class='inline-edit-icon'>
-                    <svg class='inline-edit-icon-pencil'><use href='#${pencilSvg}' /></svg>
-                    <svg class='inline-edit-icon-check'><use href='#${checkSvg}' /></svg>
+                    ${icon({ class: 'inline-edit-icon-pencil' }, pencilSvg)}
+                    ${icon({ class: 'inline-edit-icon-check' }, checkSvg)}
                 </span>
                 <span aria-live='polite' class='inline-edit-label'>${() => local.live}</span>
                 ${saving.status && status.render(saving.status, this?.attributes?.[INLINE_EDIT_STATUS], attributes[INLINE_EDIT_STATUS])}

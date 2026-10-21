@@ -1,6 +1,6 @@
 import { reactive, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import copy from '~/components/copy';
+import copy from '~/components/button/copy';
 import icon from '~/components/icon';
 import scrollbar from '~/modifiers/scrollbar';
 import { observeSize } from '~/shared/resize';

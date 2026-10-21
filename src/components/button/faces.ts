@@ -3,7 +3,6 @@ import { html, type Renderable } from '@esportsplus/template';
 
 type Face = {
     content: Renderable<unknown>;
-    icon?: () => Renderable<unknown>;
     key: string;
     tone?: 'error' | 'success';
 };
@@ -13,13 +12,12 @@ type Face = {
 // Only the resting face stays in the accessibility tree; it is the button's fixed accessible name.
 export default (status: () => string, faces: Face[]) => html`
     <span class='button-faces'>
-        ${faces.map(({ content, icon, key, tone }, index) => html`
+        ${faces.map(({ content, key, tone }, i) => html`
             <span
-                aria-hidden='${index === 0 ? 'false' : 'true'}'
+                aria-hidden='${i === 0 ? 'false' : 'true'}'
                 class='button-face ${tone && `button-face--${tone}`}'
                 ${{ class: () => status() === key && '--active' }}
             >
-                ${icon?.()}
                 ${content}
             </span>
         `)}

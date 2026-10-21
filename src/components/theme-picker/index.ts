@@ -1,6 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { flush, reactive } from '@esportsplus/reactivity';
 import faces from '~/components/button/faces';
+import icon from '~/components/icon';
 import dismiss from '~/shared/dismiss';
 import monitor from '@esportsplus/ui/svg/monitor.svg';
 import moon from '@esportsplus/ui/svg/moon.svg';
@@ -54,8 +55,8 @@ function choice(mode: Theme) {
     return CHOICES.find((choice) => choice.value === mode.preference) ?? CHOICES[2];
 }
 
-function icon(id: string) {
-    return html`<svg aria-hidden='true' class='theme-picker-icon'><use href='#${id}' /></svg>`;
+function glyph(id: string) {
+    return icon({ 'aria-hidden': 'true', class: 'theme-picker-icon' }, id);
 }
 
 // Chosen-ness lives in 'aria-checked' alone: '--active' on a tooltip trigger means its tooltip is showing.
@@ -189,8 +190,7 @@ const toggle = component(({ mode, ...attributes }: T) => {
                 }}
             >
                 ${faces(() => choice(mode).value, CHOICES.map((choice) => ({
-                    content: '',
-                    icon: () => icon(choice.icon),
+                    content: glyph(choice.icon),
                     key: choice.value
                 })))}
             </button>
@@ -218,7 +218,7 @@ const toggle = component(({ mode, ...attributes }: T) => {
                             }
                         }}
                     >
-                        ${icon(choice.icon)}
+                        ${glyph(choice.icon)}
                     </button>
                 `)}
             </div>

@@ -1,5 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
+import icon from '~/components/icon';
 import capsLock from '@esportsplus/ui/svg/caps-lock.svg';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
@@ -20,14 +21,14 @@ export default component(
     ) {
         // Every key and pointer event carries the lock state, including the Caps Lock key's own events,
         // so the warning stays right without polling
-        let read = (e: KeyboardEvent | PointerEvent) => {
-                // Autofill dispatches plain Events as keydown
-                if (!e.getModifierState) {
-                    return;
-                }
+        function read(e: KeyboardEvent | PointerEvent) {
+            // Autofill dispatches plain Events as keydown
+            if (!e.getModifierState) {
+                return;
+            }
 
-                state.active = e.getModifierState('CapsLock');
-            };
+            state.active = e.getModifierState('CapsLock');
+        }
 
         return html`
             <div
@@ -43,7 +44,7 @@ export default component(
             >
                 <kbd aria-hidden='true' class='button button--kbd capslock-key'>
                     <span class='capslock-key-light'></span>
-                    <svg class='capslock-key-icon'><use href='#${capsLock}' /></svg>
+                    ${icon({ class: 'capslock-key-icon' }, capsLock)}
                 </kbd>
                 <span aria-hidden='true' class='capslock-text'>Caps Lock On</span>
                 <span aria-live='polite' class='capslock-live'>${() => state.active && 'Caps Lock On'}</span>

@@ -7,12 +7,8 @@
 @use 'css-utilities/hidden';
 @use 'css-utilities/icon';
 @use 'css-utilities/layer';
+@use 'css-utilities/surface';
 @use 'css-utilities/text';
-@use 'fan';
-@use 'kbd';
-@use 'morph';
-@use 'sidebar';
-@use 'split';
 @use 'variables';
 
 .button {
@@ -38,11 +34,9 @@
     white-space: nowrap;
 
 
-    // Stacks above the options so they reveal from behind it
-    &--fan {
-        z-index: 1;
+    &--black {
+        @extend %background-black, %color-white;
     }
-
 
     &--feedback {
         -webkit-touch-callout: none;
@@ -56,19 +50,50 @@
         }
     }
 
-    &--hold {
-        isolation: isolate;
-        overflow: hidden;
-    }
-
     &--kbd {
         font-family: inherit;
-        min-height: var(--kbd-size);
-        min-width: var(--kbd-size);
 
         @include tokens.state(active pressed) {
             translate: 0 1px;
         }
+    }
+
+    &--morph {
+        border: 0;
+        display: inline-flex;
+        height: var(--height);
+        outline: none;
+        overflow: hidden;
+        touch-action: manipulation;
+        transition:
+            background-color 200ms ease-out,
+            color 200ms ease-out;
+        user-select: none;
+
+        &:focus-visible {
+            outline: 2px solid var(--focus-color);
+            outline-offset: calc(var(--size-100) / 4);
+        }
+
+        &[aria-disabled='true'] {
+            cursor: default;
+        }
+
+        // Wait for the width to mostly open before shaking the settled shape.
+        &-error {
+            animation: button-morph-shake var(--shake-duration) var(--shake-timing-function) 150ms;
+        }
+
+        // Keyed off the status, so each icon keeps a static class.
+        &-loading .button-morph-icon--loading,
+        &-success .button-morph-icon--success {
+            @extend %icon-swap-active;
+        }
+    }
+
+    // The theme's ink, black on a light page and white on a dark one, lettered in the page's own color.
+    &--primary {
+        @extend %background-primary, %color-surface;
     }
 
     &--processing {
@@ -78,8 +103,8 @@
         &::before {
             @extend %absolute-center;
             animation: button--processing var(--animation-duration) infinite linear;
-            border: var(--border-width) solid color-mix(in srgb, var(--processing-color), transparent 90%);
-            border-left-color: var(--processing-color);
+            border: var(--border-width) solid color-mix(in srgb, var(--color), transparent 90%);
+            border-left-color: var(--color);
             border-radius: 100%;
             border-right-color: transparent;
             border-top-color: transparent;
@@ -102,24 +127,12 @@
         }
     }
 
-    &--skeleton {
-        animation: var(--animation-duration) var(--transition-timing-function) infinite button--skeleton;
-        background-image: linear-gradient(270deg, var(--background-pressed), var(--background-default), var(--background-default), var(--background-pressed));
-        background-size: 400% 100%;
-        color: transparent;
-        pointer-events: none;
+    // The button's own raised layer, painted.
+    &--surface {
+        @extend %background-surface, %border-surface, %color-text;
 
-        * {
-            opacity: 0;
-        }
-
-        @keyframes button--skeleton {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
+        &-primary {
+            @extend %surface-primary;
         }
     }
 
@@ -143,24 +156,22 @@
         }
     }
 
-    &--underline {
-        @include tokens.state(active hover) {
-            text-decoration: underline;
-        }
+    &--white {
+        @extend %background-white, %color-black;
     }
 
     &-face {
         align-items: center;
         display: inline-flex;
-        filter: blur(var(--face-blur));
-        gap: var(--face-gap);
+        filter: blur(var(--blur));
+        gap: var(--gap);
         grid-area: 1 / 1;
         opacity: 0;
         transition:
-            filter var(--face-duration) var(--face-timing-function),
-            opacity var(--face-duration) var(--face-timing-function),
-            translate var(--face-duration) var(--face-timing-function);
-        translate: 0 var(--face-offset);
+            filter var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function),
+            translate var(--transition-duration) var(--transition-timing-function);
+        translate: 0 var(--offset);
 
         @include tokens.state(active) {
             filter: blur(0);
@@ -171,14 +182,6 @@
                 stroke-dashoffset: 0;
             }
         }
-
-        &.button-face--error .button-icon {
-            color: var(--error-color);
-        }
-
-        &.button-face--success .button-icon {
-            color: var(--success-color);
-        }
     }
 
     &-faces {
@@ -186,30 +189,150 @@
         place-items: center;
     }
 
-    &-fill {
-        @extend %layer;
-        background: var(--fill-background);
-        clip-path: inset(0 100% 0 0);
-        color: var(--fill-color);
-        display: grid;
-        place-items: center;
-    }
-
-    // Sprite icons carry their own stroke; these reach the shared check, which carries none. The dash values inherit
-    // into the sprite, so '--draw' icons still draw in.
+    // Sprite icons carry their own stroke; these reach the shared check, which carries none. Stroke and dash values set
+    // on the icon inherit into its sprite, so '--draw' icons still draw in.
     &-icon {
         @extend %icon-stroke;
-        flex-shrink: 0;
-        height: var(--icon-size);
-        width: var(--icon-size);
+
+        // The shared check carries no stroke of its own; it draws in once the copy lands.
+        &--check {
+            @extend %icon-stroke, %icon-stroke-draw;
+            animation: button-icon-draw var(--draw-duration) var(--draw-timing-function) forwards;
+            stroke-width: 4;
+
+            @media (prefers-reduced-motion: reduce) {
+                animation: none;
+                stroke-dashoffset: 0;
+            }
+        }
 
         &--draw {
             @extend %icon-stroke-draw;
-            transition: stroke-dashoffset var(--draw-duration) var(--draw-timing-function);
+            transition: stroke-dashoffset var(--transition-duration) var(--transition-timing-function);
+        }
+    }
+
+    &-morph {
+        // Every layer shares one grid cell, so the idle width is the widest label;
+        // in the circle the cell overflows both sides equally and the button clips it.
+        &-content {
+            display: grid;
+            flex-shrink: 0;
+            place-items: center;
         }
 
-        &--spin {
-            animation: button--processing var(--spin-duration) infinite linear;
+        &-icon {
+            @extend %icon-stroke, %icon-swap;
+            grid-area: 1 / 1;
+
+            &--loading svg {
+                animation: button--processing 700ms linear infinite;
+                transform-origin: center;
+            }
+        }
+
+        &-live {
+            @extend %hidden-visually;
+        }
+
+        // Leaves before the width has closed on it; arrives as it opens.
+        &-text {
+            filter: blur(var(--blur-400));
+            grid-area: 1 / 1;
+            opacity: 0;
+            transition:
+                filter 150ms ease-out,
+                opacity 150ms ease-out;
+            white-space: nowrap;
+
+            @include tokens.state(active) {
+                filter: blur(0px);
+                opacity: 1;
+                transition-duration: 200ms;
+            }
+        }
+    }
+
+    &-sidebar {
+        &--right &-graphic {
+            scale: -1 1;
+        }
+
+        // Chained through '.icon' so it wins over the icon's own fill regardless of stylesheet order.
+        &-icon {
+            // Drawn in strokes, with fills set per path, where the icon would fill the whole SVG.
+            .button-sidebar-graphic {
+                fill: none;
+                overflow: hidden;
+            }
+        }
+
+        // A round-capped stroke stays rounded at every width; the shift pins its outer edge against the frame as it
+        // thins from 3 units to 1, whole units that keep the closed line on the pixel grid at the default icon size.
+        // Caps add the width to the 5-unit line, so the stretch restores what thinning takes to hold it 8 units tall.
+        &-panel {
+            stroke-width: calc(1px + 2px * var(--open));
+            transform:
+                translateX(calc((var(--open) - 1) * 1px))
+                scaleY(calc((7 - 2 * var(--open)) / 5));
+            transform-box: fill-box;
+            transform-origin: center;
+            transition:
+                stroke-width var(--transition-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
+                transform var(--transition-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
+
+            @media (prefers-reduced-motion: reduce) {
+                transition: none;
+            }
+        }
+    }
+
+    &-split {
+        align-items: stretch;
+        display: inline-flex;
+        isolation: isolate;
+
+        &-chevron {
+            transition: rotate var(--transition-duration) var(--transition-timing-function);
+
+            @media (prefers-reduced-motion: reduce) {
+                transition: none;
+            }
+        }
+
+        &-menu {
+            display: flex;
+
+            // Hangs from the trigger's end edge so it stays under the whole group.
+            > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
+                left: auto;
+                right: 0;
+            }
+        }
+
+        & > &-action {
+            border-end-end-radius: 0;
+            border-start-end-radius: 0;
+        }
+
+        & > &-action,
+        & > &-menu > &-trigger {
+            &:focus-visible {
+                outline: var(--focus-width) solid var(--focus-color);
+                outline-offset: var(--focus-offset);
+                z-index: 1;
+            }
+        }
+
+        // Overlaps the shared edge so the two borders read as one divider.
+        & > &-menu > &-trigger {
+            border-end-start-radius: 0;
+            border-start-start-radius: 0;
+            margin-inline-start: calc(var(--border-width) * -1);
+
+            &[aria-expanded='true'] .button-split-chevron {
+                rotate: 180deg;
+            }
         }
     }
 
@@ -237,14 +360,35 @@
             }
         }
 
-        &--skeleton,
-        &-icon--spin {
-            animation: none;
-        }
-
         &-face,
         &-icon--draw {
             transition: none;
         }
+    }
+}
+
+
+@keyframes button-icon-draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+// Swings that die away, like a head shaking no.
+@keyframes button-morph-shake {
+    0%, 100% {
+        translate: 0;
+    }
+    20% {
+        translate: -6px;
+    }
+    40% {
+        translate: 5px;
+    }
+    60% {
+        translate: -3px;
+    }
+    80% {
+        translate: 2px;
     }
 }

@@ -1,5 +1,5 @@
 import { component, html } from '@esportsplus/template';
-import copy from '~/components/copy';
+import copy from '~/components/button/copy';
 import viewer, { type CodeViewerAttributes } from '~/components/editor/viewer';
 
 

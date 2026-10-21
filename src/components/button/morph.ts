@@ -1,5 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
+import icon from '~/components/icon';
 import { timing } from '~/shared/animation';
 import check from '@esportsplus/ui/svg/check.svg';
 import spinner from '@esportsplus/ui/svg/spinner.svg';
@@ -46,10 +47,10 @@ export default component(
         function resize(element: HTMLElement, compact: boolean) {
             let computed = getComputedStyle(element),
                 from = computed.width,
-                resize = timing(computed, 'morph-resize');
+                resize = timing(computed, 'resize');
 
             morph?.cancel();
-            element.style.width = compact ? 'var(--morph-height)' : '';
+            element.style.width = compact ? 'var(--height)' : '';
 
             if (!resize) {
                 return;
@@ -115,7 +116,7 @@ export default component(
                         let compact = busy(state.status);
 
                         if (compact) {
-                            element.style.width = 'var(--morph-height)';
+                            element.style.width = 'var(--height)';
                         }
 
                         effect(() => {
@@ -142,8 +143,8 @@ export default component(
                 >
                     <span class='button-morph-text ${() => state.status === 'idle' && '--active'}'>${label}</span>
                     <span class='button-morph-text ${() => state.status === 'error' && '--active'}'>${retryLabel}</span>
-                    <svg class='button-morph-icon button-morph-icon--loading'><use class='button-morph-spinner' href='#${spinner}' /></svg>
-                    <svg class='button-morph-icon button-morph-icon--success'><use href='#${check}' /></svg>
+                    ${icon({ class: 'button-morph-icon button-morph-icon--loading' }, spinner)}
+                    ${icon({ class: 'button-morph-icon button-morph-icon--success' }, check)}
                 </span>
                 <span aria-live='polite' class='button-morph-live'>${() => ANNOUNCE[state.status]}</span>
             </button>

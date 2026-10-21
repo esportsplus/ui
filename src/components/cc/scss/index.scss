@@ -36,12 +36,6 @@
             width: 36px;
         }
 
-        &-icon {
-            display: block;
-            height: 100%;
-            width: 100%;
-        }
-
         &-mark {
             @extend %icon-swap;
             grid-area: 1 / 1;
@@ -70,11 +64,6 @@
         &--flipped {
             transform: rotateY(180deg);
         }
-    }
-
-    &-chip {
-        height: 32px;
-        width: 44px;
     }
 
     &-control {
@@ -261,12 +250,6 @@
         gap: calc(var(--size-300) / 2);
         justify-content: center;
         margin: 0;
-
-        &-icon {
-            flex-shrink: 0;
-            height: 14px;
-            width: 14px;
-        }
     }
 
     &-number {

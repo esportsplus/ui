@@ -1,59 +1,66 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { check, copy, cross } from './icons';
-import write from '../clipboard/write';
-import faces from './faces';
+import check from '@esportsplus/ui/svg/check.svg';
+import copy from '@esportsplus/ui/svg/copy.svg';
+import write from '~/components/clipboard/write';
+import icon from '~/components/icon';
+import './scss/index.scss';
 
 
 type A = Attributes & {
     error?: string;
+    label?: string;
     onclick?: never;
     ondisconnect?: never;
     success?: string;
     timeout?: number;
-    value: string;
+    value: string | (() => string);
 };
 
 
-export default component<A, string>(
-    ({ error = 'Failed', success = 'Copied', timeout = 2000, value, ...attributes }, content = 'Copy') => {
-        let state = reactive({ status: 'idle' as 'error' | 'idle' | 'success' }),
-            reset = () => {
-                clearTimeout(timer);
-                state.status = 'idle';
-            },
+export default component(
+    ({ error = 'Copy failed', label = 'Copy', success = 'Copied', timeout = 3000, value, ...attributes }: A) => {
+        let request = 0,
+            state = reactive({ status: 'idle' as 'error' | 'idle' | 'success' }),
+            text = () => state.status === 'success' ? success : state.status === 'error' ? error : label,
             timer: ReturnType<typeof setTimeout> | undefined;
 
         return html`
             <button
-                class='button button--feedback'
+                class='button button--copy'
                 type='button'
                 ${attributes}
                 ${{
-                    ondisconnect: reset,
-                    onclick: async (e) => {
+                    'aria-label': text,
+                    ondisconnect: () => {
+                        request++;
+                        clearTimeout(timer);
+                    },
+                    onclick: async (e: MouseEvent) => {
                         e.preventDefault();
                         e.stopPropagation();
 
-                        if (!value) {
+                        let current = ++request,
+                            copied = await write(typeof value === 'function' ? value() : value);
+
+                        // A second click can land while the first is still writing; only the last one's timer runs.
+                        if (current !== request) {
                             return;
                         }
 
-                        reset();
-                        state.status = await write(value) ? 'success' : 'error';
-                        timer = setTimeout(reset, timeout);
-                    }
+                        clearTimeout(timer);
+                        state.status = copied ? 'success' : 'error';
+                        timer = setTimeout(() => {
+                            state.status = 'idle';
+                        }, timeout);
+                    },
+                    title: text
                 }}
             >
-                ${faces(() => state.status, [
-                    { content, icon: copy, key: 'idle' },
-                    { content: success, icon: check, key: 'success', tone: 'success' },
-                    { content: error, icon: cross, key: 'error', tone: 'error' }
-                ])}
+                ${() => state.status === 'success'
+                    ? icon({ 'aria-hidden': 'true', class: 'button-icon button-icon--check' }, check)
+                    : icon({ 'aria-hidden': 'true', class: 'button-icon' }, copy)}
             </button>
-            <span class='button-status' role='status' aria-live='polite'>
-                ${() => state.status === 'success' ? success : state.status === 'error' && error}
-            </span>
         `;
     }
 );

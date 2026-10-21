@@ -3,22 +3,35 @@
 .capslock {
     --font-size: var(--font-size-300);
     --gap-horizontal: var(--size-200);
-    --icon-height: var(--size-200);
-    --icon-width: 12px;
-    --light-color: var(--surface-border-hover);
-    --light-color-active: var(--color-green-400);
-    --light-inset: calc(var(--size-300) / 4);
-    --light-shadow: none;
-    --light-size: 4px;
+
 
     @include tokens.state(active) {
-        --light-color: var(--light-color-active);
-        // Lit hardware reads as "on" in any theme, like a real keyboard light
-        --light-shadow: 0 0 4px 1px color-mix(in oklch, var(--light-color) 55%, transparent);
+        .capslock {
+            &-key {
+                &-light {
+                    // Lit hardware reads as "on" in any theme, like a real keyboard light
+                    --box-shadow: 0 0 4px 1px color-mix(in oklch, var(--color) 55%, transparent);
+                    --color: var(--color-active);
+                }
+            }
+        }
     }
 
     // Wider than a square cap so the light clears the icon
     &-key {
         --padding-horizontal: 9px;
+
+        // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
+        &-icon.icon {
+            --size: var(--size-300);
+        }
+
+        &-light {
+            --box-shadow: none;
+            --color: var(--surface-border-default);
+            --color-active: var(--color-green-400);
+            --inset: calc(var(--size-300) / 4);
+            --size: 4px;
+        }
     }
 }

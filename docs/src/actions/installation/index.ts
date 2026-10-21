@@ -79,7 +79,7 @@ const page = (): Page => {
                 title: 'Import the styles'
             },
             {
-                description: html`Add the button classes to your template. Explore the <a class='installation-step-link' href='/components/button'>button reference</a> for colors, modifiers, and hold-to-confirm behavior.`,
+                description: html`Add the button classes to your template. Explore the <a class='installation-step-link' href='/components/button'>button reference</a> for colors, modifiers, and feedback states.`,
                 id: 'installation-component',
                 preview: preview([
                     preview.header({ title: 'app.ts' }),

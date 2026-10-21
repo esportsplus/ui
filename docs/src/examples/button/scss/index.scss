@@ -1,6 +1,3 @@
-@use 'css-utilities/background';
-@use 'css-utilities/border';
-@use 'css-utilities/color';
 @use 'css-utilities/surface';
 
 
@@ -39,6 +36,7 @@
     }
 }
 
-.button-demo-surface {
-    @extend %background-surface, %border-surface, %color-text, %surface-raise;
+// Leaves the error state its own red.
+.button-demo-morph:not(.button--morph-error) {
+    --background-default: var(--color-blue-400);
 }

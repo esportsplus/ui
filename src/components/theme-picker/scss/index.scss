@@ -93,12 +93,8 @@
     }
 
     &-icon {
-        display: block;
         fill: none;
-        flex-shrink: 0;
-        height: var(--size-400);
         stroke: currentColor;
-        width: var(--size-400);
     }
 
     &-swatches {

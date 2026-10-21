@@ -242,13 +242,12 @@ function annotated() {
     `;
 }
 
-// One shortcut as keycaps, in the platform's own names; 'button.kbd' would also light up on presses, which a list of
-// shortcuts sharing modifiers doesn't want.
+// One shortcut as keycaps, in the platform's own names.
 function chord(keys: string) {
     return html`
-        <kbd class='button-kbd'>
+        <kbd class='code-editor-demo-chord'>
             ${keys.split('+').map((key, i) => html`
-                ${i > 0 && icon({ 'aria-hidden': true, class: 'button-kbd-plus' }, plus)}
+                ${i > 0 && icon({ 'aria-hidden': true, class: 'code-editor-demo-chord-plus' }, plus)}
                 <kbd class='button button--kbd'>${(mac() ? APPLE[key] : undefined) ?? GLYPHS[key] ?? key}</kbd>
             `)}
         </kbd>

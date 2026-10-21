@@ -12,9 +12,7 @@ const groups: Record<string, Group[]> = {
     announcement: [{ title: 'announcement', members: [['dashboard', 'Default'], 'blue, no link'] }],
     breadcrumb: [{ title: 'breadcrumb', members: [['default (drag the edge to resize)', 'Default'], ["separator: 'chevron'", 'Chevron'], ['no background', 'No background'], ["no background, separator: 'chevron'", 'No background, chevron'], ['onnavigate', 'Navigation callback']] }],
     button: [
-        { title: 'fan', members: ['fan', 'fan directions', 'fan text'] },
         { title: 'group', members: [['group', 'Highlight'], ['group without highlight', 'No highlight']] },
-        { title: 'hold', members: ['hold', 'hold text'] },
         { title: 'morph', members: ['morph', 'morph, observed state'] }
     ],
     capslock: [{ title: 'caps lock', members: [['toggle caps lock to show', 'Default'], 'active'] }],
