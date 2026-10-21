@@ -1,70 +1,104 @@
 .breadcrumb {
-    --color: var(--color-text-300);
-    --color-active: var(--color-text-500);
-    // Arriving segments fade in slower than leaving ones fade out, so the gap a leaving one opens is already
-    // closing by the time the eye looks for it.
-    --enter-duration: 200ms;
-    --exit-duration: 120ms;
-    --focus-color: var(--color-primary-500);
     --font-size: var(--font-size-300);
-    --font-weight-current: var(--font-weight-500);
-    --height: 24px;
-    --hover-background: var(--surface-background-hover);
-    --link-padding: calc(var(--size-300) / 2);
-    --link-radius: var(--border-radius-300);
-    --menu-radius: var(--border-radius-600);
-    --menu-width: 192px;
-    // Options are '.link's, and their '%text' redefines --color and --color-active on them, so these resolve here first.
-    --option-color: var(--color-active);
-    --option-icon-color: var(--color);
-    --separator-color: oklch(from var(--color-primary-300) l c h / 0.5);
-    --separator-size: var(--size-400);
-    --slide-duration: 310ms;
-    --slide-easing: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
-    --trigger-width: var(--height);
-    --underline-color: oklch(from var(--color-primary-500) l c h / 0.4);
+    --padding: 2px;
 
-
-    &--compact {
-        --height: var(--size-400);
-        --link-padding: calc(var(--size-100) / 2);
-        --separator-size: 14px;
-        --trigger-width: var(--height);
-    }
 
     // Zeroes every fold timing, so nothing transitions until the first fit has painted.
     &--instant {
-        --enter-duration: 0s;
-        --exit-duration: 0s;
-        --slide-duration: 0s;
-    }
-
-    // A surface through the tooltip content it reuses, so its colors are read at its own level.
-    &-menu.tooltip-content {
-        --background-default: var(--surface-background-default);
-        --border-radius: var(--menu-radius);
-        --box-shadow-default:
-            0 0 0 var(--border-width-400) var(--surface-border-default),
-            var(--surface-shadow-default);
-        --offset: 0px;
-        --scale: 0.95;
-        --spacer: 6px;
-    }
-
-    // Clips the body only while folded or unfolding, so focus rings and the menu aren't cut off at rest.
-    &-segment {
-        --body-overflow: visible;
-        --body-transition: overflow 0s linear var(--slide-duration) allow-discrete;
-
-        &--hidden {
-            --body-overflow: hidden;
-            --body-transition: none;
+        .breadcrumb-segment {
+            --enter-duration: 0s;
+            --exit-duration: 0s;
+            --slide-duration: 0s;
         }
     }
 
 
+    &-current {
+        --color: var(--color-text-400);
+        --font-weight: var(--font-weight-600);
+    }
+
+    &-link {
+        --border-radius: var(--border-radius-300);
+        --focus-color: var(--color-primary-500);
+        --font-weight: var(--font-weight-400);
+        --height: var(--size-400);
+        --underline-color: oklch(from var(--color-primary-500) l c h / 0.4);
+    }
+
+    &-list {
+        --height: var(--size-400);
+    }
+
+    // A surface through the tooltip content it reuses, so its colors are read at its own level.
+    &-menu {
+        --background-default: var(--surface-background-default);
+        --border-radius: var(--border-radius-600);
+        --box-shadow-default:
+            0 0 0 var(--border-width-400) var(--surface-border-default),
+            var(--surface-shadow-default);
+        --offset: 0px;
+        // Grows out of the dots.
+        --origin: calc(var(--size-400) / 2) 0;
+        --scale: 0.95;
+        --spacer: 6px;
+        --width: 192px;
+    }
+
+    &-option {
+        --background-focus: var(--surface-background-hover);
+    }
+
+    // Arriving segments fade in slower than leaving ones fade out, so the gap a leaving one opens is already
+    // closing by the time the eye looks for it.
+    &-segment {
+        --enter-duration: 200ms;
+        --exit-duration: 120ms;
+        --slide-duration: 310ms;
+        --slide-easing: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
+
+        // Clips the body only while folded or unfolding, so focus rings and the menu aren't cut off at rest.
+        &-body {
+            --overflow: visible;
+            --transition: overflow 0s linear var(--slide-duration) allow-discrete;
+        }
+
+        &--hidden &-body {
+            --overflow: hidden;
+            --transition: none;
+        }
+    }
+
+    // Chained through '.icon' so it wins over the icon's own color regardless of stylesheet order.
+    &-separator.icon {
+        --color: oklch(from var(--color-primary-300) l c h / 0.5);
+    }
+
+    &-space {
+        --width: var(--size-400);
+    }
+
+    &-text {
+        --font-weight: var(--font-weight-400);
+
+        &--current {
+            --font-weight: var(--font-weight-600);
+        }
+    }
+
+    &-trigger {
+        --background-hover: var(--surface-background-hover);
+        --border-radius: var(--border-radius-300);
+        --color: var(--color-text-400);
+        --color-active: var(--color-text-400);
+        --focus-color: var(--color-primary-500);
+        --height: calc(var(--size-400) - 4px);
+        --width: var(--size-400);
+    }
+
+
     @media (prefers-reduced-motion: reduce) {
-        &-menu.tooltip-content {
+        &-menu {
             --scale: 1;
         }
     }

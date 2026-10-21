@@ -23,7 +23,7 @@ const MIN_WIDTH = 220;
 const STEP = 16;
 
 
-function resizable({ modifier = '', plain = false, separator, status }: { modifier?: string, plain?: boolean, separator?: Separator, status?: { last: string } } = {}) {
+function resizable({ plain = false, separator, status }: { plain?: boolean, separator?: Separator, status?: { last: string } } = {}) {
     let drag: { max: number | undefined; width: number; x: number } | null = null,
         frame: HTMLElement | undefined,
         handle: HTMLElement | undefined,
@@ -46,7 +46,6 @@ function resizable({ modifier = '', plain = false, separator, status }: { modifi
         <div class='breadcrumb-demo' ${{ onconnect: (element: HTMLElement) => { wrap = element; } }}>
             <div class='breadcrumb-demo-frame ${plain && 'breadcrumb-demo-frame--plain'}' ${{ onconnect: (element: HTMLElement) => { frame = element; } }}>
                 ${breadcrumb({
-                    class: modifier,
                     items: path,
                     separator,
                     onnavigate: (item, index) => {
@@ -147,10 +146,6 @@ export default {
         {
             render: () => resizable({ status: reactive({ last: 'click a crumb or a folded folder' }) }),
             title: 'onnavigate'
-        },
-        {
-            render: () => resizable({ modifier: 'breadcrumb--compact' }),
-            title: 'breadcrumb--compact'
         }
     ]
 } satisfies Entry;

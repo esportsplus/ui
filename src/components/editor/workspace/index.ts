@@ -615,7 +615,7 @@ const workspace = ({
         }
 
         return breadcrumb({
-            class: 'breadcrumb--compact code-workspace-breadcrumb',
+            class: 'code-workspace-breadcrumb',
             items,
             label: 'File path',
             onnavigate: (item) => locate(item.href.slice(1)),

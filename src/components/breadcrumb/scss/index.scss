@@ -13,22 +13,22 @@
 
     &-current {
         @extend %text-truncate;
-        --font-weight: var(--font-weight-current);
-        color: var(--color-active);
+        color: var(--color);
         display: block;
         font-weight: var(--font-weight);
-        padding-inline: var(--link-padding);
+        padding-inline: var(--padding);
     }
 
     &-link {
         @extend %color-state, %color-text;
         align-items: center;
-        border-radius: var(--link-radius);
+        border-radius: var(--border-radius);
         color: var(--color);
         display: inline-flex;
+        font-weight: var(--font-weight);
         height: var(--height);
         outline: none;
-        padding-inline: var(--link-padding);
+        padding-inline: var(--padding);
         text-decoration: underline;
         text-decoration-color: transparent;
         text-underline-offset: calc(var(--size-100) / 2);
@@ -57,35 +57,28 @@
         position: relative;
     }
 
-    &-menu-root.tooltip {
-        cursor: default;
-        display: flex;
-    }
-
-    &-menu.tooltip-menu-panel {
+    &-menu {
         display: flex;
         flex-direction: column;
         outline: none;
         padding: calc(var(--size-100) / 2);
-        // Grows out of the dots.
-        transform-origin: calc(var(--trigger-width) / 2) 0;
-        width: var(--menu-width);
+        transform-origin: var(--origin);
+        width: var(--width);
+
+        &-root {
+            cursor: default;
+            display: flex;
+        }
     }
 
-    &-option-icon {
-        color: var(--option-icon-color);
-        flex-shrink: 0;
-        height: var(--size-400);
-        width: var(--size-400);
-    }
 
     // Paired with '.link', which the tooltip menu gives every option, so these win over its padding, wrapping,
     // cursor and colour. No transition on the highlight: it follows every hover, so any easing reads as lag.
-    &-option.link {
+    &-option {
         align-items: center;
         background: transparent;
         border-radius: var(--border-radius-400);
-        color: var(--option-color);
+        color: var(--color);
         cursor: default;
         display: flex;
         flex-shrink: 0;
@@ -99,7 +92,7 @@
         user-select: none;
 
         &:focus {
-            background: var(--hover-background);
+            background: var(--background-focus);
         }
 
         &[hidden] {
@@ -157,41 +150,30 @@
             align-items: center;
             display: flex;
             min-width: 0;
-            overflow: var(--body-overflow);
-            transition: var(--body-transition);
+            overflow: var(--overflow);
+            transition: var(--transition);
         }
-    }
-
-    &-separator {
-        color: var(--separator-color);
-        flex-shrink: 0;
-        height: var(--separator-size);
-        width: var(--separator-size);
     }
 
     &-space {
         display: block;
-        width: var(--trigger-width);
+        width: var(--width);
     }
 
     &-text {
-        padding-inline: var(--link-padding);
-
-        &--current {
-            --font-weight: var(--font-weight-current);
-            font-weight: var(--font-weight);
-        }
+        font-weight: var(--font-weight);
+        padding-inline: var(--padding);
     }
 
     &-trigger {
         align-items: center;
         background: transparent;
         border: 0;
-        border-radius: var(--link-radius);
+        border-radius: var(--border-radius);
         color: var(--color);
         cursor: pointer;
         display: flex;
-        height: calc(var(--height) - 4px);
+        height: var(--height);
         justify-content: center;
         outline: none;
         padding: 0;
@@ -200,12 +182,7 @@
             background-color 0.15s ease-out,
             color 0.15s ease-out;
         user-select: none;
-        width: var(--trigger-width);
-
-        &-icon {
-            height: var(--size-400);
-            width: var(--size-400);
-        }
+        width: var(--width);
 
         &:focus-visible {
             outline: 2px solid var(--focus-color);
@@ -214,7 +191,7 @@
         // Stays lit while its menu is open.
         &:hover,
         &[aria-expanded='true'] {
-            background: var(--hover-background);
+            background: var(--background-hover);
             color: var(--color-active);
         }
     }

@@ -12,7 +12,6 @@
 
     &-header {
         &-breadcrumb {
-            --link-padding: 0px;
             text-transform: capitalize;
 
             // The breadcrumb exposes no separator spacing, so it is set on its separators directly.

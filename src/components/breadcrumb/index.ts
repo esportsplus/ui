@@ -1,5 +1,6 @@
 import { component, html, on, type Attributes, type Element } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
+import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import { observer } from '~/shared/resize';
 import chevron from '@esportsplus/ui/svg/chevron-right.svg';
@@ -43,7 +44,7 @@ let uid = 0;
 
 
 function separator(kind: Separator) {
-    return html`<svg aria-hidden='true' class='breadcrumb-separator'><use href='#${SEPARATORS[kind]}' /></svg>`;
+    return icon({ 'aria-hidden': 'true', class: 'breadcrumb-separator' }, SEPARATORS[kind]);
 }
 
 
@@ -193,7 +194,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                         class: 'breadcrumb-menu-root',
                                         items: items.slice(1, last).map((item, i) => ({
                                             label: item.label,
-                                            icon: () => html`<svg aria-hidden='true' class='breadcrumb-option-icon'><use href='#${folder}' /></svg>`,
+                                            icon: () => icon({ 'aria-hidden': 'true' }, folder),
                                             hidden: () => i >= s.hidden,
                                             href: item.href,
                                             onselect: (_item, event) => navigate(event, item, i + 1),
@@ -213,7 +214,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                             id: `${id}-menu`
                                         }
                                     },
-                                    html`<svg aria-hidden='true' class='breadcrumb-trigger-icon'><use href='#${dots}' /></svg>`
+                                    icon({ 'aria-hidden': 'true' }, dots)
                                 )}
                             </div>
                         </li>
