@@ -5,29 +5,11 @@
     display: grid;
     grid-template-rows: 0fr;
     overflow: hidden;
-    transition: grid-template-rows 240ms var(--announcement-drawer);
-
-    // Qualified to outrank the '.overlay' it pairs with.
-    &-content.overlay {
-        filter: blur(var(--blur-300));
-        transition:
-            filter var(--fade-duration) var(--announcement-ease),
-            opacity var(--fade-duration) var(--announcement-ease),
-            transform var(--transition-duration) var(--announcement-drawer),
-            translate var(--transition-duration) var(--announcement-drawer);
-
-        @include tokens.state(active) {
-            filter: blur(0px);
-        }
-
-        &.overlay--dragging {
-            transition: none;
-        }
-    }
+    transition: grid-template-rows 240ms var(--translate-timing-function);
 
     @include tokens.state(active) {
         grid-template-rows: 1fr;
-        transition: grid-template-rows 280ms var(--announcement-drawer);
+        transition: grid-template-rows 280ms var(--translate-timing-function);
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -40,8 +22,27 @@
             &,
             #{tokens.state(active)} {
                 filter: none;
-                transition: opacity var(--fade-duration) var(--announcement-ease);
+                transition: opacity var(--fade-duration) var(--fade-timing-function);
             }
+        }
+    }
+
+
+    // Qualified to outrank the '.overlay' it pairs with.
+    &-content.overlay {
+        filter: blur(var(--blur-300));
+        transition:
+            filter var(--fade-duration) var(--fade-timing-function),
+            opacity var(--fade-duration) var(--fade-timing-function),
+            transform var(--transition-duration) var(--translate-timing-function),
+            translate var(--transition-duration) var(--translate-timing-function);
+
+        @include tokens.state(active) {
+            filter: blur(0px);
+        }
+
+        &.overlay--dragging {
+            transition: none;
         }
     }
 }
