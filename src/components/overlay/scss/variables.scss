@@ -1,4 +1,9 @@
+@use 'css-utilities/anchor';
+@use 'css-utilities/surface';
+
+
 .overlay {
+    @extend %anchor;
     --backdrop: color-mix(in srgb, var(--color-black-500) 64%, transparent);
     --close-duration: 0.3s;
     // Read by JS for a flow overlay's space, which grows and gives way without bouncing.
@@ -27,6 +32,12 @@
     // Dragged away, it fades where it was let go.
     @media (prefers-reduced-motion: reduce) {
         --fling-duration: 0s;
+    }
+
+    @each $placement in anchor.$placements {
+        &--#{$placement} {
+            @extend %anchor--#{$placement};
+        }
     }
 
     // Motion modifiers follow placement so they win when paired with an edge.
@@ -83,4 +94,10 @@
     --scale: 0.94;
     --transition-duration: 0.5s;
     --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+
+dialog.overlay {
+    // A fresh surface stack above everything; outranks a paired surface, such as '.card', that would count up instead.
+    @extend %surface-root;
 }

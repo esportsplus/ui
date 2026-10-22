@@ -1,7 +1,5 @@
 @use 'sass:list';
 @use '/tokens';
-@use 'css-utilities/anchor';
-@use 'css-utilities/surface';
 @use 'variables';
 
 
@@ -36,7 +34,6 @@ $edge-fill: (
 
 
 .overlay {
-    @extend %anchor;
     margin: auto;
     transform-origin: center;
     transition:
@@ -77,12 +74,6 @@ $edge-fill: (
         opacity: 0;
     }
 
-
-    @each $placement in anchor.$placements {
-        &--#{$placement} {
-            @extend %anchor--#{$placement};
-        }
-    }
 
     &--alert::backdrop,
     &--blur::backdrop {
@@ -372,8 +363,6 @@ $edge-fill: (
 // Outranks pairings like '.card { position: relative }'. Modal overlays pin to the viewport; non-modal ones
 // sit in their positioned container, which may be the viewport too via an inline 'position: fixed'.
 dialog.overlay {
-    // A fresh surface stack above everything; outranks a paired surface, such as '.card', that would count up instead.
-    @extend %surface-root;
     position: fixed;
 
     // A flow overlay occupies a row in its parent instead of covering that parent's content.
