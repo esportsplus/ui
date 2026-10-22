@@ -1,12 +1,9 @@
-@use 'css-utilities/background';
-@use 'css-utilities/border';
 @use 'css-utilities/box-shadow';
 @use 'css-utilities/layer';
 @use 'variables';
 @use '../../frame/scss/index';
 
 .card {
-    @extend %background-state, %border-state, %box-shadow-state;
     background: var(--background);
     border: var(--border-width) solid var(--border-color);
     border-radius: var(--border-radius);
