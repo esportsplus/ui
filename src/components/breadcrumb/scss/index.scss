@@ -1,5 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/color';
 @use 'css-utilities/reset';
 @use 'css-utilities/text';
 @use 'variables';
@@ -20,7 +19,6 @@
     }
 
     &-link {
-        @extend %color-state, %color-text;
         align-items: center;
         border-radius: var(--border-radius);
         color: var(--color);

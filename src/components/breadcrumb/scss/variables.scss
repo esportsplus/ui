@@ -1,3 +1,5 @@
+@use 'css-utilities/color';
+
 .breadcrumb {
     --font-size: var(--font-size-300);
     --padding: 2px;
@@ -19,6 +21,7 @@
     }
 
     &-link {
+        @extend %color-state, %color-text;
         --border-radius: var(--border-radius-300);
         --focus-color: var(--color-primary-500);
         --font-weight: var(--font-weight-400);
