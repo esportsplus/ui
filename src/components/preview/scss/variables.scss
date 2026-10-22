@@ -1,6 +1,13 @@
+@use 'css-utilities/background';
+@use 'css-utilities/surface';
+
 // Qualified by the class each part shares an element with (card, select, button, highlight, icon, code viewer), so
 // these win over that component's own variables whatever order the stylesheets load in.
 .preview {
+    &-header {
+        @extend %surface-raise;
+    }
+
     &.card {
         --border-color-default: var(--surface-border-default);
         --border-radius: var(--border-radius-500);
@@ -18,9 +25,11 @@
     }
 
     &-view {
+        @extend %surface-lower;
         --surface-level: -3;
 
         &-button {
+            @extend %background-surface, %surface-raise;
             --background-active: transparent;
             --background-default: transparent;
             --border-radius: var(--border-radius-400);
@@ -29,6 +38,7 @@
         }
 
         &-highlight {
+            @extend %background-surface, %surface-raise;
             --scale-hidden: 1;
             --surface-level: 1;
         }
