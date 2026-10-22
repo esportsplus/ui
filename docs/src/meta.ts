@@ -36,9 +36,6 @@ const meta: Record<string, Meta> = {
     checkbox: {
         description: 'Binary selection control, plus checklist groups with a select-all header that goes mixed and Shift-click range selection.'
     },
-    clipboard: {
-        description: 'Copy-to-clipboard affordance with click and programmatic variants.'
-    },
     'color-picker': {
         description: 'Saturation pad, hue and opacity sliders, a hex field, and a recent-colors row that reorders as you commit, or a compact pad with upright rails under an hsl readout.'
     },

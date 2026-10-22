@@ -1,4 +1,4 @@
-import { html, uri } from 'docs/app';
+import { html, reactive, uri } from 'docs/app';
 import { cssValue, map, themeColors, themes, themeTokens, tokenSources, WEIGHTS } from 'docs/data/scss';
 import { clipboard, icon } from '@esportsplus/ui/components';
 import check from '@esportsplus/ui/svg/check.svg';
@@ -163,24 +163,41 @@ function preview(kind: Exclude<Group['kind'], 'color'>, { value }: Token): Rende
 // A click-to-copy swatch; a mode pins it to that side of 'light-dark()' and paints it over that mode's page, so
 // translucent shadows show as they would there.
 function swatch(token: Token, shade: string, ink: string, mode?: Mode) {
-    return clipboard.copy({
-        class: 'token-colors-swatch',
-        'data-theme': mode,
-        style: mode
-            ? `background: linear-gradient(var(${token.name}), var(${token.name})), var(--color-surface); color: var(${ink});`
-            : `background: var(${token.name}); color: var(${ink});`,
-        'aria-label': `Copy ${token.name}${mode ? ` (${mode})` : ''}: ${token.value}`,
-        oncopied: () => toast(() => 'Color copied.'),
-        onerror: () => toast(() => 'Could not copy color.'),
-        timeout: 3000,
-        value: token.value
-    }, (state) => html`
-            <span class='token-colors-value ${state.copied && '--copied'}'>
-                ${icon({ class: 'token-colors-copy', 'aria-hidden': 'true' }, state.copied ? check : copy)}
+    let state = reactive({ copied: false }),
+        timer: ReturnType<typeof setTimeout> | undefined;
+
+    return html`
+        <button
+            aria-label='${`Copy ${token.name}${mode ? ` (${mode})` : ''}: ${token.value}`}'
+            class='token-colors-swatch'
+            style='${mode
+                ? `background: linear-gradient(var(${token.name}), var(${token.name})), var(--color-surface); color: var(${ink});`
+                : `background: var(${token.name}); color: var(${ink});`}'
+            type='button'
+            ${{
+                'data-theme': mode,
+                onclick: async () => {
+                    let copied = await clipboard.write(token.value);
+
+                    clearTimeout(timer);
+                    state.copied = copied;
+                    toast(() => copied ? 'Color copied.' : 'Could not copy color.');
+                    timer = setTimeout(() => {
+                        state.copied = false;
+                    }, 3000);
+                },
+                ondisconnect: () => {
+                    clearTimeout(timer);
+                }
+            }}
+        >
+            <span class='token-colors-value ${() => state.copied && '--copied'}'>
+                ${() => icon({ class: 'token-colors-copy', 'aria-hidden': 'true' }, state.copied ? check : copy)}
                 <span class='token-colors-text'>${token.value}</span>
             </span>
             <span class='token-colors-shade'>${shade}</span>
-    `);
+        </button>
+    `;
 }
 
 function themed(mode: Mode): Token[] {
