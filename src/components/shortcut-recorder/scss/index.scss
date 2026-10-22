@@ -1,6 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/background';
-@use 'css-utilities/border';
 @use 'variables';
 
 // The field renders inside an 'error', which takes its place in the layout, so the wrapper keeps it from shrinking.
@@ -9,7 +7,6 @@
 }
 
 .shortcut-recorder {
-    @extend %background-state, %border-state;
     align-items: center;
     background: var(--background);
     border: 0;

@@ -1,6 +1,9 @@
 @use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/border';
 
 .shortcut-recorder {
+    @extend %background-state, %border-state;
     --background-active: var(--surface-background-active);
     --background-default: var(--surface-background-default);
     --background-hover: var(--surface-background-hover);
