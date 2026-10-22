@@ -10,7 +10,7 @@ $color: (
     'grey': oklch(92% 0.0093 257),
     'purple': oklch(51.66% 0.2929 289.7),
     'red': oklch(62.87% 0.2567 27.7),
-    'white': oklch(97% 0.004 257),
+    'white': oklch(99% 0.004 257),
     'yellow': oklch(85.2% 0.199 91.9)
 );
 
@@ -39,11 +39,14 @@ $colors: list.join(primary text, map.keys($color));
 // 'weights' sets how far each color's 300 and 500 sit from its 400: 'color' in lightness points for the palette and
 // 'primary', lighter for hover and darker for press; 'text' as a contrast ratio, text 300 and 500 each holding it
 // against 400.
+$theme-black: map.get($color, 'black');
+$theme-white: oklch(96% 0.004 257);
+
 $themes: (
     dark: (
         color: (
-            primary: map.get($color, 'white'),
-            surface: map.get($color, 'black'),
+            primary: $theme-white,
+            surface: $theme-black,
             text: oklch(90% 0.0162 257)
         ),
         surface: (
@@ -68,8 +71,8 @@ $themes: (
     ),
     light: (
         color: (
-            primary: map.get($color, 'black'),
-            surface: map.get($color, 'white'),
+            primary: $theme-black,
+            surface: $theme-white,
             text: oklch(36% 0.0325 257)
         ),
         surface: (
@@ -78,14 +81,14 @@ $themes: (
             pressed: 2,
 
             border: 4,
-            primary: 6,
+            primary: 5,
             shadow: (
                 depth: 0.2,
                 opacity: 8
             ),
 
-            lowered: 1,
-            raised: 1,
+            lowered: 1.2,
+            raised: 1.2,
         ),
         weights: (
             color: 3,
