@@ -1,3 +1,6 @@
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
+
 .pagination {
     --gap: var(--size-300);
     --size: 32px;
@@ -37,7 +40,12 @@
         }
     }
 
+    &-arrow {
+        @extend %surface-primary;
+    }
+
     &-card {
+        @extend %color-state, %color-text;
         --arrow-gap: var(--size-300);
         // The card's content edge, as the card insets it inside its border. Resolved here, so the arrow inherits the
         // card's padding rather than its own.
@@ -93,6 +101,7 @@
 
     &-control,
     &-page {
+        @extend %color-text;
         --background-hover: var(--surface-background-hover);
         --background-pressed: var(--surface-background-pressed);
         --border-color-default: var(--surface-border-default);

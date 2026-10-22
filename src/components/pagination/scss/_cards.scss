@@ -1,4 +1,3 @@
-@use 'css-utilities/color';
 @use 'variables';
 
 .pagination {
@@ -14,7 +13,6 @@
     }
 
     &-card {
-        @extend %color-state, %color-text;
         color: var(--color);
         display: flex;
         flex-direction: column;
