@@ -1,48 +1,16 @@
-@use 'css-utilities/box-shadow';
 @use 'css-utilities/font/geist';
 @use 'css-utilities/hidden';
 @use 'css-utilities/layer';
 @use 'variables';
 
-@mixin thumb {
-    background: var(--thumb);
-    border: var(--thumb-border);
-    border-radius: 50%;
-    box-shadow: var(--thumb-shadow);
-    box-sizing: border-box;
-    cursor: pointer;
-    height: var(--thumb-size);
-    transition: scale var(--transition-duration) var(--transition-timing-function);
-    width: var(--thumb-size);
-}
-
-@mixin track {
-    background: var(--track);
-    border-radius: 999px;
-    box-shadow: var(--hairline);
-    height: var(--track-height);
-}
-
 .color-picker {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    color: var(--color);
     display: flex;
     flex-direction: column;
     font-size: var(--font-size);
     gap: var(--spacing);
-
-    &-alpha {
-        @extend %font-geist-mono;
-        align-items: center;
-        border: 1px solid var(--control-border-color);
-        border-radius: var(--control-border-radius);
-        color: var(--color-muted);
-        display: flex;
-        flex: 0 0 56px;
-        font-family: var(--font-family);
-        font-variant-numeric: tabular-nums;
-        height: var(--control-height);
-        justify-content: center;
-        user-select: none;
-    }
 
     &-body {
         display: flex;
@@ -67,38 +35,39 @@
         position: relative;
     }
 
+    // Qualified by the row so it wins over the reused input styles regardless of stylesheet order.
+    &-fields {
+        display: flex;
+        gap: var(--size-100);
+
+        > .color-picker-alpha {
+            @extend %font-geist-mono;
+            cursor: default;
+            flex: 0 0 var(--width);
+            font-family: var(--font-family);
+            font-variant-numeric: tabular-nums;
+            justify-content: center;
+            user-select: none;
+        }
+    }
+
+    // The range draws the track and thumb; these add the thumb's shadow and press, the track's hairline and focus.
+    // Qualified by the root so it wins over the reused range styles regardless of stylesheet order.
     .color {
-        // Sized by the native range, whose thumb already stops half its width short of each end. Qualified by the root so
-        // it wins over the reused range styles regardless of stylesheet order.
         &-picker-channel {
-            appearance: none;
-            background: none;
-            border: 0;
-            border-radius: 999px;
-            cursor: pointer;
-            display: block;
-            height: 28px;
-            margin: 0;
-            outline: none;
+            box-shadow: var(--box-shadow);
             touch-action: none;
-            width: 100%;
 
             &::-moz-range-thumb {
-                @include thumb;
-            }
-
-            &::-moz-range-track {
-                @include track;
-            }
-
-            &::-webkit-slider-runnable-track {
-                @include track;
+                box-shadow: var(--thumb-shadow);
+                box-sizing: border-box;
+                transition: scale var(--transition-duration) var(--transition-timing-function);
             }
 
             &::-webkit-slider-thumb {
-                @include thumb;
-                appearance: none;
-                margin-top: calc((var(--track-height) - var(--thumb-size)) / 2);
+                box-shadow: var(--thumb-shadow);
+                box-sizing: border-box;
+                transition: scale var(--transition-duration) var(--transition-timing-function);
             }
 
             &:active::-moz-range-thumb {
@@ -110,15 +79,15 @@
             }
 
             &:focus-visible {
-                outline: var(--focus-width) solid var(--color);
+                outline: var(--focus-width) solid var(--focus-color);
                 outline-offset: 1px;
             }
         }
 
-        // Sits inside the hex field, at its end; the field's padding keeps typed text clear of it.
+        // Sits inside the hex field, at its end; the field's end padding keeps typed text clear of it.
         &-picker-copy {
             position: absolute;
-            right: var(--copy-inset);
+            right: var(--inset);
             top: 50%;
             translate: 0 -50%;
         }
@@ -126,17 +95,11 @@
 
     // Qualified by the wrapper so it wins over the reused input padding regardless of stylesheet order.
     &-field > #{&}-hex {
-        padding-inline-end: calc(var(--control-height) - var(--copy-inset));
-    }
-
-    &-fields {
-        display: flex;
-        gap: var(--size-100);
+        padding-inline-end: var(--padding-end);
     }
 
     &-header {
         align-items: center;
-        color: var(--color);
         display: flex;
         gap: var(--size-100);
     }
@@ -148,12 +111,8 @@
         text-transform: uppercase;
 
         &:focus {
-            outline: var(--focus-width) solid var(--color);
+            outline: var(--focus-width) solid var(--focus-color);
             outline-offset: -1px;
-        }
-
-        &[aria-invalid='true']:focus {
-            outline-color: var(--color-invalid);
         }
     }
 
@@ -161,9 +120,9 @@
     &-pad {
         background-color: hsl(var(--hue) 100% 50%);
         background-image: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
-        border-radius: var(--control-border-radius);
+        border-radius: var(--border-radius);
         cursor: crosshair;
-        height: var(--pad-height);
+        height: var(--height);
         outline: none;
         position: relative;
         touch-action: none;
@@ -171,32 +130,32 @@
 
         &::after {
             @extend %layer;
-            box-shadow: var(--hairline);
+            box-shadow: var(--box-shadow);
             content: '';
         }
 
         &:focus-visible {
-            outline: var(--focus-width) solid var(--color);
+            outline: var(--focus-width) solid var(--focus-color);
             outline-offset: calc(var(--size-100) / 4);
         }
     }
 
     &-preview {
-        background: linear-gradient(rgb(var(--rgb) / var(--alpha)), rgb(var(--rgb) / var(--alpha))), var(--checker);
-        border-radius: var(--control-border-radius);
-        box-shadow: var(--hairline);
+        background: var(--background);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
         flex: 0 0 auto;
-        height: var(--preview-size);
-        width: var(--preview-size);
+        height: var(--size);
+        width: var(--size);
     }
 
     &-recent {
-        border-top: 1px solid var(--control-border-color);
+        border-top: 1px solid var(--border-color);
         padding-top: var(--spacing);
 
         &-label {
-            color: var(--color-muted);
-            font-size: var(--font-size-300);
+            color: var(--color);
+            font-size: var(--font-size);
             margin: 0 0 var(--size-100);
             user-select: none;
         }
@@ -215,22 +174,13 @@
     }
 
     &-swatch {
-        @extend %box-shadow-state;
-        --box-shadow-active:
-            var(--hairline),
-            0 0 0 2px var(--ring-offset-color),
-            0 0 0 4px var(--color);
-        --box-shadow-default:
-            var(--hairline),
-            0 0 0 0 var(--ring-offset-color),
-            0 0 0 0 var(--color);
-        background: linear-gradient(var(--swatch), var(--swatch)), var(--checker);
+        background: var(--background);
         border: 0;
         border-radius: 50%;
         box-shadow: var(--box-shadow);
         cursor: pointer;
         flex: 0 0 auto;
-        height: var(--swatch-size);
+        height: var(--size);
         margin: 0;
         outline: none;
         padding: 0;
@@ -238,11 +188,11 @@
         touch-action: manipulation;
         transition: box-shadow var(--transition-duration) var(--transition-timing-function);
         user-select: none;
-        width: var(--swatch-size);
+        width: var(--size);
 
         // A stand-in for a dropped swatch, whose own node is already gone.
         &--leaving {
-            animation: color-picker-swatch-leave var(--swatch-exit-duration) var(--swatch-exit-easing) forwards;
+            animation: color-picker-swatch-leave var(--duration) var(--easing) forwards;
             pointer-events: none;
             position: absolute;
         }
@@ -256,7 +206,7 @@
         }
 
         &:focus-visible {
-            outline: var(--focus-width) solid var(--color);
+            outline: var(--focus-width) solid var(--focus-color);
             outline-offset: calc(var(--size-100) / 2);
         }
     }
@@ -264,23 +214,23 @@
     &-swatches {
         display: flex;
         gap: var(--size-100);
-        height: var(--swatch-size);
+        height: var(--size);
         position: relative;
     }
 
     &-thumb {
         background: rgb(var(--rgb));
-        border: var(--thumb-border);
+        border: var(--border);
         border-radius: 50%;
-        box-shadow: var(--thumb-shadow);
+        box-shadow: var(--shadow);
         box-sizing: border-box;
-        height: var(--thumb-size);
+        height: var(--size);
         pointer-events: none;
         position: absolute;
-        scale: var(--thumb-scale);
+        scale: var(--scale);
         transition: scale var(--transition-duration) var(--transition-timing-function);
         translate: -50% -50%;
-        width: var(--thumb-size);
+        width: var(--size);
         z-index: 1;
     }
 
@@ -288,48 +238,25 @@
         font-variant-numeric: tabular-nums;
     }
 
-    // Stands the rails up beside the pad; the track fills the input and the thumb is a bar across it. Doubly
-    // qualified so it wins over both the channel styles above and the range's own vertical ones.
+    // Stands the rails up beside the pad; the track fills the input and the thumb is a bar across it, as wide as the
+    // '--thumb-size' the rail sets. Doubly qualified so it wins over both the channel styles above and the range's own
+    // vertical ones.
     &#{&}--compact .color-picker-channel {
-        border-radius: var(--rail-radius);
-        flex: 0 0 var(--rail-width);
-        height: auto;
-        width: var(--rail-width);
-        writing-mode: vertical-lr;
-
-        &--alpha {
-            direction: rtl;
-        }
+        border-radius: var(--border-radius);
+        flex: none;
 
         &--hue {
             direction: ltr;
         }
 
         &::-moz-range-thumb {
-            background: none;
-            border-radius: var(--rail-radius);
-            height: var(--rail-thumb-height);
-            width: 100%;
-        }
-
-        &::-moz-range-track {
-            border-radius: var(--rail-radius);
-            height: 100%;
-            width: 100%;
-        }
-
-        &::-webkit-slider-runnable-track {
-            border-radius: var(--rail-radius);
-            height: 100%;
-            width: 100%;
+            border-radius: var(--border-radius);
+            height: var(--thumb-height);
         }
 
         &::-webkit-slider-thumb {
-            background: none;
-            border-radius: var(--rail-radius);
-            height: var(--rail-thumb-height);
-            margin: 0;
-            width: 100%;
+            border-radius: var(--border-radius);
+            height: var(--thumb-height);
         }
     }
 
@@ -353,8 +280,8 @@
 
 @keyframes color-picker-swatch-leave {
     to {
-        filter: blur(var(--swatch-blur));
+        filter: blur(var(--blur));
         opacity: 0;
-        scale: var(--swatch-scale);
+        scale: var(--scale);
     }
 }

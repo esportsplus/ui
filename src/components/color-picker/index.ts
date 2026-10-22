@@ -12,7 +12,14 @@ import './scss/index.scss';
 
 
 type A = Attributes & {
+    [COLOR_PICKER_ALPHA]?: Attributes;
+    [COLOR_PICKER_COPY]?: Attributes;
+    [COLOR_PICKER_HEX]?: Attributes;
+    [COLOR_PICKER_HUE]?: Attributes;
+    [COLOR_PICKER_PAD]?: Attributes;
+    [COLOR_PICKER_PREVIEW]?: Attributes;
     [COLOR_PICKER_SWATCH]?: Attributes;
+    [COLOR_PICKER_SWATCHES]?: Attributes;
     // The pad with upright opacity and hue rails under an hsl readout; no hex field or recent colors.
     compact?: boolean;
     recent?: false | string[];
@@ -23,6 +30,16 @@ type A = Attributes & {
 type Channel = { active: boolean, error: string, value: number };
 
 type Hsva = { a: number, h: number, s: number, v: number };
+
+type Keys =
+    | typeof COLOR_PICKER_ALPHA
+    | typeof COLOR_PICKER_COPY
+    | typeof COLOR_PICKER_HEX
+    | typeof COLOR_PICKER_HUE
+    | typeof COLOR_PICKER_PAD
+    | typeof COLOR_PICKER_PREVIEW
+    | typeof COLOR_PICKER_SWATCH
+    | typeof COLOR_PICKER_SWATCHES;
 
 type Parts = {
     hex?: HTMLInputElement;
@@ -35,7 +52,21 @@ const HEX_PREFIX = /^#/;
 const HEX_COLOR = /^([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
 
+const COLOR_PICKER_ALPHA = Symbol.for('@esportsplus/ui/color-picker.alpha');
+
+const COLOR_PICKER_COPY = Symbol.for('@esportsplus/ui/color-picker.copy');
+
+const COLOR_PICKER_HEX = Symbol.for('@esportsplus/ui/color-picker.hex');
+
+const COLOR_PICKER_HUE = Symbol.for('@esportsplus/ui/color-picker.hue');
+
+const COLOR_PICKER_PAD = Symbol.for('@esportsplus/ui/color-picker.pad');
+
+const COLOR_PICKER_PREVIEW = Symbol.for('@esportsplus/ui/color-picker.preview');
+
 const COLOR_PICKER_SWATCH = Symbol.for('@esportsplus/ui/color-picker.swatch');
+
+const COLOR_PICKER_SWATCHES = Symbol.for('@esportsplus/ui/color-picker.swatches');
 
 // Wide enough for a useful history, narrow enough to stay one row at 320px.
 const MAX_RECENT = 8;
@@ -126,7 +157,7 @@ function toHsv(r: number, g: number, b: number, previous: Hsva) {
 }
 
 function template(
-    this: { attributes?: Pick<A, typeof COLOR_PICKER_SWATCH> } | void,
+    this: { attributes?: Pick<A, Keys> } | void,
     {
         compact = false,
         recent: initial = [],
@@ -152,6 +183,7 @@ function template(
         parts: Parts = {},
         picker = reactive({ active: '', invalid: false }),
         pointer = { alpha: false, hue: false, pad: -1 },
+        presets = this?.attributes,
         recent = reactive((initial || []).map((hex) => hex.toUpperCase()));
 
     state.value = toHex(color);
@@ -239,13 +271,13 @@ function template(
     function flip(container: HTMLElement, dropped: { hex: string, rect: DOMRect }[]) {
         let box = container.getBoundingClientRect(),
             computed = getComputedStyle(container),
-            enter = timing(computed, 'swatch'),
+            enter = timing(computed, 'enter'),
             from = {
-                filter: `blur(${computed.getPropertyValue('--swatch-blur').trim()})`,
+                filter: `blur(${computed.getPropertyValue('--blur').trim()})`,
                 opacity: 0,
-                scale: computed.getPropertyValue('--swatch-scale').trim()
+                scale: computed.getPropertyValue('--scale').trim()
             },
-            move = timing(computed, 'swatch-shift');
+            move = timing(computed, 'shift');
 
         slides([...container.children].slice(0, recent.length), move, (element) => {
             if (enter) {
@@ -256,6 +288,14 @@ function template(
         for (let { hex, rect } of dropped) {
             leaving.push({ hex, left: rect.left - box.left, top: rect.top - box.top });
         }
+    }
+
+    // A part's own attributes go last, since a later handler replaces an earlier one; classes join instead.
+    function part<T extends Attributes>(key: Keys, own: T): T {
+        let given = attributes[key],
+            preset = presets?.[key];
+
+        return { ...preset, ...given, ...own, class: [own.class, preset?.class, given?.class].flat() };
     }
 
     // Pointer capture keeps the drag alive outside the pad, so the point is clamped back onto it.
@@ -352,7 +392,7 @@ function template(
         }
     });
 
-    let alphaChannel = range({
+    let alphaChannel = range(part(COLOR_PICKER_ALPHA, {
         'aria-label': 'Opacity',
         'aria-valuetext': () => `${alpha.value}%`,
         class: 'color-picker-channel color-picker-channel--alpha',
@@ -377,9 +417,9 @@ function template(
         orientation: compact ? 'vertical' : 'horizontal',
         state: alpha,
         step: 1
-    });
+    }));
 
-    let hueChannel = range({
+    let hueChannel = range(part(COLOR_PICKER_HUE, {
         'aria-label': 'Hue',
         'aria-valuetext': () => `${hue.value} degrees`,
         class: 'color-picker-channel color-picker-channel--hue',
@@ -404,7 +444,7 @@ function template(
         orientation: compact ? 'vertical' : 'horizontal',
         state: hue,
         step: 1
-    });
+    }));
 
     let pad = html`
         <div
@@ -415,6 +455,8 @@ function template(
             class='color-picker-pad'
             role='slider'
             tabindex='0'
+            ${presets?.[COLOR_PICKER_PAD]}
+            ${attributes[COLOR_PICKER_PAD]}
             ${{
                 'aria-valuenow': () => Math.round(color.s * 100),
                 'aria-valuetext': () => `Saturation ${Math.round(color.s * 100)}%, brightness ${Math.round(color.v * 100)}%`,
@@ -504,12 +546,17 @@ function template(
                     ${hueChannel}
                     ${alphaChannel}
                 </div>
-                <span aria-hidden='true' class='color-picker-preview'></span>
+                <span
+                    aria-hidden='true'
+                    class='color-picker-preview'
+                    ${presets?.[COLOR_PICKER_PREVIEW]}
+                    ${attributes[COLOR_PICKER_PREVIEW]}
+                ></span>
             </div>
 
             <div class='color-picker-fields'>
                 <div class='color-picker-field'>
-                    ${input({
+                    ${input(part(COLOR_PICKER_HEX, {
                         'aria-invalid': () => picker.invalid ? 'true' : 'false',
                         'aria-label': 'Hex color',
                         autocapitalize: 'characters',
@@ -537,15 +584,15 @@ function template(
                             }
                         },
                         spellcheck: false
-                    })}
-                    ${copy({
+                    }))}
+                    ${copy(part(COLOR_PICKER_COPY, {
                         class: 'color-picker-copy',
                         label: 'Copy hex color',
                         success: 'Hex color copied',
                         value: () => toHex(read())
-                    })}
+                    }))}
                 </div>
-                <span aria-hidden='true' class='color-picker-alpha'>${() => `${Math.round(color.a * 100)}%`}</span>
+                <span aria-hidden='true' class='input color-picker-alpha'>${() => `${Math.round(color.a * 100)}%`}</span>
                 <span aria-live='polite' class='color-picker-status'>${() => picker.invalid && 'Not a valid hex color'}</span>
             </div>
 
@@ -556,6 +603,8 @@ function template(
                         aria-labelledby='${id}-recent'
                         class='color-picker-swatches'
                         role='group'
+                        ${presets?.[COLOR_PICKER_SWATCHES]}
+                        ${attributes[COLOR_PICKER_SWATCHES]}
                         ${{
                             onconnect: (element: HTMLElement) => {
                                 parts.swatches = element;
@@ -566,9 +615,9 @@ function template(
                             <button
                                 aria-label='Use ${hex}'
                                 class='color-picker-swatch'
-                                style='--swatch: ${hex};'
+                                style='--value: ${hex};'
                                 type='button'
-                                ${this?.attributes?.[COLOR_PICKER_SWATCH]}
+                                ${presets?.[COLOR_PICKER_SWATCH]}
                                 ${attributes[COLOR_PICKER_SWATCH]}
                                 ${{
                                     'aria-pressed': () => picker.active === hex ? 'true' : 'false',
@@ -592,7 +641,7 @@ function template(
                             <span
                                 aria-hidden='true'
                                 class='color-picker-swatch color-picker-swatch--leaving'
-                                style='--swatch: ${ghost.hex}; left: ${ghost.left}px; top: ${ghost.top}px;'
+                                style='--value: ${ghost.hex}; left: ${ghost.left}px; top: ${ghost.top}px;'
                                 ${{
                                     onanimationend: () => {
                                         let at = leaving.indexOf(ghost);
@@ -612,4 +661,13 @@ function template(
 }
 
 
-export default component(template, { swatch: COLOR_PICKER_SWATCH });
+export default component(template, {
+    alpha: COLOR_PICKER_ALPHA,
+    copy: COLOR_PICKER_COPY,
+    hex: COLOR_PICKER_HEX,
+    hue: COLOR_PICKER_HUE,
+    pad: COLOR_PICKER_PAD,
+    preview: COLOR_PICKER_PREVIEW,
+    swatch: COLOR_PICKER_SWATCH,
+    swatches: COLOR_PICKER_SWATCHES
+});

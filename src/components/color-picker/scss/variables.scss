@@ -1,103 +1,122 @@
-.color-picker {
-    --checker: repeating-conic-gradient(var(--surface-border-default) 0 25%, var(--color-white-300) 0 50%) 0 0 / 8px 8px;
-    --color: var(--color-text-500);
-    --color-invalid: var(--color-red-400);
-    --color-muted: var(--color-text-300);
-    --control-border-color: var(--surface-border-default);
-    --control-border-radius: var(--border-radius-400);
-    --control-height: 36px;
-    --copy-inset: calc(var(--size-100) / 2);
-    --focus-width: var(--border-width-500);
-    --font-size: calc(var(--font-size-400) * 0.875);
-    --hairline: inset 0 0 0 1px color-mix(in oklch, var(--color) 10%, transparent);
-    --pad-height: 176px;
-    --preview-size: 44px;
-    // Gap between a selected swatch and its ring; match it to the surface the picker sits on.
-    --ring-offset-color: var(--surface-background-default);
-    --spacing: 12px;
-    // How a recent swatch grows in, leaves and slides along when the history changes; JS reads the enter and shift
-    // timings and the blur and scale it grows from.
-    --swatch-blur: var(--blur-400);
-    --swatch-duration: 300ms;
-    --swatch-easing: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.897, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
-    --swatch-exit-duration: 150ms;
-    --swatch-exit-easing: cubic-bezier(0.23, 1, 0.32, 1);
-    --swatch-scale: 0.6;
-    --swatch-shift-duration: var(--swatch-duration);
-    --swatch-shift-easing: var(--swatch-easing);
-    --swatch-size: 28px;
-    --thumb-border: 2px solid var(--color-white-300);
-    --thumb-scale: none;
-    // Grows a touch while held so you can tell you've got hold of it.
-    --thumb-scale-pressed: 1.1;
-    --thumb-shadow:
-        0 0 0 1px var(--surface-border-default),
-        0 1px 3px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 3));
-    --thumb-size: var(--size-500);
-    --track-height: 12px;
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/surface';
 
-    // Swatches fade in and out where they stand, and held thumbs keep their size.
-    @media (prefers-reduced-motion: reduce) {
-        --swatch-blur: 0px;
-        --swatch-scale: 1;
-        --swatch-shift-duration: 0s;
-        --thumb-scale-pressed: 1;
-    }
+// Shown under anything see-through: the surface the picker sits on, checked with its own border color.
+$checker: repeating-conic-gradient(var(--surface-border-default) 0 25%, var(--surface-background-default) 0 50%) 0 0 / 8px 8px;
+$control-border-color: var(--surface-border-default);
+$control-border-radius: var(--border-radius-400);
+$control-height: 36px;
+$copy-inset: calc(var(--size-100) / 2);
+$focus-color: var(--color-text-500);
+$focus-width: var(--border-width-500);
+$hairline: inset 0 0 0 1px var(--surface-border-default);
+// A physical knob stays white in both modes.
+$thumb-border-color: var(--color-white-300);
+$thumb-border-width: 2px;
+$thumb-shadow:
+    0 0 0 1px var(--surface-border-default),
+    0 1px 3px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 3));
+$thumb-size: var(--size-500);
+
+.color-picker {
+    // Level with what holds it, so it paints that surface rather than leaving its own colors to chance; set
+    // '--surface-step' to lift it off.
+    @extend %surface;
+    --background: var(--surface-background-default);
+    --border-radius: var(--border-radius-400);
+    --color: var(--color-text-500);
+    --font-size: calc(var(--font-size-400) * 0.875);
+    --spacing: 12px;
 
     &--compact {
-        --pad-height: 184px;
-        --rail-radius: var(--border-radius-100);
-        --rail-thumb-height: 6px;
-        --rail-width: 28px;
         --spacing: var(--size-100);
-        --thumb-size: 12px;
     }
 
-    &-channel {
+
+    // The reused input's box with its states held at rest. Qualified by the row so it wins over the reused input styles
+    // regardless of stylesheet order.
+    &-fields #{&}-alpha,
+    &-fields #{&}-hex {
+        --border-color-active: var(--border-color-default);
+        --border-color-default: #{$control-border-color};
+        --border-color-hover: var(--border-color-default);
+        --border-color-pressed: var(--border-color-default);
+        --border-radius: #{$control-border-radius};
+        --border-width: var(--border-width-400);
+        --font-size: inherit;
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: 0px;
+        --size: #{$control-height};
+    }
+
+    &-fields #{&}-alpha {
+        --color-default: var(--color-text-300);
+        --width: 56px;
+    }
+
+    // Qualified by the root so it wins over the reused range styles regardless of stylesheet order.
+    & &-channel {
+        --border-color-active: var(--border-color-default);
+        --border-color-default: #{$thumb-border-color};
+        --border-color-hover: var(--border-color-default);
+        --border-color-pressed: var(--border-color-default);
+        --border-width: #{$thumb-border-width};
+        --box-shadow: #{$hairline};
+        --focus-color: #{$focus-color};
+        --focus-width: #{$focus-width};
+        --height: 12px;
+        --thumb-scale-pressed: 1.1;
+        --thumb-shadow: #{$thumb-shadow};
+        --thumb-size: #{$thumb-size};
+
         &--alpha {
-            --thumb: linear-gradient(rgb(var(--rgb) / var(--alpha)), rgb(var(--rgb) / var(--alpha))), var(--checker);
-            --track: linear-gradient(to right, rgb(var(--rgb) / 0), rgb(var(--rgb))), var(--checker);
+            --background-default: linear-gradient(to right, rgb(var(--rgb) / 0), rgb(var(--rgb))), #{$checker};
+            --thumb-background: linear-gradient(rgb(var(--rgb) / var(--alpha)), rgb(var(--rgb) / var(--alpha))), #{$checker};
         }
 
         // Pure hues on purpose: the rail is the color math, not a theme surface.
         &--hue {
-            --thumb: hsl(var(--hue) 100% 50%);
-            --track: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+            --background-default: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+            --thumb-background: hsl(var(--hue) 100% 50%);
         }
     }
 
-    // Upright rails run top to bottom: hue from 0, opacity from full.
-    &--compact #{&}-channel {
+    // Upright rails stretched beside the pad, their thumbs bars across them; hue runs from 0 and opacity from full,
+    // top to bottom. Doubly qualified so it wins over the range's own vertical styles.
+    &#{&}--compact &-channel {
+        --border-radius: var(--border-radius-100);
+        --height: 28px;
+        --thumb-background: transparent;
+        --thumb-height: 6px;
+        --thumb-size: var(--height);
+        --vertical-size: auto;
+
         &--alpha {
-            --track: linear-gradient(rgb(var(--rgb)), rgb(var(--rgb) / 0)), var(--checker);
+            --background-default: linear-gradient(rgb(var(--rgb)), rgb(var(--rgb) / 0)), #{$checker};
         }
 
         &--hue {
-            --track: linear-gradient(#f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+            --background-default: linear-gradient(#f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
         }
     }
 
-    // Qualified by the row so it wins over the reused input styles regardless of stylesheet order.
-    .color-picker-copy {
-        --border-radius: calc(var(--control-border-radius) - var(--copy-inset));
-        --size: calc(var(--control-height) - var(--copy-inset) * 2);
+    // Qualified by the root so it wins over the reused button styles regardless of stylesheet order.
+    & &-copy {
+        --border-radius: calc(#{$control-border-radius} - var(--inset));
+        --inset: #{$copy-inset};
+        --size: calc(#{$control-height} - var(--inset) * 2);
     }
 
     &-fields #{&}-hex {
-        --border-color-active: var(--control-border-color);
-        --border-color-default: var(--control-border-color);
-        --border-color-hover: var(--control-border-color);
-        --border-color-pressed: var(--control-border-color);
-        --border-radius: var(--control-border-radius);
-        --border-width: var(--border-width-400);
         --color-default: currentColor;
-        --font-size: inherit;
-        --padding-horizontal: var(--size-200);
-        --padding-vertical: 0px;
-        --size: var(--control-height);
+        --focus-color: #{$focus-color};
+        --focus-width: #{$focus-width};
+        // Clears the copy button sitting at the field's end.
+        --padding-end: calc(var(--size) - #{$copy-inset});
 
         &[aria-invalid='true'] {
-            --control-border-color: var(--color-invalid);
+            --border-color-default: var(--color-red-400);
+            --focus-color: var(--color-red-400);
         }
     }
 
@@ -106,7 +125,100 @@
         --color: currentColor;
     }
 
-    &-pad:active {
-        --thumb-scale: var(--thumb-scale-pressed);
+    &-pad {
+        --border-radius: #{$control-border-radius};
+        --box-shadow: #{$hairline};
+        --focus-color: #{$focus-color};
+        --focus-width: #{$focus-width};
+        --height: 176px;
+    }
+
+    &--compact &-pad {
+        --height: 184px;
+    }
+
+    &-preview {
+        --background: linear-gradient(rgb(var(--rgb) / var(--alpha)), rgb(var(--rgb) / var(--alpha))), #{$checker};
+        --border-radius: #{$control-border-radius};
+        --box-shadow: #{$hairline};
+        --size: 44px;
+    }
+
+    &-recent {
+        --border-color: #{$control-border-color};
+
+        &-label {
+            --color: var(--color-text-300);
+            --font-size: var(--font-size-300);
+        }
+    }
+
+    &-swatch {
+        @extend %box-shadow-state;
+        --background: linear-gradient(var(--value), var(--value)), #{$checker};
+        --box-shadow-active:
+            #{$hairline},
+            0 0 0 2px var(--surface-background-default),
+            0 0 0 4px var(--color);
+        --box-shadow-default:
+            #{$hairline},
+            0 0 0 0 var(--surface-background-default),
+            0 0 0 0 var(--color);
+        --focus-color: #{$focus-color};
+        --focus-width: #{$focus-width};
+        --size: 28px;
+
+        // A stand-in for a dropped swatch, whose own node is already gone.
+        &--leaving {
+            --duration: 150ms;
+            --easing: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+    }
+
+    // How a recent swatch grows in, leaves and slides along when the history changes; JS reads the enter and shift
+    // timings and the blur and scale it grows from.
+    &-swatches {
+        --blur: var(--blur-400);
+        --enter-duration: 300ms;
+        --enter-easing: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.897, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
+        --scale: 0.6;
+        --shift-duration: var(--enter-duration);
+        --shift-easing: var(--enter-easing);
+        --size: 28px;
+    }
+
+    &-thumb {
+        --border: #{$thumb-border-width} solid #{$thumb-border-color};
+        --scale: none;
+        // Grows a touch while held so you can tell you've got hold of it.
+        --scale-pressed: 1.1;
+        --shadow: #{$thumb-shadow};
+        --size: #{$thumb-size};
+    }
+
+    &--compact &-thumb {
+        --size: 12px;
+    }
+
+    &-pad:active &-thumb {
+        --scale: var(--scale-pressed);
+    }
+
+
+    // Swatches fade in and out where they stand, and held thumbs keep their size.
+    @media (prefers-reduced-motion: reduce) {
+        & &-channel {
+            --thumb-scale-pressed: 1;
+        }
+
+        &-swatches {
+            --blur: 0px;
+            --scale: 1;
+            --shift-duration: 0s;
+        }
+
+        &-thumb {
+            --scale-pressed: 1;
+        }
     }
 }
