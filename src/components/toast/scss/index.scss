@@ -1,5 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/anchor';
 @use 'variables';
 
 // Hovered or holding focus, the stack fans out and every clock stops.
@@ -16,7 +15,6 @@ $open: ':is(:hover, :focus-within)';
 
 // Sized to the stack so the gaps between expanded toasts still count as hovering it.
 .toaster {
-    @extend %anchor;
     height: max(0px, calc(var(--toast-frontmost-height) + (min(var(--toast-count), var(--toast-limit)) - 1) * var(--stack-peek) + min(1, var(--toast-hidden)) * var(--toast-overflow-peek)));
     inset: var(--margin-vertical) var(--margin-horizontal) auto auto;
     position: fixed;
@@ -25,15 +23,53 @@ $open: ':is(:hover, :focus-within)';
     z-index: 9999;
 
 
-    // Unplaced, it sits top right; only then, so any placement still wins.
-    &:not([class*='toaster--']) {
-        @extend %anchor--ne;
+    // Scoped under the toaster to outrank consumer pairings like '.card { position: relative }'. The slot it stands
+    // in is its 'translate', a swipe (and the way in or out) its 'transform', so the two compose. Ahead of the
+    // placements, which re-pin it at the same specificity.
+    > .toast {
+        clip-path: inset(calc(var(--toast-bleed) * -1));
+        inset-inline: 0;
+        position: absolute;
+        scale: var(--toast-scale);
+        top: 0;
+        touch-action: none;
+        transform: translate(var(--toast-swipe-x), var(--toast-swipe-y));
+        transform-origin: top;
+        transition:
+            clip-path var(--toast-transition-duration) var(--toast-transition-timing-function),
+            opacity var(--toast-transition-duration) var(--toast-transition-timing-function),
+            scale var(--toast-transition-duration) var(--toast-transition-timing-function),
+            transform var(--toast-transition-duration) var(--toast-transition-timing-function),
+            translate var(--toast-transition-duration) var(--toast-transition-timing-function);
+        translate: var(--stack-translate);
+        user-select: none;
+        z-index: calc(9999 - var(--toast-index));
     }
 
-    @each $placement in anchor.$placements {
-        &--#{$placement} {
-            @extend %anchor--#{$placement};
-        }
+    // Collapsed back toasts show only the front toast's height; the rest would hang past the stack.
+    > .toast.toast--behind {
+        --toast-content-opacity: 0;
+        clip-path: inset(calc(100% - var(--toast-frontmost-height)) calc(var(--toast-bleed) * -1) calc(var(--toast-bleed) * -1));
+    }
+
+    // Stands one card further back than the limit, reaching past the last visible layer far enough for its count.
+    // Unscaled so its text stays legible: narrowed by the scale that depth would have instead.
+    > .toaster-overflow {
+        align-items: flex-end;
+        display: flex;
+        height: var(--toast-frontmost-height);
+        inset-inline: calc((1 - pow(var(--stack-scale), var(--toast-limit))) * 50%);
+        justify-content: center;
+        line-height: var(--toast-overflow-peek);
+        opacity: min(1, var(--toast-hidden));
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        transition:
+            opacity var(--toast-transition-duration) var(--toast-transition-timing-function),
+            translate var(--toast-transition-duration) var(--toast-transition-timing-function);
+        translate: 0 calc(((var(--toast-limit) - 1) * var(--stack-peek) + var(--toast-overflow-peek)) * var(--toast-direction));
+        z-index: calc(9999 - var(--toast-limit));
     }
 
     // Side placements center the newest toast on the edge; the list grows downward from it when open.
@@ -145,60 +181,12 @@ $open: ':is(:hover, :focus-within)';
         }
     }
 
-    // Scoped under the toaster to outrank consumer pairings like '.card { position: relative }'. The slot it stands
-    // in is its 'translate', a swipe (and the way in or out) its 'transform', so the two compose.
-    > .toast {
-        clip-path: inset(calc(var(--toast-bleed) * -1));
-        inset-inline: 0;
-        position: absolute;
-        scale: var(--toast-scale);
-        top: 0;
-        touch-action: none;
-        transform: translate(var(--toast-swipe-x), var(--toast-swipe-y));
-        transform-origin: top;
-        transition:
-            clip-path var(--toast-transition-duration) var(--toast-transition-timing-function),
-            opacity var(--toast-transition-duration) var(--toast-transition-timing-function),
-            scale var(--toast-transition-duration) var(--toast-transition-timing-function),
-            transform var(--toast-transition-duration) var(--toast-transition-timing-function),
-            translate var(--toast-transition-duration) var(--toast-transition-timing-function);
-        translate: var(--stack-translate);
-        user-select: none;
-        z-index: calc(9999 - var(--toast-index));
-    }
-
-    // Collapsed back toasts show only the front toast's height; the rest would hang past the stack.
-    > .toast.toast--behind {
-        --toast-content-opacity: 0;
-        clip-path: inset(calc(100% - var(--toast-frontmost-height)) calc(var(--toast-bleed) * -1) calc(var(--toast-bleed) * -1));
-    }
-
     > .toast.toast--hidden {
         opacity: 0;
     }
 
     > .toast.toast--timed {
         animation: toast-timer var(--toast-duration) linear forwards;
-    }
-
-    // Stands one card further back than the limit, reaching past the last visible layer far enough for its count.
-    // Unscaled so its text stays legible: narrowed by the scale that depth would have instead.
-    > .toaster-overflow {
-        align-items: flex-end;
-        display: flex;
-        height: var(--toast-frontmost-height);
-        inset-inline: calc((1 - pow(var(--stack-scale), var(--toast-limit))) * 50%);
-        justify-content: center;
-        line-height: var(--toast-overflow-peek);
-        opacity: min(1, var(--toast-hidden));
-        pointer-events: none;
-        position: absolute;
-        top: 0;
-        transition:
-            opacity var(--toast-transition-duration) var(--toast-transition-timing-function),
-            translate var(--toast-transition-duration) var(--toast-transition-timing-function);
-        translate: 0 calc(((var(--toast-limit) - 1) * var(--stack-peek) + var(--toast-overflow-peek)) * var(--toast-direction));
-        z-index: calc(9999 - var(--toast-limit));
     }
 
     // Only the front toast's clock runs, and none while the stack is open or a toast is being swiped.
