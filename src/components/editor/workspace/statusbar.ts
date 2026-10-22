@@ -22,7 +22,6 @@ import alert from '@esportsplus/ui/svg/circle-alert.svg';
 import check from '@esportsplus/ui/svg/check.svg';
 import warning from '@esportsplus/ui/svg/warning.svg';
 import '~/components/inline-edit/scss/index.scss';
-import './scss/status.scss';
 
 
 type Choice = 'autoSave' | 'indent' | 'language';

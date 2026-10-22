@@ -1,7 +1,5 @@
 @use '/tokens';
-@use 'css-utilities/background';
 @use 'css-utilities/reset';
-@use 'css-utilities/surface';
 @use 'css-utilities/text';
 
 // Language services. The completion list and hover card are popovers in the top layer, clear of the editor's
@@ -14,7 +12,6 @@
     }
 
     &-completion {
-        @extend %background-state;
         --background-active: var(--selection-background);
         align-items: center;
         background: var(--background);
@@ -58,7 +55,7 @@
 
     &-completions,
     &-hover {
-        @extend %reset-popover, %surface-raise;
+        @extend %reset-popover;
         background: var(--surface-background-default);
         border: var(--border-width) solid var(--border-color);
         border-radius: var(--popup-border-radius);
@@ -105,7 +102,6 @@
     }
 
     &-problem {
-        @extend %background-state;
         --background-hover: var(--active-line-background);
         --background-pressed: var(--background-hover);
         appearance: none;
@@ -137,7 +133,6 @@
     }
 
     &-problems {
-        @extend %surface-lower;
         background: var(--surface-background-default);
         border-top: var(--border-width) solid var(--border-color);
         display: none;

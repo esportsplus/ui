@@ -1,6 +1,7 @@
 @use '/tokens';
 @use 'css-utilities/background';
 @use 'css-utilities/border';
+@use 'css-utilities/color';
 @use 'css-utilities/font/geist';
 @use 'css-utilities/surface';
 
@@ -148,6 +149,15 @@
         --white-space: pre-wrap;
     }
 
+    &-completion {
+        @extend %background-state;
+    }
+
+    &-completions,
+    &-hover {
+        @extend %surface-raise;
+    }
+
     &-find-button {
         --background-active: var(--selection-background);
         --background-default: transparent;
@@ -177,9 +187,58 @@
         --size: var(--bar-control-height);
     }
 
+    &-find,
+    &-goto {
+        @extend %surface-lower;
+    }
+
     &-fold {
         @include tokens.state(active) {
             --fold-rotate: -90deg;
+        }
+    }
+
+    &-lens {
+        &-action {
+            @extend %color-state, %color-text;
+        }
+    }
+
+    &-line {
+        @extend %background-state;
+    }
+
+    &-match {
+        @extend %background-state;
+    }
+
+    &-number {
+        @extend %color-state;
+    }
+
+    &-peek {
+        @extend %surface-raise;
+
+        &-bar {
+            @extend %surface-lower;
+        }
+
+        &-button {
+            @extend %background-state;
+        }
+    }
+
+    &-problem {
+        @extend %background-state;
+    }
+
+    &-problems {
+        @extend %surface-lower;
+    }
+
+    &-sticky {
+        &-row {
+            @extend %background-state;
         }
     }
 

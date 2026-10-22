@@ -1,3 +1,5 @@
+@use 'css-utilities/background';
+@use 'css-utilities/surface';
 @use 'sass:map';
 
 // The file type icons' color families, after @pierre/trees, each for a light and a dark color scheme.
@@ -129,6 +131,34 @@ $icons: (
     --found-background: color-mix(in srgb, var(--found-color) 14%, transparent);
     --found-border-color: color-mix(in srgb, var(--found-color) 70%, transparent);
     --found-color: oklch(from var(--color-yellow-500) 0.72 c calc(h - 35));
+    &-drag {
+        @extend %surface-raise;
+    }
+
+    &-find {
+        &-bar {
+            @extend %surface-raise;
+        }
+
+        &-button {
+            @extend %background-state;
+        }
+
+        &-note {
+            @extend %surface-raise;
+        }
+    }
+
+    &-input {
+        @extend %surface-raise;
+    }
+
+    &-sticky {
+        &-rows {
+            @extend %surface-raise;
+        }
+    }
+
     @each $family, $color in $families {
         --icon-#{$family}: #{$color};
     }

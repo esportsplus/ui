@@ -1,5 +1,6 @@
 @use 'css-utilities/background';
 @use 'css-utilities/border';
+@use 'css-utilities/color';
 @use 'css-utilities/font/geist';
 @use 'css-utilities/surface';
 
@@ -60,6 +61,18 @@
         --line-width: 100%;
         --overflow-wrap: anywhere;
         --white-space: pre-wrap;
+    }
+
+    &-fold {
+        @extend %color-state;
+    }
+
+    &-header {
+        @extend %surface-lower;
+    }
+
+    &-placeholder {
+        @extend %color-state, %color-text;
     }
 
     @media (prefers-reduced-motion: reduce) {

@@ -1,9 +1,6 @@
 .code-workspace {
     &-document.diffs,
     &-merge-editor.diffs-merge {
-        --border-radius: 0px;
-        --border-width: 0px;
-        --height: 100%;
         flex: 1;
         min-height: 0;
     }
@@ -27,12 +24,6 @@
         }
 
         &-cancel {
-            --background-default: transparent;
-            --background-hover: var(--control-active-background);
-            --border-radius: var(--radius);
-            --color-default: var(--color);
-            --padding-horizontal: var(--size-200);
-            --padding-vertical: var(--spacing-tight);
             flex: none;
         }
 
@@ -50,7 +41,6 @@
     }
 
     &-tab-pin.icon {
-        --size: var(--close-icon-size);
         flex: none;
     }
 }

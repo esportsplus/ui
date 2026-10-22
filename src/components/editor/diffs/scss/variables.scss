@@ -1,8 +1,32 @@
 @use 'css-utilities/background';
 @use 'css-utilities/border';
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/color';
 @use 'css-utilities/font/geist';
 @use 'css-utilities/surface';
 
+
+.diffs {
+    &-action {
+        @extend %background-state;
+    }
+
+    &-button {
+        @extend %background-state, %color-state, %color-text;
+    }
+
+    &-gap {
+        @extend %background-state, %color-state;
+    }
+
+    &-header {
+        @extend %surface-lower;
+    }
+
+    &-row {
+        @extend %box-shadow-state;
+    }
+}
 
 // Shared by the viewer and the merge editor, whose sides reuse the viewer's numbers, code and buttons.
 .diffs,
@@ -74,4 +98,16 @@
     --height: 720px;
     --result-track: minmax(0, 3fr);
     --sides-track: minmax(0, 2fr);
+
+    &-header {
+        @extend %surface-lower;
+    }
+
+    &-line {
+        @extend %box-shadow-state;
+    }
+
+    &-title {
+        @extend %surface-lower;
+    }
 }

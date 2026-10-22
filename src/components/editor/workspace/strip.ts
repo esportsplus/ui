@@ -9,7 +9,6 @@ import type { WorkspaceEditor } from './index';
 import type { EditorWorkspaceModel, WorkspaceTab } from './model';
 import { sides, type MergeSides } from './tabs';
 import pin from '@esportsplus/ui/svg/pin.svg';
-import './scss/tabs.scss';
 
 
 type Options = {

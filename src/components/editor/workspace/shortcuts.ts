@@ -21,7 +21,6 @@ import {
 } from './keybindings';
 import keyboard from '@esportsplus/ui/svg/keyboard.svg';
 import '~/components/button/scss/index.scss';
-import './scss/keybindings.scss';
 
 
 type A = {

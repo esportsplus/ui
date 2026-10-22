@@ -1,5 +1,3 @@
-@use 'css-utilities/color';
-@use 'css-utilities/surface';
 
 
 .code-viewer {
@@ -50,7 +48,6 @@
     }
 
     &-fold {
-        @extend %color-state;
         --color-default: currentColor;
         --color-hover: var(--hover-color);
         --color-pressed: var(--color-hover);
@@ -96,7 +93,6 @@
     }
 
     &-header {
-        @extend %surface-lower;
         align-items: center;
         background: var(--surface-background-default);
         border-bottom: var(--border-width) solid var(--border-color);
@@ -188,7 +184,6 @@
     }
 
     &-placeholder {
-        @extend %color-state, %color-text;
         align-self: center;
         background: var(--placeholder-background);
         border: 0;

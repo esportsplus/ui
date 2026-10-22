@@ -1,6 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/background';
-@use 'css-utilities/color';
 @use 'css-utilities/hidden';
 @use 'css-utilities/surface';
 
@@ -95,7 +93,6 @@
 
     &-find,
     &-goto {
-        @extend %surface-lower;
         background: var(--surface-background-default);
         border-bottom: var(--border-width) solid var(--border-color);
         display: none;
@@ -214,7 +211,6 @@
     }
 
     &-line {
-        @extend %background-state;
         --background-active: var(--active-line-background);
         background: var(--background);
         box-sizing: border-box;
@@ -235,7 +231,6 @@
     }
 
     &-match {
-        @extend %background-state;
         --background-active: var(--match-active-background);
         --background-default: var(--match-background);
         background: var(--background);
@@ -279,7 +274,6 @@
     }
 
     &-number {
-        @extend %color-state;
         --color-active: var(--gutter-active-color);
         --color-default: currentColor;
         // A wrapped line's number and fold marker sit on its first row.

@@ -1,4 +1,3 @@
-@use 'css-utilities/background';
 @use 'css-utilities/font/geist';
 @use 'css-utilities/hidden';
 @use 'css-utilities/surface';
@@ -126,7 +125,7 @@
     }
 
     &-code {
-        @extend %font-geist-mono, %surface-lower;
+        @extend %font-geist-mono;
         background: var(--surface-background-default);
         border-radius: var(--code-radius);
         font-family: var(--font-family);
@@ -288,7 +287,6 @@
         }
 
         &--match {
-            @extend %background-state;
             --background-active: var(--match-active-background);
             --background-default: var(--match-background);
             background: var(--background);
@@ -317,7 +315,7 @@
     }
 
     &-pre {
-        @extend %font-geist-mono, %surface-lower;
+        @extend %font-geist-mono;
         background: var(--surface-background-default);
         border-radius: var(--code-radius);
         font-family: var(--font-family);

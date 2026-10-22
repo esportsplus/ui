@@ -1,7 +1,3 @@
-@use 'css-utilities/background';
-@use 'css-utilities/box-shadow';
-@use 'css-utilities/color';
-@use 'css-utilities/surface';
 
 
 .diffs {
@@ -19,7 +15,6 @@
 
 
     &-action {
-        @extend %background-state;
         --background-default: var(--action-background);
         --background-hover: var(--action-hover-background);
         --background-pressed: var(--background-hover);
@@ -50,7 +45,6 @@
     }
 
     &-button {
-        @extend %background-state, %color-state, %color-text;
         --background-active: var(--hover-background);
         --background-hover: var(--hover-background);
         --background-pressed: var(--hover-background);
@@ -152,7 +146,6 @@
     }
 
     &-gap {
-        @extend %background-state, %color-state;
         --background-default: var(--gap-background);
         --background-hover: var(--gap-hover-background);
         --background-pressed: var(--background-hover);
@@ -183,7 +176,6 @@
     }
 
     &-header {
-        @extend %surface-lower;
         align-items: center;
         background: var(--surface-background-default);
         border-bottom: var(--border-width) solid var(--border-color);
@@ -213,7 +205,6 @@
     }
 
     &-row {
-        @extend %box-shadow-state;
         --box-shadow-active: inset 2px 0 0 var(--active-outline);
         box-shadow: var(--box-shadow);
         line-height: var(--line-height);

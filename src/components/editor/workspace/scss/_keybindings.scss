@@ -2,34 +2,18 @@
 
 
 .code-workspace-command-icon.icon {
-    --size: var(--control-icon-size);
     flex: none;
 }
 
 // Inside the workspace, so its custom properties reach the dialog through the DOM even in the top layer.
 .code-workspace-keybindings {
-    --columns: minmax(0, 1fr) minmax(9rem, auto) 4.5rem 4.5rem;
-    --conflict-color: var(--color-red-400);
-    --row-height: var(--size-800);
-
     &-actions {
         display: flex;
         justify-content: flex-end;
     }
 
-    &-button--primary {
-        --confirm-background: var(--accent);
-        --confirm-color: var(--accent-color);
-        --confirm-hover: var(--color-accent-500);
-    }
 
     &-button {
-        --background-default: var(--confirm-background, transparent);
-        --background-hover: var(--confirm-hover, var(--control-active-background));
-        --border-radius: var(--radius);
-        --color-default: var(--confirm-color, var(--color));
-        --padding-horizontal: var(--size-200);
-        --padding-vertical: var(--spacing-tight);
         flex: none;
 
         &:disabled {
@@ -115,8 +99,6 @@
 
     // Only '+' at rest, so the row's built-in keys aren't read as unbound.
     &-recorder--add.shortcut-recorder {
-        --min-width: var(--size-600);
-
         &:not(.--active) .shortcut-recorder-placeholder {
             font-size: 0;
 
@@ -127,10 +109,6 @@
         }
     }
 
-    &-recorder.shortcut-recorder {
-        --font-size: var(--font-size-200);
-        --height: var(--size-600);
-    }
 
     &-row {
         align-items: center;
@@ -179,11 +157,6 @@
 
     // Background and shadow come from the card's surface.
     &.card {
-        --border-radius: var(--border-radius-500);
-        --border-width: 0px;
-        --max-width: 760px;
-        --padding-horizontal: var(--size-500);
-        --padding-vertical: var(--size-500);
         color: var(--color);
         font-size: var(--font-size-300);
     }

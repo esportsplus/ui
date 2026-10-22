@@ -1,7 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/background';
-@use 'css-utilities/color';
-@use 'css-utilities/surface';
 
 // Sticky scroll, color swatches, links, unicode warnings, rulers, the git gutter and its peek, and conflict blocks with
 // their lenses. Marks style spans in the rendered rows, so none of them adds width to the text the field lays out.
@@ -56,7 +53,6 @@
         }
 
         &-action {
-            @extend %color-state, %color-text;
             appearance: none;
             background: transparent;
             border: 0;
@@ -106,7 +102,6 @@
     }
 
     &-peek {
-        @extend %surface-raise;
         background: var(--surface-background-default);
         border-bottom: var(--border-width) solid var(--peek-border-color);
         border-top: var(--border-width) solid var(--peek-border-color);
@@ -133,7 +128,6 @@
         }
 
         &-bar {
-            @extend %surface-lower;
             align-items: center;
             background: var(--surface-background-default);
             display: flex;
@@ -144,7 +138,6 @@
         }
 
         &-button {
-            @extend %background-state;
             --background-hover: var(--active-line-background);
             --background-pressed: var(--background-hover);
             align-items: center;
@@ -247,7 +240,6 @@
         }
 
         &-row {
-            @extend %background-state;
             --background-hover: var(--active-line-background);
             --background-pressed: var(--background-hover);
             background: var(--background);

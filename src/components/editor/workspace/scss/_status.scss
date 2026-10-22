@@ -1,27 +1,12 @@
-@use 'css-utilities/color';
-
-
 .code-workspace {
-    --status-icon-size: var(--size-200);
-    --status-item-height: var(--size-500);
-    --status-item-hover: var(--control-active-background);
-
     // Inline-edit lays its status out under the field; here it sits on the toolbar's line instead.
     &-autosave .inline-edit-status {
-        --color: inherit;
-        --font-size: var(--status-font-size);
         grid-area: auto;
         margin-top: 0;
         padding-inline-start: 0;
     }
 
     &-autosave {
-        @extend %color-text;
-        --background-default: transparent;
-        --background-hover: var(--control-active-background);
-        --border-radius: var(--radius);
-        --padding-horizontal: var(--spacing);
-        --padding-vertical: 0px;
         flex: none;
         height: var(--control-size);
 
@@ -31,9 +16,6 @@
         }
     }
 
-    &-choice-icon.icon {
-        --size: var(--control-icon-size);
-    }
 
     // The menu's item styles outrank the 'hidden' attribute; each choice shows only its own entries.
     &-choices .tooltip-menu-entry:has(> [hidden]) {
@@ -43,9 +25,6 @@
     &-status {
         container: workspace-status / inline-size;
 
-        &-icon.icon {
-            --size: var(--status-icon-size);
-        }
 
         &-item {
             white-space: nowrap;
@@ -91,14 +70,6 @@
             }
 
             &.button {
-                --background-default: transparent;
-                --background-hover: var(--status-item-hover);
-                --border-radius: var(--border-radius-100);
-                --color-default: inherit;
-                --color-hover: var(--color);
-                --gap-horizontal: var(--spacing-tight);
-                --padding-horizontal: var(--spacing-tight);
-                --padding-vertical: 0px;
                 flex: none;
                 font-size: inherit;
                 min-height: var(--status-item-height);

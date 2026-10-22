@@ -111,10 +111,24 @@
         --white-space: pre;
     }
 
+    &-code {
+        @extend %surface-lower;
+    }
+
     &-fold {
         @include tokens.state(active) {
             --fold-rotate: -90deg;
         }
+    }
+
+    &-mark {
+        &--match {
+            @extend %background-state;
+        }
+    }
+
+    &-pre {
+        @extend %surface-lower;
     }
 
     @media (forced-colors: active) {
