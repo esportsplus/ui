@@ -14,7 +14,7 @@ const SPLIT_PANEL = Symbol.for('@esportsplus/ui/button.split.panel');
 const SPLIT_TRIGGER = Symbol.for('@esportsplus/ui/button.split.trigger');
 
 
-type A = Attributes & Pick<MenuAttributes, 'animate' | 'controller' | 'expand' | 'items' | 'onselect' | 'openOn' | 'state'> & {
+type A = Attributes & Pick<MenuAttributes, 'animate' | 'controller' | 'expand' | 'highlight' | 'items' | 'onselect' | 'openOn' | 'state'> & {
     [SPLIT_ACTION]?: Attributes,
     [SPLIT_ITEM]?: Attributes,
     [SPLIT_PANEL]?: Attributes,
@@ -24,7 +24,7 @@ type A = Attributes & Pick<MenuAttributes, 'animate' | 'controller' | 'expand' |
 
 
 export default component(
-    ({ animate, controller, expand, items, onselect, openOn, state, trigger, ...attributes }: A, content) => {
+    ({ animate, controller, expand, highlight, items, onselect, openOn, state, trigger, ...attributes }: A, content) => {
         return html`
             <div class='button-split' role='group' ${attributes}>
                 <button class='button button-split-action' type='button' ${attributes[SPLIT_ACTION]}>
@@ -37,6 +37,7 @@ export default component(
                         class: 'button-split-menu',
                         controller,
                         expand,
+                        highlight,
                         items,
                         onselect,
                         openOn,

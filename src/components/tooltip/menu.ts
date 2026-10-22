@@ -1,6 +1,8 @@
 import { flush, onCleanup, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import highlight, { type A as HighlightAttributes } from '~/components/highlight';
 import overlay from '~/components/overlay';
+import { finished } from '~/shared/animation';
 import { flip, viewport } from '~/shared/viewport';
 import { morph } from './utilities';
 
@@ -12,6 +14,9 @@ type A = Attributes & {
     animate?: boolean;
     controller?: (controller: Controller) => void;
     expand?: boolean | 'c' | 'e' | 'en' | 'es' | 'n' | 'ne' | 'nw' | 's' | 'se' | 'sw' | 'w' | 'wn' | 'ws';
+    // A layer gliding between rows on hover and keyboard focus, in place of each item's own fill; an object configures
+    // the highlight.
+    highlight?: boolean | HighlightAttributes;
     items: Item[];
     openOn?: 'click' | 'hover';
     ondocumentclick?: never;
@@ -64,6 +69,10 @@ const MENU_PANEL = Symbol.for('@esportsplus/ui/tooltip.menu.panel');
 const VIEWPORT_MARGIN = 8;
 
 
+// Names each menu's anchor, which its layer is placed over.
+let anchors = 0;
+
+
 function covered(node: MenuNode) {
     for (let i = 0, n = node.children.length; i < n; i++) {
         if (node.children[i].state.open) {
@@ -109,11 +118,14 @@ function tree(items: Item[], parent?: MenuNode) {
 
 function createMenu(context = false) {
     return component(
-        ({ animate = true, controller, expand: expansion = false, items, onselect, openOn = 'click', state = reactive({ active: false }), ...attributes }: A, content) => {
+        ({ animate = true, controller, expand: expansion = false, highlight: highlighted = false, items, onselect, openOn = 'click', state = reactive({ active: false }), ...attributes }: A, content) => {
             let root: MenuNode = { children: [], state: reactive({ open: true, render: true, settled: true }) },
                 stack: MenuNode[] = [root],
+                hiding = 0,
                 host: HTMLElement | undefined,
+                layer: HTMLElement | undefined,
                 leaving: ReturnType<typeof setTimeout> | undefined,
+                name = `--tooltip-menu-${++anchors}`,
                 pending: VoidFunction | undefined,
                 placement = reactive({ style: '' }),
                 trigger: HTMLElement | undefined;
@@ -176,6 +188,8 @@ function createMenu(context = false) {
                     reset();
                 }
 
+                lower();
+
                 if (focus) {
                     trigger?.focus({ preventScroll: true });
                 }
@@ -231,7 +245,7 @@ function createMenu(context = false) {
                     };
 
                 return html`
-                    <div class='tooltip-menu-entry' ${{ class: () => node.state.open && 'tooltip-menu-entry--open' }}>
+                    <div class='tooltip-menu-entry ${disabled && '--disabled'}' ${{ class: () => node.state.open && 'tooltip-menu-entry--open' }}>
                         ${itemAttributes.href ? html`<a
                             class='tooltip-menu-item ${danger && 'tooltip-menu-item--danger'}'
                             role='menuitem'
@@ -269,6 +283,21 @@ function createMenu(context = false) {
                     || matchMedia('(prefers-reduced-motion: reduce)').matches;
             }
 
+            // Out of the top layer once the close has played out, unless it reopened meanwhile.
+            function lower() {
+                let current = ++hiding;
+
+                if (!layer) {
+                    return;
+                }
+
+                void finished(layer, { subtree: true }).then(() => {
+                    if (current === hiding && !state.active && !pending && layer?.matches(':popover-open')) {
+                        layer.hidePopover();
+                    }
+                });
+            }
+
             function open(focus = true) {
                 stay();
 
@@ -276,6 +305,7 @@ function createMenu(context = false) {
                     return;
                 }
 
+                raise();
                 reset();
                 root.state.settled = !expansion || instant();
                 flush();
@@ -379,6 +409,7 @@ function createMenu(context = false) {
                         `}
 
                         ${node.children.map(entry)}
+                        ${highlighted && highlight({ ...(highlighted === true ? {} : highlighted), target: '.tooltip-menu-entry' })}
                     </div>
                 `;
             }
@@ -395,6 +426,7 @@ function createMenu(context = false) {
                     trigger = focused instanceof HTMLElement && focused !== document.body ? focused : host;
                 }
 
+                raise();
                 reset();
                 root.panel.style.setProperty('--shift-x', '0px');
 
@@ -432,6 +464,15 @@ function createMenu(context = false) {
             function popTo(node: MenuNode) {
                 while (stack.length > 1 && stack[stack.length - 1] !== node) {
                     pop();
+                }
+            }
+
+            // Into the top layer before anything measures the panels, which lay out only once it shows.
+            function raise() {
+                hiding++;
+
+                if (layer && !layer.matches(':popover-open')) {
+                    layer.showPopover();
                 }
             }
 
@@ -492,7 +533,7 @@ function createMenu(context = false) {
                             canDismiss: () => !!pending,
                             ondismiss: (reason) => close(reason === 'escape'),
                             state,
-                            target: (root) => root.querySelector<HTMLElement>(':scope > .tooltip-menu-panel') ?? undefined
+                            target: (root) => root.querySelector<HTMLElement>(':scope > .tooltip-menu-layer > .tooltip-menu-panel') ?? undefined
                         }),
                         oncontextmenu: context ? contextmenu : undefined,
                         onfocusout: (event: FocusEvent) => {
@@ -577,7 +618,7 @@ function createMenu(context = false) {
                         }
                     }}
                 >
-                    ${context ? html`<div class='tooltip-menu-trigger' ${{ onconnect: (element: HTMLElement) => { host = element.parentElement ?? undefined; trigger = host; } }}>${content}</div>` : html`<button
+                    ${context ? html`<div class='tooltip-menu-trigger' ${{ onconnect: (element: HTMLElement) => { host = element.parentElement ?? undefined; host?.style.setProperty('anchor-name', name); trigger = host; } }}>${content}</div>` : html`<button
                         aria-haspopup='menu'
                         class='tooltip-menu-trigger'
                         type='button'
@@ -595,13 +636,25 @@ function createMenu(context = false) {
                             onconnect: (element: HTMLElement) => {
                                 trigger = element;
                                 host = element.parentElement ?? undefined;
+                                host?.style.setProperty('anchor-name', name);
                             }
                         }}
                     >
                         ${content}
                     </button>`}
 
-                    ${panel(root)}
+                    <div
+                        class='tooltip-menu-layer'
+                        popover='manual'
+                        style='position-anchor: ${name};'
+                        ${{
+                            onconnect: (element: HTMLElement) => {
+                                layer = element;
+                            }
+                        }}
+                    >
+                        ${panel(root)}
+                    </div>
                 </div>
             `;
         },

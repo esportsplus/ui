@@ -300,11 +300,18 @@
             }
         }
 
+        // Chained through the group so it wins over the tooltip root's 'inline-block' whatever the load order; the
+        // trigger then stretches to the action's height.
+        & > &-menu {
+            align-items: stretch;
+            display: flex;
+        }
+
         &-menu {
             display: flex;
 
             // Hangs from the trigger's end edge so it stays under the whole group.
-            > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
+            > .tooltip-menu-layer > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
                 left: auto;
                 right: 0;
             }

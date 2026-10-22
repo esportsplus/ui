@@ -322,6 +322,24 @@ export default {
             title: 'menu (onhover)'
         },
         {
+            render: () => html`
+                <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
+                    ${(['black', 'primary', 'surface', 'surface-primary', 'white'] as const).map((modifier) => tooltip.menu(
+                        { class: `tooltip-menu--${modifier}`, items: nested, [tooltip.menu.trigger]: { class: trigger } },
+                        modifier
+                    ))}
+                </div>
+            `,
+            title: 'menu (modifiers)'
+        },
+        {
+            render: () => tooltip.menu(
+                { highlight: true, items: nested, [tooltip.menu.trigger]: { class: trigger } },
+                'highlight menu'
+            ),
+            title: 'menu (highlight)'
+        },
+        {
             // The region is the only thing it acts on, so it takes focus itself; Shift+F10 opens it from the keyboard.
             render: () => tooltip.context(
                 { items: nested, class: 'tooltip-context-demo', style: 'border: 1px dashed currentColor; height: 160px; width: 320px;', tabindex: 0 },

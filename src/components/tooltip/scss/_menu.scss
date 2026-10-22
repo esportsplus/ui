@@ -1,5 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/layer';
+@use 'css-utilities/reset';
 @use 'css-utilities/text';
 
 .tooltip {
@@ -8,8 +9,8 @@
         display: inline-block;
 
         // After the expanding root's own values, open or closed, which it overrides at the same specificity.
-        &.tooltip--instant > .tooltip-menu-panel--expand,
-        &.tooltip--instant > .tooltip-menu-panel--expand.--active {
+        &.tooltip--instant > .tooltip-menu-layer > .tooltip-menu-panel--expand,
+        &.tooltip--instant > .tooltip-menu-layer > .tooltip-menu-panel--expand.--active {
             --expand-content-delay: 0s;
             --expand-content-duration: 0s;
             --expand-duration: 0s;
@@ -19,7 +20,7 @@
         }
 
         // Qualified twice so it outranks the tooltip content it composes, and classes paired onto that content.
-        > .tooltip-menu-panel.tooltip-menu-panel--expand {
+        > .tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
             // Keep the panel's own surface when composing the generic tooltip content.
             --background-default: var(--surface-background-default);
             --border-radius: inherit;
@@ -138,7 +139,7 @@
         }
 
         // Root panel
-        > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
+        > .tooltip-menu-layer > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
             left: 0;
             opacity: 0;
             top: calc(100% + var(--offset));
@@ -269,6 +270,20 @@
 
             &:focus {
                 --background: var(--background-hover);
+            }
+        }
+
+        // The root panel's popover, so an open menu stands above every stacking context around it. Anchored over the
+        // menu's own box, so its panels place against it as they would against the menu; it takes no clicks itself.
+        &-layer {
+            @extend %reset-popover;
+            height: anchor-size(height);
+            left: anchor(left);
+            top: anchor(top);
+            width: anchor-size(width);
+
+            > .tooltip-menu-panel {
+                pointer-events: auto;
             }
         }
 
