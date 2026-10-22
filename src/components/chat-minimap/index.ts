@@ -11,7 +11,15 @@ import './scss/index.scss';
 
 
 type A = Attributes & {
+    [CHAT_MINIMAP_CARD]?: Attributes;
+    [CHAT_MINIMAP_DESCRIPTION]?: Attributes;
     [CHAT_MINIMAP_ITEM]?: Attributes;
+    [CHAT_MINIMAP_ITEMS]?: Attributes;
+    [CHAT_MINIMAP_LABEL]?: Attributes;
+    [CHAT_MINIMAP_LINE]?: Attributes;
+    [CHAT_MINIMAP_NAV]?: Attributes;
+    [CHAT_MINIMAP_PREVIEW]?: Attributes;
+    [CHAT_MINIMAP_TITLE]?: Attributes;
     label?: string;
     next?: string;
     // Called with the turn to bring to the top of the thread, from a line or the previous and next buttons; without
@@ -36,7 +44,26 @@ type Turn = {
 };
 
 
+const CHAT_MINIMAP_CARD = Symbol.for('@esportsplus/ui/chat-minimap.card');
+
+const CHAT_MINIMAP_DESCRIPTION = Symbol.for('@esportsplus/ui/chat-minimap.description');
+
 const CHAT_MINIMAP_ITEM = Symbol.for('@esportsplus/ui/chat-minimap.item');
+
+const CHAT_MINIMAP_ITEMS = Symbol.for('@esportsplus/ui/chat-minimap.items');
+
+// The previous and next buttons' tooltips.
+const CHAT_MINIMAP_LABEL = Symbol.for('@esportsplus/ui/chat-minimap.label');
+
+const CHAT_MINIMAP_LINE = Symbol.for('@esportsplus/ui/chat-minimap.line');
+
+// The previous and next buttons.
+const CHAT_MINIMAP_NAV = Symbol.for('@esportsplus/ui/chat-minimap.nav');
+
+// The shared tooltip the card shows in.
+const CHAT_MINIMAP_PREVIEW = Symbol.for('@esportsplus/ui/chat-minimap.preview');
+
+const CHAT_MINIMAP_TITLE = Symbol.for('@esportsplus/ui/chat-minimap.title');
 
 // The card's first open waits a beat so a pointer crossing the rail doesn't flash one; it then glides between lines.
 const DELAY = { close: 150, open: 100 };
@@ -60,6 +87,10 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
         positions = new Map<Turn, number>(),
         tips = { next: tooltip.shared({ direction: 's' }), previous: tooltip.shared({ direction: 'n' }) },
         unsubscribe: VoidFunction | undefined;
+
+    function bubble() {
+        return { 'aria-hidden': 'true', ...attributes[CHAT_MINIMAP_LABEL], class: ['chat-minimap-label', attributes[CHAT_MINIMAP_LABEL]?.class ?? []].flat() };
+    }
 
     function index(turn: Turn) {
         // Read so every line re-checks its place when the list changes.
@@ -85,6 +116,7 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
                 aria-label='${text}'
                 class='chat-minimap-nav ${`chat-minimap-nav--${direction === -1 ? 'previous' : 'next'}`}'
                 type='button'
+                ${attributes[CHAT_MINIMAP_NAV]}
                 ${tip.bind(text)}
                 ${{
                     disabled,
@@ -146,9 +178,9 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
             let turn = (trigger as Item)[TURN];
 
             return html`
-                <span class='chat-minimap-card'>
-                    <span class='chat-minimap-title'>${turn.title}</span>
-                    ${turn.description ? html`<span class='chat-minimap-description'>${turn.description}</span>` : ''}
+                <span class='chat-minimap-card' ${attributes[CHAT_MINIMAP_CARD]}>
+                    <span class='chat-minimap-title' ${attributes[CHAT_MINIMAP_TITLE]}>${turn.title}</span>
+                    ${turn.description ? html`<span class='chat-minimap-description' ${attributes[CHAT_MINIMAP_DESCRIPTION]}>${turn.description}</span>` : ''}
                 </span>
             `;
         },
@@ -179,6 +211,7 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
 
             <div
                 class='chat-minimap-items'
+                ${attributes[CHAT_MINIMAP_ITEMS]}
                 ${delegate}
                 ${{
                     onfocusin: (e: FocusEvent) => {
@@ -245,7 +278,7 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
                                 tabindex: () => index(turn) === stop() ? '0' : '-1'
                             }}
                         >
-                            <span aria-hidden='true' class='chat-minimap-line'></span>
+                            <span aria-hidden='true' class='chat-minimap-line' ${attributes[CHAT_MINIMAP_LINE]}></span>
                             ${turn.description ? html`<span class='chat-minimap-hidden' id='${description}'>${turn.description}</span>` : ''}
                         </button>
                     `;
@@ -254,13 +287,24 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
 
             ${nav(1)}
 
-            ${card.render({ 'aria-hidden': 'true', class: 'chat-minimap-preview' })}
-            ${tips.previous.render({ 'aria-hidden': 'true', class: 'chat-minimap-label' })}
-            ${tips.next.render({ 'aria-hidden': 'true', class: 'chat-minimap-label' })}
+            ${card.render({ 'aria-hidden': 'true', ...attributes[CHAT_MINIMAP_PREVIEW], class: ['chat-minimap-preview', attributes[CHAT_MINIMAP_PREVIEW]?.class ?? []].flat() })}
+            ${tips.previous.render(bubble())}
+            ${tips.next.render(bubble())}
         </nav>
     `;
 }
 
 
-export default component(template, { item: CHAT_MINIMAP_ITEM, spy });
+export default component(template, {
+    card: CHAT_MINIMAP_CARD,
+    description: CHAT_MINIMAP_DESCRIPTION,
+    item: CHAT_MINIMAP_ITEM,
+    items: CHAT_MINIMAP_ITEMS,
+    label: CHAT_MINIMAP_LABEL,
+    line: CHAT_MINIMAP_LINE,
+    nav: CHAT_MINIMAP_NAV,
+    preview: CHAT_MINIMAP_PREVIEW,
+    spy,
+    title: CHAT_MINIMAP_TITLE
+});
 export type { Range as ChatMinimapRange, Side as ChatMinimapSide, Turn as ChatMinimapTurn };

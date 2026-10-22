@@ -1,4 +1,3 @@
-@use 'css-utilities/color';
 @use 'css-utilities/hidden';
 @use 'variables';
 
@@ -24,15 +23,15 @@
     &-card {
         display: flex;
         flex-direction: column;
-        gap: calc(var(--size-100) / 4);
-        padding: 12px;
-        width: var(--card-width);
+        gap: var(--gap-horizontal) var(--gap-vertical);
+        padding: var(--padding-horizontal) var(--padding-vertical);
+        width: var(--width);
     }
 
     &-description {
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
-        color: var(--card-description-color);
+        color: var(--color);
         display: -webkit-box;
         font-size: var(--font-size-300);
         line-clamp: 2;
@@ -50,12 +49,12 @@
         cursor: pointer;
         display: flex;
         flex-shrink: 0;
-        height: var(--item-height);
+        height: var(--height);
         outline: none;
         padding: 0 var(--inset);
         // Holds the hidden description.
         position: relative;
-        width: var(--item-width);
+        width: var(--width);
 
         &:focus-visible {
             border-radius: var(--border-radius-200);
@@ -71,9 +70,9 @@
 
     &-line {
         background: var(--line-color);
-        border-radius: var(--stroke);
+        border-radius: var(--height);
         flex-shrink: 0;
-        height: var(--stroke);
+        height: var(--height);
         pointer-events: none;
         transition:
             background-color var(--transition-duration) var(--transition-timing-function),
@@ -83,21 +82,20 @@
 
     // Out of the way until wanted: shown on its own hover or focus, and always on touch, which can't hover to find it.
     &-nav {
-        @extend %color-state, %color-text;
         align-items: center;
         background: none;
         border: 0;
         color: var(--color);
         cursor: pointer;
         display: flex;
-        height: var(--nav-height);
+        height: var(--height);
         opacity: 0;
         outline: none;
         padding: 0 var(--inset);
         transition:
-            color var(--nav-duration) ease-out,
-            opacity var(--nav-duration) ease-out;
-        width: var(--item-width);
+            color var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function);
+        width: var(--width);
 
         &:disabled {
             cursor: default;
@@ -129,7 +127,7 @@
     }
 
     &-title {
-        color: var(--card-title-color);
+        color: var(--color);
         font-size: var(--font-size-300);
         font-weight: var(--font-weight-500);
         overflow: hidden;

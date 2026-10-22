@@ -1,32 +1,37 @@
 @use '/tokens';
+@use 'css-utilities/color';
 
 .chat-minimap {
-    --card-border: var(--surface-border-default);
-    --card-description-color: var(--color-text-300);
-    --card-title-color: var(--color-text-500);
-    --card-width: 256px;
-    --color-active: var(--color-text-500);
-    --color-far: color-mix(in oklab, var(--color-primary-500) 55%, transparent);
-    --color-near: color-mix(in oklab, var(--color-primary-500) 75%, transparent);
-    --color-rest: color-mix(in oklab, var(--color-primary-300) 40%, transparent);
-    --focus-color: var(--color-primary-500);
-    // Lines sit this far in from the rail's leading edge, inside a hit area wider than the longest line.
-    --inset: calc(var(--size-100) / 2);
-    --item-height: var(--size-100);
-    --item-width: 32px;
+    &-card {
+        --gap-horizontal: calc(var(--size-100) / 4);
+        --gap-vertical: calc(var(--size-100) / 4);
+        --padding-horizontal: 12px;
+        --padding-vertical: 16px;
+        --width: 256px;
+    }
+
+    &-description {
+        --color: var(--color-text-300);
+    }
+
     // At rest every line shares one length; the hovered one peaks and its two neighbours either side step back down.
-    --length-far: var(--size-400);
-    --length-near: var(--size-500);
-    --length-peak: 24px;
-    --length-rest: 12px;
-    --nav-duration: 0.15s;
-    --nav-height: var(--size-500);
-    --stroke: 2px;
-
-
+    // The line reads '--length' and '--line-color' from here, where the hover states set them.
     &-item {
+        --color-active: var(--color-text-500);
+        --color-far: color-mix(in oklab, var(--color-primary-500) 55%, transparent);
+        --color-near: color-mix(in oklab, var(--color-primary-500) 75%, transparent);
+        --color-rest: color-mix(in oklab, var(--color-primary-300) 40%, transparent);
+        --focus-color: var(--color-primary-500);
+        --height: var(--size-100);
+        // Lines sit this far in from the rail's leading edge, inside a hit area wider than the longest line.
+        --inset: calc(var(--size-100) / 2);
         --length: var(--length-rest);
+        --length-far: var(--size-400);
+        --length-near: var(--size-500);
+        --length-peak: 24px;
+        --length-rest: 12px;
         --line-color: var(--color-rest);
+        --width: 32px;
 
         @include tokens.state(active) {
             --line-color: var(--color-active);
@@ -74,6 +79,22 @@
         --spacer: 4px;
     }
 
+    &-line {
+        --height: 2px;
+        --transition-duration: 0.16s;
+        --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    &-nav {
+        @extend %color-state, %color-text;
+        --focus-color: var(--color-primary-500);
+        --height: var(--size-500);
+        --inset: calc(var(--size-100) / 2);
+        --transition-duration: 0.15s;
+        --transition-timing-function: ease-out;
+        --width: 32px;
+    }
+
     // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
     &-nav-icon.icon {
         --color: currentColor;
@@ -84,8 +105,9 @@
     // A surface through the shared tooltip, so its colors are read at its own level.
     &-preview.tooltip-shared {
         --background-default: var(--surface-background-default);
-        --box-shadow-default: 0 0 0 var(--border-width-400) var(--card-border), var(--surface-shadow-default);
-        --color: var(--card-title-color);
+        --border-color: var(--surface-border-default);
+        --box-shadow-default: 0 0 0 var(--border-width-400) var(--border-color), var(--surface-shadow-default);
+        --color: var(--color-text-500);
         --font-size: var(--font-size-400);
         --padding: 0;
         --radius: var(--border-radius-600);
@@ -93,9 +115,29 @@
         --white-space: normal;
     }
 
+    // The content swap as the card and labels glide between triggers. Each layer is a 'frame--swap', which declares
+    // these on itself, so they're set on the layers here, where a minimap can retime them.
+    &-label,
+    &-preview {
+        .tooltip-shared-layer {
+            --swap-duration: 0s;
+            --swap-exit-duration: var(--swap-duration);
+            --swap-exit-fade-duration: var(--swap-fade-duration);
+            --swap-fade-duration: 0s;
+            --swap-fade-timing-function: linear;
+            --swap-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+    }
+
+    &-title {
+        --color: var(--color-text-500);
+    }
+
 
     // The lines hold their length; the nav still fades.
     @media (prefers-reduced-motion: reduce) {
-        --transition-duration: 0s;
+        &-line {
+            --transition-duration: 0s;
+        }
     }
 }
