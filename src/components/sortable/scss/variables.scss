@@ -1,3 +1,5 @@
+@use 'css-utilities/surface';
+
 .sortable {
     --drag-animation: none;
     --drag-scale: 1.06;
@@ -46,6 +48,10 @@
         tremble: sortable-tremble 0.4s linear infinite,
         wiggle: sortable-wiggle 0.16s ease-in-out infinite alternate
     );
+
+    &-drag {
+        @extend %surface-raise;
+    }
 
     @each $name, $swing in $swings {
         &--#{$name} {
