@@ -3,7 +3,6 @@
 @use 'css-utilities/font/geist';
 @use 'css-utilities/hidden';
 @use 'css-utilities/icon';
-@use 'css-utilities/surface';
 @use 'css-utilities/text';
 @use 'variables';
 
@@ -144,7 +143,7 @@
     }
 
     &-face {
-        @extend %absolute-full, %surface-raise;
+        @extend %absolute-full;
         backface-visibility: hidden;
         background: var(--card-background);
         border-radius: var(--card-border-radius);

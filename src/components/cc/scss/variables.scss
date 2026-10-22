@@ -1,3 +1,5 @@
+@use 'css-utilities/surface';
+
 .cc {
     // A physical card keeps its dark face in both modes.
     --card-background: var(--color-black-300);
@@ -26,6 +28,10 @@
     --submit-color: var(--color-surface);
     --swap-duration: 300ms;
     --width: min(400px, 100%);
+
+    &-face {
+        @extend %surface-raise;
+    }
 
     // The ring jumps between fields, still fading in and out.
     @media (prefers-reduced-motion: reduce) {
