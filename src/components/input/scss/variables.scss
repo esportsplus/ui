@@ -1,5 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/background';
+@use 'css-utilities/color';
 @use 'css-utilities/surface';
 @use 'field';
 
@@ -120,6 +121,32 @@
         // Qualified so it wins over the reused input styles regardless of stylesheet order.
         &-entry > #{&}-field {
             --color-default: currentColor;
+        }
+    }
+}
+
+
+.input-scrub {
+    &-label {
+        @extend %color-state, %color-text;
+    }
+}
+
+
+.input-tag {
+    &-box {
+        @extend %surface-raise;
+    }
+
+    &-chip {
+        @extend %color-state;
+
+        &-body {
+            @extend %surface-raise;
+        }
+
+        &-button {
+            @extend %background-state, %color-state;
         }
     }
 }

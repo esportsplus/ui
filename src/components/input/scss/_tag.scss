@@ -1,9 +1,6 @@
 @use 'css-utilities/absolute';
-@use 'css-utilities/background';
-@use 'css-utilities/color';
 @use 'css-utilities/hidden';
 @use 'css-utilities/reset';
-@use 'css-utilities/surface';
 @use 'css-utilities/text';
 
 
@@ -17,7 +14,6 @@
 
     // The field is a surface, and each chip a surface above it.
     &-box {
-        @extend %surface-raise;
         background: var(--box-background, var(--surface-background-default));
         border-radius: var(--box-border-radius);
         box-shadow: var(--surface-shadow-default);
@@ -31,7 +27,6 @@
     }
 
     &-chip {
-        @extend %color-state;
         --color-active: var(--chip-color-active);
         --color-default: var(--chip-color);
         align-items: center;
@@ -46,7 +41,7 @@
         transition: color var(--transition-duration) var(--transition-timing-function);
 
         &-body {
-            @extend %absolute-full, %surface-raise;
+            @extend %absolute-full;
             // The surface's, until an active chip fills with ink and drops its shadow.
             background: var(--chip-background, var(--surface-background-default));
             border-radius: var(--chip-border-radius);
@@ -57,7 +52,6 @@
         }
 
         &-button {
-            @extend %background-state, %color-state;
             --background-hover: var(--chip-remove-hover-background);
             --background-pressed: var(--background-hover);
             --color-default: var(--chip-remove-color);

@@ -1,5 +1,4 @@
 @use 'css-utilities/absolute';
-@use 'css-utilities/color';
 
 
 .input-scrub {
@@ -27,7 +26,6 @@
     }
 
     &-label {
-        @extend %color-state, %color-text;
         align-items: center;
         color: var(--color);
         cursor: ew-resize;
