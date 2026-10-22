@@ -740,3 +740,4 @@ export default component<A>(
         `;
     }
 );
+export type { A };
