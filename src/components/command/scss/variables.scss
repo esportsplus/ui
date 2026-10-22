@@ -1,83 +1,146 @@
 @use 'css-utilities/color';
+@use 'css-utilities/surface';
+
+$color-muted: var(--color-text-300);
+$divider: var(--border-width-400) solid var(--surface-border-default);
+$label-font-size: var(--font-size-200);
+$list-height: min(320px, 50vh);
 
 
 .command {
     --color: var(--color-text-500);
-    --color-muted: var(--color-text-300);
-    --count-fade: 48px;
-    // Black at the theme's shadow strength, so the scrim still dims under a colored or glowing shadow.
-    --dialog-backdrop: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha + 0.01));
-    --dialog-border-radius: var(--border-radius-600);
-    --dialog-offset: 20vh;
-    --dialog-scale: 0.98;
-    --dialog-width: 600px;
-    --divider-color: var(--surface-border-default);
     --font-size: calc(var(--font-size-400) * 0.875);
-    --footer-height: 44px;
-    --input-mask: none;
-    --kbd-icon-size: 12px;
-    --label-font-size: var(--font-size-200);
-    --list-max-height: min(320px, 50vh);
-    --option-background: var(--surface-background-hover);
-    --option-border-radius: var(--border-radius-400);
-    --option-height: 36px;
-    --search-height: 48px;
-    --tab-height: 32px;
 
-    &--centered {
-        --dialog-offset: auto;
+
+    &-count {
+        --color: #{$color-muted};
+        --font-size: #{$label-font-size};
     }
 
     &-dialog.overlay {
-        --backdrop: var(--dialog-backdrop);
+        // Black at the theme's shadow strength, so the scrim still dims under a colored or glowing shadow.
+        --backdrop: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha + 0.24));
+        --background: var(--surface-background-default);
+        --border-radius: var(--border-radius-600);
+        --box-shadow: var(--surface-shadow-default);
         --margin-horizontal: var(--size-400);
-        --max-width: var(--dialog-width);
-        --scale: var(--dialog-scale);
+        --max-width: 600px;
+        // Pinned from the top rather than centered, so the input stays put while filtering resizes the list. Whole
+        // pixels, so the layer never sits between them.
+        --offset: round(20vh, 1px);
+        --scale: 0.98;
+    }
+
+    &--centered &-dialog.overlay {
+        --offset: auto;
+    }
+
+    &-empty {
+        --color: #{$color-muted};
+    }
+
+    &-footer {
+        --border: #{$divider};
+        --color: #{$color-muted};
+        --font-size: #{$label-font-size};
+        --height: 44px;
+    }
+
+    &-group-label {
+        --color: #{$color-muted};
+        --font-size: #{$label-font-size};
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-100);
     }
 
     // Rests on the active option; the palette moves `--active` for both pointer and keys.
-    &-highlight {
-        --background-active: var(--option-background);
+    &-highlight.highlight {
+        @extend %surface-raise;
+        --background-active: var(--surface-background-default);
+        --surface-level: 2;
     }
 
     // 'inherit' passes the palette's '--font-size' through the input's own; 'var(--font-size)' here would refer to
     // itself, and the cycle leaves the input at whatever font size its host happens to inherit.
     &-input.input {
-        --color-default: var(--color);
+        --color-default: var(--color-text-500);
+        --fade: 48px;
         --font-size: inherit;
+        --mask: none;
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         --size: 0px;
+
+        &::placeholder {
+            --color: #{$color-muted};
+        }
     }
 
     &-kbd-icon.icon {
-        --size: var(--kbd-icon-size);
+        --size: 12px;
     }
 
-    // Takes '--active' alongside its option.
-    &-option-icon.icon {
-        @extend %color-state;
-        --color-active: currentColor;
-        --color-default: var(--color-muted);
+    &-label {
+        --color: var(--color-text-500);
+
+
+        &--filtered {
+            --color: #{$color-muted};
+        }
+    }
+
+    &-list {
+        --gap-horizontal: 0;
+        --gap-vertical: var(--size-200);
+        --padding-horizontal: calc(var(--size-100) / 2);
+        --padding-vertical: var(--size-100);
+    }
+
+    &-match {
+        --color: var(--color-text-500);
+    }
+
+    &-option {
+        --border-radius: var(--border-radius-400);
+        --height: 36px;
+
+        // Takes '--active' alongside its option.
+        &-icon.icon {
+            @extend %color-state;
+            --color-active: currentColor;
+            --color-default: #{$color-muted};
+        }
+    }
+
+    &-search {
+        --color: #{$color-muted};
+        --height: 48px;
     }
 
     // Long queries fade out before they reach the result count instead of running into it.
-    &-search:has(.command-count) {
-        --input-mask: linear-gradient(to right, #000 calc(100% - var(--count-fade)), transparent);
+    &-search:has(.command-count) &-input.input {
+        --mask: linear-gradient(to right, #000 calc(100% - var(--fade)), transparent);
     }
 
     // The highlight paints the tab backgrounds, so the buttons only carry colour.
     &-tab {
         @extend %color-text;
         --border-radius: var(--border-radius-400);
-        --font-size: calc(var(--font-size-400) * 0.875);
+        --font-size: var(--font-size-300);
         --font-weight: var(--font-weight-500);
-        --padding-horizontal: var(--size-300);
-        --padding-vertical: 0px;
     }
 
-    &-tabs-highlight {
-        --background-active: var(--option-background);
+    &-tabs {
+        --gap-horizontal: calc(var(--size-100) / 2);
+        --gap-vertical: calc(var(--size-100) / 2);
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-300);
+        // Keep the tab strip hidden when an ancestor opts into site-wide scrollbar styling.
+        --scrollbar-width: none;
+
+        &-highlight {
+            --background-active: var(--surface-background-hover);
+        }
     }
 
     // One 24px keycap line plus 6px either side makes the 36px trigger.
@@ -89,10 +152,28 @@
         --font-size: calc(var(--font-size-400) * 0.875);
         --gap-horizontal: var(--size-100);
         --line-height: 24px;
-        --padding-horizontal: calc(var(--size-300) / 2);
-        --padding-vertical: calc(var(--size-300) / 2);
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: var(--size-100);
         --width: 240px;
+
+        &-icon {
+            &--search {
+                --margin-horizontal: calc(var(--size-100) / 2);
+            }
+        }
     }
+
+    &-view {
+        --max-height: #{$list-height};
+        // The list's vertical padding, so an item scrolled into view rests where the first one starts.
+        --scroll-padding: var(--size-100);
+    }
+
+    &-views {
+        --border: #{$divider};
+        --height: #{$list-height};
+    }
+
 
     @media (prefers-reduced-motion: reduce) {
         &-dialog.overlay {

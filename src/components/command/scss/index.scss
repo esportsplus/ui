@@ -1,33 +1,33 @@
-@use 'css-utilities/surface';
 @use 'css-utilities/text';
 @use 'variables';
 
 .command {
     display: contents;
 
-
     &-count {
-        color: var(--color-muted);
+        color: var(--color);
         flex-shrink: 0;
-        font-size: var(--label-font-size);
+        font-size: var(--font-size);
         font-variant-numeric: tabular-nums;
         user-select: none;
         white-space: nowrap;
     }
 
     &-dialog.overlay {
-        background: var(--surface-background-default);
-        border-radius: var(--dialog-border-radius);
-        box-shadow: var(--surface-shadow-default);
+        background: var(--background);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
         color: var(--color);
-        // Pinned from the top rather than centered, so the input stays put while filtering resizes the list.
-        margin-block: var(--dialog-offset) auto;
+        margin-block: var(--offset) auto;
         overflow: hidden;
         transform-origin: top;
+        // Kept on its own layer while open; otherwise the layer is dropped once the entrance settles and the text
+        // re-rasterizes onto the pixel grid, a visible nudge.
+        will-change: opacity, scale;
     }
 
     &-empty {
-        color: var(--color-muted);
+        color: var(--color);
         font-size: var(--font-size);
         // Centers the message in a scrolling view's fixed height.
         margin-block: auto;
@@ -37,13 +37,13 @@
 
     &-footer {
         align-items: center;
-        border-top: var(--border-width-400) solid var(--divider-color);
-        color: var(--color-muted);
+        border-top: var(--border);
+        color: var(--color);
         display: flex;
         flex-shrink: 0;
-        font-size: var(--label-font-size);
+        font-size: var(--font-size);
         gap: var(--size-400);
-        height: var(--footer-height);
+        height: var(--height);
         padding-inline: var(--size-400);
         user-select: none;
 
@@ -61,21 +61,21 @@
 
     // Matches the docs sidebar's section titles.
     &-group-label {
-        color: var(--color-muted);
-        font-size: var(--label-font-size);
+        color: var(--color);
+        font-size: var(--font-size);
         font-weight: var(--font-weight-500);
-        padding: var(--size-100) var(--size-300) calc(var(--size-100) / 2);
+        padding: var(--padding-vertical) var(--padding-horizontal);
         text-transform: uppercase;
         user-select: none;
     }
 
     &-input.input {
         height: 100%;
-        mask-image: var(--input-mask);
+        mask-image: var(--mask);
         outline: none;
 
         &::placeholder {
-            color: var(--color-muted);
+            color: var(--color);
         }
     }
 
@@ -92,26 +92,15 @@
         color: var(--color);
         flex: 1 1 auto;
         min-width: 0;
-
-        &--filtered {
-            color: var(--color-muted);
-        }
     }
 
+    // A column so the gap spaces the groups apart.
     &-list {
-        max-height: var(--list-max-height);
-        overflow-y: auto;
-        overscroll-behavior: contain;
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-vertical) var(--gap-horizontal);
         // Padding plus the option radius equals the dialog radius; the sides take 2px more to clear the highlight off the edges.
-        padding: calc(var(--size-100) / 2) calc(var(--size-100) / 2 + 2px);
-        // Stepping past the edge glides the list along rather than jumping it.
-        scroll-behavior: smooth;
-        scroll-padding-block: calc(var(--size-100) / 2);
-        width: 100%;
-
-        @media (prefers-reduced-motion: reduce) {
-            scroll-behavior: auto;
-        }
+        padding: var(--padding-vertical) calc(var(--padding-horizontal) + 2px);
 
         &--empty {
             display: none;
@@ -124,12 +113,12 @@
 
     &-option {
         align-items: center;
-        border-radius: var(--option-border-radius);
+        border-radius: var(--border-radius);
         cursor: pointer;
         display: flex;
         font-size: var(--font-size);
         gap: var(--size-200);
-        height: var(--option-height);
+        height: var(--height);
         padding-inline: var(--size-300);
         user-select: none;
 
@@ -146,29 +135,25 @@
 
     &-search {
         align-items: center;
-        color: var(--color-muted);
+        color: var(--color);
         display: flex;
         flex-shrink: 0;
         gap: var(--size-200);
-        height: var(--search-height);
+        height: var(--height);
         padding-inline: var(--size-400);
     }
 
     &-tab {
-        flex-shrink: 0;
-        height: var(--tab-height);
         user-select: none;
     }
 
     // Lines up with the search icon above; a long row scrolls sideways rather than wrapping.
     &-tabs {
-        // Keep the tab strip hidden when an ancestor opts into site-wide scrollbar styling.
-        --scrollbar-width: none;
         display: flex;
         flex-shrink: 0;
-        gap: var(--size-100);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         overflow-x: auto;
-        padding: 0 var(--size-400) var(--size-300);
+        padding: 0 var(--padding-horizontal) var(--padding-vertical);
         scrollbar-width: none;
     }
 
@@ -186,15 +171,11 @@
             display: none;
         }
 
-
-        &--search {
-            @extend %surface;
-            --padding-horizontal: var(--size-200);
-            --surface-level: 1;
-            --width: 100%;
-            border: var(--border-width-400) solid var(--border-color);
+        &-icon {
+            &--search {
+                margin-left: var(--margin-horizontal);
+            }
         }
-
 
         &-label {
             @extend %text-truncate;
@@ -203,18 +184,31 @@
         }
     }
 
+    // The view scrolls rather than the list, so the scrollbar's edges sit beside the list instead of inside its gap,
+    // and the list's padding scrolls with it rather than holding the edges in.
     &-view {
         display: flex;
         flex-direction: column;
+        max-height: var(--max-height);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        // Stepping past the edge glides the list along rather than jumping it.
+        scroll-behavior: smooth;
+        scroll-padding-block: var(--scroll-padding);
+
+        @media (prefers-reduced-motion: reduce) {
+            scroll-behavior: auto;
+        }
     }
 
     &-views {
-        border-top: var(--border-width-400) solid var(--divider-color);
+        background: var(--background);
+        border-top: var(--border);
         overflow: hidden;
 
         // Every view keeps the same height, so swapping between them never resizes the dialog.
         &:has(> .frame--swap) {
-            height: var(--list-max-height);
+            height: var(--height);
         }
     }
 

@@ -1,12 +1,13 @@
 import { reactive, read, signal, write } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import { command } from '@esportsplus/ui/components';
+import { command, icon } from '@esportsplus/ui/components';
 import { mac } from '@esportsplus/ui/shared/platform';
 import fuzzy from '@esportsplus/ui/shared/fuzzy';
 import back from '@esportsplus/ui/svg/arrow-left.svg';
 import forward from '@esportsplus/ui/svg/arrow-right.svg';
 import next from '@esportsplus/ui/svg/arrow-down.svg';
 import previous from '@esportsplus/ui/svg/arrow-up.svg';
+import cmd from '@esportsplus/ui/svg/command.svg';
 import contrast from '@esportsplus/ui/svg/contrast.svg';
 import docs from '@esportsplus/ui/svg/document.svg';
 import duplicate from '@esportsplus/ui/svg/copy.svg';
@@ -151,7 +152,7 @@ function palette() {
                     }}'
                 >
                     Go to file
-                    <kbd class='button button--kbd'>${mac() ? '⌘' : 'Ctrl'}</kbd>
+                    <kbd class='button button--kbd'>${mac() ? icon({ 'aria-hidden': 'true', class: 'command-kbd-icon' }, cmd) : 'Ctrl'}</kbd>
                     <kbd class='button button--kbd'>P</kbd>
                 </button>
                 <button
@@ -177,6 +178,10 @@ export default {
         {
             render: () => demo(),
             title: 'default (⌘K / Ctrl+K)'
+        },
+        {
+            render: () => demo({ [command.dialog]: { class: 'overlay--blur' }, label: 'Blurred' }),
+            title: 'blur'
         },
         {
             render: () => demo({ [command.dialog]: { class: 'overlay--blur' }, class: 'command--centered', label: 'Centered, blurred' }),

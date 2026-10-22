@@ -26,7 +26,7 @@ const groups: Record<string, Group[]> = {
         { title: 'group', members: ['group', 'group without descriptions'] }
     ],
     'color-picker': [{ title: 'color picker', members: ['default', ['compact', 'Compact'], ['recent colors', 'Recent colors'], ['recent: false', 'No recent colors'], ['controlled state', 'Controlled state']] }],
-    command: [{ title: 'command', members: [['default (⌘K / Ctrl+K)', 'Default'], 'centered + blur'] }],
+    command: [{ title: 'command', members: [['default (⌘K / Ctrl+K)', 'Default'], ['blur', 'Blur'], 'centered + blur'] }],
     counter: [
         { title: 'USD (animated)', members: [['USD (animated)', 'Default'], 'shade', 'snap', 'spring'] },
         { title: 'number format', members: [['plain number', 'Plain number'], ['suffix', 'Suffix']] },

@@ -8,6 +8,7 @@ import scrollbar from '~/modifiers/scrollbar';
 import { mac } from '~/shared/platform';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import up from '@esportsplus/ui/svg/arrow-up.svg';
+import cmd from '@esportsplus/ui/svg/command.svg';
 import enter from '@esportsplus/ui/svg/enter.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
 import search from './search';
@@ -17,8 +18,11 @@ import './scss/index.scss';
 
 type A = Attributes & {
     [COMMAND_DIALOG]?: Dialog;
+    [COMMAND_GROUP]?: Attributes;
     [COMMAND_INPUT]?: Field;
+    [COMMAND_LIST]?: Attributes;
     [COMMAND_OPTION]?: Attributes;
+    [COMMAND_TAB]?: Attributes;
     [COMMAND_TRIGGER]?: Attributes;
     // A getter re-lists whenever the reactive state it reads changes; group tabs come from the first list.
     commands: Command[] | (() => Command[]);
@@ -78,7 +82,7 @@ type Entry = {
     group: string;
     icon?: string;
     id: string;
-    keys?: string[];
+    keys?: Renderable<unknown>[];
     label: string;
     // 'label' lowercased once, for the built-in matcher.
     lower: string;
@@ -159,15 +163,20 @@ type View = {
 
 const COMMAND_DIALOG = Symbol.for('@esportsplus/ui/command.dialog');
 
+const COMMAND_GROUP = Symbol.for('@esportsplus/ui/command.group');
+
 const COMMAND_INPUT = Symbol.for('@esportsplus/ui/command.input');
 
+const COMMAND_LIST = Symbol.for('@esportsplus/ui/command.list');
+
 const COMMAND_OPTION = Symbol.for('@esportsplus/ui/command.option');
+
+const COMMAND_TAB = Symbol.for('@esportsplus/ui/command.tab');
 
 const COMMAND_TRIGGER = Symbol.for('@esportsplus/ui/command.trigger');
 
 const GLYPHS: Record<string, string> = {
     Alt: '⌥',
-    Mod: '⌘',
     Shift: '⇧'
 };
 
@@ -246,10 +255,11 @@ function filter(entries: Entry[], query: string, matcher?: Matcher, limit = Infi
     return { flat, groups };
 }
 
-// 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere; other modifiers only get symbols on Apple keyboards.
-function glyph(key: string, apple: boolean) {
+// 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere; other modifiers only get symbols on Apple keyboards. ⌘ is an icon,
+// since most fonts lack the glyph and fall back to one that sits wrong in the keycap.
+function glyph(key: string, apple: boolean): Renderable<unknown> {
     if (key === 'Mod') {
-        return apple ? '⌘' : 'Ctrl';
+        return apple ? sprite(cmd, 'command-kbd-icon') : 'Ctrl';
     }
 
     return (apple && GLYPHS[key]) || key;
@@ -387,6 +397,7 @@ export default component(
         let apple = mac(),
             id = `command-${++uid}`,
             keys = hotkey ?? (trigger ? ['Mod', 'K'] : []),
+            groupAttributes = this?.attributes?.[COMMAND_GROUP],
             optionAttributes = this?.attributes?.[COMMAND_OPTION],
             // The active option's id; options select on it, so moving it restyles two rows rather than every one.
             active = signal<string | undefined>(undefined),
@@ -581,7 +592,13 @@ export default component(
             return render ? render(groups) : html`
                 ${highlight({ class: 'command-highlight', hover: false, target: '.command-option' })}
                 ${groups.map((group) => html`
-                    <div aria-labelledby='${group.id}' class='command-group' role='group'>
+                    <div
+                        aria-labelledby='${group.id}'
+                        class='command-group'
+                        role='group'
+                        ${groupAttributes}
+                        ${attributes[COMMAND_GROUP]}
+                    >
                         <div class='command-group-label' id='${group.id}'>${group.label}</div>
                         ${group.items.map((item) => html`
                             <div class='command-option' ${item.attributes}>${item.content}</div>
@@ -689,7 +706,7 @@ export default component(
                             ondisconnect: unlisten
                         }}
                     >
-                        ${sprite(magnifier)}
+                        ${sprite(magnifier, 'command-trigger-icon command-trigger-icon--search')}
                         <span class='command-trigger-label'>${label}</span>
                         ${keys.length > 0 && kbd(keys.map((key) => glyph(key, apple)))}
                     </button>
@@ -719,7 +736,6 @@ export default component(
                                     'aria-label': () => current().search,
                                     autocomplete: 'off',
                                     autofocus: true,
-                                    class: 'command-input',
                                     oninput: (e: Event) => {
                                         state.index = 0;
                                         state.query = (e.target as HTMLInputElement).value;
@@ -768,7 +784,8 @@ export default component(
                                     spellcheck: false,
                                     value: () => state.query,
                                     ...this?.attributes?.[COMMAND_INPUT],
-                                    ...attributes[COMMAND_INPUT]
+                                    ...attributes[COMMAND_INPUT],
+                                    class: ['command-input', this?.attributes?.[COMMAND_INPUT]?.class, attributes[COMMAND_INPUT]?.class].flat()
                                 })}
                                 ${() => state.query.trim() && html`
                                     <span aria-hidden='true' class='command-count'>
@@ -792,6 +809,8 @@ export default component(
                                             role='tab'
                                             tabindex='-1'
                                             type='button'
+                                            ${this?.attributes?.[COMMAND_TAB]}
+                                            ${attributes[COMMAND_TAB]}
                                             ${{
                                                 'aria-selected': () => current() === view ? 'true' : 'false',
                                                 class: () => current() === view && '--active',
@@ -821,6 +840,7 @@ export default component(
                                         id='${view.key}'
                                         style='--n: ${i}'
                                         ${views.length > 1 && { 'aria-labelledby': `${view.key}-tab`, role: 'tabpanel' }}
+                                        ${scrollbar({ fade: true })}
                                         ${{
                                             class: () => current() === view && (ui.moving ? '--active frame--moving' : '--active'),
                                             inert: () => current() !== view
@@ -831,7 +851,8 @@ export default component(
                                             class='command-list'
                                             id='${view.key}-listbox'
                                             role='listbox'
-                                            ${scrollbar()}
+                                            ${this?.attributes?.[COMMAND_LIST]}
+                                            ${attributes[COMMAND_LIST]}
                                             ${{
                                                 class: () => !read(view.results).flat.length && 'command-list--empty',
                                                 onmouseleave: () => {
@@ -863,8 +884,11 @@ export default component(
     },
     {
         dialog: COMMAND_DIALOG,
+        group: COMMAND_GROUP,
         input: COMMAND_INPUT,
+        list: COMMAND_LIST,
         option: COMMAND_OPTION,
+        tab: COMMAND_TAB,
         trigger: COMMAND_TRIGGER
     }
 );
