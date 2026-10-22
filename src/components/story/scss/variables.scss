@@ -1,5 +1,6 @@
 @use 'css-utilities/background';
 @use 'css-utilities/box-shadow';
+@use 'css-utilities/color';
 @use 'css-utilities/surface';
 
 
@@ -35,5 +36,9 @@
     // Neighbours dragged into view read at full strength, like the story they are about to become.
     &-slide.frame {
         --opacity: 1;
+    }
+
+    &-toggle {
+        @extend %color-state, %color-text;
     }
 }
