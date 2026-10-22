@@ -19,7 +19,7 @@
 
     // Wider than a square cap so the light clears the icon
     &-key {
-        --padding-horizontal: 9px;
+        --padding-horizontal: 10px;
 
         // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
         &-icon.icon {
@@ -30,8 +30,8 @@
             --box-shadow: none;
             --color: var(--surface-border-default);
             --color-active: var(--color-green-400);
-            --inset: calc(var(--size-300) / 4);
-            --size: 4px;
+            --inset: 5px;
+            --size: 3px;
         }
     }
 }
