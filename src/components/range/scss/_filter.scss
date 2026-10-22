@@ -1,8 +1,5 @@
 @use '/tokens';
 @use 'css-utilities/absolute';
-@use 'css-utilities/background';
-@use 'css-utilities/box-shadow';
-@use 'css-utilities/color';
 @use 'css-utilities/hidden';
 @use 'variables';
 
@@ -27,7 +24,6 @@
     }
 
     &-clear {
-        @extend %background-state, %color-state, %color-text;
         --background-default: var(--clear-background);
         --background-hover: var(--clear-hover);
         --background-pressed: var(--background-hover);
@@ -270,7 +266,6 @@
 
     // Held inside the track like Radix does it: the centre travels from half a thumb in at each end.
     &-thumb {
-        @extend %box-shadow-state;
         --box-shadow-active: var(--thumb-shadow-active);
         --box-shadow-default: var(--thumb-shadow);
         background: var(--thumb-background);

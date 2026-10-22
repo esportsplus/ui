@@ -1,6 +1,4 @@
 @use 'sass:meta';
-@use 'css-utilities/background';
-@use 'css-utilities/border';
 @use 'filter';
 @use 'variables';
 
@@ -16,7 +14,6 @@
 }
 
 .range {
-    @extend %background-state, %border-primary, %border-state;
     appearance: none;
     background: var(--background);
     border: 0px;
