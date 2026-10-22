@@ -104,7 +104,6 @@
     }
 
     // Keep the native input interactive while the SVG supplies its appearance.
-    // TODO: Pointer events none on parent and default here?
     &-tag {
         @extend %absolute-full;
         cursor: inherit;
