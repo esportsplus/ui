@@ -1,4 +1,7 @@
+@use 'css-utilities/surface';
+
 .shell {
+    @extend %surface-root;
     // How far the card stands from the window.
     --gap: 0px;
     --height: calc(100dvh - var(--gap) * 2);
@@ -14,6 +17,14 @@
     --slide-easing: cubic-bezier(0.32, 0.72, 0, 1);
     // How wide an open sidebar is, and so the room it makes beside the card.
     --space: min(280px, calc(100vw - 88px));
+
+    &-sidebar {
+        @extend %surface-lower;
+    }
+
+    &-surface {
+        @extend %surface-root;
+    }
 
     &.--left-open {
         --left-gap: 0px;
@@ -42,6 +53,7 @@
     }
 
     &-main {
+        @extend %surface-raise;
         --border-radius: var(--border-radius-500);
         // The card draws its shadow on a layer of its own as well, from this.
         --box-shadow: none;

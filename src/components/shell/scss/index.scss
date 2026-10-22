@@ -1,9 +1,7 @@
 @use '/tokens';
-@use 'css-utilities/surface';
 @use 'variables';
 
 .shell {
-    @extend %surface-root;
     display: grid;
     grid-template-columns: var(--left-space) minmax(0, 1fr) var(--right-space);
     height: 100dvh;
@@ -97,7 +95,6 @@
     // The surface paints the card, so its content keeps its layout while the surface draws back from it, cut off where
     // the surface no longer reaches; it reflows once a sidebar settles open or closed.
     &-main {
-        @extend %surface-raise;
         background: transparent;
         clip-path: inset(
             0
@@ -124,7 +121,6 @@
     }
 
     &-sidebar {
-        @extend %surface-lower;
         bottom: 0;
         display: flex;
         flex-direction: column;
@@ -166,7 +162,6 @@
     }
 
     &-surface {
-        @extend %surface-root;
         background: var(--surface-background-default);
         border-radius: var(--border-radius-500);
         inset-block: var(--gap);
