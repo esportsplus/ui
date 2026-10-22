@@ -16,7 +16,7 @@ const meta: Record<string, Meta> = {
         description: 'Path trail that folds middle segments into a menu as space runs out, sliding the rest to close the gap.'
     },
     button: {
-        description: 'Trigger actions with color and modifier variants, plus a copy button, and an async save that morphs into a spinner, confirms with a check, and shakes on failure.'
+        description: 'Trigger actions with color and modifier variants, plus a copy button, state-keyed faces, and an async morph with your own content or a ready-made save that morphs into a spinner, confirms with a check, and shakes on failure.'
     },
     capslock: {
         description: 'Keycap warning that fades in beside "Caps Lock is on" while the lock is engaged, read from any key or pointer event on the page.',

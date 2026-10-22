@@ -1,18 +1,13 @@
 @use '/tokens';
 @use 'css-utilities/absolute';
-@use 'css-utilities/background';
-@use 'css-utilities/border';
-@use 'css-utilities/box-shadow';
-@use 'css-utilities/color';
 @use 'css-utilities/hidden';
 @use 'css-utilities/icon';
 @use 'css-utilities/layer';
-@use 'css-utilities/surface';
 @use 'css-utilities/text';
 @use 'variables';
 
 .button {
-    @extend %background-state, %border-state, %box-shadow-state, %color-state, %text;
+    @extend %text;
     align-content: center;
     align-items: center;
     background: var(--background);
@@ -34,9 +29,32 @@
     white-space: nowrap;
 
 
-    &--black {
-        @extend %background-black, %color-white;
+    // Pseudo Element Box Shadow
+    &::after {
+        @extend %layer-box-shadow;
     }
+
+    // An icon resolves '--color' itself rather than inheriting the label's eased colour, so it eases alongside. Zero
+    // specificity, so an icon's own transition wins.
+    :where(&) :where(.icon) {
+        transition:
+            color var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &--kbd {
+            @include tokens.state(active pressed) {
+                translate: none;
+            }
+        }
+
+        &-face,
+        &-icon--draw {
+            transition: none;
+        }
+    }
+
 
     &--feedback {
         -webkit-touch-callout: none;
@@ -51,6 +69,7 @@
     }
 
     &--kbd {
+        @extend %text-crop;
         font-family: inherit;
 
         @include tokens.state(active pressed) {
@@ -91,11 +110,6 @@
         }
     }
 
-    // The theme's ink, black on a light page and white on a dark one, lettered in the page's own color.
-    &--primary {
-        @extend %background-primary, %color-surface;
-    }
-
     &--processing {
         color: transparent;
         pointer-events: none;
@@ -127,15 +141,6 @@
         }
     }
 
-    // The button's own raised layer, painted.
-    &--surface {
-        @extend %background-surface, %border-surface, %color-text;
-
-        &-primary {
-            @extend %surface-primary;
-        }
-    }
-
     &--tactile {
         @include tokens.state('pressed') {
             translate: 0 1px;
@@ -156,9 +161,6 @@
         }
     }
 
-    &--white {
-        @extend %background-white, %color-black;
-    }
 
     &-face {
         align-items: center;
@@ -253,24 +255,21 @@
         }
     }
 
-    &-sidebar {
-        &--right &-graphic {
+    &--sidebar {
+        &-right svg {
             scale: -1 1;
         }
 
-        // Chained through '.icon' so it wins over the icon's own fill regardless of stylesheet order.
-        &-icon {
-            // Drawn in strokes, with fills set per path, where the icon would fill the whole SVG.
-            .button-sidebar-graphic {
-                fill: none;
-                overflow: hidden;
-            }
+        // Drawn in strokes, with fills set per path, where the icon would fill the whole SVG.
+        svg {
+            fill: none;
+            overflow: hidden;
         }
 
         // A round-capped stroke stays rounded at every width; the shift pins its outer edge against the frame as it
         // thins from 3 units to 1, whole units that keep the closed line on the pixel grid at the default icon size.
         // Caps add the width to the 5-unit line, so the stretch restores what thinning takes to hold it 8 units tall.
-        &-panel {
+        path {
             stroke-width: calc(1px + 2px * var(--open));
             transform:
                 translateX(calc((var(--open) - 1) * 1px))
@@ -308,8 +307,6 @@
         }
 
         &-menu {
-            display: flex;
-
             // Hangs from the trigger's end edge so it stays under the whole group.
             > .tooltip-menu-layer > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
                 left: auto;
@@ -345,32 +342,6 @@
 
     &-status {
         @extend %hidden-visually;
-    }
-
-    // Pseudo Element Box Shadow
-    &::after {
-        @extend %layer-box-shadow;
-    }
-
-    // An icon resolves '--color' itself rather than inheriting the label's eased colour, so it eases alongside. Zero
-    // specificity, so an icon's own transition wins.
-    :where(&) :where(.icon) {
-        transition:
-            color var(--transition-duration) var(--transition-timing-function),
-            opacity var(--transition-duration) var(--transition-timing-function);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &--kbd {
-            @include tokens.state(active pressed) {
-                translate: none;
-            }
-        }
-
-        &-face,
-        &-icon--draw {
-            transition: none;
-        }
     }
 }
 

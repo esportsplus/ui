@@ -25,6 +25,29 @@
         --box-shadow-active: var(--box-shadow-hover);
     }
 
+    // Set in a recessed track with a raised pill, the docs' Preview / Code toggle: the same pinned levels as
+    // '.preview-view'.
+    &--track {
+        @extend %surface-lower;
+        --surface-level: -3;
+        background: var(--surface-background-default);
+        border-radius: var(--border-radius-600);
+        padding: calc(var(--size-100) / 2);
+    }
+
+    // Clear in every state, so nothing paints over the pill as it glides beneath them.
+    &--track &-button {
+        --background-hover: transparent;
+        --background-pressed: transparent;
+        --box-shadow-hover: none;
+        --box-shadow-pressed: none;
+    }
+
+    &--track &-highlight {
+        @extend %background-surface, %surface-raise;
+        --surface-level: 1;
+    }
+
     &-highlight {
         @extend %surface-primary;
         --scale-hidden: 1;

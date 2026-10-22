@@ -2,6 +2,7 @@ import { button, group, icon } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import toast from 'docs/components/toaster';
+import check from '@esportsplus/ui/svg/check.svg';
 import code from '@esportsplus/ui/svg/code.svg';
 import eye from '@esportsplus/ui/svg/eye.svg';
 import page from '@esportsplus/ui/svg/document.svg';
@@ -11,13 +12,7 @@ import 'docs/examples/button/scss/index.scss';
 let row = 'display: flex; flex-wrap: wrap; gap: var(--size-400); align-items: center;';
 
 
-let border = '--border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color);',
-    icons = {
-        link: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71' /><path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71' /></svg>`,
-        message: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d='M7.9 20A9 9 0 1 0 4 16.1L2 22Z' /></svg>`,
-        plus: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><path d='M5 12h14' /><path d='M12 5v14' /></svg>`,
-        share: () => html`<svg fill='none' height='16' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='16'><circle cx='18' cy='5' r='3' /><circle cx='6' cy='12' r='3' /><circle cx='18' cy='19' r='3' /><path d='m8.59 13.51 6.83 3.98' /><path d='m15.41 6.51-6.82 3.98' /></svg>`
-    },
+let border = '', //'--border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color);',
     modifiers = [
         ['black', 'Black'],
         ['primary', 'Primary'],
@@ -35,14 +30,14 @@ let border = '--border-width: var(--border-width-400); border: var(--border-widt
     ];
 
 
-function segmented(glide: boolean) {
+function segmented(glide: boolean, track = false) {
     let state = reactive({ active: 0 });
 
     return group(
         {
             [group.highlight]: glide ? { class: 'button-demo-group-highlight' } : undefined,
             'aria-label': 'View',
-            class: ['button-demo-group', !glide && 'button-demo-group--static'],
+            class: ['button-demo-group', !glide && 'button-demo-group--static', track && 'button-demo-group--track'],
             role: 'group'
         },
         views.map(({ glyph, label }, index) => html`
@@ -57,6 +52,27 @@ function segmented(glide: boolean) {
             </button>
         `)
     );
+}
+
+function split(highlight: boolean) {
+    return html`
+        <div style='${row}'>
+            ${(['primary', 'surface', 'surface-primary'] as const).map((modifier) => button.split(
+                {
+                    [button.split.action]: { class: `button--${modifier}`, onclick: () => toast(() => 'Deployed to production.'), style: border },
+                    [button.split.trigger]: { 'aria-label': 'Choose environment', class: `button--${modifier}`, style: border },
+                    class: `tooltip-menu--${modifier}`,
+                    highlight,
+                    items: [
+                        { label: 'Production', onselect: () => toast(() => 'Production selected.') },
+                        { label: 'Staging', onselect: () => toast(() => 'Staging selected.') },
+                        { disabled: true, label: 'Preview' }
+                    ]
+                },
+                'Deploy'
+            ))}
+        </div>
+    `;
 }
 
 function wait(ms: number) {
@@ -91,6 +107,33 @@ export default {
             title: 'copy'
         },
         {
+            render: () => {
+                let follows = 0,
+                    state = reactive({ status: 'idle' as 'error' | 'idle' | 'success' });
+
+                // Every other follow fails, so both tones are one click apart.
+                return html`
+                    <button
+                        class='button button--feedback button--primary'
+                        onclick='${() => {
+                            state.status = state.status !== 'idle' ? 'idle' : follows++ % 2 === 1 ? 'error' : 'success';
+                        }}'
+                        type='button'
+                    >
+                        ${button.faces(() => state.status, [
+                            { content: 'Follow', key: 'idle' },
+                            { content: html`${icon({ 'aria-hidden': 'true', class: 'button-icon button-icon--draw' }, check)}Following`, key: 'success', tone: 'success' },
+                            { content: 'Couldn\'t follow', key: 'error', tone: 'error' }
+                        ])}
+                        <span aria-live='polite' class='button-status' role='status'>
+                            ${() => state.status === 'success' ? 'Following' : state.status === 'error' ? 'Couldn\'t follow' : ''}
+                        </span>
+                    </button>
+                `;
+            },
+            title: 'faces'
+        },
+        {
             render: () => segmented(true),
             title: 'group'
         },
@@ -99,17 +142,21 @@ export default {
             title: 'group without highlight'
         },
         {
+            render: () => segmented(true, true),
+            title: 'group with background'
+        },
+        {
             render: () => {
                 let saves = 0;
 
                 // Every other save fails, so both endings are one click apart.
-                return button.morph({ onsave: () => wait(1200).then(() => {
+                return button.morph.save({ onsave: () => wait(1200).then(() => {
                     if (saves++ % 2 === 1) {
                         throw new Error('Docs: save failed');
                     }
                 }) });
             },
-            title: 'morph'
+            title: 'morph.save'
         },
         {
             render: () => {
@@ -117,12 +164,44 @@ export default {
 
                 return html`
                     <div style='${row}'>
-                        ${button.morph({ class: 'button-demo-morph', label: 'Publish', onsave: () => wait(1200), state, successFor: 2400 })}
+                        ${button.morph.save({ class: 'button-demo-morph', label: 'Publish', onsave: () => wait(1200), state, successFor: 2400 })}
                         <span style='color: var(--color-text-300); font-size: 14px;'>${() => state.status}</span>
                     </div>
                 `;
             },
-            title: 'morph, observed state'
+            title: 'morph.save, observed state'
+        },
+        {
+            render: () => {
+                let deploys = 0,
+                    state = reactive({ status: 'idle' as 'error' | 'idle' | 'loading' | 'success' }),
+                    text = (status: typeof state.status, label: string) => html`
+                        <span class='button-morph-text ${() => state.status === status && '--active'}'>${label}</span>
+                    `;
+
+                // Every other deploy fails. The text swaps in place and the width never collapses to a circle.
+                return button.morph(
+                    {
+                        announce: { error: 'Deploy failed', loading: 'Deploying', success: 'Deployed' },
+                        compact: () => false,
+                        onaction: () => wait(1200).then(() => {
+                            if (deploys++ % 2 === 1) {
+                                throw new Error('Docs: deploy failed');
+                            }
+                        }),
+                        state,
+                        [button.morph.content]: { 'aria-hidden': 'true' },
+                        'aria-label': () => state.status === 'error' ? 'Retry deploy' : 'Deploy'
+                    },
+                    html`
+                        ${text('idle', 'Deploy')}
+                        ${text('loading', 'Deploying…')}
+                        ${text('success', 'Deployed')}
+                        ${text('error', 'Retry deploy')}
+                    `
+                );
+            },
+            title: 'morph, custom content'
         },
         {
             render: () => {
@@ -144,34 +223,11 @@ export default {
             title: 'sidebar'
         },
         {
-            render: () => html`
-                <div style='${row}'>
-                    ${button.split(
-                        {
-                            [button.split.action]: { class: surface, onclick: () => toast(() => 'Pushed and created PR.'), style: border },
-                            [button.split.trigger]: { 'aria-label': 'More git actions', class: surface, style: border },
-                            items: [
-                                { label: 'Commit', onselect: () => toast(() => 'Commit selected.') },
-                                { label: 'Push', onselect: () => toast(() => 'Push selected.') },
-                                { label: 'Create PR', onselect: () => toast(() => 'Create PR selected.') }
-                            ]
-                        },
-                        html`${icons.share()} Push & create PR`
-                    )}
-                    ${button.split(
-                        {
-                            [button.split.action]: { 'aria-label': 'Open in editor', class: surface, onclick: () => toast(() => 'Opened in editor.'), style: border },
-                            [button.split.trigger]: { 'aria-label': 'Choose editor', class: surface, style: border },
-                            items: [
-                                { icon: icons.link, label: 'Cursor', onselect: () => toast(() => 'Cursor selected.') },
-                                { icon: icons.message, label: 'VS Code', onselect: () => toast(() => 'VS Code selected.') }
-                            ],
-                            trigger: icons.plus()
-                        },
-                        icon({ 'aria-hidden': 'true' }, code)
-                    )}
-                </div>
-            `,
+            render: () => split(true),
+            title: 'split with highlight'
+        },
+        {
+            render: () => split(false),
             title: 'split'
         }
     ]

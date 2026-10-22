@@ -32,10 +32,6 @@ export default component(
                 ${attributes}
                 ${{
                     'aria-label': text,
-                    ondisconnect: () => {
-                        request++;
-                        clearTimeout(timer);
-                    },
                     onclick: async (e: MouseEvent) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -53,6 +49,10 @@ export default component(
                         timer = setTimeout(() => {
                             state.status = 'idle';
                         }, timeout);
+                    },
+                    ondisconnect: () => {
+                        request++;
+                        clearTimeout(timer);
                     },
                     title: text
                 }}

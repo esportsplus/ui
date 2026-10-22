@@ -1,14 +1,22 @@
 @use '/tokens';
 @use 'css-utilities/background';
+@use 'css-utilities/border';
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/color';
 @use 'css-utilities/surface';
 @use 'css-utilities/text';
 
 // A surface, so its fills and whatever sits in it read from a level above its parent. Flat by default, since most
 // buttons are transparent; a tactile one rises off its parent with the surface's shadow.
 .button {
-    @extend %surface-raise;
+    @extend %background-state, %border-state, %box-shadow-state, %color-state, %surface-raise;
     --border-color-default: var(--background);
+    --border-width: var(--border-width-400);
 
+
+    &--black {
+        @extend %background-black, %color-white;
+    }
 
     &--copy {
         --border-radius: var(--border-radius-300);
@@ -26,7 +34,7 @@
 
     // A hairline ring plus an inset bottom edge gives the keycap its depth; pressing drops the cap by that edge.
     &--kbd {
-        @extend %background-surface, %text-crop;
+        @extend %background-surface;
         --border-color-default: var(--surface-border-default);
         --border-radius: var(--border-radius-300);
         --box-shadow-active: none;
@@ -76,11 +84,28 @@
         }
     }
 
+    &--primary {
+        @extend %background-primary, %color-surface;
+    }
+
     &--processing {
         --animation-duration: 0.64s;
         --border-width: var(--border-width-400);
         --size: var(--size-400);
     }
+
+    &--surface {
+        @extend %background-surface, %border-surface, %color-text;
+
+        &-primary {
+            @extend %surface-primary;
+        }
+    }
+
+    &--white {
+        @extend %background-white, %color-black;
+    }
+
 
     &-face {
         --blur: var(--blur-400);
@@ -112,16 +137,16 @@
     }
 
     // 1 while the panel shows, 0 while hidden; the pill's width and offset both derive from it.
-    &-sidebar {
+    &--sidebar {
         --open: 1;
 
-        &-panel {
+        path {
             --transition-duration: 130ms;
         }
 
         // Hidden panels thin the pill to a line; hover and focus preview the opposite state unless a toggle just
         // happened under them.
-        &:not(&--held) {
+        &:not(&-held) {
             &[aria-expanded='false']:focus-visible {
                 --open: 1;
             }
