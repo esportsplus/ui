@@ -20,8 +20,8 @@
 
     // A well a level below the list it frames.
     &-lens {
-        @extend %surface-raise;
-        --background: var(--surface-background-active);
+        @extend %surface-primary;
+        --background: var(--background-active);
         --border-radius: var(--border-radius-600);
     }
 
