@@ -1,3 +1,5 @@
+@use 'css-utilities/border';
+@use 'css-utilities/color';
 @use 'css-utilities/surface';
 
 .nav-tree {
@@ -80,5 +82,9 @@
         --line-color: var(--indicator-color);
         --line-width: var(--indicator-width);
         --scale-hidden: 1;
+    }
+
+    &-link {
+        @extend %border-state, %color-state, %color-text;
     }
 }

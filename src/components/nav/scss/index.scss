@@ -1,6 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/border';
-@use 'css-utilities/color';
 @use 'css-utilities/text';
 @use 'variables';
 
@@ -36,7 +34,7 @@
     }
 
     &-link {
-        @extend %border-state, %color-state, %color-text, %text;
+        @extend %text;
         --border-color-active: var(--link-border-color-active);
         --border-color-default: var(--link-border-color);
         --border-color-hover: var(--link-border-color-hover);
