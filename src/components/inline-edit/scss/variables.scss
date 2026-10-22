@@ -1,4 +1,7 @@
+@use '/tokens';
 @use 'css-utilities/background';
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
 
 
 .inline-edit {
@@ -50,6 +53,17 @@
         --background-pressed: var(--background-hover);
     }
 
+    &-editor {
+        #{tokens.state(active, '.inline-edit')} > & {
+            @extend %surface-raise;
+        }
+
+        code,
+        pre {
+            @extend %surface-lower;
+        }
+    }
+
     // The icons are chained through '.icon' so they win over its own size and color regardless of stylesheet order.
     &-icon {
         &-check.icon {
@@ -95,6 +109,10 @@
     &-toolbar--link {
         --toolbar-format-display: none;
         --toolbar-link-display: flex;
+    }
+
+    &-toolbar-button {
+        @extend %color-text;
     }
 
     &-toolbar-icon.icon {

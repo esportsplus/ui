@@ -1,9 +1,7 @@
 @use '/tokens';
-@use 'css-utilities/color';
 @use 'css-utilities/font/geist';
 @use 'css-utilities/hidden';
 @use 'css-utilities/icon';
-@use 'css-utilities/surface';
 @use 'variables';
 
 // Pulled out by its own padding, so the text lines up with the surrounding content while the tint still has room.
@@ -73,7 +71,6 @@
         transition: background-color var(--transition-duration) var(--transition-timing-function);
 
         #{tokens.state(active, '.inline-edit')} > & {
-            @extend %surface-raise;
             --background-default: var(--field-background, var(--surface-background-default));
             --background-hover: var(--background-default);
             box-shadow: var(--field-ring);
@@ -122,7 +119,7 @@
 
         code,
         pre {
-            @extend %font-geist-mono, %surface-lower;
+            @extend %font-geist-mono;
             background: var(--surface-background-default);
             font-family: var(--font-family);
             font-size: 0.875em;
@@ -385,7 +382,6 @@
     }
 
     &-toolbar-button {
-        @extend %color-text;
         --background-default: transparent;
         --background-hover: color-mix(in oklab, var(--toolbar-color) 6%, transparent);
         --border-radius: var(--border-radius-400);
