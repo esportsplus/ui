@@ -1,7 +1,9 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, flush, onCleanup, reactive } from '@esportsplus/reactivity';
 import error, { type Direction } from '~/components/error';
+import icon from '~/components/icon';
 import { mac as apple } from '~/shared/platform';
+import cmd from '@esportsplus/ui/svg/command.svg';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
@@ -39,7 +41,7 @@ const MODIFIER_KEYS = new Set(['Alt', 'Control', 'Meta', 'OS', 'Shift']);
 const TOKEN = /[^+]+|\+/g;
 
 
-function glyph(token: string, mac: boolean) {
+function glyph(token: string, mac: boolean): Renderable<unknown> {
     if (token === 'Alt') {
         return mac ? '⌥' : 'Alt';
     }
@@ -48,8 +50,9 @@ function glyph(token: string, mac: boolean) {
         return '⌃';
     }
 
+    // ⌘ is an icon, since most fonts lack the glyph and fall back to one that sits wrong in the keycap.
     if (token === 'Mod') {
-        return mac ? '⌘' : 'Ctrl';
+        return mac ? icon({ 'aria-hidden': 'true', class: 'button-kbd-icon' }, cmd) : 'Ctrl';
     }
 
     if (token === 'Shift') {

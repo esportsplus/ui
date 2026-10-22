@@ -43,6 +43,7 @@ import left from '@esportsplus/ui/svg/arrow-left.svg';
 import right from '@esportsplus/ui/svg/arrow-right.svg';
 import collapse from '@esportsplus/ui/svg/chevrons-up-down.svg';
 import close from '@esportsplus/ui/svg/close.svg';
+import cmd from '@esportsplus/ui/svg/command.svg';
 import wrap from '@esportsplus/ui/svg/corner-down-right.svg';
 import whitespace from '@esportsplus/ui/svg/eye.svg';
 import save from '@esportsplus/ui/svg/save.svg';
@@ -170,7 +171,8 @@ function control({ active, disabled, label, onclick, sprite }: Control) {
     `;
 }
 
-// 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere, as the command palette spells it.
+// 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere, as the command palette spells it. Text, for titles; keycaps swap
+// the ⌘ for its icon, since most fonts lack the glyph.
 function keys(names: string[]) {
     let apple = mac();
 
@@ -764,7 +766,11 @@ const workspace = ({
                 <div class='code-workspace-empty'>
                     Open a file from the explorer or press
                     <span class='code-workspace-keys'>
-                        ${keys(['Mod', 'P']).map((key) => html`<kbd class='button button--kbd'>${key}</kbd>`)}
+                        ${keys(['Mod', 'P']).map((key) => html`
+                            <kbd class='button button--kbd'>
+                                ${key === '⌘' ? icon({ 'aria-hidden': 'true', class: 'button-kbd-icon' }, cmd) : key}
+                            </kbd>
+                        `)}
                     </span>
                 </div>
             `;

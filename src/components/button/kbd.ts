@@ -1,5 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
-import { component, html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import icon from '~/components/icon';
+import cmd from '@esportsplus/ui/svg/command.svg';
 
 
 type A = Attributes & {
@@ -11,14 +13,16 @@ type A = Attributes & {
 };
 
 
-const KEYS: Record<string, [key: string, legend: string]> = {
+// ⌘ is an icon, since most fonts lack the glyph and fall back to one that sits wrong in the keycap; a function so each
+// keycap gets its own.
+const KEYS: Record<string, [key: string, legend: string | (() => Renderable<unknown>)]> = {
     alt: ['alt', '⌥'],
     ctrl: ['control', '⌃'],
     down: ['arrowdown', '↓'],
     enter: ['enter', '↵'],
     escape: ['escape', 'esc'],
     left: ['arrowleft', '←'],
-    meta: ['meta', '⌘'],
+    meta: ['meta', () => icon({ 'aria-hidden': 'true', class: 'button-kbd-icon' }, cmd)],
     right: ['arrowright', '→'],
     shift: ['shift', '⇧'],
     space: [' ', '␣'],
@@ -87,7 +91,7 @@ export default component(
                     }
                 }}
             >
-                ${legend}
+                ${typeof legend === 'function' ? legend() : legend}
             </kbd>
         `;
     }

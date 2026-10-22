@@ -131,9 +131,17 @@
         }
     }
 
-    &-morph-icon {
-        --icon-swap-duration: 300ms;
-        --icon-swap-timing-function: var(--spring);
+    // A keycap's icon legend, sized to its text. Chained through '.icon' so it wins over the icon's own size regardless
+    // of stylesheet order.
+    &-kbd-icon.icon {
+        --size: 12px;
+    }
+
+    &-morph {
+        &-icon {
+            --icon-swap-duration: 300ms;
+            --icon-swap-timing-function: var(--spring);
+        }
     }
 
     // 1 while the panel shows, 0 while hidden; the pill's width and offset both derive from it.
