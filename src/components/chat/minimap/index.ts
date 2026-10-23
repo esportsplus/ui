@@ -1,16 +1,16 @@
 import { effect, reactive, ReactiveArray, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
+import { lead, step, type Range } from './model';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import subscribe from '~/shared/subscribe';
 import down from '@esportsplus/ui/svg/chevron-down.svg';
 import up from '@esportsplus/ui/svg/chevron-up.svg';
-import { lead, step, type Range } from './range';
 import spy from './spy';
 import './scss/index.scss';
 
 
-type A = Attributes & {
+type ChatMinimapAttributes = Attributes & {
     [CHAT_MINIMAP_CARD]?: Attributes;
     [CHAT_MINIMAP_DESCRIPTION]?: Attributes;
     [CHAT_MINIMAP_ITEM]?: Attributes;
@@ -78,7 +78,7 @@ function itemFrom(target: EventTarget | null) {
     return (target as HTMLElement | null)?.closest<Item>('.chat-minimap-item') ?? null;
 }
 
-function template({ label = 'Conversation turns', next = 'Next turn', onnavigate, previous = 'Previous turn', side = 'right', state = reactive({ end: 0, start: 0 }), turns, ...attributes }: A) {
+function template({ label = 'Conversation turns', next = 'Next turn', onnavigate, previous = 'Previous turn', side = 'right', state = reactive({ end: 0, start: 0 }), turns, ...attributes }: ChatMinimapAttributes) {
     let card = tooltip.shared({ delay: DELAY, direction: side === 'left' ? 'w' : 'e' }),
         id = `chat-minimap-${++uid}`,
         items = new Map<Turn, Item>(),
@@ -304,7 +304,12 @@ export default component(template, {
     line: CHAT_MINIMAP_LINE,
     nav: CHAT_MINIMAP_NAV,
     preview: CHAT_MINIMAP_PREVIEW,
-    spy,
-    title: CHAT_MINIMAP_TITLE
+    title: CHAT_MINIMAP_TITLE,
+    spy
 });
-export type { Range as ChatMinimapRange, Side as ChatMinimapSide, Turn as ChatMinimapTurn };
+export type {
+    ChatMinimapAttributes,
+    Range as ChatMinimapRange,
+    Side as ChatMinimapSide,
+    Turn as ChatMinimapTurn
+};

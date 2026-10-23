@@ -1,7 +1,7 @@
 import { reactive, ReactiveArray } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { chatMinimap } from '@esportsplus/ui/components';
-import type { ChatMinimapSide, ChatMinimapTurn } from '@esportsplus/ui/components/chat-minimap';
+import { chat } from '@esportsplus/ui/components';
+import type { ChatMinimapSide, ChatMinimapTurn } from '@esportsplus/ui/components/chat';
 import { CONVERSATION, FOLLOW_UPS, long, turns, type Exchange } from 'docs/examples/chat-minimap/data';
 import type { Entry } from 'docs/types';
 import 'docs/examples/chat-minimap/scss/index.scss';
@@ -13,7 +13,7 @@ function rail(data: ChatMinimapTurn[], start: number, side: ChatMinimapSide = 'r
 
     return html`
         <div class='chat-minimap-demo ${`chat-minimap-demo--${side}`}'>
-            ${chatMinimap({ side, state, turns: data })}
+            ${chat.minimap({ side, state, turns: data })}
             <span class='chat-minimap-demo-status'>
                 ${() => `turns ${state.start + 1}–${state.end} of ${data.length} in view`}
             </span>
@@ -25,7 +25,7 @@ function thread() {
     let asked = 0,
         exchanges = new ReactiveArray<Exchange>(CONVERSATION),
         state = reactive({ end: 0, start: 0 }),
-        spy = chatMinimap.spy({ state, turns: exchanges }),
+        spy = chat.minimap.spy({ state, turns: exchanges }),
         waiting = reactive({ done: false });
 
     function ask() {
@@ -53,7 +53,7 @@ function thread() {
             </div>
 
             <div class='chat-minimap-thread-rail'>
-                ${chatMinimap({ onnavigate: spy.scrollTo, side: 'left', state, turns: exchanges })}
+                ${chat.minimap({ onnavigate: spy.scrollTo, side: 'left', state, turns: exchanges })}
             </div>
 
             <button class='button chat-minimap-thread-ask' type='button' ${{ disabled: () => waiting.done, onclick: ask }}>

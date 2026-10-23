@@ -1,5 +1,4 @@
 @use 'css-utilities/hidden';
-@use 'variables';
 
 // One line per turn, stacked with no gaps, so the pointer never falls between two lines and the card glides
 // straight from one to the next.
@@ -23,8 +22,8 @@
     &-card {
         display: flex;
         flex-direction: column;
-        gap: var(--gap-horizontal) var(--gap-vertical);
-        padding: var(--padding-horizontal) var(--padding-vertical);
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        padding: var(--padding-vertical) var(--padding-horizontal);
         width: var(--width);
     }
 
@@ -51,7 +50,7 @@
         flex-shrink: 0;
         height: var(--height);
         outline: none;
-        padding: 0 var(--inset);
+        padding: 0 var(--padding-horizontal);
         // Holds the hidden description.
         position: relative;
         width: var(--width);
@@ -91,7 +90,7 @@
         height: var(--height);
         opacity: 0;
         outline: none;
-        padding: 0 var(--inset);
+        padding: 0 var(--padding-horizontal);
         transition:
             color var(--transition-duration) var(--transition-timing-function),
             opacity var(--transition-duration) var(--transition-timing-function);

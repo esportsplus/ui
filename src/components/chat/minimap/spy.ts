@@ -1,5 +1,5 @@
 import type { Attributes } from '@esportsplus/template';
-import { span, type Range } from './range';
+import { span, type Range } from './model';
 
 
 // Lights every turn in view as a thread scrolls: 'root' goes on the scrolling element, 'turn(item)' on each turn in it,

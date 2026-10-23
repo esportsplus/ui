@@ -5,8 +5,8 @@
     &-card {
         --gap-horizontal: calc(var(--size-100) / 4);
         --gap-vertical: calc(var(--size-100) / 4);
-        --padding-horizontal: 12px;
-        --padding-vertical: 16px;
+        --padding-horizontal: 16px;
+        --padding-vertical: 12px;
         --width: 256px;
     }
 
@@ -23,14 +23,14 @@
         --color-rest: color-mix(in oklab, var(--color-primary-300) 40%, transparent);
         --focus-color: var(--color-primary-500);
         --height: var(--size-100);
-        // Lines sit this far in from the rail's leading edge, inside a hit area wider than the longest line.
-        --inset: calc(var(--size-100) / 2);
         --length: var(--length-rest);
         --length-far: var(--size-400);
         --length-near: var(--size-500);
         --length-peak: 24px;
         --length-rest: 12px;
         --line-color: var(--color-rest);
+        // Lines sit this far in from the rail's leading edge, inside a hit area wider than the longest line.
+        --padding-horizontal: calc(var(--size-100) / 2);
         --width: 32px;
 
         @include tokens.state(active) {
@@ -73,10 +73,28 @@
         }
     }
 
+    // The content swap as the card and labels glide between triggers. Each layer is a 'frame--swap', which declares
+    // these on itself, so they're set on the layers here, where a minimap can retime them.
+    &-label,
+    &-preview {
+        .tooltip-shared-layer {
+            --swap-duration: 0s;
+            --swap-exit-duration: var(--swap-duration);
+            --swap-exit-fade-duration: var(--swap-fade-duration);
+            --swap-fade-duration: 0s;
+            --swap-fade-timing-function: linear;
+            --swap-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+    }
+
     &-label.tooltip-shared {
-        --padding: calc(var(--size-100) / 2) var(--size-200);
         --radius: var(--border-radius-500);
         --spacer: 4px;
+
+        .tooltip-shared-layer {
+            --padding-horizontal: var(--size-200);
+            --padding-vertical: calc(var(--size-100) / 2);
+        }
     }
 
     &-line {
@@ -89,7 +107,7 @@
         @extend %color-state, %color-text;
         --focus-color: var(--color-primary-500);
         --height: var(--size-500);
-        --inset: calc(var(--size-100) / 2);
+        --padding-horizontal: calc(var(--size-100) / 2);
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;
         --width: 32px;
@@ -101,7 +119,7 @@
         --size: 12px;
     }
 
-    // A white card rather than the dark label bubble; '--padding' stays 0 so the card sets its own width.
+    // A white card rather than the dark label bubble; its layer's padding stays 0 so the card sets its own width.
     // A surface through the shared tooltip, so its colors are read at its own level.
     &-preview.tooltip-shared {
         --background-default: var(--surface-background-default);
@@ -109,23 +127,13 @@
         --box-shadow-default: 0 0 0 var(--border-width-400) var(--border-color), var(--surface-shadow-default);
         --color: var(--color-text-500);
         --font-size: var(--font-size-400);
-        --padding: 0;
         --radius: var(--border-radius-600);
         --spacer: var(--size-100);
         --white-space: normal;
-    }
 
-    // The content swap as the card and labels glide between triggers. Each layer is a 'frame--swap', which declares
-    // these on itself, so they're set on the layers here, where a minimap can retime them.
-    &-label,
-    &-preview {
         .tooltip-shared-layer {
-            --swap-duration: 0s;
-            --swap-exit-duration: var(--swap-duration);
-            --swap-exit-fade-duration: var(--swap-fade-duration);
-            --swap-fade-duration: 0s;
-            --swap-fade-timing-function: linear;
-            --swap-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
         }
     }
 
