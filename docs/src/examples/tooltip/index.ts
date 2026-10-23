@@ -322,17 +322,6 @@ export default {
             title: 'menu (onhover)'
         },
         {
-            render: () => html`
-                <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
-                    ${(['black', 'primary', 'surface', 'surface-primary', 'white'] as const).map((modifier) => tooltip.menu(
-                        { class: `tooltip-menu--${modifier}`, items: nested, [tooltip.menu.trigger]: { class: trigger } },
-                        modifier
-                    ))}
-                </div>
-            `,
-            title: 'menu (modifiers)'
-        },
-        {
             render: () => tooltip.menu(
                 { highlight: true, items: nested, [tooltip.menu.trigger]: { class: trigger } },
                 'highlight menu'

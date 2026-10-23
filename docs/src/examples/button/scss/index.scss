@@ -4,21 +4,6 @@
 // A segmented control: the active button rests on a pill in the surface's primary fill, which the highlight glides
 // between buttons. Buttons stay clear at rest and while active, so only the pill marks the active one.
 .button-demo-group {
-    &-button {
-        @extend %surface-primary;
-        --background-active: transparent;
-        --background-default: transparent;
-        --border-radius: var(--border-radius-400);
-        --box-shadow-active: none;
-        --box-shadow-default: none;
-        --font-size: var(--font-size-300);
-
-        &:focus-visible {
-            outline: 2px solid var(--color-blue-400);
-            outline-offset: calc(var(--size-100) / 4);
-        }
-    }
-
     // Without a highlight the pill sits on the active button itself and swaps instantly.
     &--static &-button {
         --background-active: var(--surface-primary-active);
@@ -46,6 +31,21 @@
     &--track &-highlight {
         @extend %background-surface, %surface-raise;
         --surface-level: 1;
+    }
+
+    &-button {
+        @extend %surface-primary;
+        --background-active: transparent;
+        --background-default: transparent;
+        --border-radius: var(--border-radius-400);
+        --box-shadow-active: none;
+        --box-shadow-default: none;
+        --font-size: var(--font-size-300);
+
+        &:focus-visible {
+            outline: 2px solid var(--color-blue-400);
+            outline-offset: calc(var(--size-100) / 4);
+        }
     }
 
     &-highlight {

@@ -61,7 +61,6 @@ function split(highlight: boolean) {
                 {
                     [button.split.action]: { class: `button--${modifier}`, onclick: () => toast(() => 'Deployed to production.'), style: border },
                     [button.split.trigger]: { 'aria-label': 'Choose environment', class: `button--${modifier}`, style: border },
-                    class: `tooltip-menu--${modifier}`,
                     highlight,
                     items: [
                         { label: 'Production', onselect: () => toast(() => 'Production selected.') },

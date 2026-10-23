@@ -89,7 +89,7 @@
     &-layer {
         left: 50%;
         max-width: var(--max-width);
-        padding: var(--padding);
+        padding: var(--padding-vertical) var(--padding-horizontal);
         position: absolute;
         top: 50%;
         transform: translate(-50%, -50%);

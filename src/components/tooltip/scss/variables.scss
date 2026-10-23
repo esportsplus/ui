@@ -80,14 +80,12 @@
         --color-disabled: var(--color-text-300);
         --color-hint: var(--color-text-300);
         --font-size: var(--font-size-300);
-        --gap: var(--size-200);
         --item-border-radius: var(--border-radius-400);
         --item-height: 36px;
-        --item-padding: var(--size-200);
+        --item-padding-horizontal: var(--size-200);
         --offset: var(--size-200);
         --open-duration: 0.16s;
         --open-timing-function: cubic-bezier(0.2, 0, 0, 1);
-        --padding: calc(var(--size-100) / 2);
         --scrim: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha * 0.9));
         --width: 17rem;
 
@@ -101,24 +99,17 @@
         }
     }
 
+    &-menu-header,
+    &-menu-item {
+        --gap-horizontal: var(--size-200);
+        --gap-vertical: var(--size-200);
+    }
+
     // Items take the hover and pressed steps of the panel they sit in.
     &-menu-item {
         @extend %background-state;
         --background-hover: var(--item-background-hover);
         --background-pressed: var(--item-background-pressed);
-    }
-
-    // With 'highlight', its layer takes the items' hover and pressed fills, so the items keep none of their own.
-    &-menu-panel:has(> .highlight) > .tooltip-menu-entry > .tooltip-menu-item {
-        --background-hover: var(--background-default);
-        --background-pressed: var(--background-default);
-    }
-
-    &-menu-panel > .highlight {
-        --background-default: var(--item-background-hover);
-        --background-pressed: var(--item-background-pressed);
-        // Rows are measured whole, so the layer takes the items' rounding rather than the row's.
-        border-radius: var(--item-border-radius);
     }
 
     // A surface of its own, so a branch panel sits a level above the panel it opened from. The title opacities are read
@@ -128,8 +119,10 @@
         @extend %background-state, %box-shadow-state, %surface-raise;
         --background-default: var(--surface-background-default);
         --box-shadow-default: var(--surface-shadow-default);
-        --item-background-hover: var(--surface-background-hover);
-        --item-background-pressed: var(--surface-background-pressed);
+        --item-background-hover: var(--surface-primary-default);
+        --item-background-pressed: var(--surface-primary-pressed);
+        --padding-horizontal: calc(var(--size-100) / 2);
+        --padding-vertical: calc(var(--size-100) / 2);
         --title-bold-opacity: 0;
         --title-regular-opacity: 1;
 
@@ -139,9 +132,22 @@
         }
     }
 
+    &-menu-panel > .highlight {
+        --background-default: var(--item-background-hover);
+        --background-pressed: var(--item-background-pressed);
+        // Rows are measured whole, so the layer takes the items' rounding rather than the row's.
+        border-radius: var(--item-border-radius);
+    }
 
-    // '--padding' and '--radius' rather than the usual names: the root resets '--padding-*' and '--border-radius' on
-    // every element, so the box and layers inside would never see them.
+    // With 'highlight', its layer takes the items' hover and pressed fills, so the items keep none of their own.
+    &-menu-panel:has(> .highlight) > .tooltip-menu-entry > .tooltip-menu-item {
+        --background-hover: var(--background-default);
+        --background-pressed: var(--background-default);
+    }
+
+
+    // '--radius' rather than the usual name: the root resets '--border-radius' on every element, so the box and layers
+    // inside would never see it.
     &-shared {
         @extend %background-state, %box-shadow-state, %surface-raise;
         --background-default: var(--color-primary-400);
@@ -155,7 +161,6 @@
         --glide-timing-function: cubic-bezier(0.22, 1.12, 0.36, 1);
         --max-width: calc(90vw - (var(--size-700) * 2));
         --open-duration: 0.16s;
-        --padding: var(--size-300);
         --radius: var(--border-radius-400);
         --rise: 4px;
         --scale: 0.94;
@@ -183,54 +188,26 @@
         &--w {
             --box-translate: var(--rise) 0;
         }
+
+        &-layer {
+            --padding-horizontal: var(--size-300);
+            --padding-vertical: var(--size-300);
+        }
     }
 }
 
 
-// Panel fills, set on a menu's root or any ancestor, such as a 'button.split'. ':is' lifts every panel to the
-// specificity of '_menu's expanding root panel, which these follow, so the expanding panel takes the fill too.
-// Filled panels derive hints, disabled items and item states from their ink.
+// The panel fill, set on a menu's root or any ancestor, such as a 'button.split'. ':is' lifts every panel to the
+// specificity of '_menu's expanding root panel, which this follows, so the expanding panel takes the fill too.
 $menu-panel: ':is(.tooltip-menu-panel, .tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand)';
 
-@mixin menu-fill($background, $color) {
-    --background-default: #{$background};
-    --color: #{$color};
-    --color-disabled: color-mix(in srgb, var(--color) 45%, transparent);
-    --color-hint: color-mix(in srgb, var(--color) 65%, transparent);
-    --item-background-hover: color-mix(in srgb, var(--color) 10%, transparent);
-    --item-background-pressed: color-mix(in srgb, var(--color) 16%, transparent);
-}
-
-.tooltip-menu {
-    &--black #{$menu-panel} {
-        @include menu-fill(var(--color-black-400), var(--color-white-400));
-    }
-
-    &--primary #{$menu-panel} {
-        @include menu-fill(var(--color-primary-400), var(--surface-background-default));
-    }
-
-    &--surface #{$menu-panel} {
-        --background-default: var(--surface-background-default);
-        --color: var(--color-text-500);
-        --color-disabled: var(--color-text-300);
-        --color-hint: var(--color-text-300);
-        --item-background-hover: var(--surface-background-hover);
-        --item-background-pressed: var(--surface-background-pressed);
-    }
-
-    &--surface-primary #{$menu-panel} {
-        --background-default: var(--surface-primary-default);
-        --color: var(--color-text-500);
-        --color-disabled: var(--color-text-300);
-        --color-hint: var(--color-text-300);
-        --item-background-hover: var(--surface-primary-hover);
-        --item-background-pressed: var(--surface-primary-pressed);
-    }
-
-    &--white #{$menu-panel} {
-        @include menu-fill(var(--color-white-400), var(--color-black-400));
-    }
+.tooltip-menu--surface #{$menu-panel} {
+    --background-default: var(--surface-background-default);
+    --color: var(--color-text-500);
+    --color-disabled: var(--color-text-300);
+    --color-hint: var(--color-text-300);
+    --item-background-hover: var(--surface-primary-default);
+    --item-background-pressed: var(--surface-primary-pressed);
 }
 
 

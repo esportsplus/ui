@@ -184,15 +184,15 @@
             // then the clip grows downward. The open clip overhangs the box so the shadow isn't cut off.
             & > .tooltip-menu-panel {
                 clip-path: inset(
-                var(--padding)
-                var(--padding)
-                calc(100% - var(--padding) - var(--item-height))
-                var(--padding)
+                var(--padding-vertical)
+                var(--padding-horizontal)
+                calc(100% - var(--padding-vertical) - var(--item-height))
+                var(--padding-horizontal)
                 round var(--item-border-radius)
             );
-                inset-inline: calc(var(--padding) * -1);
+                inset-inline: calc(var(--padding-horizontal) * -1);
                 pointer-events: none;
-                top: calc(var(--padding) * -1);
+                top: calc(var(--padding-vertical) * -1);
                 transition:
                 clip-path var(--close-duration) var(--open-timing-function),
                 visibility 0s linear var(--close-duration);
@@ -227,9 +227,9 @@
             align-items: center;
             border-radius: var(--item-border-radius);
             display: flex;
-            gap: var(--gap);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             min-height: var(--item-height);
-            padding-inline: var(--item-padding);
+            padding-inline: var(--item-padding-horizontal);
         }
 
         &-hint {
@@ -273,6 +273,13 @@
             }
         }
 
+        &-label,
+        &-title {
+            @extend %text-truncate;
+            flex: 1;
+            min-width: 0;
+        }
+
         // The root panel's popover, so an open menu stands above every stacking context around it. Anchored over the
         // menu's own box, so its panels place against it as they would against the menu; it takes no clicks itself.
         &-layer {
@@ -287,13 +294,6 @@
             }
         }
 
-        &-label,
-        &-title {
-            @extend %text-truncate;
-            flex: 1;
-            min-width: 0;
-        }
-
         &-panel {
             background: var(--background);
             border-radius: var(--border-radius);
@@ -301,7 +301,7 @@
             color: var(--color);
             font-size: var(--font-size);
             isolation: isolate;
-            padding: var(--padding);
+            padding: var(--padding-vertical) var(--padding-horizontal);
             position: absolute;
             width: var(--width);
 

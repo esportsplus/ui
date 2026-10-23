@@ -5,342 +5,352 @@
 @use 'css-utilities/surface';
 
 
-// Mentions in running text sharing one interactive profile card.
-.tooltip-card-demo {
-    color: var(--color-text-500);
-    font-size: calc(var(--font-size-400) * 0.9375);
-    line-height: 28px;
-    max-width: 440px;
-    text-wrap: pretty;
-
-    &-avatar {
-        @extend %surface-lower;
-        background: var(--surface-background-default);
-        border-radius: 50%;
-        flex-shrink: 0;
-        height: 48px;
-        outline: 1px solid var(--surface-border-default);
-        outline-offset: -1px;
-        overflow: hidden;
-        width: 48px;
-
-        &-image {
-            display: block;
-            height: 100%;
-            width: 100%;
-        }
-    }
-
-    &-bio {
-        display: block;
-        margin-top: var(--size-100);
-        text-wrap: pretty;
-    }
-
-    &-card.tooltip-shared {
-        --background-default: var(--surface-background-default);
-        --close-duration: 0.1s;
-        --color: var(--color-text-500);
-        --font-size: calc(var(--font-size-400) * 0.875);
-        --open-duration: 0.15s;
-        --padding: 0px;
-        --radius: var(--size-500);
-        --scale: 0.96;
-        --spacer: var(--size-100);
-    }
-
-    &-count {
+.tooltip {
+    // Mentions in running text sharing one interactive profile card.
+    &-card-demo {
         color: var(--color-text-500);
-        font-variant-numeric: tabular-nums;
-        font-weight: var(--font-weight-600, var(--font-weight-500));
-    }
+        font-size: calc(var(--font-size-400) * 0.9375);
+        line-height: 28px;
+        max-width: 440px;
+        text-wrap: pretty;
 
-    // Read by its two labels, which crossfade as it toggles.
-    &-follow {
-        @extend %surface-raise;
-        --follow-opacity: 1;
-        --following-opacity: 0;
-        background: var(--color-primary-500);
-        border: 0;
-        border-radius: 999px;
-        color: var(--color-surface);
-        cursor: pointer;
-        display: grid;
-        font: inherit;
-        font-size: calc(var(--font-size-400) * 0.875);
-        font-weight: var(--font-weight-500);
-        height: 36px;
-        padding-inline: var(--size-400);
-        transition:
+        &-avatar {
+            @extend %surface-lower;
+            background: var(--surface-background-default);
+            border-radius: 50%;
+            flex-shrink: 0;
+            height: 48px;
+            outline: 1px solid var(--surface-border-default);
+            outline-offset: -1px;
+            overflow: hidden;
+            width: 48px;
+
+            &-image {
+                display: block;
+                height: 100%;
+                width: 100%;
+            }
+        }
+
+        &-bio {
+            display: block;
+            margin-top: var(--size-100);
+            text-wrap: pretty;
+        }
+
+        &-card.tooltip-shared {
+            --background-default: var(--surface-background-default);
+            --close-duration: 0.1s;
+            --color: var(--color-text-500);
+            --font-size: calc(var(--font-size-400) * 0.875);
+            --open-duration: 0.15s;
+            --radius: var(--size-500);
+            --scale: 0.96;
+            --spacer: var(--size-100);
+
+            .tooltip-shared-layer {
+                --padding-horizontal: 0px;
+                --padding-vertical: 0px;
+            }
+        }
+
+        &-count {
+            color: var(--color-text-500);
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight-600, var(--font-weight-500));
+        }
+
+        // Read by its two labels, which crossfade as it toggles.
+        &-follow {
+            @extend %surface-raise;
+            --follow-opacity: 1;
+            --following-opacity: 0;
+            background: var(--color-primary-500);
+            border: 0;
+            border-radius: 999px;
+            color: var(--color-surface);
+            cursor: pointer;
+            display: grid;
+            font: inherit;
+            font-size: calc(var(--font-size-400) * 0.875);
+            font-weight: var(--font-weight-500);
+            height: 36px;
+            padding-inline: var(--size-400);
+            transition:
             background-color 0.15s ease-out,
             box-shadow 0.15s ease-out,
             color 0.15s ease-out,
             scale 0.15s ease-out;
 
-        &.--active {
-            --follow-opacity: 0;
-            --following-opacity: 1;
-            background: var(--surface-background-default);
-            // The card's own shadow, inherited from its surface.
-            box-shadow: var(--box-shadow);
-            color: var(--color-text-500);
-        }
+            // Both labels share one cell so the button never changes width.
+            &-label {
+                align-self: center;
+                grid-area: 1 / 1;
+                opacity: var(--follow-opacity);
+                transition: opacity 0.15s;
 
-        &:active {
-            scale: 0.96;
-        }
-
-        // Both labels share one cell so the button never changes width.
-        &-label {
-            align-self: center;
-            grid-area: 1 / 1;
-            opacity: var(--follow-opacity);
-            transition: opacity 0.15s;
-
-            &--following {
-                opacity: var(--following-opacity);
+                &--following {
+                    opacity: var(--following-opacity);
+                }
             }
-        }
 
-        @media (prefers-reduced-motion: reduce) {
+            &.--active {
+                --follow-opacity: 0;
+                --following-opacity: 1;
+                background: var(--surface-background-default);
+                // The card's own shadow, inherited from its surface.
+                box-shadow: var(--box-shadow);
+                color: var(--color-text-500);
+            }
+
             &:active {
-                scale: 1;
+                scale: 0.96;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                &:active {
+                    scale: 1;
+                }
+            }
+        }
+
+        &-handle {
+            color: var(--color-text-300);
+            display: block;
+            font-size: calc(var(--font-size-400) * 0.8125);
+        }
+
+        &-hint {
+            color: var(--color-text-300);
+        }
+
+        &-name {
+            display: block;
+            font-size: calc(var(--font-size-400) * 0.9375);
+            font-weight: var(--font-weight-600, var(--font-weight-500));
+            margin-top: var(--size-300);
+        }
+
+        // Fixed width, so the card keeps its shape from one person to the next.
+        &-profile {
+            display: block;
+            line-height: var(--size-500);
+            padding: var(--size-400);
+            width: 300px;
+        }
+
+        &-stats {
+            color: var(--color-text-300);
+            display: flex;
+            font-size: calc(var(--font-size-400) * 0.8125);
+            gap: var(--size-400);
+            margin-top: var(--size-300);
+        }
+
+        &-top {
+            align-items: flex-start;
+            display: flex;
+            gap: var(--size-300);
+            justify-content: space-between;
+        }
+
+        &-trigger {
+            background: none;
+            border: 0;
+            border-radius: var(--border-radius-200);
+            color: var(--color-text-500);
+            cursor: pointer;
+            font: inherit;
+            font-weight: var(--font-weight-500);
+            outline: none;
+            padding: 0;
+            text-decoration: underline;
+            text-decoration-color: color-mix(in srgb, var(--color-primary-500) 25%, transparent);
+            text-decoration-thickness: 1px;
+            text-underline-offset: calc(var(--size-100) / 2);
+            transition: text-decoration-color 0.15s ease-out;
+            white-space: nowrap;
+
+            &:focus-visible {
+                outline: var(--border-width-500) solid var(--color-primary-500);
+                outline-offset: var(--border-width-500);
+            }
+
+            &:hover,
+            &[aria-expanded='true'] {
+                text-decoration-color: var(--color-primary-500);
             }
         }
     }
 
-    &-handle {
-        color: var(--color-text-300);
-        display: block;
-        font-size: calc(var(--font-size-400) * 0.8125);
+    &-context-demo {
+        @extend %flex-center;
     }
 
-    &-hint {
-        color: var(--color-text-300);
+    &-demo-trigger {
+        @extend %background-primary, %color-surface;
     }
 
-    &-name {
-        display: block;
-        font-size: calc(var(--font-size-400) * 0.9375);
-        font-weight: var(--font-weight-600, var(--font-weight-500));
-        margin-top: var(--size-300);
-    }
-
-    // Fixed width, so the card keeps its shape from one person to the next.
-    &-profile {
-        display: block;
-        line-height: var(--size-500);
-        padding: var(--size-400);
-        width: 300px;
-    }
-
-    &-stats {
-        color: var(--color-text-300);
+    // Rows handling their own right click, opening one context menu through its controller.
+    &-files-demo {
         display: flex;
-        font-size: calc(var(--font-size-400) * 0.8125);
-        gap: var(--size-400);
-        margin-top: var(--size-300);
+        flex-direction: column;
+        gap: var(--size-300);
+        width: 280px;
+
+        &-list {
+            border: 1px dashed currentColor;
+            border-radius: var(--border-radius-400);
+            display: flex;
+            flex-direction: column;
+            padding: var(--size-200);
+        }
+
+        &-row {
+            @extend %background-state;
+            --background-hover: color-mix(in srgb, currentColor 8%, transparent);
+            --background-pressed: var(--background-hover);
+            background: var(--background);
+            border: 0;
+            border-radius: var(--border-radius-300);
+            color: inherit;
+            cursor: default;
+            font: inherit;
+            outline: none;
+            padding: var(--size-200) var(--size-300);
+            text-align: start;
+
+            &:focus-visible {
+                --background: var(--background-hover);
+                outline: 2px solid currentColor;
+                outline-offset: calc(var(--size-100) / -4);
+            }
+        }
+
+        &-status {
+            color: var(--color-text-300);
+            font-size: var(--font-size-300);
+        }
     }
 
-    &-top {
+    &-morph-demo-body {
+        @extend %flex-column;
+    }
+
+    &-nav-demo {
+        --demo-hover: oklch(0.945 0 0);
         align-items: flex-start;
         display: flex;
-        gap: var(--size-300);
-        justify-content: space-between;
-    }
+        font-size: calc(var(--font-size-400) * 0.875);
+        gap: var(--size-100);
+        height: 360px;
 
-    &-trigger {
-        background: none;
-        border: 0;
-        border-radius: var(--border-radius-200);
-        color: var(--color-text-500);
-        cursor: pointer;
-        font: inherit;
-        font-weight: var(--font-weight-500);
-        outline: none;
-        padding: 0;
-        text-decoration: underline;
-        text-decoration-color: color-mix(in srgb, var(--color-primary-500) 25%, transparent);
-        text-decoration-thickness: 1px;
-        text-underline-offset: calc(var(--size-100) / 2);
-        transition: text-decoration-color 0.15s ease-out;
-        white-space: nowrap;
-
-        &:focus-visible {
-            outline: var(--border-width-500) solid var(--color-primary-500);
-            outline-offset: var(--border-width-500);
+        &-description {
+            color: var(--color-text-300);
+            font-size: calc(var(--font-size-400) * 0.8125);
+            line-height: 1.5;
         }
 
-        &:hover,
-        &[aria-expanded='true'] {
-            text-decoration-color: var(--color-primary-500);
-        }
-    }
-}
-
-.tooltip-context-demo {
-    @extend %flex-center;
-}
-
-.tooltip-demo-trigger {
-    @extend %background-primary, %color-surface;
-}
-
-// Rows handling their own right click, opening one context menu through its controller.
-.tooltip-files-demo {
-    display: flex;
-    flex-direction: column;
-    gap: var(--size-300);
-    width: 280px;
-
-    &-list {
-        border: 1px dashed currentColor;
-        border-radius: var(--border-radius-400);
-        display: flex;
-        flex-direction: column;
-        padding: var(--size-200);
-    }
-
-    &-row {
-        @extend %background-state;
-        --background-hover: color-mix(in srgb, currentColor 8%, transparent);
-        --background-pressed: var(--background-hover);
-        background: var(--background);
-        border: 0;
-        border-radius: var(--border-radius-300);
-        color: inherit;
-        cursor: default;
-        font: inherit;
-        outline: none;
-        padding: var(--size-200) var(--size-300);
-        text-align: start;
-
-        &:focus-visible {
-            --background: var(--background-hover);
-            outline: 2px solid currentColor;
-            outline-offset: calc(var(--size-100) / -4);
-        }
-    }
-
-    &-status {
-        color: var(--color-text-300);
-        font-size: var(--font-size-300);
-    }
-}
-
-.tooltip-morph-demo-body {
-    @extend %flex-column;
-}
-
-.tooltip-nav-demo {
-    --demo-hover: oklch(0.945 0 0);
-    align-items: flex-start;
-    display: flex;
-    font-size: calc(var(--font-size-400) * 0.875);
-    gap: var(--size-100);
-    height: 360px;
-
-    &-description {
-        color: var(--color-text-300);
-        font-size: calc(var(--font-size-400) * 0.8125);
-        line-height: 1.5;
-    }
-
-    &-highlight {
-        --background-active: var(--demo-hover);
-        --background-default: var(--demo-hover);
-        --background-pressed: var(--demo-hover);
-    }
-
-    &-link {
-        border-radius: var(--border-radius-400);
-        color: var(--color-text-500);
-        display: flex;
-        flex-direction: column;
-        gap: calc(var(--size-100) / 4);
-        outline: none;
-        padding: var(--size-100) 12px;
-        text-decoration: none;
-        transition: background-color 0.15s ease-out;
-
-        &:focus-visible {
-            outline: 2px solid var(--color-primary-500);
-            outline-offset: calc(var(--size-100) / -4);
+        &-highlight {
+            --background-active: var(--demo-hover);
+            --background-default: var(--demo-hover);
+            --background-pressed: var(--demo-hover);
         }
 
-        &:hover,
-        &:focus-visible {
-            background: var(--demo-hover);
+        &-link {
+            border-radius: var(--border-radius-400);
+            color: var(--color-text-500);
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--size-100) / 4);
+            outline: none;
+            padding: var(--size-100) 12px;
+            text-decoration: none;
+            transition: background-color 0.15s ease-out;
+
+            &:focus-visible {
+                outline: 2px solid var(--color-primary-500);
+                outline-offset: calc(var(--size-100) / -4);
+            }
+
+            &:hover,
+            &:focus-visible {
+                background: var(--demo-hover);
+            }
         }
-    }
 
-    &-panel {
-        display: grid;
-        gap: calc(var(--size-100) / 2);
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        max-width: calc(100vw - 40px);
-        width: 32rem;
-    }
-
-    &-surface.tooltip-shared {
-        --background-default: var(--surface-background-default);
-        --color: var(--color-text-500);
-        --font-size: calc(var(--font-size-400) * 0.875);
-        --padding: calc(var(--size-300) / 2);
-        --radius: var(--border-radius-600);
-        --scale: 0.96;
-        --spacer: var(--size-100);
-    }
-
-    &-title {
-        font-weight: var(--font-weight-600, var(--font-weight-500));
-    }
-
-    &-trigger {
-        align-items: center;
-        background: transparent;
-        border: 0;
-        border-radius: 999px;
-        color: var(--color-text-500);
-        cursor: pointer;
-        display: inline-flex;
-        font: inherit;
-        font-weight: var(--font-weight-500);
-        height: 36px;
-        outline: none;
-        padding-inline: 12px;
-        text-decoration: none;
-        white-space: nowrap;
-
-        &:focus-visible {
-            outline: 2px solid var(--color-primary-500);
-        }
-    }
-
-
-    @media (max-width: 639px) {
         &-panel {
-            grid-template-columns: minmax(0, 1fr);
+            display: grid;
+            gap: calc(var(--size-100) / 2);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            max-width: calc(100vw - 40px);
+            width: 32rem;
+        }
+
+        &-surface.tooltip-shared {
+            --background-default: var(--surface-background-default);
+            --color: var(--color-text-500);
+            --font-size: calc(var(--font-size-400) * 0.875);
+            --radius: var(--border-radius-600);
+            --scale: 0.96;
+            --spacer: var(--size-100);
+
+            .tooltip-shared-layer {
+                --padding-horizontal: calc(var(--size-300) / 2);
+                --padding-vertical: calc(var(--size-300) / 2);
+            }
+        }
+
+        &-title {
+            font-weight: var(--font-weight-600, var(--font-weight-500));
+        }
+
+        &-trigger {
+            align-items: center;
+            background: transparent;
+            border: 0;
+            border-radius: 999px;
+            color: var(--color-text-500);
+            cursor: pointer;
+            display: inline-flex;
+            font: inherit;
+            font-weight: var(--font-weight-500);
+            height: 36px;
+            outline: none;
+            padding-inline: 12px;
+            text-decoration: none;
+            white-space: nowrap;
+
+            &:focus-visible {
+                outline: 2px solid var(--color-primary-500);
+            }
+        }
+
+
+        @media (max-width: 639px) {
+            &-panel {
+                grid-template-columns: minmax(0, 1fr);
+            }
         }
     }
-}
 
-// Scattered triggers sharing one label.
-.tooltip-shared-demo {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--size-300) var(--size-500);
-    max-width: 360px;
-}
+    // Scattered triggers sharing one label.
+    &-shared-demo {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--size-300) var(--size-500);
+        max-width: 360px;
+    }
 
-// A row, or column, of buttons delegating to one shared tooltip.
-.tooltip-toolbar-demo {
-    @extend %group;
-    --gap-horizontal: var(--size-200);
-    --gap-vertical: var(--size-200);
-    display: inline-flex;
+    // A row, or column, of buttons delegating to one shared tooltip.
+    &-toolbar-demo {
+        @extend %group;
+        --gap-horizontal: var(--size-200);
+        --gap-vertical: var(--size-200);
+        display: inline-flex;
 
-    &--column {
-        flex-direction: column;
+        &--column {
+            flex-direction: column;
+        }
     }
 }
