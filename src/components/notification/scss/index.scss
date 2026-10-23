@@ -1,5 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/icon';
+@use 'css-utilities/text';
 @use 'variables';
 
 .notification {
@@ -14,9 +15,8 @@
     font-weight: var(--font-weight);
     height: var(--size);
     justify-content: center;
-    line-height: var(--size);
     min-width: var(--size);
-    padding: 0 calc(var(--size) * 0.25);
+    padding: calc(var(--size) * 0.25);
     pointer-events: none;
     scale: 0;
     transition: scale var(--transition-duration) var(--timing-function);
@@ -33,6 +33,7 @@
     }
 
     &-character {
+        @extend %text-truncate;
         display: grid;
         height: 1lh;
         overflow: hidden;
@@ -55,45 +56,45 @@
             transition: none;
         }
     }
-}
 
-.notification-bell {
-    aspect-ratio: 1;
-    border: 0;
-    height: var(--size);
-    width: var(--size);
+    &-bell {
+        aspect-ratio: 1;
+        border: 0;
+        height: var(--size);
+        width: var(--size);
 
-    // Qualified to outrank the '.icon' it pairs with.
-    &-icon.icon {
-        animation: var(--ring-animation-name) var(--ring-duration) ease-in-out;
-        transform-origin: 50% 8%;
-
-        svg {
-            @extend %icon-stroke;
-            stroke-width: var(--icon-stroke-width);
-        }
-    }
-
-    &:focus-visible {
-        outline: var(--focus-width) solid var(--focus-color);
-        outline-offset: var(--focus-offset);
-    }
-
-    .notification {
-        left: calc(100% - var(--badge-inset));
-        position: absolute;
-        top: var(--badge-inset);
-        translate: -50% -50%;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        & {
-            transition: none;
-        }
-
+        // Qualified to outrank the '.icon' it pairs with.
         &-icon.icon {
-            animation: none;
-            transition: none;
+            animation: var(--ring-animation-name) var(--ring-duration) ease-in-out;
+            transform-origin: 50% 8%;
+
+            svg {
+                @extend %icon-stroke;
+                stroke-width: var(--stroke-width);
+            }
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+        }
+
+        .notification {
+            left: calc(100% - var(--inset-horizontal));
+            position: absolute;
+            top: var(--inset-vertical);
+            translate: -50% -50%;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            & {
+                transition: none;
+            }
+
+            &-icon.icon {
+                animation: none;
+                transition: none;
+            }
         }
     }
 }

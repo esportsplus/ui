@@ -1,8 +1,8 @@
 .notification {
     --background: var(--color-red-400);
     --color: var(--color-white-400);
-    --dot-size: calc(var(--size) * 0.57);
-    --font-size: calc(var(--size) * 0.62);
+    --dot-size: var(--size-100);
+    --font-size: var(--font-size-300);
     --font-weight: var(--font-weight-500);
     --outline-color: var(--surface-background-default);
     --outline-width: var(--border-width-500);
@@ -11,42 +11,41 @@
     --size: var(--size-500);
     --timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
     --transition-duration: 280ms;
-}
 
-.notification-bell {
-    --background-hover: color-mix(in srgb, currentColor 8%, transparent);
-    --background-pressed: color-mix(in srgb, currentColor 14%, transparent);
-    --badge-inset: calc(var(--size) * 0.12);
-    --badge-size: calc(var(--size) * 0.42);
-    --border-radius: 50%;
-    --color-default: var(--color-text-400);
-    --focus-color: currentColor;
-    --focus-offset: calc(var(--size-100) / 4);
-    --focus-width: var(--border-width-500);
-    --icon-size: 50%;
-    --icon-stroke-width: 2;
-    --padding-horizontal: 0px;
-    --padding-vertical: 0px;
-    --ring-angle: 14deg;
-    --ring-animation-name: none;
-    --ring-duration: 800ms;
-    --size: var(--size-800);
-    --width: var(--size);
+    &-bell {
+        --background-hover: color-mix(in srgb, currentColor 8%, transparent);
+        --background-pressed: color-mix(in srgb, currentColor 14%, transparent);
+        --border-radius: 50%;
+        --color-default: var(--color-text-400);
+        --focus-color: currentColor;
+        --focus-offset: calc(var(--size-100) / 4);
+        --focus-width: var(--border-width-500);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --ring-angle: 14deg;
+        --ring-animation-name: none;
+        --ring-duration: 800ms;
+        --size: var(--size-800);
+        --width: var(--size);
 
-    // Each ring swaps the keyframe name, restarting the swing.
-    @each $i in 1, 2 {
-        &--ring-#{$i} {
-            --ring-animation-name: notification-bell-ring-#{$i};
+        // Each ring swaps the keyframe name, restarting the swing.
+        @each $i in 1, 2 {
+            &--ring-#{$i} {
+                --ring-animation-name: notification-bell-ring-#{$i};
+            }
         }
-    }
 
-    // Outranks `.icon` so its --size default can't win on source order
-    &-icon.icon {
-        --size: var(--icon-size);
-    }
+        // Outranks `.icon` so its --size default can't win on source order
+        &-icon.icon {
+            --size: 50%;
+            --stroke-width: 2;
+        }
 
-    // The bubble declares its own --size, so the bell hands its size over through --badge-size.
-    .notification {
-        --size: var(--badge-size);
+        // The bubble declares its own --size, so the bell hands its size over through --badge-size.
+        .notification {
+            --inset-horizontal: calc(var(--size) * 0.12);
+            --inset-vertical: calc(var(--size) * 0.12);
+            --size: var(--size-500);
+        }
     }
 }

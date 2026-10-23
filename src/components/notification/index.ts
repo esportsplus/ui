@@ -64,26 +64,26 @@ export default ({ 'aria-label': label = 'Notifications', bell = false, count = 0
     });
 
     let bubble = html`
-        <span
-            class='notification ${!counter && 'notification--dot'}'
-            ${{ class: () => api.count > 0 && '--active' }}
-            ${bell ? { 'aria-hidden': 'true' } : { ...attributes, 'aria-label': announce, role: 'status' }}
-        >
-            ${counter && html.reactive(render, function (character) {
-                if (!character.digit) {
-                    return html`<span class='notification-character'>${() => character.value}</span>`;
-                }
+            <span
+                class='notification ${!counter && 'notification--dot'}'
+                ${{ class: () => api.count > 0 && '--active' }}
+                ${bell ? { 'aria-hidden': 'true' } : { ...attributes, 'aria-label': announce, role: 'status' }}
+            >
+                ${counter && html.reactive(render, function (character) {
+                    if (!character.digit) {
+                        return html`<span class='notification-character'>${() => character.value}</span>`;
+                    }
 
-                return html`
-                    <span class='notification-character'>
-                        <span class='notification-character-track' style='${() => `--value: ${character.value}`}'>
-                            ${DIGITS.map((value) => html`<span class='notification-character-digit'>${value}</span>`)}
+                    return html`
+                        <span class='notification-character'>
+                            <span class='notification-character-track' style='${() => `--value: ${character.value}`}'>
+                                ${DIGITS.map((value) => html`<span class='notification-character-digit'>${value}</span>`)}
+                            </span>
                         </span>
-                    </span>
-                `;
-            })}
-        </span>
-    `;
+                    `;
+                })}
+            </span>
+        `;
 
     if (!bell) {
         return bubble;
