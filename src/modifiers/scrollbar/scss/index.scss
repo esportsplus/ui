@@ -331,8 +331,9 @@
             margin-inline: var(--scrollbar-track-inset);
         }
 
+        // Left undeclared so a component's layer can set it: anything this layer declares outranks components.
         &::-webkit-scrollbar-track:vertical {
-            margin-block: var(--scrollbar-track-inset);
+            margin-block: var(--scrollbar-track-inset-start, var(--scrollbar-track-inset)) var(--scrollbar-track-inset);
         }
 
         &:hover::-webkit-scrollbar-thumb:horizontal,

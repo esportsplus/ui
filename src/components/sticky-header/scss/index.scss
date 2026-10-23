@@ -71,7 +71,10 @@
         translate: 0 calc(var(--offset) * -1);
     }
 
+    // The scroller runs under the bar, so the track starts below it. The expanded height, not a scroll-linked one: a
+    // track that resized while scrolling would shift the thumb under the pointer.
     &-scroll {
+        --scrollbar-track-inset-start: calc(var(--expanded-height) + var(--scrollbar-track-inset));
         border-radius: inherit;
         max-height: var(--max-height);
         outline: none;
@@ -81,14 +84,6 @@
         &:focus-visible {
             background: oklch(from var(--focus-color) l c h / 0.06);
             box-shadow: inset 0 0 0 1px var(--focus-color);
-        }
-
-        // The scroller runs under the bar, so the track starts below it. The expanded height, not a scroll-linked
-        // one: a track that resized while scrolling would shift the thumb under the pointer.
-        @supports selector(::-webkit-scrollbar) {
-            &::-webkit-scrollbar-track:vertical {
-                margin-top: calc(var(--expanded-height) + var(--scrollbar-track-inset));
-            }
         }
     }
 
