@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
@@ -7,52 +8,59 @@
     --size: 32px;
 
     &--arrows {
-        --arrow-border-radius: var(--border-radius-400);
-        --arrow-size: var(--size-600);
-        --disabled-opacity: 0.4;
-        --focus-color: var(--color-primary-500);
-        --focus-width: var(--border-width-500);
         --gap-horizontal: var(--size-100);
         --gap-vertical: var(--size-100);
-        --icon-size: var(--size-400);
     }
 
+    // Dot size and pill width stay on the row: its own width and every dot's position are derived from them.
     &--dots {
         --color: var(--color-text-500);
-        --dot-color: oklch(from var(--color) l c h / 0.2);
-        --dot-color-hover: oklch(from var(--color) l c h / 0.35);
-        --dot-gap-horizontal: calc(var(--size-300) / 2);
         --dot-size: 6px;
         --focus-color: var(--color);
+        --gap-horizontal: calc(var(--size-300) / 2);
         --height: 32px;
-        --pill-color: var(--color);
         --pill-width: var(--size-500);
-        --step: calc(var(--dot-size) + var(--dot-gap-horizontal));
-        --track-color: var(--pill-color);
+        --step: calc(var(--dot-size) + var(--gap-horizontal));
 
         // Twice the dots' tint, so the pill still reads as the active slot before its countdown fills it.
-        &-autoplay {
-            --track-color: oklch(from var(--pill-color) l c h / 0.4);
+        &-autoplay .pagination-pill {
+            --background: oklch(from var(--color) l c h / 0.4);
         }
 
         &-large {
-            --dot-gap-horizontal: var(--size-100);
             --dot-size: var(--size-100);
+            --gap-horizontal: var(--size-100);
             --pill-width: 28px;
         }
     }
 
     &-arrow {
         @extend %surface-primary;
+        --border-radius: var(--border-radius-400);
+        --disabled-opacity: 0.4;
+        --focus-color: var(--color-primary-500);
+        --focus-width: var(--border-width-500);
+        --size: var(--size-600);
+
+        // Touch leaves no hover fill behind a tap.
+        @media (hover: none) {
+            --background-hover: var(--background-default);
+        }
+
+        @include tokens.state(disabled) {
+            --background-hover: var(--background-default);
+            --background-pressed: var(--background-default);
+        }
+
+        // Qualified by the button so it wins over the icon's own variables regardless of stylesheet order.
+        & &-icon {
+            --color: currentColor;
+            --size: var(--size-400);
+        }
     }
 
     &-card {
         @extend %color-state, %color-text;
-        --arrow-gap-horizontal: var(--size-300);
-        // The card's content edge, as the card insets it inside its border. Resolved here, so the arrow inherits the
-        // card's padding rather than its own.
-        --arrow-inset-horizontal: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
-        --arrow-shift: 0px;
         // A card, so a surface: its own level's background, filling toward the text as it's hovered and pressed.
         --background-default: var(--surface-background-default);
         --background-hover: var(--surface-background-hover);
@@ -62,11 +70,27 @@
         --border-width: var(--border-width-400);
         --focus-color: var(--color-primary-500);
         --focus-width: var(--border-width-500);
+        // Between the arrow and the text; the column layout leaves it free for that.
+        --gap-horizontal: var(--size-300);
         --gap-vertical: 0px;
+        // Kept on the card, which reserves the arrow's width in its own padding.
         --icon-size: var(--size-400);
+        // The card's content edge, as the card insets it inside its border. Resolved here, so the arrow inherits the
+        // card's padding rather than its own.
+        --inset-horizontal: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
         --padding-horizontal: var(--size-400);
         --padding-vertical: var(--size-400);
 
+        // Qualified by the card so it wins over the icon's own variables regardless of stylesheet order.
+        & &-arrow {
+            --offset: 0px;
+            --shift: 0px;
+            --size: var(--icon-size);
+
+            @media (prefers-reduced-motion: reduce) {
+                --shift: 0px;
+            }
+        }
 
         &--next {
             --direction: 1;
@@ -78,10 +102,21 @@
 
         &--tactile {
             --box-shadow-hover: var(--surface-shadow-hover);
+
+            &:focus-visible {
+                --box-shadow: var(--box-shadow-hover);
+            }
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            --arrow-shift: 0px;
+        // Shares the hover color with keyboard focus, which the shared color state leaves out.
+        &:focus-visible {
+            --color: var(--color-hover);
+        }
+
+        // Nudges the arrow the way it points, so the card reads as the way to go.
+        &:focus-visible &-arrow,
+        &:hover &-arrow {
+            --offset: calc(var(--shift) * var(--direction));
         }
 
         &-subtitle {
@@ -120,10 +155,18 @@
         --near: clamp(0, 1 - max(var(--progress) - var(--index), var(--index) - var(--progress)), 1);
 
         @media (hover: hover) {
-            &:hover {
-                --dot-color: var(--dot-color-hover);
+            &:hover .pagination-mark {
+                --background: oklch(from var(--color) l c h / 0.35);
             }
         }
+    }
+
+    &-fill {
+        --background: var(--color);
+    }
+
+    &-mark {
+        --background: oklch(from var(--color) l c h / 0.2);
     }
 
     &-page {
@@ -142,6 +185,7 @@
 
     // The leading edge travels in the first 60% of the move and the trailing edge in the last 60%.
     &-pill {
+        --background: var(--color);
         --k: clamp(0, round(down, var(--progress), 1), max(var(--count) - 2, 0));
         --lead: calc(var(--lead-t) * var(--lead-t) * (3 - 2 * var(--lead-t)));
         --lead-t: clamp(0, var(--t) / 0.6, 1);

@@ -41,50 +41,37 @@
         align-items: center;
         background: var(--background);
         border: 0;
-        border-radius: var(--arrow-border-radius);
+        border-radius: var(--border-radius);
         color: var(--color);
         cursor: pointer;
         display: inline-flex;
         flex: none;
-        height: var(--arrow-size);
+        height: var(--size);
         justify-content: center;
         outline: none;
         padding: 0;
         transition:
             background-color var(--transition-duration) var(--transition-timing-function),
             color var(--transition-duration) var(--transition-timing-function);
-        width: var(--arrow-size);
+        width: var(--size);
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: calc(var(--size-100) / 4);
         }
 
-        // Touch leaves no hover fill behind a tap.
-        @media (hover: none) {
-            --background-hover: var(--background-default);
-        }
-
         @include tokens.state(disabled) {
-            --background-hover: var(--background-default);
-            --background-pressed: var(--background-default);
             cursor: default;
             opacity: var(--disabled-opacity);
         }
 
-        // Qualified by the button so it wins over the icon's own variables regardless of stylesheet order. The arrow
-        // glyphs sit a quarter of their box off centre, toward their tail; pulling that back centres them.
-        & &-icon {
-            --color: currentColor;
-            --size: var(--icon-size);
-        }
-
+        // The arrow glyphs sit a quarter of their box off centre, toward their tail; pulling that back centres them.
         &--next &-icon {
-            margin-right: calc(var(--icon-size) / -4);
+            margin-right: calc(var(--size) / -4);
         }
 
         &--previous &-icon {
-            margin-left: calc(var(--icon-size) / -4);
+            margin-left: calc(var(--size) / -4);
         }
     }
 
@@ -97,23 +84,22 @@
         outline: none;
         text-decoration: none;
 
-        // Qualified by the card so it wins over the icon's own variables and position regardless of stylesheet order.
-        // Placed by where it sits in its card rather than which card it is, so a lone card keeps its arrow on its side.
+        // Qualified by the card so it wins over the icon's own position regardless of stylesheet order. Placed by where
+        // it sits in its card rather than which card it is, so a lone card keeps its arrow on its side.
         & &-arrow {
-            --size: var(--icon-size);
             position: absolute;
             top: 50%;
             transition:
                 color var(--transition-duration) var(--transition-timing-function),
                 translate var(--transition-duration) var(--transition-timing-function);
-            translate: var(--arrow-offset, 0) -50%;
+            translate: var(--offset) -50%;
 
             &:first-child {
-                left: var(--arrow-inset-horizontal);
+                left: var(--inset-horizontal);
             }
 
             &:last-child {
-                right: var(--arrow-inset-horizontal);
+                right: var(--inset-horizontal);
             }
         }
 
@@ -141,10 +127,6 @@
                 transform: translateY(1px);
             }
 
-            &:focus-visible {
-                --box-shadow: var(--box-shadow-hover);
-            }
-
             &:focus-visible,
             &:hover {
                 transform: translateY(-1px);
@@ -170,26 +152,18 @@
             transition: color var(--transition-duration) var(--transition-timing-function);
         }
 
-        // Shares the hover color with keyboard focus, which the shared color state leaves out.
         &:focus-visible {
-            --color: var(--color-hover);
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: calc(var(--size-100) / 4);
         }
 
-        // Nudges the arrow the way it points, so the card reads as the way to go.
-        &:focus-visible,
-        &:hover {
-            --arrow-offset: calc(var(--arrow-shift) * var(--direction));
-        }
-
         // Clears the text from whichever edge holds the arrow, on top of the card's own padding.
         &:has(> #{&}-arrow:first-child) {
-            padding-left: calc(var(--arrow-inset-horizontal) + var(--icon-size) + var(--arrow-gap-horizontal));
+            padding-left: calc(var(--inset-horizontal) + var(--icon-size) + var(--gap-horizontal));
         }
 
         &:has(> #{&}-arrow:last-child) {
-            padding-right: calc(var(--arrow-inset-horizontal) + var(--icon-size) + var(--arrow-gap-horizontal));
+            padding-right: calc(var(--inset-horizontal) + var(--icon-size) + var(--gap-horizontal));
         }
     }
 
@@ -220,9 +194,9 @@
         inset-block: 0;
         left: calc(var(--index) * var(--step) + (var(--pill-width) - var(--dot-size)) * clamp(0, var(--index) - var(--progress), 1));
         // Reaches half the gap past each side of its dot, so the hit areas tile the row with no dead space between them.
-        margin: 0 0 0 calc(var(--dot-gap-horizontal) / -2);
+        margin: 0 0 0 calc(var(--gap-horizontal) / -2);
         outline: none;
-        padding: 0 calc(var(--dot-gap-horizontal) / 2);
+        padding: 0 calc(var(--gap-horizontal) / 2);
         position: absolute;
         touch-action: manipulation;
         width: calc(var(--dot-size) + (var(--pill-width) - var(--dot-size)) * var(--near));
@@ -234,12 +208,12 @@
 
     &-fill {
         @extend %absolute-full;
-        background: var(--pill-color);
+        background: var(--background);
         transform-origin: left;
     }
 
     &-mark {
-        background: var(--dot-color);
+        background: var(--background);
         border-radius: 999px;
         height: var(--dot-size);
         transition: background-color var(--transition-duration) var(--transition-timing-function);
@@ -270,7 +244,7 @@
     // Spans the two pages it sits between: the leading edge travels in the first 60% of the move and the trailing edge in the
     // last 60%, so the pill stretches toward the next dot, then pulls its tail in after it, like a worm.
     &-pill {
-        background: var(--track-color);
+        background: var(--background);
         border-radius: 999px;
         height: var(--dot-size);
         left: 0;
