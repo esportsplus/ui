@@ -1,69 +1,77 @@
-// Compact for a dense grid. Tabular figures, so the tooltip holds its width as the counts change cell to cell.
-.heatmap .tooltip-shared {
-    --radius: var(--border-radius-300);
-    --spacer: 6px;
-    font-variant-numeric: tabular-nums;
-
-    .tooltip-shared-layer {
-        --padding-horizontal: var(--size-200);
-        --padding-vertical: var(--size-100);
+.heatmap {
+    &,
+    &-legend {
+        --cell-radius: var(--border-radius-100);
+        --cell-size: var(--size-200);
+        --color: var(--color-text-300);
+        --focus-color: var(--color-primary-500);
+        --font-size: var(--font-size-300);
+        --hover-color: color-mix(in oklab, var(--color-primary-500) 50%, transparent);
+        // One hue, light to dark. Level 0 stays faintly visible so empty days still read as part of the grid.
+        --level-0: color-mix(in oklab, var(--level-color) 7%, transparent);
+        --level-1: color-mix(in oklab, var(--level-color) 25%, transparent);
+        --level-2: color-mix(in oklab, var(--level-color) 45%, transparent);
+        --level-3: color-mix(in oklab, var(--level-color) 70%, transparent);
+        --level-4: var(--level-color);
+        --level-color: var(--color-primary-500);
+        --months-height: var(--size-500);
+        --pitch: var(--size-300);
+        --ring-space: 3px;
+        // Per column, so the whole year sweeps in under half a second and reads as one gesture.
+        --stagger: 8ms;
+        --transition-duration: 0.3s;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     }
-}
 
-.heatmap,
-.heatmap-legend {
-    --cell-radius: var(--border-radius-100);
-    --cell-size: var(--size-200);
-    --color: var(--color-text-300);
-    --focus-color: var(--color-primary-500);
-    --font-size: var(--font-size-300);
-    --hover-color: color-mix(in oklab, var(--color-primary-500) 50%, transparent);
-    // One hue, light to dark. Level 0 stays faintly visible so empty days still read as part of the grid.
-    --level-0: color-mix(in oklab, var(--level-color) 7%, transparent);
-    --level-1: color-mix(in oklab, var(--level-color) 25%, transparent);
-    --level-2: color-mix(in oklab, var(--level-color) 45%, transparent);
-    --level-3: color-mix(in oklab, var(--level-color) 70%, transparent);
-    --level-4: var(--level-color);
-    --level-color: var(--color-primary-500);
-    --months-height: var(--size-500);
-    --pitch: var(--size-300);
-    --ring-space: 3px;
-    // Per column, so the whole year sweeps in under half a second and reads as one gesture.
-    --stagger: 8ms;
-    --transition-duration: 0.3s;
-    --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.heatmap--blue,
-.heatmap-legend--blue {
-    --level-color: var(--color-blue-400);
-}
-
-// Room on every side for the focus and hover rings, and more below them for the scroll bar.
-.heatmap-scroll {
-    --padding-bottom: var(--size-300);
-    --padding-horizontal: var(--ring-space);
-    --padding-vertical: var(--ring-space);
-}
-
-// Settles from 0.6, not 0: a square growing from nothing reads as a pop, one settling from slightly small
-// reads as arriving.
-.heatmap-grid {
-    --cell-opacity: 0;
-    --cell-scale: 0.6;
-
-    &--shown {
-        --cell-opacity: 1;
-        --cell-scale: 1;
+    &--blue,
+    &-legend--blue {
+        --level-color: var(--color-blue-400);
     }
-}
 
-// A long glide lags behind a pointer sweeping across 13px cells, and the content keeps pace with it. Gated so
-// it can't undo the tooltip's reduced-motion override.
-@media (prefers-reduced-motion: no-preference) {
-    .heatmap .tooltip-shared {
-        --glide-duration: 0.15s;
-        --swap-duration: 0.15s;
-        --swap-fade-duration: 0.1s;
+    // Room on every side for the focus and hover rings, and more below them for the scroll bar.
+    &-scroll {
+        --padding-bottom: var(--size-300);
+        --padding-horizontal: var(--ring-space);
+        --padding-vertical: var(--ring-space);
+    }
+
+    // Settles from 0.6, not 0: a square growing from nothing reads as a pop, one settling from slightly small
+    // reads as arriving.
+    &-grid {
+        --cell-opacity: 0;
+        --cell-scale: 0.6;
+
+        &--shown {
+            --cell-opacity: 1;
+            --cell-scale: 1;
+        }
+    }
+
+    // A long glide lags behind a pointer sweeping across 13px cells, and the content keeps pace with it. Gated so
+    // it can't undo the tooltip's reduced-motion override.
+    // The swap timings go on the layer, the 'frame' that declares its own.
+    @media (prefers-reduced-motion: no-preference) {
+        & .tooltip-shared {
+            --glide-duration: 0.15s;
+
+            .tooltip-shared-layer {
+                --swap-duration: 0.15s;
+                --swap-fade-duration: 0.1s;
+            }
+        }
+    }
+
+    // Compact for a dense grid. Tabular figures, so the tooltip holds its width as the counts change cell to cell.
+    .tooltip-shared {
+        --glide-duration: 0s;
+        --radius: var(--border-radius-300);
+        --spacer: 6px;
+        font-variant-numeric: tabular-nums;
+
+        .tooltip-shared-layer {
+            --padding-horizontal: var(--size-300);
+            --padding-vertical: var(--size-100);
+            --swap-duration: 0s;
+        }
     }
 }
