@@ -49,12 +49,6 @@
         }
     }
 
-    // Editors leave framing to their container; workspace documents sit inside the workspace's own frame.
-    :where(.code-editor, .markdown-editor):not(.code-workspace-document) {
-        border: var(--border-width-400) solid var(--surface-border-default);
-        border-radius: var(--border-radius-300);
-    }
-
     &-editor {
         &--compact.code-editor {
             --height: 200px;
@@ -118,5 +112,11 @@
 
     &-viewer.code-viewer {
         --max-height: 360px;
+    }
+
+    // Editors leave framing to their container; workspace documents sit inside the workspace's own frame.
+    :where(.code-editor, .markdown-editor):not(.code-workspace-document) {
+        border: var(--border-width-400) solid var(--surface-border-default);
+        border-radius: var(--border-radius-300);
     }
 }

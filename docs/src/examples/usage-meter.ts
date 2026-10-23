@@ -21,9 +21,9 @@ function live(variant?: string) {
                     return;
                 }
 
-                usage.completion += 9600;
-                usage.cost += 0.0384;
-                usage.prompt += 14200;
+                usage.completion += 8000;
+                usage.cost += 0.032;
+                usage.prompt += 12000;
             }}'
         >
             send message

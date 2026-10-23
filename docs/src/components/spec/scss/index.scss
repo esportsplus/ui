@@ -18,19 +18,14 @@
         font-size: var(--font-size);
         width: 100%;
 
-        .spec-name,
-        .spec-value {
-            --font-size: var(--font-size-400);
+        &-cell {
+            border-top: var(--border-width-400) solid var(--surface-border-default);
         }
 
         &-cell,
         &-heading {
             padding: var(--size-300) var(--size-400);
             vertical-align: middle;
-        }
-
-        &-cell {
-            border-top: var(--border-width-400) solid var(--surface-border-default);
         }
 
         &-head {
@@ -65,6 +60,11 @@
             min-width: 0;
             overflow-x: auto;
             width: 100%;
+        }
+
+        .spec-name,
+        .spec-value {
+            --font-size: var(--font-size-400);
         }
     }
 

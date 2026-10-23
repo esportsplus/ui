@@ -2,10 +2,10 @@
 
 
 .field-pattern {
+    --demo-background: color-mix(in srgb, var(--demo-border) 10%, transparent);
     --demo-caution: var(--color-yellow-400);
     --demo-danger: var(--color-red-400);
     --demo-safe: var(--color-green-400);
-    --demo-background: color-mix(in srgb, var(--demo-border) 10%, transparent);
     --surface-border-color: var(--demo-border);
     --surface-border-color-active: var(--demo-accent);
     display: grid;
@@ -349,11 +349,11 @@
     &.--invalid {
         --alert-opacity: 1;
         --alert-transform: none;
+        --demo-background: transparent;
         --error-opacity: 1;
         --error-transform: none;
         --hint-opacity: 0;
         --hint-transform: translateY(4px);
-        --demo-background: transparent;
         --surface-border-color: var(--demo-danger);
         --surface-border-color-active: var(--demo-danger);
     }

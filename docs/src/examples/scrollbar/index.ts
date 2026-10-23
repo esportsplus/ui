@@ -59,11 +59,11 @@ export default {
             title: 'rail color'
         },
         {
-            render: () => html`<div ${scrollbar()} style='${box} --scrollbar-align: 0; --scrollbar-offset: 0px; --scrollbar-track-inset: 0px; --scrollbar-rail-color: var(--surface-border-default); --scrollbar-size-hover: 12px;'>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar()} style='${box} --scrollbar-align: 0; --scrollbar-offset: 0px; --scrollbar-track-inset-horizontal: 0px; --scrollbar-track-inset-vertical: 0px; --scrollbar-rail-color: var(--surface-border-default); --scrollbar-size-hover: 12px;'>${rows(14)}</div>`,
             title: 'edge-hugging growth'
         },
         {
-            render: () => html`<div ${scrollbar()} style='${box} --scrollbar-offset: 6px; --scrollbar-rail-color: var(--surface-border-default); --scrollbar-track-inset: 16px;'>${rows(14)}</div>`,
+            render: () => html`<div ${scrollbar()} style='${box} --scrollbar-offset: 6px; --scrollbar-rail-color: var(--surface-border-default); --scrollbar-track-inset-horizontal: 16px; --scrollbar-track-inset-vertical: 16px;'>${rows(14)}</div>`,
             title: 'track inset and edge offset'
         },
         {

@@ -84,7 +84,10 @@
         --board-field-cursor: text;
         --board-field-min-height: auto;
         --board-field-opacity: 1;
-        --board-field-padding: var(--size-100);
+        --board-field-padding-horizontal: var(--size-100);
+        // The side a phone field's country code sits on.
+        --board-field-padding-left: var(--board-field-padding-horizontal);
+        --board-field-padding-vertical: var(--size-100);
         --board-field-shadow: inset 0 0 0 2px transparent;
         --board-note-color: var(--board-muted);
         --board-placeholder-color: var(--board-muted);
@@ -110,12 +113,14 @@
         }
 
         &--phone {
-            --board-field-padding: calc(var(--size-100) / 2) var(--size-100) calc(var(--size-100) / 2) calc(var(--size-100) / 2);
+            --board-field-padding-left: calc(var(--size-100) / 2);
+            --board-field-padding-vertical: calc(var(--size-100) / 2);
         }
 
         &--small {
             --board-field-min-height: 32px;
-            --board-field-padding: calc(var(--size-300) / 2);
+            --board-field-padding-horizontal: calc(var(--size-300) / 2);
+            --board-field-padding-vertical: calc(var(--size-300) / 2);
         }
 
         &--textarea {
@@ -187,7 +192,7 @@
             gap: calc(var(--size-300) / 2);
             min-height: var(--board-field-min-height);
             opacity: var(--board-field-opacity);
-            padding: var(--board-field-padding);
+            padding: var(--board-field-padding-vertical) var(--board-field-padding-horizontal) var(--board-field-padding-vertical) var(--board-field-padding-left);
             transition: background-color var(--board-transition), box-shadow var(--board-transition), color var(--board-transition);
 
             &:focus-within {

@@ -104,7 +104,7 @@ const meta: Record<string, Meta> = {
         description: 'Metric card with a line chart that draws itself in and redraws to fit its container, with a scrubbable readout for pointer, touch, and arrow keys, plus a live value that marks each change with a directional roll, tint, and arrow.'
     },
     nav: {
-        description: 'Navigation trees with a highlight that glides between links or a bar that slides along them, an on-this-page table of contents, and a scroll spy that marks the section in view.'
+        description: 'Navigation trees that mark the active link with a gliding highlight, a full-width background, a rule down their edge or both, an on-this-page table of contents, and a scroll spy that marks the section in view.'
     },
     notification: {
         description: 'Unread bubble with a rolling counter, optionally mounted on a bell that swings on new notifications.'
@@ -121,11 +121,11 @@ const meta: Record<string, Meta> = {
     pagination: {
         description: 'Numbered page navigation that folds overflow into ellipses, plus a scroll-linked dots indicator whose active pill stretches between dots like a worm, with an optional autoplay countdown. Previous and next links come as large cards or compact arrow buttons, each nudging its arrow the way it points.'
     },
+    preview: {
+        description: 'Example card with a numbered header for its controls, a stage that mounts its example as it nears the viewport, and preview and code views that load the source on demand with a copy button.'
+    },
     progress: {
         description: 'Progress bar with an optional label, percentage, and a status line derived from the value, plus progress shown in the label itself: ink fills the letters, digits roll, and a drawn check lands when done.'
-    },
-    'pull-to-refresh': {
-        description: 'Rubber-band pull gesture for touch and mouse that spins a stepped indicator and slides new items in from the top.'
     },
     radio: {
         description: 'Single-choice selection from a grouped set of options, including option cards built from radio and card.'

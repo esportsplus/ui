@@ -14,164 +14,166 @@
     @return $layers;
 }
 
-.range-demo {
-    display: grid;
-    gap: 12px;
-    justify-items: center;
-    width: 100%;
+.range {
+    &-demo {
+        display: grid;
+        gap: 12px;
+        justify-items: center;
+        width: 100%;
 
-    &--stretch {
-        justify-items: stretch;
+        &--stretch {
+            justify-items: stretch;
+        }
+
+        &-row {
+            align-items: center;
+            display: flex;
+            gap: 48px;
+            justify-content: center;
+        }
+
+        &-status {
+            color: var(--color-text-300);
+            font-size: var(--font-size-300);
+        }
     }
 
-    &-row {
-        align-items: center;
-        display: flex;
-        gap: 48px;
-        justify-content: center;
-    }
+    &-surface {
+        --surface-height: 32px;
+        --surface-radius: var(--border-radius-400);
+        --surface-thumb: var(--size-400);
+        --surface-travel: calc(100% - var(--surface-thumb));
+        display: grid;
+        gap: var(--size-200);
 
-    &-status {
-        color: var(--color-text-300);
-        font-size: var(--font-size-300);
-    }
-}
+        &--inline {
+            --surface-fill: color-mix(in srgb, var(--color-primary-400) 20%, var(--surface-background-default));
+            --surface-fill-shadow: none;
+            --surface-height: 40px;
+            --surface-radius: var(--border-radius-500);
+            --surface-thumb: 2px;
+        }
 
-.range-surface {
-    --surface-height: 32px;
-    --surface-radius: var(--border-radius-400);
-    --surface-thumb: var(--size-400);
-    --surface-travel: calc(100% - var(--surface-thumb));
-    display: grid;
-    gap: var(--size-200);
+        &-control {
+            @extend %surface-lower;
+            background: var(--surface-background-default);
+            border-radius: var(--surface-radius);
+            height: var(--surface-height);
+            isolation: isolate;
+            position: relative;
 
-    &--inline {
-        --surface-fill: color-mix(in srgb, var(--color-primary-400) 20%, var(--surface-background-default));
-        --surface-fill-shadow: none;
-        --surface-height: 40px;
-        --surface-radius: var(--border-radius-500);
-        --surface-thumb: 2px;
-    }
+            &--ticks {
+                --tick-major: color-mix(in srgb, var(--color-primary-400) 40%, transparent);
+                --tick-minor: color-mix(in srgb, var(--color-primary-400) 20%, transparent);
 
-    &-control {
-        @extend %surface-lower;
-        background: var(--surface-background-default);
-        border-radius: var(--surface-radius);
-        height: var(--surface-height);
-        isolation: isolate;
-        position: relative;
+                &::before {
+                    background: range-ticks(10, var(--tick-major), 10px);
+                    content: '';
+                    inset: 0 auto 0 calc(var(--surface-thumb) / 2 - 0.5px);
+                    pointer-events: none;
+                    position: absolute;
+                    width: calc(var(--surface-travel) + 1px);
+                }
+            }
 
-        &--ticks {
-            --tick-major: color-mix(in srgb, var(--color-primary-400) 40%, transparent);
-            --tick-minor: color-mix(in srgb, var(--color-primary-400) 20%, transparent);
-
-            &::before {
-                background: range-ticks(10, var(--tick-major), 10px);
-                content: '';
-                inset: 0 auto 0 calc(var(--surface-thumb) / 2 - 0.5px);
-                pointer-events: none;
-                position: absolute;
-                width: calc(var(--surface-travel) + 1px);
+            &--ticks-minor::before {
+                background: range-ticks(10, var(--tick-major), 10px), range-ticks(50, var(--tick-minor), 5px);
             }
         }
 
-        &--ticks-minor::before {
-            background: range-ticks(10, var(--tick-major), 10px), range-ticks(50, var(--tick-minor), 5px);
+        &-fill {
+            @extend %surface-raise;
+            background: var(--surface-fill, var(--surface-background-default));
+            border-radius: inherit;
+            box-shadow: var(--surface-fill-shadow, var(--surface-shadow-default));
+            inset: 0 auto 0 0;
+            pointer-events: none;
+            position: absolute;
+            width: calc(var(--surface-thumb) + var(--surface-travel) * var(--fraction));
         }
-    }
 
-    &-fill {
-        @extend %surface-raise;
-        background: var(--surface-fill, var(--surface-background-default));
-        border-radius: inherit;
-        box-shadow: var(--surface-fill-shadow, var(--surface-shadow-default));
-        inset: 0 auto 0 0;
-        pointer-events: none;
-        position: absolute;
-        width: calc(var(--surface-thumb) + var(--surface-travel) * var(--fraction));
-    }
+        &-handle {
+            background: var(--color-primary-400);
+            border-radius: var(--border-radius-200);
+            height: 40%;
+            left: calc(var(--surface-thumb) / 2 + var(--surface-travel) * var(--fraction));
+            pointer-events: none;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px;
+            z-index: 1;
+        }
 
-    &-handle {
-        background: var(--color-primary-400);
-        border-radius: var(--border-radius-200);
-        height: 40%;
-        left: calc(var(--surface-thumb) / 2 + var(--surface-travel) * var(--fraction));
-        pointer-events: none;
-        position: absolute;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        width: 2px;
-        z-index: 1;
-    }
+        &-heading {
+            align-items: baseline;
+            color: var(--color-text-300);
+            display: flex;
+            font-size: var(--font-size-300);
+            justify-content: space-between;
 
-    &-heading {
-        align-items: baseline;
-        color: var(--color-text-300);
-        display: flex;
-        font-size: var(--font-size-300);
-        justify-content: space-between;
+            &-value {
+                font-variant-numeric: tabular-nums;
+            }
+        }
+
+        &-input {
+            appearance: none;
+            background: transparent;
+            border-radius: inherit;
+            cursor: ew-resize;
+            height: 100%;
+            inset: 0;
+            margin: 0;
+            position: absolute;
+            width: 100%;
+            z-index: 2;
+
+            &::-moz-range-thumb {
+                background: transparent;
+                border: 0;
+                height: var(--surface-height);
+                width: var(--surface-thumb);
+            }
+
+            &::-webkit-slider-thumb {
+                appearance: none;
+                background: transparent;
+                border: 0;
+                height: var(--surface-height);
+                width: var(--surface-thumb);
+            }
+
+            &:focus-visible {
+                outline: var(--border-width-500) solid var(--demo-accent);
+                outline-offset: calc(var(--size-100) / 2);
+            }
+        }
+
+        &-label {
+            color: var(--color-text-300);
+            left: var(--size-400);
+        }
+
+        &-label,
+        &-value {
+            pointer-events: none;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        &-unit {
+            color: var(--color-text-300);
+            font-weight: normal;
+            margin-left: calc(var(--size-100) * 0.5);
+        }
 
         &-value {
             font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight-500);
+            right: var(--size-400);
         }
-    }
-
-    &-input {
-        appearance: none;
-        background: transparent;
-        border-radius: inherit;
-        cursor: ew-resize;
-        height: 100%;
-        inset: 0;
-        margin: 0;
-        position: absolute;
-        width: 100%;
-        z-index: 2;
-
-        &::-moz-range-thumb {
-            background: transparent;
-            border: 0;
-            height: var(--surface-height);
-            width: var(--surface-thumb);
-        }
-
-        &::-webkit-slider-thumb {
-            appearance: none;
-            background: transparent;
-            border: 0;
-            height: var(--surface-height);
-            width: var(--surface-thumb);
-        }
-
-        &:focus-visible {
-            outline: var(--border-width-500) solid var(--demo-accent);
-            outline-offset: calc(var(--size-100) / 2);
-        }
-    }
-
-    &-label {
-        color: var(--color-text-300);
-        left: var(--size-400);
-    }
-
-    &-label,
-    &-value {
-        pointer-events: none;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 1;
-    }
-
-    &-unit {
-        color: var(--color-text-300);
-        font-weight: normal;
-        margin-left: calc(var(--size-100) * 0.5);
-    }
-
-    &-value {
-        font-variant-numeric: tabular-nums;
-        font-weight: var(--font-weight-500);
-        right: var(--size-400);
     }
 }

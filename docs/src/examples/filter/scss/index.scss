@@ -4,7 +4,6 @@
 .filter-demo {
     --count-color: var(--color-text-300);
     --count-opacity: 1;
-    --gap: var(--size-200);
     --row-height: 72px;
     display: flex;
     flex-direction: column;
@@ -51,15 +50,17 @@
     }
 
     &-items {
+        --gap-horizontal: var(--size-200);
+        --gap-vertical: var(--size-200);
         display: grid;
-        gap: var(--gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         list-style: none;
         margin: 0;
         outline: none;
         padding: 0;
 
         &--capped {
-            max-height: calc(2 * var(--row-height) + var(--gap));
+            max-height: calc(2 * var(--row-height) + var(--gap-vertical));
             overflow-y: auto;
             overscroll-behavior: contain;
             scrollbar-gutter: stable;

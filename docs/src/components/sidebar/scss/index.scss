@@ -1,5 +1,6 @@
 @use 'css-utilities/border';
 @use 'css-utilities/color';
+@use 'css-utilities/surface';
 @use '../../../../../tokens.scss';
 
 
@@ -50,7 +51,7 @@
     }
 
     &-navtree {
-        --section-gap: var(--size-400);
+        --gap-vertical: var(--size-400);
     }
 
     &-scrollport {
@@ -85,7 +86,9 @@
     // The active link sits on a raised surface rather than the primary, so it keeps the plain active text color.
     .nav {
         &-tree {
-            --highlight-color: var(--color-text-500);
+            &--highlight .nav-tree-link {
+                --color-active: var(--color-text-500);
+            }
 
             // Every state reads the one level the highlight counts. The active pill sets its own shadow weight; hover and
             // pressed stay flat.
@@ -98,7 +101,7 @@
 
                 @include tokens.state(active) {
                     --background-active: var(--surface-background-active);
-                    --surface-shadow-weight: 2;
+                    @include surface.surface-shadow(2);
                     box-shadow: var(--surface-shadow-default);
                 }
             }
