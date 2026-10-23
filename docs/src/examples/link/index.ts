@@ -14,10 +14,10 @@ function group(vertical: boolean, fill: boolean, line: boolean) {
     return html`
         <div
             aria-orientation='${vertical ? 'vertical' : 'horizontal'}'
-            class='link-demo-group ${vertical && 'link-demo-group--vertical'}'
+            class='link-demo-group highlight-rule ${vertical && 'link-demo-group--vertical highlight-rule--vertical'}'
             role='tablist'
         >
-            ${highlight({ class: 'link-demo-group-highlight', fill, line: line ? (vertical ? 'left' : 'bottom') : undefined })}
+            ${highlight({ class: 'link-demo-group-highlight highlight--rule', fill, line: line ? (vertical ? 'left' : 'bottom') : undefined })}
             ${managers.map((manager, index) => html`
                 <div
                     class='link link-demo-group-link ${() => state.active === index && '--active'}'

@@ -1,27 +1,18 @@
 @use 'css-utilities/group';
 @use '../../../../../tokens.scss';
 
-// Tab-style links over a rule; the highlight's line sits on that rule, so it reads as the active link's underline.
+// Tab-style links over the highlight's rule.
 .link-demo-group {
     @extend %group;
     --gap-horizontal: calc(var(--size-100) / 4);
     --gap-vertical: calc(var(--size-100) / 4);
-    border-bottom: var(--border-width-400) solid var(--surface-border-default);
 
     &--vertical {
-        border-bottom: 0;
-        border-left: var(--border-width-400) solid var(--surface-border-default);
         flex-direction: column;
         width: 160px;
     }
 
     &-highlight {
-        --background-active: var(--surface-background-active);
-        --background-hover: var(--surface-background-hover);
-        --background-pressed: var(--surface-background-pressed);
-        --line-color: var(--color-primary-500);
-        --line-offset: calc(var(--border-width-400) * -1);
-        --scale-hidden: 1;
         border-radius: var(--border-radius-300);
     }
 

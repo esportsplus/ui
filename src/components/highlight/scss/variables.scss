@@ -50,17 +50,27 @@
     --inset-vertical: 0px;
     --line-color: currentColor;
     // How far the fills keep clear of the line's side, and the one across from it.
-    --line-inset-horizontal: calc(var(--size-300) / 2);
-    --line-inset-vertical: calc(var(--size-300) / 2);
+    --line-inset-horizontal: calc(var(--size-100) / 2);
+    --line-inset-vertical: calc(var(--size-100) / 2);
     // In from the item's edge; negative pushes the line out, e.g. over the container's own border.
     --line-offset: 0px;
     --line-radius: calc(var(--line-width) / 2);
     --line-width: var(--border-width-500);
-    --scale-hidden: 0.92;
+    --scale-default: 0.92;
 
     @include tokens.state(active) {
         --glide: var(--glide-duration-active);
         --glide-tail: var(--glide-tail-duration-active);
+    }
+
+    // The layer jumps to its item and only fades in and out. Doubled to outrank the active state's own glide.
+    @media (prefers-reduced-motion: reduce) {
+        --scale-default: 1;
+
+        &.highlight {
+            --glide: 0s;
+            --glide-tail: 0s;
+        }
     }
 
     &--hover {
@@ -83,4 +93,21 @@
     &--pressed {
         --background: var(--background-pressed);
     }
+
+    // A layer over a rule, as tabs: surface fills, and a line pulled out by the rule's '--border-width' to lie over
+    // it, so the active item marks its part of the rule. 'fill' and 'line' pick the background, the line or both.
+    &--rule {
+        --background-active: var(--surface-background-active);
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
+        --line-color: var(--color-primary-500);
+        --line-offset: calc(var(--border-width) * -1);
+        --scale-default: 1;
+    }
+}
+
+// The rule a 'highlight--rule' layer lies over, along the edge its 'line' names: the bottom, or the left once vertical.
+.highlight-rule {
+    --border-color: var(--surface-border-default);
+    --border-width: var(--border-width-400);
 }

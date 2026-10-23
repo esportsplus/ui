@@ -19,7 +19,7 @@
 
         &-highlight {
             @extend %surface-primary;
-            --scale-hidden: 1;
+            --scale-default: 1;
             border-radius: var(--border-radius-300);
         }
     }

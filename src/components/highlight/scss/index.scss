@@ -9,7 +9,7 @@
     opacity: 0;
     pointer-events: none;
     position: absolute;
-    scale: var(--scale-hidden);
+    scale: var(--scale-default);
     top: 0;
     // Position and size sit on the item at all times; gliding between items is an offset the script adds on top.
     transition:
@@ -21,6 +21,16 @@
     translate: calc(var(--x) + var(--inset-horizontal) + var(--slide-x)) calc(var(--y) + var(--inset-vertical) + var(--slide-y));
     width: calc(var(--width) - var(--inset-horizontal) * 2 + var(--slide-width));
     z-index: -1;
+
+
+    // The layer jumps to its item and only fades in and out. Doubled to outrank the active state's own glide.
+    @media (prefers-reduced-motion: reduce) {
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            display var(--fade-duration) allow-discrete,
+            opacity var(--fade-duration) var(--transition-timing-function);
+    }
+
 
     // The line runs along the item's own edge, so it reaches back out past the inset.
     &--line {
@@ -68,21 +78,17 @@
         // Entering from display: none has no prior box, so position snaps and only the fade/scale plays.
         @starting-style {
             opacity: 0;
-            scale: var(--scale-hidden);
+            scale: var(--scale-default);
         }
     }
 
-    // The layer jumps to its item and only fades in and out. Doubled to outrank the active state's own glide.
-    @media (prefers-reduced-motion: reduce) {
-        --scale-hidden: 1;
-        transition:
-            background var(--transition-duration) var(--transition-timing-function),
-            display var(--fade-duration) allow-discrete,
-            opacity var(--fade-duration) var(--transition-timing-function);
 
-        &.highlight {
-            --glide: 0s;
-            --glide-tail: 0s;
+    &-rule {
+        border-bottom: var(--border-width) solid var(--border-color);
+
+        &--vertical {
+            border-bottom: 0;
+            border-left: var(--border-width) solid var(--border-color);
         }
     }
 }

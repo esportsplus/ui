@@ -8,9 +8,9 @@ type A = Attributes & {
     active?: () => string | undefined;
     // 'page' marks the active link as the current page; 'command' is for 'command' results, which own focus and selection.
     current?: Current;
-    // How the active link is marked: 'highlight' glides a solid pill between links; the rest run a rule down the links'
-    // edge, where 'background' fills the active link's full width, 'border' colours its part of the rule, and 'both'
-    // does both.
+    // How the active link is marked: 'highlight' glides a solid pill between links; the rest glide a 'highlight--rule'
+    // along a rule down the links' edge, where 'background' fills the active link, 'border' marks its part of the rule,
+    // and 'both' does both.
     indicator?: Indicator;
     sections: TreeSection[];
 };
@@ -76,13 +76,14 @@ export default component<A>(({ active, current = 'page', indicator = 'highlight'
 
     return html`
         <nav
-            class='nav-tree ${current === 'command' && 'nav-tree--command'} ${indicator === 'both' ? 'nav-tree--background nav-tree--border' : `nav-tree--${indicator}`}'
+            class='nav-tree ${current === 'command' && 'nav-tree--command'} ${indicator === 'highlight' ? 'nav-tree--highlight' : 'nav-tree--rule'} ${indicator === 'border' && 'nav-tree--border'}'
             ${current === 'command' && { role: 'presentation' }}
             ${attributes}
         >
-            ${indicator === 'highlight' && highlight({
-                class: 'nav-tree-highlight',
+            ${highlight({
+                class: ['nav-tree-highlight', indicator !== 'highlight' && 'highlight--rule'],
                 hover: current !== 'command',
+                line: indicator === 'border' || indicator === 'both' ? 'left' : undefined,
                 target: '.nav-tree-link:not(.--hidden)'
             })}
             ${sections.map((section) => html`
@@ -103,7 +104,7 @@ export default component<A>(({ active, current = 'page', indicator = 'highlight'
 
                     ${section.groups.map((group) => {
                         return html`
-                            <div class='nav-tree-links ${group.links.some((link) => link.visible) && (() => !group.links.some(visible) && '--hidden')}'>
+                            <div class='nav-tree-links ${indicator !== 'highlight' && 'highlight-rule highlight-rule--vertical'} ${group.links.some((link) => link.visible) && (() => !group.links.some(visible) && '--hidden')}'>
                                 ${group.label && html`
                                     <div class='nav-tree-title'>
                                         ${group.label}

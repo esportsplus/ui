@@ -1,6 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/background';
-@use 'css-utilities/border';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
@@ -9,44 +7,30 @@
     --gap-vertical: var(--size-600);
 
 
-    // Fills the link edge to edge, square, so it meets the rule.
-    &--background {
-        .nav-tree-link {
-            --background-active: var(--surface-background-active);
-            --background-hover: var(--surface-background-hover);
-            --background-pressed: var(--surface-background-pressed);
-        }
-    }
-
-    // A rule down the links' edge that hovered links mark.
-    &--background,
+    // The line marks the active link; hover and press still fill, easing in and out of a clear layer.
     &--border {
-        .nav-tree-link {
-            --border-color-default: var(--surface-border-hover);
-            --border-color-hover: var(--color-primary-400);
-            --border-color-pressed: var(--border-color-hover);
-        }
-    }
-
-    // The active link colours its own part of the rule, so the mark always lines up.
-    &--border {
-        .nav-tree-link {
-            --border-color-active: var(--color-text-500);
+        .nav-tree-highlight {
+            --background-active: transparent;
+            --background-default: transparent;
         }
     }
 
     // Links stay inside the palette's padding rather than pulling out, so titles step in to their text instead.
     &--command {
-        .nav-tree-highlight {
-            --background-active: var(--surface-background-active);
-        }
-
         .nav-tree-title:not(.nav-tree-link) {
             --padding-horizontal: var(--size-300);
         }
     }
 
     &--highlight {
+        // A level above the tree, so a fill pointed at '--surface-background-*' here reads as a surface sitting on it.
+        .nav-tree-highlight {
+            @extend %surface-raise;
+            --background-active: var(--color-primary-400);
+            --background-hover: var(--surface-background-hover);
+            --background-pressed: var(--surface-background-pressed);
+        }
+
         .nav-tree-link {
             --border-radius: var(--border-radius-300);
             // Text colour of the active link while the highlight sits under it.
@@ -61,6 +45,10 @@
     }
 
     &--highlight#{&}--command {
+        .nav-tree-highlight {
+            --background-active: var(--surface-background-active);
+        }
+
         .nav-tree-link {
             --color-active: var(--color-primary-500);
         }
@@ -72,23 +60,24 @@
         }
     }
 
-
-    // A level above the tree, so a fill pointed at '--surface-background-*' here reads as a surface sitting on it.
-    &-highlight {
-        @extend %surface-raise;
-        --background-active: var(--color-primary-400);
-        --background-hover: var(--surface-background-hover);
-        --background-pressed: var(--surface-background-pressed);
-        --glide-duration: 0.2s;
-        --glide-duration-active: 0.25s;
-        --scale-hidden: 1;
+    // The rule as wide as the highlight's line, which lies over it.
+    &--rule {
+        .nav-tree-highlight,
+        .nav-tree-links {
+            --border-width: var(--border-width-500);
+        }
     }
 
-    // The border stays, transparent without a rule, so links keep the same box whichever way the active one is marked.
+
+    &-highlight {
+        --glide-duration: 0.2s;
+        --glide-duration-active: 0.25s;
+        --scale-default: 1;
+    }
+
     &-link {
-        @extend %background-state, %border-state, %color-state, %color-text;
+        @extend %color-state, %color-text;
         --border-radius: 0px;
-        --border-width: var(--border-width-400);
         --focus-color: var(--color-blue-400);
         --focus-width: var(--border-width-400);
         --font-size: var(--font-size-300);

@@ -46,7 +46,7 @@ const groups: Record<string, Group[]> = {
     grid: [{ title: 'auto-fit', members: [['auto-fit (min 200px)', 'Default'], 'min-width 120px'] }],
     heatmap: [{ title: 'heatmap', members: [['default (GitHub contributions)', 'Default'], ['heatmap--blue, custom thresholds and tooltip template', 'Blue, custom thresholds and tooltip'], ['controlled state', 'Controlled state']] }],
     highlight: [
-        { title: 'highlight', members: [['horizontal button group', 'Default'], ['vertical link list', 'Vertical links'], ['rests on --active', 'Active selection'], ['blue background', 'Blue background']] },
+        { title: 'highlight', members: [['horizontal button group', 'Default'], ['vertical link list', 'Vertical links'], ['rests on --active', 'Active selection']] },
         { title: 'tabs', members: [['tabs · background + line', 'Default'], ['tabs · line only', 'Line only'], ['vertical tabs · background + line', 'Vertical']] }
     ],
     icon: [{ title: 'icon', members: [['default size', 'Default'], 'sized & coloured'] }],

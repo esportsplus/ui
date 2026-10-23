@@ -88,7 +88,7 @@
 
         &-highlight {
             @extend %background-surface, %surface-raise;
-            --scale-hidden: 1;
+            --scale-default: 1;
             --surface-level: 1;
         }
 

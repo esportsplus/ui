@@ -17,10 +17,10 @@ function tabs(line: 'bottom' | 'left', fill: boolean) {
     return html`
         <div
             aria-orientation='${line === 'left' ? 'vertical' : 'horizontal'}'
-            class='highlight-demo-tabs ${line === 'left' && 'highlight-demo-tabs--vertical'}'
+            class='highlight-demo-tabs highlight-rule ${line === 'left' && 'highlight-demo-tabs--vertical highlight-rule--vertical'}'
             role='tablist'
         >
-            ${highlight({ class: 'highlight-demo-highlight', fill, line })}
+            ${highlight({ class: 'highlight-demo-highlight highlight--rule', fill, line })}
             ${labels.map((label, index) => html`
                 <button
                     class='highlight-demo-tab ${() => state.active === index && '--active'}'
@@ -89,38 +89,6 @@ export default {
                 `;
             },
             title: 'rests on --active'
-        },
-        {
-            render: () => {
-                let state = reactive({ active: 1 });
-
-                return html`
-                    <div
-                        class='card'
-                        style='
-                            --padding-horizontal: var(--size-300);
-                            --padding-vertical: var(--size-300);
-                            background: var(--color-primary-400);
-                            color: var(--surface-background-default);
-                        '
-                    >
-                        <div class='highlight-demo-row' style='${row}'>
-                            ${highlight({ class: 'highlight-demo-blue' })}
-                            ${labels.map((label, index) => html`
-                                <button
-                                    class='button ${() => state.active === index && '--active'}'
-                                    onclick='${() => state.active = index}'
-                                    style='--color: var(--surface-background-default);'
-                                    type='button'
-                                >
-                                    ${label}
-                                </button>
-                            `)}
-                        </div>
-                    </div>
-                `;
-            },
-            title: 'blue background'
         },
         {
             render: () => tabs('bottom', true),
