@@ -1,9 +1,13 @@
 // Compact for a dense grid. Tabular figures, so the tooltip holds its width as the counts change cell to cell.
 .heatmap .tooltip-shared {
-    --padding: var(--size-100) var(--size-200);
     --radius: var(--border-radius-300);
     --spacer: 6px;
     font-variant-numeric: tabular-nums;
+
+    .tooltip-shared-layer {
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-100);
+    }
 }
 
 .heatmap,
@@ -24,7 +28,6 @@
     --months-height: var(--size-500);
     --pitch: var(--size-300);
     --ring-space: 3px;
-    --scrollbar-spacing: var(--size-300);
     // Per column, so the whole year sweeps in under half a second and reads as one gesture.
     --stagger: 8ms;
     --transition-duration: 0.3s;
@@ -34,6 +37,13 @@
 .heatmap--blue,
 .heatmap-legend--blue {
     --level-color: var(--color-blue-400);
+}
+
+// Room on every side for the focus and hover rings, and more below them for the scroll bar.
+.heatmap-scroll {
+    --padding-bottom: var(--size-300);
+    --padding-horizontal: var(--ring-space);
+    --padding-vertical: var(--ring-space);
 }
 
 // Settles from 0.6, not 0: a square growing from nothing reads as a pop, one settling from slightly small

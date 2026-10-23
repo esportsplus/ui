@@ -9,9 +9,9 @@
     font-size: var(--font-size);
     font-variant-numeric: tabular-nums;
     font-weight: var(--font-weight);
-    gap: var(--gap);
+    gap: var(--gap-vertical) var(--gap-horizontal);
     grid-auto-flow: column;
-    padding: var(--padding);
+    padding: var(--padding-vertical) var(--padding-horizontal);
     position: relative;
     transition:
         color var(--tone-duration) var(--transition-timing-function),

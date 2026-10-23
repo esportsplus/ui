@@ -6,9 +6,8 @@
 
 * {
     --border-radius: calc(1em / 1.618);
-    --gap: calc(1em / 1.618);
-    --gap-horizontal: var(--gap);
-    --gap-vertical: var(--gap);
+    --gap-horizontal: calc(1em / 1.618);
+    --gap-vertical: calc(1em / 1.618);
     --letter-spacing: clamp(-0.022em, calc(0.060542rem - 0.051418em), 0em);
     --line-height: clamp(1.128em, calc(0.95em + 0.668rem), 1.618em);
     --padding-horizontal: 1em;

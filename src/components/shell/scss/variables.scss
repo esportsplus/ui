@@ -3,15 +3,16 @@
 .shell {
     @extend %surface-root;
     // How far the card stands from the window.
-    --gap: 0px;
-    --height: calc(100dvh - var(--gap) * 2);
+    --gap-horizontal: 0px;
+    --gap-vertical: 0px;
+    --height: calc(100dvh - var(--gap-vertical) * 2);
     // How far the card's surface stands from each side of the window. It matches the laid-out card until hover or a drag
     // moves it on its own, ahead of the layout.
-    --left-edge: calc(var(--left-space) + var(--left-gap));
-    --left-gap: 0px;
+    --left-edge: calc(var(--left-space) + var(--left-gap-horizontal));
+    --left-gap-horizontal: 0px;
     --left-space: 0px;
-    --right-edge: calc(var(--right-space) + var(--right-gap));
-    --right-gap: 0px;
+    --right-edge: calc(var(--right-space) + var(--right-gap-horizontal));
+    --right-gap-horizontal: 0px;
     --right-space: 0px;
     --slide-duration: 300ms;
     --slide-easing: cubic-bezier(0.32, 0.72, 0, 1);
@@ -27,12 +28,12 @@
     }
 
     &.--left-open {
-        --left-gap: 0px;
+        --left-gap-horizontal: 0px;
         --left-space: var(--space);
     }
 
     &.--right-open {
-        --right-gap: 0px;
+        --right-gap-horizontal: 0px;
         --right-space: var(--space);
     }
 
@@ -48,7 +49,7 @@
     &-handle {
         --color: var(--surface-border-hover);
         // How far inside the card's edge the handle comes to rest.
-        --inset: 3px;
+        --inset-horizontal: 3px;
         --width: 3px;
     }
 

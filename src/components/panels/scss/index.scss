@@ -25,6 +25,14 @@
         width: var(--action-size);
     }
 
+    &-dock-target,
+    &-edge {
+        &.--over {
+            background: var(--drop-background);
+            box-shadow: inset 0 0 0 2px var(--drop-ring);
+        }
+    }
+
     &-add {
         height: var(--add-size);
         width: var(--add-size);
@@ -52,23 +60,15 @@
             position: absolute;
             z-index: 3;
         }
-    }
 
-    // Covers the bottom of the layout while a tab is dragged, so dropping it there docks it across the whole width.
-    &-dock-target {
-        bottom: 0;
-        height: 48px;
-        inset-inline: 0;
-        pointer-events: none;
-        position: absolute;
-        z-index: 4;
-    }
-
-    &-dock-target,
-    &-edge {
-        &.--over {
-            background: var(--drop-background);
-            box-shadow: inset 0 0 0 2px var(--drop-ring);
+        // Covers the bottom of the layout while a tab is dragged, so dropping it there docks it across the whole width.
+        &-target {
+            bottom: 0;
+            height: 48px;
+            inset-inline: 0;
+            pointer-events: none;
+            position: absolute;
+            z-index: 4;
         }
     }
 
@@ -214,9 +214,9 @@
         align-items: center;
         display: flex;
         flex-shrink: 0;
-        gap: calc(var(--spacing) / 2);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--header-height);
-        padding-inline: var(--spacing);
+        padding-inline: var(--padding-horizontal);
     }
 
     // A surface's long-lived host and the slot it moves into add no box, so its content lays out in the group's body.
@@ -346,10 +346,10 @@
 
     &-tab {
         flex: none;
-        gap: calc(var(--spacing) / 2);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--tab-height);
         max-width: var(--tab-max-width);
-        padding-inline-end: calc(var(--spacing) / 2);
+        padding-inline-end: calc(var(--padding-horizontal) / 2);
         user-select: none;
 
         &--dragging {
@@ -388,7 +388,7 @@
         align-items: center;
         display: flex;
         flex: 1;
-        gap: calc(var(--spacing) / 2);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         height: 100%;
         min-width: 0;
         overflow: auto hidden;

@@ -40,16 +40,18 @@
             @extend %surface-raise;
             --border-width: var(--border-width-400);
             --center: calc(
-                var(--border-width) + var(--padding) + var(--index) * (var(--option-size) + var(--gap)) +
+                var(--border-width) + var(--padding-horizontal) + var(--index) * (var(--option-size) + var(--gap-horizontal)) +
                 var(--option-size) / 2
             );
             --count: 3;
-            --gap: calc(var(--size-100) / 4);
+            --gap-horizontal: calc(var(--size-100) / 4);
+            --gap-vertical: calc(var(--size-100) / 4);
             --option-size: 28px;
-            --padding: calc(var(--size-300) / 4);
+            --padding-horizontal: calc(var(--size-300) / 4);
+            --padding-vertical: calc(var(--size-300) / 4);
             --width: calc(
-                var(--count) * var(--option-size) + (var(--count) - 1) * var(--gap) +
-                2 * (var(--padding) + var(--border-width))
+                var(--count) * var(--option-size) + (var(--count) - 1) * var(--gap-horizontal) +
+                2 * (var(--padding-horizontal) + var(--border-width))
             );
         }
 

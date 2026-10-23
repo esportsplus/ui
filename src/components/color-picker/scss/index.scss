@@ -10,11 +10,11 @@
     display: flex;
     flex-direction: column;
     font-size: var(--font-size);
-    gap: var(--spacing);
+    gap: var(--gap-vertical) var(--gap-horizontal);
 
     &-body {
         display: flex;
-        gap: var(--spacing);
+        gap: var(--gap-vertical) var(--gap-horizontal);
 
         > .color-picker-pad {
             flex: 1 1 auto;
@@ -25,7 +25,7 @@
     &-channels {
         align-items: center;
         display: flex;
-        gap: var(--spacing);
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
     &-field {
@@ -87,7 +87,7 @@
         // Sits inside the hex field, at its end; the field's end padding keeps typed text clear of it.
         &-picker-copy {
             position: absolute;
-            right: var(--inset);
+            right: var(--inset-horizontal);
             top: 50%;
             translate: 0 -50%;
         }
@@ -151,7 +151,7 @@
 
     &-recent {
         border-top: 1px solid var(--border-color);
-        padding-top: var(--spacing);
+        padding-top: var(--padding-vertical);
 
         &-label {
             color: var(--color);

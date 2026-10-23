@@ -18,7 +18,7 @@
         --width: max-content;
         color: var(--error-text);
         font-size: var(--error-font-size);
-        padding: var(--error-padding);
+        padding: var(--error-padding-vertical) var(--error-padding-horizontal);
         white-space: normal;
     }
 

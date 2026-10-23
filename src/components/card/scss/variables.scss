@@ -45,6 +45,20 @@
         --box-shadow-pressed: var(--surface-shadow-pressed);
     }
 
+    // The fill follows its states, stepping on hover and press like any other surface.
+    &--surface {
+        @extend %background-surface;
+        --box-shadow-default: var(--surface-shadow-default);
+    }
+
+    // The surface's edge, drawn at the standard width; the padding insets by it, so the box keeps its size. The
+    // default is restated because the placeholder's is emitted ahead of '.card' and loses to it.
+    &--surface-border {
+        @extend %border-surface;
+        --border-color-default: var(--surface-border-default);
+        --border-width: var(--border-width-400);
+    }
+
     &-morph-layer.frame {
         --swap-blur: var(--morph-blur);
         --swap-duration: var(--morph-enter-duration);

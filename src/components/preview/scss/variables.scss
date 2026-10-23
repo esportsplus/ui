@@ -4,18 +4,31 @@
 // Qualified by the class each part shares an element with (card, select, button, highlight, icon, code viewer), so
 // these win over that component's own variables whatever order the stylesheets load in.
 .preview {
-    &-header {
-        @extend %surface-raise;
+    &-anchor {
+        --scroll-margin-vertical: var(--size-500);
     }
 
-    &.card {
-        --border-color-default: var(--surface-border-default);
-        --border-radius: var(--border-radius-500);
+    &-copy {
+        --inset-horizontal: var(--size-300);
+        --inset-vertical: var(--size-300);
+    }
+
+    &-header {
+        @extend %surface-raise;
+        --background: var(--surface-background-default);
+        --border-color: var(--surface-border-default);
+        --border-radius: calc(var(--border-radius-500) - var(--border-width-400));
         --border-width: var(--border-width-400);
-        --padding-horizontal: 0px;
-        --padding-vertical: 0px;
-        // The card's fill, resolved here, for anything inside that must cover what scrolls beneath it.
-        --preview-background: var(--background);
+        --gap-horizontal: var(--size-300);
+        --gap-vertical: var(--size-200);
+        --min-height: 44px;
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-200);
+    }
+
+    &-index {
+        --color: var(--color-text-300);
+        --gap-horizontal: var(--size-300);
     }
 
     &-select.select {
@@ -24,8 +37,41 @@
         --width: auto;
     }
 
+    &-source-message {
+        --color: var(--color-text-300);
+        --padding-horizontal: var(--size-500);
+        --padding-vertical: var(--size-500);
+    }
+
+    &-stage {
+        --background: var(--surface-background-default);
+        --border-radius: calc(var(--border-radius-500) - var(--border-width-400));
+        --gap-horizontal: var(--size-400);
+        --gap-vertical: var(--size-400);
+        --min-height: 160px;
+        --padding-horizontal: var(--size-500);
+        --padding-vertical: var(--size-600);
+
+        // Reserve space while an offscreen example waits to mount.
+        &--pending {
+            --min-height: 320px;
+        }
+    }
+
+    &-title {
+        --color: var(--color-text-500);
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-500);
+    }
+
     &-view {
         @extend %surface-lower;
+        --background: var(--surface-background-default);
+        --border-radius: var(--border-radius-600);
+        // Pulls the buttons down onto the card below, out of the page's gap.
+        --overlap: calc(var(--size-100) - var(--size-800));
+        --padding-horizontal: calc(var(--size-100) / 2);
+        --padding-vertical: calc(var(--size-100) / 2);
         --surface-level: -3;
 
         &-button {
@@ -33,6 +79,9 @@
             --background-active: transparent;
             --background-default: transparent;
             --border-radius: var(--border-radius-400);
+            --focus-color: var(--color-blue-400);
+            --focus-offset: calc(var(--size-100) / 4);
+            --focus-width: 2px;
             --font-size: var(--font-size-300);
             --surface-level: 4;
         }
@@ -42,6 +91,12 @@
             --scale-hidden: 1;
             --surface-level: 1;
         }
+
+        // Clears the buttons above it, so scrolling to the example still shows them. Qualified so it beats the card's
+        // own scroll margin.
+        + .preview.card {
+            --scroll-margin-vertical: calc(var(--size-500) + var(--size-800) + var(--size-100));
+        }
     }
 
     // Sits flush on the card, which shows through the viewer's own raised level, rounding only the corners it
@@ -50,6 +105,19 @@
         --background-default: transparent;
         --border-radius: 0 0 var(--border-radius-500) var(--border-radius-500);
         --border-width: 0px;
-        --padding: var(--size-400);
+        --code-padding-horizontal: var(--size-400);
+        --code-padding-vertical: var(--size-400);
+    }
+
+    &.card {
+        --border-color-default: var(--surface-border-default);
+        --border-radius: var(--border-radius-500);
+        --border-width: var(--border-width-400);
+        --intrinsic-height: 420px;
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        // The card's fill, resolved here, for anything inside that must cover what scrolls beneath it.
+        --preview-background: var(--background);
+        --scroll-margin-vertical: var(--size-500);
     }
 }

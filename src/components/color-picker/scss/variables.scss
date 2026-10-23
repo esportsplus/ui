@@ -20,16 +20,24 @@ $thumb-size: var(--size-500);
 
 .color-picker {
     // Level with what holds it, so it paints that surface rather than leaving its own colors to chance; set
-    // '--surface-step' to lift it off.
+    // '--surface-level' to lift it off.
     @extend %surface;
     --background: var(--surface-background-default);
     --border-radius: var(--border-radius-400);
     --color: var(--color-text-500);
     --font-size: calc(var(--font-size-400) * 0.875);
-    --spacing: 12px;
+    --gap-horizontal: 12px;
+    --gap-vertical: 12px;
 
-    &--compact {
-        --spacing: var(--size-100);
+    &--compact,
+    &--compact &-body,
+    &--compact &-channels {
+        --gap-horizontal: var(--size-100);
+        --gap-vertical: var(--size-100);
+    }
+
+    &--compact &-recent {
+        --padding-vertical: var(--size-100);
     }
 
 
@@ -52,6 +60,12 @@ $thumb-size: var(--size-500);
     &-fields #{&}-alpha {
         --color-default: var(--color-text-300);
         --width: 56px;
+    }
+
+    &-body,
+    &-channels {
+        --gap-horizontal: 12px;
+        --gap-vertical: 12px;
     }
 
     // Qualified by the root so it wins over the reused range styles regardless of stylesheet order.
@@ -102,9 +116,10 @@ $thumb-size: var(--size-500);
 
     // Qualified by the root so it wins over the reused button styles regardless of stylesheet order.
     & &-copy {
-        --border-radius: calc(#{$control-border-radius} - var(--inset));
-        --inset: #{$copy-inset};
-        --size: calc(#{$control-height} - var(--inset) * 2);
+        --border-radius: calc(#{$control-border-radius} - var(--inset-horizontal));
+        --inset-horizontal: #{$copy-inset};
+        --inset-vertical: #{$copy-inset};
+        --size: calc(#{$control-height} - var(--inset-vertical) * 2);
     }
 
     &-fields #{&}-hex {
@@ -120,6 +135,14 @@ $thumb-size: var(--size-500);
         }
     }
 
+    &--compact &-pad {
+        --height: 184px;
+    }
+
+    &--compact &-thumb {
+        --size: 12px;
+    }
+
     // Chained through '.icon' so it wins over the icon's own color regardless of stylesheet order.
     &-icon.icon {
         --color: currentColor;
@@ -133,8 +156,8 @@ $thumb-size: var(--size-500);
         --height: 176px;
     }
 
-    &--compact &-pad {
-        --height: 184px;
+    &-pad:active &-thumb {
+        --scale: var(--scale-pressed);
     }
 
     &-preview {
@@ -146,6 +169,7 @@ $thumb-size: var(--size-500);
 
     &-recent {
         --border-color: #{$control-border-color};
+        --padding-vertical: 12px;
 
         &-label {
             --color: var(--color-text-300);
@@ -194,14 +218,6 @@ $thumb-size: var(--size-500);
         --scale-pressed: 1.1;
         --shadow: #{$thumb-shadow};
         --size: #{$thumb-size};
-    }
-
-    &--compact &-thumb {
-        --size: 12px;
-    }
-
-    &-pad:active &-thumb {
-        --scale: var(--scale-pressed);
     }
 
 

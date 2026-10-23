@@ -19,7 +19,7 @@
         grid-area: 1 / 1;
         overflow: hidden;
         overflow-wrap: var(--box-overflow-wrap);
-        padding: var(--box-padding-block) var(--box-padding-end) var(--box-padding-block) var(--box-padding-start);
+        padding: var(--box-padding-vertical) var(--box-padding-end) var(--box-padding-vertical) var(--box-padding-start);
         text-align: start;
         text-overflow: var(--box-text-overflow);
         white-space: var(--box-white-space);
@@ -85,7 +85,7 @@
         }
 
         > * + * {
-            margin-top: var(--paragraph-gap);
+            margin-top: var(--margin-vertical);
         }
 
         a {
@@ -184,7 +184,7 @@
         display: flex;
         flex-shrink: 0;
         font-size: var(--font-size);
-        gap: var(--gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         grid-area: 2 / 1;
         margin-top: var(--status-margin-top);
         padding-inline-start: var(--box-padding-start);
@@ -202,7 +202,7 @@
         &--saving &-dot {
             opacity: 1;
             scale: 1;
-            translate: calc((var(--i) - 1) * var(--dot-gap));
+            translate: calc((var(--i) - 1) * var(--gap-horizontal));
 
             &::before {
                 animation: inline-edit-status-pulse var(--pulse-duration) ease-in-out calc(var(--i) * var(--pulse-stagger)) infinite;

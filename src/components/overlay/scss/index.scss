@@ -69,16 +69,11 @@ $edge-fill: (
         opacity: calc(1 - var(--progress, 0));
     }
 
-    // Only the lowest modal backdrop dims the page; the layers above it dim what they cover themselves.
-    &.overlay--stacked::backdrop {
-        opacity: 0;
-    }
-
-
     &--alert::backdrop,
     &--blur::backdrop {
         backdrop-filter: blur(var(--blur));
     }
+
 
     &--e {
         transform-origin: right;
@@ -163,7 +158,6 @@ $edge-fill: (
         }
     }
 
-
     &-handle {
         background: var(--handle-color);
         border-radius: var(--handle-thickness);
@@ -214,6 +208,7 @@ $edge-fill: (
             display: none;
         }
     }
+
 
     // '--depth' is how many layers are open above this one, fractional while the top one is dragged away.
     &.overlay--covered {
@@ -272,7 +267,6 @@ $edge-fill: (
         }
     }
 
-
     // Always open; '--active' expands it. Rows keep their width and are clipped rather than reflowed, so the
     // collapsed rail shows whatever leads each row (usually an icon).
     &.overlay--rail {
@@ -295,6 +289,12 @@ $edge-fill: (
         @media (prefers-reduced-motion: reduce) {
             transition: none;
         }
+    }
+
+
+    // Only the lowest modal backdrop dims the page; the layers above it dim what they cover themselves.
+    &.overlay--stacked::backdrop {
+        opacity: 0;
     }
 
     // Every placement fades in place instead of travelling.

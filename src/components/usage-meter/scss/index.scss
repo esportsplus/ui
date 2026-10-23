@@ -5,7 +5,7 @@
 .usage-meter {
     display: flex;
     flex-direction: column;
-    gap: var(--gap);
+    gap: var(--gap-vertical) var(--gap-horizontal);
     max-width: var(--max-width);
     width: 100%;
 
@@ -27,21 +27,21 @@
     &-breakdown,
     &-label,
     &-percent {
-        display: var(--detail-display);
+        display: var(--display);
     }
 
     &-cost::before {
-        content: var(--cost-prefix);
+        content: var(--prefix);
     }
 
     &-count {
-        color: var(--meta-color);
-        font-size: var(--meta-font-size);
+        color: var(--color);
+        font-size: var(--font-size);
     }
 
     // Full width and slid in from the left, so it moves on the compositor instead of re-laying out
     &-fill {
-        background: var(--fill);
+        background: var(--background);
         border-radius: inherit;
         display: block;
         height: 100%;
@@ -53,32 +53,32 @@
 
     &-footer {
         align-items: center;
-        color: var(--meta-color-muted);
-        display: var(--row-display);
-        font-size: var(--meta-font-size);
+        color: var(--color);
+        display: var(--display);
+        font-size: var(--font-size);
         justify-content: space-between;
     }
 
     &-header {
         align-items: baseline;
-        display: var(--row-display);
+        display: var(--display);
         gap: var(--size-300);
         justify-content: space-between;
     }
 
     &-label {
-        color: var(--label-color);
-        font-size: var(--label-font-size);
-        font-weight: var(--label-font-weight);
+        color: var(--color);
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
     }
 
     &-track {
-        background: var(--track-background);
+        background: var(--background);
         border-radius: 999px;
         flex: 0 0 auto;
-        height: var(--track-height);
-        order: var(--track-order);
+        height: var(--height);
+        order: var(--order);
         overflow: hidden;
-        width: var(--track-width);
+        width: var(--width);
     }
 }

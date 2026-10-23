@@ -89,8 +89,7 @@
     // Room on every side so focus and hover rings aren't clipped, plus a gap between the weeks and the bar.
     &-scroll {
         min-width: 0;
-        padding: var(--ring-space);
-        padding-bottom: var(--scrollbar-spacing);
+        padding: var(--padding-vertical) var(--padding-horizontal) var(--padding-bottom);
     }
 
 

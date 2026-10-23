@@ -94,6 +94,41 @@
         --size: var(--size-400);
     }
 
+    // 1 while the panel shows, 0 while hidden; the pill's width and offset both derive from it.
+    &--sidebar {
+        --open: 1;
+
+        // Hidden panels thin the pill to a line; hover and focus preview the opposite state unless a toggle just
+        // happened under them.
+        &:not(&-held) {
+            &[aria-expanded='false']:focus-visible {
+                --open: 1;
+            }
+
+            &[aria-expanded='true']:focus-visible {
+                --open: 0;
+            }
+
+            @media (hover: hover) {
+                &[aria-expanded='false']:hover {
+                    --open: 1;
+                }
+
+                &[aria-expanded='true']:hover {
+                    --open: 0;
+                }
+            }
+        }
+
+        &[aria-expanded='false'] {
+            --open: 0;
+        }
+
+        path {
+            --transition-duration: 130ms;
+        }
+    }
+
     &--surface {
         @extend %background-surface, %border-surface, %color-text;
 
@@ -102,14 +137,15 @@
         }
     }
 
+
     &--white {
         @extend %background-white, %color-black;
     }
 
-
     &-face {
         --blur: var(--blur-400);
-        --gap: 0.375em;
+        --gap-horizontal: 0.375em;
+        --gap-vertical: 0.375em;
         --offset: calc(var(--size-300) / 4);
         // Stands in for an overdamped spring (stiffness 260, damping 34, mass 0.8), which never overshoots.
         --transition-duration: 0.4s;
@@ -144,42 +180,12 @@
         }
     }
 
-    // 1 while the panel shows, 0 while hidden; the pill's width and offset both derive from it.
-    &--sidebar {
-        --open: 1;
-
-        path {
-            --transition-duration: 130ms;
-        }
-
-        // Hidden panels thin the pill to a line; hover and focus preview the opposite state unless a toggle just
-        // happened under them.
-        &:not(&-held) {
-            &[aria-expanded='false']:focus-visible {
-                --open: 1;
-            }
-
-            &[aria-expanded='true']:focus-visible {
-                --open: 0;
-            }
-
-            @media (hover: hover) {
-                &[aria-expanded='false']:hover {
-                    --open: 1;
-                }
-
-                &[aria-expanded='true']:hover {
-                    --open: 0;
-                }
-            }
-        }
-
-        &[aria-expanded='false'] {
-            --open: 0;
-        }
-    }
-
     &-split {
+        // Chained through the group so it wins over the trigger's own '.button' padding.
+        & > &-menu > &-trigger {
+            --padding-horizontal: var(--size-200);
+        }
+
         &-action,
         &-trigger {
             --focus-color: currentColor;
@@ -190,11 +196,6 @@
         &-chevron {
             --transition-duration: 0.2s;
             --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        // Chained through the group so it wins over the trigger's own '.button' padding.
-        & > &-menu > &-trigger {
-            --padding-horizontal: var(--size-200);
         }
     }
 }

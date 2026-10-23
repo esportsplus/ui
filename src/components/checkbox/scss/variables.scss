@@ -7,13 +7,13 @@
     --background-hover: var(--background-default);
     --background-pressed: var(--background-default);
     --border-color: var(--border-color-default);
-    --border-color-active: var(--border-color-default);
-    --border-color-default: var(--background);
-    --border-color-hover: var(--border-color-default);
-    --border-color-pressed: var(--border-color-default);
+    --border-color-active: var(--surface-border-active);
+    --border-color-default: var(--surface-border-default);
+    --border-color-hover: var(--surface-border-hover);
+    --border-color-pressed: var(--surface-border-pressed);
     --border-radius: var(--border-radius-300);
     --border-style: solid;
-    --border-width: 0px;
+    --border-width: var(--border-width-400);
     --border-width-offset: 0px;
     --border-width-offset-hover: var(--border-width-400);
     --box-shadow: var(--box-shadow-default);
@@ -65,6 +65,10 @@
     }
 
     &--switch {
+        --background-default: var(--surface-primary-default);
+        --background-hover: var(--surface-primary-hover);
+        --background-pressed: var(--surface-primary-pressed);
+        --border-width: 0px;
         --border-width-offset-hover: 0px;
         --box-shadow-active: var(--box-shadow-default);
         --focus-color: var(--background-active);

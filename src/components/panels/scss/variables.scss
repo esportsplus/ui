@@ -13,7 +13,6 @@
     --handle-size: 8px;
     --header-height: 36px;
     --muted-color: var(--color-text-300);
-    --spacing: calc(var(--size-300) / 2);
     --tab-font-size: calc(var(--font-size-400) * 0.75);
     --tab-height: 24px;
     --tab-max-width: 144px;
@@ -40,6 +39,12 @@
         --background: var(--surface-background-default);
     }
 
+    &-header {
+        --gap-horizontal: calc(var(--size-300) / 4);
+        --gap-vertical: calc(var(--size-300) / 4);
+        --padding-horizontal: calc(var(--size-300) / 2);
+    }
+
     &-launcher-card {
         @extend %color-text;
         --background-active: var(--surface-background-hover);
@@ -62,8 +67,15 @@
         --background-pressed: transparent;
         --border-radius: var(--border-radius-300);
         --font-size: var(--tab-font-size);
-        --padding-horizontal: var(--spacing);
+        --gap-horizontal: calc(var(--size-300) / 4);
+        --gap-vertical: calc(var(--size-300) / 4);
+        --padding-horizontal: calc(var(--size-300) / 2);
         --padding-vertical: 0px;
+    }
+
+    &-tabs {
+        --gap-horizontal: calc(var(--size-300) / 4);
+        --gap-vertical: calc(var(--size-300) / 4);
     }
 
     &-tabs-highlight {

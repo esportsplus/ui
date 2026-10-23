@@ -7,7 +7,7 @@
     color: var(--color);
     font-size: var(--font-size);
     font-weight: var(--font-weight);
-    padding: var(--padding);
+    padding: var(--padding-vertical) var(--padding-horizontal);
     position: relative;
     width: min(100%, var(--width));
 
@@ -15,7 +15,7 @@
         background: var(--background);
         border-radius: var(--border-radius);
         height: var(--item-height);
-        inset: 50% var(--padding) auto;
+        inset: 50% var(--inset-horizontal) auto;
         pointer-events: none;
         position: absolute;
         translate: 0 -50%;

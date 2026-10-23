@@ -11,14 +11,14 @@
     background: var(--background);
     border: 0;
     border-radius: var(--border-radius);
-    box-shadow: inset 0 0 0 var(--border-width) var(--border-color);
+    box-shadow: var(--box-shadow);
     color: var(--color);
     cursor: pointer;
     display: flex;
     flex-shrink: 0;
     font: inherit;
     font-size: var(--font-size);
-    gap: var(--gap);
+    gap: var(--gap-vertical) var(--gap-horizontal);
     height: var(--height);
     justify-content: flex-end;
     min-width: var(--min-width);

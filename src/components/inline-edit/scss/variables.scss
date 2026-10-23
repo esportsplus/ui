@@ -7,9 +7,9 @@
 .inline-edit {
     --box-border-radius: var(--border-radius-400);
     --box-overflow-wrap: normal;
-    --box-padding-block: calc(var(--size-100) / 2);
     --box-padding-end: 36px;
     --box-padding-start: var(--size-100);
+    --box-padding-vertical: calc(var(--size-100) / 2);
     --box-text-overflow: ellipsis;
     --box-white-space: pre;
     --color: var(--color-text-500);
@@ -25,12 +25,10 @@
     --link-underline-color: oklch(from var(--color-primary-500) l c h / 0.4);
     --mark-background: oklch(from var(--color-primary-500) l c h / 0.15);
     --outline-color: var(--color-primary-500);
-    --paragraph-gap: 12px;
     --placeholder-color: var(--color-text-300);
     --quote-border-color: var(--surface-border-default);
     --quote-color: var(--color-text-400);
     --status-margin-top: calc(var(--size-100) / 2);
-    --task-border-color: var(--color-primary-300);
     --task-check-color: var(--color-surface);
     --task-checked-color: var(--color-primary-500);
     --task-done-color: var(--color-text-300);
@@ -56,6 +54,11 @@
     &-editor {
         #{tokens.state(active, '.inline-edit')} > & {
             @extend %surface-raise;
+        }
+
+        // The space between blocks of rich text, held by each block after the first.
+        > * + * {
+            --margin-vertical: 12px;
         }
 
         code,
@@ -85,12 +88,12 @@
         --check-duration: 0.35s;
         --check-stroke-width: 2.4;
         --color: var(--color-text-300);
-        --dot-gap: calc(var(--icon-size) * 0.3125);
         --dot-size: calc(var(--icon-size) / 4);
         --enter-duration: 0.22s;
         --exit-duration: 0.12s;
         --font-size: var(--font-size-300);
-        --gap: 0.5rem;
+        --gap-horizontal: 0.5rem;
+        --gap-vertical: 0.5rem;
         --icon-size: 1.25em;
         --move-duration: 0.4s;
         --pulse-duration: 1s;
@@ -102,6 +105,11 @@
         &-check.icon {
             --height: 100%;
             --width: 100%;
+        }
+
+        // How far apart the saving dots spread.
+        &-dot {
+            --gap-horizontal: calc(var(--icon-size) * 0.3125);
         }
     }
 
@@ -140,7 +148,6 @@
     & #{&}-task .checkbox {
         --background-active: var(--task-checked-color);
         --border-color-active: var(--task-checked-color);
-        --border-color-default: var(--task-border-color);
         // The default radius is sized for a larger box; at text size it reads as a circle.
         --border-radius: var(--border-radius-200);
         --border-width: 1.5px;

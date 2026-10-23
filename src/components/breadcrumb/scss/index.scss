@@ -15,7 +15,7 @@
         color: var(--color);
         display: block;
         font-weight: var(--font-weight);
-        padding-inline: var(--padding);
+        padding-inline: var(--padding-horizontal);
     }
 
     &-link {
@@ -26,7 +26,7 @@
         font-weight: var(--font-weight);
         height: var(--height);
         outline: none;
-        padding-inline: var(--padding);
+        padding-inline: var(--padding-horizontal);
         text-decoration: underline;
         text-decoration-color: transparent;
         text-underline-offset: calc(var(--size-100) / 2);
@@ -160,7 +160,7 @@
 
     &-text {
         font-weight: var(--font-weight);
-        padding-inline: var(--padding);
+        padding-inline: var(--padding-horizontal);
     }
 
     &-trigger {

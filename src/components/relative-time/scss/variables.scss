@@ -22,21 +22,21 @@
         --roll-enter-offset: 0;
         --roll-exit-offset: 0;
     }
-}
 
-.relative-time-tooltip.tooltip-message {
-    --border-radius: var(--border-radius-300);
-    --box-shadow-default: var(--surface-shadow-default);
-    --font-size: var(--font-size-300);
-    --font-weight: var(--font-weight-500);
-    --offset: calc(var(--size-300) / 4);
-    --padding-horizontal: var(--size-100);
-    --padding-vertical: calc(var(--size-100) / 2);
-    --scale: 0.9;
-    --spacer: 6px;
+    &-tooltip.tooltip-message {
+        --border-radius: var(--border-radius-300);
+        --box-shadow-default: var(--surface-shadow-default);
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-500);
+        --offset: calc(var(--size-300) / 4);
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: calc(var(--size-100) / 2);
+        --scale: 0.9;
+        --spacer: 6px;
 
-    @media (prefers-reduced-motion: reduce) {
-        --offset: 0px;
-        --scale: 1;
+        @media (prefers-reduced-motion: reduce) {
+            --offset: 0px;
+            --scale: 1;
+        }
     }
 }

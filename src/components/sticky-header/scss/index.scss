@@ -74,7 +74,7 @@
     // The scroller runs under the bar, so the track starts below it. The expanded height, not a scroll-linked one: a
     // track that resized while scrolling would shift the thumb under the pointer.
     &-scroll {
-        --scrollbar-track-inset-start: calc(var(--expanded-height) + var(--scrollbar-track-inset));
+        --scrollbar-track-inset-start: calc(var(--expanded-height) + var(--scrollbar-track-inset-vertical));
         border-radius: inherit;
         max-height: var(--max-height);
         outline: none;

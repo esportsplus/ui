@@ -11,7 +11,8 @@
     --height: calc(var(--item-height) * 5);
     --item-height: 40px;
     --opacity-falloff: 0.55;
-    --padding: var(--size-200);
+    --padding-horizontal: var(--size-200);
+    --padding-vertical: var(--size-200);
     --perspective: 704px;
     --rotate: 38deg;
     --scale: 1.14;
@@ -23,6 +24,8 @@
         @extend %surface-primary;
         --background: var(--background-active);
         --border-radius: var(--border-radius-600);
+        // Matches the list's horizontal padding, so the well frames the options edge to edge.
+        --inset-horizontal: var(--size-200);
     }
 
     &-option {

@@ -15,7 +15,7 @@
         --background-default: var(--surface-background-default);
         --border-radius: var(--border-radius-400);
         --color: var(--color-text-500);
-        --field-padding: var(--size-200);
+        --field-padding-horizontal: var(--size-200);
         --font-size: var(--font-size-300);
         --height: 40px;
         --label-color: var(--color-text-300);
@@ -57,7 +57,6 @@
 
     &-tag {
         --box-border-radius: 14px;
-        --box-padding: calc(var(--size-300) / 2);
         --chip-background-active: var(--color-primary-500);
         // Read by JS: how far a chip blurs as it comes and goes; half that leaving.
         --chip-blur: var(--blur-400);
@@ -80,7 +79,6 @@
         --color: var(--color-text-500);
         --entry-min-width: var(--spacer-400);
         --font-size: var(--font-size-300);
-        --gap: calc(var(--size-300) / 2);
         --hint-color: var(--color-text-300);
         --hint-font-size: var(--font-size-200);
         --label-font-size: var(--font-size-300);
@@ -88,7 +86,7 @@
         --outline-color: var(--color-primary-500);
         --placeholder-color: var(--color-text-300);
         // Shared by a chip's text and the field, so a typed tag becomes a chip without its letters shifting.
-        --text-inset: var(--size-200);
+        --text-inset-horizontal: var(--size-200);
         --width: min(440px, 100%);
 
         // Chips fade where they stand, and a repeated tag's chip dims instead of shaking.
@@ -122,31 +120,43 @@
         &-entry > #{&}-field {
             --color-default: currentColor;
         }
+
+        &-box {
+            --padding-horizontal: calc(var(--size-300) / 2);
+            --padding-vertical: calc(var(--size-300) / 2);
+        }
+
+        &-list {
+            --gap-horizontal: calc(var(--size-300) / 2);
+            --gap-vertical: calc(var(--size-300) / 2);
+        }
     }
 }
 
 
-.input-scrub {
-    &-label {
-        @extend %color-state, %color-text;
-    }
-}
-
-
-.input-tag {
-    &-box {
-        @extend %surface-raise;
+.input {
+    &-scrub {
+        &-label {
+            @extend %color-state, %color-text;
+        }
     }
 
-    &-chip {
-        @extend %color-state;
 
-        &-body {
+    &-tag {
+        &-box {
             @extend %surface-raise;
         }
 
-        &-button {
-            @extend %background-state, %color-state;
+        &-chip {
+            @extend %color-state;
+
+            &-body {
+                @extend %surface-raise;
+            }
+
+            &-button {
+                @extend %background-state, %color-state;
+            }
         }
     }
 }

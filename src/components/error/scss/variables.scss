@@ -5,7 +5,8 @@
     --error-color: var(--color-red-400);
     --error-font-size: var(--font-size-300);
     --error-max-width: 240px;
-    --error-padding: var(--size-300) var(--size-400);
+    --error-padding-horizontal: var(--size-400);
+    --error-padding-vertical: var(--size-300);
     // How far the shake swings each way; the fill behind the control is pulled in by as much.
     --error-reach: 4px;
     --error-spacer: 4px;

@@ -1,11 +1,5 @@
 @use 'variables';
 
-// On the box rather than the <svg>, which inherits it, and at zero specificity, so a stroked icon's 'fill: none' set on
-// the box wins regardless of stylesheet order.
-:where(.icon) {
-    fill: currentColor;
-}
-
 .icon {
     color: var(--color);
     display: flex;
@@ -29,4 +23,10 @@
         height: 100%;
         width: 100%;
     }
+}
+
+// On the box rather than the <svg>, which inherits it, and at zero specificity, so a stroked icon's 'fill: none' set on
+// the box wins regardless of stylesheet order.
+:where(.icon) {
+    fill: currentColor;
 }

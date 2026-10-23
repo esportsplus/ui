@@ -19,7 +19,7 @@
         box-shadow: var(--surface-shadow-default);
         cursor: text;
         outline-offset: calc(var(--size-100) / 4);
-        padding: var(--box-padding);
+        padding: var(--padding-vertical) var(--padding-horizontal);
 
         &:has(.input-tag-field:focus-visible) {
             outline: var(--border-width-500) solid var(--outline-color);
@@ -36,7 +36,7 @@
         gap: calc(var(--size-100) / 4);
         height: var(--chip-height);
         max-width: 100%;
-        padding-inline: var(--text-inset) calc(var(--size-100) / 2);
+        padding-inline: var(--text-inset-horizontal) calc(var(--size-100) / 2);
         position: relative;
         transition: color var(--transition-duration) var(--transition-timing-function);
 
@@ -112,7 +112,7 @@
         min-height: 0;
         min-width: 0;
         outline: none;
-        padding: 0 var(--size-100) 0 var(--text-inset);
+        padding: 0 var(--size-100) 0 var(--text-inset-horizontal);
 
         &::placeholder {
             color: var(--placeholder-color);
@@ -139,7 +139,7 @@
         @extend %reset-list;
         display: flex;
         flex-wrap: wrap;
-        gap: var(--gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         position: relative;
     }
 

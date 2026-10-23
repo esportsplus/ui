@@ -192,7 +192,7 @@
     &-header {
         align-items: var(--header-align);
         display: flex;
-        gap: var(--header-gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         justify-content: space-between;
     }
 
@@ -204,7 +204,7 @@
         color: var(--label-color);
         font-size: var(--label-font-size);
         font-weight: var(--font-weight-500);
-        margin: var(--label-margin);
+        margin: 0 0 var(--margin-vertical);
         text-transform: var(--label-text-transform);
     }
 
@@ -330,14 +330,14 @@
         background: var(--track-color);
         border-radius: 999px;
         height: var(--track-height);
-        margin-inline: var(--track-inset);
+        margin-inline: var(--margin-horizontal);
         overflow: var(--track-overflow);
         position: relative;
-        width: calc(100% - var(--track-inset) * 2);
+        width: calc(100% - var(--margin-horizontal) * 2);
 
         &--vertical {
-            height: calc(100% - var(--track-inset) * 2);
-            margin-block: var(--track-inset);
+            height: calc(100% - var(--margin-vertical) * 2);
+            margin-block: var(--margin-vertical);
             margin-inline: 0;
             width: var(--track-height);
         }

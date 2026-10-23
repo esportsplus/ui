@@ -20,17 +20,16 @@
         grid-template-columns: var(--left-space) 100% 0px;
     }
 
-
-    &-backdrop {
-        inset: 0;
-        position: fixed;
-    }
-
     // The gaps around the card show the sidebars' surface, so the card reads as set into it.
     &-backdrop,
     &-sidebar,
     &-main {
         background-color: var(--surface-background-default);
+    }
+
+    &-backdrop {
+        inset: 0;
+        position: fixed;
     }
 
     &-edge {
@@ -65,7 +64,7 @@
     }
 
     &-edge--left:is(:active, :hover) &-handle {
-        left: calc(var(--left-gap) + var(--inset));
+        left: calc(var(--left-gap-horizontal) + var(--inset-horizontal));
     }
 
     &-edge--right &-handle {
@@ -73,7 +72,7 @@
     }
 
     &-edge--right:is(:active, :hover) &-handle {
-        right: calc(var(--right-gap) + var(--inset));
+        right: calc(var(--right-gap-horizontal) + var(--inset-horizontal));
     }
 
     // Centered on the window until the pointer in the strip moves it; it stays where the pointer leaves it.
@@ -98,14 +97,14 @@
         background: transparent;
         clip-path: inset(
             0
-            max(0px, calc(var(--right-edge) - var(--right-space) - var(--right-gap)))
+            max(0px, calc(var(--right-edge) - var(--right-space) - var(--right-gap-horizontal)))
             0
-            max(0px, calc(var(--left-edge) - var(--left-space) - var(--left-gap)))
+            max(0px, calc(var(--left-edge) - var(--left-space) - var(--left-gap-horizontal)))
             round var(--border-radius)
         );
         grid-column: 2;
         height: var(--height);
-        margin: var(--gap) var(--right-gap) var(--gap) var(--left-gap);
+        margin: var(--gap-vertical) var(--right-gap-horizontal) var(--gap-vertical) var(--left-gap-horizontal);
         overflow: hidden auto;
         transition:
             clip-path var(--slide-duration) var(--slide-easing),
@@ -164,7 +163,7 @@
     &-surface {
         background: var(--surface-background-default);
         border-radius: var(--border-radius-500);
-        inset-block: var(--gap);
+        inset-block: var(--gap-vertical);
         left: var(--left-edge);
         position: fixed;
         right: var(--right-edge);

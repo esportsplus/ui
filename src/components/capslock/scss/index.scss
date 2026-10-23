@@ -33,9 +33,9 @@
             border-radius: 50%;
             box-shadow: var(--box-shadow);
             height: var(--size);
-            left: var(--inset);
+            left: var(--inset-horizontal);
             position: absolute;
-            top: var(--inset);
+            top: var(--inset-vertical);
             transition:
                 background-color 300ms ease-out,
                 box-shadow 300ms ease-out;

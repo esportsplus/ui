@@ -216,13 +216,13 @@ function reveal(element: HTMLElement, edge: Edge, shown: number) {
     let shell = element.parentElement!,
         width = element.offsetWidth,
         clamped = Math.max(0, Math.min(width, shown)),
-        rest = `calc(var(--gap) * ${width ? 1 - clamped / width : 1})`;
+        rest = `calc(var(--gap-horizontal) * ${width ? 1 - clamped / width : 1})`;
 
     element.style.translate = `${(clamped - width) * direction(edge)}px 0`;
     shell.classList.add('shell--dragging');
 
     if (matchMedia(NARROW).matches) {
-        shell.style.setProperty(`--${edge}-gap`, rest);
+        shell.style.setProperty(`--${edge}-gap-horizontal`, rest);
         shell.style.setProperty(`--${edge}-space`, `${clamped}px`);
     }
     else {
@@ -239,7 +239,7 @@ function settle(element: HTMLElement | null, edge: Edge) {
     element?.style.removeProperty('translate');
     shell?.classList.remove('shell--dragging');
     shell?.style.removeProperty(`--${edge}-edge`);
-    shell?.style.removeProperty(`--${edge}-gap`);
+    shell?.style.removeProperty(`--${edge}-gap-horizontal`);
     shell?.style.removeProperty(`--${edge}-space`);
 }
 

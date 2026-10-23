@@ -6,7 +6,7 @@
     @extend %reset-list;
     display: flex;
     flex-direction: column;
-    gap: var(--gap);
+    gap: var(--gap-vertical) var(--gap-horizontal);
 
 
     // Numbered by task position, not DOM position, so a step keeps its number after moving
@@ -22,7 +22,7 @@
             font-size: var(--font-size);
             font-variant-numeric: tabular-nums;
             font-weight: var(--font-weight);
-            margin-right: var(--gap);
+            margin-right: var(--gap-horizontal);
         }
     }
 
@@ -81,7 +81,7 @@
         cursor: pointer;
         display: flex;
         font-size: var(--font-size);
-        gap: var(--gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         line-height: var(--line-height);
         padding: var(--padding-vertical) var(--padding-horizontal);
         user-select: none;

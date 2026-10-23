@@ -31,11 +31,9 @@
         --ghost-color: oklch(from var(--color-primary-500) l c h / 0.3);
         --ghost-display: block;
         --header-align: flex-start;
-        --header-gap: var(--size-400);
         --heading-display: block;
         --label-color: var(--muted-color);
         --label-font-size: var(--font-size-300);
-        --label-margin: 0 0 calc(var(--size-100) / 2);
         --label-text-transform: uppercase;
         --muted-color: var(--color-text-300);
         --range-border-radius: 0px;
@@ -60,7 +58,6 @@
         --tick-color: oklch(from var(--color-primary-300) l c h / 0.6);
         --track-color: var(--surface-border-default);
         --track-height: var(--size-100);
-        --track-inset: 0px;
         --track-overflow: hidden;
         --value-font-size: var(--font-size-500);
         --value-font-weight: var(--font-weight-700, 700);
@@ -94,6 +91,20 @@
                 --strip-display: none;
                 --symbol-display: inline;
             }
+        }
+
+        &-header {
+            --gap-horizontal: var(--size-400);
+            --gap-vertical: var(--size-400);
+        }
+
+        &-label {
+            --margin-vertical: calc(var(--size-100) / 2);
+        }
+
+        &-track {
+            --margin-horizontal: 0px;
+            --margin-vertical: 0px;
         }
 
         // Qualified by the field so it wins over the reused input styles regardless of stylesheet order.

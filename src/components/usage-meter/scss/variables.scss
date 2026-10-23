@@ -1,51 +1,96 @@
 @use '/tokens';
 
 .usage-meter {
-    --cost-prefix: '≈ ';
-    --detail-display: inline;
-    --fill: var(--fill-normal);
-    --fill-critical: color-mix(in oklch, var(--color-red-400) 80%, transparent);
-    --fill-normal: var(--color-primary-500);
-    --fill-warning: color-mix(in oklch, var(--color-yellow-500) 80%, transparent);
-    --gap: var(--size-200);
-    --label-color: var(--color-text-500);
-    --label-font-size: var(--font-size-200);
-    --label-font-weight: var(--font-weight-500);
+    --gap-horizontal: var(--size-200);
+    --gap-vertical: var(--size-200);
     --max-width: 380px;
-    --meta-color: var(--color-text-300);
-    --meta-color-muted: color-mix(in oklch, var(--color-primary-300) 70%, transparent);
-    --meta-font-size: var(--font-size-100);
-    --row-display: flex;
-    --track-background: var(--surface-border-default);
-    --track-height: 6px;
-    --track-order: 0;
-    --track-width: 100%;
-    --transition-duration: 500ms;
-    --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
-
-    &--critical {
-        --fill: var(--fill-critical);
+    &--critical &-fill {
+        --background: color-mix(in oklch, var(--color-red-400) 80%, transparent);
     }
 
     // One row: track, count, cost; the footer and header wrappers dissolve so their children join it
     &--inline {
-        --cost-prefix: none;
-        --detail-display: none;
-        --gap: var(--size-300);
+        --gap-horizontal: var(--size-300);
+        --gap-vertical: var(--size-300);
         --max-width: none;
-        --row-display: contents;
-        --track-background: var(--surface-border-hover);
-        --track-height: 4px;
-        --track-order: -1;
-        --track-width: 64px;
     }
 
-    &--warning {
-        --fill: var(--fill-warning);
+    &--inline &-breakdown,
+    &--inline &-label,
+    &--inline &-percent {
+        --display: none;
     }
+
+    &--inline &-footer,
+    &--inline &-header {
+        --display: contents;
+    }
+
+    &--inline &-cost {
+        --prefix: none;
+    }
+
+    &--inline &-track {
+        --background: var(--surface-border-hover);
+        --height: 4px;
+        --order: -1;
+        --width: 64px;
+    }
+
+    &--warning &-fill {
+        --background: color-mix(in oklch, var(--color-yellow-500) 80%, transparent);
+    }
+
+
+    &-breakdown,
+    &-percent {
+        --display: inline;
+    }
+
+    &-cost {
+        --prefix: '≈ ';
+    }
+
+    &-count {
+        --color: var(--color-text-300);
+        --font-size: var(--font-size-200);
+    }
+
+    &-fill {
+        --background: var(--color-primary-500);
+        --transition-duration: 500ms;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    &-footer {
+        --color: color-mix(in oklch, var(--color-primary-300) 70%, transparent);
+        --display: flex;
+        --font-size: var(--font-size-200);
+    }
+
+    &-header {
+        --display: flex;
+    }
+
+    &-label {
+        --color: var(--color-text-500);
+        --display: inline;
+        --font-size: var(--font-size-200);
+        --font-weight: var(--font-weight-500);
+    }
+
+    &-track {
+        --background: var(--surface-border-default);
+        --height: 6px;
+        --order: 0;
+        --width: 100%;
+    }
+
 
     @media (prefers-reduced-motion: reduce) {
-        --transition-duration: 0ms;
+        &-fill {
+            --transition-duration: 0ms;
+        }
     }
 }

@@ -7,8 +7,8 @@
 
     &-content.overlay {
         --close-duration: 240ms;
-        --fade-timing-function: var(--translate-timing-function);
         --fade-duration: 120ms;
+        --fade-timing-function: var(--translate-timing-function);
         --open-duration: 280ms;
 
         @include tokens.state(active) {

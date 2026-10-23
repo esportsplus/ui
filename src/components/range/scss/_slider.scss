@@ -1,5 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/surface';
 
 @mixin thumb {
     background: var(--thumb-background);
@@ -24,7 +23,7 @@
     --thumb-size: var(--size-400);
     // A level below what holds the slider. Painted in the range's own background beside the fill, so it takes the
     // level's color rather than the range counting as a surface, which would flatten the thumb's shadow.
-    --track-color: #{surface.surface-background('calc(var(--surface-level) - 1)')};
+    --track-color: var(--surface-background-below);
 
     @media (pointer: coarse) {
         --thumb-size: var(--size-500);
@@ -36,11 +35,9 @@
     --ghost-display: none;
     // The heading's label and value join the header row.
     --header-align: center;
-    --header-gap: var(--size-100);
     --heading-display: contents;
     --label-color: currentColor;
     --label-font-size: 1em;
-    --label-margin: 0;
     --label-text-transform: none;
     --range-border-radius: 999px;
     --thumb-border-width: var(--border-width-400);
@@ -55,8 +52,6 @@
         box-shadow 150ms ease-out,
         scale 150ms ease-out;
     --track-height: 4px;
-    // Match the fill to the existing thumb travel without changing range behavior.
-    --track-inset: calc(var(--thumb-size) / 2);
     --track-overflow: visible;
     --value-font-size: calc(var(--font-size-400) * 0.875);
     // Unset, so the value takes the weight around it.
@@ -75,6 +70,21 @@
     @media (prefers-reduced-motion: reduce) {
         --thumb-scale-active: 1;
         --thumb-transition: box-shadow 150ms ease-out;
+    }
+
+    .range-filter-header {
+        --gap-horizontal: var(--size-100);
+        --gap-vertical: var(--size-100);
+    }
+
+    .range-filter-label {
+        --margin-vertical: 0px;
+    }
+
+    // Match the fill to the existing thumb travel without changing range behavior.
+    .range-filter-track {
+        --margin-horizontal: calc(var(--thumb-size) / 2);
+        --margin-vertical: calc(var(--thumb-size) / 2);
     }
 }
 

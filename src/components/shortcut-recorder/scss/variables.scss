@@ -1,22 +1,14 @@
 @use '/tokens';
 @use 'css-utilities/background';
 @use 'css-utilities/border';
+@use 'css-utilities/surface';
 
+// TODO: Give this the same style as input/input tag
 .shortcut-recorder {
-    @extend %background-state, %border-state;
-    --background-active: var(--surface-background-active);
-    --background-default: var(--surface-background-default);
-    --background-hover: var(--surface-background-hover);
-    // Held down it keeps the hover look until the click starts recording.
-    --background-pressed: var(--background-hover);
-    --border-color-active: var(--color-primary-500);
-    --border-color-default: var(--surface-border-hover);
-    --border-color-hover: var(--border-color-default);
-    --border-color-pressed: var(--border-color-hover);
+    @extend %background-state, %background-surface, %border-state, %surface-primary;
     --border-radius: var(--border-radius-500);
-    --border-width: var(--border-width-default);
-    --border-width-active: 1.5px;
-    --border-width-default: var(--border-width-400);
+    --border-width: 0px;
+    --box-shadow: var(--box-shadow-surface);
     --color: var(--color-text-500);
     --color-dot: var(--color-red-400);
     --color-error: var(--color-red-400);
@@ -26,7 +18,8 @@
     --focus-width: var(--border-width-500);
     --font-size: var(--font-size-400);
     --font-size-small: var(--font-size-300);
-    --gap: calc(var(--size-100) / 2);
+    --gap-horizontal: calc(var(--size-100) / 2);
+    --gap-vertical: calc(var(--size-100) / 2);
     --height: 36px;
     --min-width: 96px;
     --padding-horizontal: calc(var(--size-300) / 2);

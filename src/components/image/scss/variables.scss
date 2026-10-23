@@ -11,11 +11,11 @@
 
 
     &--stack {
-        --stack-gap: var(--border-width-500);
+        --stack-gap-horizontal: var(--border-width-500);
         --stack-overlap: calc(var(--width) / 4);
 
         &:has(+ .image--stack) {
-            --stack-cut: calc(var(--stack-radius) + var(--stack-gap));
+            --stack-cut: calc(var(--stack-radius) + var(--stack-gap-horizontal));
             --stack-radius: min(var(--border-radius), var(--height) / 2, var(--width) / 2);
             --stack-x: calc(100% - var(--stack-overlap) + var(--stack-radius));
         }
