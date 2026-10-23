@@ -318,31 +318,31 @@ $edge-fill: (
             transition: opacity var(--transition-duration) var(--transition-timing-function);
         }
     }
-}
 
-// Opt-in: a direct child of <body> recedes behind modal overlays, and a direct child of a non-modal overlay's
-// container behind that overlay.
-.overlay-page {
-    transform-origin: top;
-    transition:
-        filter var(--transition-duration) var(--transition-timing-function),
-        scale var(--transition-duration) var(--transition-timing-function),
-        translate var(--transition-duration) var(--transition-timing-function);
+    // Opt-in: a direct child of <body> recedes behind modal overlays, and a direct child of a non-modal overlay's
+    // container behind that overlay.
+    &-page {
+        transform-origin: top;
+        transition:
+            filter var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function),
+            translate var(--transition-duration) var(--transition-timing-function);
 
-    .overlay-host--active > & {
-        filter: brightness(calc(1 - min(var(--overlay-depth), 1) * var(--dim)));
-        scale: calc(1 - min(var(--overlay-depth), 1) * (1 - var(--scale)));
-        translate: 0 calc(min(var(--overlay-depth), 1) * var(--peek));
-    }
-
-    .overlay-host--dragging > & {
-        transition: none;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
         .overlay-host--active > & {
-            scale: none;
-            translate: none;
+            filter: brightness(calc(1 - min(var(--overlay-depth), 1) * var(--dim)));
+            scale: calc(1 - min(var(--overlay-depth), 1) * (1 - var(--scale)));
+            translate: 0 calc(min(var(--overlay-depth), 1) * var(--peek));
+        }
+
+        .overlay-host--dragging > & {
+            transition: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .overlay-host--active > & {
+                scale: none;
+                translate: none;
+            }
         }
     }
 }

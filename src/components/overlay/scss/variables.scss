@@ -86,16 +86,16 @@
         --transition-duration: var(--close-duration);
         --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
     }
-}
 
-.overlay-page {
-    --dim: 0.2;
-    --peek: 18px;
-    --scale: 0.94;
-    --transition-duration: 0.5s;
-    --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-}
 
+    &-page {
+        --dim: 0.2;
+        --peek: 18px;
+        --scale: 0.94;
+        --transition-duration: 0.5s;
+        --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    }
+}
 
 dialog.overlay {
     // A fresh surface stack above everything; outranks a paired surface, such as '.card', that would count up instead.
