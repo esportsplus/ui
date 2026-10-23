@@ -6,8 +6,8 @@
     &-auto {
         // An `auto` size can't feed the proportional radius.
         --scrollbar-border-radius: 3px;
-        --scrollbar-offset: 0px;
         --scrollbar-growth: 0px;
+        --scrollbar-offset: 0px;
         --scrollbar-size: auto;
         --scrollbar-track-size: 0px;
         --scrollbar-width: auto;
@@ -40,8 +40,9 @@
     --scrollbar-overscroll: contain;
     --scrollbar-rail-color: transparent;
     --scrollbar-size: 4px;
-    // Keeps the thumb clear of the track's ends.
-    --scrollbar-track-inset: calc(var(--size-100) / 2);
+    // Keeps the thumb clear of the track's ends: the horizontal bar's left and right, the vertical bar's top and bottom.
+    --scrollbar-track-inset-horizontal: calc(var(--size-100) / 2);
+    --scrollbar-track-inset-vertical: calc(var(--size-100) / 2);
     // Fallback for browsers that can't size the bar through --scrollbar-size.
     --scrollbar-width: thin;
 }

@@ -1,0 +1,24 @@
+@use '/tokens';
+@use 'css-utilities/background';
+
+.--background {
+    // Text is an ink, not a fill.
+    @each $color in tokens.$colors {
+        @if $color != text {
+            &-#{$color} {
+                @extend %background-#{$color};
+            }
+        }
+    }
+
+    &-surface {
+        @extend %background-surface;
+
+        &-primary {
+            --background-active: var(--surface-primary-active);
+            --background-default: var(--surface-primary-default);
+            --background-hover: var(--surface-primary-hover);
+            --background-pressed: var(--surface-primary-pressed);
+        }
+    }
+}

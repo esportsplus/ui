@@ -30,6 +30,7 @@
             "types": "./build/modifiers/index.d.ts",
             "default": "./build/modifiers/index.js"
         },
+        "./modifiers/*.scss": "./build/modifiers/*/scss/index.scss",
         "./modifiers/*": {
             "types": "./build/modifiers/*/index.d.ts",
             "default": "./build/modifiers/*/index.js"

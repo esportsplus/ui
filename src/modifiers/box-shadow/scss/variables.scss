@@ -1,0 +1,12 @@
+@use '/tokens';
+@use 'css-utilities/box-shadow';
+
+.--box-shadow {
+    &-outline {
+        @extend %box-shadow-outline;
+    }
+
+    &-surface {
+        @extend %box-shadow-surface;
+    }
+}

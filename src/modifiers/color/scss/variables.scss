@@ -1,0 +1,10 @@
+@use '/tokens';
+@use 'css-utilities/color';
+
+.--color {
+    @each $color in tokens.$colors {
+        &-#{$color} {
+            @extend %color-#{$color};
+        }
+    }
+}

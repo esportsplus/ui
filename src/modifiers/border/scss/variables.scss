@@ -1,0 +1,21 @@
+@use 'css-utilities/border';
+@use 'css-utilities/surface';
+
+.--border {
+    @each $color in 'black' 'primary' 'white' {
+        &-#{$color} {
+            @extend %border-#{$color};
+        }
+    }
+
+    &-surface {
+        @extend %border-surface;
+
+        &-primary {
+            --border-color-active: #{surface.surface-border('active', 'var(--surface-primary-active)')};
+            --border-color-default: #{surface.surface-border('default', 'var(--surface-primary-default)')};
+            --border-color-hover: #{surface.surface-border('hover', 'var(--surface-primary-hover)')};
+            --border-color-pressed: #{surface.surface-border('pressed', 'var(--surface-primary-pressed)')};
+        }
+    }
+}
