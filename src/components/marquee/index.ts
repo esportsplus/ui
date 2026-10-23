@@ -28,11 +28,39 @@ const MAX_COPIES = 14;
 const MIN_COPIES = 4;
 
 
+function face(item: Item) {
+    if (!item.mark) {
+        return item.label;
+    }
+
+    return html`
+        <span aria-hidden='true' class='marquee-mark'>${item.mark()}</span>
+        <span class='marquee-label'>${item.label}</span>
+    `;
+}
+
 // Wraps the offset into (-loop, 0] so the track never runs out of copies.
 function fold(x: number, loop: number) {
     let m = x % loop;
 
     return m > 0 ? m - loop : m;
+}
+
+function link(item: Item, select?: (item: Item) => void) {
+    if (item.href) {
+        return html`<a class='marquee-item marquee-item--link' href='${item.href}'>${face(item)}</a>`;
+    }
+
+    if (select) {
+        return html`<button class='marquee-item marquee-item--link' onclick='${() => select(item)}' type='button'>${face(item)}</button>`;
+    }
+
+    return html`<span class='marquee-item'>${face(item)}</span>`;
+}
+
+// Copies are aria-hidden, so they carry no link to tab into.
+function mirror(item: Item) {
+    return html`<li class='marquee-entry'><span class='marquee-item'>${item.mark ? item.mark() : item.label}</span></li>`;
 }
 
 
@@ -73,35 +101,12 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
         tracker: scroll.Tracker | undefined,
         viewport: HTMLElement | undefined;
 
-    function face(item: Item) {
-        if (!item.mark) {
-            return item.label;
-        }
-
-        return html`
-            <span aria-hidden='true' class='marquee-mark'>${item.mark()}</span>
-            <span class='marquee-label'>${item.label}</span>
-        `;
-    }
-
-    function link(item: Item) {
-        if (item.href) {
-            return html`<a class='marquee-item marquee-item--link' href='${item.href}'>${face(item)}</a>`;
-        }
-
-        if (select) {
-            return html`<button class='marquee-item marquee-item--link' onclick='${() => select(item)}' type='button'>${face(item)}</button>`;
-        }
-
-        return html`<span class='marquee-item'>${face(item)}</span>`;
-    }
-
     function measure() {
         if (!group || !track || !viewport) {
             return;
         }
 
-        // Read back the rendered gap so a CSS override of --item-gap still loops seamlessly.
+        // Read back the rendered gap so a CSS override of --gap-horizontal still loops seamlessly.
         let width = group.getBoundingClientRect().width,
             loop = width > 0 ? width + parseFloat(getComputedStyle(track).columnGap) : 0,
             room = viewport.getBoundingClientRect().width;
@@ -251,7 +256,6 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
         <section
             aria-label='${label}'
             class='marquee'
-            style='--item-gap: ${gap}px'
             ${attributes}
             ${{
                 class: () => stage.still && 'marquee--still',
@@ -334,6 +338,7 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
             >
                 <div
                     class='marquee-track'
+                    style='--gap-horizontal: ${gap}px'
                     ${{
                         onconnect: (element: HTMLElement) => {
                             track = element;
@@ -359,14 +364,14 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
                                         }
                                     }}
                                 >
-                                    ${items.map((item) => html`<li class='marquee-entry'>${link(item)}</li>`)}
+                                    ${items.map((item) => html`<li class='marquee-entry'>${link(item, select)}</li>`)}
                                 </ul>
                             `;
                         }
 
                         return html`
                             <ul aria-hidden='true' class='marquee-group marquee-group--copy'>
-                                ${items.map((item) => html`<li class='marquee-entry'><span class='marquee-item'>${item.mark ? item.mark() : item.label}</span></li>`)}
+                                ${items.map(mirror)}
                             </ul>
                         `;
                     })}

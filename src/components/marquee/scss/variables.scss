@@ -2,40 +2,44 @@
 
 .marquee {
     --color: var(--color-text-300);
-    --color-hover: var(--color-text-400);
-    --copy-display: flex;
-    // Read by JS: the share of its speed it drifts at. None holds it still, as a strip to scroll by hand.
-    --drift: 1;
-    --fade: var(--size-700);
-    --focus-color: var(--color-blue-400);
     --font-size: var(--font-size-300);
     --font-weight: var(--font-weight-500);
-    --item-border-radius: var(--border-radius-300);
-    --item-gap: 40px;
-    --item-height: 40px;
-    --item-padding-horizontal: var(--size-300);
-    --track-will-change: transform;
-    --viewport-overflow-x: hidden;
 
     &-item {
+        --border-radius: var(--border-radius-300);
+        --gap-horizontal: var(--size-200);
+        --gap-vertical: 0px;
+        --height: 40px;
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: 0px;
+
         &--link {
-            @extend %color-state, %color-text;
+            @extend %color-state;
+            --color-default: var(--color-text-300);
+            --color-hover: var(--color-text-400);
+            --focus-color: var(--color-blue-400);
+
+            &:focus-visible {
+                --color: var(--color-hover);
+            }
         }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        --drift: 0;
+    &-track {
+        // Read by JS: the share of its speed it drifts at. None holds it still, as a strip to scroll by hand.
+        --drift: 1;
+        --gap-horizontal: 40px;
+        --gap-vertical: 0px;
+
+        @media (prefers-reduced-motion: reduce) {
+            --drift: 0;
+        }
     }
 
-    // Holding still, it is a strip to scroll by hand.
-    &--still {
-        --copy-display: none;
-        --track-will-change: auto;
-        --viewport-overflow-x: auto;
-    }
-
-    // Children re-declare --padding-* via root's `*` rule, so it has to be set here rather than inherited.
     &-viewport {
+        --fade: var(--size-700);
+        --focus-color: var(--color-blue-400);
+        --padding-horizontal: 0px;
         --padding-vertical: var(--size-200);
     }
 }

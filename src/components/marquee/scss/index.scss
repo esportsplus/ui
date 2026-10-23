@@ -20,37 +20,53 @@
     position: relative;
     width: 100%;
 
+    // Holding still, it is a strip to scroll by hand.
+    &--still {
+        .marquee {
+            &-group--copy {
+                display: none;
+            }
+
+            &-track {
+                will-change: auto;
+            }
+
+            &-viewport {
+                overflow-x: auto;
+            }
+        }
+    }
+
     &-entry {
         flex-shrink: 0;
     }
 
+    // Takes the track's gap, so the space between copies matches the space between items and the loop stays seamless.
     &-group {
         @extend %reset-list;
         align-items: center;
         display: flex;
-        gap: var(--item-gap);
+        gap: inherit;
         width: max-content;
-
-        &--copy {
-            display: var(--copy-display);
-        }
     }
 
     &-item {
         align-items: center;
-        border-radius: var(--item-border-radius);
+        border-radius: var(--border-radius);
         color: inherit;
         display: inline-flex;
         flex-shrink: 0;
-        gap: var(--size-200);
-        height: var(--item-height);
-        padding: 0 var(--item-padding-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        height: var(--height);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         text-decoration: none;
         white-space: nowrap;
 
         &--link {
             background: none;
             border: 0;
+            color: var(--color);
             cursor: pointer;
             font: inherit;
             outline: none;
@@ -59,10 +75,6 @@
             &:focus-visible {
                 background: color-mix(in srgb, var(--focus-color) 8%, transparent);
                 box-shadow: inset 0 0 0 1px var(--focus-color);
-            }
-
-            &:focus-visible {
-                --color: var(--color-hover);
             }
         }
     }
@@ -79,20 +91,20 @@
     &-track {
         align-items: center;
         display: flex;
-        gap: var(--item-gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         // Only '--drift' transitions, for its end to tell JS it changed; easing the transform would lag each frame and
         // animate the loop wrap.
         transition: --drift 1ms;
         width: max-content;
-        will-change: var(--track-will-change);
+        will-change: transform;
     }
 
     &-viewport {
         mask: linear-gradient(to right, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
         outline: none;
         overflow: hidden;
-        overflow-x: var(--viewport-overflow-x);
-        padding: var(--padding-vertical) 0;
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
 
         &:focus-visible {
             box-shadow: inset 0 0 0 1px var(--focus-color);
