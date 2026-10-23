@@ -30,8 +30,9 @@ const TOC: TocItem[] = [
 
 const TYPESCRIPT = `import theme from '@esportsplus/ui/theme';
 
-// Pass a @esportsplus/web-storage Local store to keep the preference across reloads.
-let mode = theme();
+// 'store' takes a @esportsplus/web-storage Local to keep the preference across reloads;
+// 'fallback' is the mode shown until the user picks one (default 'system').
+let mode = theme({ fallback: 'dark', store });
 
 mode.set('dark');       // 'dark' | 'light' | 'system'
 mode.preference;        // what the user picked
@@ -134,8 +135,10 @@ const page = (): Page => {
                 <section class='page-section' id='setup'>
                     <h2>Setup</h2>
                     <p>
-                        Create one theme instance at startup. It follows the operating system until the user picks a mode, then
-                        writes <code>data-theme</code> to <code>&lt;html&gt;</code>; picking <code>'system'</code> removes it again.
+                        Create one theme instance at startup. It shows <code>fallback</code> (the operating system by default)
+                        until the user picks a mode, then writes <code>data-theme</code> to <code>&lt;html&gt;</code>;
+                        <code>'system'</code> removes it again. Picking the fallback clears the stored choice, so the page
+                        follows the site's default once more.
                     </p>
                     ${preview([
                         preview.header({ title: 'theme.ts' }),

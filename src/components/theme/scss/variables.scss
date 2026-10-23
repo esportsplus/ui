@@ -49,7 +49,6 @@
     // The page is level 0 of the surface ladder.
     @include surface.surface-colors;
     @include surface.surface-shadow(0);
-    @include surface.surface-shadows;
 
     @include shared.color-weights(
         primary,
@@ -65,24 +64,14 @@
 
     --color-text-400: var(--color-text);
     --color-text-500: light-dark(#{text-weight(darker, light)}, #{text-weight(lighter, dark)});
-    --surface-primary-offset: #{surface.surface-primary-offset(light)};
     color-scheme: light dark;
-}
-
-// Numbers can't ride 'light-dark()', so the mode's own values follow the system here and the attribute below.
-@media (prefers-color-scheme: dark) {
-    :root {
-        --surface-primary-offset: #{surface.surface-primary-offset(dark)};
-    }
 }
 
 // Set on <html> by 'theme()' to pin the page; any element can carry it to pin its subtree.
 [data-theme='dark'] {
-    --surface-primary-offset: #{surface.surface-primary-offset(dark)};
     color-scheme: dark;
 }
 
 [data-theme='light'] {
-    --surface-primary-offset: #{surface.surface-primary-offset(light)};
     color-scheme: light;
 }

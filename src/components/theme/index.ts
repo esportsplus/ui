@@ -4,6 +4,11 @@ import './scss/index.scss';
 
 type Mode = 'dark' | 'light';
 
+type Options = {
+    fallback?: Preference;
+    store?: Store;
+};
+
 type Preference = Mode | 'system';
 
 // The slice of @esportsplus/web-storage's Local<T> the theme uses, so any Local<{ theme: Preference }> is a store.
@@ -40,10 +45,13 @@ function system(dark: boolean): Mode {
 }
 
 
-export default (store?: Store) => {
+// 'fallback' is the developer's default, shown until the user picks a mode; picking it again clears the stored override.
+export default ({ fallback = 'system', store }: Options = {}) => {
     let media = matchMedia(QUERY),
-        state = reactive({ preference: 'system' as Preference, system: system(media.matches) }),
+        state = reactive({ preference: fallback, system: system(media.matches) }),
         touched = false;
+
+    apply(fallback);
 
     media.addEventListener('change', (event) => {
         state.system = system(event.matches);
@@ -71,7 +79,7 @@ export default (store?: Store) => {
             state.preference = preference;
             apply(preference);
 
-            if (preference === 'system') {
+            if (preference === fallback) {
                 void store?.delete(KEY);
             }
             else {
@@ -82,4 +90,4 @@ export default (store?: Store) => {
 };
 
 
-export type { Mode, Preference, Store };
+export type { Mode, Options, Preference, Store };
