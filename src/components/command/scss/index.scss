@@ -4,6 +4,17 @@
 .command {
     display: contents;
 
+    // Search, tabs and results sit in an inset card; the footer's legends rest on the dialog around it.
+    &-body {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        display: flex;
+        flex-direction: column;
+        margin: var(--margin-vertical) var(--margin-horizontal) 0;
+        min-height: 0;
+        overflow: hidden;
+    }
+
     &-count {
         color: var(--color);
         flex-shrink: 0;
@@ -37,7 +48,6 @@
 
     &-footer {
         align-items: center;
-        border-top: var(--border);
         color: var(--color);
         display: flex;
         flex-shrink: 0;
@@ -147,29 +157,20 @@
         user-select: none;
     }
 
-    // Lines up with the search icon above; a long row scrolls sideways rather than wrapping.
+    // Tab labels line up with the option labels below; a long row scrolls sideways rather than wrapping.
     &-tabs {
+        border-top: var(--border);
         display: flex;
         flex-shrink: 0;
         gap: var(--gap-vertical) var(--gap-horizontal);
         overflow-x: auto;
-        padding: 0 var(--padding-horizontal) var(--padding-vertical);
+        padding: var(--padding-vertical) var(--padding-horizontal);
         scrollbar-width: none;
     }
 
     &-trigger {
         touch-action: manipulation;
         user-select: none;
-
-        &:focus-visible {
-            outline: var(--border-width-500) solid var(--color-primary-500);
-            outline-offset: var(--border-width-500);
-        }
-
-        // Pages with their own search buttons hide this one; `display: flex` from `.button` would otherwise override `hidden`.
-        &[hidden] {
-            display: none;
-        }
 
         &-icon {
             &--search {
@@ -181,6 +182,16 @@
             @extend %text-truncate;
             flex: 1 1 auto;
             text-align: left;
+        }
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--color-primary-500);
+            outline-offset: var(--border-width-500);
+        }
+
+        // Pages with their own search buttons hide this one; `display: flex` from `.button` would otherwise override `hidden`.
+        &[hidden] {
+            display: none;
         }
     }
 
@@ -194,7 +205,7 @@
         overscroll-behavior: contain;
         // Stepping past the edge glides the list along rather than jumping it.
         scroll-behavior: smooth;
-        scroll-padding-block: var(--scroll-padding);
+        scroll-padding-block: var(--scroll-padding-vertical);
 
         @media (prefers-reduced-motion: reduce) {
             scroll-behavior: auto;

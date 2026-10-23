@@ -12,6 +12,20 @@ $list-height: min(320px, 50vh);
     --font-size: calc(var(--font-size-400) * 0.875);
 
 
+    &--centered &-dialog.overlay {
+        --offset: auto;
+    }
+
+    // A level below the dialog, so it reads darker in dark mode and the footer stays on the lighter frame. Its radius
+    // nests inside the dialog's across the margin.
+    &-body {
+        @extend %surface-lower;
+        --background: var(--surface-background-default);
+        --border-radius: calc(var(--border-radius-600) - var(--margin-horizontal));
+        --margin-horizontal: 1px;
+        --margin-vertical: 1px;
+    }
+
     &-count {
         --color: #{$color-muted};
         --font-size: #{$label-font-size};
@@ -31,16 +45,11 @@ $list-height: min(320px, 50vh);
         --scale: 0.98;
     }
 
-    &--centered &-dialog.overlay {
-        --offset: auto;
-    }
-
     &-empty {
         --color: #{$color-muted};
     }
 
     &-footer {
-        --border: #{$divider};
         --color: #{$color-muted};
         --font-size: #{$label-font-size};
         --height: 44px;
@@ -123,18 +132,22 @@ $list-height: min(320px, 50vh);
     }
 
     // The highlight paints the tab backgrounds, so the buttons only carry colour.
+    // The option's inline padding, so tab labels start where option labels do.
     &-tab {
         @extend %color-text;
         --border-radius: var(--border-radius-400);
         --font-size: var(--font-size-300);
         --font-weight: var(--font-weight-500);
+        --padding-horizontal: var(--size-300);
     }
 
+    // The list's padding, so the first tab's edge meets the option highlight's edge.
     &-tabs {
+        --border: #{$divider};
         --gap-horizontal: calc(var(--size-100) / 2);
         --gap-vertical: calc(var(--size-100) / 2);
-        --padding-horizontal: var(--size-400);
-        --padding-vertical: var(--size-300);
+        --padding-horizontal: calc(var(--size-100) / 2 + 2px);
+        --padding-vertical: var(--size-100);
         // Keep the tab strip hidden when an ancestor opts into site-wide scrollbar styling.
         --scrollbar-width: none;
 
@@ -166,7 +179,7 @@ $list-height: min(320px, 50vh);
     &-view {
         --max-height: #{$list-height};
         // The list's vertical padding, so an item scrolled into view rests where the first one starts.
-        --scroll-padding: var(--size-100);
+        --scroll-padding-vertical: var(--size-100);
     }
 
     &-views {

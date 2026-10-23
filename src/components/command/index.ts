@@ -726,148 +726,150 @@ export default component(
                             ${{ onmousedown: keep }}
                             ${!trigger && { onconnect: listen, ondisconnect: unlisten }}
                         >
-                            <div class='command-search'>
-                                ${sprite(magnifier)}
-                                ${input({
-                                    'aria-activedescendant': () => read(active),
-                                    'aria-autocomplete': 'list',
-                                    'aria-controls': () => `${current().key}-listbox`,
-                                    'aria-expanded': 'true',
-                                    'aria-label': () => current().search,
-                                    autocomplete: 'off',
-                                    autofocus: true,
-                                    oninput: (e: Event) => {
-                                        state.index = 0;
-                                        state.query = (e.target as HTMLInputElement).value;
-                                    },
-                                    onkeydown: (e: KeyboardEvent) => {
-                                        if (e.isComposing) {
-                                            return;
-                                        }
-
-                                        let view = current(),
-                                            items = read(view.results).flat;
-
-                                        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                                            e.preventDefault();
-
-                                            if (!items.length) {
+                            <div class='command-body'>
+                                <div class='command-search'>
+                                    ${sprite(magnifier)}
+                                    ${input({
+                                        'aria-activedescendant': () => read(active),
+                                        'aria-autocomplete': 'list',
+                                        'aria-controls': () => `${current().key}-listbox`,
+                                        'aria-expanded': 'true',
+                                        'aria-label': () => current().search,
+                                        autocomplete: 'off',
+                                        autofocus: true,
+                                        oninput: (e: Event) => {
+                                            state.index = 0;
+                                            state.query = (e.target as HTMLInputElement).value;
+                                        },
+                                        onkeydown: (e: KeyboardEvent) => {
+                                            if (e.isComposing) {
                                                 return;
                                             }
 
-                                            state.index = (selected() + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+                                            let view = current(),
+                                                items = read(view.results).flat;
 
-                                            // 'nearest' only scrolls when the item is out of view.
-                                            document.getElementById(option(view, state.index) ?? '')?.scrollIntoView({ block: 'nearest' });
-                                        }
-                                        else if (e.key === 'Enter') {
-                                            e.preventDefault();
+                                            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                                                e.preventDefault();
 
-                                            let item = items[selected()];
-
-                                            if (item) {
-                                                run(item.entry);
-                                            }
-                                        }
-                                        else if (e.key === 'Escape') {
-                                            e.preventDefault();
-                                            close();
-                                        }
-                                        else if (e.key === 'Tab') {
-                                            // The input is the dialog's only tab stop, so Tab moves between views instead.
-                                            e.preventDefault();
-                                            step(e.shiftKey ? -1 : 1);
-                                        }
-                                    },
-                                    placeholder: () => current().placeholder,
-                                    role: 'combobox',
-                                    spellcheck: false,
-                                    value: () => state.query,
-                                    ...this?.attributes?.[COMMAND_INPUT],
-                                    ...attributes[COMMAND_INPUT],
-                                    class: ['command-input', this?.attributes?.[COMMAND_INPUT]?.class, attributes[COMMAND_INPUT]?.class].flat()
-                                })}
-                                ${() => state.query.trim() && html`
-                                    <span aria-hidden='true' class='command-count'>
-                                        ${() => {
-                                            let count = read(current().results).flat.length;
-
-                                            return `${count} ${count === 1 ? 'result' : 'results'}`;
-                                        }}
-                                    </span>
-                                `}
-                            </div>
-
-                            ${views.length > 1 && html`
-                                <div aria-label='Views' class='command-tabs' role='tablist'>
-                                    ${highlight({ class: 'command-tabs-highlight' })}
-                                    ${views.map((view) => html`
-                                        <button
-                                            aria-controls='${view.key}'
-                                            class='button command-tab'
-                                            id='${view.key}-tab'
-                                            role='tab'
-                                            tabindex='-1'
-                                            type='button'
-                                            ${this?.attributes?.[COMMAND_TAB]}
-                                            ${attributes[COMMAND_TAB]}
-                                            ${{
-                                                'aria-selected': () => current() === view ? 'true' : 'false',
-                                                class: () => current() === view && '--active',
-                                                onclick: () => {
-                                                    state.tab = view.id;
+                                                if (!items.length) {
+                                                    return;
                                                 }
+
+                                                state.index = (selected() + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+
+                                                // 'nearest' only scrolls when the item is out of view.
+                                                document.getElementById(option(view, state.index) ?? '')?.scrollIntoView({ block: 'nearest' });
+                                            }
+                                            else if (e.key === 'Enter') {
+                                                e.preventDefault();
+
+                                                let item = items[selected()];
+
+                                                if (item) {
+                                                    run(item.entry);
+                                                }
+                                            }
+                                            else if (e.key === 'Escape') {
+                                                e.preventDefault();
+                                                close();
+                                            }
+                                            else if (e.key === 'Tab') {
+                                                // The input is the dialog's only tab stop, so Tab moves between views instead.
+                                                e.preventDefault();
+                                                step(e.shiftKey ? -1 : 1);
+                                            }
+                                        },
+                                        placeholder: () => current().placeholder,
+                                        role: 'combobox',
+                                        spellcheck: false,
+                                        value: () => state.query,
+                                        ...this?.attributes?.[COMMAND_INPUT],
+                                        ...attributes[COMMAND_INPUT],
+                                        class: ['command-input', this?.attributes?.[COMMAND_INPUT]?.class, attributes[COMMAND_INPUT]?.class].flat()
+                                    })}
+                                    ${() => state.query.trim() && html`
+                                        <span aria-hidden='true' class='command-count'>
+                                            ${() => {
+                                                let count = read(current().results).flat.length;
+
+                                                return `${count} ${count === 1 ? 'result' : 'results'}`;
+                                            }}
+                                        </span>
+                                    `}
+                                </div>
+
+                                ${views.length > 1 && html`
+                                    <div aria-label='Views' class='command-tabs' role='tablist'>
+                                        ${highlight({ class: 'command-tabs-highlight' })}
+                                        ${views.map((view) => html`
+                                            <button
+                                                aria-controls='${view.key}'
+                                                class='button command-tab'
+                                                id='${view.key}-tab'
+                                                role='tab'
+                                                tabindex='-1'
+                                                type='button'
+                                                ${this?.attributes?.[COMMAND_TAB]}
+                                                ${attributes[COMMAND_TAB]}
+                                                ${{
+                                                    'aria-selected': () => current() === view ? 'true' : 'false',
+                                                    class: () => current() === view && '--active',
+                                                    onclick: () => {
+                                                        state.tab = view.id;
+                                                    }
+                                                }}
+                                            >
+                                                ${view.label}
+                                            </button>
+                                        `)}
+                                    </div>
+                                `}
+
+                                <div
+                                    class='command-views'
+                                    ${{
+                                        ontransitioncancel: swap(false),
+                                        ontransitionend: swap(false),
+                                        ontransitionrun: swap(true),
+                                        style: () => `--i: ${views.indexOf(current())}`
+                                    }}
+                                >
+                                    ${views.map((view, i) => html`
+                                        <div
+                                            class='command-view frame ${views.length > 1 && 'frame--swap'}'
+                                            id='${view.key}'
+                                            style='--n: ${i}'
+                                            ${views.length > 1 && { 'aria-labelledby': `${view.key}-tab`, role: 'tabpanel' }}
+                                            ${scrollbar({ fade: true })}
+                                            ${{
+                                                class: () => current() === view && (ui.moving ? '--active frame--moving' : '--active'),
+                                                inert: () => current() !== view
                                             }}
                                         >
-                                            ${view.label}
-                                        </button>
+                                            <div
+                                                aria-label='${view.label}'
+                                                class='command-list'
+                                                id='${view.key}-listbox'
+                                                role='listbox'
+                                                ${this?.attributes?.[COMMAND_LIST]}
+                                                ${attributes[COMMAND_LIST]}
+                                                ${{
+                                                    class: () => !read(view.results).flat.length && 'command-list--empty',
+                                                    onmouseleave: () => {
+                                                        pointer = null;
+                                                    }
+                                                }}
+                                            >
+                                                ${() => results(view)}
+                                            </div>
+
+                                            ${() => !read(view.results).flat.length && html`
+                                                <p class='command-empty' role='status'>${empty(view)}</p>
+                                            `}
+                                        </div>
                                     `)}
                                 </div>
-                            `}
-
-                            <div
-                                class='command-views'
-                                ${{
-                                    ontransitioncancel: swap(false),
-                                    ontransitionend: swap(false),
-                                    ontransitionrun: swap(true),
-                                    style: () => `--i: ${views.indexOf(current())}`
-                                }}
-                            >
-                                ${views.map((view, i) => html`
-                                    <div
-                                        class='command-view frame ${views.length > 1 && 'frame--swap'}'
-                                        id='${view.key}'
-                                        style='--n: ${i}'
-                                        ${views.length > 1 && { 'aria-labelledby': `${view.key}-tab`, role: 'tabpanel' }}
-                                        ${scrollbar({ fade: true })}
-                                        ${{
-                                            class: () => current() === view && (ui.moving ? '--active frame--moving' : '--active'),
-                                            inert: () => current() !== view
-                                        }}
-                                    >
-                                        <div
-                                            aria-label='${view.label}'
-                                            class='command-list'
-                                            id='${view.key}-listbox'
-                                            role='listbox'
-                                            ${this?.attributes?.[COMMAND_LIST]}
-                                            ${attributes[COMMAND_LIST]}
-                                            ${{
-                                                class: () => !read(view.results).flat.length && 'command-list--empty',
-                                                onmouseleave: () => {
-                                                    pointer = null;
-                                                }
-                                            }}
-                                        >
-                                            ${() => results(view)}
-                                        </div>
-
-                                        ${() => !read(view.results).flat.length && html`
-                                            <p class='command-empty' role='status'>${empty(view)}</p>
-                                        `}
-                                    </div>
-                                `)}
                             </div>
 
                             <div aria-hidden='true' class='command-footer'>
