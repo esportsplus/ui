@@ -1,22 +1,23 @@
 @use 'css-utilities/surface';
 
-// Floats above everything, like a dialog.
+// Floats above everything, like a dialog, but with a lighter shadow that fits inside the toast's clip.
 .toast {
     @extend %surface-root;
-    --toast-background: var(--surface-background-default);
-    --toast-border-color: var(--surface-border-hover);
-    --toast-color: var(--color-text-400);
-    background: var(--toast-background);
-    border: 1px solid var(--toast-border-color);
+    @include surface.surface-shadow(5);
+    --background: var(--surface-background-default);
+    --border-color: var(--surface-border-hover);
+    --color: var(--color-text-400);
+    background: var(--background);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius-500);
     box-shadow: var(--surface-shadow-default);
-    color: var(--toast-color);
+    color: var(--color);
     padding: var(--size-400);
 
     &--dark {
-        --toast-background: var(--color-primary-500);
-        --toast-border-color: var(--color-primary-500);
-        --toast-color: var(--color-surface);
+        --background: var(--color-primary-500);
+        --border-color: var(--color-primary-500);
+        --color: var(--color-surface);
     }
 
     &-action {
@@ -32,27 +33,14 @@
         color: var(--color-text-300);
     }
 
-    // The same surface, shown as the card peeking out behind the stack with its count.
+    // The count peeking out behind the stack.
     &-overflow {
-        @extend %surface-root;
-        --toast-background: var(--surface-background-default);
-        --toast-border-color: var(--surface-border-hover);
-        --toast-color: var(--color-text-300);
-        background: var(--toast-background);
-        border: 1px solid var(--toast-border-color);
-        border-radius: var(--border-radius-500);
-        box-shadow: var(--surface-shadow-default);
-        color: var(--toast-color);
+        --color: var(--color-text-300);
+        color: var(--color);
         font-size: var(--font-size-200);
-
-        &--dark {
-            --toast-background: var(--color-primary-500);
-            --toast-border-color: var(--color-primary-500);
-            --toast-color: var(--color-surface);
-        }
     }
 
-    // Drawn from the toast's clock ('--toast-progress'), so it drains, pauses and holds exactly as the toast does.
+    // Drawn from the toast's clock ('--progress'), so it drains, pauses and holds exactly as the toast does.
     &-ring {
         flex-shrink: 0;
         height: var(--size-500);
@@ -67,7 +55,7 @@
 
         circle + circle {
             stroke-dasharray: 50.27px;
-            stroke-dashoffset: calc(50.27px * var(--toast-progress));
+            stroke-dashoffset: calc(50.27px * var(--progress));
             stroke-linecap: round;
         }
 
@@ -78,7 +66,7 @@
 
     // Whole seconds left on the toast's clock.
     &-seconds {
-        counter-reset: toast-seconds round(up, calc(var(--toast-seconds) * (1 - var(--toast-progress))), 1);
+        counter-reset: toast-seconds round(up, calc(var(--seconds) * (1 - var(--progress))), 1);
 
         &::before {
             content: counter(toast-seconds);

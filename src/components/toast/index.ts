@@ -149,7 +149,7 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
                         { swipe, thrown } = local,
                         stack = layout(),
                         slot = stack.slots.get(toast),
-                        style = `--toast-duration: ${duration}ms; --toast-height: ${toast.measured.height}px; --toast-index: ${slot?.index ?? 0}; --toast-offset-y: ${slot?.offset ?? 0}px; --toast-seconds: ${Math.ceil(duration / 1000)};`;
+                        style = `--duration: ${duration}ms; --height: ${toast.measured.height}px; --index: ${slot?.index ?? 0}; --offset-y: ${slot?.offset ?? 0}px; --seconds: ${Math.ceil(duration / 1000)};`;
 
                     // Leaving, it keeps the front height it stood against: the stack closing up behind it would
                     // otherwise move its slot, bending its exit off the line it was thrown along.
@@ -157,15 +157,15 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
                         frontmost = stack.frontmost;
                     }
                     else {
-                        style += ` --toast-frontmost-height: ${frontmost}px;`;
+                        style += ` --frontmost-height: ${frontmost}px;`;
                     }
 
                     if (swipe) {
-                        style += ` --toast-swipe-x: ${swipe.x}px; --toast-swipe-y: ${swipe.y}px;`;
+                        style += ` --swipe-x: ${swipe.x}px; --swipe-y: ${swipe.y}px;`;
                     }
 
                     if (thrown) {
-                        style += ` --toast-exit-duration: ${thrown.duration}ms; --toast-exit-timing-function: ${thrown.easing}; --translate-x: ${thrown.x}px; --translate-y: ${thrown.y}px;`;
+                        style += ` --exit-duration: ${thrown.duration}ms; --exit-timing-function: ${thrown.easing}; --translate-x: ${thrown.x}px; --translate-y: ${thrown.y}px;`;
                     }
 
                     return style;
@@ -244,15 +244,14 @@ const toaster = Object.assign(
             return { anchor, count, frontmost, height, hidden: Math.max(0, count - limit), slots };
         });
 
-        let layout = () => read(stack);
+        let layout = () => read(stack),
+            remove = (toast: Toast) => {
+                let index = toasts.indexOf(toast);
 
-        let remove = (toast: Toast) => {
-            let index = toasts.indexOf(toast);
-
-            if (index !== -1) {
-                toasts.splice(index, 1);
-            }
-        };
+                if (index !== -1) {
+                    toasts.splice(index, 1);
+                }
+            };
 
         return {
             content: () => html`
@@ -263,7 +262,7 @@ const toaster = Object.assign(
                         style: () => {
                             let { anchor, count, frontmost, height, hidden } = layout();
 
-                            return `--toast-anchor-height: ${anchor}px; --toast-count: ${count}; --toast-frontmost-height: ${frontmost}px; --toast-hidden: ${hidden}; --toast-limit: ${limit}; --toast-stack-height: ${height}px;`;
+                            return `--anchor-height: ${anchor}px; --count: ${count}; --frontmost-height: ${frontmost}px; --hidden: ${hidden}; --limit: ${limit}; --stack-height: ${height}px;`;
                         }
                     }}
                 >

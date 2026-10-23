@@ -8,7 +8,7 @@ const PLACEMENTS = ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'];
 
 
 // A second toaster, independent of the docs' own: its own queue, placement, limit and look.
-let alerts = createToaster({ [createToaster.overflow]: { class: 'toast-overflow toast-overflow--dark' }, class: 'toaster--n', limit: 2 }),
+let alerts = createToaster({ [createToaster.overflow]: { class: 'toast-overflow' }, class: 'toaster--n', limit: 2 }),
     burst = 0,
     timer: { active: boolean, duration: number } | undefined,
     trigger = 'button';
@@ -105,7 +105,7 @@ export default {
                         </button>
                     </div>
                     <span style='color: var(--color-text-300); font-size: 14px;'>
-                        The toast exposes its clock as '--toast-progress' (0 to 1) and '--toast-seconds'; this ring and
+                        The toast exposes its clock as '--progress' (0 to 1) and '--seconds'; this ring and
                         count are the content's own CSS. Only the front toast counts down, and it stops while the stack
                         is hovered. Adding to 'state.duration' keeps the time already spent.
                     </span>

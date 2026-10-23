@@ -2,39 +2,7 @@
 @use 'css-utilities/color';
 
 
-// Prefixed where it is the toast's own: the consumer's classes (e.g. '.card') share the element and its variables.
 .toast {
-    // Collapsed layer: toasts past the limit wait, unseen, in the last visible one.
-    --depth: min(var(--toast-index), var(--toast-limit) - 1);
-    // Read by JS: the longest a swiped-away toast is thrown for.
-    --fling-duration: 500ms;
-    // Each layer's far edge sits one peek past the layer in front of it, measured from the front toast's height so
-    // a taller toast behind never shows more of itself.
-    --stack-shift: calc(var(--toast-frontmost-height) + var(--depth) * var(--stack-peek) - var(--toast-scale) * var(--toast-height));
-    --stack-translate: 0 var(--stack-shift);
-    // Room past the box for shadows and the close button, which the collapsed clip would otherwise cut.
-    --toast-bleed: 32px;
-    --toast-content-gap: var(--size-300);
-    // Read by the content and close button: collapsed back toasts hide theirs.
-    --toast-content-opacity: 1;
-    // Written by the toast: its duration, and the same in whole seconds for a countdown in its content.
-    --toast-duration: 0ms;
-    --toast-exit-duration: 0.3s;
-    --toast-exit-timing-function: var(--toast-transition-timing-function);
-    --toast-expanded-y: calc((var(--toast-offset-y) + var(--toast-index) * var(--toast-gap)) * var(--toast-direction));
-    --toast-height: 0px;
-    --toast-index: 0;
-    --toast-offset-y: 0px;
-    --toast-scale: pow(var(--stack-scale), var(--depth));
-    --toast-seconds: 0;
-    --toast-swipe-x: 0px;
-    --toast-swipe-y: 0px;
-
-    // Swiped away, it fades where it was let go.
-    @media (prefers-reduced-motion: reduce) {
-        --fling-duration: 0s;
-    }
-
     &-close {
         @extend %color-text;
         --background-default: var(--surface-background-default);
@@ -52,6 +20,11 @@
             --size: var(--icon-size);
         }
     }
+
+    &-content {
+        --gap-horizontal: var(--size-300);
+        --gap-vertical: var(--size-300);
+    }
 }
 
 
@@ -59,26 +32,62 @@
 // 'toaster--ne' top right, and so on round; unplaced, it sits top right.
 .toaster {
     @extend %anchor;
-    --margin-horizontal: var(--size-500);
-    --margin-vertical: var(--size-500);
-    --stack-peek: var(--size-300);
-    --stack-scale: 0.94;
     // Written by the toaster: the newest toast's height, live toasts, the front one's height, how many the limit
     // keeps out of the collapsed stack, the limit itself, and every live toast's height summed.
-    --toast-anchor-height: 0px;
-    --toast-count: 0;
+    --anchor-height: 0px;
+    --count: 0;
     // The way the expanded list grows from the front toast.
-    --toast-direction: 1;
-    --toast-frontmost-height: 0px;
-    --toast-gap: var(--size-300);
-    --toast-hidden: 0;
-    --toast-limit: 3;
+    --direction: 1;
+    --frontmost-height: 0px;
+    --hidden: 0;
+    --limit: 3;
+    --margin-horizontal: var(--size-500);
+    --margin-vertical: var(--size-500);
     // How far the overflow card reaches past the last visible layer: room for its line of text.
-    --toast-overflow-peek: 24px;
-    --toast-stack-height: 0px;
-    --toast-transition-duration: 0.4s;
-    --toast-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    --toast-width: 360px;
+    --overflow-peek: 24px;
+    // Between expanded toasts; inherited by each toast, which places itself with it.
+    --stack-gap-vertical: var(--size-300);
+    --stack-height: 0px;
+    --stack-peek: var(--size-300);
+    --stack-scale: 0.94;
+    --transition-duration: 0.4s;
+    --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    --width: 360px;
+
+    // Qualified by the toaster so these win over the consumer's classes (e.g. '.card') sharing the element.
+    > .toast {
+        // Room past the box for shadows and the close button, which the collapsed clip would otherwise cut.
+        --bleed: 32px;
+        // Read by the content and close button: collapsed back toasts hide theirs.
+        --content-opacity: 1;
+        // Collapsed layer: toasts past the limit wait, unseen, in the last visible one.
+        --depth: min(var(--index), var(--limit) - 1);
+        // Written by the toast: its duration, and the same in whole seconds for a countdown in its content.
+        --duration: 0ms;
+        --exit-duration: 0.3s;
+        --exit-timing-function: var(--transition-timing-function);
+        --expanded-y: calc((var(--offset-y) + var(--index) * var(--stack-gap-vertical)) * var(--direction));
+        // Read by JS: the longest a swiped-away toast is thrown for.
+        --fling-duration: 500ms;
+        --height: 0px;
+        --index: 0;
+        --offset-y: 0px;
+        --scale: pow(var(--stack-scale), var(--depth));
+        --seconds: 0;
+        // Each layer's far edge sits one peek past the layer in front of it, measured from the front toast's height
+        // so a taller toast behind never shows more of itself.
+        --stack-shift: calc(var(--frontmost-height) + var(--depth) * var(--stack-peek) - var(--scale) * var(--height));
+        --stack-translate: 0 var(--stack-shift);
+        --swipe-x: 0px;
+        --swipe-y: 0px;
+        --transition-duration: 0.4s;
+        --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+
+        // Swiped away, it fades where it was let go.
+        @media (prefers-reduced-motion: reduce) {
+            --fling-duration: 0s;
+        }
+    }
 
 
     @each $placement in anchor.$placements {
@@ -90,7 +99,7 @@
     &--s,
     &--se,
     &--sw {
-        --toast-direction: -1;
+        --direction: -1;
     }
 
     // Unplaced, it sits top right; only then, so any placement still wins.
