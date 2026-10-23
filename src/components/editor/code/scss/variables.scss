@@ -11,10 +11,8 @@
     --background-default: var(--surface-background-default);
     --bar-control-height: var(--size-700);
     --bar-font-size: var(--font-size-200);
-    --bar-gap: var(--size-100);
     --bar-icon-size: var(--size-300);
     --bar-input-width: 160px;
-    --bar-padding: var(--size-100);
     --border-color-default: var(--surface-border-default);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
@@ -27,9 +25,7 @@
     --color: var(--color-text-500);
     --comment-color: var(--color-text-300);
     --completion-detail-color: var(--muted-color);
-    --completion-gap: var(--size-300);
     --completion-height: var(--size-600);
-    --completion-padding: var(--size-200);
     --completion-rows: 8;
     --completion-width: 240px;
     --conflict-base-background: oklch(from var(--color-primary-300) l c h / 0.12);
@@ -61,13 +57,11 @@
     --height: 320px;
     --hover-max-height: 300px;
     --hover-max-width: 480px;
-    --hover-padding: var(--size-200);
     --input-color: transparent;
     --input-cursor: text;
     --invalid-color: var(--color-red-400);
     --keyword-color: light-dark(var(--color-purple-400), oklch(from var(--color-purple-400) 0.75 0.15 h));
     --lens-font-size: 0.85em;
-    --lens-gap: var(--size-300);
     --line-height: var(--size-600);
     --line-width: max-content;
     --link-color: light-dark(var(--color-blue-400), oklch(from var(--color-blue-400) 0.74 0.14 h));
@@ -84,13 +78,12 @@
     --muted-color: var(--color-text-300);
     --number-color: light-dark(var(--color-blue-400), oklch(from var(--color-blue-400) 0.78 0.12 h));
     --number-display: block;
-    --number-padding: var(--size-100);
-    --number-width: calc(var(--digits) * 1ch + var(--number-padding));
+    --number-padding-horizontal: var(--size-100);
+    --number-width: calc(var(--digits) * 1ch + var(--number-padding-horizontal));
     --occurrence-background: oklch(from var(--color-yellow-400) l c h / 0.22);
     --operator-color: var(--color-text-400);
     --overflow-wrap: normal;
     --overlay-visibility: visible;
-    --padding: var(--size-200);
     --peek-border-color: var(--gutter-modified-color);
     --peek-lines-background: oklch(from var(--color-red-400) l c h / 0.08);
     --peek-max-height: 160px;
@@ -106,7 +99,6 @@
     --selector-color: light-dark(var(--color-purple-500), oklch(from var(--color-purple-500) 0.78 0.13 h));
     --sticky-shadow: 0 2px 4px -2px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 2.8));
     --string-color: light-dark(oklch(from var(--color-green-500) 45% c h), oklch(from var(--color-green-500) 0.8 0.15 h));
-    --swatch-gap: 1px;
     --swatch-size: 0.75em;
     --tag-color: light-dark(var(--color-red-400), oklch(from var(--color-red-400) 0.72 0.16 h));
     --type-color: light-dark(var(--color-blue-300), oklch(from var(--color-blue-300) 0.76 0.13 h));
@@ -151,11 +143,28 @@
 
     &-completion {
         @extend %background-state;
+        --gap-horizontal: var(--size-300);
+        --gap-vertical: var(--size-300);
+        --padding-horizontal: var(--size-200);
     }
 
     &-completions,
     &-hover {
         @extend %surface-raise;
+    }
+
+    &-hover {
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-200);
+    }
+
+    &-find,
+    &-goto {
+        @extend %surface-lower;
+        --gap-horizontal: var(--size-100);
+        --gap-vertical: var(--size-100);
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: var(--size-100);
     }
 
     &-find-button {
@@ -168,6 +177,11 @@
         --line-height: 1;
         --padding-horizontal: var(--size-100);
         --padding-vertical: 0px;
+    }
+
+    &-find-row {
+        --gap-horizontal: var(--size-100);
+        --gap-vertical: var(--size-100);
     }
 
     &-find-icon.icon {
@@ -187,18 +201,22 @@
         --size: var(--bar-control-height);
     }
 
-    &-find,
-    &-goto {
-        @extend %surface-lower;
-    }
-
     &-fold {
         @include tokens.state(active) {
             --fold-rotate: -90deg;
         }
     }
 
+    // The textarea; the text layer drawn under it reads its padding back, so the two stay aligned.
+    &-input {
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-200);
+    }
+
     &-lens {
+        --gap-horizontal: var(--size-300);
+        --gap-vertical: var(--size-300);
+
         &-action {
             @extend %color-state, %color-text;
         }
@@ -221,25 +239,43 @@
 
         &-bar {
             @extend %surface-lower;
+            --gap-horizontal: var(--size-100);
+            --gap-vertical: var(--size-100);
+            --padding-horizontal: var(--size-100);
+            --padding-vertical: var(--size-100);
         }
 
         &-button {
             @extend %background-state;
         }
+
+        &-lines {
+            --padding-horizontal: var(--size-200);
+        }
     }
 
     &-problem {
         @extend %background-state;
+        --padding-horizontal: var(--size-200);
     }
 
     &-problems {
         @extend %surface-lower;
+        --gap-horizontal: var(--size-100);
+        --gap-vertical: var(--size-100);
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: var(--size-100);
     }
 
     &-sticky {
         &-row {
             @extend %background-state;
         }
+    }
+
+    // The swatch draws in the space before its literal, this far from it.
+    &-swatch {
+        --gap-horizontal: 1px;
     }
 
     @media (forced-colors: active) {

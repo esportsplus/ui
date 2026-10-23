@@ -125,7 +125,7 @@
         font-family: inherit;
         min-width: 0;
         overflow-wrap: anywhere;
-        padding-inline: var(--code-padding);
+        padding-inline: var(--code-padding-horizontal);
         white-space: pre-wrap;
     }
 
@@ -162,7 +162,7 @@
         font-size: var(--label-font-size);
         gap: var(--size-200);
         min-height: var(--line-height);
-        padding: 0 var(--code-padding);
+        padding: 0 var(--code-padding-horizontal);
         width: 100%;
 
         &-icon.icon {
@@ -182,8 +182,8 @@
         display: flex;
         flex: none;
         flex-wrap: wrap;
-        gap: var(--bar-gap);
-        padding: var(--bar-padding);
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        padding: var(--padding-vertical) var(--padding-horizontal);
     }
 
     &-modes {

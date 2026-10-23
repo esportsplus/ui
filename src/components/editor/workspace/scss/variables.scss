@@ -31,17 +31,17 @@
     --docked-track: var(--explorer-width);
     --drawer-duration: 0.18s;
     --drawer-hidden: calc(100% - var(--peek-width));
-    --drawer-inset: auto 0;
+    --drawer-inset-horizontal: auto 0;
     --drawer-offset: var(--drawer-hidden);
     --drawer-shadow: #{surface.shadow(5)};
     --drawer-timing-function: var(--transition-timing-function);
     // At least a usable explorer, even when the workspace itself is narrow.
     --drawer-width: min(100%, max(16rem, 46%));
-    --edge-inset: 0 auto;
+    --edge-inset-horizontal: 0 auto;
     --error-color: var(--color-red-400);
     --explorer-column: 2;
     --explorer-end: none;
-    --explorer-inset: auto;
+    --explorer-inset-horizontal: auto;
     --explorer-layer: auto;
     --explorer-position: relative;
     --explorer-row: 1 / 3;
@@ -85,7 +85,7 @@
         --content-delay: var(--drawer-duration);
         --content-visibility: hidden;
         --docked-track: var(--peek-width);
-        --explorer-inset: var(--drawer-inset);
+        --explorer-inset-horizontal: var(--drawer-inset-horizontal);
         --explorer-layer: 2;
         --explorer-position: absolute;
         --explorer-shadow: var(--drawer-shadow);
@@ -97,8 +97,8 @@
     &--left {
         --columns: var(--aside-track) var(--main-track);
         --drawer-hidden: calc(var(--peek-width) - 100%);
-        --drawer-inset: 0 auto;
-        --edge-inset: auto 0;
+        --drawer-inset-horizontal: 0 auto;
+        --edge-inset-horizontal: auto 0;
         --explorer-column: 1;
         --explorer-end: var(--divider);
         --explorer-start: none;
@@ -131,6 +131,11 @@
     }
 
 
+    &-actions {
+        --gap-horizontal: var(--spacing-tight);
+        --gap-vertical: var(--spacing-tight);
+    }
+
     &-autosave {
         @extend %color-text;
         --background-default: transparent;
@@ -146,12 +151,24 @@
         --font-size: var(--status-font-size);
     }
 
+    // The label's side keeps its own room; the controls' side takes the spacing.
+    &-bar {
+        --gap-horizontal: var(--spacing);
+        --gap-vertical: var(--spacing);
+        --padding-horizontal: var(--spacing);
+    }
+
     &-breadcrumb.breadcrumb {
         --font-size: var(--font-size-200);
     }
 
     &-choice-icon.icon {
         --size: var(--control-icon-size);
+    }
+
+    &-confirm-actions {
+        --gap-horizontal: var(--spacing);
+        --gap-vertical: var(--spacing);
     }
 
     &-confirm-button {
@@ -175,6 +192,10 @@
         --max-width: 440px;
         --padding-horizontal: var(--size-500);
         --padding-vertical: var(--size-500);
+    }
+
+    &-confirm-text {
+        --margin-vertical: var(--spacing);
     }
 
     &-control {
@@ -207,8 +228,31 @@
         --height: 100%;
     }
 
+    &-empty {
+        --gap-horizontal: var(--spacing);
+        --gap-vertical: var(--spacing);
+    }
+
     &-explorer {
         @extend %surface-raise;
+
+        &-header {
+            --gap-horizontal: var(--spacing-tight);
+            --gap-vertical: var(--spacing-tight);
+            --padding-horizontal: var(--spacing);
+        }
+    }
+
+    &-keys {
+        --gap-horizontal: var(--spacing-tight);
+        --gap-vertical: var(--spacing-tight);
+    }
+
+    &-merge-bar {
+        --gap-horizontal: var(--spacing);
+        --gap-vertical: var(--spacing);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--spacing-tight);
     }
 
     &-merge-cancel {
@@ -218,6 +262,11 @@
         --color-default: var(--color);
         --padding-horizontal: var(--size-200);
         --padding-vertical: var(--spacing-tight);
+    }
+
+    &-notice {
+        --gap-horizontal: var(--spacing);
+        --gap-vertical: var(--spacing);
     }
 
     &-retry {
@@ -241,6 +290,9 @@
     }
 
     &-status {
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--spacing-tight);
+
         &-icon.icon {
             --size: var(--status-icon-size);
         }
@@ -254,6 +306,11 @@
             --gap-horizontal: var(--spacing-tight);
             --padding-horizontal: var(--spacing-tight);
             --padding-vertical: 0px;
+        }
+
+        &-items {
+            --gap-horizontal: var(--spacing);
+            --gap-vertical: var(--spacing);
         }
     }
 
@@ -287,6 +344,9 @@
     }
 
     &-tabs {
+        --gap-horizontal: var(--spacing-tight);
+        --gap-vertical: var(--spacing-tight);
+        --padding-horizontal: var(--spacing);
         --scrollbar-size: calc(var(--size-100) / 2);
 
         &-highlight {
@@ -323,14 +383,6 @@
     --conflict-color: var(--color-red-400);
     --row-height: var(--size-800);
 
-    &.card {
-        --border-radius: var(--border-radius-500);
-        --border-width: 0px;
-        --max-width: 760px;
-        --padding-horizontal: var(--size-500);
-        --padding-vertical: var(--size-500);
-    }
-
     &-button {
         --background-default: var(--confirm-background, transparent);
         --background-hover: var(--confirm-hover, var(--control-active-background));
@@ -346,12 +398,35 @@
         }
     }
 
+    &-conflict,
+    &-header,
+    &-keys {
+        --gap-horizontal: var(--spacing);
+        --gap-vertical: var(--spacing);
+    }
+
+    &-recorder--add.shortcut-recorder {
+        --min-width: var(--size-600);
+    }
+
     &-recorder.shortcut-recorder {
         --font-size: var(--font-size-200);
         --height: var(--size-600);
     }
 
-    &-recorder--add.shortcut-recorder {
-        --min-width: var(--size-600);
+    &-row {
+        --padding-vertical: var(--spacing-tight);
+
+        &--head {
+            --padding-vertical: var(--spacing);
+        }
+    }
+
+    &.card {
+        --border-radius: var(--border-radius-500);
+        --border-width: 0px;
+        --max-width: 760px;
+        --padding-horizontal: var(--size-500);
+        --padding-vertical: var(--size-500);
     }
 }

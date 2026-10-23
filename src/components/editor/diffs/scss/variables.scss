@@ -21,6 +21,10 @@
 
     &-header {
         @extend %surface-lower;
+        --gap-horizontal: var(--size-200);
+        --gap-vertical: var(--size-200);
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-100);
     }
 
     &-row {
@@ -38,14 +42,13 @@
     --action-hover-background: var(--hover-background);
     --active-outline: oklch(from var(--color-blue-400) l c h / 0.6);
     --background-default: var(--surface-background-default);
-    --bar-gap: var(--size-200);
-    --bar-padding: var(--size-100) var(--size-200);
     --border-color-default: var(--surface-border-default);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
     --button-icon-size: var(--size-300);
     --button-size: var(--size-600);
-    --code-padding: var(--size-200);
+    // Beside the code, and the rows that line up with it.
+    --code-padding-horizontal: var(--size-200);
     --color: var(--color-text-500);
     --comment-color: var(--color-text-300);
     --conflict-background: oklch(from var(--color-yellow-400) l c h / 0.22);
@@ -101,6 +104,10 @@
 
     &-header {
         @extend %surface-lower;
+        --gap-horizontal: var(--size-200);
+        --gap-vertical: var(--size-200);
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-100);
     }
 
     &-line {
@@ -109,5 +116,7 @@
 
     &-title {
         @extend %surface-lower;
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-100);
     }
 }

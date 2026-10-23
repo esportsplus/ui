@@ -71,7 +71,7 @@
             align-items: center;
             display: flex;
             flex-wrap: wrap;
-            gap: var(--bar-gap);
+            gap: var(--gap-vertical) var(--gap-horizontal);
 
             &--replace {
                 display: none;
@@ -98,9 +98,9 @@
         display: none;
         flex: none;
         font-size: var(--bar-font-size);
-        gap: var(--bar-gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         margin: 0;
-        padding: var(--bar-padding);
+        padding: var(--padding-vertical) var(--padding-horizontal);
 
         @include tokens.state(active) {
             display: flex;
@@ -188,9 +188,9 @@
         outline: none;
         overflow: auto;
         overflow-wrap: var(--overflow-wrap);
-        padding: var(--padding);
+        padding: var(--padding-vertical) var(--padding-horizontal);
         // The minimap floats over the field: wrapped rows stop short of it and unwrapped rows can scroll clear of it.
-        padding-right: calc(var(--padding) + var(--minimap-offset));
+        padding-right: calc(var(--padding-horizontal) + var(--minimap-offset));
         position: absolute;
         resize: none;
         scroll-behavior: auto;

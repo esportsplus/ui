@@ -93,7 +93,6 @@ $icons: (
     --background-selected: var(--background-active);
     --badge-font-size: var(--font-size-200);
     --badge-font-weight: var(--font-weight-500);
-    --badge-gap: calc(var(--size-300) / 2);
     --chevron-duration: 150ms;
     // Open and close timings, after the tree view's.
     --collapse-duration: 0.2s;
@@ -105,7 +104,6 @@ $icons: (
     --deletions-color: var(--deleted-color);
     // The label that follows the pointer while dragging, offset so it never covers the row being aimed at.
     --drag-offset: var(--size-300);
-    --drag-padding: calc(var(--size-100) / 4) var(--size-100);
     --drag-radius: var(--border-radius-300);
     // Rows being moved, not copied, dim while they travel.
     --dragged-opacity: 0.5;
@@ -118,12 +116,10 @@ $icons: (
     // The find bar over the tree's top corner; the offset keeps it clear of the scrollbar.
     --find-border-color: var(--surface-border-default);
     --find-button-size: var(--size-500);
-    --find-gap: calc(var(--size-100) / 4);
     --find-input-width: calc(var(--size-900) * 2);
     --find-note-color: var(--color-text-300);
     --find-note-font-size: var(--font-size-200);
     --find-offset: var(--size-300);
-    --find-padding: calc(var(--size-300) / 4);
     --find-radius: var(--border-radius-300);
     --focus-color: var(--surface-border-pressed);
     --font-size: var(--font-size-300);
@@ -131,26 +127,58 @@ $icons: (
     --found-background: color-mix(in srgb, var(--found-color) 14%, transparent);
     --found-border-color: color-mix(in srgb, var(--found-color) 70%, transparent);
     --found-color: oklch(from var(--color-yellow-500) 0.72 c calc(h - 35));
+    &-badge {
+        --gap-horizontal: calc(var(--size-300) / 2);
+        --gap-vertical: calc(var(--size-300) / 2);
+
+        &-part--staged {
+            --padding-horizontal: calc(var(--size-300) / 4);
+        }
+    }
+
     &-drag {
         @extend %surface-raise;
+        --gap-horizontal: var(--item-gap-horizontal);
+        --gap-vertical: var(--item-gap-horizontal);
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: calc(var(--size-100) / 4);
     }
 
     &-find {
         &-bar {
             @extend %surface-raise;
+            --gap-horizontal: calc(var(--size-100) / 4);
+            --gap-vertical: calc(var(--size-100) / 4);
+            --padding-horizontal: calc(var(--size-300) / 4);
+            --padding-vertical: calc(var(--size-300) / 4);
         }
 
         &-button {
             @extend %background-state;
         }
 
+        &-count {
+            --padding-horizontal: calc(var(--size-100) / 4);
+        }
+
+        &-input {
+            --padding-horizontal: calc(var(--size-300) / 4);
+        }
+
         &-note {
             @extend %surface-raise;
+            --padding-horizontal: calc(var(--size-300) / 4);
         }
     }
 
     &-input {
         @extend %surface-raise;
+        --padding-horizontal: calc(var(--size-300) / 4);
+    }
+
+    &-message {
+        --padding-horizontal: calc(var(--size-300) / 2);
+        --padding-vertical: calc(var(--size-100) / 4);
     }
 
     &-sticky {
@@ -165,16 +193,16 @@ $icons: (
 
     --icon-size: var(--size-400);
     --ignored-color: var(--color-text-300);
-    // Past '--padding' plus half '--twistie-size', so a nested row, and the highlight on it, starts clear of its
+    // Past '--row-padding-horizontal' plus half '--twistie-size', so a nested row, and the highlight on it, starts clear of its
     // parent's guide.
     --indent: var(--size-500);
     --indicator-color: var(--surface-border-default);
     --indicator-duration: 0.15s;
     --indicator-hover: var(--surface-border-pressed);
     --input-border-color: var(--color-blue-400);
-    --input-padding: calc(var(--size-300) / 4);
     --input-radius: var(--border-radius-200);
-    --item-gap: calc(var(--size-100) / 2);
+    // Between a row's parts; the drag label and the error message line up with it.
+    --item-gap-horizontal: calc(var(--size-100) / 2);
     // The symlink and read-only glyphs beside the name.
     --marker-color: var(--color-primary-300);
     --marker-size: var(--size-300);
@@ -186,24 +214,22 @@ $icons: (
     // Opaque, since it covers the rows below the input.
     --message-background: color-mix(in srgb, var(--error-color) 10%, var(--surface-background-default));
     --message-font-size: var(--font-size-200);
-    --message-padding: calc(var(--size-100) / 4) calc(var(--size-300) / 2);
     --modified-color: light-dark(oklch(from var(--color-yellow-500) 0.62 c h), oklch(from var(--color-yellow-500) 0.76 c h));
     --motion-easing: cubic-bezier(0.23, 1, 0.32, 1);
     --notice-color: var(--color-text-300);
     --open-color: var(--color-primary-300);
-    --padding: var(--size-100);
     --reveal-delay: 0.05s;
     --reveal-duration: 0.2s;
     --root-font-size: var(--font-size-200);
     --root-font-weight: var(--font-weight-600);
     --row-height: 22px;
+    // Inside each row; the guides and the error message line up with it.
+    --row-padding-horizontal: var(--size-100);
     --row-radius: var(--border-radius-300);
     // How much of a scope's color tints its rows; faint, so git colors and the highlight still read over it.
     --scope-tint: 12%;
     // The slash between a compact row's folders.
     --separator-color: var(--color-primary-300);
-    --separator-gap: 1px;
-    --staged-padding: calc(var(--size-300) / 4);
     --staged-radius: var(--border-radius-100);
     --staged-tint: 18%;
     // Rows scroll under the pinned folders, so these hide them with the surface the tree sits on.
@@ -258,11 +284,18 @@ $icons: (
     }
 
     &-row {
+        --gap-horizontal: var(--item-gap-horizontal);
+        --gap-vertical: var(--item-gap-horizontal);
+
         @each $tone in added, conflict, deleted, error, ignored, modified, warning {
             &--#{$tone} {
                 --tone: var(--#{$tone}-color);
             }
         }
+    }
+
+    &-separator {
+        --margin-horizontal: 1px;
     }
 
     &-spinner.loading {

@@ -25,7 +25,7 @@
         align-items: center;
         display: flex;
         flex: none;
-        gap: var(--spacing-tight);
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
     &-bar {
@@ -33,10 +33,10 @@
         border-bottom: var(--divider);
         display: flex;
         flex: none;
-        gap: var(--spacing);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--bar-height);
         min-width: 0;
-        padding-inline: var(--size-200) var(--spacing);
+        padding-inline: var(--size-200) var(--padding-horizontal);
     }
 
     &-breadcrumb.breadcrumb {
@@ -47,7 +47,7 @@
     &-confirm-actions {
         display: flex;
         flex-wrap: wrap;
-        gap: var(--spacing);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         justify-content: flex-end;
         margin-top: var(--size-400);
     }
@@ -68,7 +68,7 @@
 
     &-confirm-text {
         color: var(--muted-color);
-        margin-block: var(--spacing) 0;
+        margin-block: var(--margin-vertical) 0;
     }
 
     &-confirm-title {
@@ -110,7 +110,7 @@
         border: 0;
         cursor: pointer;
         inset-block: 0;
-        inset-inline: var(--edge-inset);
+        inset-inline: var(--edge-inset-horizontal);
         padding: 0;
         position: absolute;
         width: var(--peek-width);
@@ -131,7 +131,7 @@
         display: flex;
         flex: 1;
         flex-wrap: wrap;
-        gap: var(--spacing);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         justify-content: center;
         padding: var(--size-300);
         text-align: center;
@@ -148,7 +148,7 @@
         grid-column: var(--explorer-span);
         grid-row: var(--explorer-row);
         inset-block: 0;
-        inset-inline: var(--explorer-inset);
+        inset-inline: var(--explorer-inset-horizontal);
         min-height: 0;
         min-width: 0;
         overflow: hidden;
@@ -174,10 +174,10 @@
             border-bottom: var(--divider);
             display: flex;
             flex: none;
-            gap: var(--spacing-tight);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             height: var(--bar-height);
             min-width: 0;
-            padding-inline: var(--spacing);
+            padding-inline: var(--padding-horizontal);
         }
     }
 
@@ -187,7 +187,7 @@
 
     &-keys {
         display: inline-flex;
-        gap: var(--spacing-tight);
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
     // Holds the menus in the top layer, so page content after the workspace never covers them; the workspace's own
@@ -227,7 +227,7 @@
         color: var(--muted-color);
         display: flex;
         flex-direction: column;
-        gap: var(--spacing);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         justify-content: center;
         min-height: var(--bar-height);
         padding: var(--size-300);
@@ -264,7 +264,7 @@
         grid-row: var(--status-row);
         justify-content: space-between;
         min-width: 0;
-        padding: var(--spacing-tight) var(--size-300);
+        padding: var(--padding-vertical) var(--padding-horizontal);
 
         &-message {
             min-width: 0;
@@ -291,6 +291,19 @@
     }
 
 
+    // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
+    &-tab {
+        flex: none;
+        height: var(--tab-height);
+        max-width: var(--tab-max-width);
+        user-select: none;
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
+        }
+    }
+
     &-tab-close {
         flex: none;
         height: var(--close-size);
@@ -313,29 +326,16 @@
         white-space: nowrap;
     }
 
-    // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
-    &-tab {
-        flex: none;
-        height: var(--tab-height);
-        max-width: var(--tab-max-width);
-        user-select: none;
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: calc(var(--focus-width) * -1);
-        }
-    }
-
     &-tabs {
         align-items: center;
         border-bottom: var(--divider);
         display: flex;
         flex: none;
-        gap: var(--spacing-tight);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--tabs-height);
         overflow-x: auto;
         overflow-y: hidden;
-        padding-inline: var(--spacing);
+        padding-inline: var(--padding-horizontal);
         position: relative;
     }
 

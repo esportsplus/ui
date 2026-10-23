@@ -18,9 +18,9 @@
             display: flex;
             flex: none;
             font-size: var(--font-size-200);
-            gap: var(--spacing);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             justify-content: space-between;
-            padding: var(--spacing-tight) var(--size-300);
+            padding: var(--padding-vertical) var(--padding-horizontal);
         }
 
         &-cancel {

@@ -26,7 +26,7 @@
         font: inherit;
         min-width: 0;
         overflow-wrap: var(--overflow-wrap);
-        padding-inline-start: var(--code-padding);
+        padding-inline-start: var(--code-padding-horizontal);
         white-space: var(--white-space);
 
         // The library root sets every element's line height; tokens take the line's.
@@ -99,8 +99,8 @@
         display: flex;
         flex: none;
         font-size: var(--label-font-size);
-        gap: var(--bar-gap);
-        padding: var(--bar-padding);
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        padding: var(--padding-vertical) var(--padding-horizontal) var(--padding-vertical) var(--padding-left);
     }
 
     // The first and last lines pad the block inside their gutter and code, so the separator runs its full height; the
@@ -109,27 +109,27 @@
         display: flex;
         line-height: var(--line-height);
         min-height: var(--line-height);
-        padding-inline-end: var(--code-padding);
+        padding-inline-end: var(--code-padding-horizontal);
 
         &:first-child {
             > .code-viewer-code,
             > .code-viewer-gutter {
-                padding-top: var(--padding);
+                padding-top: var(--code-padding-vertical);
             }
 
             > .code-viewer-placeholder {
-                margin-top: var(--padding);
+                margin-top: var(--code-padding-vertical);
             }
         }
 
         &:last-child {
             > .code-viewer-code,
             > .code-viewer-gutter {
-                padding-bottom: var(--padding);
+                padding-bottom: var(--code-padding-vertical);
             }
 
             > .code-viewer-placeholder {
-                margin-bottom: var(--padding);
+                margin-bottom: var(--code-padding-vertical);
             }
         }
 
@@ -180,7 +180,7 @@
     &-number {
         font-variant-numeric: tabular-nums;
         text-align: end;
-        width: calc(var(--digits) * 1ch + var(--number-padding));
+        width: calc(var(--digits) * 1ch + var(--padding-horizontal));
     }
 
     &-placeholder {

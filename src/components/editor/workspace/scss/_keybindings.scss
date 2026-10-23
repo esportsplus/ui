@@ -39,7 +39,7 @@
         display: flex;
         flex-basis: 100%;
         flex-wrap: wrap;
-        gap: var(--spacing);
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
     &-empty {
@@ -51,7 +51,7 @@
     &-header {
         align-items: center;
         display: flex;
-        gap: var(--spacing);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         justify-content: space-between;
         margin-bottom: var(--size-300);
     }
@@ -87,7 +87,7 @@
         align-items: center;
         display: flex;
         flex-wrap: wrap;
-        gap: var(--spacing);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         min-width: 0;
     }
 
@@ -117,7 +117,7 @@
         gap: var(--size-200);
         grid-template-columns: var(--columns);
         min-height: var(--row-height);
-        padding-block: var(--spacing-tight);
+        padding-block: var(--padding-vertical);
 
         &--head {
             background: var(--raised);
@@ -126,7 +126,7 @@
             font-weight: var(--font-weight-500);
             inset-block-start: 0;
             min-height: auto;
-            padding-block: var(--spacing);
+            padding-block: var(--padding-vertical);
             position: sticky;
             z-index: 1;
         }

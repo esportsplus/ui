@@ -17,9 +17,9 @@
         background: var(--background);
         cursor: pointer;
         display: flex;
-        gap: var(--completion-gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--completion-height);
-        padding: 0 var(--completion-padding);
+        padding: 0 var(--padding-horizontal);
         white-space: nowrap;
 
         @media (forced-colors: active) {
@@ -96,7 +96,7 @@
         max-height: var(--hover-max-height);
         max-width: min(90vw, var(--hover-max-width));
         overflow: hidden;
-        padding: var(--hover-padding);
+        padding: var(--padding-vertical) var(--padding-horizontal);
         position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
         white-space: pre-wrap;
     }
@@ -112,7 +112,7 @@
         cursor: pointer;
         flex: none;
         font: inherit;
-        padding: 0 var(--completion-padding);
+        padding: 0 var(--padding-horizontal);
         text-align: left;
 
         &--hint {
@@ -139,10 +139,10 @@
         flex: none;
         flex-direction: column;
         font-size: var(--bar-font-size);
-        gap: var(--bar-gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         max-height: var(--problems-max-height);
         overflow: auto;
-        padding: var(--bar-padding);
+        padding: var(--padding-vertical) var(--padding-horizontal);
 
         @include tokens.state(active) {
             display: flex;

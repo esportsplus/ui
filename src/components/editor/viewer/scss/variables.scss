@@ -8,12 +8,13 @@
 .code-viewer {
     @extend %background-state, %border-state, %font-geist-mono, %surface-raise;
     --background-default: var(--surface-background-default);
-    --bar-gap: var(--size-200);
-    --bar-padding: var(--size-100) var(--size-100) var(--size-100) var(--size-300);
     --border-color-default: var(--surface-border-default);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
-    --code-padding: var(--padding);
+    // Around the code, held by the lines, their gutters and code, and the placeholder: the root resets '--padding-*' on
+    // every element, so the parts read it from here.
+    --code-padding-horizontal: var(--size-200);
+    --code-padding-vertical: var(--size-200);
     --color: var(--color-text-500);
     --comment-color: var(--color-text-300);
     --focus-color: var(--color-blue-400);
@@ -41,10 +42,8 @@
     --minimap-slider-background: oklch(from var(--color-primary-500) l c h / 0.1);
     --minimap-width: 80px;
     --number-color: light-dark(var(--color-blue-400), oklch(from var(--color-blue-400) 0.78 0.12 h));
-    --number-padding: var(--size-100);
     --operator-color: var(--color-text-400);
     --overflow-wrap: normal;
-    --padding: var(--size-200);
     --placeholder-background: oklch(from var(--color-primary-300) l c h / 0.15);
     --property-color: light-dark(var(--color-blue-500), oklch(from var(--color-blue-500) 0.8 0.1 h));
     --regexp-color: light-dark(var(--color-red-500), oklch(from var(--color-red-500) 0.75 0.14 h));
@@ -67,8 +66,18 @@
         @extend %color-state;
     }
 
+    // Room for its label on the left; the controls at the right sit closer to the edge.
     &-header {
         @extend %surface-lower;
+        --gap-horizontal: var(--size-200);
+        --gap-vertical: var(--size-200);
+        --padding-horizontal: var(--size-100);
+        --padding-left: var(--size-300);
+        --padding-vertical: var(--size-100);
+    }
+
+    &-number {
+        --padding-horizontal: var(--size-100);
     }
 
     &-placeholder {

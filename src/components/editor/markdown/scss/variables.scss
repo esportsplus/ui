@@ -9,21 +9,17 @@
     --background-default: var(--surface-background-default);
     --bar-control-height: var(--size-700);
     --bar-font-size: var(--font-size-200);
-    --bar-gap: var(--size-100);
     --bar-icon-size: var(--size-300);
     --bar-input-width: 160px;
-    --bar-padding: var(--size-100);
     --border-color-default: var(--surface-border-default);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
     --caret-color: var(--color);
     --caret-width: var(--border-width-500);
-    --cell-padding: var(--size-100) var(--size-200);
     --check-duration: 150ms;
     --chip-background: oklch(from var(--color-primary-300) l c h / 0.15);
     --chip-font-size: var(--font-size-300);
     --code-font-size: 0.9em;
-    --code-padding: 0 0.25em;
     --code-radius: var(--border-radius-200);
     --color: var(--color-text-500);
     --comment-color: var(--color-text-300);
@@ -67,7 +63,6 @@
     --operator-color: var(--color-text-400);
     // The field's arithmetic layout assumes these wrapping rules.
     --overflow-wrap: break-word;
-    --padding: var(--size-200);
     --placeholder-color: var(--color-text-300);
     --property-color: light-dark(var(--color-blue-500), oklch(from var(--color-blue-500) 0.8 0.1 h));
     --quote-bar-color: var(--surface-border-default);
@@ -83,8 +78,6 @@
     --string-color: light-dark(oklch(from var(--color-green-500) 45% c h), oklch(from var(--color-green-500) 0.8 0.15 h));
     // Resolved on the editor, since the checkbox derives its own '--focus-color' from these.
     --task-color: var(--focus-color);
-    --task-gap: var(--size-100);
-    --task-spacing: calc(var(--size-100) / 2);
     --type-color: light-dark(var(--color-blue-300), oklch(from var(--color-blue-300) 0.76 0.13 h));
     --variable-color: var(--color);
     --white-space: pre-wrap;
@@ -111,8 +104,26 @@
         --white-space: pre;
     }
 
+    // Padding, not margin: the layout measures each block's border box, so space outside it would go uncounted.
+    &-block--task {
+        --padding-vertical: calc(var(--size-100) / 2);
+    }
+
+    &-cell {
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-100);
+    }
+
+    &-chip {
+        --margin-horizontal: var(--size-100);
+        --padding-horizontal: 0.25em;
+        --padding-vertical: 0px;
+    }
+
     &-code {
         @extend %surface-lower;
+        --padding-horizontal: 0.25em;
+        --padding-vertical: 0px;
     }
 
     &-fold {
@@ -129,6 +140,16 @@
 
     &-pre {
         @extend %surface-lower;
+    }
+
+    // The field; the layout reads its padding back, so the rendered blocks stay aligned with it.
+    &-surface {
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-200);
+    }
+
+    &-task.checkbox {
+        --margin-horizontal: var(--size-100);
     }
 
     @media (forced-colors: active) {

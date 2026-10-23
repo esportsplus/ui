@@ -43,7 +43,7 @@
         align-items: center;
         display: flex;
         font-size: var(--lens-font-size);
-        gap: var(--lens-gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         pointer-events: auto;
         position: absolute;
         white-space: nowrap;
@@ -133,8 +133,8 @@
             display: flex;
             flex: none;
             font-size: var(--bar-font-size);
-            gap: var(--bar-gap);
-            padding: var(--bar-padding);
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            padding: var(--padding-vertical) var(--padding-horizontal);
         }
 
         &-button {
@@ -176,7 +176,7 @@
             margin: 0;
             min-height: 0;
             overflow: auto;
-            padding: 0 var(--padding);
+            padding: 0 var(--padding-horizontal);
             white-space: pre;
         }
 
@@ -266,7 +266,7 @@
             box-sizing: border-box;
             content: '';
             height: var(--swatch-size);
-            left: calc(-1 * var(--swatch-size) - var(--swatch-gap));
+            left: calc(-1 * var(--swatch-size) - var(--gap-horizontal));
             position: absolute;
             top: 50%;
             translate: 0 -50%;

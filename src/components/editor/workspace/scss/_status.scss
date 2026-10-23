@@ -1,11 +1,4 @@
 .code-workspace {
-    // Inline-edit lays its status out under the field; here it sits on the toolbar's line instead.
-    &-autosave .inline-edit-status {
-        grid-area: auto;
-        margin-top: 0;
-        padding-inline-start: 0;
-    }
-
     &-autosave {
         flex: none;
         height: var(--control-size);
@@ -14,6 +7,13 @@
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: calc(var(--focus-width) * -1);
         }
+    }
+
+    // Inline-edit lays its status out under the field; here it sits on the toolbar's line instead.
+    &-autosave .inline-edit-status {
+        grid-area: auto;
+        margin-top: 0;
+        padding-inline-start: 0;
     }
 
 
@@ -89,7 +89,7 @@
             align-items: center;
             display: flex;
             flex: none;
-            gap: var(--spacing);
+            gap: var(--gap-vertical) var(--gap-horizontal);
         }
     }
 }

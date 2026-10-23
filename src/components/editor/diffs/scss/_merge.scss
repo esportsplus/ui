@@ -29,8 +29,8 @@
         border-bottom: var(--border-width) solid var(--border-color);
         display: flex;
         flex-wrap: wrap;
-        gap: var(--bar-gap);
-        padding: var(--bar-padding);
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        padding: var(--padding-vertical) var(--padding-horizontal);
     }
 
     &-lens {
@@ -40,7 +40,7 @@
         display: flex;
         gap: var(--size-100);
         min-height: var(--line-height);
-        padding: calc(var(--size-100) / 4) var(--code-padding);
+        padding: calc(var(--size-100) / 4) var(--code-padding-horizontal);
 
         &--resolved {
             background: transparent;
@@ -114,6 +114,6 @@
         color: var(--muted-color);
         flex: none;
         font-weight: var(--font-weight-600);
-        padding: var(--bar-padding);
+        padding: var(--padding-vertical) var(--padding-horizontal);
     }
 }

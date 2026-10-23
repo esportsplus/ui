@@ -58,9 +58,9 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         font-size: var(--badge-font-size);
         font-variant-numeric: tabular-nums;
         font-weight: var(--badge-font-weight);
-        gap: var(--badge-gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         margin-inline-start: auto;
-        padding-inline-start: var(--item-gap);
+        padding-inline-start: var(--item-gap-horizontal);
 
         &-part {
             @each $tone in additions, added, conflict, deleted, deletions, error, ignored, modified, open, submodule, unsaved, warning {
@@ -73,7 +73,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             &--staged {
                 background: color-mix(in srgb, currentColor var(--staged-tint), transparent);
                 border-radius: var(--staged-radius);
-                padding-inline: var(--staged-padding);
+                padding-inline: var(--padding-horizontal);
             }
         }
     }
@@ -103,10 +103,10 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         box-shadow: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
         color: var(--color);
         font-size: var(--font-size);
-        gap: var(--item-gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         left: 0;
         margin: var(--drag-offset) 0 0 var(--drag-offset);
-        padding: var(--drag-padding);
+        padding: var(--padding-vertical) var(--padding-horizontal);
         top: 0;
         white-space: nowrap;
 
@@ -163,8 +163,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             border-radius: var(--find-radius);
             box-shadow: var(--surface-shadow-default);
             display: flex;
-            gap: var(--find-gap);
-            padding: var(--find-padding);
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            padding: var(--padding-vertical) var(--padding-horizontal);
         }
 
         &-button {
@@ -207,7 +207,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             flex-shrink: 0;
             font-size: var(--find-note-font-size);
             font-variant-numeric: tabular-nums;
-            padding-inline: var(--find-gap);
+            padding-inline: var(--padding-horizontal);
             white-space: nowrap;
 
             &:empty {
@@ -224,7 +224,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             height: var(--find-button-size);
             min-width: 0;
             outline: none;
-            padding-inline: var(--input-padding);
+            padding-inline: var(--padding-horizontal);
             user-select: text;
             width: var(--find-input-width);
 
@@ -247,7 +247,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             color: var(--find-note-color);
             font-size: var(--find-note-font-size);
             margin: 0 var(--find-radius);
-            padding: 0 var(--find-padding);
+            padding: 0 var(--padding-horizontal);
         }
     }
 
@@ -261,7 +261,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         height: calc(var(--row-height) - 2px);
         min-width: 0;
         outline: none;
-        padding-inline: var(--input-padding);
+        padding-inline: var(--padding-horizontal);
         user-select: text;
 
         &[aria-invalid='true'] {
@@ -287,8 +287,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         border: 1px solid var(--error-color);
         border-radius: var(--input-radius);
         font-size: var(--message-font-size);
-        inset-inline: calc(var(--padding) + var(--twistie-size) + var(--icon-size) + var(--item-gap) * 2) 0;
-        padding: var(--message-padding);
+        inset-inline: calc(var(--row-padding-horizontal) + var(--twistie-size) + var(--icon-size) + var(--item-gap-horizontal) * 2) 0;
+        padding: var(--padding-vertical) var(--padding-horizontal);
         position: absolute;
         top: 100%;
         white-space: normal;
@@ -332,13 +332,13 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         border-radius: var(--row-radius);
         cursor: var(--drag-cursor, pointer);
         display: flex;
-        gap: var(--item-gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--row-height);
         // Nested rows start at their depth, so the one highlight resizes and shifts as it moves between them.
         margin-inline-start: calc(var(--depth) * var(--indent));
         outline: 0 solid var(--focus-color);
         outline-offset: -1px;
-        padding-inline: var(--padding);
+        padding-inline: var(--row-padding-horizontal);
         position: relative;
         user-select: none;
 
@@ -456,7 +456,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             content: '';
             display: var(--indicator-display, none);
             inset-block: 0;
-            inset-inline-start: calc(var(--padding) + var(--twistie-size) / 2 - 0.5px - var(--indent));
+            inset-inline-start: calc(var(--row-padding-horizontal) + var(--twistie-size) / 2 - 0.5px - var(--indent));
             opacity: var(--indicator-opacity, 1);
             position: absolute;
             transition: opacity var(--indicator-duration) ease-out;
@@ -495,7 +495,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
     &-separator {
         color: var(--separator-color);
-        margin-inline: var(--separator-gap);
+        margin-inline: var(--margin-horizontal);
     }
 
     &-spinner {
