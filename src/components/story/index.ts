@@ -1,18 +1,11 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import icon from '~/components/icon';
 import { drag, INTERACTIVE, type Direction } from '~/shared/drag';
-import pause from '@esportsplus/ui/svg/pause.svg';
-import play from '@esportsplus/ui/svg/play.svg';
 import '~/components/frame/scss/index.scss';
 import './scss/index.scss';
 
 
-const STORY_TOGGLE = Symbol.for('@esportsplus/ui/story.toggle');
-
-
 type A = Attributes & {
-    [STORY_TOGGLE]?: Attributes;
     // Milliseconds per story; defaults to the stylesheet's '--duration'.
     duration?: number;
     label?: string;
@@ -228,35 +221,6 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                 `)}
             </div>
 
-            <div class='story-header'>
-                <span class='story-count'>${() => `${state.index + 1} / ${count}`}</span>
-                <button
-                    aria-label='${() => state.paused ? 'Play' : 'Pause'}'
-                    class='story-toggle ${() => (view.held || state.paused) && 'story-toggle--paused'}'
-                    type='button'
-                    ${bound?.[STORY_TOGGLE]}
-                    ${attributes[STORY_TOGGLE]}
-                    ${{
-                        onclick: () => {
-                            state.paused = !state.paused;
-                        },
-                        // Space and Enter reach the button's own click instead of toggling twice.
-                        onkeydown: (e: KeyboardEvent) => {
-                            if (e.key !== ' ' && e.key !== 'Enter') {
-                                keydown(e);
-                            }
-                        },
-                        // Delegation stops at the nearest bound element, so a press here never reaches the story's own
-                        // tap, hold and drag handling, whose pointer capture would steal the click.
-                        onpointerdown: () => {},
-                        onpointerup: () => {}
-                    }}
-                >
-                    ${icon({ 'aria-hidden': 'true', class: 'story-pause' }, pause)}
-                    ${icon({ 'aria-hidden': 'true', class: 'story-play' }, play)}
-                </button>
-            </div>
-
             <div
                 class='story-track ${() => (view.held || state.paused) && 'story-track--dimmed'}'
                 style='${() => `--i: ${state.index - view.offset}`}'
@@ -302,5 +266,5 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
 }
 
 
-export default component(template, { toggle: STORY_TOGGLE });
+export default component(template);
 export type { State as StoryState };

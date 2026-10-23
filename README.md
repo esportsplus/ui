@@ -84,7 +84,7 @@ html`
 | `nav` | `nav.tree` link tree whose highlight glides between links, solid (`current: 'page'`) or soft over a rule down their edge (`'location'`), marking the active link with a background, a border or both (`indicator: 'background' | 'border' | 'both'`); `nav.toc` table of contents; `nav.spy(ids)` marks the section in view within whichever ancestor scrolls it | `nav.tree`, `nav.toc`, `nav.spy` |
 | `pullToRefresh` | Rubber-band pull gesture (touch and mouse) with a stepped tick spinner; new items above the old first one slide in | - |
 | `sortable` | Drag-and-drop reordering of a reactive list's items, across lists with `group` | `sortable--{effect}` modifiers |
-| `story` | Auto-advancing stories, each any `Renderable`, on a `frame--slide` track with segmented progress bars whose CSS fill is the timer (`--duration`, or `duration` in ms); tap the left third to go back (replaying the first story) and the rest to advance, drag or flick between stories (rubber-banding at the ends), press-and-hold or Space to pause; links and controls inside a story keep their own clicks | `story.toggle` |
+| `story` | Auto-advancing stories, each any `Renderable`, on a `frame--slide` track filling the card, with segmented progress bars overlaid on top whose CSS fill is the timer (`--duration`, or `duration` in ms); tap the left third to go back (replaying the first story) and the rest to advance, drag or flick between stories (rubber-banding at the ends), press-and-hold or Space to pause; links and controls inside a story keep their own clicks | |
 
 ### Display
 | Component | Description |
