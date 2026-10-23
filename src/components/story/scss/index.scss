@@ -1,6 +1,5 @@
 @use '/tokens';
 @use 'css-utilities/hidden';
-@use 'css-utilities/icon';
 @use 'variables';
 
 .story {
@@ -8,8 +7,6 @@
     border-radius: var(--radius);
     box-shadow: var(--box-shadow);
     color: var(--color);
-    display: flex;
-    flex-direction: column;
     height: var(--height);
     outline: none;
     overflow: hidden;
@@ -40,16 +37,17 @@
         }
     }
 
+    // Overlays the story content, which runs the full height of the card beneath it.
     &-bars {
         display: flex;
         gap: calc(var(--size-100) / 2);
+        left: 0;
         padding: 12px 12px 0;
-    }
-
-    &-count {
-        color: var(--muted-color);
-        font-size: var(--font-size-300);
-        font-variant-numeric: tabular-nums;
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 2;
     }
 
     &-fill {
@@ -60,21 +58,6 @@
         height: 100%;
         transform: scaleX(var(--scale, 0));
         transform-origin: left;
-    }
-
-    &-header {
-        align-items: center;
-        display: flex;
-        height: 44px;
-        justify-content: space-between;
-        padding: 0 var(--size-400);
-    }
-
-    // Static cue for the paused state, so the frozen bar isn't the only signal.
-    &-pause,
-    &-play {
-        @extend %icon-swap;
-        grid-area: 1 / 1;
     }
 
     &-slide {
@@ -92,38 +75,11 @@
         margin: 0;
     }
 
-    &-toggle {
-        background: transparent;
-        border: 0;
-        border-radius: 999px;
-        color: var(--color);
-        cursor: pointer;
-        display: grid;
-        height: 40px;
-        margin-right: calc(var(--size-100) * -1);
-        outline: none;
-        padding: 0;
-        place-items: center;
-        transition: color 0.15s ease-out;
-        width: 40px;
-
-        &:focus-visible {
-            outline: 2px solid var(--focus-ring-color);
-        }
-
-        // Keyed off the toggle, so each icon keeps a static class.
-        &:not(.story-toggle--paused) .story-pause,
-        &--paused .story-play {
-            @extend %icon-swap-active;
-        }
-    }
-
     // A 'frame--slide' track: '--i' is the shown story, fractional while a drag carries it between two. It sits
     // above the zones so interactive story content stays clickable.
     &-track {
-        flex: 1;
-        min-height: 0;
-        position: relative;
+        inset: 0;
+        position: absolute;
         transition: opacity 0.2s ease-out;
         z-index: 1;
 
@@ -147,23 +103,14 @@
     // Reachable by screen readers; pointer taps and drags are handled by the card itself. Back is the left third,
     // matching the tap split in the component.
     &-zones {
-        bottom: 0;
         display: flex;
-        left: 0;
+        inset: 0;
         position: absolute;
-        right: 0;
-        top: 60px;
     }
 
     &:focus-visible {
         outline: 2px solid var(--focus-ring-color);
         outline-offset: calc(var(--size-100) / 4);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &-toggle {
-            transition: color 0.15s ease-out;
-        }
     }
 }
 
