@@ -4,6 +4,7 @@ import next from '@esportsplus/ui/svg/chevron-right.svg';
 import previous from '@esportsplus/ui/svg/chevron-left.svg';
 import type { Link } from './arrows';
 import '~/components/card/scss/index.scss';
+import '~/modifiers/box-shadow/scss/index.scss';
 
 
 const PAGINATION_CARD = Symbol.for('@esportsplus/ui/pagination.cards.card');
@@ -32,7 +33,7 @@ function card(attributes: A, direction: 'next' | 'previous', link: Link) {
 
     return html`
         <a
-            class='card pagination-card pagination-card--${direction} ${attributes.ring && 'card--ring'} ${attributes.tactile && 'pagination-card--tactile'}'
+            class='card pagination-card pagination-card--${direction} ${attributes.tactile && 'pagination-card--tactile'}'
             href='${link.href}'
             rel='${direction === 'next' ? 'next' : 'prev'}'
             ${attributes[PAGINATION_CARD]}

@@ -1,15 +1,30 @@
 @use '/tokens';
-@use 'arrows';
-@use 'cards';
-@use 'dots';
+@use 'css-utilities/absolute';
 @use 'variables';
 
 .pagination {
     align-items: center;
     display: flex;
-    gap: var(--gap);
+    gap: var(--gap-vertical) var(--gap-horizontal);
     justify-content: space-between;
     width: 100%;
+
+    &--arrows {
+        flex: none;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        justify-content: flex-start;
+        width: auto;
+    }
+
+    &--cards {
+        align-items: stretch;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        @media (max-width: 560px) {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
 
     // Geometry is derived from '--progress' alone, so a scroll or drag only rewrites one custom property per frame.
     &--dots {
@@ -20,6 +35,162 @@
         position: relative;
         // Never changes width: the active slot is always one pill wide, whichever dot owns it.
         width: calc((var(--count) - 1) * var(--step) + var(--pill-width));
+    }
+
+    &-arrow {
+        align-items: center;
+        background: var(--background);
+        border: 0;
+        border-radius: var(--arrow-border-radius);
+        color: var(--color);
+        cursor: pointer;
+        display: inline-flex;
+        flex: none;
+        height: var(--arrow-size);
+        justify-content: center;
+        outline: none;
+        padding: 0;
+        transition:
+            background-color var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
+        width: var(--arrow-size);
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--size-100) / 4);
+        }
+
+        // Touch leaves no hover fill behind a tap.
+        @media (hover: none) {
+            --background-hover: var(--background-default);
+        }
+
+        @include tokens.state(disabled) {
+            --background-hover: var(--background-default);
+            --background-pressed: var(--background-default);
+            cursor: default;
+            opacity: var(--disabled-opacity);
+        }
+
+        // Qualified by the button so it wins over the icon's own variables regardless of stylesheet order. The arrow
+        // glyphs sit a quarter of their box off centre, toward their tail; pulling that back centres them.
+        & &-icon {
+            --color: currentColor;
+            --size: var(--icon-size);
+        }
+
+        &--next &-icon {
+            margin-right: calc(var(--icon-size) / -4);
+        }
+
+        &--previous &-icon {
+            margin-left: calc(var(--icon-size) / -4);
+        }
+    }
+
+    &-card {
+        color: var(--color);
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        min-width: 0;
+        outline: none;
+        text-decoration: none;
+
+        // Qualified by the card so it wins over the icon's own variables and position regardless of stylesheet order.
+        // Placed by where it sits in its card rather than which card it is, so a lone card keeps its arrow on its side.
+        & &-arrow {
+            --size: var(--icon-size);
+            position: absolute;
+            top: 50%;
+            transition:
+                color var(--transition-duration) var(--transition-timing-function),
+                translate var(--transition-duration) var(--transition-timing-function);
+            translate: var(--arrow-offset, 0) -50%;
+
+            &:first-child {
+                left: var(--arrow-inset-horizontal);
+            }
+
+            &:last-child {
+                right: var(--arrow-inset-horizontal);
+            }
+        }
+
+        // Each card's text leans toward the middle, away from its arrow on the outer edge. Held in the second column
+        // alone too, so a lone next card still sits on the right.
+        &--next {
+            align-items: flex-end;
+            grid-column: 2;
+            text-align: end;
+
+            @media (max-width: 560px) {
+                grid-column: auto;
+            }
+        }
+
+        &--previous {
+            align-items: flex-start;
+            text-align: start;
+        }
+
+        // Pressing sinks the card below where it rests, not just back to it. The shadow steps with the card's state;
+        // keyboard focus lifts it as hover does.
+        &--tactile {
+            &:active {
+                transform: translateY(1px);
+            }
+
+            &:focus-visible {
+                --box-shadow: var(--box-shadow-hover);
+            }
+
+            &:focus-visible,
+            &:hover {
+                transform: translateY(-1px);
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                transform: none !important;
+            }
+        }
+
+        &-subtitle {
+            color: var(--color);
+            font-size: var(--font-size);
+            transition: color var(--transition-duration) var(--transition-timing-function);
+        }
+
+        &-title {
+            color: var(--color);
+            font-size: var(--font-size);
+            font-weight: var(--font-weight);
+            overflow-wrap: anywhere;
+            text-transform: capitalize;
+            transition: color var(--transition-duration) var(--transition-timing-function);
+        }
+
+        // Shares the hover color with keyboard focus, which the shared color state leaves out.
+        &:focus-visible {
+            --color: var(--color-hover);
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--size-100) / 4);
+        }
+
+        // Nudges the arrow the way it points, so the card reads as the way to go.
+        &:focus-visible,
+        &:hover {
+            --arrow-offset: calc(var(--arrow-shift) * var(--direction));
+        }
+
+        // Clears the text from whichever edge holds the arrow, on top of the card's own padding.
+        &:has(> #{&}-arrow:first-child) {
+            padding-left: calc(var(--arrow-inset-horizontal) + var(--icon-size) + var(--arrow-gap-horizontal));
+        }
+
+        &:has(> #{&}-arrow:last-child) {
+            padding-right: calc(var(--arrow-inset-horizontal) + var(--icon-size) + var(--arrow-gap-horizontal));
+        }
     }
 
     &-control {
@@ -37,6 +208,49 @@
         height: var(--size);
     }
 
+    // Each dot swells toward pill width as its page approaches, so the row makes room for the pill and every gap stays even mid-scroll.
+    &-dot {
+        align-items: center;
+        background: none;
+        border: 0;
+        border-radius: 999px;
+        box-sizing: content-box;
+        cursor: pointer;
+        display: flex;
+        inset-block: 0;
+        left: calc(var(--index) * var(--step) + (var(--pill-width) - var(--dot-size)) * clamp(0, var(--index) - var(--progress), 1));
+        // Reaches half the gap past each side of its dot, so the hit areas tile the row with no dead space between them.
+        margin: 0 0 0 calc(var(--dot-gap-horizontal) / -2);
+        outline: none;
+        padding: 0 calc(var(--dot-gap-horizontal) / 2);
+        position: absolute;
+        touch-action: manipulation;
+        width: calc(var(--dot-size) + (var(--pill-width) - var(--dot-size)) * var(--near));
+
+        &:focus-visible {
+            outline: var(--border-width-500) solid var(--focus-color);
+        }
+    }
+
+    &-fill {
+        @extend %absolute-full;
+        background: var(--pill-color);
+        transform-origin: left;
+    }
+
+    &-mark {
+        background: var(--dot-color);
+        border-radius: 999px;
+        height: var(--dot-size);
+        transition: background-color var(--transition-duration) var(--transition-timing-function);
+        width: 100%;
+
+        @media (prefers-reduced-motion: reduce) {
+            scale: none;
+            transition: background-color var(--transition-duration) var(--transition-timing-function);
+        }
+    }
+
     &-page {
         font-variant: tabular-nums;
         min-width: var(--size);
@@ -51,5 +265,20 @@
         align-items: center;
         display: flex;
         gap: var(--size-100);
+    }
+
+    // Spans the two pages it sits between: the leading edge travels in the first 60% of the move and the trailing edge in the
+    // last 60%, so the pill stretches toward the next dot, then pulls its tail in after it, like a worm.
+    &-pill {
+        background: var(--track-color);
+        border-radius: 999px;
+        height: var(--dot-size);
+        left: 0;
+        overflow: hidden;
+        pointer-events: none;
+        position: absolute;
+        top: 50%;
+        translate: calc(var(--k) * var(--step) + var(--step) * var(--trail)) -50%;
+        width: calc(var(--pill-width) + var(--step) * (var(--lead) - var(--trail)));
     }
 }

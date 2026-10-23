@@ -1,4 +1,41 @@
 .typewriter {
+    &,
+    &-retype {
+        --caret: '';
+        --caret-align: -0.18em;
+        --caret-background: var(--caret-color);
+        --caret-color: currentColor;
+        --caret-duration: 1.06s;
+        --caret-height: 1.1em;
+        --caret-offset: calc(var(--size-100) / 4);
+        --caret-radius: 999px;
+        --caret-timing-function: linear;
+        --caret-width: 2px;
+
+        &--block {
+            --caret-align: bottom;
+            --caret-height: 1lh;
+            --caret-offset: 0.08em;
+            --caret-radius: 0;
+            --caret-width: 0.56em;
+        }
+
+        &--hard {
+            --caret-duration: 1s;
+            --caret-timing-function: steps(1, end);
+        }
+
+        &--underscore {
+            --caret: '_';
+            --caret-align: baseline;
+            --caret-background: transparent;
+            --caret-height: auto;
+            --caret-offset: 0.04em;
+            --caret-radius: 0;
+            --caret-width: auto;
+        }
+    }
+
     &-retype {
         --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
         --ink-blur: var(--blur-300);
@@ -35,42 +72,5 @@
         &--accent {
             --color: var(--color-blue-400);
         }
-    }
-}
-
-.typewriter,
-.typewriter-retype {
-    --caret: '';
-    --caret-align: -0.18em;
-    --caret-background: var(--caret-color);
-    --caret-color: currentColor;
-    --caret-duration: 1.06s;
-    --caret-height: 1.1em;
-    --caret-offset: calc(var(--size-100) / 4);
-    --caret-radius: 999px;
-    --caret-timing-function: linear;
-    --caret-width: 2px;
-
-    &--block {
-        --caret-align: bottom;
-        --caret-height: 1lh;
-        --caret-offset: 0.08em;
-        --caret-radius: 0;
-        --caret-width: 0.56em;
-    }
-
-    &--hard {
-        --caret-duration: 1s;
-        --caret-timing-function: steps(1, end);
-    }
-
-    &--underscore {
-        --caret: '_';
-        --caret-align: baseline;
-        --caret-background: transparent;
-        --caret-height: auto;
-        --caret-offset: 0.04em;
-        --caret-radius: 0;
-        --caret-width: auto;
     }
 }
