@@ -1,90 +1,124 @@
+@use '/tokens';
+@use 'css-utilities/background';
 @use 'css-utilities/border';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
 .nav-tree {
-    --focus-color: var(--color-blue-400);
-    --focus-width: var(--border-width-400);
-    --highlight-background-active: var(--color-primary-400);
-    --highlight-background-hover: var(--surface-background-hover);
-    --highlight-background-pressed: var(--surface-background-pressed);
-    // Text colour of the active link while the highlight sits under it.
-    --highlight-color: var(--surface-background-default);
-    // The bar 'border' and 'both' draw down the active link's left edge, over the links' own rule in 'location'.
-    --indicator-color: var(--color-blue-400);
-    --indicator-width: var(--border-width-400);
-    --link-border-color: var(--surface-border-hover);
-    --link-border-color-active: var(--link-border-color);
-    --link-border-color-hover: var(--color-primary-400);
-    --link-border-radius: 0px;
-    --link-border-width: var(--border-width-400);
-    --link-color: var(--color-text-400);
-    --link-color-active: var(--color-text-500);
-    --link-font-size: var(--font-size-300);
-    --link-font-weight: var(--font-weight-300);
-    --link-font-weight-active: var(--font-weight-500);
-    // Pulls links out past the column edge, so their text lines up with the titles while the highlight pads around it.
-    --link-inset: 0px;
-    --link-padding-horizontal: var(--size-300);
-    --link-padding-vertical: var(--size-100);
-    --section-gap: var(--size-600);
-    --title-color: var(--color-text-400);
-    --title-font-size: var(--font-size-200);
-    --title-font-weight: var(--font-weight-500);
-    --title-font-weight-active: var(--font-weight-600);
-    --title-spacing: var(--size-100);
+    --gap-horizontal: 0px;
+    --gap-vertical: var(--size-600);
 
 
+    // Fills the link edge to edge, square, so it meets the rule.
+    &--background {
+        .nav-tree-link {
+            --background-active: var(--surface-background-active);
+            --background-hover: var(--surface-background-hover);
+            --background-pressed: var(--surface-background-pressed);
+        }
+    }
+
+    // A rule down the links' edge that hovered links mark.
+    &--background,
+    &--border {
+        .nav-tree-link {
+            --border-color-default: var(--surface-border-hover);
+            --border-color-hover: var(--color-primary-400);
+            --border-color-pressed: var(--border-color-hover);
+        }
+    }
+
+    // The active link colours its own part of the rule, so the mark always lines up.
+    &--border {
+        .nav-tree-link {
+            --border-color-active: var(--color-text-500);
+        }
+    }
+
+    // Links stay inside the palette's padding rather than pulling out, so titles step in to their text instead.
     &--command {
-        --highlight-background-active: var(--surface-background-active);
-        --highlight-color: var(--color-primary-500);
+        .nav-tree-highlight {
+            --background-active: var(--surface-background-active);
+        }
+
+        .nav-tree-title:not(.nav-tree-link) {
+            --padding-horizontal: var(--size-300);
+        }
     }
 
-    // The border stays, transparent, so links keep the same box with or without the highlight.
     &--highlight {
-        --link-border-color: transparent;
-        --link-border-color-active: transparent;
-        --link-border-color-hover: transparent;
-        --link-border-radius: var(--border-radius-300);
-        --link-color-active: var(--highlight-color);
-        --link-inset: var(--size-300);
+        .nav-tree-link {
+            --border-radius: var(--border-radius-300);
+            // Text colour of the active link while the highlight sits under it.
+            --color-active: var(--surface-background-default);
+        }
+
+        // Pulls links out past the column edge, so their text lines up with the titles while the highlight pads around it.
+        .nav-tree-links,
+        .nav-tree-title.nav-tree-link {
+            --inset-horizontal: var(--size-300);
+        }
     }
 
-    // The palette's list already pads its rows, so links pulled out past it would overflow and clip.
     &--highlight#{&}--command {
-        --link-inset: 0px;
+        .nav-tree-link {
+            --color-active: var(--color-primary-500);
+        }
+
+        // The palette's list already pads its rows, so links pulled out past it would overflow and clip.
+        .nav-tree-links,
+        .nav-tree-title.nav-tree-link {
+            --inset-horizontal: 0px;
+        }
     }
 
-    // With no fill under it, the active link keeps the plain active text colour rather than the one set for the fill.
-    &--highlight#{&}--border {
-        --link-color-active: var(--color-text-500);
-    }
-
-    // A soft fill over the rule down the links' edge, so the active link keeps its own text colour.
-    &--location {
-        --highlight-background-active: var(--surface-background-active);
-        --highlight-background-hover: var(--surface-background-hover);
-        --highlight-background-pressed: var(--surface-background-pressed);
-    }
-
-    &--toc {
-        --link-border-color-active: var(--link-color-active);
-    }
 
     // A level above the tree, so a fill pointed at '--surface-background-*' here reads as a surface sitting on it.
     &-highlight {
         @extend %surface-raise;
-        --background-active: var(--highlight-background-active);
-        --background-hover: var(--highlight-background-hover);
-        --background-pressed: var(--highlight-background-pressed);
+        --background-active: var(--color-primary-400);
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
         --glide-duration: 0.2s;
         --glide-duration-active: 0.25s;
-        --line-color: var(--indicator-color);
-        --line-width: var(--indicator-width);
         --scale-hidden: 1;
     }
 
+    // The border stays, transparent without a rule, so links keep the same box whichever way the active one is marked.
     &-link {
-        @extend %border-state, %color-state, %color-text;
+        @extend %background-state, %border-state, %color-state, %color-text;
+        --border-radius: 0px;
+        --border-width: var(--border-width-400);
+        --focus-color: var(--color-blue-400);
+        --focus-width: var(--border-width-400);
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-300);
+        --gap-horizontal: 0px;
+        --gap-vertical: 0px;
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-100);
+
+        @include tokens.state(active) {
+            --font-weight: var(--font-weight-500);
+        }
+    }
+
+    &-links,
+    &-title.nav-tree-link {
+        --inset-horizontal: 0px;
+    }
+
+    &-title {
+        --font-size: var(--font-size-200);
+        --font-weight: var(--font-weight-500);
+        --gap-horizontal: 0px;
+        --gap-vertical: 0px;
+        --margin-vertical: var(--size-100);
+
+        &.nav-tree-link {
+            @include tokens.state(active) {
+                --font-weight: var(--font-weight-600);
+            }
+        }
     }
 }

@@ -20,7 +20,7 @@ type TocLink = {
 // Renders nothing without links, so a layout can collapse the column the table of contents would sit in.
 export default component<A>(
     ({ label = 'On This Page', links, ...attributes }) => links.length > 0 && html`
-        <nav class='nav-tree nav-tree--toc' ${{ 'aria-label': label }} ${attributes}>
+        <nav class='nav-tree nav-tree--border' ${{ 'aria-label': label }} ${attributes}>
             <div class='nav-tree-group'>
                 <div class='nav-tree-title'>${label}</div>
 

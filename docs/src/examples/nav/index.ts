@@ -2,7 +2,7 @@ import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { nav } from '@esportsplus/ui/components';
 import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
-import type { Current, Indicator } from '@esportsplus/ui/components/nav';
+import type { Indicator } from '@esportsplus/ui/components/nav';
 import type { Entry } from 'docs/types';
 import 'docs/examples/nav/scss/index.scss';
 
@@ -73,14 +73,13 @@ function spied(mode?: 'current' | 'visible') {
     `;
 }
 
-function tree(current: Current, indicator?: Indicator) {
+function tree(indicator?: Indicator) {
     let state = reactive({ active: 'Button' });
 
     return html`
         <div class='nav-demo-tree'>
             ${nav.tree({
                 active: () => state.active,
-                current,
                 indicator,
                 sections: SECTIONS.map((section) => ({
                     groups: [{
@@ -106,28 +105,20 @@ export default {
     name: 'nav',
     variants: [
         {
-            render: () => tree('page'),
+            render: () => tree(),
             title: 'tree'
         },
         {
-            render: () => tree('page', 'border'),
-            title: 'tree · border'
+            render: () => tree('border'),
+            title: 'tree: border'
         },
         {
-            render: () => tree('page', 'both'),
-            title: 'tree · border + background'
+            render: () => tree('background'),
+            title: 'tree: background'
         },
         {
-            render: () => tree('location', 'background'),
-            title: 'tree: location · background'
-        },
-        {
-            render: () => tree('location'),
-            title: 'tree: location'
-        },
-        {
-            render: () => tree('location', 'both'),
-            title: 'tree: location · border + background'
+            render: () => tree('both'),
+            title: 'tree: border + background'
         },
         {
             render: () => spied(),

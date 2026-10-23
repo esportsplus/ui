@@ -77,8 +77,8 @@ const groups: Record<string, Group[]> = {
         { title: 'flash', members: [['flash, price', 'Price'], ['flash, request rate', 'Request rate'], ['flash, large, long hold', 'Large, long hold']] }
     ],
     nav: [
-        { title: 'tree', members: [['tree', 'Background'], ['tree · border', 'Border'], ['tree · border + background', 'Border + background']] },
-        { title: 'tree: location', members: [['tree: location · background', 'Background'], ['tree: location', 'Border'], ['tree: location · border + background', 'Border + background']] },
+        { title: 'tree', members: ['tree'] },
+        { title: 'tree: border', members: [['tree: border', 'Border'], ['tree: background', 'Background'], ['tree: border + background', 'Border + background']] },
         { title: 'toc with spy', members: [['toc with spy', 'Current section'], ['toc with spy: every visible section', 'Every visible section']] }
     ],
     notification: [

@@ -6,18 +6,18 @@ import highlight from '~/components/highlight';
 type A = Attributes & {
     // The key of the active link or section title; each matches through its own `key`, which defaults to its `href`.
     active?: () => string | undefined;
-    // 'page' marks the active link in a solid highlight, 'command' does too for 'command' results (which own focus and
-    // selection), and 'location' marks it softly over a rule down the links' edge. All three glide between links.
+    // 'page' marks the active link as the current page; 'command' is for 'command' results, which own focus and selection.
     current?: Current;
-    // How the active link is marked: 'background' fills it, 'border' draws a bar down its left edge, 'both' does both.
-    // 'background' by default, 'border' for 'location'.
+    // How the active link is marked: 'highlight' glides a solid pill between links; the rest run a rule down the links'
+    // edge, where 'background' fills the active link's full width, 'border' colours its part of the rule, and 'both'
+    // does both.
     indicator?: Indicator;
     sections: TreeSection[];
 };
 
-type Current = 'command' | 'location' | 'page';
+type Current = 'command' | 'page';
 
-type Indicator = 'background' | 'border' | 'both';
+type Indicator = 'background' | 'border' | 'both' | 'highlight';
 
 type TreeGroup = {
     label?: string;
@@ -53,7 +53,7 @@ function visible(link: TreeLink) {
 }
 
 
-export default component<A>(({ active, current = 'page', indicator = current === 'location' ? 'border' : 'background', sections, ...attributes }) => {
+export default component<A>(({ active, current = 'page', indicator = 'highlight', sections, ...attributes }) => {
     // A private mirror of the active key that every link selects on, so a change restyles the two links it moves
     // between rather than every link.
     let selected = signal<string | undefined>(undefined);
@@ -76,15 +76,13 @@ export default component<A>(({ active, current = 'page', indicator = current ===
 
     return html`
         <nav
-            class='nav-tree nav-tree--${current === 'location' ? 'location' : 'highlight'} ${current === 'command' && 'nav-tree--command'} ${indicator === 'border' && 'nav-tree--border'}'
+            class='nav-tree ${current === 'command' && 'nav-tree--command'} ${indicator === 'both' ? 'nav-tree--background nav-tree--border' : `nav-tree--${indicator}`}'
             ${current === 'command' && { role: 'presentation' }}
             ${attributes}
         >
-            ${highlight({
+            ${indicator === 'highlight' && highlight({
                 class: 'nav-tree-highlight',
-                fill: indicator !== 'border',
                 hover: current !== 'command',
-                line: indicator === 'background' ? undefined : 'left',
                 target: '.nav-tree-link:not(.--hidden)'
             })}
             ${sections.map((section) => html`
