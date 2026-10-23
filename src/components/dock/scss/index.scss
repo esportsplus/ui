@@ -1,26 +1,152 @@
 @use '/tokens';
 @use 'variables';
 
-// Surfaces come from '.card'. Items stretch the full shelf height, so the whole shelf is hoverable; icons sit on
-// its bottom inset and the swell spills upward.
+// The buttons' surfaces come from '.card'; the shelf's own look is the consumer's, drawn to its radius and shape.
+// Items stretch across the shelf, so all of it is hoverable; icons sit on the inset along the screen edge and the
+// swell spills away from it.
 .dock {
+    border-radius: var(--border-radius);
+    corner-shape: var(--corner-shape);
     display: flex;
-    height: calc(var(--size-rest) + var(--inset) * 2);
+    height: calc(var(--size-rest) + var(--inset-vertical) * 2);
+    max-width: 100%;
+    padding-block: var(--padding-vertical);
+    padding-inline: var(--padding-horizontal);
+    position: relative;
 
+    &--e &-item {
+        padding: var(--padding-vertical) var(--padding-horizontal) var(--padding-vertical) var(--inset-horizontal);
+    }
+
+    &--e &-light {
+        right: calc(100% - var(--inset-horizontal) + 4px);
+    }
+
+
+    // Always between the resting icon and the screen edge.
+    &--e &-light,
+    &--w &-light {
+        left: auto;
+        margin: calc(var(--light-size) / -2) 0 0;
+        top: 50%;
+    }
+
+    &--e,
+    &--w {
+        flex-direction: column;
+        height: auto;
+        max-height: 100%;
+        width: calc(var(--size-rest) + var(--inset-horizontal) * 2);
+
+        > .dock-arrow {
+            height: var(--width);
+            width: var(--size-rest);
+        }
+
+        > .dock-viewport,
+        > .dock-viewport > .dock-items {
+            flex-direction: column;
+        }
+    }
+
+    &--measuring &-item--hidden {
+        display: flex;
+    }
+
+
+    // The dock's label would otherwise hang over the launcher.
+    &--open > &-label {
+        visibility: hidden;
+    }
+
+    &--overflowing > &-arrow {
+        display: flex;
+    }
+
+    &--s &-item {
+        padding: var(--inset-vertical) var(--padding-horizontal) var(--padding-vertical);
+    }
+
+    &--s &-light {
+        bottom: calc(100% - var(--inset-vertical) + 4px);
+        top: auto;
+    }
+
+    &--w &-item {
+        padding: var(--padding-vertical) var(--inset-horizontal) var(--padding-vertical) var(--padding-horizontal);
+    }
+
+    &--w &-light {
+        left: calc(100% - var(--inset-horizontal) + 4px);
+    }
+
+    &-app {
+        align-items: center;
+        background: var(--background);
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: var(--size-200);
+        min-width: 0;
+        padding: var(--size-200) var(--size-100);
+
+        &--hidden {
+            display: none;
+        }
+
+        &-label {
+            color: var(--color);
+            font-size: var(--font-size);
+            font-weight: var(--font-weight);
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            user-select: none;
+            white-space: nowrap;
+        }
+    }
+
+    // Pages the icons when they outgrow the shelf; shown only then.
+    &-arrow {
+        align-items: center;
+        align-self: center;
+        background: none;
+        border: 0;
+        color: var(--color);
+        cursor: pointer;
+        display: none;
+        flex-shrink: 0;
+        height: var(--size-rest);
+        justify-content: center;
+        opacity: var(--opacity);
+        outline: none;
+        padding: 0;
+        transition: opacity var(--magnify-duration) var(--magnify-timing-function);
+        width: var(--width);
+
+        &:disabled {
+            cursor: default;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color);
+        }
+    }
 
     // Width and height grow instead of scale on purpose: the neighbours have to move apart, not overlap.
     &-button {
         align-items: center;
         border: 0;
         color: var(--color);
+        corner-shape: var(--corner-shape);
         cursor: pointer;
         display: flex;
         flex-shrink: 0;
         height: var(--size);
         justify-content: center;
         outline: none;
-        // Lands on its base, so the squash spreads along the dock.
-        transform-origin: 50% 100%;
+        transform-origin: var(--origin);
         transition:
             height var(--magnify-duration) var(--magnify-timing-function),
             width var(--magnify-duration) var(--magnify-timing-function);
@@ -29,7 +155,11 @@
         &--launching {
             animation:
                 dock-hop var(--hop-duration),
-                dock-squash var(--hop-duration) ease-in-out;
+                var(--squash) var(--hop-duration) ease-in-out;
+        }
+
+        &::after {
+            corner-shape: var(--corner-shape);
         }
 
         &:focus-visible {
@@ -38,24 +168,111 @@
         }
 
         // Relative to the button, so the icon follows the transition too.
-        svg {
+        > svg {
             height: calc(var(--icon-ratio) * 100%);
             width: calc(var(--icon-ratio) * 100%);
         }
     }
 
-    // Holds the items when they share one label.
-    &-group {
-        display: flex;
-    }
-
     &-item {
-        align-items: flex-end;
+        align-items: var(--item-align);
         cursor: default;
         display: flex;
         flex-shrink: 0;
-        padding: 0 calc(var(--spacing) / 2) var(--inset);
+        justify-content: var(--item-justify);
+        // The inset sits on the screen-edge side; the half spacing on the sides along the shelf.
+        padding: var(--padding-vertical) var(--padding-horizontal) var(--inset-vertical);
         position: relative;
+
+        // Off the shelf's page; shown again only while the page is measured.
+        &--hidden {
+            display: none;
+        }
+    }
+
+    &-items {
+        display: flex;
+    }
+
+    &-launcher {
+        color: var(--color);
+        display: flex;
+        flex-direction: column;
+        font-size: var(--font-size);
+
+        &-apps {
+            align-content: start;
+            display: grid;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            grid-template-columns: repeat(auto-fill, minmax(var(--column-width), 1fr));
+            // Stays a drop target while a search leaves it empty.
+            min-height: var(--column-width);
+            padding: var(--padding-vertical) var(--padding-horizontal);
+        }
+
+        &-empty {
+            color: var(--color);
+            margin: 0;
+            padding-bottom: var(--size-500);
+            text-align: center;
+        }
+
+        &-footer {
+            align-items: center;
+            border-top: var(--border);
+            color: var(--color);
+            display: flex;
+            flex-shrink: 0;
+            font-size: var(--font-size);
+            gap: var(--size-400);
+            height: var(--height);
+            padding-inline: var(--size-400);
+            user-select: none;
+        }
+
+        &-hint {
+            align-items: center;
+            display: flex;
+            gap: var(--size-200);
+
+            // Close stays on the left; the rest pack to the end.
+            &:first-child {
+                margin-inline-end: auto;
+            }
+        }
+
+        &-input.input {
+            height: 100%;
+            outline: none;
+
+            &::placeholder {
+                color: var(--color);
+            }
+        }
+
+        // Keycaps here are legends, not controls, so they take no hover or press.
+        &-keys {
+            display: flex;
+            gap: calc(var(--size-100) / 2);
+            pointer-events: none;
+        }
+
+        &-search {
+            align-items: center;
+            color: var(--color);
+            display: flex;
+            flex-shrink: 0;
+            gap: var(--size-200);
+            height: var(--height);
+            padding-inline: var(--size-400);
+        }
+
+        &-view {
+            border-top: var(--border);
+            max-height: var(--max-height);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
     }
 
     &-light {
@@ -69,7 +286,7 @@
         position: absolute;
         scale: 0.5;
         // 4px under the resting button.
-        top: calc(100% - var(--inset) + 4px);
+        top: calc(100% - var(--inset-vertical) + 4px);
         transition:
             opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1),
             scale 0.15s cubic-bezier(0.23, 1, 0.32, 1);
@@ -82,10 +299,21 @@
             transition-duration: 0.2s;
         }
     }
+
+    &-viewport {
+        display: flex;
+        min-height: 0;
+        min-width: 0;
+    }
+
+    // Hosts the launcher as a tooltip, without taking the tooltip's pointer cursor across the shelf.
+    &.tooltip {
+        cursor: auto;
+    }
 }
 
 
-// Up fast and down with gravity; each landing is the quickest part.
+// Away from the screen edge fast and back with gravity; each landing is the quickest part.
 @keyframes dock-hop {
     0% {
         animation-timing-function: ease-out;
@@ -93,7 +321,7 @@
     }
     30% {
         animation-timing-function: ease-in;
-        translate: 0 -22px;
+        translate: calc(var(--hop-x) * 22px) calc(var(--hop-y) * 22px);
     }
     55% {
         animation-timing-function: ease-out;
@@ -101,7 +329,7 @@
     }
     78% {
         animation-timing-function: ease-in;
-        translate: 0 -9px;
+        translate: calc(var(--hop-x) * 9px) calc(var(--hop-y) * 9px);
     }
     100% {
         translate: 0 0;
@@ -124,6 +352,28 @@
     }
     80% {
         scale: 1.03 0.96;
+    }
+    100% {
+        scale: 1 1;
+    }
+}
+
+// 'dock-squash' turned on its side, for an upright dock.
+@keyframes dock-squash-upright {
+    0% {
+        scale: 1 1;
+    }
+    30% {
+        scale: 1.04 0.97;
+    }
+    55% {
+        scale: 0.9 1.08;
+    }
+    70% {
+        scale: 1.02 0.99;
+    }
+    80% {
+        scale: 0.96 1.03;
     }
     100% {
         scale: 1 1;

@@ -1,5 +1,6 @@
 @use 'css-utilities/background';
 @use 'css-utilities/color';
+@use 'css-utilities/surface';
 
 
 // Headroom for icons that swell above the shelf and the labels over them.
@@ -10,6 +11,37 @@
     gap: var(--size-500);
     padding-top: 80px;
 
+    &--e {
+        justify-content: flex-start;
+    }
+
+    // Room beside the dock for the launcher to open into.
+    &--e,
+    &--w {
+        flex-direction: row;
+        height: 480px;
+        padding-top: 0;
+        width: 100%;
+    }
+
+    &--launcher {
+        padding-top: 440px;
+    }
+
+    &--narrow {
+        margin-inline: auto;
+        max-width: 360px;
+    }
+
+    &--s {
+        padding-bottom: 440px;
+        padding-top: 0;
+    }
+
+    &--w {
+        justify-content: flex-end;
+    }
+
     &-button {
         @extend %background-blue, %color-white;
     }
@@ -17,5 +49,12 @@
     &-status {
         color: var(--color-text-300);
         font-size: var(--font-size-300);
+    }
+
+    // The shelf is themed where it is placed; here, a raised surface.
+    .dock {
+        @extend %surface-raise;
+        background: var(--surface-background-default);
+        box-shadow: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
     }
 }
