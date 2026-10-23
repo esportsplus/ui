@@ -7,7 +7,7 @@
     display: flex;
     flex-direction: column;
     font-size: var(--font-size);
-    gap: var(--service-gap);
+    gap: var(--gap-vertical) var(--gap-horizontal);
     position: relative;
     width: var(--width);
 
@@ -21,7 +21,7 @@
         transition:
             opacity var(--transition-duration) var(--timing-function),
             scale var(--transition-duration) var(--timing-function);
-        width: round(down, (100% - (var(--days) - 1) * var(--bar-gap)) / var(--days), 1px);
+        width: round(down, (100% - (var(--days) - 1) * var(--gap-horizontal)) / var(--days), 1px);
 
         @include tokens.state(active) {
             --bar-opacity: 1;
@@ -56,7 +56,7 @@
         align-items: center;
         color: var(--color-muted);
         display: flex;
-        gap: var(--axis-gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         margin-top: var(--size-300);
         white-space: nowrap;
     }
@@ -87,14 +87,6 @@
         height: var(--size-500);
         justify-content: space-between;
         margin-bottom: var(--size-300);
-    }
-
-    // Same cut-out as 'image--status', anchored top right: the mask punches a ring out of the text, and
-    // the status dot, a sibling so the mask can't clip its tooltip, sits in the hole.
-    &-service-label {
-        display: block;
-        mask-clip: no-clip;
-        mask-image: var(--status-mask);
     }
 
     // Each caption change mounts a fresh node, so the entry animation replays per swap.
@@ -129,34 +121,20 @@
     &-service-name {
         flex-shrink: 0;
         font-weight: var(--font-weight-500);
-        position: relative;
     }
 
     &-service-percentage {
         align-items: center;
         display: flex;
         flex: 1;
-        gap: var(--axis-gap);
+        gap: var(--gap-vertical) var(--gap-horizontal);
 
         &::after,
         &::before {
-            border-top: 1px solid var(--axis-line-color);
+            border-top: 1px dotted var(--axis-line-color);
             content: '';
             flex: 1;
         }
-    }
-
-    // Qualified twice so it beats the reused tooltip's own cursor and position. The morph grows out of the dot's
-    // box and seeds its corners from the radius, so the radius is in pixels: a percentage would squash the start.
-    &-service-status.tooltip {
-        background: var(--status-color);
-        border-radius: calc(var(--status-size) / 2);
-        cursor: default;
-        height: var(--status-size);
-        position: absolute;
-        right: var(--status-right);
-        top: var(--status-top);
-        width: var(--status-size);
     }
 
     @media (prefers-reduced-motion: reduce) {

@@ -1,7 +1,6 @@
 import { batch, computed, effect, reactive, read, signal, write } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
 import { observeSize } from '~/shared/resize';
-import tooltip from '~/components/tooltip';
 import './scss/index.scss';
 
 
@@ -146,18 +145,7 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
         return html`
             <div class='uptime-service'>
                 <div class='uptime-service-header'>
-                    <span class='uptime-service-name'>
-                        <span class='uptime-service-label'>${service.name}</span>
-
-                        ${tooltip.onhover(
-                            { class: `uptime-service-status uptime-service-status--${status}` },
-                            html`
-                                <span aria-hidden='true' class='uptime-service-tooltip tooltip-message tooltip-message--e tooltip-message--morph'>
-                                    ${STATUS[status]}
-                                </span>
-                            `
-                        )}
-                    </span>
+                    <span class='uptime-service-name'>${service.name}</span>
 
                     <span class='uptime-service-caption'>
                         ${() => {

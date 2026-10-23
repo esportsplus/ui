@@ -1,10 +1,8 @@
 .uptime {
-    --axis-gap: var(--size-300);
-    --axis-line-color: color-mix(in oklch, var(--color-muted) 40%, transparent);
+    --axis-line-color: var(--surface-border-default);
     --bar-active-scale: 1.15;
     --bar-border-radius: var(--border-radius-100);
     --bar-dim: 0.35;
-    --bar-gap: calc(var(--size-300) / 4);
     --bar-height: var(--size-600);
     --bar-opacity: 1;
     --caption-blur: var(--blur-400);
@@ -17,13 +15,16 @@
     --color-outage: oklch(0.64 0.2 25);
     --dot-size: 6px;
     --font-size: var(--font-size-300);
-    --service-gap: var(--size-600);
+    --gap-horizontal: var(--size-600);
+    --gap-vertical: var(--size-600);
     --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     --transition-duration: 0.2s;
     --width: min(440px, 100%);
 
     &-bar {
         --bar-color: var(--color-ok);
+        // The space between bars, which each bar's width leaves room for.
+        --gap-horizontal: calc(var(--size-300) / 4);
 
         &--degraded {
             --bar-color: var(--color-degraded);
@@ -32,6 +33,12 @@
         &--outage {
             --bar-color: var(--color-outage);
         }
+    }
+
+    &-service-axis,
+    &-service-percentage {
+        --gap-horizontal: var(--size-300);
+        --gap-vertical: var(--size-300);
     }
 
     &-service-message {
@@ -46,39 +53,5 @@
         &--outage {
             --dot: var(--color-outage);
         }
-    }
-
-    // Shared by the label's mask and the dot, so the hole and the dot line up.
-    &-service-name {
-        --status-gap: var(--border-width-500);
-        --status-mask: radial-gradient(
-            circle at calc(100% - var(--status-right) - var(--status-size) / 2) calc(var(--status-top) + var(--status-size) / 2),
-            #000 calc(var(--status-size) / 2 - 0.5px),
-            transparent calc(var(--status-size) / 2 + 0.5px) calc(var(--status-size) / 2 + var(--status-gap) - 0.5px),
-            #000 calc(var(--status-size) / 2 + var(--status-gap) + 0.5px)
-        );
-        --status-right: calc((var(--status-size) + 2px) * -1);
-        --status-size: 6px;
-        --status-top: 0px;
-    }
-
-    &-service-status {
-        --status-color: var(--color-ok);
-
-        &--degraded {
-            --status-color: var(--color-degraded);
-        }
-
-        &--outage {
-            --status-color: var(--color-outage);
-        }
-    }
-
-    &-service-tooltip.tooltip-message {
-        --background-default: var(--surface-background-default);
-        --border-radius: var(--border-radius-400);
-        --color: var(--color-text-400);
-        --padding-horizontal: var(--size-100);
-        --padding-vertical: calc(var(--size-100) / 2);
     }
 }
