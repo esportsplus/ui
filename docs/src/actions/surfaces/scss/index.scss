@@ -1,29 +1,19 @@
+@use 'sass:math';
 @use 'css-utilities/surface';
 
 
 
 .surfaces {
-    // Inline tokens in the prose, set off as on the themes page.
-    p code {
-        @extend %surface-primary;
-        -webkit-box-decoration-break: clone;
-        background: var(--background);
-        border-radius: var(--border-radius-200);
-        box-decoration-break: clone;
-        font-variant-ligatures: none;
-        padding-inline: var(--size-100);
+    &-card {
+        @extend %surface-raise;
+        background: var(--surface-background-default);
+        box-shadow: var(--surface-shadow-default);
     }
 
     &-card,
     &-dialog {
         border-radius: var(--border-radius-400);
         padding: var(--size-300);
-    }
-
-    &-card {
-        @extend %surface-raise;
-        background: var(--surface-background-default);
-        box-shadow: var(--surface-shadow-default);
     }
 
     &-depth {
@@ -47,6 +37,12 @@
         @extend %surface-root;
         background: var(--surface-background-default);
         box-shadow: var(--surface-shadow-default);
+    }
+
+    &-ladder {
+        display: grid;
+        gap: var(--size-200);
+        grid-template-columns: repeat(10, minmax(0, 1fr));
     }
 
     // Labelled with its own level, read back from the counter so it shows what the style queries settled on. Even
@@ -73,12 +69,6 @@
             position: absolute;
             top: var(--size-100);
         }
-    }
-
-    &-ladder {
-        display: grid;
-        gap: var(--size-200);
-        grid-template-columns: repeat(10, minmax(0, 1fr));
     }
 
     &-menu {
@@ -142,6 +132,16 @@
         }
     }
 
+    // Each level a layer can be pinned to, with the shadow its level would cast.
+    &-pin {
+        @for $level from surface.$level-min through surface.$level-max {
+            &--#{$level} {
+                @include surface.surface-shadow(math.max($level, 0));
+                --surface-level: #{$level};
+            }
+        }
+    }
+
     &-stage {
         display: grid;
         min-height: 320px;
@@ -172,5 +172,16 @@
         display: grid;
         gap: var(--size-500);
         width: 100%;
+    }
+
+    // Inline tokens in the prose, set off as on the themes page.
+    p code {
+        @extend %surface-primary;
+        -webkit-box-decoration-break: clone;
+        background: var(--background);
+        border-radius: var(--border-radius-200);
+        box-decoration-break: clone;
+        font-variant-ligatures: none;
+        padding-inline: var(--size-100);
     }
 }

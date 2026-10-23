@@ -35,10 +35,10 @@ const SCSS = `// Raises a level above whatever it sits in, and paints that level
     background: var(--surface-background-default);
 }
 
-// Moves any number of levels, up or down; a bare '%surface' stays at its parent's level.
+// A bare '%surface' stays at its parent's level; set '--surface-level' to pin any surface to another.
 .well {
     @extend %surface;
-    --surface-step: -2;
+    --surface-level: -2;
 }
 
 // Routes its fill and shadow through its own states, stepping on hover and press.
@@ -65,16 +65,16 @@ const TOKENS: [string, string][] = [
     ['--surface-level', 'The layer\'s level: 0 the page, each surface one above or below the one it sits in.'],
     ['--surface-background-{state}', 'The level\'s background, and the step hover, active and pressed move it.'],
     ['--surface-border-{state}', 'The matching state\'s background moved by the mode\'s border step (darker in light, lighter in dark), for lines, rings and edges.'],
-    ['--surface-shadow-{state}', 'The shadow at the layer\'s weight, a step heavier on hover, a step lighter pressed.'],
-    ['--surface-shadow-weight', 'Its Tailwind v4 shadow step, 0 to 7: its level by default, lowered 0, dialogs 7.'],
+    ['--surface-background-below', 'The background a level below the layer\'s, the one its shadow falls on.'],
+    ['--surface-shadow-{state}', 'The shadow at the layer\'s Tailwind v4 step, 0 to 7: its level by default, lowered 0, dialogs 7; a step heavier on hover, a step lighter pressed.'],
     ['--surface-shadow-color', 'The color of a shadow falling on the layer: its background deepened in its own hue.'],
     ['--surface-primary-{state}', 'A primary fill on the layer: the mode\'s primary levels below it in light and above it in dark, its states stepped from it as the layer\'s own are.']
 ];
 
 
-// A layer pinned to a level skips the style queries that set its shadow weight, so it pins that too.
+// A layer pinned to a level skips the style queries that set its shadow, so its class pins that too.
 function pin(level: number) {
-    return `--surface-level: ${level}; --surface-shadow-weight: ${Math.max(level, 0)};`;
+    return `surfaces-pin--${level}`;
 }
 
 function ladder(mode: Mode) {
@@ -88,7 +88,7 @@ function ladder(mode: Mode) {
         <div class='surfaces-mode' data-theme='${mode}' style='--surface-level: 0;'>
             <strong class='surfaces-mode-title'>${mode}</strong>
             <div class='surfaces-ladder'>
-                ${levels.map((level) => html`<div class='surfaces-swatch' style='${pin(level)}'></div>`)}
+                ${levels.map((level) => html`<div class='surfaces-swatch ${pin(level)}'></div>`)}
             </div>
         </div>
     `;
@@ -119,7 +119,7 @@ function viewer(state: { high: number, low: number }) {
         <div class='surfaces-mode' style='--surface-level: 0;'>
             <div class='surfaces-stage'>
                 ${() => html`
-                    <div class='surfaces-layer' style='${pin(state.low)}'>
+                    <div class='surfaces-layer ${pin(state.low)}'>
                         ${state.low < state.high ? nest(state.low + 1, state.high) : ''}
                     </div>
                 `}
@@ -206,8 +206,9 @@ const page = (): Page => {
                     <p>
                         Components reach a level by extending a placeholder, which counts and colors it without painting:
                         <code>%surface-raise</code> and <code>%surface-lower</code> move one level,
-                        <code>%surface</code> moves by <code>--surface-step</code> (any whole number, 0 by default), and
-                        <code>%surface-root</code> starts a fresh stack for dialogs. Paint with the surface variables
+                        <code>%surface</code> keeps its parent's, and <code>%surface-root</code> starts a fresh stack for
+                        dialogs; set <code>--surface-level</code> on any of them to pin it, and include
+                        <code>surface.surface-shadow($weight)</code> to give it another shadow step. Paint with the surface variables
                         directly, or through <code>%background-surface</code>, <code>%border-surface</code> and
                         <code>%box-shadow-surface</code> for fills that step with the state.
                     </p>
