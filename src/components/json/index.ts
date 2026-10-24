@@ -1,4 +1,7 @@
 import download from './download';
 
 
-export default { download };
+const json: { download: typeof download } = { download };
+
+
+export default json;
