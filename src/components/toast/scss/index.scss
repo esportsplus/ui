@@ -13,6 +13,27 @@ $open: ':is(:hover, :focus-within)';
 }
 
 
+.toast {
+    // Pinned over the toast's corner; qualified to outrank the '.button' layout it pairs with.
+    &-close {
+        height: var(--size);
+        inset-inline-end: var(--offset);
+        opacity: var(--content-opacity);
+        position: absolute;
+        top: var(--offset);
+        width: var(--size);
+        z-index: 1;
+    }
+
+    &-content {
+        align-items: center;
+        display: flex;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        min-width: 0;
+        opacity: var(--content-opacity);
+    }
+}
+
 // Sized to the stack so the gaps between expanded toasts still count as hovering it.
 .toaster {
     height: max(0px, calc(var(--frontmost-height) + (min(var(--count), var(--limit)) - 1) * var(--stack-peek) + min(1, var(--hidden)) * var(--overflow-peek)));
@@ -156,6 +177,18 @@ $open: ':is(:hover, :focus-within)';
         translate: var(--stack-translate);
         user-select: none;
         z-index: calc(9999 - var(--index));
+
+        // Entering, from beyond the edge the toaster is pinned to.
+        @starting-style {
+            opacity: 0;
+            scale: 1;
+            transform: translate(var(--translate-x), var(--translate-y));
+        }
+
+        // Every placement fades in place instead of travelling.
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
     }
 
     // Collapsed back toasts show only the front toast's height; the rest would hang past the stack.
@@ -224,6 +257,10 @@ $open: ':is(:hover, :focus-within)';
     > .toast.toast--ending {
         animation: toast-exit var(--exit-duration) var(--exit-timing-function) forwards;
         pointer-events: none;
+
+        @media (prefers-reduced-motion: reduce) {
+            animation-name: toast-fade;
+        }
     }
 
     // Swiped away, it is thrown on until it has left the screen, whole, rather than fading out on the way.
@@ -239,62 +276,14 @@ $open: ':is(:hover, :focus-within)';
         animation:
             toast-timer var(--duration) linear forwards paused,
             toast-exit var(--exit-duration) var(--exit-timing-function) forwards;
+
+        @media (prefers-reduced-motion: reduce) {
+            animation-name: toast-timer, toast-fade;
+        }
     }
 
     > .toast.toast--swiping {
         transition: none;
-    }
-}
-
-// Entering, from beyond the edge the toaster is pinned to.
-@starting-style {
-    .toaster > .toast {
-        opacity: 0;
-        scale: 1;
-        transform: translate(var(--translate-x), var(--translate-y));
-    }
-}
-
-
-.toast {
-    // Pinned over the toast's corner; qualified to outrank the '.button' layout it pairs with.
-    &-close {
-        height: var(--size);
-        inset-inline-end: var(--offset);
-        opacity: var(--content-opacity);
-        position: absolute;
-        top: var(--offset);
-        width: var(--size);
-        z-index: 1;
-    }
-
-    &-content {
-        align-items: center;
-        display: flex;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        min-width: 0;
-        opacity: var(--content-opacity);
-    }
-}
-
-
-// Every placement fades in place instead of travelling.
-@media (prefers-reduced-motion: reduce) {
-    .toaster {
-        --translate-x: 0px;
-        --translate-y: 0px;
-
-        > .toast {
-            transition: none;
-
-            &.toast--ending {
-                animation-name: toast-fade;
-            }
-
-            &.toast--ending.toast--timed {
-                animation-name: toast-timer, toast-fade;
-            }
-        }
     }
 }
 

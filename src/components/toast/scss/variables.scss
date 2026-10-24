@@ -9,7 +9,6 @@
         --background-hover: var(--surface-background-hover);
         --border-radius: 999px;
         --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-border-hover);
-        --icon-size: var(--size-200);
         --offset: calc(var(--size-200) * -1);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
@@ -17,7 +16,7 @@
 
         // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
         &-icon.icon {
-            --size: var(--icon-size);
+            --size: var(--size-200);
         }
     }
 
@@ -53,6 +52,15 @@
     --transition-duration: 0.4s;
     --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     --width: 360px;
+
+    // Every placement fades in place instead of travelling. Doubled so it wins over each placement's travel, the
+    // unplaced one's included.
+    @media (prefers-reduced-motion: reduce) {
+        &#{&} {
+            --translate-x: 0px;
+            --translate-y: 0px;
+        }
+    }
 
     // Qualified by the toaster so these win over the consumer's classes (e.g. '.card') sharing the element.
     > .toast {
