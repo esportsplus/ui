@@ -1,5 +1,3 @@
-
-
 .diffs-merge {
     background: var(--background);
     border: var(--border-width) solid var(--border-color);
@@ -16,9 +14,6 @@
 
 
     &-editor.code-editor {
-        --border-radius: 0px;
-        --border-width: 0px;
-        --height: 100%;
         flex: 1;
         min-height: 0;
     }
@@ -38,9 +33,9 @@
         background: var(--conflict-background);
         border-top: var(--border-width) solid var(--conflict-color);
         display: flex;
-        gap: var(--size-100);
+        gap: var(--gap-horizontal);
         min-height: var(--line-height);
-        padding: calc(var(--size-100) / 4) var(--code-padding-horizontal);
+        padding: var(--padding-vertical) var(--code-padding-horizontal);
 
         &--resolved {
             background: transparent;
@@ -55,7 +50,6 @@
     }
 
     &-line {
-        --box-shadow-active: inset 2px 0 0 var(--active-outline);
         box-shadow: var(--box-shadow);
         display: grid;
         grid-template-columns: var(--number-width) minmax(0, 1fr);

@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'css-utilities/background';
 @use 'css-utilities/border';
 @use 'css-utilities/box-shadow';
@@ -6,47 +7,17 @@
 @use 'css-utilities/surface';
 
 
-.diffs {
-    &-action {
-        @extend %background-state;
-    }
-
-    &-button {
-        @extend %background-state, %color-state, %color-text;
-    }
-
-    &-gap {
-        @extend %background-state, %color-state;
-    }
-
-    &-header {
-        @extend %surface-lower;
-        --gap-horizontal: var(--size-200);
-        --gap-vertical: var(--size-200);
-        --padding-horizontal: var(--size-200);
-        --padding-vertical: var(--size-100);
-    }
-
-    &-row {
-        @extend %box-shadow-state;
-    }
-}
-
 // Shared by the viewer and the merge editor, whose sides reuse the viewer's numbers, code and buttons.
 .diffs,
 .diffs-merge {
     @extend %background-state, %border-state, %font-geist-mono, %surface-raise;
     --accent: var(--color-blue-400);
     --accent-color: var(--color-white-300);
-    --action-background: var(--background);
-    --action-hover-background: var(--hover-background);
     --active-outline: oklch(from var(--color-blue-400) l c h / 0.6);
     --background-default: var(--surface-background-default);
     --border-color-default: var(--surface-border-default);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
-    --button-icon-size: var(--size-300);
-    --button-size: var(--size-600);
     // Beside the code, and the rows that line up with it.
     --code-padding-horizontal: var(--size-200);
     --color: var(--color-text-500);
@@ -63,9 +34,6 @@
     --focus-width: var(--border-width-500);
     --font-size: var(--font-size-300);
     --function-color: light-dark(var(--color-purple-300), oklch(from var(--color-purple-300) 0.8 0.13 h));
-    --gap-background: oklch(from var(--color-blue-400) l c h / 0.06);
-    --gap-color: var(--color-primary-300);
-    --gap-hover-background: oklch(from var(--color-blue-400) l c h / 0.12);
     --height: 420px;
     --hover-background: var(--surface-background-hover);
     // Read where the element's own '--color' is stepping, so its hover can still reach the viewer's text color.
@@ -97,10 +65,83 @@
     }
 }
 
-.diffs-merge {
-    --height: 720px;
-    --result-track: minmax(0, 3fr);
-    --sides-track: minmax(0, 2fr);
+.diffs {
+    &-action {
+        @extend %background-state;
+        --background-default: var(--surface-background-default);
+        --background-hover: var(--hover-background);
+        --background-pressed: var(--background-hover);
+        --line-height: 1.4;
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: 0px;
+    }
+
+    &-actions {
+        --gap-horizontal: var(--size-100);
+        --inset-horizontal: var(--size-200);
+        --inset-vertical: 1px;
+    }
+
+    &-button {
+        @extend %background-state, %color-state, %color-text;
+        --background-active: var(--hover-background);
+        --background-hover: var(--hover-background);
+        --background-pressed: var(--hover-background);
+        --gap-horizontal: var(--size-100);
+        --padding-horizontal: 0px;
+        --size: var(--size-600);
+
+        &--primary {
+            --background-default: var(--accent);
+            --background-hover: var(--accent);
+            --background-pressed: var(--accent);
+            --color-default: var(--accent-color);
+            --color-hover: var(--accent-color);
+            --color-pressed: var(--accent-color);
+            --filter: none;
+
+            @include tokens.state(hover) {
+                --filter: brightness(1.1);
+            }
+        }
+
+        &--text {
+            --padding-horizontal: var(--size-200);
+        }
+
+        // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
+        &-icon.icon {
+            --size: var(--size-300);
+        }
+
+        &:disabled {
+            --background-hover: var(--background-default);
+            --background-pressed: var(--background-default);
+            --color-hover: var(--color-default);
+            --color-pressed: var(--color-default);
+            --filter: none;
+        }
+    }
+
+    &-controls,
+    &-stats {
+        --gap-horizontal: var(--size-100);
+    }
+
+    &-gap {
+        @extend %background-state, %color-state;
+        --background-default: oklch(from var(--color-blue-400) l c h / 0.06);
+        --background-hover: oklch(from var(--color-blue-400) l c h / 0.12);
+        --background-pressed: var(--background-hover);
+        --color-default: var(--color-primary-300);
+        --color-hover: var(--hover-color);
+        --color-pressed: var(--color-hover);
+        --gap-horizontal: var(--size-200);
+
+        &-icon.icon {
+            --size: var(--size-300);
+        }
+    }
 
     &-header {
         @extend %surface-lower;
@@ -110,8 +151,53 @@
         --padding-vertical: var(--size-100);
     }
 
+    &-modes {
+        --gap-horizontal: calc(var(--size-100) / 4);
+    }
+
+    &-number {
+        --padding-end: var(--size-100);
+    }
+
+    &-row {
+        @extend %box-shadow-state;
+        --box-shadow-active: inset 2px 0 0 var(--active-outline);
+    }
+
+    &-word {
+        --border-radius: var(--border-radius-100);
+    }
+}
+
+.diffs-merge {
+    --height: 720px;
+    --result-track: minmax(0, 3fr);
+    --sides-track: minmax(0, 2fr);
+
+
+    // Chained through '.code-editor' so it wins over the editor's own frame regardless of stylesheet order.
+    &-editor.code-editor {
+        --border-radius: 0px;
+        --border-width: 0px;
+        --height: 100%;
+    }
+
+    &-header {
+        @extend %surface-lower;
+        --gap-horizontal: var(--size-200);
+        --gap-vertical: var(--size-200);
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-100);
+    }
+
+    &-lens {
+        --gap-horizontal: var(--size-100);
+        --padding-vertical: calc(var(--size-100) / 4);
+    }
+
     &-line {
         @extend %box-shadow-state;
+        --box-shadow-active: inset 2px 0 0 var(--active-outline);
     }
 
     &-title {

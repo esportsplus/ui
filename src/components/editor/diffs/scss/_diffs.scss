@@ -1,5 +1,3 @@
-
-
 .diffs {
     background: var(--background);
     border: var(--border-width) solid var(--border-color);
@@ -15,9 +13,6 @@
 
 
     &-action {
-        --background-default: var(--action-background);
-        --background-hover: var(--action-hover-background);
-        --background-pressed: var(--background-hover);
         background: var(--background);
         border: var(--border-width) solid var(--border-color);
         border-radius: var(--border-radius);
@@ -25,8 +20,8 @@
         cursor: pointer;
         font: inherit;
         font-size: var(--label-font-size);
-        line-height: 1.4;
-        padding: 0 var(--size-200);
+        line-height: var(--line-height);
+        padding: var(--padding-vertical) var(--padding-horizontal);
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
@@ -36,18 +31,15 @@
     // Shown for the change under the pointer or holding focus, so a long diff isn't covered in buttons.
     &-actions {
         display: flex;
-        gap: var(--size-100);
-        inset-inline-end: var(--size-200);
+        gap: var(--gap-horizontal);
+        inset-inline-end: var(--inset-horizontal);
         opacity: 0;
         position: absolute;
-        top: 1px;
+        top: var(--inset-vertical);
         z-index: 1;
     }
 
     &-button {
-        --background-active: var(--hover-background);
-        --background-hover: var(--hover-background);
-        --background-pressed: var(--hover-background);
         align-items: center;
         background: var(--background);
         border: 0;
@@ -57,38 +49,17 @@
         display: inline-flex;
         flex: none;
         font: inherit;
-        gap: var(--size-100);
-        height: var(--button-size);
+        gap: var(--gap-horizontal);
+        height: var(--size);
         justify-content: center;
-        min-width: var(--button-size);
-        padding: 0;
+        min-width: var(--size);
+        padding: 0 var(--padding-horizontal);
 
         &--primary {
-            --background-default: var(--accent);
-            --background-hover: var(--accent);
-            --background-pressed: var(--accent);
-            --color-default: var(--accent-color);
-            --color-hover: var(--accent-color);
-            --color-pressed: var(--accent-color);
-        }
-
-        &--primary:not(:disabled):hover {
-            filter: brightness(1.1);
-        }
-
-        &--text {
-            padding: 0 var(--size-200);
-        }
-
-        &-icon.icon {
-            --size: var(--button-icon-size);
+            filter: var(--filter);
         }
 
         &:disabled {
-            --background-hover: var(--background-default);
-            --background-pressed: var(--background-default);
-            --color-hover: var(--color-default);
-            --color-pressed: var(--color-default);
             cursor: default;
             opacity: var(--disabled-opacity);
         }
@@ -104,10 +75,6 @@
         grid-template-columns: var(--number-width) minmax(0, 1fr);
         min-width: 0;
 
-        & + & {
-            border-inline-start: var(--border-width) solid var(--border-color);
-        }
-
         &--delete {
             background: var(--delete-background);
         }
@@ -118,6 +85,10 @@
 
         &--insert {
             background: var(--insert-background);
+        }
+
+        & + & {
+            border-inline-start: var(--border-width) solid var(--border-color);
         }
     }
 
@@ -133,7 +104,7 @@
         align-items: center;
         display: flex;
         flex-wrap: wrap;
-        gap: var(--size-100);
+        gap: var(--gap-horizontal);
         margin-inline-start: auto;
     }
 
@@ -146,12 +117,6 @@
     }
 
     &-gap {
-        --background-default: var(--gap-background);
-        --background-hover: var(--gap-hover-background);
-        --background-pressed: var(--background-hover);
-        --color-default: var(--gap-color);
-        --color-hover: var(--hover-color);
-        --color-pressed: var(--color-hover);
         align-items: center;
         background: var(--background);
         border: 0;
@@ -160,14 +125,10 @@
         display: flex;
         font: inherit;
         font-size: var(--label-font-size);
-        gap: var(--size-200);
+        gap: var(--gap-horizontal);
         min-height: var(--line-height);
         padding: 0 var(--code-padding-horizontal);
         width: 100%;
-
-        &-icon.icon {
-            --size: var(--button-icon-size);
-        }
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
@@ -188,13 +149,13 @@
 
     &-modes {
         display: flex;
-        gap: calc(var(--size-100) / 4);
+        gap: var(--gap-horizontal);
     }
 
     &-number {
         color: var(--muted-color);
         font-variant-numeric: tabular-nums;
-        padding-inline-end: var(--size-100);
+        padding-inline-end: var(--padding-end);
         text-align: end;
         user-select: none;
     }
@@ -205,7 +166,6 @@
     }
 
     &-row {
-        --box-shadow-active: inset 2px 0 0 var(--active-outline);
         box-shadow: var(--box-shadow);
         line-height: var(--line-height);
         min-height: var(--line-height);
@@ -277,7 +237,7 @@
 
     &-stats {
         display: flex;
-        gap: var(--size-100);
+        gap: var(--gap-horizontal);
     }
 
     &-token {
@@ -336,7 +296,7 @@
     }
 
     &-word {
-        border-radius: var(--border-radius-100);
+        border-radius: var(--border-radius);
 
         &--delete {
             background: var(--delete-word-background);
