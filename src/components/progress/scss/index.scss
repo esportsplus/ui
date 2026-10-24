@@ -8,8 +8,9 @@
     display: flex;
     flex-direction: column;
     font-size: var(--font-size);
-    gap: var(--size-100);
+    gap: var(--gap-vertical) var(--gap-horizontal);
     width: 100%;
+
 
     &-header {
         align-items: baseline;
@@ -19,35 +20,20 @@
 
     // The bar is full width and slides in from the left, so it moves on the compositor instead of re-laying out.
     &-indicator {
-        background: var(--indicator-color);
+        background: var(--background);
         height: 100%;
-        transition: translate var(--duration) var(--ease);
+        transition: translate var(--transition-duration) var(--transition-timing-function);
         width: 100%;
     }
 
     &-percent {
-        color: var(--muted-color);
+        color: var(--color);
         font-variant-numeric: tabular-nums;
     }
 
     &-status {
-        color: var(--muted-color);
-        font-size: var(--status-font-size);
-    }
-
-    &-track {
-        background: var(--track-color);
-        border-radius: 999px;
-        height: var(--height);
-        overflow: hidden;
-        position: relative;
-        width: 100%;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &-indicator {
-            transition: none;
-        }
+        color: var(--color);
+        font-size: var(--font-size);
     }
 
     // Every part is exactly one line tall, so centring lines them up; baseline alignment breaks on the clipped digit
@@ -62,12 +48,24 @@
         line-height: var(--part-height);
         position: relative;
 
+        &--done &-done {
+            filter: none;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        &--done &-label,
+        &--done &-percent {
+            filter: blur(var(--blur-400));
+            opacity: 0;
+        }
+
         // The shared check carries no stroke of its own; the dash values inherit into it, so it draws in.
         &-check {
             @extend %icon-stroke, %icon-stroke-draw;
-            stroke-dashoffset: var(--check-offset);
-            stroke-width: 3;
-            transition: stroke-dashoffset var(--check-duration) var(--ease-in-out) 150ms;
+            stroke-dashoffset: var(--offset);
+            stroke-width: var(--stroke-width);
+            transition: stroke-dashoffset var(--transition-duration) var(--transition-timing-function) var(--delay);
         }
 
         &-done {
@@ -79,22 +77,11 @@
             opacity: 0;
             pointer-events: none;
             transition:
-                filter 150ms var(--ease-out),
-                opacity 150ms var(--ease-out),
-                translate 150ms var(--ease-out);
-            translate: 0 4px;
+                filter var(--transition-duration) var(--transition-timing-function) var(--transition-delay),
+                opacity var(--transition-duration) var(--transition-timing-function) var(--transition-delay),
+                translate var(--transition-duration) var(--transition-timing-function) var(--transition-delay);
+            translate: var(--translate);
             white-space: nowrap;
-
-            &.--done {
-                filter: none;
-                opacity: 1;
-                pointer-events: auto;
-                transition:
-                    filter 300ms var(--ease-out) 100ms,
-                    opacity 300ms var(--ease-out) 100ms,
-                    translate 300ms var(--ease-out) 100ms;
-                translate: 0 0;
-            }
         }
 
         &-ink {
@@ -105,17 +92,11 @@
             grid-area: 1 / 1;
             position: relative;
             transition:
-                filter 300ms var(--ease-out),
-                opacity 300ms var(--ease-out),
-                translate 300ms var(--ease-out);
+                filter var(--transition-duration) var(--transition-timing-function),
+                opacity var(--transition-duration) var(--transition-timing-function),
+                translate var(--transition-duration) var(--transition-timing-function);
+            translate: var(--translate);
             white-space: nowrap;
-
-            &.--done {
-                filter: blur(var(--blur-400));
-                opacity: 0;
-                transition-duration: 200ms;
-                translate: 0 -4px;
-            }
         }
 
         &-labels {
@@ -123,18 +104,12 @@
         }
 
         &-percent {
-            color: var(--muted-color);
+            color: var(--color);
             display: flex;
             font-variant-numeric: tabular-nums;
             transition:
-                filter 300ms var(--ease-out),
-                opacity 300ms var(--ease-out);
-
-            &.--done {
-                filter: blur(var(--blur-400));
-                opacity: 0;
-                transition-duration: 200ms;
-            }
+                filter var(--transition-duration) var(--transition-timing-function),
+                opacity var(--transition-duration) var(--transition-timing-function);
         }
 
         &-roll {
@@ -153,7 +128,7 @@
             @extend %absolute-top;
             display: flex;
             flex-direction: column;
-            transition: translate 300ms var(--ease-out);
+            transition: translate var(--transition-duration) var(--transition-timing-function);
             white-space: pre;
 
             span {
@@ -162,19 +137,16 @@
         }
 
         &-track {
-            color: var(--track-color);
+            color: var(--color);
         }
+    }
 
-        @media (prefers-reduced-motion: reduce) {
-            &-check,
-            &-strip {
-                transition: none;
-            }
-
-            &-done,
-            &-label.--done {
-                translate: 0 0;
-            }
-        }
+    &-track {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        height: var(--height);
+        overflow: hidden;
+        position: relative;
+        width: 100%;
     }
 }

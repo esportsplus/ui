@@ -1,31 +1,40 @@
 .progress {
     --color: var(--color-text-500);
-    --duration: 150ms;
-    --ease: cubic-bezier(0.4, 0, 0.2, 1);
     --font-size: calc(var(--font-size-400) * 0.875);
-    --height: 6px;
-    --indicator-color: var(--color-primary-500);
-    --muted-color: var(--color-text-300);
-    --status-font-size: var(--font-size-300);
-    --track-color: var(--surface-border-default);
+    --gap-horizontal: var(--size-100);
+    --gap-vertical: var(--size-100);
 
+
+    &-indicator {
+        --background: var(--color-primary-500);
+        --transition-duration: 150ms;
+        --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
+    }
+
+    &-percent {
+        --color: var(--color-text-300);
+    }
+
+    &-status {
+        --color: var(--color-text-300);
+        --font-size: var(--font-size-300);
+    }
+
+    // Its parts cross on the done state: the label and percent leave quickly, then the done label settles in a beat
+    // behind them, and the check draws in after it. Under reduced motion nothing slides or rolls.
     &-text {
-        // The check undraws at once; 'progress-text--done' draws it in.
-        --check-duration: 0s;
-        --check-offset: 1;
-        --check-size: var(--size-400);
         --color: var(--color-text-500);
-        --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
         --font-size: var(--font-size-400);
         --font-weight: var(--font-weight-500);
-        --muted-color: var(--color-text-300);
         --gap-horizontal: var(--size-200);
         --gap-vertical: var(--size-200);
         --part-height: 24px;
         // Read by JS: about how long the ink takes to pour to a new value.
         --pour-duration: 0.4s;
-        --track-color: var(--surface-border-hover);
 
         @media (prefers-reduced-motion: reduce) {
             --pour-duration: 0s;
@@ -33,20 +42,51 @@
 
         &--blue {
             --color: var(--color-blue-400);
-            --track-color: oklch(from var(--color-blue-400) l c h / 0.2);
+
+            .progress-text-track {
+                --color: oklch(from var(--color-blue-400) l c h / 0.2);
+            }
         }
 
         &--done {
-            --check-duration: 300ms;
-            --check-offset: 0;
+            .progress-text-check.icon {
+                --offset: 0;
+                --transition-duration: 300ms;
+
+                @media (prefers-reduced-motion: reduce) {
+                    --transition-duration: 0s;
+                }
+            }
+
+            .progress-text-done {
+                --transition-delay: 100ms;
+                --transition-duration: 300ms;
+                --translate: 0 0;
+            }
+
+            .progress-text-label {
+                --transition-duration: 200ms;
+                --translate: 0 -4px;
+
+                @media (prefers-reduced-motion: reduce) {
+                    --translate: 0 0;
+                }
+            }
+
+            .progress-text-percent {
+                --transition-duration: 200ms;
+            }
         }
 
         &--large {
-            --check-size: 22px;
             --font-size: var(--font-size-600);
             --gap-horizontal: 14px;
             --gap-vertical: 14px;
             --part-height: 32px;
+
+            .progress-text-check.icon {
+                --size: 22px;
+            }
         }
 
         &--large &-done {
@@ -54,15 +94,60 @@
             --gap-vertical: var(--size-100);
         }
 
-        // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
+        // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order. It
+        // undraws at once; the done state draws it in.
         &-check.icon {
             --color: currentColor;
-            --size: var(--check-size);
+            --delay: 150ms;
+            --offset: 1;
+            --size: var(--size-400);
+            --stroke-width: 3;
+            --transition-duration: 0s;
+            --transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
         }
 
         &-done {
             --gap-horizontal: calc(var(--size-300) / 2);
             --gap-vertical: calc(var(--size-300) / 2);
+            --transition-delay: 0s;
+            --transition-duration: 150ms;
+            --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+            --translate: 0 4px;
+
+            @media (prefers-reduced-motion: reduce) {
+                --translate: 0 0;
+            }
         }
+
+        &-label,
+        &-percent,
+        &-strip {
+            --transition-duration: 300ms;
+            --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        &-label {
+            --translate: 0 0;
+        }
+
+        &-percent {
+            --color: var(--color-text-300);
+        }
+
+        &-strip {
+            @media (prefers-reduced-motion: reduce) {
+                --transition-duration: 0s;
+            }
+        }
+
+        &-track {
+            --color: var(--surface-border-hover);
+        }
+    }
+
+    &-track {
+        --background: var(--surface-border-default);
+        --border-radius: 999px;
+        --height: 6px;
     }
 }
