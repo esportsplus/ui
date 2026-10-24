@@ -16,11 +16,6 @@
         padding-inline-start: 0;
     }
 
-    // The menu's item styles outrank the 'hidden' attribute; each choice shows only its own entries.
-    &-choices .tooltip-menu-entry:has(> [hidden]) {
-        display: none;
-    }
-
     &-status {
         container: workspace-status / inline-size;
 

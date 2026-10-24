@@ -157,6 +157,11 @@
             &--open {
                 z-index: 2;
             }
+
+            // An item's 'hidden' takes its whole row out; the item's own 'display' would outrank the attribute.
+            &:has(> [hidden]) {
+                display: none;
+            }
         }
 
         &-header {
