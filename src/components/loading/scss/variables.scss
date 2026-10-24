@@ -1,15 +1,17 @@
 .loading {
     --animation-duration: 0.64s;
+    --animation-timing-function: linear;
     --border-color: var(--color);
     --border-width: var(--border-width-400);
     --color: var(--color-text-400);
     --size: var(--size-400);
-    --timing-function: cubic-bezier(0.5, 0, 0.5, 1);
     --track-color: color-mix(in srgb, var(--border-color), transparent 90%);
 
     &--bar {
         --animation-duration: 0.8s;
+        --animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
         --height: var(--border-width);
+        --sweep-width: 40%;
         --width: 100%;
     }
 

@@ -2,7 +2,7 @@
 @use 'variables';
 
 .loading {
-    animation: loading var(--animation-duration) linear infinite;
+    animation: loading var(--animation-duration) var(--animation-timing-function) infinite;
     border: var(--border-width) solid var(--track-color);
     border-left-color: var(--border-color);
     border-radius: 100%;
@@ -22,11 +22,11 @@
 
         &::before {
             @extend %absolute-left;
-            animation: loading--bar var(--animation-duration) var(--timing-function) infinite;
+            animation: loading--bar var(--animation-duration) var(--animation-timing-function) infinite;
             background: var(--border-color);
             border-radius: inherit;
             content: '';
-            width: 40%;
+            width: var(--sweep-width);
         }
     }
 
