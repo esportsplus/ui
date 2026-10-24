@@ -94,12 +94,12 @@ const slides = <T extends Element>(elements: ArrayLike<T>, timing: KeyframeAnima
     return tos;
 };
 
-// A slide's timing from the CSS variables '--{name}-duration' and '--{name}-easing'; null without a duration, so
-// reduced motion is a CSS rule.
+// A slide's timing from the CSS variables '--{name}-duration' and '--{name}-timing-function'; null without a duration,
+// so reduced motion is a CSS rule.
 const timing = (computed: CSSStyleDeclaration, name: string): KeyframeAnimationOptions | null => {
     let duration = ms(computed.getPropertyValue(`--${name}-duration`));
 
-    return duration ? { duration, easing: computed.getPropertyValue(`--${name}-easing`).trim() || 'ease' } : null;
+    return duration ? { duration, easing: computed.getPropertyValue(`--${name}-timing-function`).trim() || 'ease' } : null;
 };
 
 
