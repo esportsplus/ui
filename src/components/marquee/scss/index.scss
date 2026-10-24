@@ -21,20 +21,16 @@
     width: 100%;
 
     // Holding still, it is a strip to scroll by hand.
-    &--still {
-        .marquee {
-            &-group--copy {
-                display: none;
-            }
+    &--still &-group--copy {
+        display: none;
+    }
 
-            &-track {
-                will-change: auto;
-            }
+    &--still &-track {
+        will-change: auto;
+    }
 
-            &-viewport {
-                overflow-x: auto;
-            }
-        }
+    &--still &-viewport {
+        overflow-x: auto;
     }
 
     &-entry {
@@ -70,11 +66,14 @@
             cursor: pointer;
             font: inherit;
             outline: none;
-            transition: background-color var(--transition-duration), box-shadow var(--transition-duration), color var(--transition-duration);
+            transition:
+                background-color var(--transition-duration) var(--transition-timing-function),
+                box-shadow var(--transition-duration) var(--transition-timing-function),
+                color var(--transition-duration) var(--transition-timing-function);
 
             &:focus-visible {
-                background: color-mix(in srgb, var(--focus-color) 8%, transparent);
-                box-shadow: inset 0 0 0 1px var(--focus-color);
+                background: color-mix(in srgb, var(--focus-color) var(--focus-tint), transparent);
+                box-shadow: inset 0 0 0 var(--focus-width) var(--focus-color);
             }
         }
     }
@@ -107,7 +106,7 @@
         padding-inline: var(--padding-horizontal);
 
         &:focus-visible {
-            box-shadow: inset 0 0 0 1px var(--focus-color);
+            box-shadow: inset 0 0 0 var(--focus-width) var(--focus-color);
         }
     }
 }

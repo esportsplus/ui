@@ -64,7 +64,7 @@ function mirror(item: Item) {
 }
 
 
-export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, speed = 44, state = reactive({ paused: false }), velocity = false, ...attributes }: Attributes & {
+export default ({ direction = 'left', gap, items, label = 'Logos', select, speed = 44, state = reactive({ paused: false }), velocity = false, ...attributes }: Attributes & {
     direction?: 'left' | 'right';
     gap?: number;
     items: Item[];
@@ -338,7 +338,7 @@ export default ({ direction = 'left', gap = 40, items, label = 'Logos', select, 
             >
                 <div
                     class='marquee-track'
-                    style='--gap-horizontal: ${gap}px'
+                    ${gap !== undefined && { style: `--gap-horizontal: ${gap}px;` }}
                     ${{
                         onconnect: (element: HTMLElement) => {
                             track = element;
