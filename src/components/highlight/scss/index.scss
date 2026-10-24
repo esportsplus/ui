@@ -23,7 +23,7 @@
     z-index: -1;
 
 
-    // The layer jumps to its item and only fades in and out. Doubled to outrank the active state's own glide.
+    // The layer jumps to its item and only fades in and out.
     @media (prefers-reduced-motion: reduce) {
         transition:
             background var(--transition-duration) var(--transition-timing-function),
@@ -34,6 +34,13 @@
 
     // The line runs along the item's own edge, so it reaches back out past the inset.
     &--line {
+        &::after {
+            background: var(--line-color);
+            border-radius: var(--line-radius);
+            content: '';
+            position: absolute;
+        }
+
         &-bottom::after {
             bottom: calc(var(--line-offset) - var(--inset-vertical));
             height: var(--line-width);
@@ -56,13 +63,6 @@
             height: var(--line-width);
             inset-inline: calc(var(--inset-horizontal) * -1);
             top: calc(var(--line-offset) - var(--inset-vertical));
-        }
-
-        &::after {
-            background: var(--line-color);
-            border-radius: var(--line-radius);
-            content: '';
-            position: absolute;
         }
     }
 
