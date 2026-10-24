@@ -1,5 +1,7 @@
 import write from './write';
 
 
-export default { write };
-export { write };
+const clipboard: { write: typeof write } = { write };
+
+
+export default clipboard;
