@@ -24,9 +24,12 @@
         @extend %color-state, %color-text;
         --border-radius: var(--border-radius-300);
         --focus-color: var(--color-primary-500);
+        --focus-width: 2px;
         --font-weight: var(--font-weight-400);
         --height: var(--size-400);
         --padding-horizontal: 2px;
+        --transition-duration: 0.15s;
+        --transition-timing-function: ease-out;
         --underline-color: oklch(from var(--color-primary-500) l c h / 0.4);
     }
 
@@ -44,6 +47,8 @@
         --offset: 0px;
         // Grows out of the dots.
         --origin: calc(var(--size-400) / 2) 0;
+        --padding-horizontal: calc(var(--size-100) / 2);
+        --padding-vertical: calc(var(--size-100) / 2);
         --scale: 0.95;
         --spacer: 6px;
         --width: 192px;
@@ -51,15 +56,21 @@
 
     &-option {
         --background-focus: var(--surface-background-hover);
+        --gap-horizontal: var(--size-200);
+        --height: 36px;
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: 0px;
     }
 
     // Arriving segments fade in slower than leaving ones fade out, so the gap a leaving one opens is already
     // closing by the time the eye looks for it.
     &-segment {
         --enter-duration: 200ms;
+        --enter-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
         --exit-duration: 120ms;
+        --exit-timing-function: var(--enter-timing-function);
         --slide-duration: 310ms;
-        --slide-easing: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
+        --slide-timing-function: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
 
         &--hidden &-body {
             --overflow: hidden;
@@ -97,7 +108,10 @@
         --color: var(--color-text-400);
         --color-active: var(--color-text-400);
         --focus-color: var(--color-primary-500);
+        --focus-width: 2px;
         --height: calc(var(--size-400) - 4px);
+        --transition-duration: 0.15s;
+        --transition-timing-function: ease-out;
         --width: var(--size-400);
     }
 

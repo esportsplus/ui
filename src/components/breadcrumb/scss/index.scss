@@ -32,13 +32,13 @@
         text-underline-offset: calc(var(--size-100) / 2);
         touch-action: manipulation;
         transition:
-            color 0.15s ease-out,
-            text-decoration-color 0.15s ease-out;
+            color var(--transition-duration) var(--transition-timing-function),
+            text-decoration-color var(--transition-duration) var(--transition-timing-function);
         user-select: none;
         white-space: nowrap;
 
         &:focus-visible {
-            outline: 2px solid var(--focus-color);
+            outline: var(--focus-width) solid var(--focus-color);
         }
 
         &:hover {
@@ -59,7 +59,8 @@
         display: flex;
         flex-direction: column;
         outline: none;
-        padding: calc(var(--size-100) / 2);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         transform-origin: var(--origin);
         width: var(--width);
 
@@ -81,10 +82,11 @@
         display: flex;
         flex-shrink: 0;
         flex-wrap: nowrap;
-        gap: var(--size-200);
-        height: 36px;
+        gap: var(--gap-horizontal);
+        height: var(--height);
         outline: none;
-        padding: 0 var(--size-100);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         text-decoration: none;
         transition: none;
         user-select: none;
@@ -122,9 +124,14 @@
         flex-shrink: 0;
         grid-template-columns: 1fr;
         transition:
-            filter var(--enter-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
-            grid-template-columns var(--slide-duration) var(--slide-easing),
-            opacity var(--enter-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
+            filter var(--enter-duration) var(--enter-timing-function),
+            grid-template-columns var(--slide-duration) var(--slide-timing-function),
+            opacity var(--enter-duration) var(--enter-timing-function);
+
+        @media (prefers-reduced-motion: reduce) {
+            filter: none;
+            transition: opacity var(--enter-duration) var(--enter-timing-function);
+        }
 
         &--current {
             flex-shrink: 1;
@@ -138,10 +145,16 @@
             opacity: 0;
             transition:
                 filter 0s linear var(--exit-duration),
-                grid-template-columns var(--slide-duration) var(--slide-easing),
-                opacity var(--exit-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
+                grid-template-columns var(--slide-duration) var(--slide-timing-function),
+                opacity var(--exit-duration) var(--exit-timing-function),
                 visibility 0s linear var(--slide-duration);
             visibility: hidden;
+
+            @media (prefers-reduced-motion: reduce) {
+                transition:
+                    opacity var(--exit-duration) var(--exit-timing-function),
+                    visibility 0s linear var(--exit-duration);
+            }
         }
 
         &-body {
@@ -150,6 +163,10 @@
             min-width: 0;
             overflow: var(--overflow);
             transition: var(--transition);
+
+            @media (prefers-reduced-motion: reduce) {
+                transition-delay: 0s;
+            }
         }
     }
 
@@ -177,13 +194,13 @@
         padding: 0;
         touch-action: manipulation;
         transition:
-            background-color 0.15s ease-out,
-            color 0.15s ease-out;
+            background-color var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
         user-select: none;
         width: var(--width);
 
         &:focus-visible {
-            outline: 2px solid var(--focus-color);
+            outline: var(--focus-width) solid var(--focus-color);
         }
 
         // Stays lit while its menu is open.
@@ -194,21 +211,4 @@
         }
     }
 
-
-    @media (prefers-reduced-motion: reduce) {
-        &-segment {
-            filter: none;
-            transition: opacity var(--enter-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
-
-            &--hidden {
-                transition:
-                    opacity var(--exit-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
-                    visibility 0s linear var(--exit-duration);
-            }
-
-            &-body {
-                transition-delay: 0s;
-            }
-        }
-    }
 }
