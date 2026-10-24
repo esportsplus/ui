@@ -1,13 +1,13 @@
 // On the list; read by JS when a filter changes which items show.
 .filter {
     --enter-duration: 200ms;
-    --enter-easing: cubic-bezier(0.23, 1, 0.32, 1);
+    --enter-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     --enter-scale: 0.97;
     --leave-duration: 140ms;
-    --leave-easing: cubic-bezier(0.4, 0, 1, 1);
+    --leave-timing-function: cubic-bezier(0.4, 0, 1, 1);
     --leave-scale: 0.98;
     --move-duration: 480ms;
-    --move-easing: cubic-bezier(0.22, 1, 0.36, 1);
+    --move-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 
     // Items fade in and out where they land, and the rest jump to their places.
     @media (prefers-reduced-motion: reduce) {

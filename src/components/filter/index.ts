@@ -147,7 +147,8 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         }
     }
 
-    // FLIP: read every box, apply the filter, read again, then animate from old boxes to new ones.
+    // FLIP: read every box, apply the filter, read again, then animate from old boxes to new ones. Items show and hide
+    // by hand, between those reads; a binding would only land after them.
     function update(animate: boolean) {
         let filter = current(),
             first = new Map<HTMLElement, DOMRect>(),
@@ -389,11 +390,6 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
             id,
             onconnect: (element: HTMLElement) => {
                 list = element;
-
-                // Leaving items are positioned against the nearest positioned ancestor.
-                if (getComputedStyle(element).position === 'static') {
-                    element.style.position = 'relative';
-                }
             },
             tabindex: '-1'
         } as Attributes,

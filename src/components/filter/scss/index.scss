@@ -1,6 +1,13 @@
 @use 'css-utilities/hidden';
 @use 'variables';
 
-.filter-announcer {
-    @extend %hidden-visually;
+// Leaving items are positioned against the list; zero specificity, so a list positioned on its own keeps that.
+:where(.filter) {
+    position: relative;
+}
+
+.filter {
+    &-announcer {
+        @extend %hidden-visually;
+    }
 }
