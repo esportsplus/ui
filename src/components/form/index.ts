@@ -3,4 +3,7 @@ import input from './input';
 import './scss/index.scss';
 
 
-export default { action, input };
+const form: { action: typeof action, input: typeof input } = { action, input };
+
+
+export default form;
