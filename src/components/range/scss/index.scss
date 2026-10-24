@@ -17,7 +17,7 @@
     appearance: none;
     background: var(--background);
     border: 0px;
-    border-radius: 240px;
+    border-radius: var(--border-radius);
     height: var(--height);
     margin-block: calc(var(--margin-vertical) + ((var(--thumb-size) - var(--height)) / 2));
     margin-inline: var(--margin-horizontal);

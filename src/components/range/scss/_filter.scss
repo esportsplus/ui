@@ -3,370 +3,357 @@
 @use 'css-utilities/hidden';
 @use 'variables';
 
-.range-filter {
-    color: var(--color);
-    display: flex;
-    flex-direction: column;
-    gap: var(--size-500);
-    margin-inline: auto;
-    max-width: 100%;
-    width: var(--width);
-
-    &-body {
+.range {
+    &-filter {
+        color: var(--color);
         display: flex;
         flex-direction: column;
-        gap: var(--size-100);
+        font-size: var(--font-size);
+        gap: var(--gap-vertical);
+        margin-inline: auto;
+        max-width: 100%;
+        width: var(--width);
 
-        &--vertical {
-            align-self: center;
-            flex-direction: row;
-        }
-    }
 
-    &-clear {
-        --background-default: var(--clear-background);
-        --background-hover: var(--clear-hover);
-        --background-pressed: var(--background-hover);
-        align-items: center;
-        background: var(--background);
-        border: 1px solid var(--clear-border);
-        border-radius: var(--border-radius-300);
-        box-shadow: var(--surface-shadow-default);
-        color: var(--color);
-        cursor: pointer;
-        display: var(--clear-display);
-        flex-shrink: 0;
-        font: inherit;
-        font-size: var(--font-size-300);
-        font-weight: var(--font-weight-500);
-        gap: calc(var(--size-100) / 2);
-        height: 24px;
-        outline: 0 solid var(--focus-color);
-        outline-offset: calc(var(--size-100) / 4);
-        padding: 0 var(--size-100);
-        transition:
-            background-color 150ms ease-out,
-            color 150ms ease-out,
-            opacity 150ms ease-out;
+        &-body {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-vertical);
 
-        &:disabled {
-            --background-hover: var(--background-default);
-            --background-pressed: var(--background-default);
-            --color-hover: var(--color-default);
-            --color-pressed: var(--color-default);
-            cursor: default;
-            opacity: 0.5;
+            &--vertical {
+                align-self: center;
+                flex-direction: row;
+            }
         }
 
-        &:focus-visible {
-            outline-width: var(--border-width-500);
+        &-clear {
+            align-items: center;
+            background: var(--background);
+            border: var(--border-width) solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--surface-shadow-default);
+            color: var(--color);
+            cursor: pointer;
+            display: var(--display);
+            flex-shrink: 0;
+            font: inherit;
+            font-size: var(--font-size);
+            font-weight: var(--font-weight-500);
+            gap: var(--gap-horizontal);
+            height: var(--height);
+            outline: 0 solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
+            transition:
+                background-color var(--transition-duration) var(--transition-timing-function),
+                color var(--transition-duration) var(--transition-timing-function),
+                opacity var(--transition-duration) var(--transition-timing-function);
+
+            &:disabled {
+                cursor: default;
+                opacity: var(--disabled-opacity);
+            }
+
+            &:focus-visible {
+                outline-width: var(--focus-width);
+            }
         }
-    }
 
-    // Folds to nothing when the number is too short to need it, so digits slide over rather than jump.
-    &-column {
-        display: inline-block;
-        height: 1lh;
-        max-width: 1ch;
-        overflow: hidden;
-        position: relative;
-        text-align: center;
-        transition:
-            max-width var(--roll-duration) var(--roll-ease),
-            opacity var(--roll-duration) var(--roll-ease);
-        vertical-align: bottom;
+        &-column {
+            display: inline-block;
+            height: 1lh;
+            max-width: 1ch;
+            overflow: hidden;
+            position: relative;
+            text-align: center;
+            transition:
+                max-width var(--transition-duration) var(--transition-timing-function),
+                opacity var(--transition-duration) var(--transition-timing-function);
+            vertical-align: bottom;
 
-        &--digit {
-            width: 1ch;
+            &--digit {
+                width: 1ch;
+            }
+
+            &--empty {
+                max-width: 0;
+                opacity: 0;
+            }
+
+            // Letters and separators are often wider than a digit, and a lone space must keep its width.
+            &--symbol {
+                max-width: 1.5em;
+                white-space: pre;
+            }
         }
 
-        &--empty {
-            max-width: 0;
+        &-columns {
+            display: inline-flex;
+        }
+
+        &-dash {
+            color: var(--color);
+        }
+
+        &-digit {
+            height: 1lh;
+        }
+
+        &-field {
+            align-items: center;
+            background: var(--background);
+            border: var(--border-width) solid var(--border-color);
+            border-radius: var(--border-radius);
+            cursor: var(--cursor);
+            display: flex;
+            flex: 1 1 0;
+            gap: var(--gap-horizontal);
+            height: var(--height);
+            min-width: 0;
+            outline: 0 solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+            padding-inline: var(--padding-horizontal);
+
+            &-label {
+                color: var(--color);
+                font-size: var(--font-size);
+                font-weight: var(--font-weight-500);
+                text-transform: uppercase;
+            }
+
+            &-prefix {
+                color: var(--color);
+                margin-inline-start: auto;
+            }
+
+            &-prefix + .range-filter-input {
+                margin-inline-start: 0;
+            }
+
+            &:has(:focus-visible) {
+                outline-width: var(--focus-width);
+            }
+
+            // Qualified by the field so it wins over the reused input styles regardless of stylesheet order.
+            .range-filter-input {
+                flex: 0 1 var(--width);
+                font-variant-numeric: tabular-nums;
+                margin-inline-start: auto;
+                min-height: 0;
+                outline: none;
+                text-align: right;
+                width: var(--width);
+            }
+        }
+
+        &-fields {
+            align-items: center;
+            display: flex;
+            gap: var(--gap-horizontal);
+        }
+
+        &-ghost {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            display: var(--display);
+            height: var(--thickness);
             opacity: 0;
+            pointer-events: none;
+            position: absolute;
+            top: 50%;
+            transition:
+                left var(--transition-duration) var(--transition-timing-function),
+                opacity var(--fade-duration) var(--transition-timing-function),
+                width var(--transition-duration) var(--transition-timing-function);
+            translate: 0 -50%;
+            z-index: 1;
+
+            &--vertical {
+                left: 50%;
+                top: auto;
+                transition:
+                    bottom var(--transition-duration) var(--transition-timing-function),
+                    height var(--transition-duration) var(--transition-timing-function),
+                    opacity var(--fade-duration) var(--transition-timing-function);
+                translate: -50% 0;
+                width: var(--thickness);
+            }
+
+            @include tokens.state(active) {
+                opacity: 1;
+            }
         }
 
-        // Letters and separators are often wider than a digit, and a lone space must keep its width.
-        &--symbol {
-            max-width: 1.5em;
-            white-space: pre;
+        &-header {
+            align-items: var(--align);
+            display: flex;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            justify-content: space-between;
         }
-    }
 
-    &-columns {
-        display: inline-flex;
-    }
-
-    &-dash {
-        color: var(--muted-color);
-    }
-
-    &-digit {
-        height: 1lh;
-    }
-
-    &-field {
-        align-items: center;
-        background: var(--field-background);
-        border: 1px solid var(--clear-border);
-        border-radius: var(--field-border-radius);
-        cursor: var(--field-cursor);
-        display: flex;
-        flex: 1 1 0;
-        gap: calc(var(--size-300) / 2);
-        height: var(--field-height);
-        min-width: 0;
-        outline: 0 solid var(--focus-color);
-        outline-offset: calc(var(--size-100) / 4);
-        padding-inline: 12px;
+        &-heading {
+            display: var(--display);
+        }
 
         &-label {
-            color: var(--muted-color);
-            font-size: var(--font-size-300);
+            color: var(--color);
+            font-size: var(--font-size);
             font-weight: var(--font-weight-500);
-            text-transform: uppercase;
+            margin: 0 0 var(--margin-vertical);
+            text-transform: var(--text-transform);
         }
 
-        &-prefix {
-            color: var(--muted-color);
-            margin-inline-start: auto;
+        &-number {
+            display: inline-flex;
         }
 
-        &-prefix + .range-filter-input {
-            margin-inline-start: 0;
+        &-range {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            inset-block: 0;
+            position: absolute;
+
+            &--vertical {
+                inset-block: auto;
+                inset-inline: 0;
+            }
         }
 
-        &:has(:focus-visible) {
-            outline-width: var(--border-width-500);
+        &-root {
+            align-items: center;
+            cursor: var(--cursor);
+            display: flex;
+            height: var(--thumb-size);
+            position: relative;
+            touch-action: none;
+            user-select: none;
+            width: 100%;
+
+            &--vertical {
+                height: var(--height);
+                justify-content: center;
+                width: var(--thumb-size);
+            }
         }
 
-        // Qualified by the field so it wins over the reused input styles regardless of stylesheet order.
-        .range-filter-input {
-            flex: 0 1 72px;
-            font-variant-numeric: tabular-nums;
-            margin-inline-start: auto;
-            min-height: 0;
-            outline: none;
-            text-align: right;
-            width: 72px;
-        }
-    }
-
-    &-fields {
-        align-items: center;
-        display: flex;
-        gap: 12px;
-    }
-
-    &-ghost {
-        background: var(--ghost-color);
-        border-radius: 999px;
-        display: var(--ghost-display);
-        height: var(--track-height);
-        opacity: 0;
-        pointer-events: none;
-        position: absolute;
-        top: 50%;
-        transition:
-            left 75ms ease-out,
-            opacity 100ms ease-out,
-            width 75ms ease-out;
-        translate: 0 -50%;
-        z-index: 1;
-
-        @include tokens.state(active) {
-            opacity: 1;
+        &-separator {
+            background: var(--background);
+            flex-shrink: 0;
+            height: var(--height);
+            width: var(--width);
         }
 
-        &--vertical {
-            left: 50%;
-            top: auto;
-            transition:
-                bottom 75ms ease-out,
-                opacity 100ms ease-out,
-                height 75ms ease-out;
-            translate: -50% 0;
-            width: var(--track-height);
-        }
-    }
-
-    &-header {
-        align-items: var(--header-align);
-        display: flex;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        justify-content: space-between;
-    }
-
-    &-heading {
-        display: var(--heading-display);
-    }
-
-    &-label {
-        color: var(--label-color);
-        font-size: var(--label-font-size);
-        font-weight: var(--font-weight-500);
-        margin: 0 0 var(--margin-vertical);
-        text-transform: var(--label-text-transform);
-    }
-
-    &-number {
-        display: inline-flex;
-    }
-
-    &-range {
-        background: var(--range-color);
-        border-radius: var(--range-border-radius);
-        inset-block: 0;
-        position: absolute;
-
-        &--vertical {
-            inset-block: auto;
-            inset-inline: 0;
-        }
-    }
-
-    &-root {
-        align-items: center;
-        cursor: var(--root-cursor);
-        display: flex;
-        height: var(--thumb-size);
-        position: relative;
-        touch-action: none;
-        user-select: none;
-        width: 100%;
-
-        &--vertical {
-            height: var(--vertical-size);
-            justify-content: center;
-            width: var(--thumb-size);
-        }
-    }
-
-    &-separator {
-        background: var(--track-color);
-        flex-shrink: 0;
-        height: 1px;
-        width: 12px;
-    }
-
-    &-sr {
-        @extend %hidden-visually;
-    }
-
-    &-strip {
-        @extend %absolute-top;
-        display: var(--strip-display);
-        flex-direction: column;
-        transition: translate var(--roll-duration) var(--roll-ease);
-        translate: 0 calc(var(--digit, 0) * -10%);
-    }
-
-    &-symbol {
-        display: var(--symbol-display);
-    }
-
-    // Held inside the track like Radix does it: the centre travels from half a thumb in at each end.
-    &-thumb {
-        --box-shadow-active: var(--thumb-shadow-active);
-        --box-shadow-default: var(--thumb-shadow);
-        background: var(--thumb-background);
-        border: var(--thumb-border-width) solid var(--thumb-border);
-        border-radius: 50%;
-        box-shadow: var(--box-shadow);
-        cursor: var(--thumb-cursor);
-        height: var(--thumb-size);
-        left: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
-        outline: var(--thumb-outline);
-        outline-offset: calc(var(--size-100) / 4);
-        position: absolute;
-        top: 50%;
-        transition: var(--thumb-transition);
-        translate: -50% -50%;
-        width: var(--thumb-size);
-        z-index: 2;
-
-        &--stacked,
-        #{tokens.state(active)} {
-            z-index: 3;
+        &-sr {
+            @extend %hidden-visually;
         }
 
-        &--vertical {
-            bottom: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
-            left: 50%;
-            top: auto;
-            translate: -50% 50%;
-        }
-
-        // The default, so a held thumb still takes its press shadow.
-        &:focus-visible {
-            --box-shadow-default: var(--thumb-shadow-focus);
-            outline-width: var(--border-width-600);
-        }
-
-        &:hover {
-            scale: var(--thumb-scale-hover);
-        }
-
-        // Last, so a held thumb keeps its press look while hovered or focused.
-        @include tokens.state(active) {
-            cursor: var(--thumb-cursor-active);
-            scale: var(--thumb-scale-active);
-        }
-    }
-
-    &-ticks {
-        color: var(--tick-color);
-        display: flex;
-        font-size: var(--font-size-200);
-        font-weight: var(--font-weight-500);
-        justify-content: space-between;
-        user-select: none;
-
-        &--vertical {
-            flex-direction: column-reverse;
-        }
-    }
-
-    &-track {
-        background: var(--track-color);
-        border-radius: 999px;
-        height: var(--track-height);
-        margin-inline: var(--margin-horizontal);
-        overflow: var(--track-overflow);
-        position: relative;
-        width: calc(100% - var(--margin-horizontal) * 2);
-
-        &--vertical {
-            height: calc(100% - var(--margin-vertical) * 2);
-            margin-block: var(--margin-vertical);
-            margin-inline: 0;
-            width: var(--track-height);
-        }
-    }
-
-    // Centred rather than baseline-aligned: the clipped digit columns report their bottom edge as their baseline.
-    &-value {
-        align-items: center;
-        display: inline-flex;
-        font-size: var(--value-font-size);
-        font-variant-numeric: tabular-nums;
-        font-weight: var(--value-font-weight);
-    }
-
-    &-values {
-        align-items: center;
-        display: flex;
-        gap: calc(var(--size-300) / 2);
-    }
-
-    &.--disabled {
-        opacity: 0.5;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &-column,
-        &-ghost,
         &-strip {
-            transition: none;
+            @extend %absolute-top;
+            display: var(--display);
+            flex-direction: column;
+            transition: translate var(--transition-duration) var(--transition-timing-function);
+            translate: 0 calc(var(--digit, 0) * -10%);
+        }
+
+        &-symbol {
+            display: var(--display);
+        }
+
+        // Held inside the track like Radix does it: the centre travels from half a thumb in at each end.
+        &-thumb {
+            background: var(--background);
+            border: var(--border-width) solid var(--border-color);
+            border-radius: 50%;
+            box-shadow: var(--box-shadow);
+            cursor: var(--cursor);
+            height: var(--thumb-size);
+            left: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
+            outline: var(--outline);
+            outline-offset: var(--focus-offset);
+            position: absolute;
+            top: 50%;
+            transition:
+                box-shadow var(--shadow-duration) var(--transition-timing-function),
+                scale var(--transition-duration) var(--transition-timing-function);
+            translate: -50% -50%;
+            width: var(--thumb-size);
+            z-index: 2;
+
+            &--stacked,
+            #{tokens.state(active)} {
+                z-index: 3;
+            }
+
+            &--vertical {
+                bottom: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
+                left: 50%;
+                top: auto;
+                translate: -50% 50%;
+            }
+
+            &:focus-visible {
+                outline-width: var(--focus-width);
+            }
+
+            &:hover {
+                scale: var(--scale-hover);
+            }
+
+            // Last, so a held thumb keeps its press look while hovered or focused.
+            @include tokens.state(active) {
+                cursor: var(--cursor-active);
+                scale: var(--scale-active);
+            }
+        }
+
+        &-ticks {
+            color: var(--color);
+            display: flex;
+            font-size: var(--font-size);
+            font-weight: var(--font-weight-500);
+            justify-content: space-between;
+            user-select: none;
+
+            &--vertical {
+                flex-direction: column-reverse;
+            }
+        }
+
+        &-track {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            height: var(--thickness);
+            margin-inline: var(--margin-horizontal);
+            overflow: var(--overflow);
+            position: relative;
+            width: calc(100% - var(--margin-horizontal) * 2);
+
+            &--vertical {
+                height: calc(100% - var(--margin-vertical) * 2);
+                margin-block: var(--margin-vertical);
+                margin-inline: 0;
+                width: var(--thickness);
+            }
+        }
+
+        // Centred rather than baseline-aligned: the clipped digit columns report their bottom edge as their baseline.
+        &-value {
+            align-items: center;
+            display: inline-flex;
+            font-size: var(--font-size);
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight);
+        }
+
+        &-values {
+            align-items: center;
+            display: flex;
+            gap: var(--gap-horizontal);
+        }
+
+        @include tokens.state(disabled) {
+            opacity: var(--disabled-opacity);
         }
     }
 }

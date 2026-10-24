@@ -8,17 +8,17 @@ export default [
         render: () => html`
             <div class='range-demo-row'>
                 ${range({ 'aria-label': 'Volume', class: 'range--slider', max: 100, min: 0, orientation: 'vertical', value: 50 })}
-                ${range.filter({ class: 'range--slider', label: 'Range', max: 100, min: 0, orientation: 'vertical', prefix: '', step: 1, ticks: 0, value: [20, 70] })}
+                ${range.filter({ class: 'range-filter--slider', label: 'Range', max: 100, min: 0, orientation: 'vertical', prefix: '', step: 1, ticks: 0, value: [20, 70] })}
             </div>
         `,
         title: 'vertical sliders — single and dual thumb'
     },
     {
-        render: () => range.filter({ class: 'range--slider', label: 'Volume', max: 100, min: 0, orientation: 'vertical', prefix: '', step: 1, ticks: 5, value: 50 }),
+        render: () => range.filter({ class: 'range-filter--slider', label: 'Volume', max: 100, min: 0, orientation: 'vertical', prefix: '', step: 1, ticks: 5, value: 50 }),
         title: 'vertical slider with label, value and ticks'
     },
     {
-        render: () => range.filter({ class: 'range--slider', disabled: true, label: 'Allocation', max: 100, min: 0, orientation: 'vertical', prefix: '', step: 1, ticks: 0, value: [20, 70] }),
+        render: () => range.filter({ class: 'range-filter--slider', disabled: true, label: 'Allocation', max: 100, min: 0, orientation: 'vertical', prefix: '', step: 1, ticks: 0, value: [20, 70] }),
         title: 'disabled vertical slider'
     },
     {
@@ -26,11 +26,11 @@ export default [
         title: 'slider'
     },
     {
-        render: () => range.filter({ class: 'range--slider', label: 'Opacity', max: 100, min: 0, prefix: '', step: 1, ticks: 0, value: 50 }),
+        render: () => range.filter({ class: 'range-filter--slider', label: 'Opacity', max: 100, min: 0, prefix: '', step: 1, ticks: 0, value: 50 }),
         title: 'slider with label and value'
     },
     {
-        render: () => range.filter({ class: 'range--slider', label: 'Price', max: 100, min: 0, step: 1, ticks: 0, value: [25, 75] }),
+        render: () => range.filter({ class: 'range-filter--slider', label: 'Price', max: 100, min: 0, step: 1, ticks: 0, value: [25, 75] }),
         title: 'slider with two thumbs'
     },
     {
@@ -38,15 +38,15 @@ export default [
         title: 'disabled slider'
     },
     {
-        render: () => range.filter({ class: 'range--slider', disabled: true, label: 'Allocation', max: 100, min: 0, prefix: '', step: 1, ticks: 0, value: [20, 70] }),
+        render: () => range.filter({ class: 'range-filter--slider', disabled: true, label: 'Allocation', max: 100, min: 0, prefix: '', step: 1, ticks: 0, value: [20, 70] }),
         title: 'disabled dual-thumb slider'
     },
     {
-        render: () => range.filter({ class: 'range--slider', format: (value: number) => `${value} GB`, label: 'Storage', max: 35, min: 5, prefix: '', step: 1, ticks: 3, value: 15 }),
+        render: () => range.filter({ class: 'range-filter--slider', format: (value: number) => `${value} GB`, label: 'Storage', max: 35, min: 5, prefix: '', step: 1, ticks: 3, value: 15 }),
         title: 'slider with reference labels'
     },
     {
-        render: () => range.filter({ class: 'range--slider', label: 'Value', max: 12, min: 0, prefix: '', step: 1, ticks: 13, value: 5 }),
+        render: () => range.filter({ class: 'range-filter--slider', label: 'Value', max: 12, min: 0, prefix: '', step: 1, ticks: 13, value: 5 }),
         title: 'slider with ticks'
     },
     {

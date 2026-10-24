@@ -136,7 +136,7 @@ function accent(settings: Settings) {
 
 function control(settings: Settings, key: keyof Settings, label: string, min: number, max: number, step: number, unit: 'px' | '%') {
     return range.filter({
-        class: 'range--slider surface-field-demo-slider',
+        class: 'range-filter--slider surface-field-demo-slider',
         format: (value: number) => unit === '%' ? `${Math.round(value * 100)}%` : `${value} px`,
         label,
         max,

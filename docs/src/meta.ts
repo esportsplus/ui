@@ -131,7 +131,7 @@ const meta: Record<string, Meta> = {
         description: 'Single-choice selection from a grouped set of options, including option cards built from radio and card.'
     },
     range: {
-        description: 'Slider input for choosing a value along a track, plus single and dual-thumb range filters with rolling digits, a ghost preview, and optional min/max fields. Add range--slider for a compact track and thumb style; orientation: vertical supports vertical single and dual thumbs.'
+        description: 'Slider input for choosing a value along a track, plus single and dual-thumb range filters with rolling digits, a ghost preview, and optional min/max fields. Add range--slider (range-filter--slider on a filter) for a compact track and thumb style; orientation: vertical supports vertical single and dual thumbs.'
     },
     'relative-time': {
         description: 'Self-updating "5 min ago" time element that rolls its digits as they change, with the full date on hover.'

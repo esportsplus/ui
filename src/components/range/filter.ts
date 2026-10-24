@@ -29,15 +29,11 @@ type Key = 'high' | 'low';
 
 type State = { high: number; low: number };
 
-type Thumb = HTMLElement & { [INDEX]: number };
-
 
 const NON_NUMERIC_CHARACTERS = /[^\d.-]/g;
 
 
 const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-
-const INDEX = Symbol();
 
 const KEYS: Key[] = ['low', 'high'];
 
@@ -227,7 +223,7 @@ export default ({
     }
 
     return html`
-        <div class='range-filter ${vertical && 'range--vertical'} ${disabled && '--disabled'}' ${attributes}>
+        <div class='range-filter ${vertical && 'range-filter--vertical'} ${disabled && '--disabled'}' ${attributes}>
             <div class='range-filter-header'>
                 <div class='range-filter-heading'>
                     <p class='range-filter-label'>${label}</p>
@@ -271,12 +267,12 @@ export default ({
                                 return;
                             }
 
-                            let grabbed = (event.target as HTMLElement).closest<Thumb>('.range-filter-thumb'),
+                            let grabbed = thumbs.indexOf((event.target as HTMLElement).closest<HTMLElement>('.range-filter-thumb')!),
                                 v = at(event),
                                 index: number;
 
-                            if (grabbed) {
-                                index = grabbed[INDEX];
+                            if (grabbed !== -1) {
+                                index = grabbed;
                             }
                             else if (single) {
                                 index = 1;
@@ -366,8 +362,7 @@ export default ({
                                         () => ui.dragging === index && '--active',
                                         () => index === 0 && s.low === max && 'range-filter-thumb--stacked'
                                     ],
-                                    onconnect: (element: Thumb) => {
-                                        element[INDEX] = index;
+                                    onconnect: (element: HTMLElement) => {
                                         thumbs[index] = element;
                                     },
                                     onkeydown: (event: KeyboardEvent) => keydown(index, event),

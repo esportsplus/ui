@@ -5,9 +5,11 @@
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
+// The native thumb is the range's own pseudo element, so its '--thumb-*' values sit beside the track's.
 .range {
     @extend %background-state, %border-primary, %border-state;
     --background-default: linear-gradient(to right, var(--thumb-background) var(--thumb-position), var(--color-primary-300) var(--thumb-position));
+    --border-radius: 240px;
     --border-width: var(--border-width-700);
     --height: var(--size-200);
     --margin-horizontal: 0px;
@@ -16,115 +18,380 @@
     --thumb-size: var(--size-400);
     --width: 100%;
 
-    &-filter {
-        @extend %surface-raise;
-        --clear-background: var(--surface-background-default);
-        --clear-border: var(--surface-border-default);
-        --clear-display: inline-flex;
-        --clear-hover: var(--surface-background-hover);
-        --color: var(--color-text-500);
-        --field-background: var(--surface-background-default);
-        --field-border-radius: var(--border-radius-400);
-        --field-cursor: text;
-        --field-height: 40px;
-        --focus-color: var(--surface-border-pressed);
-        --ghost-color: oklch(from var(--color-primary-500) l c h / 0.3);
-        --ghost-display: block;
-        --header-align: flex-start;
-        --heading-display: block;
-        --label-color: var(--muted-color);
-        --label-font-size: var(--font-size-300);
-        --label-text-transform: uppercase;
-        --muted-color: var(--color-text-300);
-        --range-border-radius: 0px;
-        --range-color: var(--color-primary-500);
-        --roll-duration: 500ms;
-        --roll-ease: cubic-bezier(0.23, 1, 0.32, 1);
-        --root-cursor: pointer;
-        --thumb-background: var(--surface-background-default);
-        --thumb-border: var(--color-primary-500);
-        --thumb-border-width: var(--border-width-500);
-        // Unset, so the thumb takes the cursor around it.
-        --thumb-cursor: initial;
-        --thumb-cursor-active: initial;
-        --thumb-outline: 0 solid var(--focus-color);
-        --thumb-scale-active: 1.25;
-        --thumb-scale-hover: 1.25;
-        --thumb-shadow: var(--surface-shadow-default);
-        --thumb-shadow-active: var(--thumb-shadow);
-        --thumb-shadow-focus: var(--thumb-shadow);
-        --thumb-size: var(--size-500);
-        --thumb-transition: scale 150ms ease-out;
-        --tick-color: oklch(from var(--color-primary-300) l c h / 0.6);
-        --track-color: var(--surface-border-default);
-        --track-height: var(--size-100);
-        --track-overflow: hidden;
-        --value-font-size: var(--font-size-500);
-        --value-font-weight: var(--font-weight-700, 700);
-        --width: 384px;
 
-        @include tokens.state(disabled) {
-            --field-cursor: not-allowed;
-            --root-cursor: not-allowed;
-            --thumb-scale-active: 1;
-            --thumb-scale-hover: 1;
+    // A physical knob that stays white in both modes, over a track a level below what holds it. The track is painted
+    // in the range's own background beside the fill, so it takes the level's color rather than the range counting as a
+    // surface, which would flatten the thumb's shadow. The thumb grows while held and rings while focused.
+    &--slider {
+        --background-default: linear-gradient(to right, var(--fill-color) var(--thumb-position), var(--track-color) var(--thumb-position));
+        --disabled-opacity: 0.64;
+        --fill-color: var(--color-primary-500);
+        --focus-color: var(--surface-border-pressed);
+        --height: 4px;
+        --thumb-background: var(--color-white-300);
+        --thumb-border-color: var(--surface-border-default);
+        --thumb-border-width: 1px;
+        --thumb-scale-active: 1.2;
+        --thumb-shadow: var(--surface-shadow-default);
+        --thumb-shadow-active: none;
+        --thumb-shadow-focus: 0 0 0 3px var(--focus-color);
+        --thumb-size: var(--size-400);
+        --thumb-transition-duration: 150ms;
+        --thumb-transition-timing-function: ease-out;
+        --track-color: var(--surface-background-below);
+
+        @media (pointer: coarse) {
+            --thumb-size: var(--size-500);
         }
 
         @media (prefers-reduced-motion: reduce) {
             --thumb-scale-active: 1;
-            --thumb-scale-hover: 1;
-            --thumb-transition: none;
+        }
+    }
+
+    &--vertical {
+        --background-default: linear-gradient(to top, var(--thumb-background) var(--thumb-position), var(--color-primary-300) var(--thumb-position));
+        --vertical-size: 176px;
+
+        &.range--slider {
+            --background-default: linear-gradient(to top, var(--fill-color) var(--thumb-position), var(--track-color) var(--thumb-position));
+        }
+    }
+
+
+    // Its parts' values are retuned by '--slider', which joins the heading's label and value onto the header row and
+    // draws the selection as a pill between grabbable knobs.
+    &-filter {
+        @extend %surface-raise;
+        --color: var(--color-text-500);
+        --disabled-opacity: 0.5;
+        --font-size: inherit;
+        --gap-vertical: var(--size-500);
+        --muted-color: var(--color-text-300);
+        --width: 384px;
+
+
+        &--slider {
+            --disabled-opacity: 0.64;
+            --font-size: calc(var(--font-size-400) * 0.875);
+            --gap-vertical: var(--size-100);
+            --width: 100%;
+
+            .range-filter-clear,
+            .range-filter-ghost {
+                --display: none;
+            }
+
+            .range-filter-header {
+                --align: center;
+                --gap-horizontal: var(--size-100);
+                --gap-vertical: var(--size-100);
+            }
+
+            .range-filter-heading {
+                --display: contents;
+            }
+
+            .range-filter-label {
+                --color: currentColor;
+                --font-size: 1em;
+                --margin-vertical: 0px;
+                --text-transform: none;
+            }
+
+            .range-filter-range {
+                --border-radius: 999px;
+            }
+
+            .range-filter-root {
+                --thumb-size: var(--size-400);
+
+                @media (pointer: coarse) {
+                    --thumb-size: var(--size-500);
+                }
+            }
+
+            .range-filter-thumb {
+                --background: var(--color-white-300);
+                --border-color: var(--surface-border-default);
+                --border-width: var(--border-width-400);
+                --box-shadow-active: none;
+                --cursor: grab;
+                --cursor-active: grabbing;
+                --focus-shadow: 0 0 0 3px var(--focus-color);
+                --outline: none;
+                --scale-active: 1.2;
+                --scale-hover: 1;
+                --shadow-duration: 150ms;
+
+                @media (prefers-reduced-motion: reduce) {
+                    --scale-active: 1;
+                }
+            }
+
+            // Matches the fill to the thumb's travel without changing how the range behaves.
+            .range-filter-track {
+                --background: var(--surface-background-below);
+                --margin-horizontal: calc(var(--thumb-size) / 2);
+                --margin-vertical: calc(var(--thumb-size) / 2);
+                --overflow: visible;
+                --thickness: 4px;
+            }
+
+            // Unset, so the value takes the weight around it.
+            .range-filter-value {
+                --font-size: calc(var(--font-size-400) * 0.875);
+                --font-weight: initial;
+            }
+
+            @include tokens.state(disabled) {
+                .range-filter-thumb {
+                    --cursor: not-allowed;
+                    --cursor-active: not-allowed;
+                    --scale-active: 1;
+                }
+            }
         }
 
-        // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
-        &-clear-icon.icon {
-            --color: currentColor;
-            --size: 12px;
+        // The parts take their vertical layout from their own '--vertical' modifiers.
+        &--vertical {
+            --width: max-content;
         }
 
-        // A symbol column shows its character in place of the rolling digit strip.
-        &-column {
-            --strip-display: flex;
-            --symbol-display: none;
+        &-body {
+            --gap-vertical: var(--size-100);
+        }
 
-            &--symbol {
-                --strip-display: none;
-                --symbol-display: inline;
+        &-clear {
+            @extend %background-state, %color-state, %color-text;
+            --background-default: var(--surface-background-default);
+            --background-hover: var(--surface-background-hover);
+            --background-pressed: var(--background-hover);
+            --border-color: var(--surface-border-default);
+            --border-radius: var(--border-radius-300);
+            --border-width: 1px;
+            --disabled-opacity: 0.5;
+            --display: inline-flex;
+            --focus-color: var(--surface-border-pressed);
+            --focus-offset: calc(var(--size-100) / 4);
+            --focus-width: var(--border-width-500);
+            --font-size: var(--font-size-300);
+            --gap-horizontal: calc(var(--size-100) / 2);
+            --height: 24px;
+            --padding-horizontal: var(--size-100);
+            --padding-vertical: 0px;
+            --transition-duration: 150ms;
+            --transition-timing-function: ease-out;
+
+            &:disabled {
+                --background-hover: var(--background-default);
+                --background-pressed: var(--background-default);
+                --color-hover: var(--color-default);
+                --color-pressed: var(--color-default);
+            }
+
+            // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
+            &-icon.icon {
+                --color: currentColor;
+                --size: 12px;
+            }
+        }
+
+        // Folds to nothing when the number is too short to need it, and rolls its digit strip to the new one; a symbol
+        // column shows its character in place of the strip.
+        &-column,
+        &-strip {
+            --transition-duration: 500ms;
+            --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
+            @media (prefers-reduced-motion: reduce) {
+                --transition-duration: 0s;
+            }
+        }
+
+        &-column--symbol {
+            .range-filter-strip {
+                --display: none;
+            }
+
+            .range-filter-symbol {
+                --display: inline;
+            }
+        }
+
+        &-dash {
+            --color: var(--muted-color);
+        }
+
+        &-field {
+            --background: var(--surface-background-default);
+            --border-color: var(--surface-border-default);
+            --border-radius: var(--border-radius-400);
+            --border-width: 1px;
+            --cursor: text;
+            --focus-color: var(--surface-border-pressed);
+            --focus-offset: calc(var(--size-100) / 4);
+            --focus-width: var(--border-width-500);
+            --gap-horizontal: calc(var(--size-300) / 2);
+            --height: 40px;
+            --padding-horizontal: 12px;
+
+            &-label {
+                --color: var(--muted-color);
+                --font-size: var(--font-size-300);
+            }
+
+            &-prefix {
+                --color: var(--muted-color);
+            }
+
+            // Qualified by the field so it wins over the reused input styles regardless of stylesheet order.
+            .range-filter-input {
+                --background-default: transparent;
+                --color-default: currentColor;
+                --font-size: inherit;
+                --padding-horizontal: 0px;
+                --padding-vertical: 0px;
+                --width: 72px;
+            }
+        }
+
+        &-fields {
+            --gap-horizontal: 12px;
+        }
+
+        // Shows how far the selection would stretch to reach the pointer, keeping up with it quickly.
+        &-ghost {
+            --background: oklch(from var(--color-primary-500) l c h / 0.3);
+            --border-radius: 999px;
+            --display: block;
+            --fade-duration: 100ms;
+            --thickness: var(--size-100);
+            --transition-duration: 75ms;
+            --transition-timing-function: ease-out;
+
+            @media (prefers-reduced-motion: reduce) {
+                --fade-duration: 0s;
+                --transition-duration: 0s;
             }
         }
 
         &-header {
+            --align: flex-start;
             --gap-horizontal: var(--size-400);
             --gap-vertical: var(--size-400);
         }
 
+        &-heading {
+            --display: block;
+        }
+
         &-label {
+            --color: var(--muted-color);
+            --font-size: var(--font-size-300);
             --margin-vertical: calc(var(--size-100) / 2);
+            --text-transform: uppercase;
+        }
+
+        &-range {
+            --background: var(--color-primary-500);
+            --border-radius: 0px;
+        }
+
+        // Sized by its thumbs, which travel from half a thumb in at each end.
+        &-root {
+            --cursor: pointer;
+            --thumb-size: var(--size-500);
+
+            &--vertical {
+                --height: 176px;
+            }
+        }
+
+        &-separator {
+            --background: var(--surface-border-default);
+            --height: 1px;
+            --width: 12px;
+        }
+
+        &-strip {
+            --display: flex;
+        }
+
+        &-symbol {
+            --display: none;
+        }
+
+        // Grows on hover and while held, and its shadow eases only where a variant asks; still under reduced motion.
+        &-thumb {
+            @extend %box-shadow-state;
+            --background: var(--surface-background-default);
+            --border-color: var(--color-primary-500);
+            --border-width: var(--border-width-500);
+            --box-shadow-active: var(--box-shadow-default);
+            --box-shadow-default: var(--surface-shadow-default);
+            // Unset, so the thumb takes the cursor around it.
+            --cursor: initial;
+            --cursor-active: initial;
+            --focus-color: var(--surface-border-pressed);
+            --focus-offset: calc(var(--size-100) / 4);
+            --focus-shadow: var(--box-shadow-default);
+            --focus-width: var(--border-width-600);
+            --outline: 0 solid var(--focus-color);
+            --scale-active: 1.25;
+            --scale-hover: 1.25;
+            --shadow-duration: 0s;
+            --transition-duration: 150ms;
+            --transition-timing-function: ease-out;
+
+            @media (prefers-reduced-motion: reduce) {
+                --scale-active: 1;
+                --scale-hover: 1;
+                --transition-duration: 0s;
+            }
+
+            // The default, so a held thumb still takes its press shadow.
+            &:focus-visible {
+                --box-shadow-default: var(--focus-shadow);
+            }
+        }
+
+        &-ticks {
+            --color: oklch(from var(--color-primary-300) l c h / 0.6);
+            --font-size: var(--font-size-200);
         }
 
         &-track {
+            --background: var(--surface-border-default);
+            --border-radius: 999px;
             --margin-horizontal: 0px;
             --margin-vertical: 0px;
+            --overflow: hidden;
+            --thickness: var(--size-100);
         }
 
-        // Qualified by the field so it wins over the reused input styles regardless of stylesheet order.
-        &-field .range-filter-input {
-            --background-default: transparent;
-            --color-default: currentColor;
-            --font-size: inherit;
-            --padding-horizontal: 0px;
-            --padding-vertical: 0px;
+        &-value {
+            --font-size: var(--font-size-500);
+            --font-weight: var(--font-weight-700, 700);
         }
-    }
-}
 
+        &-values {
+            --gap-horizontal: calc(var(--size-300) / 2);
+        }
 
-.range-filter {
-    &-clear {
-        @extend %background-state, %color-state, %color-text;
-    }
+        @include tokens.state(disabled) {
+            .range-filter-field {
+                --cursor: not-allowed;
+            }
 
-    &-thumb {
-        @extend %box-shadow-state;
+            .range-filter-root {
+                --cursor: not-allowed;
+            }
+
+            .range-filter-thumb {
+                --scale-active: 1;
+                --scale-hover: 1;
+            }
+        }
     }
 }

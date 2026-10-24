@@ -1,152 +1,63 @@
 @use '/tokens';
 
 @mixin thumb {
+    appearance: none;
     background: var(--thumb-background);
-    border: 1px solid var(--thumb-border);
+    border: var(--thumb-border-width) solid var(--thumb-border-color);
     border-radius: 50%;
     box-shadow: var(--thumb-shadow);
     cursor: grab;
     height: var(--thumb-size);
     transition:
-        box-shadow 150ms ease-out,
-        scale 150ms ease-out;
+        box-shadow var(--thumb-transition-duration) var(--thumb-transition-timing-function),
+        scale var(--thumb-transition-duration) var(--thumb-transition-timing-function);
     width: var(--thumb-size);
 }
 
-.range--slider {
-    --focus-color: var(--surface-border-pressed);
-    --range-color: var(--color-primary-500);
-    // A physical knob stays white in both modes.
-    --thumb-background: var(--color-white-300);
-    --thumb-border: var(--surface-border-default);
-    --thumb-shadow: var(--surface-shadow-default);
-    --thumb-size: var(--size-400);
-    // A level below what holds the slider. Painted in the range's own background beside the fill, so it takes the
-    // level's color rather than the range counting as a surface, which would flatten the thumb's shadow.
-    --track-color: var(--surface-background-below);
-
-    @media (pointer: coarse) {
-        --thumb-size: var(--size-500);
-    }
-}
-
-.range-filter.range--slider {
-    --clear-display: none;
-    --ghost-display: none;
-    // The heading's label and value join the header row.
-    --header-align: center;
-    --heading-display: contents;
-    --label-color: currentColor;
-    --label-font-size: 1em;
-    --label-text-transform: none;
-    --range-border-radius: 999px;
-    --thumb-border-width: var(--border-width-400);
-    --thumb-cursor: grab;
-    --thumb-cursor-active: grabbing;
-    --thumb-outline: none;
-    --thumb-scale-active: 1.2;
-    --thumb-scale-hover: 1;
-    --thumb-shadow-active: none;
-    --thumb-shadow-focus: 0 0 0 3px var(--focus-color);
-    --thumb-transition:
-        box-shadow 150ms ease-out,
-        scale 150ms ease-out;
-    --track-height: 4px;
-    --track-overflow: visible;
-    --value-font-size: calc(var(--font-size-400) * 0.875);
-    // Unset, so the value takes the weight around it.
-    --value-font-weight: initial;
-    --width: 100%;
-    font-size: var(--value-font-size);
-    gap: var(--size-100);
-
-    @include tokens.state(disabled) {
-        --thumb-cursor: not-allowed;
-        --thumb-cursor-active: not-allowed;
-        --thumb-scale-active: 1;
-        opacity: 0.64;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        --thumb-scale-active: 1;
-        --thumb-transition: box-shadow 150ms ease-out;
-    }
-
-    .range-filter-header {
-        --gap-horizontal: var(--size-100);
-        --gap-vertical: var(--size-100);
-    }
-
-    .range-filter-label {
-        --margin-vertical: 0px;
-    }
-
-    // Match the fill to the existing thumb travel without changing range behavior.
-    .range-filter-track {
-        --margin-horizontal: calc(var(--thumb-size) / 2);
-        --margin-vertical: calc(var(--thumb-size) / 2);
-    }
-}
-
-.range.range--slider {
-    --background-default: linear-gradient(to right, var(--range-color) var(--thumb-position), var(--track-color) var(--thumb-position));
-    --height: 4px;
-
-    &::-moz-range-thumb {
-        @include thumb;
-        appearance: none;
-    }
-
-    // Keep browser pseudo-elements separate: an unknown pseudo invalidates a selector list.
-    &::-webkit-slider-thumb {
-        @include thumb;
-        appearance: none;
-    }
-
-    &:active:not(:disabled) {
+.range {
+    &#{&}--slider {
+        // Keep browser pseudo-elements separate: an unknown pseudo invalidates a selector list.
         &::-moz-range-thumb {
-            box-shadow: none;
-            cursor: grabbing;
-            scale: 1.2;
+            @include thumb;
         }
 
         &::-webkit-slider-thumb {
-            box-shadow: none;
-            cursor: grabbing;
-            scale: 1.2;
-        }
-    }
-
-    &:disabled {
-        opacity: 0.64;
-
-        &::-moz-range-thumb {
-            cursor: not-allowed;
+            @include thumb;
         }
 
-        &::-webkit-slider-thumb {
-            cursor: not-allowed;
-        }
-    }
-
-    &:focus-visible {
-        &::-moz-range-thumb {
-            box-shadow: 0 0 0 3px var(--focus-color);
-        }
-
-        &::-webkit-slider-thumb {
-            box-shadow: 0 0 0 3px var(--focus-color);
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
         &:active:not(:disabled) {
             &::-moz-range-thumb {
-                scale: 1;
+                box-shadow: var(--thumb-shadow-active);
+                cursor: grabbing;
+                scale: var(--thumb-scale-active);
             }
 
             &::-webkit-slider-thumb {
-                scale: 1;
+                box-shadow: var(--thumb-shadow-active);
+                cursor: grabbing;
+                scale: var(--thumb-scale-active);
+            }
+        }
+
+        &:disabled {
+            opacity: var(--disabled-opacity);
+
+            &::-moz-range-thumb {
+                cursor: not-allowed;
+            }
+
+            &::-webkit-slider-thumb {
+                cursor: not-allowed;
+            }
+        }
+
+        &:focus-visible {
+            &::-moz-range-thumb {
+                box-shadow: var(--thumb-shadow-focus);
+            }
+
+            &::-webkit-slider-thumb {
+                box-shadow: var(--thumb-shadow-focus);
             }
         }
     }
