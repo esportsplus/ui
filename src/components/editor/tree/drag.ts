@@ -327,7 +327,8 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
 
     function pressed(rows: T[], e: PointerEvent) {
         let cancelled = false,
-            // Captured, ahead of the tree's own keys; only while this press lasts.
+            // Captured, ahead of the tree's own keys, and only while this press lasts; template's document events
+            // bubble, for as long as their element is connected.
             keys = new AbortController();
 
         // Drops on the target it was released over, unless it was cancelled or never got going.
@@ -554,7 +555,9 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
             onpointerdown: (e: PointerEvent) => {
                 let mouse = e.pointerType !== 'touch';
 
-                // Text in a rename field inside the row selects with the mouse rather than dragging the row.
+                // Text in a rename field inside the row selects with the mouse rather than dragging the row. Written
+                // straight to the row, since it depends on what this press landed on and has to hold before the
+                // browser decides whether a native drag starts.
                 if (give && !row.locked) {
                     (e.currentTarget as HTMLElement).draggable = mouse && !(e.target as HTMLElement).closest('input, textarea, [contenteditable]');
                 }

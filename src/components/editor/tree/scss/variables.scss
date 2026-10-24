@@ -93,11 +93,12 @@ $icons: (
     --background-selected: var(--background-active);
     --badge-font-size: var(--font-size-200);
     --badge-font-weight: var(--font-weight-500);
-    --chevron-duration: 150ms;
-    // Open and close timings, after the tree view's.
+    // Open and close timings, after the tree view's; each runs on the tree and on every element moving with it.
     --collapse-duration: 0.2s;
+    --collapse-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     --color: var(--color-text-500);
     --conceal-duration: 0.12s;
+    --conceal-timing-function: ease-out;
     --conflict-color: light-dark(oklch(from var(--color-red-300) 0.6 c h), oklch(from var(--color-red-300) 0.72 0.16 h));
     --cut-opacity: 0.5;
     --deleted-color: light-dark(var(--color-red-500), oklch(from var(--color-red-500) 0.7 0.17 h));
@@ -113,6 +114,7 @@ $icons: (
     --empty-color: var(--color-text-300);
     --error-color: light-dark(var(--color-red-400), oklch(from var(--color-red-400) 0.7 0.18 h));
     --expand-duration: 0.25s;
+    --expand-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     // The find bar over the tree's top corner; the offset keeps it clear of the scrollbar.
     --find-border-color: var(--surface-border-default);
     --find-button-size: var(--size-500);
@@ -127,77 +129,16 @@ $icons: (
     --found-background: color-mix(in srgb, var(--found-color) 14%, transparent);
     --found-border-color: color-mix(in srgb, var(--found-color) 70%, transparent);
     --found-color: oklch(from var(--color-yellow-500) 0.72 c calc(h - 35));
-    &-badge {
-        --gap-horizontal: calc(var(--size-300) / 2);
-        --gap-vertical: calc(var(--size-300) / 2);
-
-        &-part--staged {
-            --padding-horizontal: calc(var(--size-300) / 4);
-        }
-    }
-
-    &-drag {
-        @extend %surface-raise;
-        --gap-horizontal: var(--item-gap-horizontal);
-        --gap-vertical: var(--item-gap-horizontal);
-        --padding-horizontal: var(--size-100);
-        --padding-vertical: calc(var(--size-100) / 4);
-    }
-
-    &-find {
-        &-bar {
-            @extend %surface-raise;
-            --gap-horizontal: calc(var(--size-100) / 4);
-            --gap-vertical: calc(var(--size-100) / 4);
-            --padding-horizontal: calc(var(--size-300) / 4);
-            --padding-vertical: calc(var(--size-300) / 4);
-        }
-
-        &-button {
-            @extend %background-state;
-        }
-
-        &-count {
-            --padding-horizontal: calc(var(--size-100) / 4);
-        }
-
-        &-input {
-            --padding-horizontal: calc(var(--size-300) / 4);
-        }
-
-        &-note {
-            @extend %surface-raise;
-            --padding-horizontal: calc(var(--size-300) / 4);
-        }
-    }
-
-    &-input {
-        @extend %surface-raise;
-        --padding-horizontal: calc(var(--size-300) / 4);
-    }
-
-    &-message {
-        --padding-horizontal: calc(var(--size-300) / 2);
-        --padding-vertical: calc(var(--size-100) / 4);
-    }
-
-    &-sticky {
-        &-rows {
-            @extend %surface-raise;
-        }
-    }
 
     @each $family, $color in $families {
         --icon-#{$family}: #{$color};
     }
 
-    --icon-size: var(--size-400);
     --ignored-color: var(--color-text-300);
     // Past '--row-padding-horizontal' plus half '--twistie-size', so a nested row, and the highlight on it, starts clear of its
     // parent's guide.
     --indent: var(--size-500);
     --indicator-color: var(--surface-border-default);
-    --indicator-duration: 0.15s;
     --indicator-hover: var(--surface-border-pressed);
     --input-border-color: var(--color-blue-400);
     --input-radius: var(--border-radius-200);
@@ -215,11 +156,8 @@ $icons: (
     --message-background: color-mix(in srgb, var(--error-color) 10%, var(--surface-background-default));
     --message-font-size: var(--font-size-200);
     --modified-color: light-dark(oklch(from var(--color-yellow-500) 0.62 c h), oklch(from var(--color-yellow-500) 0.76 c h));
-    --motion-easing: cubic-bezier(0.23, 1, 0.32, 1);
     --notice-color: var(--color-text-300);
     --open-color: var(--color-primary-300);
-    --reveal-delay: 0.05s;
-    --reveal-duration: 0.2s;
     --root-font-size: var(--font-size-200);
     --root-font-weight: var(--font-weight-600);
     --row-height: 22px;
@@ -240,13 +178,109 @@ $icons: (
     --unsaved-color: var(--color);
     --warning-color: light-dark(oklch(from var(--color-yellow-500) 0.62 c calc(h - 25)), oklch(from var(--color-yellow-500) 0.76 c calc(h - 25)));
 
-    // A tree's own icons take its '--icon-size', which may be set on the tree.
-    & &-icon.icon {
-        --icon-size: inherit;
+    // High contrast themes swap every color for the system palette, so the guides take its gray, and its text on hover.
+    @media (forced-colors: active) {
+        --indicator-color: GrayText;
+        --indicator-hover: CanvasText;
+    }
+
+
+    &--indicator {
+        --indicator-display: block;
+
+        // On the tree rather than the viewport, so the copies standing in for rows mid-motion, laid beside the
+        // viewport, brighten and show along with the rest.
+        &:hover {
+            --indicator-color: var(--indicator-hover);
+        }
+    }
+
+    &--indicator-hover {
+        --indicator-opacity: 0;
+
+        &:hover {
+            --indicator-opacity: 1;
+        }
+    }
+
+
+    &-badge {
+        --gap-horizontal: calc(var(--size-300) / 2);
+        --gap-vertical: calc(var(--size-300) / 2);
+
+        &-part--staged {
+            --padding-horizontal: calc(var(--size-300) / 4);
+        }
     }
 
     &-chevron.icon {
         --size: var(--twistie-size);
+        --transition-duration: 150ms;
+        --transition-timing-function: ease-out;
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
+    }
+
+    &-drag {
+        @extend %surface-raise;
+
+        &--copy {
+            --drag-copy-display: block;
+        }
+
+        --gap-horizontal: var(--item-gap-horizontal);
+        --gap-vertical: var(--item-gap-horizontal);
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: calc(var(--size-100) / 4);
+    }
+
+    &-find {
+        &-bar {
+            @extend %surface-raise;
+            --gap-horizontal: calc(var(--size-100) / 4);
+            --gap-vertical: calc(var(--size-100) / 4);
+            --padding-horizontal: calc(var(--size-300) / 4);
+            --padding-vertical: calc(var(--size-300) / 4);
+        }
+
+        &-bar,
+        &-note {
+            --border-width: 1px;
+        }
+
+        &-button {
+            @extend %background-state;
+            --background-active: inherit;
+            --background-hover: inherit;
+            --background-pressed: var(--background-hover);
+            --border-width: 1px;
+            --disabled-opacity: 0.4;
+
+            &:disabled {
+                --background-hover: var(--background-default);
+            }
+
+            &[aria-pressed='true'] {
+                --background-default: var(--background-active);
+                --background-hover: var(--background-active);
+            }
+        }
+
+        &-count {
+            --padding-horizontal: calc(var(--size-100) / 4);
+        }
+
+        &-input {
+            --border-width: 1px;
+            --padding-horizontal: calc(var(--size-300) / 4);
+        }
+
+        &-note {
+            @extend %surface-raise;
+            --padding-horizontal: calc(var(--size-300) / 4);
+        }
     }
 
     &-find-icon.icon {
@@ -263,10 +297,9 @@ $icons: (
 
     // Overridden per family, per icon by '--icon-color-<icon>', or all at once by '--icon-color'. Icons drawn outside a
     // tree, as in tabs or a palette's rows, fall back to the same families and size themselves rather than read some
-    // other component's '--icon-size'.
+    // other component's size.
     &-icon.icon {
-        --icon-size: var(--size-400);
-        --size: var(--icon-size);
+        --size: var(--size-400);
 
         @each $icon, $family in $icons {
             &.file-tree-icon--#{$icon} {
@@ -278,20 +311,62 @@ $icons: (
         }
     }
 
+    &-input {
+        @extend %surface-raise;
+        --border-width: 1px;
+        --height: calc(var(--row-height) - 2px);
+        --padding-horizontal: calc(var(--size-300) / 4);
+        --readonly-opacity: 0.6;
+    }
+
     &-marker.icon {
         --color: var(--marker-color);
         --size: var(--marker-size);
     }
 
+    // Lines up with the input, past the row's twistie and icon.
+    &-message {
+        --border-width: 1px;
+        --inset-start: calc(var(--row-padding-horizontal) + var(--twistie-size) + var(--size-400) + var(--item-gap-horizontal) * 2);
+        --padding-horizontal: calc(var(--size-300) / 2);
+        --padding-vertical: calc(var(--size-100) / 4);
+    }
+
+    // A folder's rows fade in a beat behind the opening, and the guides fade in and out on hover.
     &-row {
+        --border-width: 1px;
+        --disabled-opacity: 0.5;
         --gap-horizontal: var(--item-gap-horizontal);
         --gap-vertical: var(--item-gap-horizontal);
+        --guide-direction: 1;
+        --indicator-duration: 0.15s;
+        --indicator-timing-function: ease-out;
+        --reveal-delay: 0.05s;
+        --reveal-duration: 0.2s;
+        --reveal-timing-function: ease-out;
 
         @each $tone in added, conflict, deleted, error, ignored, modified, warning {
             &--#{$tone} {
                 --tone: var(--#{$tone}-color);
             }
         }
+
+        &--deleted {
+            --name-decoration: line-through;
+        }
+
+        // A copy in the sticky stack, which covers the highlight, so it shows its own hover and selection.
+        &--pinned {
+            --background-selected: var(--background-active);
+        }
+
+        &:dir(rtl) {
+            --guide-direction: -1;
+        }
+    }
+
+    &-segment {
+        --border-width: 1px;
     }
 
     &-separator {
@@ -300,12 +375,21 @@ $icons: (
 
     &-spinner.loading {
         --color: currentColor;
-        --size: var(--icon-size);
+        --size: var(--size-400);
+    }
+
+    &-sticky {
+        &-rows {
+            @extend %surface-raise;
+        }
     }
 
     &-toggle {
         --background-hover: inherit;
         --color-default: var(--toggle-color);
+        --height: 32px;
+        --inset-horizontal: var(--size-100);
+        --inset-vertical: 4px;
         --padding-horizontal: var(--size-100);
         --padding-vertical: 0px;
     }
@@ -313,5 +397,20 @@ $icons: (
     // Long paths wrap anywhere rather than run off the screen.
     &-tooltip.tooltip-shared {
         --white-space: normal;
+    }
+
+    // The viewport holds the pointer for the whole drag, so its cursor is the one that shows; its rows take it too.
+    &-viewport {
+        &--drag {
+            --drag-cursor: grabbing;
+        }
+
+        &--drag-copy {
+            --drag-cursor: copy;
+        }
+
+        &--drag-none {
+            --drag-cursor: no-drop;
+        }
     }
 }

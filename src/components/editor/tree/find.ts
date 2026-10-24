@@ -1,4 +1,4 @@
-import { peek, reactive, read, write, type Signal } from '@esportsplus/reactivity';
+import { flush, peek, reactive, read, write, type Signal } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import icon from '~/components/icon';
 import fuzzy from '~/shared/fuzzy';
@@ -300,7 +300,8 @@ class Finder {
 
         if (state.open) {
             if (this.input) {
-                this.input.value = state.text;
+                // The field binds 'text'; flushed so it holds the new text before it's selected.
+                flush();
                 this.input.focus();
 
                 if (this.selecting) {
@@ -344,7 +345,6 @@ class Finder {
                                 'aria-invalid': () => read(this.query) !== '' && !state.count ? 'true' : 'false',
                                 onconnect: (element: HTMLInputElement) => {
                                     this.input = element;
-                                    element.value = state.text;
                                     element.focus({ preventScroll: true });
 
                                     if (this.selecting) {
@@ -385,7 +385,8 @@ class Finder {
                                     }
 
                                     event.preventDefault();
-                                }
+                                },
+                                value: () => state.text
                             }}
                         />
                         <span aria-live='polite' class='file-tree-find-count'>
