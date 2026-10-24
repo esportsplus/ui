@@ -4,7 +4,6 @@ import form from '~/components/form';
 import icon from '~/components/icon';
 import check from '@esportsplus/ui/svg/check.svg';
 import { group } from './group';
-import './scss/index.scss';
 
 
 type A = Attributes & { type?: never };

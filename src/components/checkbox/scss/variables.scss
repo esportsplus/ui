@@ -21,13 +21,6 @@
     --box-shadow-default: none;
     --box-shadow-hover: var(--box-shadow-default);
     --box-shadow-pressed: var(--box-shadow-default);
-    --check-linecap: round;
-    --check-linejoin: round;
-    --check-offset: 1;
-    --check-size: 80%;
-    --check-stroke-width: 4;
-    --check-timing-function: ease;
-    --dash-offset: 1;
     --focus-color: var(--border-color-active);
     --focus-offset: calc(var(--size-100) / 4);
     --focus-width: var(--border-width-500);
@@ -90,16 +83,29 @@
     }
 
     &-group {
-        --border-color: var(--surface-border-default);
         --color: var(--color-text-500);
-        --color-muted: var(--color-text-300);
         --gap-horizontal: var(--size-300);
         --gap-vertical: 0px;
+
+        &-counter {
+            --color: var(--color-text-300);
+        }
+
+        &-hint {
+            --color: var(--color-text-300);
+
+            &-key {
+                --border-color: var(--surface-border-default);
+                --border-width: 1px;
+                --padding-horizontal: calc(var(--size-100) / 2);
+                --padding-vertical: 1px;
+            }
+        }
     }
 
 
-    &:has(input:checked) {
-        --check-offset: 0;
+    &:has(input:checked) .checkbox-check.icon {
+        --offset: 0;
     }
 
     &:has(input:checked, input:indeterminate) {
@@ -111,8 +117,8 @@
     }
 
     // The group header's dash, drawn while some but not all of its options are checked.
-    &:has(input:indeterminate) {
-        --dash-offset: 0;
+    &:has(input:indeterminate) .checkbox-group-dash.icon {
+        --offset: 0;
     }
 
     &:not(:has(input:checked, input:indeterminate)) {
@@ -134,5 +140,21 @@
             --indicator-color: var(--indicator-color-hover);
             --scale: var(--scale-hover);
         }
+    }
+
+    // Chained through '.icon' so they win over the icon's own size regardless of stylesheet order.
+    .checkbox-check.icon,
+    .checkbox-group-dash.icon {
+        --linecap: round;
+        --linejoin: round;
+        --offset: 1;
+        --size: 80%;
+        --stroke-width: 4;
+        --transition-duration: 0.16s;
+        --transition-timing-function: ease;
+    }
+
+    .checkbox-check.icon {
+        --inset-horizontal: 1px;
     }
 }

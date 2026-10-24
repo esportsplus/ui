@@ -22,6 +22,10 @@
         box-shadow var(--transition-duration) var(--transition-timing-function);
     width: var(--width);
 
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+
 
     &--radio {
         &::before {
@@ -45,6 +49,10 @@
                 scale var(--transition-duration) var(--transition-timing-function),
                 translate var(--transition-duration) var(--transition-timing-function);
             width: var(--width);
+
+            @media (prefers-reduced-motion: reduce) {
+                transition: none;
+            }
         }
     }
 
@@ -67,7 +75,7 @@
         gap: var(--gap-vertical) 0px;
 
         &-counter {
-            color: var(--color-muted);
+            color: var(--color);
             flex: 0 0 auto;
             font-size: var(--font-size-300);
             font-variant-numeric: tabular-nums;
@@ -82,17 +90,18 @@
         }
 
         &-hint {
-            color: var(--color-muted);
+            color: var(--color);
             font-size: var(--font-size-300);
             margin: 0;
             user-select: none;
 
             &-key {
-                border: 1px solid var(--border-color);
+                border: var(--border-width) solid var(--border-color);
                 border-radius: var(--border-radius-200);
                 font-family: inherit;
                 font-size: inherit;
-                padding: 1px calc(var(--size-100) / 2);
+                padding-block: var(--padding-vertical);
+                padding-inline: var(--padding-horizontal);
             }
         }
 
@@ -121,11 +130,7 @@
     }
 
     .checkbox-check {
-        left: 1px;
-
-        svg {
-            stroke-dashoffset: var(--check-offset);
-        }
+        left: var(--inset-horizontal);
     }
 
     // The group header's dash draws with the same variables and timing as the checkmark it replaces. Qualified by the
@@ -133,32 +138,22 @@
     .checkbox-check,
     .checkbox-group-dash {
         @extend %absolute-full;
-        height: var(--check-size);
         margin: auto;
         pointer-events: none;
-        width: var(--check-size);
 
         svg {
             @extend %icon-stroke-draw;
             fill: none;
             stroke: var(--indicator-color);
-            stroke-linecap: var(--check-linecap);
-            stroke-linejoin: var(--check-linejoin);
-            stroke-width: var(--check-stroke-width);
-            transition: stroke-dashoffset var(--transition-duration) var(--check-timing-function);
-        }
-    }
+            stroke-dashoffset: var(--offset);
+            stroke-linecap: var(--linecap);
+            stroke-linejoin: var(--linejoin);
+            stroke-width: var(--stroke-width);
+            transition: stroke-dashoffset var(--transition-duration) var(--transition-timing-function);
 
-    .checkbox-group-dash svg {
-        stroke-dashoffset: var(--dash-offset);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &,
-        &::before,
-        .checkbox-check svg,
-        .checkbox-group-dash svg {
-            transition: none;
+            @media (prefers-reduced-motion: reduce) {
+                transition: none;
+            }
         }
     }
 }
