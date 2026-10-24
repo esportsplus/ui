@@ -9,6 +9,7 @@
         height var(--resize-duration) var(--resize-timing-function),
         opacity var(--transition-duration) var(--transition-timing-function),
         transform var(--transition-duration) var(--transition-timing-function);
+    // Last: the base ends in nested rules, which Sass emits after every declaration of the rule.
     @include field.base;
 
     &--autoresize {
@@ -54,12 +55,13 @@
     &--scrollable {
         --scrollbar-overflow: auto;
     }
-}
 
-.textarea-resize {
-    display: grid;
-    flex: 1 1 auto;
-    min-width: 0;
-    position: relative;
-    width: 100%;
+
+    &-resize {
+        display: grid;
+        flex: 1 1 auto;
+        min-width: 0;
+        position: relative;
+        width: 100%;
+    }
 }

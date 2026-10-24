@@ -96,6 +96,7 @@ export default component(function(
                     field = element;
                     motion.attributes.onconnect(element);
                     owner = element.form;
+                    // A form's reset never reaches the field's own bindings, so it is heard on the form.
                     owner?.addEventListener('reset', reset);
                 },
                 ondisconnect: () => {
