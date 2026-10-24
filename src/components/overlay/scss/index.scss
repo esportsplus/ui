@@ -59,6 +59,13 @@ $edge-fill: (
         }
     }
 
+    // Every placement fades in place instead of travelling.
+    @media (prefers-reduced-motion: reduce) {
+        transition:
+            filter var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function);
+    }
+
     &::backdrop {
         background: var(--backdrop);
         transition: opacity var(--transition-duration) var(--transition-timing-function);
@@ -147,9 +154,9 @@ $edge-fill: (
         transform-origin: left;
     }
 
-    &--w,
     &--nw,
-    &--sw {
+    &--sw,
+    &--w {
         margin-inline-start: var(--margin-horizontal);
 
         &:not(.overlay--floating) {
@@ -158,66 +165,19 @@ $edge-fill: (
         }
     }
 
-    &-handle {
-        background: var(--handle-color);
-        border-radius: var(--handle-thickness);
-        height: var(--handle-thickness);
-        position: absolute;
-        touch-action: none;
-        width: var(--handle-length);
-
-        .overlay--e > & {
-            left: var(--handle-offset);
-        }
-
-        .overlay--e > &,
-        .overlay--w > & {
-            height: var(--handle-length);
-            top: 50%;
-            translate: 0 -50%;
-            width: var(--handle-thickness);
-        }
-
-        .overlay--n > &,
-        .overlay--ne > &,
-        .overlay--nw > & {
-            bottom: var(--handle-offset);
-        }
-
-        .overlay--n > &,
-        .overlay--ne > &,
-        .overlay--nw > &,
-        .overlay--s > &,
-        .overlay--se > &,
-        .overlay--sw > & {
-            left: 50%;
-            translate: -50% 0;
-        }
-
-        .overlay--s > &,
-        .overlay--se > &,
-        .overlay--sw > & {
-            top: var(--handle-offset);
-        }
-
-        .overlay--w > & {
-            right: var(--handle-offset);
-        }
-
-        .overlay:not(.overlay--e, .overlay--n, .overlay--ne, .overlay--nw, .overlay--s, .overlay--se, .overlay--sw, .overlay--w) > & {
-            display: none;
-        }
-    }
-
-
     // '--depth' is how many layers are open above this one, fractional while the top one is dragged away.
-    &.overlay--covered {
+    &#{&}--covered {
         filter: brightness(calc(1 - min(var(--depth), 1) * var(--stack-dim)));
         scale: pow(var(--stack-scale), var(--depth));
         translate: var(--stack-translate);
+
+        @media (prefers-reduced-motion: reduce) {
+            scale: none;
+            translate: none;
+        }
     }
 
-    &.overlay--draggable {
+    &#{&}--draggable {
         cursor: grab;
         outline: none;
         touch-action: none;
@@ -235,14 +195,14 @@ $edge-fill: (
     }
 
     // Fades with the drag, in step with its backdrop.
-    &.overlay--dragging {
+    &#{&}--dragging {
         cursor: grabbing;
         opacity: calc(1 - var(--progress, 0));
     }
 
     // Following the finger: the layers beneath the dragged one track it too, so neither may ease.
-    &.overlay--dragging,
-    &.overlay--tracking {
+    &#{&}--dragging,
+    &#{&}--tracking {
         &,
         &::backdrop {
             transition: none;
@@ -252,7 +212,7 @@ $edge-fill: (
     // Border paint reaches outside a scrolling surface without adding overflow or using its pseudo-elements. The
     // fill reaches 1px past its outset into the box, under the content: two paints meeting on one fractional edge
     // each antialias it, and the page shows through the seam.
-    &.overlay--edge-fill {
+    &#{&}--edge-fill {
         border-image-outset: var(--edge-fill);
         border-image-repeat: stretch;
         border-image-slice: 1;
@@ -269,7 +229,7 @@ $edge-fill: (
 
     // Always open; '--active' expands it. Rows keep their width and are clipped rather than reflowed, so the
     // collapsed rail shows whatever leads each row (usually an icon).
-    &.overlay--rail {
+    &#{&}--rail {
         overflow: hidden;
         transition: width var(--transition-duration) var(--transition-timing-function);
         white-space: nowrap;
@@ -293,31 +253,62 @@ $edge-fill: (
 
 
     // Only the lowest modal backdrop dims the page; the layers above it dim what they cover themselves.
-    &.overlay--stacked::backdrop {
+    &#{&}--stacked::backdrop {
         opacity: 0;
     }
 
-    // Every placement fades in place instead of travelling.
-    @media (prefers-reduced-motion: reduce) {
-        --opacity: 0;
-        --scale: 1;
-        --translate: 0px;
 
-        & {
-            transition:
-                filter var(--transition-duration) var(--transition-timing-function),
-                opacity var(--transition-duration) var(--transition-timing-function);
+    &-handle {
+        background: var(--background);
+        border-radius: var(--thickness);
+        height: var(--thickness);
+        position: absolute;
+        touch-action: none;
+        width: var(--length);
+
+        .overlay--e > & {
+            left: var(--offset);
         }
 
-        &.overlay--covered {
-            scale: none;
-            translate: none;
+        .overlay--e > &,
+        .overlay--w > & {
+            height: var(--length);
+            top: 50%;
+            translate: 0 -50%;
+            width: var(--thickness);
         }
 
-        &::backdrop {
-            transition: opacity var(--transition-duration) var(--transition-timing-function);
+        .overlay--n > &,
+        .overlay--ne > &,
+        .overlay--nw > & {
+            bottom: var(--offset);
+        }
+
+        .overlay--n > &,
+        .overlay--ne > &,
+        .overlay--nw > &,
+        .overlay--s > &,
+        .overlay--se > &,
+        .overlay--sw > & {
+            left: 50%;
+            translate: -50% 0;
+        }
+
+        .overlay--s > &,
+        .overlay--se > &,
+        .overlay--sw > & {
+            top: var(--offset);
+        }
+
+        .overlay--w > & {
+            right: var(--offset);
+        }
+
+        .overlay:not(.overlay--e, .overlay--n, .overlay--ne, .overlay--nw, .overlay--s, .overlay--se, .overlay--sw, .overlay--w) > & {
+            display: none;
         }
     }
+
 
     // Opt-in: a direct child of <body> recedes behind modal overlays, and a direct child of a non-modal overlay's
     // container behind that overlay.

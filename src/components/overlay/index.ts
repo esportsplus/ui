@@ -44,7 +44,9 @@ const CENTER: Direction = { axis: 'y', sign: 1 };
 const OVERLAY_HANDLE = Symbol.for('@esportsplus/ui/overlay.handle');
 
 
-// Open overlays in the order they opened. It is global because the top layer they stack in is.
+// Open overlays in the order they opened. It is global because the top layer they stack in is. Their state classes and
+// properties are written straight to the dialogs: the lifecycle adds '--active' by hand, which a bound class list would
+// drop each time it rewrote the attribute, and a drag writes them on every move.
 let layers: Layer[] = [],
     overlaid = new Set<HTMLElement>();
 
