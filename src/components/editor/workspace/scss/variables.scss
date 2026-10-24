@@ -13,17 +13,12 @@
     --background-default: var(--surface-background-default);
     --bar-height: var(--size-800);
     --border-color-default: var(--surface-border-default);
-    --close-icon-size: var(--size-200);
     --close-size: var(--size-400);
     --color: var(--color-text-500);
     --columns: var(--main-track) var(--aside-track);
-    --confirm-background: var(--surface-background-default);
-    --confirm-color: var(--color);
-    --confirm-hover: var(--control-active-background);
     --content-delay: 0s;
     --content-visibility: visible;
     --control-active-background: var(--surface-background-active);
-    --control-icon-size: var(--size-300);
     --control-size: var(--size-600);
     --dirty-size: calc(var(--size-100) * 0.75);
     --disabled-opacity: 0.45;
@@ -69,7 +64,6 @@
     --spacing: var(--size-100);
     --spacing-tight: calc(var(--size-100) / 2);
     --status-font-size: var(--font-size-100);
-    --status-icon-size: var(--size-200);
     --status-item-height: var(--size-500);
     --status-item-hover: var(--control-active-background);
     --status-row: 2;
@@ -77,6 +71,22 @@
     --tab-hover-background: var(--surface-background-hover);
     --tab-max-width: 160px;
     --tabs-height: var(--size-700);
+
+    @media (forced-colors: active) {
+        --accent: Highlight;
+        --accent-color: HighlightText;
+        --background-default: Canvas;
+        --border-color-default: CanvasText;
+        --color: CanvasText;
+        --error-color: CanvasText;
+        --muted-color: CanvasText;
+        --raised: Canvas;
+        --surface: Canvas;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --drawer-duration: 0s;
+    }
 
 
     // A hidden explorer overlays the editor as a drawer that rests offscreen but for its edge.
@@ -162,40 +172,44 @@
         --font-size: var(--font-size-200);
     }
 
-    &-choice-icon.icon {
-        --size: var(--control-icon-size);
+    // Chained through '.icon' so these win over the icon's own size regardless of stylesheet order.
+    &-choice-icon.icon,
+    &-command-icon.icon {
+        --size: var(--size-300);
     }
 
-    &-confirm-actions {
-        --gap-horizontal: var(--spacing);
-        --gap-vertical: var(--spacing);
-    }
-
-    &-confirm-button {
-        --background-default: var(--confirm-background);
-        --background-hover: var(--confirm-hover);
-        --border-radius: var(--radius);
-        --color-default: var(--confirm-color);
-        --padding-horizontal: var(--size-300);
-        --padding-vertical: var(--spacing);
-
-        &--primary {
-            --confirm-background: var(--accent);
-            --confirm-color: var(--accent-color);
-            --confirm-hover: var(--color-accent-500);
+    &-confirm {
+        &-actions {
+            --gap-horizontal: var(--spacing);
+            --gap-vertical: var(--spacing);
         }
-    }
 
-    &-confirm.card {
-        --border-radius: var(--border-radius-500);
-        --border-width: 0px;
-        --max-width: 440px;
-        --padding-horizontal: var(--size-500);
-        --padding-vertical: var(--size-500);
-    }
+        &-button {
+            --background-default: var(--surface-background-default);
+            --background-hover: var(--control-active-background);
+            --border-radius: var(--radius);
+            --color-default: var(--color);
+            --padding-horizontal: var(--size-300);
+            --padding-vertical: var(--spacing);
 
-    &-confirm-text {
-        --margin-vertical: var(--spacing);
+            &--primary {
+                --background-default: var(--accent);
+                --background-hover: var(--color-accent-500);
+                --color-default: var(--accent-color);
+            }
+        }
+
+        &-text {
+            --margin-vertical: var(--spacing);
+        }
+
+        &.card {
+            --border-radius: var(--border-radius-500);
+            --border-width: 0px;
+            --max-width: 440px;
+            --padding-horizontal: var(--size-500);
+            --padding-vertical: var(--size-500);
+        }
     }
 
     &-control {
@@ -204,13 +218,11 @@
         --background-default: transparent;
         --background-hover: var(--control-active-background);
         --border-radius: var(--radius);
-        // Sizes the sidebar toggle's glyph like the other control icons.
-        --icon-size: var(--control-icon-size);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
 
         &-icon.icon {
-            --size: var(--control-icon-size);
+            --size: var(--size-300);
         }
     }
 
@@ -240,6 +252,59 @@
             --gap-horizontal: var(--spacing-tight);
             --gap-vertical: var(--spacing-tight);
             --padding-horizontal: var(--spacing);
+        }
+    }
+
+    &-keybindings {
+        --columns: minmax(0, 1fr) minmax(9rem, auto) 4.5rem 4.5rem;
+        --conflict-color: var(--color-red-400);
+        --row-height: var(--size-800);
+
+        &-button {
+            --background-default: var(--surface-background-default);
+            --background-hover: var(--control-active-background);
+            --border-radius: var(--radius);
+            --color-default: var(--color);
+            --padding-horizontal: var(--size-200);
+            --padding-vertical: var(--spacing-tight);
+
+            &--primary {
+                --background-default: var(--accent);
+                --background-hover: var(--color-accent-500);
+                --color-default: var(--accent-color);
+            }
+        }
+
+        &-conflict,
+        &-header,
+        &-keys {
+            --gap-horizontal: var(--spacing);
+            --gap-vertical: var(--spacing);
+        }
+
+        &-recorder--add.shortcut-recorder {
+            --min-width: var(--size-600);
+        }
+
+        &-recorder.shortcut-recorder {
+            --font-size: var(--font-size-200);
+            --height: var(--size-600);
+        }
+
+        &-row {
+            --padding-vertical: var(--spacing-tight);
+
+            &--head {
+                --padding-vertical: var(--spacing);
+            }
+        }
+
+        &.card {
+            --border-radius: var(--border-radius-500);
+            --border-width: 0px;
+            --max-width: 760px;
+            --padding-horizontal: var(--size-500);
+            --padding-vertical: var(--size-500);
         }
     }
 
@@ -294,7 +359,7 @@
         --padding-vertical: var(--spacing-tight);
 
         &-icon.icon {
-            --size: var(--status-icon-size);
+            --size: var(--size-200);
         }
 
         &-item.button {
@@ -334,12 +399,12 @@
             --padding-vertical: 0px;
 
             &-icon.icon {
-                --size: var(--close-icon-size);
+                --size: var(--size-200);
             }
         }
 
         &-pin.icon {
-            --size: var(--close-icon-size);
+            --size: var(--size-200);
         }
     }
 
@@ -354,79 +419,5 @@
             --background-default: var(--tab-hover-background);
             --line-color: var(--accent);
         }
-    }
-
-
-    @media (forced-colors: active) {
-        --accent: Highlight;
-        --accent-color: HighlightText;
-        --background-default: Canvas;
-        --border-color-default: CanvasText;
-        --color: CanvasText;
-        --error-color: CanvasText;
-        --muted-color: CanvasText;
-        --raised: Canvas;
-        --surface: Canvas;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        --drawer-duration: 0s;
-    }
-}
-
-.code-workspace-command-icon.icon {
-    --size: var(--control-icon-size);
-}
-
-.code-workspace-keybindings {
-    --columns: minmax(0, 1fr) minmax(9rem, auto) 4.5rem 4.5rem;
-    --conflict-color: var(--color-red-400);
-    --row-height: var(--size-800);
-
-    &-button {
-        --background-default: var(--confirm-background, transparent);
-        --background-hover: var(--confirm-hover, var(--control-active-background));
-        --border-radius: var(--radius);
-        --color-default: var(--confirm-color, var(--color));
-        --padding-horizontal: var(--size-200);
-        --padding-vertical: var(--spacing-tight);
-
-        &--primary {
-            --confirm-background: var(--accent);
-            --confirm-color: var(--accent-color);
-            --confirm-hover: var(--color-accent-500);
-        }
-    }
-
-    &-conflict,
-    &-header,
-    &-keys {
-        --gap-horizontal: var(--spacing);
-        --gap-vertical: var(--spacing);
-    }
-
-    &-recorder--add.shortcut-recorder {
-        --min-width: var(--size-600);
-    }
-
-    &-recorder.shortcut-recorder {
-        --font-size: var(--font-size-200);
-        --height: var(--size-600);
-    }
-
-    &-row {
-        --padding-vertical: var(--spacing-tight);
-
-        &--head {
-            --padding-vertical: var(--spacing);
-        }
-    }
-
-    &.card {
-        --border-radius: var(--border-radius-500);
-        --border-width: 0px;
-        --max-width: 760px;
-        --padding-horizontal: var(--size-500);
-        --padding-vertical: var(--size-500);
     }
 }

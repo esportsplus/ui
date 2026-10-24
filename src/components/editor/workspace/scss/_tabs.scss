@@ -1,46 +1,57 @@
 .code-workspace {
-    &-document.diffs,
-    &-merge-editor.diffs-merge {
-        flex: 1;
-        min-height: 0;
-    }
+    // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
+    &-tab {
+        flex: none;
+        height: var(--tab-height);
+        max-width: var(--tab-max-width);
+        user-select: none;
 
-    &-merge {
-        display: flex;
-        flex: 1;
-        flex-direction: column;
-        min-height: 0;
-        min-width: 0;
-
-        &-bar {
-            align-items: center;
-            border-bottom: var(--divider);
-            display: flex;
-            flex: none;
-            font-size: var(--font-size-200);
-            gap: var(--gap-vertical) var(--gap-horizontal);
-            justify-content: space-between;
-            padding: var(--padding-vertical) var(--padding-horizontal);
+        &--preview &-name {
+            font-style: italic;
         }
 
-        &-cancel {
+        &-close {
             flex: none;
+            height: var(--close-size);
+            width: var(--close-size);
         }
 
-        &-title {
-            color: var(--muted-color);
+        &-dirty {
+            background: currentColor;
+            border-radius: 50%;
+            flex: none;
+            height: var(--dirty-size);
+            width: var(--dirty-size);
+        }
+
+        &-name {
+            flex: 1;
             min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
+        &-pin.icon {
+            flex: none;
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: calc(var(--focus-width) * -1);
+        }
     }
 
-    &-tab--preview &-tab-name {
-        font-style: italic;
-    }
-
-    &-tab-pin.icon {
+    &-tabs {
+        align-items: center;
+        border-bottom: var(--divider);
+        display: flex;
         flex: none;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        height: var(--tabs-height);
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-inline: var(--padding-horizontal);
+        position: relative;
     }
 }

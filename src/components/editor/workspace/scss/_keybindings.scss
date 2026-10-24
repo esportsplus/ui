@@ -1,163 +1,163 @@
+@use '/tokens';
 @use 'css-utilities/font/geist';
+@use 'css-utilities/hidden';
 
-
-.code-workspace-command-icon.icon {
-    flex: none;
-}
-
-// Inside the workspace, so its custom properties reach the dialog through the DOM even in the top layer.
-.code-workspace-keybindings {
-    &-actions {
-        display: flex;
-        justify-content: flex-end;
-    }
-
-
-    &-button {
+.code-workspace {
+    &-command-icon.icon {
         flex: none;
+    }
 
-        &:disabled {
-            cursor: default;
-            opacity: var(--disabled-opacity);
+    // Inside the workspace, so its custom properties reach the dialog through the DOM even in the top layer.
+    &-keybindings {
+        &-actions {
+            display: flex;
+            justify-content: flex-end;
         }
 
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: var(--border-width-400);
-        }
-    }
 
-    &-command {
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-    }
+        &-button {
+            flex: none;
 
-    &-conflict {
-        align-items: center;
-        color: var(--conflict-color);
-        display: flex;
-        flex-basis: 100%;
-        flex-wrap: wrap;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-    }
+            &:disabled {
+                cursor: default;
+                opacity: var(--disabled-opacity);
+            }
 
-    &-empty {
-        color: var(--muted-color);
-        padding: var(--size-400);
-        text-align: center;
-    }
-
-    &-header {
-        align-items: center;
-        display: flex;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        justify-content: space-between;
-        margin-bottom: var(--size-300);
-    }
-
-    &-hidden {
-        clip-path: inset(50%);
-        height: 1px;
-        overflow: hidden;
-        position: absolute;
-        white-space: nowrap;
-        width: 1px;
-    }
-
-    &-id {
-        @extend %font-geist-mono;
-        color: var(--muted-color);
-        font-family: var(--font-family);
-        font-size: var(--font-size-100);
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    &-key {
-        flex: none;
-
-        &--builtin {
-            cursor: help;
-            opacity: 0.75;
-        }
-    }
-
-    &-keys {
-        align-items: center;
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        min-width: 0;
-    }
-
-    &-label {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    // Only '+' at rest, so the row's built-in keys aren't read as unbound.
-    &-recorder--add.shortcut-recorder {
-        &:not(.--active) .shortcut-recorder-placeholder {
-            font-size: 0;
-
-            &::before {
-                content: '+';
-                font-size: var(--font-size);
+            &:focus-visible {
+                outline: var(--focus-width) solid var(--focus-color);
+                outline-offset: var(--border-width-400);
             }
         }
-    }
 
+        &-command {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
 
-    &-row {
-        align-items: center;
-        border-bottom: var(--divider);
-        display: grid;
-        gap: var(--size-200);
-        grid-template-columns: var(--columns);
-        min-height: var(--row-height);
-        padding-block: var(--padding-vertical);
+        &-conflict {
+            align-items: center;
+            color: var(--conflict-color);
+            display: flex;
+            flex-basis: 100%;
+            flex-wrap: wrap;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+        }
 
-        &--head {
-            background: var(--raised);
+        &-empty {
             color: var(--muted-color);
+            padding: var(--size-400);
+            text-align: center;
+        }
+
+        &-header {
+            align-items: center;
+            display: flex;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            justify-content: space-between;
+            margin-bottom: var(--size-300);
+        }
+
+        &-hidden {
+            @extend %hidden-visually;
+        }
+
+        &-id {
+            @extend %font-geist-mono;
+            color: var(--muted-color);
+            font-family: var(--font-family);
             font-size: var(--font-size-100);
-            font-weight: var(--font-weight-500);
-            inset-block-start: 0;
-            min-height: auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        &-key {
+            flex: none;
+
+            &--builtin {
+                cursor: help;
+                opacity: 0.75;
+            }
+        }
+
+        &-keys {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            min-width: 0;
+        }
+
+        &-label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        // Only '+' at rest, so the row's built-in keys aren't read as unbound.
+        &-recorder--add.shortcut-recorder {
+            @include tokens.state(inactive) {
+                .shortcut-recorder-placeholder {
+                    font-size: 0;
+
+                    &::before {
+                        content: '+';
+                        font-size: var(--font-size);
+                    }
+                }
+            }
+        }
+
+
+        &-row {
+            align-items: center;
+            border-bottom: var(--divider);
+            display: grid;
+            gap: var(--size-200);
+            grid-template-columns: var(--columns);
+            min-height: var(--row-height);
             padding-block: var(--padding-vertical);
-            position: sticky;
-            z-index: 1;
+
+            &--head {
+                background: var(--raised);
+                color: var(--muted-color);
+                font-size: var(--font-size-100);
+                font-weight: var(--font-weight-500);
+                inset-block-start: 0;
+                min-height: auto;
+                padding-block: var(--padding-vertical);
+                position: sticky;
+                z-index: 1;
+            }
+
+            &[hidden] {
+                display: none;
+            }
         }
 
-        &[hidden] {
-            display: none;
+        &-search.input {
+            margin-bottom: var(--size-200);
+            width: 100%;
         }
-    }
 
-    &-search.input {
-        margin-bottom: var(--size-200);
-        width: 100%;
-    }
+        &-source {
+            color: var(--muted-color);
+        }
 
-    &-source {
-        color: var(--muted-color);
-    }
+        &-table {
+            max-height: min(60vh, 32rem);
+            overflow: auto;
+        }
 
-    &-table {
-        max-height: min(60vh, 32rem);
-        overflow: auto;
-    }
+        &-title {
+            font-size: var(--font-size-400);
+            margin: 0;
+        }
 
-    &-title {
-        font-size: var(--font-size-400);
-        margin: 0;
-    }
-
-    // Background and shadow come from the card's surface.
-    &.card {
-        color: var(--color);
-        font-size: var(--font-size-300);
+        // Background and shadow come from the card's surface.
+        &.card {
+            color: var(--color);
+            font-size: var(--font-size-300);
+        }
     }
 }

@@ -44,44 +44,44 @@
         min-width: 0;
     }
 
-    &-confirm-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        justify-content: flex-end;
-        margin-top: var(--size-400);
-    }
+    &-confirm {
+        &-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            justify-content: flex-end;
+            margin-top: var(--size-400);
+        }
 
+        &-button {
+            &:focus-visible {
+                outline: var(--focus-width) solid var(--focus-color);
+                outline-offset: var(--border-width-400);
+            }
+        }
 
-    &-confirm-button {
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: var(--border-width-400);
+        &-files {
+            font-weight: var(--font-weight-500);
+            margin-block: var(--size-200) 0;
+            overflow-wrap: anywhere;
+        }
+
+        &-text {
+            color: var(--muted-color);
+            margin-block: var(--margin-vertical) 0;
+        }
+
+        &-title {
+            font-size: var(--font-size-400);
+            margin: 0;
+        }
+
+        // Background and shadow come from the card's surface.
+        &.card {
+            color: var(--color);
+            font-size: var(--font-size-300);
         }
     }
-
-    &-confirm-files {
-        font-weight: var(--font-weight-500);
-        margin-block: var(--size-200) 0;
-        overflow-wrap: anywhere;
-    }
-
-    &-confirm-text {
-        color: var(--muted-color);
-        margin-block: var(--margin-vertical) 0;
-    }
-
-    &-confirm-title {
-        font-size: var(--font-size-400);
-        margin: 0;
-    }
-
-    // Background and shadow come from the card's surface.
-    &-confirm.card {
-        color: var(--color);
-        font-size: var(--font-size-300);
-    }
-
 
     &-control {
         flex: none;
@@ -100,7 +100,9 @@
     }
 
     &-document.code-editor,
-    &-document.markdown-editor {
+    &-document.diffs,
+    &-document.markdown-editor,
+    &-merge-editor.diffs-merge {
         flex: 1;
         min-height: 0;
     }
@@ -213,6 +215,37 @@
         pointer-events: auto;
     }
 
+    &-merge {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+
+        &-bar {
+            align-items: center;
+            border-bottom: var(--divider);
+            display: flex;
+            flex: none;
+            font-size: var(--font-size-200);
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            justify-content: space-between;
+            padding: var(--padding-vertical) var(--padding-horizontal);
+        }
+
+        &-cancel {
+            flex: none;
+        }
+
+        &-title {
+            color: var(--muted-color);
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
     // An empty layer over the viewport, so the context menu opens where the tree reports and flips at the viewport's
     // edges rather than being clipped by the workspace's.
     &-menu.tooltip {
@@ -240,7 +273,6 @@
             z-index: 1;
         }
     }
-
 
     &-search.input {
         flex: 1;
@@ -288,55 +320,6 @@
         &-position {
             white-space: nowrap;
         }
-    }
-
-
-    // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
-    &-tab {
-        flex: none;
-        height: var(--tab-height);
-        max-width: var(--tab-max-width);
-        user-select: none;
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: calc(var(--focus-width) * -1);
-        }
-    }
-
-    &-tab-close {
-        flex: none;
-        height: var(--close-size);
-        width: var(--close-size);
-    }
-
-    &-tab-dirty {
-        background: currentColor;
-        border-radius: 50%;
-        flex: none;
-        height: var(--dirty-size);
-        width: var(--dirty-size);
-    }
-
-    &-tab-name {
-        flex: 1;
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    &-tabs {
-        align-items: center;
-        border-bottom: var(--divider);
-        display: flex;
-        flex: none;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        height: var(--tabs-height);
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding-inline: var(--padding-horizontal);
-        position: relative;
     }
 
     &-tree {
