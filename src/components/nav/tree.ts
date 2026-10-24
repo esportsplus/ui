@@ -84,11 +84,12 @@ export default component<A>(({ active, current = 'page', indicator = 'highlight'
                 class: ['nav-tree-highlight', indicator !== 'highlight' && 'highlight--rule'],
                 hover: current !== 'command',
                 line: indicator === 'border' || indicator === 'both' ? 'left' : undefined,
-                target: '.nav-tree-link:not(.--hidden)'
+                target: '.nav-tree-link:not([hidden])'
             })}
             ${sections.map((section) => html`
                 <div
-                    class='nav-tree-group ${section.groups.some((group) => group.links.some((link) => link.visible)) && (() => !section.groups.some((group) => group.links.some(visible)) && '--hidden')}'
+                    class='nav-tree-group'
+                    ${section.groups.some((group) => group.links.some((link) => link.visible)) && { hidden: () => !section.groups.some((group) => group.links.some(visible)) }}
                     ${current === 'command' && { 'aria-label': section.label, role: 'group' }}
                 >
                     ${section.href
@@ -104,7 +105,10 @@ export default component<A>(({ active, current = 'page', indicator = 'highlight'
 
                     ${section.groups.map((group) => {
                         return html`
-                            <div class='nav-tree-links ${indicator !== 'highlight' && 'highlight-rule highlight-rule--vertical'} ${group.links.some((link) => link.visible) && (() => !group.links.some(visible) && '--hidden')}'>
+                            <div
+                                class='nav-tree-links ${indicator !== 'highlight' && 'highlight-rule highlight-rule--vertical'}'
+                                ${group.links.some((link) => link.visible) && { hidden: () => !group.links.some(visible) }}
+                            >
                                 ${group.label && html`
                                     <div class='nav-tree-title'>
                                         ${group.label}
@@ -114,7 +118,8 @@ export default component<A>(({ active, current = 'page', indicator = 'highlight'
                                 ${group.links.map((link) => html`
                                     <a
                                         aria-current='${ariaCurrent(link)}'
-                                        class='nav-tree-link ${activeClass(link)} ${link.visible && (() => !visible(link) && '--hidden')}'
+                                        class='nav-tree-link ${activeClass(link)}'
+                                        ${link.visible && { hidden: () => !visible(link) }}
                                         href='${link.href}'
                                         ${{
                                             onclick: (event: Event) => link.onclick?.(event)

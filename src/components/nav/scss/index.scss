@@ -17,10 +17,11 @@
         }
     }
 
+    // Hidden by a filter; their own display would otherwise outrank the attribute's.
     &-group,
     &-link,
     &-links {
-        &.--hidden {
+        &[hidden] {
             display: none;
         }
     }

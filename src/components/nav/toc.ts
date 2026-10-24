@@ -26,13 +26,14 @@ export default component<A>(
                 <div class='nav-tree-title'>${label}</div>
 
                 <div class='nav-tree-links highlight-rule highlight-rule--vertical'>
-                    ${highlight({ class: 'nav-tree-highlight highlight--rule', line: 'left', target: '.nav-tree-link:not(.--hidden)' })}
+                    ${highlight({ class: 'nav-tree-highlight highlight--rule', line: 'left', target: '.nav-tree-link:not([hidden])' })}
                     ${links.map((link) => html`
                         <a
                             aria-current='${() => link.active?.() ? 'location' : 'false'}'
-                            class='nav-tree-link nav-tree-link--truncate ${() => link.active?.() && '--active'} ${() => link.visible?.() === false && '--hidden'}'
+                            class='nav-tree-link nav-tree-link--truncate ${() => link.active?.() && '--active'}'
                             href='${link.href}'
                             ${{
+                                hidden: () => link.visible?.() === false,
                                 onclick: (event: Event) => link.onclick?.(event)
                             }}
                             ${link.attributes}

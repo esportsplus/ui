@@ -155,6 +155,7 @@ const spy = (ids: string[], mode: Mode = 'current') => {
             let resize = observer(schedule),
                 target: EventTarget = root === document.scrollingElement ? window : root;
 
+            // The scroller is the page's or an ancestor's, found at runtime, not an element this template renders.
             target.addEventListener('scroll', schedule, { passive: true });
             target.addEventListener('scrollend', scrollend);
             resize.observe(root);
@@ -185,6 +186,7 @@ const spy = (ids: string[], mode: Mode = 'current') => {
             lock();
             highlight(index, index);
 
+            // The target is the page's heading, outside any template, made focusable so the move reaches assistive tech.
             if (!element.hasAttribute('tabindex')) {
                 element.setAttribute('tabindex', '-1');
             }
