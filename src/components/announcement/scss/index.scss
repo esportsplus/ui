@@ -5,26 +5,14 @@
     display: grid;
     grid-template-rows: 0fr;
     overflow: hidden;
-    transition: grid-template-rows 240ms var(--translate-timing-function);
+    transition: grid-template-rows var(--transition-duration) var(--transition-timing-function);
 
     @include tokens.state(active) {
         grid-template-rows: 1fr;
-        transition: grid-template-rows 280ms var(--translate-timing-function);
     }
 
     @media (prefers-reduced-motion: reduce) {
-        &,
-        #{tokens.state(active)} {
-            transition: none;
-        }
-
-        &-content.overlay {
-            &,
-            #{tokens.state(active)} {
-                filter: none;
-                transition: opacity var(--fade-duration) var(--fade-timing-function);
-            }
-        }
+        transition: none;
     }
 
 
@@ -34,11 +22,19 @@
         transition:
             filter var(--fade-duration) var(--fade-timing-function),
             opacity var(--fade-duration) var(--fade-timing-function),
-            transform var(--transition-duration) var(--translate-timing-function),
-            translate var(--transition-duration) var(--translate-timing-function);
+            transform var(--transition-duration) var(--transition-timing-function),
+            translate var(--transition-duration) var(--transition-timing-function);
 
         @include tokens.state(active) {
             filter: blur(0px);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            &,
+            #{tokens.state(active)} {
+                filter: none;
+                transition: opacity var(--fade-duration) var(--fade-timing-function);
+            }
         }
 
         &.overlay--dragging {
