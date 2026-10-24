@@ -34,7 +34,7 @@
     &-content {
         min-width: 0;
         opacity: var(--opacity);
-        transition: opacity var(--strike-duration) var(--timing-function) var(--strike-delay);
+        transition: opacity var(--strike-duration) var(--strike-timing-function) var(--strike-delay);
     }
 
     &-description {
@@ -48,7 +48,7 @@
         background: var(--background);
         border-radius: var(--border-radius);
         position: relative;
-        transition: background-color var(--transition-duration) var(--timing-function);
+        transition: background-color var(--transition-duration) var(--transition-timing-function);
 
         &--moving {
             z-index: 1;
@@ -73,7 +73,7 @@
         box-decoration-break: clone;
         color: var(--color);
         font-weight: var(--font-weight);
-        transition: background-size var(--strike-duration) var(--timing-function) var(--strike-delay);
+        transition: background-size var(--strike-duration) var(--strike-timing-function) var(--strike-delay);
     }
 
     &-row {
@@ -95,7 +95,7 @@
             margin-top: calc((var(--line-height) - var(--size)) / 2);
             mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='5' r='1.5'/%3E%3Ccircle cx='9' cy='12' r='1.5'/%3E%3Ccircle cx='9' cy='19' r='1.5'/%3E%3Ccircle cx='15' cy='5' r='1.5'/%3E%3Ccircle cx='15' cy='12' r='1.5'/%3E%3Ccircle cx='15' cy='19' r='1.5'/%3E%3C/svg%3E") center / contain no-repeat;
             opacity: var(--opacity);
-            transition: opacity var(--transition-duration) var(--timing-function);
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
         }
     }
 }
