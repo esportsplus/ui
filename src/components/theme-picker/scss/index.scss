@@ -1,57 +1,35 @@
+@use '/tokens';
+@use 'css-utilities/reset';
 @use 'variables';
-
-
-%theme-picker-reset {
-    background: transparent;
-    border: 0;
-    color: inherit;
-    cursor: pointer;
-    font: inherit;
-    padding: 0;
-
-    &:focus-visible {
-        outline: 2px solid var(--color-blue-400);
-        outline-offset: calc(var(--size-100) / 4);
-    }
-}
-
 
 .theme-picker {
     &-cards {
         display: flex;
-        gap: var(--size-300);
+        gap: var(--gap-horizontal);
 
         &-label {
-            color: var(--color-text-300);
-            font-size: var(--font-size-200);
+            color: var(--color);
+            font-size: var(--font-size);
+            font-weight: var(--font-weight);
         }
 
         &-option {
-            @extend %theme-picker-reset;
             display: grid;
-            gap: var(--size-200);
+            gap: var(--gap-vertical);
             justify-items: center;
-
-            &[aria-checked='true'] .theme-picker-cards-label {
-                color: var(--color-text-500);
-                font-weight: var(--font-weight);
-            }
-
-            &[aria-checked='true'] .theme-picker-cards-preview {
-                outline: 2px solid var(--color-blue-400);
-                outline-offset: calc(var(--size-100) / 4);
-            }
         }
 
         &-preview {
-            border: 1px solid var(--surface-border-default);
-            border-radius: var(--border-radius-300);
+            border: var(--border-width) solid var(--border-color);
+            border-radius: var(--border-radius);
             display: grid;
-            gap: calc(var(--size-200) / 2);
-            height: 48px;
+            gap: var(--gap-vertical);
+            height: var(--height);
+            outline: var(--ring-width) solid var(--ring-color);
+            outline-offset: var(--ring-offset);
             overflow: hidden;
-            padding: 7px;
-            width: 64px;
+            padding: var(--padding);
+            width: var(--width);
 
             &--dark {
                 background: var(--color-black-400);
@@ -65,24 +43,25 @@
                 background: linear-gradient(135deg, var(--color-white-300) 50%, var(--color-black-400) 50%);
             }
 
-            &-bar {
-                background: var(--bar);
-                border-radius: var(--border-radius-100);
-                height: 6px;
-                opacity: 0.8;
-                width: 60%;
-            }
-
+            &-bar,
             &-line {
-                background: var(--bar);
+                background: var(--ink);
                 border-radius: var(--border-radius-100);
-                height: 4px;
-                opacity: 0.35;
-
-                &--short {
-                    width: 70%;
-                }
+                height: var(--height);
+                opacity: var(--opacity);
+                width: var(--width);
             }
+        }
+    }
+
+    &-cards-option,
+    &-swatches-option,
+    &-toggle-option {
+        @extend %reset-button;
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
         }
     }
 
@@ -93,14 +72,15 @@
 
     &-swatches {
         display: flex;
-        gap: var(--size-500);
+        gap: var(--gap-horizontal);
 
         &-circle {
-            border: 1px solid var(--surface-border-hover);
+            border: var(--border-width) solid var(--border-color);
             border-radius: 50%;
+            box-shadow: var(--box-shadow);
             display: block;
-            height: 36px;
-            width: 36px;
+            height: var(--size);
+            width: var(--size);
 
             &--dark {
                 background: var(--color-black-400);
@@ -116,26 +96,15 @@
         }
 
         &-label {
-            color: var(--color-text-300);
-            font-size: var(--font-size-200);
+            color: var(--color);
+            font-size: var(--font-size);
+            font-weight: var(--font-weight);
         }
 
         &-option {
-            @extend %theme-picker-reset;
             display: grid;
-            gap: var(--size-200);
+            gap: var(--gap-vertical);
             justify-items: center;
-
-            &[aria-checked='true'] .theme-picker-swatches-circle {
-                box-shadow:
-                    0 0 0 2px var(--surface-background-default),
-                    0 0 0 4px var(--color-blue-400);
-            }
-
-            &[aria-checked='true'] .theme-picker-swatches-label {
-                color: var(--color-text-500);
-                font-weight: var(--font-weight);
-            }
         }
     }
 
@@ -146,18 +115,18 @@
 
         // Every length the menu's width and the current option's centre are built from, so the closed clip can
         // match the trigger's own box and opening reads as the button growing into the row. A surface, opening a
-        // level above whatever holds the toggle.
+        // level above whatever holds the toggle; under reduced motion it only fades.
         &-menu {
             background: var(--surface-background-default);
             border: var(--border-width) solid var(--surface-border-default);
-            border-radius: 999px;
+            border-radius: var(--border-radius);
             box-shadow: var(--surface-shadow-default);
             clip-path: inset(
                 0
                 calc(var(--width) - var(--center) - var(--trigger-size) / 2)
                 0
                 calc(var(--center) - var(--trigger-size) / 2)
-                round var(--border-radius-400)
+                round var(--clip-radius)
             );
             display: flex;
             gap: var(--gap-vertical) var(--gap-horizontal);
@@ -167,62 +136,57 @@
             position: absolute;
             top: calc((var(--trigger-size) - var(--option-size)) / 2 - var(--padding-vertical) - var(--border-width));
             transition:
-                clip-path 190ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
-                opacity 130ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
-                visibility 0s linear 190ms;
+                clip-path var(--clip-duration) var(--transition-timing-function),
+                opacity var(--fade-duration) var(--transition-timing-function),
+                visibility 0s linear var(--clip-duration);
             visibility: hidden;
             width: var(--width);
-            z-index: 10;
-
-            .theme-picker-toggle.--active > & {
-                clip-path: inset(0 round 999px);
-                opacity: 1;
-                transition:
-                    clip-path 240ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
-                    opacity 100ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
-                visibility: visible;
-            }
+            z-index: var(--z-index);
 
             @media (prefers-reduced-motion: reduce) {
-                &,
-                .theme-picker-toggle.--active > & {
-                    transition: opacity 130ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1), visibility 0s linear 130ms;
+                transition:
+                    opacity var(--fade-duration) var(--transition-timing-function),
+                    visibility 0s linear var(--fade-duration);
+            }
+
+            #{tokens.state(active, '.theme-picker-toggle')} > & {
+                clip-path: inset(0 round var(--border-radius));
+                opacity: 1;
+                transition:
+                    clip-path var(--clip-duration) var(--transition-timing-function),
+                    opacity var(--fade-duration) var(--transition-timing-function);
+                visibility: visible;
+
+                @media (prefers-reduced-motion: reduce) {
+                    transition:
+                        opacity var(--fade-duration) var(--transition-timing-function),
+                        visibility 0s linear var(--fade-duration);
                 }
             }
         }
 
-        // The current choice takes the filled active background rather than a check.
         &-option {
-            @extend %theme-picker-reset;
             align-items: center;
-            border-radius: 999px;
-            color: var(--color-text-300);
+            background: var(--background);
+            border-radius: var(--border-radius);
+            color: var(--color);
             display: flex;
             flex: 0 0 var(--option-size);
             height: var(--option-size);
             justify-content: center;
             transition:
-                background-color 130ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
-                color 130ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
-
-            &:hover,
-            &[aria-checked='true'] {
-                color: var(--color-text-500);
-            }
-
-            &[aria-checked='true'] {
-                background: var(--surface-background-active);
-            }
+                background-color var(--transition-duration) var(--transition-timing-function),
+                color var(--transition-duration) var(--transition-timing-function);
         }
 
         // The button's faces carry the blur swap; this only sizes and frames it, fading under the open menu.
         &-trigger {
             border: var(--border-width) solid var(--border-color);
             height: var(--trigger-size);
-            transition: opacity 130ms linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
             width: var(--trigger-size);
 
-            .theme-picker-toggle.--active > & {
+            #{tokens.state(active, '.theme-picker-toggle')} > & {
                 opacity: 0;
             }
         }

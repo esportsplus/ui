@@ -1,58 +1,179 @@
+@use '/tokens';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
 
 .theme-picker {
     &-cards {
+        --gap-horizontal: var(--size-300);
+
+        &-label {
+            --color: var(--color-text-300);
+            --font-size: var(--font-size-200);
+        }
+
+        // The chosen page is ringed, and its label strengthens.
         &-option {
-            &[aria-checked='true'] .theme-picker-cards-label {
-                --font-weight: var(--font-weight-500);
+            --gap-vertical: var(--size-200);
+
+            &[aria-checked='true'] {
+                .theme-picker-cards-label {
+                    --color: var(--color-text-500);
+                    --font-weight: var(--font-weight-500);
+                }
+
+                .theme-picker-cards-preview {
+                    --ring-width: 2px;
+                }
             }
         }
 
+        // A page in miniature: a bar of a heading and two lines of text, drawn in its own ink.
         &-preview {
+            --border-color: var(--surface-border-default);
+            --border-radius: var(--border-radius-300);
+            --border-width: 1px;
+            --gap-vertical: calc(var(--size-200) / 2);
+            --height: 48px;
+            --padding: 7px;
+            --ring-color: var(--color-blue-400);
+            --ring-offset: calc(var(--size-100) / 4);
+            --ring-width: 0px;
+            --width: 64px;
+
             &--dark {
-                --bar: var(--color-white-300);
+                --ink: var(--color-white-300);
             }
 
             &--light {
-                --bar: var(--color-black-300);
+                --ink: var(--color-black-300);
             }
 
             &--system {
-                --bar: color-mix(in oklab, var(--color-white-300), var(--color-black-400));
+                --ink: color-mix(in oklab, var(--color-white-300), var(--color-black-400));
+            }
+
+            &-bar {
+                --height: 6px;
+                --opacity: 0.8;
+                --width: 60%;
+            }
+
+            &-line {
+                --height: 4px;
+                --opacity: 0.35;
+                --width: 100%;
+
+                &--short {
+                    --width: 70%;
+                }
             }
         }
+    }
+
+    &-cards-option,
+    &-swatches-option,
+    &-toggle-option {
+        --focus-color: var(--color-blue-400);
+        --focus-offset: calc(var(--size-100) / 4);
+        --focus-width: 2px;
+    }
+
+    // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
+    &-icon.icon {
+        --size: var(--size-400);
     }
 
     &-swatches {
+        --gap-horizontal: var(--size-500);
+
+        &-circle {
+            --border-color: var(--surface-border-hover);
+            --border-width: 1px;
+            --box-shadow: none;
+            --size: 36px;
+        }
+
+        &-label {
+            --color: var(--color-text-300);
+            --font-size: var(--font-size-200);
+        }
+
+        // The chosen swatch is ringed clear of its edge, and its label strengthens.
         &-option {
-            &[aria-checked='true'] .theme-picker-swatches-label {
-                --font-weight: var(--font-weight-500);
+            --gap-vertical: var(--size-200);
+
+            &[aria-checked='true'] {
+                .theme-picker-swatches-circle {
+                    --box-shadow:
+                        0 0 0 2px var(--surface-background-default),
+                        0 0 0 4px var(--color-blue-400);
+                }
+
+                .theme-picker-swatches-label {
+                    --color: var(--color-text-500);
+                    --font-weight: var(--font-weight-500);
+                }
             }
         }
     }
 
+    // A critically damped spring throughout, opening slower than it closes; the trigger's size is shared, since the
+    // menu opens from its box.
     &-toggle {
         --trigger-size: 36px;
 
         &-menu {
             @extend %surface-raise;
+            --border-radius: 999px;
             --border-width: var(--border-width-400);
             --center: calc(
                 var(--border-width) + var(--padding-horizontal) + var(--index) * (var(--option-size) + var(--gap-horizontal)) +
                 var(--option-size) / 2
             );
+            // Closed, it clips to the trigger's own rounded box.
+            --clip-duration: 190ms;
+            --clip-radius: var(--border-radius-400);
             --count: 3;
+            --fade-duration: 130ms;
             --gap-horizontal: calc(var(--size-100) / 4);
             --gap-vertical: calc(var(--size-100) / 4);
             --option-size: 28px;
             --padding-horizontal: calc(var(--size-300) / 4);
             --padding-vertical: calc(var(--size-300) / 4);
+            --transition-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
             --width: calc(
                 var(--count) * var(--option-size) + (var(--count) - 1) * var(--gap-horizontal) +
                 2 * (var(--padding-horizontal) + var(--border-width))
             );
+            --z-index: 10;
+
+            #{tokens.state(active, '.theme-picker-toggle')} > & {
+                --clip-duration: 240ms;
+                --fade-duration: 100ms;
+
+                @media (prefers-reduced-motion: reduce) {
+                    --fade-duration: 130ms;
+                }
+            }
+        }
+
+        // The current choice takes the filled active background rather than a check.
+        &-option {
+            --background: transparent;
+            --border-radius: 999px;
+            --color: var(--color-text-300);
+            --transition-duration: 130ms;
+            --transition-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
+
+            @include tokens.state(hover) {
+                --color: var(--color-text-500);
+            }
+
+            &[aria-checked='true'] {
+                --background: var(--surface-background-active);
+                --color: var(--color-text-500);
+            }
         }
 
         &-trigger {
@@ -61,9 +182,10 @@
             --border-color-default: var(--surface-border-default);
             --border-radius: var(--border-radius-400);
             --border-width: var(--border-width-400);
-            --icon-size: var(--size-400);
             --padding-horizontal: 0px;
             --padding-vertical: 0px;
+            --transition-duration: 130ms;
+            --transition-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
         }
     }
 }
