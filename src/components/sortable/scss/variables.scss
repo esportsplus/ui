@@ -1,60 +1,59 @@
 @use 'css-utilities/surface';
 
+// Swing presets, driven by drag movement.
+$swings: (
+    bouncy: (angle: 10deg, damping: 6, stiffness: 300, strength: 0.007),
+    damped: (angle: 6deg, damping: 32, stiffness: 260, strength: 0.006),
+    floppy: (angle: 14deg, damping: 4, stiffness: 120, strength: 0.01),
+    heavy: (angle: 10deg, damping: 7, stiffness: 90, strength: 0.007),
+    rigid: (angle: 0deg, damping: 11, stiffness: 260, strength: 0),
+    snappy: (angle: 6deg, damping: 18, stiffness: 600, strength: 0.005),
+    subtle: (angle: 4deg, damping: 16, stiffness: 300, strength: 0.003),
+    wobbly: (angle: 8deg, damping: 5, stiffness: 700, strength: 0.006)
+);
+
+// Animations on the held item, independent of movement; they stack with any swing preset.
+$animations: (
+    breathe: sortable-breathe 1.8s ease-in-out infinite alternate,
+    drift: #{sortable-sway 1.9s ease-in-out infinite alternate, sortable-float 1.3s ease-in-out infinite alternate},
+    float: sortable-float 1.6s ease-in-out infinite alternate,
+    heartbeat: sortable-heartbeat 1.4s ease-in-out infinite,
+    jelly: sortable-jelly 0.5s ease-in-out infinite alternate,
+    jiggle: sortable-jiggle 0.28s linear infinite,
+    orbit: sortable-orbit 1.6s linear infinite,
+    pop: sortable-pop 0.45s cubic-bezier(0.3, 0, 0.3, 1),
+    settle: sortable-settle 0.9s ease-out,
+    shimmy: sortable-shimmy 0.09s linear infinite alternate,
+    sway: sortable-sway 1.4s ease-in-out infinite alternate,
+    tremble: sortable-tremble 0.4s linear infinite,
+    wiggle: sortable-wiggle 0.16s ease-in-out infinite alternate
+);
+
+
 .sortable {
-    --drag-animation: none;
-    --drag-scale: 1.06;
-    --drop-blur: var(--blur-400);
-    --drop-duration: 0.26s;
-    --drop-easing: cubic-bezier(0.34, 1.3, 0.64, 1);
-    --overlay-transition-duration: 0.16s;
-    --placeholder-background: transparent;
-    --placeholder-border-color: var(--surface-border-pressed);
-    --placeholder-border-width: var(--border-width-400);
-    // Read once per drag (JS): how the items around the placeholder slide when it moves.
-    --shift-duration: 0.22s;
-    --shift-easing: cubic-bezier(0.2, 0, 0, 1);
-    // Read once per drag by the swing spring (JS): lean limit, velocity → lean gain (deg per px/s),
-    // spring pull and friction. Lower damping relative to stiffness means more wobble before rest.
-    --swing-angle: 8deg;
-    --swing-damping: 11;
-    --swing-stiffness: 260;
-    --swing-strength: 0.006;
-
-    // Swing presets, driven by drag movement.
-    $swings: (
-        bouncy: (angle: 10deg, damping: 6, stiffness: 300, strength: 0.007),
-        damped: (angle: 6deg, damping: 32, stiffness: 260, strength: 0.006),
-        floppy: (angle: 14deg, damping: 4, stiffness: 120, strength: 0.01),
-        heavy: (angle: 10deg, damping: 7, stiffness: 90, strength: 0.007),
-        rigid: (angle: 0deg, damping: 11, stiffness: 260, strength: 0),
-        snappy: (angle: 6deg, damping: 18, stiffness: 600, strength: 0.005),
-        subtle: (angle: 4deg, damping: 16, stiffness: 300, strength: 0.003),
-        wobbly: (angle: 8deg, damping: 5, stiffness: 700, strength: 0.006)
-    );
-
-    // Animations on the held item, independent of movement; they stack with any swing preset.
-    $animations: (
-        breathe: sortable-breathe 1.8s ease-in-out infinite alternate,
-        drift: #{sortable-sway 1.9s ease-in-out infinite alternate, sortable-float 1.3s ease-in-out infinite alternate},
-        float: sortable-float 1.6s ease-in-out infinite alternate,
-        heartbeat: sortable-heartbeat 1.4s ease-in-out infinite,
-        jelly: sortable-jelly 0.5s ease-in-out infinite alternate,
-        jiggle: sortable-jiggle 0.28s linear infinite,
-        orbit: sortable-orbit 1.6s linear infinite,
-        pop: sortable-pop 0.45s cubic-bezier(0.3, 0, 0.3, 1),
-        settle: sortable-settle 0.9s ease-out,
-        shimmy: sortable-shimmy 0.09s linear infinite alternate,
-        sway: sortable-sway 1.4s ease-in-out infinite alternate,
-        tremble: sortable-tremble 0.4s linear infinite,
-        wiggle: sortable-wiggle 0.16s ease-in-out infinite alternate
-    );
-
-    &-drag {
-        @extend %surface-raise;
+    // Read once per drag (JS), from the item lifted: how the items around the placeholder slide when it moves, and
+    // the swing spring's lean limit, velocity → lean gain (deg per px/s), pull and friction. Lower damping relative to
+    // stiffness means more wobble before rest.
+    > * {
+        --shift-duration: 0.22s;
+        --shift-timing-function: cubic-bezier(0.2, 0, 0, 1);
+        --swing-angle: 8deg;
+        --swing-damping: 11;
+        --swing-stiffness: 260;
+        --swing-strength: 0.006;
     }
 
+    // Doubled so it wins over every swing preset, which sets the same variables on the same items.
+    @media (prefers-reduced-motion: reduce) {
+        &#{&} > * {
+            --shift-duration: 0s;
+            --swing-angle: 0deg;
+        }
+    }
+
+
     @each $name, $swing in $swings {
-        &--#{$name} {
+        &--#{$name} > * {
             @each $property, $value in $swing {
                 --swing-#{$property}: #{$value};
             }
@@ -62,14 +61,33 @@
     }
 
     @each $name, $animation in $animations {
-        &--#{$name} {
-            --drag-animation: #{$animation};
+        &--#{$name} .sortable-drag {
+            --animation: #{$animation};
         }
     }
 
-    // After the swing presets, which set the same variables on the same element.
-    @media (prefers-reduced-motion: reduce) {
-        --shift-duration: 0s;
-        --swing-angle: 0deg;
+
+    // Shrinks onto the item as it drops, then blurs and fades out over it for the last quarter; the fade eases plainly,
+    // since the drop's overshoot would clamp it at 0.
+    &-drag {
+        @extend %surface-raise;
+        --animation: none;
+        --drop-blur: var(--blur-400);
+        --drop-duration: 0.26s;
+        --drop-timing-function: cubic-bezier(0.34, 1.3, 0.64, 1);
+        --fade-delay: calc(var(--drop-duration) * 0.75);
+        --fade-duration: calc(var(--drop-duration) / 4);
+        --fade-timing-function: ease-out;
+        --scale: 1.06;
+    }
+
+    &-overlay {
+        --transition-duration: 0.16s;
+    }
+
+    > .sortable-item--held {
+        --background: transparent;
+        --border-color: var(--surface-border-pressed);
+        --border-width: var(--border-width-400);
     }
 }

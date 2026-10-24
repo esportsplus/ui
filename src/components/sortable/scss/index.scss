@@ -27,13 +27,13 @@
     // then moved by the pointer's offset and the swing, which JS writes every frame.
     &-drag {
         @extend %reset-popover;
-        animation: var(--drag-animation);
+        animation: var(--animation);
         border-radius: var(--sortable-radius);
         box-shadow: var(--surface-shadow-default);
         box-sizing: border-box;
         height: var(--sortable-height);
         left: var(--sortable-left);
-        scale: var(--drag-scale);
+        scale: var(--scale);
         top: var(--sortable-top);
         transform: translate3d(var(--sortable-x), var(--sortable-y), 0) rotate(var(--sortable-angle));
         transform-origin: var(--sortable-origin);
@@ -48,9 +48,11 @@
             scale: 1;
         }
 
-        // Shrinks onto the item, settling the lift, the swing and any animation on the way, then blurs and fades out
-        // over it for the last quarter, as the item shows again under it. The fade eases plainly: the drop's
-        // overshoot would clamp it at 0.
+        @media (prefers-reduced-motion: reduce) {
+            animation: none;
+        }
+
+        // Settles the lift, the swing and any animation on the way, as the item shows again under it.
         &--dropping {
             animation: none;
             box-shadow: none;
@@ -58,17 +60,17 @@
             opacity: 0;
             scale: 1;
             transition:
-                --sortable-angle var(--drop-duration) var(--drop-easing),
-                --sortable-x var(--drop-duration) var(--drop-easing),
-                --sortable-y var(--drop-duration) var(--drop-easing),
-                box-shadow var(--drop-duration) var(--drop-easing),
-                filter calc(var(--drop-duration) / 4) ease-out calc(var(--drop-duration) * 0.75),
-                height var(--drop-duration) var(--drop-easing),
-                opacity calc(var(--drop-duration) / 4) ease-out calc(var(--drop-duration) * 0.75),
-                rotate var(--drop-duration) var(--drop-easing),
-                scale var(--drop-duration) var(--drop-easing),
-                translate var(--drop-duration) var(--drop-easing),
-                width var(--drop-duration) var(--drop-easing);
+                --sortable-angle var(--drop-duration) var(--drop-timing-function),
+                --sortable-x var(--drop-duration) var(--drop-timing-function),
+                --sortable-y var(--drop-duration) var(--drop-timing-function),
+                box-shadow var(--drop-duration) var(--drop-timing-function),
+                filter var(--fade-duration) var(--fade-timing-function) var(--fade-delay),
+                height var(--drop-duration) var(--drop-timing-function),
+                opacity var(--fade-duration) var(--fade-timing-function) var(--fade-delay),
+                rotate var(--drop-duration) var(--drop-timing-function),
+                scale var(--drop-duration) var(--drop-timing-function),
+                translate var(--drop-duration) var(--drop-timing-function),
+                width var(--drop-duration) var(--drop-timing-function);
         }
 
         // The copy takes the box the item was picked up from.
@@ -89,8 +91,8 @@
         justify-content: center;
         opacity: 0;
         transition:
-            display var(--overlay-transition-duration) allow-discrete,
-            opacity var(--overlay-transition-duration) var(--transition-timing-function);
+            display var(--transition-duration) allow-discrete,
+            opacity var(--transition-duration) var(--transition-timing-function);
         z-index: 1;
 
         .sortable-drag & {
@@ -114,13 +116,13 @@
 
     // The dragged item stays in the list as its own placeholder: its contents fade out behind a dashed outline while
     // it moves through the list. Leaving the class drops the transition, so they are back at once on landing.
-    > .sortable-item--held {
-        background: var(--placeholder-background);
+    & > &-item--held {
+        background: var(--background);
         border-color: transparent;
         box-shadow: none;
         color: transparent;
-        outline: var(--placeholder-border-width) dashed var(--placeholder-border-color);
-        outline-offset: calc(var(--placeholder-border-width) * -1);
+        outline: var(--border-width) dashed var(--border-color);
+        outline-offset: calc(var(--border-width) * -1);
         transition:
             background-color var(--transition-duration) var(--transition-timing-function),
             color var(--transition-duration) var(--transition-timing-function);
@@ -133,8 +135,8 @@
 
     // Shows again at once under the fading copy: its own transitions, or its contents', would ease it back in after the
     // copy has gone. Important, since they can come from any rule.
-    > .sortable-item--revealing,
-    > .sortable-item--revealing * {
+    & > &-item--revealing,
+    & > &-item--revealing * {
         transition: none !important;
     }
 }
@@ -148,14 +150,14 @@
 }
 
 
-// Scale keyframes build on '--drag-scale' so the lift survives the animation.
+// Scale keyframes build on '--scale' so the lift survives the animation.
 @keyframes sortable-breathe {
     from {
-        scale: var(--drag-scale);
+        scale: var(--scale);
     }
 
     to {
-        scale: calc(var(--drag-scale) * 1.025);
+        scale: calc(var(--scale) * 1.025);
     }
 }
 
@@ -171,21 +173,21 @@
 
 @keyframes sortable-heartbeat {
     0%, 28%, 70%, 100% {
-        scale: var(--drag-scale);
+        scale: var(--scale);
     }
 
     14%, 42% {
-        scale: calc(var(--drag-scale) * 1.03);
+        scale: calc(var(--scale) * 1.03);
     }
 }
 
 @keyframes sortable-jelly {
     from {
-        scale: calc(var(--drag-scale) * 1.02) calc(var(--drag-scale) * 0.98);
+        scale: calc(var(--scale) * 1.02) calc(var(--scale) * 0.98);
     }
 
     to {
-        scale: calc(var(--drag-scale) * 0.98) calc(var(--drag-scale) * 1.02);
+        scale: calc(var(--scale) * 0.98) calc(var(--scale) * 1.02);
     }
 }
 
@@ -251,15 +253,15 @@
     }
 
     45% {
-        scale: calc(var(--drag-scale) * 1.06);
+        scale: calc(var(--scale) * 1.06);
     }
 
     75% {
-        scale: calc(var(--drag-scale) * 0.98);
+        scale: calc(var(--scale) * 0.98);
     }
 
     100% {
-        scale: var(--drag-scale);
+        scale: var(--scale);
     }
 }
 
@@ -343,11 +345,5 @@
 
     to {
         rotate: 0.6deg;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .sortable-drag {
-        animation: none;
     }
 }

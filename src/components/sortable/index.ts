@@ -140,6 +140,7 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
 
         carried = value;
         carrying += value ? 1 : -1;
+        // On the root, which no template binds, and shared by every list carrying an item.
         document.documentElement.classList.toggle('sortable-grabbing', carrying > 0);
     }
 
