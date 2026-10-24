@@ -16,46 +16,26 @@
     height: var(--size);
     justify-content: center;
     min-width: var(--size);
-    padding: calc(var(--size) * 0.25);
+    padding-block: var(--padding-vertical);
+    padding-inline: var(--padding-horizontal);
     pointer-events: none;
     scale: 0;
-    transition: scale var(--transition-duration) var(--timing-function);
+    transition: scale var(--transition-duration) var(--transition-timing-function);
 
     @include tokens.state(active) {
         scale: 1;
     }
 
-    &--dot {
-        height: var(--dot-size);
-        min-width: 0;
-        padding: 0;
-        width: var(--dot-size);
-    }
-
-    &-character {
-        @extend %text-truncate;
-        display: grid;
-        height: 1lh;
-        overflow: hidden;
-
-        &-digit {
-            height: 1lh;
-            text-align: center;
-        }
-
-        &-track {
-            display: grid;
-            transition: translate var(--roll-duration) var(--roll-timing-function);
-            translate: 0 calc(var(--value) * -1lh);
-        }
-    }
-
     @media (prefers-reduced-motion: reduce) {
-        &,
-        &-character-track {
-            transition: none;
-        }
+        transition: none;
     }
+
+
+    &--dot {
+        min-width: 0;
+        width: var(--size);
+    }
+
 
     &-bell {
         aspect-ratio: 1;
@@ -63,10 +43,19 @@
         height: var(--size);
         width: var(--size);
 
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+
         // Qualified to outrank the '.icon' it pairs with.
         &-icon.icon {
-            animation: var(--ring-animation-name) var(--ring-duration) ease-in-out;
-            transform-origin: 50% 8%;
+            animation: var(--ring-name) var(--ring-duration) var(--ring-timing-function);
+            transform-origin: var(--ring-origin);
+
+            @media (prefers-reduced-motion: reduce) {
+                animation: none;
+                transition: none;
+            }
 
             svg {
                 @extend %icon-stroke;
@@ -86,39 +75,50 @@
             translate: -50% -50%;
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            & {
-                transition: none;
-            }
-
-            &-icon.icon {
-                animation: none;
-                transition: none;
+        @each $ring in 1, 2 {
+            @keyframes notification-bell--ring-#{$ring} {
+                0%,
+                100% {
+                    rotate: 0deg;
+                }
+                15% {
+                    rotate: var(--ring-angle);
+                }
+                30% {
+                    rotate: calc(var(--ring-angle) * -0.85);
+                }
+                45% {
+                    rotate: calc(var(--ring-angle) * 0.6);
+                }
+                60% {
+                    rotate: calc(var(--ring-angle) * -0.4);
+                }
+                75% {
+                    rotate: calc(var(--ring-angle) * 0.2);
+                }
             }
         }
     }
-}
 
-@each $i in 1, 2 {
-    @keyframes notification-bell-ring-#{$i} {
-        0%,
-        100% {
-            rotate: 0deg;
+    &-character {
+        @extend %text-truncate;
+        display: grid;
+        height: 1lh;
+        overflow: hidden;
+
+        &-digit {
+            height: 1lh;
+            text-align: center;
         }
-        15% {
-            rotate: var(--ring-angle);
-        }
-        30% {
-            rotate: calc(var(--ring-angle) * -0.85);
-        }
-        45% {
-            rotate: calc(var(--ring-angle) * 0.6);
-        }
-        60% {
-            rotate: calc(var(--ring-angle) * -0.4);
-        }
-        75% {
-            rotate: calc(var(--ring-angle) * 0.2);
+
+        &-track {
+            display: grid;
+            transition: translate var(--transition-duration) var(--transition-timing-function);
+            translate: 0 calc(var(--value) * -1lh);
+
+            @media (prefers-reduced-motion: reduce) {
+                transition: none;
+            }
         }
     }
 }

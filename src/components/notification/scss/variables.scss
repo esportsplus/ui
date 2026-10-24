@@ -1,16 +1,23 @@
 .notification {
     --background: var(--color-red-400);
     --color: var(--color-white-400);
-    --dot-size: var(--size-100);
     --font-size: var(--font-size-300);
     --font-weight: var(--font-weight-500);
     --outline-color: var(--surface-background-default);
     --outline-width: var(--border-width-500);
-    --roll-duration: 400ms;
-    --roll-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    --padding-horizontal: calc(var(--size) * 0.25);
+    --padding-vertical: calc(var(--size) * 0.25);
     --size: var(--size-500);
-    --timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
     --transition-duration: 280ms;
+    --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+
+    &--dot {
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --size: var(--size-100);
+    }
+
 
     &-bell {
         --background-hover: color-mix(in srgb, currentColor 8%, transparent);
@@ -22,30 +29,41 @@
         --focus-width: var(--border-width-500);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
-        --ring-angle: 14deg;
-        --ring-animation-name: none;
-        --ring-duration: 800ms;
         --size: var(--size-800);
         --width: var(--size);
 
         // Each ring swaps the keyframe name, restarting the swing.
-        @each $i in 1, 2 {
-            &--ring-#{$i} {
-                --ring-animation-name: notification-bell-ring-#{$i};
+        @each $ring in 1, 2 {
+            &--ring-#{$ring} .notification-bell-icon.icon {
+                --ring-name: notification-bell--ring-#{$ring};
             }
         }
 
-        // Outranks `.icon` so its --size default can't win on source order
+        // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order. It swings from
+        // the top of the bell, where it would hang.
         &-icon.icon {
+            --ring-angle: 14deg;
+            --ring-duration: 800ms;
+            --ring-name: none;
+            --ring-origin: 50% 8%;
+            --ring-timing-function: ease-in-out;
             --size: 50%;
             --stroke-width: 2;
         }
 
-        // The bubble declares its own --size, so the bell hands its size over through --badge-size.
+        // The bubble sits on the bell's corner, inset by a share of the bell's size; a dot keeps its own.
         .notification {
             --inset-horizontal: calc(var(--size) * 0.12);
             --inset-vertical: calc(var(--size) * 0.12);
-            --size: var(--size-500);
+
+            &:not(.notification--dot) {
+                --size: var(--size-500);
+            }
         }
+    }
+
+    &-character-track {
+        --transition-duration: 400ms;
+        --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     }
 }
