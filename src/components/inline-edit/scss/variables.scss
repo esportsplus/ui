@@ -4,44 +4,42 @@
 @use 'css-utilities/surface';
 
 
+// '--box-padding-start' pulls the root out by the boxes' own inset, so the text lines up with the content around it
+// while the tint still has room; the save status lines up with it too.
 .inline-edit {
-    --box-border-radius: var(--border-radius-400);
-    --box-overflow-wrap: normal;
-    --box-padding-end: 36px;
     --box-padding-start: var(--size-100);
-    --box-padding-vertical: calc(var(--size-100) / 2);
-    --box-text-overflow: ellipsis;
-    --box-white-space: pre;
     --color: var(--color-text-500);
-    --field-ring: 0 0 0 1.5px var(--surface-border-pressed);
-    --heading-1-size: 1.5em;
-    --heading-2-size: 1.25em;
-    --heading-3-size: 1.125em;
-    --icon-color: var(--color-primary-300);
-    --icon-color-saved: var(--color-primary-500);
-    --icon-size: var(--size-400);
-    --icon-swap-duration: 300ms;
-    --icon-swap-timing-function: linear(0, 0.035, 0.118, 0.216, 0.319, 0.424, 0.515, 0.6, 0.669, 0.728, 0.781, 0.822, 0.856, 0.885, 0.908, 0.927, 0.942, 0.954, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
-    --link-underline-color: oklch(from var(--color-primary-500) l c h / 0.4);
-    --mark-background: oklch(from var(--color-primary-500) l c h / 0.15);
-    --outline-color: var(--color-primary-500);
-    --placeholder-color: var(--color-text-300);
-    --quote-border-color: var(--surface-border-default);
-    --quote-color: var(--color-text-400);
-    --status-margin-top: calc(var(--size-100) / 2);
-    --task-check-color: var(--color-surface);
-    --task-checked-color: var(--color-primary-500);
-    --task-done-color: var(--color-text-300);
-    --toolbar-button-size: 36px;
-    --toolbar-color: var(--color-text-500);
-    --toolbar-divider-color: var(--surface-border-default);
-    --toolbar-focus-color: var(--surface-border-pressed);
-    --toolbar-font-size: var(--font-size-300);
-    --toolbar-format-display: flex;
-    --toolbar-icon-size: var(--size-400);
-    --toolbar-link-display: none;
-    --toolbar-select-width: 132px;
-    --toolbar-url-width: 220px;
+
+
+    // Wraps onto as many lines as the text needs. Chained through the root so it wins over the boxes' own values.
+    &#{&}--multiline > &-display,
+    &#{&}--multiline > &-editor,
+    &#{&}--multiline > &-field {
+        --overflow-wrap: break-word;
+        --text-overflow: clip;
+        --white-space: pre-wrap;
+    }
+
+    // No field chrome while editing; only the caret shows the text is live.
+    &#{&}--seamless > &-field {
+        --background-default: transparent;
+        --ring: none;
+    }
+
+
+    // The display, the rich editor and the plain field share one box, so switching between them never moves the text.
+    &-display,
+    &-editor,
+    & > #{&}-field {
+        --border-radius: var(--border-radius-400);
+        --overflow-wrap: normal;
+        --padding-end: 36px;
+        --padding-start: var(--box-padding-start);
+        --padding-vertical: calc(var(--size-100) / 2);
+        --placeholder-color: var(--color-text-300);
+        --text-overflow: ellipsis;
+        --white-space: pre;
+    }
 
     // Tinted on hover, until editing turns the editor into a field.
     &-display,
@@ -51,9 +49,22 @@
         --background-pressed: var(--background-hover);
     }
 
+    &-display {
+        --focus-color: var(--color-primary-500);
+        --focus-width: var(--border-width-500);
+    }
+
     &-editor {
         #{tokens.state(active, '.inline-edit')} > & {
             @extend %surface-raise;
+            --background-default: var(--surface-background-default);
+            --background-hover: var(--background-default);
+            --ring: 0 0 0 1.5px var(--surface-border-pressed);
+        }
+
+        #{tokens.state(active, '.inline-edit--seamless')} > & {
+            --background-default: transparent;
+            --ring: none;
         }
 
         // The space between blocks of rich text, held by each block after the first.
@@ -61,70 +72,264 @@
             --margin-vertical: 12px;
         }
 
+        a {
+            --underline-color: oklch(from var(--color-primary-500) l c h / 0.4);
+        }
+
+        blockquote {
+            --border-color: var(--surface-border-default);
+            --border-width: 2px;
+            --color: var(--color-text-400);
+            --padding-start: 12px;
+        }
+
+        code {
+            --padding-horizontal: 0.3em;
+            --padding-vertical: 0.125em;
+        }
+
         code,
         pre {
             @extend %surface-lower;
+            --font-size: 0.875em;
+        }
+
+        h1 {
+            --font-size: 1.5em;
+        }
+
+        h1,
+        h2,
+        h3 {
+            --line-height: 1.3;
+        }
+
+        h2 {
+            --font-size: 1.25em;
+        }
+
+        h3 {
+            --font-size: 1.125em;
+        }
+
+        li[data-checked='true'] {
+            --color: var(--color-text-300);
+        }
+
+        mark {
+            --background: oklch(from var(--color-primary-500) l c h / 0.15);
+        }
+
+        ol,
+        ul {
+            --padding-start: 1.5em;
+        }
+
+        pre {
+            --padding-horizontal: 12px;
+            --padding-vertical: var(--size-100);
         }
     }
 
-    // The icons are chained through '.icon' so they win over its own size and color regardless of stylesheet order.
+    // Qualified by the root so it wins over the reused input/textarea styles regardless of stylesheet order.
+    & > #{&}-field {
+        --background-default: var(--surface-background-default);
+        --color-default: currentColor;
+        --ring: 0 0 0 1.5px var(--surface-border-pressed);
+    }
+
+    // Pinned to the first line's height. The icons are chained through '.icon' so they win over its own size and color
+    // regardless of stylesheet order; only the shared check takes their stroke, drawn on a 24 unit grid.
     &-icon {
+        --color: var(--color-primary-300);
+        --size: 24px;
+
+        &-check.icon,
+        &-pencil.icon {
+            --icon-swap-duration: 300ms;
+            --icon-swap-timing-function: linear(0, 0.035, 0.118, 0.216, 0.319, 0.424, 0.515, 0.6, 0.669, 0.728, 0.781, 0.822, 0.856, 0.885, 0.908, 0.927, 0.942, 0.954, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
+            --size: var(--size-400);
+            --stroke-width: 2.25;
+        }
+
         &-check.icon {
-            --color: var(--icon-color-saved);
-            --size: var(--icon-size);
+            --color: var(--color-primary-500);
         }
 
         &-pencil.icon {
             --color: currentColor;
-            --size: var(--icon-size);
         }
     }
 
     // The save status, as wide as its longest label so the icon never shifts and old and new words cross in one spot.
+    // Only the fades remain under reduced motion; the icon swap is stilled by '%icon-swap' itself.
     &-status {
         --blur: var(--blur-400);
-        --check-color: var(--color-primary-500);
-        --check-delay: 0.12s;
-        --check-duration: 0.35s;
-        --check-stroke-width: 2.4;
         --color: var(--color-text-300);
-        --dot-size: calc(var(--icon-size) / 4);
-        --enter-duration: 0.22s;
-        --exit-duration: 0.12s;
         --font-size: var(--font-size-300);
         --gap-horizontal: 0.5rem;
         --gap-vertical: 0.5rem;
-        --icon-size: 1.25em;
-        --move-duration: 0.4s;
-        --pulse-duration: 1s;
-        --pulse-stagger: 0.16s;
+        --margin-top: calc(var(--size-100) / 2);
         --shift: 3px;
-        --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
         --width: 11em;
+
+        @media (prefers-reduced-motion: reduce) {
+            --blur: 0px;
+            --shift: 0px;
+        }
+
+        &--saved &-check.icon {
+            --transition-delay: 0.12s;
+            --transition-duration: 0.35s;
+
+            @media (prefers-reduced-motion: reduce) {
+                --transition-delay: 0s;
+                --transition-duration: 0s;
+            }
+        }
 
         &-check.icon {
             --height: 100%;
+            --stroke: var(--color-primary-500);
+            --stroke-width: 2.4;
+            --transition-delay: 0s;
+            --transition-duration: 0.12s;
+            --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
             --width: 100%;
         }
 
-        // How far apart the saving dots spread.
+        // A quarter of the icon, spreading a dot and a quarter apart; each pulses in turn while saving.
         &-dot {
-            --gap-horizontal: calc(var(--icon-size) * 0.3125);
+            --gap-horizontal: 125%;
+            --pulse-duration: 1s;
+            --pulse-stagger: 0.16s;
+            --pulse-timing-function: ease-in-out;
+            --size: 25%;
+            --transition-duration: 0.4s;
+            --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
+            @media (prefers-reduced-motion: reduce) {
+                --pulse-duration: 0s;
+                --pulse-stagger: 0s;
+                --transition-duration: 0s;
+            }
         }
+
+        &-icon {
+            --size: 1.25em;
+        }
+
+        &-label-text {
+            &--enter {
+                --animation-duration: 0.22s;
+                --animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+            }
+
+            &--exit {
+                --animation-duration: 0.12s;
+                --animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+            }
+        }
+    }
+
+    // The checklist box, set off from its text.
+    &-task {
+        --spacer: 0.5em;
+    }
+
+    // Feeds the reused checkbox; qualified so it wins over the checkbox defaults regardless of stylesheet order.
+    & #{&}-task .checkbox {
+        --background-active: var(--color-primary-500);
+        --border-color-active: var(--color-primary-500);
+        // The default radius is sized for a larger box; at text size it reads as a circle.
+        --border-radius: var(--border-radius-200);
+        --border-width: 1.5px;
+        --indicator-color-default: var(--color-surface);
+        --size: 1em;
     }
 
     // Setting a link swaps the formatting buttons for the link field.
     &-toolbar--link {
-        --toolbar-format-display: none;
-        --toolbar-link-display: flex;
+        .inline-edit-toolbar-format {
+            --display: none;
+        }
+
+        .inline-edit-toolbar-link {
+            --display: flex;
+        }
+    }
+
+    // The block select is a bare trigger here, stepping like the toolbar's buttons; its own list still opens as a
+    // panel.
+    &-toolbar-block.select {
+        --background-active: var(--background-hover);
+        --background-default: transparent;
+        --background-hover: color-mix(in oklab, var(--color-text-500) 6%, transparent);
+        --background-pressed: var(--background-hover);
+        --box-shadow-active: none;
+        --box-shadow-default: none;
+        --box-shadow-hover: none;
+        --box-shadow-pressed: none;
+        --height: 36px;
+        --width: 132px;
     }
 
     &-toolbar-button {
         @extend %color-text;
+        --background-default: transparent;
+        --background-hover: color-mix(in oklab, var(--color-text-500) 6%, transparent);
+        --border-radius: var(--border-radius-400);
+        --focus-color: var(--surface-border-pressed);
+        --focus-width: 2px;
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --size: 36px;
+
+        &[aria-pressed='true'] {
+            --background-default: color-mix(in oklab, var(--color-text-500) 8%, transparent);
+            --background-hover: color-mix(in oklab, var(--color-text-500) 10%, transparent);
+            --color-default: var(--color-text-500);
+        }
     }
 
+    &-toolbar-divider {
+        --background: var(--surface-border-default);
+        --height: var(--size-500);
+        --spacer: calc(var(--size-100) / 2);
+        --width: 1px;
+    }
+
+    &-toolbar-format {
+        --display: flex;
+    }
+
+    &-toolbar-format,
+    &-toolbar-link {
+        --gap-horizontal: calc(var(--size-100) / 4);
+    }
+
+    // The toolbar's glyphs are outlines on a 24 unit grid that carry no stroke of their own.
     &-toolbar-icon.icon {
-        --size: var(--toolbar-icon-size);
+        --size: var(--size-400);
+        --stroke-width: 2.25;
+    }
+
+    &-toolbar-link {
+        --display: none;
+    }
+
+    &-toolbar-url.input {
+        --background-default: transparent;
+        --color-default: var(--color-text-500);
+        --font-size: var(--font-size-300);
+        --height: 36px;
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: 0px;
+        --width: 220px;
+
+        &[aria-invalid='true'] {
+            --color-default: var(--color-red-400);
+        }
     }
 
     // Feeds the reused tooltip content; qualified so it wins over the tooltip defaults regardless of stylesheet order.
@@ -133,37 +338,13 @@
         --background-default: var(--surface-background-default);
         --border-radius: var(--border-radius-600);
         --box-shadow-default: var(--surface-shadow-default);
+        --padding-horizontal: calc(var(--size-100) / 2);
+        --padding-vertical: calc(var(--size-100) / 2);
         --scale: 0.96;
         --width: max-content;
-    }
 
-
-    // Qualified by the root so it wins over the reused input/textarea styles regardless of stylesheet order.
-    & > #{&}-field {
-        --background-default: var(--field-background, var(--surface-background-default));
-        --color-default: currentColor;
-    }
-
-    // Feeds the reused checkbox; qualified so it wins over the checkbox defaults regardless of stylesheet order.
-    & #{&}-task .checkbox {
-        --background-active: var(--task-checked-color);
-        --border-color-active: var(--task-checked-color);
-        // The default radius is sized for a larger box; at text size it reads as a circle.
-        --border-radius: var(--border-radius-200);
-        --border-width: 1.5px;
-        --indicator-color-default: var(--task-check-color);
-        --size: 1em;
-    }
-
-    &--multiline {
-        --box-overflow-wrap: break-word;
-        --box-text-overflow: clip;
-        --box-white-space: pre-wrap;
-    }
-
-    // No field chrome while editing; only the caret shows the text is live.
-    &--seamless {
-        --field-background: transparent;
-        --field-ring: none;
+        @media (prefers-reduced-motion: reduce) {
+            --scale: 1;
+        }
     }
 }
