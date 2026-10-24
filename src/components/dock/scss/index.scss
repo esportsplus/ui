@@ -19,15 +19,14 @@
     }
 
     &--e &-light {
-        right: calc(100% - var(--inset-horizontal) + 4px);
+        right: calc(100% - var(--inset-horizontal) + var(--offset));
     }
-
 
     // Always between the resting icon and the screen edge.
     &--e &-light,
     &--w &-light {
         left: auto;
-        margin: calc(var(--light-size) / -2) 0 0;
+        margin: calc(var(--size) / -2) 0 0;
         top: 50%;
     }
 
@@ -53,7 +52,6 @@
         display: flex;
     }
 
-
     // The dock's label would otherwise hang over the launcher.
     &--open > &-label {
         visibility: hidden;
@@ -68,7 +66,7 @@
     }
 
     &--s &-light {
-        bottom: calc(100% - var(--inset-vertical) + 4px);
+        bottom: calc(100% - var(--inset-vertical) + var(--offset));
         top: auto;
     }
 
@@ -77,8 +75,9 @@
     }
 
     &--w &-light {
-        left: calc(100% - var(--inset-horizontal) + 4px);
+        left: calc(100% - var(--inset-horizontal) + var(--offset));
     }
+
 
     &-app {
         align-items: center;
@@ -87,9 +86,9 @@
         cursor: pointer;
         display: flex;
         flex-direction: column;
-        gap: var(--size-200);
+        gap: var(--gap-vertical);
         min-width: 0;
-        padding: var(--size-200) var(--size-100);
+        padding: var(--padding-vertical) var(--padding-horizontal);
 
         &--hidden {
             display: none;
@@ -122,7 +121,7 @@
         opacity: var(--opacity);
         outline: none;
         padding: 0;
-        transition: opacity var(--magnify-duration) var(--magnify-timing-function);
+        transition: opacity var(--transition-duration) var(--transition-timing-function);
         width: var(--width);
 
         &:disabled {
@@ -130,7 +129,7 @@
         }
 
         &:focus-visible {
-            outline: 2px solid var(--color);
+            outline: var(--focus-width) solid var(--focus-color);
         }
     }
 
@@ -152,34 +151,101 @@
             width var(--magnify-duration) var(--magnify-timing-function);
         width: var(--size);
 
-        &--launching {
-            animation:
-                dock-hop var(--hop-duration),
-                var(--squash) var(--hop-duration) ease-in-out;
-        }
-
         &::after {
             corner-shape: var(--corner-shape);
         }
 
+        &--launching {
+            animation:
+                dock-button-hop var(--hop-duration) var(--hop-timing-function),
+                var(--squash) var(--hop-duration) var(--squash-timing-function);
+        }
+
+        // Away from the screen edge fast and back with gravity; each landing is the quickest part.
+        @keyframes dock-button-hop {
+            0% {
+                animation-timing-function: ease-out;
+                translate: 0 0;
+            }
+            30% {
+                animation-timing-function: ease-in;
+                translate: calc(var(--hop-x) * var(--hop-distance)) calc(var(--hop-y) * var(--hop-distance));
+            }
+            55% {
+                animation-timing-function: ease-out;
+                translate: 0 0;
+            }
+            78% {
+                animation-timing-function: ease-in;
+                translate: calc(var(--hop-x) * var(--hop-rebound)) calc(var(--hop-y) * var(--hop-rebound));
+            }
+            100% {
+                translate: 0 0;
+            }
+        }
+
+        // Squashes on each landing, so the icon reads as having weight.
+        @keyframes dock-button-squash {
+            0% {
+                scale: 1 1;
+            }
+            30% {
+                scale: 0.97 1.04;
+            }
+            55% {
+                scale: 1.08 0.9;
+            }
+            70% {
+                scale: 0.99 1.02;
+            }
+            80% {
+                scale: 1.03 0.96;
+            }
+            100% {
+                scale: 1 1;
+            }
+        }
+
+        // 'dock-button-squash' turned on its side, for an upright dock.
+        @keyframes dock-button-squash-upright {
+            0% {
+                scale: 1 1;
+            }
+            30% {
+                scale: 1.04 0.97;
+            }
+            55% {
+                scale: 0.9 1.08;
+            }
+            70% {
+                scale: 1.02 0.99;
+            }
+            80% {
+                scale: 0.96 1.03;
+            }
+            100% {
+                scale: 1 1;
+            }
+        }
+
         &:focus-visible {
-            outline: 2px solid var(--color);
-            outline-offset: calc(var(--size-100) / 4);
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
         }
 
         // Relative to the button, so the icon follows the transition too.
         > svg {
-            height: calc(var(--icon-ratio) * 100%);
-            width: calc(var(--icon-ratio) * 100%);
+            height: var(--size);
+            width: var(--size);
         }
     }
 
     &-item {
-        align-items: var(--item-align);
+        align-items: var(--align);
         cursor: default;
         display: flex;
         flex-shrink: 0;
-        justify-content: var(--item-justify);
+        justify-content: var(--justify);
         // The inset sits on the screen-edge side; the half spacing on the sides along the shelf.
         padding: var(--padding-vertical) var(--padding-horizontal) var(--inset-vertical);
         position: relative;
@@ -213,27 +279,27 @@
         &-empty {
             color: var(--color);
             margin: 0;
-            padding-bottom: var(--size-500);
+            padding-bottom: var(--padding-bottom);
             text-align: center;
         }
 
         &-footer {
             align-items: center;
-            border-top: var(--border);
+            border-top: var(--border-width) solid var(--border-color);
             color: var(--color);
             display: flex;
             flex-shrink: 0;
             font-size: var(--font-size);
-            gap: var(--size-400);
+            gap: var(--gap-horizontal);
             height: var(--height);
-            padding-inline: var(--size-400);
+            padding-inline: var(--padding-horizontal);
             user-select: none;
         }
 
         &-hint {
             align-items: center;
             display: flex;
-            gap: var(--size-200);
+            gap: var(--gap-horizontal);
 
             // Close stays on the left; the rest pack to the end.
             &:first-child {
@@ -253,7 +319,7 @@
         // Keycaps here are legends, not controls, so they take no hover or press.
         &-keys {
             display: flex;
-            gap: calc(var(--size-100) / 2);
+            gap: var(--gap-horizontal);
             pointer-events: none;
         }
 
@@ -262,13 +328,13 @@
             color: var(--color);
             display: flex;
             flex-shrink: 0;
-            gap: var(--size-200);
+            gap: var(--gap-horizontal);
             height: var(--height);
-            padding-inline: var(--size-400);
+            padding-inline: var(--padding-horizontal);
         }
 
         &-view {
-            border-top: var(--border);
+            border-top: var(--border-width) solid var(--border-color);
             max-height: var(--max-height);
             overflow-y: auto;
             overscroll-behavior: contain;
@@ -276,27 +342,24 @@
     }
 
     &-light {
-        background: var(--light-color);
+        background: var(--background);
         border-radius: 50%;
-        height: var(--light-size);
+        height: var(--size);
         left: 50%;
-        margin-inline-start: calc(var(--light-size) / -2);
+        margin-inline-start: calc(var(--size) / -2);
         opacity: 0;
         pointer-events: none;
         position: absolute;
-        scale: 0.5;
-        // 4px under the resting button.
-        top: calc(100% - var(--inset-vertical) + 4px);
+        scale: var(--scale);
+        top: calc(100% - var(--inset-vertical) + var(--offset));
         transition:
-            opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1),
-            scale 0.15s cubic-bezier(0.23, 1, 0.32, 1);
-        width: var(--light-size);
+            opacity var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function);
+        width: var(--size);
 
         @include tokens.state(active) {
             opacity: 1;
-            scale: 1;
-            transition-delay: var(--light-delay);
-            transition-duration: 0.2s;
+            transition-delay: var(--delay);
         }
     }
 
@@ -309,73 +372,5 @@
     // Hosts the launcher as a tooltip, without taking the tooltip's pointer cursor across the shelf.
     &.tooltip {
         cursor: auto;
-    }
-}
-
-
-// Away from the screen edge fast and back with gravity; each landing is the quickest part.
-@keyframes dock-hop {
-    0% {
-        animation-timing-function: ease-out;
-        translate: 0 0;
-    }
-    30% {
-        animation-timing-function: ease-in;
-        translate: calc(var(--hop-x) * 22px) calc(var(--hop-y) * 22px);
-    }
-    55% {
-        animation-timing-function: ease-out;
-        translate: 0 0;
-    }
-    78% {
-        animation-timing-function: ease-in;
-        translate: calc(var(--hop-x) * 9px) calc(var(--hop-y) * 9px);
-    }
-    100% {
-        translate: 0 0;
-    }
-}
-
-// Squashes on each landing, so the icon reads as having weight.
-@keyframes dock-squash {
-    0% {
-        scale: 1 1;
-    }
-    30% {
-        scale: 0.97 1.04;
-    }
-    55% {
-        scale: 1.08 0.9;
-    }
-    70% {
-        scale: 0.99 1.02;
-    }
-    80% {
-        scale: 1.03 0.96;
-    }
-    100% {
-        scale: 1 1;
-    }
-}
-
-// 'dock-squash' turned on its side, for an upright dock.
-@keyframes dock-squash-upright {
-    0% {
-        scale: 1 1;
-    }
-    30% {
-        scale: 1.04 0.97;
-    }
-    55% {
-        scale: 0.9 1.08;
-    }
-    70% {
-        scale: 1.02 0.99;
-    }
-    80% {
-        scale: 0.96 1.03;
-    }
-    100% {
-        scale: 1 1;
     }
 }

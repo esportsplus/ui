@@ -1,57 +1,14 @@
+@use '/tokens';
 @use 'css-utilities/background';
 @use 'css-utilities/surface';
-
-$color-muted: var(--color-text-300);
-$divider: var(--border-width-400) solid var(--surface-border-default);
-$label-font-size: var(--font-size-200);
-
-
-// An icon alone, without its surface; a thumbnail keeps its image.
-@mixin plain {
-    --box-shadow-default: none;
-
-    &:not(.dock-button--thumbnail) {
-        --background-default: transparent;
-    }
-}
-
-// App icons as phones shape them: a superellipse, its curve running the full side. Where 'corner-shape' is missing that
-// radius would draw a circle, so the icons fall back to rounded squares.
-@mixin squircle {
-    --corner-shape: squircle;
-    --item-radius: 50%;
-
-    @supports not (corner-shape: squircle) {
-        --item-radius: 24%;
-    }
-}
-
 
 // The shelf paints nothing of its own, left to wherever it is placed to theme; its buttons are surfaces.
 .dock {
     --border-radius: 999px;
     --corner-shape: round;
-    // Long on purpose: it is the "starting up" signal itself, it plays once per app, and input is never blocked while it plays.
-    --hop-duration: 0.7s;
-    // The way a launch hops, away from the screen edge the dock sits on.
-    --hop-x: 0;
-    --hop-y: -1;
-    --icon-ratio: 0.45;
     // Shelf space around the resting icons. Its own name: the global per-element reset would swallow '--padding-*' on the items.
     --inset-horizontal: 12px;
     --inset-vertical: 12px;
-    // Icons rest on the inset along the screen edge and swell away from it.
-    --item-align: flex-end;
-    --item-justify: center;
-    --item-radius: 999px;
-    --light-color: var(--color-primary-500);
-    // The running light comes on as the icon first lands (55% into 'dock-hop'), not on click.
-    --light-delay: calc(var(--hop-duration) * 0.55);
-    --light-size: 4px;
-    --magnify-duration: 0.3s;
-    --magnify-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-    // Lands on its base, so the squash spreads along the dock.
-    --origin: 50% 100%;
     --padding-horizontal: calc(var(--inset-horizontal) - var(--spacing-horizontal) / 2);
     --padding-vertical: 0px;
     // The hovered icon peaks and each neighbour steps a third of the way back to rest.
@@ -62,52 +19,87 @@ $label-font-size: var(--font-size-200);
     // Split into padding on each item so the gaps are hoverable too.
     --spacing-horizontal: var(--size-100);
     --spacing-vertical: var(--size-100);
-    --squash: dock-squash;
 
 
     // Upright, against a screen's left edge.
     &--e {
-        --hop-x: 1;
-        --hop-y: 0;
-        --item-align: center;
-        --item-justify: flex-start;
-        --origin: 0 50%;
         --padding-horizontal: 0px;
         --padding-vertical: calc(var(--inset-vertical) - var(--spacing-vertical) / 2);
-        --squash: dock-squash-upright;
+
+        .dock-button {
+            --hop-x: 1;
+            --hop-y: 0;
+            --origin: 0 50%;
+            --squash: dock-button-squash-upright;
+        }
+
+        .dock-item {
+            --align: center;
+            --justify: flex-start;
+        }
     }
 
-    &--plain .dock-button {
-        @include plain;
+    // An icon alone, without its surface; a thumbnail keeps its image.
+    &--plain &-button {
+        --box-shadow-default: none;
+
+        &:not(.dock-button--thumbnail) {
+            --background-default: transparent;
+        }
     }
 
     // Against a screen's top edge.
     &--s {
-        --hop-y: 1;
-        --item-align: flex-start;
-        --origin: 50% 0;
+        .dock-button {
+            --hop-y: 1;
+            --origin: 50% 0;
+        }
+
+        .dock-item {
+            --align: flex-start;
+        }
     }
 
     &--square {
         --border-radius: var(--border-radius-700);
-        --item-radius: var(--border-radius-600);
+
+        .dock-button {
+            --border-radius: var(--border-radius-600);
+        }
     }
 
+    // App icons as phones shape them: a superellipse, its curve running the full side. Where 'corner-shape' is missing
+    // that radius would draw a circle, so the icons fall back to rounded squares.
     &--squircle {
-        @include squircle;
         --border-radius: var(--border-radius-700);
+        --corner-shape: squircle;
+
+        .dock-button {
+            --border-radius: 50%;
+            --corner-shape: squircle;
+
+            @supports not (corner-shape: squircle) {
+                --border-radius: 24%;
+            }
+        }
     }
 
     // Upright, against a screen's right edge.
     &--w {
-        --hop-x: -1;
-        --hop-y: 0;
-        --item-align: center;
-        --item-justify: flex-end;
-        --origin: 100% 50%;
         --padding-horizontal: 0px;
         --padding-vertical: calc(var(--inset-vertical) - var(--spacing-vertical) / 2);
-        --squash: dock-squash-upright;
+
+        .dock-button {
+            --hop-x: -1;
+            --hop-y: 0;
+            --origin: 100% 50%;
+            --squash: dock-button-squash-upright;
+        }
+
+        .dock-item {
+            --align: center;
+            --justify: flex-end;
+        }
     }
 
     // Upright docks space their icons down the shelf, and their labels clear it sideways.
@@ -122,24 +114,32 @@ $label-font-size: var(--font-size-200);
         --spacer: calc(var(--size-peak) - var(--size-rest) - var(--inset-horizontal) + 12px);
     }
 
+
     // Each app a cell of the launcher's surface. The surface's own hover step is too faint to read across a cell this
     // large, so hover takes the active step, as far above the surface as pressed sits below it.
     &-app {
         @extend %background-state, %background-surface, %surface-primary;
         --background-default: transparent;
         --border-radius: var(--border-radius-400);
+        --gap-vertical: var(--size-200);
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: var(--size-200);
         --size: 48px;
 
         &-label {
             --color: var(--color-text-500);
-            --font-size: #{$label-font-size};
+            --font-size: var(--font-size-200);
             --font-weight: var(--font-weight-400);
         }
     }
 
     &-arrow {
         --color: var(--color-text-500);
+        --focus-color: var(--color);
+        --focus-width: 2px;
         --opacity: 1;
+        --transition-duration: 0.3s;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
         --width: 24px;
 
         &:disabled {
@@ -151,28 +151,61 @@ $label-font-size: var(--font-size-200);
         }
     }
 
+    // A launch hops away from the screen edge the dock sits on, and lands on its base, so the squash spreads along the
+    // dock. Long on purpose: it is the "starting up" signal itself, it plays once per app, and input is never blocked
+    // while it plays.
     &-button {
         @extend %surface-raise;
         --background-default: var(--surface-background-default);
-        --border-radius: var(--item-radius);
+        --border-radius: 999px;
         --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
         --color: var(--color-text-500);
+        --corner-shape: round;
+        --focus-color: var(--color);
+        --focus-offset: calc(var(--size-100) / 4);
+        --focus-width: 2px;
+        --hop-distance: 22px;
+        --hop-duration: 0.7s;
+        --hop-rebound: 9px;
+        --hop-timing-function: ease;
+        --hop-x: 0;
+        --hop-y: -1;
+        --magnify-duration: 0.3s;
+        --magnify-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --origin: 50% 100%;
         // The card would pad by the global default, leaving the icon a sliver of the button to size against.
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
+        --squash: dock-button-squash;
+        --squash-timing-function: ease-in-out;
+
+        // A zero-length hop still ends, so the launch clears itself.
+        @media (prefers-reduced-motion: reduce) {
+            --hop-duration: 0s;
+        }
 
         // An app's own shape, over the dock's. After '--thumbnail', so 'plain' drops a thumbnail's shadow too.
         &--plain {
-            @include plain;
+            --box-shadow-default: none;
+
+            &:not(.dock-button--thumbnail) {
+                --background-default: transparent;
+            }
         }
 
-        &--square {
+        // Doubled so an app's own shape wins over the dock's.
+        &#{&}--square {
+            --border-radius: var(--border-radius-600);
             --corner-shape: round;
-            --item-radius: var(--border-radius-600);
         }
 
-        &--squircle {
-            @include squircle;
+        &#{&}--squircle {
+            --border-radius: 50%;
+            --corner-shape: squircle;
+
+            @supports not (corner-shape: squircle) {
+                --border-radius: 24%;
+            }
         }
 
         // Covers the button, over the surface it shows until the image loads; the image is its own edge.
@@ -182,12 +215,16 @@ $label-font-size: var(--font-size-200);
         }
 
         // Relative to the button, so the icon follows the swell too.
-        > .icon {
-            --size: calc(var(--icon-ratio) * 100%);
+        > .icon,
+        > svg {
+            --size: 45%;
         }
     }
 
+    // Icons rest on the inset along the screen edge and swell away from it.
     &-item {
+        --align: flex-end;
+        --justify: center;
         --padding-horizontal: calc(var(--spacing-horizontal) / 2);
         --padding-vertical: 0px;
         --size: var(--size-rest);
@@ -224,9 +261,7 @@ $label-font-size: var(--font-size-200);
         }
     }
 
-
-    // The command palette's layout, a floating surface over the page. Doubled so it wins over the tooltip's own
-    // surface regardless of stylesheet order.
+    // A floating surface over the page, laid out like the command palette.
     &-launcher {
         &-apps {
             --column-width: 80px;
@@ -237,14 +272,22 @@ $label-font-size: var(--font-size-200);
         }
 
         &-empty {
-            --color: #{$color-muted};
+            --color: var(--color-text-300);
+            --padding-bottom: var(--size-500);
         }
 
         &-footer {
-            --border: #{$divider};
-            --color: #{$color-muted};
-            --font-size: #{$label-font-size};
+            --border-color: var(--surface-border-default);
+            --border-width: var(--border-width-400);
+            --color: var(--color-text-300);
+            --font-size: var(--font-size-200);
+            --gap-horizontal: var(--size-400);
             --height: 44px;
+            --padding-horizontal: var(--size-400);
+        }
+
+        &-hint {
+            --gap-horizontal: var(--size-200);
         }
 
         // 'inherit' passes the launcher's '--font-size' through the input's own, which would otherwise refer to itself.
@@ -256,7 +299,7 @@ $label-font-size: var(--font-size-200);
             --size: 0px;
 
             &::placeholder {
-                --color: #{$color-muted};
+                --color: var(--color-text-300);
             }
         }
 
@@ -264,16 +307,24 @@ $label-font-size: var(--font-size-200);
             --size: 12px;
         }
 
+        &-keys {
+            --gap-horizontal: calc(var(--size-100) / 2);
+        }
+
         &-search {
-            --color: #{$color-muted};
+            --color: var(--color-text-300);
+            --gap-horizontal: var(--size-200);
             --height: 48px;
+            --padding-horizontal: var(--size-400);
         }
 
         &-view {
-            --border: #{$divider};
+            --border-color: var(--surface-border-default);
+            --border-width: var(--border-width-400);
             --max-height: min(320px, 50vh);
         }
 
+        // Chained through '.tooltip-content' so it wins over the tooltip's own surface regardless of stylesheet order.
         &.tooltip-content {
             --background-default: var(--surface-background-default);
             --border-radius: var(--border-radius-600);
@@ -284,9 +335,23 @@ $label-font-size: var(--font-size-200);
         }
     }
 
+    // Lights 4px under the resting button, as the icon first lands: 55% into the button's 0.7s hop, not on click.
+    &-light {
+        --background: var(--color-primary-500);
+        --delay: calc(0.7s * 0.55);
+        --offset: 4px;
+        --scale: 0.5;
+        --size: 4px;
+        --transition-duration: 0.15s;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
-    // A zero-length hop still ends, so the launch clears itself.
-    @media (prefers-reduced-motion: reduce) {
-        --hop-duration: 0s;
+        @include tokens.state(active) {
+            --scale: 1;
+            --transition-duration: 0.2s;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            --delay: 0s;
+        }
     }
 }

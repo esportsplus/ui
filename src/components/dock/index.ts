@@ -1,4 +1,4 @@
-import { effect, reactive, ReactiveArray } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive, ReactiveArray, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import icon from '~/components/icon';
 import input from '~/components/input';
@@ -7,7 +7,7 @@ import sortable, { type SortableOptions } from '~/components/sortable';
 import tooltip from '~/components/tooltip';
 import { content as surface } from '~/components/tooltip/utilities';
 import scrollbar from '~/modifiers/scrollbar';
-import { observer, type Observer } from '~/shared/resize';
+import { observer } from '~/shared/resize';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import left from '@esportsplus/ui/svg/arrow-left.svg';
 import right from '@esportsplus/ui/svg/arrow-right.svg';
@@ -147,15 +147,16 @@ const dock = ({
     state = reactive({ active: false }),
     ...attributes
 }: A) => {
-    let docked = items instanceof ReactiveArray ? items : new ReactiveArray(items),
+    let cells: HTMLElement | undefined,
+        docked = items instanceof ReactiveArray ? items : new ReactiveArray(items),
         drawer = apps && (apps instanceof ReactiveArray ? apps : new ReactiveArray(apps)),
+        field: HTMLInputElement | undefined,
         group = `dock-${++uid}`,
         // The launcher's search, and the app the keys rest on among those it shows: none (-1) until an arrow picks one.
         launch = reactive({ index: -1, query: '' }),
-        panel: HTMLElement | undefined,
-        popup = drawer && overlay.popup({ state, target: surface }),
-        resize: Observer | undefined,
         // Kept per app rather than per render, since moving between lists renders it afresh.
+        launching = new WeakMap<Item, { launching: boolean }>(),
+        popup = drawer && overlay.popup({ state, target: surface }),
         running = new WeakMap<Item, { running: boolean }>(),
         // The page of icons the shelf shows: the first, and how many fit (none while they all do). 'order' moves with
         // every sort, which can reorder the dock without changing its length.
@@ -205,8 +206,8 @@ const dock = ({
     }
 
     function button(item: Item) {
-        let local = reactive({ launching: false }),
-            app = status(item);
+        let app = status(item),
+            local = motion(item);
 
         return html`
             <button
@@ -220,18 +221,7 @@ const dock = ({
                     onanimationend: () => {
                         local.launching = false;
                     },
-                    onclick: () => {
-                        state.active = false;
-
-                        // Already running: a click just brings it forward, no fanfare.
-                        if (app.running) {
-                            return;
-                        }
-
-                        app.running = true;
-                        local.launching = true;
-                        onlaunch?.(item.label);
-                    }
+                    onclick: () => open(item)
                 }}
             >
                 ${glyph(item)}
@@ -257,16 +247,22 @@ const dock = ({
     // Beside the dock, centred on it: a search, the apps, and the keys that drive them. The apps sort into the dock
     // and back.
     function launcher(apps: ReactiveArray<Item>) {
-        let library = sortable(apps, (item, attributes) => html`
+        // The app the keys rest on, so a step only reaches the two apps it moves between.
+        let current = signal<Item | undefined>(undefined),
+            library = sortable(apps, (item, attributes) => html`
                 <div
                     class='dock-app'
                     ${attributes}
-                    ${{ class: [() => !matches(item) && 'dock-app--hidden', () => shown()[selected()] === item && '--active'] }}
+                    ${{ class: [() => !matches(item) && 'dock-app--hidden', () => signal.selector(current, item) && '--active'] }}
                 >
                     ${button(item)}
                     <span class='dock-app-label'>${item.label}</span>
                 </div>
             `, { group, onsort: sorted });
+
+        effect(() => {
+            write(current, shown()[selected()]);
+        });
 
         // Every opening starts afresh, on all the apps, with the search taking the keys.
         effect(() => state.active, (open) => {
@@ -279,7 +275,7 @@ const dock = ({
 
             // After the popup has put focus back where it was while opening.
             requestAnimationFrame(() => {
-                panel?.querySelector<HTMLInputElement>('.dock-launcher-input')?.focus({ preventScroll: true });
+                field?.focus({ preventScroll: true });
             });
         });
 
@@ -290,12 +286,7 @@ const dock = ({
                 id='${group}-launcher'
                 role='dialog'
                 ${attributes[DOCK_LAUNCHER]}
-                ${{
-                    onconnect: (element: HTMLElement) => {
-                        panel = element;
-                    },
-                    onmousedown: keep
-                }}
+                ${{ onmousedown: keep }}
             >
                 <div class='dock-launcher-search'>
                     ${sprite(magnifier)}
@@ -307,6 +298,9 @@ const dock = ({
                             launch.index = -1;
                             launch.query = (e.target as HTMLInputElement).value;
                         },
+                        onconnect: (element: HTMLInputElement) => {
+                            field = element;
+                        },
                         onkeydown: navigate,
                         placeholder: 'Search apps',
                         spellcheck: false,
@@ -315,7 +309,17 @@ const dock = ({
                 </div>
 
                 <div class='dock-launcher-view' ${scrollbar({ fade: true })}>
-                    <div class='dock-launcher-apps' ${library.attributes}>${library.render()}</div>
+                    <div
+                        class='dock-launcher-apps'
+                        ${library.attributes}
+                        ${{
+                            onconnect: (element: HTMLElement) => {
+                                cells = element;
+                            }
+                        }}
+                    >
+                        ${library.render()}
+                    </div>
                     ${() => !shown().length && html`
                         <p class='dock-launcher-empty' role='status'>${launch.query.trim() ? 'No results' : 'No apps'}</p>
                     `}
@@ -366,6 +370,17 @@ const dock = ({
         scroll.first = Math.max(0, Math.min(scroll.first, docked.length - scroll.count));
     }
 
+    function motion(item: Item) {
+        let current = launching.get(item);
+
+        if (!current) {
+            current = reactive({ launching: false });
+            launching.set(item, current);
+        }
+
+        return current;
+    }
+
     // The first arrow picks the first app, later ones step through the shown apps as the grid lays them out; Enter
     // opens the one they rest on, or the first shown before any is picked.
     function navigate(e: KeyboardEvent) {
@@ -374,8 +389,7 @@ const dock = ({
         }
 
         let list = shown(),
-            grid = panel?.querySelector<HTMLElement>('.dock-launcher-apps'),
-            columns = grid ? getComputedStyle(grid).gridTemplateColumns.split(' ').length : 1,
+            columns = cells ? getComputedStyle(cells).gridTemplateColumns.split(' ').length : 1,
             step = ({ ArrowDown: columns, ArrowLeft: -1, ArrowRight: 1, ArrowUp: -columns } as Record<string, number>)[e.key];
 
         if (step) {
@@ -384,17 +398,36 @@ const dock = ({
             if (list.length) {
                 launch.index = launch.index < 0 ? 0 : Math.min(Math.max(selected() + step, 0), list.length - 1);
 
+                // Scrolling needs the element, which the rendered '--active' marks once the step has landed.
                 requestAnimationFrame(() => {
-                    grid?.querySelector('.dock-app.--active')?.scrollIntoView({ block: 'nearest' });
+                    cells?.querySelector('.dock-app.--active')?.scrollIntoView({ block: 'nearest' });
                 });
             }
         }
         else if (e.key === 'Enter') {
+            let item = list[selected()] ?? list[0];
+
             e.preventDefault();
-            (grid?.querySelector('.dock-app.--active') ?? grid?.querySelector('.dock-app:not(.dock-app--hidden)'))
-                ?.querySelector<HTMLElement>(':scope > .dock-button')
-                ?.click();
+
+            if (item) {
+                open(item);
+            }
         }
+    }
+
+    function open(item: Item) {
+        let app = status(item);
+
+        state.active = false;
+
+        // Already running: a click just brings it forward, no fanfare.
+        if (app.running) {
+            return;
+        }
+
+        app.running = true;
+        motion(item).launching = true;
+        onlaunch?.(item.label);
     }
 
     function page(step: -1 | 1) {
@@ -480,31 +513,36 @@ const dock = ({
                 // The icons are measured against the shelf whenever it, they, or the room around the dock change; the
                 // dock's parent can grow without the dock growing with it.
                 onconnect: (element: HTMLElement) => {
-                    (popup?.onconnect as ((element: HTMLElement) => void) | undefined)?.(element);
-
                     if (!arrows) {
                         return;
                     }
 
+                    let resize = observer(measure);
+
                     shelf = element;
-                    track = element.querySelector<HTMLElement>(':scope > .dock-viewport > .dock-items') ?? undefined;
-                    viewport = track?.parentElement ?? undefined;
-                    resize = observer(measure);
 
                     for (let node of [element, element.parentElement, track, viewport]) {
                         if (node) {
                             resize.observe(node);
                         }
                     }
-                },
-                ondisconnect: () => {
-                    (popup?.ondisconnect as VoidFunction | undefined)?.();
-                    resize?.disconnect();
+
+                    onCleanup(resize.disconnect);
                 }
             }}
         >
             ${arrows && arrow(-1)}
-            <div class='dock-viewport'>
+            <div
+                class='dock-viewport'
+                ${{
+                    // The track spreads the sortable's attributes, so it is reached from here; children connect
+                    // before the shelf, which measures them.
+                    onconnect: (element: HTMLElement) => {
+                        track = element.firstElementChild as HTMLElement;
+                        viewport = element;
+                    }
+                }}
+            >
                 <div class='dock-items' ${list.attributes}>${list.render()}</div>
             </div>
             ${arrows && arrow(1)}
