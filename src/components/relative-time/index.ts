@@ -35,7 +35,6 @@ type Item = {
     text: string;
 };
 
-type Rendered = HTMLElement & { [ITEM]?: Item };
 
 type State = {
     date: Value;
@@ -55,7 +54,6 @@ const DAY = 24 * 60 * 60 * 1000;
 
 const HOUR = 60 * 60 * 1000;
 
-const ITEM = Symbol();
 
 const MIN = 60 * 1000;
 
@@ -86,12 +84,14 @@ const WEEK = 7 * DAY;
 let uid = 0;
 
 
-// What an item renders as: rolling in when it arrives, and once leaving, out of the flow where it stood.
+// What an item renders as: rolling in when it arrives, and once leaving, out of the flow where it stood, until its
+// own exit ends.
 function bind(item: Item, block: string): Attributes {
     return {
         class: () => item.state.exiting && `${block}--exiting`,
-        onconnect: (element: Rendered) => {
-            element[ITEM] = item;
+        onanimationcancel: (e: AnimationEvent) => retire(item, e),
+        onanimationend: (e: AnimationEvent) => retire(item, e),
+        onconnect: (element: HTMLElement) => {
             item.element = element;
         },
         style: () => item.state.exiting && `left: ${item.state.left}px; top: ${item.state.top}px;`
@@ -196,10 +196,8 @@ function render(slots: ReactiveArray<Item>, rests: ReactiveArray<Item>, text: st
 }
 
 // Cancelled too (an ancestor hidden mid-roll), or the item would linger out of the flow.
-function retire(e: AnimationEvent) {
-    let item = (e.target as Rendered)[ITEM];
-
-    if (e.animationName !== 'relative-time-exit' || !item) {
+function retire(item: Item, e: AnimationEvent) {
+    if (e.animationName !== 'relative-time-exit' || e.target !== item.element) {
         return;
     }
 
@@ -283,9 +281,10 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
             return;
         }
 
+        // Starts centred on the text; nudged sideways only if that would poke past the viewport. Measured against its
+        // unshifted box, so the reset, the read and the shift are written straight to it, in one go.
         message.style.right = '';
 
-        // Starts centred on the text; nudged sideways only if that would poke past the viewport.
         let box = message.getBoundingClientRect(),
             max = viewport().width - VIEWPORT_GUTTER,
             shift = box.left < VIEWPORT_GUTTER ? VIEWPORT_GUTTER - box.left : box.right > max ? max - box.right : 0;
@@ -360,10 +359,6 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
             <span
                 aria-hidden='true'
                 class='relative-time-roll ${() => state.date === null && 'relative-time-roll--placeholder'}'
-                ${{
-                    onanimationcancel: retire,
-                    onanimationend: retire
-                }}
             >
                 <span class='relative-time-digits'>${html.reactive(slots, (slot) => html`<span class='relative-time-slot ${slot.entering && 'relative-time-slot--entering'}' ${bind(slot, 'relative-time-slot')}>${html.reactive(slot.glyphs!, (item) => glyph(item, 'relative-time-digit'))}</span>`)}</span>
                 <span class='relative-time-rests'>${html.reactive(rests, (item) => glyph(item, 'relative-time-rest'))}</span>

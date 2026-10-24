@@ -7,7 +7,7 @@
     display: inline-flex;
     font-variant-numeric: tabular-nums;
     outline: none;
-    transition: color 0.15s ease-out;
+    transition: color var(--transition-duration) var(--transition-timing-function);
     white-space: nowrap;
 
     &-digit,
@@ -19,14 +19,14 @@
     &-digit--entering,
     &-rest--entering,
     &-slot--entering {
-        animation: relative-time-enter var(--roll-duration) var(--roll-timing-function);
+        animation: relative-time-enter var(--animation-duration) var(--animation-timing-function);
     }
 
     // JS pins 'left' and 'top' to where it stood. After the base rules, so its 'position' wins.
     &-digit--exiting,
     &-rest--exiting,
     &-slot--exiting {
-        animation: relative-time-exit var(--roll-duration) var(--roll-timing-function) forwards;
+        animation: relative-time-exit var(--animation-duration) var(--animation-timing-function) forwards;
         position: absolute;
     }
 
@@ -67,6 +67,10 @@
             filter: blur(0px);
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            filter: none;
+        }
+
         .relative-time.tooltip--instant > & {
             transition: none;
         }
@@ -77,35 +81,24 @@
         cursor: default;
     }
 
-    // Brightens on hover so the text reads as something with more to say.
     &:focus-visible {
-        --color: var(--color-hover);
-    }
-
-    &:focus-visible {
-        outline: 2px solid var(--focus-color);
-        outline-offset: calc(var(--size-100) / 4);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &-tooltip.tooltip-message {
-            filter: none;
-        }
+        outline: var(--focus-width) solid var(--focus-color);
+        outline-offset: var(--focus-offset);
     }
 }
 
 @keyframes relative-time-enter {
     from {
-        filter: blur(var(--roll-blur));
+        filter: blur(var(--blur));
         opacity: 0;
-        translate: 0 var(--roll-enter-offset);
+        translate: 0 var(--enter-offset);
     }
 }
 
 @keyframes relative-time-exit {
     to {
-        filter: blur(var(--roll-blur));
+        filter: blur(var(--blur));
         opacity: 0;
-        translate: 0 var(--roll-exit-offset);
+        translate: 0 var(--exit-offset);
     }
 }

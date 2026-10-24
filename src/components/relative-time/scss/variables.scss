@@ -7,20 +7,32 @@
     --color-default: currentColor;
     --color-hover: var(--color-text-500);
     --focus-color: var(--color-primary-500);
-    --placeholder: '0 min ago';
-    --roll-blur: var(--blur-400);
-    // Long enough to read as motion, short enough that a seconds counter never has two rolls overlapping.
-    --roll-duration: 0.3s;
-    --roll-enter-offset: 0.55em;
-    // Travels less than the entrance did: the exit shouldn't hold the eye.
-    --roll-exit-offset: -0.4em;
-    --roll-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    --focus-offset: calc(var(--size-100) / 4);
+    --focus-width: 2px;
+    --transition-duration: 0.15s;
+    --transition-timing-function: ease-out;
 
-    // A plain crossfade: nothing travels.
-    @media (prefers-reduced-motion: reduce) {
-        --roll-blur: 0px;
-        --roll-enter-offset: 0;
-        --roll-exit-offset: 0;
+
+    // Long enough to read as motion, short enough that a seconds counter never has two rolls overlapping; the exit
+    // travels less than the entrance did, so it doesn't hold the eye. Under reduced motion, a plain crossfade.
+    &-digit,
+    &-rest,
+    &-slot {
+        --animation-duration: 0.3s;
+        --animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+        --blur: var(--blur-400);
+        --enter-offset: 0.55em;
+        --exit-offset: -0.4em;
+
+        @media (prefers-reduced-motion: reduce) {
+            --blur: 0px;
+            --enter-offset: 0;
+            --exit-offset: 0;
+        }
+    }
+
+    &-roll--placeholder {
+        --placeholder: '0 min ago';
     }
 
     &-tooltip.tooltip-message {
@@ -38,5 +50,10 @@
             --offset: 0px;
             --scale: 1;
         }
+    }
+
+    // Brightens on focus as on hover, so the text reads as something with more to say.
+    &:focus-visible {
+        --color: var(--color-hover);
     }
 }
