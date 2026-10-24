@@ -48,9 +48,6 @@
     }
 
     &-fold {
-        --color-default: currentColor;
-        --color-hover: var(--hover-color);
-        --color-pressed: var(--color-hover);
         align-items: center;
         background: transparent;
         border: 0;
@@ -64,25 +61,20 @@
         width: var(--fold-width);
 
         &-icon.icon {
-            --size: var(--fold-icon-size);
-            rotate: var(--fold-rotate);
-            transition: rotate var(--fold-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
+            rotate: var(--rotate);
+            transition: rotate var(--transition-duration) var(--transition-timing-function);
         }
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: calc(var(--focus-width) * -1);
         }
-
-        &[aria-expanded='false'] {
-            --fold-rotate: -90deg;
-        }
     }
 
     // Sticks while the code scrolls sideways, opaque so the code passes beneath it.
     &-gutter {
         background: var(--background);
-        border-inline-end: var(--gutter-border-width) solid var(--gutter-border-color);
+        border-inline-end: var(--border-width) solid var(--border-color);
         color: var(--gutter-color);
         display: flex;
         flex: none;
@@ -191,9 +183,9 @@
         color: var(--color);
         cursor: pointer;
         font: inherit;
-        line-height: 1.2;
-        margin-inline-start: 1ch;
-        padding: 0 var(--size-100);
+        line-height: var(--line-height);
+        margin-inline-start: var(--spacer);
+        padding: var(--padding-vertical) var(--padding-horizontal);
         user-select: none;
 
         &:focus-visible {

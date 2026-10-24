@@ -19,14 +19,9 @@
     --comment-color: var(--color-text-300);
     --focus-color: var(--color-blue-400);
     --focus-width: var(--border-width-500);
-    --fold-duration: 130ms;
-    --fold-icon-size: var(--size-100);
-    --fold-rotate: 0deg;
     --fold-width: var(--size-400);
     --font-size: var(--font-size-300);
     --function-color: light-dark(var(--color-purple-300), oklch(from var(--color-purple-300) 0.8 0.13 h));
-    --gutter-border-color: var(--surface-border-default);
-    --gutter-border-width: var(--border-width-400);
     --gutter-color: var(--color-text-300);
     // Resolved here, since the fold toggle's and placeholder's color states redefine --color on them.
     --hover-color: var(--color);
@@ -56,14 +51,40 @@
     --white-space: pre;
     --whitespace-color: oklch(from var(--color-primary-300) l c h / 0.6);
 
+
     &--wrap {
         --line-width: 100%;
         --overflow-wrap: anywhere;
         --white-space: pre-wrap;
     }
 
+
     &-fold {
         @extend %color-state;
+        --color-default: currentColor;
+        --color-hover: var(--hover-color);
+        --color-pressed: var(--color-hover);
+
+        &[aria-expanded='false'] .code-viewer-fold-icon.icon {
+            --rotate: -90deg;
+        }
+    }
+
+    // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
+    &-fold-icon.icon {
+        --rotate: 0deg;
+        --size: var(--size-100);
+        --transition-duration: 130ms;
+        --transition-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
+    }
+
+    &-gutter {
+        --border-color: var(--surface-border-default);
+        --border-width: var(--border-width-400);
     }
 
     // Room for its label on the left; the controls at the right sit closer to the edge.
@@ -82,9 +103,9 @@
 
     &-placeholder {
         @extend %color-state, %color-text;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        --fold-duration: 0s;
+        --line-height: 1.2;
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: 0px;
+        --spacer: 1ch;
     }
 }
