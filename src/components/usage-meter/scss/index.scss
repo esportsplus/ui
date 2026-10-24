@@ -62,7 +62,7 @@
     &-header {
         align-items: baseline;
         display: var(--display);
-        gap: var(--size-300);
+        gap: var(--gap-horizontal);
         justify-content: space-between;
     }
 
@@ -74,7 +74,7 @@
 
     &-track {
         background: var(--background);
-        border-radius: 999px;
+        border-radius: var(--border-radius);
         flex: 0 0 auto;
         height: var(--height);
         order: var(--order);
