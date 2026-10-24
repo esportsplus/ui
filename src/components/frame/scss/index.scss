@@ -17,6 +17,10 @@
         @include tokens.state(inactive) {
             opacity: var(--opacity);
         }
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
     }
 
     &--scroll,
@@ -37,7 +41,7 @@
     // Frames swap in place: a waiting frame sits one shift off along '--travel-x' and '--travel-y', so the incoming
     // frame drifts in from there while the outgoing one carries on out the other way. The travel defaults to the
     // frame's side of the active one; frames without an index, like 'tooltip.shared' content, set the travel
-    // themselves and mark the outgoing frame 'frame--leaving'.
+    // themselves and mark the outgoing frame 'frame--swap-leaving'.
     &--swap {
         --shift: var(--swap-shift);
         --travel-x: clamp(-1, var(--n) - var(--i, 0), 1);
@@ -66,37 +70,30 @@
             visibility: hidden;
         }
 
-        &.frame--leaving {
+        &-leaving {
             --shift: calc(var(--swap-shift) * -1);
         }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        &--scroll,
-        &--slide {
-            transition: none;
-        }
+    &:not(&--scroll, &--slide, &--swap):not(.--active) {
+        display: none;
     }
-}
 
-.frame:not(.frame--scroll, .frame--slide, .frame--swap):not(.--active) {
-    display: none;
-}
-
-// A '--scrollbar' thumb would ride along with its frame, so it clears while the frame moves: always on inactive
-// frames, and on the incoming frame while the caller marks it 'frame--moving'. Only the thumb clears, so the gutter holds
-// and nothing reflows as it returns.
-:is(.frame--scroll, .frame--slide, .frame--swap):is(:not(.--active), .frame--moving) {
-    &.--scrollbar,
-    .--scrollbar {
-        @supports selector(::-webkit-scrollbar) {
-            &::-webkit-scrollbar-thumb {
-                background: transparent;
+    // A '--scrollbar' thumb would ride along with its frame, so it clears while the frame moves: always on inactive
+    // frames, and on the incoming frame while the caller marks it 'frame--moving'. Only the thumb clears, so the gutter
+    // holds and nothing reflows as it returns.
+    &:is(&--scroll, &--slide, &--swap):is(:not(.--active), &--moving) {
+        &.--scrollbar,
+        .--scrollbar {
+            @supports selector(::-webkit-scrollbar) {
+                &::-webkit-scrollbar-thumb {
+                    background: transparent;
+                }
             }
-        }
 
-        @supports not selector(::-webkit-scrollbar) {
-            scrollbar-color: transparent transparent;
+            @supports not selector(::-webkit-scrollbar) {
+                scrollbar-color: transparent transparent;
+            }
         }
     }
 }
