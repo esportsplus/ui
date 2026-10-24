@@ -12,50 +12,49 @@
 
     &-description {
         --color: var(--color-text-300);
+        --lines: 2;
     }
 
     // At rest every line shares one length; the hovered one peaks and its two neighbours either side step back down.
-    // The line reads '--length' and '--line-color' from here, where the hover states set them.
+    // The item's states reach into its line, which holds the values.
     &-item {
-        --color-active: var(--color-text-500);
-        --color-far: color-mix(in oklab, var(--color-primary-500) 55%, transparent);
-        --color-near: color-mix(in oklab, var(--color-primary-500) 75%, transparent);
-        --color-rest: color-mix(in oklab, var(--color-primary-300) 40%, transparent);
         --focus-color: var(--color-primary-500);
+        --focus-offset: -1px;
+        --focus-width: 2px;
         --height: var(--size-100);
-        --length: var(--length-rest);
-        --length-far: var(--size-400);
-        --length-near: var(--size-500);
-        --length-peak: 24px;
-        --length-rest: 12px;
-        --line-color: var(--color-rest);
         // Lines sit this far in from the rail's leading edge, inside a hit area wider than the longest line.
         --padding-horizontal: calc(var(--size-100) / 2);
         --width: 32px;
 
         @include tokens.state(active) {
-            --line-color: var(--color-active);
+            > .chat-minimap-line {
+                --background: var(--background-active);
+            }
         }
 
         // Touch has no hover to follow, and reduced motion keeps the lengths still; keyboard focus swells too.
         @media (hover: hover) and (prefers-reduced-motion: no-preference) {
             &:has(+ .chat-minimap-item + .chat-minimap-item:is(:hover, :focus-visible)),
             &:is(:hover, :focus-visible) + .chat-minimap-item + .chat-minimap-item {
-                --length: var(--length-far);
+                > .chat-minimap-line {
+                    --length: var(--length-far);
+                }
             }
 
             &:has(+ .chat-minimap-item:is(:hover, :focus-visible)),
             &:is(:hover, :focus-visible) + .chat-minimap-item {
-                --length: var(--length-near);
+                > .chat-minimap-line {
+                    --length: var(--length-near);
+                }
             }
 
-            &:is(:hover, :focus-visible) {
+            &:is(:hover, :focus-visible) > .chat-minimap-line {
                 --length: var(--length-peak);
             }
         }
 
-        &:is(:hover, :focus-visible) {
-            --line-color: var(--color-active);
+        &:is(:hover, :focus-visible) > .chat-minimap-line {
+            --background: var(--background-active);
         }
 
         // Turns in view keep their full color while a neighbour is hovered, so the indicator never fades under the
@@ -63,12 +62,16 @@
         &:not(.--active) {
             &:has(+ .chat-minimap-item + .chat-minimap-item:is(:hover, :focus-visible)),
             &:is(:hover, :focus-visible) + .chat-minimap-item + .chat-minimap-item {
-                --line-color: var(--color-far);
+                > .chat-minimap-line {
+                    --background: var(--background-far);
+                }
             }
 
             &:has(+ .chat-minimap-item:is(:hover, :focus-visible)),
             &:is(:hover, :focus-visible) + .chat-minimap-item {
-                --line-color: var(--color-near);
+                > .chat-minimap-line {
+                    --background: var(--background-near);
+                }
             }
         }
     }
@@ -97,20 +100,55 @@
         }
     }
 
+    // The lines hold their length under reduced motion; the nav still fades.
     &-line {
+        --background: var(--background-rest);
+        --background-active: var(--color-text-500);
+        --background-far: color-mix(in oklab, var(--color-primary-500) 55%, transparent);
+        --background-near: color-mix(in oklab, var(--color-primary-500) 75%, transparent);
+        --background-rest: color-mix(in oklab, var(--color-primary-300) 40%, transparent);
         --height: 2px;
+        --length: var(--length-rest);
+        --length-far: var(--size-400);
+        --length-near: var(--size-500);
+        --length-peak: 24px;
+        --length-rest: 12px;
         --transition-duration: 0.16s;
         --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
     }
 
     &-nav {
         @extend %color-state, %color-text;
         --focus-color: var(--color-primary-500);
+        --focus-offset: -1px;
+        --focus-width: 2px;
         --height: var(--size-500);
+        --opacity: 0;
         --padding-horizontal: calc(var(--size-100) / 2);
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;
         --width: 32px;
+
+        @media (pointer: coarse) {
+            --opacity: 1;
+
+            &:disabled {
+                --opacity: 0.4;
+            }
+        }
+
+        &:focus-visible {
+            --color: var(--color-hover);
+        }
+
+        &:focus-visible,
+        &:hover {
+            --opacity: 1;
+        }
     }
 
     // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
@@ -141,11 +179,4 @@
         --color: var(--color-text-500);
     }
 
-
-    // The lines hold their length; the nav still fades.
-    @media (prefers-reduced-motion: reduce) {
-        &-line {
-            --transition-duration: 0s;
-        }
-    }
 }

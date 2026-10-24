@@ -1,4 +1,4 @@
-import { effect, reactive, ReactiveArray, untrack } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive, ReactiveArray, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import { lead, step, type Range } from './model';
 import icon from '~/components/icon';
@@ -85,8 +85,7 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
         list = turns instanceof ReactiveArray ? turns : new ReactiveArray(turns),
         local = reactive({ focus: -1, total: 0, version: 0 }),
         positions = new Map<Turn, number>(),
-        tips = { next: tooltip.shared({ direction: 's' }), previous: tooltip.shared({ direction: 'n' }) },
-        unsubscribe: VoidFunction | undefined;
+        tips = { next: tooltip.shared({ direction: 's' }), previous: tooltip.shared({ direction: 'n' }) };
 
     function bubble() {
         return { 'aria-hidden': 'true', ...attributes[CHAT_MINIMAP_LABEL], class: ['chat-minimap-label', attributes[CHAT_MINIMAP_LABEL]?.class ?? []].flat() };
@@ -198,12 +197,8 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
             ${{
                 'aria-label': label,
                 onconnect: () => {
-                    unsubscribe = subscribe(list, renumber);
+                    onCleanup(subscribe(list, renumber));
                     renumber();
-                },
-                ondisconnect: () => {
-                    unsubscribe?.();
-                    unsubscribe = undefined;
                 }
             }}
         >
