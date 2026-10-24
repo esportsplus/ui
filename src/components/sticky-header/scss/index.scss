@@ -14,7 +14,7 @@
         height: var(--compact-height);
         opacity: var(--reveal);
         padding: 0 var(--gutter);
-        translate: 0 calc((1 - var(--reveal)) * 6px);
+        translate: 0 calc((1 - var(--reveal)) * var(--shift));
     }
 
     // Only controls take the pointer, so wheel and touch over the rest of the bar still scroll the panel.
@@ -34,9 +34,9 @@
 
     &-before {
         @extend %absolute-top;
-        opacity: clamp(0, 1 - var(--sticky-header-progress) / 0.45, 1);
+        opacity: clamp(0, 1 - var(--sticky-header-progress) / var(--fade-end), 1);
         padding: var(--padding-top) var(--gutter) 0;
-        scale: calc(1 - 0.05 * var(--sticky-header-progress));
+        scale: calc(1 - var(--shrink) * var(--sticky-header-progress));
         transform-origin: left top;
         translate: 0 calc(var(--offset) * -1);
     }
@@ -44,22 +44,20 @@
     // Edges ride the bottom of the shrinking bar and only appear once content slides underneath.
     &-edge {
         @extend %absolute-top;
+        height: var(--height);
         opacity: var(--lifted);
         translate: 0 calc(var(--expanded-height) - var(--offset));
 
         &--fade {
             background: linear-gradient(var(--background), transparent);
-            height: var(--size-500);
         }
 
         &--line {
             background: var(--border-color);
-            height: 1px;
         }
 
         &--shadow {
-            box-shadow: var(--edge-shadow);
-            height: 1px;
+            box-shadow: var(--box-shadow);
         }
     }
 
@@ -78,12 +76,12 @@
         border-radius: inherit;
         max-height: var(--max-height);
         outline: none;
-        scroll-padding-top: calc(var(--compact-height) + 10px);
+        scroll-padding-top: calc(var(--compact-height) + var(--scroll-gap));
         scroll-timeline: --sticky-header y;
 
         &:focus-visible {
-            background: oklch(from var(--focus-color) l c h / 0.06);
-            box-shadow: inset 0 0 0 1px var(--focus-color);
+            background: oklch(from var(--focus-color) l c h / var(--focus-tint));
+            box-shadow: inset 0 0 0 var(--focus-width) var(--focus-color);
         }
     }
 

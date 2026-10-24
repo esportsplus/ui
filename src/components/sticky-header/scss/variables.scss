@@ -23,27 +23,56 @@
         0 1px 2px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 0.6)),
         0 4px 10px -8px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 5));
     --compact-height: 48px;
-    --edge-shadow: 0 6px 16px -10px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 4.4));
     --expanded-height: 68px;
-    --focus-color: var(--color-blue-300);
     // Its own name: the global per-element reset would swallow '--padding-horizontal' on the bar's children.
     --gutter: var(--size-400);
-    --max-height: 320px;
     // The bar is absolute and ignores the card's padding, so the scroller fills the card too and both share its edges.
     --padding-horizontal: 0px;
-    --padding-top: 12px;
     --padding-vertical: 0px;
     // Condense over at least 64px so short headers don't snap shut on the first wheel tick.
     --sticky-header-range: max(64px, var(--travel) * 3);
     --travel: calc(var(--expanded-height) - var(--compact-height));
 
+    // Rises the last few pixels into place as it fades in.
     &-after {
         --reveal: clamp(0, (var(--sticky-header-progress) - 0.55) / 0.35, 1);
+        --shift: 6px;
     }
 
     // Derived here rather than on the root, so they follow the progress animated on the bar.
     &-bar {
         --lifted: clamp(0, var(--sticky-header-progress) / 0.12, 1);
         --offset: calc(var(--travel) * var(--sticky-header-progress));
+    }
+
+    // Gone by a little under halfway, shrinking slightly as it fades.
+    &-before {
+        --fade-end: 0.45;
+        --padding-top: 12px;
+        --shrink: 0.05;
+    }
+
+    &-edge {
+        &--fade {
+            --height: var(--size-500);
+        }
+
+        &--line,
+        &--shadow {
+            --height: 1px;
+        }
+
+        &--shadow {
+            --box-shadow: 0 6px 16px -10px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 4.4));
+        }
+    }
+
+    // A focused scroller tints faintly and rings; a target scrolled to clears the compact bar by a small gap.
+    &-scroll {
+        --focus-color: var(--color-blue-300);
+        --focus-tint: 0.06;
+        --focus-width: 1px;
+        --max-height: 320px;
+        --scroll-gap: 10px;
     }
 }
