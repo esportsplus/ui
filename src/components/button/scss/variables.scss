@@ -60,6 +60,8 @@
         --border-radius: 999px;
         --color-default: var(--color-surface);
         --focus-color: var(--surface-border-pressed);
+        --focus-offset: calc(var(--size-100) / 4);
+        --focus-width: 2px;
         --font-size: var(--font-size-300);
         --font-weight: var(--font-weight-500);
         --height: 40px;
@@ -68,10 +70,14 @@
         --padding-vertical: 0px;
         // JS measures the width morph; CSS owns the failed-save shake.
         --resize-duration: 300ms;
-        --resize-easing: var(--spring);
+        --resize-timing-function: var(--spring);
+        // Waits for the width to mostly open before shaking the settled shape.
+        --shake-delay: 150ms;
         --shake-duration: 350ms;
         --shake-timing-function: ease-in-out;
         --spring: linear(0, 0.057, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.896, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
+        --transition-duration: 200ms;
+        --transition-timing-function: ease-out;
 
         @media (prefers-reduced-motion: reduce) {
             --resize-duration: 0s;
@@ -90,6 +96,7 @@
 
     &--processing {
         --animation-duration: 0.64s;
+        --animation-timing-function: linear;
         --border-width: var(--border-width-400);
         --size: var(--size-400);
     }
@@ -126,6 +133,7 @@
 
         path {
             --transition-duration: 130ms;
+            --transition-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
         }
     }
 
@@ -177,6 +185,21 @@
         &-icon {
             --icon-swap-duration: 300ms;
             --icon-swap-timing-function: var(--spring);
+
+            &--loading svg {
+                --animation-duration: 700ms;
+                --animation-timing-function: linear;
+            }
+        }
+
+        // Leaves before the width has closed on it; arrives as it opens.
+        &-text {
+            --transition-duration: 150ms;
+            --transition-timing-function: ease-out;
+
+            @include tokens.state(active) {
+                --transition-duration: 200ms;
+            }
         }
     }
 

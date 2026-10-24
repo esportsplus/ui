@@ -85,13 +85,12 @@
         overflow: hidden;
         touch-action: manipulation;
         transition:
-            background-color 200ms ease-out,
-            color 200ms ease-out;
+            background-color var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
         user-select: none;
 
-        // Wait for the width to mostly open before shaking the settled shape.
         &-error {
-            animation: button-morph-shake var(--shake-duration) var(--shake-timing-function) 150ms;
+            animation: button-morph-shake var(--shake-duration) var(--shake-timing-function) var(--shake-delay);
         }
 
         // Keyed off the status, so each icon keeps a static class.
@@ -101,8 +100,8 @@
         }
 
         &:focus-visible {
-            outline: 2px solid var(--focus-color);
-            outline-offset: calc(var(--size-100) / 4);
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
         }
 
         &[aria-disabled='true'] {
@@ -116,7 +115,7 @@
 
         &::before {
             @extend %absolute-center;
-            animation: button--processing var(--animation-duration) infinite linear;
+            animation: button--processing var(--animation-duration) var(--animation-timing-function) infinite;
             border: var(--border-width) solid color-mix(in srgb, var(--color), transparent 90%);
             border-left-color: var(--color);
             border-radius: 100%;
@@ -157,8 +156,8 @@
             transform-box: fill-box;
             transform-origin: center;
             transition:
-                stroke-width var(--transition-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1),
-                transform var(--transition-duration) linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
+                stroke-width var(--transition-duration) var(--transition-timing-function),
+                transform var(--transition-duration) var(--transition-timing-function);
 
             @media (prefers-reduced-motion: reduce) {
                 transition: none;
@@ -259,7 +258,7 @@
             grid-area: 1 / 1;
 
             &--loading svg {
-                animation: button--processing 700ms linear infinite;
+                animation: button--processing var(--animation-duration) var(--animation-timing-function) infinite;
                 transform-origin: center;
             }
         }
@@ -268,20 +267,18 @@
             @extend %hidden-visually;
         }
 
-        // Leaves before the width has closed on it; arrives as it opens.
         &-text {
             filter: blur(var(--blur-400));
             grid-area: 1 / 1;
             opacity: 0;
             transition:
-                filter 150ms ease-out,
-                opacity 150ms ease-out;
+                filter var(--transition-duration) var(--transition-timing-function),
+                opacity var(--transition-duration) var(--transition-timing-function);
             white-space: nowrap;
 
             @include tokens.state(active) {
                 filter: blur(0px);
                 opacity: 1;
-                transition-duration: 200ms;
             }
         }
     }

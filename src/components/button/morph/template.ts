@@ -98,6 +98,8 @@ export default function(
                 onconnect: (element: HTMLElement) => {
                     let compacted = compact(state.status);
 
+                    // Inline, like the width 'resize' animates from, so the first morph measures and clears the same
+                    // property instead of fighting a bound style.
                     if (compacted) {
                         element.style.width = 'var(--height)';
                     }
