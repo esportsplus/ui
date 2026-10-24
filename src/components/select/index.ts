@@ -63,9 +63,9 @@ type Parts = {
 // Scroll-button speed while hovered, in px per second.
 const SCROLL_SPEED = 280;
 
-const SELECT_OPTION = Symbol.for('@esportsplus/ui/select.option');
-
 const SELECT_ARROW = Symbol.for('@esportsplus/ui/select.arrow');
+
+const SELECT_OPTION = Symbol.for('@esportsplus/ui/select.option');
 
 const SELECT_TOOLTIP_CONTENT = Symbol.for('@esportsplus/ui/select.tooltip-content');
 
@@ -441,10 +441,10 @@ function template(
                 ${{
                     class: () => state.active && '--active',
                     inert: () => !state.active,
+                    onactivewheel: wheel,
                     onconnect: (element: HTMLElement) => {
                         parts.panel = element;
                     },
-                    onactivewheel: wheel,
                     // The trigger keeps focus through a press in here, so the keys still drive the menu.
                     onmousedown: (e: MouseEvent) => {
                         e.preventDefault();
@@ -464,18 +464,16 @@ function template(
                 <div
                     class='select-menu-scroller'
                     ${{
+                        class: [
+                            () => menu.up && 'select-menu-scroller--up',
+                            () => menu.down && 'select-menu-scroller--down'
+                        ],
                         onconnect: (element: HTMLElement) => {
-                            parts.option = element.querySelector<HTMLElement>('.select-menu-option') ?? undefined;
-                            parts.label = element.querySelector<HTMLElement>('.select-menu-option-label') ?? parts.option;
                             parts.scroller = element;
                         },
                         onscroll: function(this: HTMLElement) {
                             edges(menu, this);
-                        },
-                        class: [
-                            () => menu.up && 'select-menu-scroller--up',
-                            () => menu.down && 'select-menu-scroller--down'
-                        ]
+                        }
                     }}
                 >
                     <div aria-labelledby='${id}-label' id='${id}-list' role='listbox'>
@@ -486,6 +484,14 @@ function template(
                                 role='option'
                                 ${this?.attributes?.[SELECT_OPTION]}
                                 ${attributes[SELECT_OPTION]}
+                                ${index === 0 && {
+                                    // The first option, and its label once connected ahead of it, stand in for every
+                                    // option when the panel is placed.
+                                    onconnect: (element: HTMLElement) => {
+                                        parts.label ??= element;
+                                        parts.option = element;
+                                    }
+                                }}
                                 ${{
                                     'aria-selected': () => signal.selector(chosen, option.value) ? 'true' : 'false',
                                     class: () => signal.selector(highlighted, index) && 'select-menu-option--highlighted',
@@ -507,7 +513,14 @@ function template(
                             >
                                 ${option.content ?? html`
                                     ${icon({ 'aria-hidden': 'true', class: 'select-menu-check' }, check)}
-                                    <span class='select-menu-option-label'>
+                                    <span
+                                        class='select-menu-option-label'
+                                        ${index === 0 && {
+                                            onconnect: (element: HTMLElement) => {
+                                                parts.label = element;
+                                            }
+                                        }}
+                                    >
                                         ${option.label}
                                     </span>
                                     ${option.detail && html`<span class='select-menu-option-detail'>${option.detail}</span>`}

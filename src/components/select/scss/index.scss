@@ -9,17 +9,18 @@
     font-size: var(--font-size);
     position: relative;
     width: var(--width);
-    z-index: 0;
-
-    @include tokens.state(active hover) {
-        z-index: 9;
-    }
+    z-index: var(--z-index);
 
 
     &-menu {
         &-check {
             @extend %icon-stroke, %icon-swap;
-            stroke-width: 2.25;
+            stroke-width: var(--stroke-width);
+
+            @media (prefers-reduced-motion: reduce) {
+                filter: none;
+                scale: 1;
+            }
         }
 
         &-label {
@@ -29,25 +30,19 @@
         &-option {
             align-items: center;
             background: var(--background);
-            border-radius: var(--border-radius-400);
+            border-radius: var(--border-radius);
             cursor: default;
             display: flex;
-            gap: var(--size-200);
-            height: var(--item-height);
-            padding: 0 var(--size-100);
+            gap: var(--gap-horizontal);
+            height: var(--height);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
             user-select: none;
 
-            // No transition on the highlight: it follows every move, so easing would read as lag. Highlighting moves
-            // the option's resting fill, so the pointer's own hover adds nothing and pressing still steps from it.
-            &--highlighted,
-            &:focus {
-                --background-default: var(--highlight);
-            }
-
             &-detail {
-                color: var(--color-muted);
+                color: var(--color);
                 flex: 0 0 auto;
-                font-size: var(--font-size-300);
+                font-size: var(--font-size);
                 font-variant-numeric: tabular-nums;
             }
 
@@ -68,7 +63,7 @@
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             left: 0;
-            max-width: calc(90vw - (var(--size-700) * 2));
+            max-width: var(--max-width);
             min-width: auto;
             opacity: 0;
             overflow: hidden;
@@ -80,7 +75,7 @@
                 scale var(--transition-duration) var(--transition-timing-function),
                 translate var(--transition-duration) var(--transition-timing-function);
             width: var(--width);
-            z-index: 50;
+            z-index: var(--z-index);
 
             @include tokens.state(active) {
                 opacity: 1;
@@ -91,15 +86,15 @@
         // Shown while the pointer is over the panel and the list can scroll its way.
         &-scroll {
             align-items: center;
-            color: var(--color-muted);
+            color: var(--color);
             display: flex;
-            height: 24px;
+            height: var(--height);
             inset-inline: 0;
             justify-content: center;
             opacity: 0;
             pointer-events: none;
             position: absolute;
-            transition: opacity 150ms ease-out;
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
 
             @include tokens.state(active) {
                 opacity: 1;
@@ -117,10 +112,10 @@
 
         &-scroller {
             mask-image: linear-gradient(to bottom, transparent, black var(--fade-top), black calc(100% - var(--fade-bottom)), transparent);
-            max-height: calc(var(--rows) * var(--item-height) + var(--pad) * 2);
+            max-height: calc(var(--rows) * var(--row-height) + var(--padding) * 2);
             overflow-y: auto;
             overscroll-behavior: contain;
-            padding: var(--pad);
+            padding: var(--padding);
         }
 
         &-tag {
@@ -131,17 +126,17 @@
             align-items: center;
             background: var(--background);
             border: 0;
-            border-radius: var(--trigger-border-radius);
+            border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             color: var(--color);
             cursor: pointer;
             display: flex;
             font: inherit;
-            gap: var(--size-200);
+            gap: var(--gap-horizontal);
             height: var(--height);
             margin: 0;
             outline: none;
-            padding: 0 var(--size-200) 0 var(--size-300);
+            padding: 0 var(--padding-end) 0 var(--padding-start);
             text-align: left;
             touch-action: manipulation;
             user-select: none;
@@ -149,7 +144,7 @@
 
             &:focus-visible {
                 outline: var(--focus-width) solid var(--color);
-                outline-offset: calc(var(--size-100) / 4);
+                outline-offset: var(--focus-offset);
             }
         }
 
@@ -157,13 +152,6 @@
             @extend %text-truncate;
             flex: 1;
             min-width: 0;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &-menu-check {
-            filter: none;
-            scale: 1;
         }
     }
 }

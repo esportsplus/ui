@@ -4,7 +4,8 @@
 @use 'css-utilities/surface';
 
 // The trigger is a surface, lifting on hover, settling when pressed and holding the selected fill while open; its panel
-// is a surface above it, whose options take the panel's own hover and pressed steps.
+// is a surface above it, whose options take the panel's own hover and pressed steps. Raised over its neighbours while
+// open or hovered, so the panel covers them.
 .select {
     @extend %background-state, %box-shadow-state, %surface-raise;
     --background-active: var(--surface-background-active);
@@ -16,50 +17,69 @@
     --box-shadow-hover: var(--surface-shadow-hover);
     --box-shadow-pressed: var(--surface-shadow-pressed);
     --color: var(--color-text-500);
-    --color-muted: var(--color-text-300);
-    --focus-width: var(--border-width-500);
     --font-size: calc(var(--font-size-400) * 0.875);
     --height: 40px;
-    --item-height: 36px;
-    --trigger-border-radius: var(--border-radius-300);
     --width: min(260px, 100%);
+    --z-index: 0;
+
+    @include tokens.state(active hover) {
+        --z-index: 9;
+    }
 
 
     &-menu {
         // The icons are chained through '.icon' so they win over its own size and color regardless of stylesheet
-        // order.
+        // order. The check pops in once its option is chosen, and stays still under reduced motion.
         &-check.icon {
             --color: currentColor;
+            --icon-swap-duration: 300ms;
+            --icon-swap-timing-function: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.897, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
+            --stroke-width: 2.25;
         }
 
         &-chevron.icon {
-            --color: var(--color-muted);
+            --color: var(--color-text-300);
         }
 
-        // Read by the option's check, which pops in once the option is chosen.
+        // No transition on the highlight: it follows every move, so easing would read as lag. Highlighting moves the
+        // option's resting fill, so the pointer's own hover adds nothing and pressing still steps from it.
         &-option {
             @extend %background-state;
-            --background-pressed: var(--highlight-pressed);
-            --icon-swap-duration: 300ms;
-            --icon-swap-timing-function: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.897, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
+            --background-highlighted: var(--surface-background-hover);
+            --background-pressed: var(--surface-background-pressed);
+            --border-radius: var(--border-radius-400);
+            --gap-horizontal: var(--size-200);
+            --height: var(--row-height);
+            --padding-horizontal: var(--size-100);
+            --padding-vertical: 0px;
+
+            &--highlighted,
+            &:focus {
+                --background-default: var(--background-highlighted);
+            }
+
+            &-detail {
+                --color: var(--color-text-300);
+                --font-size: var(--font-size-300);
+            }
         }
 
+        // Leaves faster than it arrives, so choosing never waits on the list. Clear of the page's edges by the gutter
+        // either side, and over everything the select raises above.
         &-panel {
             @extend %background-state, %box-shadow-state, %surface-raise;
             --background-default: var(--surface-background-default);
             --border-radius: var(--border-radius-600);
             --box-shadow-default: var(--surface-shadow-default);
-            --fade: 24px;
-            --highlight: var(--surface-background-hover);
-            --highlight-pressed: var(--surface-background-pressed);
-            --pad: 4px;
+            --max-width: calc(90vw - (var(--size-700) * 2));
+            // Read by JS to place the panel, and by its scroller, which it sizes.
             --rows: 8;
             --scale: 0.96;
             --transition-duration: 150ms;
             --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
             --width: auto;
+            --z-index: 50;
 
-            // Leaves faster than it arrives, so choosing never waits on the list.
             @include tokens.state(inactive) {
                 --transition-duration: 100ms;
             }
@@ -69,14 +89,26 @@
             }
         }
 
-        &-scroll-icon.icon {
-            --color: currentColor;
-            --size: 14px;
+        // Shown while the pointer is over the panel and the list can scroll its way.
+        &-scroll {
+            --color: var(--color-text-300);
+            --height: 24px;
+            --transition-duration: 150ms;
+            --transition-timing-function: ease-out;
+
+            &-icon.icon {
+                --color: currentColor;
+                --size: 14px;
+            }
         }
 
+        // Sized in rows, which each option takes its height from; its edges fade where there is more to scroll to.
         &-scroller {
+            --fade: 24px;
             --fade-bottom: 0px;
             --fade-top: 0px;
+            --padding: 4px;
+            --row-height: 36px;
 
             &--down {
                 --fade-bottom: var(--fade);
@@ -85,6 +117,15 @@
             &--up {
                 --fade-top: var(--fade);
             }
+        }
+
+        &-trigger {
+            --border-radius: var(--border-radius-300);
+            --focus-offset: calc(var(--size-100) / 4);
+            --focus-width: var(--border-width-500);
+            --gap-horizontal: var(--size-200);
+            --padding-end: var(--size-200);
+            --padding-start: var(--size-300);
         }
     }
 }
