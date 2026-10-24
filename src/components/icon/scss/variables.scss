@@ -7,5 +7,7 @@
 
     &--rotate {
         --rotate: 0deg;
+        --transition-duration: 130ms;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     }
 }
