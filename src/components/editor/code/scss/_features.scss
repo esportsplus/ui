@@ -48,7 +48,7 @@
         position: absolute;
         white-space: nowrap;
 
-        &--readonly .code-editor-lens-action--accept {
+        &--readonly &-action--accept {
             display: none;
         }
 
@@ -103,8 +103,8 @@
 
     &-peek {
         background: var(--surface-background-default);
-        border-bottom: var(--border-width) solid var(--peek-border-color);
-        border-top: var(--border-width) solid var(--peek-border-color);
+        border-bottom: var(--border-width) solid var(--border-color);
+        border-top: var(--border-width) solid var(--border-color);
         box-shadow: var(--surface-shadow-default);
         box-sizing: border-box;
         display: none;
@@ -119,27 +119,17 @@
             display: flex;
         }
 
-        &--added {
-            --peek-border-color: var(--gutter-added-color);
-        }
-
-        &--deleted {
-            --peek-border-color: var(--gutter-deleted-color);
-        }
-
         &-bar {
             align-items: center;
             background: var(--surface-background-default);
             display: flex;
             flex: none;
-            font-size: var(--bar-font-size);
+            font-size: var(--font-size);
             gap: var(--gap-vertical) var(--gap-horizontal);
             padding: var(--padding-vertical) var(--padding-horizontal);
         }
 
         &-button {
-            --background-hover: var(--active-line-background);
-            --background-pressed: var(--background-hover);
             align-items: center;
             appearance: none;
             background: var(--background);
@@ -148,14 +138,12 @@
             color: inherit;
             cursor: pointer;
             display: flex;
-            height: var(--bar-control-height);
+            height: var(--size);
             justify-content: center;
             padding: 0;
-            width: var(--bar-control-height);
+            width: var(--size);
 
             &:disabled {
-                --background-hover: var(--background-default);
-                --background-pressed: var(--background-default);
                 cursor: default;
                 opacity: var(--disabled-opacity);
             }
@@ -163,10 +151,6 @@
             &:focus-visible {
                 outline: var(--focus-width) solid var(--focus-color);
             }
-        }
-
-        &-icon.icon {
-            --size: var(--bar-icon-size);
         }
 
         &-lines {
@@ -240,8 +224,6 @@
         }
 
         &-row {
-            --background-hover: var(--active-line-background);
-            --background-pressed: var(--background-hover);
             background: var(--background);
             cursor: pointer;
             display: flex;
@@ -278,12 +260,8 @@
     &-unicode {
         position: relative;
 
-        &--confusable {
-            --unicode-style: dashed;
-        }
-
         &::after {
-            border: var(--border-width) var(--unicode-style) var(--unicode-color);
+            border: var(--border-width) var(--border-style) var(--border-color);
             border-radius: var(--border-radius-100);
             bottom: 10%;
             content: '';

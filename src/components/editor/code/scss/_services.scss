@@ -12,13 +12,12 @@
     }
 
     &-completion {
-        --background-active: var(--selection-background);
         align-items: center;
         background: var(--background);
         cursor: pointer;
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        height: var(--completion-height);
+        height: var(--height);
         padding: 0 var(--padding-horizontal);
         white-space: nowrap;
 
@@ -31,7 +30,7 @@
 
         &-detail {
             @extend %text-truncate;
-            color: var(--completion-detail-color);
+            color: var(--color);
             margin-left: auto;
             min-width: 0;
         }
@@ -44,9 +43,9 @@
     }
 
     &-completions {
-        max-height: calc(var(--completion-rows) * var(--completion-height) + 2 * var(--border-width));
-        max-width: min(90vw, calc(var(--completion-width) * 2));
-        min-width: var(--completion-width);
+        max-height: calc(var(--rows) * var(--row-height) + 2 * var(--border-width));
+        max-width: min(90vw, calc(var(--width) * 2));
+        min-width: var(--width);
         overflow: auto;
         pointer-events: auto;
         position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
@@ -93,8 +92,8 @@
 
     &-hover {
         bottom: anchor(top);
-        max-height: var(--hover-max-height);
-        max-width: min(90vw, var(--hover-max-width));
+        max-height: var(--max-height);
+        max-width: min(90vw, var(--max-width));
         overflow: hidden;
         padding: var(--padding-vertical) var(--padding-horizontal);
         position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
@@ -102,8 +101,6 @@
     }
 
     &-problem {
-        --background-hover: var(--active-line-background);
-        --background-pressed: var(--background-hover);
         appearance: none;
         background: var(--background);
         border: 0;
@@ -138,7 +135,7 @@
         display: none;
         flex: none;
         flex-direction: column;
-        font-size: var(--bar-font-size);
+        font-size: var(--font-size);
         gap: var(--gap-vertical) var(--gap-horizontal);
         max-height: var(--problems-max-height);
         overflow: auto;

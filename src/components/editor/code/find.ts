@@ -13,7 +13,6 @@ type Host = {
     document: EditorDocument;
     // Applies a document edit through the editor, so it reveals and records it like any command.
     edit: (run: () => boolean) => boolean;
-    // Returns focus to the text.
     focus: VoidFunction;
     readonly: () => boolean;
     // Selects and scrolls to a match.

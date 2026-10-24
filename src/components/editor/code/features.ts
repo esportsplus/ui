@@ -32,7 +32,6 @@ type Host = {
     edit: (edit: Edit, caret: number) => boolean;
     focus: VoidFunction;
     folded: () => readonly FoldRange[];
-    // Hides the hover card.
     hide: VoidFunction;
     language: () => Language;
     layout: () => EditorLayout | null;

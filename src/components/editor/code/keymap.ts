@@ -508,7 +508,6 @@ const COMMANDS: readonly CommandInfo[] = (Object.keys(LABELS) as Command[]).map(
     label: LABELS[id]
 }));
 
-// Runs a command against the editor.
 const commands = (host: Host) => (command: Command, e: KeyboardEvent) => {
     ACTIONS[command](host, e);
 };

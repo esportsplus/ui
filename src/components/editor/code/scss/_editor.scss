@@ -54,8 +54,8 @@
 
         &-button {
             flex: none;
-            height: var(--bar-control-height);
-            min-width: var(--bar-control-height);
+            height: var(--height);
+            min-width: var(--height);
 
             &:disabled {
                 cursor: default;
@@ -97,7 +97,7 @@
         border-bottom: var(--border-width) solid var(--border-color);
         display: none;
         flex: none;
-        font-size: var(--bar-font-size);
+        font-size: var(--font-size);
         gap: var(--gap-vertical) var(--gap-horizontal);
         margin: 0;
         padding: var(--padding-vertical) var(--padding-horizontal);
@@ -109,16 +109,11 @@
 
     &-find-input.input,
     &-goto-input.input {
-        flex: 1 1 var(--bar-input-width);
+        flex: 1 1 var(--width);
         min-width: 0;
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
-        }
-
-        // The field's invalid state is semantic; nothing else marks it.
-        &[aria-invalid='true'] {
-            --border-color-default: var(--invalid-color);
         }
     }
 
@@ -138,9 +133,8 @@
         }
 
         &-icon.icon {
-            --size: var(--fold-icon-size);
-            rotate: var(--fold-rotate);
-            transition: rotate var(--fold-duration) ease-out;
+            rotate: var(--rotate);
+            transition: rotate var(--transition-duration) var(--transition-timing-function);
         }
     }
 
@@ -168,8 +162,6 @@
     }
 
     &-input {
-        // The shared scrollbar scope must not animate caret reveals in the editing surface.
-        --scrollbar-behavior: auto;
         appearance: none;
         background: transparent;
         border: 0;
@@ -211,7 +203,6 @@
     }
 
     &-line {
-        --background-active: var(--active-line-background);
         background: var(--background);
         box-sizing: border-box;
         left: 0;
@@ -231,8 +222,6 @@
     }
 
     &-match {
-        --background-active: var(--match-active-background);
-        --background-default: var(--match-background);
         background: var(--background);
     }
 
@@ -274,8 +263,6 @@
     }
 
     &-number {
-        --color-active: var(--gutter-active-color);
-        --color-default: currentColor;
         // A wrapped line's number and fold marker sit on its first row.
         align-items: flex-start;
         color: var(--color);

@@ -192,7 +192,6 @@ type State = Omit<Snapshot, 'selections'> & Readonly<{
     language: Language;
     lineEnding: 'crlf' | 'lf';
     problems: { errors: number; warnings: number };
-    // How many selections there are.
     selections: number;
 }>;
 

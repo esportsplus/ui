@@ -5,14 +5,12 @@
 @use 'css-utilities/font/geist';
 @use 'css-utilities/surface';
 
+// The theme every part of the editor paints from: its syntax, gutter, diagnostic and overlay colors, and the gutter's
+// geometry, which the rows, the field and the overlays all line up against.
 .code-editor {
     @extend %background-state, %border-state, %font-geist-mono, %surface-raise;
     --active-line-background: var(--surface-background-hover);
     --background-default: var(--surface-background-default);
-    --bar-control-height: var(--size-700);
-    --bar-font-size: var(--font-size-200);
-    --bar-icon-size: var(--size-300);
-    --bar-input-width: 160px;
     --border-color-default: var(--surface-border-default);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
@@ -24,10 +22,6 @@
     --change-width: 3px;
     --color: var(--color-text-500);
     --comment-color: var(--color-text-300);
-    --completion-detail-color: var(--muted-color);
-    --completion-height: var(--size-600);
-    --completion-rows: 8;
-    --completion-width: 240px;
     --conflict-base-background: oklch(from var(--color-primary-300) l c h / 0.12);
     --conflict-current-background: oklch(from var(--color-green-400) l c h / 0.16);
     --conflict-divider-background: oklch(from var(--color-primary-300) l c h / 0.2);
@@ -42,9 +36,6 @@
     --focus-color: var(--color-blue-400);
     --focus-offset: var(--border-width-400);
     --focus-width: var(--border-width-500);
-    --fold-duration: 0.15s;
-    --fold-icon-size: var(--size-100);
-    --fold-rotate: 0deg;
     --fold-width: var(--size-400);
     --font-size: var(--font-size-300);
     --function-color: light-dark(var(--color-purple-300), oklch(from var(--color-purple-300) 0.8 0.13 h));
@@ -55,8 +46,6 @@
     --gutter-modified-color: var(--color-blue-400);
     --gutter-width: calc(var(--number-width) + var(--fold-width));
     --height: 320px;
-    --hover-max-height: 300px;
-    --hover-max-width: 480px;
     --input-color: transparent;
     --input-cursor: text;
     --invalid-color: var(--color-red-400);
@@ -84,7 +73,6 @@
     --operator-color: var(--color-text-400);
     --overflow-wrap: normal;
     --overlay-visibility: visible;
-    --peek-border-color: var(--gutter-modified-color);
     --peek-lines-background: oklch(from var(--color-red-400) l c h / 0.08);
     --peek-max-height: 160px;
     --placeholder-background: oklch(from var(--color-primary-300) l c h / 0.15);
@@ -102,11 +90,16 @@
     --swatch-size: 0.75em;
     --tag-color: light-dark(var(--color-red-400), oklch(from var(--color-red-400) 0.72 0.16 h));
     --type-color: light-dark(var(--color-blue-300), oklch(from var(--color-blue-300) 0.76 0.13 h));
-    --unicode-color: var(--color-yellow-500);
-    --unicode-style: solid;
     --variable-color: var(--color);
     --white-space: pre;
     --whitespace-color: oklch(from var(--color-primary-300) l c h / 0.6);
+
+    @media (forced-colors: active) {
+        --caret-color: CanvasText;
+        --input-color: CanvasText;
+        --overlay-visibility: hidden;
+    }
+
 
     &--composing {
         --input-color: var(--color);
@@ -141,26 +134,32 @@
         --white-space: pre-wrap;
     }
 
+
     &-completion {
         @extend %background-state;
+        --background-active: var(--selection-background);
         --gap-horizontal: var(--size-300);
         --gap-vertical: var(--size-300);
+        --height: var(--row-height);
         --padding-horizontal: var(--size-200);
+
+        &-detail {
+            --color: var(--muted-color);
+        }
     }
 
-    &-completions,
-    &-hover {
+    // Sized in rows, which each completion takes its height from.
+    &-completions {
         @extend %surface-raise;
-    }
-
-    &-hover {
-        --padding-horizontal: var(--size-200);
-        --padding-vertical: var(--size-200);
+        --row-height: var(--size-600);
+        --rows: 8;
+        --width: 240px;
     }
 
     &-find,
     &-goto {
         @extend %surface-lower;
+        --font-size: var(--font-size-200);
         --gap-horizontal: var(--size-100);
         --gap-vertical: var(--size-100);
         --padding-horizontal: var(--size-100);
@@ -173,19 +172,15 @@
         --background-hover: var(--active-line-background);
         --border-radius: var(--border-radius-200);
         --color-default: var(--color);
-        --font-size: var(--bar-font-size);
+        --font-size: var(--font-size-200);
+        --height: var(--size-700);
         --line-height: 1;
         --padding-horizontal: var(--size-100);
         --padding-vertical: 0px;
     }
 
-    &-find-row {
-        --gap-horizontal: var(--size-100);
-        --gap-vertical: var(--size-100);
-    }
-
     &-find-icon.icon {
-        --size: var(--bar-icon-size);
+        --size: var(--size-300);
     }
 
     &-find-input.input,
@@ -195,22 +190,57 @@
         --border-radius: var(--border-radius-200);
         --border-width: var(--border-width-400);
         --color-default: var(--color);
-        --font-size: var(--bar-font-size);
+        --font-size: var(--font-size-200);
         --padding-horizontal: var(--size-100);
         --padding-vertical: 0px;
-        --size: var(--bar-control-height);
+        --size: var(--size-700);
+        --width: 160px;
+
+        // The field's invalid state is semantic; nothing else marks it.
+        &[aria-invalid='true'] {
+            --border-color-default: var(--invalid-color);
+        }
+    }
+
+    &-find-row {
+        --gap-horizontal: var(--size-100);
+        --gap-vertical: var(--size-100);
     }
 
     &-fold {
         @include tokens.state(active) {
-            --fold-rotate: -90deg;
+            .code-editor-fold-icon.icon {
+                --rotate: -90deg;
+            }
         }
     }
 
-    // The textarea; the text layer drawn under it reads its padding back, so the two stay aligned.
+    // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
+    &-fold-icon.icon {
+        --rotate: 0deg;
+        --size: var(--size-100);
+        --transition-duration: 0.15s;
+        --transition-timing-function: ease-out;
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
+    }
+
+    &-hover {
+        @extend %surface-raise;
+        --max-height: 300px;
+        --max-width: 480px;
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: var(--size-200);
+    }
+
+    // The textarea; the text layer drawn under it reads its padding back, so the two stay aligned. The shared scrollbar
+    // scope must not animate caret reveals in the editing surface.
     &-input {
         --padding-horizontal: var(--size-200);
         --padding-vertical: var(--size-200);
+        --scrollbar-behavior: auto;
     }
 
     &-lens {
@@ -224,21 +254,36 @@
 
     &-line {
         @extend %background-state;
+        --background-active: var(--active-line-background);
     }
 
     &-match {
         @extend %background-state;
+        --background-active: var(--match-active-background);
+        --background-default: var(--match-background);
     }
 
     &-number {
         @extend %color-state;
+        --color-active: var(--gutter-active-color);
+        --color-default: currentColor;
     }
 
     &-peek {
         @extend %surface-raise;
+        --border-color: var(--gutter-modified-color);
+
+        &--added {
+            --border-color: var(--gutter-added-color);
+        }
+
+        &--deleted {
+            --border-color: var(--gutter-deleted-color);
+        }
 
         &-bar {
             @extend %surface-lower;
+            --font-size: var(--font-size-200);
             --gap-horizontal: var(--size-100);
             --gap-vertical: var(--size-100);
             --padding-horizontal: var(--size-100);
@@ -247,6 +292,18 @@
 
         &-button {
             @extend %background-state;
+            --background-hover: var(--active-line-background);
+            --background-pressed: var(--background-hover);
+            --size: var(--size-700);
+
+            &:disabled {
+                --background-hover: var(--background-default);
+                --background-pressed: var(--background-default);
+            }
+        }
+
+        &-icon.icon {
+            --size: var(--size-300);
         }
 
         &-lines {
@@ -256,11 +313,14 @@
 
     &-problem {
         @extend %background-state;
+        --background-hover: var(--active-line-background);
+        --background-pressed: var(--background-hover);
         --padding-horizontal: var(--size-200);
     }
 
     &-problems {
         @extend %surface-lower;
+        --font-size: var(--font-size-200);
         --gap-horizontal: var(--size-100);
         --gap-vertical: var(--size-100);
         --padding-horizontal: var(--size-100);
@@ -270,6 +330,8 @@
     &-sticky {
         &-row {
             @extend %background-state;
+            --background-hover: var(--active-line-background);
+            --background-pressed: var(--background-hover);
         }
     }
 
@@ -278,13 +340,12 @@
         --gap-horizontal: 1px;
     }
 
-    @media (forced-colors: active) {
-        --caret-color: CanvasText;
-        --input-color: CanvasText;
-        --overlay-visibility: hidden;
-    }
+    &-unicode {
+        --border-color: var(--color-yellow-500);
+        --border-style: solid;
 
-    @media (prefers-reduced-motion: reduce) {
-        --fold-duration: 0s;
+        &--confusable {
+            --border-style: dashed;
+        }
     }
 }
