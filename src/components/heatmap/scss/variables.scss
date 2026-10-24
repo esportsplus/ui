@@ -1,7 +1,6 @@
 .heatmap {
     &,
     &-legend {
-        --cell-radius: var(--border-radius-100);
         --cell-size: var(--size-200);
         --color: var(--color-text-300);
         --focus-color: var(--color-primary-500);
@@ -28,6 +27,37 @@
         --level-color: var(--color-blue-400);
     }
 
+
+    // Settles from 0.6, not 0: a square growing from nothing reads as a pop, one settling from slightly small
+    // reads as arriving.
+    &-cell {
+        --border-radius: var(--border-radius-100);
+        --focus-offset: 1px;
+        --focus-width: 2px;
+        --hover-offset: 1px;
+        --hover-width: 1px;
+        --opacity: 0;
+        --scale: 0.6;
+    }
+
+    &-days {
+        --spacer: calc(var(--size-200) / 2);
+    }
+
+    &-grid--shown .heatmap-cell {
+        --opacity: 1;
+        --scale: 1;
+    }
+
+    &-legend {
+        --gap-horizontal: calc(var(--size-100) / 2);
+
+        &-less,
+        &-more {
+            --spacer: calc(var(--size-100) / 2);
+        }
+    }
+
     // Room on every side for the focus and hover rings, and more below them for the scroll bar.
     &-scroll {
         --padding-bottom: var(--size-300);
@@ -35,16 +65,8 @@
         --padding-vertical: var(--ring-space);
     }
 
-    // Settles from 0.6, not 0: a square growing from nothing reads as a pop, one settling from slightly small
-    // reads as arriving.
-    &-grid {
-        --cell-opacity: 0;
-        --cell-scale: 0.6;
-
-        &--shown {
-            --cell-opacity: 1;
-            --cell-scale: 1;
-        }
+    &-swatch {
+        --border-radius: var(--border-radius-100);
     }
 
     // A long glide lags behind a pointer sweeping across 13px cells, and the content keeps pace with it. Gated so

@@ -17,36 +17,41 @@
 
     &-cell {
         background: var(--level-0);
-        border-radius: var(--cell-radius);
+        border-radius: var(--border-radius);
         flex-shrink: 0;
         height: var(--cell-size);
-        opacity: var(--cell-opacity);
+        opacity: var(--opacity);
         outline: none;
-        scale: var(--cell-scale);
+        scale: var(--scale);
         transition:
             opacity var(--transition-duration) var(--transition-timing-function) calc(var(--column) * var(--stagger)),
             scale var(--transition-duration) var(--transition-timing-function) calc(var(--column) * var(--stagger));
         width: var(--cell-size);
 
+        @media (prefers-reduced-motion: reduce) {
+            scale: 1;
+            transition: none;
+        }
+
         &--empty {
             background: none;
-        }
-
-        &:focus-visible {
-            outline: 2px solid var(--focus-color);
-            outline-offset: 1px;
-        }
-
-        // Rings the hovered day outside itself, so it shows on the darkest level too.
-        &:hover {
-            outline: 1px solid var(--hover-color);
-            outline-offset: 1px;
         }
 
         @for $level from 1 through 4 {
             &--level-#{$level} {
                 background: var(--level-#{$level});
             }
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+        }
+
+        // Rings the hovered day outside itself, so it shows on the darkest level too.
+        &:hover {
+            outline: var(--hover-width) solid var(--hover-color);
+            outline-offset: var(--hover-offset);
         }
     }
 
@@ -59,7 +64,7 @@
     &-days {
         display: flex;
         flex-direction: column;
-        margin-inline-end: calc(var(--size-200) / 2);
+        margin-inline-end: var(--spacer);
         margin-top: calc(var(--months-height) + var(--ring-space));
     }
 
@@ -74,14 +79,14 @@
         color: var(--color);
         display: flex;
         font-size: var(--font-size);
-        gap: calc(var(--size-100) / 2);
+        gap: var(--gap-horizontal);
 
         &-less {
-            margin-inline-end: calc(var(--size-100) / 2);
+            margin-inline-end: var(--spacer);
         }
 
         &-more {
-            margin-inline-start: calc(var(--size-100) / 2);
+            margin-inline-start: var(--spacer);
         }
     }
 
@@ -109,7 +114,7 @@
     }
 
     &-swatch {
-        border-radius: var(--cell-radius);
+        border-radius: var(--border-radius);
         height: var(--cell-size);
         width: var(--cell-size);
 
@@ -119,13 +124,4 @@
             }
         }
     }
-
-
-    @media (prefers-reduced-motion: reduce) {
-        &-cell {
-            scale: 1;
-            transition: none;
-        }
-    }
-
 }
