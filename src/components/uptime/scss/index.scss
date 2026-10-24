@@ -1,4 +1,3 @@
-@use '/tokens';
 @use 'css-utilities/hidden';
 @use 'variables';
 
@@ -14,33 +13,28 @@
     // Whole-pixel ticks: flex-sharing fractional widths lets pixel snapping round some bars a pixel wider than
     // the rest. The leftover width spreads through the gaps instead.
     &-bar {
-        background: var(--bar-color);
-        border-radius: var(--bar-border-radius);
+        background: var(--background);
+        border-radius: var(--border-radius);
         flex-shrink: 0;
-        opacity: var(--bar-opacity);
+        opacity: var(--opacity);
+        scale: 1 var(--scale);
         transition:
-            opacity var(--transition-duration) var(--timing-function),
-            scale var(--transition-duration) var(--timing-function);
+            opacity var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function);
         width: round(down, (100% - (var(--days) - 1) * var(--gap-horizontal)) / var(--days), 1px);
 
-        @include tokens.state(active) {
-            --bar-opacity: 1;
-            scale: 1 var(--bar-active-scale);
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
         }
     }
 
     &-bars {
-        border-radius: var(--border-radius-200);
+        border-radius: var(--border-radius);
         cursor: default;
         display: flex;
-        height: var(--bar-height);
+        height: var(--height);
         justify-content: space-between;
         outline: none;
-
-        // A highlighted row dims every bar but the selected one.
-        @include tokens.state(active) {
-            --bar-opacity: var(--bar-dim);
-        }
 
         &:focus-visible {
             outline: 2px solid var(--color);
@@ -57,7 +51,7 @@
         color: var(--color-muted);
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        margin-top: var(--size-300);
+        margin-top: var(--margin-top);
         white-space: nowrap;
     }
 
@@ -65,7 +59,7 @@
         align-items: center;
         color: var(--color-muted);
         display: flex;
-        gap: var(--size-200);
+        gap: var(--gap-horizontal);
         justify-content: flex-end;
         min-width: 0;
     }
@@ -83,20 +77,24 @@
     &-service-header {
         align-items: center;
         display: flex;
-        gap: var(--size-400);
-        height: var(--size-500);
+        gap: var(--gap-horizontal);
+        height: var(--height);
         justify-content: space-between;
-        margin-bottom: var(--size-300);
+        margin-bottom: var(--margin-bottom);
     }
 
     // Each caption change mounts a fresh node, so the entry animation replays per swap.
     &-service-message {
-        animation: uptime-caption var(--transition-duration) var(--timing-function);
+        animation: uptime-service-message var(--enter-duration) var(--enter-timing-function);
         font-variant-numeric: tabular-nums;
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+
+        @media (prefers-reduced-motion: reduce) {
+            animation: none;
+        }
 
         &--active {
             color: var(--color);
@@ -131,31 +129,17 @@
 
         &::after,
         &::before {
-            border-top: 1px dotted var(--axis-line-color);
+            border-top: var(--line-width) dotted var(--line-color);
             content: '';
             flex: 1;
         }
     }
-
-    @media (prefers-reduced-motion: reduce) {
-        &-bar {
-            transition: none;
-
-            @include tokens.state(active) {
-                scale: none;
-            }
-        }
-
-        &-service-message {
-            animation: none;
-        }
-    }
 }
 
-@keyframes uptime-caption {
+@keyframes uptime-service-message {
     from {
-        filter: blur(var(--caption-blur));
+        filter: blur(var(--blur));
         opacity: 0;
-        translate: 0 var(--caption-offset);
+        translate: 0 var(--offset);
     }
 }

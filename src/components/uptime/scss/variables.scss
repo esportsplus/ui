@@ -1,47 +1,80 @@
+@use '/tokens';
+
 .uptime {
-    --axis-line-color: var(--surface-border-default);
-    --bar-active-scale: 1.15;
-    --bar-border-radius: var(--border-radius-100);
-    --bar-dim: 0.35;
-    --bar-height: var(--size-600);
-    --bar-opacity: 1;
-    --caption-blur: var(--blur-400);
-    --caption-offset: calc(var(--size-100) / 2);
     --color: var(--color-text-400);
     --color-degraded: oklch(0.8 0.15 78);
     --color-muted: var(--color-text-300);
     // Healthy days stay low-chroma so months of calm don't shout; incidents keep their strength.
     --color-ok: oklch(0.8 0.09 160);
     --color-outage: oklch(0.64 0.2 25);
-    --dot-size: 6px;
     --font-size: var(--font-size-300);
     --gap-horizontal: var(--size-600);
     --gap-vertical: var(--size-600);
-    --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-    --transition-duration: 0.2s;
     --width: min(440px, 100%);
 
     &-bar {
-        --bar-color: var(--color-ok);
+        --background: var(--color-ok);
+        --border-radius: var(--border-radius-100);
         // The space between bars, which each bar's width leaves room for.
         --gap-horizontal: calc(var(--size-300) / 4);
+        --opacity: 1;
+        --scale: 1;
+        --transition-duration: 0.2s;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
         &--degraded {
-            --bar-color: var(--color-degraded);
+            --background: var(--color-degraded);
         }
 
         &--outage {
-            --bar-color: var(--color-outage);
+            --background: var(--color-outage);
+        }
+
+        @include tokens.state(active) {
+            --scale: 1.15;
+
+            @media (prefers-reduced-motion: reduce) {
+                --scale: 1;
+            }
         }
     }
 
-    &-service-axis,
-    &-service-percentage {
-        --gap-horizontal: var(--size-300);
-        --gap-vertical: var(--size-300);
+    &-bars {
+        --border-radius: var(--border-radius-200);
+        --height: var(--size-600);
+
+        // A highlighted row dims every bar but the selected one.
+        @include tokens.state(active) {
+            > .uptime-bar:not(.--active) {
+                --opacity: 0.35;
+            }
+        }
     }
 
+    &-service-axis {
+        --gap-horizontal: var(--size-300);
+        --gap-vertical: var(--size-300);
+        --margin-top: var(--size-300);
+    }
+
+    &-service-caption {
+        --gap-horizontal: var(--size-200);
+    }
+
+    &-service-header {
+        --gap-horizontal: var(--size-400);
+        --height: var(--size-500);
+        --margin-bottom: var(--size-300);
+    }
+
+    // The entrance each caption swap replays.
     &-service-message {
+        --blur: var(--blur-400);
+        --dot-size: 6px;
+        --enter-duration: 0.2s;
+        --enter-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --offset: calc(var(--size-100) / 2);
+
         &--degraded {
             --dot: var(--color-degraded);
         }
@@ -53,5 +86,12 @@
         &--outage {
             --dot: var(--color-outage);
         }
+    }
+
+    &-service-percentage {
+        --gap-horizontal: var(--size-300);
+        --gap-vertical: var(--size-300);
+        --line-color: var(--surface-border-default);
+        --line-width: 1px;
     }
 }
