@@ -11,6 +11,10 @@
         grid-template-rows: 0fr;
     }
 
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+
 
     &--more {
         display: block;
@@ -20,16 +24,20 @@
         overscroll-behavior: contain;
         transition: height var(--transition-duration) var(--transition-timing-function);
 
-        &.accordion--instant {
-            transition: none;
-        }
-
         @include tokens.state(active) {
             height: min(var(--height, var(--max-height)), var(--max-height));
         }
 
         @include tokens.state(inactive) {
             overflow: hidden;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+
+        &-instant {
+            transition: none;
         }
     }
 
@@ -38,9 +46,5 @@
         min-height: 0;
         // Clip the collapse without creating a nested scroll container that traps wheel input.
         overflow: clip;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        transition: none;
     }
 }

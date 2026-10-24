@@ -52,7 +52,7 @@ export default component<Attributes & {
             let measured = reactive({ height: 0, instant: true });
 
             a = {
-                class: ['accordion--more', () => measured.instant && 'accordion--instant'],
+                class: ['accordion--more', () => measured.instant && 'accordion--more-instant'],
                 // The size measured on connect is written after the box was styled once, so the height holds still
                 // until that first measured frame has painted, or it would play from the unmeasured height.
                 onfirstpaint: () => {

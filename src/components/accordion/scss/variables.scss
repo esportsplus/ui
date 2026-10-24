@@ -9,13 +9,16 @@
 
     @include tokens.state(active) {
         --transition-duration: 240ms;
-
-        &.accordion--scrollable {
-            --scrollbar-overflow: auto;
-        }
     }
+
 
     &--more {
         --max-height: 320px;
+    }
+
+    &--scrollable {
+        @include tokens.state(active) {
+            --scrollbar-overflow: auto;
+        }
     }
 }
