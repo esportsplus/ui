@@ -2,7 +2,7 @@ import { component, html, type Attributes, type Renderable } from '@esportsplus/
 import { reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
 import close from '@esportsplus/ui/svg/close.svg';
 import icon from '~/components/icon';
-import { measure, slides, timing } from '~/shared/animation';
+import { measure, ms, slides, timing } from '~/shared/animation';
 import input from './field';
 
 
@@ -42,22 +42,7 @@ type State = {
 const TAG_SEPARATORS = /[,\n]/;
 
 
-// Exits are quicker than the pop, so removing never holds the eye.
-const LEAVE: KeyframeAnimationOptions = { duration: 150, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' };
-
-// A chip is a small physical thing, so it lands with the faintest settle.
-const POP: KeyframeAnimationOptions = {
-    duration: 380,
-    easing: 'linear(0, 0.035, 0.107, 0.208, 0.31, 0.42, 0.524, 0.61, 0.692, 0.757, 0.815, 0.863, 0.898, 0.928, 0.95, 0.968, 0.981, 0.989, 0.996, 1, 1.003, 1.004, 1.005, 1.005, 1.005, 1.005, 1.004, 1.004, 1.003, 1.003, 1)'
-};
-
-// Decaying swings say "already here" without reading as an error.
-const SHAKE: KeyframeAnimationOptions = { duration: 300, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' };
-
 const SHAKING = Symbol();
-
-// Eases like the row's slide.
-const SWAP: KeyframeAnimationOptions = { delay: 60, duration: 300, fill: 'backwards' };
 
 const INPUT_TAG_FIELD = Symbol.for('@esportsplus/ui/input.tag.field');
 
@@ -70,18 +55,23 @@ function key(tag: string) {
 }
 
 // How chips move, from the CSS: how far they blur, shrink and shake, how dim a shake goes, what the remove button grows
-// from, and the row's slide.
+// from, and each motion's timing; the remove button's swap eases like the row's slide.
 function motion(element: Element) {
-    let computed = getComputedStyle(element);
+    let computed = getComputedStyle(element),
+        settle = computed.getPropertyValue('--slide-timing-function').trim() || 'ease',
+        swap = timing(computed, 'swap');
 
     return {
-        blur: parseFloat(computed.getPropertyValue('--chip-blur')) || 0,
-        dim: parseFloat(computed.getPropertyValue('--chip-shake-opacity')) || 1,
-        grow: parseFloat(computed.getPropertyValue('--chip-remove-scale')) || 1,
-        scale: parseFloat(computed.getPropertyValue('--chip-scale')) || 1,
-        settle: computed.getPropertyValue('--chip-slide-easing').trim() || 'ease',
-        shake: parseFloat(computed.getPropertyValue('--chip-shake')) || 0,
-        slide: timing(computed, 'chip-slide')
+        blur: parseFloat(computed.getPropertyValue('--blur')) || 0,
+        dim: parseFloat(computed.getPropertyValue('--shake-opacity')) || 1,
+        grow: parseFloat(computed.getPropertyValue('--remove-scale')) || 1,
+        leave: timing(computed, 'leave'),
+        pop: timing(computed, 'pop'),
+        scale: parseFloat(computed.getPropertyValue('--scale')) || 1,
+        shake: parseFloat(computed.getPropertyValue('--shake')) || 0,
+        shaking: timing(computed, 'shake'),
+        slide: timing(computed, 'slide'),
+        swap: swap && { ...swap, delay: ms(computed.getPropertyValue('--swap-delay')), easing: settle, fill: 'backwards' as const }
     };
 }
 
@@ -104,7 +94,7 @@ export default component(
             ghosts = new ReactiveArray<Ghost>(),
             id = `input-tag-${++uid}`,
             list: HTMLElement | undefined,
-            local = reactive({ announcement: '', armed: '' }),
+            local = reactive({ announcement: '', armed: '', text: '' }),
             slot = html.reactive(state.tags, (tag) => html`
                 <li
                     class='input-tag-chip ${() => local.armed === key(tag) && '--active'}'
@@ -153,18 +143,24 @@ export default component(
                         // Not before: until it is in the document its node belongs to the template's own, whose clock
                         // never runs.
                         onconnect: (element: HTMLElement) => {
-                            let { blur, scale } = motion(element);
+                            let { blur, leave, scale } = motion(element),
+                                done = () => {
+                                    let at = ghosts.indexOf(ghost);
+
+                                    if (at !== -1) {
+                                        ghosts.splice(at, 1);
+                                    }
+                                };
+
+                            if (!leave) {
+                                done();
+                                return;
+                            }
 
                             element.animate(
                                 { filter: ['blur(0)', `blur(${blur / 2}px)`], opacity: [1, 0], scale: [1, scale] },
-                                { ...LEAVE, fill: 'forwards' }
-                            ).finished.then(() => {
-                                let at = ghosts.indexOf(ghost);
-
-                                if (at !== -1) {
-                                    ghosts.splice(at, 1);
-                                }
-                            }, () => {});
+                                { ...leave, fill: 'forwards' }
+                            ).finished.then(done, () => {});
                         }
                     }}
                 >
@@ -208,11 +204,8 @@ export default component(
                 added.push(tag);
             }
 
-            if (field) {
-                field.value = '';
-            }
-
             local.armed = '';
+            local.text = '';
 
             if (!added.length) {
                 return;
@@ -227,13 +220,19 @@ export default component(
         }
 
         // Its letters are already on screen where the field was, so only the chip's body and remove button form around them.
+        // Queried, since the chip forms in the frame it renders in, ahead of its parts' connect callbacks.
         function form(chip: HTMLElement) {
             let body = chip.querySelector('.input-tag-chip-body'),
                 remove = chip.querySelector('.input-tag-chip-remove'),
-                { blur, grow, scale, settle } = motion(chip);
+                { blur, grow, pop, scale, swap } = motion(chip);
 
-            body?.animate({ opacity: [0, 1], scale: [scale, 1] }, POP);
-            remove?.animate({ filter: [`blur(${blur}px)`, 'blur(0)'], opacity: [0, 1], scale: [grow, 1] }, { ...SWAP, easing: settle });
+            if (pop) {
+                body?.animate({ opacity: [0, 1], scale: [scale, 1] }, pop);
+            }
+
+            if (swap) {
+                remove?.animate({ filter: [`blur(${blur}px)`, 'blur(0)'], opacity: [0, 1], scale: [grow, 1] }, swap);
+            }
         }
 
         // Records every item's box, applies the change, then slides each survivor from its old box to its new one.
@@ -260,19 +259,26 @@ export default component(
                 return;
             }
 
-            let { dim, shake } = motion(element);
+            let { dim, shake, shaking } = motion(element);
 
             element[SHAKING]?.cancel();
+
+            if (!shaking) {
+                return;
+            }
+
             element[SHAKING] = element.animate(
                 { opacity: [1, dim, 1], translate: ['0', `${-shake}px`, `${shake}px`, `${shake * -0.75}px`, `${shake / 2}px`, '0'] },
-                SHAKE
+                shaking
             );
         }
 
         function pop(chip: HTMLElement) {
-            let { blur, scale } = motion(chip);
+            let { blur, pop, scale } = motion(chip);
 
-            chip.animate({ filter: [`blur(${blur}px)`, 'blur(0)'], opacity: [0, 1], scale: [scale, 1] }, POP);
+            if (pop) {
+                chip.animate({ filter: [`blur(${blur}px)`, 'blur(0)'], opacity: [0, 1], scale: [scale, 1] }, pop);
+            }
         }
 
         function remove(k: string) {
@@ -347,6 +353,8 @@ export default component(
                                 oninput: (e: Event) => {
                                     let value = (e.currentTarget as HTMLInputElement).value;
 
+                                    local.text = value;
+
                                     // Mobile keyboards often never fire a comma keydown.
                                     if (value.includes(',')) {
                                         add(value.split(','), true);
@@ -390,7 +398,8 @@ export default component(
                                     add(((e.currentTarget as HTMLInputElement).value + text).split(TAG_SEPARATORS), false);
                                 },
                                 placeholder,
-                                state
+                                state,
+                                value: () => local.text
                             })}
                         </li>
                     </ul>

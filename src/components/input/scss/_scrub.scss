@@ -11,10 +11,6 @@
     overflow: hidden;
     position: relative;
 
-    &:has(.input-scrub-field:focus-visible) {
-        outline: var(--outline-width) solid var(--outline-color);
-    }
-
 
     // Qualified by the root so it wins over the reused input styles regardless of stylesheet order.
     & > #{&}-field {
@@ -22,7 +18,7 @@
         height: 100%;
         min-height: 0;
         outline: none;
-        padding-inline-end: var(--field-padding-horizontal);
+        padding-inline-end: var(--padding-end);
     }
 
     &-label {
@@ -37,7 +33,7 @@
         touch-action: none;
         transition: color var(--transition-duration) var(--transition-timing-function);
         user-select: none;
-        width: var(--label-width);
+        width: var(--width);
 
         svg {
             height: var(--size-400);
@@ -46,27 +42,27 @@
     }
 
     &-needle {
-        background: var(--needle-color);
+        background: var(--background);
         bottom: 0;
-        height: var(--tape-height);
+        height: var(--height);
         left: 50%;
         position: absolute;
         translate: -50% 0;
-        width: 1px;
+        width: var(--width);
     }
 
     // Runs under a fixed needle while scrubbing: one step is one pixel of tape, so the ticks travel exactly as far as the pointer.
     &-tape {
         @extend %absolute-bottom;
-        color: var(--tape-color);
-        height: var(--tape-height);
+        color: var(--color);
+        height: var(--height);
         mask-image: linear-gradient(to right, transparent, #000 30%, #000 70%, transparent);
-        opacity: var(--tape-opacity);
+        opacity: var(--opacity);
         pointer-events: none;
         transition:
-            opacity var(--tape-duration) var(--tape-timing-function),
-            translate var(--tape-duration) var(--tape-timing-function);
-        translate: var(--tape-translate);
+            opacity var(--transition-duration) var(--transition-timing-function),
+            translate var(--transition-duration) var(--transition-timing-function);
+        translate: var(--translate);
     }
 
     &-ticks {
@@ -77,12 +73,10 @@
         background-position-x: calc(50% - var(--offset, 0px));
         background-position-y: bottom;
         background-repeat: repeat-x;
-        background-size: var(--tick) var(--tape-minor-height), calc(var(--tick) * 5) var(--tape-major-height);
+        background-size: var(--tick) var(--minor-height), calc(var(--tick) * 5) var(--major-height);
     }
-}
 
-@media (prefers-reduced-motion: reduce) {
-    .input-scrub-tape {
-        translate: 0 0;
+    &:has(> #{&}-field:focus-visible) {
+        outline: var(--focus-width) solid var(--focus-color);
     }
 }

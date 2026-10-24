@@ -242,7 +242,7 @@ export default component(
 
                                 s.moved = true;
                                 local.scrubbing = true;
-                                // Keeps the resize cursor once the pointer leaves the label.
+                                // Keeps the resize cursor once the pointer leaves the label; on the root, which no template binds.
                                 document.documentElement.style.cursor = 'ew-resize';
 
                                 if (lockPointer && e.pointerType === 'mouse') {

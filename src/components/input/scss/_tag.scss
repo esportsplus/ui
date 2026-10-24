@@ -14,58 +14,50 @@
 
     // The field is a surface, and each chip a surface above it.
     &-box {
-        background: var(--box-background, var(--surface-background-default));
-        border-radius: var(--box-border-radius);
+        background: var(--background);
+        border-radius: var(--border-radius);
         box-shadow: var(--surface-shadow-default);
         cursor: text;
-        outline-offset: calc(var(--size-100) / 4);
+        outline-offset: var(--focus-offset);
         padding: var(--padding-vertical) var(--padding-horizontal);
 
         &:has(.input-tag-field:focus-visible) {
-            outline: var(--border-width-500) solid var(--outline-color);
+            outline: var(--focus-width) solid var(--focus-color);
         }
     }
 
     &-chip {
-        --color-active: var(--chip-color-active);
-        --color-default: var(--chip-color);
         align-items: center;
         color: var(--color);
         display: flex;
         font-size: var(--font-size);
-        gap: calc(var(--size-100) / 4);
-        height: var(--chip-height);
+        gap: var(--gap-horizontal);
+        height: var(--height);
         max-width: 100%;
-        padding-inline: var(--text-inset-horizontal) calc(var(--size-100) / 2);
+        padding-inline: var(--text-inset-horizontal) var(--padding-end);
         position: relative;
         transition: color var(--transition-duration) var(--transition-timing-function);
 
         &-body {
             @extend %absolute-full;
-            // The surface's, until an active chip fills with ink and drops its shadow.
-            background: var(--chip-background, var(--surface-background-default));
-            border-radius: var(--chip-border-radius);
-            box-shadow: var(--chip-shadow, var(--surface-shadow-default));
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
             transition:
                 background-color var(--transition-duration) var(--transition-timing-function),
                 box-shadow var(--transition-duration) var(--transition-timing-function);
         }
 
         &-button {
-            --background-hover: var(--chip-remove-hover-background);
-            --background-pressed: var(--background-hover);
-            --color-default: var(--chip-remove-color);
-            --color-hover: var(--chip-remove-color-hover);
-            --color-pressed: var(--color-hover);
             align-items: center;
             background: var(--background);
             border: 0;
-            border-radius: var(--border-radius-300);
+            border-radius: var(--border-radius);
             color: var(--color);
             cursor: pointer;
             display: flex;
             flex-shrink: 0;
-            height: 24px;
+            height: var(--size);
             justify-content: center;
             outline: none;
             padding: 0;
@@ -73,17 +65,16 @@
             transition:
                 background-color var(--transition-duration) var(--transition-timing-function),
                 color var(--transition-duration) var(--transition-timing-function);
-            width: 24px;
+            width: var(--size);
 
-            // Grows the hit area to 32px without growing the icon.
             &::after {
                 content: '';
-                inset: calc(var(--size-100) / -2);
+                inset: var(--reach);
                 position: absolute;
             }
 
             &:focus-visible {
-                outline: var(--border-width-500) solid var(--outline-color);
+                outline: var(--focus-width) solid var(--focus-color);
             }
         }
 
@@ -102,17 +93,17 @@
         display: flex;
         flex: 1;
         font-size: var(--font-size);
-        min-width: var(--entry-min-width);
+        min-width: var(--min-width);
     }
 
     // Qualified so it wins over the reused input styles regardless of stylesheet order.
     &-entry > #{&}-field {
         font-size: inherit;
-        height: var(--chip-height);
+        height: var(--height);
         min-height: 0;
         min-width: 0;
         outline: none;
-        padding: 0 var(--size-100) 0 var(--text-inset-horizontal);
+        padding: 0 var(--padding-end) 0 var(--text-inset-horizontal);
 
         &::placeholder {
             color: var(--placeholder-color);
@@ -125,14 +116,14 @@
     }
 
     &-hint {
-        color: var(--hint-color);
-        font-size: var(--hint-font-size);
+        color: var(--color);
+        font-size: var(--font-size);
         margin: 0;
     }
 
     &-label {
-        font-size: var(--label-font-size);
-        font-weight: var(--label-font-weight);
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
     }
 
     &-list {

@@ -6,107 +6,159 @@
 
 .input {
     @include field.variables;
-}
 
 
-.input {
     &-scrub {
         @extend %background-state, %surface-raise;
         --background-default: var(--surface-background-default);
         --border-radius: var(--border-radius-400);
         --color: var(--color-text-500);
-        --field-padding-horizontal: var(--size-200);
+        --focus-color: var(--color-primary-500);
+        --focus-width: var(--border-width-500);
         --font-size: var(--font-size-300);
         --height: 40px;
-        --label-color: var(--color-text-300);
-        --label-color-active: var(--color-text-500);
-        --label-width: 36px;
-        --needle-color: var(--color-primary-500);
-        --outline-color: var(--color-primary-500);
-        --outline-width: var(--border-width-500);
-        --tape-color: var(--color-primary-300);
-        --tape-duration: var(--tape-leave-duration);
-        --tape-enter-duration: 150ms;
-        --tape-height: var(--size-100);
-        --tape-leave-duration: 200ms;
-        --tape-major-height: 6px;
-        --tape-minor-height: 3px;
-        --tape-opacity: 0;
-        --tape-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-        --tape-translate: 0 4px;
-        // Keep in sync with the component's TICK constant; the tape offset is computed against it.
-        --tick: 6px;
-
-        // Scrubbing lights the label and raises the tape under the needle.
-        @include tokens.state(active) {
-            --label-color: var(--label-color-active);
-            --tape-duration: var(--tape-enter-duration);
-            --tape-opacity: 1;
-            --tape-translate: 0 0;
-        }
 
         // Qualified by the root so it wins over the reused input styles regardless of stylesheet order.
         & > #{&}-field {
             --color-default: currentColor;
             --font-size: inherit;
+            --padding-end: var(--size-200);
             --padding-horizontal: 0px;
             --padding-vertical: 0px;
         }
+
+        &-label {
+            @extend %color-state, %color-text;
+            --width: 36px;
+        }
+
+        &-needle {
+            --background: var(--color-primary-500);
+            --height: var(--size-100);
+            --width: 1px;
+        }
+
+        // Leaves slower than it arrives; under reduced motion it only fades.
+        &-tape {
+            --color: var(--color-primary-300);
+            --height: var(--size-100);
+            --opacity: 0;
+            --transition-duration: 200ms;
+            --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+            --translate: 0 4px;
+
+            @media (prefers-reduced-motion: reduce) {
+                --translate: 0 0;
+            }
+        }
+
+        &-ticks {
+            --major-height: 6px;
+            --minor-height: 3px;
+            // Keep in sync with the component's TICK constant; the tape offset is computed against it.
+            --tick: 6px;
+        }
+
+        // Scrubbing raises the tape under the needle.
+        @include tokens.state(active) {
+            .input-scrub-tape {
+                --opacity: 1;
+                --transition-duration: 150ms;
+                --translate: 0 0;
+            }
+        }
     }
 
-
+    // A typed tag becomes a chip without its letters shifting: the chip's text and the field share one inset.
     &-tag {
-        --box-border-radius: 14px;
-        --chip-background-active: var(--color-primary-500);
-        // Read by JS: how far a chip blurs as it comes and goes; half that leaving.
-        --chip-blur: var(--blur-400);
-        // 8px inside 6px of box padding keeps the 14px box concentric.
-        --chip-border-radius: var(--border-radius-400);
-        --chip-color: var(--color-text-500);
-        --chip-color-active: var(--color-surface);
-        --chip-height: 32px;
-        --chip-remove-color: var(--color-primary-300);
-        --chip-remove-color-hover: var(--color-primary-500);
-        --chip-remove-hover-background: var(--surface-background-hover);
-        // Read by JS: what a formed chip's remove button grows from, what a chip grows from and shrinks to, how far a
-        // repeated tag's chip shakes and how dim it goes, and how the row slides (no bounce: closing up reads as settled).
-        --chip-remove-scale: 0.25;
-        --chip-scale: 0.9;
-        --chip-shake: 4px;
-        --chip-shake-opacity: 1;
-        --chip-slide-duration: 410ms;
-        --chip-slide-easing: linear(0, 0.038, 0.116, 0.219, 0.326, 0.43, 0.518, 0.602, 0.674, 0.731, 0.782, 0.825, 0.858, 0.886, 0.91, 0.928, 0.942, 0.955, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
         --color: var(--color-text-500);
-        --entry-min-width: var(--spacer-400);
         --font-size: var(--font-size-300);
-        --hint-color: var(--color-text-300);
-        --hint-font-size: var(--font-size-200);
-        --label-font-size: var(--font-size-300);
-        --label-font-weight: var(--font-weight-500);
-        --outline-color: var(--color-primary-500);
-        --placeholder-color: var(--color-text-300);
-        // Shared by a chip's text and the field, so a typed tag becomes a chip without its letters shifting.
         --text-inset-horizontal: var(--size-200);
         --width: min(440px, 100%);
 
-        // Chips fade where they stand, and a repeated tag's chip dims instead of shaking.
-        @media (prefers-reduced-motion: reduce) {
-            --chip-blur: 0px;
-            --chip-remove-scale: 1;
-            --chip-scale: 1;
-            --chip-shake: 0px;
-            --chip-shake-opacity: 0.4;
-            --chip-slide-duration: 0s;
+
+        &-box {
+            @extend %surface-raise;
+            --background: var(--surface-background-default);
+            --border-radius: 14px;
+            --focus-color: var(--color-primary-500);
+            --focus-offset: calc(var(--size-100) / 4);
+            --focus-width: var(--border-width-500);
+            --padding-horizontal: calc(var(--size-300) / 2);
+            --padding-vertical: calc(var(--size-300) / 2);
         }
 
-        // An armed chip inverts, and its remove button follows it onto the dark surface.
+        // Read by JS, so a chip comes and goes as these say: how far it blurs (half that leaving) and what it grows from
+        // and shrinks to, how far a repeated tag's chip shakes and how dim it goes, what a formed chip's remove button
+        // grows from, and how each motion runs. Exits are quicker than the pop, so removing never holds the eye; the
+        // pop lands with the faintest settle, a chip being a small physical thing; decaying swings say "already here"
+        // without reading as an error. Chips fade where they stand under reduced motion, and a repeated tag's chip dims
+        // instead of shaking.
         &-chip {
+            @extend %color-state;
+            --blur: var(--blur-400);
+            --color-active: var(--color-surface);
+            --color-default: var(--color-text-500);
+            --gap-horizontal: calc(var(--size-100) / 4);
+            --height: 32px;
+            --leave-duration: 150ms;
+            --leave-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+            --padding-end: calc(var(--size-100) / 2);
+            --pop-duration: 380ms;
+            --pop-timing-function: linear(0, 0.035, 0.107, 0.208, 0.31, 0.42, 0.524, 0.61, 0.692, 0.757, 0.815, 0.863, 0.898, 0.928, 0.95, 0.968, 0.981, 0.989, 0.996, 1, 1.003, 1.004, 1.005, 1.005, 1.005, 1.005, 1.004, 1.004, 1.003, 1.003, 1);
+            --remove-scale: 0.25;
+            --scale: 0.9;
+            --shake: 4px;
+            --shake-duration: 300ms;
+            --shake-opacity: 1;
+            --shake-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+            --swap-delay: 60ms;
+            --swap-duration: 300ms;
+
+            @media (prefers-reduced-motion: reduce) {
+                --blur: 0px;
+                --remove-scale: 1;
+                --scale: 1;
+                --shake: 0px;
+                --shake-opacity: 0.4;
+            }
+
+            // An armed chip inverts, and its remove button follows it onto the dark surface.
             @include tokens.state(active) {
-                --chip-background: var(--chip-background-active);
-                --chip-remove-color: oklch(from var(--chip-color-active) l c h / 0.7);
-                --chip-remove-color-hover: var(--chip-color-active);
-                --chip-remove-hover-background: transparent;
-                --chip-shadow: none;
+                .input-tag-chip-body {
+                    --background: var(--color-primary-500);
+                    --box-shadow: none;
+                }
+
+                .input-tag-chip-button {
+                    --background-hover: transparent;
+                    --color-default: oklch(from var(--color-surface) l c h / 0.7);
+                    --color-hover: var(--color-surface);
+                }
+            }
+
+            // 8px inside 6px of box padding keeps the 14px box concentric; the surface's, until an armed chip fills
+            // with ink and drops its shadow.
+            &-body {
+                @extend %surface-raise;
+                --background: var(--surface-background-default);
+                --border-radius: var(--border-radius-400);
+                --box-shadow: var(--surface-shadow-default);
+            }
+
+            // Its hit area grows to 32px without growing the icon.
+            &-button {
+                @extend %background-state, %color-state;
+                --background-hover: var(--surface-background-hover);
+                --background-pressed: var(--background-hover);
+                --border-radius: var(--border-radius-300);
+                --color-default: var(--color-primary-300);
+                --color-hover: var(--color-primary-500);
+                --color-pressed: var(--color-hover);
+                --focus-color: var(--color-primary-500);
+                --focus-width: var(--border-width-500);
+                --reach: calc(var(--size-100) / -2);
+                --size: 24px;
             }
 
             // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
@@ -116,46 +168,38 @@
             }
         }
 
+        &-entry {
+            --min-width: var(--spacer-400);
+        }
+
         // Qualified so it wins over the reused input styles regardless of stylesheet order.
         &-entry > #{&}-field {
             --color-default: currentColor;
+            --height: 32px;
+            --padding-end: var(--size-100);
+            --placeholder-color: var(--color-text-300);
         }
 
-        &-box {
-            --padding-horizontal: calc(var(--size-300) / 2);
-            --padding-vertical: calc(var(--size-300) / 2);
+        &-hint {
+            --color: var(--color-text-300);
+            --font-size: var(--font-size-200);
         }
 
+        &-label {
+            --font-size: var(--font-size-300);
+            --font-weight: var(--font-weight-500);
+        }
+
+        // Read by JS: how the row slides as chips come and go, which a formed chip's remove button eases like. No
+        // bounce, since closing up reads as settled.
         &-list {
             --gap-horizontal: calc(var(--size-300) / 2);
             --gap-vertical: calc(var(--size-300) / 2);
-        }
-    }
-}
+            --slide-duration: 410ms;
+            --slide-timing-function: linear(0, 0.038, 0.116, 0.219, 0.326, 0.43, 0.518, 0.602, 0.674, 0.731, 0.782, 0.825, 0.858, 0.886, 0.91, 0.928, 0.942, 0.955, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
 
-
-.input {
-    &-scrub {
-        &-label {
-            @extend %color-state, %color-text;
-        }
-    }
-
-
-    &-tag {
-        &-box {
-            @extend %surface-raise;
-        }
-
-        &-chip {
-            @extend %color-state;
-
-            &-body {
-                @extend %surface-raise;
-            }
-
-            &-button {
-                @extend %background-state, %color-state;
+            @media (prefers-reduced-motion: reduce) {
+                --slide-duration: 0s;
             }
         }
     }
