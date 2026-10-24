@@ -16,33 +16,28 @@
 
 
     &--morph {
-        --morph-blur: var(--blur-400);
         --morph-duration: 0.3s;
-        // The outgoing layer clears out faster than the incoming one arrives, so the two never read as
-        // overlapping text.
-        --morph-enter-duration: 0.25s;
-        --morph-exit-duration: 0.18s;
         --morph-fade-duration: var(--transition-duration);
         --morph-fade-timing-function: var(--transition-timing-function);
-        --morph-shift: 48px;
-        --morph-swap-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
         // Critically damped spring: an overshooting shell would uncover empty space.
         --morph-timing-function: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
 
 
         @media (prefers-reduced-motion: reduce) {
-            --morph-blur: 0px;
             --morph-duration: 0s;
-            --morph-shift: 0px;
         }
     }
 
-    // Doubled class so the ring's colors outrank consumers' elevation shadows (e.g. 'pagination-card--tactile').
+    // Keyboard focus shows the halo as hover does.
     &--ring {
         --box-shadow-active: var(--surface-border-active);
         --box-shadow-default: transparent;
         --box-shadow-hover: var(--surface-border-hover);
         --box-shadow-pressed: var(--surface-shadow-pressed);
+
+        &:focus-visible {
+            --box-shadow: var(--box-shadow-hover);
+        }
     }
 
     // The fill follows its states, stepping on hover and press like any other surface.
@@ -59,14 +54,21 @@
         --border-width: var(--border-width-400);
     }
 
+    // Chained through '.frame' so it wins over the frame's own swap regardless of stylesheet order. The outgoing layer
+    // clears out faster than the incoming one arrives, so the two never read as overlapping text.
     &-morph-layer.frame {
-        --swap-blur: var(--morph-blur);
-        --swap-duration: var(--morph-enter-duration);
-        --swap-exit-duration: var(--morph-exit-duration);
-        --swap-exit-fade-duration: var(--morph-exit-duration);
-        --swap-fade-duration: var(--morph-enter-duration);
-        --swap-fade-timing-function: var(--morph-swap-timing-function);
-        --swap-shift: var(--morph-shift);
-        --swap-timing-function: var(--morph-swap-timing-function);
+        --swap-blur: var(--blur-400);
+        --swap-duration: 0.25s;
+        --swap-exit-duration: 0.18s;
+        --swap-exit-fade-duration: 0.18s;
+        --swap-fade-duration: 0.25s;
+        --swap-fade-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --swap-shift: 48px;
+        --swap-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
+        @media (prefers-reduced-motion: reduce) {
+            --swap-blur: 0px;
+            --swap-shift: 0px;
+        }
     }
 }

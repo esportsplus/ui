@@ -1,7 +1,7 @@
+@use '../../frame/scss/index';
 @use 'css-utilities/box-shadow';
 @use 'css-utilities/layer';
 @use 'variables';
-@use '../../frame/scss/index';
 
 .card {
     background: var(--background);
@@ -21,11 +21,17 @@
     width: var(--width);
 
 
+    // Pseudo Element Box Shadow
+    &::after {
+        @extend %layer-box-shadow;
+    }
+
+
     // A shell that morphs between stacked layers, one shown at a time. The consumer sizes it to the active
     // layer through '--morph-width' and '--morph-height'; the layers are 'frame--swap's, so marking one
     // '--active', with the active index in '--i' on the viewport and each layer's own in '--n', slides the
     // swap the way the active index moved. Its own opacity and transform are
-    // the consumer's to animate for open and close; 'card--instant' snaps everything, for a fresh open.
+    // the consumer's to animate for open and close; 'card--morph-instant' snaps everything, for a fresh open.
     // The viewport clips, not the card, so the '::after' shadow and whatever a consumer hangs off '::before'
     // can still reach outside the box.
     &--morph {
@@ -43,7 +49,7 @@
             width var(--morph-duration) var(--morph-timing-function);
         width: var(--morph-width, var(--width));
 
-        &.card--instant {
+        &-instant {
             &,
             > .card-morph-viewport > .card-morph-layer {
                 transition: none;
@@ -57,10 +63,6 @@
     &--ring {
         @extend %box-shadow-outline;
         box-shadow: 0 0 0 var(--box-shadow-width) var(--box-shadow);
-
-        &:focus-visible {
-            --box-shadow: var(--box-shadow-hover);
-        }
     }
 
 
@@ -82,10 +84,5 @@
             position: relative;
             width: 100%;
         }
-    }
-
-    // Pseudo Element Box Shadow
-    &::after {
-        @extend %layer-box-shadow;
     }
 }
