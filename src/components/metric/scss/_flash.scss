@@ -2,158 +2,144 @@
 @use 'css-utilities/layer';
 
 
-.metric-flash {
-    align-items: center;
-    border-radius: var(--border-radius);
-    display: inline-grid;
-    font-size: var(--font-size);
-    font-variant-numeric: tabular-nums;
-    font-weight: var(--font-weight);
-    gap: var(--gap-vertical) var(--gap-horizontal);
-    grid-auto-flow: column;
-    padding: var(--padding-vertical) var(--padding-horizontal);
-    position: relative;
-    transition:
-        color var(--tone-duration) var(--transition-timing-function),
-        scale var(--settle-duration) var(--settle);
-
-    &--flashing {
-        color: var(--tone);
-        scale: var(--lift-scale);
-        transition:
-            color var(--tone-duration) var(--transition-timing-function),
-            scale var(--lift-duration) var(--lift);
-    }
-
-    &-announcement {
-        @extend %hidden-visually;
-    }
-
-    &-arrow {
-        animation: none var(--pop-duration) var(--pop) both;
-        display: grid;
-        height: 1em;
-        opacity: 0;
-        place-items: center;
+.metric {
+    &-flash {
+        align-items: center;
+        border-radius: var(--border-radius);
+        display: inline-grid;
+        font-size: var(--font-size);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--font-weight);
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        grid-auto-flow: column;
+        padding: var(--padding-vertical) var(--padding-horizontal);
         position: relative;
-        width: 1em;
-
-        &--down {
-            rotate: 180deg;
-        }
-
-        &--even {
-            animation-name: metric-flash-pop-2;
-        }
-
-        &--odd {
-            animation-name: metric-flash-pop-1;
-        }
-
-        &--off {
-            animation: metric-flash-clear var(--clear-duration) var(--clear) both;
-        }
-    }
-
-    &-text {
-        grid-area: 1 / 1;
-
-        &--down,
-        &--up {
-            animation: metric-flash-roll var(--roll-duration) var(--roll) both;
-        }
-
-        // Pulled out of flow so the incoming text alone sizes the value.
-        &--leaving {
-            animation: metric-flash-drop var(--drop-duration) var(--clear) both;
-            inset-inline-start: 0;
-            position: absolute;
-        }
-    }
-
-    &-tint {
-        @extend %layer;
-        background: color-mix(in oklch, var(--tone, transparent) var(--tint-opacity), transparent);
-        opacity: 0;
-        transition: opacity var(--clear-duration) var(--clear);
+        transition:
+            color var(--tone-duration) var(--tone-timing-function),
+            scale var(--settle-duration) var(--settle-timing-function);
 
         &--flashing {
-            opacity: 1;
-            transition: opacity var(--cell-duration) var(--cell);
+            color: var(--tone);
+            scale: var(--lift-scale);
+            transition:
+                color var(--tone-duration) var(--tone-timing-function),
+                scale var(--lift-duration) var(--lift-timing-function);
         }
-    }
 
-    &-value {
-        display: inline-grid;
-        overflow: hidden;
-        position: relative;
-    }
-}
+        &-announcement {
+            @extend %hidden-visually;
+        }
 
-@keyframes metric-flash-clear {
-    from {
-        opacity: 1;
-        scale: 1;
-    }
+        &-arrow {
+            animation: none var(--pop-duration) var(--pop-timing-function) both;
+            display: grid;
+            height: 1em;
+            opacity: 0;
+            place-items: center;
+            position: relative;
+            width: 1em;
 
-    to {
-        opacity: 0;
-        scale: 0.8;
-    }
-}
+            &--down {
+                rotate: 180deg;
+            }
 
-@keyframes metric-flash-drop {
-    from {
-        filter: blur(0);
-        opacity: 1;
-        translate: 0 0;
-    }
+            // Two copies, keyed by the parity, so every change restarts the pop.
+            @each $parity in even odd {
+                &--#{$parity} {
+                    animation-name: metric-flash-arrow--#{$parity};
 
-    to {
-        filter: blur(var(--drop-blur));
-        opacity: 0;
-        translate: 0 var(--to, 0);
-    }
-}
+                    @keyframes metric-flash-arrow--#{$parity} {
+                        from {
+                            opacity: 0;
+                            scale: 0.4;
+                            translate: 0 var(--from);
+                        }
 
-@keyframes metric-flash-pop-1 {
-    from {
-        opacity: 0;
-        scale: 0.4;
-        translate: 0 var(--from);
-    }
+                        to {
+                            opacity: 1;
+                            scale: 1;
+                            translate: 0 0;
+                        }
+                    }
+                }
+            }
 
-    to {
-        opacity: 1;
-        scale: 1;
-        translate: 0 0;
-    }
-}
+            &--off {
+                animation: metric-flash-arrow--off var(--clear-duration) var(--clear-timing-function) both;
 
-@keyframes metric-flash-pop-2 {
-    from {
-        opacity: 0;
-        scale: 0.4;
-        translate: 0 var(--from);
-    }
+                @keyframes metric-flash-arrow--off {
+                    from {
+                        opacity: 1;
+                        scale: 1;
+                    }
 
-    to {
-        opacity: 1;
-        scale: 1;
-        translate: 0 0;
-    }
-}
+                    to {
+                        opacity: 0;
+                        scale: 0.8;
+                    }
+                }
+            }
+        }
 
-@keyframes metric-flash-roll {
-    from {
-        filter: blur(var(--roll-blur));
-        opacity: 0;
-        translate: 0 var(--from);
-    }
+        &-text {
+            grid-area: 1 / 1;
 
-    to {
-        filter: blur(0);
-        opacity: 1;
-        translate: 0 0;
+            &--down,
+            &--up {
+                animation: metric-flash-text-roll var(--roll-duration) var(--roll-timing-function) both;
+            }
+
+            // Pulled out of flow so the incoming text alone sizes the value.
+            &--leaving {
+                animation: metric-flash-text--leaving var(--drop-duration) var(--drop-timing-function) both;
+                inset-inline-start: 0;
+                position: absolute;
+
+                @keyframes metric-flash-text--leaving {
+                    from {
+                        filter: blur(0);
+                        opacity: 1;
+                        translate: 0 0;
+                    }
+
+                    to {
+                        filter: blur(var(--drop-blur));
+                        opacity: 0;
+                        translate: 0 var(--to, 0);
+                    }
+                }
+            }
+
+            @keyframes metric-flash-text-roll {
+                from {
+                    filter: blur(var(--roll-blur));
+                    opacity: 0;
+                    translate: 0 var(--from);
+                }
+
+                to {
+                    filter: blur(0);
+                    opacity: 1;
+                    translate: 0 0;
+                }
+            }
+        }
+
+        &-tint {
+            @extend %layer;
+            background: color-mix(in oklch, var(--tone, transparent) var(--strength), transparent);
+            opacity: 0;
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+
+            &--flashing {
+                opacity: 1;
+            }
+        }
+
+        &-value {
+            display: inline-grid;
+            overflow: hidden;
+            position: relative;
+        }
     }
 }
