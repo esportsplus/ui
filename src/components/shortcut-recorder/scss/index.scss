@@ -25,85 +25,103 @@
     outline: none;
     padding: 0 var(--padding-horizontal);
     transition:
-        background var(--transition-duration) var(--timing-function-out),
-        box-shadow var(--transition-duration) var(--timing-function-out);
+        background var(--transition-duration) var(--transition-timing-function),
+        box-shadow var(--transition-duration) var(--transition-timing-function);
 
-    // Recording already draws a dark edge, a focus ring on top of it would double up.
-    #{tokens.state(inactive)}:focus-visible {
-        outline: var(--focus-width) solid var(--focus-color);
-        outline-offset: var(--focus-offset);
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
     }
 
+
     &-dot {
-        animation: shortcut-recorder-blink 1.1s ease-in-out infinite;
-        background: var(--color-dot);
+        animation: shortcut-recorder-dot var(--animation-duration) var(--animation-timing-function) infinite;
+        background: var(--background);
         border-radius: 50%;
-        height: 6px;
-        width: 6px;
+        height: var(--size);
+        width: var(--size);
+
+        @media (prefers-reduced-motion: reduce) {
+            animation: none;
+        }
+
+        @keyframes shortcut-recorder-dot {
+            50% {
+                opacity: 0.25;
+            }
+        }
     }
 
     // A legend inside the field, not a control, so it takes no hover or press
     &-key {
         pointer-events: none;
 
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+
         &--enter {
-            animation: shortcut-recorder-enter 300ms var(--timing-function-spring) backwards;
+            animation: shortcut-recorder-key--enter var(--animation-duration) var(--animation-timing-function) backwards;
+
+            @keyframes shortcut-recorder-key--enter {
+                from {
+                    filter: blur(var(--blur-400));
+                    opacity: 0;
+                    scale: 0.8;
+                }
+            }
         }
 
         &--settle {
-            animation: shortcut-recorder-settle 300ms var(--timing-function-spring) calc(var(--index) * 30ms) backwards;
+            animation: shortcut-recorder-key--settle var(--animation-duration) var(--animation-timing-function) calc(var(--index) * var(--stagger)) backwards;
+
+            @keyframes shortcut-recorder-key--settle {
+                from {
+                    opacity: 0.6;
+                    scale: 1.08;
+                    translate: 0 -3px;
+                }
+            }
+        }
+
+        &--enter,
+        &--settle {
+            @media (prefers-reduced-motion: reduce) {
+                animation: none;
+            }
         }
     }
 
     &-placeholder {
         align-items: center;
-        color: var(--color-muted);
+        color: var(--color);
         display: flex;
-        font-size: var(--font-size-small);
-        gap: calc(var(--size-300) / 2);
-        padding: 0 calc(var(--size-300) / 2);
-        transition: color var(--transition-duration) var(--timing-function-out);
+        font-size: var(--font-size);
+        gap: var(--gap-horizontal);
+        padding: 0 var(--padding-horizontal);
+        transition: color var(--transition-duration) var(--transition-timing-function);
 
-        &--fade {
-            animation: shortcut-recorder-fade 180ms var(--timing-function-out);
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &,
-        &-dot,
-        &-key,
-        &-placeholder {
-            animation: none;
+        @media (prefers-reduced-motion: reduce) {
             transition: none;
         }
-    }
-}
 
-@keyframes shortcut-recorder-blink {
-    50% {
-        opacity: 0.25;
-    }
-}
+        &--fade {
+            animation: shortcut-recorder-placeholder--fade var(--animation-duration) var(--animation-timing-function);
 
-@keyframes shortcut-recorder-enter {
-    from {
-        filter: blur(var(--blur-400));
-        opacity: 0;
-        scale: 0.8;
-    }
-}
+            @media (prefers-reduced-motion: reduce) {
+                animation: none;
+            }
 
-@keyframes shortcut-recorder-fade {
-    from {
-        opacity: 0;
+            @keyframes shortcut-recorder-placeholder--fade {
+                from {
+                    opacity: 0;
+                }
+            }
+        }
     }
-}
 
-@keyframes shortcut-recorder-settle {
-    from {
-        opacity: 0.6;
-        scale: 1.08;
-        translate: 0 -3px;
+    // Recording already draws a dark edge, a focus ring on top of it would double up.
+    #{tokens.state(inactive)}:focus-visible {
+        outline: var(--focus-width) solid var(--focus-color);
+        outline-offset: var(--focus-offset);
     }
 }
