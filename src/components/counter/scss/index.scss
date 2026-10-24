@@ -4,13 +4,36 @@
 .counter {
     color: var(--color);
     display: flex;
-    gap: calc(var(--size-100) / 4);
+    gap: var(--gap-vertical) var(--gap-horizontal);
     place-items: center;
-    transition: transform calc(var(--transition-duration) / 4) var(--transition-duration);
+    transition: transform calc(var(--transition-duration) / 4) var(--transform-timing-function) var(--transition-duration);
 
-    &--ticker {
-        gap: 0;
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
     }
+
+
+    // Each roll restarts the blur with its own, identical, keyframes.
+    &--blur {
+        @media (prefers-reduced-motion: no-preference) {
+            @each $roll in 1 2 {
+                .counter-character-track--roll-#{$roll} {
+                    animation: counter-character-track--roll-#{$roll} var(--animation-duration) var(--animation-timing-function) calc(var(--index) * var(--stagger));
+                }
+
+                @keyframes counter-character-track--roll-#{$roll} {
+                    0%, 100% {
+                        filter: blur(0);
+                    }
+
+                    20% {
+                        filter: blur(var(--blur));
+                    }
+                }
+            }
+        }
+    }
+
 
     &-character {
         display: grid;
@@ -22,23 +45,18 @@
 
         &--symbol {
             font-size: calc(var(--font-size) * var(--scale));
-            margin-inline-end: 0.1ch;
+            margin-inline-end: var(--spacer);
             opacity: var(--opacity);
         }
 
         // --index counts digits from the right, so the rightmost digit settles first.
         &-track {
             display: grid;
-            transition: translate var(--transition-duration) var(--timing-function) calc(var(--index) * var(--stagger));
+            transition: translate var(--transition-duration) var(--transition-timing-function) calc(var(--index) * var(--stagger));
             translate: 0 calc((var(--value) + 1) * (1lh * -1));
 
-            // Each roll names its own animation, which only '--blur' sets.
-            @media (prefers-reduced-motion: no-preference) {
-                @each $roll in 1 2 {
-                    &--roll-#{$roll} {
-                        animation: var(--roll-#{$roll}-animation) var(--transition-duration) ease-out calc(var(--index) * var(--stagger));
-                    }
-                }
+            @media (prefers-reduced-motion: reduce) {
+                transition: none;
             }
         }
     }
@@ -58,32 +76,5 @@
 
     &-sr {
         @extend %hidden-visually;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &,
-        &-character-track {
-            transition: none;
-        }
-    }
-}
-
-@keyframes counter-blur-1 {
-    0%, 100% {
-        filter: blur(0);
-    }
-
-    20% {
-        filter: blur(var(--blur));
-    }
-}
-
-@keyframes counter-blur-2 {
-    0%, 100% {
-        filter: blur(0);
-    }
-
-    20% {
-        filter: blur(var(--blur));
     }
 }

@@ -1,8 +1,20 @@
-import { html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
 import { onceVisible } from '~/shared/visible';
 import './scss/index.scss';
 
+
+type A = Attributes & {
+    currency?: Currency;
+    decimals?: number;
+    delay?: number;
+    max?: number;
+    prefix?: string;
+    startOnView?: boolean;
+    state?: { value: number },
+    suffix?: string;
+    value: number;
+};
 
 type Currency = 'EUR' | 'GBP' | 'IGNORE' | 'USD';
 
@@ -23,105 +35,98 @@ function formatter(currency: Currency, decimals: number) {
 }
 
 
-export default ({ currency = 'USD', decimals = 2, delay, max, prefix, startOnView, value, state: api = reactive({ value }), suffix, ...attributes }: Attributes & {
-    currency?: Currency;
-    decimals?: number;
-    delay?: number;
-    max?: number;
-    prefix?: string;
-    startOnView?: boolean;
-    state?: { value: number },
-    suffix?: string;
-    value: number;
-}) => {
-    let animation = reactive({ started: false }),
-        format = formatter(currency, decimals),
-        render = reactive([] as { digit: boolean; index: number; roll: number; value: string }[]),
-        timer: ReturnType<typeof setTimeout> | undefined;
+export default component(
+    ({ currency = 'USD', decimals = 2, delay, max, prefix, startOnView, value, state: api = reactive({ value }), suffix, ...attributes }: A) => {
+        let animation = reactive({ started: false }),
+            format = formatter(currency, decimals),
+            render = reactive([] as { digit: boolean; index: number; roll: number; value: string }[]),
+            timer: ReturnType<typeof setTimeout> | undefined;
 
-    effect(() => {
-        let started = animation.started,
-            target = api.value;
+        effect(() => {
+            let started = animation.started,
+                target = api.value;
 
-        let padding = (max || target).toFixed(decimals).length - target.toFixed(decimals).length,
-            values = format.format(Number(target.toString().padStart(target.toString().length + padding, '1'))).split('');
+            let padding = (max || target).toFixed(decimals).length - target.toFixed(decimals).length,
+                values = format.format(Number(target.toString().padStart(target.toString().length + padding, '1'))).split('');
 
-        if (prefix) {
-            values.unshift(...prefix.split(''));
-        }
+            if (prefix) {
+                values.unshift(...prefix.split(''));
+            }
 
-        if (suffix) {
-            values.push(' ', ...suffix.split(''));
-        }
+            if (suffix) {
+                values.push(' ', ...suffix.split(''));
+            }
 
-        untrack(() => {
-            let remaining = values.filter((value) => DIGIT.test(value)).length;
+            untrack(() => {
+                let remaining = values.filter((value) => DIGIT.test(value)).length;
 
-            for (let i = 0, n = values.length; i < n; i++) {
-                let previous = render[i],
-                    value = values[i],
-                    digit = DIGIT.test(value),
-                    index = digit ? --remaining : 0;
+                for (let i = 0, n = values.length; i < n; i++) {
+                    let previous = render[i],
+                        value = values[i],
+                        digit = DIGIT.test(value),
+                        index = digit ? --remaining : 0;
 
-                if (digit && (!started || padding > 0)) {
-                    padding--;
-                    value = '0';
-                }
+                    if (digit && (!started || padding > 0)) {
+                        padding--;
+                        value = '0';
+                    }
 
-                // Preserve the track so CSS can transition between digit positions.
-                if (previous?.digit === digit) {
-                    previous.index = index;
+                    // Preserve the track so CSS can transition between digit positions.
+                    if (previous?.digit === digit) {
+                        previous.index = index;
 
-                    if (previous.value !== value) {
-                        previous.roll = previous.roll === 1 ? 2 : 1;
-                        previous.value = value;
+                        if (previous.value !== value) {
+                            previous.roll = previous.roll === 1 ? 2 : 1;
+                            previous.value = value;
+                        }
+                    }
+                    else {
+                        let character = reactive({ digit, index, roll: 0, value });
+
+                        render[i] = character;
                     }
                 }
-                else {
-                    let character = reactive({ digit, index, roll: 0, value });
 
-                    render[i] = character;
+                if (render.length > values.length) {
+                    render.splice(values.length);
                 }
-            }
-
-            if (render.length > values.length) {
-                render.splice(values.length);
-            }
+            });
         });
-    });
 
-    function start() {
-        timer = setTimeout(() => animation.started = true, delay ?? 1000);
-    }
+        function start() {
+            timer = setTimeout(() => animation.started = true, delay ?? 1000);
+        }
 
-    onCleanup(() => clearTimeout(timer));
+        onCleanup(() => clearTimeout(timer));
 
-    return html`
-        <div class='counter' ${attributes} ${startOnView ? onceVisible(start) : { onconnect: start }}>
-            ${html.reactive(render, function (character) {
-                    if (!character.digit) {
+        return html`
+            <div class='counter' ${attributes} ${startOnView ? onceVisible(start) : { onconnect: start }}>
+                ${html.reactive(render, function (character) {
+                        if (!character.digit) {
+                            return html`
+                                <span aria-hidden='true' class='counter-character counter-character--symbol'>
+                                    ${() => character.value}
+                                </span>
+                            `;
+                        }
+
+                        // Alternating the roll parity swaps between identical keyframes, restarting the per-roll
+                        // animation.
                         return html`
-                            <span aria-hidden='true' class='counter-character counter-character--symbol'>
-                                ${() => character.value}
-                            </span>
-                        `;
-                    }
-
-                    // Alternating the roll parity swaps between identical keyframes, restarting the per-roll animation.
-                    return html`
-                        <div aria-hidden='true' class='counter-character'>
-                            <div
-                                class='counter-character-track ${() => character.roll && `counter-character-track--roll-${character.roll}`}'
-                                style='${() => `--index: ${character.index}; --value: ${character.value}`}'
-                            >
-                                <span class='counter-digit'>9</span>
-                                ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span class='counter-digit'>${value}</span>`)}
-                                <span class='counter-digit'>0</span>
+                            <div aria-hidden='true' class='counter-character'>
+                                <div
+                                    class='counter-character-track ${() => character.roll && `counter-character-track--roll-${character.roll}`}'
+                                    style='${() => `--index: ${character.index}; --value: ${character.value}`}'
+                                >
+                                    <span class='counter-digit'>9</span>
+                                    ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span class='counter-digit'>${value}</span>`)}
+                                    <span class='counter-digit'>0</span>
+                                </div>
                             </div>
-                        </div>
-                    `;
-                })}
-            <span class='counter-sr'>${prefix}${() => format.format(api.value)}${suffix && ` ${suffix}`}</span>
-        </div>
-    `;
-};
+                        `;
+                    })}
+                <span class='counter-sr'>${prefix}${() => format.format(api.value)}${suffix && ` ${suffix}`}</span>
+            </div>
+        `;
+    }
+);
