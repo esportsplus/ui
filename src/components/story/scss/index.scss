@@ -16,33 +16,20 @@
     user-select: none;
     width: min(var(--max-width), 100%);
 
-    &--paused {
-        --play-state: paused;
-    }
 
     &-bar {
-        background: var(--bar-color);
-        border-radius: 999px;
+        background: var(--background);
+        border-radius: var(--border-radius);
         flex: 1;
-        height: var(--bar-height);
+        height: var(--height);
         overflow: hidden;
-
-        &--done {
-            --scale: 1;
-        }
-
-        // The fill is the timer: its 'animationend' advances the story, so the bar and the content can't drift.
-        @include tokens.state(active) {
-            --fill-animation: story-fill var(--duration) linear forwards var(--play-state, running);
-        }
     }
 
-    // Overlays the story content, which runs the full height of the card beneath it.
     &-bars {
         display: flex;
-        gap: calc(var(--size-100) / 2);
+        gap: var(--gap-horizontal);
         left: 0;
-        padding: 12px 12px 0;
+        padding: var(--padding-top) var(--padding-horizontal) 0;
         pointer-events: none;
         position: absolute;
         right: 0;
@@ -51,12 +38,12 @@
     }
 
     &-fill {
-        animation: var(--fill-animation, none);
-        background: var(--fill-color);
-        border-radius: 999px;
+        animation: var(--animation);
+        background: var(--background);
+        border-radius: var(--border-radius);
         display: block;
         height: 100%;
-        transform: scaleX(var(--scale, 0));
+        transform: scaleX(var(--scale));
         transform-origin: left;
     }
 
@@ -80,12 +67,9 @@
     &-track {
         inset: 0;
         position: absolute;
-        transition: opacity 0.2s ease-out;
+        opacity: var(--opacity);
+        transition: opacity var(--transition-duration) var(--transition-timing-function);
         z-index: 1;
-
-        &--dimmed {
-            opacity: var(--dim-opacity);
-        }
     }
 
     &-zone {
@@ -109,8 +93,8 @@
     }
 
     &:focus-visible {
-        outline: 2px solid var(--focus-ring-color);
-        outline-offset: calc(var(--size-100) / 4);
+        outline: var(--focus-width) solid var(--focus-color);
+        outline-offset: var(--focus-offset);
     }
 }
 

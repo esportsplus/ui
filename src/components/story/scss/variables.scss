@@ -1,28 +1,76 @@
+@use '/tokens';
 @use 'css-utilities/background';
 @use 'css-utilities/box-shadow';
 @use 'css-utilities/surface';
 
 
-
-// A surface: a level above whatever it sits in.
+// A surface: a level above whatever it sits in. '--duration' is the story's own, set on it by the page or inline, and
+// each bar's fill times itself by it.
 .story {
     @extend %background-state, %box-shadow-state, %surface-raise;
     --background-default: var(--surface-background-default);
-    --bar-color: oklch(from var(--color-primary-500) l c h / 0.15);
-    --bar-height: 3px;
     --box-shadow-default: var(--surface-shadow-default);
     --color: var(--color-text-500);
-    --dim-opacity: 0.6;
     // Long enough to read a short caption, the same as Instagram's default.
     --duration: 4s;
-    --fill-color: var(--color-primary-500);
-    --focus-ring-color: var(--surface-border-pressed);
+    --focus-color: var(--surface-border-pressed);
+    --focus-offset: calc(var(--size-100) / 4);
+    --focus-width: 2px;
     --height: 480px;
     --max-width: 320px;
     --radius: 24px;
 
+
+    &--paused .story-fill {
+        --play-state: paused;
+    }
+
+
+    &-bar {
+        --background: oklch(from var(--color-primary-500) l c h / 0.15);
+        --border-radius: 999px;
+        --height: 3px;
+
+        &--done .story-fill {
+            --scale: 1;
+        }
+
+        // The fill is the timer: its 'animationend' advances the story, so the bar and the content can't drift.
+        @include tokens.state(active) {
+            .story-fill {
+                --animation: story-fill var(--duration) linear forwards var(--play-state);
+            }
+        }
+    }
+
+    // Overlays the story content, which runs the full height of the card beneath it.
+    &-bars {
+        --gap-horizontal: calc(var(--size-100) / 2);
+        --padding-horizontal: 12px;
+        --padding-top: 12px;
+    }
+
+    &-fill {
+        --animation: none;
+        --background: var(--color-primary-500);
+        --border-radius: 999px;
+        --play-state: running;
+        --scale: 0;
+    }
+
     // Neighbours dragged into view read at full strength, like the story they are about to become.
     &-slide.frame {
         --opacity: 1;
+    }
+
+    // Only a fade, so it plays under reduced motion too.
+    &-track {
+        --opacity: 1;
+        --transition-duration: 0.2s;
+        --transition-timing-function: ease-out;
+
+        &--dimmed {
+            --opacity: 0.6;
+        }
     }
 }
