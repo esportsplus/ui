@@ -14,32 +14,15 @@
     position: relative;
     z-index: 0;
 
-    @include tokens.state(active) {
-        // Cone from the pointer to the tooltip, computed by 'tooltip.onhover'; other
-        // tooltips never set the variables, so the pseudo-element stays empty.
-        // clip-path also clips hit-testing, so only the cone keeps it open. Lowest layer
-        // so it never intercepts clicks meant for the tooltip, including morph (-2).
-        &::before {
-            background: var(--safe-color);
-            clip-path: var(--safe-area);
-            content: '';
-            height: var(--safe-height);
-            left: var(--safe-left);
-            position: absolute;
-            top: var(--safe-top);
-            width: var(--safe-width);
-            z-index: -3;
-        }
-
-        // Rotate arrow only if parent tooltip is active
-        :not(.tooltip) .tooltip-arrow,
-        > .tooltip-arrow {
-            scale: -1 1;
-        }
-    }
-
-    @include tokens.state(active hover) {
-        z-index: 9;
+    // Morph tooltips (-2) sit behind the trigger. A child can't paint under its parent's own
+    // background, so repaint that background above them; the label still paints on top.
+    // Shares '.button::after' (its shadow layer) when the trigger is a button.
+    &:has(> .tooltip-content--morph, > .tooltip-message--morph, > :not(.tooltip) > .tooltip-content--morph, > :not(.tooltip) > .tooltip-message--morph)::after {
+        @extend %layer;
+        background: inherit;
+        content: '';
+        display: block;
+        z-index: -1;
     }
 
     &--context,
@@ -81,27 +64,15 @@
         $active: '#{tokens.state(active, ".tooltip")} > &, #{tokens.state(active, ".tooltip")} :not(.tooltip) > &';
         $not-active: '#{tokens.state(inactive, ".tooltip")} > &, #{tokens.state(inactive, ".tooltip")} :not(.tooltip) > &';
 
-        #{$active} {
-            --transition-duration: 240ms;
-            opacity: 1;
-            scale: 1;
-        }
-
-        #{$not-active} {
-            &, * {
-                pointer-events: none;
-            }
-        }
-
-        &--context {
-            position: absolute;
-        }
-
 
         // A warm handoff between delayed tooltips ('delay') swaps straight in. Single-class specificity and
         // ahead of the '--morph' variant, so it keeps its own motion.
         &:where(.tooltip.tooltip--instant > *, .tooltip.tooltip--instant :not(.tooltip) > *) {
             transition: none;
+        }
+
+        &--context {
+            position: absolute;
         }
 
         @include center($active);
@@ -131,9 +102,8 @@
             opacity: 1;
             // Lets the background layer reach back to the trigger; clip-path does the clipping.
             overflow: visible;
-            // Closing: content blurs quickly as the shape starts to shrink.
             transition:
-                filter var(--morph-close-duration) cubic-bezier(0.16, 1, 0.3, 1),
+                filter var(--morph-close-duration) var(--morph-close-timing-function),
                 visibility 0s linear var(--morph-close-duration);
             visibility: hidden;
             // Below the trigger's repainted background, see '.tooltip:has(...)::after'.
@@ -163,9 +133,20 @@
                 // behind the trigger, so there's nothing to fade in. Content starts focusing as it
                 // emerges and is sharp as the menu settles.
                 transition:
-                    clip-path var(--morph-open-duration) var(--morph-timing-function),
+                    clip-path var(--morph-open-duration) var(--morph-open-timing-function),
                     filter var(--morph-open-duration) var(--morph-focus-timing-function);
                 visibility: visible;
+            }
+        }
+
+        #{$active} {
+            opacity: 1;
+            scale: 1;
+        }
+
+        #{$not-active} {
+            &, * {
+                pointer-events: none;
             }
         }
     }
@@ -181,15 +162,32 @@
         white-space: nowrap;
     }
 
-    // Morph tooltips (-2) sit behind the trigger. A child can't paint under its parent's own
-    // background, so repaint that background above them; the label still paints on top.
-    // Shares '.button::after' (its shadow layer) when the trigger is a button.
-    &:has(> .tooltip-content--morph, > .tooltip-message--morph, > :not(.tooltip) > .tooltip-content--morph, > :not(.tooltip) > .tooltip-message--morph)::after {
-        @extend %layer;
-        background: inherit;
-        content: '';
-        display: block;
-        z-index: -1;
+    @include tokens.state(active) {
+        // Cone from the pointer to the tooltip, computed by 'tooltip.onhover'; other
+        // tooltips never set the variables, so the pseudo-element stays empty.
+        // clip-path also clips hit-testing, so only the cone keeps it open. Lowest layer
+        // so it never intercepts clicks meant for the tooltip, including morph (-2).
+        &::before {
+            background: var(--safe-color);
+            clip-path: var(--safe-area);
+            content: '';
+            height: var(--safe-height);
+            left: var(--safe-left);
+            position: absolute;
+            top: var(--safe-top);
+            width: var(--safe-width);
+            z-index: -3;
+        }
+
+        // Rotate arrow only if parent tooltip is active
+        :not(.tooltip) .tooltip-arrow,
+        > .tooltip-arrow {
+            scale: -1 1;
+        }
+    }
+
+    @include tokens.state(active hover) {
+        z-index: 9;
     }
 }
 

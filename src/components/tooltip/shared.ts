@@ -114,8 +114,6 @@ function place(anchor: DOMRect, direction: Direction, gap: number, height: numbe
     };
 }
 
-// The unit vector a layer moves along; 'frame--swap' scales it by '--swap-shift'.
-
 // One tooltip shared by every trigger bound to it: it opens on the first after the open delay, then glides between
 // them while its content slides over. 'bind()' makes one element a trigger, 'delegate()' every matching descendant of
 // a container. 'render()' places the surface; it lives in the top layer, so no ancestor clips it, but still inherits
@@ -148,7 +146,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             ${{
                 class: [
                     () => layer.state.active && '--active',
-                    () => layer.state.leaving && 'frame--leaving'
+                    () => layer.state.leaving && 'frame--swap-leaving'
                 ],
                 style: () => layer.state.travel && `--travel-x: ${layer.state.travel.x}; --travel-y: ${layer.state.travel.y};`
             }}
@@ -356,6 +354,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         };
     }
 
+    // Written straight to the trigger: a delegated one is found among markup this module doesn't render.
     function describe(trigger: HTMLElement, on: boolean) {
         if (interactive) {
             trigger.setAttribute('aria-expanded', on ? 'true' : 'false');
@@ -426,7 +425,8 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
     function listen(on: boolean) {
         if (on) {
-            // Captured, so scrolling any container the trigger sits in moves the tooltip along with it.
+            // Captured, so scrolling any container the trigger sits in moves the tooltip along with it; template's window
+            // events don't capture, and only listen while it shows.
             window.addEventListener('scroll', reposition, { capture: true, passive: true });
         }
         else {
@@ -434,7 +434,9 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         }
     }
 
-    // Sizes the box to the content and places it against the anchor.
+    // Sizes the box to the content and places it against the anchor. Written straight to the surface in the pass that
+    // measures it: the popup's lifecycle adds '--active' to it by hand, which a bound class list would drop, and the
+    // place has to land before the entrance starts.
     function measure() {
         if (!active?.element || !box || !current || !element) {
             return;

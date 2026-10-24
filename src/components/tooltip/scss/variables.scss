@@ -7,6 +7,96 @@
     // Set a translucent color to review the safe area shape.
     --safe-color: transparent;
 
+    &--menu {
+        --border-radius: var(--border-radius-600);
+        --close-duration: 0.128s;
+        --close-timing-function: cubic-bezier(0.2, 0, 0, 1);
+        --color: var(--color-text-500);
+        --font-size: var(--font-size-300);
+        --offset: var(--size-200);
+        --open-duration: 0.16s;
+        --open-timing-function: cubic-bezier(0.2, 0, 0, 1);
+        --scrim: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha * 0.9));
+        --width: 17rem;
+
+        &.tooltip--instant {
+            --close-duration: 0s;
+            --open-duration: 0s;
+
+            // Qualified once more than the expanding root's own values, so it wins open or closed.
+            > .tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
+                --expand-content-delay: 0s;
+                --expand-content-duration: 0s;
+                --expand-duration: 0s;
+                --expand-fade-delay: 0s;
+                --expand-fade-duration: 0s;
+                --expand-stagger: 0s;
+            }
+        }
+
+        // Qualified twice so it outranks the tooltip content it composes, and classes paired onto that content.
+        > .tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
+            // Keep the panel's own surface when composing the generic tooltip content.
+            --background-default: var(--surface-background-default);
+            --border-radius: inherit;
+            --box-shadow-default: var(--surface-shadow-default);
+            // Keeps the resting clip outside the menu's shadow.
+            --expand-bleed: 24px;
+            --expand-content-delay: 0.06s;
+            --expand-content-duration: 0.15s;
+            --expand-content-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+            --expand-duration: 0.4s;
+            // Closing waits half the shape's travel: it crossfades back into the trigger once it has nearly landed.
+            // Items leave together at once.
+            --expand-fade-delay: calc(var(--expand-duration) / 2);
+            --expand-fade-duration: 0.15s;
+            --expand-fade-timing-function: linear;
+            --expand-offset: var(--size-100);
+            --expand-shift: 0;
+            --expand-stagger: 0.02s;
+            --expand-timing-function: linear(0, 0.072, 0.22, 0.382, 0.529, 0.651, 0.747, 0.82, 0.874, 0.913, 0.94, 0.96, 0.973, 0.982, 0.988, 0.992, 0.995, 0.997, 0.998, 0.999, 1);
+            --offset: 0px;
+            --scale: 1;
+            // Cancels the '100%' every direction pushes the tooltip past the trigger by, so it lines up with the
+            // trigger's own edges instead.
+            --spacer: -100%;
+            --width: inherit;
+
+            // The shape snaps open and closed and the items arrive in place, so only the fades remain.
+            @media (prefers-reduced-motion: reduce) {
+                --expand-content-delay: 0s;
+                --expand-duration: 0s;
+                --expand-fade-delay: 0s;
+                --expand-offset: 0px;
+                --expand-stagger: 0s;
+            }
+
+            @each $directions, $shift in (
+                ('e', 'en', 'es', 'nw', 'sw'): calc(var(--expand-offset) * -1) 0,
+                ('n'): 0 var(--expand-offset),
+                ('s'): 0 calc(var(--expand-offset) * -1),
+                ('ne', 'se', 'w', 'wn', 'ws'): var(--expand-offset) 0
+            ) {
+                @each $direction in $directions {
+                    &.tooltip-content--#{$direction} {
+                        --expand-shift: #{$shift};
+                    }
+                }
+            }
+
+            // Cascade order.
+            @for $i from 1 through 12 {
+                > :nth-child(#{$i}) {
+                    --index: #{$i - 1};
+                }
+            }
+
+            @include tokens.state(active) {
+                --expand-fade-delay: 0s;
+            }
+        }
+    }
+
     &-arrow {
         --rotate: 0deg;
     }
@@ -22,7 +112,6 @@
         --offset: calc(var(--spacer) * 2);
         --scale: 1;
         --spacer: var(--size-300);
-        // Closing; the open state swaps in the entrance duration.
         --transition-duration: 0.24s;
         --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
         --width: auto;
@@ -30,11 +119,13 @@
         &--morph {
             --morph-blur: var(--blur-400);
             --morph-close-duration: 0.16s;
+            // The content blurs quickly as the shape starts to shrink.
+            --morph-close-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
             // Starts clearing as soon as content emerges from behind the trigger, settling with the shape.
             --morph-focus-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
             --morph-land: 2px;
             --morph-open-duration: 0.12s;
-            --morph-timing-function: cubic-bezier(0.2, 0, 0, 1);
+            --morph-open-timing-function: cubic-bezier(0.2, 0, 0, 1);
             // Motion comes from the morph, not the slide/scale.
             --offset: 0px;
             --scale: 1;
@@ -56,53 +147,30 @@
         }
     }
 
-    &-content[role='menu'] {
-        --option-focus-background: color-mix(in srgb, currentColor 12%, transparent);
+    &-menu-chevron {
+        --border-width: 1.5px;
+        --opacity: 0.6;
+        --size: 6px;
     }
 
-    &-message {
-        --background-default: var(--color-primary-400);
-        --color: var(--surface-background-default);
-        --font-size: var(--font-size-300);
-        --font-weight: var(--font-weight-400);
-        --padding-horizontal: var(--size-300);
-        --padding-vertical: var(--size-300);
-    }
-}
-
-
-.tooltip {
-    &--menu {
-        --border-radius: var(--border-radius-600);
-        --close-duration: 0.128s;
-        --color: var(--color-text-500);
-        --color-danger: var(--color-red-400);
-        --color-disabled: var(--color-text-300);
-        --color-hint: var(--color-text-300);
-        --font-size: var(--font-size-300);
-        --item-border-radius: var(--border-radius-400);
-        --item-height: 36px;
-        --item-padding-horizontal: var(--size-200);
-        --offset: var(--size-200);
-        --open-duration: 0.16s;
-        --open-timing-function: cubic-bezier(0.2, 0, 0, 1);
-        --scrim: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha * 0.9));
-        --width: 17rem;
-
-        &.tooltip--instant {
-            --close-duration: 0s;
-            --open-duration: 0s;
-        }
-
-        @media (pointer: coarse) {
-            --item-height: 44px;
-        }
+    // The open clip overhangs the box so the shadow isn't cut off.
+    &-menu-entry > .tooltip-menu-panel {
+        --bleed: 48px;
     }
 
+    // Doubled so it outranks a class paired onto the item, such as '.link'.
     &-menu-header,
-    &-menu-item {
+    &-menu-item.tooltip-menu-item {
+        --border-radius: var(--item-border-radius);
         --gap-horizontal: var(--size-200);
         --gap-vertical: var(--size-200);
+        --height: var(--item-height);
+        --padding-horizontal: var(--size-200);
+    }
+
+    &-menu-hint {
+        --color: var(--color-text-300);
+        --font-size: var(--font-size-300);
     }
 
     // Items take the hover and pressed steps of the panel they sit in.
@@ -110,21 +178,32 @@
         @extend %background-state;
         --background-hover: var(--item-background-hover);
         --background-pressed: var(--item-background-pressed);
+        --color-danger: var(--color-red-400);
+        --color-disabled: var(--color-text-300);
+        --transition-duration: 130ms;
+        --transition-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
     }
 
-    // A surface of its own, so a branch panel sits a level above the panel it opened from. The title opacities are read
-    // by a branch panel's header title, which crossfades to bold while that panel is open; every panel sets its own, so a
-    // parent panel's state never reaches its children's titles.
+    // A surface of its own, so a branch panel sits a level above the panel it opened from. The item sizes are read by
+    // the items and by what lines up with them: a sub-panel's closed clip over the row that opened it, and the
+    // highlight's rounding. The title opacities are read by a branch panel's header title, which crossfades to bold
+    // while that panel is open; every panel sets its own, so a parent panel's state never reaches its children's titles.
     &-menu-panel {
         @extend %background-state, %box-shadow-state, %surface-raise;
         --background-default: var(--surface-background-default);
         --box-shadow-default: var(--surface-shadow-default);
         --item-background-hover: var(--surface-primary-default);
         --item-background-pressed: var(--surface-primary-pressed);
+        --item-border-radius: var(--border-radius-400);
+        --item-height: 36px;
         --padding-horizontal: calc(var(--size-100) / 2);
         --padding-vertical: calc(var(--size-100) / 2);
         --title-bold-opacity: 0;
         --title-regular-opacity: 1;
+
+        @media (pointer: coarse) {
+            --item-height: 44px;
+        }
 
         @include tokens.state(active) {
             --title-bold-opacity: 1;
@@ -135,8 +214,6 @@
     &-menu-panel > .highlight {
         --background-default: var(--item-background-hover);
         --background-pressed: var(--item-background-pressed);
-        // Rows are measured whole, so the layer takes the items' rounding rather than the row's.
-        border-radius: var(--item-border-radius);
     }
 
     // With 'highlight', its layer takes the items' hover and pressed fills, so the items keep none of their own.
@@ -145,6 +222,14 @@
         --background-pressed: var(--background-default);
     }
 
+    &-message {
+        --background-default: var(--color-primary-400);
+        --color: var(--surface-background-default);
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-400);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-300);
+    }
 
     // '--radius' rather than the usual name: the root resets '--border-radius' on every element, so the box and layers
     // inside would never see it.
@@ -154,6 +239,7 @@
         --blur: var(--blur-500);
         --box-shadow-default: var(--surface-shadow-default);
         --close-duration: 0.128s;
+        --close-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
         --color: var(--surface-background-default);
         --font-size: var(--font-size-300);
         --font-weight: var(--font-weight-400);
@@ -161,12 +247,20 @@
         --glide-timing-function: cubic-bezier(0.22, 1.12, 0.36, 1);
         --max-width: calc(90vw - (var(--size-700) * 2));
         --open-duration: 0.16s;
+        --open-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
         --radius: var(--border-radius-400);
         --rise: 4px;
         --scale: 0.94;
         --spacer: var(--size-300);
-        --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
         --white-space: nowrap;
+
+        // Only the fades remain.
+        @media (prefers-reduced-motion: reduce) {
+            --blur: 0px;
+            --glide-duration: 0s;
+            --rise: 0px;
+            --scale: 1;
+        }
 
         // Read by the box: where it rises from, toward the trigger.
         &--e {
@@ -198,25 +292,12 @@
 
 
 // The panel fill, set on a menu's root or any ancestor, such as a 'button.split'. ':is' lifts every panel to the
-// specificity of '_menu's expanding root panel, which this follows, so the expanding panel takes the fill too.
+// specificity of the expanding root panel, which this follows, so the expanding panel takes the fill too.
 $menu-panel: ':is(.tooltip-menu-panel, .tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand)';
 
 .tooltip-menu--surface #{$menu-panel} {
     --background-default: var(--surface-background-default);
     --color: var(--color-text-500);
-    --color-disabled: var(--color-text-300);
-    --color-hint: var(--color-text-300);
     --item-background-hover: var(--surface-primary-default);
     --item-background-pressed: var(--surface-primary-pressed);
-}
-
-
-// Only the fades remain. After the defaults, so it wins at the same specificity.
-@media (prefers-reduced-motion: reduce) {
-    .tooltip-shared {
-        --blur: 0px;
-        --glide-duration: 0s;
-        --rise: 0px;
-        --scale: 1;
-    }
 }

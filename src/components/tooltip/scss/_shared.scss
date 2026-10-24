@@ -1,109 +1,112 @@
 @use '/tokens';
 @use 'css-utilities/reset';
 
-// A popover, so it sits in the top layer; the UA popover styles are undone here. The padding on the anchor side is
-// the gap to the trigger, which also carries the pointer across to interactive content. 'tooltip.shared' sets the
-// '--shared-*' size and position.
-.tooltip-shared {
-    @extend %reset-popover;
-    box-sizing: content-box;
-    color: var(--color);
-    font-size: var(--font-size);
-    font-weight: var(--font-weight);
-    height: var(--shared-height);
-    left: 0;
-    top: 0;
-    translate: var(--shared-x) var(--shared-y);
-    width: var(--shared-width);
+.tooltip {
+    // A popover, so it sits in the top layer; the UA popover styles are undone here. The padding on the anchor side is
+    // the gap to the trigger, which also carries the pointer across to interactive content. 'tooltip.shared' sets the
+    // '--shared-*' size and position.
+    &-shared {
+        @extend %reset-popover;
+        box-sizing: content-box;
+        color: var(--color);
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
+        height: var(--shared-height);
+        left: 0;
+        top: 0;
+        translate: var(--shared-x) var(--shared-y);
+        width: var(--shared-width);
 
-    &:not(.tooltip-shared--gliding) .tooltip-shared-layer {
-        transition: none;
-    }
-
-    // 'none' rather than 'blur(0)', which still keeps an open box in its own filter layer; it interpolates the same.
-    #{tokens.state(active)} > .tooltip-shared-box {
-        filter: none;
-        opacity: 1;
-        scale: 1;
-        transition:
-            filter var(--open-duration) var(--timing-function),
-            opacity var(--open-duration) var(--timing-function),
-            scale var(--open-duration) var(--timing-function),
-            translate var(--open-duration) var(--timing-function);
-        translate: 0;
-    }
-
-    &--e {
-        padding-left: var(--spacer);
-    }
-
-    // Only while moving between triggers; a fresh open appears in place.
-    &--gliding {
-        transition:
-            height var(--glide-duration) var(--glide-timing-function),
-            translate var(--glide-duration) var(--glide-timing-function),
-            width var(--glide-duration) var(--glide-timing-function);
-    }
-
-    &--interactive {
-        @include tokens.state(active) {
-            pointer-events: auto;
+        &:not(#{&}--gliding) #{&}-layer {
+            transition: none;
         }
-    }
 
-    &--n {
-        padding-bottom: var(--spacer);
-    }
-
-    &--s {
-        padding-top: var(--spacer);
-    }
-
-    &--w {
-        padding-right: var(--spacer);
-    }
-
-    &-box {
-        background: var(--background);
-        border-radius: var(--radius);
-        box-shadow: var(--box-shadow);
-        display: block;
-        filter: blur(var(--blur));
-        height: 100%;
-        opacity: 0;
-        overflow: hidden;
-        position: relative;
-        scale: var(--scale);
-        transition:
-            filter var(--close-duration) var(--timing-function),
-            opacity var(--close-duration) var(--timing-function),
-            scale var(--close-duration) var(--timing-function),
-            translate var(--close-duration) var(--timing-function);
-        translate: var(--box-translate);
-    }
-
-
-    // A 'frame--swap', centered in the box so the box can resize around it; centering takes 'transform', leaving
-    // 'translate' to the frame. 'tooltip.shared' sets '--travel-x' and '--travel-y' to the unit vector of the trip
-    // between triggers, so incoming content drifts in along it and outgoing content carries on out the far side.
-    &-layer {
-        left: 50%;
-        max-width: var(--max-width);
-        padding: var(--padding-vertical) var(--padding-horizontal);
-        position: absolute;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        white-space: var(--white-space);
-        width: max-content;
-
-        // Root styles give 'strong' its own page text color, unreadable on the bubble.
-        strong {
-            --color: inherit;
+        &--e {
+            padding-left: var(--spacer);
         }
-    }
 
-    // A warm handoff from another delayed tooltip swaps straight in.
-    &.tooltip-shared--instant > .tooltip-shared-box {
-        transition: none;
+        // Only while moving between triggers; a fresh open appears in place.
+        &--gliding {
+            transition:
+                height var(--glide-duration) var(--glide-timing-function),
+                translate var(--glide-duration) var(--glide-timing-function),
+                width var(--glide-duration) var(--glide-timing-function);
+        }
+
+        &--interactive {
+            @include tokens.state(active) {
+                pointer-events: auto;
+            }
+        }
+
+        &--n {
+            padding-bottom: var(--spacer);
+        }
+
+        &--s {
+            padding-top: var(--spacer);
+        }
+
+        &--w {
+            padding-right: var(--spacer);
+        }
+
+        &-box {
+            background: var(--background);
+            border-radius: var(--radius);
+            box-shadow: var(--box-shadow);
+            display: block;
+            filter: blur(var(--blur));
+            height: 100%;
+            opacity: 0;
+            overflow: hidden;
+            position: relative;
+            scale: var(--scale);
+            transition:
+                filter var(--close-duration) var(--close-timing-function),
+                opacity var(--close-duration) var(--close-timing-function),
+                scale var(--close-duration) var(--close-timing-function),
+                translate var(--close-duration) var(--close-timing-function);
+            translate: var(--box-translate);
+
+            // 'none' rather than 'blur(0)', which still keeps an open box in its own filter layer; it interpolates the
+            // same.
+            #{tokens.state(active, '.tooltip-shared')} > & {
+                filter: none;
+                opacity: 1;
+                scale: 1;
+                transition:
+                    filter var(--open-duration) var(--open-timing-function),
+                    opacity var(--open-duration) var(--open-timing-function),
+                    scale var(--open-duration) var(--open-timing-function),
+                    translate var(--open-duration) var(--open-timing-function);
+                translate: 0;
+            }
+
+            // A warm handoff from another delayed tooltip swaps straight in. Doubled and after the open state, so it
+            // wins there too.
+            .tooltip-shared.tooltip-shared--instant > & {
+                transition: none;
+            }
+        }
+
+        // A 'frame--swap', centered in the box so the box can resize around it; centering takes 'transform', leaving
+        // 'translate' to the frame. 'tooltip.shared' sets '--travel-x' and '--travel-y' to the unit vector of the trip
+        // between triggers, so incoming content drifts in along it and outgoing content carries on out the far side.
+        &-layer {
+            left: 50%;
+            max-width: var(--max-width);
+            padding: var(--padding-vertical) var(--padding-horizontal);
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            white-space: var(--white-space);
+            width: max-content;
+
+            // Root styles give 'strong' its own page text color, unreadable on the bubble.
+            strong {
+                --color: inherit;
+            }
+        }
     }
 }

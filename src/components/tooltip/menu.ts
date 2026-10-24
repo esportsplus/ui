@@ -127,7 +127,8 @@ function createMenu(context = false) {
                 leaving: ReturnType<typeof setTimeout> | undefined,
                 name = `--tooltip-menu-${++anchors}`,
                 pending: VoidFunction | undefined,
-                placement = reactive({ style: '' }),
+                // The root panel's place, and how far the stack shifts sideways to stay on screen.
+                placement = reactive({ shift: 0, style: '' }),
                 trigger: HTMLElement | undefined;
 
             root.children = tree(items, root);
@@ -361,7 +362,7 @@ function createMenu(context = false) {
                                 () => node.state.settled && 'tooltip-menu-panel--settled'
                             ],
                             inert: () => node === root ? !state.active : !node.state.open,
-                            style: node === root && [attributes[MENU_PANEL]?.style, () => placement.style].flat(),
+                            style: node === root && [attributes[MENU_PANEL]?.style, () => `${placement.style} --shift-x: ${placement.shift}px;`].flat(),
                             // A dimmed parent panel's scrim takes the click; return to that level
                             onclick: (event: MouseEvent) => {
                                 if (event.target === node.panel && node !== stack[stack.length - 1]) {
@@ -428,7 +429,9 @@ function createMenu(context = false) {
 
                 raise();
                 reset();
-                root.panel.style.setProperty('--shift-x', '0px');
+                // Measured unshifted, so the bound shift is flushed back to none first.
+                placement.shift = 0;
+                flush();
 
                 let bounds = host.getBoundingClientRect(),
                     scale = bounds.width / host.offsetWidth || 1,
@@ -506,7 +509,10 @@ function createMenu(context = false) {
                     return;
                 }
 
-                let current = parseFloat(element.style.getPropertyValue('--shift-x')) || 0,
+                // The rect is read against the shift the panel is drawn with.
+                flush();
+
+                let current = placement.shift,
                     rect = element.getBoundingClientRect(),
                     left = rect.left - current,
                     right = rect.right - current,
@@ -521,7 +527,7 @@ function createMenu(context = false) {
                     x = VIEWPORT_MARGIN - left;
                 }
 
-                element.style.setProperty('--shift-x', `${x}px`);
+                placement.shift = x;
             }
 
             return html`
@@ -618,7 +624,14 @@ function createMenu(context = false) {
                         }
                     }}
                 >
-                    ${context ? html`<div class='tooltip-menu-trigger' ${{ onconnect: (element: HTMLElement) => { host = element.parentElement ?? undefined; host?.style.setProperty('anchor-name', name); trigger = host; } }}>${content}</div>` : html`<button
+                    ${context ? html`<div class='tooltip-menu-trigger' ${{
+                        // The host is whatever the context menu is rendered in, so it is named as an anchor directly.
+                        onconnect: (element: HTMLElement) => {
+                            host = element.parentElement ?? undefined;
+                            host?.style.setProperty('anchor-name', name);
+                            trigger = host;
+                        }
+                    }}>${content}</div>` : html`<button
                         aria-haspopup='menu'
                         class='tooltip-menu-trigger'
                         type='button'
@@ -633,6 +646,7 @@ function createMenu(context = false) {
                                     open();
                                 }
                             },
+                            // The menu anchors to whatever holds the trigger, so it is named as an anchor directly.
                             onconnect: (element: HTMLElement) => {
                                 trigger = element;
                                 host = element.parentElement ?? undefined;
