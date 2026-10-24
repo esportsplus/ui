@@ -25,14 +25,10 @@
         display: grid;
         grid-template: 100% / 100%;
 
-        &--large {
-            height: 32px;
-            width: 48px;
-        }
-
+        &--large,
         &--small {
-            height: 24px;
-            width: 36px;
+            height: var(--height);
+            width: var(--width);
         }
 
         &-mark {
@@ -49,7 +45,7 @@
 
     &-caption {
         font-size: var(--font-size-300);
-        opacity: 0.6;
+        opacity: var(--opacity);
         text-transform: uppercase;
     }
 
@@ -57,11 +53,24 @@
         height: 100%;
         position: relative;
         transform-style: preserve-3d;
-        transition: transform var(--flip-duration) var(--flip-timing-function);
+        transition: transform var(--transition-duration) var(--transition-timing-function);
         width: 100%;
 
         &--flipped {
             transform: rotateY(180deg);
+
+            // No half turn: the faces cross-fade in place.
+            @media (prefers-reduced-motion: reduce) {
+                transform: none;
+
+                .cc-face--back {
+                    opacity: 1;
+                }
+
+                .cc-face--front {
+                    opacity: 0;
+                }
+            }
         }
     }
 
@@ -69,18 +78,14 @@
         position: relative;
 
         &-brand {
-            color: var(--muted-color);
+            color: var(--color);
             display: flex;
             pointer-events: none;
             position: absolute;
-            right: 12px;
+            right: var(--inset-horizontal);
             top: 50%;
             transition: color var(--transition-duration) var(--transition-timing-function);
             translate: 0 -50%;
-
-            &--known {
-                color: var(--color);
-            }
         }
     }
 
@@ -88,43 +93,68 @@
         display: inline-block;
 
         &--gap {
-            margin-inline-start: 0.6em;
+            margin-inline-start: var(--gap-horizontal);
         }
 
         &--placeholder {
-            opacity: 0.45;
+            opacity: var(--opacity);
         }
 
-        &--roll-1 {
-            animation: cc-digit-1 var(--digit-duration) ease-out;
+        // Alternating between two identical keyframes replays the arrival for each new digit; reduced motion drops
+        // the blur and slide to a plain fade.
+        @each $roll in 1 2 {
+            &--roll-#{$roll} {
+                animation: cc-digit--roll-#{$roll} var(--animation-duration) var(--animation-timing-function);
+
+                @media (prefers-reduced-motion: reduce) {
+                    animation-name: cc-digit-fade;
+                }
+
+                @keyframes cc-digit--roll-#{$roll} {
+                    from {
+                        filter: blur(var(--blur-300));
+                        opacity: 0;
+                        translate: 0 -4px;
+                    }
+                }
+            }
         }
 
-        &--roll-2 {
-            animation: cc-digit-2 var(--digit-duration) ease-out;
+        @keyframes cc-digit-fade {
+            from {
+                opacity: 0;
+            }
         }
     }
 
     &-disclaimer {
         font-size: var(--font-size-300);
         margin: auto 0 0;
-        opacity: 0.6;
-        padding: 0 24px var(--size-500);
+        opacity: var(--opacity);
+        padding: 0 var(--padding-horizontal) var(--padding-bottom);
     }
 
     // Shares the label's row, so showing it never shifts the fields below.
     &-error {
         @extend %text-truncate;
-        color: var(--error-color);
+        color: var(--color);
         font-size: var(--font-size-300);
         transition:
-            filter 200ms cubic-bezier(0.23, 1, 0.32, 1),
-            opacity 200ms cubic-bezier(0.23, 1, 0.32, 1),
-            translate 200ms cubic-bezier(0.23, 1, 0.32, 1);
+            filter var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function),
+            translate var(--transition-duration) var(--transition-timing-function);
 
         @starting-style {
             filter: blur(var(--blur-400));
             opacity: 0;
-            translate: 0 2px;
+            translate: 0 var(--offset);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            @starting-style {
+                filter: none;
+                translate: 0 0;
+            }
         }
     }
 
@@ -145,28 +175,34 @@
     &-face {
         @extend %absolute-full;
         backface-visibility: hidden;
-        background: var(--card-background);
-        border-radius: var(--card-border-radius);
+        background: var(--background);
+        border-radius: var(--border-radius);
         box-shadow: var(--surface-shadow-default);
-        color: var(--card-color);
+        color: var(--color);
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        transition: opacity 200ms ease-out;
+        transition: opacity var(--transition-duration) var(--transition-timing-function);
 
         &--back {
             transform: rotateY(180deg);
+
+            @media (prefers-reduced-motion: reduce) {
+                opacity: 0;
+                transform: none;
+            }
         }
 
         &--front {
             justify-content: space-between;
-            padding: 24px;
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
         }
 
         &-bottom {
             align-items: flex-end;
             display: flex;
-            gap: 24px;
+            gap: var(--gap-horizontal);
             justify-content: space-between;
         }
 
@@ -187,25 +223,24 @@
         }
 
         &--number.input {
-            padding-inline-end: 64px;
+            padding-inline-end: var(--padding-end);
         }
 
         &.input {
-            font-size: var(--field-font-size);
             font-variant-numeric: tabular-nums;
-            height: var(--field-height);
+            height: var(--height);
             min-height: 0;
             outline: none;
             padding-block: 0;
-            transition: border-color 150ms ease-out;
+            transition: border-color var(--transition-duration) var(--transition-timing-function);
 
             &::placeholder {
-                color: oklch(from var(--muted-color) l c h / 0.7);
+                color: var(--placeholder-color);
             }
 
             &:focus-visible {
-                outline: var(--border-width-500) solid var(--outline-color);
-                outline-offset: -1px;
+                outline: var(--focus-width) solid var(--focus-color);
+                outline-offset: var(--focus-offset);
             }
         }
     }
@@ -232,8 +267,8 @@
     }
 
     &-label {
-        font-size: var(--label-font-size);
-        font-weight: var(--label-font-weight);
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
         user-select: none;
     }
 
@@ -243,7 +278,7 @@
 
     &-note {
         align-items: center;
-        color: var(--muted-color);
+        color: var(--color);
         display: flex;
         font-size: var(--font-size-300);
         gap: calc(var(--size-300) / 2);
@@ -255,13 +290,13 @@
         @extend %font-geist-mono;
         align-self: flex-start;
         font-family: var(--font-family);
-        font-size: var(--card-number-font-size);
+        font-size: var(--font-size);
         white-space: nowrap;
     }
 
     &-preview {
         aspect-ratio: 1.586;
-        perspective: 1200px;
+        perspective: var(--perspective);
         position: relative;
         user-select: none;
         width: 100%;
@@ -269,34 +304,28 @@
 
     // Driven by transitions on its box, so moving between fields slides while appearing from nowhere does not.
     &-ring {
-        border: 1px solid oklch(from var(--card-color) l c h / 0.35);
-        border-radius: var(--border-radius-400);
+        border: var(--border-width) solid var(--border-color);
+        border-radius: var(--border-radius);
         left: 0;
         opacity: 0;
         pointer-events: none;
         position: absolute;
         top: 0;
         transition:
-            height var(--ring-duration) var(--spring),
-            left var(--ring-duration) var(--spring),
-            opacity 120ms ease-out,
-            top var(--ring-duration) var(--spring),
-            width var(--ring-duration) var(--spring);
+            height var(--transition-duration) var(--transition-timing-function),
+            left var(--transition-duration) var(--transition-timing-function),
+            opacity var(--fade-duration) var(--fade-timing-function),
+            top var(--transition-duration) var(--transition-timing-function),
+            width var(--transition-duration) var(--transition-timing-function);
 
         @include tokens.state(active) {
             opacity: 1;
-            transition:
-                height var(--ring-duration) var(--spring),
-                left var(--ring-duration) var(--spring),
-                opacity 200ms ease-out,
-                top var(--ring-duration) var(--spring),
-                width var(--ring-duration) var(--spring);
         }
     }
 
     &-row {
         display: grid;
-        gap: 12px;
+        gap: var(--gap-vertical) var(--gap-horizontal);
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -317,95 +346,41 @@
     &-signature {
         align-items: center;
         display: flex;
-        gap: 12px;
-        padding: var(--size-500) 24px 0;
+        gap: var(--gap-horizontal);
+        padding: var(--padding-top) var(--padding-horizontal) 0;
 
         &-value {
             @extend %font-geist-mono;
             align-items: center;
-            background: var(--card-color);
+            background: var(--background);
             border-radius: var(--border-radius-300);
-            color: var(--card-background);
+            color: var(--color);
             display: flex;
             flex: 1;
             font-family: var(--font-family);
             font-size: var(--font-size-400);
             font-style: italic;
-            height: 40px;
+            height: var(--height);
             justify-content: flex-end;
-            padding-inline: 12px;
+            padding-inline: var(--padding-horizontal);
         }
     }
 
     &-stripe {
-        background: oklch(from var(--card-color) l c h / 0.15);
-        height: 44px;
-        margin-top: 24px;
+        background: var(--background);
+        height: var(--height);
+        margin-top: var(--margin-top);
     }
 
     // Chained through '.button' so it wins over the shared button styles regardless of stylesheet order.
-    &-submit {
+    &-submit.button {
         border: 0;
-        height: var(--field-height);
+        height: var(--height);
         outline: none;
 
         &:focus-visible {
-            outline: var(--border-width-500) solid var(--outline-color);
-            outline-offset: calc(var(--size-100) / 4);
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
         }
-    }
-}
-
-@keyframes cc-digit-1 {
-    from {
-        filter: blur(var(--blur-300));
-        opacity: 0;
-        translate: 0 -4px;
-    }
-}
-
-@keyframes cc-digit-2 {
-    from {
-        filter: blur(var(--blur-300));
-        opacity: 0;
-        translate: 0 -4px;
-    }
-}
-
-// No half turn: the faces cross-fade in place and every blur, slide and scale drops to a plain fade.
-@media (prefers-reduced-motion: reduce) {
-    .cc {
-        &-error {
-            @starting-style {
-                filter: none;
-                translate: 0 0;
-            }
-        }
-
-        &-face--back {
-            opacity: var(--face-back-opacity, 0);
-            transform: none;
-        }
-
-        &-face--front {
-            opacity: var(--face-front-opacity, 1);
-        }
-    }
-
-    .cc-card--flipped {
-        --face-back-opacity: 1;
-        --face-front-opacity: 0;
-        transform: none;
-    }
-
-    .cc-digit--roll-1,
-    .cc-digit--roll-2 {
-        animation-name: cc-fade;
-    }
-}
-
-@keyframes cc-fade {
-    from {
-        opacity: 0;
     }
 }

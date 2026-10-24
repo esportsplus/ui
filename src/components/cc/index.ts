@@ -289,6 +289,12 @@ export default component(
             slots = reactive([] as Slot[]),
             timer: ReturnType<typeof setTimeout> | undefined;
 
+        // Only appearing and clearing rebuild an error; a new message just swaps its text, so it doesn't replay the
+        // entrance.
+        let errors = Object.fromEntries(
+            FIELDS.map((field) => [field, computed(() => !!fields[field].error)])
+        ) as Record<Field, ReturnType<typeof computed<boolean>>>;
+
         function brand() {
             return read(detected);
         }
@@ -383,11 +389,9 @@ export default component(
                 <div class='cc-shell cc-shell--${field}'>
                     <div class='cc-shell-header'>
                         <label class='cc-label' for='${id}-${field}'>${label}</label>
-                        ${() => {
-                            let error = fields[field].error;
-
-                            return error && html`<span class='cc-error' id='${id}-${field}-error'>${error}</span>`;
-                        }}
+                        ${() => read(errors[field]) && html`
+                            <span class='cc-error' id='${id}-${field}-error'>${() => fields[field].error}</span>
+                        `}
                     </div>
                     ${content}
                 </div>

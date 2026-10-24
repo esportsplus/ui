@@ -1,41 +1,27 @@
+@use '/tokens';
 @use 'css-utilities/surface';
 
 .cc {
-    // A physical card keeps its dark face in both modes.
-    --card-background: var(--color-black-300);
-    --card-border-radius: var(--border-radius-700);
-    --card-color: var(--color-white-300);
-    --card-number-font-size: clamp(16px, 5.2vw, 21px);
     --color: var(--color-text-500);
-    --digit-duration: 150ms;
-    --error-color: var(--color-red-400);
-    --field-border-color: var(--surface-border-default);
-    --field-border-radius: var(--border-radius-600);
-    --field-font-size: var(--font-size-400);
-    --field-height: 44px;
-    // A half turn across the card's full width reads as a rush under ~400ms, and nobody waits on it.
-    --flip-duration: 764ms;
-    --flip-timing-function: linear(0, 0.031, 0.108, 0.205, 0.315, 0.421, 0.524, 0.614, 0.695, 0.762, 0.82, 0.865, 0.903, 0.931, 0.954, 0.97, 0.982, 0.991, 0.997, 1.001, 1.004, 1.005, 1.006, 1.006, 1.005, 1.005, 1.004, 1.004, 1.003, 1.002, 1);
-    --icon-swap-duration: var(--swap-duration);
-    --icon-swap-timing-function: var(--spring);
-    --label-font-size: var(--font-size-300);
-    --label-font-weight: var(--font-weight-500);
-    --muted-color: var(--color-text-300);
-    --outline-color: var(--color-primary-500);
-    --ring-duration: 300ms;
     --spring: linear(0, 0.035, 0.118, 0.216, 0.319, 0.424, 0.515, 0.6, 0.669, 0.728, 0.781, 0.822, 0.856, 0.885, 0.908, 0.927, 0.942, 0.954, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
-    --submit-background: var(--color-primary-500);
-    --submit-color: var(--color-surface);
-    --swap-duration: 300ms;
     --width: min(400px, 100%);
 
-    &-face {
-        @extend %surface-raise;
-    }
 
-    // The ring jumps between fields, still fading in and out.
-    @media (prefers-reduced-motion: reduce) {
-        --ring-duration: 0s;
+    &-brand {
+        &--large {
+            --height: 32px;
+            --width: 48px;
+        }
+
+        &--small {
+            --height: 24px;
+            --width: 36px;
+        }
+
+        &-mark {
+            --icon-swap-duration: 300ms;
+            --icon-swap-timing-function: var(--spring);
+        }
     }
 
     // The icons are chained through '.icon' so they win over its own size and color regardless of stylesheet order,
@@ -46,45 +32,186 @@
         --width: 100%;
     }
 
+    &-caption {
+        --opacity: 0.6;
+    }
+
+    // A half turn across the card's full width reads as a rush under ~400ms, and nobody waits on it.
+    &-card {
+        --transition-duration: 764ms;
+        --transition-timing-function: linear(0, 0.031, 0.108, 0.205, 0.315, 0.421, 0.524, 0.614, 0.695, 0.762, 0.82, 0.865, 0.903, 0.931, 0.954, 0.97, 0.982, 0.991, 0.997, 1.001, 1.004, 1.005, 1.006, 1.006, 1.005, 1.005, 1.004, 1.004, 1.003, 1.002, 1);
+    }
+
     &-chip.icon {
         --color: currentColor;
         --height: 32px;
         --width: 44px;
     }
 
-    // Chained through '.input' so it wins over the reused input styles regardless of stylesheet order.
-    &-field.input {
-        --background-default: var(--field-background);
-        --border-color-active: var(--field-border-color);
-        --border-color-default: var(--field-border-color);
-        --border-color-hover: var(--field-border-color);
-        --border-color-pressed: var(--field-border-color);
-        --border-radius: var(--field-border-radius);
-        --border-width: var(--border-width-400);
-        --color-default: currentColor;
-        --padding-horizontal: 14px;
+    &-control-brand {
+        --color: var(--color-text-300);
+        --inset-horizontal: 12px;
 
-        &[aria-invalid='true'] {
-            --field-border-color: var(--error-color);
-            --outline-color: var(--error-color);
+        &--known {
+            --color: var(--color-text-500);
         }
     }
 
-    // Chained through '.button' so it wins over the shared button styles regardless of stylesheet order.
+    &-digit {
+        --animation-duration: 150ms;
+        --animation-timing-function: ease-out;
+
+        &--gap {
+            --gap-horizontal: 0.6em;
+        }
+
+        &--placeholder {
+            --opacity: 0.45;
+        }
+    }
+
+    &-disclaimer {
+        --opacity: 0.6;
+        --padding-bottom: var(--size-500);
+        --padding-horizontal: 24px;
+    }
+
+    &-error {
+        --color: var(--color-red-400);
+        --offset: 2px;
+        --transition-duration: 200ms;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    // A physical card keeps its dark face in both modes; what sits on it reads these through inheritance.
+    &-face {
+        @extend %surface-raise;
+        --background: var(--color-black-300);
+        --border-radius: var(--border-radius-700);
+        --color: var(--color-white-300);
+        --transition-duration: 200ms;
+        --transition-timing-function: ease-out;
+
+        &--front {
+            --padding-horizontal: 24px;
+            --padding-vertical: 24px;
+        }
+
+        &-bottom {
+            --gap-horizontal: 24px;
+        }
+    }
+
+    // Chained through '.input' so these win over the reused input styles regardless of stylesheet order.
+    &-field--number.input {
+        --padding-end: 64px;
+    }
+
+    &-field.input {
+        --background-default: transparent;
+        --border-color-active: var(--surface-border-default);
+        --border-color-default: var(--surface-border-default);
+        --border-color-hover: var(--surface-border-default);
+        --border-color-pressed: var(--surface-border-default);
+        --border-radius: var(--border-radius-600);
+        --border-width: var(--border-width-400);
+        --color-default: currentColor;
+        --focus-color: var(--color-primary-500);
+        --focus-offset: -1px;
+        --focus-width: var(--border-width-500);
+        --font-size: var(--font-size-400);
+        --height: 44px;
+        --padding-horizontal: 14px;
+        --placeholder-color: oklch(from var(--color-text-300) l c h / 0.7);
+        --transition-duration: 150ms;
+        --transition-timing-function: ease-out;
+
+        &[aria-invalid='true'] {
+            --border-color-active: var(--color-red-400);
+            --border-color-default: var(--color-red-400);
+            --border-color-hover: var(--color-red-400);
+            --border-color-pressed: var(--color-red-400);
+            --focus-color: var(--color-red-400);
+        }
+    }
+
+    &-label {
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-500);
+    }
+
+    &-note {
+        --color: var(--color-text-300);
+    }
+
+    // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
     &-note-icon.icon {
         --color: currentColor;
         --size: 14px;
     }
 
-    &-submit {
-        --background-default: var(--submit-background);
-        --border-radius: var(--field-border-radius);
-        --color-default: var(--submit-color);
-        --face-duration: var(--swap-duration);
-        --face-timing-function: var(--spring);
-        --font-size: var(--field-font-size);
+    &-number {
+        --font-size: clamp(16px, 5.2vw, 21px);
+    }
+
+    &-preview {
+        --perspective: 1200px;
+    }
+
+    // The ring jumps between fields, still fading in and out.
+    &-ring {
+        --border-color: oklch(from var(--color) l c h / 0.35);
+        --border-radius: var(--border-radius-400);
+        --border-width: 1px;
+        --fade-duration: 120ms;
+        --fade-timing-function: ease-out;
+        --transition-duration: 300ms;
+        --transition-timing-function: var(--spring);
+
+        @include tokens.state(active) {
+            --fade-duration: 200ms;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
+    }
+
+    &-row {
+        --gap-horizontal: 12px;
+        --gap-vertical: 12px;
+    }
+
+    &-signature {
+        --gap-horizontal: 12px;
+        --padding-horizontal: 24px;
+        --padding-top: var(--size-500);
+
+        &-value {
+            --background: var(--color-white-300);
+            --color: var(--color-black-300);
+            --height: 40px;
+            --padding-horizontal: 12px;
+        }
+    }
+
+    &-stripe {
+        --background: oklch(from var(--color) l c h / 0.15);
+        --height: 44px;
+        --margin-top: 24px;
+    }
+
+    // Chained through '.button' so it wins over the shared button styles regardless of stylesheet order.
+    &-submit.button {
+        --background-default: var(--color-primary-500);
+        --border-radius: var(--border-radius-600);
+        --color-default: var(--color-surface);
+        --focus-color: var(--color-primary-500);
+        --focus-offset: calc(var(--size-100) / 4);
+        --focus-width: var(--border-width-500);
+        --font-size: var(--font-size-400);
         --font-weight: var(--font-weight-500);
-        --icon-size: var(--size-400);
+        --height: 44px;
         --padding-horizontal: var(--size-500);
         --padding-vertical: 0px;
     }
