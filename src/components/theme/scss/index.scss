@@ -1,1 +1,14 @@
 @use 'variables';
+
+:root {
+    color-scheme: light dark;
+}
+
+// Set on <html> by 'theme()' to pin the page; any element can carry it to pin its subtree.
+[data-theme='dark'] {
+    color-scheme: dark;
+}
+
+[data-theme='light'] {
+    color-scheme: light;
+}
