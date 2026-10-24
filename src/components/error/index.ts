@@ -91,6 +91,8 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
         local.message = text;
         flush();
 
+        // Copied from the control's computed corners, which only layout knows, and written straight to the wrapper
+        // so it holds before the morph below measures it.
         if (control) {
             element.style.borderRadius = getComputedStyle(control).borderRadius;
         }
@@ -121,6 +123,7 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
 
         untrack(() => {
             clearTimeout(expire);
+            // The control is the consumer's content, rendered by its own template, so there's no binding to set.
             control?.setAttribute('aria-invalid', text ? 'true' : 'false');
 
             if (text) {

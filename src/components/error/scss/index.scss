@@ -6,84 +6,53 @@
     display: inline-flex;
     vertical-align: middle;
 
+
+    // Two copies, keyed by the shake class parity, so every failure restarts it.
+    @each $shake in 1 2 {
+        &#{&}--shake-#{$shake} > :not(.error-live, .error-message) {
+            animation: error--shake-#{$shake} var(--error-shake-duration) var(--error-shake-timing-function);
+
+            @media (prefers-reduced-motion: reduce) {
+                animation: none;
+            }
+        }
+
+        @keyframes error--shake-#{$shake} {
+            20% {
+                translate: calc(var(--error-reach) * -1);
+            }
+
+            40% {
+                translate: var(--error-reach);
+            }
+
+            60% {
+                translate: calc(var(--error-reach) * -0.75);
+            }
+
+            80% {
+                translate: calc(var(--error-reach) * 0.75);
+            }
+        }
+    }
+
+
     &-live {
         @extend %hidden-visually;
     }
 
     // Long messages wrap instead of running off in one line.
     &-message.tooltip-content {
-        --background-default: var(--error-background);
-        --max-width: var(--error-max-width);
-        --spacer: var(--error-spacer);
-        --width: max-content;
-        color: var(--error-text);
-        font-size: var(--error-font-size);
-        padding: var(--error-padding-vertical) var(--error-padding-horizontal);
+        color: var(--color);
+        font-size: var(--font-size);
+        padding: var(--padding-vertical) var(--padding-horizontal);
         white-space: normal;
-    }
-
-    // The control draws its edge from '--border-color', as the form controls do. Doubled, so it outranks the control's
-    // own hover and active states whatever order the sheets load in.
-    &.error--invalid.error--invalid > :not(.error-live, .error-message) {
-        --border-color: var(--error-color);
-    }
-
-    &.error--shake-1 > :not(.error-live, .error-message) {
-        animation: error-shake-1 320ms ease-out;
-    }
-
-    &.error--shake-2 > :not(.error-live, .error-message) {
-        animation: error-shake-2 320ms ease-out;
     }
 
     // The tooltip's repaint behind its trigger, which the goo bridges from while the morph runs, so the neck reads as
     // the tooltip leaving the control. Pulled in by the shake's reach, so it stays hidden under the control at full swing.
     &.tooltip:has(> .tooltip-content--morph)::after {
-        background: var(--error-background);
+        background: var(--background);
         inset: 0 var(--error-reach);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &:is(.error--shake-1, .error--shake-2) > * {
-            animation: none;
-        }
-    }
-}
-
-
-// Two copies, keyed by the shake class parity, so every failure restarts it.
-@keyframes error-shake-1 {
-    20% {
-        translate: calc(var(--error-reach) * -1);
-    }
-
-    40% {
-        translate: var(--error-reach);
-    }
-
-    60% {
-        translate: calc(var(--error-reach) * -0.75);
-    }
-
-    80% {
-        translate: calc(var(--error-reach) * 0.75);
-    }
-}
-
-@keyframes error-shake-2 {
-    20% {
-        translate: calc(var(--error-reach) * -1);
-    }
-
-    40% {
-        translate: var(--error-reach);
-    }
-
-    60% {
-        translate: calc(var(--error-reach) * -0.75);
-    }
-
-    80% {
-        translate: calc(var(--error-reach) * 0.75);
     }
 }

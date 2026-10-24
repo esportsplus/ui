@@ -1,14 +1,32 @@
-// Prefixed, unlike most components: the wrapper's custom properties inherit into the control it wraps, and a plain
-// '--color' or '--background' there would restyle it.
+// Prefixed where the wrapper sets them, unlike most components: the wrapper's custom properties inherit into the control
+// it wraps, and a plain '--color' or '--duration' there would restyle it.
 .error {
-    --error-background: var(--color-primary-400);
-    --error-color: var(--color-red-400);
-    --error-font-size: var(--font-size-300);
-    --error-max-width: 240px;
-    --error-padding-horizontal: var(--size-400);
-    --error-padding-vertical: var(--size-300);
     // How far the shake swings each way; the fill behind the control is pulled in by as much.
     --error-reach: 4px;
-    --error-spacer: 4px;
-    --error-text: var(--surface-background-default);
+    --error-shake-duration: 320ms;
+    --error-shake-timing-function: ease-out;
+
+
+    // The control draws its edge from '--border-color', as the form controls do. Doubled, so it outranks the control's
+    // own hover and active states whatever order the sheets load in.
+    &#{&}--invalid#{&}--invalid > :not(.error-live, .error-message) {
+        --border-color: var(--color-red-400);
+    }
+
+
+    // Chained through '.tooltip-content' so it wins over the tooltip's own surface regardless of stylesheet order.
+    &-message.tooltip-content {
+        --background-default: var(--color-primary-400);
+        --color: var(--surface-background-default);
+        --font-size: var(--font-size-300);
+        --max-width: 240px;
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-300);
+        --spacer: 4px;
+        --width: max-content;
+    }
+
+    &.tooltip:has(> .tooltip-content--morph)::after {
+        --background: var(--color-primary-400);
+    }
 }
