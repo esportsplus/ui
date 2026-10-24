@@ -395,17 +395,14 @@ const renderer = (host: Host) => {
             checkbox({
                 class: 'markdown-editor-task',
                 contenteditable: 'false',
-                onfirstpaint: (element: HTMLElement) => {
-                    let input = element.querySelector('input');
-
-                    if (animate && input) {
-                        input.checked = checked;
+                onfirstpaint: () => {
+                    if (animate) {
                         state.done = checked;
                     }
                 },
                 [checkbox.input]: {
                     'aria-label': 'Toggle task',
-                    checked: animate ? previous : checked,
+                    checked: () => state.done,
                     disabled: () => host.readonly(),
                     onclick: (e: MouseEvent) => {
                         e.preventDefault();

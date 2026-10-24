@@ -7,31 +7,18 @@
     @extend %background-state, %border-state, %surface-raise;
     --active-line-background: var(--surface-background-hover);
     --background-default: var(--surface-background-default);
-    --bar-control-height: var(--size-700);
-    --bar-font-size: var(--font-size-200);
-    --bar-icon-size: var(--size-300);
-    --bar-input-width: 160px;
     --border-color-default: var(--surface-border-default);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
     --caret-color: var(--color);
     --caret-width: var(--border-width-500);
-    --check-duration: 150ms;
-    --chip-background: oklch(from var(--color-primary-300) l c h / 0.15);
-    --chip-font-size: var(--font-size-300);
-    --code-font-size: 0.9em;
-    --code-radius: var(--border-radius-200);
     --color: var(--color-text-500);
     --comment-color: var(--color-text-300);
     --cursor: text;
     --disabled-opacity: 0.5;
-    --done-color: var(--color-text-300);
     --focus-color: var(--color-blue-400);
     --focus-offset: var(--border-width-400);
     --focus-width: var(--border-width-500);
-    --fold-duration: 0.15s;
-    --fold-icon-size: var(--size-100);
-    --fold-rotate: 0deg;
     --fold-width: var(--size-400);
     --font-size: var(--font-size-300);
     --gutter-width: 0px;
@@ -71,16 +58,17 @@
     --quote-indent: var(--size-200);
     --rule-color: var(--surface-border-default);
     --selection-background: oklch(from var(--color-blue-400) l c h / 0.22);
-    --strike-color: var(--surface-border-hover);
-    --strike-duration: 200ms;
-    --strike-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
-    --strike-width: 2px;
     --string-color: light-dark(oklch(from var(--color-green-500) 45% c h), oklch(from var(--color-green-500) 0.8 0.15 h));
     // Resolved on the editor, since the checkbox derives its own '--focus-color' from these.
     --task-color: var(--focus-color);
     --type-color: light-dark(var(--color-blue-300), oklch(from var(--color-blue-300) 0.76 0.13 h));
     --variable-color: var(--color);
     --white-space: pre-wrap;
+
+    @media (forced-colors: active) {
+        --caret-color: CanvasText;
+    }
+
 
     &--crosshair {
         --cursor: crosshair;
@@ -104,6 +92,7 @@
         --white-space: pre;
     }
 
+
     // Padding, not margin: the layout measures each block's border box, so space outside it would go uncounted.
     &-block--task {
         --padding-vertical: calc(var(--size-100) / 2);
@@ -115,6 +104,9 @@
     }
 
     &-chip {
+        --background: oklch(from var(--color-primary-300) l c h / 0.15);
+        --border-radius: var(--border-radius-200);
+        --font-size: var(--font-size-300);
         --margin-horizontal: var(--size-100);
         --padding-horizontal: 0.25em;
         --padding-vertical: 0px;
@@ -122,43 +114,100 @@
 
     &-code {
         @extend %surface-lower;
+        --border-radius: var(--border-radius-200);
+        --font-size: 0.9em;
         --padding-horizontal: 0.25em;
         --padding-vertical: 0px;
     }
 
     &-fold {
         @include tokens.state(active) {
-            --fold-rotate: -90deg;
+            .markdown-editor-fold-icon.icon {
+                --rotate: -90deg;
+            }
+        }
+    }
+
+    // Chained through '.icon' so they win over the icon's own size regardless of stylesheet order. The summary's turns
+    // like a fold marker: right while closed, down once open.
+    &-fold-icon.icon,
+    &-summary-icon.icon {
+        --rotate: 0deg;
+        --size: var(--size-100);
+        --transition-duration: 0.15s;
+        --transition-timing-function: ease-out;
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
+    }
+
+    &-info {
+        --font-size: var(--font-size-300);
+    }
+
+    // The strike draws after the check.
+    &-label {
+        --strike-color: var(--surface-border-hover);
+        --strike-delay: 150ms;
+        --strike-duration: 200ms;
+        --strike-position: 0 55%;
+        --strike-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+        --strike-width: 2px;
+
+        @media (prefers-reduced-motion: reduce) {
+            --strike-delay: 0s;
+            --strike-duration: 0s;
+        }
+
+        &--done {
+            --color: var(--color-text-300);
         }
     }
 
     &-mark {
         &--match {
             @extend %background-state;
+            --background-active: var(--match-active-background);
+            --background-default: var(--match-background);
         }
     }
 
+    // Inset by its own radius, so the text clears the rounded corners.
     &-pre {
         @extend %surface-lower;
+        --border-radius: var(--border-radius-200);
+        --padding-horizontal: var(--border-radius-200);
     }
 
-    // The field; the layout reads its padding back, so the rendered blocks stay aligned with it.
+    &-strong {
+        --font-weight: bold;
+    }
+
+    &-summary {
+        --gap-horizontal: var(--size-100);
+
+        &-icon.icon {
+            --rotate: -90deg;
+
+            details[open] > .markdown-editor-summary > & {
+                --rotate: 0deg;
+            }
+        }
+    }
+
+    // The field; the layout reads its padding back, so the rendered blocks stay aligned with it. The shared scrollbar
+    // scope must not animate caret reveals in the editing surface.
     &-surface {
         --padding-horizontal: var(--size-200);
         --padding-vertical: var(--size-200);
+        --scrollbar-behavior: auto;
     }
 
     &-task.checkbox {
+        --background-active: var(--task-color);
+        --border-color-active: var(--task-color);
+        --border-width: var(--border-width-400);
         --margin-horizontal: var(--size-100);
-    }
-
-    @media (forced-colors: active) {
-        --caret-color: CanvasText;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        --check-duration: 0s;
-        --fold-duration: 0s;
-        --strike-duration: 0s;
     }
 }

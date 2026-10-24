@@ -112,13 +112,13 @@
     }
 
     &-chip {
-        background: var(--chip-background);
+        background: var(--background);
         border: var(--border-width) solid var(--border-color);
-        border-radius: var(--code-radius);
+        border-radius: var(--border-radius);
         color: inherit;
         cursor: pointer;
         font: inherit;
-        font-size: var(--chip-font-size);
+        font-size: var(--font-size);
         margin-left: var(--margin-horizontal);
         padding: var(--padding-vertical) var(--padding-horizontal);
     }
@@ -126,9 +126,9 @@
     &-code {
         @extend %font-geist-mono;
         background: var(--surface-background-default);
-        border-radius: var(--code-radius);
+        border-radius: var(--border-radius);
         font-family: var(--font-family);
-        font-size: var(--code-font-size);
+        font-size: var(--font-size);
         padding: var(--padding-vertical) var(--padding-horizontal);
 
         &--block {
@@ -188,9 +188,8 @@
         }
 
         &-icon.icon {
-            --size: var(--fold-icon-size);
-            rotate: var(--fold-rotate);
-            transition: rotate var(--fold-duration) ease-out;
+            rotate: var(--rotate);
+            transition: rotate var(--transition-duration) var(--transition-timing-function);
         }
     }
 
@@ -242,15 +241,15 @@
         color: var(--muted-color);
         display: block;
         font-family: var(--font-family);
-        font-size: var(--chip-font-size);
+        font-size: var(--font-size);
         min-height: 1lh;
     }
 
-    // A task's text. Inline, so the strike runs once per wrapped line; it draws after the check, as in the tasklist.
+    // A task's text. Inline, so the strike runs once per wrapped line, as in the tasklist.
     &-label {
         -webkit-box-decoration-break: clone;
         background-image: linear-gradient(var(--strike-color), var(--strike-color));
-        background-position: 0 55%;
+        background-position: var(--strike-position);
         background-repeat: no-repeat;
         background-size: 0% var(--strike-width);
         box-decoration-break: clone;
@@ -260,8 +259,8 @@
 
         &--done {
             background-size: 100% var(--strike-width);
-            color: var(--done-color);
-            transition-delay: var(--check-duration);
+            color: var(--color);
+            transition-delay: var(--strike-delay);
         }
     }
 
@@ -286,8 +285,6 @@
         }
 
         &--match {
-            --background-active: var(--match-active-background);
-            --background-default: var(--match-background);
             background: var(--background);
         }
 
@@ -316,11 +313,11 @@
     &-pre {
         @extend %font-geist-mono;
         background: var(--surface-background-default);
-        border-radius: var(--code-radius);
+        border-radius: var(--border-radius);
         font-family: var(--font-family);
         margin: 0;
         overflow-x: auto;
-        padding: 0 var(--code-radius);
+        padding: 0 var(--padding-horizontal);
     }
 
     &-quote {
@@ -354,35 +351,27 @@
     }
 
     &-strong {
-        font-weight: bold;
+        font-weight: var(--font-weight);
     }
 
     &-summary {
         align-items: center;
         cursor: pointer;
         display: flex;
-        gap: var(--size-100);
+        gap: var(--gap-horizontal);
         list-style: none;
-
-        // Turns like a fold marker: right while closed, down once open.
-        &-icon.icon {
-            --size: var(--fold-icon-size);
-            rotate: -90deg;
-            transition: rotate var(--fold-duration) ease-out;
-
-            details[open] > .markdown-editor-summary > & {
-                rotate: 0deg;
-            }
-        }
 
         &::-webkit-details-marker {
             display: none;
         }
+
+        &-icon.icon {
+            rotate: var(--rotate);
+            transition: rotate var(--transition-duration) var(--transition-timing-function);
+        }
     }
 
     &-surface {
-        // The shared scrollbar scope must not animate caret reveals in the editing surface.
-        --scrollbar-behavior: auto;
         box-sizing: border-box;
         flex: 1;
         margin-right: var(--minimap-offset);
@@ -400,9 +389,6 @@
     }
 
     &-task.checkbox {
-        --background-active: var(--task-color);
-        --border-color-active: var(--task-color);
-        --border-width: var(--border-width-400);
         display: inline-block;
         margin: 0 var(--margin-horizontal) 0 0;
         vertical-align: middle;
