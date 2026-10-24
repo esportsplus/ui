@@ -117,11 +117,7 @@
         padding: var(--padding-vertical) var(--padding-horizontal);
         width: fit-content;
 
-        // Clear at rest and while active, so only the highlight's pill marks the active view. Qualified, like the
-        // variables, so the fills outrank the button's and highlight's own defaults.
         &-button {
-            --background-hover: transparent;
-
             &:focus-visible {
                 outline: var(--focus-width) solid var(--focus-color);
                 outline-offset: var(--focus-offset);
