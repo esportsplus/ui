@@ -42,7 +42,6 @@ type Keys =
     | typeof COLOR_PICKER_SWATCHES;
 
 type Parts = {
-    hex?: HTMLInputElement;
     swatches?: HTMLElement;
 };
 
@@ -74,6 +73,34 @@ const MAX_RECENT = 8;
 
 let uid = 0;
 
+
+// A rail's state, its value read from and written to the color it sets.
+function channel(get: () => number, set: (value: number) => void): Channel {
+    let flags = reactive({ active: false, error: '' });
+
+    return {
+        get active() {
+            return flags.active;
+        },
+        set active(value) {
+            flags.active = value;
+        },
+        get error() {
+            return flags.error;
+        },
+        set error(value) {
+            flags.error = value;
+        },
+        get value() {
+            return get();
+        },
+        set value(value) {
+            if (value !== get()) {
+                set(value);
+            }
+        }
+    };
+}
 
 function fromHex(hex: string, previous: Hsva): Hsva | null {
     let rgba = parse(hex);
@@ -172,36 +199,33 @@ function template(
         throw new Error(`Color picker: '${state.value || value}' is not a valid hex color`);
     }
 
-    let alpha: Channel = reactive({ active: false, error: '', value: Math.round(start.a * 100) }),
-        color = reactive({ a: start.a, h: start.h, s: start.s, v: start.v }),
+    let color = reactive({ a: start.a, h: start.h, s: start.s, v: start.v }),
         dirty = { alpha: false, hue: false, pad: false },
         history = initial !== false && !compact,
-        hue: Channel = reactive({ active: false, error: '', value: Math.round(start.h) }),
         id = `color-picker-${++uid}`,
         // Stand-ins for swatches pushed out of the recent list, fading out where they stood.
         leaving = reactive([] as { hex: string, left: number, top: number }[]),
         parts: Parts = {},
-        picker = reactive({ active: '', invalid: false }),
+        // 'text' is the hex field's own value, which only follows the color while the field isn't being typed in.
+        picker = reactive({ active: '', focused: false, invalid: false, text: toHex(start) }),
         pointer = { alpha: false, hue: false, pad: -1 },
         presets = this?.attributes,
         recent = reactive((initial || []).map((hex) => hex.toUpperCase()));
 
+    // The rails read and write the color itself, so it stays the one source of truth.
+    let alpha = channel(() => Math.round(color.a * 100), (value) => update({ a: value / 100 })),
+        hue = channel(() => Math.round(color.h), (value) => update({ h: value }));
+
     state.value = toHex(color);
 
     function apply(leaving: boolean) {
-        let field = parts.hex;
-
-        if (!field) {
-            return;
-        }
-
-        let next = fromHex(field.value, read());
+        let next = fromHex(picker.text, read());
 
         if (!next) {
             // Enter keeps the text so it can be fixed; leaving the field puts the real value back rather than
             // stranding a broken one.
             if (leaving) {
-                field.value = toHex(read());
+                picker.text = toHex(read());
             }
 
             picker.invalid = !leaving;
@@ -212,7 +236,7 @@ function template(
 
         picker.invalid = false;
         update(next);
-        field.value = toHex(next);
+        picker.text = toHex(next);
 
         if (changed) {
             commit();
@@ -333,18 +357,6 @@ function template(
         target.value = clamp(target.value + delta, 0, Number((e.currentTarget as HTMLInputElement).max));
     }
 
-    function sync(hex: string) {
-        let field = parts.hex;
-
-        alpha.value = Math.round(color.a * 100);
-        hue.value = Math.round(color.h);
-
-        // The field follows the color except while it is being typed in.
-        if (field && document.activeElement !== field) {
-            field.value = hex;
-        }
-    }
-
     function update(patch: Partial<Hsva>) {
         if (patch.a !== undefined) {
             color.a = patch.a;
@@ -369,20 +381,11 @@ function template(
         }
 
         state.value = hex;
-        sync(hex);
+
+        if (!picker.focused) {
+            picker.text = hex;
+        }
     }
-
-    effect(() => alpha.value, (next) => {
-        if (Math.round(color.a * 100) !== next) {
-            update({ a: next / 100 });
-        }
-    });
-
-    effect(() => hue.value, (next) => {
-        if (Math.round(color.h) !== next) {
-            update({ h: next });
-        }
-    });
 
     effect(() => state.value, (next) => {
         let parsed = next && toHex(read()) !== next.toUpperCase() ? fromHex(next, read()) : null;
@@ -563,27 +566,29 @@ function template(
                         autocomplete: 'off',
                         class: 'color-picker-hex',
                         maxlength: 9,
-                        onblur: () => apply(true),
-                        onconnect: (element: HTMLInputElement) => {
-                            parts.hex = element;
-                            element.value = toHex(read());
+                        onblur: () => {
+                            picker.focused = false;
+                            apply(true);
                         },
                         onfocus: function(this: HTMLInputElement) {
+                            picker.focused = true;
                             this.select();
                         },
-                        oninput: () => {
+                        oninput: function(this: HTMLInputElement) {
                             picker.invalid = false;
+                            picker.text = this.value;
                         },
-                        onkeydown: function(this: HTMLInputElement, e: KeyboardEvent) {
+                        onkeydown: (e: KeyboardEvent) => {
                             if (e.key === 'Enter') {
                                 apply(false);
                             }
                             else if (e.key === 'Escape') {
-                                this.value = toHex(read());
                                 picker.invalid = false;
+                                picker.text = toHex(read());
                             }
                         },
-                        spellcheck: false
+                        spellcheck: false,
+                        value: () => picker.text
                     }))}
                     ${copy(part(COLOR_PICKER_COPY, {
                         class: 'color-picker-copy',
