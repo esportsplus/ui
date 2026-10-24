@@ -63,6 +63,8 @@ const manager = ({ collide, end, label }: { collide: Collide; end: (active: Acti
                 rects: Target[] = [],
                 started = false;
 
+            // Only for the length of the press, which template's document events, living as long as their element,
+            // can't follow.
             pressed = () => controller.abort();
 
             function move(e: PointerEvent) {
@@ -153,6 +155,7 @@ const manager = ({ collide, end, label }: { collide: Collide; end: (active: Acti
                     return;
                 }
 
+                // Built by hand on <body>, outside anything the panels render; only the move's offset changes after.
                 if (!host) {
                     let element = host = document.createElement('div');
 

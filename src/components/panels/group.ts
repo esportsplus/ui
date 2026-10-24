@@ -93,11 +93,11 @@ function tab(context: Context, live: Live, surface: Surface) {
             role='tab'
             title='${label}'
             ${{
-                class: () => [
-                    active() && '--active',
+                class: [
+                    () => active() && '--active',
                     only && 'panels-tab--icon',
-                    read(context.manager.active)?.id === surface.id && 'panels-tab--dragging'
-                ].filter(Boolean).join(' '),
+                    () => read(context.manager.active)?.id === surface.id && 'panels-tab--dragging'
+                ],
                 onauxclick: (e: MouseEvent) => {
                     if (e.button === 1) {
                         e.preventDefault();
@@ -317,12 +317,12 @@ const group = (context: Context, live: Live) => {
             class='panels-group'
             data-group='${group.id}'
             ${{
-                class: () => [
-                    drop.class(),
-                    context.state.layout.active === group.id && '--active',
-                    live().group.placement === 'bottom' && 'panels-group--bottom',
-                    context.picked(group.id) && 'panels-group--picked'
-                ].filter(Boolean).join(' '),
+                class: [
+                    drop.class,
+                    () => context.state.layout.active === group.id && '--active',
+                    () => live().group.placement === 'bottom' && 'panels-group--bottom',
+                    () => context.picked(group.id) && 'panels-group--picked'
+                ],
                 // Listened to directly: the tabs bind presses of their own, which delegation would stop at.
                 onconnect: (element: HTMLElement) => {
                     drop.onconnect(element);

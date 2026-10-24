@@ -79,6 +79,7 @@ const resize = (axis: 'x' | 'y', start: () => ((delta: number) => void) | null) 
                 target,
                 update
             };
+            // On the root, which no template binds, so the cursor holds wherever the pointer goes.
             document.documentElement.classList.add('panels-resizing', `panels-resizing--${axis}`);
         },
         onpointermove: (e: PointerEvent) => {

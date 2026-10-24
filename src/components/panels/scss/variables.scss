@@ -1,25 +1,18 @@
+@use 'css-utilities/background';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
+// The drop colors light every target a dragged tab can land on: an edge, the dock and a group's tab strip.
 .panels {
-    --action-size: 28px;
-    --add-size: 24px;
     --border-color: var(--surface-border-default);
     --drop-background: oklch(from var(--color-primary-400) l c h / 0.12);
     --drop-ring: oklch(from var(--color-primary-400) l c h / 0.5);
-    --handle-color: var(--surface-border-default);
-    --handle-color-hover: var(--surface-border-pressed);
-    --handle-color-pressed: var(--color-primary-400);
-    --handle-size: 8px;
-    --header-height: 36px;
     --muted-color: var(--color-text-300);
-    --tab-font-size: calc(var(--font-size-400) * 0.75);
-    --tab-height: 24px;
-    --tab-max-width: 144px;
 
 
     &-action {
         --background-active: var(--surface-background-active);
+        --size: 28px;
     }
 
     &-action,
@@ -34,28 +27,124 @@
         --padding-vertical: 0px;
     }
 
+    &-add {
+        --size: 24px;
+    }
+
+    &-body {
+        --min-width: 200px;
+    }
+
+    &-dock {
+        --min-height: 80px;
+
+        &-target {
+            --height: 48px;
+        }
+    }
+
+    &-dock-target,
+    &-edge {
+        --ring-width: 2px;
+    }
+
     &-ghost {
         @extend %surface-raise;
         --background: var(--surface-background-default);
+        --border-radius: var(--border-radius-300);
+        --font-size: calc(var(--font-size-400) * 0.75);
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: calc(var(--size-100) / 2);
+        // Over every layer, since it follows the pointer anywhere on the page.
+        --z-index: 1000;
+    }
+
+    // Ringed thickly while picked to zoom to, and thinly while a dragged tab would join it through its tab strip.
+    &-group {
+        --over-ring-width: 1px;
+        --picked-ring-width: 2px;
+    }
+
+    // The line is a pixel; the separator around it is wider to grab, overlapping the panes on either side.
+    &-handle {
+        @extend %background-state;
+        --background-default: var(--surface-border-default);
+        --background-hover: var(--surface-border-pressed);
+        --background-pressed: var(--color-primary-400);
+        --line-width: 1px;
+        --size: 8px;
+        --transition-duration: 0.16s;
+        --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     &-header {
         --gap-horizontal: calc(var(--size-300) / 4);
         --gap-vertical: calc(var(--size-300) / 4);
+        --height: 36px;
         --padding-horizontal: calc(var(--size-300) / 2);
     }
 
-    &-launcher-card {
-        @extend %color-text;
-        --background-active: var(--surface-background-hover);
-        --background-default: transparent;
-        --background-hover: var(--surface-background-hover);
-        --background-pressed: var(--surface-background-pressed);
-        --border-color-default: var(--surface-border-default);
-        --border-radius: var(--border-radius-400);
-        --border-width: var(--border-width-400);
-        --padding-horizontal: var(--size-400);
-        --padding-vertical: var(--size-400);
+    &-launcher {
+        --padding-horizontal: var(--size-600);
+        --padding-vertical: var(--size-600);
+
+        &-card {
+            @extend %color-text;
+            --background-active: var(--surface-background-hover);
+            --background-default: transparent;
+            --background-hover: var(--surface-background-hover);
+            --background-pressed: var(--surface-background-pressed);
+            --border-color-default: var(--surface-border-default);
+            --border-radius: var(--border-radius-400);
+            --border-width: var(--border-width-400);
+            --gap-vertical: calc(var(--size-100) / 2);
+            --padding-horizontal: var(--size-400);
+            --padding-vertical: var(--size-400);
+
+            &-description {
+                --font-size: calc(var(--font-size-400) * 0.75);
+                --line-height: 1.5;
+            }
+
+            // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
+            &-icon.icon {
+                --size: 16px;
+            }
+
+            // Pinned to the card's corner, clear of its title.
+            &-key {
+                --inset: var(--size-300);
+            }
+
+            &-title {
+                --font-size: calc(var(--font-size-400) * 0.875);
+                --gap-horizontal: var(--size-200);
+                --padding-end: var(--size-700);
+            }
+        }
+
+        &-cards {
+            --column-width: 180px;
+            --gap-horizontal: var(--size-200);
+            --gap-vertical: var(--size-200);
+        }
+
+        &-content {
+            --max-width: 512px;
+        }
+
+        &-description {
+            --font-size: calc(var(--font-size-400) * 0.75);
+        }
+
+        &-header {
+            --gap-vertical: calc(var(--size-100) / 2);
+            --spacer: var(--size-500);
+        }
+
+        &-title {
+            --font-size: calc(var(--font-size-400) * 0.875);
+        }
     }
 
     // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
@@ -66,11 +155,31 @@
         --background-hover: transparent;
         --background-pressed: transparent;
         --border-radius: var(--border-radius-300);
-        --font-size: var(--tab-font-size);
+        --font-size: calc(var(--font-size-400) * 0.75);
         --gap-horizontal: calc(var(--size-300) / 4);
         --gap-vertical: calc(var(--size-300) / 4);
+        --height: 24px;
+        --max-width: 144px;
         --padding-horizontal: calc(var(--size-300) / 2);
         --padding-vertical: 0px;
+
+        // Dimmed in the strip while its copy follows the pointer.
+        &--dragging {
+            --opacity: 0.45;
+        }
+
+        &-close {
+            --size: 16px;
+
+            .icon {
+                --size: 12px;
+            }
+        }
+
+        // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
+        &-icon.icon {
+            --size: 12px;
+        }
     }
 
     &-tabs {

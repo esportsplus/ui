@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'css-utilities/text';
 @use 'variables';
 
@@ -21,21 +22,8 @@
     &-action,
     &-add {
         flex: none;
-        height: var(--action-size);
-        width: var(--action-size);
-    }
-
-    &-dock-target,
-    &-edge {
-        &.--over {
-            background: var(--drop-background);
-            box-shadow: inset 0 0 0 2px var(--drop-ring);
-        }
-    }
-
-    &-add {
-        height: var(--add-size);
-        width: var(--add-size);
+        height: var(--size);
+        width: var(--size);
     }
 
     &-body {
@@ -43,14 +31,14 @@
         flex: 1;
         flex-direction: column;
         min-height: 0;
-        min-width: 200px;
+        min-width: var(--min-width);
         overflow: hidden;
         position: relative;
     }
 
     &-dock {
         display: flex;
-        min-height: 80px;
+        min-height: var(--min-height);
         min-width: 0;
         overflow: hidden;
 
@@ -64,11 +52,19 @@
         // Covers the bottom of the layout while a tab is dragged, so dropping it there docks it across the whole width.
         &-target {
             bottom: 0;
-            height: 48px;
+            height: var(--height);
             inset-inline: 0;
             pointer-events: none;
             position: absolute;
             z-index: 4;
+        }
+    }
+
+    &-dock-target,
+    &-edge {
+        &.--over {
+            background: var(--drop-background);
+            box-shadow: inset 0 0 0 var(--ring-width) var(--drop-ring);
         }
     }
 
@@ -115,14 +111,15 @@
 
     &-ghost {
         background: var(--background);
-        border-radius: var(--border-radius-300);
+        border-radius: var(--border-radius);
         box-shadow: var(--surface-shadow-default);
-        font-size: calc(var(--font-size-400) * 0.75);
-        padding: calc(var(--size-100) / 2) var(--size-200);
+        font-size: var(--font-size);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         pointer-events: none;
         position: fixed;
         white-space: nowrap;
-        z-index: 1000;
+        z-index: var(--z-index);
     }
 
     // A section: the normalize wraps sections' flex lines, which would stop the body stretching across the group.
@@ -140,16 +137,16 @@
         // Picked to zoom to once the modifier is let go.
         &--picked {
             background: var(--drop-background);
-            box-shadow: inset 0 0 0 2px var(--drop-ring);
+            box-shadow: inset 0 0 0 var(--picked-ring-width) var(--drop-ring);
         }
 
-        &.--active {
+        @include tokens.state(active) {
             border-color: var(--border-color);
         }
 
         // The tab strip is where a dragged tab joins the group rather than splitting it.
         &.--over {
-            box-shadow: inset 0 0 0 1px var(--drop-ring);
+            box-shadow: inset 0 0 0 var(--over-ring-width) var(--drop-ring);
         }
     }
 
@@ -160,49 +157,40 @@
         user-select: none;
         z-index: 1;
 
-        &--x {
-            cursor: col-resize;
-            height: 100%;
-            margin-inline: calc(var(--handle-size) / -2);
-            width: var(--handle-size);
-
-            &::after {
-                inset-block: 0;
-                left: 50%;
-                translate: -50% 0;
-                width: 1px;
-            }
-        }
-
-        &--y {
-            cursor: row-resize;
-            height: var(--handle-size);
-            margin-block: calc(var(--handle-size) / -2);
-            width: 100%;
-
-            &::after {
-                height: 1px;
-                inset-inline: 0;
-                top: 50%;
-                translate: 0 -50%;
-            }
-        }
-
-        // The line is a pixel; the separator around it is wider to grab, overlapping the panes on either side.
         &::after {
-            background: var(--handle-color);
+            background: var(--background);
             content: '';
             pointer-events: none;
             position: absolute;
             transition: background var(--transition-duration) var(--transition-timing-function);
         }
 
-        &:active::after {
-            background: var(--handle-color-pressed);
+        &--x {
+            cursor: col-resize;
+            height: 100%;
+            margin-inline: calc(var(--size) / -2);
+            width: var(--size);
+
+            &::after {
+                inset-block: 0;
+                left: 50%;
+                translate: -50% 0;
+                width: var(--line-width);
+            }
         }
 
-        &:hover:not(:active)::after {
-            background: var(--handle-color-hover);
+        &--y {
+            cursor: row-resize;
+            height: var(--size);
+            margin-block: calc(var(--size) / -2);
+            width: 100%;
+
+            &::after {
+                height: var(--line-width);
+                inset-inline: 0;
+                top: 50%;
+                translate: 0 -50%;
+            }
         }
 
         &[hidden] {
@@ -215,7 +203,7 @@
         display: flex;
         flex-shrink: 0;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        height: var(--header-height);
+        height: var(--height);
         padding-inline: var(--padding-horizontal);
     }
 
@@ -234,13 +222,13 @@
         min-height: 0;
         outline: none;
         overflow-y: auto;
-        padding: var(--size-600);
+        padding: var(--padding-vertical) var(--padding-horizontal);
 
         &-card {
             align-items: flex-start;
             border: var(--border-width) solid var(--border-color);
             flex-direction: column;
-            gap: calc(var(--size-100) / 2);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             justify-content: flex-start;
             position: relative;
             text-align: left;
@@ -249,56 +237,52 @@
 
             &-description {
                 color: var(--muted-color);
-                font-size: calc(var(--font-size-400) * 0.75);
-                line-height: 1.5;
-            }
-
-            &-icon {
-                --size: 16px;
+                font-size: var(--font-size);
+                line-height: var(--line-height);
             }
 
             &-key {
-                inset-block-start: var(--size-300);
-                inset-inline-end: var(--size-300);
+                inset-block-start: var(--inset);
+                inset-inline-end: var(--inset);
                 position: absolute;
             }
 
             &-title {
                 align-items: center;
                 display: flex;
-                font-size: calc(var(--font-size-400) * 0.875);
+                font-size: var(--font-size);
                 font-weight: var(--font-weight-500);
-                gap: var(--size-200);
-                padding-inline-end: var(--size-700);
+                gap: var(--gap-horizontal);
+                padding-inline-end: var(--padding-end);
             }
         }
 
         &-cards {
             display: grid;
-            gap: var(--size-200);
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            grid-template-columns: repeat(auto-fill, minmax(var(--column-width), 1fr));
         }
 
         &-content {
-            max-width: 512px;
+            max-width: var(--max-width);
             width: 100%;
         }
 
         &-description {
             color: var(--muted-color);
-            font-size: calc(var(--font-size-400) * 0.75);
+            font-size: var(--font-size);
         }
 
         &-header {
             display: flex;
             flex-direction: column;
-            gap: calc(var(--size-100) / 2);
-            margin-bottom: var(--size-500);
+            gap: var(--gap-vertical);
+            margin-bottom: var(--spacer);
             text-align: center;
         }
 
         &-title {
-            font-size: calc(var(--font-size-400) * 0.875);
+            font-size: var(--font-size);
             font-weight: var(--font-weight-500);
         }
     }
@@ -347,33 +331,28 @@
     &-tab {
         flex: none;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        height: var(--tab-height);
-        max-width: var(--tab-max-width);
+        height: var(--height);
+        max-width: var(--max-width);
         padding-inline-end: calc(var(--padding-horizontal) / 2);
         user-select: none;
 
         &--dragging {
-            opacity: 0.45;
+            opacity: var(--opacity);
         }
 
         &--icon {
             justify-content: center;
             padding-inline: 0;
-            width: var(--tab-height);
+            width: var(--height);
         }
 
         &-close {
             flex: none;
-            height: 16px;
-            width: 16px;
-
-            .icon {
-                --size: 12px;
-            }
+            height: var(--size);
+            width: var(--size);
         }
 
         &-icon {
-            --size: 12px;
             flex: none;
         }
 

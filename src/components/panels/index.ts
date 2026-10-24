@@ -671,5 +671,8 @@ const panels = component(
 );
 
 
-export default Object.assign(panels, { state });
+const layout: typeof panels & { state: typeof state } = Object.assign(panels, { state });
+
+
+export default layout;
 export type { Catalog, Kind, Layout, Node, Surface };
