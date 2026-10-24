@@ -6,7 +6,13 @@
     grid-template-columns: var(--left-space) minmax(0, 1fr) var(--right-space);
     height: 100dvh;
     overflow: clip;
-    transition: grid-template-columns var(--slide-duration) var(--slide-easing);
+    transition: grid-template-columns var(--slide-duration) var(--slide-timing-function);
+
+    // Keep the page readable on small screens: the left sidebar pushes the card aside, the right one slides it over.
+    @media (max-width: 1024px) {
+        grid-template-columns: var(--left-space) 100% 0px;
+    }
+
 
     // A dragged drawer sets the space beside the card itself, which follows it without easing.
     &--dragging,
@@ -15,15 +21,11 @@
         transition: none;
     }
 
-    // Keep the page readable on small screens: the left sidebar pushes the card aside, the right one slides it over.
-    @media (max-width: 1024px) {
-        grid-template-columns: var(--left-space) 100% 0px;
-    }
 
     // The gaps around the card show the sidebars' surface, so the card reads as set into it.
     &-backdrop,
-    &-sidebar,
-    &-main {
+    &-main,
+    &-sidebar {
         background-color: var(--surface-background-default);
     }
 
@@ -39,7 +41,7 @@
         touch-action: none;
         transition: visibility 0s var(--slide-duration);
         user-select: none;
-        width: 24px;
+        width: var(--width);
         z-index: 30;
 
         // A single arrow the way the sidebar opens; platforms draw the resize fallbacks double-headed.
@@ -78,15 +80,15 @@
     // Centered on the window until the pointer in the strip moves it; it stays where the pointer leaves it.
     &-handle {
         background: var(--color);
-        border-radius: 4px;
-        height: 10svh;
+        border-radius: var(--border-radius);
+        height: var(--height);
         position: absolute;
         top: 50%;
         transition:
             background var(--transition-duration) var(--transition-timing-function),
-            left var(--slide-duration) var(--slide-easing),
-            opacity var(--slide-duration) var(--slide-easing),
-            right var(--slide-duration) var(--slide-easing);
+            left var(--slide-duration) var(--slide-timing-function),
+            opacity var(--slide-duration) var(--slide-timing-function),
+            right var(--slide-duration) var(--slide-timing-function);
         translate: 0 calc(var(--offset, 0px) - 50%);
         width: var(--width);
     }
@@ -107,9 +109,9 @@
         margin: var(--gap-vertical) var(--right-gap-horizontal) var(--gap-vertical) var(--left-gap-horizontal);
         overflow: hidden auto;
         transition:
-            clip-path var(--slide-duration) var(--slide-easing),
-            margin var(--slide-duration) var(--slide-easing),
-            translate var(--slide-duration) var(--slide-easing);
+            clip-path var(--slide-duration) var(--slide-timing-function),
+            margin var(--slide-duration) var(--slide-timing-function),
+            translate var(--slide-duration) var(--slide-timing-function);
 
         // The card keeps its width and slides on small screens, so it paints itself and moves outright.
         @media (max-width: 1024px) {
@@ -128,7 +130,7 @@
         top: 0;
         touch-action: pan-y;
         transition:
-            translate var(--slide-duration) var(--slide-easing),
+            translate var(--slide-duration) var(--slide-timing-function),
             visibility 0s var(--slide-duration);
         visibility: hidden;
         width: min(var(--space), 100%);
@@ -168,8 +170,8 @@
         position: fixed;
         right: var(--right-edge);
         transition:
-            left var(--slide-duration) var(--slide-easing),
-            right var(--slide-duration) var(--slide-easing);
+            left var(--slide-duration) var(--slide-timing-function),
+            right var(--slide-duration) var(--slide-timing-function);
 
         @media (max-width: 1024px) {
             display: none;
@@ -194,8 +196,8 @@
         }
 
         &:focus-visible {
-            outline: 2px solid var(--color-blue-400);
-            outline-offset: calc(var(--size-100) / 4);
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
         }
     }
 

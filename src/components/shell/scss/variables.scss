@@ -15,39 +15,27 @@
     --right-gap-horizontal: 0px;
     --right-space: 0px;
     --slide-duration: 300ms;
-    --slide-easing: cubic-bezier(0.32, 0.72, 0, 1);
+    --slide-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
     // How wide an open sidebar is, and so the room it makes beside the card.
     --space: min(280px, calc(100vw - 88px));
-
-    &-sidebar {
-        @extend %surface-lower;
-    }
-
-    &-surface {
-        @extend %surface-root;
-    }
-
-    &.--left-open {
-        --left-gap-horizontal: 0px;
-        --left-space: var(--space);
-    }
-
-    &.--right-open {
-        --right-gap-horizontal: 0px;
-        --right-space: var(--space);
-    }
 
     @media (prefers-reduced-motion: reduce) {
         --slide-duration: 0s;
     }
 
 
+    &-edge {
+        --width: 24px;
+    }
+
     &-edge:hover &-handle {
         --color: var(--color-black-300);
     }
 
     &-handle {
+        --border-radius: 4px;
         --color: var(--surface-border-hover);
+        --height: 10svh;
         // How far inside the card's edge the handle comes to rest.
         --inset-horizontal: 3px;
         --width: 3px;
@@ -60,15 +48,36 @@
         --box-shadow: none;
     }
 
+    &-sidebar {
+        @extend %surface-lower;
+    }
+
+    &-surface {
+        @extend %surface-root;
+    }
+
     &-toggle {
         --background-default: transparent;
         --border-radius: var(--border-radius-400);
         --color-default: var(--color-text-400);
         --color-hover: var(--color-text-400);
         --color-pressed: var(--color-text-500);
+        --focus-color: var(--color-blue-400);
+        --focus-offset: calc(var(--size-100) / 4);
+        --focus-width: 2px;
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         --size: 32px;
         --width: var(--size);
+    }
+
+    &.--left-open {
+        --left-gap-horizontal: 0px;
+        --left-space: var(--space);
+    }
+
+    &.--right-open {
+        --right-gap-horizontal: 0px;
+        --right-space: var(--space);
     }
 }

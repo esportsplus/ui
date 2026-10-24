@@ -1,4 +1,4 @@
-import { reactive } from '@esportsplus/reactivity';
+import { flush, reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import { drag } from '~/shared/drag';
 import button from '~/components/button';
@@ -8,6 +8,9 @@ import './scss/index.scss';
 
 
 type Edge = 'left' | 'right';
+
+// Each edge's sidebar and strip as they connect, and whether its sidebar is being dragged.
+type Frame = Record<Edge, { dragging: boolean, edge?: HTMLElement, offset: number, sidebar?: HTMLElement }>;
 
 // Which closed sidebars are showing for as long as the pointer stays over them.
 type Peeking = Record<Edge, boolean>;
@@ -26,13 +29,14 @@ type Side = {
 type Sides = Record<Edge, Side>;
 
 
-// Below this width an open sidebar pushes the card aside rather than narrowing it, so only one opens at a time.
-const NARROW = '(max-width: 1024px)';
-
 // Presses in these keep their own text editing rather than dragging the sidebar.
 const FIELDS = 'input, select, textarea, [contenteditable]';
 
+// Below this width an open sidebar pushes the card aside rather than narrowing it, so only one opens at a time.
+const NARROW = '(max-width: 1024px)';
 
+
+// Found by id, since a page closes a side it only holds the config of.
 function close(side: Pick<Side, 'id' | 'state'>) {
     if (document.getElementById(side.id)?.contains(document.activeElement)) {
         document.getElementById(`${side.id}-toggle`)?.focus({ preventScroll: true });
@@ -50,32 +54,28 @@ function direction(edge: Edge): -1 | 1 {
 // the pointer left it. Clicking it opens the sidebar, and dragging from it pulls the sidebar out, with the overlay's drag:
 // past a quarter of the sidebar or flicked it opens, otherwise it slides back. Resting on it peeks a sidebar that opens
 // on hover.
-function grip(sides: Sides, peeking: Peeking, edge: Edge) {
+function grip(sides: Sides, peeking: Peeking, frame: Frame, edge: Edge) {
     let side = sides[edge],
         sign = direction(edge),
         gesture = drag({
             begin: (e) => e.button === 0 && !side.state.active ? [{ axis: 'x', sign }] : null,
-            capture: () => sidebar()?.classList.add('shell-sidebar--dragging'),
-            measure: (element) => sidebar() ?? element,
+            capture: () => hold(frame, edge),
+            measure: (element) => frame[edge].sidebar ?? element,
             move: (_, { x }) => {
-                let element = sidebar();
+                let element = frame[edge].sidebar;
 
                 if (element) {
                     reveal(element, edge, x * sign);
                 }
             },
             release: (_, __, dismiss) => {
-                settle(sidebar(), edge);
+                settle(frame, edge);
 
                 if (dismiss) {
                     open(sides, peeking, edge);
                 }
             }
         });
-
-    function sidebar() {
-        return document.getElementById(side.id);
-    }
 
     return html`
         <div
@@ -95,13 +95,17 @@ function grip(sides: Sides, peeking: Peeking, edge: Edge) {
                         peeking[edge] = true;
                     }
                 },
-                onpointerleave: (e: PointerEvent) => leave(side, peeking, edge, e),
+                onconnect: (element: HTMLElement) => {
+                    frame[edge].edge = element;
+                },
+                onpointerleave: (e: PointerEvent) => leave(side, peeking, frame, edge, e),
                 onpointermove: function(this: HTMLElement, e: PointerEvent) {
                     let bounds = this.getBoundingClientRect();
 
-                    this.style.setProperty('--offset', `${e.clientY - bounds.top - bounds.height / 2}px`);
+                    frame[edge].offset = e.clientY - bounds.top - bounds.height / 2;
                     gesture.onpointermove(e);
-                }
+                },
+                style: () => `--offset: ${frame[edge].offset}px;`
             }}
         >
             <span class='shell-handle'></span>
@@ -109,11 +113,18 @@ function grip(sides: Sides, peeking: Peeking, edge: Edge) {
     `;
 }
 
-// A peeking sidebar closes once the pointer leaves it, unless it went on to the sidebar's own toggle or edge.
-function leave(side: Side, peeking: Peeking, edge: Edge, e: PointerEvent) {
+// Marks the sidebar as following the pointer, flushed so its transitions stand down before the first move lands.
+function hold(frame: Frame, edge: Edge) {
+    frame[edge].dragging = true;
+    flush();
+}
+
+// A peeking sidebar closes once the pointer leaves it, unless it went on to the sidebar's own toggle or edge. The
+// toggle is found by id: it is the sidebar button's own, which keeps its connect to itself.
+function leave(side: Side, peeking: Peeking, frame: Frame, edge: Edge, e: PointerEvent) {
     let to = e.relatedTarget as Node | null;
 
-    if (!peeking[edge] || (to && [side.id, `${side.id}-edge`, `${side.id}-toggle`].some((id) => document.getElementById(id)?.contains(to)))) {
+    if (!peeking[edge] || (to && [frame[edge].sidebar, frame[edge].edge, document.getElementById(`${side.id}-toggle`)].some((element) => element?.contains(to)))) {
         return;
     }
 
@@ -131,7 +142,7 @@ function open(sides: Sides, peeking: Peeking, edge: Edge) {
 
 // Dragged toward its edge with the overlay's drag, the sidebar follows the pointer; past a quarter of its width or
 // flicked it closes, otherwise it slides back.
-function panel(side: Side, peeking: Peeking, edge: Edge) {
+function panel(side: Side, peeking: Peeking, frame: Frame, edge: Edge) {
     let gesture = drag({
             begin: (e) => {
                 let target = e.target as HTMLElement;
@@ -148,12 +159,12 @@ function panel(side: Side, peeking: Peeking, edge: Edge) {
 
                 return [{ axis: 'x', sign: direction(edge) === 1 ? -1 : 1 }];
             },
-            capture: (element) => element.classList.add('shell-sidebar--dragging'),
+            capture: () => hold(frame, edge),
             move: (element, { x }) => {
                 reveal(element, edge, element.offsetWidth + x * direction(edge));
             },
-            release: (element, _, dismiss) => {
-                settle(element, edge);
+            release: (_, __, dismiss) => {
+                settle(frame, edge);
 
                 if (dismiss) {
                     hide();
@@ -177,11 +188,15 @@ function panel(side: Side, peeking: Peeking, edge: Edge) {
             class='shell-sidebar shell-sidebar--${edge} ${side.class ?? ''}'
             id='${side.id}'
             ${{
-                class: () => side.state.active ? '--active' : peeking[edge] && '--peek',
+                class: [
+                    () => side.state.active ? '--active' : peeking[edge] && '--peek',
+                    () => frame[edge].dragging && 'shell-sidebar--dragging'
+                ],
                 inert: () => !side.state.active && !peeking[edge],
                 // Delegated handlers stop at the nearest bound element, and the sidebar's content binds pointer events
                 // of its own, so the drag listens on the sidebar directly.
                 onconnect: (element: HTMLElement) => {
+                    frame[edge].sidebar = element;
                     listening?.abort();
                     listening = new AbortController();
 
@@ -191,7 +206,7 @@ function panel(side: Side, peeking: Peeking, edge: Edge) {
                     element.addEventListener('dragstart', (e) => e.preventDefault(), { signal });
                     element.addEventListener('pointercancel', gesture.onpointercancel, { signal });
                     element.addEventListener('pointerdown', gesture.onpointerdown, { signal });
-                    element.addEventListener('pointerleave', (e) => leave(side, peeking, edge, e), { signal });
+                    element.addEventListener('pointerleave', (e) => leave(side, peeking, frame, edge, e), { signal });
                     element.addEventListener('pointermove', gesture.onpointermove, { signal });
                     element.addEventListener('pointerup', gesture.onpointerup, { signal });
                 },
@@ -209,9 +224,11 @@ function panel(side: Side, peeking: Peeking, edge: Edge) {
     `;
 }
 
-// Shows 'shown' pixels of the sidebar and moves the card's edge to meet it, narrowing its gap to none as it comes. The card's surface moves while its content
-// keeps its layout, clipped where the sidebar covers it, until the sidebar settles; on small screens the card keeps its
-// width and slides, so it moves outright. The shell's transitions stand down so both follow the pointer.
+// Shows 'shown' pixels of the sidebar and moves the card's edge to meet it, narrowing its gap to none as it comes. The
+// card's surface moves while its content keeps its layout, clipped where the sidebar covers it, until the sidebar
+// settles; on small screens the card keeps its width and slides, so it moves outright. The shell's transitions stand
+// down so both follow the pointer. Written straight to the elements on every move: a bound style would rewrite the
+// whole attribute each time, and the edge they write depends on the sidebar being dragged.
 function reveal(element: HTMLElement, edge: Edge, shown: number) {
     let shell = element.parentElement!,
         width = element.offsetWidth,
@@ -219,7 +236,6 @@ function reveal(element: HTMLElement, edge: Edge, shown: number) {
         rest = `calc(var(--gap-horizontal) * ${width ? 1 - clamped / width : 1})`;
 
     element.style.translate = `${(clamped - width) * direction(edge)}px 0`;
-    shell.classList.add('shell--dragging');
 
     if (matchMedia(NARROW).matches) {
         shell.style.setProperty(`--${edge}-gap-horizontal`, rest);
@@ -231,20 +247,21 @@ function reveal(element: HTMLElement, edge: Edge, shown: number) {
 }
 
 // Hands the sidebar and the card back to their transitions, which carry both from where the drag left them to open or
-// closed.
-function settle(element: HTMLElement | null, edge: Edge) {
-    let shell = element?.parentElement;
+// closed; flushed, so the transitions are back before the drag's values go.
+function settle(frame: Frame, edge: Edge) {
+    let element = frame[edge].sidebar,
+        shell = element?.parentElement;
 
-    element?.classList.remove('shell-sidebar--dragging');
+    frame[edge].dragging = false;
+    flush();
     element?.style.removeProperty('translate');
-    shell?.classList.remove('shell--dragging');
     shell?.style.removeProperty(`--${edge}-edge`);
     shell?.style.removeProperty(`--${edge}-gap-horizontal`);
     shell?.style.removeProperty(`--${edge}-space`);
 }
 
 // Clicked while its sidebar peeks, the toggle keeps it open.
-function toggle(sides: Sides, peeking: Peeking, edge: Edge) {
+function toggle(sides: Sides, peeking: Peeking, frame: Frame, edge: Edge) {
     let side = sides[edge];
 
     function label() {
@@ -258,7 +275,7 @@ function toggle(sides: Sides, peeking: Peeking, edge: Edge) {
         id: `${side.id}-toggle`,
         onclick: () => side.state.active ? close(side) : open(sides, peeking, edge),
         // The button keeps 'pointerleave' for itself; moves into its own glyph are ignored like any within the sidebar.
-        onpointerout: (e: PointerEvent) => leave(side, peeking, edge, e),
+        onpointerout: (e: PointerEvent) => leave(side, peeking, frame, edge, e),
         open: () => side.state.active,
         side: edge,
         title: label
@@ -270,18 +287,25 @@ function toggle(sides: Sides, peeking: Peeking, edge: Edge) {
 // in. The card insets from the window by a gap that closes on the side of an open sidebar, and a closed sidebar's gap
 // holds a handle to drag it open by, which slides in over the card while the pointer is on that edge.
 const shell = (sides: Sides, content: Renderable<unknown>) => {
-    let peeking = reactive<Peeking>({ left: false, right: false });
+    let frame: Frame = {
+            left: reactive({ dragging: false, offset: 0 }),
+            right: reactive({ dragging: false, offset: 0 })
+        },
+        peeking = reactive<Peeking>({ left: false, right: false });
 
     return html`
-        <div class='shell ${() => sides.left.state.active && '--left-open'} ${() => sides.right.state.active && '--right-open'}'>
+        <div
+            class='shell ${() => sides.left.state.active && '--left-open'} ${() => sides.right.state.active && '--right-open'}'
+            ${{ class: () => (frame.left.dragging || frame.right.dragging) && 'shell--dragging' }}
+        >
             <div aria-hidden='true' class='shell-backdrop'></div>
             <div aria-hidden='true' class='shell-surface'></div>
-            ${panel(sides.left, peeking, 'left')}
-            ${panel(sides.right, peeking, 'right')}
-            ${grip(sides, peeking, 'left')}
-            ${grip(sides, peeking, 'right')}
-            ${toggle(sides, peeking, 'left')}
-            ${toggle(sides, peeking, 'right')}
+            ${panel(sides.left, peeking, frame, 'left')}
+            ${panel(sides.right, peeking, frame, 'right')}
+            ${grip(sides, peeking, frame, 'left')}
+            ${grip(sides, peeking, frame, 'right')}
+            ${toggle(sides, peeking, frame, 'left')}
+            ${toggle(sides, peeking, frame, 'right')}
             <div class='card shell-main' ${scrollbar()}>
                 ${content}
             </div>
@@ -290,5 +314,8 @@ const shell = (sides: Sides, content: Renderable<unknown>) => {
 };
 
 
-export default Object.assign(shell, { close });
+const layout: typeof shell & { close: typeof close } = Object.assign(shell, { close });
+
+
+export default layout;
 export type { Side };
