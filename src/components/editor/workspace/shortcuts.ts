@@ -20,7 +20,6 @@ import {
     type Keybindings
 } from './keybindings';
 import keyboard from '@esportsplus/ui/svg/keyboard.svg';
-import '~/components/button/scss/index.scss';
 
 
 type A = {

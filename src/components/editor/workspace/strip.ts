@@ -140,12 +140,14 @@ const strip = ({ isFile, model, remount, reveal }: Options) => {
         ];
 
     let api = {
-        // Spread on a tab: its preview and pinned looks, its context menu, and a double click that keeps a preview.
+        // Spread on a tab: its preview and pinned looks, which follow the tab, its context menu, and a double click
+        // that keeps a preview.
         attributes(tab: WorkspaceTab) {
-            let modifiers = [tab.pinned && 'code-workspace-tab--pinned', tab.preview && 'code-workspace-tab--preview'].filter(Boolean);
-
             return {
-                ...(modifiers.length ? { class: modifiers.join(' ') } : {}),
+                class: [
+                    () => tab.pinned && 'code-workspace-tab--pinned',
+                    () => tab.preview && 'code-workspace-tab--preview'
+                ],
                 oncontextmenu: (event: MouseEvent) => api.open(tab, event),
                 ondblclick: () => {
                     if (tab.preview) {

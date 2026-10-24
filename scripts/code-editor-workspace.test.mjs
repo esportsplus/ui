@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './resolve.mjs';
-const { EditorWorkspaceModel, dirty, workspacePath } =
+const { effect, flush, root } = await import('@esportsplus/reactivity');
+const { EditorWorkspaceModel, workspacePath } =
     await import('../src/components/editor/workspace/model.ts');
 const { createMemoryWorkspaceHost } = await import('../docs/src/examples/editor/fixtures/workspace.ts');
 const deferred = () => {
@@ -59,23 +60,32 @@ test('deduplicated failed opens show the current request error without replacing
     assert.equal(model.state.active.path, 'src/a.ts');
 });
 
-test('typing emits only when a tab turns dirty or clean, never per keystroke', async (t) => {
+test('typing reaches a reader only when its tab turns dirty or clean; other tabs and fields stay quiet', async (t) => {
     const { model } = await fixture();
     t.after(() => model.dispose());
-    const a = await model.open('src/a.ts');
-    await model.open('b.md');
-    let emits = 0;
+    const a = await model.open('src/a.ts'),
+        b = await model.open('b.md');
+    let runs = { a: 0, b: 0, status: 0, tabs: 0 };
     const saved = a.saved,
-        stop = model.subscribe(() => emits++);
+        stop = root((dispose) => {
+            effect(() => (a.dirty, runs.a++));
+            effect(() => (b.dirty, runs.b++));
+            effect(() => (model.state.status, runs.status++));
+            effect(() => (model.state.tabs, runs.tabs++));
+            return dispose;
+        }),
+        settled = () => (flush(), { ...runs });
+    assert.deepEqual(settled(), { a: 1, b: 1, status: 1, tabs: 1 });
     a.document.setValue(`${saved}!`);
-    assert.equal(emits, 1);
+    assert.deepEqual(settled(), { a: 2, b: 1, status: 1, tabs: 1 });
     for (let i = 0; i < 50; i++) a.document.replace(a.document.value.length, a.document.value.length, 'x');
-    assert.equal(emits, 1);
+    assert.deepEqual(settled(), { a: 2, b: 1, status: 1, tabs: 1 });
     a.document.setValue(saved);
-    assert.equal(emits, 2);
-    assert.equal(dirty(a), false);
+    assert.deepEqual(settled(), { a: 3, b: 1, status: 1, tabs: 1 });
+    assert.equal(a.dirty, false);
     a.document.select({ start: 1, end: 1 });
-    assert.equal(emits, 2);
+    model.pin('b.md');
+    assert.deepEqual(settled(), { a: 3, b: 1, status: 1, tabs: 2 });
     stop();
 });
 
@@ -106,7 +116,7 @@ test('tabs retain independent documents, undo, selection and scroll; closing cho
     a.scroll = { top: 80, left: 20 };
     model.activate(a);
     assert.equal(model.state.active.document, a.document);
-    assert.equal(dirty(a), true);
+    assert.equal(a.dirty, true);
     assert.equal(a.document.undo(), true);
     assert.equal(a.document.value, 'one\r\ntwo');
     model.activate(b);
@@ -179,10 +189,10 @@ test('a save marks only its captured snapshot saved, and queued writes cannot fi
     first.resolve();
     await save;
     assert.equal(tab.saved, 'snapshot');
-    assert.equal(dirty(tab), true);
+    assert.equal(tab.dirty, true);
     await nextSave;
     assert.equal(tab.saved, 'typed during write');
-    assert.equal(dirty(tab), false);
+    assert.equal(tab.dirty, false);
     assert.deepEqual(values, ['snapshot', 'typed during write']);
 });
 
@@ -196,11 +206,11 @@ test('failed saves leave drafts dirty and failures do not poison the operation q
         throw new Error('Disk is full');
     };
     assert.equal(await model.save(), undefined);
-    assert.equal(dirty(tab), true);
+    assert.equal(tab.dirty, true);
     assert.match(model.state.status, /Disk is full/);
     host.write = write;
     assert.equal(await model.save(), true);
-    assert.equal(dirty(tab), false);
+    assert.equal(tab.dirty, false);
 });
 
 test('watcher refresh updates clean tabs, preserves dirty tabs and rechecks cleanliness after an async read', async (t) => {
@@ -263,7 +273,7 @@ test('rename carries dirty descendant tabs and independent file undo reverses it
     assert.equal(tab.path, 'lib/a.ts');
     assert.equal(tab.document, document);
     assert.equal(model.state.active.path, 'lib/a.ts');
-    assert.equal(dirty(tab), true);
+    assert.equal(tab.dirty, true);
     assert.equal(await model.undoFiles(), true);
     assert.equal(tab.path, 'src/a.ts');
     assert.equal(tab.document.value, 'draft');

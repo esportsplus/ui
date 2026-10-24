@@ -1,4 +1,4 @@
-import { flush, peek, reactive, read, signal, untrack, write } from '@esportsplus/reactivity';
+import { computed, flush, peek, read, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import icon from '~/components/icon';
 import status from '~/components/inline-edit/status';
@@ -15,13 +15,11 @@ import {
     indentLabel,
     LANGUAGES,
     lineEndings,
-    type AutoSaveMode,
     type Indentation
 } from './status';
 import alert from '@esportsplus/ui/svg/circle-alert.svg';
 import check from '@esportsplus/ui/svg/check.svg';
 import warning from '@esportsplus/ui/svg/warning.svg';
-import '~/components/inline-edit/scss/index.scss';
 
 
 type Choice = 'autoSave' | 'indent' | 'language';
@@ -50,10 +48,10 @@ const statusbar = (model: EditorWorkspaceModel, nextProblem: () => Promise<boole
         choice = signal<Choice>('language'),
         editor = signal<CodeController | undefined>(undefined),
         menu: MenuController | undefined,
-        // Language and indentation picked for a tab, over the workspace's editor options.
-        overrides = new WeakMap<WorkspaceTab, Options>(),
-        revision = signal(0),
-        view = reactive({ autoSave: 'off' as AutoSaveMode });
+        // Language and indentation picked for a tab, over the workspace's editor options; a signal each, so a pick
+        // re-runs only that tab's options.
+        overrides = new WeakMap<WorkspaceTab, Signal<Options | undefined>>(),
+        preferences = model.state.preferences;
 
     function choose(next: Choice, element: HTMLElement, below = false) {
         let bounds = element.getBoundingClientRect();
@@ -91,9 +89,21 @@ const statusbar = (model: EditorWorkspaceModel, nextProblem: () => Promise<boole
             return;
         }
 
-        overrides.set(tab, { ...overrides.get(tab), ...next });
-        write(revision, peek(revision) + 1);
+        let node = overridden(tab);
+
+        write(node, { ...peek(node), ...next });
         peek(editor)?.focus();
+    }
+
+    function overridden(tab: WorkspaceTab) {
+        let node = overrides.get(tab);
+
+        if (!node) {
+            node = signal<Options | undefined>(undefined);
+            overrides.set(tab, node);
+        }
+
+        return node;
     }
 
     let indents: Indentation[] = [false, true].flatMap((tabs) => INDENT_SIZES.map((size) => ({ size, tabs }))),
@@ -116,7 +126,7 @@ const statusbar = (model: EditorWorkspaceModel, nextProblem: () => Promise<boole
             })),
             ...(['off', 'delay', 'focus'] as const).map((mode): Item => ({
                 hidden: () => read(choice) !== 'autoSave',
-                icon: mark(() => view.autoSave === mode),
+                icon: mark(() => preferences.autoSave === mode),
                 label: AUTO_SAVE_MODES[mode],
                 onselect: () => model.setPreferences({ autoSave: mode })
             }))
@@ -126,27 +136,21 @@ const statusbar = (model: EditorWorkspaceModel, nextProblem: () => Promise<boole
         attach: (controller: WorkspaceEditorController | undefined) => {
             write(editor, controller && isCode(controller) ? controller : undefined);
         },
-        connect: (element: HTMLElement) => {
-            let listening = new AbortController(),
-                update = () => {
-                    view.autoSave = model.state.preferences.autoSave;
-                },
-                disconnect = autosave.connect(),
-                unsubscribe = model.subscribe(update);
-
-            update();
-            element.ownerDocument.defaultView?.addEventListener('blur', () => autosave.blur(true), { signal: listening.signal });
-            element.addEventListener('focusout', (event) => {
+        // Spread on the workspace: leaving an editor's panel, or the window, is an auto save's blur.
+        attributes: {
+            onfocusout: (event: FocusEvent) => {
                 let panel = (event.target as Element).closest('.code-workspace-editor');
 
                 if (panel && !panel.contains(event.relatedTarget as Node | null)) {
                     autosave.blur();
                 }
-            }, { signal: listening.signal });
+            },
+            onwindowblur: () => autosave.blur(true)
+        },
+        connect: () => {
+            let disconnect = autosave.connect();
 
             return () => {
-                listening.abort();
-                unsubscribe();
                 disconnect();
                 write(editor, undefined);
             };
@@ -154,11 +158,15 @@ const statusbar = (model: EditorWorkspaceModel, nextProblem: () => Promise<boole
         items: () => html`
             <div class='code-workspace-status-items'>
                 ${code((controller) => {
+                    // Only crossing to more than one selection adds or drops the item; a new count just swaps its text.
                     let state = controller.state,
+                        multiple = computed(() => state.selections > 1),
                         problems = () => `${state.problems.errors} errors, ${state.problems.warnings} warnings: go to the next problem`;
 
                     return html`
-                        ${() => state.selections > 1 && html`<span class='code-workspace-status-item code-workspace-status-item--selections'>${state.selections} selections</span>`}
+                        ${() => read(multiple) && html`
+                            <span class='code-workspace-status-item code-workspace-status-item--selections'>${() => state.selections} selections</span>
+                        `}
                         <button
                             class='button code-workspace-status-item code-workspace-status-item--problems'
                             type='button'
@@ -205,7 +213,7 @@ const statusbar = (model: EditorWorkspaceModel, nextProblem: () => Promise<boole
                 })}
                 ${item(
                     'autosave',
-                    () => `Auto Save: ${AUTO_SAVE_MODES[view.autoSave]}`,
+                    () => `Auto Save: ${AUTO_SAVE_MODES[preferences.autoSave]}`,
                     (event) => choose('autoSave', event.currentTarget as HTMLElement),
                     'Select auto save'
                 )}
@@ -222,14 +230,10 @@ const statusbar = (model: EditorWorkspaceModel, nextProblem: () => Promise<boole
             },
             ''
         ),
-        options: (tab: WorkspaceTab) => {
-            read(revision);
-
-            return overrides.get(tab);
-        },
+        options: (tab: WorkspaceTab) => read(overridden(tab)),
         // While auto save is on, its status stands where the save button was.
         save: (button: () => Renderable<unknown>) => () => {
-            if (view.autoSave === 'off') {
+            if (preferences.autoSave === 'off') {
                 return button();
             }
 
@@ -238,9 +242,9 @@ const statusbar = (model: EditorWorkspaceModel, nextProblem: () => Promise<boole
                     class='button code-workspace-autosave'
                     type='button'
                     ${{
-                        'aria-label': () => `Auto save: ${AUTO_SAVE_MODES[view.autoSave]}`,
+                        'aria-label': () => `Auto save: ${AUTO_SAVE_MODES[preferences.autoSave]}`,
                         onclick: (event: MouseEvent) => choose('autoSave', event.currentTarget as HTMLElement, true),
-                        title: () => `Auto save: ${AUTO_SAVE_MODES[view.autoSave]}`
+                        title: () => `Auto save: ${AUTO_SAVE_MODES[preferences.autoSave]}`
                     }}
                 >
                     ${untrack(() => status.render(autosave.status))}

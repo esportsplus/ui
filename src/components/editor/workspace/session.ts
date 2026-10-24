@@ -1,10 +1,9 @@
-import { effect, read, root, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
+import { effect, onCleanup, read, root, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import Decorations, { type Decoration } from '../tree/decorations';
 import type { CodeController } from '../code/view';
 import type { FileTreeElement, FileTreeImportEntry, FileTreeSnapshot } from '../tree';
 import {
     containsPath,
-    dirty,
     workspacePath,
     type EditorWorkspaceModel,
     type WorkspaceChange,
@@ -134,7 +133,7 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
                     selection: selection(tab)
                 };
 
-            if (dirty(tab) || tab.missing) {
+            if (tab.dirty || tab.missing) {
                 item.draft = tab.document.value;
             }
 
@@ -166,6 +165,47 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
             write(entry.text, typeof text === 'string' ? text : null);
             mark();
         }
+    }
+
+    // A tab is followed while it's open: its edits and selection reschedule the session write, and its baseline is
+    // fetched for its path and again whenever its saved text changes. Detached, since it lives as long as the tab.
+    function follow(tab: WorkspaceTab) {
+        let stop = !tab.compare && host.baseline
+                ? root(() => effect(() => {
+                    let path = tab.path;
+
+                    untrack(() => {
+                        if (!baselines.has(path)) {
+                            track(tab);
+                        }
+                    });
+
+                    onCleanup(() => baselines.delete(path));
+
+                    effect(() => {
+                        let saved = tab.saved;
+
+                        untrack(() => {
+                            let entry = baselines.get(path);
+
+                            if (entry && entry.saved !== saved) {
+                                entry.saved = saved;
+                                entry.fetched = fetch(path, entry);
+                            }
+                        });
+                    });
+                }))
+                : undefined,
+            unsubscribe = tab.document.subscribe((_, change) => {
+                if (change.selectionChanged || change.textChanged) {
+                    schedule();
+                }
+            });
+
+        documents.set(tab, () => {
+            stop?.();
+            unsubscribe();
+        });
     }
 
     function flush() {
@@ -299,35 +339,10 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
         }
     }
 
-    function sync() {
-        let open = new Set<string>(),
-            tabs = model.state.tabs;
-
+    function sync(tabs: readonly WorkspaceTab[]) {
         for (let i = 0, n = tabs.length; i < n; i++) {
-            let tab = tabs[i];
-
-            open.add(tab.path);
-
-            if (!documents.has(tab)) {
-                documents.set(tab, tab.document.subscribe((_, change) => {
-                    if (change.selectionChanged || change.textChanged) {
-                        schedule();
-                    }
-                }));
-            }
-
-            if (!host.baseline) {
-                continue;
-            }
-
-            let entry = baselines.get(tab.path);
-
-            if (!entry) {
-                track(tab);
-            }
-            else if (entry.saved !== tab.saved) {
-                entry.saved = tab.saved;
-                entry.fetched = fetch(tab.path, entry);
+            if (!documents.has(tabs[i])) {
+                follow(tabs[i]);
             }
         }
 
@@ -339,14 +354,6 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
                 settle(tab, undefined);
             }
         }
-
-        for (let path of [...baselines.keys()]) {
-            if (!open.has(path)) {
-                baselines.delete(path);
-            }
-        }
-
-        schedule();
     }
 
     function track(tab: WorkspaceTab) {
@@ -382,22 +389,51 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
 
             return entry ? read(entry.text) : null;
         },
+        // Spread on the workspace. Hot exit: a closing page never disconnects the workspace.
+        attributes: {
+            onwindowpagehide: flush
+        },
         connect(element: HTMLElement) {
             let listening = new AbortController(),
-                unsubscribe = model.subscribe(sync),
+                release = root((dispose) => {
+                    effect(() => {
+                        let tabs = model.state.tabs;
+
+                        untrack(() => sync(tabs));
+                    });
+
+                    // Whatever the session stores, read here, reschedules its write.
+                    effect(() => {
+                        let state = model.state;
+
+                        state.active;
+
+                        for (let i = 0, n = state.tabs.length; i < n; i++) {
+                            let tab = state.tabs[i];
+
+                            tab.dirty;
+                            tab.missing;
+                            tab.path;
+                            tab.pinned;
+                            tab.preview;
+                        }
+
+                        untrack(schedule);
+                    });
+
+                    return dispose;
+                }),
                 unwatch = model.onWatch(watched);
 
             // Scrolling, folding and opening folders tell nothing else, so any gesture in the workspace may be one.
+            // Captured, which template's events aren't, since scroll doesn't bubble and a control may stop the rest.
             element.addEventListener('keyup', schedule, { capture: true, passive: true, signal: listening.signal });
             element.addEventListener('pointerup', schedule, { capture: true, passive: true, signal: listening.signal });
             element.addEventListener('scroll', schedule, { capture: true, passive: true, signal: listening.signal });
-            // Hot exit: a closing page never disconnects the workspace.
-            element.ownerDocument.defaultView?.addEventListener('pagehide', flush, { signal: listening.signal });
-            sync();
 
             return () => {
                 listening.abort();
-                unsubscribe();
+                release();
                 unwatch();
                 flush();
                 stopProblems?.();

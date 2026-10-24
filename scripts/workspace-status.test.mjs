@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './resolve.mjs';
+const { flush } = await import('@esportsplus/reactivity');
 const { EditorDocument } = await import('../src/components/editor/code/document.ts');
 const { EditorWorkspaceModel } = await import('../src/components/editor/workspace/model.ts');
 const { AUTO_SAVE_MODES, AutoSave, indentation, indentLabel, LANGUAGES, lineEndings } =
@@ -62,12 +63,14 @@ test('delay mode saves a dirty tab once edits pause for the delay', async (t) =>
     const { autosave, model, writes } = await fixture(t, { autoSave: 'delay', autoSaveDelay: 500 }),
         tab = await model.open('a.ts');
     type(tab, '!');
+    flush();
     assert.equal(autosave.status.phase, 'unsaved');
     t.mock.timers.tick(499);
     type(tab, '?');
     t.mock.timers.tick(499);
     assert.deepEqual(writes, []);
     t.mock.timers.tick(1);
+    flush();
     assert.equal(autosave.status.phase, 'saving');
     await model.whenIdle();
     assert.deepEqual(writes, [['a.ts', 'one!?']]);
@@ -122,6 +125,7 @@ test('switching to delay mode schedules tabs that are already dirty; off cancels
     await model.whenIdle();
     assert.deepEqual(writes, []);
     model.setPreferences({ autoSave: 'delay' });
+    flush();
     t.mock.timers.tick(500);
     await model.whenIdle();
     assert.deepEqual(writes.sort(), [['a.ts', 'one!'], ['b.ts', 'two!']]);
@@ -132,8 +136,10 @@ test('focus mode saves on tab change, editor blur and window blur, never a missi
         a = await model.open('a.ts'),
         b = await model.open('b.ts');
     model.activate(a);
+    flush();
     type(a, '1');
     model.activate(b);
+    flush();
     await model.whenIdle();
     assert.deepEqual(writes, [['a.ts', 'one1']]);
     type(b, '2');
@@ -185,8 +191,10 @@ test('a manual save also stamps the saved time', async (t) => {
     const { autosave, model } = await fixture(t),
         tab = await model.open('a.ts');
     type(tab, '!');
+    flush();
     assert.equal(autosave.status.phase, 'unsaved');
     await model.save(tab);
+    flush();
     assert.equal(autosave.status.phase, 'saved');
     assert.equal(typeof autosave.status.savedAt, 'number');
 });

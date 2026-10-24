@@ -1,8 +1,8 @@
+import { peek, read, signal, write, type Signal } from '@esportsplus/reactivity';
 import type { Command } from '../code/keymap';
-import { EditorDocument } from '../code/document';
 import { sanitize } from './keybindings';
 import type { FileTreeExport, FileTreeImportEntry } from '../tree';
-import { closable, compareKey, compareTab, order, place } from './tabs';
+import { closable, compareKey, compareTab, order, place, WorkspaceTab } from './tabs';
 
 
 type FileOperation = {
@@ -108,23 +108,10 @@ type WorkspaceState = Readonly<{
     opening: readonly string[];
     preferences: Readonly<WorkspacePreferences>;
     reveal: { column: number; line: number; request: number; tabId: number } | undefined;
-    revision: number;
     status: string;
     statusKind: 'error' | 'info';
     tabs: readonly WorkspaceTab[];
 }>;
-
-type WorkspaceTab = {
-    readonly compare?: WorkspaceCompare;
-    readonly document: EditorDocument;
-    readonly id: number;
-    missing: boolean;
-    path: string;
-    pinned: boolean;
-    preview: boolean;
-    saved: string;
-    scroll: { left: number; top: number };
-};
 
 type WorkspaceTarget = { column?: number; line?: number; path: string; requestId?: number | string };
 
@@ -145,10 +132,29 @@ const DEFAULTS: WorkspacePreferences = {
 
 const ERROR_PREFIX = /^Workspace: /;
 
+const PREFERENCES = Object.keys(DEFAULTS) as (keyof WorkspacePreferences)[];
+
 
 // The status line already names the failed operation, so this module's error prefix is dropped there.
 function message(error: unknown) {
     return (error instanceof Error ? error.message : String(error)).replace(ERROR_PREFIX, '');
+}
+
+// Each preference is a signal of its own, so toggling wrap never reaches what reads the keybindings.
+function preferences() {
+    let values = {} as WorkspacePreferences;
+
+    for (let key of PREFERENCES) {
+        let node: Signal<unknown> = signal(DEFAULTS[key]);
+
+        Object.defineProperty(values, key, {
+            enumerable: true,
+            get: () => read(node),
+            set: (value) => write(node, value)
+        });
+    }
+
+    return values;
 }
 
 /** Workspace-relative path identity; accept an absolute open target only when it lies inside cwd.
@@ -182,29 +188,18 @@ function workspacePath(value: string, cwd = '') {
 
 const containsPath = (parent: string, path: string) => path === parent || path.startsWith(`${parent}/`);
 
-const dirty = (tab: WorkspaceTab) => tab.document.value !== tab.saved;
 
-
-/** UI-independent workspace coordinator. One document per tab; all file mutations are serialized. */
+/** UI-independent workspace coordinator. One document per tab; all file mutations are serialized. Each field of
+ * 'state', each preference and each tab flag is a signal of its own, so a reader re-runs only for what it read.
+ */
 class EditorWorkspaceModel {
     readonly host: WorkspaceHost;
-    private active: number | undefined;
-    private busy = 0;
+    readonly state: WorkspaceState;
     private closed = new Map<string, number>();
     private confirm: WorkspaceHost['confirm'];
-    private cwd: string;
-    // Each tab's dirty state as last emitted, so typing only notifies when a tab turns dirty or clean.
-    private dirty = new Map<number, boolean>();
     private disposed = false;
-    private documents = new Map<number, VoidFunction>();
-    private entries: WorkspaceEntry[] = [];
     private epoch = 0;
-    private error = '';
-    private history: FileOperation[] = [];
     private lastTarget: number | string | undefined;
-    private listeners = new Set<(state: WorkspaceState) => void>();
-    private loaded = false;
-    private loading = false;
     private mutation = 0;
     private openIntent = 0;
     private opening = new Map<string, Promise<WorkspaceTab | undefined>>();
@@ -212,28 +207,180 @@ class EditorWorkspaceModel {
     // Optimistic desired entries survive a lagging workspace index until it acknowledges each mutation.
     private overlay = new Map<string, WorkspaceEntry | null>();
     private preferenceRevision = 0;
-    private preferences = { ...DEFAULTS };
+    private preferences = preferences();
     private preferenceWrite = Promise.resolve();
     private refreshIntent = 0;
     private requestedPath = '';
-    private revealed: WorkspaceState['reveal'];
     private revealRequest = 0;
-    private revision = 0;
     private running = false;
+    private signals = {
+        active: signal<WorkspaceTab | undefined>(undefined),
+        busy: signal(0),
+        cwd: signal(''),
+        entries: signal<readonly WorkspaceEntry[]>([]),
+        error: signal(''),
+        history: signal<readonly FileOperation[]>([]),
+        loaded: signal(false),
+        loading: signal(false),
+        opening: signal<readonly string[]>([]),
+        reveal: signal<WorkspaceState['reveal']>(undefined),
+        status: signal(''),
+        statusKind: signal<WorkspaceState['statusKind']>('info'),
+        tabs: signal<readonly WorkspaceTab[]>([])
+    };
     private starting: Promise<void> | undefined;
-    private statusKind: 'error' | 'info' = 'info';
-    private statusText = '';
     private tabId = 0;
-    private tabs: WorkspaceTab[] = [];
     private unwatch: VoidFunction | undefined;
     private watchers = new Set<(event: WorkspaceChange) => void>();
     private watchWork = Promise.resolve();
 
 
     constructor(host: WorkspaceHost, cwd = '', preferences: Partial<WorkspacePreferences> = {}) {
+        let signals = this.signals;
+
         this.cwd = cwd;
         this.host = host;
+        this.state = {
+            get active() {
+                return read(signals.active);
+            },
+            get busy() {
+                return read(signals.busy);
+            },
+            get canUndoFiles() {
+                return read(signals.history).length > 0;
+            },
+            get cwd() {
+                return read(signals.cwd);
+            },
+            get entries() {
+                return read(signals.entries);
+            },
+            get error() {
+                return read(signals.error);
+            },
+            get loaded() {
+                return read(signals.loaded);
+            },
+            get loading() {
+                return read(signals.loading);
+            },
+            get opening() {
+                return read(signals.opening);
+            },
+            preferences: this.preferences,
+            get reveal() {
+                return read(signals.reveal);
+            },
+            get status() {
+                return read(signals.status);
+            },
+            get statusKind() {
+                return read(signals.statusKind);
+            },
+            get tabs() {
+                return read(signals.tabs);
+            }
+        };
         this.applyPreferences(preferences);
+    }
+
+
+    // The model's own reads never track, so a method an effect calls never subscribes that effect to the model.
+    private get active() {
+        return peek(this.signals.active);
+    }
+
+    private set active(value: WorkspaceTab | undefined) {
+        write(this.signals.active, value);
+    }
+
+    private get busy() {
+        return peek(this.signals.busy);
+    }
+
+    private set busy(value: number) {
+        write(this.signals.busy, value);
+    }
+
+    private get cwd() {
+        return peek(this.signals.cwd);
+    }
+
+    private set cwd(value: string) {
+        write(this.signals.cwd, value);
+    }
+
+    private get entries() {
+        return peek(this.signals.entries);
+    }
+
+    private set entries(value: readonly WorkspaceEntry[]) {
+        write(this.signals.entries, value);
+    }
+
+    private get error() {
+        return peek(this.signals.error);
+    }
+
+    private set error(value: string) {
+        write(this.signals.error, value);
+    }
+
+    private get history() {
+        return peek(this.signals.history);
+    }
+
+    private set history(value: readonly FileOperation[]) {
+        write(this.signals.history, value);
+    }
+
+    private get loaded() {
+        return peek(this.signals.loaded);
+    }
+
+    private set loaded(value: boolean) {
+        write(this.signals.loaded, value);
+    }
+
+    private get loading() {
+        return peek(this.signals.loading);
+    }
+
+    private set loading(value: boolean) {
+        write(this.signals.loading, value);
+    }
+
+    private get revealed() {
+        return peek(this.signals.reveal);
+    }
+
+    private set revealed(value: WorkspaceState['reveal']) {
+        write(this.signals.reveal, value);
+    }
+
+    private get statusKind() {
+        return peek(this.signals.statusKind);
+    }
+
+    private set statusKind(value: WorkspaceState['statusKind']) {
+        write(this.signals.statusKind, value);
+    }
+
+    private get statusText() {
+        return peek(this.signals.status);
+    }
+
+    private set statusText(value: string) {
+        write(this.signals.status, value);
+    }
+
+    private get tabs() {
+        return peek(this.signals.tabs);
+    }
+
+    private set tabs(value: readonly WorkspaceTab[]) {
+        write(this.signals.tabs, value);
     }
 
 
@@ -262,7 +409,7 @@ class EditorWorkspaceModel {
     }
 
     private async authorize(kind: WorkspaceConfirmation['kind'], tabs: readonly WorkspaceTab[], paths: readonly string[]) {
-        let changed = tabs.filter(dirty),
+        let changed = tabs.filter((tab) => tab.dirty),
             revisions = new Map(tabs.map((tab) => [tab.id, tab.document.state.revision]));
 
         if (!changed.length) {
@@ -292,7 +439,7 @@ class EditorWorkspaceModel {
 
         if (decision === 'save') {
             for (let tab of changed) {
-                if (!(await this.save(tab)) || dirty(tab)) {
+                if (!(await this.save(tab)) || tab.dirty) {
                     this.status('Changes made during saving remain open.', true);
                     return;
                 }
@@ -328,8 +475,6 @@ class EditorWorkspaceModel {
             this.removeTab(tab);
         }
 
-        this.emit();
-
         return true;
     }
 
@@ -346,25 +491,11 @@ class EditorWorkspaceModel {
 
         this.entries = [...this.entries.filter((entry) => !removed.has(entry.path)), ...after];
         this.mutation++;
-        this.emit();
     }
 
-    private emit() {
-        if (this.disposed) {
-            return;
-        }
-
-        this.revision++;
-
-        for (let i = 0, n = this.tabs.length; i < n; i++) {
-            this.dirty.set(this.tabs[i].id, dirty(this.tabs[i]));
-        }
-
-        let state = this.state;
-
-        for (let listener of [...this.listeners]) {
-            listener(state);
-        }
+    // A path that started or stopped opening; 'state.opening' lists the paths still on their way.
+    private pending() {
+        write(this.signals.opening, [...this.opening.keys()]);
     }
 
     private queue<T>(label: string, task: () => Promise<T>) {
@@ -375,7 +506,6 @@ class EditorWorkspaceModel {
                 }
 
                 this.busy++;
-                this.emit();
 
                 try {
                     return await task();
@@ -389,7 +519,6 @@ class EditorWorkspaceModel {
                 }
                 finally {
                     this.busy--;
-                    this.emit();
                 }
             });
 
@@ -405,44 +534,14 @@ class EditorWorkspaceModel {
             return;
         }
 
-        this.tabs.splice(at, 1);
-        this.documents.get(tab.id)?.();
-        this.documents.delete(tab.id);
-        this.dirty.delete(tab.id);
+        let tabs = this.tabs.filter((item) => item !== tab);
 
-        if (this.active === tab.id) {
-            this.active = (this.tabs[at] ?? this.tabs[at - 1])?.id;
+        this.tabs = tabs;
+        tab.dispose();
+
+        if (this.active === tab) {
+            this.active = tabs[at] ?? tabs[at - 1];
         }
-    }
-
-
-    get state(): WorkspaceState {
-        let active: WorkspaceTab | undefined;
-
-        for (let i = 0, n = this.tabs.length; i < n; i++) {
-            if (this.tabs[i].id === this.active) {
-                active = this.tabs[i];
-                break;
-            }
-        }
-
-        return {
-            active,
-            busy: this.busy,
-            canUndoFiles: this.history.length > 0,
-            cwd: this.cwd,
-            entries: this.entries,
-            error: this.error,
-            loaded: this.loaded,
-            loading: this.loading,
-            opening: [...this.opening.keys()],
-            preferences: this.preferences,
-            reveal: this.revealed,
-            revision: this.revision,
-            status: this.statusText,
-            statusKind: this.statusKind,
-            tabs: this.tabs
-        };
     }
 
 
@@ -455,8 +554,7 @@ class EditorWorkspaceModel {
 
         this.openIntent++;
         this.requestedPath = found.path;
-        this.active = found.id;
-        this.emit();
+        this.active = found;
     }
 
     /** Adds a tab whose text came from elsewhere, like a restored draft; undefined when the path is open or opening. */
@@ -465,33 +563,14 @@ class EditorWorkspaceModel {
             return;
         }
 
-        let tab: WorkspaceTab = {
-            document: new EditorDocument(content),
-            id: ++this.tabId,
-            missing,
-            path,
-            pinned: false,
-            preview: false,
-            saved,
-            scroll: { left: 0, top: 0 }
-        };
+        let tab = new WorkspaceTab(++this.tabId, content, { missing, path, saved });
 
-        this.tabs.push(tab);
-        this.documents.set(tab.id, tab.document.subscribe((_, change) => {
-            if (change.textChanged && dirty(tab) !== this.dirty.get(tab.id)) {
-                if (dirty(tab)) {
-                    tab.preview = false;
-                }
-
-                this.emit();
-            }
-        }));
-        this.emit();
+        this.tabs = [...this.tabs, tab];
 
         return tab;
     }
 
-    async close(path = this.state.active?.path) {
+    async close(path = this.active?.path) {
         if (!path) {
             return false;
         }
@@ -509,16 +588,15 @@ class EditorWorkspaceModel {
         }
 
         this.removeTab(tab);
-        this.emit();
 
         return true;
     }
 
-    closeOthers(path = this.state.active?.path) {
+    closeOthers(path = this.active?.path) {
         return this.closeTabs(closable(this.tabs, 'others', path));
     }
 
-    closeRight(path = this.state.active?.path) {
+    closeRight(path = this.active?.path) {
         return this.closeTabs(closable(this.tabs, 'right', path));
     }
 
@@ -565,7 +643,7 @@ class EditorWorkspaceModel {
 
             if (!tab) {
                 tab = compareTab(++this.tabId, { modified: texts[1], original: texts[0], paths });
-                this.tabs.push(tab);
+                this.tabs = [...this.tabs, tab];
             }
         }
 
@@ -618,7 +696,7 @@ class EditorWorkspaceModel {
                 return false;
             }
 
-            this.history.push({ after: [], before, id: result.operationId, kind: 'delete' });
+            this.history = [...this.history, { after: [], before, id: result.operationId, kind: 'delete' }];
             this.desire(before, []);
 
             for (let tab of this.tabs.slice()) {
@@ -650,12 +728,9 @@ class EditorWorkspaceModel {
         this.stop();
         this.disposed = true;
 
-        for (let stop of this.documents.values()) {
-            stop();
+        for (let tab of this.tabs) {
+            tab.dispose();
         }
-
-        this.documents.clear();
-        this.listeners.clear();
     }
 
     /** Hears each event the host's watcher reports, once its refresh has started. */
@@ -703,32 +778,15 @@ class EditorWorkspaceModel {
                         return;
                     }
 
-                    let tab: WorkspaceTab = {
-                        document: new EditorDocument(content),
-                        id: ++this.tabId,
-                        missing: false,
-                        path,
-                        pinned: false,
-                        preview,
-                        saved: content,
-                        scroll: { left: 0, top: 0 }
-                    };
+                    let tab = new WorkspaceTab(++this.tabId, content, { path, preview }),
+                        tabs = [...this.tabs],
+                        replaced = place(tabs, tab);
 
-                    let replaced = place(this.tabs, tab);
+                    this.tabs = tabs;
 
                     if (replaced) {
                         this.removeTab(replaced);
                     }
-
-                    this.documents.set(tab.id, tab.document.subscribe((_, change) => {
-                        if (change.textChanged && dirty(tab) !== this.dirty.get(tab.id)) {
-                            if (dirty(tab)) {
-                                tab.preview = false;
-                            }
-
-                            this.emit();
-                        }
-                    }));
 
                     return tab;
                 }
@@ -740,12 +798,12 @@ class EditorWorkspaceModel {
                 finally {
                     if (epoch === this.epoch) {
                         this.opening.delete(path);
-                        this.emit();
+                        this.pending();
                     }
                 }
             })();
             this.opening.set(path, pending);
-            this.emit();
+            this.pending();
         }
 
         let tab = existing ?? (await pending);
@@ -759,7 +817,7 @@ class EditorWorkspaceModel {
         }
 
         if (intent === this.openIntent) {
-            this.active = tab.id;
+            this.active = tab;
 
             if (line !== undefined) {
                 let safeColumn = Number.isFinite(column) ? Math.max(1, Math.trunc(column)) : 1,
@@ -772,7 +830,6 @@ class EditorWorkspaceModel {
 
             this.statusText = '';
             this.statusKind = 'info';
-            this.emit();
         }
 
         return tab;
@@ -795,10 +852,12 @@ class EditorWorkspaceModel {
             return;
         }
 
+        let tabs = [...this.tabs];
+
         tab.pinned = pinned;
         tab.preview = false;
-        order(this.tabs);
-        this.emit();
+        order(tabs);
+        this.tabs = tabs;
     }
 
     async refresh(_paths?: readonly string[]) {
@@ -812,7 +871,6 @@ class EditorWorkspaceModel {
             mutation = this.mutation;
 
         this.loading = true;
-        this.emit();
 
         try {
             let listed = await this.host.list(cwd);
@@ -847,7 +905,6 @@ class EditorWorkspaceModel {
             this.error = '';
             this.loaded = true;
             this.loading = false;
-            this.emit();
 
             // Refresh sequentially to bound IO even with many open tabs. Recheck after the read, not only before it.
             for (let tab of [...this.tabs]) {
@@ -861,8 +918,7 @@ class EditorWorkspaceModel {
 
                 tab.missing = !entries.has(tab.path);
 
-                if (dirty(tab) || tab.missing) {
-                    this.emit();
+                if (tab.dirty || tab.missing) {
                     continue;
                 }
 
@@ -878,7 +934,7 @@ class EditorWorkspaceModel {
                         mutation !== this.mutation ||
                         !this.tabs.includes(tab) ||
                         tab.path !== path ||
-                        dirty(tab) ||
+                        tab.dirty ||
                         tab.document.state.revision !== revision
                     ) {
                         continue;
@@ -889,8 +945,6 @@ class EditorWorkspaceModel {
                     if (content !== tab.document.value) {
                         tab.document.reset(content, tab.document.selection);
                     }
-
-                    this.emit();
                 }
                 catch (error) {
                     if (epoch === this.epoch && this.tabs.includes(tab)) {
@@ -902,13 +956,11 @@ class EditorWorkspaceModel {
         catch (error) {
             if (epoch === this.epoch && intent === this.refreshIntent) {
                 this.error = message(error);
-                this.emit();
             }
         }
         finally {
             if (epoch === this.epoch && intent === this.refreshIntent) {
                 this.loading = false;
-                this.emit();
             }
         }
     }
@@ -947,7 +999,10 @@ class EditorWorkspaceModel {
 
             let after = before.map((entry) => ({ ...entry, path: to + entry.path.slice(from.length) }));
 
-            this.history.push({ after, before, destination: to, id: result.operationId, kind: 'rename', source: from });
+            this.history = [
+                ...this.history,
+                { after, before, destination: to, id: result.operationId, kind: 'rename', source: from }
+            ];
 
             for (let tab of this.tabs) {
                 if (containsPath(from, tab.path)) {
@@ -973,13 +1028,13 @@ class EditorWorkspaceModel {
         }
     }
 
-    save(tab = this.state.active) {
+    save(tab = this.active) {
         return this.queue('Save', async () => {
             if (!tab || !this.tabs.includes(tab) || tab.compare) {
                 return false;
             }
 
-            if (!dirty(tab) && !tab.missing) {
+            if (!tab.dirty && !tab.missing) {
                 return true;
             }
 
@@ -1023,10 +1078,8 @@ class EditorWorkspaceModel {
     }
 
     setPreferences(preferences: Partial<WorkspacePreferences>) {
-        this.preferences = { ...this.preferences };
         this.applyPreferences(preferences);
         this.preferenceRevision++;
-        this.emit();
 
         let epoch = this.epoch,
             snapshot = { ...this.preferences };
@@ -1072,7 +1125,6 @@ class EditorWorkspaceModel {
         this.overlay.clear();
         this.revealed = undefined;
         this.statusText = '';
-        this.emit();
         await this.start();
 
         return true;
@@ -1095,7 +1147,6 @@ class EditorWorkspaceModel {
         this.starting = (async () => {
             if (!this.cwd) {
                 this.error = 'No workspace open.';
-                this.emit();
                 return;
             }
 
@@ -1106,9 +1157,7 @@ class EditorWorkspaceModel {
                     let result = await this.host.preferences?.get();
 
                     if (epoch === this.epoch && result && revision === this.preferenceRevision) {
-                        this.preferences = { ...this.preferences };
                         this.applyPreferences(result);
-                        this.emit();
                     }
                 }
                 catch (error) {
@@ -1155,7 +1204,6 @@ class EditorWorkspaceModel {
     status(text: string, error = false) {
         this.statusText = text;
         this.statusKind = error ? 'error' : 'info';
-        this.emit();
     }
 
     stop() {
@@ -1165,17 +1213,9 @@ class EditorWorkspaceModel {
         this.loading = false;
         this.openIntent++;
         this.opening.clear();
+        this.pending();
         this.refreshIntent++;
         this.running = false;
-        this.emit();
-    }
-
-    subscribe(listener: (state: WorkspaceState) => void) {
-        this.listeners.add(listener);
-
-        return () => {
-            this.listeners.delete(listener);
-        };
     }
 
     undoFiles() {
@@ -1194,7 +1234,7 @@ class EditorWorkspaceModel {
                 return false;
             }
 
-            this.history.pop();
+            this.history = this.history.slice(0, -1);
 
             if (operation.kind === 'rename') {
                 for (let tab of this.tabs) {
@@ -1235,7 +1275,7 @@ class EditorWorkspaceModel {
 }
 
 
-export { containsPath, DEFAULTS, dirty, EditorWorkspaceModel, workspacePath };
+export { containsPath, DEFAULTS, EditorWorkspaceModel, workspacePath };
 export type {
     WorkspaceAction,
     WorkspaceChange,

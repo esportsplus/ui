@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './resolve.mjs';
-const { EditorWorkspaceModel, dirty } = await import('../src/components/editor/workspace/model.ts');
+const { effect, untrack } = await import('@esportsplus/reactivity');
+const { EditorWorkspaceModel } = await import('../src/components/editor/workspace/model.ts');
 const { default: hosted, parse } = await import('../src/components/editor/workspace/session.ts');
 const { default: navigate, step } = await import('../src/components/editor/workspace/navigate.ts');
 const { createMemoryWorkspaceHost } = await import('../docs/src/examples/editor/fixtures/workspace.ts');
@@ -149,12 +150,12 @@ test('restore brings back tabs, hot-exit drafts against the file on disk and the
     assert.deepEqual(model.state.tabs.map((tab) => tab.path), ['src/a.ts', 'src/b.ts', 'gone.ts']);
     assert.equal(a.document.value, 'alpha edited\n');
     assert.equal(a.saved, FILES['src/a.ts']);
-    assert.equal(dirty(a), true);
+    assert.equal(a.dirty, true);
     assert.equal(a.pinned, true);
     assert.deepEqual(a.scroll, { left: 0, top: 8 });
     assert.deepEqual({ ...a.document.selection }, { direction: 'backward', end: 3, start: 1 });
     assert.equal(b.preview, true);
-    assert.equal(dirty(b), false);
+    assert.equal(b.dirty, false);
     assert.equal(gone.missing, true);
     assert.equal(gone.document.value, 'kept\n');
     assert.equal(model.state.active, b);
@@ -288,8 +289,9 @@ test('navigation crosses to the next marked file once the shown one has none lef
             view.shown = { controller: editor, tab };
             hosting.shown(tab, editor);
         };
-    model.subscribe((state) => {
-        if (state.active && view.shown?.tab !== state.active) queueMicrotask(() => show(state.active));
+    effect(() => {
+        const active = model.state.active;
+        if (active && untrack(() => view.shown?.tab) !== active) queueMicrotask(() => show(active));
     });
     const a = await model.open('src/a.ts');
     show(a);

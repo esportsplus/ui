@@ -1,7 +1,7 @@
-import { reactive } from '@esportsplus/reactivity';
+import { effect, peek, reactive, read, root, signal, untrack, write } from '@esportsplus/reactivity';
 import type { Edit, EditorDocument, Language, Options, Selection } from '../code';
 import type { Status } from '~/components/inline-edit/status';
-import { dirty, type EditorWorkspaceModel, type WorkspacePreferences, type WorkspaceTab } from './model';
+import type { EditorWorkspaceModel, WorkspacePreferences, WorkspaceTab } from './model';
 
 
 type AutoSaveMode = WorkspacePreferences['autoSave'];
@@ -13,8 +13,8 @@ type LineEnding = 'crlf' | 'lf';
 type Tracked = {
     dirty: boolean;
     saved: string;
+    stop: VoidFunction;
     timer?: ReturnType<typeof setTimeout>;
-    unsubscribe: VoidFunction;
 };
 
 
@@ -105,14 +105,19 @@ class AutoSave {
     readonly model: EditorWorkspaceModel;
     readonly status: Status = reactive<Status>({ phase: 'saved', savedAt: null });
     private active: WorkspaceTab | undefined;
-    private mode: AutoSaveMode = 'off';
-    private pending = 0;
+    private pending = signal(0);
+    private release: VoidFunction | undefined;
     private tabs = new Map<WorkspaceTab, Tracked>();
-    private unsubscribe: VoidFunction | undefined;
 
 
     constructor(model: EditorWorkspaceModel) {
         this.model = model;
+    }
+
+
+    // Read when an edit, blur or timer happens, so one right after the preference changes already follows it.
+    private get mode(): AutoSaveMode {
+        return untrack(() => this.model.state.preferences.autoSave);
     }
 
 
@@ -126,90 +131,59 @@ class AutoSave {
         clearTimeout(tracked.timer);
         tracked.timer = undefined;
 
-        if (dirty(tab)) {
+        if (tab.dirty) {
             tracked.timer = setTimeout(() => {
                 tracked.timer = undefined;
-                this.save(tab);
-            }, this.model.state.preferences.autoSaveDelay);
-        }
-    }
 
-    private phase() {
-        this.status.phase = this.pending ? 'saving' : this.model.state.tabs.some(dirty) ? 'unsaved' : 'saved';
+                if (this.mode === 'delay') {
+                    this.save(tab);
+                }
+            }, untrack(() => this.model.state.preferences.autoSaveDelay));
+        }
     }
 
     // A file deleted from disk is never brought back without being asked.
     private save(tab: WorkspaceTab) {
-        if (!dirty(tab) || tab.missing || !this.tabs.has(tab)) {
+        if (!tab.dirty || tab.missing || !this.tabs.has(tab)) {
             return;
         }
 
-        this.pending++;
-        this.phase();
+        write(this.pending, peek(this.pending) + 1);
 
         void this.model.save(tab).finally(() => {
-            this.pending--;
-            this.phase();
+            write(this.pending, peek(this.pending) - 1);
         });
     }
 
-    private sync() {
-        let state = this.model.state,
-            open = new Set(state.tabs),
-            previous = this.active;
+    // Each open tab is followed on its own: its edits restart the delay, and a save that turns it clean stamps the
+    // time.
+    private track(tab: WorkspaceTab) {
+        let tracked: Tracked = { dirty: tab.dirty, saved: tab.saved, stop: () => {} },
+            unsubscribe = tab.document.subscribe((_, change) => {
+                if (change.textChanged) {
+                    this.edited(tab);
+                }
+            }),
+            // Detached, since it lives as long as the tab rather than the effect that saw it open.
+            stop = root(() => effect(() => {
+                let dirty = tab.dirty,
+                    saved = tab.saved;
 
-        for (let [tab, tracked] of this.tabs) {
-            if (!open.has(tab)) {
-                clearTimeout(tracked.timer);
-                tracked.unsubscribe();
-                this.tabs.delete(tab);
-            }
-        }
+                // Only saving turns a draft clean with new saved text; a reload from disk only touches clean tabs.
+                if (tracked.dirty && !dirty && tracked.saved !== saved) {
+                    this.status.savedAt = Date.now();
+                }
 
-        for (let i = 0, n = state.tabs.length; i < n; i++) {
-            let tab = state.tabs[i],
-                tracked = this.tabs.get(tab),
-                unsaved = dirty(tab);
+                tracked.dirty = dirty;
+                tracked.saved = saved;
+            }));
 
-            if (!tracked) {
-                this.tabs.set(tab, {
-                    dirty: unsaved,
-                    saved: tab.saved,
-                    unsubscribe: tab.document.subscribe((_, change) => {
-                        if (change.textChanged) {
-                            this.edited(tab);
-                        }
-                    })
-                });
-                continue;
-            }
-
-            // Only saving turns a draft clean with new saved text; a reload from disk only touches clean tabs.
-            if (tracked.dirty && !unsaved && tracked.saved !== tab.saved) {
-                this.status.savedAt = Date.now();
-            }
-
-            tracked.dirty = unsaved;
-            tracked.saved = tab.saved;
-        }
-
-        if (state.preferences.autoSave !== this.mode) {
-            this.mode = state.preferences.autoSave;
-
-            for (let [tab, tracked] of this.tabs) {
-                clearTimeout(tracked.timer);
-                tracked.timer = undefined;
-                this.edited(tab);
-            }
-        }
-
-        this.active = state.active;
-
-        if (this.mode === 'focus' && previous && previous !== state.active) {
-            this.save(previous);
-        }
-
-        this.phase();
+        tracked.stop = () => {
+            clearTimeout(tracked.timer);
+            stop();
+            unsubscribe();
+        };
+        this.tabs.set(tab, tracked);
     }
 
 
@@ -232,24 +206,80 @@ class AutoSave {
 
     connect() {
         this.disconnect();
-        this.unsubscribe = this.model.subscribe(() => this.sync());
-        this.sync();
+        this.release = root((dispose) => {
+            let state = this.model.state;
+
+            effect(() => {
+                let tabs = state.tabs;
+
+                untrack(() => {
+                    let open = new Set(tabs);
+
+                    for (let [tab, tracked] of this.tabs) {
+                        if (!open.has(tab)) {
+                            tracked.stop();
+                            this.tabs.delete(tab);
+                        }
+                    }
+
+                    for (let i = 0, n = tabs.length; i < n; i++) {
+                        if (!this.tabs.has(tabs[i])) {
+                            this.track(tabs[i]);
+                        }
+                    }
+                });
+            });
+
+            // Switching to 'delay' schedules the tabs already dirty; switching away cancels them.
+            effect(() => {
+                state.preferences.autoSave;
+
+                untrack(() => {
+                    for (let [tab, tracked] of this.tabs) {
+                        clearTimeout(tracked.timer);
+                        tracked.timer = undefined;
+                        this.edited(tab);
+                    }
+                });
+            });
+
+            // On focus change, the tab left behind is saved.
+            effect(() => {
+                let active = state.active;
+
+                untrack(() => {
+                    let previous = this.active;
+
+                    this.active = active;
+
+                    if (this.mode === 'focus' && previous && previous !== active) {
+                        this.save(previous);
+                    }
+                });
+            });
+
+            effect(() => {
+                this.status.phase = read(this.pending)
+                    ? 'saving'
+                    : state.tabs.some((tab) => tab.dirty) ? 'unsaved' : 'saved';
+            });
+
+            return dispose;
+        });
 
         return () => this.disconnect();
     }
 
     // Pending saves are dropped with it.
     disconnect() {
-        this.unsubscribe?.();
-        this.unsubscribe = undefined;
+        this.release?.();
+        this.release = undefined;
 
         for (let tracked of this.tabs.values()) {
-            clearTimeout(tracked.timer);
-            tracked.unsubscribe();
+            tracked.stop();
         }
 
         this.active = undefined;
-        this.mode = 'off';
         this.tabs.clear();
     }
 }

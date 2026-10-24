@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './resolve.mjs';
-const { EditorWorkspaceModel, dirty } = await import('../src/components/editor/workspace/model.ts');
+const { EditorWorkspaceModel } = await import('../src/components/editor/workspace/model.ts');
 const { closable, compareKey, order, place, sides } = await import('../src/components/editor/workspace/tabs.ts');
 const { createMemoryWorkspaceHost } = await import('../docs/src/examples/editor/fixtures/workspace.ts');
 async function fixture(files = { 'a.ts': 'a', 'b.ts': 'b', 'c.ts': 'c', 'd.ts': 'd' }) {
@@ -11,7 +11,7 @@ async function fixture(files = { 'a.ts': 'a', 'b.ts': 'b', 'c.ts': 'c', 'd.ts': 
     return { host, model };
 }
 const paths = (model) => model.state.tabs.map((tab) => tab.path);
-const stub = (path, fields = {}) => ({ document: { value: '' }, missing: false, path, pinned: false, preview: false, saved: '', ...fields });
+const stub = (path, fields = {}) => ({ dirty: false, missing: false, path, pinned: false, preview: false, ...fields });
 
 test('a preview takes the last preview tab\'s place and pinned tabs sort first, stably', () => {
     const tabs = [stub('a'), stub('b', { preview: true }), stub('c')];
@@ -28,7 +28,7 @@ test('bulk closes spare pinned tabs, the tab asked from, and unsaved or missing 
     const tabs = [
         stub('p', { pinned: true }),
         stub('a'),
-        stub('b', { document: { value: 'draft' } }),
+        stub('b', { dirty: true }),
         stub('c', { missing: true }),
         stub('d')
     ];
@@ -123,7 +123,7 @@ test('a compare tab is read-only: never dirty, never saved, kept by refresh and 
     const tab = await model.compare('a.ts', '/project/b.ts');
     assert.deepEqual(tab.compare, { modified: 'two', original: 'one', paths: ['a.ts', 'b.ts'] });
     assert.equal(model.state.active, tab);
-    assert.equal(dirty(tab), false);
+    assert.equal(tab.dirty, false);
     assert.equal(await model.compare('a.ts', 'b.ts'), tab);
     assert.equal(model.state.tabs.length, 1);
     await model.refresh();
