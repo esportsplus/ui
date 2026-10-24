@@ -1,12 +1,6 @@
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
-$color-muted: var(--color-text-300);
-$divider: var(--border-width-400) solid var(--surface-border-default);
-$label-font-size: var(--font-size-200);
-$list-height: min(320px, 50vh);
-
-
 .command {
     --color: var(--color-text-500);
     --font-size: calc(var(--font-size-400) * 0.875);
@@ -27,8 +21,8 @@ $list-height: min(320px, 50vh);
     }
 
     &-count {
-        --color: #{$color-muted};
-        --font-size: #{$label-font-size};
+        --color: var(--color-text-300);
+        --font-size: var(--font-size-200);
     }
 
     &-dialog.overlay {
@@ -43,21 +37,33 @@ $list-height: min(320px, 50vh);
         // pixels, so the layer never sits between them.
         --offset: round(20vh, 1px);
         --scale: 0.98;
+
+        @media (prefers-reduced-motion: reduce) {
+            --scale: 1;
+        }
     }
 
     &-empty {
-        --color: #{$color-muted};
+        --color: var(--color-text-300);
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-700);
     }
 
     &-footer {
-        --color: #{$color-muted};
-        --font-size: #{$label-font-size};
+        --color: var(--color-text-300);
+        --font-size: var(--font-size-200);
+        --gap-horizontal: var(--size-400);
         --height: 44px;
+        --padding-horizontal: var(--size-400);
+
+        &-hint {
+            --gap-horizontal: var(--size-200);
+        }
     }
 
     &-group-label {
-        --color: #{$color-muted};
-        --font-size: #{$label-font-size};
+        --color: var(--color-text-300);
+        --font-size: var(--font-size-200);
         --padding-horizontal: var(--size-300);
         --padding-vertical: var(--size-100);
     }
@@ -81,7 +87,7 @@ $list-height: min(320px, 50vh);
         --size: 0px;
 
         &::placeholder {
-            --color: #{$color-muted};
+            --color: var(--color-text-300);
         }
     }
 
@@ -89,19 +95,25 @@ $list-height: min(320px, 50vh);
         --size: 12px;
     }
 
+    &-keys {
+        --gap-horizontal: calc(var(--size-100) / 2);
+    }
+
     &-label {
         --color: var(--color-text-500);
 
 
         &--filtered {
-            --color: #{$color-muted};
+            --color: var(--color-text-300);
         }
     }
 
+    // Padding plus the option radius equals the dialog radius; the sides take 2px more to clear the highlight off the
+    // edges.
     &-list {
-        --gap-horizontal: 0;
+        --gap-horizontal: 0px;
         --gap-vertical: var(--size-200);
-        --padding-horizontal: calc(var(--size-100) / 2);
+        --padding-horizontal: calc(var(--size-100) / 2 + 2px);
         --padding-vertical: var(--size-100);
     }
 
@@ -111,19 +123,23 @@ $list-height: min(320px, 50vh);
 
     &-option {
         --border-radius: var(--border-radius-400);
+        --gap-horizontal: var(--size-200);
         --height: 36px;
+        --padding-horizontal: var(--size-300);
 
         // Takes '--active' alongside its option.
         &-icon.icon {
             @extend %color-state;
             --color-active: currentColor;
-            --color-default: #{$color-muted};
+            --color-default: var(--color-text-300);
         }
     }
 
     &-search {
-        --color: #{$color-muted};
+        --color: var(--color-text-300);
+        --gap-horizontal: var(--size-200);
         --height: 48px;
+        --padding-horizontal: var(--size-400);
     }
 
     // Long queries fade out before they reach the result count instead of running into it.
@@ -143,7 +159,8 @@ $list-height: min(320px, 50vh);
 
     // The list's padding, so the first tab's edge meets the option highlight's edge.
     &-tabs {
-        --border: #{$divider};
+        --border-color: var(--surface-border-default);
+        --border-width: var(--border-width-400);
         --gap-horizontal: calc(var(--size-100) / 2);
         --gap-vertical: calc(var(--size-100) / 2);
         --padding-horizontal: calc(var(--size-100) / 2 + 2px);
@@ -162,6 +179,9 @@ $list-height: min(320px, 50vh);
         --background-default: var(--surface-background-default);
         --border-radius: var(--border-radius-400);
         --box-shadow-default: var(--surface-shadow-default);
+        --focus-color: var(--color-primary-500);
+        --focus-offset: var(--border-width-500);
+        --focus-width: var(--border-width-500);
         --font-size: calc(var(--font-size-400) * 0.875);
         --gap-horizontal: var(--size-100);
         --line-height: 24px;
@@ -177,20 +197,14 @@ $list-height: min(320px, 50vh);
     }
 
     &-view {
-        --max-height: #{$list-height};
+        --max-height: min(320px, 50vh);
         // The list's vertical padding, so an item scrolled into view rests where the first one starts.
         --scroll-padding-vertical: var(--size-100);
     }
 
     &-views {
-        --border: #{$divider};
-        --height: #{$list-height};
-    }
-
-
-    @media (prefers-reduced-motion: reduce) {
-        &-dialog.overlay {
-            --scale: 1;
-        }
+        --border-color: var(--surface-border-default);
+        --border-width: var(--border-width-400);
+        --height: min(320px, 50vh);
     }
 }

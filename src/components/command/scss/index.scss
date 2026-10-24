@@ -35,6 +35,14 @@
         // Kept on its own layer while open; otherwise the layer is dropped once the entrance settles and the text
         // re-rasterizes onto the pixel grid, a visible nudge.
         will-change: opacity, scale;
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+
+            &::backdrop {
+                transition: opacity var(--transition-duration) var(--transition-timing-function);
+            }
+        }
     }
 
     &-empty {
@@ -42,7 +50,8 @@
         font-size: var(--font-size);
         // Centers the message in a scrolling view's fixed height.
         margin-block: auto;
-        padding: var(--size-700) var(--size-400);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         text-align: center;
     }
 
@@ -52,15 +61,15 @@
         display: flex;
         flex-shrink: 0;
         font-size: var(--font-size);
-        gap: var(--size-400);
+        gap: var(--gap-horizontal);
         height: var(--height);
-        padding-inline: var(--size-400);
+        padding-inline: var(--padding-horizontal);
         user-select: none;
 
         &-hint {
             align-items: center;
             display: flex;
-            gap: var(--size-200);
+            gap: var(--gap-horizontal);
 
             // Close stays on the left; the remaining hints pack to the end.
             &:first-child {
@@ -93,7 +102,7 @@
     &-keys {
         display: flex;
         flex-shrink: 0;
-        gap: calc(var(--size-100) / 2);
+        gap: var(--gap-horizontal);
         pointer-events: none;
     }
 
@@ -109,8 +118,7 @@
         display: flex;
         flex-direction: column;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        // Padding plus the option radius equals the dialog radius; the sides take 2px more to clear the highlight off the edges.
-        padding: var(--padding-vertical) calc(var(--padding-horizontal) + 2px);
+        padding: var(--padding-vertical) var(--padding-horizontal);
 
         &--empty {
             display: none;
@@ -127,9 +135,9 @@
         cursor: pointer;
         display: flex;
         font-size: var(--font-size);
-        gap: var(--size-200);
+        gap: var(--gap-horizontal);
         height: var(--height);
-        padding-inline: var(--size-300);
+        padding-inline: var(--padding-horizontal);
         user-select: none;
 
         // Shortcut rows are a reference list; nothing runs on click.
@@ -148,9 +156,9 @@
         color: var(--color);
         display: flex;
         flex-shrink: 0;
-        gap: var(--size-200);
+        gap: var(--gap-horizontal);
         height: var(--height);
-        padding-inline: var(--size-400);
+        padding-inline: var(--padding-horizontal);
     }
 
     &-tab {
@@ -159,7 +167,7 @@
 
     // Tab labels line up with the option labels below; a long row scrolls sideways rather than wrapping.
     &-tabs {
-        border-top: var(--border);
+        border-top: var(--border-width) solid var(--border-color);
         display: flex;
         flex-shrink: 0;
         gap: var(--gap-vertical) var(--gap-horizontal);
@@ -185,8 +193,8 @@
         }
 
         &:focus-visible {
-            outline: var(--border-width-500) solid var(--color-primary-500);
-            outline-offset: var(--border-width-500);
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
         }
 
         // Pages with their own search buttons hide this one; `display: flex` from `.button` would otherwise override `hidden`.
@@ -214,22 +222,12 @@
 
     &-views {
         background: var(--background);
-        border-top: var(--border);
+        border-top: var(--border-width) solid var(--border-color);
         overflow: hidden;
 
         // Every view keeps the same height, so swapping between them never resizes the dialog.
         &:has(> .frame--swap) {
             height: var(--height);
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &-dialog.overlay {
-            transition: opacity var(--transition-duration) var(--transition-timing-function);
-
-            &::backdrop {
-                transition: opacity var(--transition-duration) var(--transition-timing-function);
-            }
         }
     }
 }

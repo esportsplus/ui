@@ -4,7 +4,8 @@ import icon from '~/components/icon';
 import { mac } from '~/shared/platform';
 import cmd from '@esportsplus/ui/svg/command.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
-import command, { type State, type Tab } from './index';
+import command, { type State, type Tab } from './palette';
+import './scss/index.scss';
 
 
 type Modal = Parameters<typeof command>[0] & {
