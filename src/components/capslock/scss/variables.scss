@@ -6,6 +6,8 @@
 
 
     @include tokens.state(active) {
+        --transition-duration: 200ms;
+
         .capslock {
             &-key {
                 &-light {
@@ -27,12 +29,15 @@
         }
 
         &-light {
+            --border-radius: 50%;
             --box-shadow: none;
             --color: var(--surface-border-default);
             --color-active: var(--color-green-400);
             --inset-horizontal: 5px;
             --inset-vertical: 5px;
             --size: 3px;
+            --transition-duration: 300ms;
+            --transition-timing-function: ease-out;
         }
     }
 }

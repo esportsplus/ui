@@ -16,12 +16,16 @@
     @include tokens.state(active) {
         filter: none;
         opacity: 1;
-        transition-duration: 200ms;
     }
 
     @include tokens.state(inactive) {
         height: 0px;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition-property: opacity;
+    }
+
 
     // A legend, not a control, so it takes no hover or press
     &-key {
@@ -30,15 +34,15 @@
         // Pinned to the corner so the icon stays centered on the cap
         &-light {
             background: var(--color);
-            border-radius: 50%;
+            border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             height: var(--size);
             left: var(--inset-horizontal);
             position: absolute;
             top: var(--inset-vertical);
             transition:
-                background-color 300ms ease-out,
-                box-shadow 300ms ease-out;
+                background-color var(--transition-duration) var(--transition-timing-function),
+                box-shadow var(--transition-duration) var(--transition-timing-function);
             width: var(--size);
         }
     }
@@ -49,9 +53,5 @@
 
     &-text {
         @extend %flex-vertical;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        transition-property: opacity;
     }
 }
