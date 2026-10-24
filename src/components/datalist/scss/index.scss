@@ -37,7 +37,7 @@
         // Driven by each option's own position in the scroller; the range runs from its center
         // crossing the bottom edge to crossing the top edge, so 50% is dead center.
         @supports (animation-timeline: view()) {
-            animation: datalist-drum linear both;
+            animation: datalist-option linear both;
             animation-range: entry 50% exit 50%;
             animation-timeline: view();
         }
@@ -48,12 +48,33 @@
             rotate: none;
             scale: none;
         }
+
+        @keyframes datalist-option {
+            0%, 100% {
+                opacity: calc(1 - var(--opacity-falloff));
+                scale: calc(var(--scale) - var(--scale-falloff));
+            }
+
+            0% {
+                rotate: x calc(var(--rotate) * -1);
+            }
+
+            50% {
+                opacity: 1;
+                rotate: x 0deg;
+                scale: var(--scale);
+            }
+
+            100% {
+                rotate: x var(--rotate);
+            }
+        }
     }
 
     &-scroller {
         border-radius: var(--border-radius);
         height: var(--height);
-        mask-image: linear-gradient(to bottom, transparent 0, #000 30%, #000 70%, transparent 100%);
+        mask-image: var(--mask);
         overflow-y: auto;
         overscroll-behavior: contain;
         perspective: var(--perspective);
@@ -79,26 +100,5 @@
     // Padding lives on the track, not the scroller, since some engines drop a scroller's block-end padding from its scroll range
     &-track {
         padding-block: calc((var(--height) - var(--item-height)) / 2);
-    }
-}
-
-@keyframes datalist-drum {
-    0%, 100% {
-        opacity: calc(1 - var(--opacity-falloff));
-        scale: calc(var(--scale) - var(--scale-falloff));
-    }
-
-    0% {
-        rotate: x calc(var(--rotate) * -1);
-    }
-
-    50% {
-        opacity: 1;
-        rotate: x 0deg;
-        scale: var(--scale);
-    }
-
-    100% {
-        rotate: x var(--rotate);
     }
 }
