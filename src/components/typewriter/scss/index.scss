@@ -7,7 +7,7 @@
     &::after,
     &-retype-line::after,
     &-retype-sizer::after {
-        animation: typewriter--blink var(--caret-duration) var(--caret-timing-function) infinite;
+        animation: typewriter-blink var(--caret-duration) var(--caret-timing-function) infinite;
         background: var(--caret-background);
         border-radius: var(--caret-radius);
         color: var(--caret-color);
@@ -29,7 +29,7 @@
         white-space: pre;
 
         &-letter {
-            animation: typewriter-retype--ink var(--ink-duration) var(--ease-out);
+            animation: typewriter-retype-letter var(--ink-duration) var(--ink-timing-function);
         }
 
         &-line {
@@ -64,11 +64,6 @@
             isolation: isolate;
             position: relative;
 
-            &--selecting::before {
-                scale: 1 1;
-                transition: scale var(--select-duration) var(--ease-out);
-            }
-
             &::before {
                 background: var(--selection-color);
                 border-radius: var(--selection-radius);
@@ -78,6 +73,11 @@
                 scale: 0 1;
                 transform-origin: right;
                 z-index: -1;
+            }
+
+            &--selecting::before {
+                scale: 1 1;
+                transition: scale var(--select-duration) var(--select-timing-function);
             }
         }
     }
@@ -110,7 +110,7 @@
     }
 }
 
-@keyframes typewriter--blink {
+@keyframes typewriter-blink {
     0%, 45% {
         opacity: 1;
     }
@@ -124,7 +124,7 @@
     }
 }
 
-@keyframes typewriter-retype--ink {
+@keyframes typewriter-retype-letter {
     from {
         filter: blur(var(--ink-blur));
         opacity: 0;

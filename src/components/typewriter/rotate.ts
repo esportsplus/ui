@@ -1,6 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive, ReactiveArray } from '@esportsplus/reactivity';
-import { timing } from '~/shared/animation';
+import { ms, timing } from '~/shared/animation';
 
 
 type A = Attributes & {
@@ -22,18 +22,8 @@ type State = {
 };
 
 
-const EASE_OUT = 'cubic-bezier(0.23, 1, 0.32, 1)';
-
-const ENTER_MS = 320;
-
-// Leaving letters are gone before the glide lands, so the eye follows the letters that stay rather than the ones
-// that go.
-const EXIT_MS = 200;
-
 // Long enough to read the whole sentence once per word.
 const INTERVAL = 2600;
-
-const STAGGER_MS = 28;
 
 
 // Longest common subsequence, so the most letters possible survive the swap while keeping their order ("fast" to
@@ -106,9 +96,13 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
         }
 
         // Every swap flushes, so the box always holds the word's letters in order, then the exits.
-        let from = box.getBoundingClientRect(),
+        let computed = getComputedStyle(box),
+            blur = computed.getPropertyValue('--blur').trim(),
+            enter = timing(computed, 'enter') ?? { duration: 0 },
+            exit = timing(computed, 'exit') ?? { duration: 0 },
+            from = box.getBoundingClientRect(),
             // From the CSS; without one the swap is a plain crossfade, nothing travelling.
-            glide = timing(getComputedStyle(box), 'glide'),
+            glide = timing(computed, 'glide'),
             nodes = box.children,
             // Rects are post-transform; a scaled ancestor would otherwise have every offset applied twice.
             s = from.width / box.offsetWidth || 1;
@@ -154,10 +148,10 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                 glide
                     ? [
                         { filter: 'blur(0px)', opacity: 1, transform: 'translateY(0)' },
-                        { filter: 'blur(4px)', opacity: 0, transform: 'translateY(-0.35em)' }
+                        { filter: `blur(${blur})`, opacity: 0, transform: `translateY(${computed.getPropertyValue('--exit-offset').trim()})` }
                     ]
                     : [{ opacity: 1 }, { opacity: 0 }],
-                { duration: EXIT_MS, easing: EASE_OUT, fill: 'forwards' }
+                { ...exit, fill: 'forwards' }
             ).finished.then(() => {
                 let at = exits.indexOf(l);
 
@@ -171,8 +165,10 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
         // picture to it.
         box.getAnimations().forEach((a) => a.cancel());
 
-        let to = box.getBoundingClientRect(),
+        let delay = ms(computed.getPropertyValue('--enter-delay')),
             order = 0,
+            stagger = ms(computed.getPropertyValue('--enter-stagger')),
+            to = box.getBoundingClientRect(),
             scale = to.width / box.offsetWidth || 1,
             width = to.width / scale;
 
@@ -196,17 +192,12 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                 nodes[i]?.animate(
                     glide
                         ? [
-                            { filter: 'blur(4px)', opacity: 0, transform: 'translateY(0.4em)' },
+                            { filter: `blur(${blur})`, opacity: 0, transform: `translateY(${computed.getPropertyValue('--enter-offset').trim()})` },
                             { filter: 'blur(0px)', opacity: 1, transform: 'translateY(0)' }
                         ]
                         : [{ opacity: 0 }, { opacity: 1 }],
-                    {
-                        // A beat for the leaving letters to clear the space, then a small left-to-right cascade.
-                        delay: glide ? 90 + order++ * STAGGER_MS : 0,
-                        duration: ENTER_MS,
-                        easing: EASE_OUT,
-                        fill: 'backwards'
-                    }
+                    // A beat for the leaving letters to clear the space, then a small left-to-right cascade.
+                    { ...enter, delay: glide ? delay + order++ * stagger : 0, fill: 'backwards' }
                 );
                 continue;
             }
