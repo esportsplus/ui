@@ -2,34 +2,99 @@
 @use 'css-utilities/surface';
 
 .surface-field {
-    --accent: #6683e8;
-    --color: var(--color-text-500);
-    // Read by JS: 1 draws a still texture, as the 'still' option does.
-    --still: 0;
-    --surface-body-color: var(--color-text-300);
-    --surface-body-font-size: calc(var(--font-size-400) * 0.8125);
-    --surface-border-color: var(--surface-border-default);
-    --surface-border-radius: 14px;
-    --surface-box-shadow: 0 1px 2px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 0.6)), 0 8px 24px -8px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 1.55));
-    --surface-box-shadow-active: 0 2px 4px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 0.8)), 0 20px 40px -12px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 2.7));
-    --surface-grip-color: var(--color-primary-300);
-    --surface-grip-width: 32px;
-    --surface-handle-height: 28px;
-    --surface-header-cursor: grab;
-    --surface-lift-duration: 200ms;
-    --surface-lift-opacity: 0;
-    --surface-title-color: var(--color-text-500);
+    // Read by JS, from the canvas: the colors it draws with, and 1 for a still texture, as the 'still' option does.
+    &-canvas {
+        --accent: #6683e8;
+        --color: var(--color-text-500);
+        --still: 0;
 
-    @media (prefers-reduced-motion: reduce) {
-        --still: 1;
+        @media (prefers-reduced-motion: reduce) {
+            --still: 1;
+        }
     }
 
-    // Held, a surface shows its second shadow and the closed hand.
+    // A surface of its own, lifted while held: it grows a touch and shows its second shadow, and the closed hand.
+    // Under reduced motion it lifts in place.
     &-surface {
         @extend %surface-raise;
+        --border-color: var(--surface-border-default);
+        --border-width: 1px;
+        --box-shadow: 0 1px 2px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 0.6)), 0 8px 24px -8px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 1.55));
+        // Its own name: the global per-element reset would swallow '--border-radius' on the corners its parts round.
+        --radius: 14px;
+        --scale: 1;
+        --transition-duration: 200ms;
+        --transition-timing-function: ease;
+
         @include tokens.state(active) {
-            --surface-header-cursor: grabbing;
-            --surface-lift-opacity: 1;
+            --scale: 1.01;
+
+            .surface-field-surface-header {
+                --cursor: grabbing;
+            }
+
+            .surface-field-surface-lift {
+                --opacity: 1;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+
+            @include tokens.state(active) {
+                --scale: 1;
+            }
+        }
+
+        &-body {
+            --color: var(--color-text-300);
+            --font-size: calc(var(--font-size-400) * 0.8125);
+            --line-height: 1.5;
+        }
+
+        &-content {
+            --gap-vertical: var(--size-100);
+            --padding-bottom: var(--size-400);
+            --padding-horizontal: var(--size-400);
+        }
+
+        &-handle {
+            --width: 32px;
+
+            &::before {
+                --height: 2px;
+                --opacity: 0.7;
+                --width: 18px;
+            }
+        }
+
+        &-handle,
+        &-resize {
+            --color: var(--color-primary-300);
+            --focus-color: oklch(from var(--color-text-500) l c h / 0.4);
+            --focus-offset: calc(var(--size-100) / -4);
+            --focus-width: 2px;
+        }
+
+        &-header {
+            --cursor: grab;
+            --gap-horizontal: calc(var(--size-100) / 2);
+            --height: 28px;
+            --padding-start: var(--size-400);
+        }
+
+        &-lift {
+            --box-shadow: 0 2px 4px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 0.8)), 0 20px 40px -12px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 2.7));
+            --opacity: 0;
+        }
+
+        &-resize {
+            --opacity: 0.7;
+            --size: 22px;
+        }
+
+        &-title {
+            --color: var(--color-text-500);
         }
     }
 }

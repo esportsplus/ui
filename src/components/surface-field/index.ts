@@ -240,9 +240,11 @@ export default component(
             generation = signal(0),
             host: HTMLElement | undefined,
             last = { accent: '', camera: null as Camera | null, color: '', shapes: [] as Shape[], size: '' },
-            // Ends everything a connection listens to and observes, presses still held included.
+            // Ends everything a connection listens to and observes.
             listening: AbortController | undefined,
             measuring = 0,
+            // The pointers pressed on the field, whose rings hold until they are let go.
+            pressed = new Set<number>(),
             relink = true,
             resizer: Observer | undefined,
             running = 0,
@@ -670,6 +672,8 @@ export default component(
                             element.addEventListener(type, done, { signal });
                         }
 
+                        // Captured, which template's events aren't, since scroll doesn't bubble: a scroll inside the
+                        // field, or anywhere on the page, moves the boxes it measures.
                         element.addEventListener('scroll', viewport, { capture: true, passive: true, signal });
                         matchMedia('(prefers-color-scheme: dark)').addEventListener('change', recolor, { signal });
                         window.addEventListener('scroll', () => {
@@ -688,6 +692,7 @@ export default component(
                     ondisconnect: () => {
                         listening?.abort();
                         listening = undefined;
+                        pressed.clear();
                         cancelAnimationFrame(measuring);
                         measuring = 0;
                         field?.dispose();
@@ -711,26 +716,8 @@ export default component(
                             return;
                         }
 
-                        // The ring holds while pressed, so the release is heard wherever it happens.
-                        let finish = (e: PointerEvent) => {
-                            if (e.pointerId !== id) {
-                                return;
-                            }
-
-                            if (e.type === 'pointercancel') {
-                                field?.cancel(id);
-                            }
-                            else {
-                                field?.release(id);
-                            }
-
-                            window.removeEventListener('pointercancel', finish);
-                            window.removeEventListener('pointerup', finish);
-                        };
-
                         field.press(id, x, y);
-                        window.addEventListener('pointercancel', finish, { signal: listening?.signal });
-                        window.addEventListener('pointerup', finish, { signal: listening?.signal });
+                        pressed.add(id);
                     },
                     onpointerleave: (event: PointerEvent) => {
                         field?.pointer(event.pointerId, 0, 0, false);
@@ -743,6 +730,17 @@ export default component(
                         let b = box();
 
                         field.pointer(event.pointerId, event.clientX - b.left, event.clientY - b.top, true);
+                    },
+                    // The ring holds while pressed, so the release is heard wherever it happens.
+                    onwindowpointercancel: (event: PointerEvent) => {
+                        if (pressed.delete(event.pointerId)) {
+                            field?.cancel(event.pointerId);
+                        }
+                    },
+                    onwindowpointerup: (event: PointerEvent) => {
+                        if (pressed.delete(event.pointerId)) {
+                            field?.release(event.pointerId);
+                        }
                     },
                     onwindowresize: viewport
                 }}

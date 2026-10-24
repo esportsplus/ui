@@ -37,27 +37,24 @@
     }
 
     // Geometry is written every pointer move, so only the lift eases: a scale and the fade of a second shadow, both
-    // composited rather than repainted per frame.
-    // A surface of its own, so its background is a level above whatever it floats over.
+    // composited rather than repainted per frame. A surface of its own, so its background is a level above whatever it
+    // floats over.
     &-surface {
         background: var(--surface-background-default);
-        border-radius: var(--surface-border-radius);
-        box-shadow: 0 0 0 1px var(--surface-border-color), var(--surface-box-shadow);
+        border-radius: var(--radius);
+        box-shadow: 0 0 0 var(--border-width) var(--border-color), var(--box-shadow);
         display: flex;
         flex-direction: column;
         left: 0;
         position: absolute;
+        scale: var(--scale);
         top: 0;
-        transition: scale var(--surface-lift-duration) ease;
-
-        @include tokens.state(active) {
-            scale: 1.01;
-        }
+        transition: scale var(--transition-duration) var(--transition-timing-function);
 
         &-body {
-            color: var(--surface-body-color);
-            font-size: var(--surface-body-font-size);
-            line-height: 1.5;
+            color: var(--color);
+            font-size: var(--font-size);
+            line-height: var(--line-height);
             margin: 0;
             overflow-wrap: break-word;
         }
@@ -66,36 +63,36 @@
             display: flex;
             flex: 1;
             flex-direction: column;
-            gap: var(--size-100);
+            gap: var(--gap-vertical);
             min-height: 0;
             overflow: hidden;
-            padding: 0 var(--size-400) var(--size-400);
+            padding: 0 var(--padding-horizontal) var(--padding-bottom);
         }
 
         &-handle {
             align-self: stretch;
-            border-radius: 0 var(--surface-border-radius) 0 0;
+            border-radius: 0 var(--radius) 0 0;
             cursor: inherit;
             flex-shrink: 0;
             position: relative;
-            width: var(--surface-grip-width);
+            width: var(--width);
 
             &::before {
                 background: currentColor;
                 border-radius: 999px;
                 content: '';
-                height: 2px;
+                height: var(--height);
                 left: 50%;
-                opacity: 0.7;
+                opacity: var(--opacity);
                 position: absolute;
                 top: 50%;
                 translate: -50% -50%;
-                width: 18px;
+                width: var(--width);
             }
 
             // Alone in the header it is the whole bar, grip centred.
             &:only-child {
-                border-radius: var(--surface-border-radius) var(--surface-border-radius) 0 0;
+                border-radius: var(--radius) var(--radius) 0 0;
                 flex: 1;
                 margin-inline-start: calc(var(--size-400) * -1);
             }
@@ -105,34 +102,34 @@
         &-resize {
             background: none;
             border: 0;
-            color: var(--surface-grip-color);
+            color: var(--color);
             padding: 0;
             touch-action: none;
 
             &:focus-visible {
-                outline: 2px solid oklch(from var(--color) l c h / 0.4);
-                outline-offset: calc(var(--size-100) / -4);
+                outline: var(--focus-width) solid var(--focus-color);
+                outline-offset: var(--focus-offset);
             }
         }
 
         // Carries the surface from anywhere but an editable title; the grip is its keyboard handle.
         &-header {
             align-items: center;
-            cursor: var(--surface-header-cursor);
+            cursor: var(--cursor);
             display: flex;
             flex-shrink: 0;
-            gap: calc(var(--size-100) / 2);
-            min-height: var(--surface-handle-height);
-            padding-inline-start: var(--size-400);
+            gap: var(--gap-horizontal);
+            min-height: var(--height);
+            padding-inline-start: var(--padding-start);
             touch-action: none;
         }
 
         // An element rather than a pseudo-element, so both of those stay free for the surface's own decoration.
         &-lift {
             @extend %layer;
-            box-shadow: var(--surface-box-shadow-active);
-            opacity: var(--surface-lift-opacity);
-            transition: opacity var(--surface-lift-duration) ease;
+            box-shadow: var(--box-shadow);
+            opacity: var(--opacity);
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
         }
 
         // Two diagonal ticks in the corner, drawn with a gradient so no icon is needed.
@@ -140,36 +137,26 @@
             background:
                 linear-gradient(135deg, transparent 45%, currentColor 45%, currentColor 52%, transparent 52%) 4px 4px / 12px 12px no-repeat,
                 linear-gradient(135deg, transparent 70%, currentColor 70%, currentColor 77%, transparent 77%) 4px 4px / 12px 12px no-repeat;
-            border-radius: 0 0 var(--surface-border-radius) 0;
+            border-radius: 0 0 var(--radius) 0;
             bottom: 0;
             cursor: nwse-resize;
-            height: 22px;
-            opacity: 0.7;
+            height: var(--size);
+            opacity: var(--opacity);
             position: absolute;
             right: 0;
-            width: 22px;
+            width: var(--size);
         }
 
         // Sized to its text, so the rest of the header stays free to carry the surface.
         &-title {
             @extend %text-truncate;
-            color: var(--surface-title-color);
+            color: var(--color);
             flex: 0 1 auto;
             font-weight: var(--font-weight-600);
             min-width: 0;
 
             & + .surface-field-surface-handle {
                 margin-inline-start: auto;
-            }
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &-surface {
-            transition: none;
-
-            @include tokens.state(active) {
-                scale: 1;
             }
         }
     }
