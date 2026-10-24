@@ -39,7 +39,8 @@
         --aspect-ratio: auto;
         --background-default: var(--surface-background-default);
         --border-radius: var(--border-radius-600);
-        --timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        // Only a fade, so it plays under reduced motion too.
         --transition-duration: 0.65s;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     }
 }

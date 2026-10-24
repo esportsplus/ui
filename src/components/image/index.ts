@@ -2,5 +2,7 @@ import lazyload from './lazyload';
 import './scss/index.scss';
 
 
-export default { lazyload };
-export { lazyload };
+const image: { lazyload: typeof lazyload } = { lazyload };
+
+
+export default image;

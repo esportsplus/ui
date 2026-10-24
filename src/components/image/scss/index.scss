@@ -74,7 +74,7 @@
         &-placeholder {
             opacity: var(--placeholder-opacity, 1);
             pointer-events: none;
-            transition: opacity var(--transition-duration) var(--timing-function);
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
             z-index: 1;
         }
 
