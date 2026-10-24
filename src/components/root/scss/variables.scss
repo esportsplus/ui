@@ -38,12 +38,6 @@
     --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-// Light, as a page declaring no color scheme is drawn, until the page declares one: 'light-dark()' needs a scheme,
-// and the fallback Lightning CSS writes for older browsers has none to read without it.
-:where(:root) {
-    color-scheme: light;
-}
-
 b,
 strong {
     --color: var(--color-text-400);
@@ -76,4 +70,15 @@ h4 {
 
 section {
     --width: 100%;
+}
+
+// Raised and lowered by about half their own size; smaller still inside a heading, whose text is already large.
+sub,
+sup {
+    --font-size: 0.8em;
+    --offset: -0.48em;
+
+    :is(h1, h2, h3, h4, h5, h6) & {
+        --font-size: 0.64em;
+    }
 }

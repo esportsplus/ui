@@ -32,6 +32,12 @@
     }
 }
 
+// Light, as a page declaring no color scheme is drawn, until the page declares one: 'light-dark()' needs a scheme,
+// and the fallback Lightning CSS writes for older browsers has none to read without it.
+:where(:root) {
+    color-scheme: light;
+}
+
 a {
     color: var(--color, inherit);
     cursor: pointer;
@@ -79,11 +85,6 @@ h6 {
     position: relative;
     text-wrap: balance;
     width: 100%;
-
-    sub,
-    sup {
-        font-size: 0.64em;
-    }
 }
 
 p {
@@ -112,14 +113,14 @@ section {
 }
 
 sub {
-    bottom: -0.48em;
+    bottom: var(--offset);
 }
 
 sub,
 sup {
-    font-size: 0.8em;
+    font-size: var(--font-size);
 }
 
 sup {
-    top: -0.48em;
+    top: var(--offset);
 }
