@@ -69,7 +69,7 @@ const groups: Record<string, Group[]> = {
         { title: 'horizontal group', members: [['horizontal group', 'Background'], ['horizontal group · line', 'Line'], ['horizontal group · background + line', 'Background + line']] },
         { title: 'vertical group', members: [['vertical group', 'Background'], ['vertical group · line', 'Line'], ['vertical group · background + line', 'Background + line']] }
     ],
-    loading: [{ title: 'loading', members: ['default', 'small', 'tail', 'bar'] }],
+    loading: [{ title: 'loading', members: ['default', 'small', 'bar'] }],
     marquee: [{ title: 'marquee', members: ['default', 'right', 'marks', 'select', 'paused state', 'velocity (scroll the page to speed it up)'] }],
     metric: [
         { title: 'metric', members: ['default', ['metric--accent, currency format', 'Accent, currency format'], ['resizable container (drag the corner)', 'Resizable'], ['controlled state', 'Controlled state']] },
