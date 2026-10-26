@@ -4,14 +4,14 @@
 
 // The palette, each color written once as its 400; shared 'color-weights()' derives the rest where the color is used.
 $color: (
-    'black': oklch(16% 0.0102 257),
-    'blue': oklch(51.45% 0.2712 266.6),
-    'green': oklch(83.7% 0.2711 144),
-    'grey': oklch(92% 0.0093 257),
-    'purple': oklch(51.66% 0.2929 289.7),
-    'red': oklch(62.87% 0.2567 27.7),
+    'black': oklch(16% 0.012 257),
+    'blue': oklch(51.45% 0.28 266.6),
+    'green': oklch(83.7% 0.28 144),
+    'grey': oklch(92% 0.008 257),
+    'purple': oklch(51.66% 0.28 289.7),
+    'red': oklch(62.87% 0.24 27.7),
     'white': oklch(99% 0.004 257),
-    'yellow': oklch(85.2% 0.199 91.9)
+    'yellow': oklch(85.2% 0.2 91.9)
 );
 
 $colors: list.join(primary text, map.keys($color));
@@ -40,29 +40,29 @@ $colors: list.join(primary text, map.keys($color));
 // 'primary', lighter for hover and darker for press; 'text' as a contrast ratio, text 300 and 500 each holding it
 // against 400.
 $theme-black: map.get($color, 'black');
-$theme-white: oklch(96% 0.004 257);
+$theme-white: oklch(97% 0.0032 257);
 
 $themes: (
     dark: (
         color: (
             primary: $theme-white,
             surface: $theme-black,
-            text: oklch(90% 0.0162 257)
+            text: oklch(90% 0.016 257)
         ),
         surface: (
             active: 3,
             hover: 2,
             pressed: 3,
 
-            border: 4,
-            primary: 2,
+            border: 2.5,
+            primary: 1.5,
             shadow: (
                 depth: 0.2,
                 opacity: 16
             ),
 
-            lowered: 2,
-            raised: 2,
+            lowered: 1.5,
+            raised: 1.5,
         ),
         weights: (
             color: 3,
@@ -73,22 +73,22 @@ $themes: (
         color: (
             primary: $theme-black,
             surface: $theme-white,
-            text: oklch(36% 0.0325 257)
+            text: oklch(36% 0.032 257)
         ),
         surface: (
             active: 2,
             hover: 1,
             pressed: 2,
 
-            border: 6,
-            primary: 4,
+            border: 4.5,
+            primary: 3.5,
             shadow: (
                 depth: 0.2,
                 opacity: 8
             ),
 
-            lowered: 1.2,
-            raised: 1.2,
+            lowered: 1.5,
+            raised: 1,
         ),
         weights: (
             color: 3,

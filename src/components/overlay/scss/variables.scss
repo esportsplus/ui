@@ -4,7 +4,7 @@
 
 .overlay {
     @extend %anchor;
-    --backdrop: color-mix(in srgb, var(--color-black-500) 64%, transparent);
+    --backdrop: color-mix(in srgb, var(--color-black-500) 48%, transparent);
     --close-duration: 0.3s;
     // Read by JS for a flow overlay's space, which grows and gives way without bouncing.
     --ease: cubic-bezier(0.32, 0.72, 0, 1);
