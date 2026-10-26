@@ -6,12 +6,17 @@ import group, { settle, type Group } from './group';
 import './scss/index.scss';
 
 
-export default component<Attributes & {
+type A = Attributes & {
     group?: Group,
     lines?: number,
     state?: { active: boolean | number, expandable?: boolean }
-}>(
-    function({ group, lines, state = reactive({ active: false, expandable: false }), ...attributes }, content) {
+};
+
+
+// The attributes are typed on the parameter rather than as a type argument, which would stop the 'group' static
+// from being inferred.
+export default component(
+    function({ group, lines, state = reactive({ active: false, expandable: false }), ...attributes }: A, content) {
         let a: Attributes | undefined,
             c: Attributes | undefined,
             property = lines === undefined ? 'grid-template-rows' : 'height',
