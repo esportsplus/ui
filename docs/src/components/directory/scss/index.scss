@@ -5,13 +5,14 @@
     --border-color-pressed: var(--color-primary-300);
     --border-radius: var(--border-radius-500);
     --border-width: var(--border-width-400);
+    --gap-horizontal: 0px;
     --gap-vertical: var(--size-200);
     --padding-horizontal: var(--size-400);
     --padding-vertical: var(--size-400);
     color: var(--color-text-400);
     display: flex;
     flex-direction: column;
-    gap: var(--gap-vertical);
+    gap: var(--gap-vertical) var(--gap-horizontal);
     text-decoration: none;
 
     &-description {

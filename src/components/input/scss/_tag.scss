@@ -8,7 +8,7 @@
     color: var(--color);
     display: flex;
     flex-direction: column;
-    gap: var(--size-100);
+    gap: var(--gap-vertical) var(--gap-horizontal);
     width: var(--width);
 
 
@@ -31,7 +31,7 @@
         color: var(--color);
         display: flex;
         font-size: var(--font-size);
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--height);
         max-width: 100%;
         padding-inline: var(--text-inset-horizontal) var(--padding-end);

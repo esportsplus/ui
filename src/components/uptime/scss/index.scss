@@ -59,7 +59,7 @@
         align-items: center;
         color: var(--color-muted);
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         justify-content: flex-end;
         min-width: 0;
     }
@@ -77,7 +77,7 @@
     &-service-header {
         align-items: center;
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--height);
         justify-content: space-between;
         margin-bottom: var(--margin-bottom);

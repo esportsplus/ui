@@ -9,7 +9,7 @@
         display: flex;
         flex-direction: column;
         font-size: var(--font-size);
-        gap: var(--gap-vertical);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         margin-inline: auto;
         max-width: 100%;
         width: var(--width);
@@ -18,7 +18,7 @@
         &-body {
             display: flex;
             flex-direction: column;
-            gap: var(--gap-vertical);
+            gap: var(--gap-vertical) var(--gap-horizontal);
 
             &--vertical {
                 align-self: center;
@@ -39,7 +39,7 @@
             font: inherit;
             font-size: var(--font-size);
             font-weight: var(--font-weight-500);
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             height: var(--height);
             outline: 0 solid var(--focus-color);
             outline-offset: var(--focus-offset);
@@ -108,7 +108,7 @@
             cursor: var(--cursor);
             display: flex;
             flex: 1 1 0;
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             height: var(--height);
             min-width: 0;
             outline: 0 solid var(--focus-color);
@@ -150,7 +150,7 @@
         &-fields {
             align-items: center;
             display: flex;
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
         }
 
         &-ghost {
@@ -349,7 +349,7 @@
         &-values {
             align-items: center;
             display: flex;
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
         }
 
         @include tokens.state(disabled) {

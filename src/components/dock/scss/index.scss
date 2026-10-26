@@ -86,7 +86,7 @@
         cursor: pointer;
         display: flex;
         flex-direction: column;
-        gap: var(--gap-vertical);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         min-width: 0;
         padding: var(--padding-vertical) var(--padding-horizontal);
 
@@ -290,7 +290,7 @@
             display: flex;
             flex-shrink: 0;
             font-size: var(--font-size);
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             height: var(--height);
             padding-inline: var(--padding-horizontal);
             user-select: none;
@@ -299,7 +299,7 @@
         &-hint {
             align-items: center;
             display: flex;
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
 
             // Close stays on the left; the rest pack to the end.
             &:first-child {
@@ -319,7 +319,7 @@
         // Keycaps here are legends, not controls, so they take no hover or press.
         &-keys {
             display: flex;
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             pointer-events: none;
         }
 
@@ -328,7 +328,7 @@
             color: var(--color);
             display: flex;
             flex-shrink: 0;
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             height: var(--height);
             padding-inline: var(--padding-horizontal);
         }

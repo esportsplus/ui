@@ -113,7 +113,7 @@
             align-items: center;
             border-bottom: var(--divider);
             display: grid;
-            gap: var(--size-200);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             grid-template-columns: var(--columns);
             min-height: var(--row-height);
             padding-block: var(--padding-vertical);

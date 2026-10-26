@@ -40,13 +40,14 @@
         --border-width: var(--border-width-400);
         --font-size: var(--font-size-300);
         --gap-horizontal: var(--size-300);
+        --gap-vertical: 0px;
         --padding-horizontal: var(--size-400);
         --padding-vertical: var(--size-300);
         align-items: center;
         color: var(--color-text-300);
         display: flex;
         font-size: var(--font-size);
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         margin: var(--size-200) 0 0;
 
         &-icon {
@@ -66,10 +67,11 @@
     }
 
     &-section {
+        --gap-horizontal: 0px;
         --gap-vertical: var(--size-400);
         display: flex;
         flex-direction: column;
-        gap: var(--gap-vertical);
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 }
 

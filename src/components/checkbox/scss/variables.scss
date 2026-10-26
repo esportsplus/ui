@@ -84,11 +84,16 @@
 
     &-group {
         --color: var(--color-text-500);
-        --gap-horizontal: var(--size-300);
+        --gap-horizontal: 0px;
         --gap-vertical: 0px;
 
         &-counter {
             --color: var(--color-text-300);
+        }
+
+        &-header {
+            --gap-horizontal: var(--size-300);
+            --gap-vertical: 0px;
         }
 
         &-hint {

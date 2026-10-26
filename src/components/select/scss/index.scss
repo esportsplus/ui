@@ -33,7 +33,7 @@
             border-radius: var(--border-radius);
             cursor: default;
             display: flex;
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             height: var(--height);
             padding-block: var(--padding-vertical);
             padding-inline: var(--padding-horizontal);
@@ -132,7 +132,7 @@
             cursor: pointer;
             display: flex;
             font: inherit;
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             height: var(--height);
             margin: 0;
             outline: none;

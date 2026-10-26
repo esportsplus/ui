@@ -53,6 +53,7 @@
         }
 
         &-content {
+            --gap-horizontal: 0px;
             --gap-vertical: var(--size-100);
             --padding-bottom: var(--size-400);
             --padding-horizontal: var(--size-400);
@@ -79,6 +80,7 @@
         &-header {
             --cursor: grab;
             --gap-horizontal: calc(var(--size-100) / 2);
+            --gap-vertical: 0px;
             --height: 28px;
             --padding-start: var(--size-400);
         }

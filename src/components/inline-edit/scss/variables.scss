@@ -306,6 +306,7 @@
     &-toolbar-format,
     &-toolbar-link {
         --gap-horizontal: calc(var(--size-100) / 4);
+        --gap-vertical: 0px;
     }
 
     // The toolbar's glyphs are outlines on a 24 unit grid that carry no stroke of their own.

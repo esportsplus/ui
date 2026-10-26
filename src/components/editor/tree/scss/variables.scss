@@ -236,6 +236,11 @@ $icons: (
         --padding-vertical: calc(var(--size-100) / 4);
     }
 
+    &-empty {
+        --gap-horizontal: 0px;
+        --gap-vertical: var(--size-200);
+    }
+
     &-find {
         &-bar {
             @extend %surface-raise;

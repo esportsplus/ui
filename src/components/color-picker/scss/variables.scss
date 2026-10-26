@@ -129,6 +129,7 @@
 
     &-fields {
         --gap-horizontal: var(--size-100);
+        --gap-vertical: 0px;
     }
 
     &-fields #{&}-hex {
@@ -147,6 +148,7 @@
 
     &-header {
         --gap-horizontal: var(--size-100);
+        --gap-vertical: 0px;
     }
 
     // Chained through '.icon' so it wins over the icon's own color regardless of stylesheet order.
@@ -187,6 +189,7 @@
     }
 
     &-sliders {
+        --gap-horizontal: 0px;
         --gap-vertical: calc(var(--size-100) / 2);
     }
 
@@ -220,6 +223,7 @@
         --enter-duration: 300ms;
         --enter-timing-function: linear(0, 0.058, 0.18, 0.321, 0.455, 0.573, 0.671, 0.75, 0.812, 0.86, 0.897, 0.924, 0.944, 0.96, 0.971, 0.979, 0.985, 0.989, 0.992, 0.994, 0.996, 0.997, 0.998, 0.999, 1);
         --gap-horizontal: var(--size-100);
+        --gap-vertical: 0px;
         --scale: 0.6;
         --shift-duration: var(--enter-duration);
         --shift-timing-function: var(--enter-timing-function);

@@ -27,7 +27,7 @@
 
     &-bars {
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         left: 0;
         padding: var(--padding-top) var(--padding-horizontal) 0;
         pointer-events: none;

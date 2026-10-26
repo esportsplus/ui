@@ -412,7 +412,7 @@
     &-toolbar-link {
         align-items: center;
         display: var(--display);
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
     &-toolbar-icon {

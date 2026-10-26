@@ -358,7 +358,7 @@
         align-items: center;
         cursor: pointer;
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         list-style: none;
 
         &::-webkit-details-marker {

@@ -10,14 +10,14 @@
     color: var(--color);
     display: flex;
     flex-direction: column;
-    gap: var(--size-500);
+    gap: var(--gap-vertical) var(--gap-horizontal);
     width: var(--width);
 
 
     &-actions {
         display: flex;
         flex-direction: column;
-        gap: var(--size-200);
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
     // A sprite <svg> has no viewBox of its own, so the cell must be definite for the marks' 100% to resolve.
@@ -162,7 +162,7 @@
         display: flex;
         flex-direction: column;
         flex-shrink: 0;
-        gap: calc(var(--size-100) / 2);
+        gap: var(--gap-vertical) var(--gap-horizontal);
 
         &-value {
             @extend %font-geist-mono;
@@ -202,7 +202,7 @@
         &-bottom {
             align-items: flex-end;
             display: flex;
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             justify-content: space-between;
         }
 
@@ -248,14 +248,14 @@
     &-fields {
         display: flex;
         flex-direction: column;
-        gap: var(--size-400);
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
     &-holder {
         display: flex;
         flex: 1;
         flex-direction: column;
-        gap: calc(var(--size-100) / 2);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         min-width: 0;
 
         &-value {
@@ -281,7 +281,7 @@
         color: var(--color);
         display: flex;
         font-size: var(--font-size-300);
-        gap: calc(var(--size-300) / 2);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         justify-content: center;
         margin: 0;
     }
@@ -332,13 +332,13 @@
     &-shell {
         display: flex;
         flex-direction: column;
-        gap: var(--size-100);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         min-width: 0;
 
         &-header {
             align-items: baseline;
             display: flex;
-            gap: var(--size-100);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             justify-content: space-between;
         }
     }
@@ -346,7 +346,7 @@
     &-signature {
         align-items: center;
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         padding: var(--padding-top) var(--padding-horizontal) 0;
 
         &-value {

@@ -252,7 +252,7 @@
                 display: flex;
                 font-size: var(--font-size);
                 font-weight: var(--font-weight-500);
-                gap: var(--gap-horizontal);
+                gap: var(--gap-vertical) var(--gap-horizontal);
                 padding-inline-end: var(--padding-end);
             }
         }
@@ -276,7 +276,7 @@
         &-header {
             display: flex;
             flex-direction: column;
-            gap: var(--gap-vertical);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             margin-bottom: var(--spacer);
             text-align: center;
         }

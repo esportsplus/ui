@@ -31,7 +31,7 @@
     // Shown for the change under the pointer or holding focus, so a long diff isn't covered in buttons.
     &-actions {
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         inset-inline-end: var(--inset-horizontal);
         opacity: 0;
         position: absolute;
@@ -49,7 +49,7 @@
         display: inline-flex;
         flex: none;
         font: inherit;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--size);
         justify-content: center;
         min-width: var(--size);
@@ -104,7 +104,7 @@
         align-items: center;
         display: flex;
         flex-wrap: wrap;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         margin-inline-start: auto;
     }
 
@@ -125,7 +125,7 @@
         display: flex;
         font: inherit;
         font-size: var(--label-font-size);
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         min-height: var(--line-height);
         padding: 0 var(--code-padding-horizontal);
         width: 100%;
@@ -149,7 +149,7 @@
 
     &-modes {
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
     &-number {
@@ -237,7 +237,7 @@
 
     &-stats {
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
     &-token {

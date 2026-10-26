@@ -73,6 +73,8 @@
     &-tag {
         --color: var(--color-text-500);
         --font-size: var(--font-size-300);
+        --gap-horizontal: 0px;
+        --gap-vertical: var(--size-100);
         --text-inset-horizontal: var(--size-200);
         --width: min(440px, 100%);
 
@@ -100,6 +102,7 @@
             --color-active: var(--color-surface);
             --color-default: var(--color-text-500);
             --gap-horizontal: calc(var(--size-100) / 4);
+            --gap-vertical: 0px;
             --height: 32px;
             --leave-duration: 150ms;
             --leave-timing-function: cubic-bezier(0.23, 1, 0.32, 1);

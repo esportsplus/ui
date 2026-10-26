@@ -96,7 +96,7 @@
         color: var(--color);
         display: flex;
         font-size: var(--font-size);
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         padding: 0 var(--padding-horizontal);
         transition: color var(--transition-duration) var(--transition-timing-function);
 

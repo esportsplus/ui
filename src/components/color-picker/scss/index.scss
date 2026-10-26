@@ -116,7 +116,7 @@
     // Qualified by the row so it wins over the reused input styles regardless of stylesheet order.
     &-fields {
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
 
         > .color-picker-alpha {
             @extend %font-geist-mono;
@@ -132,7 +132,7 @@
     &-header {
         align-items: center;
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
     &-hex {
@@ -196,7 +196,7 @@
         display: flex;
         flex: 1;
         flex-direction: column;
-        gap: var(--gap-vertical);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         min-width: 0;
     }
 
@@ -252,7 +252,7 @@
 
     &-swatches {
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--size);
         position: relative;
     }

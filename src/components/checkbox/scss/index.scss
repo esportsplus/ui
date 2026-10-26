@@ -72,7 +72,7 @@
         color: var(--color);
         display: flex;
         flex-direction: column;
-        gap: var(--gap-vertical) 0px;
+        gap: var(--gap-vertical) var(--gap-horizontal);
 
         &-counter {
             color: var(--color);
@@ -85,7 +85,7 @@
             align-items: center;
             cursor: pointer;
             display: flex;
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             user-select: none;
         }
 

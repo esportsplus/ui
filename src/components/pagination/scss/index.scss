@@ -154,7 +154,7 @@
     }
 
     &-control {
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
 
         @include tokens.state(disabled) {
             opacity: var(--disabled-opacity);
@@ -219,7 +219,7 @@
     &-pages {
         align-items: center;
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
     // Spans the two pages it sits between: the leading edge travels in the first 60% of the move and the trailing edge in the

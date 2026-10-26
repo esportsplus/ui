@@ -63,7 +63,7 @@
             display: flex;
             flex: 1;
             flex-direction: column;
-            gap: var(--gap-vertical);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             min-height: 0;
             overflow: hidden;
             padding: 0 var(--padding-horizontal) var(--padding-bottom);
@@ -118,7 +118,7 @@
             cursor: var(--cursor);
             display: flex;
             flex-shrink: 0;
-            gap: var(--gap-horizontal);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             min-height: var(--height);
             padding-inline-start: var(--padding-start);
             touch-action: none;

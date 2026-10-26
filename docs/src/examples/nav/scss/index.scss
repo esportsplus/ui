@@ -18,10 +18,11 @@
 
     // Tall enough that only a couple fit the panel at once, so the spy has somewhere to move.
     &-section {
+        --gap-horizontal: 0px;
         --gap-vertical: var(--size-200);
         display: flex;
         flex-direction: column;
-        gap: var(--gap-vertical);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         min-height: 140px;
         padding-block: var(--size-400);
     }

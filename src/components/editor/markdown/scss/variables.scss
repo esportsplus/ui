@@ -186,6 +186,7 @@
 
     &-summary {
         --gap-horizontal: var(--size-100);
+        --gap-vertical: 0px;
 
         &-icon.icon {
             --rotate: -90deg;

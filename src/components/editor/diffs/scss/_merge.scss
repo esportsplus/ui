@@ -33,7 +33,7 @@
         background: var(--conflict-background);
         border-top: var(--border-width) solid var(--conflict-color);
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         min-height: var(--line-height);
         padding: var(--padding-vertical) var(--code-padding-horizontal);
 

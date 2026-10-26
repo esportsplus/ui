@@ -46,6 +46,7 @@
     // Overlays the story content, which runs the full height of the card beneath it.
     &-bars {
         --gap-horizontal: calc(var(--size-100) / 2);
+        --gap-vertical: 0px;
         --padding-horizontal: 12px;
         --padding-top: 12px;
     }

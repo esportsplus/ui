@@ -119,7 +119,7 @@
         color: var(--color);
         display: flex;
         font-size: var(--font-size);
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         margin-bottom: var(--spacer);
         padding: var(--padding-vertical) var(--padding-horizontal);
         position: absolute;

@@ -291,7 +291,7 @@
         color: var(--muted-color);
         display: flex;
         font-size: var(--status-font-size);
-        gap: var(--size-300);
+        gap: var(--gap-vertical) var(--gap-horizontal);
         grid-column: var(--main-column);
         grid-row: var(--status-row);
         justify-content: space-between;

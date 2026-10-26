@@ -66,6 +66,7 @@
         --color: var(--color-text-500);
         --disabled-opacity: 0.5;
         --font-size: inherit;
+        --gap-horizontal: 0px;
         --gap-vertical: var(--size-500);
         --muted-color: var(--color-text-300);
         --width: 384px;
@@ -159,6 +160,7 @@
         }
 
         &-body {
+            --gap-horizontal: 0px;
             --gap-vertical: var(--size-100);
         }
 
@@ -177,6 +179,7 @@
             --focus-width: var(--border-width-500);
             --font-size: var(--font-size-300);
             --gap-horizontal: calc(var(--size-100) / 2);
+            --gap-vertical: 0px;
             --height: 24px;
             --padding-horizontal: var(--size-100);
             --padding-vertical: 0px;
@@ -233,6 +236,7 @@
             --focus-offset: calc(var(--size-100) / 4);
             --focus-width: var(--border-width-500);
             --gap-horizontal: calc(var(--size-300) / 2);
+            --gap-vertical: 0px;
             --height: 40px;
             --padding-horizontal: 12px;
 
@@ -258,6 +262,7 @@
 
         &-fields {
             --gap-horizontal: 12px;
+            --gap-vertical: 0px;
         }
 
         // Shows how far the selection would stretch to reach the pointer, keeping up with it quickly.
@@ -377,6 +382,7 @@
 
         &-values {
             --gap-horizontal: calc(var(--size-300) / 2);
+            --gap-vertical: 0px;
         }
 
         @include tokens.state(disabled) {
