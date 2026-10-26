@@ -586,7 +586,8 @@ export default component(
                         links: group.items.map((item) => ({ attributes: item.attributes, content: item.content, label: item.label }))
                     }],
                     label: group.label
-                }))
+                })),
+                [nav.tree.highlight]: {}
             });
         }
 

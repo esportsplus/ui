@@ -47,7 +47,7 @@ const groups: Record<string, Group[]> = {
     heatmap: [{ title: 'heatmap', members: [['default (GitHub contributions)', 'Default'], ['heatmap--blue, custom thresholds and tooltip template', 'Blue, custom thresholds and tooltip'], ['controlled state', 'Controlled state']] }],
     highlight: [
         { title: 'highlight', members: [['horizontal button group', 'Default'], ['vertical link list', 'Vertical links'], ['rests on --active', 'Active selection']] },
-        { title: 'tabs', members: [['tabs · background + line', 'Default'], ['tabs · line only', 'Line only'], ['vertical tabs · background + line', 'Vertical']] }
+        { title: 'tabs', members: [['tabs · background + border', 'Default'], ['tabs · border only', 'Border only'], ['vertical tabs · background + border', 'Vertical']] }
     ],
     icon: [{ title: 'icon', members: [['default size', 'Default'], 'sized & coloured'] }],
     image: [
@@ -66,8 +66,8 @@ const groups: Record<string, Group[]> = {
         { title: 'scrub', members: [['scrub · transform', 'Default'], ['scrub · bounded + observed state', 'Bounds and observed state'], ['scrub · pointer lock', 'Pointer lock']] }
     ],
     link: [
-        { title: 'horizontal group', members: [['horizontal group', 'Background'], ['horizontal group · line', 'Line'], ['horizontal group · background + line', 'Background + line']] },
-        { title: 'vertical group', members: [['vertical group', 'Background'], ['vertical group · line', 'Line'], ['vertical group · background + line', 'Background + line']] }
+        { title: 'horizontal group', members: [['horizontal group', 'Background'], ['horizontal group · border', 'Border'], ['horizontal group · background + border', 'Background + border']] },
+        { title: 'vertical group', members: [['vertical group', 'Background'], ['vertical group · border', 'Border'], ['vertical group · background + border', 'Background + border']] }
     ],
     loading: [{ title: 'loading', members: ['default', 'small', 'bar'] }],
     marquee: [{ title: 'marquee', members: ['default', 'right', 'marks', 'select', 'paused state', 'velocity (scroll the page to speed it up)'] }],
@@ -78,7 +78,7 @@ const groups: Record<string, Group[]> = {
     ],
     nav: [
         { title: 'tree', members: ['tree'] },
-        { title: 'tree: border', members: [['tree: border', 'Border'], ['tree: background', 'Background'], ['tree: border + background', 'Border + background']] },
+        { title: 'tree: border', members: [['tree: border', 'Border'], ['tree: border + background', 'Border + background']] },
         { title: 'toc with spy', members: [['toc with spy', 'Current section'], ['toc with spy: every visible section', 'Every visible section']] }
     ],
     notification: [

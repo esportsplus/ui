@@ -8,61 +8,11 @@
     --gap-vertical: var(--size-600);
 
 
-    // The line marks the active link; hover and press still fill, easing in and out of a clear layer.
-    &--border {
-        .nav-tree-highlight {
-            --background-active: transparent;
-            --background-default: transparent;
-        }
-    }
-
-    &--command {
-        .nav-tree-link {
-            --gap-horizontal: var(--size-200);
-        }
-
-        // Links stay inside the palette's padding rather than pulling out, so titles step in to their text instead.
-        .nav-tree-title:not(.nav-tree-link) {
-            --padding-horizontal: var(--size-300);
-        }
-    }
-
-    &--highlight,
-    &--highlight#{&}--command {
-        .nav-tree-link {
-            @extend %surface, %surface-raise;
-            --background-pressed: var(--surface-primary-pressed);
-            --border-radius: var(--border-radius-300);
-            --color-active: var(--color-primary-500);
-        }
-    }
-
-    &--highlight {
-        .nav-tree-highlight {
-            @extend %surface-primary;
-            --background-active: var(--surface-primary-active);
-        }
-
-        // Pulls links out past the column edge, so their text lines up with the titles while the highlight pads around it.
-        .nav-tree-links,
-        .nav-tree-title.nav-tree-link {
-            --inset-horizontal: var(--size-300);
-        }
-    }
-
-    &--highlight#{&}--command {
-        // The palette's list already pads its rows, so links pulled out past it would overflow and clip.
-        .nav-tree-links,
-        .nav-tree-title.nav-tree-link {
-            --inset-horizontal: 0px;
-        }
-    }
-
-    // The rule as wide as the highlight's line, which lies over it.
-    &--rule {
+    // The rail as wide as the highlight's border, which lies over it.
+    &--rail {
         .nav-tree-highlight,
         .nav-tree-links {
-            --border-width: var(--border-width-500);
+            --rail-width: var(--border-width-500);
         }
     }
 
@@ -75,7 +25,7 @@
         --focus-width: var(--border-width-400);
         --font-size: var(--font-size-300);
         --font-weight: var(--font-weight-300);
-        --gap-horizontal: 0px;
+        --gap-horizontal: var(--size-200);
         --gap-vertical: 0px;
         --padding-horizontal: var(--size-300);
         --padding-vertical: var(--size-100);
@@ -83,11 +33,6 @@
         @include tokens.state(active) {
             --font-weight: var(--font-weight-500);
         }
-    }
-
-    &-links,
-    &-title.nav-tree-link {
-        --inset-horizontal: 0px;
     }
 
     &-title {
@@ -101,6 +46,31 @@
             @include tokens.state(active) {
                 --font-weight: var(--font-weight-600);
             }
+        }
+
+        &:not(.nav-tree-link) {
+            --padding-horizontal: 0px;
+        }
+    }
+
+
+    // Off a rail the highlight is a pill over raised links, kept inside the tree so no scroll container clips it; titles
+    // step in to line up with the links' text.
+    &:not(#{&}--rail) {
+        .nav-tree-highlight {
+            @extend %surface-primary;
+            --background-active: var(--surface-primary-active);
+        }
+
+        .nav-tree-link {
+            @extend %surface, %surface-raise;
+            --background-pressed: var(--surface-primary-pressed);
+            --border-radius: var(--border-radius-300);
+            --color-active: var(--color-primary-500);
+        }
+
+        .nav-tree-title:not(.nav-tree-link) {
+            --padding-horizontal: var(--size-300);
         }
     }
 }

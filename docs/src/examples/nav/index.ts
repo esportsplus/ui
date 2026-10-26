@@ -2,7 +2,7 @@ import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { nav } from '@esportsplus/ui/components';
 import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
-import type { Indicator } from '@esportsplus/ui/components/nav';
+import type { A as Highlight } from '@esportsplus/ui/components/highlight';
 import type { Entry } from 'docs/types';
 import 'docs/examples/nav/scss/index.scss';
 
@@ -73,14 +73,13 @@ function spied(mode?: 'current' | 'visible') {
     `;
 }
 
-function tree(indicator?: Indicator) {
+function tree(highlight: Highlight = {}) {
     let state = reactive({ active: 'Button' });
 
     return html`
         <div class='nav-demo-tree'>
             ${nav.tree({
                 active: () => state.active,
-                indicator,
                 sections: SECTIONS.map((section) => ({
                     groups: [{
                         links: section.links.map((label) => ({
@@ -94,7 +93,8 @@ function tree(indicator?: Indicator) {
                         }))
                     }],
                     label: section.label
-                }))
+                })),
+                [nav.tree.highlight]: highlight
             })}
         </div>
     `;
@@ -109,15 +109,11 @@ export default {
             title: 'tree'
         },
         {
-            render: () => tree('border'),
+            render: () => tree({ border: 'left', fill: false }),
             title: 'tree: border'
         },
         {
-            render: () => tree('background'),
-            title: 'tree: background'
-        },
-        {
-            render: () => tree('both'),
+            render: () => tree({ border: 'left' }),
             title: 'tree: border + background'
         },
         {

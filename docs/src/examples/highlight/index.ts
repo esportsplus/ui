@@ -11,16 +11,16 @@ let column = '--gap-vertical: var(--size-100); width: 240px;',
     row = '--gap-horizontal: var(--size-200); --gap-vertical: var(--size-200);';
 
 
-function tabs(line: 'bottom' | 'left', fill: boolean) {
+function tabs(border: 'bottom' | 'left', fill: boolean) {
     let state = reactive({ active: 0 });
 
     return html`
         <div
-            aria-orientation='${line === 'left' ? 'vertical' : 'horizontal'}'
-            class='highlight-demo-tabs highlight-rule ${line === 'left' && 'highlight-demo-tabs--vertical highlight-rule--vertical'}'
+            aria-orientation='${border === 'left' ? 'vertical' : 'horizontal'}'
+            class='highlight-demo-tabs highlight-rail highlight-rail--${border} ${border === 'left' && 'highlight-demo-tabs--vertical'}'
             role='tablist'
         >
-            ${highlight({ class: 'highlight-demo-highlight highlight--rule', fill, line })}
+            ${highlight({ border, class: 'highlight-demo-highlight highlight--rail', fill })}
             ${labels.map((label, index) => html`
                 <button
                     class='highlight-demo-tab ${() => state.active === index && '--active'}'
@@ -92,15 +92,15 @@ export default {
         },
         {
             render: () => tabs('bottom', true),
-            title: 'tabs · background + line'
+            title: 'tabs · background + border'
         },
         {
             render: () => tabs('bottom', false),
-            title: 'tabs · line only'
+            title: 'tabs · border only'
         },
         {
             render: () => tabs('left', true),
-            title: 'vertical tabs · background + line'
+            title: 'vertical tabs · background + border'
         },
         {
             render: () => html`

@@ -8,16 +8,16 @@ let color = '--color: light-dark(var(--color-purple-300), oklch(from var(--color
     managers = ['pnpm', 'npm', 'yarn', 'bun'];
 
 
-function group(vertical: boolean, fill: boolean, line: boolean) {
+function group(vertical: boolean, fill: boolean, border: boolean) {
     let state = reactive({ active: 0 });
 
     return html`
         <div
             aria-orientation='${vertical ? 'vertical' : 'horizontal'}'
-            class='link-demo-group highlight-rule ${vertical && 'link-demo-group--vertical highlight-rule--vertical'}'
+            class='link-demo-group highlight-rail highlight-rail--${vertical ? 'left' : 'bottom'} ${vertical && 'link-demo-group--vertical'}'
             role='tablist'
         >
-            ${highlight({ class: 'link-demo-group-highlight highlight--rule', fill, line: line ? (vertical ? 'left' : 'bottom') : undefined })}
+            ${highlight({ border: border ? (vertical ? 'left' : 'bottom') : undefined, class: 'link-demo-group-highlight highlight--rail', fill })}
             ${managers.map((manager, index) => html`
                 <div
                     class='link link-demo-group-link ${() => state.active === index && '--active'}'
@@ -47,11 +47,11 @@ export default {
         },
         {
             render: () => group(false, false, true),
-            title: 'horizontal group · line'
+            title: 'horizontal group · border'
         },
         {
             render: () => group(false, true, true),
-            title: 'horizontal group · background + line'
+            title: 'horizontal group · background + border'
         },
         {
             render: () => group(true, true, false),
@@ -59,11 +59,11 @@ export default {
         },
         {
             render: () => group(true, false, true),
-            title: 'vertical group · line'
+            title: 'vertical group · border'
         },
         {
             render: () => group(true, true, true),
-            title: 'vertical group · background + line'
+            title: 'vertical group · background + border'
         }
     ]
 };

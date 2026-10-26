@@ -6,19 +6,39 @@
     flex-direction: column;
     gap: var(--gap-vertical) var(--gap-horizontal);
 
-    // Command results hold an icon, label and keys on one line, and keep their labels' case (file paths, commands).
-    &--command {
-        .nav-tree-link {
-            align-items: center;
-            flex-wrap: nowrap;
-            text-transform: none;
-            user-select: none;
-        }
 
-        .nav-tree-title:not(.nav-tree-link) {
-            padding-inline: var(--padding-horizontal);
+    // The highlight spans every group, so it sits outside the links and their rail would paint over its border; the
+    // rail is drawn beneath the layers instead, in its own border's place.
+    &--rail {
+        isolation: isolate;
+
+        .nav-tree-links {
+            border-color: transparent;
+
+            &::before {
+                background: var(--rail-color);
+                content: '';
+                position: absolute;
+                z-index: -2;
+            }
+
+            @each $side, $length, $axis in (bottom height inline, left width block, right width block, top height inline) {
+                &.highlight-rail--#{$side}::before {
+                    #{$length}: var(--rail-width);
+                    #{$side}: calc(var(--rail-width) * -1);
+                    inset-#{$axis}: 0;
+                }
+            }
         }
     }
+
+    &--truncate {
+        .nav-tree-link {
+            @extend %text-truncate;
+            display: block;
+        }
+    }
+
 
     // Hidden by a filter; their own display would otherwise outrank the attribute's.
     &-group,
@@ -35,24 +55,20 @@
         flex-direction: column;
     }
 
+    // A link holds an icon, label and keys on one line, and keeps its label's case (file paths, commands).
     &-link {
         @extend %text;
-        align-content: center;
+        align-items: center;
         background: var(--background);
         border-radius: var(--border-radius);
         cursor: pointer;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         justify-content: flex-start;
         padding: var(--padding-vertical) var(--padding-horizontal);
-        text-transform: capitalize;
         transition:
             background var(--transition-duration) var(--transition-timing-function),
             color var(--transition-duration) var(--transition-timing-function);
-
-        &--truncate {
-            @extend %text-truncate;
-            display: block;
-        }
+        user-select: none;
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
@@ -64,17 +80,13 @@
         position: relative;
     }
 
-    &-links,
-    &-title.nav-tree-link {
-        margin-inline: calc(var(--inset-horizontal) * -1);
-    }
-
     &-title {
         @extend %text;
         text-transform: uppercase;
 
         &:not(.nav-tree-link) {
             margin-block: var(--margin-vertical);
+            padding-inline: var(--padding-horizontal);
         }
     }
 }

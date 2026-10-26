@@ -854,7 +854,8 @@ const workspace = ({
                     }))
                 }],
                 label: group.label
-            }))
+            })),
+            [nav.tree.highlight]: {}
         });
     }
 
@@ -1327,7 +1328,7 @@ const workspace = ({
             </aside>
             <main class='code-workspace-main' ${{ onpointerenter: () => peek(false) }}>
                 <div aria-label='Open files' class='code-workspace-tabs' role='tablist' ${scrollbar()}>
-                    ${highlight({ class: 'code-workspace-tabs-highlight', line: 'bottom' })}
+                    ${highlight({ border: 'bottom', class: 'code-workspace-tabs-highlight' })}
                     ${() => model.state.tabs.map(tab)}
                 </div>
                 <div class='code-workspace-bar'>

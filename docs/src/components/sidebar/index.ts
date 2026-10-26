@@ -81,7 +81,8 @@ export default (request: Request) => {
                                     key: key(link)
                                 }))
                             }]
-                        }))
+                        })),
+                        [nav.tree.highlight]: {}
                     })}
                 </div>
             </div>

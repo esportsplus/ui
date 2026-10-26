@@ -36,6 +36,15 @@
     // Applied over every fill, opaque surface tokens included, so whatever the layers overlap still shows through.
     --background-opacity: 90%;
     --background-pressed: var(--background-default);
+    // '--border-radius' is the layer's own corner, measured off its item; this rounds the border's ends.
+    --border-cap-radius: calc(var(--border-width) / 2);
+    --border-color: currentColor;
+    // How far the fills keep clear of the border's side, and the one across from it.
+    --border-inset-horizontal: calc(var(--size-100) / 2);
+    --border-inset-vertical: calc(var(--size-100) / 2);
+    // In from the item's edge; negative pushes the border out, e.g. over a rail.
+    --border-offset: 0px;
+    --border-width: var(--border-width-500);
     --fade-duration: 0.16s;
     // What each layer glides with: the active layer takes '--glide-duration-active', so a selection can jump ('0s')
     // while hover still glides.
@@ -51,14 +60,6 @@
     // Pulls the layer in from its item's box, left and right or top and bottom.
     --inset-horizontal: 0px;
     --inset-vertical: 0px;
-    --line-color: currentColor;
-    // How far the fills keep clear of the line's side, and the one across from it.
-    --line-inset-horizontal: calc(var(--size-100) / 2);
-    --line-inset-vertical: calc(var(--size-100) / 2);
-    // In from the item's edge; negative pushes the line out, e.g. over the container's own border.
-    --line-offset: 0px;
-    --line-radius: calc(var(--line-width) / 2);
-    --line-width: var(--border-width-500);
     --scale-default: 0.92;
 
     // The layer jumps to its item and only fades in and out.
@@ -78,36 +79,36 @@
         }
     }
 
-    // Horizontal and vertical lines look alike: the fills stop short of the line, which runs along the item's edge.
-    &--line {
+    // Horizontal and vertical borders look alike: the fills stop short of the border, which runs along the item's edge.
+    &--border {
         &-bottom,
         &-top {
-            --inset-vertical: var(--line-inset-vertical);
+            --inset-vertical: var(--border-inset-vertical);
         }
 
         &-left,
         &-right {
-            --inset-horizontal: var(--line-inset-horizontal);
+            --inset-horizontal: var(--border-inset-horizontal);
         }
     }
 
-    // A layer over a rule, as tabs: surface fills, and a line pulled out by the rule's '--border-width' to lie over
-    // it, so the active item marks its part of the rule. 'fill' and 'line' pick the background, the line or both.
-    &--rule {
+    // A layer riding a rail, as tabs: surface fills, and a border pulled out by the rail's '--rail-width' to lie over
+    // it, so the active item marks its part of the rail. 'fill' and 'border' pick the background, the border or both.
+    &--rail {
         --background-active: var(--surface-background-active);
         --background-hover: var(--surface-background-hover);
         --background-pressed: var(--surface-background-pressed);
-        --line-color: var(--color-primary-500);
-        --line-offset: calc(var(--border-width) * -1);
+        --border-color: var(--color-primary-500);
+        --border-offset: calc(var(--rail-width) * -1);
         --scale-default: 1;
     }
 
 
-    // The rule a 'highlight--rule' layer lies over, along the edge its 'line' names: the bottom, or the left once
-    // vertical.
-    &-rule {
-        --border-color: var(--surface-border-default);
-        --border-width: var(--border-width-400);
+    // The rail a 'highlight--rail' layer rides, along the edge its side modifier names; the layer's 'border' names the
+    // same. Its own names, since the layer inherits them alongside its border's.
+    &-rail {
+        --rail-color: var(--surface-border-default);
+        --rail-width: var(--border-width-400);
     }
 
 

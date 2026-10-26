@@ -1,7 +1,6 @@
 @use 'variables';
 
 .highlight {
-    background: color-mix(in srgb, var(--background) var(--background-opacity), transparent);
     border-radius: var(--border-radius);
     display: none;
     height: calc(var(--height) - var(--inset-vertical) * 2 + var(--slide-height));
@@ -32,42 +31,42 @@
     }
 
 
-    // The line runs along the item's own edge, so it reaches back out past the inset.
-    &--line {
+    // The border runs along the item's own edge, so it reaches back out past the inset.
+    &--border {
         &::after {
-            background: var(--line-color);
-            border-radius: var(--line-radius);
+            background: var(--border-color);
+            border-radius: var(--border-cap-radius);
             content: '';
             position: absolute;
         }
 
         &-bottom::after {
-            bottom: calc(var(--line-offset) - var(--inset-vertical));
-            height: var(--line-width);
+            bottom: calc(var(--border-offset) - var(--inset-vertical));
+            height: var(--border-width);
             inset-inline: calc(var(--inset-horizontal) * -1);
         }
 
         &-left::after {
             inset-block: calc(var(--inset-vertical) * -1);
-            left: calc(var(--line-offset) - var(--inset-horizontal));
-            width: var(--line-width);
+            left: calc(var(--border-offset) - var(--inset-horizontal));
+            width: var(--border-width);
         }
 
         &-right::after {
             inset-block: calc(var(--inset-vertical) * -1);
-            right: calc(var(--line-offset) - var(--inset-horizontal));
-            width: var(--line-width);
+            right: calc(var(--border-offset) - var(--inset-horizontal));
+            width: var(--border-width);
         }
 
         &-top::after {
-            height: var(--line-width);
+            height: var(--border-width);
             inset-inline: calc(var(--inset-horizontal) * -1);
-            top: calc(var(--line-offset) - var(--inset-vertical));
+            top: calc(var(--border-offset) - var(--inset-vertical));
         }
     }
 
-    &--unfilled {
-        background: transparent;
+    &--fill {
+        background: color-mix(in srgb, var(--background) var(--background-opacity), transparent);
     }
 
     &--visible {
@@ -83,12 +82,11 @@
     }
 
 
-    &-rule {
-        border-bottom: var(--border-width) solid var(--border-color);
-
-        &--vertical {
-            border-bottom: 0;
-            border-left: var(--border-width) solid var(--border-color);
+    &-rail {
+        @each $side in (bottom, left, right, top) {
+            &--#{$side} {
+                border-#{$side}: var(--rail-width) solid var(--rail-color);
+            }
         }
     }
 }

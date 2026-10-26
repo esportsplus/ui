@@ -74,7 +74,7 @@ const meta: Record<string, Meta> = {
         description: 'Calendar heatmap of daily values that sweeps in by column, with a templated floating tooltip, drag-to-scroll and arrow-key grid navigation.'
     },
     highlight: {
-        description: 'Hover highlight that glides behind sibling items and rests on the active one, as a fill or a line along one edge that can stretch toward the next item.'
+        description: 'Hover highlight that glides behind sibling items and rests on the active one, as a fill or a border along one edge that can stretch toward the next item, alone or riding a rail.'
     },
     icon: {
         description: 'Sprite-backed SVG icon with accessible sizing.'
@@ -104,7 +104,7 @@ const meta: Record<string, Meta> = {
         description: 'Metric card with a line chart that draws itself in and redraws to fit its container, with a scrubbable readout for pointer, touch, and arrow keys, plus a live value that marks each change with a directional roll, tint, and arrow.'
     },
     nav: {
-        description: 'Navigation trees that mark the active link with a gliding highlight, a full-width background, a rule down their edge or both, an on-this-page table of contents, and a scroll spy that marks the section in view.'
+        description: 'Navigation trees that mark the active link with a gliding highlight, a full-width background, a rail down their edge or both, an on-this-page table of contents, and a scroll spy that marks the section in view.'
     },
     notification: {
         description: 'Unread bubble with a rolling counter, optionally mounted on a bell that swings on new notifications.'

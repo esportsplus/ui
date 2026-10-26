@@ -36,7 +36,8 @@ const modal = () => {
                         label: item.label
                     }))
                 }]
-            }))
+            })),
+            [nav.tree.highlight]: {}
         }),
         state
     });

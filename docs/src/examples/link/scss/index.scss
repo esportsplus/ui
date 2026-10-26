@@ -1,7 +1,7 @@
 @use 'css-utilities/group';
 @use '../../../../../tokens.scss';
 
-// Tab-style links over the highlight's rule.
+// Tab-style links along the highlight's rail.
 .link-demo-group {
     @extend %group;
     --gap-horizontal: calc(var(--size-100) / 4);

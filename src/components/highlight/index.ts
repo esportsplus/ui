@@ -6,11 +6,11 @@ import './scss/index.scss';
 
 
 type A = Attributes & {
-    // Whether the active layer fills its item; off leaves only the line, if any.
+    // Draws a border along one edge of the active item, over the fill or on its own.
+    border?: 'bottom' | 'left' | 'right' | 'top';
+    // Whether the active layer fills its item; off leaves only the border, if any.
     fill?: boolean;
     hover?: boolean;
-    // Draws a line along one edge of the active item, over the fill or on its own.
-    line?: 'bottom' | 'left' | 'right' | 'top';
     onconnect?: never;
     ondisconnect?: never;
     ondocumentanimationstart?: never;
@@ -284,7 +284,7 @@ function sibling(parent: Element, self: Element[], node: EventTarget | null, tar
 // Each edge glides on its own: the edge facing the move leads with '--glide' and the one behind trails with
 // '--glide-tail', so a longer tail stretches the layer toward the new item before it gathers there.
 export default component<A>(
-    ({ fill = true, hover = true, line, target, ...attributes }) => {
+    ({ border, fill = true, hover = true, target, ...attributes }) => {
         let focused: Element | null = null,
             following = false,
             // Just observed after a mutation added them; their first size report is the insertion, already weighed.
@@ -570,16 +570,17 @@ export default component<A>(
         }
 
         // Both layers sit at the same z-index, so the pointer layer comes first to paint beneath the active one. Both
-        // know the line's edge, so the hover fill keeps clear of it just as the active fill does.
+        // know the border's edge, so the hover fill keeps clear of it just as the active fill does. Hover always fills;
+        // 'fill' only decides the active layer.
         return html`
             <div
                 aria-hidden='true'
-                class='highlight'
+                class='highlight highlight--fill'
                 ${attributes}
                 ${{
                     class: [
                         () => layers.pointer.variant,
-                        line && `highlight--line-${line}`,
+                        border && `highlight--border-${border}`,
                         () => layers.pointer.visible && 'highlight--visible'
                     ],
                     onconnect: (element: HTMLElement) => {
@@ -597,9 +598,9 @@ export default component<A>(
                 ${{
                     class: [
                         () => layers.active.variant,
-                        !fill && 'highlight--unfilled',
-                        line && 'highlight--line',
-                        line && `highlight--line-${line}`,
+                        border && 'highlight--border',
+                        border && `highlight--border-${border}`,
+                        fill && 'highlight--fill',
                         () => layers.active.visible && 'highlight--visible'
                     ],
                     onconnect: (element: HTMLElement) => {

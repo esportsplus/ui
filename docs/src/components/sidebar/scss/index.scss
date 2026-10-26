@@ -37,9 +37,15 @@
         }
     }
 
-    // Keep the scrollport unpadded so its blur edges span the entire navigation surface.
+    // Keep the scrollport unpadded so its blur edges span the entire navigation surface. The tree's pills pad around
+    // their text, so it steps out by their padding to keep the text on the content edge.
     &-content {
-        padding: var(--size-100) var(--content-padding-horizontal) var(--size-400);
+        padding: var(--size-100) calc(var(--content-padding-horizontal) - var(--size-300)) var(--size-400);
+
+        // Page names are lowercase slugs, capitalized as the sidebar shows them.
+        .nav-tree-link:not(.nav-tree-title) {
+            text-transform: capitalize;
+        }
     }
 
     &-header {

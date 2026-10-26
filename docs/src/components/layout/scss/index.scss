@@ -30,4 +30,10 @@
     @media (max-width: 1280px) {
         display: none;
     }
+
+
+    // Headings and example titles are written in sentence or lower case.
+    .nav-tree-link {
+        text-transform: capitalize;
+    }
 }

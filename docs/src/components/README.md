@@ -46,7 +46,7 @@ Navigation data keeps links directly on each section; the sidebar supplies the
 group structure used by the tree renderer.
 The command palette passes its filtered groups to `nav.tree` through `command`'s
 `render` callback. Sidebar and command results use the same markup and tree styles;
-the tree's `nav-tree--command` variant changes the active highlight and text colors.
+`current: 'command'` only changes their roles and focus, and the docs capitalize the labels the tree leaves as written.
 Scope documentation page styles under `.main > .page` so library pages in live
 examples keep their own presentation.
 
