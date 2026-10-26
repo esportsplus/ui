@@ -122,7 +122,9 @@ export default component(
                 return;
             }
 
-            let items = list.children,
+            let active = list.ownerDocument.activeElement,
+                focused = active instanceof HTMLElement && list.contains(active) ? active : null,
+                items = list.children,
                 rest = rows.filter((r) => r !== entry),
                 shift = timing(getComputedStyle(items[at]), 'move');
 
@@ -134,7 +136,9 @@ export default component(
             // from there.
             measure(items);
 
-            // A sort moves the rows' own nodes, so focus stays on the checkbox.
+            // A sort moves the rows' own nodes, keeping focus on a moved checkbox, but the browser then scrolls its
+            // containers after it; focus is taken off for the sort and handed back without scrolling.
+            focused?.blur();
             rows.sort((a, b) => rank.get(a)! - rank.get(b)!);
 
             if (view) {
@@ -143,6 +147,8 @@ export default component(
             else {
                 slot!.flush();
             }
+
+            focused?.focus({ preventScroll: true });
 
             slides(items, shift);
 
