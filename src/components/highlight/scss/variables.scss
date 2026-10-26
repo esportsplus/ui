@@ -1,5 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/background';
+@use 'css-utilities/surface';
 
 // A glide's offset, added onto the layer's box. Registered so it can run negative, which width and height can't,
 // and so the leading and trailing edges' animations can add together.
@@ -29,15 +30,17 @@
 
 .highlight {
     @extend %background-state;
-    --background-active: color-mix(in srgb, currentColor 10%, transparent);
-    --background-default: color-mix(in srgb, currentColor 6%, transparent);
+    --background-active: var(--background-default);
+    --background-default: transparent;
     --background-hover: var(--background-default);
-    --background-pressed: color-mix(in srgb, currentColor 14%, transparent);
-    --fade-duration: 0.2s;
+    // Applied over every fill, opaque surface tokens included, so whatever the layers overlap still shows through.
+    --background-opacity: 90%;
+    --background-pressed: var(--background-default);
+    --fade-duration: 0.16s;
     // What each layer glides with: the active layer takes '--glide-duration-active', so a selection can jump ('0s')
     // while hover still glides.
     --glide: var(--glide-duration);
-    --glide-duration: 0.16s;
+    --glide-duration: 0.2s;
     --glide-duration-active: var(--glide-duration);
     // What the edge trailing a glide takes; longer than '--glide' stretches the layer toward the new item.
     --glide-tail: var(--glide-tail-duration);
@@ -67,6 +70,12 @@
 
     &--hover {
         --background: var(--background-hover);
+
+        // The layer can't see which item it sits on, so the press is read off the container: something held inside
+        // it, bar a disabled item. A press on the container's own gaps leaves no ':active' descendant.
+        :where(:has(:active):not(:has(.--disabled:active))) > & {
+            --background: var(--background-pressed);
+        }
     }
 
     // Horizontal and vertical lines look alike: the fills stop short of the line, which runs along the item's edge.
@@ -80,10 +89,6 @@
         &-right {
             --inset-horizontal: var(--line-inset-horizontal);
         }
-    }
-
-    &--pressed {
-        --background: var(--background-pressed);
     }
 
     // A layer over a rule, as tabs: surface fills, and a line pulled out by the rule's '--border-width' to lie over

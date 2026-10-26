@@ -2,7 +2,6 @@ import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import { ms } from '~/shared/animation';
 import { observer, type Observer } from '~/shared/resize';
-import { easing } from './easing';
 import './scss/index.scss';
 
 
@@ -17,11 +16,9 @@ type A = Attributes & {
     ondocumentanimationstart?: never;
     ondocumentfocusin?: never;
     ondocumentfocusout?: never;
-    ondocumentpointercancel?: never;
     ondocumentpointerdown?: never;
     ondocumentpointerout?: never;
     ondocumentpointerover?: never;
-    ondocumentpointerup?: never;
     ondocumenttransitionrun?: never;
     // Selector for nested items to track; by default the highlight tracks its parent's direct children.
     target?: string;
@@ -52,16 +49,16 @@ type Placement = {
     timing?: Timing;
 };
 
-type Timing = {
-    easing: string;
-    lead: number;
-    tail: number;
-};
-
 type Slide = {
     animation: Animation;
     // Offset the slide set out from, as x, y, width, height; it eases back to nothing.
     from: number[];
+};
+
+type Timing = {
+    easing: string;
+    lead: number;
+    tail: number;
 };
 
 // Whether a parent lays its children out from its start, read once per parent: alignment is set up, not toggled.
@@ -76,7 +73,49 @@ const PAINT = /^(?:backdrop-filter|background|box-shadow|clip-path|color|fill|fi
 // Measure every queued highlight before any of them writes styles or starts a glide.
 const pending = new Set<() => VoidFunction | undefined>();
 
+
 let frame = 0;
+
+
+function dequeue(measure: () => VoidFunction | undefined) {
+    pending.delete(measure);
+
+    if (!pending.size) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+    }
+}
+
+// Bound a sampled spring's bounce in pixels, keeping its approach and the shape of its settling motion.
+// Short glides and timing functions without sampled overshoot keep their original easing.
+function easing(value: string, distance: number, limit = 8) {
+    if (!value.startsWith('linear(') || !distance) {
+        return value;
+    }
+
+    let peak = 0,
+        stops = value.slice(7, -1).split(',');
+
+    for (let i = 0, n = stops.length; i < n; i++) {
+        let progress = parseFloat(stops[i]);
+
+        peak = Math.max(peak, progress - 1, -progress);
+    }
+
+    let scale = Math.min(1, Math.max(0, limit) / (distance * peak));
+
+    if (!peak || scale === 1) {
+        return value;
+    }
+
+    return `linear(${stops.map((stop) => {
+        let progress = parseFloat(stop),
+            bounded = Math.max(0, Math.min(1, progress));
+
+        // Only change the output value; retain any explicit percentage positions on the stop.
+        return stop.replace(/[^\s]+/, String(bounded + (progress - bounded) * scale));
+    }).join(',')})`;
+}
 
 function enqueue(measure: () => VoidFunction | undefined) {
     pending.add(measure);
@@ -96,15 +135,6 @@ function enqueue(measure: () => VoidFunction | undefined) {
             writes[i]?.();
         }
     });
-}
-
-function dequeue(measure: () => VoidFunction | undefined) {
-    pending.delete(measure);
-
-    if (!pending.size) {
-        cancelAnimationFrame(frame);
-        frame = 0;
-    }
 }
 
 
@@ -255,7 +285,6 @@ function sibling(parent: Element, self: Element[], node: EventTarget | null, tar
 // '--glide-tail', so a longer tail stretches the layer toward the new item before it gathers there.
 export default component<A>(
     ({ fill = true, hover = true, line, target, ...attributes }) => {
-        // Both layers know the line's edge, so the hover fill keeps clear of it just as the active fill does.
         let focused: Element | null = null,
             following = false,
             // Just observed after a mutation added them; their first size report is the insertion, already weighed.
@@ -267,9 +296,19 @@ export default component<A>(
             mutations: MutationObserver | undefined,
             nodes: Record<Name, HTMLElement | null> = { active: null, pointer: null },
             parent: HTMLElement | null = null,
-            pressed = false,
             resize: Observer | undefined,
             self: Element[] = [];
+
+        function enter(e: PointerEvent) {
+            let item = hover && parent ? sibling(parent, self, e.target, target) : null;
+
+            if (!item || item === hovered) {
+                return;
+            }
+
+            hovered = item;
+            schedule();
+        }
 
         // Animations and transitions near the items, a folder opening or a dialog scaling in, can move them without
         // resizing anything observed, so the layers are re-placed every frame until they finish. Only the motion
@@ -296,27 +335,6 @@ export default component<A>(
                 following = true;
                 schedule();
             }
-        }
-
-        function moving() {
-            let running = false;
-
-            // Animation lookup forces style recalculation. Remember the animations when they start instead.
-            for (let animation of motions) {
-                if (animation.playState === 'running' || animation.pending) {
-                    running = true;
-                }
-                else {
-                    motions.delete(animation);
-                }
-            }
-
-            return running;
-        }
-
-        function near(element: Element) {
-            // Any highlight's layers sit out of flow, so their own fades and glides never move an item.
-            return !!parent && !LAYERS.has(element) && (parent.contains(element) || element.contains(parent));
         }
 
         function measure(name: Name, item: Element | null, box: DOMRect, variant: string): Placement | null {
@@ -365,6 +383,27 @@ export default component<A>(
             };
         }
 
+        function moving() {
+            let running = false;
+
+            // Animation lookup forces style recalculation. Remember the animations when they start instead.
+            for (let animation of motions) {
+                if (animation.playState === 'running' || animation.pending) {
+                    running = true;
+                }
+                else {
+                    motions.delete(animation);
+                }
+            }
+
+            return running;
+        }
+
+        function near(element: Element) {
+            // Any highlight's layers sit out of flow, so their own fades and glides never move an item.
+            return !!parent && !LAYERS.has(element) && (parent.contains(element) || element.contains(parent));
+        }
+
         function place(name: Name, measured: Placement | null) {
             let glide = glides[name],
                 layer = layers[name];
@@ -386,6 +425,42 @@ export default component<A>(
 
             glide.item = measured.item;
             Object.assign(layer, measured.layer);
+        }
+
+        // Whether a mutation could move one of 'items' or change which item is active. Recycled rows, their own class
+        // flips and anything rebuilt inside them leave a resting highlight alone; an item marked active, one taken
+        // out, or anything changed ahead of one (an insert above, a reorder) is measured.
+        function relevant(record: MutationRecord, items: Element[]) {
+            let host = record.target as Element,
+                owner = target ? host.parentElement?.closest(target) : host.parentElement === parent ? null : host.parentElement;
+
+            // Within an item that holds none of them: it only reaches the others through its own observed size.
+            if (owner && parent?.contains(owner) && owner !== parent && !items.some((item) => owner.contains(item))) {
+                return false;
+            }
+
+            if (record.type === 'attributes') {
+                // 'inert' only conceals what it holds; a class can also reflow whatever follows.
+                return items.some((item) => record.attributeName === 'inert' ? host.contains(item) : before(host, item));
+            }
+
+            for (let nodes of [record.addedNodes, record.removedNodes]) {
+                for (let node of nodes) {
+                    if (items.some((item) => node.contains(item))) {
+                        return true;
+                    }
+                }
+            }
+
+            // The change sits just before 'nextSibling', or at the end of its parent.
+            return items.some((item) =>
+                (record.nextSibling ? before(record.nextSibling, item) : !host.contains(item) && before(host, item)) ||
+                (host.contains(item) && !anchored(host))
+            );
+        }
+
+        function schedule() {
+            enqueue(update);
         }
 
         // The layer's box always sits on its item; a glide is an offset added on top, easing to nothing, so the item
@@ -448,49 +523,6 @@ export default component<A>(
             }
         }
 
-        function schedule() {
-            enqueue(update);
-        }
-
-        // Whether a mutation could move one of 'items' or change which item is active. Recycled rows, their own class
-        // flips and anything rebuilt inside them leave a resting highlight alone; an item marked active, one taken
-        // out, or anything changed ahead of one (an insert above, a reorder) is measured.
-        function relevant(record: MutationRecord, items: Element[]) {
-            let host = record.target as Element,
-                owner = target ? host.parentElement?.closest(target) : host.parentElement === parent ? null : host.parentElement;
-
-            // Within an item that holds none of them: it only reaches the others through its own observed size.
-            if (owner && parent?.contains(owner) && owner !== parent && !items.some((item) => owner.contains(item))) {
-                return false;
-            }
-
-            if (record.type === 'attributes') {
-                // 'inert' only conceals what it holds; a class can also reflow whatever follows.
-                return items.some((item) => record.attributeName === 'inert' ? host.contains(item) : before(host, item));
-            }
-
-            for (let nodes of [record.addedNodes, record.removedNodes]) {
-                for (let node of nodes) {
-                    if (items.some((item) => node.contains(item))) {
-                        return true;
-                    }
-                }
-            }
-
-            // The change sits just before 'nextSibling', or at the end of its parent.
-            return items.some((item) =>
-                (record.nextSibling ? before(record.nextSibling, item) : !host.contains(item) && before(host, item)) ||
-                (host.contains(item) && !anchored(host))
-            );
-        }
-
-        function release() {
-            if (pressed) {
-                pressed = false;
-                schedule();
-            }
-        }
-
         // What a change has to reach to matter: the items the layers rest on or are headed for, and the active one.
         function tracked() {
             let items = [glides.active.item, glides.pointer.item, hovered, focused, parent && active(parent, self, target)];
@@ -520,7 +552,7 @@ export default component<A>(
                 current = active(parent, self, target),
                 item = hovered || focused,
                 selected = measure('active', current, box, '--active'),
-                pointer = measure('pointer', item, box, pressed && item === hovered ? 'highlight--pressed' : 'highlight--hover');
+                pointer = measure('pointer', item, box, 'highlight--hover');
 
             return () => {
                 if (parent !== container) {
@@ -537,7 +569,8 @@ export default component<A>(
             };
         }
 
-        // Both layers sit at the same z-index, so the pointer layer comes first to paint beneath the active one.
+        // Both layers sit at the same z-index, so the pointer layer comes first to paint beneath the active one. Both
+        // know the line's edge, so the hover fill keeps clear of it just as the active fill does.
         return html`
             <div
                 aria-hidden='true'
@@ -700,18 +733,8 @@ export default component<A>(
                         focused = null;
                         schedule();
                     },
-                    ondocumentpointercancel: release,
-                    ondocumentpointerdown: (e: PointerEvent) => {
-                        let item = hover && parent ? sibling(parent, self, e.target, target) : null;
-
-                        if (!item) {
-                            return;
-                        }
-
-                        hovered = item;
-                        pressed = true;
-                        schedule();
-                    },
+                    // Content re-rendered under a still pointer sends no 'pointerover', so a press claims the item too.
+                    ondocumentpointerdown: enter,
                     // Crossing gaps between siblings keeps the last one so the highlight glides instead of snapping back.
                     ondocumentpointerout: (e: PointerEvent) => {
                         if (!hover || !parent?.contains(e.target as Node | null) || parent.contains(e.relatedTarget as Node | null)) {
@@ -719,20 +742,9 @@ export default component<A>(
                         }
 
                         hovered = null;
-                        pressed = false;
                         schedule();
                     },
-                    ondocumentpointerover: (e: PointerEvent) => {
-                        let item = hover && parent ? sibling(parent, self, e.target, target) : null;
-
-                        if (!item || item === hovered) {
-                            return;
-                        }
-
-                        hovered = item;
-                        schedule();
-                    },
-                    ondocumentpointerup: release,
+                    ondocumentpointerover: enter,
                     ondocumenttransitionrun: follow,
                     style: () => geometry(layers.active)
                 }}

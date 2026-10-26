@@ -1,7 +1,7 @@
 @use 'variables';
 
 .highlight {
-    background: var(--background);
+    background: color-mix(in srgb, var(--background) var(--background-opacity), transparent);
     border-radius: var(--border-radius);
     display: none;
     height: calc(var(--height) - var(--inset-vertical) * 2 + var(--slide-height));
