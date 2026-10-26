@@ -91,7 +91,7 @@
         }
 
         // A 'frame--swap', centered in the box so the box can resize around it; centering takes 'transform', leaving
-        // 'translate' to the frame. 'tooltip.shared' sets '--travel-x' and '--travel-y' to the unit vector of the trip
+        // 'translate' to the frame. 'tooltip.shared' sets '--translate-x' and '--translate-y' to the unit vector of the trip
         // between triggers, so incoming content drifts in along it and outgoing content carries on out the far side.
         &-layer {
             left: 50%;

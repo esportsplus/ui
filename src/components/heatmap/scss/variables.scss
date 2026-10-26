@@ -51,6 +51,7 @@
 
     &-legend {
         --gap-horizontal: calc(var(--size-100) / 2);
+        --gap-vertical: 0px;
 
         &-less,
         &-more {
@@ -77,8 +78,8 @@
             --glide-duration: 0.15s;
 
             .tooltip-shared-layer {
-                --swap-duration: 0.15s;
-                --swap-fade-duration: 0.1s;
+                --fade-duration: 0.1s;
+                --transition-duration: 0.15s;
             }
         }
     }
@@ -93,7 +94,7 @@
         .tooltip-shared-layer {
             --padding-horizontal: var(--size-300);
             --padding-vertical: var(--size-100);
-            --swap-duration: 0s;
+            --transition-duration: 0s;
         }
     }
 }

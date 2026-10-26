@@ -81,12 +81,8 @@
     &-label,
     &-preview {
         .tooltip-shared-layer {
-            --swap-duration: 0s;
-            --swap-exit-duration: var(--swap-duration);
-            --swap-exit-fade-duration: var(--swap-fade-duration);
-            --swap-fade-duration: 0s;
-            --swap-fade-timing-function: linear;
-            --swap-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+            --transition-duration: 0s;
+            --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
         }
     }
 

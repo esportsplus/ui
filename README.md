@@ -158,11 +158,12 @@ frames in one grid cell so the tallest sets the height:
 - `.frame--slide` / `.frame--scroll` move the frames together like a
   horizontal / vertical track.
 - `.frame--swap` crossfades in place, like `tooltip.shared` content: a waiting
-  frame sits one `--swap-shift` off to its side, faded and blurred, so the
+  frame sits one `--shift` off to its side, faded and blurred, so the
   incoming frame drifts in while the outgoing one carries on out the other way.
-  Frames without an index set the direction themselves through `--travel-x` /
-  `--travel-y` and mark the outgoing frame `frame--leaving`. `--swap-*` variables
-  tune it, with `--swap-exit-*` for the outgoing frame.
+  Frames without an index set the direction themselves through `--translate-x` /
+  `--translate-y` and mark the outgoing frame `frame--swap-leaving`.
+  `--transition-duration`, `--fade-duration` and `--blur` tune it; the outgoing
+  frame takes `--fade-duration` throughout.
 
 ```html
 <div style="overflow: hidden; --i: 1;">

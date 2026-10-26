@@ -148,7 +148,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                     () => layer.state.active && '--active',
                     () => layer.state.leaving && 'frame--swap-leaving'
                 ],
-                style: () => layer.state.travel && `--travel-x: ${layer.state.travel.x}; --travel-y: ${layer.state.travel.y};`
+                style: () => layer.state.travel && `--translate-x: ${layer.state.travel.x}; --translate-y: ${layer.state.travel.y};`
             }}
         >
             ${layer.content}

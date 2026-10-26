@@ -121,6 +121,7 @@
         @extend %background-state, %background-surface, %surface-primary;
         --background-default: transparent;
         --border-radius: var(--border-radius-400);
+        --gap-horizontal: 0px;
         --gap-vertical: var(--size-200);
         --padding-horizontal: var(--size-100);
         --padding-vertical: var(--size-200);
@@ -255,9 +256,13 @@
         --radius: var(--border-radius-300);
         --spacer: calc(var(--size-peak) - var(--size-rest) - var(--inset-vertical) + 12px);
 
+        .frame {
+            --transition-duration: 0.16s;
+        }
+
         .tooltip-shared-layer {
-            --padding-horizontal: var(--size-100);
-            --padding-vertical: calc(var(--size-100) / 2);
+            --padding-horizontal: var(--size-200);
+            --padding-vertical: calc(var(--padding-horizontal) / 2);
         }
     }
 
@@ -282,12 +287,14 @@
             --color: var(--color-text-300);
             --font-size: var(--font-size-200);
             --gap-horizontal: var(--size-400);
+            --gap-vertical: 0px;
             --height: 44px;
             --padding-horizontal: var(--size-400);
         }
 
         &-hint {
             --gap-horizontal: var(--size-200);
+            --gap-vertical: 0px;
         }
 
         // 'inherit' passes the launcher's '--font-size' through the input's own, which would otherwise refer to itself.
@@ -309,11 +316,13 @@
 
         &-keys {
             --gap-horizontal: calc(var(--size-100) / 2);
+            --gap-vertical: 0px;
         }
 
         &-search {
             --color: var(--color-text-300);
             --gap-horizontal: var(--size-200);
+            --gap-vertical: 0px;
             --height: 48px;
             --padding-horizontal: var(--size-400);
         }

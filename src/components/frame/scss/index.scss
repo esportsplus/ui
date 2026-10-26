@@ -38,40 +38,32 @@
         translate: calc((var(--n) - var(--i, 0)) * (100% + var(--gap-horizontal))) 0;
     }
 
-    // Frames swap in place: a waiting frame sits one shift off along '--travel-x' and '--travel-y', so the incoming
+    // Frames swap in place: a waiting frame sits one shift off along '--translate-x' and '--translate-y', so the incoming
     // frame drifts in from there while the outgoing one carries on out the other way. The travel defaults to the
     // frame's side of the active one; frames without an index, like 'tooltip.shared' content, set the travel
     // themselves and mark the outgoing frame 'frame--swap-leaving'.
     &--swap {
-        --shift: var(--swap-shift);
-        --travel-x: clamp(-1, var(--n) - var(--i, 0), 1);
-        --travel-y: 0;
         // Stays visible until it has faded, so the outgoing frame can leave.
         transition:
-            filter var(--swap-exit-duration) var(--swap-timing-function),
-            opacity var(--swap-exit-fade-duration) var(--swap-fade-timing-function),
-            translate var(--swap-exit-duration) var(--swap-timing-function),
-            visibility var(--swap-exit-fade-duration) linear;
-        translate: calc(var(--shift) * var(--travel-x)) calc(var(--shift) * var(--travel-y));
+            filter var(--fade-duration) var(--transition-timing-function),
+            opacity var(--fade-duration) linear,
+            translate var(--fade-duration) var(--transition-timing-function),
+            visibility var(--fade-duration) linear;
+        translate: calc(var(--shift) * var(--translate-x)) calc(var(--shift) * var(--translate-y));
 
         // No filter at rest rather than 'blur(0)', which would still trap fixed-position descendants.
         @include tokens.state(active) {
-            --shift: 0px;
             transition:
-                filter var(--swap-duration) var(--swap-timing-function),
-                opacity var(--swap-fade-duration) var(--swap-fade-timing-function),
-                translate var(--swap-duration) var(--swap-timing-function),
-                visibility var(--swap-fade-duration) linear;
+                filter var(--transition-duration) var(--transition-timing-function),
+                opacity var(--fade-duration) linear,
+                translate var(--transition-duration) var(--transition-timing-function),
+                visibility var(--fade-duration) linear;
         }
 
         @include tokens.state(inactive) {
-            filter: blur(var(--swap-blur));
+            filter: blur(var(--blur));
             opacity: 0;
             visibility: hidden;
-        }
-
-        &-leaving {
-            --shift: calc(var(--swap-shift) * -1);
         }
     }
 
