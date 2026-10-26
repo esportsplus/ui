@@ -18,6 +18,10 @@
         @extend %background-black, %color-white;
     }
 
+    &--curved {
+        --border-radius: 100px;
+    }
+
     &--copy {
         --border-radius: var(--border-radius-300);
         --draw-duration: 280ms;
