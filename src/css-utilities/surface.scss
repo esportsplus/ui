@@ -14,7 +14,7 @@
 $level-max: 6;
 $level-min: -3;
 
-// The shadow at each weight, 0 to 7, as two layers of y offset, blur, spread in px and opacity: Tailwind v4's
+// The shadow at each whole weight, 0 to 7, fractions blending between them, as two layers of y offset, blur, spread in px and opacity: Tailwind v4's
 // 'shadow-2xs' through 'shadow-2xl', a missing second layer written as zeros. Every opacity runs at the mode's shadow
 // 'opacity' in the theme's surface tokens over Tailwind's 10%.
 $shadow-steps: (
@@ -148,6 +148,37 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     @return light-dark(#{shadow-color-in($background, light)}, #{shadow-color-in($background, dark)});
 }
 
+// The ladder's layers at a weight, held to the ladder: a whole weight reads its step, and a fraction blends each value
+// of the two steps around it by how far it sits between them, so a weight such as 1.5 lands halfway from 1 to 2.
+@function shadow-step($weight) {
+    $weight: math.clamp(0, $weight, $shadow-weight-max);
+    $lower: math.floor($weight);
+    $share: $weight - $lower;
+
+    @if $share == 0 {
+        @return list.nth($shadow-steps, $lower + 1);
+    }
+
+    $from: list.nth($shadow-steps, $lower + 1);
+    $layers: ();
+    $to: list.nth($shadow-steps, $lower + 2);
+
+    @for $i from 1 through list.length($from) {
+        $values: ();
+
+        @for $j from 1 through 4 {
+            $a: list.nth(list.nth($from, $i), $j);
+            $b: list.nth(list.nth($to, $i), $j);
+
+            $values: list.append($values, $a + ($b - $a) * $share, space);
+        }
+
+        $layers: list.append($layers, $values, comma);
+    }
+
+    @return $layers;
+}
+
 // Both layers of the shadow at a weight, in a shadow color: by default the color of a shadow falling on the surface it
 // is used in. Given a mode, the layers show in that mode alone and go transparent in the other, so two modes' weights
 // can share one shadow.
@@ -158,7 +189,7 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 
     $layers: ();
 
-    @each $layer in list.nth($shadow-steps, $weight + 1) {
+    @each $layer in shadow-step($weight) {
         // The step's opacity over a 10% step, the opacity the shadow color carries.
         $fill: 'oklch(from #{$color} l c h / calc(alpha * #{list.nth($layer, 4) * 10}))';
 

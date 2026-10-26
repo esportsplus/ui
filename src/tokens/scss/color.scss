@@ -54,19 +54,19 @@ $themes: (
             hover: 2,
             pressed: 3,
 
-            border: 2.5,
-            primary: 1.5,
+            border: 2.4,
+            primary: 1.6,
             shadow: (
                 depth: 0.2,
                 opacity: 16
             ),
 
-            lowered: 1.5,
-            raised: 1.5,
+            lowered: 1.6,
+            raised: 1.6,
         ),
         weights: (
             color: 3,
-            text: 1.5
+            text: 1.6
         )
     ),
     light: (
@@ -80,19 +80,19 @@ $themes: (
             hover: 1,
             pressed: 2,
 
-            border: 4.5,
-            primary: 3.5,
+            border: 4.6,
+            primary: 3.2,
             shadow: (
                 depth: 0.2,
                 opacity: 8
             ),
 
-            lowered: 1.5,
+            lowered: 1.6,
             raised: 1,
         ),
         weights: (
             color: 3,
-            text: 1.5
+            text: 1.6
         )
     )
 );
