@@ -82,29 +82,4 @@
             display: none;
         }
     }
-
-    // The active link sits on a raised surface rather than the primary, so it keeps the plain active text color.
-    .nav {
-        &-tree {
-            &--highlight .nav-tree-link {
-                --color-active: var(--color-text-500);
-            }
-
-            // Every state reads the one level the highlight counts. The active pill sets its own shadow weight; hover and
-            // pressed stay flat.
-            &-highlight {
-                &.highlight--hover,
-                &.highlight--pressed {
-                    --background-hover: var(--surface-background-hover);
-                    --background-pressed: var(--surface-background-pressed);
-                }
-
-                @include tokens.state(active) {
-                    --background-active: var(--surface-background-active);
-                    @include surface.surface-shadow(2);
-                    box-shadow: var(--surface-shadow-default);
-                }
-            }
-        }
-    }
 }

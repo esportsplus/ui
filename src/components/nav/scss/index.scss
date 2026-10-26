@@ -6,14 +6,17 @@
     flex-direction: column;
     gap: var(--gap-vertical) var(--gap-horizontal);
 
-    // Command results mark their matches; inside the tree they take the link's state colour instead.
+    // Command results hold an icon, label and keys on one line, and keep their labels' case (file paths, commands).
     &--command {
-        .nav-tree-title:not(.nav-tree-link) {
-            padding-inline: var(--padding-horizontal);
+        .nav-tree-link {
+            align-items: center;
+            flex-wrap: nowrap;
+            text-transform: none;
+            user-select: none;
         }
 
-        :is(.command-label, .command-match) {
-            color: inherit;
+        .nav-tree-title:not(.nav-tree-link) {
+            padding-inline: var(--padding-horizontal);
         }
     }
 
@@ -35,13 +38,16 @@
     &-link {
         @extend %text;
         align-content: center;
+        background: var(--background);
         border-radius: var(--border-radius);
         cursor: pointer;
         flex-wrap: wrap;
         justify-content: flex-start;
         padding: var(--padding-vertical) var(--padding-horizontal);
         text-transform: capitalize;
-        transition: color var(--transition-duration) var(--transition-timing-function);
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
 
         &--truncate {
             @extend %text-truncate;

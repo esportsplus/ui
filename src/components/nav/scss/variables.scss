@@ -1,4 +1,5 @@
 @use '/tokens';
+@use 'css-utilities/background';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
@@ -15,26 +16,31 @@
         }
     }
 
-    // Links stay inside the palette's padding rather than pulling out, so titles step in to their text instead.
     &--command {
+        .nav-tree-link {
+            --gap-horizontal: var(--size-200);
+        }
+
+        // Links stay inside the palette's padding rather than pulling out, so titles step in to their text instead.
         .nav-tree-title:not(.nav-tree-link) {
             --padding-horizontal: var(--size-300);
         }
     }
 
-    &--highlight {
-        // A level above the tree, so a fill pointed at '--surface-background-*' here reads as a surface sitting on it.
-        .nav-tree-highlight {
-            @extend %surface-raise;
-            --background-active: var(--color-primary-400);
-            --background-hover: var(--surface-background-hover);
-            --background-pressed: var(--surface-background-pressed);
-        }
-
+    &--highlight,
+    &--highlight#{&}--command {
         .nav-tree-link {
+            @extend %surface, %surface-raise;
+            --background-pressed: var(--surface-primary-pressed);
             --border-radius: var(--border-radius-300);
-            // Text colour of the active link while the highlight sits under it.
-            --color-active: var(--surface-background-default);
+            --color-active: var(--color-primary-500);
+        }
+    }
+
+    &--highlight {
+        .nav-tree-highlight {
+            @extend %surface-primary;
+            --background-active: var(--surface-primary-active);
         }
 
         // Pulls links out past the column edge, so their text lines up with the titles while the highlight pads around it.
@@ -45,14 +51,6 @@
     }
 
     &--highlight#{&}--command {
-        .nav-tree-highlight {
-            --background-active: var(--surface-background-active);
-        }
-
-        .nav-tree-link {
-            --color-active: var(--color-primary-500);
-        }
-
         // The palette's list already pads its rows, so links pulled out past it would overflow and clip.
         .nav-tree-links,
         .nav-tree-title.nav-tree-link {
@@ -69,14 +67,9 @@
     }
 
 
-    &-highlight {
-        --glide-duration: 0.2s;
-        --glide-duration-active: 0.25s;
-        --scale-default: 1;
-    }
-
     &-link {
-        @extend %color-state, %color-text;
+        @extend %background-state, %color-state, %color-text;
+        --background-default: transparent;
         --border-radius: 0px;
         --focus-color: var(--color-blue-400);
         --focus-width: var(--border-width-400);

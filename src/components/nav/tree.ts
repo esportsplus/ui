@@ -27,7 +27,8 @@ type TreeGroup = {
 type TreeLink = {
     attributes?: Attributes;
     content?: Renderable<unknown>;
-    href: string;
+    // Left out for 'command' results that run rather than navigate.
+    href?: string;
     key?: string;
     label: string;
     onclick?: (event: Event) => void;
@@ -35,6 +36,7 @@ type TreeLink = {
 };
 
 type TreeSection = {
+    attributes?: Attributes;
     groups: TreeGroup[];
     // Turns the section title into a link.
     href?: string;
@@ -82,7 +84,6 @@ export default component<A>(({ active, current = 'page', indicator = 'highlight'
         >
             ${highlight({
                 class: ['nav-tree-highlight', indicator !== 'highlight' && 'highlight--rule'],
-                hover: current !== 'command',
                 line: indicator === 'border' || indicator === 'both' ? 'left' : undefined,
                 target: '.nav-tree-link:not([hidden])'
             })}
@@ -91,6 +92,7 @@ export default component<A>(({ active, current = 'page', indicator = 'highlight'
                     class='nav-tree-group'
                     ${section.groups.some((group) => group.links.some((link) => link.visible)) && { hidden: () => !section.groups.some((group) => group.links.some(visible)) }}
                     ${current === 'command' && { 'aria-label': section.label, role: 'group' }}
+                    ${section.attributes}
                 >
                     ${section.href
                         ? html`
@@ -120,7 +122,7 @@ export default component<A>(({ active, current = 'page', indicator = 'highlight'
                                         aria-current='${ariaCurrent(link)}'
                                         class='nav-tree-link ${activeClass(link)}'
                                         ${link.visible && { hidden: () => !visible(link) }}
-                                        href='${link.href}'
+                                        ${link.href !== undefined && { href: link.href }}
                                         ${{
                                             onclick: (event: Event) => link.onclick?.(event)
                                         }}

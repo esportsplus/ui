@@ -3,6 +3,7 @@ import { component, html, type Attributes, type Renderable } from '@esportsplus/
 import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import input from '~/components/input';
+import nav from '~/components/nav';
 import overlay from '~/components/overlay';
 import scrollbar from '~/modifiers/scrollbar';
 import { mac } from '~/shared/platform';
@@ -132,6 +133,7 @@ type Shortcut = {
 
 type State = {
     active: boolean;
+    // -1 until an arrow key selects the first result.
     index: number;
     query: string;
     tab: Tab;
@@ -385,7 +387,7 @@ export default component(
             placeholder = 'Type a command or search',
             render,
             shortcuts,
-            state = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab }),
+            state = reactive({ active: false, index: -1, query: '', tab: 'all' as Tab }),
             store,
             tabs = false,
             trigger = true,
@@ -421,9 +423,6 @@ export default component(
             // Ends the hotkey listener with its host.
             listening: AbortController | undefined,
             lookup = computed(() => new Map(read(entries).map((entry) => [entry.id, entry]))),
-            // Last pointer position, so a list scrolling under a still cursor (which browsers can report as
-            // hover) never steals the active item from the keys.
-            pointer: { x: number, y: number } | null = null,
             // A Set keeps insertion order, most recent first, and replacing it is what re-runs the list.
             ui = reactive({ moving: false, recent: new Set<string>() }),
             views: View[] = ([
@@ -532,8 +531,7 @@ export default component(
         }
 
         function reset() {
-            pointer = null;
-            state.index = 0;
+            state.index = -1;
             state.query = '';
             // A swap cut short by closing may never report its end.
             ui.moving = false;
@@ -562,17 +560,6 @@ export default component(
                             onclick: (event: Event) => {
                                 event.preventDefault();
                                 run(entry);
-                            },
-                            onpointermove: (event: PointerEvent) => {
-                                if (event.pointerType === 'touch' || (pointer && pointer.x === event.clientX && pointer.y === event.clientY)) {
-                                    return;
-                                }
-
-                                pointer = { x: event.clientX, y: event.clientY };
-
-                                if (index !== selected()) {
-                                    state.index = index;
-                                }
                             }
                         },
                         command: entry.command,
@@ -587,23 +574,20 @@ export default component(
                 })
             }));
 
-            return render ? render(groups) : html`
-                ${highlight({ class: 'command-highlight', hover: false, target: '.command-option' })}
-                ${groups.map((group) => html`
-                    <div
-                        aria-labelledby='${group.id}'
-                        class='command-group'
-                        role='group'
-                        ${groupAttributes}
-                        ${attributes[COMMAND_GROUP]}
-                    >
-                        <div class='command-group-label' id='${group.id}'>${group.label}</div>
-                        ${group.items.map((item) => html`
-                            <div class='command-option' ${item.attributes}>${item.content}</div>
-                        `)}
-                    </div>
-                `)}
-            `;
+            return render ? render(groups) : nav.tree({
+                current: 'command',
+                sections: groups.map((group) => ({
+                    attributes: {
+                        ...groupAttributes,
+                        ...attributes[COMMAND_GROUP],
+                        class: [groupAttributes?.class, attributes[COMMAND_GROUP]?.class].flat()
+                    },
+                    groups: [{
+                        links: group.items.map((item) => ({ attributes: item.attributes, content: item.content, label: item.label }))
+                    }],
+                    label: group.label
+                }))
+            });
         }
 
         // Shortcut rows are a reference list; only commands run.
@@ -736,7 +720,7 @@ export default component(
                                         autocomplete: 'off',
                                         autofocus: true,
                                         oninput: (e: Event) => {
-                                            state.index = 0;
+                                            state.index = -1;
                                             state.query = (e.target as HTMLInputElement).value;
                                         },
                                         onkeydown: (e: KeyboardEvent) => {
@@ -754,7 +738,9 @@ export default component(
                                                     return;
                                                 }
 
-                                                state.index = (selected() + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+                                                let index = selected();
+
+                                                state.index = index < 0 ? 0 : (index + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
 
                                                 // 'nearest' only scrolls when the item is out of view.
                                                 document.getElementById(option(view, state.index) ?? '')?.scrollIntoView({ block: 'nearest' });
@@ -853,10 +839,7 @@ export default component(
                                                 ${this?.attributes?.[COMMAND_LIST]}
                                                 ${attributes[COMMAND_LIST]}
                                                 ${{
-                                                    class: () => !read(view.results).flat.length && 'command-list--empty',
-                                                    onmouseleave: () => {
-                                                        pointer = null;
-                                                    }
+                                                    class: () => !read(view.results).flat.length && 'command-list--empty'
                                                 }}
                                             >
                                                 ${() => results(view)}

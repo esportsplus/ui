@@ -20,7 +20,7 @@ type Trigger = Attributes & {
 
 
 // A search's open state, view and query, shared by its modal and every trigger that opens it.
-const state = (): State => reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
+const state = (): State => reactive({ active: false, index: -1, query: '', tab: 'all' as Tab });
 
 
 // The palette on its own, without the built-in trigger, so it can mount once where Mod+K reaches it from anywhere

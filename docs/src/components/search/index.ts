@@ -1,6 +1,7 @@
 import { command, nav, search } from '@esportsplus/ui/components';
 import { redirect } from 'docs/app';
 import { sections } from 'docs/data/nav';
+import 'docs/components/search/scss/index.scss';
 
 
 // The docs' one search: its modal mounts in the viewer shell, so Mod+K works with the sidebar closed, and the sidebar

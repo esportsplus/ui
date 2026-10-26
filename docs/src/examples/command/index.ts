@@ -94,7 +94,7 @@ function demo(attributes: Partial<Parameters<typeof command>[0]> = {}, actions?:
 }
 
 function hub() {
-    let state = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
+    let state = reactive({ active: false, index: -1, query: '', tab: 'all' as Tab });
 
     return demo(
         { label: 'Search or run', shortcuts, state, store: local('docs-command'), tabs: true },
@@ -130,7 +130,7 @@ function local(prefix: string): Store {
 // No trigger of its own: the page opens it through 'state', from a button or Mod+P, like an editor's quick open.
 function palette() {
     let paths = signal(files),
-        state = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab });
+        state = reactive({ active: false, index: -1, query: '', tab: 'all' as Tab });
 
     return demo(
         {

@@ -14,6 +14,7 @@ import fileTree, {
 import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import input from '~/components/input';
+import nav from '~/components/nav';
 import overlay from '~/components/overlay';
 import tooltip from '~/components/tooltip';
 import type { Controller as MenuController, Item } from '~/components/tooltip/menu';
@@ -837,22 +838,24 @@ const workspace = ({
     }
 
     function results(groups: ResultGroup[]) {
-        return html`
-            ${highlight({ class: 'command-highlight', hover: false, target: '.command-option' })}
-            ${groups.map((group) => html`
-                <div aria-labelledby='${group.id}' class='command-group' role='group'>
-                    <div class='command-group-label' id='${group.id}'>${group.label}</div>
-                    ${group.items.map((item) => html`
-                        <div class='command-option' ${item.attributes}>
+        return nav.tree({
+            current: 'command',
+            sections: groups.map((group) => ({
+                groups: [{
+                    links: group.items.map((item) => ({
+                        attributes: item.attributes,
+                        content: html`
                             ${item.command?.icon
                                 ? icon({ 'aria-hidden': 'true', class: 'code-workspace-command-icon' }, item.command.icon)
                                 : fileTreeIcon({ name: name(item.id), type: 'file' }, false)}
                             ${item.content}
-                        </div>
-                    `)}
-                </div>
-            `)}
-        `;
+                        `,
+                        label: item.label
+                    }))
+                }],
+                label: group.label
+            }))
+        });
     }
 
     // Where the shown tab was left, for when it's shown again.
