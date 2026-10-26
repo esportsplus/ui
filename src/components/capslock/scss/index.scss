@@ -27,6 +27,11 @@
     }
 
 
+    &-live,
+    &-text {
+        @extend %flex-vertical;
+    }
+
     // A legend, not a control, so it takes no hover or press
     &-key {
         pointer-events: none;
@@ -48,10 +53,6 @@
     }
 
     &-live {
-        @extend %flex-vertical, %hidden-visually;
-    }
-
-    &-text {
-        @extend %flex-vertical;
+        @extend %hidden-visually;
     }
 }

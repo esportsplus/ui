@@ -57,11 +57,11 @@
     );
 
     --background: var(--surface-background-default);
-    --color: var(--color-text-400);
+
     // The text is 400; 300 is muted, toward the page, and 500 strongest, away from it: lighter and darker in light,
     // the reverse in dark.
+    --color: var(--color-text-400);
     --color-text-300: light-dark(#{text-weight(lighter, light)}, #{text-weight(darker, dark)});
-
     --color-text-400: var(--color-text);
     --color-text-500: light-dark(#{text-weight(darker, light)}, #{text-weight(lighter, dark)});
 }

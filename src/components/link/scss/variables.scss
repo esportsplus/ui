@@ -5,5 +5,4 @@
 .link {
     @extend %background-state, %border-state, %color-state;
     --border-color-default: var(--background);
-    --padding-horizontal: 0px;
 }
