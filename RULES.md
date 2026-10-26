@@ -23,6 +23,9 @@ src/components/{component}/
 
 ## TypeScript
 
+- Use CSS whenever it can do the job, so the browser does the work instead of the script. States (`:hover`, `:active`,
+  `:focus-visible`, `:has()`), transitions, `@starting-style`, layout and `@media` preferences belong in SCSS. Keep TS
+  for what CSS can't express, such as measuring layout or state CSS can't see.
 - Build components with `@esportsplus/template` (`component`, `html`, attribute objects) and
   `@esportsplus/reactivity` (`reactive`, ...). We own both libraries; use them for as much as possible.
 - Don't manipulate the DOM directly (`addEventListener`, `classList`, `setAttribute`, `appendChild`, manual `window`
@@ -56,8 +59,8 @@ src/components/{component}/
   ```
 - Variables live on the selector that consumes them, not on a parent with a prefix. The icon's size is `--size` set on
   `.button-icon` / `&-kbd-icon.icon`, not `--icon-size` on `.button` that reaches down into the child. Prefixes are
-  only for distinct concerns of the same selector that would otherwise collide, e.g. frame's `--swap-duration`,
-  `--swap-fade-duration`, `--swap-exit-duration` alongside its own `--transition-duration`.
+  only for distinct concerns of the same selector that would otherwise collide, e.g. `card--morph`'s `--morph-duration`,
+  `--morph-fade-duration` alongside its own `--transition-duration`.
 - Stateful values use a `-default` / `-hover` / `-active` / `-pressed` family, with the bare variable resolving to the
   current state: `--background: var(--background-default)`.
 - Timing is always a pair: `--transition-duration` + `--transition-timing-function` (likewise `--{name}-duration` /
