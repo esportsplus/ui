@@ -11,26 +11,26 @@
 
 
     &--stack {
-        --stack-gap-horizontal: var(--border-width-500);
-        --stack-overlap: calc(var(--width) / 4);
+        --gap-horizontal: var(--border-width-500);
+        --overlap: calc(var(--width) / 4);
 
         &:has(+ .image--stack) {
-            --stack-cut: calc(var(--stack-radius) + var(--stack-gap-horizontal));
-            --stack-radius: min(var(--border-radius), var(--height) / 2, var(--width) / 2);
-            --stack-x: calc(100% - var(--stack-overlap) + var(--stack-radius));
+            --cut: calc(var(--radius) + var(--gap-horizontal));
+            --radius: min(var(--border-radius), var(--height) / 2, var(--width) / 2);
+            --x: calc(100% - var(--overlap) + var(--radius));
         }
     }
 
     &--status {
-        --status-color: var(--color-green-400);
-        --status-gap: var(--border-width-500);
-        --status-mask: radial-gradient(
-            circle at calc(100% - var(--status-size) / 2) calc(100% - var(--status-size) / 2),
-            #000 calc(var(--status-size) / 2 - 0.5px),
-            transparent calc(var(--status-size) / 2 + 0.5px) calc(var(--status-size) / 2 + var(--status-gap) - 0.5px),
-            #000 calc(var(--status-size) / 2 + var(--status-gap) + 0.5px)
+        --color: var(--color-green-400);
+        --gap: var(--border-width-500);
+        --mask: radial-gradient(
+            circle at calc(100% - var(--size) / 2) calc(100% - var(--size) / 2),
+            #000 calc(var(--size) / 2 - 0.5px),
+            transparent calc(var(--size) / 2 + 0.5px) calc(var(--size) / 2 + var(--gap) - 0.5px),
+            #000 calc(var(--size) / 2 + var(--gap) + 0.5px)
         );
-        --status-size: calc(min(var(--height), var(--width)) * 0.3);
+        --size: calc(min(var(--height), var(--width)) * 0.3);
     }
 
 

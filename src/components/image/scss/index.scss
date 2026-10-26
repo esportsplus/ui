@@ -13,7 +13,7 @@
 
     &--stack {
         & + & {
-            margin-left: calc(var(--stack-overlap) * -1);
+            margin-left: calc(var(--overlap) * -1);
         }
 
         // Cuts out the next sibling's shape (assumed to share this image's size), grown by
@@ -23,32 +23,32 @@
         &:has(+ .image--stack) {
             mask-composite: subtract, add, add, add, add;
             mask-image:
-                var(--status-mask, linear-gradient(#000 0 0)),
-                linear-gradient(to right, transparent var(--stack-x), #000 0),
-                linear-gradient(to right, transparent calc(100% - var(--stack-overlap) - var(--stack-gap-horizontal)), #000 0),
-                radial-gradient(circle at var(--stack-x) var(--stack-radius), #000 calc(var(--stack-cut) - 0.5px), transparent calc(var(--stack-cut) + 0.5px)),
-                radial-gradient(circle at var(--stack-x) calc(100% - var(--stack-radius)), #000 calc(var(--stack-cut) - 0.5px), transparent calc(var(--stack-cut) + 0.5px));
+                var(--mask, linear-gradient(#000 0 0)),
+                linear-gradient(to right, transparent var(--x), #000 0),
+                linear-gradient(to right, transparent calc(100% - var(--overlap) - var(--gap-horizontal)), #000 0),
+                radial-gradient(circle at var(--x) var(--radius), #000 calc(var(--cut) - 0.5px), transparent calc(var(--cut) + 0.5px)),
+                radial-gradient(circle at var(--x) calc(100% - var(--radius)), #000 calc(var(--cut) - 0.5px), transparent calc(var(--cut) + 0.5px));
             mask-position: 0 0, 0 0, 0 50%, 0 0, 0 0;
             mask-repeat: no-repeat;
-            mask-size: 100% 100%, 100% 100%, 100% calc(100% - var(--stack-radius) * 2), 100% 100%, 100% 100%;
+            mask-size: 100% 100%, 100% 100%, 100% calc(100% - var(--radius) * 2), 100% 100%, 100% 100%;
         }
     }
 
     &--status {
         // Chromium rounds the mask clip by border-radius, which would crop the dot on circles
         mask-clip: no-clip;
-        mask-image: var(--status-mask);
+        mask-image: var(--mask);
 
         // Oversized by 1px so the mask alone defines the dot's edge, leaving no background fringe beneath it
         &::after {
-            background: var(--status-color);
+            background: var(--color);
             border-radius: 100%;
             bottom: -0.5px;
             content: '';
-            height: calc(var(--status-size) + 1px);
+            height: calc(var(--size) + 1px);
             position: absolute;
             right: -0.5px;
-            width: calc(var(--status-size) + 1px);
+            width: calc(var(--size) + 1px);
         }
     }
 
