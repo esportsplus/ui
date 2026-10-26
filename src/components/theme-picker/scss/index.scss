@@ -3,9 +3,22 @@
 @use 'variables';
 
 .theme-picker {
+    &-cards,
+    &-swatches,
+    &-toggle {
+        &-option {
+            @extend %reset-button;
+
+            &:focus-visible {
+                outline: var(--focus-width) solid var(--focus-color);
+                outline-offset: var(--focus-offset);
+            }
+        }
+    }
+
     &-cards {
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
 
         &-label {
             color: var(--color);
@@ -15,15 +28,16 @@
 
         &-option {
             display: grid;
-            gap: var(--gap-vertical);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             justify-items: center;
         }
 
         &-preview {
+            background: var(--background);
             border: var(--border-width) solid var(--border-color);
             border-radius: var(--border-radius);
             display: grid;
-            gap: var(--gap-vertical);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             height: var(--height);
             outline: var(--ring-width) solid var(--ring-color);
             outline-offset: var(--ring-offset);
@@ -31,37 +45,14 @@
             padding: var(--padding);
             width: var(--width);
 
-            &--dark {
-                background: var(--color-black-400);
-            }
-
-            &--light {
-                background: var(--color-white-300);
-            }
-
-            &--system {
-                background: linear-gradient(135deg, var(--color-white-300) 50%, var(--color-black-400) 50%);
-            }
-
             &-bar,
             &-line {
-                background: var(--ink);
-                border-radius: var(--border-radius-100);
+                background: var(--background);
+                border-radius: var(--border-radius);
                 height: var(--height);
                 opacity: var(--opacity);
                 width: var(--width);
             }
-        }
-    }
-
-    &-cards-option,
-    &-swatches-option,
-    &-toggle-option {
-        @extend %reset-button;
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: var(--focus-offset);
         }
     }
 
@@ -72,27 +63,16 @@
 
     &-swatches {
         display: flex;
-        gap: var(--gap-horizontal);
+        gap: var(--gap-vertical) var(--gap-horizontal);
 
         &-circle {
+            background: var(--background);
             border: var(--border-width) solid var(--border-color);
-            border-radius: 50%;
+            border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             display: block;
             height: var(--size);
             width: var(--size);
-
-            &--dark {
-                background: var(--color-black-400);
-            }
-
-            &--light {
-                background: var(--color-white-300);
-            }
-
-            &--system {
-                background: linear-gradient(90deg, var(--color-white-300) 50%, var(--color-black-400) 50%);
-            }
         }
 
         &-label {
@@ -103,7 +83,7 @@
 
         &-option {
             display: grid;
-            gap: var(--gap-vertical);
+            gap: var(--gap-vertical) var(--gap-horizontal);
             justify-items: center;
         }
     }
