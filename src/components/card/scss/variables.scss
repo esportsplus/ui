@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'css-utilities/background';
 @use 'css-utilities/border';
 @use 'css-utilities/box-shadow';
@@ -15,6 +16,10 @@
     --width: auto;
 
 
+    &--border {
+        --border-width: var(--border-width-400);
+    }
+
     &--morph {
         --morph-duration: 0.3s;
         --morph-fade-duration: var(--transition-duration);
@@ -28,47 +33,32 @@
         }
     }
 
-    // Keyboard focus shows the halo as hover does.
-    &--ring {
-        --box-shadow-active: var(--surface-border-active);
-        --box-shadow-default: transparent;
-        --box-shadow-hover: var(--surface-border-hover);
-        --box-shadow-pressed: var(--surface-shadow-pressed);
-
-        &:focus-visible {
-            --box-shadow: var(--box-shadow-hover);
-        }
-    }
-
     // The fill follows its states, stepping on hover and press like any other surface.
     &--surface {
-        @extend %background-surface;
+        @extend %background-surface, %border-surface;
         --box-shadow-default: var(--surface-shadow-default);
     }
 
-    // The surface's edge, drawn at the standard width; the padding insets by it, so the box keeps its size. The
-    // default is restated because the placeholder's is emitted ahead of '.card' and loses to it.
-    &--surface-border {
-        @extend %border-surface;
-        --border-color-default: var(--surface-border-default);
-        --border-width: var(--border-width-400);
-    }
 
     // Chained through '.frame' so it wins over the frame's own swap regardless of stylesheet order. The outgoing layer
     // clears out faster than the incoming one arrives, so the two never read as overlapping text.
     &-morph-layer.frame {
-        --swap-blur: var(--blur-400);
-        --swap-duration: 0.25s;
-        --swap-exit-duration: 0.18s;
-        --swap-exit-fade-duration: 0.18s;
-        --swap-fade-duration: 0.25s;
-        --swap-fade-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-        --swap-shift: 48px;
-        --swap-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --blur: var(--blur-400);
+        --fade-duration: 0.18s;
+        --transition-duration: 0.25s;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
         @media (prefers-reduced-motion: reduce) {
-            --swap-blur: 0px;
-            --swap-shift: 0px;
+            --blur: 0px;
+        }
+
+        // Inactive only, so the active layer keeps the frame's resting '--shift: 0px'.
+        @include tokens.state(inactive) {
+            --shift: 48px;
+
+            @media (prefers-reduced-motion: reduce) {
+                --shift: 0px;
+            }
         }
     }
 }

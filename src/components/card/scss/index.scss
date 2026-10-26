@@ -58,14 +58,6 @@
     }
 
 
-    // A soft halo in place of the card's elevation. Keyboard focus shows it as hover does. Restated because the
-    // placeholder's own declaration is emitted ahead of '.card' and loses to it.
-    &--ring {
-        @extend %box-shadow-outline;
-        box-shadow: 0 0 0 var(--box-shadow-width) var(--box-shadow);
-    }
-
-
     // Pinned to its natural size, so text never reflows while the shell morphs around it.
     &-morph {
         &-layer {
