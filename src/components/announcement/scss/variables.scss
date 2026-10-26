@@ -1,20 +1,21 @@
 @use '/tokens';
 
 .announcement {
-    --transition-duration: 240ms;
-    --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-
     @include tokens.state(active) {
         --transition-duration: 280ms;
     }
 
+    &,
+    &-content.overlay {
+        --transition-duration: 240ms;
+        --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    }
 
     &-content.overlay {
-        --close-duration: 240ms;
+        --blur: var(--blur-300);
+        --close-duration: var(--transition-duration);
         --fade-duration: 120ms;
-        --fade-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
         --open-duration: 280ms;
-        --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 
         @include tokens.state(active) {
             --fade-duration: 200ms;

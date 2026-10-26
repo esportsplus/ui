@@ -23,7 +23,7 @@
         &:has(+ .image--stack) {
             mask-composite: subtract, add, add, add, add;
             mask-image:
-                var(--mask, linear-gradient(#000 0 0)),
+                var(--mask),
                 linear-gradient(to right, transparent var(--x), #000 0),
                 linear-gradient(to right, transparent calc(100% - var(--overlap) - var(--gap-horizontal)), #000 0),
                 radial-gradient(circle at var(--x) var(--radius), #000 calc(var(--cut) - 0.5px), transparent calc(var(--cut) + 0.5px)),
@@ -62,17 +62,9 @@
         position: relative;
         width: 100%;
 
-        &--error {
-            --source-visibility: hidden;
-        }
-
-        &--ready {
-            --placeholder-opacity: 0;
-        }
-
         // Covers the source while it streams in, then fades out and is removed from the DOM.
         &-placeholder {
-            opacity: var(--placeholder-opacity, 1);
+            opacity: var(--opacity);
             pointer-events: none;
             transition: opacity var(--transition-duration) var(--transition-timing-function);
             z-index: 1;
@@ -89,7 +81,7 @@
 
         // Unset until an error, so it inherits like any other element's.
         &-source {
-            visibility: var(--source-visibility);
+            visibility: var(--visibility);
             z-index: 0;
         }
     }

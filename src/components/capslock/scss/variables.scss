@@ -1,9 +1,9 @@
 @use '/tokens';
 
 .capslock {
+    --blur: var(--blur-300);
     --font-size: var(--font-size-300);
     --gap-horizontal: var(--size-200);
-
 
     @include tokens.state(active) {
         --transition-duration: 200ms;
@@ -33,9 +33,9 @@
             --box-shadow: none;
             --color: var(--surface-border-default);
             --color-active: var(--color-green-400);
-            --inset-horizontal: 5px;
-            --inset-vertical: 5px;
+            --left: 5px;
             --size: 3px;
+            --top: 5px;
             --transition-duration: 300ms;
             --transition-timing-function: ease-out;
         }

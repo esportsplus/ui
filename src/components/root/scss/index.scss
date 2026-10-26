@@ -73,12 +73,10 @@ html {
 h1,
 h2,
 h3,
-h4,
-h5,
-h6 {
+h4 {
     color: var(--color);
     font-size: var(--font-size);
-    font-weight: var(--font-weight-500);
+    font-weight: var(--font-weight);
     margin: 0;
     overflow-wrap: break-word;
     padding: 0;

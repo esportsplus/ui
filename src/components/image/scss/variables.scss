@@ -16,6 +16,7 @@
 
         &:has(+ .image--stack) {
             --cut: calc(var(--radius) + var(--gap-horizontal));
+            --mask: linear-gradient(#000 0 0);
             --radius: min(var(--border-radius), var(--height) / 2, var(--width) / 2);
             --x: calc(100% - var(--overlap) + var(--radius));
         }
@@ -42,5 +43,18 @@
         // Only a fade, so it plays under reduced motion too.
         --transition-duration: 0.65s;
         --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
+        &--error &-source {
+            --visibility: hidden;
+        }
+
+        &--ready &-placeholder {
+            --opacity: 0;
+        }
+
+
+        &-placeholder {
+            --opacity: 1;
+        }
     }
 }

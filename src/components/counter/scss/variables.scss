@@ -55,6 +55,11 @@
     }
 
 
+    &-character--symbol,
+    &-digit {
+        --fill: linear-gradient(currentColor, currentColor);
+    }
+
     &-character {
         &--symbol {
             --opacity: 1;

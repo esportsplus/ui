@@ -19,7 +19,7 @@
     &--more {
         display: block;
         // Animate the outer box while content retains its natural height for measurement.
-        height: min(var(--height, 100vh), calc(var(--lines) * 1lh));
+        height: min(var(--height), calc(var(--lines) * 1lh));
         overflow-y: var(--scrollbar-overflow, hidden);
         overscroll-behavior: contain;
         transition: height var(--transition-duration) var(--transition-timing-function);
@@ -40,6 +40,7 @@
             transition: none;
         }
     }
+
 
     &-content {
         display: flow-root;

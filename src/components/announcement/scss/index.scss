@@ -18,10 +18,10 @@
 
     // Qualified to outrank the '.overlay' it pairs with.
     &-content.overlay {
-        filter: blur(var(--blur-300));
+        filter: blur(var(--blur));
         transition:
-            filter var(--fade-duration) var(--fade-timing-function),
-            opacity var(--fade-duration) var(--fade-timing-function),
+            filter var(--fade-duration) var(--transition-timing-function),
+            opacity var(--fade-duration) var(--transition-timing-function),
             transform var(--transition-duration) var(--transition-timing-function),
             translate var(--transition-duration) var(--transition-timing-function);
 
@@ -33,7 +33,7 @@
             &,
             #{tokens.state(active)} {
                 filter: none;
-                transition: opacity var(--fade-duration) var(--fade-timing-function);
+                transition: opacity var(--fade-duration) var(--transition-timing-function);
             }
         }
 
