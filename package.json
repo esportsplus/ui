@@ -2,14 +2,14 @@
     "author": "ICJR",
     "dependencies": {
         "@esportsplus/action": "^0.1.8",
-        "@esportsplus/reactivity": "^0.39.1",
-        "@esportsplus/template": "^0.55.3",
+        "@esportsplus/reactivity": "^0.39.2",
+        "@esportsplus/template": "^0.55.5",
         "@esportsplus/utilities": "^0.28.6",
         "@esportsplus/workers": "^0.11.3",
         "modern-normalize": "^3.0.1"
     },
     "devDependencies": {
-        "@esportsplus/typescript": "^0.37.0",
+        "@esportsplus/typescript": "^0.38.0",
         "@types/node": "^26.6.2",
         "@types/shelljs": "^0.10.0",
         "autoprefixer": "^10.6.1",
@@ -30,7 +30,6 @@
             "types": "./build/modifiers/index.d.ts",
             "default": "./build/modifiers/index.js"
         },
-        "./modifiers/*.scss": "./build/modifiers/*/scss/index.scss",
         "./modifiers/*": {
             "types": "./build/modifiers/*/index.d.ts",
             "default": "./build/modifiers/*/index.js"
@@ -68,5 +67,5 @@
         "**/*.scss"
     ],
     "type": "module",
-    "version": "0.58.0"
+    "version": "0.59.1"
 }
