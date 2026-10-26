@@ -11,12 +11,12 @@
         @extend %surface-raise;
         align-items: center;
         background: var(--surface-background-default);
-        border-radius: var(--border-radius-700);
+        border-radius: var(--border-radius-500);
         box-shadow: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
         display: flex;
         height: 56px;
         max-width: 100%;
-        padding-inline: var(--size-200);
+        padding-inline: var(--size-400);
         position: relative;
 
         // Sits straight on the page, the way most sites place a trail above a heading.

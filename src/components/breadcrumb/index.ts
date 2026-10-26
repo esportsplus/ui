@@ -153,7 +153,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                 ${items.map((item, index) => html`
                     <li class='breadcrumb-ruler-segment'>
                         ${index > 0 && separator(kind)}
-                        <span class='breadcrumb-text ${index === last && 'breadcrumb-text--current'}'>${item.label}</span>
+                        <span class='breadcrumb-label ${index === last && '--active'}'>${item.label}</span>
                     </li>
                 `)}
                 <li class='breadcrumb-ruler-segment'>
@@ -164,11 +164,11 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
 
             <ol class='breadcrumb-list'>
                 ${items.map((item, index) => html`
-                    <li class='breadcrumb-segment ${index === last && 'breadcrumb-segment--current'} ${() => index > 0 && index < last && index <= s.hidden && 'breadcrumb-segment--hidden'}'>
+                    <li class='breadcrumb-segment ${index === last && '--active'} ${() => index > 0 && index < last && index <= s.hidden && 'breadcrumb-segment--hidden'}'>
                         <div class='breadcrumb-segment-body'>
                             ${index > 0 && separator(kind)}
                             ${index === last
-                                ? html`<span aria-current='page' class='breadcrumb-current'>${item.label}</span>`
+                                ? html`<span aria-current='page' class='breadcrumb-label --active'>${item.label}</span>`
                                 : html`
                                     <a
                                         class='breadcrumb-link'
@@ -180,7 +180,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                             }
                                         }}
                                     >
-                                        ${item.label}
+                                        <span class='breadcrumb-label'>${item.label}</span>
                                     </a>
                                 `}
                         </div>
@@ -191,7 +191,6 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                 ${separator(kind)}
                                 ${tooltip.menu(
                                     {
-                                        class: 'breadcrumb-menu-root',
                                         items: items.slice(1, last).map((item, i) => ({
                                             label: item.label,
                                             icon: () => icon({ 'aria-hidden': 'true' }, folder),
@@ -201,7 +200,6 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                             target: '_self'
                                         })),
                                         state: s,
-                                        [tooltip.menu.item]: { class: 'breadcrumb-option link' },
                                         [tooltip.menu.trigger]: {
                                             'aria-controls': `${id}-menu`,
                                             'aria-label': () => `Show ${s.hidden} hidden ${s.hidden === 1 ? 'folder' : 'folders'}`,
@@ -210,7 +208,6 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                         [tooltip.menu.panel]: {
                                             ...attributes[BREADCRUMB_MENU],
                                             'aria-label': 'Hidden folders',
-                                            class: ['breadcrumb-menu', attributes[BREADCRUMB_MENU]?.class ?? []].flat(),
                                             id: `${id}-menu`
                                         }
                                     },

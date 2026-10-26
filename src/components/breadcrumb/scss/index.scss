@@ -10,12 +10,17 @@
     width: 100%;
 
 
-    &-current {
-        @extend %text-truncate;
-        color: var(--color);
-        display: block;
+    // Centred on the cap height rather than the font's line box, which sits the caps high. A link crops its label
+    // rather than itself, since the fallback's pseudo-elements would land in the link's own flex row.
+    &-label {
         font-weight: var(--font-weight);
-        padding-inline: var(--padding-horizontal);
+        padding: var(--padding-vertical) var(--padding-horizontal);
+
+        // The current page.
+        @include tokens.state(active) {
+            @extend %text-truncate;
+            color: var(--color);
+        }
     }
 
     &-link {
@@ -23,10 +28,8 @@
         border-radius: var(--border-radius);
         color: var(--color);
         display: inline-flex;
-        font-weight: var(--font-weight);
         height: var(--height);
         outline: none;
-        padding-inline: var(--padding-horizontal);
         text-decoration: underline;
         text-decoration-color: transparent;
         text-underline-offset: calc(var(--size-100) / 2);
@@ -53,51 +56,6 @@
         height: var(--height);
         min-width: 0;
         position: relative;
-    }
-
-    &-menu {
-        display: flex;
-        flex-direction: column;
-        outline: none;
-        padding-block: var(--padding-vertical);
-        padding-inline: var(--padding-horizontal);
-        transform-origin: var(--origin);
-        width: var(--width);
-
-        &-root {
-            cursor: default;
-            display: flex;
-        }
-    }
-
-
-    // Paired with '.link', which the tooltip menu gives every option, so these win over its padding, wrapping,
-    // cursor and colour. No transition on the highlight: it follows every hover, so any easing reads as lag.
-    &-option {
-        align-items: center;
-        background: transparent;
-        border-radius: var(--border-radius-400);
-        color: var(--color);
-        cursor: default;
-        display: flex;
-        flex-shrink: 0;
-        flex-wrap: nowrap;
-        gap: var(--gap-horizontal);
-        height: var(--height);
-        outline: none;
-        padding-block: var(--padding-vertical);
-        padding-inline: var(--padding-horizontal);
-        text-decoration: none;
-        transition: none;
-        user-select: none;
-
-        &:focus {
-            background: var(--background-focus);
-        }
-
-        &[hidden] {
-            display: none;
-        }
     }
 
     &-ruler {
@@ -133,7 +91,8 @@
             transition: opacity var(--enter-duration) var(--enter-timing-function);
         }
 
-        &--current {
+        // The current page's, which gives way first.
+        @include tokens.state(active) {
             flex-shrink: 1;
             min-width: 0;
         }
@@ -173,11 +132,6 @@
     &-space {
         display: block;
         width: var(--width);
-    }
-
-    &-text {
-        font-weight: var(--font-weight);
-        padding-inline: var(--padding-horizontal);
     }
 
     &-trigger {

@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'css-utilities/color';
 
 .breadcrumb {
@@ -14,10 +15,15 @@
     }
 
 
-    &-current {
-        --color: var(--color-text-400);
-        --font-weight: var(--font-weight-600);
+    &-label {
+        --font-weight: var(--font-weight-400);
         --padding-horizontal: 2px;
+        --padding-vertical: 0;
+
+        @include tokens.state(active) {
+            --color: var(--color-text-400);
+            --font-weight: var(--font-weight-600);
+        }
     }
 
     &-link {
@@ -25,9 +31,7 @@
         --border-radius: var(--border-radius-300);
         --focus-color: var(--color-primary-500);
         --focus-width: 2px;
-        --font-weight: var(--font-weight-400);
         --height: var(--size-400);
-        --padding-horizontal: 2px;
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;
         --underline-color: oklch(from var(--color-primary-500) l c h / 0.4);
@@ -35,31 +39,6 @@
 
     &-list {
         --height: var(--size-400);
-    }
-
-    // A surface through the tooltip content it reuses, so its colors are read at its own level.
-    &-menu {
-        --background-default: var(--surface-background-default);
-        --border-radius: var(--border-radius-600);
-        --box-shadow-default:
-            0 0 0 var(--border-width-400) var(--surface-border-default),
-            var(--surface-shadow-default);
-        --offset: 0px;
-        // Grows out of the dots.
-        --origin: calc(var(--size-400) / 2) 0;
-        --padding-horizontal: calc(var(--size-100) / 2);
-        --padding-vertical: calc(var(--size-100) / 2);
-        --scale: 0.95;
-        --spacer: 6px;
-        --width: 192px;
-    }
-
-    &-option {
-        --background-focus: var(--surface-background-hover);
-        --gap-horizontal: var(--size-200);
-        --height: 36px;
-        --padding-horizontal: var(--size-100);
-        --padding-vertical: 0px;
     }
 
     // Arriving segments fade in slower than leaving ones fade out, so the gap a leaving one opens is already
@@ -93,15 +72,6 @@
         --width: var(--size-400);
     }
 
-    &-text {
-        --font-weight: var(--font-weight-400);
-        --padding-horizontal: 2px;
-
-        &--current {
-            --font-weight: var(--font-weight-600);
-        }
-    }
-
     &-trigger {
         --background-hover: var(--surface-background-hover);
         --border-radius: var(--border-radius-300);
@@ -113,12 +83,5 @@
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;
         --width: var(--size-400);
-    }
-
-
-    @media (prefers-reduced-motion: reduce) {
-        &-menu {
-            --scale: 1;
-        }
     }
 }
