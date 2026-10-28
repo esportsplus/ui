@@ -103,6 +103,7 @@
 
     &--primary {
         @extend %background-primary, %color-surface;
+        --border-color-default: var(--color-primary-300);
     }
 
     &--processing {
