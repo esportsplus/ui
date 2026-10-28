@@ -255,13 +255,15 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     }
 }
 
-// A layer moved any whole number of levels from its parent's, up or down, on top of '%surface'. The step is known when
-// it compiles, so a query per level the parent can sit at writes out the level it lands on, held to the ladder, and its
-// shadow. Only a layer moved up casts one, at its new level's weight.
+// A layer moved any whole number of levels from its parent's, up or down: a '%surface' whose level the step moves. The
+// step is known when it compiles, so a query per level the parent can sit at writes out the level it lands on, held to
+// the ladder, and its shadow. Only a layer moved up casts one, at its new level's weight.
 @mixin step($step) {
     @if meta.type-of($step) != 'number' or not math.is-unitless($step) or math.round($step) != $step {
         @error 'surface: a step is a whole number, not #{meta.inspect($step)}';
     }
+
+    @extend %surface;
 
     @if $step != 0 {
         @for $level from $level-min through $level-max {

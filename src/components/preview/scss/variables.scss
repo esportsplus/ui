@@ -79,14 +79,20 @@
     }
 
     &-view {
-        @extend %surface;
-        @include surface.step(-2);
         --background: var(--surface-background-default);
         --border-radius: var(--border-radius-600);
         // Pulls the buttons down onto the card below, out of the page's gap.
         --overlap: calc(var(--size-100) - var(--size-800));
         --padding-horizontal: calc(var(--size-100) / 4);
         --padding-vertical: calc(var(--size-100) / 4);
+
+        [data-theme='dark'] & {
+            @include surface.step(-3);
+        }
+
+        [data-theme='light'] & {
+            @include surface.step(-2);
+        }
 
         &-button {
             --border-radius: var(--border-radius-400);
@@ -98,8 +104,15 @@
         }
 
         &-highlight {
-            @extend %background-surface, %surface;
-            @include surface.step(2);
+            @extend %background-surface;
+
+            [data-theme='dark'] & {
+                @include surface.step(3);
+            }
+
+            [data-theme='light'] & {
+                @include surface.step(2);
+            }
 
             &.--active {
                 box-shadow: var(--surface-shadow-hover);
