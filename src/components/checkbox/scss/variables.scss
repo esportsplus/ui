@@ -1,27 +1,17 @@
 @use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/border';
+@use 'css-utilities/box-shadow';
 @use 'css-utilities/surface';
 
 .checkbox {
-    --background: var(--background-default);
-    --background-active: var(--background-default);
-    --background-default: transparent;
-    --background-hover: var(--background-default);
-    --background-pressed: var(--background-default);
+    @extend %border-surface, %box-shadow-surface;
     --border-color: var(--border-color-default);
-    --border-color-active: var(--surface-border-active);
-    --border-color-default: var(--surface-border-default);
-    --border-color-hover: var(--surface-border-hover);
-    --border-color-pressed: var(--surface-border-pressed);
     --border-radius: var(--border-radius-300);
-    --border-style: solid;
     --border-width: var(--border-width-400);
     --border-width-offset: 0px;
-    --border-width-offset-hover: var(--border-width-400);
+    --border-width-offset-hover: var(--border-width);
     --box-shadow: var(--box-shadow-default);
-    --box-shadow-active: 0 3px 8px #{surface.shadow-color(2)};
-    --box-shadow-default: none;
-    --box-shadow-hover: var(--box-shadow-default);
-    --box-shadow-pressed: var(--box-shadow-default);
     --focus-color: var(--border-color-active);
     --focus-offset: calc(var(--size-100) / 4);
     --focus-width: var(--border-width-500);
@@ -38,6 +28,22 @@
     --scale-pressed: var(--scale-default);
     --size: var(--size-500);
     --width: var(--height);
+
+
+    [data-theme='dark'] & {
+        @include surface.step(8);
+        --background: var(--background-default);
+        --background-default: transparent;
+    }
+
+    [data-theme='light'] & {
+        @include surface.step(-3);
+        --background: var(--background-default);
+        --background-active: var(--color-white-400);
+        --background-default: transparent;
+        --background-hover: var(--color-white-400);
+        --background-pressed: var(--color-white-400);
+    }
 
 
     &--radio {
@@ -59,9 +65,6 @@
     }
 
     &--switch {
-        --background-default: var(--surface-primary-default);
-        --background-hover: var(--surface-primary-hover);
-        --background-pressed: var(--surface-primary-pressed);
         --border-width: 0px;
         --border-width-offset-hover: 0px;
         --box-shadow-active: var(--box-shadow-default);
@@ -80,6 +83,13 @@
 
         &:has(input:checked) {
             --progress: 1;
+        }
+
+        [data-theme='dark'] &,
+        [data-theme='light'] & {
+            --background-default: var(--surface-primary-default);
+            --background-hover: var(--surface-primary-hover);
+            --background-pressed: var(--surface-primary-pressed);
         }
     }
 
@@ -127,16 +137,8 @@
         --offset: 0;
     }
 
+    // Pressed after hover, so a press, which is always hovered too, wins.
     &:not(:has(input:checked, input:indeterminate)) {
-        &:active,
-        label:active & {
-            --background: var(--background-pressed);
-            --border-color: var(--border-color-pressed);
-            --box-shadow: var(--box-shadow-pressed);
-            --indicator-color: var(--indicator-color-pressed);
-            --scale: var(--scale-pressed);
-        }
-
         &:hover,
         label:hover & {
             --background: var(--background-hover);
@@ -145,6 +147,15 @@
             --box-shadow: var(--box-shadow-hover);
             --indicator-color: var(--indicator-color-hover);
             --scale: var(--scale-hover);
+        }
+
+        &:active,
+        label:active & {
+            --background: var(--background-pressed);
+            --border-color: var(--border-color-pressed);
+            --box-shadow: var(--box-shadow-pressed);
+            --indicator-color: var(--indicator-color-pressed);
+            --scale: var(--scale-pressed);
         }
     }
 

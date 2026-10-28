@@ -5,10 +5,8 @@
 
 .checkbox {
     background: var(--background);
-    border-color: var(--border-color);
     border-radius: var(--border-radius);
-    border-style: var(--border-style);
-    border-width: calc(var(--border-width) + var(--border-width-offset));
+    border: calc(var(--border-width) + var(--border-width-offset)) solid var(--border-color);
     box-shadow: var(--box-shadow);
     cursor: pointer;
     flex: 0 0 var(--width);
