@@ -59,7 +59,8 @@ export default component(
                 class='button button--kbd'
                 ${attributes}
                 ${{
-                    class: () => (state.keyboard || state.pointer) && '--active',
+                    // A pointer press shows through ':active'; a key held on the window has no such state.
+                    class: () => state.keyboard && '--pressed',
                     onpointercancel: release,
                     onpointerdown: () => {
                         press('pointer');

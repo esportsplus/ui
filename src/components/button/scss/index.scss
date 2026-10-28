@@ -56,6 +56,13 @@
     }
 
 
+    &--kbd,
+    &--tactile {
+        @include tokens.state(active pressed) {
+            translate: 0 1px;
+        }
+    }
+
     &--border {
         border: var(--border-width) solid var(--border-color);
     }
@@ -75,10 +82,6 @@
     &--kbd {
         @extend %text-crop;
         font-family: inherit;
-
-        @include tokens.state(active pressed) {
-            translate: 0 1px;
-        }
     }
 
     &--morph {
@@ -172,12 +175,6 @@
         svg {
             fill: none;
             overflow: hidden;
-        }
-    }
-
-    &--tactile {
-        @include tokens.state('pressed') {
-            translate: 0 1px;
         }
     }
 

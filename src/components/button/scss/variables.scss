@@ -11,6 +11,13 @@
 .button {
     @extend %background-state, %border-state, %box-shadow-state, %color-state, %surface-raise;
 
+
+    &--kbd,
+    &--tactile {
+        --box-shadow-active: none;
+        --box-shadow-pressed: none;
+    }
+
     &--black {
         @extend %background-black, %color-white;
     }
@@ -44,11 +51,9 @@
         @extend %background-surface;
         --border-color-default: var(--surface-border-default);
         --border-radius: var(--border-radius-300);
-        --box-shadow-active: none;
         --box-shadow-default:
             0 0 0 var(--border-width-400) var(--border-color-default),
             inset 0 calc(var(--border-width-400) * -1) 0 var(--border-color-default);
-        --box-shadow-pressed: none;
         --font-size: var(--font-size-300);
         --line-height: 1;
         --padding-horizontal: var(--size-100);
