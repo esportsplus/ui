@@ -434,8 +434,8 @@ Its tokens follow the state names components use, `default`, `hover`, `active` a
 elevation to the shadow), then moves it for each state, active and hover lighter and pressed darker in both modes;
 `--surface-border-*` moves the matching `--surface-background-*` by the mode's `border` step, darker in light and
 lighter in dark, for lines, rings and small marks; and `--surface-shadow-*` is the
-shadow at the layer's weight, a step on Tailwind v4's `shadow-2xs` to `shadow-2xl` ladder (1 to 7), a step heavier on
-hover and a step lighter when pressed. The weight follows the level (lowered layers 0, dialogs 7), written out as fixed
+shadow at the layer's weight, a step on Tailwind v4's `shadow-2xs` to `shadow-2xl` ladder (1 to 7), moved in each state by
+the levels that state moves the background: heavier on hover and active, lighter when pressed. The weight follows the level (lowered layers 0, dialogs 7), written out as fixed
 shadows for each level; include `surface.shadow($weight)` on a surface to pick another step. A shadow takes the color of what it falls
 on, that background deepened in its own hue, at the mode's shadow `opacity`; `surface.shadow-color($share)` writes
 that color at a share of the opacity for component shadows and scrims. `--surface-primary-{state}` is a

@@ -205,13 +205,28 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     @return list.join($layers, (), comma);
 }
 
-// The weights a layer's states take from its own: lifted one step on hover, settled one when pressed.
-@function shadow-states($weight) {
+// The weights a layer's states take from its own in a mode, each state moving it as far as it moves the background:
+// the state's ladder step over a level's, raised for the lighter states and lowered for pressed, so hovering a layer
+// lifts its shadow by the levels its fill climbs. Held to the ladder, so equal weights read as equal.
+@function shadow-states($weight, $mode) {
+    $lowered: ladder-step($mode, lowered);
+    $raised: ladder-step($mode, raised);
+
     @return (
-        default: $weight,
-        hover: math.min($weight + 1, $shadow-weight-max),
-        pressed: math.max($weight - 1, 0)
+        active: math.clamp(0, $weight + math.div(ladder-step($mode, active), $raised), $shadow-weight-max),
+        default: math.clamp(0, $weight, $shadow-weight-max),
+        hover: math.clamp(0, $weight + math.div(ladder-step($mode, hover), $raised), $shadow-weight-max),
+        pressed: math.clamp(0, $weight - math.div(ladder-step($mode, pressed), $lowered), $shadow-weight-max)
     );
+}
+
+// The shadow at a weight in each mode: one shadow where the two match, and each mode's layers stacked where they differ.
+@function shadow-modes($light, $dark) {
+    @if $light == $dark {
+        @return shadow($light);
+    }
+
+    @return list.join(shadow($light, $mode: light), shadow($dark, $mode: dark));
 }
 
 
@@ -240,24 +255,21 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 // from its level; include it on a surface to choose another step without moving the level. They take the layer's own
 // shadow color: the level below they fall on is a single step darker, too little to show at the shadow's depth.
 @mixin shadow($weight) {
-    @each $state, $step in shadow-states($weight) {
-        --surface-shadow-#{$state}: #{shadow($step)};
+    $dark: shadow-states($weight, dark);
+    $light: shadow-states($weight, light);
+
+    @each $state, $step in $light {
+        --surface-shadow-#{$state}: #{shadow-modes($step, map.get($dark, $state))};
     }
 }
 
-// A primary fill's shadows on a layer at a level, at each mode's weight, the two modes' layers stacked where they
-// differ.
+// A primary fill's shadows on a layer at a level, at each mode's weight.
 @mixin primary-shadows($level) {
-    $dark: shadow-states(primary-weight($level, dark));
-    $light: shadow-states(primary-weight($level, light));
+    $dark: shadow-states(primary-weight($level, dark), dark);
+    $light: shadow-states(primary-weight($level, light), light);
 
     @each $state, $weight in $light {
-        @if $weight == map.get($dark, $state) {
-            --box-shadow-#{$state}: #{shadow($weight)};
-        }
-        @else {
-            --box-shadow-#{$state}: #{list.join(shadow($weight, $mode: light), shadow(map.get($dark, $state), $mode: dark))};
-        }
+        --box-shadow-#{$state}: #{shadow-modes($weight, map.get($dark, $state))};
     }
 }
 

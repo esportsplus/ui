@@ -65,7 +65,7 @@ const TOKENS: [string, string][] = [
     ['--surface-level', 'The layer\'s level: 0 the page, each surface one above or below the one it sits in.'],
     ['--surface-background-{state}', 'The level\'s background, and the step hover, active and pressed move it.'],
     ['--surface-border-{state}', 'The matching state\'s background moved by the mode\'s border step (darker in light, lighter in dark), for lines, rings and edges.'],
-    ['--surface-shadow-{state}', 'The shadow at the layer\'s Tailwind v4 step, 0 to 7: its level by default, lowered 0, dialogs 7; a step heavier on hover, a step lighter pressed.'],
+    ['--surface-shadow-{state}', 'The shadow at the layer\'s Tailwind v4 step, 0 to 7: its level by default, lowered 0, dialogs 7; each state moves it by the levels that state moves the background, heavier on hover and active, lighter pressed.'],
     ['--surface-primary-{state}', 'A primary fill on the layer: the mode\'s primary levels below it in light and above it in dark, its states stepped from it as the layer\'s own are.']
 ];
 

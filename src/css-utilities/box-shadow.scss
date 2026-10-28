@@ -33,7 +33,7 @@
     // The surface's own shadow and its states, lifting on hover and settling when pressed; the level is set apart, by
     // '%surface' and its kin.
     &-surface {
-        --box-shadow-active: var(--surface-shadow-hover);
+        --box-shadow-active: var(--surface-shadow-active);
         --box-shadow-default: var(--surface-shadow-default);
         --box-shadow-hover: var(--surface-shadow-hover);
         --box-shadow-pressed: var(--surface-shadow-pressed);
@@ -43,7 +43,6 @@
         // variable set on the layer could not follow; the page's level applies where none matches.
         &-primary {
             @include surface.primary-shadows(0);
-            --box-shadow-active: var(--box-shadow-hover);
 
             @for $level from surface.$level-min through surface.$level-max {
                 @container style(--surface-level: #{$level}) {
