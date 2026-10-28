@@ -34,7 +34,6 @@ export default component(
                 ${tooltip.menu(
                     {
                         animate,
-                        class: 'button-split-menu',
                         controller,
                         expand,
                         highlight,

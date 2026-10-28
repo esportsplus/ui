@@ -1,3 +1,5 @@
+@use 'css-utilities/background';
+@use 'css-utilities/box-shadow';
 @use 'css-utilities/surface';
 
 
@@ -34,7 +36,7 @@
     }
 
     &-button {
-        @extend %surface-primary;
+        @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
         --background-active: transparent;
         --background-default: transparent;
         --border-radius: var(--border-radius-400);
@@ -49,7 +51,7 @@
     }
 
     &-highlight {
-        @extend %surface-primary;
+        @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
         --scale-default: 1;
         border-radius: var(--border-radius-400);
     }
@@ -59,7 +61,10 @@
     }
 }
 
-// Leaves the error state its own red.
+// Leaves the error state its own red, and holds the blue through hover and press.
 .button-demo-morph:not(.button--morph-error) {
+    --background-active: var(--background-default);
     --background-default: var(--color-blue-400);
+    --background-hover: var(--background-default);
+    --background-pressed: var(--background-default);
 }

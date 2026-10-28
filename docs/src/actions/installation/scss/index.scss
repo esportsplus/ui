@@ -1,3 +1,5 @@
+@use 'css-utilities/background';
+@use 'css-utilities/box-shadow';
 @use 'css-utilities/surface';
 
 
@@ -7,7 +9,7 @@
 
     // Clear at rest and while active, so only the highlight's pill marks the chosen manager.
     &-package {
-        @extend %surface-primary;
+        @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
         --background-active: transparent;
         --background-default: transparent;
         --border-radius: var(--border-radius-300);
@@ -18,7 +20,7 @@
         margin: calc(var(--size-100) * -1) 0;
 
         &-highlight {
-            @extend %surface-primary;
+            @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
             --scale-default: 1;
             border-radius: var(--border-radius-300);
         }

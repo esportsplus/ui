@@ -65,9 +65,7 @@ const TOKENS: [string, string][] = [
     ['--surface-level', 'The layer\'s level: 0 the page, each surface one above or below the one it sits in.'],
     ['--surface-background-{state}', 'The level\'s background, and the step hover, active and pressed move it.'],
     ['--surface-border-{state}', 'The matching state\'s background moved by the mode\'s border step (darker in light, lighter in dark), for lines, rings and edges.'],
-    ['--surface-background-below', 'The background a level below the layer\'s, the one its shadow falls on.'],
     ['--surface-shadow-{state}', 'The shadow at the layer\'s Tailwind v4 step, 0 to 7: its level by default, lowered 0, dialogs 7; a step heavier on hover, a step lighter pressed.'],
-    ['--surface-shadow-color', 'The color of a shadow falling on the layer: its background deepened in its own hue.'],
     ['--surface-primary-{state}', 'A primary fill on the layer: the mode\'s primary levels below it in light and above it in dark, its states stepped from it as the layer\'s own are.']
 ];
 
@@ -208,7 +206,7 @@ const page = (): Page => {
                         <code>%surface-raise</code> and <code>%surface-lower</code> move one level,
                         <code>%surface</code> keeps its parent's, and <code>%surface-root</code> starts a fresh stack for
                         dialogs; set <code>--surface-level</code> on any of them to pin it, and include
-                        <code>surface.surface-shadow($weight)</code> to give it another shadow step. Paint with the surface variables
+                        <code>surface.shadow($weight)</code> to give it another shadow step. Paint with the surface variables
                         directly, or through <code>%background-surface</code>, <code>%border-surface</code> and
                         <code>%box-shadow-surface</code> for fills that step with the state.
                     </p>

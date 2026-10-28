@@ -85,7 +85,7 @@
     --ruler-width: var(--border-width-400);
     --selection-background: oklch(from var(--color-blue-400) l c h / 0.22);
     --selector-color: light-dark(var(--color-purple-500), oklch(from var(--color-purple-500) 0.78 0.13 h));
-    --sticky-shadow: 0 2px 4px -2px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 2.8));
+    --sticky-shadow: 0 2px 4px -2px #{surface.shadow-color(2.8)};
     --string-color: light-dark(oklch(from var(--color-green-500) 45% c h), oklch(from var(--color-green-500) 0.8 0.15 h));
     --swatch-size: 0.75em;
     --tag-color: light-dark(var(--color-red-400), oklch(from var(--color-red-400) 0.72 0.16 h));

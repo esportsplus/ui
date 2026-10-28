@@ -1,4 +1,5 @@
 @use '../tokens/scss' as tokens;
+@use './surface';
 
 %box-shadow {
     // A ring around the box, its color stepping with the state. It shares '--box-shadow*' with %box-shadow-state, so
@@ -32,9 +33,23 @@
     // The surface's own shadow and its states, lifting on hover and settling when pressed; the level is set apart, by
     // '%surface' and its kin.
     &-surface {
-        --box-shadow-active: var(--surface-shadow-active);
+        --box-shadow-active: var(--surface-shadow-hover);
         --box-shadow-default: var(--surface-shadow-default);
         --box-shadow-hover: var(--surface-shadow-hover);
         --box-shadow-pressed: var(--surface-shadow-pressed);
+
+        // The primary fill's shadow and its states. Only a fill lifted above its layer casts one, at the weight of the
+        // level it sits at. It sets no level of its own, so a style query reads the layer's, even a pinned one, which a
+        // variable set on the layer could not follow; the page's level applies where none matches.
+        &-primary {
+            @include surface.primary-shadows(0);
+            --box-shadow-active: var(--box-shadow-hover);
+
+            @for $level from surface.$level-min through surface.$level-max {
+                @container style(--surface-level: #{$level}) {
+                    @include surface.primary-shadows($level);
+                }
+            }
+        }
     }
 }

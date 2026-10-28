@@ -1476,7 +1476,7 @@
     "file": "src/components/counter/index.ts",
     "line": 26,
     "rule": "TS: build components with @esportsplus/template component()",
-    "issue": "The default export is a plain arrow function rather than component(...), unlike every other component (button, color-picker, datalist, dock).",
+    "issue": "The default export is a plain arrow function rather than component(...), unlike every other component (button, color-picker, dock).",
     "severity": "medium"
   },
   {
@@ -1605,30 +1605,6 @@
     "line": 162,
     "rule": "Variables: split multi-value properties",
     "issue": "Borders use a single shorthand variable --border (= width style color, variables.scss 146/186) via 'border-top: var(--border)' (162, 217) instead of separate width/color variables.",
-    "severity": "low"
-  },
-  {
-    "component": "datalist",
-    "file": "src/components/datalist/scss/variables.scss",
-    "line": 12,
-    "rule": "Variables: live on the consuming selector, not a parent with a prefix",
-    "issue": "--item-height (12), --opacity-falloff, --rotate, --scale and --scale-falloff (13-19) are set on .datalist but consumed by .datalist-option, -lens and -track (index.scss 17, 29, 31-33, 81, keyframes). --item-height is a prefixed parent variable reaching into children.",
-    "severity": "medium"
-  },
-  {
-    "component": "datalist",
-    "file": "src/components/datalist/scss/index.scss",
-    "line": 56,
-    "rule": "index.scss values come from var(--*), not literals",
-    "issue": "The scroller mask hardcodes its fade stops 'transparent 0, #000 30%, #000 70%, transparent 100%', which are tunable values.",
-    "severity": "low"
-  },
-  {
-    "component": "datalist",
-    "file": "src/components/datalist/scss/index.scss",
-    "line": 85,
-    "rule": "Keyframes: named after the class or prefixed with block/element path",
-    "issue": "'datalist-drum' is used by .datalist-option and should carry the element path (datalist-option-drum).",
     "severity": "low"
   },
   {

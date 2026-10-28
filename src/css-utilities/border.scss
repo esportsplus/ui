@@ -1,4 +1,5 @@
 @use '../tokens/scss' as tokens;
+@use './surface';
 
 %border {
     // First, so a color extended alongside it replaces its transparent default.
@@ -31,8 +32,10 @@
         --border-color-pressed: var(--border-color-default);
     }
 
-    &-radius-responsive {
-        --border-radius: #{"calc( progress((100vi - 100cqi) / 2, 0px, var(--gap-horizontal)) * var(--border-radius) )"};
+    &-radius {
+        &-responsive {
+            --border-radius: #{"calc( progress((100vi - 100cqi) / 2, 0px, var(--gap-horizontal)) * var(--border-radius) )"};
+        }
     }
 
     // The surface's edge: faint at rest, a step stronger on hover, strong when pressed.

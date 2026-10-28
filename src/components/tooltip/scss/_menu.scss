@@ -4,11 +4,10 @@
 @use 'css-utilities/text';
 
 .tooltip {
-    // 'tooltip.menu'; the root also carries '.tooltip', for its stacking and positioning.
+    // 'tooltip.menu''s layer, which also carries '.tooltip', so an expanding root panel opens as tooltip content does.
+    // Qualified by the layer as well, keeping the specificity the panels had under the old wrapper.
     &--menu {
-        display: inline-block;
-
-        > .tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
+        &.tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
             background: transparent;
             box-shadow: none;
             clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));
@@ -66,7 +65,7 @@
         }
 
         // Root panel
-        > .tooltip-menu-layer > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
+        &.tooltip-menu-layer > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
             left: 0;
             opacity: 0;
             top: calc(100% + var(--offset));
@@ -214,7 +213,8 @@
                 cursor: not-allowed;
             }
 
-            &:focus {
+            // Visible focus only, as the highlight takes it: opening by click focuses the first item without marking it.
+            &:focus-visible {
                 --background: var(--background-hover);
             }
         }
@@ -227,8 +227,9 @@
         }
 
         // The root panel's popover, so an open menu stands above every stacking context around it. Anchored over the
-        // menu's own box, so its panels place against it as they would against the menu; it takes no clicks itself.
-        &-layer {
+        // trigger's box, so its panels place against it as they would against the trigger; it takes no clicks itself.
+        // Qualified so the popover reset outranks the '.tooltip' it also carries, which loads after it.
+        &-layer.tooltip {
             @extend %reset-popover;
             height: anchor-size(height);
             left: anchor(left);
@@ -297,7 +298,8 @@
             }
         }
 
-        &-trigger {
+        // A context menu's trigger is the region it opens over, which keeps its own cursor.
+        &-trigger:is(button) {
             cursor: pointer;
         }
     }

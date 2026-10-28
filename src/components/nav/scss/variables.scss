@@ -1,11 +1,12 @@
 @use '/tokens';
 @use 'css-utilities/background';
+@use 'css-utilities/box-shadow';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
 .nav-tree {
     --gap-horizontal: 0px;
-    --gap-vertical: var(--size-600);
+    --gap-vertical: var(--size-100);
 
 
     // The rail as wide as the highlight's border, which lies over it.
@@ -58,7 +59,7 @@
     // step in to line up with the links' text.
     &:not(#{&}--rail) {
         .nav-tree-highlight {
-            @extend %surface-primary;
+            @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
             --background-active: var(--surface-primary-active);
         }
 

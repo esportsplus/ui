@@ -16,7 +16,7 @@
         --offset: var(--size-200);
         --open-duration: 0.16s;
         --open-timing-function: cubic-bezier(0.2, 0, 0, 1);
-        --scrim: oklch(from var(--surface-shadow-color) 0 0 0 / calc(alpha * 0.9));
+        --scrim: oklch(from #{surface.shadow-color(0.9)} 0 0 0 / alpha);
         --width: 17rem;
 
         &.tooltip--instant {
@@ -24,7 +24,7 @@
             --open-duration: 0s;
 
             // Qualified once more than the expanding root's own values, so it wins open or closed.
-            > .tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
+            &.tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
                 --expand-content-delay: 0s;
                 --expand-content-duration: 0s;
                 --expand-duration: 0s;
@@ -35,7 +35,7 @@
         }
 
         // Qualified twice so it outranks the tooltip content it composes, and classes paired onto that content.
-        > .tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
+        &.tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
             // Keep the panel's own surface when composing the generic tooltip content.
             --background-default: var(--surface-background-default);
             --border-radius: inherit;
@@ -166,6 +166,11 @@
         --gap-vertical: var(--size-200);
         --height: var(--item-height);
         --padding-horizontal: var(--size-200);
+    }
+
+    // Sized with the menu it opens; zero specificity, so a trigger's own size still wins.
+    :where(&-menu-trigger) {
+        --font-size: var(--font-size-300);
     }
 
     &-menu-hint {

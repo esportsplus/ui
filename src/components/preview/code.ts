@@ -16,7 +16,7 @@ export default component(
         return html`
             <div class='preview-code'>
                 ${copy({
-                    class: 'preview-copy',
+                    class: 'button--surface preview-copy',
                     error: 'Copy unavailable. Select and copy the code.',
                     label,
                     value: attributes.value

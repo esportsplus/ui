@@ -15,10 +15,7 @@
         @extend %background-surface;
 
         &-primary {
-            --background-active: var(--surface-primary-active);
-            --background-default: var(--surface-primary-default);
-            --background-hover: var(--surface-primary-hover);
-            --background-pressed: var(--surface-primary-pressed);
+            @extend %background-surface-primary;
         }
     }
 }

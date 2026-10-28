@@ -1,3 +1,5 @@
+@use 'css-utilities/surface';
+
 // Registered so the bar's scroll-driven animation interpolates it, and every piece of the bar reads the one value.
 @property --sticky-header-progress {
     inherits: true;
@@ -20,8 +22,8 @@
     --border-width: 0px;
     --box-shadow-default:
         0 0 0 var(--border-width-400) var(--border-color),
-        0 1px 2px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 0.6)),
-        0 4px 10px -8px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 5));
+        0 1px 2px #{surface.shadow-color(0.6)},
+        0 4px 10px -8px #{surface.shadow-color(5)};
     --compact-height: 48px;
     --expanded-height: 68px;
     // Its own name: the global per-element reset would swallow '--padding-horizontal' on the bar's children.
@@ -63,7 +65,7 @@
         }
 
         &--shadow {
-            --box-shadow: 0 6px 16px -10px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 4.4));
+            --box-shadow: 0 6px 16px -10px #{surface.shadow-color(4.4)};
         }
     }
 

@@ -38,7 +38,7 @@
         --thumb-size: var(--size-400);
         --thumb-transition-duration: 150ms;
         --thumb-transition-timing-function: ease-out;
-        --track-color: var(--surface-background-below);
+        --track-color: #{surface.background('calc(var(--surface-level) - 1)')};
 
         @media (pointer: coarse) {
             --thumb-size: var(--size-500);
@@ -132,7 +132,7 @@
 
             // Matches the fill to the thumb's travel without changing how the range behaves.
             .range-filter-track {
-                --background: var(--surface-background-below);
+                --background: #{surface.background('calc(var(--surface-level) - 1)')};
                 --margin-horizontal: calc(var(--thumb-size) / 2);
                 --margin-vertical: calc(var(--thumb-size) / 2);
                 --overflow: visible;

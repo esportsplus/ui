@@ -3,7 +3,7 @@
 // Floats above everything, like a dialog, but with a lighter shadow that fits inside the toast's clip.
 .toast {
     @extend %surface-root;
-    @include surface.surface-shadow(5);
+    @include surface.shadow(5);
     --background: var(--surface-background-default);
     --border-color: var(--surface-border-hover);
     --color: var(--color-text-400);

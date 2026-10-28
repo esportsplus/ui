@@ -86,6 +86,26 @@ function expandable(state: { active: boolean }): Attributes<HTMLDialogElement> {
     };
 }
 
+// The color an overlay shows: its own background, or its content's where the container is transparent, as
+// announcement leaves the surface to its content.
+function background(element: Element) {
+    let surface = element,
+        background = getComputedStyle(surface).backgroundColor;
+
+    while (background === 'transparent' || background.endsWith(', 0)') || background.endsWith('/ 0)')) {
+        let child = surface.querySelector(':scope > :not([hidden]):not(.overlay-handle)');
+
+        if (!child) {
+            break;
+        }
+
+        surface = child;
+        background = getComputedStyle(surface).backgroundColor;
+    }
+
+    return background;
+}
+
 function layer(element: HTMLDialogElement) {
     for (let i = 0, n = layers.length; i < n; i++) {
         if (layers[i].element === element) {
@@ -213,6 +233,7 @@ export default component(
 
             motion = undefined;
             previous?.cancel();
+            space?.style.removeProperty('background-color');
             space?.style.removeProperty('height');
             space = undefined;
         }
@@ -260,6 +281,11 @@ export default component(
                 let start = space.style.height,
                     end = `${close ? 0 : height}px`,
                     computed = getComputedStyle(element);
+
+                // Closing, the overlay fades in its space, so the space stops standing in for it.
+                if (close) {
+                    space.style.removeProperty('background-color');
+                }
 
                 space.style.height = end;
                 motion = space.animate([{ height: start }, { height: end }], {
@@ -318,27 +344,14 @@ export default component(
                     resetSpace();
                     space = element.parentElement!;
                     height = element.offsetHeight;
+                    // Painted in the overlay's color, so dragged away from its closing edge only the content seems
+                    // to move; its own edges meet the same color, leaving no seam.
+                    space.style.backgroundColor = background(element);
                     space.style.height = `${height}px`;
                 }
-
-                if (edge(element, 'overlay') && !element.classList.contains('overlay--floating')) {
-                    let surface: Element = element,
-                        background = getComputedStyle(surface).backgroundColor;
-
-                    // Containers such as announcement leave the surface to their content.
-                    while (background === 'transparent' || background.endsWith(', 0)') || background.endsWith('/ 0)')) {
-                        let child = surface.querySelector(':scope > :not([hidden]):not(.overlay-handle)');
-
-                        if (!child) {
-                            break;
-                        }
-
-                        surface = child;
-                        background = getComputedStyle(surface).backgroundColor;
-                    }
-
+                else if (edge(element, 'overlay') && !element.classList.contains('overlay--floating')) {
                     fill++;
-                    element.style.setProperty('--edge-background', background);
+                    element.style.setProperty('--edge-background', background(element));
                     element.classList.add('overlay--edge-fill');
                 }
             },

@@ -211,6 +211,15 @@
         visibility: var(--main-visibility);
     }
 
+    // An empty layer over the viewport, so the context menu opens where the tree reports and flips at the viewport's
+    // edges rather than being clipped by the workspace's.
+    &-menu {
+        inset: 0;
+        pointer-events: none;
+        position: fixed;
+        z-index: var(--menu-layer);
+    }
+
     &-menu-panel {
         pointer-events: auto;
     }
@@ -244,15 +253,6 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-    }
-
-    // An empty layer over the viewport, so the context menu opens where the tree reports and flips at the viewport's
-    // edges rather than being clipped by the workspace's.
-    &-menu.tooltip {
-        inset: 0;
-        pointer-events: none;
-        position: fixed;
-        z-index: var(--menu-layer);
     }
 
     &-notice {

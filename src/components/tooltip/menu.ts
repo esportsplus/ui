@@ -530,145 +530,153 @@ function createMenu(context = false) {
                 placement.shift = x;
             }
 
+            // The trigger and the layer are siblings, so whatever spans the menu listens on both: the panel sits in the
+            // layer, not in the trigger, and the trigger names itself as the anchor the layer is placed over.
+            function connect(element: HTMLElement) {
+                host = element;
+                trigger = element;
+                element.style.setProperty('anchor-name', name);
+            }
+
+            function inside(node: Node | null) {
+                return !!node && (!!host?.contains(node) || !!layer?.contains(node));
+            }
+
+            function keydown(e: KeyboardEvent) {
+                if (context && (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey))) {
+                    e.preventDefault();
+
+                    if (!root.panel?.contains(e.target as Node)) {
+                        place(anchor(e.target as Element));
+                    }
+
+                    return;
+                }
+
+                if (!state.active) {
+                    if (e.key === 'ArrowDown' && e.target === trigger) {
+                        e.preventDefault();
+                        open();
+                    }
+
+                    return;
+                }
+
+                let nodes = enabled(stack[stack.length - 1]),
+                    index = nodes.findIndex((node) => node.button === document.activeElement),
+                    n = nodes.length;
+
+                switch (e.key) {
+                    case 'ArrowDown':
+                        nodes[(index + 1) % n]?.button?.focus();
+                        break;
+                    case 'ArrowUp':
+                        nodes[index < 1 ? n - 1 : index - 1]?.button?.focus();
+                        break;
+                    case 'ArrowLeft':
+                    case 'Backspace':
+                        pop();
+                        break;
+                    case 'ArrowRight':
+                        if (index !== -1) {
+                            drill(nodes[index]);
+                        }
+                        break;
+                    case 'End':
+                        nodes[n - 1]?.button?.focus();
+                        break;
+                    case 'Escape':
+                        if (stack.length > 1) {
+                            pop();
+                        }
+                        else {
+                            close(true);
+                        }
+                        break;
+                    case 'Home':
+                        nodes[0]?.button?.focus();
+                        break;
+                    case 'Tab':
+                        close(true);
+                        break;
+                    // Enter and Space fall through to the native button click
+                    default:
+                        return;
+                }
+
+                e.preventDefault();
+            }
+
+            let hover = !context && openOn === 'hover',
+                { onconnect: popup, ...dismissal } = overlay.popup({
+                    canDismiss: () => !!pending,
+                    contains: (_, node) => inside(node),
+                    ondismiss: (reason) => close(reason === 'escape'),
+                    state,
+                    target: (element) => element.querySelector<HTMLElement>(':scope > .tooltip-menu-panel') ?? undefined
+                }),
+                spanning = {
+                    onfocusout: (event: FocusEvent) => {
+                        if ((state.active || pending) && !inside(event.relatedTarget as Node | null)) {
+                            close(false);
+                        }
+                    },
+                    onkeydown: keydown,
+                    onpointerenter: hover ? ((event: PointerEvent) => {
+                        if (event.pointerType !== 'touch') {
+                            open(false);
+                        }
+                    }) : undefined,
+                    onpointerleave: hover ? ((event: PointerEvent) => {
+                        if (event.pointerType !== 'touch') {
+                            leaving = setTimeout(() => close(false), 150);
+                        }
+                    }) : undefined
+                };
+
             return html`
-                <div
-                    class='tooltip tooltip--menu ${context && 'tooltip--context'} ${!animate && 'tooltip--instant'}'
+                ${context ? html`<div
+                    class='tooltip-menu-trigger'
                     ${attributes}
+                    ${{ ...spanning, oncontextmenu: contextmenu, onconnect: connect }}
+                >${content}</div>` : html`<button
+                    aria-haspopup='menu'
+                    class='tooltip-menu-trigger'
+                    type='button'
+                    ${attributes}
+                    ${attributes[MENU_TRIGGER]}
                     ${{
-                        ...overlay.popup({
-                            canDismiss: () => !!pending,
-                            ondismiss: (reason) => close(reason === 'escape'),
-                            state,
-                            target: (root) => root.querySelector<HTMLElement>(':scope > .tooltip-menu-layer > .tooltip-menu-panel') ?? undefined
-                        }),
-                        oncontextmenu: context ? contextmenu : undefined,
-                        onfocusout: (event: FocusEvent) => {
-                            if ((state.active || pending) && !(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) {
+                        ...spanning,
+                        'aria-expanded': () => String(state.active),
+                        onclick: () => {
+                            if (state.active || pending) {
                                 close(false);
                             }
+                            else {
+                                open();
+                            }
                         },
-                        onpointerenter: !context && openOn === 'hover' ? ((event: PointerEvent) => {
-                            if (event.pointerType !== 'touch') {
-                                open(false);
-                            }
-                        }) : undefined,
-                        onpointerleave: !context && openOn === 'hover' ? ((event: PointerEvent) => {
-                            if (event.pointerType !== 'touch') {
-                                leaving = setTimeout(() => close(false), 150);
-                            }
-                        }) : undefined,
-                        onwindowresize: () => state.active && shift(),
-                        onkeydown: (e: KeyboardEvent) => {
-                            if (context && (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey))) {
-                                e.preventDefault();
-
-                                if (!root.panel?.contains(e.target as Node)) {
-                                    place(anchor(e.target as Element));
-                                }
-
-                                return;
-                            }
-
-                            if (!state.active) {
-                                if (e.key === 'ArrowDown' && e.target === trigger) {
-                                    e.preventDefault();
-                                    open();
-                                }
-
-                                return;
-                            }
-
-                            let nodes = enabled(stack[stack.length - 1]),
-                                index = nodes.findIndex((node) => node.button === document.activeElement),
-                                n = nodes.length;
-
-                            switch (e.key) {
-                                case 'ArrowDown':
-                                    nodes[(index + 1) % n]?.button?.focus();
-                                    break;
-                                case 'ArrowUp':
-                                    nodes[index < 1 ? n - 1 : index - 1]?.button?.focus();
-                                    break;
-                                case 'ArrowLeft':
-                                case 'Backspace':
-                                    pop();
-                                    break;
-                                case 'ArrowRight':
-                                    if (index !== -1) {
-                                        drill(nodes[index]);
-                                    }
-                                    break;
-                                case 'End':
-                                    nodes[n - 1]?.button?.focus();
-                                    break;
-                                case 'Escape':
-                                    if (stack.length > 1) {
-                                        pop();
-                                    }
-                                    else {
-                                        close(true);
-                                    }
-                                    break;
-                                case 'Home':
-                                    nodes[0]?.button?.focus();
-                                    break;
-                                case 'Tab':
-                                    close(true);
-                                    break;
-                                // Enter and Space fall through to the native button click
-                                default:
-                                    return;
-                            }
-
-                            e.preventDefault();
-                        }
+                        onconnect: connect
                     }}
                 >
-                    ${context ? html`<div class='tooltip-menu-trigger' ${{
-                        // The host is whatever the context menu is rendered in, so it is named as an anchor directly.
-                        onconnect: (element: HTMLElement) => {
-                            host = element.parentElement ?? undefined;
-                            host?.style.setProperty('anchor-name', name);
-                            trigger = host;
-                        }
-                    }}>${content}</div>` : html`<button
-                        aria-haspopup='menu'
-                        class='tooltip-menu-trigger'
-                        type='button'
-                        ${attributes[MENU_TRIGGER]}
-                        ${{
-                            'aria-expanded': () => String(state.active),
-                            onclick: () => {
-                                if (state.active || pending) {
-                                    close(false);
-                                }
-                                else {
-                                    open();
-                                }
-                            },
-                            // The menu anchors to whatever holds the trigger, so it is named as an anchor directly.
-                            onconnect: (element: HTMLElement) => {
-                                trigger = element;
-                                host = element.parentElement ?? undefined;
-                                host?.style.setProperty('anchor-name', name);
-                            }
-                        }}
-                    >
-                        ${content}
-                    </button>`}
+                    ${content}
+                </button>`}
 
-                    <div
-                        class='tooltip-menu-layer'
-                        popover='manual'
-                        style='position-anchor: ${name};'
-                        ${{
-                            onconnect: (element: HTMLElement) => {
-                                layer = element;
-                            }
-                        }}
-                    >
-                        ${panel(root)}
-                    </div>
+                <div
+                    class='tooltip tooltip--menu tooltip-menu-layer ${context && 'tooltip--context'} ${!animate && 'tooltip--instant'}'
+                    popover='manual'
+                    style='position-anchor: ${name};'
+                    ${dismissal}
+                    ${{
+                        ...spanning,
+                        onconnect: (element: HTMLElement) => {
+                            layer = element;
+                            (popup as ((element: HTMLElement) => void) | undefined)?.(element);
+                        },
+                        onwindowresize: () => state.active && shift()
+                    }}
+                >
+                    ${panel(root)}
                 </div>
             `;
         },

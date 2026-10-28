@@ -43,12 +43,12 @@
 
 
 // Unregistered custom properties keep 'light-dark()' unresolved, so it picks a side where it is used, by that element's
-// color-scheme; colors declared on the root, such as '--surface-shadow-color', follow every subtree's mode too.
+// color-scheme; colors declared on the root, such as '--surface-background-default', follow every subtree's mode too.
 :root {
     @include shared.css-variables(color, schemes(tokens.$themes));
     // The page is level 0 of the surface ladder.
-    @include surface.surface-colors;
-    @include surface.surface-shadow(0);
+    @include surface.colors;
+    @include surface.shadow(0);
 
     @include shared.color-weights(
         primary,

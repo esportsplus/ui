@@ -3,10 +3,6 @@
 @use 'sass:math';
 @use 'sass:meta';
 @use '../tokens/scss' as tokens;
-@use './background';
-@use './border';
-@use './box-shadow';
-@use './color';
 
 
 // The levels the style queries count through: the deepest a lowered layer sinks and the highest, where the dark steps
@@ -59,12 +55,12 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 // The background at a level, stepped from the theme's surface by the ladder: light raised levels climb to white, where
 // the shadow alone carries elevation, and dark ones stop at the top level. Chroma keeps the page's tint on its hue,
 // scaled with the distance from white in light and from black in dark.
-@function surface-background($level) {
-    @return light-dark(#{surface-background-in($level, light)}, #{surface-background-in($level, dark)});
+@function background($level) {
+    @return light-dark(#{background-in($level, light)}, #{background-in($level, dark)});
 }
 
 // The background at a level in one mode, for colors that read a different level in each.
-@function surface-background-in($level, $mode) {
+@function background-in($level, $mode) {
     @if $mode == light {
         $light: 'clamp(0, l + #{level-offset($level, light)}, 1)';
 
@@ -78,16 +74,16 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 
 // A primary fill on the surface it sits on, at its offset level, so it reads as a quiet fill set into the light page
 // and lifted off the dark one.
-@function surface-primary() {
+@function primary() {
     @return light-dark(
-        #{surface-background-in('calc(var(--surface-level) + #{surface-primary-offset(light)})', light)},
-        #{surface-background-in('calc(var(--surface-level) + #{surface-primary-offset(dark)})', dark)}
+        #{background-in('calc(var(--surface-level) + #{primary-offset(light)})', light)},
+        #{background-in('calc(var(--surface-level) + #{primary-offset(dark)})', dark)}
     );
 }
 
 // The levels a primary fill sits from its surface in a mode: the mode's 'primary', below it in light and above it in
 // dark.
-@function surface-primary-offset($mode) {
+@function primary-offset($mode) {
     $levels: map.get(tokens.$themes, $mode, surface, primary);
 
     @if $mode == light {
@@ -99,15 +95,15 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 
 // The shadow weight a primary fill takes in a mode on a layer at a level: the level it sits at, once lifted above the
 // layer, and none when set into it.
-@function surface-primary-weight($level, $mode) {
-    $offset: surface-primary-offset($mode);
+@function primary-weight($level, $mode) {
+    $offset: primary-offset($mode);
 
     @return math.clamp(0, $level + $offset, $level-max) * math.clamp(0, $offset, 1);
 }
 
 // A default background moved for a state, so it follows any background a component sets in its place: active and
 // hover lighter, pressed darker, in both modes.
-@function surface-shift($state, $base: 'var(--surface-background-default)') {
+@function shift($state, $base: 'var(--surface-background-default)') {
     $sign: '+';
 
     @if $state == 'pressed' {
@@ -122,7 +118,7 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 
 // A state's background moved by the mode's border step, darker in light and lighter in dark, so each border follows the
 // background it edges in that state and stands out from it in both modes.
-@function surface-border($state, $background: 'var(--surface-background-#{$state})') {
+@function border($state, $background: 'var(--surface-background-#{$state})') {
     @return light-dark(
         #{'oklch(from #{$background} max(0, l - #{ladder-step(light, border)}) c h)'},
         #{'oklch(from #{$background} min(1, l + #{ladder-step(dark, border)}) c h)'}
@@ -134,18 +130,18 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     @return map.get(tokens.$themes, $mode, surface, shadow, $key);
 }
 
-// The color of a shadow falling on a background in a mode: that background deepened in its own hue by the mode's depth,
-// at its 10% step's opacity.
-@function shadow-color-in($background, $mode) {
+// The color of a shadow falling on the surface it is used in, in a mode: its background deepened in its own hue by the
+// mode's depth, at a share of a 10% step's opacity.
+@function shadow-color-in($mode, $share: 1) {
     $depth: shadow-token($mode, depth);
-    $opacity: math.div(shadow-token($mode, opacity), 100);
+    $opacity: math.div(shadow-token($mode, opacity), 100) * $share;
 
-    @return 'oklch(from #{$background} calc(l * #{$depth}) calc(c * #{$depth}) h / #{$opacity})';
+    @return 'oklch(from var(--surface-background-default) calc(l * #{$depth}) calc(c * #{$depth}) h / #{$opacity})';
 }
 
-// The color of a shadow falling on a background, in each mode.
-@function shadow-color($background) {
-    @return light-dark(#{shadow-color-in($background, light)}, #{shadow-color-in($background, dark)});
+// The color of a shadow falling on the surface it is used in, in each mode, at a share of a 10% step's opacity.
+@function shadow-color($share: 1) {
+    @return light-dark(#{shadow-color-in(light, $share)}, #{shadow-color-in(dark, $share)});
 }
 
 // The ladder's layers at a weight, held to the ladder: a whole weight reads its step, and a fraction blends each value
@@ -179,10 +175,9 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     @return $layers;
 }
 
-// Both layers of the shadow at a weight, in a shadow color: by default the color of a shadow falling on the surface it
-// is used in. Given a mode, the layers show in that mode alone and go transparent in the other, so two modes' weights
-// can share one shadow.
-@function shadow($weight, $color: 'var(--surface-shadow-color)', $mode: null) {
+// Both layers of the shadow at a weight, in the color of a shadow falling on the surface it is used in. Given a mode,
+// the layers show in that mode alone and go transparent in the other, so two modes' weights can share one shadow.
+@function shadow($weight, $mode: null) {
     @if meta.type-of($weight) != 'number' {
         @error 'surface: a shadow weight is a number, not #{meta.inspect($weight)}';
     }
@@ -190,14 +185,15 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     $layers: ();
 
     @each $layer in shadow-step($weight) {
-        // The step's opacity over a 10% step, the opacity the shadow color carries.
-        $fill: 'oklch(from #{$color} l c h / calc(alpha * #{list.nth($layer, 4) * 10}))';
+        // The step's opacity over a 10% step.
+        $share: list.nth($layer, 4) * 10;
+        $fill: shadow-color($share);
 
         @if $mode == light {
-            $fill: 'light-dark(#{$fill}, transparent)';
+            $fill: 'light-dark(#{shadow-color-in(light, $share)}, transparent)';
         }
         @else if $mode == dark {
-            $fill: 'light-dark(transparent, #{$fill})';
+            $fill: 'light-dark(transparent, #{shadow-color-in(dark, $share)})';
         }
 
         $layers: list.append(
@@ -221,42 +217,39 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 
 // A layer's colors, read from its level: 0 the page, each surface a level above the one it sits in, in the states
 // components already name, following any background a component sets in its place. Active, hover and pressed step the
-// background, and the primary fill, as 'surface-shift()' sets. Each state's border is that state's background moved by
-// the border step, darker in light and lighter in dark. Its shadows fall on the level below, the background a shadow
-// casts on. Another level is never a color to paint: an element reaches it by extending '%surface' or one of its kin,
-// or by setting '--surface-level' on one, so whatever sits in it reads its states from the level it shows.
-@mixin surface-colors {
-    --surface-background-active: #{surface-shift('active')};
-    --surface-background-below: #{surface-background('calc(var(--surface-level) - 1)')};
-    --surface-background-default: #{surface-background('var(--surface-level)')};
-    --surface-background-hover: #{surface-shift('hover')};
-    --surface-background-pressed: #{surface-shift('pressed')};
-    --surface-border-active: #{surface-border('active')};
-    --surface-border-default: #{surface-border('default')};
-    --surface-border-hover: #{surface-border('hover')};
-    --surface-border-pressed: #{surface-border('pressed')};
-    --surface-primary-active: #{surface-shift('active', 'var(--surface-primary-default)')};
-    --surface-primary-default: #{surface-primary()};
-    --surface-primary-hover: #{surface-shift('hover', 'var(--surface-primary-default)')};
-    --surface-primary-pressed: #{surface-shift('pressed', 'var(--surface-primary-default)')};
-    --surface-shadow-active: var(--surface-shadow-hover);
-    --surface-shadow-cast: #{shadow-color('var(--surface-background-below)')};
-    --surface-shadow-color: #{shadow-color('var(--surface-background-default)')};
+// background, and the primary fill, as 'shift()' sets. Each state's border is that state's background moved by
+// the border step, darker in light and lighter in dark. Another level is never a color to paint: an element reaches it
+// by extending '%surface' or one of its kin, or by setting '--surface-level' on one, so whatever sits in it reads its
+// states from the level it shows.
+@mixin colors {
+    --surface-background-active: #{shift('active')};
+    --surface-background-default: #{background('var(--surface-level)')};
+    --surface-background-hover: #{shift('hover')};
+    --surface-background-pressed: #{shift('pressed')};
+    --surface-border-active: #{border('active')};
+    --surface-border-default: #{border('default')};
+    --surface-border-hover: #{border('hover')};
+    --surface-border-pressed: #{border('pressed')};
+    --surface-primary-active: #{shift('active', 'var(--surface-primary-default)')};
+    --surface-primary-default: #{primary()};
+    --surface-primary-hover: #{shift('hover', 'var(--surface-primary-default)')};
+    --surface-primary-pressed: #{shift('pressed', 'var(--surface-primary-default)')};
 }
 
-// A layer's shadows at a weight, a step on the ladder, cast on what it sits in. Each surface sets them from its level;
-// include it on a surface to choose another step without moving the level.
-@mixin surface-shadow($weight) {
+// A layer's shadows at a weight, a step on the ladder, cast on what it sits in. Each surface sets them
+// from its level; include it on a surface to choose another step without moving the level. They take the layer's own
+// shadow color: the level below they fall on is a single step darker, too little to show at the shadow's depth.
+@mixin shadow($weight) {
     @each $state, $step in shadow-states($weight) {
-        --surface-shadow-#{$state}: #{shadow($step, 'var(--surface-shadow-cast)')};
+        --surface-shadow-#{$state}: #{shadow($step)};
     }
 }
 
 // A primary fill's shadows on a layer at a level, at each mode's weight, the two modes' layers stacked where they
 // differ.
-@mixin surface-primary-shadows($level) {
-    $dark: shadow-states(surface-primary-weight($level, dark));
-    $light: shadow-states(surface-primary-weight($level, light));
+@mixin primary-shadows($level) {
+    $dark: shadow-states(primary-weight($level, dark));
+    $light: shadow-states(primary-weight($level, light));
 
     @each $state, $weight in $light {
         @if $weight == map.get($dark, $state) {
@@ -268,13 +261,36 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     }
 }
 
+// A layer moved any whole number of levels from its parent's, up or down, on top of '%surface'. The step is known when
+// it compiles, so a query per level the parent can sit at writes out the level it lands on, held to the ladder, and its
+// shadow. Only a layer moved up casts one, at its new level's weight.
+@mixin step($step) {
+    @if meta.type-of($step) != 'number' or not math.is-unitless($step) or math.round($step) != $step {
+        @error 'surface: a step is a whole number, not #{meta.inspect($step)}';
+    }
+
+    @if $step != 0 {
+        @for $level from $level-min through $level-max {
+            $landing: math.clamp($level-min, $level + $step, $level-max);
+
+            @container style(--surface-level: #{$level}) {
+                --surface-level: #{$landing};
+
+                @if $step > 0 {
+                    @include shadow(math.max($landing, 0));
+                }
+            }
+        }
+    }
+}
+
 
 %surface {
     // The weights a layer keeps when no query matches it, past either end of the ladder: a raised layer already at the
     // top keeps the top level's weight, and the others cast no shadow.
     &,
     &-lower {
-        @include surface-shadow(0);
+        @include shadow(0);
     }
 
     // A layer counted and colored from its level without being painted: it sets '--surface-level' and the
@@ -284,36 +300,18 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     &-lower,
     &-raise,
     &-root {
-        @include surface-colors;
-    }
-
-    // A primary fill painted on the layer it sits in, with text, edges and shadows that follow its states. Only a fill
-    // lifted above its layer casts a shadow, at the weight of the level it sits at; the queries below set that from the
-    // layer's level, the page's here.
-    &-primary {
-        @extend %background-state, %border-state, %box-shadow-state, %color-state, %color-text;
-        @include surface-primary-shadows(0);
-        --background-active: var(--surface-primary-active);
-        --background-default: var(--surface-primary-default);
-        --background-hover: var(--surface-primary-hover);
-        --background-pressed: var(--surface-primary-pressed);
-        --border-color-active: #{surface-border('active', 'var(--surface-primary-active)')};
-        --border-color-default: #{surface-border('default', 'var(--surface-primary-default)')};
-        --border-color-hover: #{surface-border('hover', 'var(--surface-primary-hover)')};
-        --border-color-pressed: #{surface-border('pressed', 'var(--surface-primary-pressed)')};
-        --box-shadow-active: var(--box-shadow-hover);
+        @include colors;
     }
 
     &-raise {
-        @include surface-shadow($level-max);
+        @include shadow($level-max);
     }
 
     // Its level is its parent's moved: one up for '%surface-raise' and one down for '%surface-lower', while '%surface'
     // keeps its parent's. Every element is a style container, so a style query reads the parent's level where the layer
     // sets its own, which a 'var()' on the same property could not, and hands each branch its level as a number, so the
     // shadows there are written out for it. A layer past either end matches no query and keeps its parent's level. Only
-    // a layer moved up casts a shadow, at its new level's weight. A primary fill sets no level of its own, so its
-    // parent's is the one it sits at.
+    // a layer moved up casts a shadow, at its new level's weight.
     @for $level from $level-min through $level-max {
         @container style(--surface-level: #{$level}) {
             @if $level > $level-min {
@@ -325,12 +323,8 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
             @if $level < $level-max {
                 &-raise {
                     --surface-level: #{$level + 1};
-                    @include surface-shadow(math.max($level + 1, 0));
+                    @include shadow(math.max($level + 1, 0));
                 }
-            }
-
-            &-primary {
-                @include surface-primary-shadows($level);
             }
         }
     }
@@ -338,7 +332,7 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     // A fresh stack above everything, for dialogs: level 0 wherever it opens, so whatever opens inside counts up from it,
     // with the heaviest shadow since nothing sits above it. Not counted from its parent, so it skips the queries.
     &-root {
-        @include surface-shadow($shadow-weight-max);
+        @include shadow($shadow-weight-max);
         --surface-level: 0;
     }
 }

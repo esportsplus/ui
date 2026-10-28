@@ -48,9 +48,6 @@ const meta: Record<string, Meta> = {
     counter: {
         description: 'Animated number display with currency and formatting support.'
     },
-    datalist: {
-        description: 'Scroll-snapped wheel picker where the scroll position is the selection.'
-    },
     dock: {
         description: 'macOS-style dock whose icons swell toward the cursor and launch with a bounce and a running light.'
     },

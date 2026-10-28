@@ -10,12 +10,15 @@
 // buttons are transparent; a tactile one rises off its parent with the surface's shadow.
 .button {
     @extend %background-state, %border-state, %box-shadow-state, %color-state, %surface-raise;
-    --border-color-default: var(--background);
-    --border-width: var(--border-width-400);
-
 
     &--black {
         @extend %background-black, %color-white;
+    }
+
+    // Solid fills (black, primary, white) edge in their own fill, so the border sizes them like their bordered
+    // siblings; surface and surface-primary take their surface's border steps.
+    &--border {
+        --border-width: var(--border-width-400);
     }
 
     &--curved {
@@ -60,7 +63,6 @@
     }
 
     &--morph {
-        --background-default: var(--color-primary-500);
         --border-radius: 999px;
         --color-default: var(--color-surface);
         --focus-color: var(--surface-border-pressed);
@@ -145,13 +147,12 @@
         @extend %background-surface, %border-surface, %color-text;
 
         &-primary {
-            @extend %surface-primary;
+            @extend %background-surface-primary, %border-surface, %box-shadow-surface-primary;
         }
     }
 
-
     &--white {
-        @extend %background-white, %color-black;
+        @extend %background-white, %color-black, %border-surface;
     }
 
     &-face {
@@ -209,7 +210,7 @@
 
     &-split {
         // Chained through the group so it wins over the trigger's own '.button' padding.
-        & > &-menu > &-trigger {
+        & > &-trigger {
             --padding-horizontal: var(--size-200);
         }
 

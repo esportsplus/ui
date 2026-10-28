@@ -13,8 +13,9 @@ const groups: Record<string, Group[]> = {
     breadcrumb: [{ title: 'breadcrumb', members: [['default (drag the edge to resize)', 'Default'], ["separator: 'chevron'", 'Chevron'], ['no background', 'No background'], ["no background, separator: 'chevron'", 'No background, chevron'], ['onnavigate', 'Navigation callback']] }],
     button: [
         { title: 'group', members: [['group', 'Highlight'], ['group without highlight', 'No highlight'], ['group with background', 'Background']] },
+        { title: 'modifiers', members: [['modifiers', 'Default'], ['modifiers · border', 'Border']] },
         { title: 'morph', members: [['morph.save', 'Save'], ['morph.save, observed state', 'Save, observed state'], ['morph, custom content', 'Custom content']] },
-        { title: 'split', members: [['split with highlight', 'Highlight'], ['split', 'No highlight']] }
+        { title: 'split', members: [['split with highlight', 'Highlight'], ['split', 'No highlight'], ['split · border', 'Border']] }
     ],
     capslock: [{ title: 'caps lock', members: [['toggle caps lock to show', 'Default'], 'active'] }],
     card: [
@@ -32,7 +33,6 @@ const groups: Record<string, Group[]> = {
         { title: 'number format', members: [['plain number', 'Plain number'], ['suffix', 'Suffix']] },
         { title: 'ticker', members: ['ticker', 'ticker with blur'] }
     ],
-    datalist: [{ title: 'options', members: [['options', 'Default'], ['pre-selected', 'Pre-selected'], ['flat (no drum)', 'Flat'], ['reactive state', 'Reactive state']] }],
     dock: [{ title: 'dock', members: ['default', ['launcher', 'Launcher'], ['direction s', 'Direction s'], ['direction e', 'Direction e'], ['direction w', 'Direction w'], ['arrows', 'Arrows'],['thumbnails', 'Thumbnails'], ['thumbnails and icons', 'Thumbnails and icons'], ['dock--square', 'Square'], ['dock--squircle', 'Squircle'], ['dock--plain', 'Plain'], ['item modifiers', 'Item modifiers'],['controlled running state + onlaunch', 'Controlled state, launch callback']] }],
     editor: [
         { title: 'file tree', members: ['default', ['locked items, natural sort, no indicator', 'Locked items, no indicator'], ['guides on hover, named folders, path tooltip, scope colors', 'Guides, tooltips and scope colors'], ['sticky scroll, three folders deep', 'Sticky scroll']] },

@@ -22,6 +22,7 @@
     }
 
     &-copy {
+        --background-default: transparent;
         --inset-horizontal: var(--size-300);
         --inset-vertical: var(--size-300);
     }
@@ -78,34 +79,31 @@
     }
 
     &-view {
-        @extend %surface-lower;
+        @extend %surface;
+        @include surface.step(-2);
         --background: var(--surface-background-default);
         --border-radius: var(--border-radius-600);
         // Pulls the buttons down onto the card below, out of the page's gap.
         --overlap: calc(var(--size-100) - var(--size-800));
         --padding-horizontal: calc(var(--size-100) / 4);
         --padding-vertical: calc(var(--size-100) / 4);
-        --surface-level: -3;
 
-        // Clear at rest and while active, so only the highlight's pill marks the active view.
         &-button {
-            @extend %background-surface, %surface-raise;
-            --background-active: transparent;
-            --background-default: transparent;
-            --background-hover: transparent;
             --border-radius: var(--border-radius-400);
             --focus-color: var(--color-blue-400);
             --focus-offset: calc(var(--size-100) / 4);
             --focus-width: 2px;
             --font-size: var(--font-size-300);
             --padding-vertical: var(--size-100);
-            --surface-level: 4;
         }
 
         &-highlight {
-            @extend %background-surface, %surface-raise;
-            --scale-default: 1;
-            --surface-level: 1;
+            @extend %background-surface, %surface;
+            @include surface.step(2);
+
+            &.--active {
+                box-shadow: var(--surface-shadow-hover);
+            }
         }
 
         // Clears the buttons above it, so scrolling to the example still shows them. Qualified so it beats the card's

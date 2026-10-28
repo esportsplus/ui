@@ -39,5 +39,12 @@
         --color-default: var(--surface-background-default);
         --color-hover: var(--surface-background-default);
         --color-pressed: var(--surface-background-default);
+
+        &-primary {
+            --color-active: var(--surface-primary-active);
+            --color-default: var(--surface-primary-default);
+            --color-hover: var(--surface-primary-hover);
+            --color-pressed: var(--surface-primary-pressed);
+        }
     }
 }

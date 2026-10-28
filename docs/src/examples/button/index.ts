@@ -12,15 +12,14 @@ import 'docs/examples/button/scss/index.scss';
 let row = 'display: flex; flex-wrap: wrap; gap: var(--size-400); align-items: center;';
 
 
-let border = '', //'--border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color);',
-    modifiers = [
+let modifiers = [
         ['black', 'Black'],
         ['primary', 'Primary'],
         ['surface', 'Surface'],
         ['surface-primary', 'Surface primary'],
         ['white', 'White']
     ],
-    round = `${border} --border-radius: 999px; --padding-horizontal: 0; --padding-vertical: 0; height: var(--size-600); width: var(--size-600);`,
+    round = `--border-radius: 999px; --padding-horizontal: 0; --padding-vertical: 0; height: var(--size-600); width: var(--size-600);`,
     surface = 'button--surface',
     trigger = `button ${surface}`,
     views = [
@@ -54,13 +53,13 @@ function segmented(glide: boolean, track = false) {
     );
 }
 
-function split(highlight: boolean) {
+function split(highlight: boolean, border = false) {
     return html`
         <div style='${row}'>
             ${(['primary', 'surface', 'surface-primary'] as const).map((modifier) => button.split(
                 {
-                    [button.split.action]: { class: `button--${modifier}`, onclick: () => toast(() => 'Deployed to production.'), style: border },
-                    [button.split.trigger]: { 'aria-label': 'Choose environment', class: `button--${modifier}`, style: border },
+                    [button.split.action]: { class: [`button--${modifier}`, border && 'button--border'], onclick: () => toast(() => 'Deployed to production.') },
+                    [button.split.trigger]: { 'aria-label': 'Choose environment', class: [`button--${modifier}`, border && 'button--border'] },
                     highlight,
                     items: [
                         { label: 'Production', onselect: () => toast(() => 'Production selected.') },
@@ -86,7 +85,7 @@ export default {
             render: () => html`
                 <div style='${row}'>
                     ${modifiers.map(([modifier, label]) => html`
-                        <button class='button button--${modifier}' style='${border}' type='button'>
+                        <button class='button button--${modifier}' type='button'>
                             ${label}
                         </button>
                     `)}
@@ -99,8 +98,20 @@ export default {
         {
             render: () => html`
                 <div style='${row}'>
-                    ${button.copy({ value: 'pnpm add @esportsplus/ui' })}
-                    ${button.copy({ label: 'Copy link', success: 'Link copied', timeout: 800, value: () => location.href })}
+                    ${modifiers.map(([modifier, label]) => html`
+                        <button class='button button--border button--${modifier}' type='button'>
+                            ${label}
+                        </button>
+                    `)}
+                </div>
+            `,
+            title: 'modifiers · border'
+        },
+        {
+            render: () => html`
+                <div style='${row}'>
+                    ${button.copy({ class: 'button--surface', value: 'pnpm add @esportsplus/ui' })}
+                    ${button.copy({ class: 'button--surface', label: 'Copy link', success: 'Link copied', timeout: 800, value: () => location.href })}
                 </div>
             `,
             title: 'copy'
@@ -149,7 +160,7 @@ export default {
                 let saves = 0;
 
                 // Every other save fails, so both endings are one click apart.
-                return button.morph.save({ onsave: () => wait(1200).then(() => {
+                return button.morph.save({ class: 'button--primary', onsave: () => wait(1200).then(() => {
                     if (saves++ % 2 === 1) {
                         throw new Error('Docs: save failed');
                     }
@@ -163,7 +174,7 @@ export default {
 
                 return html`
                     <div style='${row}'>
-                        ${button.morph.save({ class: 'button-demo-morph', label: 'Publish', onsave: () => wait(1200), state, successFor: 2400 })}
+                        ${button.morph.save({ class: 'button--primary button-demo-morph', label: 'Publish', onsave: () => wait(1200), state, successFor: 2400 })}
                         <span style='color: var(--color-text-300); font-size: 14px;'>${() => state.status}</span>
                     </div>
                 `;
@@ -182,6 +193,7 @@ export default {
                 return button.morph(
                     {
                         announce: { error: 'Deploy failed', loading: 'Deploying', success: 'Deployed' },
+                        class: 'button--primary',
                         compact: () => false,
                         onaction: () => wait(1200).then(() => {
                             if (deploys++ % 2 === 1) {
@@ -228,6 +240,10 @@ export default {
         {
             render: () => split(false),
             title: 'split'
+        },
+        {
+            render: () => split(true, true),
+            title: 'split · border'
         }
     ]
 };

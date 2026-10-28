@@ -98,18 +98,12 @@
 
 ## counter
 
-- [medium] `src/components/counter/index.ts:26` (TS: build components with @esportsplus/template component()): The default export is a plain arrow function rather than component(...), unlike every other component (button, color-picker, datalist, dock).
+- [medium] `src/components/counter/index.ts:26` (TS: build components with @esportsplus/template component()): The default export is a plain arrow function rather than component(...), unlike every other component (button, color-picker, dock).
 - [medium] `src/components/counter/scss/index.scss:7` (Variables: per-axis gap variables; variants are variable overrides): The block hardcodes 'gap: calc(var(--size-100) / 4)' with no --gap-horizontal/--gap-vertical variables, and &--ticker overrides it with a rule ('gap: 0', line 12) in index.scss instead of a variable override in variables.scss. 'margin-inline-end: 0.1ch' (25) is also a literal.
 - [medium] `src/components/counter/scss/index.scss:32` (Timing is always a --transition-duration + --transition-timing-function pair): The track transition pairs --transition-duration with a bare --timing-function (defined at variables.scss 13 and in the modifiers). The roll animation (39) reuses --transition-duration with a literal 'ease-out' instead of --{name}-duration/--{name}-timing-function. The block transition (9) passes --transition-duration as the delay and has no timing-function at all.
 - [low] `src/components/counter/scss/index.scss:63` (Ordering: @media for the block goes in group 2): The block-level reduced-motion @media is at the end of .counter, after the elements.
 - [low] `src/components/counter/scss/index.scss:71` (Keyframes: named after the class or prefixed with block/element path): counter-blur-1/counter-blur-2 are used by .counter-character-track--roll-1/2, so they should carry the element path (e.g. counter-character-track--roll-1 or counter-character-track-blur-1).
 - [medium] `src/components/counter/scss/variables.scss:9` (Variables: live on the consuming selector, not a parent with a prefix): --roll-1-animation and --roll-2-animation (9-10, set by &--blur at 17-18) and --blur, --stagger and --timing-function are on .counter but consumed only by .counter-character-track(--roll-N) (index.scss 32, 39, keyframes 77/87). These are prefixed parent variables reaching into the child.
-
-## datalist
-
-- [low] `src/components/datalist/scss/index.scss:56` (index.scss values come from var(--*), not literals): The scroller mask hardcodes its fade stops 'transparent 0, #000 30%, #000 70%, transparent 100%', which are tunable values.
-- [low] `src/components/datalist/scss/index.scss:85` (Keyframes: named after the class or prefixed with block/element path): 'datalist-drum' is used by .datalist-option and should carry the element path (datalist-option-drum).
-- [medium] `src/components/datalist/scss/variables.scss:12` (Variables: live on the consuming selector, not a parent with a prefix): --item-height (12), --opacity-falloff, --rotate, --scale and --scale-falloff (13-19) are set on .datalist but consumed by .datalist-option, -lens and -track (index.scss 17, 29, 31-33, 81, keyframes). --item-height is a prefixed parent variable reaching into children.
 
 ## dock
 

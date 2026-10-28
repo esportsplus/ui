@@ -31,11 +31,17 @@
         --background-pressed: var(--background-default);
     }
 
-    // The surface's own fill and its states; the level is set apart, by '%surface' and its kin.
     &-surface {
         --background-active: var(--surface-background-active);
         --background-default: var(--surface-background-default);
         --background-hover: var(--surface-background-hover);
         --background-pressed: var(--surface-background-pressed);
+
+        &-primary {
+            --background-active: var(--surface-primary-active);
+            --background-default: var(--surface-primary-default);
+            --background-hover: var(--surface-primary-hover);
+            --background-pressed: var(--surface-primary-pressed);
+        }
     }
 }

@@ -1,11 +1,11 @@
-@use 'css-utilities/surface';
+@use 'css-utilities/background';
 
 .themes {
     // Inline tokens and snippets in the prose, set off from the text. Each line of one that wraps gets its own
     // padding and corners. Ligatures off, since the mono font joins a leading '--' into a dash that spills over the
     // padding.
     p code {
-        @extend %surface-primary;
+        @extend %background-state, %background-surface-primary;
         -webkit-box-decoration-break: clone;
         background: var(--background);
         border-radius: var(--border-radius-200);

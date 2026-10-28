@@ -98,7 +98,7 @@
         --thumb-scale-pressed: 1.1;
         --thumb-shadow:
             0 0 0 1px var(--surface-border-default),
-            0 1px 3px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 3));
+            0 1px 3px #{surface.shadow-color(3)};
         --thumb-size: var(--size-500);
 
         // Held thumbs keep their size.
@@ -243,7 +243,7 @@
         --border-width: 2px;
         --box-shadow:
             0 0 0 1px var(--surface-border-default),
-            0 1px 3px oklch(from var(--surface-shadow-color) l c h / calc(alpha * 3));
+            0 1px 3px #{surface.shadow-color(3)};
         --scale: none;
         // Grows a touch while held so you can tell you've got hold of it.
         --scale-pressed: 1.1;

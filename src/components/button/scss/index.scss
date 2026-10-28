@@ -56,6 +56,10 @@
     }
 
 
+    &--border {
+        border: var(--border-width) solid var(--border-color);
+    }
+
     &--feedback {
         -webkit-touch-callout: none;
         touch-action: manipulation;
@@ -294,7 +298,7 @@
         }
 
         & > &-action,
-        & > &-menu > &-trigger {
+        & > &-trigger {
             &:focus-visible {
                 outline: var(--focus-width) solid var(--focus-color);
                 outline-offset: var(--focus-offset);
@@ -302,18 +306,18 @@
             }
         }
 
-        // Chained through the group so it wins over the tooltip root's 'inline-block' whatever the load order; the
-        // trigger then stretches to the action's height.
-        & > &-menu {
-            align-items: stretch;
-            display: flex;
-        }
-
         // Overlaps the shared edge so the two borders read as one divider.
-        & > &-menu > &-trigger {
+        & > &-trigger {
             border-end-start-radius: 0;
             border-start-start-radius: 0;
             margin-inline-start: calc(var(--border-width) * -1);
+
+            // The action's end edge is the divider, drawn in the action's own border colour, so the trigger leaves out
+            // its start edge rather than overlapping it.
+            &.button--border {
+                border-inline-start: 0;
+                margin-inline-start: 0;
+            }
 
             &[aria-expanded='true'] .button-split-chevron {
                 rotate: 180deg;
@@ -328,12 +332,16 @@
             }
         }
 
-        &-menu {
-            // Hangs from the trigger's end edge so it stays under the whole group.
-            > .tooltip-menu-layer > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
-                left: auto;
-                right: 0;
-            }
+        // Hangs from the trigger's end edge so it stays under the whole group. Qualified past the menu's own root
+        // panel placement, whatever the load order.
+        & > .tooltip-menu-layer.tooltip > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
+            left: auto;
+            right: 0;
+        }
+
+        // A bordered trigger is divided off by the action's end edge, bordered or not.
+        &:has(> #{&}-trigger.button--border) > #{&}-action {
+            border-inline-end: var(--border-width-400) solid var(--border-color);
         }
     }
 

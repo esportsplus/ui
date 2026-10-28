@@ -57,7 +57,6 @@ html`
 | `checkbox` | Checkbox with label; `checkbox.group` builds a checklist with a select-all header (mixed state), optional counter, and Shift-click ranges | `checkbox.group` |
 | `radio` | Radio button group | - |
 | `range` | Range slider; add `class: 'range--slider'` to `range` or `range.filter` for the compact slider appearance (replaces the standalone `slider` component); `orientation: 'vertical'` supports vertical single and dual thumbs, with height set by `--vertical-size` (default `176px`); `range.filter` is a range filter with rolling-digit values, a Clear button, a ghost preview of where a click would stretch the selection, and scale ticks; a number `value` gives one thumb, a pair gives two that stop at each other; `fields` adds editable min/max `input` fields, `disabled`; `state.low`/`state.high`, `format`, `prefix`, `step`, `ticks` | `range.filter` |
-| `datalist` | Inertial wheel picker (scroll-snapped listbox) | - |
 | `select` | Dropdown with custom options; `select.menu` is a tooltip-powered macOS-style listbox opening with the selected option over the trigger, with typeahead and hover scrolling. Its surface, checks, and animations are reusable on tooltips with `--select-menu` | `select.menu` |
 | `switch` | Toggle switch; `switch.group` builds the same group as `checkbox.group` with switches, the select-all knob resting midway when mixed | `switch.group` |
 | `tasklist` | Checklist that strikes through checked tasks and moves them below the open ones; `ordered` keeps both groups in task order, `sortable` lets rows be dragged within their group | `tasklist.checkbox`, `tasklist.content`, `tasklist.description`, `tasklist.item`, `tasklist.label`, `tasklist.row` |
@@ -437,18 +436,19 @@ elevation to the shadow), then moves it for each state, active and hover lighter
 lighter in dark, for lines, rings and small marks; and `--surface-shadow-*` is the
 shadow at the layer's weight, a step on Tailwind v4's `shadow-2xs` to `shadow-2xl` ladder (1 to 7), a step heavier on
 hover and a step lighter when pressed. The weight follows the level (lowered layers 0, dialogs 7), written out as fixed
-shadows for each level; include `surface.surface-shadow($weight)` on a surface to pick another step. A shadow takes the color of what it falls
-on, that background deepened in its own hue, at the mode's shadow `opacity`; `--surface-shadow-
-color` is that color for whatever casts onto a layer, for component shadows and scrims. `--surface-primary-{state}` is a
+shadows for each level; include `surface.shadow($weight)` on a surface to pick another step. A shadow takes the color of what it falls
+on, that background deepened in its own hue, at the mode's shadow `opacity`; `surface.shadow-color($share)` writes
+that color at a share of the opacity for component shadows and scrims. `--surface-primary-{state}` is a
 primary fill on a layer, the mode's `primary` levels below it in light and above it in dark, its states stepped from it as
-the layer's own are. A quiet fill, such as a track
+the layer's own are; `%border-surface-primary` edges it. A quiet fill, such as a track
 or an inline code chip, is a surface of its own a level below what holds it. Dialogs reset the stack to level 1 wherever they open. Another level is never a color to paint: a
 component reaches it by extending `%surface-raise` or `%surface-lower` (one level up or down), `%surface` (its
 parent's level) or `%surface-root`, or by setting `--surface-level` on one to pin it, so whatever sits in it reads its
 states from the level it shows; only a layer moved up casts a shadow. None of them paint: set
 `background`/`box-shadow` from `--surface-background-default`/`--surface-shadow-default`, or extend
 `%background-surface`, `%border-surface` and `%box-shadow-surface` with their state placeholders for fills that step with
-the state. Style queries on custom
+the state. A primary fill is painted the same way, by `%background-surface-primary`, `%border-surface-primary` and
+`%box-shadow-surface-primary`, the last casting a shadow only where the fill is lifted above its layer. Style queries on custom
 properties need Chrome and Edge 111, Safari 18 or Firefox 151; elsewhere every surface keeps its parent's level. The
 ladder and shadows live in each mode's `surface` map in `$themes` (`tokens/scss/color.scss`), with `shadow` holding its
 `depth` and `opacity`; the Tailwind shadow ladder itself sits with the surface utilities, and `surface.shadow($weight)`

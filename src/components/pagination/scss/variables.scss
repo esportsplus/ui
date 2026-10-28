@@ -1,4 +1,6 @@
 @use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/box-shadow';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
@@ -35,7 +37,7 @@
     }
 
     &-arrow {
-        @extend %surface-primary;
+        @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
         --border-radius: var(--border-radius-400);
         --disabled-opacity: 0.4;
         --focus-color: var(--color-primary-500);

@@ -1,4 +1,5 @@
 @use 'sass:math';
+@use 'css-utilities/background';
 @use 'css-utilities/surface';
 
 
@@ -136,7 +137,7 @@
     &-pin {
         @for $level from surface.$level-min through surface.$level-max {
             &--#{$level} {
-                @include surface.surface-shadow(math.max($level, 0));
+                @include surface.shadow(math.max($level, 0));
                 --surface-level: #{$level};
             }
         }
@@ -176,7 +177,7 @@
 
     // Inline tokens in the prose, set off as on the themes page.
     p code {
-        @extend %surface-primary;
+        @extend %background-state, %background-surface-primary;
         -webkit-box-decoration-break: clone;
         background: var(--background);
         border-radius: var(--border-radius-200);

@@ -13,11 +13,6 @@
     &-header {
         &-breadcrumb {
             text-transform: capitalize;
-
-            // The breadcrumb exposes no separator spacing, so it is set on its separators directly.
-            .breadcrumb-separator {
-                margin-inline: calc(var(--size-100) / 2);
-            }
         }
 
         &-row {

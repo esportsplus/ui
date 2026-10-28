@@ -1,5 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/background';
+@use 'css-utilities/box-shadow';
 @use 'css-utilities/surface';
 
 // The shelf paints nothing of its own, left to wherever it is placed to theme; its buttons are surfaces.
@@ -118,7 +119,7 @@
     // Each app a cell of the launcher's surface. The surface's own hover step is too faint to read across a cell this
     // large, so hover takes the active step, as far above the surface as pressed sits below it.
     &-app {
-        @extend %background-state, %background-surface, %surface-primary;
+        @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
         --background-default: transparent;
         --border-radius: var(--border-radius-400);
         --gap-horizontal: 0px;
