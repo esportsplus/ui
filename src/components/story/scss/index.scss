@@ -51,8 +51,9 @@
         min-height: 0;
         overflow: hidden;
 
-        // Chained through '.frame' so the slide transition can't override it, whichever stylesheet loads last.
-        &--dragging.frame {
+        // Following a drag, or leaping more than one place. Chained through '.frame' so the slide transition can't
+        // override it, whichever stylesheet loads last.
+        &--instant.frame {
             transition: none;
         }
     }

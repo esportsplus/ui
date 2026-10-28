@@ -60,11 +60,12 @@ export default {
         },
         {
             render: () => {
-                let state = reactive({ index: 2, paused: true });
+                let state = reactive({ done: false, index: 2, paused: true });
 
                 return html`
                     <div style='align-items: center; display: flex; flex-direction: column; gap: var(--size-400);'>
-                        ${story({ duration: 2000, label: 'Quick stories', state, stories: STATS.map(stat) })}
+                        ${story({ duration: 2000, label: 'Quick stories', repeat: true, state, stories: STATS.map(stat) })}
+                        <span>${() => state.done ? 'seen them all' : 'not done yet'}</span>
                         <div style='display: flex; gap: var(--size-300);'>
                             <button class='${BUTTON}' onclick='${() => state.paused = !state.paused}' type='button'>
                                 ${() => state.paused ? 'play' : 'pause'}
@@ -76,7 +77,7 @@ export default {
                     </div>
                 `;
             },
-            title: 'controlled, 2s per story'
+            title: 'controlled, repeating, 2s per story'
         }
     ]
 };

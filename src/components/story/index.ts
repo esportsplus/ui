@@ -9,6 +9,8 @@ type A = Attributes & {
     // Milliseconds per story; defaults to the stylesheet's '--duration'.
     duration?: number;
     label?: string;
+    // Moving on from the last story returns to the first; otherwise it stops there, its bar full.
+    repeat?: boolean;
     state?: State;
     stories: Renderable<unknown>[];
 };
@@ -22,6 +24,8 @@ type Press = {
 };
 
 type State = {
+    // Set once the last story has run out or been moved past, and never unset.
+    done: boolean;
     index: number;
     paused: boolean;
 };
@@ -37,64 +41,70 @@ const CONTROLS = `.story-slide :is(${INTERACTIVE}, [tabindex])`;
 const LOCK = 6;
 
 
-function template(this: { attributes?: Partial<A> } | void, { duration, label = 'Stories', state = reactive({ index: 0, paused: false }), stories, ...attributes }: A) {
+function template(this: { attributes?: Partial<A> } | void, { duration, label = 'Stories', repeat = false, state = reactive({ done: false, index: 0, paused: false }), stories, ...attributes }: A) {
     let bound = this?.attributes,
         count = stories.length,
         dragged = false,
         fills: HTMLElement[] = [],
         hold: ReturnType<typeof setTimeout> | undefined,
         press: Press | null = null,
+        // Where each slide last sat relative to the shown story, to tell a step from a leap.
+        shown: number[] = [],
         // Auto-advancing stays silent; only stories the user moved to are announced.
-        view = reactive({ dragging: false, held: false, hidden: false, manual: false, offset: 0, pressing: false });
+        view = reactive({ dragging: false, held: false, hidden: false, hovering: false, manual: false, offset: 0, pressing: false });
 
     // The stories on either side are the ways a drag may leave by: toward the next is leftward, the previous
-    // rightward. Dragged toward one that isn't there, it rubber-bands. Vertical movement is the page's to scroll.
+    // rightward. Dragged toward one that isn't there, it rubber-bands; with repeat, the first follows the last.
+    // Vertical movement is the page's to scroll.
     let gesture = drag({
-        begin: () => {
-            let ways: Direction[] = [];
+            begin: () => {
+                let ways: Direction[] = [];
 
-            if (state.index < count - 1) {
-                ways.push({ axis: 'x', sign: -1 });
+                if (state.index < count - 1 || (repeat && count > 1)) {
+                    ways.push({ axis: 'x', sign: -1 });
+                }
+
+                if (state.index > 0) {
+                    ways.push({ axis: 'x', sign: 1 });
+                }
+
+                return ways;
+            },
+            capture: () => {
+                clearTimeout(hold);
+                dragged = true;
+                view.dragging = true;
+                view.held = false;
+            },
+            move: (element, { x }) => {
+                view.offset = x / element.offsetWidth;
+            },
+            // The story changes before the offset clears, so the first story, dragged in after the last, slides
+            // home from where it was let go rather than from the far end of the track.
+            release: (_, { x }, dismiss) => {
+                view.dragging = false;
+
+                if (dismiss) {
+                    go(x < 0 ? 1 : -1);
+                }
+
+                view.offset = 0;
             }
-
-            if (state.index > 0) {
-                ways.push({ axis: 'x', sign: 1 });
-            }
-
-            return ways;
-        },
-        capture: () => {
-            clearTimeout(hold);
-            dragged = true;
-            view.dragging = true;
-            view.held = false;
-        },
-        move: (element, { x }) => {
-            view.offset = x / element.offsetWidth;
-        },
-        release: (_, { x }, dismiss) => {
-            view.dragging = false;
-            view.offset = 0;
-
-            if (dismiss) {
-                go(x < 0 ? 1 : -1);
-            }
-        }
-    });
+        });
 
     function go(step: number) {
         view.manual = true;
 
         // Going back from the first story replays it instead of wrapping to the last.
         if (step < 0 && state.index === 0) {
-            for (let animation of fills[0]?.getAnimations() ?? []) {
-                animation.currentTime = 0;
-            }
-
-            return;
+            replay(0);
         }
-
-        state.index = (state.index + step) % count;
+        else if (step > 0) {
+            next();
+        }
+        else {
+            state.index += step;
+        }
     }
 
     function keydown(e: KeyboardEvent) {
@@ -114,6 +124,48 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
         e.preventDefault();
     }
 
+    // A slide moving more than one place cuts instead of sweeping across the stories in between.
+    function leap(i: number) {
+        let at = place(i) - state.index + view.offset,
+            far = Math.abs(at - shown[i]) > 1;
+
+        shown[i] = at;
+
+        return far;
+    }
+
+    function next() {
+        if (state.index < count - 1) {
+            state.index++;
+            return;
+        }
+
+        state.done = true;
+
+        if (!repeat) {
+            for (let animation of fills[state.index]?.getAnimations() ?? []) {
+                animation.finish();
+            }
+        }
+        else if (count > 1) {
+            state.index = 0;
+        }
+        else {
+            replay(0);
+        }
+    }
+
+    // With repeat, the first story waits after the last while the last is dragged toward it.
+    function place(i: number) {
+        return repeat && i === 0 && count > 1 && state.index === count - 1 && view.offset < 0 ? count : i;
+    }
+
+    function replay(i: number) {
+        for (let animation of fills[i]?.getAnimations() ?? []) {
+            animation.currentTime = 0;
+        }
+    }
+
     function settle() {
         clearTimeout(hold);
         press = null;
@@ -130,7 +182,7 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
             ${bound}
             ${attributes}
             ${{
-                class: () => (view.pressing || state.paused || view.hidden) && 'story--paused',
+                class: () => (view.hovering || view.pressing || state.paused || view.hidden) && 'story--paused',
                 oncontextmenu: (e: MouseEvent) => {
                     e.preventDefault();
                 },
@@ -164,6 +216,17 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                     hold = setTimeout(() => {
                         view.held = true;
                     }, HOLD);
+                },
+                // Only a mouse hovers; touch and pen fire enter on contact, which the press already covers.
+                onpointerenter: (e: PointerEvent) => {
+                    if (e.pointerType === 'mouse') {
+                        view.hovering = true;
+                    }
+                },
+                onpointerleave: (e: PointerEvent) => {
+                    if (e.pointerType === 'mouse') {
+                        view.hovering = false;
+                    }
                 },
                 onpointermove: (e: PointerEvent) => {
                     gesture.onpointermove(e);
@@ -210,7 +273,7 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                                     }
 
                                     view.manual = false;
-                                    state.index = (i + 1) % count;
+                                    next();
                                 },
                                 onconnect: (element: HTMLElement) => {
                                     fills[i] = element;
@@ -229,9 +292,9 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                     <div
                         aria-label='${`${i + 1} of ${count}`}'
                         aria-roledescription='story'
-                        class='story-slide frame frame--slide ${() => state.index === i && '--active'} ${() => view.dragging && 'story-slide--dragging'}'
+                        class='story-slide frame frame--slide ${() => state.index === i && '--active'} ${() => (leap(i) || view.dragging) && 'story-slide--instant'}'
                         role='group'
-                        style='${`--n: ${i}`}'
+                        style='${() => `--n: ${place(i)}`}'
                         ${{
                             'aria-hidden': () => String(state.index !== i),
                             inert: () => state.index !== i
