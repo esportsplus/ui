@@ -30,9 +30,10 @@ $state: (
     disabled: '&.--disabled',
     enabled: '&:not(.--disabled)',
 
-    default: '&:not(.--active):not(:hover)',
-    hover: '&:not(.--active):hover',
-    pressed: '&:not(.--active):active'
+    // '--hover' and '--pressed' let a script mark what the pointer would, such as a key held on the keyboard.
+    default: '&:not(.--active):not(:hover, .--hover)',
+    hover: '&:not(.--active):is(:hover, .--hover)',
+    pressed: '&:not(.--active):is(:active, .--pressed)'
 );
 
 
