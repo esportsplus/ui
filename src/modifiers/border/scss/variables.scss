@@ -7,6 +7,12 @@
         }
     }
 
+    &-radius {
+        &-curved {
+            --border-radius: 999px;
+        }
+    }
+
     &-surface {
         @extend %border-surface;
     }

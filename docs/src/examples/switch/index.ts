@@ -23,6 +23,10 @@ export default {
             title: 'squared'
         },
         {
+            render: () => switchComponent({ class: ['switch-demo-switch', '--border-radius-curved'], [switchComponent.input]: { 'aria-label': 'Notifications' } }),
+            title: 'curved'
+        },
+        {
             render: () => switchComponent({ class: 'switch-demo-switch', [switchComponent.input]: { 'aria-label': 'Sound effects', checked: true } }),
             title: 'on'
         },

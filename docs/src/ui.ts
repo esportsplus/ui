@@ -2,6 +2,7 @@ import '@esportsplus/ui/layer.scss';
 
 import '@esportsplus/ui/normalize/scss/index.scss';
 
+import '@esportsplus/ui/modifiers/border/scss/index.scss';
 import '@esportsplus/ui/modifiers/scrollbar/scss/index.scss';
 
 import 'docs/components/root/scss/index.scss';

@@ -28,10 +28,6 @@
         --border-width: var(--border-width-400);
     }
 
-    &--curved {
-        --border-radius: 100px;
-    }
-
     &--copy {
         --border-radius: var(--border-radius-300);
         --draw-duration: 280ms;
@@ -68,7 +64,6 @@
     }
 
     &--morph {
-        --border-radius: 999px;
         --color-default: var(--color-surface);
         --focus-color: var(--surface-border-pressed);
         --focus-offset: calc(var(--size-100) / 4);

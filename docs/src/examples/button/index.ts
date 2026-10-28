@@ -160,7 +160,7 @@ export default {
                 let saves = 0;
 
                 // Every other save fails, so both endings are one click apart.
-                return button.morph.save({ class: 'button--primary', onsave: () => wait(1200).then(() => {
+                return button.morph.save({ class: 'button--primary --border-radius-curved', onsave: () => wait(1200).then(() => {
                     if (saves++ % 2 === 1) {
                         throw new Error('Docs: save failed');
                     }
@@ -174,7 +174,7 @@ export default {
 
                 return html`
                     <div style='${row}'>
-                        ${button.morph.save({ class: 'button--primary button-demo-morph', label: 'Publish', onsave: () => wait(1200), state, successFor: 2400 })}
+                        ${button.morph.save({ class: 'button--primary button-demo-morph --border-radius-curved', label: 'Publish', onsave: () => wait(1200), state, successFor: 2400 })}
                         <span style='color: var(--color-text-300); font-size: 14px;'>${() => state.status}</span>
                     </div>
                 `;
@@ -193,7 +193,7 @@ export default {
                 return button.morph(
                     {
                         announce: { error: 'Deploy failed', loading: 'Deploying', success: 'Deployed' },
-                        class: 'button--primary',
+                        class: 'button--primary --border-radius-curved',
                         compact: () => false,
                         onaction: () => wait(1200).then(() => {
                             if (deploys++ % 2 === 1) {
