@@ -35,10 +35,10 @@
 
     // The surface's own background, for ink set on a text-colored fill.
     &-surface {
-        --color-active: var(--surface-background-default);
+        --color-active: var(--surface-background-active);
         --color-default: var(--surface-background-default);
-        --color-hover: var(--surface-background-default);
-        --color-pressed: var(--surface-background-default);
+        --color-hover: var(--surface-background-hover);
+        --color-pressed: var(--surface-background-pressed);
 
         &-primary {
             --color-active: var(--surface-primary-active);
