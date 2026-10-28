@@ -55,9 +55,9 @@ $themes: (
             pressed: 3,
 
             border: 2.4,
-            primary: 1.6,
+            primary: 1.8,
             shadow: (
-                depth: 0.2,
+                depth: 0.24,
                 opacity: 16
             ),
 
@@ -81,18 +81,18 @@ $themes: (
             pressed: 2,
 
             border: 4.6,
-            primary: 3.2,
+            primary: 3.6,
             shadow: (
-                depth: 0.2,
-                opacity: 8
+                depth: 0.24,
+                opacity: 4
             ),
 
             lowered: 1.6,
             raised: 1,
         ),
         weights: (
-            color: 3,
-            text: 1.6
+            color: 6,
+            text: 2
         )
     )
 );
