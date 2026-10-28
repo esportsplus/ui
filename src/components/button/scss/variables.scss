@@ -147,7 +147,7 @@
         @extend %background-surface, %border-surface, %color-text;
 
         &-primary {
-            @extend %background-surface-primary, %border-surface, %box-shadow-surface-primary;
+            @extend %background-surface-primary, %border-surface, %box-shadow-surface;
         }
     }
 

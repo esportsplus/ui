@@ -93,14 +93,6 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
     @return $levels;
 }
 
-// The shadow weight a primary fill takes in a mode on a layer at a level: the level it sits at, once lifted above the
-// layer, and none when set into it.
-@function primary-weight($level, $mode) {
-    $offset: primary-offset($mode);
-
-    @return math.clamp(0, $level + $offset, $level-max) * math.clamp(0, $offset, 1);
-}
-
 // A default background moved for a state, so it follows any background a component sets in its place: active and
 // hover lighter, pressed darker, in both modes.
 @function shift($state, $base: 'var(--surface-background-default)') {
@@ -260,16 +252,6 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 
     @each $state, $step in $light {
         --surface-shadow-#{$state}: #{shadow-modes($step, map.get($dark, $state))};
-    }
-}
-
-// A primary fill's shadows on a layer at a level, at each mode's weight.
-@mixin primary-shadows($level) {
-    $dark: shadow-states(primary-weight($level, dark), dark);
-    $light: shadow-states(primary-weight($level, light), light);
-
-    @each $state, $weight in $light {
-        --box-shadow-#{$state}: #{shadow-modes($weight, map.get($dark, $state))};
     }
 }
 

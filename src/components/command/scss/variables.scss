@@ -146,7 +146,7 @@
 
         // The same pill as the results list's highlight; qualified to outrank the highlight's own defaults.
         &-highlight.highlight {
-            @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
+            @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
             --background-active: var(--surface-primary-active);
         }
     }

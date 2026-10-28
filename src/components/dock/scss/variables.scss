@@ -119,7 +119,7 @@
     // Each app a cell of the launcher's surface. The surface's own hover step is too faint to read across a cell this
     // large, so hover takes the active step, as far above the surface as pressed sits below it.
     &-app {
-        @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
+        @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
         --background-default: transparent;
         --border-radius: var(--border-radius-400);
         --gap-horizontal: 0px;

@@ -37,7 +37,7 @@
     }
 
     &-arrow {
-        @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
+        @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
         --border-radius: var(--border-radius-400);
         --disabled-opacity: 0.4;
         --focus-color: var(--color-primary-500);

@@ -59,7 +59,7 @@
     // step in to line up with the links' text.
     &:not(#{&}--rail) {
         .nav-tree-highlight {
-            @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
+            @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
             --background-active: var(--surface-primary-active);
         }
 

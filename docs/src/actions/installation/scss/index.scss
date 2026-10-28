@@ -9,7 +9,7 @@
 
     // Clear at rest and while active, so only the highlight's pill marks the chosen manager.
     &-package {
-        @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
+        @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
         --background-active: transparent;
         --background-default: transparent;
         --border-radius: var(--border-radius-300);
@@ -20,7 +20,7 @@
         margin: calc(var(--size-100) * -1) 0;
 
         &-highlight {
-            @extend %background-state, %background-surface-primary, %box-shadow-surface-primary;
+            @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
             --scale-default: 1;
             border-radius: var(--border-radius-300);
         }

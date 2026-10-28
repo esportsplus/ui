@@ -5,7 +5,7 @@
 
 // TODO: Give this the same style as input/input tag
 .shortcut-recorder {
-    @extend %background-state, %background-surface-primary, %border-state, %box-shadow-surface-primary;
+    @extend %background-state, %background-surface-primary, %border-state, %box-shadow-surface, %surface-raise;
     --border-radius: var(--border-radius-500);
     --border-width: 0px;
     --box-shadow: var(--box-shadow-surface);

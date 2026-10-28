@@ -447,8 +447,9 @@ parent's level) or `%surface-root`, or by setting `--surface-level` on one to pi
 states from the level it shows; only a layer moved up casts a shadow. None of them paint: set
 `background`/`box-shadow` from `--surface-background-default`/`--surface-shadow-default`, or extend
 `%background-surface`, `%border-surface` and `%box-shadow-surface` with their state placeholders for fills that step with
-the state. A primary fill is painted the same way, by `%background-surface-primary`, `%border-surface-primary` and
-`%box-shadow-surface-primary`, the last casting a shadow only where the fill is lifted above its layer. Style queries on custom
+the state; `%box-shadow-surface` belongs on a surface, since any other element would show the shadow of the surface it
+sits in. A primary fill is painted by `%background-surface-primary` and `%border-surface-primary`, and casts a shadow as
+a surface does, by `%surface-raise` with `%box-shadow-surface`. Style queries on custom
 properties need Chrome and Edge 111, Safari 18 or Firefox 151; elsewhere every surface keeps its parent's level. The
 ladder and shadows live in each mode's `surface` map in `$themes` (`tokens/scss/color.scss`), with `shadow` holding its
 `depth` and `opacity`; the Tailwind shadow ladder itself sits with the surface utilities, and `surface.shadow($weight)`
