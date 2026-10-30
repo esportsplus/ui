@@ -17,9 +17,6 @@ type A = Attributes & {
 };
 
 
-const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-
 export default component(
     ({ 'aria-label': label = 'Notifications', bell = false, count = 0, counter = true, max = 99, ring = false, state: api = reactive({ count }), ...attributes }: A) => {
         let announce = () => api.count > 0 ? `${label}, ${api.count} unread` : label,
@@ -74,15 +71,39 @@ export default component(
                     ${bell ? { 'aria-hidden': 'true' } : { ...attributes, 'aria-label': announce, role: 'status' }}
                 >
                     ${counter && html.reactive(render, function (character) {
+                        // SVG text sits its baseline exactly where it's told, so the glyph centers the same in every
+                        // browser; an HTML line box rounds the font's ascent, descent and leading, a different way in
+                        // each engine. The hidden HTML copy only gives the character its width.
                         if (!character.digit) {
-                            return html`<span class='notification-character'>${() => character.value}</span>`;
+                            return html`
+                                <span aria-hidden='true' class='notification-character'>
+                                    <span class='notification-character-width'>+</span>
+                                    <svg class='notification-character-glyphs'>
+                                        <g class='notification-character-track'>
+                                            <text class='notification-character-digit' x='50%' y='50%'>+</text>
+                                        </g>
+                                    </svg>
+                                </span>
+                            `;
                         }
 
                         return html`
-                            <span class='notification-character'>
-                                <span class='notification-character-track' style='${() => `--value: ${character.value}`}'>
-                                    ${DIGITS.map((value) => html`<span class='notification-character-digit'>${value}</span>`)}
-                                </span>
+                            <span aria-hidden='true' class='notification-character'>
+                                <span class='notification-character-width'>0</span>
+                                <svg class='notification-character-glyphs'>
+                                    <g class='notification-character-track' style='${() => `--translateY: ${character.value}`}'>
+                                        <text class='notification-character-digit' x='50%' y='50%'>0</text>
+                                        <text class='notification-character-digit' x='50%' y='150%'>1</text>
+                                        <text class='notification-character-digit' x='50%' y='250%'>2</text>
+                                        <text class='notification-character-digit' x='50%' y='350%'>3</text>
+                                        <text class='notification-character-digit' x='50%' y='450%'>4</text>
+                                        <text class='notification-character-digit' x='50%' y='550%'>5</text>
+                                        <text class='notification-character-digit' x='50%' y='650%'>6</text>
+                                        <text class='notification-character-digit' x='50%' y='750%'>7</text>
+                                        <text class='notification-character-digit' x='50%' y='850%'>8</text>
+                                        <text class='notification-character-digit' x='50%' y='950%'>9</text>
+                                    </g>
+                                </svg>
                             </span>
                         `;
                     })}

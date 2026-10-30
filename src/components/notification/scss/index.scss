@@ -6,7 +6,7 @@
 .notification {
     align-items: center;
     background: var(--background);
-    border-radius: calc(var(--size) / 2);
+    border-radius: 999px;
     box-shadow: 0 0 0 var(--outline-width) var(--outline-color);
     color: var(--color);
     display: inline-flex;
@@ -19,6 +19,7 @@
     padding-block: var(--padding-vertical);
     padding-inline: var(--padding-horizontal);
     pointer-events: none;
+    position: relative;
     scale: 0;
     transition: scale var(--transition-duration) var(--transition-timing-function);
 
@@ -49,8 +50,8 @@
 
         // Qualified to outrank the '.icon' it pairs with.
         &-icon.icon {
-            animation: var(--ring-name) var(--ring-duration) var(--ring-timing-function);
-            transform-origin: var(--ring-origin);
+            animation: var(--animation-name) var(--animation-duration) var(--animation-timing-function);
+            transform-origin: var(--animation-origin);
 
             @media (prefers-reduced-motion: reduce) {
                 animation: none;
@@ -82,43 +83,58 @@
                     rotate: 0deg;
                 }
                 15% {
-                    rotate: var(--ring-angle);
+                    rotate: var(--animation-angle);
                 }
                 30% {
-                    rotate: calc(var(--ring-angle) * -0.85);
+                    rotate: calc(var(--animation-angle) * -0.85);
                 }
                 45% {
-                    rotate: calc(var(--ring-angle) * 0.6);
+                    rotate: calc(var(--animation-angle) * 0.6);
                 }
                 60% {
-                    rotate: calc(var(--ring-angle) * -0.4);
+                    rotate: calc(var(--animation-angle) * -0.4);
                 }
                 75% {
-                    rotate: calc(var(--ring-angle) * 0.2);
+                    rotate: calc(var(--animation-angle) * 0.2);
                 }
             }
         }
     }
 
     &-character {
-        @extend %text-truncate;
-        display: grid;
-        height: 1lh;
-        overflow: hidden;
+        align-self: stretch;
+        position: relative;
 
         &-digit {
-            height: 1lh;
-            text-align: center;
+            fill: currentColor;
+            text-anchor: middle;
         }
 
+        // The glyphs span the bubble's full height, so its middle is theirs.
+        &-glyphs {
+            height: var(--size);
+            left: 0;
+            overflow: hidden;
+            position: absolute;
+            top: calc(50% - var(--size) / 2);
+            width: 100%;
+        }
+
+        // Each digit's baseline sits one bubble apart; half a cap height drops the glyph from the middle of the
+        // bubble to centered on it.
         &-track {
-            display: grid;
             transition: translate var(--transition-duration) var(--transition-timing-function);
-            translate: 0 calc(var(--value) * -1lh);
+            translate: 0 calc(0.5cap - var(--translateY, 0) * var(--size));
 
             @media (prefers-reduced-motion: reduce) {
                 transition: none;
             }
+        }
+
+        &-width {
+            display: block;
+            height: 0;
+            visibility: hidden;
         }
     }
 }

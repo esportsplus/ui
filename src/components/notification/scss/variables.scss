@@ -3,6 +3,8 @@
     --color: var(--color-white-400);
     --font-size: var(--font-size-300);
     --font-weight: var(--font-weight-500);
+    --font-weight-tracking: 0em;
+    --letter-spacing: 0em;
     --outline-color: var(--surface-background-default);
     --outline-width: var(--border-width-500);
     --padding-horizontal: calc(var(--size) * 0.25);
@@ -27,31 +29,31 @@
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         --size: var(--size-800);
-        --width: var(--size);
 
         // Each ring swaps the keyframe name, restarting the swing.
         @each $ring in 1, 2 {
             &--ring-#{$ring} .notification-bell-icon.icon {
-                --ring-name: notification-bell--ring-#{$ring};
+                --animation-name: notification-bell--ring-#{$ring};
             }
         }
 
         // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order. It swings from
         // the top of the bell, where it would hang.
         &-icon.icon {
-            --ring-angle: 14deg;
-            --ring-duration: 800ms;
-            --ring-name: none;
-            --ring-origin: 50% 8%;
-            --ring-timing-function: ease-in-out;
+            --animation-angle: 14deg;
+            --animation-duration: 800ms;
+            --animation-name: none;
+            --animation-origin: 50% 8%;
+            --animation-timing-function: ease-in-out;
             --size: 50%;
             --stroke-width: 2;
         }
 
         // The bubble sits on the bell's corner, inset by a share of the bell's size; a dot keeps its own.
         .notification {
-            --inset-horizontal: calc(var(--size) * 0.12);
-            --inset-vertical: calc(var(--size) * 0.12);
+            // Whole pixels, so the bubble and the digits it centers aren't split across a pixel boundary.
+            --inset-horizontal: round(calc(var(--size) * 0.12), 1px);
+            --inset-vertical: round(calc(var(--size) * 0.12), 1px);
 
             &:not(.notification--dot) {
                 --size: var(--size-500);
