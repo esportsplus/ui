@@ -132,23 +132,24 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
                 }
             }}
         >
-            <span aria-hidden='true' class='progress-text-labels'>
+            <span aria-hidden='true' class='progress-text-content'>
                 <span class='progress-text-label'>
                     <span class='progress-text-track'>${label}</span>
                     <span class='progress-text-ink' style='${() => `clip-path: ${clip(ink.position)}`}'>
                         ${label}
                     </span>
                 </span>
-                <span class='progress-text-done'>
-                    ${icon({ class: 'progress-text-check' }, check)}
-                    ${doneLabel}
+
+                <span class='progress-text-percent'>
+                    ${roll(TENS, () => Math.floor((percent() % 100) / 10))}
+                    ${roll(DIGITS, () => percent() % 10)}
+                    <span>%</span>
                 </span>
             </span>
 
-            <span aria-hidden='true' class='progress-text-percent'>
-                ${roll(TENS, () => Math.floor((percent() % 100) / 10))}
-                ${roll(DIGITS, () => percent() % 10)}
-                <span>%</span>
+            <span aria-hidden='true' class='progress-text-done'>
+                ${icon({ class: 'progress-text-check' }, check)}
+                ${doneLabel}
             </span>
 
             <span aria-live='polite' class='progress-text-sr'>${() => done() && doneLabel}</span>

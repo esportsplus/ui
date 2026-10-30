@@ -36,15 +36,16 @@
         font-size: var(--font-size);
     }
 
-    // Every part is exactly one line tall, so centring lines them up; baseline alignment breaks on the clipped digit
-    // columns.
+    // The label and percent share one cell with the done label, centred on each other so neither shifts when they
+    // cross. Every part is exactly one line tall, so centring lines them up; baseline alignment breaks on the clipped
+    // digit columns.
     &-text {
         align-items: center;
         color: var(--color);
-        display: inline-flex;
+        display: inline-grid;
         font-size: var(--font-size);
         font-weight: var(--font-weight);
-        gap: var(--gap-vertical) var(--gap-horizontal);
+        justify-items: center;
         line-height: var(--part-height);
         position: relative;
 
@@ -68,6 +69,13 @@
             transition: stroke-dashoffset var(--transition-duration) var(--transition-timing-function) var(--delay);
         }
 
+        &-content {
+            align-items: center;
+            display: flex;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            grid-area: 1 / 1;
+        }
+
         &-done {
             align-items: center;
             display: flex;
@@ -89,7 +97,6 @@
         }
 
         &-label {
-            grid-area: 1 / 1;
             position: relative;
             transition:
                 filter var(--transition-duration) var(--transition-timing-function),
@@ -97,10 +104,6 @@
                 translate var(--transition-duration) var(--transition-timing-function);
             translate: var(--translate);
             white-space: nowrap;
-        }
-
-        &-labels {
-            display: grid;
         }
 
         &-percent {
