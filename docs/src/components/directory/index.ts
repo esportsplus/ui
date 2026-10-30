@@ -70,7 +70,7 @@ function example(variant: Variant, index: number, id: string) {
         ]),
         preview({ anchors: options.map((option) => option.id), id, selection, state }, [
             preview.header({ index: index + 1, title: variant.title }, options.length > 1 && select({
-                class: 'preview-select',
+                class: 'preview-header-select',
                 label: `${variant.title} variant`,
                 options: options.map((option) => ({ label: option.label, value: option.id })),
                 state: selection

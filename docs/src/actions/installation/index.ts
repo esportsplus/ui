@@ -40,14 +40,14 @@ const page = (): Page => {
                 preview: preview([
                     preview.header({ title: 'Terminal' }, group(
                         {
-                            [group.highlight]: { class: 'installation-packages-highlight' },
+                            [group.highlight]: { class: 'preview-header-buttons-highlight' },
                             'aria-label': 'Package manager',
                             class: 'installation-packages',
                             role: 'group'
                         },
                         managers.map((manager) => html`
                             <button
-                                class='button button--group installation-package ${() => state.manager === manager && '--active'}'
+                                class='button button--flat button--group preview-header-button ${() => state.manager === manager && '--active'}'
                                 type='button'
                                 ${{
                                     'aria-pressed': () => String(state.manager === manager),

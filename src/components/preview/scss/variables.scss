@@ -1,25 +1,15 @@
 @use 'css-utilities/background';
+@use 'css-utilities/border';
+@use 'css-utilities/box-shadow';
 @use 'css-utilities/surface';
 
 // Qualified by the class each part shares an element with (card, select, button, highlight, icon, code viewer), so
 // these win over that component's own variables whatever order the stylesheets load in.
 .preview {
-    &.card {
-        --border-color-default: var(--surface-border-default);
-        --border-radius: var(--border-radius-500);
-        --border-width: var(--border-width-400);
-        --intrinsic-height: 420px;
-        --padding-horizontal: 0px;
-        --padding-vertical: 0px;
-        // The card's fill, resolved here, for anything inside that must cover what scrolls beneath it.
-        --preview-background: var(--background);
-        --scroll-margin-vertical: var(--size-500);
-    }
-
-
     &-anchor {
         --scroll-margin-vertical: var(--size-500);
     }
+
 
     &-copy {
         --background-default: transparent;
@@ -30,7 +20,7 @@
     &-header {
         @extend %surface-raise;
         --background: var(--surface-background-default);
-        --border-color: var(--surface-border-default);
+        --border-color: var(--surface-border-active);
         --border-radius: calc(var(--border-radius-500) - var(--border-width-400));
         --border-width: var(--border-width-400);
         --gap-horizontal: var(--size-300);
@@ -38,17 +28,37 @@
         --min-height: 44px;
         --padding-horizontal: var(--size-400);
         --padding-vertical: var(--size-200);
+
+        // Clear at rest and while active, so only the highlight's pill marks the chosen button.
+        &-button {
+            @extend %background-surface-primary, %surface-lower;
+            --background-active: transparent;
+            --background-default: transparent;
+            --background-pressed: var(--surface-primary-pressed);
+            --border-radius: var(--border-radius-300);
+            --font-size: var(--font-size-300);
+        }
+
+        &-buttons {
+            &-highlight {
+                @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-lower;
+            }
+        }
+
+        &-select.select {
+            @extend %surface, %border-surface, %box-shadow-surface;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-400);
+            --font-size: var(--font-size-200);
+            --height: 28px;
+            --width: auto;
+        }
     }
 
     &-index {
         --color: var(--color-text-300);
         --gap-horizontal: var(--size-300);
-    }
-
-    &-select.select {
-        --font-size: var(--font-size-200);
-        --height: 28px;
-        --width: auto;
     }
 
     &-source-message {
@@ -86,14 +96,6 @@
         --padding-horizontal: calc(var(--size-100) / 4);
         --padding-vertical: calc(var(--size-100) / 4);
 
-        [data-theme='dark'] & {
-            @include surface.step(-3);
-        }
-
-        [data-theme='light'] & {
-            @include surface.step(-2);
-        }
-
         &-button {
             --border-radius: var(--border-radius-400);
             --font-size: var(--font-size-300);
@@ -103,16 +105,16 @@
         &-highlight {
             @extend %background-surface;
 
+            &.--active {
+                box-shadow: var(--surface-shadow-hover);
+            }
+
             [data-theme='dark'] & {
-                @include surface.step(3);
+                @include surface.step(4);
             }
 
             [data-theme='light'] & {
-                @include surface.step(2);
-            }
-
-            &.--active {
-                box-shadow: var(--surface-shadow-hover);
+                @include surface.step(3);
             }
         }
 
@@ -120,6 +122,14 @@
         // own scroll margin.
         + .preview.card {
             --scroll-margin-vertical: calc(var(--size-500) + var(--size-800) + var(--size-100));
+        }
+
+        [data-theme='dark'] & {
+            @include surface.step(-3);
+        }
+
+        [data-theme='light'] & {
+            @include surface.step(-2);
         }
     }
 
@@ -131,5 +141,17 @@
         --border-width: 0px;
         --code-padding-horizontal: var(--size-400);
         --code-padding-vertical: var(--size-400);
+    }
+
+    &.card {
+        --border-color-default: var(--surface-border-default);
+        --border-radius: var(--border-radius-500);
+        --border-width: var(--border-width-400);
+        --intrinsic-height: 420px;
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        // The card's fill, resolved here, for anything inside that must cover what scrolls beneath it.
+        --preview-background: var(--background);
+        --scroll-margin-vertical: var(--size-500);
     }
 }

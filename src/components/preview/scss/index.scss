@@ -35,29 +35,29 @@
     &-header {
         align-items: center;
         background: var(--background);
-        // border-bottom: var(--border-width) solid var(--border-color);
+        border-bottom: var(--border-width) solid var(--border-color);
         border-radius: var(--border-radius) var(--border-radius) 0 0;
         display: flex;
         flex-wrap: wrap;
         gap: var(--gap-vertical) var(--gap-horizontal);
         min-height: var(--min-height);
         padding: var(--padding-vertical) var(--padding-horizontal);
+
+        &-select {
+            max-width: 100%;
+            text-transform: none;
+
+            // The select exposes no trigger width, so its trigger is capped directly.
+            .select-menu-trigger {
+                max-width: 100%;
+            }
+        }
     }
 
     &-index {
         color: var(--color);
         font-variant-numeric: tabular-nums;
         margin-right: var(--gap-horizontal);
-    }
-
-    &-select {
-        max-width: 100%;
-        text-transform: none;
-
-        // The select exposes no trigger width, so its trigger is capped directly.
-        .select-menu-trigger {
-            max-width: 100%;
-        }
     }
 
     &-source {
@@ -136,7 +136,7 @@
     }
 
     // An open selector must paint beyond this card and above the following preview.
-    &:has(.preview-select.--active) {
+    &:has(.preview-header-select.--active) {
         content-visibility: visible;
         z-index: 10;
     }
