@@ -1,6 +1,6 @@
-import { component, html, type Attributes } from '@esportsplus/template';
-import { effect, flush, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
-import { morph, morphs } from '~/components/tooltip/utilities';
+import { component, html, setProperties, type Attributes, type Element as Bound } from '@esportsplus/template';
+import { effect, flush, onCleanup, reactive, root, untrack } from '@esportsplus/reactivity';
+import { morph, morphs, shape } from '~/components/tooltip/utilities';
 import '~/components/tooltip/scss/index.scss';
 import './scss/index.scss';
 
@@ -26,6 +26,22 @@ type Direction = 'e' | 'en' | 'es' | 'n' | 'ne' | 'nw' | 's' | 'se' | 'sw' | 'w'
 // The morph tooltip's '--morph-close-duration', plus a frame: a new message reopens once the old one has landed.
 const CLOSE = 210;
 
+const ERROR_STATE = Symbol('error.control');
+
+
+// The consumer's control, which its own template renders, so the error marks it invalid through a store bound on it.
+function validity(element: Element) {
+    let store = element as Element & { [ERROR_STATE]?: { invalid: 'false' | 'true' | undefined } };
+
+    return store[ERROR_STATE] ??= root(() => {
+        let state = reactive({ invalid: undefined as 'false' | 'true' | undefined });
+
+        setProperties(element as Bound, { 'aria-invalid': () => state.invalid });
+
+        return state;
+    });
+}
+
 
 // Wraps one control, so it works on any element that keeps its error in 'state.error': the control shakes and its
 // edge turns red, and the message grows out of it in the morph tooltip. The wrapper is the tooltip's trigger and holds
@@ -37,7 +53,7 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
         element: HTMLElement | undefined,
         expire: ReturnType<typeof setTimeout> | undefined,
         frame = 0,
-        local = reactive({ active: false, message: '', morphing: false, shake: 0 }),
+        local = reactive({ active: false, message: '', morphing: false, radius: undefined as string | undefined, shake: 0 }),
         opening: VoidFunction | undefined,
         pending = 0,
         reopen: ReturnType<typeof setTimeout> | undefined,
@@ -66,12 +82,12 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
 
             let box = tooltip.getBoundingClientRect(),
                 rect = element.getBoundingClientRect(),
-                style = tooltip.style;
+                state = shape(tooltip);
 
-            style.setProperty('--morph-bottom', `${box.bottom - rect.bottom}px`);
-            style.setProperty('--morph-left', `${rect.left - box.left}px`);
-            style.setProperty('--morph-right', `${box.right - rect.right}px`);
-            style.setProperty('--morph-top', `${rect.top - box.top}px`);
+            state.bottom = `${box.bottom - rect.bottom}px`;
+            state.left = `${rect.left - box.left}px`;
+            state.right = `${box.right - rect.right}px`;
+            state.top = `${rect.top - box.top}px`;
 
             if (performance.now() < until) {
                 frame = requestAnimationFrame(measure);
@@ -80,7 +96,8 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
     }
 
     // Flushed before the open measures the tooltip's box, which the message sizes. The morph starts from the wrapper's
-    // corners, so the wrapper takes the control's.
+    // corners, so the wrapper takes the control's, copied from its computed corners, which only layout knows, and
+    // landed by the same flush so they hold before the morph reads them.
     function open(text: string) {
         if (!element) {
             return;
@@ -89,14 +106,12 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
         cancelAnimationFrame(frame);
         shown = text;
         local.message = text;
-        flush();
 
-        // Copied from the control's computed corners, which only layout knows, and written straight to the wrapper
-        // so it holds before the morph below measures it.
         if (control) {
-            element.style.borderRadius = getComputedStyle(control).borderRadius;
+            local.radius = getComputedStyle(control).borderRadius;
         }
 
+        flush();
         opening = morph(element, () => {
             opening = undefined;
             local.active = true;
@@ -123,8 +138,9 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
 
         untrack(() => {
             clearTimeout(expire);
-            // The control is the consumer's content, rendered by its own template, so there's no binding to set.
-            control?.setAttribute('aria-invalid', text ? 'true' : 'false');
+            if (control) {
+                validity(control).invalid = text ? 'true' : 'false';
+            }
 
             if (text) {
                 // After the pass running this effect, where the open's flush would be a no-op.
@@ -173,7 +189,8 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
                 onconnect: (el: HTMLElement) => {
                     control = el.firstElementChild;
                     element = el;
-                }
+                },
+                style: () => ({ 'border-radius': local.radius })
             }}
         >
             ${content}

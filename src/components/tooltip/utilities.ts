@@ -1,4 +1,5 @@
-import { html, render } from '@esportsplus/template';
+import { reactive, root } from '@esportsplus/reactivity';
+import { html, render, setProperties, type Element as Bound } from '@esportsplus/template';
 
 
 // Milliseconds the pointer rests on a trigger before it opens, and is away before it closes; either left out is instant.
@@ -7,9 +8,22 @@ type Delay = {
     open?: number
 };
 
+// The shape a morph grows out of and closes onto, as insets on the tooltip's own box, and whether its transitions are
+// off while that shape is put in place.
+type Shape = {
+    bottom: string | undefined;
+    instant: boolean;
+    left: string | undefined;
+    radius: string | undefined;
+    right: string | undefined;
+    top: string | undefined;
+};
+
 
 // Referenced by '.tooltip.tooltip--morphing' in CSS; a missing reference is ignored until this exists.
 const GOO = 'tooltip-morph-goo';
+
+const MORPH_STATE = Symbol('tooltip.morph');
 
 // Just after a delayed tooltip closes, the next one skips its delay: the reader is browsing, not passing through.
 const WARM_FOR = 500;
@@ -70,33 +84,43 @@ function morph(element: HTMLElement, open: VoidFunction, tooltip = content(eleme
     }
 
     let box = tooltip.getBoundingClientRect(),
+        cancelled = false,
+        frame = 0,
         rect = anchor.getBoundingClientRect(),
         scale = box.width / tooltip.offsetWidth || 1,
-        style = tooltip.style;
+        state = shape(tooltip);
 
     // Jump straight to the new start shape instead of transitioning into it. The insets place
     // the clip over the trigger; negative values reach outside the tooltip's own box.
-    style.transition = 'none';
-    style.setProperty('--morph-bottom', `${(box.bottom - rect.bottom) / scale}px`);
-    style.setProperty('--morph-left', `${(rect.left - box.left) / scale}px`);
-    style.setProperty('--morph-radius', getComputedStyle(anchor).borderTopLeftRadius);
-    style.setProperty('--morph-right', `${(box.right - rect.right) / scale}px`);
-    style.setProperty('--morph-top', `${(rect.top - box.top) / scale}px`);
+    state.bottom = `${(box.bottom - rect.bottom) / scale}px`;
+    state.instant = true;
+    state.left = `${(rect.left - box.left) / scale}px`;
+    state.radius = getComputedStyle(anchor).borderTopLeftRadius;
+    state.right = `${(box.right - rect.right) / scale}px`;
+    state.top = `${(rect.top - box.top) / scale}px`;
 
-    // Apply the start shape now, while transitions are off; otherwise it is first styled
-    // after they're restored and animates into the start shape instead of out of it.
-    tooltip.getBoundingClientRect();
+    // Apply the start shape once it has landed, while transitions are off; otherwise it is first styled
+    // after they're restored and animates into the start shape instead of out of it. Read a microtask on,
+    // after the pass that writes it, whether or not one is already running.
+    queueMicrotask(() => {
+        if (cancelled) {
+            return;
+        }
 
-    // Open on the next frame, restoring transitions in the same step: the flush above committed
-    // the start shape, so the open transitions out of it with only one frame of latency.
-    let frame = requestAnimationFrame(() => {
-        style.removeProperty('transition');
-        open();
+        tooltip.getBoundingClientRect();
+
+        // Open on the next frame, restoring transitions in the same step: the read above committed
+        // the start shape, so the open transitions out of it with only one frame of latency.
+        frame = requestAnimationFrame(() => {
+            state.instant = false;
+            open();
+        });
     });
 
     return () => {
+        cancelled = true;
         cancelAnimationFrame(frame);
-        style.removeProperty('transition');
+        state.instant = false;
     };
 }
 
@@ -137,6 +161,36 @@ function morphs(state: { morphing: boolean }) {
     };
 }
 
+// The tooltip's morph shape, bound to its style once, the first time anything shapes it; 'morph()' seeds it and a
+// closing owner may move it.
+function shape(tooltip: HTMLElement) {
+    let store = tooltip as HTMLElement & { [MORPH_STATE]?: Shape };
+
+    return store[MORPH_STATE] ??= root(() => {
+        let state: Shape = reactive({
+                bottom: undefined as string | undefined,
+                instant: false,
+                left: undefined as string | undefined,
+                radius: undefined as string | undefined,
+                right: undefined as string | undefined,
+                top: undefined as string | undefined
+            });
+
+        setProperties(tooltip as Bound, {
+            style: () => ({
+                '--morph-bottom': state.bottom,
+                '--morph-left': state.left,
+                '--morph-radius': state.radius,
+                '--morph-right': state.right,
+                '--morph-top': state.top,
+                transition: state.instant ? 'none' : undefined
+            })
+        });
+
+        return state;
+    });
+}
+
 // Runs 'open' after 'delay', or at once when there is none or while warm; returns a cancel for a pending open.
 function wait(delay: number, open: VoidFunction) {
     if (!delay || warm()) {
@@ -154,5 +208,5 @@ function warm() {
 }
 
 
-export { content, cool, morph, morphing, morphs, wait, warm };
-export type { Delay };
+export { content, cool, morph, morphing, morphs, shape, wait, warm };
+export type { Delay, Shape };
