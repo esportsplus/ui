@@ -26,35 +26,18 @@ export default component(function(
     attributes.value ??= '';
 
     let field: HTMLTextAreaElement | undefined,
-        frame: number | undefined,
-        measured = reactive({ height: 0, scrollable: false }),
-        native = !!resize && CSS.supports('field-sizing', 'content'),
+        // The owner's value the mirror last showed; any other change to the text is the field's own.
+        last: unknown,
+        measured = reactive({ height: 0, revision: 0, scrollable: false }),
         owner: HTMLFormElement | null | undefined,
-        probe: HTMLTextAreaElement | undefined,
+        placeholder = attributes.placeholder ?? this?.attributes?.placeholder,
         resetFrame: number | undefined,
-        width: number | undefined,
         limits = resize && `--max-height: ${resize.height.max}; --min-height: ${resize.height.min};`,
         caller = attributes.oninput ?? this?.attributes?.oninput;
 
     let motion = trackTransition('height', (running, element) => {
         measured.scrollable = !!element && !running;
     });
-
-    function schedule() {
-        if (native || frame !== undefined) {
-            return;
-        }
-
-        frame = requestAnimationFrame(() => {
-            frame = undefined;
-
-            if (probe) {
-                // Only the hidden measuring field is reset, so the visible height can transition uninterrupted.
-                probe.style.setProperty('--content-height', '0px');
-                probe.style.setProperty('--content-height', `${probe.scrollHeight}px`);
-            }
-        });
-    }
 
     function reset() {
         // Form reset restores the value after the event has been dispatched.
@@ -64,12 +47,22 @@ export default component(function(
 
         resetFrame = requestAnimationFrame(() => {
             resetFrame = undefined;
-
-            if (probe && field) {
-                probe.value = field.value;
-                schedule();
-            }
+            measured.revision++;
         });
+    }
+
+    // What the mirror lays out: the field's text, or its placeholder while empty, as a content-sized field shows.
+    function text(element: HTMLElement) {
+        let source = attributes.value,
+            value = typeof source === 'function' ? source(field ?? element) : source;
+
+        measured.revision;
+
+        let current = value !== last || !field ? String(value ?? '') : field.value;
+
+        last = value;
+
+        return current || String((typeof placeholder === 'function' ? placeholder(element) : placeholder) ?? '');
     }
 
     let observation = observeSize((size) => {
@@ -77,11 +70,6 @@ export default component(function(
                 measured.scrollable = false;
                 measured.height = size.height;
                 motion.settle();
-            }
-
-            if (size.width !== width) {
-                width = size.width;
-                schedule();
             }
         }),
         content = html`
@@ -112,11 +100,7 @@ export default component(function(
                     field = undefined;
                 },
                 oninput: function(this: HTMLElement, event: InputEvent) {
-                    if (probe) {
-                        probe.value = (event.currentTarget as HTMLTextAreaElement).value;
-                        schedule();
-                    }
-
+                    measured.revision++;
                     caller?.call(this, event);
                 },
                 style: [limits, () => measured.height && `--height: ${measured.height}px;`]
@@ -129,49 +113,30 @@ export default component(function(
         return content;
     }
 
+    // The mirror holds the field's text in its own box, sized as the field would be to fit it; the field animates to
+    // the height observed on it. Mirrors only what sizes the text: no name, id, validation or caller listeners.
     return html`
         <div class='textarea-resize'>
             ${content}
-            <textarea
+            <div
                 aria-hidden='true'
                 class='textarea textarea--measure'
-                disabled
                 inert
-                tabindex='-1'
                 ${{
-                    // Mirror only sizing attributes: the probe has no name, id, validation or caller listeners.
-                    class: [this?.attributes?.class, attributes.class, !native && 'textarea--measure-fallback', () => state.active && '--active'].flat(),
+                    class: [
+                        this?.attributes?.class,
+                        attributes.class,
+                        (attributes.wrap ?? this?.attributes?.wrap) === 'off' && 'textarea--measure-nowrap',
+                        () => state.active && '--active'
+                    ].flat(),
+                    'data-value': text,
                     dir: attributes.dir ?? this?.attributes?.dir,
                     lang: attributes.lang ?? this?.attributes?.lang,
-                    placeholder: attributes.placeholder ?? this?.attributes?.placeholder,
-                    rows: attributes.rows ?? this?.attributes?.rows,
-                    style: [this?.attributes?.style, attributes.style, limits].flat(),
-                    value: (element: HTMLElement) => {
-                        let source = attributes.value,
-                            value = typeof source === 'function' ? source(field ?? element) : source;
-
-                        schedule();
-                        return value;
-                    },
-                    wrap: attributes.wrap ?? this?.attributes?.wrap,
-                    onconnect: (element: HTMLTextAreaElement) => {
-                        probe = element;
-                        width = undefined;
-                        observation.onconnect(element);
-                        schedule();
-                    },
-                    ondisconnect: () => {
-                        observation.ondisconnect();
-
-                        if (frame !== undefined) {
-                            cancelAnimationFrame(frame);
-                            frame = undefined;
-                        }
-
-                        probe = undefined;
-                    }
+                    onconnect: observation.onconnect,
+                    ondisconnect: observation.ondisconnect,
+                    style: [this?.attributes?.style, attributes.style, limits].flat()
                 }}
-            ></textarea>
+            ></div>
         </div>
     `;
 });

@@ -29,25 +29,38 @@
         }
     }
 
-    // The visible field animates while this independent, inaccessible field retains its natural height.
+    // The field's text laid out in a box of its own, which the field's height follows; hidden, out of flow and out of
+    // reach. Typography restates what a textarea's UA styles set and a block box would inherit instead; line height
+    // and tracking come from the same author rules as the field's.
     &--measure {
         --scrollbar-gutter: stable;
         box-sizing: border-box;
-        field-sizing: content;
-        height: auto;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: normal;
         inset: 0 auto auto 0;
         max-height: var(--max-height);
         min-height: var(--min-height);
-        overflow-y: auto;
+        overflow-wrap: break-word;
+        overflow-y: hidden;
         pointer-events: none;
         position: absolute;
-        resize: none;
         scrollbar-gutter: var(--scrollbar-gutter);
+        text-align: start;
+        text-indent: 0;
+        text-transform: none;
         transition: none;
         visibility: hidden;
+        white-space: pre-wrap;
+        word-spacing: normal;
 
-        &-fallback {
-            height: calc(var(--content-height, var(--min-height)) + 2 * var(--border-width));
+        &-nowrap {
+            white-space: pre;
+        }
+
+        // The trailing space keeps a final line break's empty line, which a textarea shows.
+        &::after {
+            content: attr(data-value) ' ';
         }
     }
 
