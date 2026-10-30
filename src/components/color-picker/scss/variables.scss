@@ -91,9 +91,6 @@
         --border-color-pressed: var(--border-color-default);
         --border-width: 2px;
         --box-shadow: var(--hairline);
-        --focus-color: var(--color-text-500);
-        --focus-offset: 1px;
-        --focus-width: var(--border-width-500);
         --height: 12px;
         --thumb-scale-pressed: 1.1;
         --thumb-shadow:
@@ -134,15 +131,11 @@
 
     &-fields #{&}-hex {
         --color-default: currentColor;
-        --focus-color: var(--color-text-500);
-        --focus-offset: -1px;
-        --focus-width: var(--border-width-500);
         // Clears the copy button sitting at the field's end.
         --padding-end: calc(var(--size) - var(--size-100) / 2);
 
         &[aria-invalid='true'] {
             --border-color-default: var(--color-red-400);
-            --focus-color: var(--color-red-400);
         }
     }
 
@@ -159,9 +152,6 @@
     &-pad {
         --border-radius: var(--border-radius-400);
         --box-shadow: var(--hairline);
-        --focus-color: var(--color-text-500);
-        --focus-offset: calc(var(--size-100) / 4);
-        --focus-width: var(--border-width-500);
         --height: 176px;
     }
 
@@ -204,9 +194,6 @@
             var(--hairline),
             0 0 0 0 var(--surface-background-default),
             0 0 0 0 var(--color);
-        --focus-color: var(--color-text-500);
-        --focus-offset: calc(var(--size-100) / 2);
-        --focus-width: var(--border-width-500);
         --size: 28px;
 
         // A stand-in for a dropped swatch, whose own node is already gone.

@@ -137,8 +137,6 @@
 
     &-arrow {
         --color: var(--color-text-500);
-        --focus-color: var(--color);
-        --focus-width: 2px;
         --opacity: 1;
         --transition-duration: 0.3s;
         --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
@@ -163,9 +161,6 @@
         --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
         --color: var(--color-text-500);
         --corner-shape: round;
-        --focus-color: var(--color);
-        --focus-offset: calc(var(--size-100) / 4);
-        --focus-width: 2px;
         --hop-distance: 22px;
         --hop-duration: 0.7s;
         --hop-rebound: 9px;

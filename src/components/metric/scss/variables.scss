@@ -78,9 +78,6 @@
     // Tracks the card's width (cqi) between a floor that keeps small cards readable and the full-size chart, set off
     // never less than the tip's height plus its margin, so the tip clears the header.
     &-plot {
-        --focus-color: var(--color-primary-500);
-        --focus-offset: calc(var(--size-100) / 2);
-        --focus-width: 2px;
         --height: clamp(64px, 30cqi, 160px);
         --margin-top: clamp(40px, 9cqi, 48px);
 

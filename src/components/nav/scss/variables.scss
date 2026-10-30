@@ -22,8 +22,6 @@
         @extend %background-state, %color-state, %color-text;
         --background-default: transparent;
         --border-radius: 0px;
-        --focus-color: var(--color-blue-400);
-        --focus-width: var(--border-width-400);
         --font-size: var(--font-size-300);
         --font-weight: var(--font-weight-300);
         --gap-horizontal: var(--size-200);

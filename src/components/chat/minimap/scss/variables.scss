@@ -18,9 +18,6 @@
     // At rest every line shares one length; the hovered one peaks and its two neighbours either side step back down.
     // The item's states reach into its line, which holds the values.
     &-item {
-        --focus-color: var(--color-primary-500);
-        --focus-offset: -1px;
-        --focus-width: 2px;
         --height: var(--size-100);
         // Lines sit this far in from the rail's leading edge, inside a hit area wider than the longest line.
         --padding-horizontal: calc(var(--size-100) / 2);
@@ -119,9 +116,6 @@
 
     &-nav {
         @extend %color-state, %color-text;
-        --focus-color: var(--color-primary-500);
-        --focus-offset: -1px;
-        --focus-width: 2px;
         --height: var(--size-500);
         --opacity: 0;
         --padding-horizontal: calc(var(--size-100) / 2);

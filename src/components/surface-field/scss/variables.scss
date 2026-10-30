@@ -72,9 +72,6 @@
         &-handle,
         &-resize {
             --color: var(--color-primary-300);
-            --focus-color: oklch(from var(--color-text-500) l c h / 0.4);
-            --focus-offset: calc(var(--size-100) / -4);
-            --focus-width: 2px;
         }
 
         &-header {

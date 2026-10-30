@@ -17,9 +17,7 @@
             @extend %color-state;
             --color-default: var(--color-text-300);
             --color-hover: var(--color-text-400);
-            --focus-color: var(--color-blue-400);
             --focus-tint: 8%;
-            --focus-width: 1px;
 
             &:focus-visible {
                 --color: var(--color-hover);
@@ -40,8 +38,6 @@
 
     &-viewport {
         --fade: var(--size-700);
-        --focus-color: var(--color-blue-400);
-        --focus-width: 1px;
         --padding-horizontal: 0px;
         --padding-vertical: var(--size-200);
     }

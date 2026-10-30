@@ -96,9 +96,6 @@
 
         &-button {
             --border-radius: var(--border-radius-400);
-            --focus-color: var(--color-blue-400);
-            --focus-offset: calc(var(--size-100) / 4);
-            --focus-width: 2px;
             --font-size: var(--font-size-300);
             --padding-vertical: var(--size-100);
         }

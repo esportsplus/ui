@@ -49,10 +49,6 @@
         --background-pressed: var(--background-hover);
     }
 
-    &-display {
-        --focus-color: var(--color-primary-500);
-        --focus-width: var(--border-width-500);
-    }
 
     &-editor {
         #{tokens.state(active, '.inline-edit')} > & {
@@ -279,8 +275,6 @@
         --background-default: transparent;
         --background-hover: color-mix(in oklab, var(--color-text-500) 6%, transparent);
         --border-radius: var(--border-radius-400);
-        --focus-color: var(--surface-border-pressed);
-        --focus-width: 2px;
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         --size: 36px;

@@ -12,9 +12,6 @@
     --border-width-offset: 0px;
     --border-width-offset-hover: var(--border-width);
     --box-shadow: var(--box-shadow-default);
-    --focus-color: var(--border-color-active);
-    --focus-offset: calc(var(--size-100) / 4);
-    --focus-width: var(--border-width-500);
     --height: var(--size);
     --indicator-color: var(--indicator-color-default);
     --indicator-color-active: var(--indicator-color-default);
@@ -68,7 +65,6 @@
         --border-width: 0px;
         --border-width-offset-hover: 0px;
         --box-shadow-active: var(--box-shadow-default);
-        --focus-color: var(--background-active);
         --padding-horizontal: calc(var(--size-100) / 4);
         --padding-vertical: calc(var(--size-100) / 4);
         --progress: 0;

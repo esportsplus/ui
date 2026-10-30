@@ -13,8 +13,6 @@
         --background-default: var(--surface-background-default);
         --border-radius: var(--border-radius-400);
         --color: var(--color-text-500);
-        --focus-color: var(--color-primary-500);
-        --focus-width: var(--border-width-500);
         --font-size: var(--font-size-300);
         --height: 40px;
 
@@ -83,9 +81,6 @@
             @extend %surface-raise;
             --background: var(--surface-background-default);
             --border-radius: 14px;
-            --focus-color: var(--color-primary-500);
-            --focus-offset: calc(var(--size-100) / 4);
-            --focus-width: var(--border-width-500);
             --padding-horizontal: calc(var(--size-300) / 2);
             --padding-vertical: calc(var(--size-300) / 2);
         }
@@ -158,8 +153,6 @@
                 --color-default: var(--color-primary-300);
                 --color-hover: var(--color-primary-500);
                 --color-pressed: var(--color-hover);
-                --focus-color: var(--color-primary-500);
-                --focus-width: var(--border-width-500);
                 --reach: calc(var(--size-100) / -2);
                 --size: 24px;
             }

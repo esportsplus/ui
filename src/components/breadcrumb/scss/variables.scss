@@ -29,8 +29,6 @@
     &-link {
         @extend %color-state, %color-text;
         --border-radius: var(--border-radius-300);
-        --focus-color: var(--color-primary-500);
-        --focus-width: 2px;
         --height: var(--size-400);
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;
@@ -82,8 +80,6 @@
         --border-radius: var(--border-radius-300);
         --color: var(--color-text-400);
         --color-active: var(--color-text-400);
-        --focus-color: var(--color-primary-500);
-        --focus-width: 2px;
         --height: calc(var(--size-400) - 4px);
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;

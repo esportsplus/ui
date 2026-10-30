@@ -88,14 +88,6 @@
         }
     }
 
-    &-cards-option,
-    &-swatches-option,
-    &-toggle-option {
-        --focus-color: var(--color-blue-400);
-        --focus-offset: calc(var(--size-100) / 4);
-        --focus-width: 2px;
-    }
-
     // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
     &-icon.icon {
         --size: var(--size-400);

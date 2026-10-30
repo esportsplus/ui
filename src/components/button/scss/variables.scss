@@ -65,9 +65,6 @@
 
     &--morph {
         --color-default: var(--color-surface);
-        --focus-color: var(--surface-border-pressed);
-        --focus-offset: calc(var(--size-100) / 4);
-        --focus-width: 2px;
         --font-size: var(--font-size-300);
         --font-weight: var(--font-weight-500);
         --height: 40px;
@@ -213,13 +210,6 @@
         // Chained through the group so it wins over the trigger's own '.button' padding.
         & > &-trigger {
             --padding-horizontal: var(--size-200);
-        }
-
-        &-action,
-        &-trigger {
-            --focus-color: currentColor;
-            --focus-offset: calc(var(--size-100) / 4);
-            --focus-width: var(--border-width-500);
         }
 
         &-chevron {

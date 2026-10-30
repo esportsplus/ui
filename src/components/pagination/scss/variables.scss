@@ -18,7 +18,6 @@
     &--dots {
         --color: var(--color-text-500);
         --dot-size: 6px;
-        --focus-color: var(--color);
         --gap-horizontal: calc(var(--size-300) / 2);
         --height: 32px;
         --pill-width: var(--size-500);
@@ -40,9 +39,6 @@
         @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
         --border-radius: var(--border-radius-400);
         --disabled-opacity: 0.4;
-        --focus-color: var(--color-primary-500);
-        --focus-offset: calc(var(--size-100) / 4);
-        --focus-width: var(--border-width-500);
         --size: var(--size-600);
 
         // Touch leaves no hover fill behind a tap.
@@ -73,9 +69,6 @@
         --border-color-default: var(--surface-border-default);
         --border-radius: var(--border-radius-600);
         --border-width: var(--border-width-400);
-        --focus-color: var(--color-primary-500);
-        --focus-offset: calc(var(--size-100) / 4);
-        --focus-width: var(--border-width-500);
         // Between the arrow and the text; the column layout leaves it free for that.
         --gap-horizontal: var(--size-300);
         --gap-vertical: 0px;
@@ -175,7 +168,6 @@
 
     &-dot {
         --border-radius: 999px;
-        --focus-width: var(--border-width-500);
         --near: clamp(0, 1 - max(var(--progress) - var(--index), var(--index) - var(--progress)), 1);
 
         @media (hover: hover) {

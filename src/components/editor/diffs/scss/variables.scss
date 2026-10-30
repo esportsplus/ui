@@ -30,8 +30,6 @@
     --digits: 2;
     --disabled-opacity: 0.45;
     --empty-background: repeating-linear-gradient(-45deg, transparent 0 4px, oklch(from var(--color-primary-500) l c h / 0.05) 4px 8px);
-    --focus-color: var(--color-blue-400);
-    --focus-width: var(--border-width-500);
     --font-size: var(--font-size-300);
     --function-color: light-dark(var(--color-purple-300), oklch(from var(--color-purple-300) 0.8 0.13 h));
     --height: 420px;

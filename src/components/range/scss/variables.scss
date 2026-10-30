@@ -26,7 +26,6 @@
         --background-default: linear-gradient(to right, var(--fill-color) var(--thumb-position), var(--track-color) var(--thumb-position));
         --disabled-opacity: 0.64;
         --fill-color: var(--color-primary-500);
-        --focus-color: var(--surface-border-pressed);
         --height: 4px;
         --thumb-background: var(--color-white-300);
         --thumb-border-color: var(--surface-border-default);
@@ -174,9 +173,6 @@
             --border-width: 1px;
             --disabled-opacity: 0.5;
             --display: inline-flex;
-            --focus-color: var(--surface-border-pressed);
-            --focus-offset: calc(var(--size-100) / 4);
-            --focus-width: var(--border-width-500);
             --font-size: var(--font-size-300);
             --gap-horizontal: calc(var(--size-100) / 2);
             --gap-vertical: 0px;
@@ -232,9 +228,6 @@
             --border-radius: var(--border-radius-400);
             --border-width: 1px;
             --cursor: text;
-            --focus-color: var(--surface-border-pressed);
-            --focus-offset: calc(var(--size-100) / 4);
-            --focus-width: var(--border-width-500);
             --gap-horizontal: calc(var(--size-300) / 2);
             --gap-vertical: 0px;
             --height: 40px;
@@ -338,10 +331,7 @@
             // Unset, so the thumb takes the cursor around it.
             --cursor: initial;
             --cursor-active: initial;
-            --focus-color: var(--surface-border-pressed);
-            --focus-offset: calc(var(--size-100) / 4);
             --focus-shadow: var(--box-shadow-default);
-            --focus-width: var(--border-width-600);
             --outline: 0 solid var(--focus-color);
             --scale-active: 1.25;
             --scale-hover: 1.25;

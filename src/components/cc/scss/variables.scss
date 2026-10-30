@@ -129,9 +129,6 @@
         --border-radius: var(--border-radius-600);
         --border-width: var(--border-width-400);
         --color-default: currentColor;
-        --focus-color: var(--color-primary-500);
-        --focus-offset: -1px;
-        --focus-width: var(--border-width-500);
         --font-size: var(--font-size-400);
         --height: 44px;
         --padding-horizontal: 14px;
@@ -144,7 +141,6 @@
             --border-color-default: var(--color-red-400);
             --border-color-hover: var(--color-red-400);
             --border-color-pressed: var(--color-red-400);
-            --focus-color: var(--color-red-400);
         }
     }
 
@@ -242,9 +238,6 @@
         --background-default: var(--color-primary-500);
         --border-radius: var(--border-radius-600);
         --color-default: var(--color-surface);
-        --focus-color: var(--color-primary-500);
-        --focus-offset: calc(var(--size-100) / 4);
-        --focus-width: var(--border-width-500);
         --font-size: var(--font-size-400);
         --font-weight: var(--font-weight-500);
         --height: 44px;
