@@ -1,24 +1,32 @@
+@use 'css-utilities/surface';
 @use '/tokens';
 
 .uptime {
     --color: var(--color-text-400);
-    --color-degraded: oklch(0.8 0.15 78);
+    --color-degraded: var(--color-yellow-400);
     --color-muted: var(--color-text-300);
     // Healthy days stay low-chroma so months of calm don't shout; incidents keep their strength.
-    --color-ok: oklch(0.8 0.09 160);
-    --color-outage: oklch(0.64 0.2 25);
+    --color-ok: var(--color-green-400);
+    --color-outage: var(--color-red-400);
+    // Whole-pixel days: the widest bar, then the widest gap, that fit the space the uptime is given. Read by its
+    // services, inside it, where '100cqw' is that space.
+    --day-gap: round(down, (100cqw - var(--days) * var(--day-width)) / (var(--days) - 1), 1px);
+    --day-gap-min: calc(var(--size-300) / 4);
+    --day-width: round(down, (100cqw - (var(--days) - 1) * var(--day-gap-min)) / var(--days), 1px);
     --font-size: var(--font-size-300);
     --gap-horizontal: var(--size-600);
     --gap-vertical: var(--size-600);
     --width: min(440px, 100%);
 
+    // At rest every bar shares one height; the selected one peaks and its two neighbours either side step back down.
     &-bar {
         --background: var(--color-ok);
-        --border-radius: var(--border-radius-100);
-        // The space between bars, which each bar's width leaves room for.
-        --gap-horizontal: calc(var(--size-300) / 4);
+        --border-radius: 0px;
         --opacity: 1;
         --scale: 1;
+        --scale-far: 1;
+        --scale-near: 1.1;
+        --scale-peak: 1.20;
         --transition-duration: 0.2s;
         --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
@@ -30,17 +38,26 @@
             --background: var(--color-outage);
         }
 
-        @include tokens.state(active) {
-            --scale: 1.15;
+        // Reduced motion keeps the heights still.
+        @media (prefers-reduced-motion: no-preference) {
+            &:has(+ .uptime-bar + .uptime-bar.--active),
+            &.--active + .uptime-bar + .uptime-bar {
+                --scale: var(--scale-far);
+            }
 
-            @media (prefers-reduced-motion: reduce) {
-                --scale: 1;
+            &:has(+ .uptime-bar.--active),
+            &.--active + .uptime-bar {
+                --scale: var(--scale-near);
+            }
+
+            @include tokens.state(active) {
+                --scale: var(--scale-peak);
             }
         }
     }
 
     &-bars {
-        --border-radius: var(--border-radius-200);
+        --border-radius: 0px;
         --height: var(--size-600);
 
         // A highlighted row dims every bar but the selected one.
@@ -51,49 +68,62 @@
         }
     }
 
-    &-service-axis {
-        --gap-horizontal: var(--size-300);
-        --gap-vertical: var(--size-300);
-        --margin-top: var(--size-300);
-    }
+    &-service {
+        --gap-horizontal: 0px;
+        --gap-vertical: var(--size-100);
+        // Exactly the bars and gaps, so the header and axis line up with them.
+        --width: calc(var(--days) * var(--day-width) + (var(--days) - 1) * var(--day-gap));
 
-    &-service-caption {
-        --gap-horizontal: var(--size-200);
-        --gap-vertical: 0px;
-    }
-
-    &-service-header {
-        --gap-horizontal: var(--size-400);
-        --gap-vertical: 0px;
-        --height: var(--size-500);
-        --margin-bottom: var(--size-300);
-    }
-
-    // The entrance each caption swap replays.
-    &-service-message {
-        --blur: var(--blur-400);
-        --dot-size: 6px;
-        --enter-duration: 0.2s;
-        --enter-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-        --offset: calc(var(--size-100) / 2);
-
-        &--degraded {
-            --dot: var(--color-degraded);
+        &-axis {
+            --gap-horizontal: var(--size-300);
+            --gap-vertical: var(--size-300);
         }
 
-        &--ok {
-            --dot: var(--color-ok);
+        &-caption {
+            --gap-horizontal: var(--size-200);
+            --gap-vertical: 0px;
         }
 
-        &--outage {
-            --dot: var(--color-outage);
+        &-header {
+            --gap-horizontal: var(--size-400);
+            --gap-vertical: 0px;
+            --height: var(--size-400);
         }
-    }
 
-    &-service-percentage {
-        --gap-horizontal: var(--size-300);
-        --gap-vertical: var(--size-300);
-        --line-color: var(--surface-border-default);
-        --line-width: 1px;
+        // The entrance each caption swap replays.
+        &-message {
+            --blur: var(--blur-400);
+            --dot-size: 6px;
+            --enter-duration: 0.2s;
+            --enter-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+            --offset: calc(var(--size-100) / 2);
+
+            &--degraded {
+                --dot: var(--color-degraded);
+            }
+
+            &--ok {
+                --dot: var(--color-ok);
+            }
+
+            &--outage {
+                --dot: var(--color-outage);
+            }
+        }
+
+        &-percentage {
+            --gap-horizontal: var(--size-300);
+            --gap-vertical: var(--size-300);
+            --line-color: var(--surface-border-default);
+            --line-width: 1px;
+
+            [data-theme='dark'] & {
+                @include surface.step(1);
+            }
+
+            [data-theme='light'] & {
+                @include surface.step(0);
+            }
+        }
     }
 }

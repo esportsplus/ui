@@ -161,7 +161,6 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
                     aria-label='${() => `${service.name}: ${STATUS[status]}, ${percentage(service, layout.days)}% uptime over ${layout.days} days. Arrow keys step through days.`}'
                     class='uptime-bars ${() => api.row === index && '--active'}'
                     role='group'
-                    style='${() => `--days: ${layout.days}`}'
                     tabindex='0'
                     ${{
                         onblur: clear,
@@ -194,12 +193,18 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
                         onpointermove: (e: PointerEvent) => {
                             let days = layout.days,
                                 element = e.currentTarget as HTMLElement,
-                                rect = element.getBoundingClientRect(),
-                                width = element.offsetWidth,
-                                // Divides out any CSS scale so the maths holds inside a scaled container.
-                                x = (e.clientX - rect.left) / (rect.width / width || 1);
+                                first = element.firstElementChild,
+                                last = element.lastElementChild;
 
-                            select(index, days - 1 - Math.min(days - 1, Math.max(0, Math.floor((x / width) * days))));
+                            if (!first || !last) {
+                                return;
+                            }
+
+                            // Both ends are measured on screen, so any CSS scale cancels out.
+                            let start = first.getBoundingClientRect().left,
+                                span = last.getBoundingClientRect().right - start || 1;
+
+                            select(index, days - 1 - Math.min(days - 1, Math.max(0, Math.floor(((e.clientX - start) / span) * days))));
                         }
                     }}
                 >
@@ -235,6 +240,7 @@ const uptime = ({ services, state: api = reactive({ day: -1, row: -1 }), ...attr
             class='uptime'
             ${attributes}
             ${size}
+            ${{ style: () => `--days: ${layout.days};` }}
         >
             ${services.map(row)}
 

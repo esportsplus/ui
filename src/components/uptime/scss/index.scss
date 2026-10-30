@@ -1,8 +1,10 @@
 @use 'css-utilities/hidden';
 @use 'variables';
 
+// A container so its services measure the space it is given, not the whole-pixel width they snap down to.
 .uptime {
     color: var(--color);
+    container-type: inline-size;
     display: flex;
     flex-direction: column;
     font-size: var(--font-size);
@@ -10,18 +12,19 @@
     position: relative;
     width: var(--width);
 
-    // Whole-pixel ticks: flex-sharing fractional widths lets pixel snapping round some bars a pixel wider than
-    // the rest. The leftover width spreads through the gaps instead.
+    // The service's width is whole bars and gaps, so the share each bar takes of it is a whole pixel.
     &-bar {
         background: var(--background);
         border-radius: var(--border-radius);
         flex-shrink: 0;
         opacity: var(--opacity);
         scale: 1 var(--scale);
+        // Grows upward, away from the axis below.
+        transform-origin: bottom;
         transition:
             opacity var(--transition-duration) var(--transition-timing-function),
             scale var(--transition-duration) var(--transition-timing-function);
-        width: round(down, (100% - (var(--days) - 1) * var(--gap-horizontal)) / var(--days), 1px);
+        width: calc((100% - (var(--days) - 1) * var(--day-gap)) / var(--days));
 
         @media (prefers-reduced-motion: reduce) {
             transition: none;
@@ -32,8 +35,8 @@
         border-radius: var(--border-radius);
         cursor: default;
         display: flex;
+        gap: var(--day-gap);
         height: var(--height);
-        justify-content: space-between;
         outline: none;
 
         &:focus-visible {
@@ -46,92 +49,98 @@
         @extend %hidden-visually;
     }
 
-    &-service-axis {
-        align-items: center;
-        color: var(--color-muted);
+    &-service {
         display: flex;
+        flex-direction: column;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        margin-top: var(--margin-top);
-        white-space: nowrap;
-    }
+        width: var(--width);
 
-    &-service-caption {
-        align-items: center;
-        color: var(--color-muted);
-        display: flex;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        justify-content: flex-end;
-        min-width: 0;
-    }
 
-    &-service-day {
-        color: var(--color-muted);
-        flex-shrink: 0;
-    }
-
-    &-service-day,
-    &-service-percentage {
-        font-variant-numeric: tabular-nums;
-    }
-
-    &-service-header {
-        align-items: center;
-        display: flex;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        height: var(--height);
-        justify-content: space-between;
-        margin-bottom: var(--margin-bottom);
-    }
-
-    // Each caption change mounts a fresh node, so the entry animation replays per swap.
-    &-service-message {
-        animation: uptime-service-message var(--enter-duration) var(--enter-timing-function);
-        font-variant-numeric: tabular-nums;
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-
-        @media (prefers-reduced-motion: reduce) {
-            animation: none;
+        &-axis {
+            align-items: center;
+            color: var(--color-muted);
+            display: flex;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            white-space: nowrap;
         }
 
-        &--active {
-            color: var(--color);
+        &-caption {
+            align-items: center;
+            color: var(--color-muted);
+            display: flex;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            justify-content: flex-end;
+            min-width: 0;
         }
 
-        &--degraded,
-        &--ok,
-        &--outage {
-            &::before {
-                background: var(--dot);
-                border-radius: 50%;
-                content: '';
-                display: inline-block;
-                height: var(--dot-size);
-                margin-inline-end: var(--size-100);
-                vertical-align: middle;
-                width: var(--dot-size);
+        &-day {
+            color: var(--color-muted);
+            flex-shrink: 0;
+        }
+
+        &-day,
+        &-percentage {
+            font-variant-numeric: tabular-nums;
+        }
+
+        &-header {
+            align-items: center;
+            display: flex;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            height: var(--height);
+            justify-content: space-between;
+        }
+
+        // Each caption change mounts a fresh node, so the entry animation replays per swap.
+        &-message {
+            animation: uptime-service-message var(--enter-duration) var(--enter-timing-function);
+            font-variant-numeric: tabular-nums;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            @media (prefers-reduced-motion: reduce) {
+                animation: none;
+            }
+
+            &--active {
+                color: var(--color);
+            }
+
+            &--degraded,
+            &--ok,
+            &--outage {
+                &::before {
+                    background: var(--dot);
+                    border-radius: 50%;
+                    content: '';
+                    display: inline-block;
+                    height: var(--dot-size);
+                    margin-inline-end: var(--size-100);
+                    vertical-align: middle;
+                    width: var(--dot-size);
+                }
             }
         }
-    }
 
-    &-service-name {
-        flex-shrink: 0;
-        font-weight: var(--font-weight-500);
-    }
+        &-name {
+            flex-shrink: 0;
+            font-weight: var(--font-weight-500);
+        }
 
-    &-service-percentage {
-        align-items: center;
-        display: flex;
-        flex: 1;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-
-        &::after,
-        &::before {
-            border-top: var(--line-width) dotted var(--line-color);
-            content: '';
+        &-percentage {
+            align-items: center;
+            display: flex;
             flex: 1;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+
+            &::after,
+            &::before {
+                border-top: var(--line-width) solid var(--line-color);
+                content: '';
+                flex: 1;
+            }
         }
     }
 }
