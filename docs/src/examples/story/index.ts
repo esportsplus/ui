@@ -1,5 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
-import { html } from '@esportsplus/template';
+import { html, type Renderable } from '@esportsplus/template';
 import { story } from '@esportsplus/ui/components';
 import 'docs/examples/story/scss/index.scss';
 
@@ -15,6 +15,10 @@ const STATS = [
 ];
 
 
+function card(...content: Renderable<unknown>[]) {
+    return html`<div class='card story-demo-card'>${content}</div>`;
+}
+
 function stat({ caption, value }: typeof STATS[number]) {
     return html`
         <div class='story-demo'>
@@ -29,14 +33,14 @@ export default {
     name: 'story',
     variants: [
         {
-            render: () => story({ stories: STATS.map(stat) }),
+            render: () => card(story({ stories: STATS.map(stat) })),
             title: 'stories'
         },
         {
             render: () => {
                 let clicks = reactive({ count: 0 });
 
-                return story({
+                return card(story({
                     label: 'Mixed stories',
                     stories: [
                         stat(STATS[0]),
@@ -54,7 +58,7 @@ export default {
                             </div>
                         `
                     ]
-                });
+                }));
             },
             title: 'any content'
         },
@@ -62,11 +66,11 @@ export default {
             render: () => {
                 let state = reactive({ done: false, index: 2, paused: true });
 
-                return html`
-                    <div style='align-items: center; display: flex; flex-direction: column; gap: var(--size-400);'>
-                        ${story({ duration: 2000, label: 'Quick stories', repeat: true, state, stories: STATS.map(stat) })}
+                return card(
+                    story({ duration: 2000, label: 'Quick stories', repeat: true, state, stories: STATS.map(stat) }),
+                    html`
                         <span>${() => state.done ? 'seen them all' : 'not done yet'}</span>
-                        <div style='display: flex; gap: var(--size-300);'>
+                        <div class='story-demo-controls'>
                             <button class='${BUTTON}' onclick='${() => state.paused = !state.paused}' type='button'>
                                 ${() => state.paused ? 'play' : 'pause'}
                             </button>
@@ -74,8 +78,8 @@ export default {
                                 first story
                             </button>
                         </div>
-                    </div>
-                `;
+                    `
+                );
             },
             title: 'controlled, repeating, 2s per story'
         }

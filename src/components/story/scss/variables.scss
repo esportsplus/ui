@@ -7,15 +7,11 @@
 // A surface: a level above whatever it sits in. '--duration' is the story's own, set on it by the page or inline, and
 // each bar's fill times itself by it.
 .story {
-    @extend %background-state, %box-shadow-state, %surface-raise;
-    --background-default: var(--surface-background-default);
-    --box-shadow-default: var(--surface-shadow-default);
     --color: var(--color-text-500);
     // Long enough to read a short caption, the same as Instagram's default.
     --duration: 4s;
     --height: 480px;
     --max-width: 320px;
-    --radius: 24px;
 
 
     &--paused .story-fill {
@@ -24,7 +20,7 @@
 
 
     &-bar {
-        --background: oklch(from var(--color-primary-500) l c h / 0.15);
+        --background: oklch(from var(--color-primary-400) l c h / 0.15);
         --border-radius: 999px;
         --height: 3px;
 
@@ -45,7 +41,7 @@
         --gap-horizontal: calc(var(--size-100) / 2);
         --gap-vertical: 0px;
         --padding-horizontal: 12px;
-        --padding-top: 12px;
+        --padding-vertical: 12px;
     }
 
     &-fill {

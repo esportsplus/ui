@@ -28,6 +28,24 @@
         text-wrap: pretty;
     }
 
+    // A definite width, so the story's 'min(--max-width, 100%)' resolves instead of collapsing to its content.
+    &-card {
+        --border-radius: 20px;
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --width: min(320px, 100%);
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--size-400);
+        overflow: hidden;
+    }
+
+    &-controls {
+        display: flex;
+        gap: var(--size-300);
+    }
+
     &-value {
         font-size: 72px;
         font-variant-numeric: tabular-nums;

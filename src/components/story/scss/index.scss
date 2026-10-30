@@ -3,9 +3,6 @@
 @use 'variables';
 
 .story {
-    background: var(--background);
-    border-radius: var(--radius);
-    box-shadow: var(--box-shadow);
     color: var(--color);
     height: var(--height);
     outline: none;
@@ -29,7 +26,7 @@
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
         left: 0;
-        padding: var(--padding-top) var(--padding-horizontal) 0;
+        padding: var(--padding-vertical) var(--padding-horizontal) 0;
         pointer-events: none;
         position: absolute;
         right: 0;
