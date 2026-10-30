@@ -145,9 +145,6 @@ const meta: Record<string, Meta> = {
     sortable: {
         description: 'Drag-and-drop reordering of a reactive list\'s items, within one list or across a group.'
     },
-    'sticky-header': {
-        description: 'Scroll panel whose header condenses from its before content into its after content as a compact bar.'
-    },
     story: {
         description: 'Auto-advancing stories of any content with segmented progress bars, tap or drag to navigate, and press-and-hold to pause.'
     },

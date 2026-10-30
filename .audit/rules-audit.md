@@ -449,11 +449,6 @@
 - [medium] `src/components/sortable/scss/variables.scss:8` (Variables: timing is always a --{name}-duration / --{name}-timing-function pair): --drop-easing and --shift-easing (15) should be --drop-timing-function and --shift-timing-function. In index.scss the drop transition also hard-codes `ease-out` and the 0.75/4 fractions (65, 67).
 - [low] `src/components/sortable/scss/variables.scss:52` (Ordering: modifiers (&--) before elements (&-)): The &-drag element comes before the @each loops that generate the &--{swing}/&--{animation} modifiers.
 
-## sticky-header
-
-- [low] `src/components/sticky-header/scss/index.scss:17` (index.scss: values come from var(--*), not literals): Tunable literals in the logic: after-reveal travel 6px (17), fade thresholds 0.45 (37) and scale 0.05 (39), edge heights 1px (57, 62), scroll-padding offset 10px (81), focus tint 0.06 and inset 1px (85-86).
-- [low] `src/components/sticky-header/scss/variables.scss:26` (Variables live on the selector that consumes them): --edge-shadow (used only by &-edge--shadow), --max-height (only &-scroll) and --padding-top (only &-before) are defined on the block rather than on the selectors that consume them.
-
 ## story
 
 - [medium] `src/components/story/scss/index.scss:45` (index.scss: values come from var(--*), not literals; Timing pair): Tunables are hard-coded: `-bars` padding `12px 12px 0` is a shorthand literal, not `--padding-horizontal/-vertical` (45), with gap `calc(var(--size-100) / 2)` (43). `border-radius: 999px` appears on bar and fill (25, 56). `-track transition: opacity 0.2s ease-out` (83) is literal timing with no reduced-motion handling.

@@ -120,7 +120,6 @@ const groups: Record<string, Group[]> = {
         { title: 'options', members: [['options', 'Default'], ['pre-selected', 'Pre-selected'], ['font picker', 'Font picker'], ['settings', 'Settings'], ['controlled state', 'Controlled state']] }
     ],
     'shortcut-recorder': [{ title: 'keyboard shortcuts', members: [['keyboard shortcuts', 'Default'], 'empty', 'limit', 'callout, whole field shakes'] }],
-    'sticky-header': [{ title: 'sticky header', members: [['title and subtitle', 'Default'], ['custom content', 'Custom content']] }],
     story: [{ title: 'stories', members: [['stories', 'Default'], ['any content', 'Custom content'], ['controlled, 2s per story', 'Controlled state, 2s duration']] }],
     switch: [{ title: 'switch', members: ['default', 'squared', 'on'] }],
     tasklist: [

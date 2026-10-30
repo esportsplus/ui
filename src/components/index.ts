@@ -54,7 +54,6 @@ export { default as select } from './select';
 export { default as shell } from './shell';
 export { default as shortcutRecorder } from './shortcut-recorder';
 export { default as sortable } from './sortable';
-export { default as stickyHeader } from './sticky-header';
 export { default as story } from './story';
 export { default as surfaceField } from './surface-field';
 export { default as switch } from './switch';

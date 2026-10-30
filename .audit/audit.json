@@ -1224,22 +1224,6 @@
     "severity": "low"
   },
   {
-    "component": "sticky-header",
-    "file": "src/components/sticky-header/scss/variables.scss",
-    "line": 26,
-    "rule": "Variables live on the selector that consumes them",
-    "issue": "--edge-shadow (used only by &-edge--shadow), --max-height (only &-scroll) and --padding-top (only &-before) are defined on the block rather than on the selectors that consume them.",
-    "severity": "low"
-  },
-  {
-    "component": "sticky-header",
-    "file": "src/components/sticky-header/scss/index.scss",
-    "line": 17,
-    "rule": "index.scss: values come from var(--*), not literals",
-    "issue": "Tunable literals in the logic: after-reveal travel 6px (17), fade thresholds 0.45 (37) and scale 0.05 (39), edge heights 1px (57, 62), scroll-padding offset 10px (81), focus tint 0.06 and inset 1px (85-86).",
-    "severity": "low"
-  },
-  {
     "component": "root",
     "file": "src/components/root/scss/variables.scss",
     "line": 43,
