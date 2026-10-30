@@ -6,6 +6,7 @@
     // scrolls when the screen is genuinely too narrow for the year.
     display: grid;
     font-size: var(--font-size);
+    font-weight: var(--font-weight);
     grid-template-columns: auto minmax(0, max-content);
     max-width: 100%;
     width: fit-content;
@@ -50,8 +51,8 @@
 
         // Rings the hovered day outside itself, so it shows on the darkest level too.
         &:hover {
-            outline: var(--hover-width) solid var(--hover-color);
-            outline-offset: var(--hover-offset);
+            outline: var(--outline-width) solid var(--outline-color);
+            outline-offset: var(--outline-offset);
         }
     }
 
@@ -65,7 +66,7 @@
         display: flex;
         flex-direction: column;
         margin-inline-end: var(--spacer);
-        margin-top: calc(var(--months-height) + var(--ring-space));
+        margin-top: calc(var(--months-height) + var(--outline-space));
     }
 
     &-grid {
@@ -123,5 +124,9 @@
                 background: var(--level-#{$level});
             }
         }
+    }
+
+    .tooltip-shared {
+        font-variant-numeric: tabular-nums;
     }
 }

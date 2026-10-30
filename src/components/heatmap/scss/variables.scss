@@ -3,9 +3,8 @@
     &-legend {
         --cell-size: var(--size-200);
         --color: var(--color-text-300);
-        --focus-color: var(--color-primary-500);
-        --font-size: var(--font-size-300);
-        --hover-color: color-mix(in oklab, var(--color-primary-500) 50%, transparent);
+        --font-size: var(--font-size-200);
+        --font-weight: var(--font-weight-500);
         // One hue, light to dark. Level 0 stays faintly visible so empty days still read as part of the grid.
         --level-0: color-mix(in oklab, var(--level-color) 7%, transparent);
         --level-1: color-mix(in oklab, var(--level-color) 25%, transparent);
@@ -13,9 +12,10 @@
         --level-3: color-mix(in oklab, var(--level-color) 70%, transparent);
         --level-4: var(--level-color);
         --level-color: var(--color-primary-500);
-        --months-height: var(--size-500);
+        --months-height: var(--size-400);
+        --outline-color: var(--color-primary-500);
+        --outline-space: 3px;
         --pitch: var(--size-300);
-        --ring-space: 3px;
         // Per column, so the whole year sweeps in under half a second and reads as one gesture.
         --stagger: 8ms;
         --transition-duration: 0.3s;
@@ -32,16 +32,14 @@
     // reads as arriving.
     &-cell {
         --border-radius: var(--border-radius-100);
-        --focus-offset: 1px;
-        --focus-width: 2px;
-        --hover-offset: 1px;
-        --hover-width: 1px;
+        --outline-offset: 1px;
+        --outline-width: 2px;
         --opacity: 0;
         --scale: 0.6;
     }
 
     &-days {
-        --spacer: calc(var(--size-200) / 2);
+        --spacer: calc(var(--cell-size) / 2);
     }
 
     &-grid--shown .heatmap-cell {
@@ -61,40 +59,31 @@
 
     // Room on every side for the focus and hover rings, and more below them for the scroll bar.
     &-scroll {
-        --padding-bottom: var(--size-300);
-        --padding-horizontal: var(--ring-space);
-        --padding-vertical: var(--ring-space);
+        --padding-bottom: var(--size-200);
+        --padding-horizontal: var(--outline-space);
+        --padding-vertical: var(--outline-space);
     }
 
     &-swatch {
         --border-radius: var(--border-radius-100);
     }
 
-    // A long glide lags behind a pointer sweeping across 13px cells, and the content keeps pace with it. Gated so
-    // it can't undo the tooltip's reduced-motion override.
-    // The swap timings go on the layer, the 'frame' that declares its own.
+    // A long glide lags behind a pointer sweeping across 13px cells. Gated so it can't undo the tooltip's
+    // reduced-motion override.
     @media (prefers-reduced-motion: no-preference) {
         & .tooltip-shared {
             --glide-duration: 0.15s;
-
-            .tooltip-shared-layer {
-                --fade-duration: 0.1s;
-                --transition-duration: 0.15s;
-            }
         }
     }
 
     // Compact for a dense grid. Tabular figures, so the tooltip holds its width as the counts change cell to cell.
     .tooltip-shared {
-        --glide-duration: 0s;
-        --radius: var(--border-radius-300);
+        --border-radius: var(--border-radius-300);
         --spacer: 6px;
-        font-variant-numeric: tabular-nums;
 
         .tooltip-shared-layer {
-            --padding-horizontal: var(--size-300);
+            --padding-horizontal: var(--size-400);
             --padding-vertical: var(--size-100);
-            --transition-duration: 0s;
         }
     }
 }
