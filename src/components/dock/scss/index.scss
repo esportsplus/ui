@@ -48,17 +48,14 @@
         }
     }
 
-    &--measuring &-item--hidden {
+    &--measuring &-item--hidden,
+    &--overflowing > &-arrow {
         display: flex;
     }
 
     // The dock's label would otherwise hang over the launcher.
     &--open > &-label {
         visibility: hidden;
-    }
-
-    &--overflowing > &-arrow {
-        display: flex;
     }
 
     &--s &-item {

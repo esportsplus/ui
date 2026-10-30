@@ -1,4 +1,4 @@
-import { effect, onCleanup, reactive, ReactiveArray, signal, write } from '@esportsplus/reactivity';
+import { effect, flush, onCleanup, reactive, ReactiveArray, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import icon from '~/components/icon';
 import input from '~/components/input';
@@ -156,6 +156,8 @@ const dock = ({
         launch = reactive({ index: -1, query: '' }),
         // Kept per app rather than per render, since moving between lists renders it afresh.
         launching = new WeakMap<Item, { launching: boolean }>(),
+        // Shows the icons off the page for as long as 'measure()' reads them.
+        measuring = reactive({ active: false }),
         popup = drawer && overlay.popup({ state, target: surface }),
         running = new WeakMap<Item, { running: boolean }>(),
         // The page of icons the shelf shows: the first, and how many fit (none while they all do). 'order' moves with
@@ -341,14 +343,16 @@ const dock = ({
     }
 
     // Whether the icons outgrow the shelf, and if so how many whole ones a page holds. Read with every icon shown, at
-    // the length the shelf gives them; the page then keeps room for the swell, so the icons at its ends grow into it.
-    // Shown and hidden again here rather than through a binding, so the measure lands within one layout.
+    // the length the shelf gives them, which only the consumer's layout knows; the page then keeps room for the swell,
+    // so the icons at its ends grow into it. Only the resize observer calls this, outside any reactivity pass, so the
+    // flushes land the shown and hidden icons around the reads, within one layout.
     function measure() {
         if (!arrows || !shelf || !track || !viewport) {
             return;
         }
 
-        shelf.classList.add('dock--measuring');
+        measuring.active = true;
+        flush();
 
         let length: 'offsetHeight' | 'offsetWidth' = vertical ? 'offsetHeight' : 'offsetWidth',
             pitch = rest(length),
@@ -358,7 +362,8 @@ const dock = ({
             // The hovered icon's growth plus its neighbours', two-thirds and one-third of it on each side.
             swell = 3 * ((parseFloat(style.getPropertyValue('--size-peak')) - parseFloat(style.getPropertyValue('--size-rest'))) || 0);
 
-        shelf.classList.remove('dock--measuring');
+        measuring.active = false;
+        flush();
 
         if (span <= room) {
             scroll.count = 0;
@@ -509,7 +514,11 @@ const dock = ({
             ${{
                 'aria-label': label,
                 'aria-orientation': vertical ? 'vertical' : 'horizontal',
-                class: [() => state.active && 'dock--open', () => scroll.count > 0 && 'dock--overflowing'],
+                class: [
+                    () => measuring.active && 'dock--measuring',
+                    () => state.active && 'dock--open',
+                    () => scroll.count > 0 && 'dock--overflowing'
+                ],
                 // The icons are measured against the shelf whenever it, they, or the room around the dock change; the
                 // dock's parent can grow without the dock growing with it.
                 onconnect: (element: HTMLElement) => {
