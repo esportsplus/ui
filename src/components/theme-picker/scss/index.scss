@@ -3,19 +3,6 @@
 @use 'variables';
 
 .theme-picker {
-    &-cards,
-    &-swatches,
-    &-toggle {
-        &-option {
-            @extend %reset-button;
-
-            &:focus-visible {
-                outline: var(--focus-width) solid var(--focus-color);
-                outline-offset: var(--focus-offset);
-            }
-        }
-    }
-
     &-cards {
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
@@ -53,6 +40,14 @@
                 opacity: var(--opacity);
                 width: var(--width);
             }
+        }
+    }
+
+    &-cards,
+    &-swatches,
+    &-toggle {
+        &-option {
+            @extend %reset-button;
         }
     }
 
@@ -157,6 +152,12 @@
             transition:
                 background-color var(--transition-duration) var(--transition-timing-function),
                 color var(--transition-duration) var(--transition-timing-function);
+
+            // Cards and swatches show focus on their own ring instead.
+            &:focus-visible {
+                outline: var(--focus-width) solid var(--focus-color);
+                outline-offset: var(--focus-offset);
+            }
         }
 
         // The button's faces carry the blur swap; this only sizes and frames it, fading under the open menu.

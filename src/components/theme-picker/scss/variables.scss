@@ -13,10 +13,15 @@
             --font-size: var(--font-size-200);
         }
 
-        // The chosen page is ringed, and its label strengthens.
+        // The chosen page is ringed, and its label strengthens; keyboard focus shows the same ring in the focus color.
         &-option {
             --gap-horizontal: 0px;
             --gap-vertical: var(--size-200);
+
+            &:focus-visible .theme-picker-cards-preview {
+                --ring-color: var(--focus-color);
+                --ring-width: 2px;
+            }
 
             &[aria-checked='true'] {
                 .theme-picker-cards-label {
@@ -63,17 +68,17 @@
                 }
             }
 
+            &-bar {
+                --height: 6px;
+                --opacity: 0.8;
+                --width: 60%;
+            }
+
             // The ink a page's heading and text are drawn in; light by default.
             &-bar,
             &-line {
                 --background: var(--color-black-300);
                 --border-radius: var(--border-radius-100);
-            }
-
-            &-bar {
-                --height: 6px;
-                --opacity: 0.8;
-                --width: 60%;
             }
 
             &-line {
@@ -103,6 +108,9 @@
             --border-radius: 50%;
             --border-width: 1px;
             --box-shadow: none;
+            // Clear of its edge by the page's own color.
+            --ring: 0 0 0 2px var(--surface-background-default), 0 0 0 4px var(--ring-color);
+            --ring-color: var(--color-blue-400);
             --size: 36px;
 
             &--dark {
@@ -119,16 +127,19 @@
             --font-size: var(--font-size-200);
         }
 
-        // The chosen swatch is ringed clear of its edge, and its label strengthens.
+        // The chosen swatch is ringed, and its label strengthens; keyboard focus shows the same ring in the focus color.
         &-option {
             --gap-horizontal: 0px;
             --gap-vertical: var(--size-200);
 
+            &:focus-visible .theme-picker-swatches-circle {
+                --box-shadow: var(--ring);
+                --ring-color: var(--focus-color);
+            }
+
             &[aria-checked='true'] {
                 .theme-picker-swatches-circle {
-                    --box-shadow:
-                        0 0 0 2px var(--surface-background-default),
-                        0 0 0 4px var(--color-blue-400);
+                    --box-shadow: var(--ring);
                 }
 
                 .theme-picker-swatches-label {
