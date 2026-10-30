@@ -21,16 +21,20 @@
         // corner arcs. `min()` lets percentage radii (e.g. 100% circles) resolve in any context;
         // arc radii live in the color stops since Chromium rejects mixed-unit calc() as a size.
         &:has(+ .image--stack) {
+            --corner: min(var(--border-radius), var(--height) / 2, var(--width) / 2);
+            --cut: calc(var(--corner) + var(--gap-horizontal));
+            --x: calc(100% - var(--overlap) + var(--corner));
+
             mask-composite: subtract, add, add, add, add;
             mask-image:
                 var(--mask),
                 linear-gradient(to right, transparent var(--x), #000 0),
                 linear-gradient(to right, transparent calc(100% - var(--overlap) - var(--gap-horizontal)), #000 0),
-                radial-gradient(circle at var(--x) var(--border-radius), #000 calc(var(--cut) - 0.5px), transparent calc(var(--cut) + 0.5px)),
-                radial-gradient(circle at var(--x) calc(100% - var(--border-radius)), #000 calc(var(--cut) - 0.5px), transparent calc(var(--cut) + 0.5px));
+                radial-gradient(circle at var(--x) var(--corner), #000 calc(var(--cut) - 0.5px), transparent calc(var(--cut) + 0.5px)),
+                radial-gradient(circle at var(--x) calc(100% - var(--corner)), #000 calc(var(--cut) - 0.5px), transparent calc(var(--cut) + 0.5px));
             mask-position: 0 0, 0 0, 0 50%, 0 0, 0 0;
             mask-repeat: no-repeat;
-            mask-size: 100% 100%, 100% 100%, 100% calc(100% - var(--border-radius) * 2), 100% 100%, 100% 100%;
+            mask-size: 100% 100%, 100% 100%, 100% calc(100% - var(--corner) * 2), 100% 100%, 100% 100%;
         }
     }
 
