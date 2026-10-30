@@ -249,7 +249,7 @@
     &-label.tooltip-shared {
         --box-shadow-default: none;
         --font-weight: var(--font-weight-500);
-        --radius: var(--border-radius-300);
+        --border-radius: var(--border-radius-300);
         --spacer: calc(var(--size-peak) - var(--size-rest) - var(--inset-vertical) + 12px);
 
         .frame {

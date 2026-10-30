@@ -15,10 +15,10 @@
         --overlap: calc(var(--width) / 4);
 
         &:has(+ .image--stack) {
-            --cut: calc(var(--radius) + var(--gap-horizontal));
+            --cut: calc(var(--border-radius) + var(--gap-horizontal));
             --mask: linear-gradient(#000 0 0);
-            --radius: min(var(--border-radius), var(--height) / 2, var(--width) / 2);
-            --x: calc(100% - var(--overlap) + var(--radius));
+            --border-radius: min(var(--border-radius), var(--height) / 2, var(--width) / 2);
+            --x: calc(100% - var(--overlap) + var(--border-radius));
         }
     }
 

@@ -41,7 +41,7 @@
     // floats over.
     &-surface {
         background: var(--surface-background-default);
-        border-radius: var(--radius);
+        border-radius: var(--border-radius);
         box-shadow: 0 0 0 var(--border-width) var(--border-color), var(--box-shadow);
         display: flex;
         flex-direction: column;
@@ -71,7 +71,7 @@
 
         &-handle {
             align-self: stretch;
-            border-radius: 0 var(--radius) 0 0;
+            border-radius: 0 var(--border-radius) 0 0;
             cursor: inherit;
             flex-shrink: 0;
             position: relative;
@@ -92,7 +92,7 @@
 
             // Alone in the header it is the whole bar, grip centred.
             &:only-child {
-                border-radius: var(--radius) var(--radius) 0 0;
+                border-radius: var(--border-radius) var(--border-radius) 0 0;
                 flex: 1;
                 margin-inline-start: calc(var(--size-400) * -1);
             }
@@ -137,7 +137,7 @@
             background:
                 linear-gradient(135deg, transparent 45%, currentColor 45%, currentColor 52%, transparent 52%) 4px 4px / 12px 12px no-repeat,
                 linear-gradient(135deg, transparent 70%, currentColor 70%, currentColor 77%, transparent 77%) 4px 4px / 12px 12px no-repeat;
-            border-radius: 0 0 var(--radius) 0;
+            border-radius: 0 0 var(--border-radius) 0;
             bottom: 0;
             cursor: nwse-resize;
             height: var(--size);

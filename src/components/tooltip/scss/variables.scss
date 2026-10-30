@@ -236,7 +236,7 @@
         --padding-vertical: var(--size-300);
     }
 
-    // '--radius' rather than the usual name: the root resets '--border-radius' on every element, so the box and layers
+    // '--border-radius' rather than the usual name: the root resets '--border-radius' on every element, so the box and layers
     // inside would never see it.
     &-shared {
         @extend %background-state, %box-shadow-state, %surface-raise;
@@ -253,7 +253,7 @@
         --max-width: calc(90vw - (var(--size-700) * 2));
         --open-duration: 0.16s;
         --open-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-        --radius: var(--border-radius-400);
+        --border-radius: var(--border-radius-400);
         --rise: 4px;
         --scale: 0.94;
         --spacer: var(--size-300);

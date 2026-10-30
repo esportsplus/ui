@@ -84,7 +84,7 @@
     }
 
     &-label.tooltip-shared {
-        --radius: var(--border-radius-500);
+        --border-radius: var(--border-radius-500);
         --spacer: 4px;
 
         .tooltip-shared-layer {
@@ -155,7 +155,7 @@
         --box-shadow-default: 0 0 0 var(--border-width-400) var(--border-color), var(--surface-shadow-default);
         --color: var(--color-text-500);
         --font-size: var(--font-size-400);
-        --radius: var(--border-radius-600);
+        --border-radius: var(--border-radius-600);
         --spacer: var(--size-100);
         --white-space: normal;
 

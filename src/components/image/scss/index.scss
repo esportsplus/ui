@@ -26,11 +26,11 @@
                 var(--mask),
                 linear-gradient(to right, transparent var(--x), #000 0),
                 linear-gradient(to right, transparent calc(100% - var(--overlap) - var(--gap-horizontal)), #000 0),
-                radial-gradient(circle at var(--x) var(--radius), #000 calc(var(--cut) - 0.5px), transparent calc(var(--cut) + 0.5px)),
-                radial-gradient(circle at var(--x) calc(100% - var(--radius)), #000 calc(var(--cut) - 0.5px), transparent calc(var(--cut) + 0.5px));
+                radial-gradient(circle at var(--x) var(--border-radius), #000 calc(var(--cut) - 0.5px), transparent calc(var(--cut) + 0.5px)),
+                radial-gradient(circle at var(--x) calc(100% - var(--border-radius)), #000 calc(var(--cut) - 0.5px), transparent calc(var(--cut) + 0.5px));
             mask-position: 0 0, 0 0, 0 50%, 0 0, 0 0;
             mask-repeat: no-repeat;
-            mask-size: 100% 100%, 100% 100%, 100% calc(100% - var(--radius) * 2), 100% 100%, 100% 100%;
+            mask-size: 100% 100%, 100% 100%, 100% calc(100% - var(--border-radius) * 2), 100% 100%, 100% 100%;
         }
     }
 

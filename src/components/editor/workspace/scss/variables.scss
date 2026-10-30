@@ -56,7 +56,7 @@
     --min-height: 160px;
     --muted-color: var(--color-text-300);
     --peek-width: var(--size-400);
-    --radius: var(--border-radius-300);
+    --border-radius: var(--border-radius-300);
     --raised: var(--surface-background-default);
     --rows: minmax(0, 1fr) auto;
     --spacing: var(--size-100);
@@ -148,7 +148,7 @@
         @extend %color-text;
         --background-default: transparent;
         --background-hover: var(--control-active-background);
-        --border-radius: var(--radius);
+        --border-radius: var(--border-radius);
         --padding-horizontal: var(--spacing);
         --padding-vertical: 0px;
     }
@@ -185,7 +185,7 @@
         &-button {
             --background-default: var(--surface-background-default);
             --background-hover: var(--control-active-background);
-            --border-radius: var(--radius);
+            --border-radius: var(--border-radius);
             --color-default: var(--color);
             --padding-horizontal: var(--size-300);
             --padding-vertical: var(--spacing);
@@ -215,7 +215,7 @@
         --background-active: var(--control-active-background);
         --background-default: transparent;
         --background-hover: var(--control-active-background);
-        --border-radius: var(--radius);
+        --border-radius: var(--border-radius);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
 
@@ -261,7 +261,7 @@
         &-button {
             --background-default: var(--surface-background-default);
             --background-hover: var(--control-active-background);
-            --border-radius: var(--radius);
+            --border-radius: var(--border-radius);
             --color-default: var(--color);
             --padding-horizontal: var(--size-200);
             --padding-vertical: var(--spacing-tight);
@@ -323,7 +323,7 @@
     &-merge-cancel {
         --background-default: transparent;
         --background-hover: var(--control-active-background);
-        --border-radius: var(--radius);
+        --border-radius: var(--border-radius);
         --color-default: var(--color);
         --padding-horizontal: var(--size-200);
         --padding-vertical: var(--spacing-tight);
@@ -337,7 +337,7 @@
     &-retry {
         --background-default: var(--background);
         --background-hover: var(--control-active-background);
-        --border-radius: var(--radius);
+        --border-radius: var(--border-radius);
         --color-default: var(--color);
         --padding-horizontal: var(--size-200);
         --padding-vertical: var(--spacing-tight);
@@ -346,7 +346,7 @@
     &-search.input {
         --background-default: transparent;
         --border-color-default: transparent;
-        --border-radius: var(--radius);
+        --border-radius: var(--border-radius);
         --color-default: var(--color);
         --font-size: var(--font-size-200);
         --padding-horizontal: var(--spacing);
@@ -387,7 +387,7 @@
         --background-default: transparent;
         --background-hover: transparent;
         --background-pressed: transparent;
-        --border-radius: var(--radius);
+        --border-radius: var(--border-radius);
         --gap-horizontal: var(--spacing-tight);
         --padding-horizontal: var(--spacing);
         --padding-vertical: 0px;

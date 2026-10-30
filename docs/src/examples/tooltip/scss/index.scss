@@ -44,7 +44,7 @@
             --color: var(--color-text-500);
             --font-size: calc(var(--font-size-400) * 0.875);
             --open-duration: 0.15s;
-            --radius: var(--size-500);
+            --border-radius: var(--size-500);
             --scale: 0.96;
             --spacer: var(--size-100);
 
@@ -291,7 +291,7 @@
             --background-default: var(--surface-background-default);
             --color: var(--color-text-500);
             --font-size: calc(var(--font-size-400) * 0.875);
-            --radius: var(--border-radius-600);
+            --border-radius: var(--border-radius-600);
             --scale: 0.96;
             --spacer: var(--size-100);
 
