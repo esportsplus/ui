@@ -1,4 +1,4 @@
-import { effect, onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, flush, onCleanup, reactive } from '@esportsplus/reactivity';
 import { timing } from '~/shared/animation';
 import { viewport } from '~/shared/viewport';
 import type { Attributes } from '@esportsplus/template';
@@ -22,6 +22,16 @@ type Options<T> = {
 type Origin = {
     left: number;
     top: number;
+};
+
+// How an item shows: hidden outright, or lifted out of flow where it stood while it fades out; undefined boxes leave
+// it in flow.
+type View = {
+    height: string | undefined;
+    hidden: boolean;
+    left: string | undefined;
+    top: string | undefined;
+    width: string | undefined;
 };
 
 
@@ -52,13 +62,23 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         heldFocus = false,
         id = `filter-${++instance}`,
         leave: KeyframeAnimationOptions | null = null,
-        leaving = new Map<HTMLElement, string>(),
+        // Items lifted out of flow while they fade out.
+        leaving = new Set<number>(),
         leaveScale = '1',
         list: HTMLElement | undefined,
         move: KeyframeAnimationOptions | null = null,
         resize: Animation | undefined,
+        // Each update's own number, so a later one supersedes the part of an earlier one still waiting to run.
+        pass = 0,
         shown: boolean[] = [],
-        status = reactive({ visible: 0 });
+        status = reactive({ visible: 0 }),
+        views: View[] = items.map(() => reactive({
+            height: undefined as string | undefined,
+            hidden: false,
+            left: undefined as string | undefined,
+            top: undefined as string | undefined,
+            width: undefined as string | undefined
+        }));
 
     for (let i = 0, n = filters.length; i < n; i++) {
         let filter = filters[i];
@@ -75,201 +95,9 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         return filters.find((filter) => filter.id === state.active) ?? filters[0];
     }
 
-    function keydown(event: KeyboardEvent, index: number) {
-        let n = filters.length,
-            next: number;
-
-        switch (event.key) {
-            case 'ArrowDown':
-            case 'ArrowRight':
-                next = index + 1;
-                break;
-            case 'ArrowLeft':
-            case 'ArrowUp':
-                next = index - 1;
-                break;
-            case 'End':
-                next = n - 1;
-                break;
-            case 'Home':
-                next = 0;
-                break;
-            default:
-                return;
-        }
-
-        event.preventDefault();
-        next = (next + n) % n;
-
-        buttons[next]?.focus();
-        select(filters[next].id);
-    }
-
-    function play(element: HTMLElement, keyframes: Keyframe[], options: KeyframeAnimationOptions) {
-        let animation = element.animate(keyframes, options);
-
-        animation.onfinish = () => {
-            if (animations.get(element) === animation) {
-                animations.delete(element);
-            }
-        };
-        animations.set(element, animation);
-
-        return animation;
-    }
-
-    // Restores the inline style the element had before it was lifted out of flow.
-    function release(element: HTMLElement) {
-        let style = leaving.get(element);
-
-        if (style === undefined) {
-            return;
-        }
-
-        element.style.cssText = style;
-        leaving.delete(element);
-    }
-
-    function select(key: string) {
-        heldFocus = !!list && list !== document.activeElement && list.contains(document.activeElement);
-        state.active = key;
-    }
-
-    function settle() {
-        if (!heldFocus || !list) {
-            return;
-        }
-
-        heldFocus = false;
-
-        if (!list.contains(document.activeElement)) {
-            list.focus({ preventScroll: true });
-        }
-    }
-
-    // FLIP: read every box, apply the filter, read again, then animate from old boxes to new ones. Items show and hide
-    // by hand, between those reads; a binding would only land after them.
-    function update(animate: boolean) {
-        let filter = current(),
-            first = new Map<HTMLElement, DOMRect>(),
-            from = 0,
-            lifts = new Map<HTMLElement, Origin>(),
-            matched: boolean[] = [],
-            parents = new Map<Element, Origin>(),
-            view = viewport(),
-            visible = 0;
-
-        for (let i = 0, n = items.length; i < n; i++) {
-            matched.push(!filter || filter.match(items[i]));
-        }
-
-        // Reads are batched ahead of any write so the browser lays out once per phase.
-        if (animate && list) {
-            from = list.getBoundingClientRect().height;
-
-            for (let i = 0, n = elements.length; i < n; i++) {
-                let element = elements[i];
-
-                if (!element || (!shown[i] && !leaving.has(element))) {
-                    continue;
-                }
-
-                let rect = element.getBoundingClientRect();
-
-                first.set(element, rect);
-
-                if (!shown[i] || matched[i] || !near(rect, view)) {
-                    continue;
-                }
-
-                let parent = element.offsetParent as HTMLElement | null;
-
-                if (!parent) {
-                    continue;
-                }
-
-                let origin = parents.get(parent);
-
-                if (!origin) {
-                    let bounds = parent.getBoundingClientRect();
-
-                    origin = {
-                        left: bounds.left + parent.clientLeft - parent.scrollLeft,
-                        top: bounds.top + parent.clientTop - parent.scrollTop
-                    };
-                    parents.set(parent, origin);
-                }
-
-                lifts.set(element, origin);
-            }
-        }
-
-        for (let i = 0, n = items.length; i < n; i++) {
-            let element = elements[i];
-
-            if (matched[i]) {
-                visible++;
-                shown[i] = true;
-
-                if (element) {
-                    cancel(element);
-                    release(element);
-                    element.style.removeProperty('display');
-                }
-
-                continue;
-            }
-
-            if (!element) {
-                shown[i] = false;
-                continue;
-            }
-
-            // Already fading out from a previous change; let it finish.
-            if (!shown[i]) {
-                continue;
-            }
-
-            shown[i] = false;
-            cancel(element);
-
-            let origin = lifts.get(element),
-                rect = first.get(element);
-
-            if (!leave || !origin || !rect || !near(rect, view)) {
-                element.style.display = 'none';
-                continue;
-            }
-
-            // Pop out of flow at its current spot so the remaining items can close the gap.
-            leaving.set(element, element.style.cssText);
-            element.style.boxSizing = 'border-box';
-            element.style.height = `${rect.height}px`;
-            element.style.left = `${rect.left - origin.left}px`;
-            element.style.margin = '0';
-            element.style.pointerEvents = 'none';
-            element.style.position = 'absolute';
-            element.style.top = `${rect.top - origin.top}px`;
-            element.style.width = `${rect.width}px`;
-
-            play(element, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: `scale(${leaveScale})` }], leave).onfinish = () => {
-                animations.delete(element);
-                release(element);
-                element.style.display = 'none';
-
-                if (leaving.size === 0) {
-                    settle();
-                }
-            };
-        }
-
-        status.visible = visible;
-
-        if (leaving.size === 0) {
-            settle();
-        }
-
-        if (!animate || !list) {
+    // The second half of 'update()': reads the new boxes once the filter has landed, and animates from the old ones.
+    function flip(first: Map<HTMLElement, DOMRect>, from: number, view: { height: number, width: number }) {
+        if (!list) {
             return;
         }
 
@@ -341,6 +169,212 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         }
     }
 
+    function keydown(event: KeyboardEvent, index: number) {
+        let n = filters.length,
+            next: number;
+
+        switch (event.key) {
+            case 'ArrowDown':
+            case 'ArrowRight':
+                next = index + 1;
+                break;
+            case 'ArrowLeft':
+            case 'ArrowUp':
+                next = index - 1;
+                break;
+            case 'End':
+                next = n - 1;
+                break;
+            case 'Home':
+                next = 0;
+                break;
+            default:
+                return;
+        }
+
+        event.preventDefault();
+        next = (next + n) % n;
+
+        buttons[next]?.focus();
+        select(filters[next].id);
+    }
+
+    function play(element: HTMLElement, keyframes: Keyframe[], options: KeyframeAnimationOptions) {
+        let animation = element.animate(keyframes, options);
+
+        animation.onfinish = () => {
+            if (animations.get(element) === animation) {
+                animations.delete(element);
+            }
+        };
+        animations.set(element, animation);
+
+        return animation;
+    }
+
+    // Back into flow.
+    function release(index: number) {
+        let view = views[index];
+
+        leaving.delete(index);
+        view.height = undefined;
+        view.left = undefined;
+        view.top = undefined;
+        view.width = undefined;
+    }
+
+    function select(key: string) {
+        heldFocus = !!list && list !== document.activeElement && list.contains(document.activeElement);
+        state.active = key;
+    }
+
+    function settle() {
+        if (!heldFocus || !list) {
+            return;
+        }
+
+        heldFocus = false;
+
+        if (!list.contains(document.activeElement)) {
+            list.focus({ preventScroll: true });
+        }
+    }
+
+    // FLIP: read every box, apply the filter, read again, then animate from old boxes to new ones. Items show and hide
+    // through their bindings, which land at the end of the pass this runs in, so the second read waits a microtask for
+    // them; still before the frame paints.
+    function update(animate: boolean) {
+        let filter = current(),
+            first = new Map<HTMLElement, DOMRect>(),
+            from = 0,
+            lifts = new Map<HTMLElement, Origin>(),
+            matched: boolean[] = [],
+            parents = new Map<Element, Origin>(),
+            token = ++pass,
+            view = viewport(),
+            visible = 0;
+
+        for (let i = 0, n = items.length; i < n; i++) {
+            matched.push(!filter || filter.match(items[i]));
+        }
+
+        // Reads are batched ahead of any write so the browser lays out once per phase.
+        if (animate && list) {
+            from = list.getBoundingClientRect().height;
+
+            for (let i = 0, n = elements.length; i < n; i++) {
+                let element = elements[i];
+
+                if (!element || (!shown[i] && !leaving.has(i))) {
+                    continue;
+                }
+
+                let rect = element.getBoundingClientRect();
+
+                first.set(element, rect);
+
+                if (!shown[i] || matched[i] || !near(rect, view)) {
+                    continue;
+                }
+
+                let parent = element.offsetParent as HTMLElement | null;
+
+                if (!parent) {
+                    continue;
+                }
+
+                let origin = parents.get(parent);
+
+                if (!origin) {
+                    let bounds = parent.getBoundingClientRect();
+
+                    origin = {
+                        left: bounds.left + parent.clientLeft - parent.scrollLeft,
+                        top: bounds.top + parent.clientTop - parent.scrollTop
+                    };
+                    parents.set(parent, origin);
+                }
+
+                lifts.set(element, origin);
+            }
+        }
+
+        for (let i = 0, n = items.length; i < n; i++) {
+            let element = elements[i],
+                entry = views[i];
+
+            if (matched[i]) {
+                visible++;
+                shown[i] = true;
+                entry.hidden = false;
+
+                if (element) {
+                    cancel(element);
+                    release(i);
+                }
+
+                continue;
+            }
+
+            if (!element) {
+                shown[i] = false;
+                entry.hidden = true;
+                continue;
+            }
+
+            // Already fading out from a previous change; let it finish.
+            if (!shown[i]) {
+                continue;
+            }
+
+            shown[i] = false;
+            cancel(element);
+
+            let origin = lifts.get(element),
+                rect = first.get(element);
+
+            if (!leave || !origin || !rect || !near(rect, view)) {
+                entry.hidden = true;
+                continue;
+            }
+
+            // Pop out of flow at its current spot so the remaining items can close the gap.
+            leaving.add(i);
+            entry.height = `${rect.height}px`;
+            entry.left = `${rect.left - origin.left}px`;
+            entry.top = `${rect.top - origin.top}px`;
+            entry.width = `${rect.width}px`;
+
+            play(element, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: `scale(${leaveScale})` }], leave).onfinish = () => {
+                animations.delete(element);
+                release(i);
+                entry.hidden = true;
+                // Out of any pass here, so it lands before the finished fade's last frame would show it again.
+                flush();
+
+                if (leaving.size === 0) {
+                    settle();
+                }
+            };
+        }
+
+        status.visible = visible;
+
+        if (leaving.size === 0) {
+            settle();
+        }
+
+        if (!animate || !list) {
+            return;
+        }
+
+        queueMicrotask(() => {
+            if (token === pass) {
+                flip(first, from, view);
+            }
+        });
+    }
+
     effect(() => state.active, () => {
         let computed = list && getComputedStyle(list);
 
@@ -353,6 +387,7 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
     });
 
     onCleanup(() => {
+        pass++;
         resize?.cancel();
 
         for (let animation of animations.values()) {
@@ -370,10 +405,6 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
         item: (index: number): Attributes => ({
             onconnect: (element: HTMLElement) => {
                 elements[index] = element;
-
-                if (!shown[index]) {
-                    element.style.display = 'none';
-                }
             },
             ondisconnect: (element: HTMLElement) => {
                 if (elements[index] !== element) {
@@ -381,8 +412,24 @@ export default <T>({ filters, height = false, items, label, state = reactive({ a
                 }
 
                 cancel(element);
-                release(element);
+                release(index);
                 elements[index] = undefined;
+            },
+            style: () => {
+                let view = views[index],
+                    lifted = view.left !== undefined;
+
+                return {
+                    'box-sizing': lifted ? 'border-box' : undefined,
+                    display: view.hidden ? 'none' : undefined,
+                    height: view.height,
+                    left: view.left,
+                    margin: lifted ? '0' : undefined,
+                    'pointer-events': lifted ? 'none' : undefined,
+                    position: lifted ? 'absolute' : undefined,
+                    top: view.top,
+                    width: view.width
+                };
             }
         }),
         list: {
