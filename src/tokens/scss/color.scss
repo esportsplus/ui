@@ -40,7 +40,7 @@ $colors: list.join(primary text, map.keys($color));
 // 'primary', lighter for hover and darker for press; 'text' as a contrast ratio, text 300 and 500 each holding it
 // against 400.
 $theme-black: map.get($color, 'black');
-$theme-white: oklch(97% 0.0032 257);
+$theme-white: oklch(97% 0.0036 257);
 
 $themes: (
     dark: (
@@ -54,7 +54,7 @@ $themes: (
             hover: 2,
             pressed: 3,
 
-            border: 3.2,
+            border: 3.6,
             primary: 1.6,
             shadow: (
                 depth: 0.24,
@@ -91,7 +91,7 @@ $themes: (
             raised: 1,
         ),
         weights: (
-            color: 6,
+            color: 4,
             text: 2
         )
     )
