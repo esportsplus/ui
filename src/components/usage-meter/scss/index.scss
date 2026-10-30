@@ -19,8 +19,6 @@
     &-breakdown,
     &-cost,
     &-count {
-        @extend %font-geist-mono;
-        font-family: var(--font-family);
         font-variant-numeric: tabular-nums;
     }
 
