@@ -1,5 +1,6 @@
-import { reactive } from '@esportsplus/reactivity';
-import { component, html, type Attributes } from '@esportsplus/template';
+import { flush, reactive, root } from '@esportsplus/reactivity';
+import { component, html, setProperties, type Attributes, type Element as Bound } from '@esportsplus/template';
+import { noop } from '@esportsplus/utilities';
 import { edge } from '~/shared/anchor';
 import { finished, ms } from '~/shared/animation';
 import { drag, fling, INTERACTIVE, toward, type Direction, type Drag } from '~/shared/drag';
@@ -35,7 +36,18 @@ type Layer = {
     // Modal layers stack in the top layer over <body>, non-modal ones within their container; each is its own stack.
     host: HTMLElement;
     progress: number;
+    view: View;
 };
+
+type Parent = {
+    active: boolean;
+    background: string | undefined;
+    depth: number | undefined;
+    dragging: boolean;
+    height: string | undefined;
+};
+
+type View = ReturnType<typeof view>;
 
 
 // Centered overlays dismiss downward, like a card being put away; placed ones back toward the edges they touch.
@@ -43,10 +55,10 @@ const CENTER: Direction = { axis: 'y', sign: 1 };
 
 const OVERLAY_HANDLE = Symbol.for('@esportsplus/ui/overlay.handle');
 
+const PARENT_STATE = Symbol('overlay.parent');
 
-// Open overlays in the order they opened. It is global because the top layer they stack in is. Their state classes and
-// properties are written straight to the dialogs: the lifecycle adds '--active' by hand, which a bound class list would
-// drop each time it rewrote the attribute, and a drag writes them on every move.
+
+// Open overlays in the order they opened. It is global because the top layer they stack in is.
 let layers: Layer[] = [],
     overlaid = new Set<HTMLElement>();
 
@@ -116,10 +128,8 @@ function layer(element: HTMLDialogElement) {
 
 // Touch can only drag what the browser won't pan, so an overlay whose own content scrolls gives touch-drag up
 // to its handle. The edge fill is border paint and does not contribute to scrollable overflow.
-function measure(element: HTMLElement) {
-    let scrollable = element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
-
-    element.classList.toggle('overlay--scrollable', scrollable);
+function measure(element: HTMLElement, view: View) {
+    view.scrollable = element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
 }
 
 function outside(element: HTMLElement, e: MouseEvent) {
@@ -128,47 +138,57 @@ function outside(element: HTMLElement, e: MouseEvent) {
     return e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom;
 }
 
-// A numeric custom property, written only when it changes; zero removes it.
-function property(element: HTMLElement, name: string, value: number) {
-    if (!value) {
-        element.style.removeProperty(name);
-    }
-    else if (element.style.getPropertyValue(name) !== String(value)) {
-        element.style.setProperty(name, String(value));
-    }
+// The page's own element an overlay writes to: the host a stack sits in, or a flow overlay's space. One store per
+// element, shared by every overlay over it and bound once, so only 'restack()' and the flow drag write it. Bound in
+// its own root rather than the overlay that first needs it, so it outlives that overlay; its binding stops once the
+// element leaves the document.
+function parent(element: HTMLElement) {
+    let store = element as HTMLElement & { [PARENT_STATE]?: Parent };
+
+    return store[PARENT_STATE] ??= root(() => {
+        let state: Parent = reactive({
+                active: false,
+                background: undefined as string | undefined,
+                depth: undefined as number | undefined,
+                dragging: false,
+                height: undefined as string | undefined
+            });
+
+        setProperties(element as Bound, {
+            class: () => [state.active && 'overlay-host--active', state.dragging && 'overlay-host--dragging'],
+            style: () => ({ '--overlay-depth': state.depth, 'background-color': state.background, height: state.height })
+        });
+
+        return state;
+    });
 }
 
 // Clears what a drag dismissal left behind, once the overlay has closed or is opening again.
-function reset(element: HTMLElement) {
-    element.classList.remove('overlay--edge-fill');
-    element.style.removeProperty('--edge-background');
-    element.style.removeProperty('--opacity');
-    element.style.removeProperty('--scale');
-    element.style.removeProperty('--transition-duration');
-    element.style.removeProperty('--transition-timing-function');
-    element.style.removeProperty('--translate');
-    element.style.removeProperty('transform');
+function reset(view: View) {
+    view.edgeBackground = undefined;
+    view.edgeFill = false;
+    view.opacity = undefined;
+    view.scale = undefined;
+    view.transform = undefined;
+    view.transitionDuration = undefined;
+    view.transitionTimingFunction = undefined;
+    view.translate = undefined;
 }
 
 // Each layer recedes by how much of every layer above it in the same host is still open, so dragging the top
 // one lets the rest follow the finger back. The host's '.overlay-page' child, if it opts in, recedes under all.
-// It runs on every drag move, so only changes are written: even re-setting 'inert' queues a mutation record.
 function restack() {
     let hosts = new Map<HTMLElement, { depth: number; tracking: boolean }>();
 
     // Walking down from the top, so every layer sees what is already stacked over it.
     for (let i = layers.length - 1; i >= 0; i--) {
-        let { dragging, element, host, progress } = layers[i],
+        let { dragging, host, progress, view } = layers[i],
             entry = hosts.get(host) ?? { depth: 0, tracking: false },
             covered = entry.depth > 0;
 
-        element.classList.toggle('overlay--covered', covered);
-        element.classList.toggle('overlay--tracking', covered && entry.tracking);
-        property(element, '--depth', entry.depth);
-
-        if (element.inert !== covered) {
-            element.inert = covered;
-        }
+        view.covered = covered;
+        view.depth = entry.depth || undefined;
+        view.tracking = covered && entry.tracking;
 
         entry.depth += 1 - progress;
         entry.tracking ||= dragging;
@@ -179,25 +199,30 @@ function restack() {
 
     // Only the lowest backdrop dims the page; covered layers dim themselves rather than stacking dimmers.
     for (let i = 0, n = layers.length; i < n; i++) {
-        let { element, host } = layers[i];
+        let { host, view } = layers[i];
 
-        element.classList.toggle('overlay--stacked', seen.has(host));
+        view.stacked = seen.has(host);
         seen.add(host);
     }
 
     for (let host of overlaid) {
         if (!hosts.has(host)) {
-            host.classList.remove('overlay-host--active', 'overlay-host--dragging');
-            host.style.removeProperty('--overlay-depth');
+            let state = parent(host);
+
+            state.active = false;
+            state.depth = undefined;
+            state.dragging = false;
         }
     }
 
     // Custom properties inherit, so writing one on <body> every drag move restyles the whole page; only a host with
     // a receding page reads it.
     for (let [host, entry] of hosts) {
-        host.classList.toggle('overlay-host--active', true);
-        host.classList.toggle('overlay-host--dragging', entry.tracking);
-        property(host, '--overlay-depth', host.querySelector(':scope > .overlay-page') ? entry.depth : 0);
+        let state = parent(host);
+
+        state.active = true;
+        state.depth = host.querySelector(':scope > .overlay-page') ? entry.depth || undefined : undefined;
+        state.dragging = entry.tracking;
     }
 
     overlaid = new Set(hosts.keys());
@@ -210,11 +235,39 @@ function unstack(element: HTMLDialogElement) {
         return;
     }
 
+    let view = current.view;
+
     layers.splice(layers.indexOf(current), 1);
-    element.classList.remove('overlay--covered', 'overlay--stacked', 'overlay--tracking');
-    element.inert = false;
-    element.style.removeProperty('--depth');
+    view.covered = false;
+    view.depth = undefined;
+    view.stacked = false;
+    view.tracking = false;
     restack();
+}
+
+// Everything the overlay writes to its own class and style, in one fixed shape: the dialog binds a class array and a
+// style object over it, each diffed whole into one write, and an undefined value leaves its declaration out.
+function view() {
+    return reactive({
+        active: false,
+        covered: false,
+        depth: undefined as number | undefined,
+        dragging: false,
+        edgeBackground: undefined as string | undefined,
+        edgeFill: false,
+        opacity: undefined as string | undefined,
+        progress: undefined as number | undefined,
+        scale: undefined as string | undefined,
+        scrollable: false,
+        // From 'show()' until 'close()': inert outside it, so opening focuses nothing it contains.
+        shown: false,
+        stacked: false,
+        tracking: false,
+        transform: undefined as string | undefined,
+        transitionDuration: undefined as string | undefined,
+        transitionTimingFunction: undefined as string | undefined,
+        translate: undefined as string | undefined
+    });
 }
 
 
@@ -222,9 +275,10 @@ export default component(
     function(this, { flow = false, modal = !flow, rail = false, state = reactive({ active: false }), ...attributes }: A, content) {
         let fill = 0,
             height = 0,
-            resize: Observer | undefined,
-            space: HTMLElement | undefined,
             motion: Animation | undefined,
+            resize: Observer | undefined,
+            self = view(),
+            space: HTMLElement | undefined,
             stop: VoidFunction | undefined;
 
         // Flow overlays give their space back as they are dragged out, without moving the page into a layer stack.
@@ -233,38 +287,43 @@ export default component(
 
             motion = undefined;
             previous?.cancel();
-            space?.style.removeProperty('background-color');
-            space?.style.removeProperty('height');
-            space = undefined;
+
+            if (space) {
+                let state = parent(space);
+
+                state.background = undefined;
+                state.height = undefined;
+                space = undefined;
+            }
         }
 
         function settle(element: HTMLDialogElement, close: boolean, drag: Drag) {
             let current = layer(element),
                 thrown = close && !flow ? fling(element, drag) : null;
 
-            element.classList.remove('overlay--dragging');
-            element.style.removeProperty('--progress');
+            self.dragging = false;
+            self.progress = undefined;
 
             // Snapping back, the drag's transform eases home. Dismissing, it is thrown on the way it was dragged
             // until it has left the screen, still fading as the drag faded it; its own exit stands down so the path
             // neither bends nor shrinks. Under reduced motion it fades where it was let go instead.
             if (thrown) {
-                element.style.setProperty('--opacity', '0');
-                element.style.setProperty('--scale', '1');
-                element.style.setProperty('--transition-duration', `${thrown.duration}ms`);
-                element.style.setProperty('--transition-timing-function', thrown.easing);
-                element.style.setProperty('--translate', '0px');
-                element.style.transform = `translate(${drag.x + thrown.x}px, ${drag.y + thrown.y}px)`;
+                self.opacity = '0';
+                self.scale = '1';
+                self.transform = `translate(${drag.x + thrown.x}px, ${drag.y + thrown.y}px)`;
+                self.transitionDuration = `${thrown.duration}ms`;
+                self.transitionTimingFunction = thrown.easing;
+                self.translate = '0px';
             }
             else if (close) {
-                element.style.setProperty('--opacity', '0');
+                self.opacity = '0';
 
                 if (flow) {
-                    element.style.removeProperty('transform');
+                    self.transform = undefined;
                 }
             }
             else {
-                element.style.removeProperty('transform');
+                self.transform = undefined;
             }
 
             if (current) {
@@ -278,16 +337,17 @@ export default component(
             }
 
             if (space) {
-                let start = space.style.height,
+                let computed = getComputedStyle(element),
                     end = `${close ? 0 : height}px`,
-                    computed = getComputedStyle(element);
+                    room = parent(space),
+                    start = room.height;
 
                 // Closing, the overlay fades in its space, so the space stops standing in for it.
                 if (close) {
-                    space.style.removeProperty('background-color');
+                    room.background = undefined;
                 }
 
-                space.style.height = end;
+                room.height = end;
                 motion = space.animate([{ height: start }, { height: end }], {
                     duration: ms(computed.getPropertyValue(close ? '--close-duration' : '--open-duration')),
                     easing: computed.getPropertyValue('--ease').trim() || 'ease'
@@ -299,17 +359,20 @@ export default component(
                     if (motion === current) {
                         resetSpace();
                     }
-                }, () => {});
+                }, noop);
             }
 
-            if (element.classList.contains('overlay--edge-fill')) {
+            if (self.edgeFill) {
                 let generation = fill;
+
+                // Written now, so the snap-back has started by the time its animations are read.
+                flush();
 
                 // Keep the fill attached through the snap-back; a new drag owns its own cleanup.
                 void finished(element).then(() => {
                     if (generation === fill) {
-                        element.classList.remove('overlay--edge-fill');
-                        element.style.removeProperty('--edge-background');
+                        self.edgeBackground = undefined;
+                        self.edgeFill = false;
                     }
                 });
             }
@@ -325,7 +388,7 @@ export default component(
 
                 // Only the top layer drags, and a press past the target's client box is on its scrollbar.
                 if (
-                    element.classList.contains('overlay--covered') ||
+                    self.covered ||
                     outside(element, e) ||
                     target.closest(INTERACTIVE) ||
                     (target.clientWidth > 0 && (e.offsetX > target.clientWidth || e.offsetY > target.clientHeight))
@@ -338,33 +401,36 @@ export default component(
                 return placement ? toward(placement) : [CENTER];
             },
             capture: (element) => {
-                element.classList.add('overlay--dragging');
+                self.dragging = true;
 
                 if (flow) {
                     resetSpace();
                     space = element.parentElement!;
                     height = element.offsetHeight;
+
+                    let room = parent(space);
+
                     // Painted in the overlay's color, so dragged away from its closing edge only the content seems
                     // to move; its own edges meet the same color, leaving no seam.
-                    space.style.backgroundColor = background(element);
-                    space.style.height = `${height}px`;
+                    room.background = background(element);
+                    room.height = `${height}px`;
                 }
                 else if (edge(element, 'overlay') && !element.classList.contains('overlay--floating')) {
                     fill++;
-                    element.style.setProperty('--edge-background', background(element));
-                    element.classList.add('overlay--edge-fill');
+                    self.edgeBackground = background(element);
+                    self.edgeFill = true;
                 }
             },
             move: (element, { x, y }, progress) => {
                 let current = layer(element as HTMLDialogElement);
 
-                element.style.setProperty('--progress', String(progress));
-                element.style.transform = `translate(${x}px, ${y}px)`;
+                self.progress = progress;
+                self.transform = `translate(${x}px, ${y}px)`;
 
                 if (space) {
                     let sign = edge(element, 'overlay')?.y || 1;
 
-                    space.style.height = `${Math.max(0, height - Math.max(y * sign, 0))}px`;
+                    parent(space).height = `${Math.max(0, height - Math.max(y * sign, 0))}px`;
                 }
 
                 if (current) {
@@ -387,6 +453,16 @@ export default component(
                 ${attributes}
                 ${{
                     ...gesture,
+                    class: () => [
+                        self.active && '--active',
+                        self.covered && 'overlay--covered',
+                        self.dragging && 'overlay--dragging',
+                        self.edgeFill && 'overlay--edge-fill',
+                        self.scrollable && 'overlay--scrollable',
+                        self.stacked && 'overlay--stacked',
+                        self.tracking && 'overlay--tracking'
+                    ],
+                    inert: !rail && (() => !self.shown || self.covered),
                     oncancel: (e) => {
                         e.preventDefault();
                         state.active = false;
@@ -418,23 +494,21 @@ export default component(
                             return;
                         }
 
-                        // '--active' is written here rather than bound: it has to land between 'showModal()' and the
-                        // style flush that starts the transition, and closing waits on the transitions it starts.
+                        // '--active' follows the dialog's own open and close rather than 'state.active': it has to
+                        // land after 'showModal()' and the closed styles are committed, so the transition runs.
                         stop = lifecycle(element, {
                             state,
                             open: () => {
                                 resetSpace();
-                                reset(element);
+                                reset(self);
 
                                 if (!element.open) {
                                     let previous = flow ? document.activeElement : null;
 
                                     // Opening focuses the first control, scrolling a contained overlay's container
                                     // toward where it starts its transition and raising the on-screen keyboard
-                                    // for inputs. Inert through the call it focuses nothing; the overlay takes
-                                    // focus itself unless its content asks for it.
-                                    element.inert = true;
-
+                                    // for inputs. Still inert through the call it focuses nothing; the overlay
+                                    // takes focus itself unless its content asks for it, once 'shown' has landed.
                                     if (modal && !flow) {
                                         element.showModal();
                                     }
@@ -442,18 +516,23 @@ export default component(
                                         element.show();
                                     }
 
-                                    element.inert = false;
+                                    self.shown = true;
+
                                     if (flow) {
                                         if (previous instanceof HTMLElement && previous !== document.activeElement) {
                                             previous.focus({ preventScroll: true });
                                         }
                                     }
                                     else {
-                                        (element.querySelector<HTMLElement>('[autofocus]') ?? element).focus({ preventScroll: true });
+                                        queueMicrotask(() => {
+                                            if (self.active && element.open) {
+                                                (element.querySelector<HTMLElement>('[autofocus]') ?? element).focus({ preventScroll: true });
+                                            }
+                                        });
                                     }
 
                                     resize?.disconnect();
-                                    resize = observer(() => measure(element));
+                                    resize = observer(() => measure(element, self));
                                     resize.observe(element);
 
                                     for (let i = 0, n = element.children.length; i < n; i++) {
@@ -469,18 +548,25 @@ export default component(
                                         dragging: false,
                                         element,
                                         host: modal ? document.body : element.parentElement ?? document.body,
-                                        progress: 0
+                                        progress: 0,
+                                        view: self
                                     });
                                     restack();
                                 }
+
+                                self.active = true;
                             },
-                            close: () => unstack(element),
+                            close: () => {
+                                self.active = false;
+                                unstack(element);
+                            },
                             closed: () => {
                                 resize?.disconnect();
                                 resize = undefined;
                                 element.close();
+                                self.shown = false;
                                 resetSpace();
-                                reset(element);
+                                reset(self);
                             }
                         });
                     },
@@ -489,9 +575,19 @@ export default component(
                         resize = undefined;
                         stop?.();
                         resetSpace();
-                        reset(element);
                         unstack(element);
-                    }
+                    },
+                    style: () => ({
+                        '--depth': self.depth,
+                        '--edge-background': self.edgeBackground,
+                        '--opacity': self.opacity,
+                        '--progress': self.progress,
+                        '--scale': self.scale,
+                        '--transition-duration': self.transitionDuration,
+                        '--transition-timing-function': self.transitionTimingFunction,
+                        '--translate': self.translate,
+                        transform: self.transform
+                    })
                 }}
             >
                 ${!rail && html`

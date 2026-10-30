@@ -725,7 +725,7 @@ export default ({
         quiet: string | null = null,
         // One tooltip for the whole tree, gliding from row to row; rows come and go as they scroll, so it's bound to
         // the viewport rather than to each row.
-        tip = tooltip.shared({ delay: { open: TOOLTIP }, direction: 'e' }),
+        tip = tooltip.shared({ 'aria-hidden': 'true', class: 'file-tree-tooltip', delay: { open: TOOLTIP }, direction: 'e' }),
         typed = '',
         typedAt = 0,
         // 'motion' is a fold motion's direction.
@@ -3381,7 +3381,7 @@ export default ({
 
             ${search?.render(id)}
 
-            ${hint && tip.render({ 'aria-hidden': 'true', class: 'file-tree-tooltip' })}
+            ${hint && tip.render()}
 
             ${toggle && html`
                 <button

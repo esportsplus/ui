@@ -79,13 +79,13 @@ function itemFrom(target: EventTarget | null) {
 }
 
 function template({ label = 'Conversation turns', next = 'Next turn', onnavigate, previous = 'Previous turn', side = 'right', state = reactive({ end: 0, start: 0 }), turns, ...attributes }: ChatMinimapAttributes) {
-    let card = tooltip.shared({ delay: DELAY, direction: side === 'left' ? 'w' : 'e' }),
+    let card = tooltip.shared({ 'aria-hidden': 'true', ...attributes[CHAT_MINIMAP_PREVIEW], class: ['chat-minimap-preview', attributes[CHAT_MINIMAP_PREVIEW]?.class ?? []].flat(), delay: DELAY, direction: side === 'left' ? 'w' : 'e' }),
         id = `chat-minimap-${++uid}`,
         items = new Map<Turn, Item>(),
         list = turns instanceof ReactiveArray ? turns : new ReactiveArray(turns),
         local = reactive({ focus: -1, total: 0, version: 0 }),
         positions = new Map<Turn, number>(),
-        tips = { next: tooltip.shared({ direction: 's' }), previous: tooltip.shared({ direction: 'n' }) };
+        tips = { next: tooltip.shared({ ...bubble(), direction: 's' }), previous: tooltip.shared({ ...bubble(), direction: 'n' }) };
 
     function bubble() {
         return { 'aria-hidden': 'true', ...attributes[CHAT_MINIMAP_LABEL], class: ['chat-minimap-label', attributes[CHAT_MINIMAP_LABEL]?.class ?? []].flat() };
@@ -282,9 +282,9 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
 
             ${nav(1)}
 
-            ${card.render({ 'aria-hidden': 'true', ...attributes[CHAT_MINIMAP_PREVIEW], class: ['chat-minimap-preview', attributes[CHAT_MINIMAP_PREVIEW]?.class ?? []].flat() })}
-            ${tips.previous.render(bubble())}
-            ${tips.next.render(bubble())}
+            ${card.render()}
+            ${tips.previous.render()}
+            ${tips.next.render()}
         </nav>
     `;
 }

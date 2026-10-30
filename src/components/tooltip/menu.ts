@@ -530,12 +530,9 @@ function createMenu(context = false) {
                 placement.shift = x;
             }
 
-            // The trigger and the layer are siblings, so whatever spans the menu listens on both: the panel sits in the
-            // layer, not in the trigger, and the trigger names itself as the anchor the layer is placed over.
             function connect(element: HTMLElement) {
                 host = element;
                 trigger = element;
-                element.style.setProperty('anchor-name', name);
             }
 
             function inside(node: Node | null) {
@@ -615,6 +612,8 @@ function createMenu(context = false) {
                     state,
                     target: (element) => element.querySelector<HTMLElement>(':scope > .tooltip-menu-panel') ?? undefined
                 }),
+                // The trigger and the layer are siblings, so whatever spans the menu listens on both: the panel sits in
+                // the layer, not in the trigger, and the trigger names itself as the anchor the layer is placed over.
                 spanning = {
                     onfocusout: (event: FocusEvent) => {
                         if ((state.active || pending) && !inside(event.relatedTarget as Node | null)) {
@@ -637,11 +636,13 @@ function createMenu(context = false) {
             return html`
                 ${context ? html`<div
                     class='tooltip-menu-trigger'
+                    style='anchor-name: ${name};'
                     ${attributes}
                     ${{ ...spanning, oncontextmenu: contextmenu, onconnect: connect }}
                 >${content}</div>` : html`<button
                     aria-haspopup='menu'
                     class='tooltip-menu-trigger'
+                    style='anchor-name: ${name};'
                     type='button'
                     ${attributes}
                     ${attributes[MENU_TRIGGER]}

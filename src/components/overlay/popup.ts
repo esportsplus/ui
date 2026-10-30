@@ -1,12 +1,11 @@
-import { effect, reactive } from '@esportsplus/reactivity';
-import type { Attributes } from '@esportsplus/template';
+import { effect, reactive, root } from '@esportsplus/reactivity';
+import { setProperties, type Attributes, type Element as Bound } from '@esportsplus/template';
 import { finished } from '~/shared/animation';
 
 
 type State = { active: boolean };
 
 type Lifecycle = {
-    activeClass?: boolean;
     animations?: () => HTMLElement;
     close?: VoidFunction;
     closed?: VoidFunction;
@@ -26,14 +25,18 @@ type Popup = {
     ondismiss?: (reason: 'escape' | 'outside') => void;
     onclosed?: VoidFunction;
     onopen?: VoidFunction;
+    // The surface 'target' returns must carry its own 'popover' attribute.
     popover?: boolean;
     state?: State;
     target?: (root: HTMLElement) => HTMLElement | undefined;
 };
 
 
+const SURFACE_STATE = Symbol('popup.surface');
+
+
 // Both dialogs and popups wait for their finite exit animations and invalidate an earlier close on reopening.
-function lifecycle(element: HTMLElement, { activeClass = true, animations, close, closed, open, state, subtree = false }: Lifecycle) {
+function lifecycle(element: HTMLElement, { animations, close, closed, open, state, subtree = false }: Lifecycle) {
     let generation = 0,
         opened = false,
         stop = effect(() => {
@@ -43,16 +46,7 @@ function lifecycle(element: HTMLElement, { activeClass = true, animations, close
             if (active) {
                 open();
                 opened = true;
-
-                if (activeClass) {
-                    element.classList.add('--active');
-                }
-
                 return;
-            }
-
-            if (activeClass) {
-                element.classList.remove('--active');
             }
 
             close?.();
@@ -61,12 +55,16 @@ function lifecycle(element: HTMLElement, { activeClass = true, animations, close
                 return;
             }
 
-            void finished(animations?.() ?? element, { subtree }).then(() => {
-                if (generation === current && !state.active) {
-                    opened = false;
-                    closed?.();
-                }
-            });
+            // A microtask on, so a close written through a binding (applied as this effect's pass settles) has
+            // started the exit transitions it waits on.
+            void Promise.resolve()
+                .then(() => finished(animations?.() ?? element, { subtree }))
+                .then(() => {
+                    if (generation === current && !state.active) {
+                        opened = false;
+                        closed?.();
+                    }
+                });
         });
 
     return () => {
@@ -76,12 +74,30 @@ function lifecycle(element: HTMLElement, { activeClass = true, animations, close
 }
 
 
+// The surface 'target' returns may be the consumer's, so the popup marks it inert through a store bound on it. Seeded
+// inert, its first write lands as it binds, before the first open shows the surface.
+function surface(element: HTMLElement) {
+    let store = element as HTMLElement & { [SURFACE_STATE]?: { inert: boolean } };
+
+    return store[SURFACE_STATE] ??= root(() => {
+        let state = reactive({ inert: true });
+
+        setProperties(element as Bound, { inert: () => state.inert });
+
+        return state;
+    });
+}
+
+
 let opened: HTMLElement[] = [];
 
 
 // Spread on a popup's host. Inline surfaces retain their positioning and morph CSS; popovers use the top layer.
 function popup({ canDismiss, contains = (root, node) => !!node && root.contains(node), dismiss = true, dismissOn, escape = true, ondismiss, onclosed, onopen, popover = false, state = reactive({ active: false }), target = (root) => root }: Popup = {}): Attributes {
-    let root: HTMLElement | undefined,
+    let entering = 0,
+        // A popover's '--active', a microtask behind 'state.active' while opening.
+        local = reactive({ active: false }),
+        root: HTMLElement | undefined,
         stop: VoidFunction | undefined;
 
     function remove() {
@@ -114,41 +130,52 @@ function popup({ canDismiss, contains = (root, node) => !!node && root.contains(
     }
 
     return {
-        // Inline hosts compose this binding with their own class bindings through the template runtime.
-        class: !popover ? () => state.active && '--active' : undefined,
+        // Hosts compose this binding with their own class bindings through the template runtime.
+        class: popover ? () => local.active && '--active' : () => state.active && '--active',
         onconnect: (element: HTMLElement) => {
             root = element;
             stop = lifecycle(element, {
-                activeClass: popover,
                 animations: () => target(element) ?? element,
                 close: () => {
+                    entering++;
+                    local.active = false;
                     remove();
-                    let surface = target(element);
 
-                    if (surface) {
-                        surface.inert = true;
+                    let content = target(element);
+
+                    if (content) {
+                        surface(content).inert = true;
                     }
                 },
                 closed: hide,
                 open: () => {
-                    let surface = target(element),
+                    let content = target(element),
                         previous = document.activeElement;
 
-                    if (popover && surface && !surface.matches(':popover-open')) {
-                        surface.popover = 'manual';
-                        surface.inert = true;
-                        surface.showPopover();
-                    }
+                    // Inert until the open has landed, so showing it focuses nothing it contains.
+                    if (content) {
+                        let state = surface(content);
 
-                    if (surface) {
-                        surface.inert = false;
+                        if (popover && !content.matches(':popover-open')) {
+                            content.showPopover();
+                        }
+
+                        state.inert = false;
                     }
 
                     onopen?.();
 
-                    // Commit the closed styles after placement, before lifecycle adds '--active'.
+                    // A microtask on, the placement 'onopen' bound has been written; the closed styles it makes are
+                    // committed before '--active' starts the entrance from them.
                     if (popover) {
-                        surface?.getBoundingClientRect();
+                        let current = ++entering;
+
+                        queueMicrotask(() => {
+                            if (current === entering) {
+                                content?.getBoundingClientRect();
+                                local.active = true;
+                            }
+                        });
                     }
 
                     if (previous instanceof HTMLElement && previous !== document.activeElement) {
@@ -163,6 +190,7 @@ function popup({ canDismiss, contains = (root, node) => !!node && root.contains(
             });
         },
         ondisconnect: () => {
+            entering++;
             stop?.();
             remove();
             hide();

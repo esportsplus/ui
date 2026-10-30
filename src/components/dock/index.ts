@@ -498,7 +498,7 @@ const dock = ({
 
     // One label glides between the icons; hidden from assistive tech, since each button is already named by it.
     let list = sortable(docked, slot, { drag: copy, group, onsort: sorted }),
-        tip = tooltip.shared({ delay: { open: TOOLTIP_DELAY }, direction });
+        tip = tooltip.shared({ 'aria-hidden': 'true', class: 'dock-label', delay: { open: TOOLTIP_DELAY }, direction });
 
     return html`
         <nav
@@ -547,7 +547,7 @@ const dock = ({
             </div>
             ${arrows && arrow(1)}
             ${drawer && all()}
-            ${tip.render({ 'aria-hidden': 'true', class: 'dock-label' })}
+            ${tip.render()}
             ${drawer && launcher(drawer)}
         </nav>
     `;

@@ -141,7 +141,7 @@ const features = (host: Host, apple: boolean) => {
         structure: { cache: SyntaxCache | null; folds: FoldRange[]; revision: number } = { cache: null, folds: [], revision: -1 },
         timers: { baseline?: ReturnType<typeof setTimeout>; structure?: ReturnType<typeof setTimeout> } = {},
         tipState = reactive({ active: false, index: -1 }),
-        tip = tooltip.shared({ direction: 's', interactive: true, state: tipState }),
+        tip = tooltip.shared({ class: 'code-editor-picker-tooltip', direction: 's', interactive: true, state: tipState }),
         view = reactive({ pointer: false, rulers: '', sticky: 0 });
 
     let stop = effect(() => tipState.active, (active) => {
@@ -1131,7 +1131,7 @@ const features = (host: Host, apple: boolean) => {
                     }
                 }}
             ></span>
-            ${tip.render({ class: 'code-editor-picker-tooltip' })}
+            ${tip.render()}
         `
     };
 

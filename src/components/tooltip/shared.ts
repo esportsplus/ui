@@ -1,5 +1,5 @@
-import { effect, flush, reactive, ReactiveArray, untrack } from '@esportsplus/reactivity';
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { effect, flush, reactive, ReactiveArray, root, untrack } from '@esportsplus/reactivity';
+import { html, setProperties, type Attributes, type Element as Bindable, type Renderable } from '@esportsplus/template';
 import overlay from '~/components/overlay';
 import { finished } from '~/shared/animation';
 import { observe } from '~/shared/resize';
@@ -7,6 +7,8 @@ import { fit, viewport } from '~/shared/viewport';
 import { cool, wait, warm, type Delay } from './utilities';
 import '~/components/frame/scss/index.scss';
 
+
+type A = Attributes & Options;
 
 type Anchor = () => DOMRect;
 
@@ -28,6 +30,13 @@ type Delegate = {
     // otherwise it anchors on the trigger itself.
     edge?: boolean,
     selector?: string
+};
+
+// What the tooltip says on a trigger; undefined leaves the attribute off.
+type Described = {
+    controls: string | undefined,
+    describedby: string | undefined,
+    expanded: string | undefined
 };
 
 type Direction = 'e' | 'n' | 's' | 'w';
@@ -54,7 +63,9 @@ type Options = {
     // nothing and the content keeps its state. Held per rendered trigger, so it never outgrows the page; delegated
     // and requested content, which can come from any number of triggers, still renders on every open.
     keep?: boolean,
-    state?: State
+    state?: State,
+    // Content slides over between triggers as a 'frame--swap'; off, it switches in place.
+    swap?: boolean
 };
 
 type State = {
@@ -78,11 +89,33 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), selec
 
 const OPPOSITE: Record<Direction, Direction> = { e: 'w', n: 's', s: 'n', w: 'e' };
 
-const SIDES: Direction[] = ['e', 'n', 's', 'w'];
+const TRIGGER_STATE = Symbol('tooltip.shared.trigger');
 
 
 let uid = 0;
 
+
+// A delegated trigger is found among markup this module doesn't render, so every trigger carries a store bound once.
+// Seeded from the trigger's own attributes, so binding it changes nothing until the tooltip does.
+function described(trigger: HTMLElement) {
+    let store = trigger as HTMLElement & { [TRIGGER_STATE]?: Described };
+
+    return store[TRIGGER_STATE] ??= root(() => {
+        let state: Described = reactive({
+            controls: trigger.getAttribute('aria-controls') ?? undefined,
+            describedby: trigger.getAttribute('aria-describedby') ?? undefined,
+            expanded: trigger.getAttribute('aria-expanded') ?? undefined
+        });
+
+        setProperties(trigger as Bindable, {
+            'aria-controls': () => state.controls,
+            'aria-describedby': () => state.describedby,
+            'aria-expanded': () => state.expanded
+        });
+
+        return state;
+    });
+}
 
 // 'gap' is the surface's padding on the anchor side; x and y place the surface, padding included.
 function place(anchor: DOMRect, direction: Direction, gap: number, height: number, width: number) {
@@ -116,9 +149,9 @@ function place(anchor: DOMRect, direction: Direction, gap: number, height: numbe
 
 // One tooltip shared by every trigger bound to it: it opens on the first after the open delay, then glides between
 // them while its content slides over. 'bind()' makes one element a trigger, 'delegate()' every matching descendant of
-// a container. 'render()' places the surface; it lives in the top layer, so no ancestor clips it, but still inherits
-// custom properties from wherever it is rendered.
-const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, direction = 'n', dismiss, interactive = false, keep = false, state = reactive({ active: false, index: -1 }) }: Options = {}) => {
+// a container. 'render()' places the surface, carrying the remaining attributes; it lives in the top layer, so no
+// ancestor clips it, but still inherits custom properties from wherever it is rendered.
+const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, direction = 'n', dismiss, interactive = false, keep = false, state = reactive({ active: false, index: -1 }), swap: swapping = true, ...attributes }: A = {}) => {
     let active: Layer | null = null,
         bound = new Map<HTMLElement, Bound>(),
         box: HTMLElement | undefined,
@@ -136,24 +169,41 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         shown = false,
         timer: ReturnType<typeof setTimeout> | undefined,
         unobserve: VoidFunction | undefined,
+        // Where the surface sits and how it moves, bound on it and its box; undefined leaves each to the stylesheet.
+        view = reactive({
+            gliding: false,
+            height: undefined as string | undefined,
+            instant: false,
+            origin: undefined as string | undefined,
+            side: undefined as Direction | undefined,
+            width: undefined as string | undefined,
+            x: undefined as string | undefined,
+            y: undefined as string | undefined
+        }),
         waiting: VoidFunction | undefined,
         // The layer whose content the box is sized to while it shows.
         watched: Layer | null = null;
 
     let stack = html.reactive(layers, (layer) => html`
-        <span
-            class='tooltip-shared-layer frame frame--swap'
-            ${{
-                class: [
-                    () => layer.state.active && '--active',
-                    () => layer.state.leaving && 'frame--swap-leaving'
-                ],
-                style: () => layer.state.travel && `--translate-x: ${layer.state.travel.x}; --translate-y: ${layer.state.travel.y};`
-            }}
-        >
-            ${layer.content}
-        </span>
-    `);
+            <span
+                class='tooltip-shared-layer frame ${swapping && 'frame--swap'}'
+                ${swapping
+                    ? {
+                        class: [
+                            () => layer.state.active && '--active',
+                            () => layer.state.leaving && 'frame--swap-leaving'
+                        ],
+                        style: () => layer.state.travel && `--translate-x: ${layer.state.travel.x}; --translate-y: ${layer.state.travel.y};`
+
+                    }
+                    : {
+                        class: () => layer.state.active && '--active'
+                    }
+                }
+            >
+                ${layer.content}
+            </span>
+        `);
 
     // One trigger per call: its number, for 'state.index', is the order 'bind()' was called in.
     function bind(content: Content): Attributes {
@@ -277,7 +327,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         current = null;
         state.active = false;
         state.index = -1;
-        element.classList.remove('tooltip-shared--instant');
+        view.instant = false;
         presentation.active = false;
     }
 
@@ -354,26 +404,16 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         };
     }
 
-    // Written straight to the trigger: a delegated one is found among markup this module doesn't render.
     function describe(trigger: HTMLElement, on: boolean) {
         if (interactive) {
-            trigger.setAttribute('aria-expanded', on ? 'true' : 'false');
+            let store = described(trigger);
 
-            if (on) {
-                trigger.setAttribute('aria-controls', id);
-            }
-            else {
-                trigger.removeAttribute('aria-controls');
-            }
+            store.controls = on ? id : undefined;
+            store.expanded = on ? 'true' : 'false';
         }
         // A decorative surface repeats the trigger's own name, so it isn't announced twice.
         else if (element?.getAttribute('aria-hidden') !== 'true') {
-            if (on) {
-                trigger.setAttribute('aria-describedby', id);
-            }
-            else {
-                trigger.removeAttribute('aria-describedby');
-            }
+            described(trigger).describedby = on ? id : undefined;
         }
     }
 
@@ -434,9 +474,8 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         }
     }
 
-    // Sizes the box to the content and places it against the anchor. Written straight to the surface in the pass that
-    // measures it: the popup's lifecycle adds '--active' to it by hand, which a bound class list would drop, and the
-    // place has to land before the entrance starts.
+    // Sizes the box to the content and places it against the anchor. Opening, popup only commits the closed styles once
+    // this placement has been written, so the entrance starts from it.
     function measure() {
         if (!active?.element || !box || !current || !element) {
             return;
@@ -447,22 +486,17 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             gap = parseFloat(padding.paddingBottom) + parseFloat(padding.paddingLeft) + parseFloat(padding.paddingRight) + parseFloat(padding.paddingTop),
             height = active.element.offsetHeight,
             width = active.element.offsetWidth,
-            { side, x, y } = place(anchor, direction, gap, height, width),
-            style = element.style;
+            { side, x, y } = place(anchor, direction, gap, height, width);
 
-        for (let i = 0, n = SIDES.length; i < n; i++) {
-            element.classList.toggle(`tooltip-shared--${SIDES[i]}`, SIDES[i] === side);
-        }
-
-        style.setProperty('--shared-height', `${height}px`);
-        style.setProperty('--shared-width', `${width}px`);
-        style.setProperty('--shared-x', `${x}px`);
-        style.setProperty('--shared-y', `${y}px`);
-
+        view.height = `${height}px`;
         // Scales out of the anchor itself, even when the box is pushed sideways.
-        box.style.transformOrigin = side === 'n' || side === 's'
+        view.origin = side === 'n' || side === 's'
             ? `${anchor.left + anchor.width / 2 - x}px ${side === 'n' ? '100%' : '0%'}`
             : `${side === 'e' ? '0%' : '100%'} ${anchor.top + anchor.height / 2 - y}px`;
+        view.side = side;
+        view.width = `${width}px`;
+        view.x = `${x}px`;
+        view.y = `${y}px`;
     }
 
     // Opens on 'trigger' at once, as keyboard focus and clicks do.
@@ -508,14 +542,13 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             return;
         }
 
-        // Follows the trigger exactly; a glide would trail behind the scroll. Dropped after measuring, which reads
-        // layout: a class change first would force a style and layout pass on every scroll event.
+        // Follows the trigger exactly; a glide would trail behind the scroll.
         measure();
-        element.classList.remove('tooltip-shared--gliding');
+        view.gliding = false;
     }
 
     // Spans, so it can be rendered inside running text.
-    function render(attributes?: Attributes) {
+    function render() {
         let popup = overlay.popup({
             contains: (_, node) => inside(node),
             dismissOn: interactive ? dismiss : undefined,
@@ -584,6 +617,14 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 ${mode}
                 ${{
                     ...popup,
+                    class: [
+                        popup.class,
+                        () => [
+                            view.gliding && 'tooltip-shared--gliding',
+                            view.instant && 'tooltip-shared--instant',
+                            view.side && `tooltip-shared--${view.side}`
+                        ]
+                    ].flat(),
                     onconnect: (el: HTMLElement) => {
                         element = el;
                         popup.onconnect?.(el);
@@ -613,10 +654,24 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                         if (shown) {
                             reposition();
                         }
-                    }
+                    },
+                    style: () => ({
+                        '--shared-height': view.height,
+                        '--shared-width': view.width,
+                        '--shared-x': view.x,
+                        '--shared-y': view.y
+                    })
                 }}
             >
-                <span class='tooltip-shared-box' ${{ onconnect: (el: HTMLElement) => { box = el; } }}>${stack}</span>
+                <span
+                    class='tooltip-shared-box'
+                    ${{
+                        onconnect: (el: HTMLElement) => {
+                            box = el;
+                        },
+                        style: () => ({ 'transform-origin': view.origin })
+                    }}
+                >${stack}</span>
             </span>
         `;
     }
@@ -670,8 +725,8 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         }
 
         current = last = target;
-        element.classList.toggle('tooltip-shared--gliding', glide);
-        element.classList.toggle('tooltip-shared--instant', !glide && opening > 0 && warm());
+        view.gliding = glide;
+        view.instant = !glide && opening > 0 && warm();
 
         // Reopened on the same trigger before its close finished: the content is still there.
         if (!same || !active) {

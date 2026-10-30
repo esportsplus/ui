@@ -212,7 +212,7 @@ function mention(profile: Profile, tip: ReturnType<typeof tooltip.shared>) {
 function navigation() {
     let state = reactive({ active: false, index: -1 }),
         stop: VoidFunction | undefined,
-        tip = tooltip.shared({ delay: { close: 150, open: 50 }, direction: 's', dismiss: 'a[href]', interactive: true, keep: true, state });
+        tip = tooltip.shared({ class: 'tooltip-nav-demo-surface', delay: { close: 150, open: 50 }, direction: 's', dismiss: 'a[href]', interactive: true, keep: true, state });
 
     return html`
         <nav
@@ -251,7 +251,7 @@ function navigation() {
                 </button>
             `)}
             <a class='tooltip-nav-demo-trigger' href='#'>Pricing</a>
-            ${tip.render({ class: 'tooltip-nav-demo-surface' })}
+            ${tip.render()}
         </nav>
     `;
 }
@@ -483,7 +483,7 @@ export default {
         },
         {
             render: () => {
-                let tip = tooltip.shared({ delay: { close: 150, open: 500 }, direction: 's', interactive: true });
+                let tip = tooltip.shared({ class: 'tooltip-card-demo-card', delay: { close: 150, open: 500 }, direction: 's', interactive: true });
 
                 return html`
                     <div>
@@ -493,7 +493,7 @@ export default {
                             ${mention(people.cara, tip)} is already writing the docs.
                             <span class='tooltip-card-demo-hint'>Hover a name to meet them.</span>
                         </p>
-                        ${tip.render({ class: 'tooltip-card-demo-card' })}
+                        ${tip.render()}
                     </div>
                 `;
             },
