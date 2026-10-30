@@ -283,9 +283,15 @@ export default component(
             },
             id = `cc-${++uid}`,
             local = reactive({ confirmed: false, ring: false }),
+            // The ring's box, kept where it last framed a field while it fades out.
+            outline = reactive({
+                height: undefined as string | undefined,
+                left: undefined as string | undefined,
+                top: undefined as string | undefined,
+                width: undefined as string | undefined
+            }),
             parts = { ...this?.attributes?.[CC_FIELD], ...attributes[CC_FIELD] },
             regions: Partial<Record<Field, HTMLElement>> = {},
-            ring: HTMLElement | undefined,
             slots = reactive([] as Slot[]),
             timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -352,28 +358,15 @@ export default component(
         function frame(field: Field | '') {
             let region = field && field !== 'cvc' ? regions[field] : undefined;
 
-            if (!ring) {
-                return;
-            }
-
             if (!region) {
                 local.ring = false;
                 return;
             }
 
-            let style = `height: ${region.offsetHeight + 12}px; left: ${region.offsetLeft - 8}px; top: ${region.offsetTop - 6}px; width: ${region.offsetWidth + 16}px;`;
-
-            // Coming from nowhere it appears in place; only a move between fields slides. Written straight to the
-            // element because the transition has to be off for exactly one style flush.
-            if (!local.ring) {
-                ring.style.cssText = `${style} transition-property: opacity;`;
-                ring.getBoundingClientRect();
-                ring.style.removeProperty('transition-property');
-            }
-            else {
-                ring.style.cssText = style;
-            }
-
+            outline.height = `${region.offsetHeight + 12}px`;
+            outline.left = `${region.offsetLeft - 8}px`;
+            outline.top = `${region.offsetTop - 6}px`;
+            outline.width = `${region.offsetWidth + 16}px`;
             local.ring = true;
         }
 
@@ -445,7 +438,14 @@ export default component(
                         <div class='cc-face cc-face--front'>
                             <span
                                 class='cc-ring ${() => local.ring && '--active'}'
-                                ${{ onconnect: (element: HTMLElement) => { ring = element; } }}
+                                ${{
+                                    style: () => ({
+                                        height: outline.height,
+                                        left: outline.left,
+                                        top: outline.top,
+                                        width: outline.width
+                                    })
+                                }}
                             ></span>
                             <div class='cc-face-top'>
                                 ${icon({ class: 'cc-chip' }, chip)}

@@ -302,16 +302,19 @@
         width: 100%;
     }
 
-    // Driven by transitions on its box, so moving between fields slides while appearing from nowhere does not.
+    // Driven by transitions on its box, so moving between fields slides. Appearing from nowhere it has no box to slide
+    // from, being undisplayed until then, and only fades in; it stays displayed while it fades out.
     &-ring {
         border: var(--border-width) solid var(--border-color);
         border-radius: var(--border-radius);
+        display: none;
         left: 0;
         opacity: 0;
         pointer-events: none;
         position: absolute;
         top: 0;
         transition:
+            display var(--fade-duration) allow-discrete,
             height var(--transition-duration) var(--transition-timing-function),
             left var(--transition-duration) var(--transition-timing-function),
             opacity var(--fade-duration) var(--fade-timing-function),
@@ -319,7 +322,12 @@
             width var(--transition-duration) var(--transition-timing-function);
 
         @include tokens.state(active) {
+            display: block;
             opacity: 1;
+
+            @starting-style {
+                opacity: 0;
+            }
         }
     }
 
