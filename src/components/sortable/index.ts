@@ -1,5 +1,5 @@
-import { flush, reactive, read, signal, write, type ReactiveArray, type Signal } from '@esportsplus/reactivity';
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
+import { flush, reactive, read, root, signal, write, type ReactiveArray, type Signal } from '@esportsplus/reactivity';
+import { html, setProperties, type Attributes, type Element as Bound, type Renderable } from '@esportsplus/template';
 import { finished, measure, slides, timing } from '~/shared/animation';
 import press from '~/shared/press';
 import './scss/index.scss';
@@ -72,9 +72,8 @@ const HANG = 0.5;
 // Seconds; low-pass on pointer velocity so uneven pointer/frame timing doesn't jolt the swing.
 const SMOOTHING = 0.04;
 
+const SORTABLE_STATE = Symbol('sortable.root');
 
-// Drags carrying an item and not yet dropping it; the root grabs while there are any.
-let carrying = 0;
 
 // Connected lists per group name, so a drag reaches every list it can drop into.
 let groups = new Map<string, Set<List<unknown>>>();
@@ -139,9 +138,7 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         }
 
         carried = value;
-        carrying += value ? 1 : -1;
-        // On the root, which no template binds, and shared by every list carrying an item.
-        document.documentElement.classList.toggle('sortable-grabbing', carrying > 0);
+        page().carrying += value ? 1 : -1;
     }
 
     function drop() {
@@ -461,6 +458,19 @@ function inertia(computed: CSSStyleDeclaration, rect: DOMRect, grabX: number, gr
 
         return angle;
     };
+}
+
+// Drags carrying an item and not yet dropping it, counted across every list; the root grabs while there are any.
+function page() {
+    let element = document.documentElement as HTMLElement & { [SORTABLE_STATE]?: { carrying: number } };
+
+    return element[SORTABLE_STATE] ??= root(() => {
+        let state = reactive({ carrying: 0 });
+
+        setProperties(element as Bound, { class: () => state.carrying > 0 && 'sortable-grabbing' });
+
+        return state;
+    });
 }
 
 
