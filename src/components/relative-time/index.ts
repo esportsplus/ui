@@ -274,24 +274,25 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
 
             return value === null ? null : label((state.now ?? Date.now()) - value, value);
         }),
-        tip = reactive({ active: false });
+        tip = reactive({ active: false, shift: 0 });
 
+    // Starts centred on the text; nudged sideways only if that would poke past the viewport. Its unshifted box is
+    // worked out rather than read, so no reset has to land first: centred on the host's padding box, as wide as its
+    // unwrapped text, which the shift doesn't change.
     function nudge() {
-        if (!message) {
+        let host = message?.parentElement;
+
+        if (!host || !message) {
             return;
         }
 
-        // Starts centred on the text; nudged sideways only if that would poke past the viewport. Measured against its
-        // unshifted box, so the reset, the read and the shift are written straight to it, in one go.
-        message.style.right = '';
-
-        let box = message.getBoundingClientRect(),
+        let bounds = host.getBoundingClientRect(),
+            center = bounds.left + host.clientLeft + host.clientWidth / 2,
+            left = center - message.offsetWidth / 2,
             max = viewport().width - VIEWPORT_GUTTER,
-            shift = box.left < VIEWPORT_GUTTER ? VIEWPORT_GUTTER - box.left : box.right > max ? max - box.right : 0;
+            right = center + message.offsetWidth / 2;
 
-        if (shift) {
-            message.style.right = `calc(50% - ${Math.round(shift)}px)`;
-        }
+        tip.shift = Math.round(left < VIEWPORT_GUTTER ? VIEWPORT_GUTTER - left : right > max ? max - right : 0);
     }
 
     // Every row waits in one shared queue, under one timer, for the moment its own label next changes.
@@ -372,7 +373,8 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                 ${{
                     onconnect: (element: HTMLElement) => {
                         message = element;
-                    }
+                    },
+                    style: () => ({ right: tip.shift ? `calc(50% - ${tip.shift}px)` : undefined })
                 }}
             >
                 ${() => {
