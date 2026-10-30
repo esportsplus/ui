@@ -96,6 +96,11 @@
             color var(--transition-duration) var(--transition-timing-function);
         user-select: none;
 
+        // Collapses to a circle; JS animates the width between the two.
+        &-compact {
+            width: var(--height);
+        }
+
         &-error {
             animation: button-morph-shake var(--shake-duration) var(--shake-timing-function) var(--shake-delay);
         }

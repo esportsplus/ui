@@ -1,5 +1,5 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import { effect, reactive } from '@esportsplus/reactivity';
+import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { timing } from '~/shared/animation';
 
 
@@ -36,22 +36,29 @@ export default function(
     content: Renderable<unknown>
 ) {
     let attempt = 0,
+        local = reactive({ compact: compact(state.status) }),
         morph: Animation | undefined,
         reset: ReturnType<typeof setTimeout> | undefined;
 
+    // Read before the class flips, then again a microtask on, once it has landed; a later flip supersedes this one.
     function resize(element: HTMLElement, compacted: boolean) {
-        let computed = getComputedStyle(element),
-            from = computed.width,
-            resize = timing(computed, 'resize');
+        let from = getComputedStyle(element).width;
 
         morph?.cancel();
-        element.style.width = compacted ? 'var(--height)' : '';
+        morph = undefined;
+        local.compact = compacted;
 
-        if (!resize) {
-            return;
-        }
+        queueMicrotask(() => {
+            if (local.compact !== compacted || !element.isConnected) {
+                return;
+            }
 
-        morph = element.animate([{ width: from }, { width: computed.width }], resize);
+            let computed = getComputedStyle(element),
+                options = timing(computed, 'resize');
+
+            morph?.cancel();
+            morph = options ? element.animate([{ width: from }, { width: computed.width }], options) : undefined;
+        });
     }
 
     async function run() {
@@ -93,22 +100,13 @@ export default function(
             ${attributes}
             ${{
                 'aria-disabled': () => busy(state.status) ? 'true' : 'false',
-                class: () => `button--morph-${state.status}`,
+                class: [() => `button--morph-${state.status}`, () => local.compact && 'button--morph-compact'],
                 onclick: run,
                 onconnect: (element: HTMLElement) => {
-                    let compacted = compact(state.status);
-
-                    // Inline, like the width 'resize' animates from, so the first morph measures and clears the same
-                    // property instead of fighting a bound style.
-                    if (compacted) {
-                        element.style.width = 'var(--height)';
-                    }
-
                     effect(() => {
                         let next = compact(state.status);
 
-                        if (next !== compacted) {
-                            compacted = next;
+                        if (next !== untrack(() => local.compact)) {
                             resize(element, next);
                         }
                     });
