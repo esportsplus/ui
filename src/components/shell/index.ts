@@ -9,8 +9,18 @@ import './scss/index.scss';
 
 type Edge = 'left' | 'right';
 
-// Each edge's sidebar and strip as they connect, and whether its sidebar is being dragged.
-type Frame = Record<Edge, { dragging: boolean, edge?: HTMLElement, offset: number, sidebar?: HTMLElement }>;
+// Each edge's sidebar and strip as they connect, whether its sidebar is being dragged, and where the drag holds the
+// sidebar and the card's edge; undefined leaves each to the stylesheet.
+type Frame = Record<Edge, {
+    dragging: boolean,
+    edge?: HTMLElement,
+    gap: string | undefined,
+    offset: number,
+    reach: string | undefined,
+    sidebar?: HTMLElement,
+    space: string | undefined,
+    translate: string | undefined
+}>;
 
 // Which closed sidebars are showing for as long as the pointer stays over them.
 type Peeking = Record<Edge, boolean>;
@@ -65,7 +75,7 @@ function grip(sides: Sides, peeking: Peeking, frame: Frame, edge: Edge) {
                 let element = frame[edge].sidebar;
 
                 if (element) {
-                    reveal(element, edge, x * sign);
+                    reveal(frame, edge, element.offsetWidth, x * sign);
                 }
             },
             release: (_, __, dismiss) => {
@@ -131,6 +141,17 @@ function leave(side: Side, peeking: Peeking, frame: Frame, edge: Edge, e: Pointe
     peeking[edge] = false;
 }
 
+function motion(): Frame[Edge] {
+    return reactive({
+        dragging: false,
+        gap: undefined as string | undefined,
+        offset: 0,
+        reach: undefined as string | undefined,
+        space: undefined as string | undefined,
+        translate: undefined as string | undefined
+    });
+}
+
 function open(sides: Sides, peeking: Peeking, edge: Edge) {
     if (matchMedia(NARROW).matches) {
         close(sides[edge === 'left' ? 'right' : 'left']);
@@ -161,7 +182,7 @@ function panel(side: Side, peeking: Peeking, frame: Frame, edge: Edge) {
             },
             capture: () => hold(frame, edge),
             move: (element, { x }) => {
-                reveal(element, edge, element.offsetWidth + x * direction(edge));
+                reveal(frame, edge, element.offsetWidth, element.offsetWidth + x * direction(edge));
             },
             release: (_, __, dismiss) => {
                 settle(frame, edge);
@@ -216,7 +237,8 @@ function panel(side: Side, peeking: Peeking, frame: Frame, edge: Edge) {
                         e.preventDefault();
                         hide();
                     }
-                }
+                },
+                style: () => ({ translate: frame[edge].translate })
             }}
         >
             ${side.content}
@@ -224,40 +246,40 @@ function panel(side: Side, peeking: Peeking, frame: Frame, edge: Edge) {
     `;
 }
 
-// Shows 'shown' pixels of the sidebar and moves the card's edge to meet it, narrowing its gap to none as it comes. The
-// card's surface moves while its content keeps its layout, clipped where the sidebar covers it, until the sidebar
-// settles; on small screens the card keeps its width and slides, so it moves outright. The shell's transitions stand
-// down so both follow the pointer. Written straight to the elements on every move: a bound style would rewrite the
-// whole attribute each time, and the edge they write depends on the sidebar being dragged.
-function reveal(element: HTMLElement, edge: Edge, shown: number) {
-    let shell = element.parentElement!,
-        width = element.offsetWidth,
-        clamped = Math.max(0, Math.min(width, shown)),
-        rest = `calc(var(--gap-horizontal) * ${width ? 1 - clamped / width : 1})`;
+// Shows 'shown' pixels of a sidebar 'width' wide and moves the card's edge to meet it, narrowing its gap to none as it
+// comes. The card's surface moves while its content keeps its layout, clipped where the sidebar covers it, until the
+// sidebar settles; on small screens the card keeps its width and slides, so it moves outright. The shell's transitions
+// stand down so both follow the pointer.
+function reveal(frame: Frame, edge: Edge, width: number, shown: number) {
+    let clamped = Math.max(0, Math.min(width, shown)),
+        rest = `calc(var(--gap-horizontal) * ${width ? 1 - clamped / width : 1})`,
+        state = frame[edge];
 
-    element.style.translate = `${(clamped - width) * direction(edge)}px 0`;
+    state.translate = `${(clamped - width) * direction(edge)}px 0`;
 
     if (matchMedia(NARROW).matches) {
-        shell.style.setProperty(`--${edge}-gap-horizontal`, rest);
-        shell.style.setProperty(`--${edge}-space`, `${clamped}px`);
+        state.gap = rest;
+        state.reach = undefined;
+        state.space = `${clamped}px`;
     }
     else {
-        shell.style.setProperty(`--${edge}-edge`, `calc(${clamped}px + ${rest})`);
+        state.gap = undefined;
+        state.reach = `calc(${clamped}px + ${rest})`;
+        state.space = undefined;
     }
 }
 
 // Hands the sidebar and the card back to their transitions, which carry both from where the drag left them to open or
 // closed; flushed, so the transitions are back before the drag's values go.
 function settle(frame: Frame, edge: Edge) {
-    let element = frame[edge].sidebar,
-        shell = element?.parentElement;
+    let state = frame[edge];
 
-    frame[edge].dragging = false;
+    state.dragging = false;
     flush();
-    element?.style.removeProperty('translate');
-    shell?.style.removeProperty(`--${edge}-edge`);
-    shell?.style.removeProperty(`--${edge}-gap-horizontal`);
-    shell?.style.removeProperty(`--${edge}-space`);
+    state.gap = undefined;
+    state.reach = undefined;
+    state.space = undefined;
+    state.translate = undefined;
 }
 
 // Clicked while its sidebar peeks, the toggle keeps it open.
@@ -287,16 +309,23 @@ function toggle(sides: Sides, peeking: Peeking, frame: Frame, edge: Edge) {
 // in. The card insets from the window by a gap that closes on the side of an open sidebar, and a closed sidebar's gap
 // holds a handle to drag it open by, which slides in over the card while the pointer is on that edge.
 const shell = (sides: Sides, content: Renderable<unknown>) => {
-    let frame: Frame = {
-            left: reactive({ dragging: false, offset: 0 }),
-            right: reactive({ dragging: false, offset: 0 })
-        },
+    let frame: Frame = { left: motion(), right: motion() },
         peeking = reactive<Peeking>({ left: false, right: false });
 
     return html`
         <div
             class='shell ${() => sides.left.state.active && '--left-open'} ${() => sides.right.state.active && '--right-open'}'
-            ${{ class: () => (frame.left.dragging || frame.right.dragging) && 'shell--dragging' }}
+            ${{
+                class: () => (frame.left.dragging || frame.right.dragging) && 'shell--dragging',
+                style: () => ({
+                    '--left-edge': frame.left.reach,
+                    '--left-gap-horizontal': frame.left.gap,
+                    '--left-space': frame.left.space,
+                    '--right-edge': frame.right.reach,
+                    '--right-gap-horizontal': frame.right.gap,
+                    '--right-space': frame.right.space
+                })
+            }}
         >
             <div aria-hidden='true' class='shell-backdrop'></div>
             <div aria-hidden='true' class='shell-surface'></div>
