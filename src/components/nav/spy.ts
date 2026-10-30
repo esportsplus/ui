@@ -1,4 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
+import { setProperties, type Element as Bound } from '@esportsplus/template';
 import { observer } from '~/shared/resize';
 import { viewport } from '~/shared/viewport';
 
@@ -186,9 +187,10 @@ const spy = (ids: string[], mode: Mode = 'current') => {
             lock();
             highlight(index, index);
 
-            // The target is the page's heading, outside any template, made focusable so the move reaches assistive tech.
+            // The target is the page's heading, made focusable so the move reaches assistive tech; written at once, before
+            // the focus below, and never taken back.
             if (!element.hasAttribute('tabindex')) {
-                element.setAttribute('tabindex', '-1');
+                setProperties(element as Bound, { tabindex: -1 });
             }
 
             element.focus({ preventScroll: true });
