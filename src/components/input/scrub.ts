@@ -1,5 +1,5 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import { reactive } from '@esportsplus/reactivity';
+import { component, html, setProperties, type Attributes, type Element as Bound, type Renderable } from '@esportsplus/template';
+import { reactive, root } from '@esportsplus/reactivity';
 import { swallow } from '~/shared/press';
 import input from './field';
 
@@ -49,6 +49,8 @@ const INPUT_SCRUB_FIELD = Symbol.for('@esportsplus/ui/input.scrub.field');
 
 const INPUT_SCRUB_LABEL = Symbol.for('@esportsplus/ui/input.scrub.label');
 
+const SCRUB_STATE = Symbol('input.scrub.root');
+
 // Spacing of the tape's minor ticks; majors land every fifth.
 const TICK = 6;
 
@@ -63,6 +65,20 @@ function decimals(n: number) {
 // Shift is a coarse gear, Alt/Option a fine one, like Figma.
 function gear(e: { altKey: boolean, shiftKey: boolean }) {
     return e.shiftKey ? 10 : e.altKey ? 0.1 : 1;
+}
+
+// Scrubs under way, counted across every field; the root keeps the resize cursor while there are any, so it holds once
+// the pointer leaves the label.
+function page() {
+    let element = document.documentElement as HTMLElement & { [SCRUB_STATE]?: { scrubbing: number } };
+
+    return element[SCRUB_STATE] ??= root(() => {
+        let state = reactive({ scrubbing: 0 });
+
+        setProperties(element as Bound, { style: () => ({ cursor: state.scrubbing > 0 ? 'ew-resize' : undefined }) });
+
+        return state;
+    });
 }
 
 
@@ -113,10 +129,9 @@ export default component(
                 document.exitPointerLock();
             }
 
-            document.documentElement.style.removeProperty('cursor');
-
             // The click that ends a scrub shouldn't also drop you into typing.
             if (scrub?.moved) {
+                page().scrubbing--;
                 swallow();
             }
 
@@ -242,8 +257,7 @@ export default component(
 
                                 s.moved = true;
                                 local.scrubbing = true;
-                                // Keeps the resize cursor once the pointer leaves the label; on the root, which no template binds.
-                                document.documentElement.style.cursor = 'ew-resize';
+                                page().scrubbing++;
 
                                 if (lockPointer && e.pointerType === 'mouse') {
                                     // Refused locks reject (or return nothing); the captured pointer keeps scrubbing either way.
