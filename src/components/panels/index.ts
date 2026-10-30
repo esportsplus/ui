@@ -1,5 +1,5 @@
 import { flush, onCleanup, reactive, read, root, signal, untrack, write } from '@esportsplus/reactivity';
-import { component, html, render, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, render, setProperties, type Attributes, type Element as Bound, type Renderable } from '@esportsplus/template';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import type { Controller } from '~/components/tooltip/menu';
@@ -216,7 +216,7 @@ const panels = component(
             apple = mac(),
             controller: Controller | undefined,
             hosts = new Map<string, Host>(),
-            parking = document.createElement('div'),
+            parking: HTMLElement = document.createElement('div'),
             picks = signal<string[]>([]),
             size = reactive({ height: 0 }),
             slots = new Map<string, HTMLElement>(),
@@ -334,7 +334,7 @@ const panels = component(
             state
         };
 
-        parking.className = 'panels-parking';
+        setProperties(parking as Bound, { class: 'panels-parking' });
 
         function attach(surface: string, slot: HTMLElement) {
             let host = hosts.get(surface);
@@ -367,10 +367,8 @@ const panels = component(
             let element = document.createElement('div'),
                 entry = found,
                 // Owned by no effect: the host outlives whichever layout pass created it.
-                release = untrack(() => root(() => render(element, () => kind.render(entry))));
+                release = untrack(() => root(() => render(element, { class: 'panels-host', 'data-surface': surface }, () => kind.render(entry))));
 
-            element.className = 'panels-host';
-            element.dataset.surface = surface;
             hosts.set(surface, { dispose: release, element });
         }
 

@@ -1,4 +1,5 @@
-import { onCleanup } from '@esportsplus/reactivity';
+import { onCleanup, reactive, root } from '@esportsplus/reactivity';
+import { setProperties, type Element as Bound } from '@esportsplus/template';
 
 
 type Drag = {
@@ -10,6 +11,31 @@ type Drag = {
     target: HTMLElement;
     update: (delta: number) => void;
 };
+
+// Separators being dragged along each axis, counted across every panels instance.
+type Resizing = Record<'x' | 'y', number>;
+
+
+const RESIZE_STATE = Symbol('panels.resize.root');
+
+
+function page() {
+    let element = document.documentElement as HTMLElement & { [RESIZE_STATE]?: Resizing };
+
+    return element[RESIZE_STATE] ??= root(() => {
+        let state: Resizing = reactive({ x: 0, y: 0 });
+
+        setProperties(element as Bound, {
+            class: () => [
+                (state.x > 0 || state.y > 0) && 'panels-resizing',
+                state.x > 0 && 'panels-resizing--x',
+                state.y > 0 && 'panels-resizing--y'
+            ]
+        });
+
+        return state;
+    });
+}
 
 
 // Attributes for a separator dragged along 'axis'. 'start' reads the sizes the drag starts from and returns what
@@ -40,7 +66,7 @@ const resize = (axis: 'x' | 'y', start: () => ((delta: number) => void) | null) 
             current.target.releasePointerCapture(current.pointer);
         }
 
-        document.documentElement.classList.remove('panels-resizing', `panels-resizing--${axis}`);
+        page()[axis]--;
     }
 
     function stop(e: PointerEvent) {
@@ -79,8 +105,8 @@ const resize = (axis: 'x' | 'y', start: () => ((delta: number) => void) | null) 
                 target,
                 update
             };
-            // On the root, which no template binds, so the cursor holds wherever the pointer goes.
-            document.documentElement.classList.add('panels-resizing', `panels-resizing--${axis}`);
+            // On the root, so the cursor holds wherever the pointer goes.
+            page()[axis]++;
         },
         onpointermove: (e: PointerEvent) => {
             if (drag?.pointer !== e.pointerId) {

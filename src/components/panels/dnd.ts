@@ -1,5 +1,5 @@
 import { effect, peek, read, root, signal, untrack, write } from '@esportsplus/reactivity';
-import { render } from '@esportsplus/template';
+import { html, render } from '@esportsplus/template';
 
 
 type Active = Source & { rect: Rect };
@@ -136,39 +136,45 @@ const manager = ({ collide, end, label }: { collide: Collide; end: (active: Acti
         // A label that follows the pointer while dragging, in a fixed layer on the body so no transformed or clipping
         // ancestor can displace it.
         overlay() {
-            let host: HTMLElement | null = null,
-                release: VoidFunction | null = null;
+            let release: VoidFunction | null = null;
 
             function unmount() {
                 release?.();
                 release = null;
-                host?.remove();
-                host = null;
             }
 
             let stop = effect(() => {
-                let current = read(active),
-                    offset = read(delta);
+                let current = read(active);
 
                 if (!current) {
                     unmount();
                     return;
                 }
 
-                // Built by hand on <body>, outside anything the panels render; only the move's offset changes after.
-                if (!host) {
-                    let element = host = document.createElement('div');
-
-                    element.className = 'panels-ghost';
-                    element.style.left = `${current.rect.left}px`;
-                    element.style.top = `${current.rect.top}px`;
-                    document.body.appendChild(element);
-
-                    // Its own root: this effect runs again on every move and would dispose the label.
-                    release = untrack(() => root(() => render(element, () => label(current))));
+                if (release) {
+                    return;
                 }
 
-                host.style.translate = `${offset.x}px ${offset.y}px`;
+                // On <body>, outside anything the panels render, in its own root so only 'unmount' releases it; only the
+                // move's offset changes after.
+                release = untrack(() => root(() => render(document.body, () => html`
+                    <div
+                        class='panels-ghost'
+                        ${{
+                            style: () => {
+                                let offset = read(delta);
+
+                                return {
+                                    left: `${current.rect.left}px`,
+                                    top: `${current.rect.top}px`,
+                                    translate: `${offset.x}px ${offset.y}px`
+                                };
+                            }
+                        }}
+                    >
+                        ${label(current)}
+                    </div>
+                `)));
             });
 
             return () => {
