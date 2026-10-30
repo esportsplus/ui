@@ -316,16 +316,15 @@ const group = (context: Context, live: Live) => {
         <section
             class='panels-group'
             data-group='${group.id}'
+            ${drop}
             ${{
                 class: [
-                    drop.class,
                     () => context.state.layout.active === group.id && '--active',
                     () => live().group.placement === 'bottom' && 'panels-group--bottom',
                     () => context.picked(group.id) && 'panels-group--picked'
                 ],
                 // Listened to directly: the tabs bind presses of their own, which delegation would stop at.
                 onconnect: (element: HTMLElement) => {
-                    drop.onconnect(element);
                     listening?.abort();
                     listening = new AbortController();
                     element.addEventListener('pointerdown', () => context.state.focus(group.id), { signal: listening.signal });
@@ -339,7 +338,6 @@ const group = (context: Context, live: Live) => {
                     }, { capture: true, signal: listening.signal });
                 },
                 ondisconnect: () => {
-                    drop.ondisconnect();
                     listening?.abort();
                 }
             }}

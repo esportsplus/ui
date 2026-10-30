@@ -41,30 +41,25 @@ export default component<A>(
             <div
                 class='tooltip'
                 ${attributes}
-                ${{
-                    ...popup,
-                    ...morphs(local),
-                    class: [
-                        popup.class,
-                        () => local.morphing && 'tooltip--morphing'
-                    ].flat(),
-                    ...(!manual && { onclick: function(this: HTMLElement, e: MouseEvent) {
-                        let active = this === e.target || toggle ? !state.active : true;
+                ${popup}
+                ${morphs(local)}
+                ${{ class: () => local.morphing && 'tooltip--morphing' }}
+                ${!manual && { onclick: function(this: HTMLElement, e: MouseEvent) {
+                    let active = this === e.target || toggle ? !state.active : true;
 
-                        cancel?.();
-                        cancel = undefined;
+                    cancel?.();
+                    cancel = undefined;
 
-                        if (active && !state.active) {
-                            cancel = morph(this, () => {
-                                cancel = undefined;
-                                state.active = true;
-                            });
-                            return;
-                        }
+                    if (active && !state.active) {
+                        cancel = morph(this, () => {
+                            cancel = undefined;
+                            state.active = true;
+                        });
+                        return;
+                    }
 
-                        state.active = active;
-                    } })
-                }}
+                    state.active = active;
+                } }}
             >
                 ${content}
             </div>

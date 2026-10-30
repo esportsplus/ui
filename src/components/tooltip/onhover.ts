@@ -156,14 +156,11 @@ function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state 
     let handlers = morphs(local),
         popup = overlay.popup({ canDismiss: () => !!(pending || morphed), ondismiss: close, state, target: content });
 
-    return {
-        ...popup,
-        ...handlers,
+    return [popup, handlers, {
         class: [
-            popup.class,
             () => state.active && local.instant && 'tooltip--instant',
             () => local.morphing && 'tooltip--morphing'
-        ].flat(),
+        ],
         onfocusin: (e: FocusEvent) => {
             stay();
 
@@ -221,7 +218,7 @@ function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state 
             }
         },
         style: () => local.safe
-    };
+    }];
 }
 
 

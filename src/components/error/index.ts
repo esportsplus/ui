@@ -178,8 +178,8 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
         <div
             class='error tooltip'
             ${attributes}
+            ${morphs(local)}
             ${{
-                ...morphs(local),
                 class: [
                     () => local.active && '--active',
                     () => state.error && 'error--invalid',

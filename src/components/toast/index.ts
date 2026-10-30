@@ -116,8 +116,8 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
             class='toast'
             ${toast.context}
             ${toast.attributes}
+            ${gesture}
             ${{
-                ...gesture,
                 class: [
                     () => !toast.state.active && 'toast--ending',
                     () => (layout().slots.get(toast)?.index ?? 0) > 0 && 'toast--behind',
@@ -141,9 +141,7 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
                 },
                 onconnect: (el: HTMLElement) => {
                     element = el;
-                    size.onconnect(el);
                 },
-                ondisconnect: size.ondisconnect,
                 style: () => {
                     let { active, duration } = toast.state,
                         { swipe, thrown } = local,
@@ -171,6 +169,7 @@ function row(toast: Toast, layout: () => Layout, remove: (toast: Toast) => void)
                     return style;
                 }
             }}
+            ${size}
         >
             <div class='toast-content' ${toast.context?.[TOAST_CONTENT]} ${toast.attributes[TOAST_CONTENT]}>
                 ${toast.content(toast.state)}

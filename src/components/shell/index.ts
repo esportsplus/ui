@@ -92,8 +92,8 @@ function grip(sides: Sides, peeking: Peeking, frame: Frame, edge: Edge) {
             aria-hidden='true'
             class='shell-edge shell-edge--${edge}'
             id='${side.id}-edge'
+            ${gesture}
             ${{
-                ...gesture,
                 // A drag swallows the click it ends with, so this is a tap or a click: either opens the sidebar.
                 onclick: () => {
                     if (!side.state.active) {

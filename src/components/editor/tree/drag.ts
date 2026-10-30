@@ -502,8 +502,7 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
                 <span class='file-tree-drag-copy'>+</span>
             </div>
         `,
-        root: {
-            ...gesture.attributes,
+        root: [gesture.attributes, {
             ondisconnect: () => {
                 gesture.cancel();
 
@@ -511,7 +510,7 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
                     stop();
                 }
             }
-        } as Attributes,
+        }] as Attributes[],
         row: (row: T): Attributes => ({
             class: [
                 () => read(held) && ui.effect === 'move' && sources.has(row) && 'file-tree-row--dragged',

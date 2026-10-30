@@ -77,18 +77,15 @@ export default component(function(
             class='textarea'
             ${this?.attributes}
             ${attributes}
-            ${resize && {
-                ...motion.attributes,
+            ${resize && [motion.attributes, {
                 class: ['textarea--autoresize', () => measured.scrollable && 'textarea--scrollable'],
                 onconnect: (element: Element<HTMLTextAreaElement>) => {
                     field = element;
-                    motion.attributes.onconnect(element);
                     owner = element.form;
                     // A form's reset never reaches the field's own bindings, so it is heard on the form.
                     owner?.addEventListener('reset', reset);
                 },
                 ondisconnect: () => {
-                    motion.attributes.ondisconnect();
                     owner?.removeEventListener('reset', reset);
                     owner = undefined;
 
@@ -104,7 +101,7 @@ export default component(function(
                     caller?.call(this, event);
                 },
                 style: [limits, () => measured.height && `--height: ${measured.height}px;`]
-            }}
+            }]}
             ${form.input.attributes(state)}
         ></textarea>
     `;
@@ -122,6 +119,7 @@ export default component(function(
                 aria-hidden='true'
                 class='textarea textarea--measure'
                 inert
+                ${observation}
                 ${{
                     class: [
                         this?.attributes?.class,
@@ -132,8 +130,6 @@ export default component(function(
                     'data-value': text,
                     dir: attributes.dir ?? this?.attributes?.dir,
                     lang: attributes.lang ?? this?.attributes?.lang,
-                    onconnect: observation.onconnect,
-                    ondisconnect: observation.ondisconnect,
                     style: [this?.attributes?.style, attributes.style, limits].flat()
                 }}
             ></div>

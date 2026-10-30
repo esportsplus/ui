@@ -261,7 +261,8 @@ function createMenu(context = false) {
                             type='button'
                             ${attributes[MENU_ITEM]}
                             ${itemAttributes}
-                            ${{ ...bindings, disabled: disabled === true }}
+                            ${bindings}
+                            ${{ disabled: disabled === true }}
                         >${contents}</button>`}
 
                         ${() => branch && node.state.render && panel(node)}
@@ -605,7 +606,7 @@ function createMenu(context = false) {
             }
 
             let hover = !context && openOn === 'hover',
-                { onconnect: popup, ...dismissal } = overlay.popup({
+                popup = overlay.popup({
                     canDismiss: () => !!pending,
                     contains: (_, node) => inside(node),
                     ondismiss: (reason) => close(reason === 'escape'),
@@ -638,7 +639,8 @@ function createMenu(context = false) {
                     class='tooltip-menu-trigger'
                     style='anchor-name: ${name};'
                     ${attributes}
-                    ${{ ...spanning, oncontextmenu: contextmenu, onconnect: connect }}
+                    ${spanning}
+                    ${{ oncontextmenu: contextmenu, onconnect: connect }}
                 >${content}</div>` : html`<button
                     aria-haspopup='menu'
                     class='tooltip-menu-trigger'
@@ -646,8 +648,8 @@ function createMenu(context = false) {
                     type='button'
                     ${attributes}
                     ${attributes[MENU_TRIGGER]}
+                    ${spanning}
                     ${{
-                        ...spanning,
                         'aria-expanded': () => String(state.active),
                         onclick: () => {
                             if (state.active || pending) {
@@ -667,15 +669,14 @@ function createMenu(context = false) {
                     class='tooltip tooltip--menu tooltip-menu-layer ${context && 'tooltip--context'} ${!animate && 'tooltip--instant'}'
                     popover='manual'
                     style='position-anchor: ${name};'
-                    ${dismissal}
                     ${{
-                        ...spanning,
                         onconnect: (element: HTMLElement) => {
                             layer = element;
-                            (popup as ((element: HTMLElement) => void) | undefined)?.(element);
                         },
                         onwindowresize: () => state.active && shift()
                     }}
+                    ${popup}
+                    ${spanning}
                 >
                     ${panel(root)}
                 </div>

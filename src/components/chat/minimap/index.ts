@@ -171,8 +171,8 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
         return focus === -1 || focus >= local.total ? Math.min(state.start, local.total - 1) : focus;
     }
 
-    // Its focus handler runs from the rail's own, which also tracks the tab stop: two spreads can't share an event.
-    let { onfocusin: reveal, ...delegate } = card.delegate({
+    // Its focus handler is replaced by the rail's own, which also tracks the tab stop and calls it.
+    let delegate = card.delegate({
         content: (trigger) => {
             let turn = (trigger as Item)[TURN];
 
@@ -216,7 +216,7 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
                             local.focus = index(item[TURN]);
                         }
 
-                        reveal.call(e.currentTarget as HTMLElement, e);
+                        delegate.onfocusin.call(e.currentTarget as HTMLElement, e);
                     },
                     onkeydown: (e: KeyboardEvent) => {
                         let item = itemFrom(e.target);

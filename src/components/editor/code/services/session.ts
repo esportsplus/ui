@@ -536,10 +536,7 @@ const session = (host: Host) => {
     let api = {
         accept,
         anchors,
-        aria: {
-            ...complete.aria,
-            'aria-autocomplete': () => anchors.enabled && 'list'
-        },
+        aria: [complete.aria, { 'aria-autocomplete': () => anchors.enabled && 'list' }],
         card,
         complete,
         configure: (options: Options) => {

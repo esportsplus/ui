@@ -10,7 +10,7 @@ import { referenceRpcTransport } from './transport';
 
 type Services = {
     anchors: () => Renderable<unknown>;
-    aria: Attributes;
+    aria: Attributes[];
     configure: (options: Options) => void;
     dismiss: VoidFunction;
     dispose: VoidFunction;

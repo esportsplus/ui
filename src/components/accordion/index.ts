@@ -82,8 +82,8 @@ export default component(
                 class='accordion'
                 ${attributes}
                 ${a}
+                ${motion.attributes}
                 ${{
-                    ...motion.attributes,
                     class: [
                         () => state.active && '--active',
                         () => state.active && ui.scrollable && 'accordion--scrollable'
@@ -92,7 +92,6 @@ export default component(
                     // Members join while mounted, so a removed one never closes or holds open the rest.
                     onconnect: (element: HTMLElement) => {
                         viewport = element;
-                        motion.attributes.onconnect(element);
 
                         if (group) {
                             group.members.add(state);
@@ -101,7 +100,6 @@ export default component(
                     },
                     ondisconnect: () => {
                         group?.members.delete(state);
-                        motion.attributes.ondisconnect();
                         viewport = undefined;
                     }
                 }}

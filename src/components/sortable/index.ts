@@ -549,8 +549,7 @@ export default <T>(
     }
 
     return {
-        attributes: {
-            ...list.press.attributes,
+        attributes: [list.press.attributes, {
             class: 'sortable',
             onconnect: (element: HTMLElement) => {
                 list.container = element;
@@ -583,7 +582,7 @@ export default <T>(
                     groups.delete(group);
                 }
             }
-        },
+        }] as Attributes[],
         // Lands changes made to 'items' this task now, for a caller that measures the list straight after.
         flush: () => list.slot?.flush(),
         render: () => {

@@ -447,12 +447,12 @@ export default component(
                 class='overlay'
                 ${flow && { class: 'overlay--flow' }}
                 ${rail
-                    ? { class: ['overlay--rail', () => state.active && '--active'], ...expandable(state) }
+                    ? [{ class: ['overlay--rail', () => state.active && '--active'] }, expandable(state)]
                     : { class: 'overlay--draggable', tabindex: -1 }}
                 ${this?.attributes}
                 ${attributes}
+                ${gesture}
                 ${{
-                    ...gesture,
                     class: () => [
                         self.active && '--active',
                         self.covered && 'overlay--covered',

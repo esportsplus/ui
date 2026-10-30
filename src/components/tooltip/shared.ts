@@ -616,23 +616,17 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 ${attributes}
                 ${mode}
                 ${{
-                    ...popup,
-                    class: [
-                        popup.class,
-                        () => [
-                            view.gliding && 'tooltip-shared--gliding',
-                            view.instant && 'tooltip-shared--instant',
-                            view.side && `tooltip-shared--${view.side}`
-                        ]
-                    ].flat(),
+                    class: () => [
+                        view.gliding && 'tooltip-shared--gliding',
+                        view.instant && 'tooltip-shared--instant',
+                        view.side && `tooltip-shared--${view.side}`
+                    ],
                     onconnect: (el: HTMLElement) => {
                         element = el;
-                        popup.onconnect?.(el);
                     },
-                    ondisconnect: (el: HTMLElement) => {
+                    ondisconnect: () => {
                         close();
                         unwatch();
-                        popup.ondisconnect?.(el);
 
                         for (let entry of bound.values()) {
                             if (entry.layer) {
@@ -640,15 +634,6 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                                 entry.layer = null;
                             }
                         }
-                    },
-                    // A hover delay has no showing overlay yet, but Escape still cancels the request.
-                    ondocumentkeydown: function(this: HTMLElement, e: KeyboardEvent) {
-                        if (e.key === 'Escape' && waiting && !current) {
-                            close();
-                            return;
-                        }
-
-                        popup.ondocumentkeydown?.call(this, e);
                     },
                     onwindowresize: () => {
                         if (shown) {
@@ -661,6 +646,18 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                         '--shared-x': view.x,
                         '--shared-y': view.y
                     })
+                }}
+                ${popup}
+                ${{
+                    // A hover delay has no showing overlay yet, but Escape still cancels the request.
+                    ondocumentkeydown: function(this: HTMLElement, e: KeyboardEvent) {
+                        if (e.key === 'Escape' && waiting && !current) {
+                            close();
+                            return;
+                        }
+
+                        popup.ondocumentkeydown?.call(this, e);
+                    }
                 }}
             >
                 <span

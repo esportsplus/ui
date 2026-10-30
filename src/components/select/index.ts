@@ -367,7 +367,7 @@ function template(
             class='select select-menu'
             ${defaults}
             ${attributes}
-            ${{ ...overlay.popup({ state, target: () => parts.panel }) }}
+            ${overlay.popup({ state, target: () => parts.panel })}
         >
             <span class='select-menu-label' id='${id}-label'>${label ?? defaults?.label ?? String(ariaLabel ?? 'Select option')}</span>
             <button
