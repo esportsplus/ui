@@ -96,8 +96,8 @@ const page = (): Page => {
                         Which side shows is decided where a color is used, by that element's <code>color-scheme</code>. The root
                         sets <code>color-scheme: light dark</code>, so with nothing else the page follows the operating system
                         in CSS alone. <code>data-theme='light'</code> or <code>data-theme='dark'</code> pins the mode: the theme
-                        sets it on <code>&lt;html&gt;</code> when the user picks one, and any element can carry it to render its
-                        subtree in the other mode. <code>--background</code> and <code>--color</code> read the page's background
+                        always sets one on <code>&lt;html&gt;</code>, the operating system's own while it follows it, and any
+                        element can carry it to render its subtree in the other mode. <code>--background</code> and <code>--color</code> read the page's background
                         and text, and native controls and scrollbars follow <code>color-scheme</code> too.
                     </p>
                     ${preview(preview.stage(() => html`
@@ -136,9 +136,10 @@ const page = (): Page => {
                     <h2>Setup</h2>
                     <p>
                         Create one theme instance at startup. It shows <code>fallback</code> (the operating system by default)
-                        until the user picks a mode, then writes <code>data-theme</code> to <code>&lt;html&gt;</code>;
-                        <code>'system'</code> removes it again. Picking the fallback clears the stored choice, so the page
-                        follows the site's default once more.
+                        until the user picks a mode, and always writes the mode showing to <code>data-theme</code> on
+                        <code>&lt;html&gt;</code>; under <code>'system'</code> that is the operating system's, updated as it
+                        changes. Picking the fallback clears the stored choice, so the page follows the site's default once
+                        more.
                     </p>
                     ${preview([
                         preview.header({ title: 'theme.ts' }),

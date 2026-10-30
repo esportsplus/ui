@@ -420,7 +420,7 @@ setting `--color-text` on `:root` moves all three). It also sets `--background`,
 follows the operating system.
 
 `light-dark()` picks its side where a color is used, by that element's `color-scheme`. `data-theme="light"` or
-`data-theme="dark"` pins it: `mode.set()` writes the attribute to `<html>`, and `'system'` removes it. Any element
+`data-theme="dark"` pins it: the theme always writes the mode showing to `<html>`, and under `'system'` that is the operating system's, updated as it changes. Any element
 can carry the attribute to render its subtree in the other mode. Text and shadows follow the mode on their own; for
 anything else, wrap two palette colors in `light-dark()`, such as
 `light-dark(var(--color-white-300), var(--color-black-300))` for a surface. A palette token alone stays constant.
