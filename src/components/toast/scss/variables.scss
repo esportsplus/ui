@@ -1,22 +1,36 @@
 @use 'css-utilities/anchor';
 @use 'css-utilities/color';
+@use 'css-utilities/surface';
 
+$close-button-size: var(--size-500);
 
 .toast {
+    @include surface.step(4);
+    // A lighter shadow than its level's, so it fits inside the toast's clip.
+    @include surface.shadow(6);
+    --background: var(--surface-background-default);
+    --border-color: var(--surface-border-hover);
+    --border-radius: var(--border-radius-500);
+    --border-width: 1px;
+    --box-shadow: var(--surface-shadow-default);
+    --color: var(--color-text-400);
+    --padding: var(--size-400);
+
     &-close {
         @extend %color-text;
         --background-default: var(--surface-background-default);
         --background-hover: var(--surface-background-hover);
         --border-radius: 999px;
         --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-border-hover);
-        --offset: calc(var(--size-200) * -1);
+        --offset: calc((#{$close-button-size} / 2) * -1);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
-        --size: var(--size-500);
+        --size: #{$close-button-size};
 
         // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
         &-icon.icon {
-            --size: var(--size-200);
+            --size: 12px;
+            --stroke-width: 3;
         }
     }
 
@@ -38,6 +52,9 @@
     // The way the expanded list grows from the front toast.
     --direction: 1;
     --frontmost-height: 0px;
+    // How far past the open stack the pointer can stray before it closes: half the close button, which overhangs
+    // each toast by as much.
+    --grace: calc(#{$close-button-size} / 2);
     --hidden: 0;
     --limit: 3;
     --margin-horizontal: var(--size-500);

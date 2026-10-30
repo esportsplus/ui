@@ -6,13 +6,13 @@ import 'docs/components/toaster/scss/index.scss';
 // Where the docs' toaster is pinned; the toast example moves it around.
 const placement = reactive({ value: 'se' });
 
-// The docs' own toaster, placed once by the viewer shell; its toasts wear the docs' surface.
+// The docs' own toaster, placed once by the viewer shell.
 const toaster = createToaster({
     [createToaster.overflow]: { class: 'toast-overflow' },
     class: () => `toaster--${placement.value}`
 });
 
-const toast = toaster.toast.bind({ attributes: { class: 'toast' } });
+const toast = toaster.toast;
 
 
 export default toast;

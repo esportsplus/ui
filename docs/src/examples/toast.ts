@@ -1,5 +1,4 @@
 import { reactive } from '@esportsplus/reactivity';
-import { toaster as createToaster } from '@esportsplus/ui/components';
 import { html } from '@esportsplus/template';
 import toast, { toaster, placement } from 'docs/components/toaster';
 
@@ -7,13 +6,9 @@ import toast, { toaster, placement } from 'docs/components/toaster';
 const PLACEMENTS = ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'];
 
 
-// A second toaster, independent of the docs' own: its own queue, placement, limit and look.
-let alerts = createToaster({ [createToaster.overflow]: { class: 'toast-overflow' }, class: 'toaster--n', limit: 2 }),
-    burst = 0,
+let burst = 0,
     timer: { active: boolean, duration: number } | undefined,
     trigger = 'button';
-
-let alert = alerts.toast.bind({ attributes: { class: 'toast toast--dark' } });
 
 
 // The action is part of the content, so it closes its own toast through the state it is given.
@@ -132,16 +127,6 @@ export default {
                 </div>
             `,
             title: 'placement'
-        },
-        {
-            render: () => html`
-                ${alerts.content}
-                <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
-                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => alert(() => `Alert ${++burst}`)}'>alert</button>
-                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => alerts.toast.dismiss()}'>dismiss alerts</button>
-                </div>
-            `,
-            title: 'separate toaster (top center, limit 2)'
         }
     ]
 };

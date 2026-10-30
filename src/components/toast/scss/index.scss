@@ -14,6 +14,14 @@ $open: ':is(:hover, :focus-within)';
 
 
 .toast {
+    background: var(--background);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    color: var(--color);
+    padding: var(--padding);
+
+
     // Pinned over the toast's corner; qualified to outrank the '.button' layout it pairs with.
     &-close {
         height: var(--size);
@@ -23,6 +31,11 @@ $open: ':is(:hover, :focus-within)';
         top: var(--offset);
         width: var(--size);
         z-index: 1;
+
+        // Chained through '.icon' like its size, so it wins regardless of stylesheet order.
+        &-icon.icon svg {
+            stroke-width: var(--stroke-width);
+        }
     }
 
     &-content {
@@ -234,6 +247,14 @@ $open: ':is(:hover, :focus-within)';
 
     &#{$open} {
         height: max(0px, calc(var(--stack-height) + (var(--count) - 1) * var(--stack-gap-vertical)));
+
+        // Only while open, so the collapsed stack doesn't take clicks from the page around it; behind the toasts.
+        &::before {
+            content: '';
+            inset: calc(var(--grace) * -1);
+            position: absolute;
+            z-index: -1;
+        }
 
         > .toast {
             --content-opacity: 1;

@@ -1,25 +1,4 @@
-@use 'css-utilities/surface';
-
-// Floats above everything, like a dialog, but with a lighter shadow that fits inside the toast's clip.
 .toast {
-    @extend %surface-root;
-    @include surface.shadow(5);
-    --background: var(--surface-background-default);
-    --border-color: var(--surface-border-hover);
-    --color: var(--color-text-400);
-    background: var(--background);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-500);
-    box-shadow: var(--surface-shadow-default);
-    color: var(--color);
-    padding: var(--size-400);
-
-    &--dark {
-        --background: var(--color-primary-500);
-        --border-color: var(--color-primary-500);
-        --color: var(--color-surface);
-    }
-
     &-action {
         --background-default: var(--color-primary-500);
         --border-radius: 999px;
