@@ -211,7 +211,6 @@ function mention(profile: Profile, tip: ReturnType<typeof tooltip.shared>) {
 // and 'state.index' rests the highlight on the open section.
 function navigation() {
     let state = reactive({ active: false, index: -1 }),
-        stop: VoidFunction | undefined,
         tip = tooltip.shared({ class: 'tooltip-nav-demo-surface', delay: { close: 150, open: 50 }, direction: 's', dismiss: 'a[href]', interactive: true, keep: true, state });
 
     return html`
@@ -219,15 +218,9 @@ function navigation() {
             aria-label='Main'
             class='tooltip-nav-demo'
             ${{
-                // The docs router would follow the placeholder links.
-                onconnect: (element: HTMLElement) => {
-                    let prevent = (e: Event) => e.preventDefault();
-
-                    element.addEventListener('click', prevent);
-                    stop = () => element.removeEventListener('click', prevent);
-                },
-                ondisconnect: () => {
-                    stop?.();
+                // The docs router would follow the placeholder links. Direct, past the triggers' own click bindings.
+                on: (on, element) => {
+                    on(element, 'click', (e) => e.preventDefault(), { direct: true });
                 }
             }}
         >

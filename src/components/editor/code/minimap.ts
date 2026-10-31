@@ -156,9 +156,11 @@ const minimap = ({
     }
 
     let handlers: Attributes = {
-        onactivewheel: (e: WheelEvent) => {
-            e.preventDefault();
-            scroll(e.deltaY * (e.deltaMode === 1 ? lineHeight : e.deltaMode === 2 ? viewport.clientHeight : 1), true);
+        on: (on, element) => {
+            on(element, 'wheel', (e) => {
+                e.preventDefault();
+                scroll(e.deltaY * (e.deltaMode === 1 ? lineHeight : e.deltaMode === 2 ? viewport.clientHeight : 1), true);
+            }, { direct: true, passive: false });
         },
         onlostpointercapture: release,
         onpointercancel: release,

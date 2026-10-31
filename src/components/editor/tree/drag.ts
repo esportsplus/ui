@@ -1,5 +1,5 @@
-import { peek, reactive, read, signal, write, type Signal } from '@esportsplus/reactivity';
-import { html, type Attributes } from '@esportsplus/template';
+import { flush, peek, reactive, read, signal, write, type Signal } from '@esportsplus/reactivity';
+import { html, on, type Attributes } from '@esportsplus/template';
 import press from '~/shared/press';
 import { attach, collect, type Export, type ImportEntry } from './transfer';
 
@@ -77,7 +77,8 @@ const STALE = 600;
 // drop comes in only where the OS is at the other end: files dropped in, and, given 'export', rows dragged out by a
 // mouse, which then move within the tree the native way too, since one drag can't be both.
 export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers<T['element']>, tree: Tree<T>) => {
-    let carry = 0,
+    let cancelled = false,
+        carry = 0,
         copy = false,
         frame = 0,
         gesture = press(DELAY),
@@ -100,6 +101,8 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
         time = 0,
         // 'depth' is the target box's depth and 'x'/'y' where the ghost sits.
         ui = reactive({ count: 0, depth: null as number | null, effect: '' as Effect, label: '', x: 0, y: 0 }),
+        // The key of the row the last press found no native drag for (a touch, or text in a field), 0 for none.
+        undraggable = signal(0),
         x = 0,
         y = 0;
 
@@ -325,41 +328,36 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
         ui.y = y;
     }
 
-    function pressed(rows: T[], e: PointerEvent) {
-        let cancelled = false,
-            // Captured, ahead of the tree's own keys, and only while this press lasts; template's document events
-            // bubble, for as long as their element is connected.
-            keys = new AbortController();
+    // Captured, ahead of the tree's own keys.
+    function key(e: KeyboardEvent) {
+        if (mode !== 'pointer') {
+            return;
+        }
 
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            cancelled = true;
+            stop();
+        }
+        else if (e.key === 'Alt') {
+            // Pressed and released alone, Alt would move focus to the browser's menu on Windows.
+            e.preventDefault();
+            copy = e.altKey;
+            aim();
+        }
+    }
+
+    function pressed(rows: T[], e: PointerEvent) {
         // Drops on the target it was released over, unless it was cancelled or never got going.
         function end(e: PointerEvent | null) {
             let folder = mode === 'pointer' && e?.type === 'pointerup' ? target : undefined,
                 copied = copy;
 
-            keys.abort();
             stop();
 
             if (folder !== undefined) {
                 void deliver(folder, rows, copied);
-            }
-        }
-
-        function key(e: KeyboardEvent) {
-            if (mode !== 'pointer') {
-                return;
-            }
-
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                e.stopPropagation();
-                cancelled = true;
-                stop();
-            }
-            else if (e.key === 'Alt') {
-                // Pressed and released alone, Alt would move focus to the browser's menu on Windows.
-                e.preventDefault();
-                copy = e.altKey;
-                aim();
             }
         }
 
@@ -378,6 +376,7 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
             }
         }
 
+        cancelled = false;
         copy = e.altKey;
         pointer = e.pointerId;
         x = e.clientX;
@@ -399,8 +398,6 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
                 frame = requestAnimationFrame(tick);
             }
         });
-        document.addEventListener('keydown', key, { capture: true, signal: keys.signal });
-        document.addEventListener('keyup', key, { capture: true, signal: keys.signal });
     }
 
     function start(rows: T[], value: Mode) {
@@ -503,6 +500,10 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
             </div>
         `,
         root: [gesture.attributes, {
+            on: (on) => {
+                on(document, 'keydown', key, { capture: true });
+                on(document, 'keyup', key, { capture: true });
+            },
             ondisconnect: () => {
                 gesture.cancel();
 
@@ -518,7 +519,7 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
             ],
             // A mouse drags a row out natively; touch keeps to the press, which a native drag would cut short.
             ...(give && !row.locked && {
-                draggable: 'true',
+                draggable: () => !signal.selector(undraggable, row.key),
                 ondragstart: (e: DragEvent) => {
                     let transfer = e.dataTransfer,
                         rows = transfer && !gesture.busy() ? grabbed(row) : [],
@@ -540,13 +541,13 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
                     transfer.effectAllowed = drag ? 'copyMove' : 'copy';
                     attach(transfer, files.length ? files : rows.map((row) => ({ name: row.element.name })));
 
-                    // Straight on the row rather than through the template: the row may have scrolled out of the
-                    // DOM by the time the drag ends, and a detached node's events never reach the document.
-                    (e.currentTarget as HTMLElement).addEventListener('dragend', () => {
+                    // Not one of the row's bindings: the row may have scrolled out of the DOM by the time the drag
+                    // ends, where neither delegation nor its element's bindings reach.
+                    on(e.currentTarget as HTMLElement, 'dragend', () => {
                         if (mode === 'native') {
                             stop();
                         }
-                    }, { once: true });
+                    }, { direct: true, once: true });
 
                     start(rows, 'native');
                 }
@@ -554,11 +555,12 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
             onpointerdown: (e: PointerEvent) => {
                 let mouse = e.pointerType !== 'touch';
 
-                // Text in a rename field inside the row selects with the mouse rather than dragging the row. Written
-                // straight to the row, since it depends on what this press landed on and has to hold before the
-                // browser decides whether a native drag starts.
+                // Text in a rename field inside the row selects with the mouse rather than dragging the row. Flushed,
+                // since it depends on what this press landed on and has to hold before the browser decides whether a
+                // native drag starts.
                 if (give && !row.locked) {
-                    (e.currentTarget as HTMLElement).draggable = mouse && !(e.target as HTMLElement).closest('input, textarea, [contenteditable]');
+                    write(undraggable, mouse && !(e.target as HTMLElement).closest('input, textarea, [contenteditable]') ? 0 : row.key);
+                    flush();
                 }
 
                 if (!drag || (give && mouse) || gesture.busy() || row.locked || e.button !== 0 || !e.isPrimary) {

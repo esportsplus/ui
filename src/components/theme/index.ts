@@ -1,5 +1,5 @@
 import { reactive, root } from '@esportsplus/reactivity';
-import { setProperties, type Element as Bound } from '@esportsplus/template';
+import { on, setProperties, type Element as Bound } from '@esportsplus/template';
 import './scss/index.scss';
 
 
@@ -67,7 +67,7 @@ export default ({ fallback = 'system', store }: Options = {}) => {
 
     apply(mode());
 
-    media.addEventListener('change', (event) => {
+    on(media, 'change', (event) => {
         state.system = system(event.matches);
 
         if (state.preference === 'system') {

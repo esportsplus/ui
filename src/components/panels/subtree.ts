@@ -46,7 +46,6 @@ const subtree = (key: () => unknown, content: () => Renderable<unknown>, attribu
 
                             last = next;
                             release?.();
-                            host.replaceChildren();
                             // A root of its own, so the content isn't owned by this effect: a re-run for an
                             // unchanged key would otherwise dispose the bindings of content it keeps in place.
                             release = untrack(() => root(() => render(host, content)));

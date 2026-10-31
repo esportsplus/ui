@@ -1,4 +1,5 @@
 import { effect, onCleanup, read, root, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
+import type { Attributes } from '@esportsplus/template';
 import Decorations, { type Decoration } from '../tree/decorations';
 import type { CodeController } from '../code/view';
 import type { FileTreeElement, FileTreeImportEntry, FileTreeSnapshot } from '../tree';
@@ -391,11 +392,17 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
         },
         // Spread on the workspace. Hot exit: a closing page never disconnects the workspace.
         attributes: {
+            // Scrolling, folding and opening folders tell nothing else, so any gesture in the workspace may be one.
+            // Captured, since scroll doesn't bubble and a control may stop the rest.
+            on: (on, element) => {
+                on(element, 'keyup', schedule, { capture: true, passive: true });
+                on(element, 'pointerup', schedule, { capture: true, passive: true });
+                on(element, 'scroll', schedule, { capture: true, passive: true });
+            },
             onwindowpagehide: flush
-        },
-        connect(element: HTMLElement) {
-            let listening = new AbortController(),
-                release = root((dispose) => {
+        } satisfies Attributes,
+        connect() {
+            let release = root((dispose) => {
                     effect(() => {
                         let tabs = model.state.tabs;
 
@@ -425,14 +432,7 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
                 }),
                 unwatch = model.onWatch(watched);
 
-            // Scrolling, folding and opening folders tell nothing else, so any gesture in the workspace may be one.
-            // Captured, which template's events aren't, since scroll doesn't bubble and a control may stop the rest.
-            element.addEventListener('keyup', schedule, { capture: true, passive: true, signal: listening.signal });
-            element.addEventListener('pointerup', schedule, { capture: true, passive: true, signal: listening.signal });
-            element.addEventListener('scroll', schedule, { capture: true, passive: true, signal: listening.signal });
-
             return () => {
-                listening.abort();
                 release();
                 unwatch();
                 flush();

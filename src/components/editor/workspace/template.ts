@@ -448,29 +448,15 @@ const workspace = ({
         release?.();
         container = element;
         release = root((dispose) => {
-            let listening = new AbortController(),
-                unobserve = observe(element, ([entry]) => {
-                    ui.compact = entry.contentRect.width <= COMPACT_WIDTH;
-                });
+            let unobserve = observe(element, ([entry]) => {
+                ui.compact = entry.contentRect.width <= COMPACT_WIDTH;
+            });
 
-            // Capture, so the second chord reaches neither the editor nor the workspace's own Mod+S; template's
-            // document events bubble.
-            element.ownerDocument.addEventListener('keydown', chords.keydown, { capture: true, signal: listening.signal });
-            // A closing modal hands focus back to whatever had it before, so ours moves only once it has closed;
-            // 'close' doesn't bubble, but capture still passes through the workspace.
-            element.addEventListener('close', () => {
-                let next = settle;
-
-                settle = undefined;
-                next?.();
-            }, { capture: true, signal: listening.signal });
             model.setConfirmation(ask);
 
-            onCleanup(hosting.connect(element));
-            onCleanup(navigation.connect(element));
+            onCleanup(hosting.connect());
             onCleanup(statusBar.connect());
             onCleanup(() => {
-                listening.abort();
                 chords.cancel();
                 unobserve();
                 confirmation?.resolve('cancel');
@@ -1174,6 +1160,7 @@ const workspace = ({
             class='code-workspace'
             ${attributes}
             ${hosting.attributes}
+            ${navigation.attributes}
             ${statusBar.attributes}
             ${{
                 // A page-wide palette on Mod+K, like the site search, leaves the chord to a focused element that
@@ -1187,6 +1174,18 @@ const workspace = ({
                     () => ui.compact && view.tabs && view.explorerOpen && 'code-workspace--stacked',
                     () => view.tabs && 'code-workspace--tabs'
                 ],
+                on: (on, element) => {
+                    // Capture, so the second chord reaches neither the editor nor the workspace's own Mod+S.
+                    on(element.ownerDocument, 'keydown', chords.keydown, { capture: true });
+                    // A closing modal hands focus back to whatever had it before, so ours moves only once it has closed;
+                    // 'close' doesn't bubble, but capture still passes through the workspace.
+                    on(element, 'close', () => {
+                        let next = settle;
+
+                        settle = undefined;
+                        next?.();
+                    }, { capture: true });
+                },
                 onconnect: connect,
                 ondocumentkeydown: keydown,
                 onpointerenter: () => {

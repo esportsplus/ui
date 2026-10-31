@@ -1,5 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import { effect, read as get, signal, untrack, write } from '@esportsplus/reactivity';
+import { effect, onCleanup, read as get, signal, untrack, write } from '@esportsplus/reactivity';
 import { pool } from '@esportsplus/workers';
 import { observer, type Observer } from '~/shared/resize';
 import { observeIntersection } from '~/shared/visible';
@@ -240,8 +240,6 @@ export default component(
             generation = signal(0),
             host: HTMLElement | undefined,
             last = { accent: '', camera: null as Camera | null, color: '', shapes: [] as Shape[], size: '' },
-            // Ends everything a connection listens to and observes.
-            listening: AbortController | undefined,
             measuring = 0,
             // The pointers pressed on the field, whose rings hold until they are let go.
             pressed = new Set<number>(),
@@ -608,6 +606,35 @@ export default component(
                 ${this?.attributes}
                 ${rest}
                 ${{
+                    on: (on, element) => {
+                        if (!canvas) {
+                            return;
+                        }
+
+                        let done = (event: Event) => {
+                            if (event.type === 'transitionrun' || event.type === 'animationstart') {
+                                running++;
+                            }
+                            else {
+                                running = Math.max(0, running - 1);
+                            }
+
+                            schedule();
+                        };
+
+                        // Hear every descendant's motion, including events with their own template handler.
+                        for (let type of ['animationcancel', 'animationend', 'animationstart', 'transitioncancel', 'transitionend', 'transitionrun']) {
+                            on(element, type, done, { direct: true });
+                        }
+
+                        // Captured, since scroll doesn't bubble: a scroll inside the field, or anywhere on the page,
+                        // moves the boxes it measures.
+                        on(element, 'scroll', viewport, { capture: true, passive: true });
+                        on(matchMedia('(prefers-color-scheme: dark)'), 'change', recolor);
+                        on(window, 'scroll', () => {
+                            bounds = null;
+                        }, { capture: true, passive: true });
+                    },
                     onconnect: (element: HTMLElement) => {
                         if (!canvas) {
                             return;
@@ -618,19 +645,7 @@ export default component(
                             ? remote(canvas, url)
                             : engine(canvas, scheduler());
 
-                        listening = new AbortController();
-
-                        let done = (event: Event) => {
-                                if (event.type === 'transitionrun' || event.type === 'animationstart') {
-                                    running++;
-                                }
-                                else {
-                                    running = Math.max(0, running - 1);
-                                }
-
-                                schedule();
-                            },
-                            intersection = observeIntersection(element, (entries) => {
+                        let intersection = observeIntersection(element, (entries) => {
                                 shown = entries[entries.length - 1].isIntersecting && !document.hidden;
                                 field?.visible(shown);
                             }),
@@ -651,7 +666,6 @@ export default component(
 
                                 schedule();
                             }),
-                            signal = listening.signal,
                             theme = new MutationObserver(() => {
                                 styles = new WeakMap();
                                 recolor();
@@ -666,32 +680,17 @@ export default component(
                             subtree: true
                         });
                         theme.observe(document.documentElement, { attributes: true });
-
-                        // Hear every descendant's motion, including events with their own template handler.
-                        for (let type of ['animationcancel', 'animationend', 'animationstart', 'transitioncancel', 'transitionend', 'transitionrun']) {
-                            element.addEventListener(type, done, { signal });
-                        }
-
-                        // Captured, which template's events aren't, since scroll doesn't bubble: a scroll inside the
-                        // field, or anywhere on the page, moves the boxes it measures.
-                        element.addEventListener('scroll', viewport, { capture: true, passive: true, signal });
-                        matchMedia('(prefers-color-scheme: dark)').addEventListener('change', recolor, { signal });
-                        window.addEventListener('scroll', () => {
-                            bounds = null;
-                        }, { capture: true, passive: true, signal });
-                        signal.addEventListener('abort', () => {
+                        onCleanup(() => {
                             intersection();
                             mutation.disconnect();
                             resizer?.disconnect();
                             theme.disconnect();
-                        }, { once: true });
+                        });
 
                         collect();
                         sync();
                     },
                     ondisconnect: () => {
-                        listening?.abort();
-                        listening = undefined;
                         pressed.clear();
                         cancelAnimationFrame(measuring);
                         measuring = 0;

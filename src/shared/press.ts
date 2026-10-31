@@ -1,4 +1,4 @@
-import type { Attributes } from '@esportsplus/template';
+import { on, type Attributes } from '@esportsplus/template';
 
 
 // A press that turns into a drag: a mouse's once it moves past a few pixels, a touch's once it has held still for the
@@ -68,8 +68,7 @@ export default (delay: number) => {
         }
     }
 
-    // Cancels the page's scroll under a touch drag. Not a template listener: those go with their node, and a touch's
-    // events stay with the node it landed on.
+    // Cancels the page's scroll under a touch drag.
     function scroll(e: Event) {
         if (session?.started) {
             e.preventDefault();
@@ -120,8 +119,8 @@ export default (delay: number) => {
             // On the document, which a scroll container needs to hold its scroll for the press, and on the node the
             // touch landed on, which keeps getting its events once a drag moves it out of the DOM.
             if (target && listening) {
-                document.addEventListener('touchmove', scroll, { passive: false, signal: listening.signal });
-                target.addEventListener('touchmove', scroll, { passive: false, signal: listening.signal });
+                on(document, 'touchmove', scroll, { passive: false, signal: listening.signal });
+                on(target, 'touchmove', scroll, { direct: true, passive: false, signal: listening.signal });
                 session.timer = setTimeout(start, delay);
             }
         },
@@ -137,7 +136,7 @@ export default (delay: number) => {
 // The pointerup that ends a drag is followed by a click on whatever sits under the pointer; touch sends none, so it
 // lapses with the task.
 const swallow = () => {
-    addEventListener('click', stop, { capture: true, once: true, signal: AbortSignal.timeout(0) });
+    on(window, 'click', stop, { capture: true, once: true, signal: AbortSignal.timeout(0) });
 };
 
 

@@ -1,5 +1,5 @@
 import { effect, peek, read, root, signal, untrack, write } from '@esportsplus/reactivity';
-import { html, render } from '@esportsplus/template';
+import { html, on, render } from '@esportsplus/template';
 
 
 type Active = Source & { rect: Rect };
@@ -61,10 +61,9 @@ const manager = ({ collide, end, label }: { collide: Collide; end: (active: Acti
             let controller = new AbortController(),
                 origin = { x: e.clientX, y: e.clientY },
                 rects: Target[] = [],
+                signal = controller.signal,
                 started = false;
 
-            // Only for the length of the press, which template's document events, living as long as their element,
-            // can't follow.
             pressed = () => controller.abort();
 
             function move(e: PointerEvent) {
@@ -87,15 +86,15 @@ const manager = ({ collide, end, label }: { collide: Collide; end: (active: Acti
                 write(over, rects.find((target) => target.id === id) ?? null);
             }
 
-            document.addEventListener('keydown', (e) => {
+            on(document, 'keydown', (e) => {
                 if (e.key === 'Escape') {
                     e.preventDefault();
                     reset();
                 }
-            }, { signal: controller.signal });
-            document.addEventListener('pointercancel', reset, { signal: controller.signal });
-            document.addEventListener('pointermove', move, { signal: controller.signal });
-            document.addEventListener('pointerup', (e) => {
+            }, { signal });
+            on(document, 'pointercancel', reset, { signal });
+            on(document, 'pointermove', move, { signal });
+            on(document, 'pointerup', (e) => {
                 let current = peek(active),
                     target = peek(over);
 
@@ -104,7 +103,7 @@ const manager = ({ collide, end, label }: { collide: Collide; end: (active: Acti
                 if (started && current) {
                     end(current, target, { x: e.clientX, y: e.clientY });
                 }
-            }, { signal: controller.signal });
+            }, { signal });
         },
 
         // Registers the element as a drop target while it is connected; it carries '--over' while the drag is over it.

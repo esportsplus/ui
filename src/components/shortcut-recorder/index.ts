@@ -1,5 +1,5 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import { effect, flush, onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, flush, reactive } from '@esportsplus/reactivity';
 import error, { type Direction } from '~/components/error';
 import icon from '~/components/icon';
 import { mac as apple } from '~/shared/platform';
@@ -111,7 +111,6 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
         connected = false,
         field: HTMLElement | undefined,
         keys = reactive([] as Key[]),
-        listeners: AbortController | undefined,
         mac = apple(),
         pressed: string[] = [],
         status = reactive({ recording: false });
@@ -152,6 +151,10 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
     // While recording every key belongs to the field, taken before the page's own shortcuts can act on it.
     // Keys gather into one chord until a key is released, or until the chord reaches 'limit' when one is set.
     function onkeydown(e: KeyboardEvent) {
+        if (!status.recording) {
+            return;
+        }
+
         e.preventDefault();
         e.stopImmediatePropagation();
 
@@ -210,6 +213,10 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
 
     // macOS drops keyup for keys pressed while ⌘ is held, so releasing any key, modifiers included, ends the chord.
     function onkeyup(e: KeyboardEvent) {
+        if (!status.recording) {
+            return;
+        }
+
         e.stopImmediatePropagation();
 
         let held = modifiers(e, mac);
@@ -251,27 +258,14 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
         pressed = [];
         status.recording = true;
         state.error = '';
-
-        listeners?.abort();
-        listeners = new AbortController();
-
-        let signal = listeners.signal;
-
-        window.addEventListener('keydown', onkeydown, { capture: true, signal });
-        window.addEventListener('keyup', onkeyup, { capture: true, signal });
     }
 
     function stop() {
-        listeners?.abort();
         status.recording = false;
         state.error = '';
     }
 
     effect(() => status.recording ? [] : parse(state.value), (tokens) => show(tokens, connected ? 'settle' : ''));
-
-    onCleanup(() => {
-        listeners?.abort();
-    });
 
     return error({ direction, duration: ERROR_DURATION, state }, html`
         <button
@@ -284,6 +278,10 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
                     () => status.recording && '--active',
                     () => state.error && '--invalid'
                 ],
+                on: (on) => {
+                    on(window, 'keydown', onkeydown, { capture: true });
+                    on(window, 'keyup', onkeyup, { capture: true });
+                },
                 onclick: () => {
                     if (status.recording) {
                         stop();

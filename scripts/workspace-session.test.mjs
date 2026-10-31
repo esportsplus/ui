@@ -81,7 +81,7 @@ test('parse keeps well-formed fields and drops what a hand-edited store got wron
 test('the session stores tabs, selection, scroll, folds, explorer state and only unsaved drafts', async (t) => {
     const { host, hosting, model, view, writes } = await fixture({ session: null });
     t.after(() => model.dispose());
-    const stop = hosting.connect({ addEventListener() {}, ownerDocument: {} });
+    const stop = hosting.connect();
     t.after(stop);
     await hosting.restore();
     const a = await model.open('src/a.ts'),
@@ -142,7 +142,7 @@ test('restore brings back tabs, hot-exit drafts against the file on disk and the
     const { hosting, model, view, writes } = await fixture({ session: stored });
     t.after(() => model.dispose());
     assert.equal(hosting.ready(), false);
-    hosting.connect({ addEventListener() {}, ownerDocument: {} });
+    hosting.connect();
     await hosting.restore();
     assert.equal(hosting.ready(), true);
     assert.deepEqual(hosting.explorer, { expanded: ['src'], scroll: 24 });
@@ -190,7 +190,7 @@ test('baselines are fetched per open tab, marked when they differ, and fetched a
     const head = { 'src/a.ts': 'alpha\n', 'src/b.ts': FILES['src/b.ts'] },
         { host, hosting, model } = await fixture({ head });
     t.after(() => model.dispose());
-    hosting.connect({ addEventListener() {}, ownerDocument: {} });
+    hosting.connect();
     await hosting.restore();
     let reads = 0;
     const baseline = host.baseline;
@@ -325,7 +325,7 @@ test('the navigation keys follow the editor keymap, rebindings included, ahead o
         handler;
     const runs = [],
         navigation = navigate({ bindings: () => bindings, hosting, model, tree: () => undefined });
-    navigation.connect({ addEventListener: (_type, listener) => (handler = listener) });
+    navigation.attributes.on((_target, _type, listener) => (handler = listener), {});
     const press = (key, extra = {}) => {
         const event = {
             altKey: false, code: key, ctrlKey: false, defaultPrevented: false, isComposing: false, key, metaKey: false, shiftKey: false,

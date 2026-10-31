@@ -11,21 +11,20 @@ let box = '--padding-horizontal: var(--size-500); --padding-vertical: var(--size
 
 
 function morph() {
-    let shell: HTMLElement | undefined,
-        rendered: HTMLElement[] = [],
-        state = reactive({ active: 0 });
+    let rendered: HTMLElement[] = [],
+        state = reactive({ active: 0, height: '', width: '' });
 
     function select(index: number) {
         let layer = rendered[index];
 
         state.active = index;
 
-        if (!shell || !layer) {
+        if (!layer) {
             return;
         }
 
-        shell.style.setProperty('--morph-height', `${layer.offsetHeight}px`);
-        shell.style.setProperty('--morph-width', `${layer.offsetWidth}px`);
+        state.height = `${layer.offsetHeight}px`;
+        state.width = `${layer.offsetWidth}px`;
     }
 
     return html`
@@ -39,10 +38,10 @@ function morph() {
                 class='card card--morph'
                 style='--padding-horizontal: var(--size-500); --padding-vertical: var(--size-500); --border-radius: var(--border-radius-400);'
                 ${{
-                    onconnect: (element: HTMLElement) => {
-                        shell = element;
+                    onconnect: () => {
                         select(state.active);
-                    }
+                    },
+                    style: () => ({ '--morph-height': state.height, '--morph-width': state.width })
                 }}
             >
                 <div class='card-morph-viewport' style='${() => `--i: ${state.active}`}'>

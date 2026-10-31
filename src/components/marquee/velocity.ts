@@ -1,3 +1,6 @@
+import { on } from '@esportsplus/template';
+
+
 type Tracker = {
     // Smoothed velocity mapped to a speed boost: signed, capped at MAX_FACTOR.
     factor: number;
@@ -31,7 +34,7 @@ const STIFFNESS = 400;
 const SUBSTEP = 1 / 240;
 
 
-// Every marquee on one scroller shares a tracker, so they stay in step however many there are.
+// Every marquee on one scroller shares a tracker's spring, so they stay in step however many there are.
 let trackers = new Map<EventTarget, Tracker>();
 
 
@@ -107,7 +110,7 @@ const track = (element: HTMLElement, wake: VoidFunction) => {
                     return;
                 }
 
-                target.removeEventListener('scroll', scroll);
+                unlisten();
                 trackers.delete(target);
             },
             smooth: 0,
@@ -116,7 +119,8 @@ const track = (element: HTMLElement, wake: VoidFunction) => {
             time: 0,
             velocity: 0,
             wakes: new Set([wake])
-        };
+        },
+        unlisten = on(target, 'scroll', scroll, { direct: true, passive: true });
 
     function scroll() {
         let now = performance.now(),
@@ -133,7 +137,6 @@ const track = (element: HTMLElement, wake: VoidFunction) => {
         }
     }
 
-    target.addEventListener('scroll', scroll, { passive: true });
     trackers.set(target, t);
 
     return t;

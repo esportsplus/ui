@@ -441,7 +441,9 @@ function template(
                 ${{
                     class: () => state.active && '--active',
                     inert: () => !state.active,
-                    onactivewheel: wheel,
+                    on: (on, element) => {
+                        on(element, 'wheel', wheel, { direct: true, passive: false });
+                    },
                     onconnect: (element: HTMLElement) => {
                         parts.panel = element;
                     },

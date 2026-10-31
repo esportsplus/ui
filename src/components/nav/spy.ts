@@ -1,5 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
-import { setProperties, type Element as Bound } from '@esportsplus/template';
+import { on, setProperties, type Element as Bound } from '@esportsplus/template';
 import { observer } from '~/shared/resize';
 import { viewport } from '~/shared/viewport';
 
@@ -153,12 +153,14 @@ const spy = (ids: string[], mode: Mode = 'current') => {
 
             root = container(elements[0].element);
 
-            let resize = observer(schedule),
+            let listening = new AbortController(),
+                resize = observer(schedule),
+                signal = listening.signal,
                 target: EventTarget = root === document.scrollingElement ? window : root;
 
             // The scroller is the page's or an ancestor's, found at runtime, not an element this template renders.
-            target.addEventListener('scroll', schedule, { passive: true });
-            target.addEventListener('scrollend', scrollend);
+            on(target, 'scroll', schedule, { direct: true, passive: true, signal });
+            on(target, 'scrollend', scrollend, { direct: true, signal });
             resize.observe(root);
 
             for (let i = 0, n = elements.length; i < n; i++) {
@@ -170,9 +172,8 @@ const spy = (ids: string[], mode: Mode = 'current') => {
             return () => {
                 cancelAnimationFrame(frame);
                 clearTimeout(timer);
+                listening.abort();
                 resize.disconnect();
-                target.removeEventListener('scroll', schedule);
-                target.removeEventListener('scrollend', scrollend);
                 frame = 0;
                 root = undefined;
             };

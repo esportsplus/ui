@@ -26,25 +26,41 @@ const STEP = 16;
 function resizable({ plain = false, separator, status }: { plain?: boolean, separator?: Separator, status?: { last: string } } = {}) {
     let drag: { max: number | undefined; width: number; x: number } | null = null,
         frame: HTMLElement | undefined,
-        handle: HTMLElement | undefined,
+        // 'width' is the frame's, null until it is first resized.
+        size = reactive({ max: 520, now: 520, width: null as number | null }),
         wrap: HTMLElement | undefined;
 
-    // Written straight to the DOM: resizing is continuous, and only a fold change inside the trail reacts.
     function resize(width: number, max = wrap?.clientWidth ?? width) {
-        if (!frame || !handle) {
+        if (!frame) {
             return;
         }
 
         let next = Math.round(Math.min(Math.max(width, MIN_WIDTH), max));
 
-        frame.style.width = `${next}px`;
-        handle.setAttribute('aria-valuemax', String(Math.round(max)));
-        handle.setAttribute('aria-valuenow', String(next));
+        size.max = Math.round(max);
+        size.now = next;
+        size.width = next;
     }
 
     return html`
-        <div class='breadcrumb-demo' ${{ onconnect: (element: HTMLElement) => { wrap = element; } }}>
-            <div class='breadcrumb-demo-frame ${plain && 'breadcrumb-demo-frame--plain'}' ${{ onconnect: (element: HTMLElement) => { frame = element; } }}>
+        <div
+            class='breadcrumb-demo'
+            ${{
+                onconnect: (element: HTMLElement) => {
+                    wrap = element;
+                    size.max = size.now = Math.round(element.clientWidth);
+                }
+            }}
+        >
+            <div
+                class='breadcrumb-demo-frame ${plain && 'breadcrumb-demo-frame--plain'}'
+                ${{
+                    onconnect: (element: HTMLElement) => {
+                        frame = element;
+                    },
+                    style: () => size.width !== null && `width: ${size.width}px;`
+                }}
+            >
                 ${breadcrumb({
                     items: path,
                     separator,
@@ -57,21 +73,13 @@ function resizable({ plain = false, separator, status }: { plain?: boolean, sepa
                 <div
                     aria-label='Container width'
                     aria-orientation='horizontal'
-                    aria-valuemax='520'
                     aria-valuemin='${MIN_WIDTH}'
-                    aria-valuenow='520'
                     class='breadcrumb-demo-handle'
                     role='slider'
                     tabindex='0'
                     ${{
-                        onconnect: (element: HTMLElement) => {
-                            handle = element;
-
-                            let max = String(Math.round(wrap?.clientWidth ?? 0));
-
-                            element.setAttribute('aria-valuemax', max);
-                            element.setAttribute('aria-valuenow', max);
-                        },
+                        'aria-valuemax': () => size.max,
+                        'aria-valuenow': () => size.now,
                         onkeydown: (e: KeyboardEvent) => {
                             let width = frame?.offsetWidth ?? 0,
                                 next = ({

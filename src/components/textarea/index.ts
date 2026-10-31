@@ -1,4 +1,4 @@
-import { component, html, type Attributes, type Element } from '@esportsplus/template';
+import { component, html, type Attributes, type Element as Bound } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import form from '~/components/form';
 import { observeSize } from '~/shared/resize';
@@ -29,7 +29,6 @@ export default component(function(
         // The owner's value the mirror last showed; any other change to the text is the field's own.
         last: unknown,
         measured = reactive({ height: 0, revision: 0, scrollable: false }),
-        owner: HTMLFormElement | null | undefined,
         placeholder = attributes.placeholder ?? this?.attributes?.placeholder,
         resetFrame: number | undefined,
         limits = resize && `--max-height: ${resize.height.max}; --min-height: ${resize.height.min};`,
@@ -79,16 +78,16 @@ export default component(function(
             ${attributes}
             ${resize && [motion.attributes, {
                 class: ['textarea--autoresize', () => measured.scrollable && 'textarea--scrollable'],
-                onconnect: (element: Element<HTMLTextAreaElement>) => {
-                    field = element;
-                    owner = element.form;
+                on: (on, element: Bound<HTMLTextAreaElement>) => {
                     // A form's reset never reaches the field's own bindings, so it is heard on the form.
-                    owner?.addEventListener('reset', reset);
+                    if (element.form) {
+                        on(element.form, 'reset', reset);
+                    }
+                },
+                onconnect: (element: Bound<HTMLTextAreaElement>) => {
+                    field = element;
                 },
                 ondisconnect: () => {
-                    owner?.removeEventListener('reset', reset);
-                    owner = undefined;
-
                     if (resetFrame !== undefined) {
                         cancelAnimationFrame(resetFrame);
                         resetFrame = undefined;
@@ -96,9 +95,9 @@ export default component(function(
 
                     field = undefined;
                 },
-                oninput: function(this: HTMLElement, event: InputEvent) {
+                oninput: function(this: HTMLElement, event: InputEvent, dispose: VoidFunction) {
                     measured.revision++;
-                    caller?.call(this, event);
+                    caller?.call(this, event, dispose);
                 },
                 style: [limits, () => measured.height && `--height: ${measured.height}px;`]
             }]}

@@ -191,8 +191,7 @@ function panel(side: Side, peeking: Peeking, frame: Frame, edge: Edge) {
                     hide();
                 }
             }
-        }),
-        listening: AbortController | undefined;
+        });
 
     function hide() {
         if (peeking[edge]) {
@@ -214,24 +213,19 @@ function panel(side: Side, peeking: Peeking, frame: Frame, edge: Edge) {
                     () => frame[edge].dragging && 'shell-sidebar--dragging'
                 ],
                 inert: () => !side.state.active && !peeking[edge],
-                // Delegated handlers stop at the nearest bound element, and the sidebar's content binds pointer events
-                // of its own, so the drag listens on the sidebar directly.
+                // Direct: the sidebar's content binds pointer events of its own, which delegation would stop at.
+                on: (on, element) => {
+                    // Links would otherwise start a native drag-and-drop mid-swipe and cancel the pointer.
+                    on(element, 'dragstart', (e) => e.preventDefault(), { direct: true });
+                    on(element, 'pointercancel', gesture.onpointercancel, { direct: true });
+                    on(element, 'pointerdown', gesture.onpointerdown, { direct: true });
+                    on(element, 'pointerleave', (e) => leave(side, peeking, frame, edge, e), { direct: true });
+                    on(element, 'pointermove', gesture.onpointermove, { direct: true });
+                    on(element, 'pointerup', gesture.onpointerup, { direct: true });
+                },
                 onconnect: (element: HTMLElement) => {
                     frame[edge].sidebar = element;
-                    listening?.abort();
-                    listening = new AbortController();
-
-                    let signal = listening.signal;
-
-                    // Links would otherwise start a native drag-and-drop mid-swipe and cancel the pointer.
-                    element.addEventListener('dragstart', (e) => e.preventDefault(), { signal });
-                    element.addEventListener('pointercancel', gesture.onpointercancel, { signal });
-                    element.addEventListener('pointerdown', gesture.onpointerdown, { signal });
-                    element.addEventListener('pointerleave', (e) => leave(side, peeking, frame, edge, e), { signal });
-                    element.addEventListener('pointermove', gesture.onpointermove, { signal });
-                    element.addEventListener('pointerup', gesture.onpointerup, { signal });
                 },
-                ondisconnect: () => listening?.abort(),
                 onkeydown: (e: KeyboardEvent) => {
                     if (e.key === 'Escape' && !e.defaultPrevented) {
                         e.preventDefault();

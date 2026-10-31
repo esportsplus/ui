@@ -180,7 +180,9 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
             tabindex='0'
             ${{
                 class: () => view.panning && '--panning',
-                onactivewheel: wheel,
+                on: (on, element) => {
+                    on(element, 'wheel', wheel, { direct: true, passive: false });
+                },
                 onconnect: (element: HTMLElement) => {
                     viewport = element;
                     requestAnimationFrame(() => fit(true));

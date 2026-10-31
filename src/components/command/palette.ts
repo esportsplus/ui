@@ -420,8 +420,13 @@ export default component(
             }))),
             // The trigger, or the panel without one; the hotkey stays quiet while it is gone or inert.
             host: HTMLElement | undefined,
-            // Ends the hotkey listener with its host.
-            listening: AbortController | undefined,
+            listening: Attributes | false = keys.length > 0 && {
+                on: (on, element) => {
+                    host = element;
+                    // Capture, so it runs before the site's search, which listens later.
+                    on(window, 'keydown', shortcut, { capture: true });
+                }
+            },
             lookup = computed(() => new Map(read(entries).map((entry) => [entry.id, entry]))),
             // A Set keeps insertion order, most recent first, and replacing it is what re-runs the list.
             ui = reactive({ moving: false, recent: new Set<string>() }),
@@ -506,18 +511,6 @@ export default component(
                 placeholder,
                 search: `Search ${group}`
             }));
-        }
-
-        function listen(element: HTMLElement) {
-            if (!keys.length) {
-                return;
-            }
-
-            listening = new AbortController();
-            host = element;
-
-            // Capture, so it runs before the site's search, which listens later.
-            addEventListener('keydown', shortcut, { capture: true, signal: listening.signal });
         }
 
         // All lists a recent command twice, so rows go by position rather than command id.
@@ -623,7 +616,7 @@ export default component(
             }
 
             // Another palette on the page already claimed it; inert copies stay quiet.
-            if (e.defaultPrevented || !host?.isConnected || host.closest('[inert]')) {
+            if (e.defaultPrevented || host?.closest('[inert]')) {
                 return;
             }
 
@@ -668,10 +661,6 @@ export default component(
             };
         }
 
-        function unlisten() {
-            listening?.abort();
-        }
-
         return html`
             <div class='command' ${this?.attributes} ${attributes}>
                 ${trigger && html`
@@ -684,10 +673,9 @@ export default component(
                         ${attributes[COMMAND_TRIGGER]}
                         ${{
                             'aria-expanded': () => state.active ? 'true' : 'false',
-                            onclick: show,
-                            onconnect: listen,
-                            ondisconnect: unlisten
+                            onclick: show
                         }}
+                        ${listening}
                     >
                         ${sprite(magnifier, 'command-trigger-icon command-trigger-icon--search')}
                         <span class='command-trigger-label'>${label}</span>
@@ -707,7 +695,7 @@ export default component(
                         <div
                             class='command-panel'
                             ${{ onmousedown: keep }}
-                            ${!trigger && { onconnect: listen, ondisconnect: unlisten }}
+                            ${!trigger && listening}
                         >
                             <div class='command-body'>
                                 <div class='command-search'>

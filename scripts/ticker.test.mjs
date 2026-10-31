@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { registerHooks } from 'node:module';
 import test from 'node:test';
 
 
@@ -13,6 +14,14 @@ Object.assign(globalThis, {
         frames.set(++frameId, callback);
         return frameId;
     }
+});
+
+// The marquee's tracker binds its scroll listener through the template, which needs a DOM to load; only its spring is
+// tested here.
+registerHooks({
+    resolve: (specifier, context, next) => specifier === '@esportsplus/template'
+        ? { shortCircuit: true, url: 'data:text/javascript,export let on = () => () => {};' }
+        : next(specifier, context)
 });
 
 let { ticker } = await import('../src/shared/ticker.ts');
