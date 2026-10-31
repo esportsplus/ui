@@ -87,7 +87,7 @@ function template(this: { attributes?: Partial<A> } | void, { data, describe = s
         // The roving tab stop: a move reaches only the cell it leaves and the one it lands on.
         current = signal(initial),
         months: { column: number; name: string }[] = [],
-        tip = tooltip.shared(),
+        tip = tooltip.shared({ swap: false }),
         view = reactive({ shown: false }),
         weeks = Math.ceil(data.length / 7);
 

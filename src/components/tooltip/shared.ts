@@ -54,7 +54,9 @@ type Options = {
     // nothing and the content keeps its state. Held per rendered trigger, so it never outgrows the page; delegated
     // and requested content, which can come from any number of triggers, still renders on every open.
     keep?: boolean,
-    state?: State
+    state?: State,
+    // Content slides over between triggers as a 'frame--swap'; off, it switches in place.
+    swap?: boolean
 };
 
 type State = {
@@ -118,7 +120,7 @@ function place(anchor: DOMRect, direction: Direction, gap: number, height: numbe
 // them while its content slides over. 'bind()' makes one element a trigger, 'delegate()' every matching descendant of
 // a container. 'render()' places the surface; it lives in the top layer, so no ancestor clips it, but still inherits
 // custom properties from wherever it is rendered.
-const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, direction = 'n', dismiss, interactive = false, keep = false, state = reactive({ active: false, index: -1 }) }: Options = {}) => {
+const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, direction = 'n', dismiss, interactive = false, keep = false, state = reactive({ active: false, index: -1 }), swap: swapping = true }: Options = {}) => {
     let active: Layer | null = null,
         bound = new Map<HTMLElement, Bound>(),
         box: HTMLElement | undefined,
@@ -142,13 +144,13 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
     let stack = html.reactive(layers, (layer) => html`
         <span
-            class='tooltip-shared-layer frame frame--swap'
+            class='tooltip-shared-layer frame ${swapping && 'frame--swap'}'
             ${{
                 class: [
                     () => layer.state.active && '--active',
-                    () => layer.state.leaving && 'frame--swap-leaving'
+                    () => swapping && layer.state.leaving && 'frame--swap-leaving'
                 ],
-                style: () => layer.state.travel && `--translate-x: ${layer.state.travel.x}; --translate-y: ${layer.state.travel.y};`
+                style: () => swapping && layer.state.travel && `--translate-x: ${layer.state.travel.x}; --translate-y: ${layer.state.travel.y};`
             }}
         >
             ${layer.content}

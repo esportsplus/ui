@@ -70,17 +70,11 @@
         --border-radius: var(--border-radius-100);
     }
 
-    // A long glide lags behind a pointer sweeping across 13px cells, and the content keeps pace with it. Gated so
-    // it can't undo the tooltip's reduced-motion override.
-    // The swap timings go on the layer, the 'frame' that declares its own.
+    // A long glide lags behind a pointer sweeping across 13px cells. Gated so it can't undo the tooltip's
+    // reduced-motion override.
     @media (prefers-reduced-motion: no-preference) {
         & .tooltip-shared {
             --glide-duration: 0.15s;
-
-            .tooltip-shared-layer {
-                --fade-duration: 0.1s;
-                --transition-duration: 0.15s;
-            }
         }
     }
 
@@ -94,7 +88,6 @@
         .tooltip-shared-layer {
             --padding-horizontal: var(--size-300);
             --padding-vertical: var(--size-100);
-            --transition-duration: 0s;
         }
     }
 }
