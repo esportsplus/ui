@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import icon from '~/components/icon';
+import icon from '../icon';
 import cmd from '@esportsplus/ui/svg/command.svg';
 
 

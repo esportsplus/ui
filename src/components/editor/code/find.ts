@@ -1,7 +1,7 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import icon from '~/components/icon';
-import input from '~/components/input';
+import icon from '../../icon';
+import input from '../../input';
 import { nextMatch, replaceMatches, searchDocument, type Match, type SearchOptions, type SearchResult } from './search';
 import type { EditorDocument, Selection } from './document';
 import down from '@esportsplus/ui/svg/arrow-down.svg';

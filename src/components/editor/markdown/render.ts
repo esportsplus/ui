@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, text, type Renderable } from '@esportsplus/template';
-import checkbox from '~/components/checkbox';
-import icon from '~/components/icon';
+import checkbox from '../../checkbox';
+import icon from '../../icon';
 import { sanitizeHtml, type SafeNode } from './html';
 import { clipInline, type Inline } from './inline';
 import type { Unit } from './layout';

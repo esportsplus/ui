@@ -1,6 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, flush, reactive, ReactiveArray } from '@esportsplus/reactivity';
-import { ms, timing } from '~/shared/animation';
+import { ms, timing } from '../../shared/animation';
 
 
 type A = Attributes & {

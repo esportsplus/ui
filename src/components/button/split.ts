@@ -1,7 +1,7 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import icon from '~/components/icon';
-import tooltip from '~/components/tooltip';
-import type { A as MenuAttributes } from '~/components/tooltip/menu';
+import icon from '../icon';
+import tooltip from '../tooltip';
+import type { A as MenuAttributes } from '../tooltip/menu';
 import chevronSvg from '@esportsplus/ui/svg/chevron-down.svg';
 
 

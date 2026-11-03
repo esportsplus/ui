@@ -1,9 +1,9 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import icon from '~/components/icon';
-import tooltip from '~/components/tooltip';
-import type { Controller as MenuController, Item } from '~/components/tooltip/menu';
-import { mac } from '~/shared/platform';
+import icon from '../../icon';
+import tooltip from '../../tooltip';
+import type { Controller as MenuController, Item } from '../../tooltip/menu';
+import { mac } from '../../../shared/platform';
 import diffs from '../diffs';
 import type { WorkspaceEditor } from './index';
 import type { EditorWorkspaceModel, WorkspaceTab } from './model';

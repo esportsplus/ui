@@ -1,8 +1,8 @@
 import { computed, effect, read, reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import highlight from '~/components/highlight';
-import icon from '~/components/icon';
-import scrollbar from '~/modifiers/scrollbar';
+import highlight from '../highlight';
+import icon from '../icon';
+import scrollbar from '../../modifiers/scrollbar';
 import type manager from './dnd';
 import type { Group, Layout, Surface } from './model';
 import type state from './model';

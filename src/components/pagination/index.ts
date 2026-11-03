@@ -1,12 +1,12 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
-import icon from '~/components/icon';
+import icon from '../icon';
 import next from '@esportsplus/ui/svg/arrow-right.svg';
 import previous from '@esportsplus/ui/svg/arrow-left.svg';
 import arrows from './arrows';
 import cards from './cards';
 import dots from './dots';
-import '~/components/button/scss/index.scss';
+import '../button/scss/index.scss';
 import './scss/index.scss';
 
 

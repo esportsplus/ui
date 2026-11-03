@@ -1,8 +1,8 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { computed, effect, onCleanup, reactive, ReactiveArray, read, untrack } from '@esportsplus/reactivity';
-import tooltip from '~/components/tooltip';
-import { deadline } from '~/shared/deadline';
-import { viewport } from '~/shared/viewport';
+import tooltip from '../tooltip';
+import { deadline } from '../../shared/deadline';
+import { viewport } from '../../shared/viewport';
 import './scss/index.scss';
 
 

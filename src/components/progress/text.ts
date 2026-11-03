@@ -1,7 +1,7 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
-import icon from '~/components/icon';
-import { timing } from '~/shared/animation';
+import icon from '../icon';
+import { timing } from '../../shared/animation';
 import check from '@esportsplus/ui/svg/check.svg';
 
 

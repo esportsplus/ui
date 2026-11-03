@@ -1,6 +1,6 @@
-import { timing } from '~/shared/animation';
-import { swallow } from '~/shared/press';
-import { viewport } from '~/shared/viewport';
+import { timing } from './animation';
+import { swallow } from './press';
+import { viewport } from './viewport';
 
 
 // Drag-to-dismiss: capture past a small threshold, follow the pointer out by any of the ways the element may leave,

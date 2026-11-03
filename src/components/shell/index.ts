@@ -1,9 +1,9 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import { drag } from '~/shared/drag';
-import button from '~/components/button';
-import scrollbar from '~/modifiers/scrollbar';
-import '~/components/card/scss/index.scss';
+import { drag } from '../../shared/drag';
+import button from '../button';
+import scrollbar from '../../modifiers/scrollbar';
+import '../card/scss/index.scss';
 import './scss/index.scss';
 
 

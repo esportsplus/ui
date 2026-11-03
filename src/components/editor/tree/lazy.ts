@@ -1,5 +1,5 @@
 import { html, type Attributes } from '@esportsplus/template';
-import loading from '~/components/loading';
+import loading from '../../loading';
 import type { FileTreeElement as Element } from '.';
 
 

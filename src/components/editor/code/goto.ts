@@ -1,6 +1,6 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import input from '~/components/input';
+import input from '../../input';
 import { action } from './find';
 import close from '@esportsplus/ui/svg/close.svg';
 

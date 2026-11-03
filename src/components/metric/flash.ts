@@ -1,6 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
-import icon from '~/components/icon';
+import icon from '../icon';
 import triangle from '@esportsplus/ui/svg/triangle.svg';
 
 

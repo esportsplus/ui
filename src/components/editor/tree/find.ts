@@ -1,7 +1,7 @@
 import { flush, peek, reactive, read, write, type Signal } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import icon from '~/components/icon';
-import fuzzy from '~/shared/fuzzy';
+import icon from '../../icon';
+import fuzzy from '../../../shared/fuzzy';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import up from '@esportsplus/ui/svg/arrow-up.svg';
 import cross from '@esportsplus/ui/svg/close.svg';

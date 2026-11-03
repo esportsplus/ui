@@ -1,15 +1,15 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, flush, reactive, ReactiveArray, read, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
-import faces from '~/components/button/faces';
-import checkbox from '~/components/checkbox';
-import clipboard from '~/components/clipboard/write';
-import icon from '~/components/icon';
-import input from '~/components/input';
-import selectInput from '~/components/select';
-import tooltip from '~/components/tooltip';
-import { mac } from '~/shared/platform';
-import { observe } from '~/shared/resize';
-import { viewport } from '~/shared/viewport';
+import faces from '../button/faces';
+import checkbox from '../checkbox';
+import clipboard from '../clipboard/write';
+import icon from '../icon';
+import input from '../input';
+import selectInput from '../select';
+import tooltip from '../tooltip';
+import { mac } from '../../shared/platform';
+import { observe } from '../../shared/resize';
+import { viewport } from '../../shared/viewport';
 import { active, check, clear, extent, kindAt, link, setKind, toggle, unformat } from './format';
 import history, { type Entry, type Kind as Step } from './history';
 import { parse, serialize, type Feature, type Group } from './markdown';
@@ -30,8 +30,8 @@ import openSvg from '@esportsplus/ui/svg/external-link.svg';
 import pencilSvg from '@esportsplus/ui/svg/pencil.svg';
 import strikeSvg from '@esportsplus/ui/svg/strikethrough.svg';
 import unlinkSvg from '@esportsplus/ui/svg/unlink.svg';
-import '~/components/button/scss/index.scss';
-import '~/components/select/scss/index.scss';
+import '../button/scss/index.scss';
+import '../select/scss/index.scss';
 import './scss/index.scss';
 
 

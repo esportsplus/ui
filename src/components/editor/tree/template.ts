@@ -1,10 +1,10 @@
 import { effect, flush, peek, reactive, ReactiveArray, read, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import system from '~/components/clipboard';
-import highlight from '~/components/highlight';
-import icon from '~/components/icon';
-import tooltip from '~/components/tooltip';
-import fuzzy from '~/shared/fuzzy';
+import system from '../../clipboard';
+import highlight from '../../highlight';
+import icon from '../../icon';
+import tooltip from '../../tooltip';
+import fuzzy from '../../../shared/fuzzy';
 import chevron from '@esportsplus/ui/svg/chevron-right.svg';
 import symlink from '@esportsplus/ui/svg/corner-down-right.svg';
 import lock from '@esportsplus/ui/svg/lock.svg';

@@ -1,10 +1,10 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import icon from '~/components/icon';
+import icon from '../icon';
 import next from '@esportsplus/ui/svg/chevron-right.svg';
 import previous from '@esportsplus/ui/svg/chevron-left.svg';
 import type { Link } from './arrows';
-import '~/components/card/scss/index.scss';
-import '~/modifiers/box-shadow/scss/index.scss';
+import '../card/scss/index.scss';
+import '../../modifiers/box-shadow/scss/index.scss';
 
 
 const PAGINATION_CARD = Symbol.for('@esportsplus/ui/pagination.cards.card');

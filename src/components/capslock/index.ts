@@ -1,8 +1,8 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import icon from '~/components/icon';
+import icon from '../icon';
 import capsLock from '@esportsplus/ui/svg/caps-lock.svg';
-import '~/components/button/scss/index.scss';
+import '../button/scss/index.scss';
 import './scss/index.scss';
 
 

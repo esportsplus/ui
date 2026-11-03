@@ -1,6 +1,6 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
-import { timing } from '~/shared/animation';
+import { timing } from '../../../shared/animation';
 
 
 type A = Attributes & {

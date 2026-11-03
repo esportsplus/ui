@@ -1,8 +1,8 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
-import icon from '~/components/icon';
+import icon from '../icon';
 import svg from '@esportsplus/ui/svg/bell.svg';
-import '~/components/button/scss/index.scss';
+import '../button/scss/index.scss';
 import './scss/index.scss';
 
 

@@ -1,7 +1,7 @@
 import { reactive, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import icon from '~/components/icon';
-import scrollbar from '~/modifiers/scrollbar';
+import icon from '../../icon';
+import scrollbar from '../../../modifiers/scrollbar';
 import codeEditor, { type Controller } from '../code';
 import { EditorDocument } from '../code/document';
 import { languageFor, type Language } from '../code/syntax';

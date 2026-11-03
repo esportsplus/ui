@@ -1,11 +1,11 @@
 import { effect, flush, reactive, ReactiveArray, root, untrack } from '@esportsplus/reactivity';
 import { html, setProperties, type Attributes, type Element as Bindable, type Renderable } from '@esportsplus/template';
-import overlay from '~/components/overlay';
-import { finished } from '~/shared/animation';
-import { observe } from '~/shared/resize';
-import { fit, viewport } from '~/shared/viewport';
+import overlay from '../overlay';
+import { finished } from '../../shared/animation';
+import { observe } from '../../shared/resize';
+import { fit, viewport } from '../../shared/viewport';
 import { cool, wait, warm, type Delay } from './utilities';
-import '~/components/frame/scss/index.scss';
+import '../frame/scss/index.scss';
 
 
 type A = Attributes & Options;

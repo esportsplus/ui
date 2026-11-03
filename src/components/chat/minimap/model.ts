@@ -1,4 +1,4 @@
-import { clamp } from '~/shared/clamp';
+import { clamp } from '../../../shared/clamp';
 
 
 // The turns in view, 'end' exclusive; an empty range lights nothing.

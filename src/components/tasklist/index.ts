@@ -1,8 +1,8 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { flush, reactive, ReactiveArray } from '@esportsplus/reactivity';
-import { finished, measure, slides, timing } from '~/shared/animation';
-import checkbox from '~/components/checkbox';
-import sortable from '~/components/sortable';
+import { finished, measure, slides, timing } from '../../shared/animation';
+import checkbox from '../checkbox';
+import sortable from '../sortable';
 import './scss/index.scss';
 
 

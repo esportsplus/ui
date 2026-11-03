@@ -1,6 +1,6 @@
 import { effect, root } from '@esportsplus/reactivity';
 import type { On } from '@esportsplus/template';
-import { mac } from '~/shared/platform';
+import { mac } from '../../../shared/platform';
 import { keymap, type Command } from '../code/keymap';
 import type { CodeController } from '../code/view';
 import type { Selection } from '../code/document';

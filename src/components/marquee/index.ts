@@ -1,9 +1,9 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
-import { clamp } from '~/shared/clamp';
-import { observer } from '~/shared/resize';
-import { ticker } from '~/shared/ticker';
-import { observeIntersection } from '~/shared/visible';
+import { clamp } from '../../shared/clamp';
+import { observer } from '../../shared/resize';
+import { ticker } from '../../shared/ticker';
+import { observeIntersection } from '../../shared/visible';
 import * as scroll from './velocity';
 import './scss/index.scss';
 

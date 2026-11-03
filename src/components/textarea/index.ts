@@ -1,8 +1,8 @@
 import { component, html, type Attributes, type Element } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import form from '~/components/form';
-import { observeSize } from '~/shared/resize';
-import { trackTransition } from '~/shared/transition';
+import form from '../form';
+import { observeSize } from '../../shared/resize';
+import { trackTransition } from '../../shared/transition';
 import './scss/index.scss';
 
 

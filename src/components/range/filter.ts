@@ -1,9 +1,9 @@
 import { computed, reactive, read } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
-import { clamp } from '~/shared/clamp';
-import { keystep } from '~/shared/keystep';
-import icon from '~/components/icon';
-import input from '~/components/input';
+import { clamp } from '../../shared/clamp';
+import { keystep } from '../../shared/keystep';
+import icon from '../icon';
+import input from '../input';
 import close from '@esportsplus/ui/svg/close.svg';
 
 

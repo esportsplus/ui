@@ -1,8 +1,8 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, read as get, signal, untrack, write } from '@esportsplus/reactivity';
 import { pool } from '@esportsplus/workers';
-import { observer, type Observer } from '~/shared/resize';
-import { observeIntersection } from '~/shared/visible';
+import { observer, type Observer } from '../../shared/resize';
+import { observeIntersection } from '../../shared/visible';
 import engine, { scheduler, type Camera, type Link as Path, type Rgb, type Settings, type Shape } from './engine';
 import surface from './surface';
 import type { Actions, Call, Field } from './worker';

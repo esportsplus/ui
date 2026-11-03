@@ -1,5 +1,5 @@
 import template from './template';
-import '~/components/button/scss/index.scss';
+import '../../button/scss/index.scss';
 import './scss/index.scss';
 
 

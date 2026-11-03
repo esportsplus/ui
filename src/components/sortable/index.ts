@@ -1,7 +1,7 @@
 import { flush, reactive, read, root, signal, write, type ReactiveArray, type Signal } from '@esportsplus/reactivity';
 import { html, setProperties, type Attributes, type Element as Bound, type Renderable } from '@esportsplus/template';
-import { finished, measure, slides, timing } from '~/shared/animation';
-import press from '~/shared/press';
+import { finished, measure, slides, timing } from '../../shared/animation';
+import press from '../../shared/press';
 import './scss/index.scss';
 
 

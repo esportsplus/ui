@@ -1,5 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
-import { observer, type Observer } from '~/shared/resize';
+import { observer, type Observer } from '../../shared/resize';
 import { overlay } from '../glass';
 import './scss/index.scss';
 

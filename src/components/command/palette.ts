@@ -1,18 +1,18 @@
 import { computed, effect, reactive, read, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type On, type Renderable } from '@esportsplus/template';
-import highlight from '~/components/highlight';
-import icon from '~/components/icon';
-import input from '~/components/input';
-import nav from '~/components/nav';
-import overlay from '~/components/overlay';
-import scrollbar from '~/modifiers/scrollbar';
-import { mac } from '~/shared/platform';
+import highlight from '../highlight';
+import icon from '../icon';
+import input from '../input';
+import nav from '../nav';
+import overlay from '../overlay';
+import scrollbar from '../../modifiers/scrollbar';
+import { mac } from '../../shared/platform';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import up from '@esportsplus/ui/svg/arrow-up.svg';
 import cmd from '@esportsplus/ui/svg/command.svg';
 import enter from '@esportsplus/ui/svg/enter.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
-import '~/components/frame/scss/index.scss';
+import '../frame/scss/index.scss';
 
 
 type A = Attributes & {

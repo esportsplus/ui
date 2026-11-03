@@ -1,12 +1,12 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
-import { measure, slides, timing } from '~/shared/animation';
-import { clamp } from '~/shared/clamp';
-import { keystep } from '~/shared/keystep';
-import copy from '~/components/button/copy';
-import icon from '~/components/icon';
-import input from '~/components/input';
-import range from '~/components/range';
+import { measure, slides, timing } from '../../shared/animation';
+import { clamp } from '../../shared/clamp';
+import { keystep } from '../../shared/keystep';
+import copy from '../button/copy';
+import icon from '../icon';
+import input from '../input';
+import range from '../range';
 import contrast from '@esportsplus/ui/svg/contrast.svg';
 import './scss/index.scss';
 

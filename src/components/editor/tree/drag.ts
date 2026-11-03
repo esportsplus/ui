@@ -1,6 +1,6 @@
 import { peek, reactive, read, signal, write, type Signal } from '@esportsplus/reactivity';
 import { html, on, type Attributes, type On } from '@esportsplus/template';
-import press from '~/shared/press';
+import press from '../../../shared/press';
 import { attach, collect, type Export, type ImportEntry } from './transfer';
 
 

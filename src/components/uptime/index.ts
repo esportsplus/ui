@@ -1,6 +1,6 @@
 import { batch, computed, effect, reactive, read, signal, write } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
-import { observeSize } from '~/shared/resize';
+import { observeSize } from '../../shared/resize';
 import './scss/index.scss';
 
 

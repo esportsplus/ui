@@ -1,6 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import inlineEdit from '~/components/inline-edit';
+import inlineEdit from '../inline-edit';
 
 
 type Geometry = { height: number, width: number, x: number, y: number };

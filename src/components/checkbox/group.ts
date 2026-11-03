@@ -1,6 +1,6 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { computed, reactive, read } from '@esportsplus/reactivity';
-import icon from '~/components/icon';
+import icon from '../icon';
 import dash from '@esportsplus/ui/svg/dash.svg';
 import options, { type Attr } from './options';
 

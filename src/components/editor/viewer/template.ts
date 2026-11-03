@@ -1,9 +1,9 @@
 import { reactive, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import copy from '~/components/button/copy';
-import icon from '~/components/icon';
-import scrollbar from '~/modifiers/scrollbar';
-import { observeSize } from '~/shared/resize';
+import copy from '../../button/copy';
+import icon from '../../icon';
+import scrollbar from '../../../modifiers/scrollbar';
+import { observeSize } from '../../../shared/resize';
 import { minimap, type Source } from '../code/minimap';
 import { languageFor, type Language, type Token } from '../code/syntax';
 import { hidden, outline, type Line } from './model';

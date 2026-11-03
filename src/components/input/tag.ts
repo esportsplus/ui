@@ -1,8 +1,8 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { flush, reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
 import close from '@esportsplus/ui/svg/close.svg';
-import icon from '~/components/icon';
-import { measure, ms, slides, timing } from '~/shared/animation';
+import icon from '../icon';
+import { measure, ms, slides, timing } from '../../shared/animation';
 import input from './field';
 
 

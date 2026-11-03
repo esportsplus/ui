@@ -1,6 +1,6 @@
 import { reactive, type Reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { observe } from '~/shared/resize';
+import { observe } from '../../../shared/resize';
 
 
 type Node<T> = {

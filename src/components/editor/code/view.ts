@@ -1,9 +1,9 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
-import scrollbar from '~/modifiers/scrollbar';
-import { clamp } from '~/shared/clamp';
-import { mac } from '~/shared/platform';
-import { observeSize } from '~/shared/resize';
+import scrollbar from '../../../modifiers/scrollbar';
+import { clamp } from '../../../shared/clamp';
+import { mac } from '../../../shared/platform';
+import { observeSize } from '../../../shared/resize';
 import { copied, read, write } from './clipboard';
 import {
     addNextOccurrence,

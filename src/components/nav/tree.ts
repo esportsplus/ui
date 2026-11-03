@@ -1,6 +1,6 @@
 import { effect, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import highlight, { type A as HighlightAttributes } from '~/components/highlight';
+import highlight, { type A as HighlightAttributes } from '../highlight';
 
 
 type A = Attributes & {

@@ -1,9 +1,9 @@
-import icon from '~/components/icon';
+import icon from '../icon';
 import monitor from '@esportsplus/ui/svg/monitor.svg';
 import moon from '@esportsplus/ui/svg/moon.svg';
 import sun from '@esportsplus/ui/svg/sun.svg';
 import type { Attributes } from '@esportsplus/template';
-import type { Mode, Preference } from '~/components/theme';
+import type { Mode, Preference } from '../theme';
 
 
 type A = Attributes & {

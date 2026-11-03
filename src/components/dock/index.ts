@@ -1,13 +1,13 @@
 import { effect, flush, onCleanup, reactive, ReactiveArray, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import icon from '~/components/icon';
-import input from '~/components/input';
-import overlay from '~/components/overlay';
-import sortable, { type SortableOptions } from '~/components/sortable';
-import tooltip from '~/components/tooltip';
-import { content as surface } from '~/components/tooltip/utilities';
-import scrollbar from '~/modifiers/scrollbar';
-import { observer } from '~/shared/resize';
+import icon from '../icon';
+import input from '../input';
+import overlay from '../overlay';
+import sortable, { type SortableOptions } from '../sortable';
+import tooltip from '../tooltip';
+import { content as surface } from '../tooltip/utilities';
+import scrollbar from '../../modifiers/scrollbar';
+import { observer } from '../../shared/resize';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import left from '@esportsplus/ui/svg/arrow-left.svg';
 import right from '@esportsplus/ui/svg/arrow-right.svg';
@@ -19,8 +19,8 @@ import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
 import enter from '@esportsplus/ui/svg/enter.svg';
 import grid from '@esportsplus/ui/svg/grid.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
-import '~/components/button/scss/index.scss';
-import '~/components/card/scss/index.scss';
+import '../button/scss/index.scss';
+import '../card/scss/index.scss';
 import './scss/index.scss';
 
 

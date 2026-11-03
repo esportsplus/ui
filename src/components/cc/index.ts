@@ -1,8 +1,8 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { computed, effect, onCleanup, reactive, read } from '@esportsplus/reactivity';
-import faces from '~/components/button/faces';
-import icon from '~/components/icon';
-import input from '~/components/input';
+import faces from '../button/faces';
+import icon from '../icon';
+import input from '../input';
 import amex from '@esportsplus/ui/svg/amex.svg';
 import card from '@esportsplus/ui/svg/card.svg';
 import checkSvg from '@esportsplus/ui/svg/check.svg';
@@ -11,7 +11,7 @@ import discover from '@esportsplus/ui/svg/discover.svg';
 import lock from '@esportsplus/ui/svg/lock.svg';
 import mastercard from '@esportsplus/ui/svg/mastercard.svg';
 import visa from '@esportsplus/ui/svg/visa.svg';
-import '~/components/button/scss/index.scss';
+import '../button/scss/index.scss';
 import './scss/index.scss';
 
 

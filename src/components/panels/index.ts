@@ -1,10 +1,10 @@
 import { flush, onCleanup, reactive, read, root, signal, untrack, write } from '@esportsplus/reactivity';
 import { component, html, render, setProperties, type Attributes, type Element as Bound, type Renderable } from '@esportsplus/template';
-import icon from '~/components/icon';
-import tooltip from '~/components/tooltip';
-import type { Controller } from '~/components/tooltip/menu';
-import { mac } from '~/shared/platform';
-import { observe } from '~/shared/resize';
+import icon from '../icon';
+import tooltip from '../tooltip';
+import type { Controller } from '../tooltip/menu';
+import { mac } from '../../shared/platform';
+import { observe } from '../../shared/resize';
 import manager, { type Active, type Point, type Target } from './dnd';
 import { group, launcher, title, type Catalog, type Context, type Kind } from './group';
 import state, { allGroups, bounded, contains, findGroup, MIN_FRACTION, type Group, type Layout, type Node, type Split, type Surface } from './model';

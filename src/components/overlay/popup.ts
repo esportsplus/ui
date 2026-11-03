@@ -1,6 +1,6 @@
 import { effect, onCleanup, owner, reactive, root } from '@esportsplus/reactivity';
 import { setProperties, type Attributes, type Element as Bound } from '@esportsplus/template';
-import { finished } from '~/shared/animation';
+import { finished } from '../../shared/animation';
 
 
 type State = { active: boolean };

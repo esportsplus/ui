@@ -1,4 +1,4 @@
-import { clamp } from '~/shared/clamp';
+import { clamp } from '../../../shared/clamp';
 import { floorIndex, lineStarts, type EditorDocument } from './document';
 import type { NativeText } from './projection';
 

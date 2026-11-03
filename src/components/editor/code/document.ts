@@ -1,4 +1,4 @@
-import { clamp } from '~/shared/clamp';
+import { clamp } from '../../../shared/clamp';
 
 
 type Change = Readonly<{

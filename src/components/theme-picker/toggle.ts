@@ -1,7 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { flush, reactive } from '@esportsplus/reactivity';
-import faces from '~/components/button/faces';
-import dismiss from '~/shared/dismiss';
+import faces from '../button/faces';
+import dismiss from '../../shared/dismiss';
 import { CHOICES, choice, glyph, radio, type A } from './shared';
 
 

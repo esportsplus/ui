@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import icon from '~/components/icon';
-import { mac } from '~/shared/platform';
+import icon from '../icon';
+import { mac } from '../../shared/platform';
 import cmd from '@esportsplus/ui/svg/command.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
 import command, { type State, type Tab } from './palette';

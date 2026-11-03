@@ -1,6 +1,6 @@
 import { component, html, Attributes } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
-import overlay from '~/components/overlay';
+import overlay from '../overlay';
 import { content, cool, morph, morphs, wait, warm, type Delay } from './utilities';
 
 

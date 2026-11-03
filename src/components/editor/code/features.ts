@@ -1,8 +1,8 @@
 import { effect, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import colorPicker from '~/components/color-picker';
-import icon from '~/components/icon';
-import tooltip from '~/components/tooltip';
+import colorPicker from '../../color-picker';
+import icon from '../../icon';
+import tooltip from '../../tooltip';
 import { changeLines, lineChanges, revertChange, type LineChange } from './changes';
 import { colorLiterals, formatColor, toHex, type ColorLiteral } from './colors';
 import { conflictsOf, resolveConflict, tints, type Block, type Conflict, type Resolution, type Tint } from './conflicts';
