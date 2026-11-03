@@ -113,3 +113,31 @@ Within a block, in this order. Two blank lines separate each group; one blank li
   of rewriting their rules.
 - Use `@each` loops for symmetric variants (`left`/`right`) instead of duplicating rules.
 - Comments only for a non-obvious why (specificity tricks, timing choices, math); never restate the code.
+
+
+## Touching existing code
+
+Every file you open is held to the rules above, not just the lines you came for. Apply these in the same change; the
+result must behave identically, and the gate (`tsc --noEmit`, build) must stay clean.
+
+- Modernize outdated techniques, bounded by the floor in `vite.config.ts` (`BROWSERS`: Chrome/Edge 123, Firefox 120,
+  Safari/iOS 17.5). Anything every floor browser supports is fair game: `:is()`/`:where()`, `inset`, logical
+  properties (`padding-inline`, `margin-block`), `gap` instead of margin hacks, `light-dark()`, `@container`,
+  `aspect-ratio`, `@layer`, `clamp()`/`min()`/`max()`, `color-mix()`, `dvh` units. Features above the floor are only
+  allowed as progressive enhancement where the fallback is still correct: `@starting-style` (Firefox 129) may add an
+  entry transition, never gate layout or visibility. Check caniuse against the floor before using anything not listed.
+  Replace JS that only exists because CSS once couldn't: hover/focus/open state, measuring for simple layout, resize
+  listeners for things `@container` handles.
+- Reduce lines of code wherever it keeps behavior and readability: collapse selectors into `&-`/`&--` nesting, replace
+  hand-written rules with `css-utilities` placeholders, fold symmetric variants into `@each`, turn repeated
+  `calc()`s into one variable, use shorthands only when every value is being set on purpose.
+- Consolidate duplicate styling within a component. If two selectors, variants or rules achieve the same thing in
+  different ways (one via `transform`, one via `margin`; two variants each re-declaring the same transition; the same
+  `padding` math in `index.scss` and a partial), pick the one that fits these rules and delete the other. One mechanism
+  per concern. Variants express their differences as variable overrides in `variables.scss`, not as a second copy of
+  the logic.
+- Remove dead code. Before finishing, grep the component (and its consumers) for every selector, `--variable`,
+  `%placeholder`, keyframe, mixin and exported TS member the file declares; anything with no reader is deleted.
+  Variables declared in `variables.scss` but never read in `index.scss` or a partial, selectors no template renders,
+  keyframes no `animation` references, and leftover vendor prefixes (autoprefixer owns prefixes) all count.
+- Do not leave both the old and new approach in place "for safety". A superseded rule is removed in the same change.
