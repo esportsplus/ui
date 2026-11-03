@@ -7,13 +7,13 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "@esportsplus/reactivity": "link:../../reactivity",
-        "@esportsplus/routing": "link:../../routing",
-        "@esportsplus/template": "link:../../template",
+        "@esportsplus/reactivity": "^0.41.0",
+        "@esportsplus/routing": "^0.11.9",
+        "@esportsplus/template": "^0.59.0",
         "@esportsplus/ui": "workspace:*"
     },
     "devDependencies": {
-        "@esportsplus/typescript": "link:../../typescript",
+        "@esportsplus/typescript": "^0.39.0",
         "@esportsplus/vite": "link:../../vite",
         "@types/node": "^26.6.6",
         "sass-embedded": "^1.107.1",
