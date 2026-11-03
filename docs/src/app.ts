@@ -23,7 +23,7 @@ type Router = R<Response>;
 
 export const { back, forward, middleware, redirect, uri } = router(checklist, components, fonts, installation, modifiers, surfaces, themes, tokens);
 export { computed, effect, reactive, root, signal } from '@esportsplus/reactivity';
-export { html, render } from '@esportsplus/template';
+export { html, render, on } from '@esportsplus/template';
 export { fallback };
 export type { Renderable, Request, Responder, Response, Router };
 export type RouteName = Parameters<typeof uri>[0];

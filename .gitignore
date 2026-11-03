@@ -7,3 +7,4 @@ tmpclaude*
 
 # Claude batch state (ephemeral, session-specific)
 .claude/storage/batch-state*
+.tmp/
