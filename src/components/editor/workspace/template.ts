@@ -1,5 +1,5 @@
 import { effect, flush, onCleanup, reactive, read, root, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type On, type Renderable } from '@esportsplus/template';
 import breadcrumb, { type Crumb } from '~/components/breadcrumb';
 import sidebar from '~/components/button/sidebar';
 import command, { type Command, type ResultGroup, type Tab } from '~/components/command';
@@ -444,33 +444,30 @@ const workspace = ({
         };
     }
 
-    function connect(element: HTMLElement) {
+    function connect(element: HTMLElement, on: On) {
         release?.();
         container = element;
         release = root((dispose) => {
-            let listening = new AbortController(),
-                unobserve = observe(element, ([entry]) => {
+            let unobserve = observe(element, ([entry]) => {
                     ui.compact = entry.contentRect.width <= COMPACT_WIDTH;
                 });
 
-            // Capture, so the second chord reaches neither the editor nor the workspace's own Mod+S; template's
-            // document events bubble.
-            element.ownerDocument.addEventListener('keydown', chords.keydown, { capture: true, signal: listening.signal });
+            // Capture, so the second chord reaches neither the editor nor the workspace's own Mod+S.
+            onCleanup(on(element.ownerDocument, 'keydown', chords.keydown, { capture: true }));
             // A closing modal hands focus back to whatever had it before, so ours moves only once it has closed;
             // 'close' doesn't bubble, but capture still passes through the workspace.
-            element.addEventListener('close', () => {
+            onCleanup(on(element, 'close', () => {
                 let next = settle;
 
                 settle = undefined;
                 next?.();
-            }, { capture: true, signal: listening.signal });
+            }, { capture: true }));
             model.setConfirmation(ask);
 
-            onCleanup(hosting.connect(element));
-            onCleanup(navigation.connect(element));
+            onCleanup(hosting.connect(element, on));
+            onCleanup(navigation.connect(element, on));
             onCleanup(statusBar.connect());
             onCleanup(() => {
-                listening.abort();
                 chords.cancel();
                 unobserve();
                 confirmation?.resolve('cancel');

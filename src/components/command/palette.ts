@@ -1,5 +1,5 @@
 import { computed, effect, reactive, read, signal, write } from '@esportsplus/reactivity';
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import { component, html, type Attributes, type On, type Renderable } from '@esportsplus/template';
 import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import input from '~/components/input';
@@ -418,10 +418,6 @@ export default component(
                 label: command.label,
                 lower: command.label.toLowerCase()
             }))),
-            // The trigger, or the panel without one; the hotkey stays quiet while it is gone or inert.
-            host: HTMLElement | undefined,
-            // Ends the hotkey listener with its host.
-            listening: AbortController | undefined,
             lookup = computed(() => new Map(read(entries).map((entry) => [entry.id, entry]))),
             // A Set keeps insertion order, most recent first, and replacing it is what re-runs the list.
             ui = reactive({ moving: false, recent: new Set<string>() }),
@@ -508,16 +504,13 @@ export default component(
             }));
         }
 
-        function listen(element: HTMLElement) {
+        function listen(element: HTMLElement, on: On) {
             if (!keys.length) {
                 return;
             }
 
-            listening = new AbortController();
-            host = element;
-
             // Capture, so it runs before the site's search, which listens later.
-            addEventListener('keydown', shortcut, { capture: true, signal: listening.signal });
+            on(window, 'keydown', (e) => shortcut(e, element), { capture: true });
         }
 
         // All lists a recent command twice, so rows go by position rather than command id.
@@ -611,7 +604,7 @@ export default component(
             state.active = true;
         }
 
-        function shortcut(e: KeyboardEvent) {
+        function shortcut(e: KeyboardEvent, host: HTMLElement) {
             if (
                 e.repeat ||
                 e.key.toLowerCase() !== keys[keys.length - 1].toLowerCase() ||
@@ -622,8 +615,9 @@ export default component(
                 return;
             }
 
-            // Another palette on the page already claimed it; inert copies stay quiet.
-            if (e.defaultPrevented || !host?.isConnected || host.closest('[inert]')) {
+            // Another palette on the page already claimed it; inert copies stay quiet. 'host' is the trigger, or the
+            // panel without one.
+            if (e.defaultPrevented || host.closest('[inert]')) {
                 return;
             }
 
@@ -668,10 +662,6 @@ export default component(
             };
         }
 
-        function unlisten() {
-            listening?.abort();
-        }
-
         return html`
             <div class='command' ${this?.attributes} ${attributes}>
                 ${trigger && html`
@@ -685,8 +675,7 @@ export default component(
                         ${{
                             'aria-expanded': () => state.active ? 'true' : 'false',
                             onclick: show,
-                            onconnect: listen,
-                            ondisconnect: unlisten
+                            onconnect: listen
                         }}
                     >
                         ${sprite(magnifier, 'command-trigger-icon command-trigger-icon--search')}
@@ -707,7 +696,7 @@ export default component(
                         <div
                             class='command-panel'
                             ${{ onmousedown: keep }}
-                            ${!trigger && { onconnect: listen, ondisconnect: unlisten }}
+                            ${!trigger && { onconnect: listen }}
                         >
                             <div class='command-body'>
                                 <div class='command-search'>

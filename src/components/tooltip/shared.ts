@@ -455,23 +455,11 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         active = null;
         leaving = null;
         unwatch();
-        listen(false);
         shown = false;
     }
 
     function inside(node: Node | null) {
         return !!node && (!!current?.trigger.contains(node) || (interactive && !!element?.contains(node)));
-    }
-
-    function listen(on: boolean) {
-        if (on) {
-            // Captured, so scrolling any container the trigger sits in moves the tooltip along with it; template's window
-            // events don't capture, and only listen while it shows.
-            window.addEventListener('scroll', reposition, { capture: true, passive: true });
-        }
-        else {
-            window.removeEventListener('scroll', reposition, { capture: true });
-        }
     }
 
     // Sizes the box to the content and places it against the anchor. Opening, popup only commits the closed styles once
@@ -621,8 +609,14 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                         view.instant && 'tooltip-shared--instant',
                         view.side && `tooltip-shared--${view.side}`
                     ],
-                    onconnect: (el: HTMLElement) => {
+                    onconnect: (el: HTMLElement, on) => {
                         element = el;
+                        // Captured, so scrolling any container the trigger sits in moves the tooltip along with it.
+                        on(window, 'scroll', () => {
+                            if (shown) {
+                                reposition();
+                            }
+                        }, { capture: true, passive: true });
                     },
                     ondisconnect: () => {
                         close();
@@ -716,11 +710,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
             describe(previous.trigger, false);
         }
 
-        if (!shown) {
-            listen(true);
-            shown = true;
-        }
-
+        shown = true;
         current = last = target;
         view.gliding = glide;
         view.instant = !glide && opening > 0 && warm();

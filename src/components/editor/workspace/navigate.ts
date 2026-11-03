@@ -1,4 +1,5 @@
 import { effect, root } from '@esportsplus/reactivity';
+import type { On } from '@esportsplus/template';
 import { mac } from '~/shared/platform';
 import { keymap, type Command } from '../code/keymap';
 import type { CodeController } from '../code/view';
@@ -178,12 +179,8 @@ const navigate = ({ bindings, hosting, model, tree }: Options) => {
     }
 
     return {
-        connect(element: HTMLElement) {
-            let listening = new AbortController();
-
-            element.addEventListener('keydown', keydown, { capture: true, signal: listening.signal });
-
-            return () => listening.abort();
+        connect(element: HTMLElement, on: On) {
+            return on(element, 'keydown', keydown, { capture: true });
         },
         go
     };

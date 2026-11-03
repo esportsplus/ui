@@ -1,3 +1,6 @@
+import { on } from '@esportsplus/template';
+
+
 type Tracker = {
     // Smoothed velocity mapped to a speed boost: signed, capped at MAX_FACTOR.
     factor: number;
@@ -107,7 +110,7 @@ const track = (element: HTMLElement, wake: VoidFunction) => {
                     return;
                 }
 
-                target.removeEventListener('scroll', scroll);
+                unlisten();
                 trackers.delete(target);
             },
             smooth: 0,
@@ -133,7 +136,8 @@ const track = (element: HTMLElement, wake: VoidFunction) => {
         }
     }
 
-    target.addEventListener('scroll', scroll, { passive: true });
+    let unlisten = on(target, 'scroll', scroll, { passive: true });
+
     trackers.set(target, t);
 
     return t;

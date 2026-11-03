@@ -382,7 +382,6 @@ export default component(
             editor: HTMLElement | undefined,
             frame = 0,
             items: HTMLElement[] = [],
-            keys: AbortController | undefined,
             pressing = false,
             root: HTMLElement | undefined,
             saved: Span | null = null,
@@ -1242,7 +1241,6 @@ export default component(
                         cancelAnimationFrame(frame);
                         clearTimeout(copyTimer);
                         clearTimeout(settling);
-                        keys?.abort();
                         unobserve?.();
                         unobserve = undefined;
                         saving.dispose();
@@ -1394,12 +1392,11 @@ export default component(
                                 () => panel.link && 'inline-edit-toolbar--link'
                             ],
                             inert: () => !panel.open,
-                            onconnect: (element: HTMLElement) => {
+                            onconnect: (element: HTMLElement, on) => {
                                 toolbar = element;
-                                // Bound directly: delegation only runs the nearest bound handler, which for the text
-                                // style select is its own.
-                                keys = new AbortController();
-                                element.addEventListener('keydown', navigate, { signal: keys.signal });
+                                // Direct: delegation only runs the nearest bound handler, which for the text style
+                                // select is its own.
+                                on(element, 'keydown', navigate, { direct: true });
                             },
                             // Keeps the text selected and focused when a control is pressed; the link field takes focus.
                             onmousedown: (e: MouseEvent) => {

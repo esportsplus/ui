@@ -1,5 +1,5 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import { effect, flush, onCleanup, reactive } from '@esportsplus/reactivity';
+import { effect, flush, reactive } from '@esportsplus/reactivity';
 import error, { type Direction } from '~/components/error';
 import icon from '~/components/icon';
 import { mac as apple } from '~/shared/platform';
@@ -111,7 +111,6 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
         connected = false,
         field: HTMLElement | undefined,
         keys = reactive([] as Key[]),
-        listeners: AbortController | undefined,
         mac = apple(),
         pressed: string[] = [],
         status = reactive({ recording: false });
@@ -251,27 +250,14 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
         pressed = [];
         status.recording = true;
         state.error = '';
-
-        listeners?.abort();
-        listeners = new AbortController();
-
-        let signal = listeners.signal;
-
-        window.addEventListener('keydown', onkeydown, { capture: true, signal });
-        window.addEventListener('keyup', onkeyup, { capture: true, signal });
     }
 
     function stop() {
-        listeners?.abort();
         status.recording = false;
         state.error = '';
     }
 
     effect(() => status.recording ? [] : parse(state.value), (tokens) => show(tokens, connected ? 'settle' : ''));
-
-    onCleanup(() => {
-        listeners?.abort();
-    });
 
     return error({ direction, duration: ERROR_DURATION, state }, html`
         <button
@@ -292,9 +278,20 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
                         start();
                     }
                 },
-                onconnect: (element: HTMLElement) => {
+                onconnect: (element: HTMLElement, on) => {
                     connected = true;
                     field = element;
+                    // Capture, so keys are taken before the page's own shortcuts see them.
+                    on(window, 'keydown', (e) => {
+                        if (status.recording) {
+                            onkeydown(e);
+                        }
+                    }, { capture: true });
+                    on(window, 'keyup', (e) => {
+                        if (status.recording) {
+                            onkeyup(e);
+                        }
+                    }, { capture: true });
                 },
                 ondocumentpointerdown: onaway,
                 onwindowblur: onaway

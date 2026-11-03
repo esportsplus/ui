@@ -1,5 +1,5 @@
 import { peek, reactive, read, signal, write, type Signal } from '@esportsplus/reactivity';
-import { html, type Attributes } from '@esportsplus/template';
+import { html, on, type Attributes, type On } from '@esportsplus/template';
 import press from '~/shared/press';
 import { attach, collect, type Export, type ImportEntry } from './transfer';
 
@@ -84,6 +84,8 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
         ghost: HTMLElement | undefined,
         // Whether a drag is under way; every row reads it, so only a drag's start and end re-render them all.
         held = signal(false),
+        // The running press's keys: captured, ahead of the tree's own, and only while the press lasts.
+        keys: ((e: KeyboardEvent) => void) | null = null,
         list: T[] = [],
         // 'target' is the key of the drop folder's row, -1 for the top level, and 'folder' the folder's own, which
         // differs for a segment of a compact row; 'last' is the key of the last row in the target's box. Rows and
@@ -326,17 +328,14 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
     }
 
     function pressed(rows: T[], e: PointerEvent) {
-        let cancelled = false,
-            // Captured, ahead of the tree's own keys, and only while this press lasts; template's document events
-            // bubble, for as long as their element is connected.
-            keys = new AbortController();
+        let cancelled = false;
 
         // Drops on the target it was released over, unless it was cancelled or never got going.
         function end(e: PointerEvent | null) {
             let folder = mode === 'pointer' && e?.type === 'pointerup' ? target : undefined,
                 copied = copy;
 
-            keys.abort();
+            keys = null;
             stop();
 
             if (folder !== undefined) {
@@ -399,8 +398,7 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
                 frame = requestAnimationFrame(tick);
             }
         });
-        document.addEventListener('keydown', key, { capture: true, signal: keys.signal });
-        document.addEventListener('keyup', key, { capture: true, signal: keys.signal });
+        keys = key;
     }
 
     function start(rows: T[], value: Mode) {
@@ -503,6 +501,10 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
             </div>
         `,
         root: [gesture.attributes, {
+            onconnect: (_: HTMLElement, on: On) => {
+                on(document, 'keydown', (e) => keys?.(e), { capture: true });
+                on(document, 'keyup', (e) => keys?.(e), { capture: true });
+            },
             ondisconnect: () => {
                 gesture.cancel();
 
@@ -540,13 +542,13 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
                     transfer.effectAllowed = drag ? 'copyMove' : 'copy';
                     attach(transfer, files.length ? files : rows.map((row) => ({ name: row.element.name })));
 
-                    // Straight on the row rather than through the template: the row may have scrolled out of the
-                    // DOM by the time the drag ends, and a detached node's events never reach the document.
-                    (e.currentTarget as HTMLElement).addEventListener('dragend', () => {
+                    // Direct on the row: it may have scrolled out of the DOM by the time the drag ends, and a detached
+                    // node's events never reach the document.
+                    on(e.currentTarget as HTMLElement, 'dragend', () => {
                         if (mode === 'native') {
                             stop();
                         }
-                    }, { once: true });
+                    }, { direct: true, once: true });
 
                     start(rows, 'native');
                 }

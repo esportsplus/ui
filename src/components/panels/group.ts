@@ -286,7 +286,6 @@ const group = (context: Context, live: Live) => {
             id: `group:${group.id}`
         })),
         header: HTMLElement | undefined,
-        listening: AbortController | undefined,
         selected = computed(() => live().group.active),
         tabs: HTMLElement | undefined;
 
@@ -324,21 +323,16 @@ const group = (context: Context, live: Live) => {
                     () => context.picked(group.id) && 'panels-group--picked'
                 ],
                 // Listened to directly: the tabs bind presses of their own, which delegation would stop at.
-                onconnect: (element: HTMLElement) => {
-                    listening?.abort();
-                    listening = new AbortController();
-                    element.addEventListener('pointerdown', () => context.state.focus(group.id), { signal: listening.signal });
+                onconnect: (element: HTMLElement, on) => {
+                    on(element, 'pointerdown', () => context.state.focus(group.id), { direct: true });
                     // Captured, so a picking click reaches neither the tabs nor the surface.
-                    element.addEventListener('click', (e) => {
+                    on(element, 'click', (e) => {
                         if (context.held(e)) {
                             e.preventDefault();
                             e.stopPropagation();
                             context.pick(group.id);
                         }
-                    }, { capture: true, signal: listening.signal });
-                },
-                ondisconnect: () => {
-                    listening?.abort();
+                    }, { capture: true });
                 }
             }}
         >

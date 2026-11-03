@@ -240,9 +240,9 @@ export default component(
             generation = signal(0),
             host: HTMLElement | undefined,
             last = { accent: '', camera: null as Camera | null, color: '', shapes: [] as Shape[], size: '' },
-            // Ends everything a connection listens to and observes.
-            listening: AbortController | undefined,
             measuring = 0,
+            // Stops what the connection observes; its listeners go with the element.
+            observers: VoidFunction | undefined,
             // The pointers pressed on the field, whose rings hold until they are let go.
             pressed = new Set<number>(),
             relink = true,
@@ -608,7 +608,7 @@ export default component(
                 ${this?.attributes}
                 ${rest}
                 ${{
-                    onconnect: (element: HTMLElement) => {
+                    onconnect: (element: HTMLElement, on) => {
                         if (!canvas) {
                             return;
                         }
@@ -617,8 +617,6 @@ export default component(
                         field = url && typeof Worker === 'function' && 'transferControlToOffscreen' in canvas
                             ? remote(canvas, url)
                             : engine(canvas, scheduler());
-
-                        listening = new AbortController();
 
                         let done = (event: Event) => {
                                 if (event.type === 'transitionrun' || event.type === 'animationstart') {
@@ -651,7 +649,6 @@ export default component(
 
                                 schedule();
                             }),
-                            signal = listening.signal,
                             theme = new MutationObserver(() => {
                                 styles = new WeakMap();
                                 recolor();
@@ -669,29 +666,30 @@ export default component(
 
                         // Hear every descendant's motion, including events with their own template handler.
                         for (let type of ['animationcancel', 'animationend', 'animationstart', 'transitioncancel', 'transitionend', 'transitionrun']) {
-                            element.addEventListener(type, done, { signal });
+                            on(element, type, done, { direct: true });
                         }
 
-                        // Captured, which template's events aren't, since scroll doesn't bubble: a scroll inside the
-                        // field, or anywhere on the page, moves the boxes it measures.
-                        element.addEventListener('scroll', viewport, { capture: true, passive: true, signal });
-                        matchMedia('(prefers-color-scheme: dark)').addEventListener('change', recolor, { signal });
-                        window.addEventListener('scroll', () => {
+                        // Captured, since scroll doesn't bubble: a scroll inside the field, or anywhere on the page,
+                        // moves the boxes it measures.
+                        on(element, 'scroll', viewport, { capture: true, passive: true });
+                        on(matchMedia('(prefers-color-scheme: dark)'), 'change', recolor);
+                        on(window, 'scroll', () => {
                             bounds = null;
-                        }, { capture: true, passive: true, signal });
-                        signal.addEventListener('abort', () => {
+                        }, { capture: true, passive: true });
+
+                        observers = () => {
                             intersection();
                             mutation.disconnect();
                             resizer?.disconnect();
                             theme.disconnect();
-                        }, { once: true });
+                        };
 
                         collect();
                         sync();
                     },
                     ondisconnect: () => {
-                        listening?.abort();
-                        listening = undefined;
+                        observers?.();
+                        observers = undefined;
                         pressed.clear();
                         cancelAnimationFrame(measuring);
                         measuring = 0;

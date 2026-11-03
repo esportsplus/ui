@@ -1,4 +1,4 @@
-import { component, html, on, type Attributes, type Element } from '@esportsplus/template';
+import { component, html, type Attributes, type Element } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
@@ -175,7 +175,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                         href='${item.href}'
                                         ${attributes[BREADCRUMB_LINK]}
                                         ${{
-                                            onconnect: (element: Element) => {
+                                            onconnect: (element: Element, on) => {
                                                 on(element, 'click', (e) => navigate(e, item, index));
                                             }
                                         }}

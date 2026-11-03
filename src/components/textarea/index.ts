@@ -29,7 +29,6 @@ export default component(function(
         // The owner's value the mirror last showed; any other change to the text is the field's own.
         last: unknown,
         measured = reactive({ height: 0, revision: 0, scrollable: false }),
-        owner: HTMLFormElement | null | undefined,
         placeholder = attributes.placeholder ?? this?.attributes?.placeholder,
         resetFrame: number | undefined,
         limits = resize && `--max-height: ${resize.height.max}; --min-height: ${resize.height.min};`,
@@ -79,16 +78,15 @@ export default component(function(
             ${attributes}
             ${resize && [motion.attributes, {
                 class: ['textarea--autoresize', () => measured.scrollable && 'textarea--scrollable'],
-                onconnect: (element: Element<HTMLTextAreaElement>) => {
+                onconnect: (element: Element<HTMLTextAreaElement>, on) => {
                     field = element;
-                    owner = element.form;
+
                     // A form's reset never reaches the field's own bindings, so it is heard on the form.
-                    owner?.addEventListener('reset', reset);
+                    if (element.form) {
+                        on(element.form, 'reset', reset);
+                    }
                 },
                 ondisconnect: () => {
-                    owner?.removeEventListener('reset', reset);
-                    owner = undefined;
-
                     if (resetFrame !== undefined) {
                         cancelAnimationFrame(resetFrame);
                         resetFrame = undefined;
