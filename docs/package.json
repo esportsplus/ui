@@ -7,9 +7,9 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "@esportsplus/reactivity": "link:C:/Users/ICJR/.t3-web/worktrees/reactivity/template-owner",
-        "@esportsplus/routing": "^0.11.7",
-        "@esportsplus/template": "link:C:/Users/ICJR/.t3-web/worktrees/template/t3code-ab64dc34",
+        "@esportsplus/reactivity": "^0.40.0",
+        "@esportsplus/routing": "^0.11.8",
+        "@esportsplus/template": "^0.58.0",
         "@esportsplus/ui": "workspace:*"
     },
     "devDependencies": {

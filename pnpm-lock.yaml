@@ -12,11 +12,11 @@ importers:
         specifier: ^0.1.8
         version: 0.1.8
       '@esportsplus/reactivity':
-        specifier: link:C:/Users/ICJR/.t3-web/worktrees/reactivity/template-owner
-        version: link:../../reactivity/template-owner
+        specifier: ^0.40.0
+        version: 0.40.0
       '@esportsplus/template':
-        specifier: link:C:/Users/ICJR/.t3-web/worktrees/template/t3code-ab64dc34
-        version: link:../../template/t3code-ab64dc34
+        specifier: ^0.58.0
+        version: 0.58.0
       '@esportsplus/utilities':
         specifier: ^0.28.6
         version: 0.28.6
@@ -67,14 +67,14 @@ importers:
   docs:
     dependencies:
       '@esportsplus/reactivity':
-        specifier: link:C:/Users/ICJR/.t3-web/worktrees/reactivity/template-owner
-        version: link:../../../reactivity/template-owner
+        specifier: ^0.40.0
+        version: 0.40.0
       '@esportsplus/routing':
-        specifier: ^0.11.7
-        version: 0.11.7
+        specifier: ^0.11.8
+        version: 0.11.8
       '@esportsplus/template':
-        specifier: link:C:/Users/ICJR/.t3-web/worktrees/template/t3code-ab64dc34
-        version: link:../../../template/t3code-ab64dc34
+        specifier: ^0.58.0
+        version: 0.58.0
       '@esportsplus/ui':
         specifier: workspace:*
         version: link:..
@@ -109,11 +109,14 @@ packages:
   '@esportsplus/queue@0.4.6':
     resolution: {integrity: sha512-ccHPLFiM/unSYk6wBbDf92n9YyQdEf2FZ8J4s0Zq/TZZg3le0fmLsHIJO/jGlN6wNE51uuJp2iL5Xp2xElPXgQ==}
 
-  '@esportsplus/reactivity@0.39.2':
-    resolution: {integrity: sha512-Qw2RKiE9szIcHj2npFJaP4tnMDvUApYBU1l6lraqqmwGWRD6+s4Zy+1qylDauRHSlFyKvoYH4EgzjCJcSyqTYA==}
+  '@esportsplus/reactivity@0.40.0':
+    resolution: {integrity: sha512-RZhYjZ5pIpy/e9N87M/ew0dk0SbpW8uVuG78lFamvZj2inH1Q7F2b4rUoOxKGhxSavcvx33Czrd/hkcPOWFyqg==}
 
-  '@esportsplus/routing@0.11.7':
-    resolution: {integrity: sha512-/q/b05u98CEDO0fARh+H5hjKbpWVLLcN3DKRsKWyCKBDPXM4ciqJW98GVDRY00+bX7y1HuEAuHhB7Ypx6J3Z3A==}
+  '@esportsplus/routing@0.11.8':
+    resolution: {integrity: sha512-fK8UGmTbRe0B7E2fH8uHrzx5Zv+j+zKYnqAPB/CiXfmGNfpcUUWYkHnWOT23aCHl+GH15uxvlKhEsCm+ir2YkA==}
+
+  '@esportsplus/template@0.58.0':
+    resolution: {integrity: sha512-mLhjcbgvceebXI5G3KIaM28e2o/1EBobWahpWGsktFRg6MvFDFCj4mXipUZGhrIC4eIIg/7/1bw7lx6nTKnZEw==}
 
   '@esportsplus/typescript@0.36.1':
     resolution: {integrity: sha512-rJeZpQOulnn1ANxlDkq7329g8oSq8YrThglPvVwBdBeJho6yK1I1tGOuV5LStVpeaAuLw6ttE6CAeb2xeT+tMw==}
@@ -2143,15 +2146,21 @@ snapshots:
 
   '@esportsplus/queue@0.4.6': {}
 
-  '@esportsplus/reactivity@0.39.2':
+  '@esportsplus/reactivity@0.40.0':
     dependencies:
       '@esportsplus/utilities': 0.28.6
 
-  '@esportsplus/routing@0.11.7':
+  '@esportsplus/routing@0.11.8':
     dependencies:
-      '@esportsplus/reactivity': 0.39.2
+      '@esportsplus/reactivity': 0.40.0
       '@esportsplus/utilities': 0.28.6
       '@types/node': 26.6.5
+
+  '@esportsplus/template@0.58.0':
+    dependencies:
+      '@esportsplus/reactivity': 0.40.0
+      '@esportsplus/typescript': 0.38.0
+      '@esportsplus/utilities': 0.28.6
 
   '@esportsplus/typescript@0.36.1':
     dependencies:
