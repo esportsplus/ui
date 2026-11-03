@@ -577,12 +577,8 @@ export default <T>(
                 }
             }
         }] as Attributes[],
-        // Lands changes made to 'items' this task now, for a caller that measures the list straight after.
-        flush,
         render: () => {
-            let slot = html.reactive(items, (item) => html`${template(item, hold(item))}`);
-
-            return html`${slot}${() => {
+            return html`${html.reactive(items, (item) => html`${template(item, hold(item))}`)}${() => {
                 let item = read(list.dragging);
 
                 return item !== null && ghost(item);

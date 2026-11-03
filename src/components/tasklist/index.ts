@@ -141,12 +141,7 @@ export default component(
             focused?.blur();
             rows.sort((a, b) => rank.get(a)! - rank.get(b)!);
 
-            if (view) {
-                view.flush();
-            }
-            else {
-                flush();
-            }
+            flush();
 
             focused?.focus({ preventScroll: true });
 
