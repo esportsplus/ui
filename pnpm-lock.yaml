@@ -12,11 +12,11 @@ importers:
         specifier: ^0.1.8
         version: 0.1.8
       '@esportsplus/reactivity':
-        specifier: ^0.39.2
-        version: 0.39.2
+        specifier: link:C:/Users/ICJR/.t3-web/worktrees/reactivity/template-owner
+        version: link:../../reactivity/template-owner
       '@esportsplus/template':
-        specifier: ^0.56.0
-        version: 0.56.0
+        specifier: link:C:/Users/ICJR/.t3-web/worktrees/template/t3code-ab64dc34
+        version: link:../../template/t3code-ab64dc34
       '@esportsplus/utilities':
         specifier: ^0.28.6
         version: 0.28.6
@@ -67,14 +67,14 @@ importers:
   docs:
     dependencies:
       '@esportsplus/reactivity':
-        specifier: ^0.39.2
-        version: 0.39.2
+        specifier: link:C:/Users/ICJR/.t3-web/worktrees/reactivity/template-owner
+        version: link:../../../reactivity/template-owner
       '@esportsplus/routing':
         specifier: ^0.11.7
         version: 0.11.7
       '@esportsplus/template':
-        specifier: ^0.56.0
-        version: 0.56.0
+        specifier: link:C:/Users/ICJR/.t3-web/worktrees/template/t3code-ab64dc34
+        version: link:../../../template/t3code-ab64dc34
       '@esportsplus/ui':
         specifier: workspace:*
         version: link:..
@@ -114,9 +114,6 @@ packages:
 
   '@esportsplus/routing@0.11.7':
     resolution: {integrity: sha512-/q/b05u98CEDO0fARh+H5hjKbpWVLLcN3DKRsKWyCKBDPXM4ciqJW98GVDRY00+bX7y1HuEAuHhB7Ypx6J3Z3A==}
-
-  '@esportsplus/template@0.56.0':
-    resolution: {integrity: sha512-6n3V26mKmuJR/6JKfSmiRYmvTN6LWlKsBWyD/Gymjstg6l676M0BbziXTGkSHCuQ6+vQ1JXgQFuSKDi162OAlA==}
 
   '@esportsplus/typescript@0.36.1':
     resolution: {integrity: sha512-rJeZpQOulnn1ANxlDkq7329g8oSq8YrThglPvVwBdBeJho6yK1I1tGOuV5LStVpeaAuLw6ttE6CAeb2xeT+tMw==}
@@ -2155,12 +2152,6 @@ snapshots:
       '@esportsplus/reactivity': 0.39.2
       '@esportsplus/utilities': 0.28.6
       '@types/node': 26.6.5
-
-  '@esportsplus/template@0.56.0':
-    dependencies:
-      '@esportsplus/reactivity': 0.39.2
-      '@esportsplus/typescript': 0.38.0
-      '@esportsplus/utilities': 0.28.6
 
   '@esportsplus/typescript@0.36.1':
     dependencies:

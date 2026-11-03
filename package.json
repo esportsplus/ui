@@ -2,8 +2,8 @@
     "author": "ICJR",
     "dependencies": {
         "@esportsplus/action": "^0.1.8",
-        "@esportsplus/reactivity": "^0.39.2",
-        "@esportsplus/template": "^0.56.0",
+        "@esportsplus/reactivity": "link:C:/Users/ICJR/.t3-web/worktrees/reactivity/template-owner",
+        "@esportsplus/template": "link:C:/Users/ICJR/.t3-web/worktrees/template/t3code-ab64dc34",
         "@esportsplus/utilities": "^0.28.6",
         "@esportsplus/workers": "^0.11.3",
         "modern-normalize": "^3.0.1"
