@@ -16,6 +16,7 @@
         "@esportsplus/typescript": "link:../../typescript",
         "@esportsplus/vite": "link:../../vite",
         "@types/node": "^26.6.6",
+        "sass-embedded": "^1.107.1",
         "vite": "^8.3.5"
     }
 }
