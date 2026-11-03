@@ -9,14 +9,14 @@
     "dependencies": {
         "@esportsplus/reactivity": "^0.40.0",
         "@esportsplus/routing": "^0.11.8",
-        "@esportsplus/template": "^0.58.0",
+        "@esportsplus/template": "^0.58.1",
         "@esportsplus/ui": "workspace:*"
     },
     "devDependencies": {
         "@esportsplus/typescript": "^0.38.0",
         "@esportsplus/vite": "^0.14.8",
-        "@types/node": "^26.6.5",
-        "sass": "^1.106.1",
+        "@types/node": "^26.6.6",
+        "sass": "^1.107.1",
         "vite": "^8.3.5"
     }
 }
