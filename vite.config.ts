@@ -8,14 +8,15 @@ import type { Targets } from 'lightningcss';
 
 const BACKSLASHES = /\\/g;
 
-// The first releases with 'light-dark()', as [major, minor]. Below them Lightning CSS swaps it for variables resolved
-// where the theme declares them, on the root, so a nested 'data-theme' could no longer flip its subtree.
+// The first release of 2025 for each browser, as [major, minor]. Everything here ships 'light-dark()'; below it
+// Lightning CSS swaps that for variables resolved where the theme declares them, on the root, so a nested
+// 'data-theme' could no longer flip its subtree.
 const BROWSERS: Record<'chrome' | 'edge' | 'firefox' | 'ios_saf' | 'safari', [number, number]> = {
-    chrome: [123, 0],
-    edge: [123, 0],
-    firefox: [120, 0],
-    ios_saf: [17, 5],
-    safari: [17, 5]
+    chrome: [132, 0],
+    edge: [132, 0],
+    firefox: [134, 0],
+    ios_saf: [18, 3],
+    safari: [18, 3]
 };
 
 // The same floor in esbuild's form, which Vite minifies CSS to.
