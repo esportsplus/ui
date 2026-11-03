@@ -63,7 +63,6 @@ type Action = Exclude<Mark, 'link'> | 'clear' | 'copy' | 'link';
 type Section = {
     items: ReactiveArray<View>;
     kind: 'block' | 'bullet' | 'ordered' | 'task';
-    slot?: { flush(): void };
 };
 
 type State = {
@@ -503,12 +502,6 @@ export default component(
                 sections.splice(start, n - start - end, ...parts.slice(start, m - end).map(section));
             }
 
-            slot.flush();
-
-            for (let i = 0, o = sections.length; i < o; i++) {
-                sections[i].slot?.flush();
-            }
-
             flush();
         }
 
@@ -723,8 +716,6 @@ export default component(
 
         function group(section: Section) {
             let slot = html.reactive(section.items, item);
-
-            section.slot = slot;
 
             switch (section.kind) {
                 case 'bullet':

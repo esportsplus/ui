@@ -1,5 +1,5 @@
 import { html, type Attributes } from '@esportsplus/template';
-import { effect, reactive, ReactiveArray } from '@esportsplus/reactivity';
+import { effect, flush, reactive, ReactiveArray } from '@esportsplus/reactivity';
 import { ms, timing } from '~/shared/animation';
 
 
@@ -137,8 +137,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
         }
 
         letters.splice(0, letters.length, ...next);
-        word.flush();
-        leaving.flush();
+        flush();
         current = index;
 
         for (let i = out, n = exits.length; i < n; i++) {

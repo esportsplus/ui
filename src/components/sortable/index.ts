@@ -22,7 +22,6 @@ type List<T> = {
     reveal?: VoidFunction;
     // The dropped item while it shows again with every transition off.
     revealing: Signal<T | null>;
-    slot?: { flush(): void };
 };
 
 // Where the copy is drawn: the box it was picked up from, then the pointer's offset from there and the swing.
@@ -258,11 +257,6 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         }
 
         mutate();
-
-        for (let i = 0, n = lists.length; i < n; i++) {
-            lists[i].slot?.flush();
-        }
-
         flush();
 
         // The held item by its place, since a move between lists renders it afresh.
@@ -584,11 +578,9 @@ export default <T>(
             }
         }] as Attributes[],
         // Lands changes made to 'items' this task now, for a caller that measures the list straight after.
-        flush: () => list.slot?.flush(),
+        flush,
         render: () => {
             let slot = html.reactive(items, (item) => html`${template(item, hold(item))}`);
-
-            list.slot = slot;
 
             return html`${slot}${() => {
                 let item = read(list.dragging);

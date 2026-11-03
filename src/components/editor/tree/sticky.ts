@@ -59,7 +59,7 @@ function pin<T extends Node<T>>(rows: T[], offset: number, size: number, max: nu
 // Pins the folders the top rows sit in over the viewport, as VS Code's sticky scroll does; 'limit' caps how many,
 // 'true' being five. Rendered as copies inside the viewport, so the wheel still scrolls over them. 'height' is the
 // rows' height, and the viewport calls 'update' as it scrolls.
-export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number, template: (row: T) => DocumentFragment | Text, height: () => number) => {
+export default <T extends Node<T>>(rows: Reactive<T[]>, limit: boolean | number, template: (row: T) => DocumentFragment | Element | Text, height: () => number) => {
     let frame = 0,
         max = limit === true ? MAX : limit || 0,
         pinned: Reactive<T[]> = reactive([] as T[]),

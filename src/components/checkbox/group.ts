@@ -105,7 +105,7 @@ function header(ctx: Context, { counter = false, ...attributes }: Header = {}): 
     `;
 }
 
-function hint(attributes?: Attributes) {
+function hint(attributes?: Attributes): Renderable<unknown> {
     return html`
         <p class='checkbox-group-hint' ${attributes}>
             <kbd class='checkbox-group-hint-key'>Shift</kbd> click to select a range

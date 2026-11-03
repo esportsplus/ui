@@ -145,7 +145,7 @@ export default component(
                 view.flush();
             }
             else {
-                slot!.flush();
+                flush();
             }
 
             focused?.focus({ preventScroll: true });

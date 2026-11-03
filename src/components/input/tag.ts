@@ -1,5 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import { reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
+import { flush, reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
 import close from '@esportsplus/ui/svg/close.svg';
 import icon from '~/components/icon';
 import { measure, ms, slides, timing } from '~/shared/animation';
@@ -247,7 +247,7 @@ export default component(
 
             measure(children);
             change();
-            slot.flush();
+            flush();
 
             slides([...children as HTMLCollectionOf<HTMLElement>].filter((child) => !child.classList.contains('input-tag-ghost')), shift, enter);
         }
