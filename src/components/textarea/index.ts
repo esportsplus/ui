@@ -96,9 +96,9 @@ export default component(function(
 
                     field = undefined;
                 },
-                oninput: function(this: HTMLElement, event: InputEvent) {
+                oninput: function(this: HTMLElement, event: InputEvent, dispose: VoidFunction) {
                     measured.revision++;
-                    caller?.call(this, event);
+                    caller?.call(this, event, dispose);
                 },
                 style: [limits, () => measured.height && `--height: ${measured.height}px;`]
             }]}

@@ -336,7 +336,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         let layer: Layer = { content, kept, state: reactive({ active: false, leaving: false, travel }) };
 
         layers.push(layer);
-        stack.flush();
+        flush();
         // The box holds only the stack, so a pushed layer is its last child.
         layer.element = box.lastElementChild as HTMLElement;
 
@@ -650,13 +650,13 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                 ${popup}
                 ${{
                     // A hover delay has no showing overlay yet, but Escape still cancels the request.
-                    ondocumentkeydown: function(this: HTMLElement, e: KeyboardEvent) {
+                    ondocumentkeydown: function(this: HTMLElement, e: KeyboardEvent, dispose: VoidFunction) {
                         if (e.key === 'Escape' && waiting && !current) {
                             close();
                             return;
                         }
 
-                        popup.ondocumentkeydown?.call(this, e);
+                        popup.ondocumentkeydown?.call(this, e, dispose);
                     }
                 }}
             >

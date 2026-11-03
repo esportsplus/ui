@@ -441,8 +441,8 @@ function template(
                 ${{
                     class: () => state.active && '--active',
                     inert: () => !state.active,
-                    onactivewheel: wheel,
-                    onconnect: (element: HTMLElement) => {
+                    onconnect: (element: HTMLElement, on) => {
+                        on(element, 'wheel', wheel, { direct: true, passive: false });
                         parts.panel = element;
                     },
                     // The trigger keeps focus through a press in here, so the keys still drive the menu.
