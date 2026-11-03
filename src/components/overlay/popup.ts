@@ -1,4 +1,4 @@
-import { effect, reactive, root } from '@esportsplus/reactivity';
+import { effect, onCleanup, owner, reactive, root } from '@esportsplus/reactivity';
 import { setProperties, type Attributes, type Element as Bound } from '@esportsplus/template';
 import { finished } from '~/shared/animation';
 
@@ -13,6 +13,8 @@ type Lifecycle = {
     state: State;
     subtree?: boolean;
 };
+
+type Owner = ReturnType<typeof owner>;
 
 type Popup = {
     // Pending hover delays can also be dismissed before a surface opens.
@@ -75,17 +77,22 @@ function lifecycle(element: HTMLElement, { animations, close, closed, open, stat
 
 
 // The surface 'target' returns may be the consumer's, so the popup marks it inert through a store bound on it. Seeded
-// inert, its first write lands as it binds, before the first open shows the surface.
-function surface(element: HTMLElement) {
+// inert, its first write lands as it binds, before the first open shows the surface. The binding belongs to 'scope',
+// the host's connect scope, not to the lifecycle run that first asks for it: it outlives that run and is released
+// with the host.
+function surface(element: HTMLElement, scope: Owner) {
     let store = element as HTMLElement & { [SURFACE_STATE]?: { inert: boolean } };
 
     return store[SURFACE_STATE] ??= root(() => {
         let state = reactive({ inert: true });
 
         setProperties(element as Bound, { inert: () => state.inert });
+        onCleanup(() => {
+            store[SURFACE_STATE] = undefined;
+        });
 
         return state;
-    });
+    }, scope);
 }
 
 
@@ -133,6 +140,8 @@ function popup({ canDismiss, contains = (root, node) => !!node && root.contains(
         // Hosts compose this binding with their own class bindings through the template runtime.
         class: popover ? () => local.active && '--active' : () => state.active && '--active',
         onconnect: (element: HTMLElement) => {
+            let scope = owner();
+
             root = element;
             stop = lifecycle(element, {
                 animations: () => target(element) ?? element,
@@ -144,7 +153,7 @@ function popup({ canDismiss, contains = (root, node) => !!node && root.contains(
                     let content = target(element);
 
                     if (content) {
-                        surface(content).inert = true;
+                        surface(content, scope).inert = true;
                     }
                 },
                 closed: hide,
@@ -154,7 +163,7 @@ function popup({ canDismiss, contains = (root, node) => !!node && root.contains(
 
                     // Inert until the open has landed, so showing it focuses nothing it contains.
                     if (content) {
-                        let state = surface(content);
+                        let state = surface(content, scope);
 
                         if (popover && !content.matches(':popover-open')) {
                             content.showPopover();
