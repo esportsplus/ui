@@ -103,82 +103,55 @@ function snippet(context, render) {
 }
 
 
+// Each example's source is a virtual module its compile emits; the host serves it, keeps it with a
+// reused result and invalidates it with the example on HMR
 function exampleSource() {
-    let modules = new Map(),
-        compiler = plugin.vite({
-            name: 'docs-example-source',
-            plugins: [{
-                patterns: ['render:'],
-                transform(context) {
-                    let { sourceFile } = context,
-                        replacements = [];
+    return plugin.vite({
+        name: 'docs-example-source',
+        plugins: [{
+            patterns: ['render:'],
+            transform(context) {
+                let { sourceFile } = context,
+                    modules = new Map(),
+                    replacements = [];
 
-                    if (!sourceFile.fileName.replace(/\\/g, '/').includes('/docs/src/examples/')) {
-                        return {};
+                if (!sourceFile.fileName.replace(/\\/g, '/').includes('/docs/src/examples/')) {
+                    return {};
+                }
+
+                walk(sourceFile, (node) => {
+                    if (!ast.isObjectLiteralExpression(node)) {
+                        return;
                     }
 
-                    walk(sourceFile, (node) => {
-                        if (!ast.isObjectLiteralExpression(node)) {
-                            return;
-                        }
+                    let render = node.properties.find((property) => property.name?.getText(sourceFile) === 'render'),
+                        title = node.properties.find((property) => property.name?.getText(sourceFile) === 'title');
 
-                        let render = node.properties.find((property) => property.name?.getText(sourceFile) === 'render'),
-                            title = node.properties.find((property) => property.name?.getText(sourceFile) === 'title');
+                    if (!render?.initializer || !title || node.properties.some((property) => property.name?.getText(sourceFile) === 'source')) {
+                        return;
+                    }
 
-                        if (!render?.initializer || !title || node.properties.some((property) => property.name?.getText(sourceFile) === 'source')) {
-                            return;
-                        }
+                    let { captures, example, header, helpers } = snippet(context, render.initializer),
+                        id = `${PREFIX}${encodeURIComponent(sourceFile.fileName)}/${render.pos}`;
 
-                        let { captures, example, header, helpers } = snippet(context, render.initializer),
-                            id = `${PREFIX}${encodeURIComponent(sourceFile.fileName)}/${render.pos}`;
-
-                        modules.set(id, { file: sourceFile.fileName.replace(/\\/g, '/').toLowerCase(), code: `export default (values) => [
+                    modules.set(id, `export default (values) => [
                             ${JSON.stringify(header)},
                             ${JSON.stringify(helpers)},
                             Object.entries(values).map(([name, value]) => 'const ' + name + ' = ' + JSON.stringify(value, null, 4) + ';').join('\\n'),
                             ${JSON.stringify(example)}
-                        ].filter(Boolean).join('\\n\\n');` });
+                        ].filter(Boolean).join('\\n\\n');`);
 
-                        replacements.push({
-                            node: render,
-                            generate: () => `${render.getText(sourceFile)}, source: () => import(${JSON.stringify(id)}).then((module) => module.default({ ${captures.join(', ')} }))`
-                        });
+                    // text(render): the property as compiled by every plugin, the template compiler included
+                    replacements.push({
+                        node: render,
+                        generate: (_, text) => `${text(render)}, source: () => import(${JSON.stringify(id)}).then((module) => module.default({ ${captures.join(', ')} }))`
                     });
+                });
 
-                    return { replacements };
-                }
-            }]
-        })();
-
-    return {
-        ...compiler,
-        handleHotUpdate(context) {
-            let updated = compiler.handleHotUpdate(context) ?? context.modules,
-                file = context.file.replace(/\\/g, '/').toLowerCase(),
-                snippets = [];
-
-            for (let [id, module] of modules) {
-                if (module.file !== file) {
-                    continue;
-                }
-
-                let loaded = context.server.moduleGraph.getModuleById(`\0${id}`);
-
-                if (loaded) {
-                    context.server.moduleGraph.invalidateModule(loaded);
-                    snippets.push(loaded);
-                }
+                return { modules, replacements };
             }
-
-            return [...new Set([...updated, ...snippets])];
-        },
-        resolveId(id) {
-            return id.startsWith(PREFIX) ? `\0${id}` : null;
-        },
-        load(id) {
-            return id.startsWith(`\0${PREFIX}`) ? modules.get(id.slice(1))?.code : null;
-        }
-    };
+        }]
+    })();
 }
 
 
