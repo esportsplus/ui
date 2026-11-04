@@ -45,7 +45,7 @@
 
     &-dock-target,
     &-edge {
-        --ring-width: 2px;
+        --ring-width: var(--border-width-500);
     }
 
     &-ghost {
@@ -61,8 +61,8 @@
 
     // Ringed thickly while picked to zoom to, and thinly while a dragged tab would join it through its tab strip.
     &-group {
-        --over-ring-width: 1px;
-        --picked-ring-width: 2px;
+        --over-ring-width: var(--border-width-400);
+        --picked-ring-width: var(--border-width-500);
     }
 
     // The line is a pixel; the separator around it is wider to grab, overlapping the panes on either side.

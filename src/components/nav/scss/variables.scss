@@ -21,7 +21,7 @@
     &-link {
         @extend %background-state, %color-state, %color-text;
         --background-default: transparent;
-        --border-radius: 0px;
+        --border-radius: var(--border-radius-400);
         --font-size: var(--font-size-300);
         --font-weight: var(--font-weight-300);
         --gap-horizontal: var(--size-200);
@@ -29,7 +29,7 @@
         --padding-horizontal: var(--size-300);
         --padding-vertical: var(--size-100);
 
-        @include tokens.state(active) {
+        @include tokens.state(active hover) {
             --font-weight: var(--font-weight-500);
         }
     }
@@ -42,7 +42,7 @@
         --margin-vertical: var(--size-100);
 
         &.nav-tree-link {
-            @include tokens.state(active) {
+            @include tokens.state(active hover) {
                 --font-weight: var(--font-weight-600);
             }
         }
@@ -57,14 +57,13 @@
     // step in to line up with the links' text.
     &:not(#{&}--rail) {
         .nav-tree-highlight {
-            @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
-            --background-active: var(--surface-primary-active);
+            @extend %background-state, %background-surface, %box-shadow-surface, %surface-raise;
         }
 
         .nav-tree-link {
-            @extend %surface, %surface-raise;
-            --background-pressed: var(--surface-primary-pressed);
-            --border-radius: var(--border-radius-300);
+            @extend %surface-raise;
+            --background-hover: var(--surface-background-hover);
+            --background-pressed: var(--surface-background-pressed);
             --color-active: var(--color-primary-500);
         }
 

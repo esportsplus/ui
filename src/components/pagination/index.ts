@@ -15,13 +15,7 @@ const DOTS = 0;
 
 
 function range(start: number, end: number) {
-    let values: number[] = [];
-
-    for (let i = start; i <= end; i++) {
-        values.push(i);
-    }
-
-    return values;
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 }
 
 // First, last, current, two ellipses and the siblings on each side of current; always the same count for a total, so

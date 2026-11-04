@@ -1,5 +1,5 @@
-import { component, html, setProperties, type Attributes, type Element as Bound } from '@esportsplus/template';
 import { effect, flush, onCleanup, reactive, root, untrack } from '@esportsplus/reactivity';
+import { component, html, setProperties, type Attributes, type Element as Bound } from '@esportsplus/template';
 import { morph, morphs, shape } from '~/components/tooltip/utilities';
 import '~/components/tooltip/scss/index.scss';
 import './scss/index.scss';
@@ -138,6 +138,7 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
 
         untrack(() => {
             clearTimeout(expire);
+
             if (control) {
                 validity(control).invalid = text ? 'true' : 'false';
             }

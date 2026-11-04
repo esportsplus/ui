@@ -63,7 +63,7 @@
     // with them. Shared letters can travel most of a word across, so they get longer than a typical UI tween; any
     // shorter and it reads as a jump.
     &-rotate {
-        --blur: 4px;
+        --blur: var(--blur-400);
         --color: inherit;
         --enter-delay: 90ms;
         --enter-duration: 320ms;

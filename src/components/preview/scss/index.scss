@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'css-utilities/text';
 @use 'variables';
 
@@ -8,6 +9,7 @@
     margin: 0;
     min-width: 0;
     scroll-margin-top: var(--scroll-margin-vertical);
+
 
     &-anchor {
         position: absolute;
@@ -47,6 +49,12 @@
             max-width: 100%;
             text-transform: none;
 
+            &.select {
+                background: transparent;
+                border: var(--border-width-400) solid var(--border-color);
+                border-radius: var(--border-radius-400);
+            }
+
             // The select exposes no trigger width, so its trigger is capped directly.
             .select-menu-trigger {
                 max-width: 100%;
@@ -57,7 +65,7 @@
     &-index {
         color: var(--color);
         font-variant-numeric: tabular-nums;
-        margin-right: var(--gap-horizontal);
+        margin-inline-end: var(--gap-horizontal);
     }
 
     &-source {
@@ -87,8 +95,8 @@
         position: relative;
 
         .preview-header ~ & {
-            border-top-left-radius: 0;
-            border-top-right-radius: 0;
+            border-start-end-radius: 0;
+            border-start-start-radius: 0;
         }
 
         > * {
@@ -105,7 +113,7 @@
         color: var(--color);
         font-size: var(--font-size);
         font-weight: var(--font-weight);
-        margin-right: auto;
+        margin-inline-end: auto;
     }
 
     // Sits on the card that follows it, pulled up from the page's gap; that card's scroll margin clears it, so
@@ -124,6 +132,12 @@
             }
         }
 
+        &-highlight {
+            @include tokens.state(active) {
+                box-shadow: var(--surface-shadow-hover);
+            }
+        }
+
         &:has(+ .preview) {
             margin-bottom: var(--overlap);
         }
@@ -134,6 +148,7 @@
     &-viewer .code-viewer-gutter {
         background: var(--preview-background);
     }
+
 
     // An open selector must paint beyond this card and above the following preview.
     &:has(.preview-header-select.--active) {

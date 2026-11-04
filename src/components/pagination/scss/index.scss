@@ -1,5 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/absolute';
+@use 'css-utilities/disabled';
 @use 'variables';
 
 .pagination {
@@ -8,6 +9,7 @@
     gap: var(--gap-vertical) var(--gap-horizontal);
     justify-content: space-between;
     width: 100%;
+
 
     &--arrows {
         flex: none;
@@ -36,6 +38,7 @@
         width: calc((var(--count) - 1) * var(--step) + var(--pill-width));
     }
 
+
     &-arrow {
         align-items: center;
         background: var(--background);
@@ -63,21 +66,23 @@
             margin-left: calc(var(--size) / -4);
         }
 
+        @include tokens.state(disabled) {
+            @extend %disabled;
+        }
+    }
+
+    &-arrow,
+    &-card {
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: var(--focus-offset);
-        }
-
-        @include tokens.state(disabled) {
-            cursor: default;
-            opacity: var(--disabled-opacity);
         }
     }
 
     &-card {
         color: var(--color);
         display: flex;
-        flex-direction: column;
+        flex-flow: column;
         gap: var(--gap-vertical) var(--gap-horizontal);
         min-width: 0;
         outline: none;
@@ -138,11 +143,6 @@
             transition: color var(--transition-duration) var(--transition-timing-function);
         }
 
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: var(--focus-offset);
-        }
-
         // Clears the text from whichever edge holds the arrow, on top of the card's own padding.
         &:has(> #{&}-arrow:first-child) {
             padding-left: calc(var(--inset-horizontal) + var(--arrow-size) + var(--gap-horizontal));
@@ -157,7 +157,7 @@
         gap: var(--gap-vertical) var(--gap-horizontal);
 
         @include tokens.state(disabled) {
-            opacity: var(--disabled-opacity);
+            @extend %disabled;
             pointer-events: none;
         }
     }

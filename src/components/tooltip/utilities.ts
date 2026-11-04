@@ -133,10 +133,7 @@ function morphing(state: { morphing: boolean }, active: boolean) {
         let element = e.currentTarget as HTMLElement,
             tooltip = e.target as HTMLElement;
 
-        if (
-            tooltip.closest('.tooltip') !== element ||
-            !(tooltip.classList.contains('tooltip-content--morph') || tooltip.classList.contains('tooltip-message--morph'))
-        ) {
+        if (tooltip.closest('.tooltip') !== element || !tooltip.matches('.tooltip-content--morph, .tooltip-message--morph')) {
             return;
         }
 
@@ -208,5 +205,5 @@ function warm() {
 }
 
 
-export { content, cool, morph, morphing, morphs, shape, wait, warm };
-export type { Delay, Shape };
+export { content, cool, morph, morphs, shape, wait, warm };
+export type { Delay };

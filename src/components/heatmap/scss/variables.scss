@@ -32,9 +32,9 @@
     // reads as arriving.
     &-cell {
         --border-radius: var(--border-radius-100);
+        --opacity: 0;
         --outline-offset: 1px;
         --outline-width: 2px;
-        --opacity: 0;
         --scale: 0.6;
     }
 
@@ -68,20 +68,13 @@
         --border-radius: var(--border-radius-100);
     }
 
-    // A long glide lags behind a pointer sweeping across 13px cells. Gated so it can't undo the tooltip's
-    // reduced-motion override.
-    @media (prefers-reduced-motion: no-preference) {
-        & .tooltip-shared {
-            --glide-duration: 0.15s;
-        }
-    }
 
-    // Compact for a dense grid. Tabular figures, so the tooltip holds its width as the counts change cell to cell.
+    // Compact for a dense grid.
     .tooltip-shared {
         --border-radius: var(--border-radius-300);
         --spacer: 6px;
 
-        .tooltip-shared-layer {
+        &-layer {
             --padding-horizontal: var(--size-400);
             --padding-vertical: var(--size-100);
         }

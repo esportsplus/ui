@@ -4,12 +4,8 @@
 .accordion {
     display: grid;
     grid-template-rows: 1fr;
-    overflow: var(--scrollbar-overflow, hidden);
+    overflow: var(--scrollbar-overflow);
     transition: grid-template-rows var(--transition-duration) var(--transition-timing-function);
-
-    @include tokens.state(inactive) {
-        grid-template-rows: 0fr;
-    }
 
     @media (prefers-reduced-motion: reduce) {
         transition: none;
@@ -20,24 +16,26 @@
         display: block;
         // Animate the outer box while content retains its natural height for measurement.
         height: min(var(--height), calc(var(--lines) * 1lh));
-        overflow-y: var(--scrollbar-overflow, hidden);
+        overflow-y: var(--scrollbar-overflow);
         overscroll-behavior: contain;
         transition: height var(--transition-duration) var(--transition-timing-function);
-
-        @include tokens.state(active) {
-            height: min(var(--height, var(--max-height)), var(--max-height));
-        }
-
-        @include tokens.state(inactive) {
-            overflow: hidden;
-        }
 
         @media (prefers-reduced-motion: reduce) {
             transition: none;
         }
 
+
         &-instant {
             transition: none;
+        }
+
+
+        @include tokens.state(active) {
+            height: min(var(--height), var(--max-height));
+        }
+
+        @include tokens.state(inactive) {
+            overflow: hidden;
         }
     }
 
@@ -47,5 +45,10 @@
         min-height: 0;
         // Clip the collapse without creating a nested scroll container that traps wheel input.
         overflow: clip;
+    }
+
+
+    @include tokens.state(inactive) {
+        grid-template-rows: 0fr;
     }
 }

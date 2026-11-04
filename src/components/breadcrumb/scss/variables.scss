@@ -6,19 +6,17 @@
 
 
     // Zeroes every fold timing, so nothing transitions until the first fit has painted.
-    &--instant {
-        .breadcrumb-segment {
-            --enter-duration: 0s;
-            --exit-duration: 0s;
-            --slide-duration: 0s;
-        }
+    &--instant &-segment {
+        --enter-duration: 0s;
+        --exit-duration: 0s;
+        --slide-duration: 0s;
     }
 
 
     &-label {
         --font-weight: var(--font-weight-400);
         --padding-horizontal: 2px;
-        --padding-vertical: 0;
+        --padding-vertical: 0px;
 
         @include tokens.state(active) {
             --color: var(--color-text-400);
@@ -79,7 +77,6 @@
         --background-hover: var(--surface-background-hover);
         --border-radius: var(--border-radius-300);
         --color: var(--color-text-400);
-        --color-active: var(--color-text-400);
         --height: calc(var(--size-400) - 4px);
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;

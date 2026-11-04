@@ -7,8 +7,7 @@
     align-items: center;
     display: flex;
     flex-wrap: wrap;
-    // Necessary To Maintain Height Of Hidden Password Fields In Floating Modals
-    // - Password Managers Cause Problems When Fields Are Not Using 'display:hidden' On Password Fields
+    // Holds the height of password fields hidden in floating modals, which password managers need kept rendered.
     min-height: calc((var(--padding-vertical) * 2) + var(--size));
     overflow: hidden;
     text-overflow: ellipsis;

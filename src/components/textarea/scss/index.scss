@@ -12,9 +12,8 @@
     // Last: the base ends in nested rules, which Sass emits after every declaration of the rule.
     @include field.base;
 
+
     &--autoresize {
-        --scrollbar-gutter: stable;
-        --scrollbar-overflow: hidden;
         box-sizing: border-box;
         field-sizing: fixed;
         height: var(--height, var(--min-height));
@@ -33,7 +32,6 @@
     // reach. Typography restates what a textarea's UA styles set and a block box would inherit instead; line height
     // and tracking come from the same author rules as the field's.
     &--measure {
-        --scrollbar-gutter: stable;
         box-sizing: border-box;
         font-style: normal;
         font-variant: normal;
@@ -54,21 +52,15 @@
         white-space: pre-wrap;
         word-spacing: normal;
 
-        &-nowrap {
-            white-space: pre;
-        }
-
         // The trailing space keeps a final line break's empty line, which a textarea shows.
         &::after {
             content: attr(data-value) ' ';
         }
-    }
 
-    // Only ever set alongside '--autoresize', once the content outgrows its maximum height.
-    &--scrollable {
-        --scrollbar-overflow: auto;
+        &-nowrap {
+            white-space: pre;
+        }
     }
-
 
     &-resize {
         display: grid;

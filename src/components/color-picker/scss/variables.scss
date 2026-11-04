@@ -14,6 +14,9 @@
     --gap-horizontal: 12px;
     --gap-vertical: 12px;
     --hairline: inset 0 0 0 1px var(--surface-border-default);
+    --knob-shadow:
+        0 0 0 1px var(--surface-border-default),
+        0 1px 3px #{surface.shadow-color(3)};
 
 
     &--compact,
@@ -55,27 +58,6 @@
     }
 
 
-    // The reused input's box with its states held at rest. Qualified by the row so it wins over the reused input styles
-    // regardless of stylesheet order.
-    &-fields #{&}-alpha,
-    &-fields #{&}-hex {
-        --border-color-active: var(--border-color-default);
-        --border-color-default: var(--surface-border-default);
-        --border-color-hover: var(--border-color-default);
-        --border-color-pressed: var(--border-color-default);
-        --border-radius: var(--border-radius-400);
-        --border-width: var(--border-width-400);
-        --font-size: inherit;
-        --padding-horizontal: var(--size-200);
-        --padding-vertical: 0px;
-        --size: 36px;
-    }
-
-    &-fields #{&}-alpha {
-        --color-default: var(--color-text-300);
-        --width: 56px;
-    }
-
     &-body,
     &-channels {
         --gap-horizontal: 12px;
@@ -93,9 +75,7 @@
         --box-shadow: var(--hairline);
         --height: 12px;
         --thumb-scale-pressed: 1.1;
-        --thumb-shadow:
-            0 0 0 1px var(--surface-border-default),
-            0 1px 3px #{surface.shadow-color(3)};
+        --thumb-shadow: var(--knob-shadow);
         --thumb-size: var(--size-500);
 
         // Held thumbs keep their size.
@@ -127,6 +107,27 @@
     &-fields {
         --gap-horizontal: var(--size-100);
         --gap-vertical: 0px;
+    }
+
+    // The reused input's box with its states held at rest. Qualified by the row so it wins over the reused input styles
+    // regardless of stylesheet order.
+    &-fields #{&}-alpha,
+    &-fields #{&}-hex {
+        --border-color-active: var(--border-color-default);
+        --border-color-default: var(--surface-border-default);
+        --border-color-hover: var(--border-color-default);
+        --border-color-pressed: var(--border-color-default);
+        --border-radius: var(--border-radius-400);
+        --border-width: var(--border-width-400);
+        --font-size: inherit;
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: 0px;
+        --size: 36px;
+    }
+
+    &-fields #{&}-alpha {
+        --color-default: var(--color-text-300);
+        --width: 56px;
     }
 
     &-fields #{&}-hex {
@@ -196,7 +197,6 @@
             0 0 0 0 var(--color);
         --size: 28px;
 
-        // A stand-in for a dropped swatch, whose own node is already gone.
         &--leaving {
             --leave-duration: 150ms;
             --leave-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
@@ -228,9 +228,7 @@
     &-thumb {
         --border-color: var(--color-white-300);
         --border-width: 2px;
-        --box-shadow:
-            0 0 0 1px var(--surface-border-default),
-            0 1px 3px #{surface.shadow-color(3)};
+        --box-shadow: var(--knob-shadow);
         --scale: none;
         // Grows a touch while held so you can tell you've got hold of it.
         --scale-pressed: 1.1;

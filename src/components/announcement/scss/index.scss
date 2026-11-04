@@ -7,10 +7,6 @@
     overflow: hidden;
     transition: grid-template-rows var(--transition-duration) var(--transition-timing-function);
 
-    @include tokens.state(active) {
-        grid-template-rows: 1fr;
-    }
-
     @media (prefers-reduced-motion: reduce) {
         transition: none;
     }
@@ -25,20 +21,19 @@
             transform var(--transition-duration) var(--transition-timing-function),
             translate var(--transition-duration) var(--transition-timing-function);
 
-        @include tokens.state(active) {
-            filter: blur(0px);
+        @media (prefers-reduced-motion: reduce) {
+            filter: none;
+            transition: opacity var(--fade-duration) var(--transition-timing-function);
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            &,
-            #{tokens.state(active)} {
-                filter: none;
-                transition: opacity var(--fade-duration) var(--transition-timing-function);
-            }
-        }
 
         &.overlay--dragging {
             transition: none;
         }
+    }
+
+
+    @include tokens.state(active) {
+        grid-template-rows: 1fr;
     }
 }

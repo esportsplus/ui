@@ -19,7 +19,8 @@ $open: ':is(:hover, :focus-within)';
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     color: var(--color);
-    padding: var(--padding);
+    padding-block: var(--padding-vertical);
+    padding-inline: var(--padding-horizontal);
 
 
     // Pinned over the toast's corner; qualified to outrank the '.button' layout it pairs with.
@@ -98,6 +99,7 @@ $open: ':is(:hover, :focus-within)';
         inset: 50% auto auto var(--margin-horizontal);
         translate: 0 calc(var(--anchor-height) / -2);
     }
+
 
     // What a placement re-pins in its toasts and overflow card is qualified by the toaster, so it outranks their
     // unplaced rules below wherever it sits.

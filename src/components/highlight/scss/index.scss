@@ -4,12 +4,11 @@
     border-radius: var(--border-radius);
     display: none;
     height: calc(var(--height) - var(--inset-vertical) * 2 + var(--slide-height));
-    left: 0;
+    inset: 0 auto auto 0;
     opacity: 0;
     pointer-events: none;
     position: absolute;
     scale: var(--scale-default);
-    top: 0;
     // Position and size sit on the item at all times; gliding between items is an offset the script adds on top.
     transition:
         background var(--transition-duration) var(--transition-timing-function),
@@ -40,28 +39,21 @@
             position: absolute;
         }
 
-        &-bottom::after {
-            bottom: calc(var(--border-offset) - var(--inset-vertical));
-            height: var(--border-width);
-            inset-inline: calc(var(--inset-horizontal) * -1);
+
+        @each $side in bottom top {
+            &-#{$side}::after {
+                #{$side}: calc(var(--border-offset) - var(--inset-vertical));
+                height: var(--border-width);
+                inset-inline: calc(var(--inset-horizontal) * -1);
+            }
         }
 
-        &-left::after {
-            inset-block: calc(var(--inset-vertical) * -1);
-            left: calc(var(--border-offset) - var(--inset-horizontal));
-            width: var(--border-width);
-        }
-
-        &-right::after {
-            inset-block: calc(var(--inset-vertical) * -1);
-            right: calc(var(--border-offset) - var(--inset-horizontal));
-            width: var(--border-width);
-        }
-
-        &-top::after {
-            height: var(--border-width);
-            inset-inline: calc(var(--inset-horizontal) * -1);
-            top: calc(var(--border-offset) - var(--inset-vertical));
+        @each $side in left right {
+            &-#{$side}::after {
+                #{$side}: calc(var(--border-offset) - var(--inset-horizontal));
+                inset-block: calc(var(--inset-vertical) * -1);
+                width: var(--border-width);
+            }
         }
     }
 

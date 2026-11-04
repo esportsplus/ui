@@ -1,4 +1,5 @@
 @use '/tokens';
+@use 'css-utilities/disabled';
 
 @mixin thumb {
     appearance: none;
@@ -40,7 +41,7 @@
         }
 
         &:disabled {
-            opacity: var(--disabled-opacity);
+            @extend %disabled;
 
             &::-moz-range-thumb {
                 cursor: not-allowed;

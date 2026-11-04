@@ -34,15 +34,11 @@
             transition: none;
         }
 
+
         &--empty {
             background: none;
         }
 
-        @for $level from 1 through 4 {
-            &--level-#{$level} {
-                background: var(--level-#{$level});
-            }
-        }
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
@@ -56,6 +52,13 @@
         }
     }
 
+    @for $level from 0 through 4 {
+        &-cell--level-#{$level},
+        &-swatch--level-#{$level} {
+            background: var(--level-#{$level});
+        }
+    }
+
     &-day {
         height: var(--pitch);
         line-height: var(--cell-size);
@@ -65,8 +68,8 @@
     &-days {
         display: flex;
         flex-direction: column;
+        margin-block-start: calc(var(--months-height) + var(--outline-space));
         margin-inline-end: var(--spacer);
-        margin-top: calc(var(--months-height) + var(--outline-space));
     }
 
     &-grid {
@@ -82,6 +85,7 @@
         font-size: var(--font-size);
         gap: var(--gap-vertical) var(--gap-horizontal);
 
+
         &-less {
             margin-inline-end: var(--spacer);
         }
@@ -92,10 +96,9 @@
     }
 
     &-month {
-        left: calc(var(--column) * var(--pitch));
+        inset: 0 auto auto calc(var(--column) * var(--pitch));
         line-height: 1;
         position: absolute;
-        top: 0;
     }
 
     &-months {
@@ -111,21 +114,18 @@
     // Room on every side so focus and hover rings aren't clipped, plus a gap between the weeks and the bar.
     &-scroll {
         min-width: 0;
-        padding: var(--padding-vertical) var(--padding-horizontal) var(--padding-bottom);
+        padding-block: var(--padding-vertical) var(--padding-bottom);
+        padding-inline: var(--padding-horizontal);
     }
 
     &-swatch {
         border-radius: var(--border-radius);
         height: var(--cell-size);
         width: var(--cell-size);
-
-        @for $level from 0 through 4 {
-            &--level-#{$level} {
-                background: var(--level-#{$level});
-            }
-        }
     }
 
+
+    // Tabular figures, so the tooltip holds its width as the counts change cell to cell.
     .tooltip-shared {
         font-variant-numeric: tabular-nums;
     }

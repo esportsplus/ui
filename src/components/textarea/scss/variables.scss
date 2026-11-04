@@ -4,4 +4,19 @@
     @include field.variables;
     --resize-duration: 240ms;
     --resize-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+
+    &--autoresize {
+        --scrollbar-gutter: stable;
+        --scrollbar-overflow: hidden;
+    }
+
+    &--measure {
+        --scrollbar-gutter: stable;
+    }
+
+    // Only ever set alongside '--autoresize', once the content outgrows its maximum height.
+    &--scrollable {
+        --scrollbar-overflow: auto;
+    }
 }

@@ -1,12 +1,11 @@
 @use '/tokens';
 @use 'css-utilities/icon';
-@use 'css-utilities/text';
 @use 'variables';
 
 .notification {
     align-items: center;
     background: var(--background);
-    border-radius: 999px;
+    border-radius: var(--border-radius);
     box-shadow: 0 0 0 var(--outline-width) var(--outline-color);
     color: var(--color);
     display: inline-flex;

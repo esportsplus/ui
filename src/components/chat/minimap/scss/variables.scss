@@ -2,6 +2,23 @@
 @use 'css-utilities/color';
 
 .chat-minimap {
+    &-item,
+    &-nav {
+        &:focus-visible {
+            --border-radius: var(--border-radius-200);
+        }
+    }
+
+    // The content swap as the card and labels glide between triggers. Each layer is a 'frame--swap', which declares
+    // these on itself, so they're set on the layers here, where a minimap can retime them.
+    &-label,
+    &-preview {
+        .tooltip-shared-layer {
+            --transition-duration: 0s;
+            --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+    }
+
     &-card {
         --gap-horizontal: calc(var(--size-100) / 4);
         --gap-vertical: calc(var(--size-100) / 4);
@@ -12,6 +29,7 @@
 
     &-description {
         --color: var(--color-text-300);
+        --font-size: var(--font-size-300);
         --lines: 2;
     }
 
@@ -22,12 +40,6 @@
         // Lines sit this far in from the rail's leading edge, inside a hit area wider than the longest line.
         --padding-horizontal: calc(var(--size-100) / 2);
         --width: 32px;
-
-        @include tokens.state(active) {
-            > .chat-minimap-line {
-                --background: var(--background-active);
-            }
-        }
 
         // Touch has no hover to follow, and reduced motion keeps the lengths still; keyboard focus swells too.
         @media (hover: hover) and (prefers-reduced-motion: no-preference) {
@@ -47,6 +59,13 @@
 
             &:is(:hover, :focus-visible) > .chat-minimap-line {
                 --length: var(--length-peak);
+            }
+        }
+
+
+        @include tokens.state(active) {
+            > .chat-minimap-line {
+                --background: var(--background-active);
             }
         }
 
@@ -73,16 +92,6 @@
         }
     }
 
-    // The content swap as the card and labels glide between triggers. Each layer is a 'frame--swap', which declares
-    // these on itself, so they're set on the layers here, where a minimap can retime them.
-    &-label,
-    &-preview {
-        .tooltip-shared-layer {
-            --transition-duration: 0s;
-            --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-        }
-    }
-
     &-label.tooltip-shared {
         --border-radius: var(--border-radius-500);
         --spacer: 4px;
@@ -95,17 +104,17 @@
 
     // The lines hold their length under reduced motion; the nav still fades.
     &-line {
-        --background: var(--background-rest);
+        --background: var(--background-default);
         --background-active: var(--color-text-500);
+        --background-default: color-mix(in oklab, var(--color-primary-300) 40%, transparent);
         --background-far: color-mix(in oklab, var(--color-primary-500) 55%, transparent);
         --background-near: color-mix(in oklab, var(--color-primary-500) 75%, transparent);
-        --background-rest: color-mix(in oklab, var(--color-primary-300) 40%, transparent);
         --height: 2px;
-        --length: var(--length-rest);
+        --length: var(--length-default);
+        --length-default: 12px;
         --length-far: var(--size-400);
         --length-near: var(--size-500);
         --length-peak: 24px;
-        --length-rest: 12px;
         --transition-duration: 0.16s;
         --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -152,10 +161,10 @@
     &-preview.tooltip-shared {
         --background-default: var(--surface-background-default);
         --border-color: var(--surface-border-default);
+        --border-radius: var(--border-radius-600);
         --box-shadow-default: 0 0 0 var(--border-width-400) var(--border-color), var(--surface-shadow-default);
         --color: var(--color-text-500);
         --font-size: var(--font-size-400);
-        --border-radius: var(--border-radius-600);
         --spacer: var(--size-100);
         --white-space: normal;
 
@@ -167,5 +176,7 @@
 
     &-title {
         --color: var(--color-text-500);
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-500);
     }
 }

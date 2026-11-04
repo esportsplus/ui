@@ -1,4 +1,4 @@
-import { component, html, Attributes } from '@esportsplus/template';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import overlay from '~/components/overlay';
 import { content, cool, morph, morphs, wait, warm, type Delay } from './utilities';
@@ -11,8 +11,8 @@ type A = Attributes & Options & {
     ondocumentkeydown?: never,
     onfocusin?: never,
     onfocusout?: never,
-    onmouseover?: never,
     onmouseout?: never,
+    onmouseover?: never,
     onpointermove?: never,
     ontransitioncancel?: never,
     ontransitionend?: never,

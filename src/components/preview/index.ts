@@ -36,7 +36,7 @@ const state = (): State => reactive({ mounted: false, retry: 0, view: 'preview' 
 
 // The example's card. Mounts its content once near the viewport and keeps it mounted. A hash naming the example, or
 // one of its anchors, reveals it: back to the preview, mounted, then scrolled to once its final box has painted.
-const preview = component(
+const template = component(
     function({ anchors = [], id, selection, state, ...attributes }: A, content) {
         let frame = 0,
             release: VoidFunction | undefined;
@@ -89,11 +89,6 @@ const preview = component(
                             return;
                         }
 
-                        if (typeof IntersectionObserver === 'undefined') {
-                            mount();
-                            return;
-                        }
-
                         release = observeIntersection(element, (entries) => {
                             if (entries.some((entry) => entry.isIntersecting)) {
                                 mount();
@@ -140,5 +135,15 @@ const preview = component(
 
 // Its parts compose inside the card ('header', then 'stage', 'source' or 'code'), all sharing one 'state'. 'buttons'
 // sits just outside, above the card.
-export default Object.assign(preview, { buttons, code, header, source, stage, state });
+const preview: typeof template & {
+    buttons: typeof buttons,
+    code: typeof code,
+    header: typeof header,
+    source: typeof source,
+    stage: typeof stage,
+    state: typeof state
+} = Object.assign(template, { buttons, code, header, source, stage, state });
+
+
+export default preview;
 export type { State };

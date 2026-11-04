@@ -1,6 +1,6 @@
 import { computed, read } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import number from '../number';
+import number from '~/components/number';
 import './scss/index.scss';
 
 

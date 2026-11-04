@@ -10,11 +10,10 @@
     width: 100%;
 
 
-    // Centred on the cap height rather than the font's line box, which sits the caps high. A link crops its label
-    // rather than itself, since the fallback's pseudo-elements would land in the link's own flex row.
     &-label {
         font-weight: var(--font-weight);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
 
         // The current page.
         @include tokens.state(active) {
@@ -40,6 +39,7 @@
         user-select: none;
         white-space: nowrap;
 
+
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
         }
@@ -61,10 +61,9 @@
     &-ruler {
         @extend %reset-list;
         display: flex;
-        left: 0;
+        inset: 0 auto auto 0;
         pointer-events: none;
         position: absolute;
-        top: 0;
         visibility: hidden;
         white-space: nowrap;
 
@@ -91,11 +90,6 @@
             transition: opacity var(--enter-duration) var(--enter-timing-function);
         }
 
-        // The current page's, which gives way first.
-        @include tokens.state(active) {
-            flex-shrink: 1;
-            min-width: 0;
-        }
 
         // Blur only matters on the way in, so it switches on after the fade out.
         &--hidden {
@@ -116,6 +110,7 @@
             }
         }
 
+
         &-body {
             align-items: center;
             display: flex;
@@ -126,6 +121,12 @@
             @media (prefers-reduced-motion: reduce) {
                 transition-delay: 0s;
             }
+        }
+
+        // The current page's, which gives way first.
+        @include tokens.state(active) {
+            flex-shrink: 1;
+            min-width: 0;
         }
     }
 
@@ -153,6 +154,7 @@
         user-select: none;
         width: var(--width);
 
+
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
         }
@@ -161,8 +163,6 @@
         &:hover,
         &[aria-expanded='true'] {
             background: var(--background-hover);
-            color: var(--color-active);
         }
     }
-
 }

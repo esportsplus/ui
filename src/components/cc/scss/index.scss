@@ -25,17 +25,20 @@
         display: grid;
         grid-template: 100% / 100%;
 
+
         &--large,
         &--small {
             height: var(--height);
             width: var(--width);
         }
 
+
         &-mark {
             @extend %icon-swap;
             grid-area: 1 / 1;
             height: 100%;
             width: 100%;
+
 
             @include tokens.state(active) {
                 @extend %icon-swap-active;
@@ -56,8 +59,10 @@
         transition: transform var(--transition-duration) var(--transition-timing-function);
         width: 100%;
 
+
         &--flipped {
             transform: rotateY(180deg);
+
 
             // No half turn: the faces cross-fade in place.
             @media (prefers-reduced-motion: reduce) {
@@ -77,20 +82,20 @@
     &-control {
         position: relative;
 
+
         &-brand {
+            @extend %absolute-vertical;
             color: var(--color);
             display: flex;
             pointer-events: none;
-            position: absolute;
             right: var(--inset-horizontal);
-            top: 50%;
             transition: color var(--transition-duration) var(--transition-timing-function);
-            translate: 0 -50%;
         }
     }
 
     &-digit {
         display: inline-block;
+
 
         &--gap {
             margin-inline-start: var(--gap-horizontal);
@@ -105,6 +110,7 @@
         @each $roll in 1 2 {
             &--roll-#{$roll} {
                 animation: cc-digit--roll-#{$roll} var(--animation-duration) var(--animation-timing-function);
+
 
                 @media (prefers-reduced-motion: reduce) {
                     animation-name: cc-digit-fade;
@@ -131,7 +137,8 @@
         font-size: var(--font-size-300);
         margin: auto 0 0;
         opacity: var(--opacity);
-        padding: 0 var(--padding-horizontal) var(--padding-bottom);
+        padding-block: 0 var(--padding-bottom);
+        padding-inline: var(--padding-horizontal);
     }
 
     // Shares the label's row, so showing it never shifts the fields below.
@@ -144,6 +151,7 @@
             opacity var(--transition-duration) var(--transition-timing-function),
             translate var(--transition-duration) var(--transition-timing-function);
 
+
         @starting-style {
             filter: blur(var(--blur-400));
             opacity: 0;
@@ -153,7 +161,7 @@
         @media (prefers-reduced-motion: reduce) {
             @starting-style {
                 filter: none;
-                translate: 0 0;
+                translate: 0;
             }
         }
     }
@@ -163,6 +171,7 @@
         flex-direction: column;
         flex-shrink: 0;
         gap: var(--gap-vertical) var(--gap-horizontal);
+
 
         &-value {
             @extend %font-geist-mono;
@@ -184,8 +193,10 @@
         overflow: hidden;
         transition: opacity var(--transition-duration) var(--transition-timing-function);
 
+
         &--back {
             transform: rotateY(180deg);
+
 
             @media (prefers-reduced-motion: reduce) {
                 opacity: 0;
@@ -198,6 +209,7 @@
             padding-block: var(--padding-vertical);
             padding-inline: var(--padding-horizontal);
         }
+
 
         &-bottom {
             align-items: flex-end;
@@ -226,6 +238,7 @@
             padding-inline-end: var(--padding-end);
         }
 
+
         &.input {
             font-variant-numeric: tabular-nums;
             height: var(--height);
@@ -234,9 +247,11 @@
             padding-block: 0;
             transition: border-color var(--transition-duration) var(--transition-timing-function);
 
+
             &::placeholder {
                 color: var(--placeholder-color);
             }
+
 
             &:focus-visible {
                 outline: var(--focus-width) solid var(--focus-color);
@@ -257,6 +272,7 @@
         flex-direction: column;
         gap: var(--gap-vertical) var(--gap-horizontal);
         min-width: 0;
+
 
         &-value {
             @extend %text-truncate;
@@ -321,9 +337,11 @@
             top var(--transition-duration) var(--transition-timing-function),
             width var(--transition-duration) var(--transition-timing-function);
 
+
         @include tokens.state(active) {
             display: block;
             opacity: 1;
+
 
             @starting-style {
                 opacity: 0;
@@ -343,6 +361,7 @@
         gap: var(--gap-vertical) var(--gap-horizontal);
         min-width: 0;
 
+
         &-header {
             align-items: baseline;
             display: flex;
@@ -355,7 +374,9 @@
         align-items: center;
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        padding: var(--padding-top) var(--padding-horizontal) 0;
+        padding-block: var(--padding-top) 0;
+        padding-inline: var(--padding-horizontal);
+
 
         &-value {
             @extend %font-geist-mono;
@@ -385,6 +406,7 @@
         border: 0;
         height: var(--height);
         outline: none;
+
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);

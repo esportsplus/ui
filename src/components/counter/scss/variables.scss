@@ -2,8 +2,8 @@
 // delays its transform until the digits settle.
 .counter {
     --color: var(--color-text-400);
-    // A gradient here paints the digits in place of '--color'; 'initial' also stops an ancestor's from leaking in.
-    --fill: initial;
+    // Paints the glyphs; a gradient here replaces the flat '--color'.
+    --fill: linear-gradient(currentColor, currentColor);
     // Sized by the surrounding text; set 'font-size' on the counter or a parent to scale it.
     --font-size: 1em;
     --font-weight: var(--font-weight-400);
@@ -28,7 +28,7 @@
     }
 
     &--snap {
-        --transition-duration: 0.64s;
+        --transition-duration: 0.6s;
 
         .counter-character-track {
             --transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
@@ -55,11 +55,6 @@
     }
 
 
-    &-character--symbol,
-    &-digit {
-        --fill: linear-gradient(currentColor, currentColor);
-    }
-
     &-character {
         &--symbol {
             --opacity: 1;
@@ -71,7 +66,6 @@
         &-track {
             --animation-duration: var(--transition-duration);
             --animation-timing-function: ease-out;
-            --blur: 0px;
             --stagger: 0s;
             --transition-timing-function: linear(0, 0.004, 0.016, 0.035, 0.063, 0.098, 0.141 13.6%, 0.25, 0.391, 0.563, 0.765, 1, 0.891 40.9%, 0.848, 0.813, 0.785, 0.766, 0.754, 0.75, 0.754, 0.766, 0.785, 0.813, 0.848, 0.891 68.2%, 1 72.7%, 0.973, 0.953, 0.941, 0.938, 0.941, 0.953, 0.973, 1, 0.988, 0.984, 0.988, 1);
         }

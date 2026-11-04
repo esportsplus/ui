@@ -26,6 +26,7 @@
         --width: max-content;
     }
 
+
     &.tooltip:has(> .tooltip-content--morph)::after {
         --background: var(--color-primary-400);
     }

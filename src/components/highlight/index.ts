@@ -24,7 +24,6 @@ type A = Attributes & {
     target?: string;
 };
 
-
 type Glide = {
     item: Element | null;
     slides: Slide[];

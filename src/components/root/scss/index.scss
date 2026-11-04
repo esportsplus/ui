@@ -114,9 +114,12 @@ sub {
     bottom: var(--offset);
 }
 
+// Offset from the baseline rather than 'vertical-align', so the raised text never stretches its line box.
 sub,
 sup {
     font-size: var(--font-size);
+    position: relative;
+    vertical-align: baseline;
 }
 
 sup {

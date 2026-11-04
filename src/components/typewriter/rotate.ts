@@ -230,11 +230,15 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                         // Read so pausing and resuming reschedule.
                         state.paused;
 
-                        if (index !== current && words[index] !== undefined) {
-                            swap(index);
-                        }
+                        // After the pass: inside one, flush() can't land the letters, so swap would measure and
+                        // animate the previous word's nodes.
+                        queueMicrotask(() => {
+                            if (index !== current && words[index] !== undefined) {
+                                swap(index);
+                            }
 
-                        schedule();
+                            schedule();
+                        });
                     });
                 },
                 ondisconnect: () => {
@@ -265,5 +269,6 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
         </span>
     `;
 };
+
 
 export type { State as TypewriterRotateState };

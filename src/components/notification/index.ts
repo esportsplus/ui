@@ -7,13 +7,13 @@ import './scss/index.scss';
 
 
 type A = Attributes & {
-    'aria-label'?: string;
-    bell?: boolean;
-    count?: number;
-    counter?: boolean;
-    max?: number;
-    ring?: boolean;
-    state?: { count: number };
+    'aria-label'?: string,
+    bell?: boolean,
+    count?: number,
+    counter?: boolean,
+    max?: number,
+    ring?: boolean,
+    state?: { count: number }
 };
 
 
@@ -21,7 +21,7 @@ export default component(
     ({ 'aria-label': label = 'Notifications', bell = false, count = 0, counter = true, max = 99, ring = false, state: api = reactive({ count }), ...attributes }: A) => {
         let announce = () => api.count > 0 ? `${label}, ${api.count} unread` : label,
             previous = api.count,
-            render = reactive([] as { digit: boolean; value: string }[]),
+            render = reactive([] as { digit: boolean, value: string }[]),
             // Alternates between 1 and 2 so back-to-back increments swap keyframe
             // names, which restarts the swing without forcing a reflow.
             state = reactive({ ring: ring ? 1 : 0 });

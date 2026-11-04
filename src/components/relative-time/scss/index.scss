@@ -6,9 +6,11 @@
     color: var(--color);
     display: inline-flex;
     font-variant-numeric: tabular-nums;
+    font-weight: var(--font-weight);
     outline: none;
     transition: color var(--transition-duration) var(--transition-timing-function);
     white-space: nowrap;
+
 
     &-digit,
     &-rest {
@@ -63,18 +65,19 @@
             scale var(--transition-duration) var(--transition-timing-function),
             translate var(--transition-duration) var(--transition-timing-function);
 
-        #{tokens.state(active, '.relative-time')} > & {
-            filter: blur(0px);
-        }
-
         @media (prefers-reduced-motion: reduce) {
             filter: none;
+        }
+
+        #{tokens.state(active, '.relative-time')} > & {
+            filter: blur(0px);
         }
 
         .relative-time.tooltip--instant > & {
             transition: none;
         }
     }
+
 
     // Qualified so it beats the reused tooltip's own cursor.
     &.tooltip {
@@ -86,6 +89,7 @@
         outline-offset: var(--focus-offset);
     }
 }
+
 
 @keyframes relative-time-enter {
     from {

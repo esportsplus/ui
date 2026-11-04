@@ -20,6 +20,7 @@
     position: relative;
     width: 100%;
 
+
     // Holding still, it is a strip to scroll by hand.
     &--still &-group--copy {
         display: none;
@@ -32,6 +33,7 @@
     &--still &-viewport {
         overflow-x: auto;
     }
+
 
     &-entry {
         flex-shrink: 0;
@@ -59,17 +61,16 @@
         text-decoration: none;
         white-space: nowrap;
 
+
         &--link {
-            background: none;
-            border: 0;
+            @extend %reset-button;
             color: var(--color);
-            cursor: pointer;
-            font: inherit;
             outline: none;
             transition:
                 background-color var(--transition-duration) var(--transition-timing-function),
                 box-shadow var(--transition-duration) var(--transition-timing-function),
                 color var(--transition-duration) var(--transition-timing-function);
+
 
             &:focus-visible {
                 background: color-mix(in srgb, var(--focus-color) var(--focus-tint), transparent);
@@ -104,6 +105,7 @@
         overflow: hidden;
         padding-block: var(--padding-vertical);
         padding-inline: var(--padding-horizontal);
+
 
         &:focus-visible {
             box-shadow: inset 0 0 0 var(--focus-width) var(--focus-color);

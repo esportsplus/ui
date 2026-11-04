@@ -23,10 +23,12 @@
     justify-content: flex-end;
     min-width: var(--min-width);
     outline: none;
-    padding: 0 var(--padding-horizontal);
+    padding-block: 0;
+    padding-inline: var(--padding-horizontal);
     transition:
         background var(--transition-duration) var(--transition-timing-function),
         box-shadow var(--transition-duration) var(--transition-timing-function);
+
 
     @media (prefers-reduced-motion: reduce) {
         transition: none;
@@ -51,7 +53,7 @@
         }
     }
 
-    // A legend inside the field, not a control, so it takes no hover or press
+    // A legend inside the field, not a control, so it takes no hover or press.
     &-key {
         pointer-events: none;
 
@@ -61,6 +63,10 @@
 
         &--enter {
             animation: shortcut-recorder-key--enter var(--animation-duration) var(--animation-timing-function) backwards;
+
+            @media (prefers-reduced-motion: reduce) {
+                animation: none;
+            }
 
             @keyframes shortcut-recorder-key--enter {
                 from {
@@ -74,19 +80,16 @@
         &--settle {
             animation: shortcut-recorder-key--settle var(--animation-duration) var(--animation-timing-function) calc(var(--index) * var(--stagger)) backwards;
 
+            @media (prefers-reduced-motion: reduce) {
+                animation: none;
+            }
+
             @keyframes shortcut-recorder-key--settle {
                 from {
                     opacity: 0.6;
                     scale: 1.08;
                     translate: 0 -3px;
                 }
-            }
-        }
-
-        &--enter,
-        &--settle {
-            @media (prefers-reduced-motion: reduce) {
-                animation: none;
             }
         }
     }
@@ -97,7 +100,8 @@
         display: flex;
         font-size: var(--font-size);
         gap: var(--gap-vertical) var(--gap-horizontal);
-        padding: 0 var(--padding-horizontal);
+        padding-block: 0;
+        padding-inline: var(--padding-horizontal);
         transition: color var(--transition-duration) var(--transition-timing-function);
 
         @media (prefers-reduced-motion: reduce) {
@@ -118,6 +122,7 @@
             }
         }
     }
+
 
     // Recording already draws a dark edge, a focus ring on top of it would double up.
     #{tokens.state(inactive)}:focus-visible {

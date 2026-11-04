@@ -577,13 +577,13 @@ export default <T>(
                 }
             }
         }] as Attributes[],
-        render: () => {
-            return html`${html.reactive(items, (item) => html`${template(item, hold(item))}`)}${() => {
-                let item = read(list.dragging);
+        render: () => html`${html.reactive(items, (item) => html`${template(item, hold(item))}`)}${() => {
+            let item = read(list.dragging);
 
-                return item !== null && ghost(item);
-            }}`;
-        }
+            return item !== null && ghost(item);
+        }}`
     };
 };
+
+
 export type { Options as SortableOptions };

@@ -40,15 +40,6 @@
         }
     }
 
-    // An icon alone, without its surface; a thumbnail keeps its image.
-    &--plain &-button {
-        --box-shadow-default: none;
-
-        &:not(.dock-button--thumbnail) {
-            --background-default: transparent;
-        }
-    }
-
     // Against a screen's top edge.
     &--s {
         .dock-button {
@@ -116,11 +107,13 @@
     }
 
 
-    // Each app a cell of the launcher's surface. The surface's own hover step is too faint to read across a cell this
-    // large, so hover takes the active step, as far above the surface as pressed sits below it.
+    // Each app a cell of the launcher's surface. The primary fill's own active and hover steps lighten it, which in
+    // light lands back on the surface it sits in, so both take the fill itself, as a menu item's highlight does.
     &-app {
         @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
+        --background-active: var(--surface-primary-default);
         --background-default: transparent;
+        --background-hover: var(--surface-primary-default);
         --border-radius: var(--border-radius-400);
         --gap-horizontal: 0px;
         --gap-vertical: var(--size-200);
@@ -181,8 +174,10 @@
             --hop-duration: 0s;
         }
 
-        // An app's own shape, over the dock's. After '--thumbnail', so 'plain' drops a thumbnail's shadow too.
-        &--plain {
+        // An icon alone, without its surface, for the whole dock or one app; a thumbnail keeps its image. Doubled so it
+        // drops the shadow '--thumbnail' sets, which follows it.
+        &#{&}--plain,
+        .dock--plain & {
             --box-shadow-default: none;
 
             &:not(.dock-button--thumbnail) {
@@ -247,9 +242,9 @@
 
     // Anchors to the shelf's edge; clears an icon at full swell by 12px.
     &-label.tooltip-shared {
+        --border-radius: var(--border-radius-300);
         --box-shadow-default: none;
         --font-weight: var(--font-weight-500);
-        --border-radius: var(--border-radius-300);
         --spacer: calc(var(--size-peak) - var(--size-rest) - var(--inset-vertical) + 12px);
 
         .frame {

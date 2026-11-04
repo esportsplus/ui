@@ -1,5 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/absolute';
+@use 'css-utilities/disabled';
 @use 'css-utilities/hidden';
 @use 'variables';
 
@@ -51,8 +52,7 @@
                 opacity var(--transition-duration) var(--transition-timing-function);
 
             &:disabled {
-                cursor: default;
-                opacity: var(--disabled-opacity);
+                @extend %disabled;
             }
 
             &:focus-visible {
@@ -352,8 +352,9 @@
             gap: var(--gap-vertical) var(--gap-horizontal);
         }
 
+
         @include tokens.state(disabled) {
-            opacity: var(--disabled-opacity);
+            @extend %disabled;
         }
     }
 }

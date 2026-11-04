@@ -37,6 +37,7 @@
         }
     }
 
+
     @each $placement in anchor.$placements {
         &--#{$placement} {
             @extend %anchor--#{$placement};
@@ -84,13 +85,6 @@
         --translate: 0px;
     }
 
-    // Exits get out of the way faster than entrances arrive, and settle without the bounce. Zero specificity rather
-    // than the state mixin, so a consumer's own timings still win.
-    &:where(:not(.--active)) {
-        --transition-duration: var(--close-duration);
-        --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-    }
-
 
     &-handle {
         --background: var(--surface-border-default);
@@ -104,6 +98,14 @@
         --peek: 18px;
         --scale: 0.94;
         --transition-duration: 0.5s;
+        --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+
+    // Exits get out of the way faster than entrances arrive, and settle without the bounce. Zero specificity rather
+    // than the state mixin, so a consumer's own timings still win.
+    &:where(:not(.--active)) {
+        --transition-duration: var(--close-duration);
         --transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
     }
 }

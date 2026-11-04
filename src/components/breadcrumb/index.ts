@@ -1,5 +1,5 @@
-import { component, html, type Attributes, type Element } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
+import { component, html, type Attributes, type Element } from '@esportsplus/template';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import { observer } from '~/shared/resize';
@@ -192,10 +192,10 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                 ${tooltip.menu(
                                     {
                                         items: items.slice(1, last).map((item, i) => ({
-                                            label: item.label,
-                                            icon: () => icon({ 'aria-hidden': 'true' }, folder),
                                             hidden: () => i >= s.hidden,
                                             href: item.href,
+                                            icon: () => icon({ 'aria-hidden': 'true' }, folder),
+                                            label: item.label,
                                             onselect: (_item, event) => navigate(event, item, i + 1),
                                             target: '_self'
                                         })),

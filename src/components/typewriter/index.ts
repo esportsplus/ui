@@ -36,18 +36,15 @@ export default component(
                                     timer = setTimeout(play, 2000);
                                     return;
                                 }
-                                else {
-                                    character++;
-                                }
+
+                                character++;
+                            }
+                            else if (character === 0) {
+                                isWriting = true;
+                                write = content[++i] || content[i = 0];
                             }
                             else {
-                                if (character === 0) {
-                                    isWriting = true;
-                                    write = content[++i] || content[i = 0];
-                                }
-                                else {
-                                    character--;
-                                }
+                                character--;
                             }
 
                             play();

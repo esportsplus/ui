@@ -49,7 +49,7 @@ function scroller(element: HTMLElement): EventTarget {
     while (node && node !== document.body && node !== document.documentElement) {
         let overflow = getComputedStyle(node).overflowY;
 
-        if (overflow === 'auto' || overflow === 'scroll' || overflow === 'overlay') {
+        if (overflow === 'auto' || overflow === 'scroll') {
             return node;
         }
 

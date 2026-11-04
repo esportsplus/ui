@@ -5,8 +5,8 @@
 
 .checkbox {
     background: var(--background);
-    border-radius: var(--border-radius);
     border: calc(var(--border-width) + var(--border-width-offset)) solid var(--border-color);
+    border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     cursor: pointer;
     flex: 0 0 var(--width);
@@ -20,6 +20,7 @@
         box-shadow var(--transition-duration) var(--transition-timing-function);
     width: var(--width);
 
+
     @media (prefers-reduced-motion: reduce) {
         transition: none;
     }
@@ -31,7 +32,6 @@
             border-radius: calc(var(--border-radius) - (var(--height) / 2));
             height: var(--height);
             margin: auto;
-            scale: var(--scale);
         }
     }
 
@@ -42,11 +42,13 @@
             box-shadow: var(--box-shadow);
             content: '';
             pointer-events: none;
+            scale: var(--scale);
             transform-origin: center;
             transition:
                 scale var(--transition-duration) var(--transition-timing-function),
                 translate var(--transition-duration) var(--transition-timing-function);
             width: var(--width);
+
 
             @media (prefers-reduced-motion: reduce) {
                 transition: none;
@@ -60,8 +62,7 @@
             height: calc(var(--height) - (var(--border-width) * 2) - (var(--padding-vertical) * 2));
             inset: var(--padding-vertical) auto auto var(--padding-horizontal);
             position: absolute;
-            scale: var(--scale);
-            translate: var(--translateX);
+            translate: var(--translate-horizontal);
         }
     }
 
@@ -71,6 +72,7 @@
         display: flex;
         flex-direction: column;
         gap: var(--gap-vertical) var(--gap-horizontal);
+
 
         &-counter {
             color: var(--color);
@@ -92,6 +94,7 @@
             font-size: var(--font-size-300);
             margin: 0;
             user-select: none;
+
 
             &-key {
                 border: var(--border-width) solid var(--border-color);
@@ -122,6 +125,7 @@
         z-index: 1;
     }
 
+
     &:has(> .checkbox-tag:focus-visible) {
         outline: var(--focus-width) solid var(--focus-color);
         outline-offset: var(--focus-offset);
@@ -139,6 +143,7 @@
         margin: auto;
         pointer-events: none;
 
+
         svg {
             @extend %icon-stroke-draw;
             fill: none;
@@ -148,6 +153,7 @@
             stroke-linejoin: var(--linejoin);
             stroke-width: var(--stroke-width);
             transition: stroke-dashoffset var(--transition-duration) var(--transition-timing-function);
+
 
             @media (prefers-reduced-motion: reduce) {
                 transition: none;

@@ -20,10 +20,12 @@
         rotate: var(--rotate);
         transition: rotate var(--transition-duration) var(--transition-timing-function);
 
+
         @media (prefers-reduced-motion: reduce) {
             transition: none;
         }
     }
+
 
     svg {
         height: 100%;

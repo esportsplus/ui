@@ -40,42 +40,45 @@
             --pour-duration: 0s;
         }
 
+        &--done &-label,
+        &--done &-percent {
+            --filter: var(--blur-400);
+        }
+
         &--blue {
             --color: var(--color-blue-400);
+        }
 
-            .progress-text-track {
-                --color: oklch(from var(--color-blue-400) l c h / 0.2);
+        &--blue &-track {
+            --color: oklch(from var(--color-blue-400) l c h / 0.2);
+        }
+
+        &--done &-check.icon {
+            --offset: 0;
+            --transition-duration: 300ms;
+
+            @media (prefers-reduced-motion: reduce) {
+                --transition-duration: 0s;
             }
         }
 
-        &--done {
-            .progress-text-check.icon {
-                --offset: 0;
-                --transition-duration: 300ms;
+        &--done &-done {
+            --transition-delay: 100ms;
+            --transition-duration: 300ms;
+            --translate: 0 0;
+        }
 
-                @media (prefers-reduced-motion: reduce) {
-                    --transition-duration: 0s;
-                }
-            }
+        &--done &-label {
+            --transition-duration: 200ms;
+            --translate: 0 -4px;
 
-            .progress-text-done {
-                --transition-delay: 100ms;
-                --transition-duration: 300ms;
+            @media (prefers-reduced-motion: reduce) {
                 --translate: 0 0;
             }
+        }
 
-            .progress-text-label {
-                --transition-duration: 200ms;
-                --translate: 0 -4px;
-
-                @media (prefers-reduced-motion: reduce) {
-                    --translate: 0 0;
-                }
-            }
-
-            .progress-text-percent {
-                --transition-duration: 200ms;
-            }
+        &--done &-percent {
+            --transition-duration: 200ms;
         }
 
         &--large {
@@ -83,10 +86,10 @@
             --gap-horizontal: 14px;
             --gap-vertical: 14px;
             --part-height: 32px;
+        }
 
-            .progress-text-check.icon {
-                --size: 22px;
-            }
+        &--large &-check.icon {
+            --size: 22px;
         }
 
         &--large &-done {
@@ -98,10 +101,10 @@
         // undraws at once; the done state draws it in.
         &-check.icon {
             --color: currentColor;
-            --delay: 150ms;
             --offset: 1;
             --size: var(--size-400);
             --stroke-width: 3;
+            --transition-delay: 150ms;
             --transition-duration: 0s;
             --transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
         }

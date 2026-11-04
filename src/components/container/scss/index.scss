@@ -1,10 +1,8 @@
+@use 'css-utilities/flex';
 @use 'variables';
 
 .container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--gap-vertical) var(--gap-horizontal);
-    justify-content: flex-start;
+    @extend %flex-start;
     margin-block: var(--margin-vertical);
     margin-inline: auto;
     position: relative;

@@ -61,7 +61,7 @@ $animations: (
     }
 
     @each $name, $animation in $animations {
-        &--#{$name} .sortable-drag {
+        &--#{$name} &-drag {
             --animation: #{$animation};
         }
     }
@@ -81,13 +81,18 @@ $animations: (
         --scale: 1.06;
     }
 
-    &-overlay {
-        --transition-duration: 0.16s;
-    }
-
-    > .sortable-item--held {
+    // Every state too: the item stays ':active' for the whole drag, and a component's state rules can outrank this one
+    & > &-item--held {
         --background: transparent;
+        --background-active: transparent;
+        --background-default: transparent;
+        --background-hover: transparent;
+        --background-pressed: transparent;
         --border-color: var(--surface-border-pressed);
         --border-width: var(--border-width-400);
+    }
+
+    &-overlay {
+        --transition-duration: 0.16s;
     }
 }

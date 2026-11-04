@@ -59,7 +59,7 @@ export default <T extends Record<string, any>>(
                     event.preventDefault();
 
                     this.dispatchEvent(
-                        new SubmitEvent('submit', { cancelable: true, bubbles:true, submitter: trigger })
+                        new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter: trigger })
                     );
                 },
                 onsubmit: async function(this: HTMLFormElement, event: SubmitEvent) {

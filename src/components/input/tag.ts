@@ -1,5 +1,5 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { flush, reactive, ReactiveArray, type Reactive } from '@esportsplus/reactivity';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import close from '@esportsplus/ui/svg/close.svg';
 import icon from '~/components/icon';
 import { measure, ms, slides, timing } from '~/shared/animation';
@@ -21,6 +21,8 @@ type Chip = HTMLElement & { [SHAKING]?: Animation };
 
 type D = Attributes & Pick<A, typeof INPUT_TAG_FIELD>;
 
+type Field = Parameters<typeof input>[0];
+
 // A removed chip's stand-in, laid where the chip stood while it fades out.
 type Ghost = {
     height: number;
@@ -30,8 +32,6 @@ type Ghost = {
     width: number;
 };
 
-type Field = Parameters<typeof input>[0];
-
 type State = {
     active: boolean;
     error: string;
@@ -39,12 +39,11 @@ type State = {
 };
 
 
-const TAG_SEPARATORS = /[,\n]/;
-
+const INPUT_TAG_FIELD = Symbol.for('@esportsplus/ui/input.tag.field');
 
 const SHAKING = Symbol();
 
-const INPUT_TAG_FIELD = Symbol.for('@esportsplus/ui/input.tag.field');
+const TAG_SEPARATORS = /[,\n]/;
 
 
 let uid = 0;

@@ -1,5 +1,5 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { clamp } from '~/shared/clamp';
 import { observer } from '~/shared/resize';
 import { ticker } from '~/shared/ticker';
@@ -17,15 +17,15 @@ type Item = {
 };
 
 
+const MAX_COPIES = 14;
+
+const MIN_COPIES = 4;
+
 // Seconds to ramp speed up/down when pausing and resuming.
 const RAMP = 0.19;
 
 // Seconds to settle a focus nudge that brings an item into view.
 const SETTLE = 0.16;
-
-const MAX_COPIES = 14;
-
-const MIN_COPIES = 4;
 
 
 function face(item: Item) {

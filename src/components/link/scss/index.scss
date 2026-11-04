@@ -10,7 +10,6 @@
     justify-content: flex-start;
     padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
     padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
-    position: relative;
     transition:
         background var(--transition-duration) var(--transition-timing-function),
         border-color var(--transition-duration) var(--transition-timing-function),

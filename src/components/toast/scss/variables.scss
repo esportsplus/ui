@@ -11,10 +11,12 @@ $close-button-size: var(--size-500);
     --background: var(--surface-background-default);
     --border-color: var(--surface-border-hover);
     --border-radius: var(--border-radius-500);
-    --border-width: 1px;
+    --border-width: var(--border-width-400);
     --box-shadow: var(--surface-shadow-default);
     --color: var(--color-text-400);
-    --padding: var(--size-400);
+    --padding-horizontal: var(--size-400);
+    --padding-vertical: var(--size-400);
+
 
     &-close {
         @extend %color-text;
@@ -79,6 +81,24 @@ $close-button-size: var(--size-500);
         }
     }
 
+
+    @each $placement in anchor.$placements {
+        &--#{$placement} {
+            @extend %anchor--#{$placement};
+        }
+    }
+
+    &--s,
+    &--se,
+    &--sw {
+        --direction: -1;
+    }
+
+    // Unplaced, it sits top right; only then, so any placement still wins.
+    &:not([class*='toaster--']) {
+        @extend %anchor--ne;
+    }
+
     // Qualified by the toaster so these win over the consumer's classes (e.g. '.card') sharing the element.
     > .toast {
         // Room past the box for shadows and the close button, which the collapsed clip would otherwise cut.
@@ -112,23 +132,5 @@ $close-button-size: var(--size-500);
         @media (prefers-reduced-motion: reduce) {
             --fling-duration: 0s;
         }
-    }
-
-
-    @each $placement in anchor.$placements {
-        &--#{$placement} {
-            @extend %anchor--#{$placement};
-        }
-    }
-
-    &--s,
-    &--se,
-    &--sw {
-        --direction: -1;
-    }
-
-    // Unplaced, it sits top right; only then, so any placement still wins.
-    &:not([class*='toaster--']) {
-        @extend %anchor--ne;
     }
 }

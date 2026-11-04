@@ -30,12 +30,11 @@ type Key = 'high' | 'low';
 type State = { high: number; low: number };
 
 
-const NON_NUMERIC_CHARACTERS = /[^\d.-]/g;
-
-
 const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
 const KEYS: Key[] = ['low', 'high'];
+
+const NON_NUMERIC_CHARACTERS = /[^\d.-]/g;
 
 
 // Rounded to the step's own precision, so fractional steps never drift into float noise.
@@ -85,13 +84,6 @@ export default ({
         }
     }
 
-    function commit(index: number, raw: number) {
-        let next = clamp(snap(raw, min, step, decimals), min, max);
-
-        // Thumbs meet but never pass, so each keeps the bound it started as.
-        s[KEYS[index]] = index === 0 ? Math.min(next, s.high) : Math.max(next, s.low);
-    }
-
     // Vertical thumb centres stop half a thumb inside each end of the control.
     function at(event: PointerEvent) {
         if (!root) {
@@ -105,6 +97,13 @@ export default ({
                 : (event.clientX - rect.left) / rect.width;
 
         return clamp(snap(fraction * span + min, min, step, decimals), min, max);
+    }
+
+    function commit(index: number, raw: number) {
+        let next = clamp(snap(raw, min, step, decimals), min, max);
+
+        // Thumbs meet but never pass, so each keeps the bound it started as.
+        s[KEYS[index]] = index === 0 ? Math.min(next, s.high) : Math.max(next, s.low);
     }
 
     function field(index: number) {
@@ -256,7 +255,6 @@ export default ({
                     class='range-filter-root ${vertical && 'range-filter-root--vertical'}'
                     role='group'
                     ${{
-                        class: () => ui.dragging !== -1 && 'range-filter-root--dragging',
                         onconnect: (element: HTMLElement) => {
                             root = element;
                         },

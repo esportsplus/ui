@@ -36,11 +36,11 @@
         filter: url(#tooltip-morph-goo);
     }
 
+
     &-arrow {
         margin-inline: -1px;
         rotate: var(--rotate);
     }
-
 
     &-content,
     &-message {
@@ -60,7 +60,7 @@
         z-index: 9;
 
 
-        // Shared With Positioning CSS
+        // Shared with the placement mixins.
         $active: '#{tokens.state(active, ".tooltip")} > &, #{tokens.state(active, ".tooltip")} :not(.tooltip) > &';
         $not-active: '#{tokens.state(inactive, ".tooltip")} > &, #{tokens.state(inactive, ".tooltip")} :not(.tooltip) > &';
 
@@ -161,6 +161,7 @@
         pointer-events: none;
         white-space: nowrap;
     }
+
 
     @include tokens.state(active) {
         // Cone from the pointer to the tooltip, computed by 'tooltip.onhover'; other

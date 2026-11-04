@@ -1,4 +1,4 @@
-@use '/tokens';
+@use 'css-utilities/absolute';
 @use 'css-utilities/hidden';
 @use 'variables';
 
@@ -23,14 +23,11 @@
     }
 
     &-bars {
+        @extend %absolute-top;
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        left: 0;
         padding: var(--padding-vertical) var(--padding-horizontal) 0;
         pointer-events: none;
-        position: absolute;
-        right: 0;
-        top: 0;
         z-index: 2;
     }
 
@@ -40,7 +37,7 @@
         border-radius: var(--border-radius);
         display: block;
         height: 100%;
-        transform: scaleX(var(--scale));
+        scale: var(--scale) 1;
         transform-origin: left;
     }
 
@@ -63,8 +60,7 @@
     // A 'frame--slide' track: '--i' is the shown story, fractional while a drag carries it between two. It sits
     // above the zones so interactive story content stays clickable.
     &-track {
-        inset: 0;
-        position: absolute;
+        @extend %absolute-full;
         opacity: var(--opacity);
         transition: opacity var(--transition-duration) var(--transition-timing-function);
         z-index: 1;
@@ -85,10 +81,10 @@
     // Reachable by screen readers; pointer taps and drags are handled by the card itself. Back is the left third,
     // matching the tap split in the component.
     &-zones {
+        @extend %absolute-full;
         display: flex;
-        inset: 0;
-        position: absolute;
     }
+
 
     &:focus-visible {
         outline: var(--focus-width) solid var(--focus-color);
@@ -96,12 +92,13 @@
     }
 }
 
+
 @keyframes story-fill {
     from {
-        transform: scaleX(0);
+        scale: 0 1;
     }
 
     to {
-        transform: scaleX(1);
+        scale: 1 1;
     }
 }

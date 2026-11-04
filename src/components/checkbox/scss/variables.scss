@@ -6,16 +6,18 @@
 
 .checkbox {
     @extend %border-surface, %box-shadow-surface;
+    --border-color-active: var(--background-active);
     --border-color: var(--border-color-default);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
-    --border-width-offset: 0px;
+    --border-width-offset: var(--border-width-offset-default);
+    --border-width-offset-default: 0px;
     --border-width-offset-hover: var(--border-width);
     --box-shadow: var(--box-shadow-default);
     --height: var(--size);
     --indicator-color: var(--indicator-color-default);
     --indicator-color-active: var(--indicator-color-default);
-    --indicator-color-default: var(--color-white-400);
+    --indicator-color-default: var(--color-surface);
     --indicator-color-hover: var(--indicator-color-default);
     --indicator-color-pressed: var(--indicator-color-default);
     --scale: var(--scale-default);
@@ -27,21 +29,28 @@
     --width: var(--height);
 
 
-    [data-theme='dark'] & {
+    :where([data-theme='dark']) & {
         @include surface.step(8);
         --background: var(--background-default);
+        --background-active: var(--color-primary-500);
         --background-default: transparent;
     }
 
-    [data-theme='light'] & {
+    :where([data-theme='light']) & {
         @include surface.step(-3);
         --background: var(--background-default);
-        --background-active: var(--color-white-400);
+        --background-active: var(--color-primary-500);
         --background-default: transparent;
         --background-hover: var(--color-white-400);
         --background-pressed: var(--color-white-400);
     }
 
+    &--radio,
+    &--switch {
+        &::before {
+            --box-shadow: 0 2px 4px #{surface.shadow-color(2)};
+        }
+    }
 
     &--radio {
         --border-radius: 100%;
@@ -54,45 +63,42 @@
         }
     }
 
-    &--radio,
-    &--switch {
-        &::before {
-            --box-shadow: 0 2px 4px #{surface.shadow-color(2)};
-        }
-    }
-
     &--switch {
         --border-width: 0px;
         --border-width-offset-hover: 0px;
         --box-shadow-active: var(--box-shadow-default);
-        --padding-horizontal: calc(var(--size-100) / 4);
-        --padding-vertical: calc(var(--size-100) / 4);
+        --padding-horizontal: 1px;
+        --padding-vertical: 1px;
         --progress: 0;
-        --translateX-active: calc(var(--width-rail) - (var(--border-width) * 2) - var(--height) - (var(--padding-horizontal) * 2));
+        --translate-horizontal-active: calc(var(--width-rail) - (var(--border-width) * 2) - var(--height) - (var(--padding-horizontal) * 2));
         --width: var(--width-rail);
         --width-rail: calc(var(--height) * 1.8);
 
+
         &::before {
-            --translateX: calc(var(--translateX-active) * var(--progress));
+            --translate-horizontal: calc(var(--translate-horizontal-active) * var(--progress));
             --width: var(--height);
         }
 
-        &:has(input:checked) {
-            --progress: 1;
-        }
-
-        [data-theme='dark'] &,
-        [data-theme='light'] & {
+        :where([data-theme='dark']) &,
+        :where([data-theme='light']) & {
             --background-default: var(--surface-primary-default);
             --background-hover: var(--surface-primary-hover);
             --background-pressed: var(--surface-primary-pressed);
         }
+
+
+        &:has(input:checked) {
+            --progress: 1;
+        }
     }
+
 
     &-group {
         --color: var(--color-text-500);
         --gap-horizontal: 0px;
         --gap-vertical: 0px;
+
 
         &-counter {
             --color: var(--color-text-300);
@@ -105,6 +111,7 @@
 
         &-hint {
             --color: var(--color-text-300);
+
 
             &-key {
                 --border-color: var(--surface-border-default);

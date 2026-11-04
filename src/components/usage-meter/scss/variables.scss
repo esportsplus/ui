@@ -1,9 +1,19 @@
-@use '/tokens';
-
 .usage-meter {
     --gap-horizontal: var(--size-200);
     --gap-vertical: var(--size-100);
     --max-width: 380px;
+
+
+    &--inline &-breakdown,
+    &--inline &-label,
+    &--inline &-percent {
+        --display: none;
+    }
+
+    &--inline &-footer,
+    &--inline &-header {
+        --display: contents;
+    }
 
     &--critical &-fill {
         --background: color-mix(in oklch, var(--color-red-400) 80%, transparent);
@@ -16,19 +26,8 @@
         --max-width: none;
     }
 
-    &--inline &-breakdown,
-    &--inline &-label,
-    &--inline &-percent {
-        --display: none;
-    }
-
     &--inline &-cost {
         --prefix: none;
-    }
-
-    &--inline &-footer,
-    &--inline &-header {
-        --display: contents;
     }
 
     &--inline &-track {

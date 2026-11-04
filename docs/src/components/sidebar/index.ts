@@ -82,7 +82,7 @@ export default (request: Request) => {
                                 }))
                             }]
                         })),
-                        [nav.tree.highlight]: {}
+                        [nav.tree.highlight]: { hover: false }
                     })}
                 </div>
             </div>

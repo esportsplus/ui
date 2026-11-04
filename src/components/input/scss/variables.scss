@@ -121,20 +121,6 @@
                 --shake-opacity: 0.4;
             }
 
-            // An armed chip inverts, and its remove button follows it onto the dark surface.
-            @include tokens.state(active) {
-                .input-tag-chip-body {
-                    --background: var(--color-primary-500);
-                    --box-shadow: none;
-                }
-
-                .input-tag-chip-button {
-                    --background-hover: transparent;
-                    --color-default: oklch(from var(--color-surface) l c h / 0.7);
-                    --color-hover: var(--color-surface);
-                }
-            }
-
             // 8px inside 6px of box padding keeps the 14px box concentric; the surface's, until an armed chip fills
             // with ink and drops its shadow.
             &-body {
@@ -161,6 +147,20 @@
             &-icon.icon {
                 --color: currentColor;
                 --size: 14px;
+            }
+
+            // An armed chip inverts, and its remove button follows it onto the dark surface.
+            @include tokens.state(active) {
+                .input-tag-chip-body {
+                    --background: var(--color-primary-500);
+                    --box-shadow: none;
+                }
+
+                .input-tag-chip-button {
+                    --background-hover: transparent;
+                    --color-default: oklch(from var(--color-surface) l c h / 0.7);
+                    --color-hover: var(--color-surface);
+                }
             }
         }
 

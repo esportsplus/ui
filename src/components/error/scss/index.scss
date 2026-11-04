@@ -45,9 +45,11 @@
     &-message.tooltip-content {
         color: var(--color);
         font-size: var(--font-size);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         white-space: normal;
     }
+
 
     // The tooltip's repaint behind its trigger, which the goo bridges from while the morph runs, so the neck reads as
     // the tooltip leaving the control. Pulled in by the shake's reach, so it stays hidden under the control at full swing.

@@ -1,4 +1,5 @@
 @use 'css-utilities/hidden';
+@use 'css-utilities/reset';
 @use 'css-utilities/text';
 @use 'variables';
 
@@ -15,6 +16,7 @@
     &--left {
         align-items: flex-end;
 
+
         .chat-minimap-item,
         .chat-minimap-nav {
             justify-content: flex-end;
@@ -26,7 +28,8 @@
         display: flex;
         flex-direction: column;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         width: var(--width);
     }
 
@@ -35,7 +38,7 @@
         -webkit-line-clamp: var(--lines);
         color: var(--color);
         display: -webkit-box;
-        font-size: var(--font-size-300);
+        font-size: var(--font-size);
         line-clamp: var(--lines);
         overflow: hidden;
     }
@@ -44,25 +47,27 @@
         @extend %hidden-visually;
     }
 
-    &-item {
+    &-item,
+    &-nav {
+        @extend %reset-button;
         align-items: center;
-        background: none;
-        border: 0;
-        cursor: pointer;
         display: flex;
-        flex-shrink: 0;
         height: var(--height);
         outline: none;
-        padding: 0 var(--padding-horizontal);
-        // Holds the hidden description.
-        position: relative;
+        padding-inline: var(--padding-horizontal);
         width: var(--width);
 
         &:focus-visible {
-            border-radius: var(--border-radius-200);
+            border-radius: var(--border-radius);
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: var(--focus-offset);
         }
+    }
+
+    &-item {
+        flex-shrink: 0;
+        // Holds the hidden description.
+        position: relative;
     }
 
     &-items {
@@ -84,37 +89,23 @@
 
     // Out of the way until wanted: shown on its own hover or focus, and always on touch, which can't hover to find it.
     &-nav {
-        align-items: center;
-        background: none;
-        border: 0;
         color: var(--color);
-        cursor: pointer;
-        display: flex;
-        height: var(--height);
         opacity: var(--opacity);
-        outline: none;
-        padding: 0 var(--padding-horizontal);
         transition:
             color var(--transition-duration) var(--transition-timing-function),
             opacity var(--transition-duration) var(--transition-timing-function);
-        width: var(--width);
+
 
         &:disabled {
             cursor: default;
             pointer-events: none;
-        }
-
-        &:focus-visible {
-            border-radius: var(--border-radius-200);
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: var(--focus-offset);
         }
     }
 
     &-title {
         @extend %text-truncate;
         color: var(--color);
-        font-size: var(--font-size-300);
-        font-weight: var(--font-weight-500);
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
     }
 }

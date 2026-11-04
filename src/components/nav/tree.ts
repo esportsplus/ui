@@ -129,36 +129,34 @@ const tree = ({ [NAV_TREE_HIGHLIGHT]: highlighting, active, current = 'page', se
                         `
                         : html`<div class='nav-tree-title'>${section.label}</div>`}
 
-                    ${section.groups.map((group) => {
-                        return html`
-                            <div
-                                class='nav-tree-links ${border && `highlight-rail highlight-rail--${border}`}'
-                                ${group.links.some((link) => link.visible) && { hidden: () => !group.links.some(visible) }}
-                            >
-                                ${group.label && html`
-                                    <div class='nav-tree-title'>
-                                        ${group.label}
-                                    </div>
-                                `}
+                    ${section.groups.map((group) => html`
+                        <div
+                            class='nav-tree-links ${border && `highlight-rail highlight-rail--${border}`}'
+                            ${group.links.some((link) => link.visible) && { hidden: () => !group.links.some(visible) }}
+                        >
+                            ${group.label && html`
+                                <div class='nav-tree-title'>
+                                    ${group.label}
+                                </div>
+                            `}
 
-                                ${group.links.map((link) => html`
-                                    <a
-                                        aria-current='${ariaCurrent(link)}'
-                                        class='nav-tree-link ${activeClass(link)}'
-                                        ${link.visible && { hidden: () => !visible(link) }}
-                                        ${link.href !== undefined && { href: link.href }}
-                                        ${{
-                                            onclick: (event: Event) => link.onclick?.(event)
-                                        }}
-                                        ${current === 'command' && { tabindex: -1 }}
-                                        ${link.attributes}
-                                    >
-                                        ${link.content ?? link.label}
-                                    </a>
-                                `)}
-                            </div>
-                        `;
-                    })}
+                            ${group.links.map((link) => html`
+                                <a
+                                    aria-current='${ariaCurrent(link)}'
+                                    class='nav-tree-link ${activeClass(link)}'
+                                    ${link.visible && { hidden: () => !visible(link) }}
+                                    ${link.href !== undefined && { href: link.href }}
+                                    ${{
+                                        onclick: (event: Event) => link.onclick?.(event)
+                                    }}
+                                    ${current === 'command' && { tabindex: -1 }}
+                                    ${link.attributes}
+                                >
+                                    ${link.content ?? link.label}
+                                </a>
+                            `)}
+                        </div>
+                    `)}
                 </div>
             `)}
         </nav>

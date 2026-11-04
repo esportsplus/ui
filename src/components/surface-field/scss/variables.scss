@@ -18,32 +18,16 @@
     &-surface {
         @extend %surface-raise;
         --border-color: var(--surface-border-default);
-        --border-width: 1px;
-        --box-shadow: 0 1px 2px #{surface.shadow-color(0.6)}, 0 8px 24px -8px #{surface.shadow-color(1.55)};
         // Its own name: the global per-element reset would swallow '--border-radius' on the corners its parts round.
         --border-radius: 14px;
+        --border-width: 1px;
+        --box-shadow: 0 1px 2px #{surface.shadow-color(0.6)}, 0 8px 24px -8px #{surface.shadow-color(1.55)};
         --scale: 1;
         --transition-duration: 200ms;
         --transition-timing-function: ease;
 
-        @include tokens.state(active) {
-            --scale: 1.01;
-
-            .surface-field-surface-header {
-                --cursor: grabbing;
-            }
-
-            .surface-field-surface-lift {
-                --opacity: 1;
-            }
-        }
-
         @media (prefers-reduced-motion: reduce) {
             --transition-duration: 0s;
-
-            @include tokens.state(active) {
-                --scale: 1;
-            }
         }
 
         &-body {
@@ -94,6 +78,22 @@
 
         &-title {
             --color: var(--color-text-500);
+        }
+
+        @include tokens.state(active) {
+            --scale: 1.01;
+
+            @media (prefers-reduced-motion: reduce) {
+                --scale: 1;
+            }
+
+            .surface-field-surface-header {
+                --cursor: grabbing;
+            }
+
+            .surface-field-surface-lift {
+                --opacity: 1;
+            }
         }
     }
 }

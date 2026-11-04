@@ -22,7 +22,8 @@
                 }
 
                 @keyframes counter-character-track--roll-#{$roll} {
-                    0%, 100% {
+                    0%,
+                    100% {
                         filter: blur(0);
                     }
 

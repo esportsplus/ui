@@ -1,7 +1,6 @@
 @use 'css-utilities/background';
 @use 'css-utilities/surface';
 
-
 .image {
     --background: transparent;
     --border-radius: var(--border-radius-300);
@@ -15,21 +14,27 @@
         --gap-horizontal: var(--border-width-500);
         --overlap: calc(var(--width) / 4);
 
+
         &:has(+ .image--stack) {
+            // 'min()' lets percentage radii (e.g. 100% circles) resolve in any context.
+            --corner: min(var(--border-radius), var(--height) / 2, var(--width) / 2);
+            --cut: calc(var(--corner) + var(--gap-horizontal));
             --mask: linear-gradient(#000 0 0);
+            --x: calc(100% - var(--overlap) + var(--corner));
         }
     }
 
+    // Prefixed apart from the image's own '--size' and '--color', which the dot derives from.
     &--status {
-        --color: var(--color-green-400);
-        --gap: var(--border-width-500);
         --mask: radial-gradient(
-            circle at calc(100% - var(--size) / 2) calc(100% - var(--size) / 2),
-            #000 calc(var(--size) / 2 - 0.5px),
-            transparent calc(var(--size) / 2 + 0.5px) calc(var(--size) / 2 + var(--gap) - 0.5px),
-            #000 calc(var(--size) / 2 + var(--gap) + 0.5px)
+            circle at calc(100% - var(--status-size) / 2) calc(100% - var(--status-size) / 2),
+            #000 calc(var(--status-size) / 2 - 0.5px),
+            transparent calc(var(--status-size) / 2 + 0.5px) calc(var(--status-size) / 2 + var(--status-gap) - 0.5px),
+            #000 calc(var(--status-size) / 2 + var(--status-gap) + 0.5px)
         );
-        --size: calc(min(var(--height), var(--width)) * 0.3);
+        --status-color: var(--color-green-400);
+        --status-gap: var(--border-width-500);
+        --status-size: calc(min(var(--height), var(--width)) * 0.3);
     }
 
 
@@ -41,6 +46,7 @@
         // Only a fade, so it plays under reduced motion too.
         --transition-duration: 0.65s;
         --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
 
         &--error &-source {
             --visibility: hidden;

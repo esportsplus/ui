@@ -1,10 +1,8 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import icon from '~/components/icon';
 import { mac } from '~/shared/platform';
-import cmd from '@esportsplus/ui/svg/command.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
-import command, { type State, type Tab } from './palette';
+import command, { glyph, kbd, sprite, type State, type Tab } from './palette';
 import './scss/index.scss';
 
 
@@ -52,12 +50,9 @@ const trigger = component(
                     }
                 }}
             >
-                ${icon({ 'aria-hidden': 'true', class: 'command-trigger-icon command-trigger-icon--search' }, magnifier)}
+                ${sprite(magnifier, 'command-trigger-icon command-trigger-icon--search')}
                 <span class='command-trigger-label'>${label}</span>
-                <span aria-hidden='true' class='command-keys'>
-                    <kbd class='button button--kbd'>${apple ? icon({ 'aria-hidden': 'true', class: 'command-kbd-icon' }, cmd) : 'Ctrl'}</kbd>
-                    <kbd class='button button--kbd'>K</kbd>
-                </span>
+                ${kbd(['Mod', 'K'].map((key) => glyph(key, apple)))}
             </button>
         `;
     }

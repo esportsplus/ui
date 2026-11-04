@@ -1,3 +1,4 @@
+// Raw DOM, since a download starts imperatively from a clicked anchor rather than from anything rendered.
 export default (content: any[] | Record<PropertyKey, any>, name: string) => {
     let link = document.createElement('a'),
         url = URL.createObjectURL(new Blob(

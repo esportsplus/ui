@@ -1,5 +1,6 @@
-import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import { component, html, type Attributes } from '@esportsplus/template';
+import { clamp } from '~/shared/clamp';
 import inlineEdit from '~/components/inline-edit';
 
 
@@ -83,8 +84,8 @@ export default component<Surface>(
 
                 width = Math.min(width, Math.max(minWidth, pw));
                 height = Math.min(height, Math.max(minHeight, ph));
-                x = Math.min(Math.max(x, 0), Math.max(0, pw - width));
-                y = Math.min(Math.max(y, 0), Math.max(0, ph - height));
+                x = clamp(x, 0, Math.max(0, pw - width));
+                y = clamp(y, 0, Math.max(0, ph - height));
             }
 
             view.height = height;

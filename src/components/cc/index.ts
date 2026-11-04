@@ -1,8 +1,5 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { computed, effect, onCleanup, reactive, read } from '@esportsplus/reactivity';
-import faces from '~/components/button/faces';
-import icon from '~/components/icon';
-import input from '~/components/input';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import amex from '@esportsplus/ui/svg/amex.svg';
 import card from '@esportsplus/ui/svg/card.svg';
 import checkSvg from '@esportsplus/ui/svg/check.svg';
@@ -11,6 +8,9 @@ import discover from '@esportsplus/ui/svg/discover.svg';
 import lock from '@esportsplus/ui/svg/lock.svg';
 import mastercard from '@esportsplus/ui/svg/mastercard.svg';
 import visa from '@esportsplus/ui/svg/visa.svg';
+import faces from '~/components/button/faces';
+import icon from '~/components/icon';
+import input from '~/components/input';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
@@ -58,15 +58,6 @@ type Spec = {
 type State = Record<Field, string>;
 
 
-const DIGIT = /\d/;
-
-const NON_DIGITS = /\D/g;
-
-const NON_DIGIT = /\D/;
-
-const INVALID_MONTH_START = /^[2-9]/;
-
-
 const BRANDS: Record<Brand, Spec> = {
     // Amex groups 4-6-5 and puts a 4 digit code on the front.
     amex: { cvc: 4, gaps: [4, 10], icon: amex, lengths: [15], name: 'American Express', test: /^3[47]/ },
@@ -84,7 +75,15 @@ const CC_SUBMIT = Symbol.for('@esportsplus/ui/cc.submit');
 // Long enough to read, short enough that a second check isn't blocked.
 const CONFIRM_FOR = 2000;
 
+const DIGIT = /\d/;
+
 const FIELDS: Field[] = ['number', 'expiry', 'cvc', 'name'];
+
+const INVALID_MONTH_START = /^[2-9]/;
+
+const NON_DIGIT = /\D/;
+
+const NON_DIGITS = /\D/g;
 
 const ORDER: Brand[] = ['visa', 'mastercard', 'amex', 'discover'];
 
@@ -275,7 +274,7 @@ export default component(
     ) {
         // Every brand binding reads this, so typing digits only reaches them when the brand itself changes.
         let detected = computed(() => detect(state.number)),
-            fields: Record<Field, { active: boolean, error: string }> = {
+            fields: Record<Field, { active: boolean; error: string }> = {
                 cvc: reactive({ active: false, error: '' }),
                 expiry: reactive({ active: false, error: '' }),
                 name: reactive({ active: false, error: '' }),

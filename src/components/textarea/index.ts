@@ -1,5 +1,5 @@
-import { component, html, type Attributes, type Element } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import { component, html, type Attributes, type Element } from '@esportsplus/template';
 import form from '~/components/form';
 import { observeSize } from '~/shared/resize';
 import { trackTransition } from '~/shared/transition';
@@ -25,18 +25,17 @@ export default component(function(
 ) {
     attributes.value ??= '';
 
-    let field: HTMLTextAreaElement | undefined,
+    let caller = attributes.oninput ?? this?.attributes?.oninput,
+        field: HTMLTextAreaElement | undefined,
         // The owner's value the mirror last showed; any other change to the text is the field's own.
         last: unknown,
-        measured = reactive({ height: 0, revision: 0, scrollable: false }),
-        placeholder = attributes.placeholder ?? this?.attributes?.placeholder,
-        resetFrame: number | undefined,
         limits = resize && `--max-height: ${resize.height.max}; --min-height: ${resize.height.min};`,
-        caller = attributes.oninput ?? this?.attributes?.oninput;
-
-    let motion = trackTransition('height', (running, element) => {
-        measured.scrollable = !!element && !running;
-    });
+        measured = reactive({ height: 0, revision: 0, scrollable: false }),
+        motion = trackTransition('height', (running, element) => {
+            measured.scrollable = !!element && !running;
+        }),
+        placeholder = attributes.placeholder ?? this?.attributes?.placeholder,
+        resetFrame: number | undefined;
 
     function reset() {
         // Form reset restores the value after the event has been dispatched.

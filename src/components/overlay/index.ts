@@ -18,12 +18,8 @@ type A = Attributes<HTMLDialogElement> & {
     onclose?: never;
     onconnect?: never;
     ondisconnect?: never;
-    onfocusin?: never;
-    onfocusout?: never;
     onpointercancel?: never;
     onpointerdown?: never;
-    onpointerenter?: never;
-    onpointerleave?: never;
     onpointermove?: never;
     onpointerup?: never;
     rail?: boolean;
@@ -62,41 +58,6 @@ const PARENT_STATE = Symbol('overlay.parent');
 let layers: Layer[] = [],
     overlaid = new Set<HTMLElement>();
 
-
-// Rails expand while a mouse or pen rests on them or keyboard focus is inside. Touch has no hover, and a tap
-// would enter and leave at once; a click that leaves focus on a link shouldn't hold the rail open either.
-function expandable(state: { active: boolean }): Attributes<HTMLDialogElement> {
-    let hovered = false;
-
-    return {
-        onfocusin: (e: FocusEvent) => {
-            if ((e.target as HTMLElement).matches(':focus-visible')) {
-                state.active = true;
-            }
-        },
-        onfocusout: function(this: HTMLDialogElement, e: FocusEvent) {
-            if (!this.contains(e.relatedTarget as Node | null)) {
-                state.active = hovered;
-            }
-        },
-        onpointerenter: (e: PointerEvent) => {
-            if (e.pointerType === 'touch') {
-                return;
-            }
-
-            hovered = true;
-            state.active = true;
-        },
-        onpointerleave: function(this: HTMLDialogElement, e: PointerEvent) {
-            if (e.pointerType === 'touch') {
-                return;
-            }
-
-            hovered = false;
-            state.active = this.matches(':has(:focus-visible)');
-        }
-    };
-}
 
 // The color an overlay shows: its own background, or its content's where the container is transparent, as
 // announcement leaves the surface to its content.
@@ -447,7 +408,7 @@ export default component(
                 class='overlay'
                 ${flow && { class: 'overlay--flow' }}
                 ${rail
-                    ? [{ class: ['overlay--rail', () => state.active && '--active'] }, expandable(state)]
+                    ? { class: ['overlay--rail', () => state.active && '--active'] }
                     : { class: 'overlay--draggable', tabindex: -1 }}
                 ${this?.attributes}
                 ${attributes}
@@ -478,7 +439,7 @@ export default component(
                         state.active = false;
                     },
                     onconnect: (element: HTMLDialogElement) => {
-                        // A rail never closes; hover, focus or 'state.active' only expand it, through its bound class.
+                        // A rail never closes; 'state.active', like hover and keyboard focus in its stylesheet, only expands it.
                         if (rail) {
                             let previous = document.activeElement;
 

@@ -19,7 +19,8 @@
         box-shadow: var(--surface-shadow-default);
         cursor: text;
         outline-offset: var(--focus-offset);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
 
         &:has(.input-tag-field:focus-visible) {
             outline: var(--focus-width) solid var(--focus-color);
@@ -103,7 +104,8 @@
         min-height: 0;
         min-width: 0;
         outline: none;
-        padding: 0 var(--padding-end) 0 var(--text-inset-horizontal);
+        padding-block: 0;
+        padding-inline: var(--text-inset-horizontal) var(--padding-end);
 
         &::placeholder {
             color: var(--placeholder-color);

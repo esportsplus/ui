@@ -10,7 +10,8 @@
         border-radius: var(--border-radius);
         display: flex;
         flex-direction: column;
-        margin: var(--margin-vertical) var(--margin-horizontal) 0;
+        margin-block: var(--margin-vertical) 0;
+        margin-inline: var(--margin-horizontal);
         min-height: 0;
         overflow: hidden;
     }
@@ -35,14 +36,6 @@
         // Kept on its own layer while open; otherwise the layer is dropped once the entrance settles and the text
         // re-rasterizes onto the pixel grid, a visible nudge.
         will-change: opacity, scale;
-
-        @media (prefers-reduced-motion: reduce) {
-            transition: opacity var(--transition-duration) var(--transition-timing-function);
-
-            &::backdrop {
-                transition: opacity var(--transition-duration) var(--transition-timing-function);
-            }
-        }
     }
 
     &-empty {
@@ -103,7 +96,8 @@
     }
 
     &-list {
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
 
         &--empty {
             display: none;
@@ -141,7 +135,8 @@
         flex-shrink: 0;
         gap: var(--gap-vertical) var(--gap-horizontal);
         overflow-x: auto;
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         scrollbar-width: none;
     }
 
@@ -151,14 +146,14 @@
 
         &-icon {
             &--search {
-                margin-left: var(--margin-horizontal);
+                margin-inline-start: var(--margin-horizontal);
             }
         }
 
         &-label {
             @extend %text-truncate;
             flex: 1 1 auto;
-            text-align: left;
+            text-align: start;
         }
 
         &:focus-visible {

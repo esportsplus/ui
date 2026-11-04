@@ -1,5 +1,5 @@
-import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, read as get, signal, untrack, write } from '@esportsplus/reactivity';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { pool } from '@esportsplus/workers';
 import { observer, type Observer } from '~/shared/resize';
 import { observeIntersection } from '~/shared/visible';
@@ -65,7 +65,6 @@ type Style = { ellipse: boolean, radius: number, rotation: number };
 
 
 const ANGLE = /(-?[\d.]+)(deg|grad|rad|turn)\s*$/;
-
 
 const DEFAULTS: Required<Options> = {
     accent: '',
@@ -305,9 +304,9 @@ export default component(
             }
 
             let changed = false,
+                dpr = Math.min(2, devicePixelRatio || 1),
                 height = host.clientHeight,
                 width = host.clientWidth,
-                dpr = Math.min(2, devicePixelRatio || 1),
                 size = `${width} ${height} ${dpr}`;
 
             bounds = host.getBoundingClientRect();

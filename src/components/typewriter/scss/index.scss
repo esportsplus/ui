@@ -23,6 +23,7 @@
         }
     }
 
+
     // The caret is solid while keys move and hidden while a selection is up, as in a real text field.
     &-retype {
         display: inline-grid;
@@ -109,6 +110,7 @@
         }
     }
 }
+
 
 @keyframes typewriter-blink {
     0%, 45% {

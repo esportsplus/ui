@@ -1,7 +1,12 @@
 @use 'sass:list';
+@use 'sass:map';
 @use '/tokens';
+@use 'css-utilities/anchor';
 @use 'variables';
 
+
+// Open at its widest: the most it may take, clear of its margins either side.
+$expanded: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
 
 // How far the edge fill reaches past each placement's sides, top, right, bottom and left.
 $edge-fill: (
@@ -14,6 +19,32 @@ $edge-fill: (
     sw: (0 0 50vh 50vw),
     w: (0 0 0 50vw)
 );
+
+// Each edge a placement can be pinned to: the margin that holds it off that edge, and the corners that meet it.
+$edges: (
+    block-end: (vertical, end-end end-start),
+    block-start: (vertical, start-end start-start),
+    inline-end: (horizontal, end-end start-end),
+    inline-start: (horizontal, end-start start-start)
+);
+
+// Each placement's transform origin and the edges it is pinned to.
+$pinned: (
+    e: (right, inline-end),
+    n: (top, block-start),
+    ne: (top right, block-start inline-end),
+    nw: (top left, block-start inline-start),
+    s: (bottom, block-end),
+    se: (bottom right, block-end inline-end),
+    sw: (bottom left, block-end inline-start),
+    w: (left, inline-start)
+);
+
+$placed: ();
+
+@each $placement in anchor.$placements {
+    $placed: list.append($placed, '.overlay--#{$placement}', comma);
+}
 
 
 // Each side that reaches out, 1px deeper so it tucks under the box's edge.
@@ -42,7 +73,7 @@ $edge-fill: (
         scale var(--transition-duration) var(--transition-timing-function),
         transform var(--transition-duration) var(--transition-timing-function),
         translate var(--transition-duration) var(--transition-timing-function);
-    width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
+    width: $expanded;
 
     @include tokens.state(inactive) {
         opacity: var(--opacity);
@@ -76,93 +107,38 @@ $edge-fill: (
         opacity: calc(1 - var(--progress, 0));
     }
 
+
     &--alert::backdrop,
     &--blur::backdrop {
         backdrop-filter: blur(var(--blur));
     }
 
-
-    &--e {
-        transform-origin: right;
-    }
-
     // Pinned to the edges its placement names, squaring the corners that meet them unless floating; a corner
     // placement meets two.
-    &--e,
-    &--ne,
-    &--se {
-        margin-inline-end: var(--margin-horizontal);
+    @each $placement, $pin in $pinned {
+        $origin: list.nth($pin, 1);
+        $sides: list.nth($pin, 2);
 
-        &:not(.overlay--floating) {
-            border-end-end-radius: 0;
-            border-start-end-radius: 0;
+        &--#{$placement} {
+            transform-origin: $origin;
+
+            @each $side in $sides {
+                margin-#{$side}: var(--margin-#{list.nth(map.get($edges, $side), 1)});
+            }
+
+            &:not(.overlay--floating) {
+                @each $side in $sides {
+                    @each $corner in list.nth(map.get($edges, $side), 2) {
+                        border-#{$corner}-radius: 0;
+                    }
+                }
+            }
         }
     }
 
     &--e,
     &--w {
         height: calc(100% - (var(--margin-vertical) * 2));
-    }
-
-    &--n {
-        transform-origin: top;
-    }
-
-    &--n,
-    &--ne,
-    &--nw {
-        margin-block-start: var(--margin-vertical);
-
-        &:not(.overlay--floating) {
-            border-start-end-radius: 0;
-            border-start-start-radius: 0;
-        }
-    }
-
-    &--ne {
-        transform-origin: top right;
-    }
-
-    &--nw {
-        transform-origin: top left;
-    }
-
-    &--s {
-        transform-origin: bottom;
-    }
-
-    &--s,
-    &--se,
-    &--sw {
-        margin-block-end: var(--margin-vertical);
-
-        &:not(.overlay--floating) {
-            border-end-end-radius: 0;
-            border-end-start-radius: 0;
-        }
-    }
-
-    &--se {
-        transform-origin: bottom right;
-    }
-
-    &--sw {
-        transform-origin: bottom left;
-    }
-
-    &--w {
-        transform-origin: left;
-    }
-
-    &--nw,
-    &--sw,
-    &--w {
-        margin-inline-start: var(--margin-horizontal);
-
-        &:not(.overlay--floating) {
-            border-end-start-radius: 0;
-            border-start-start-radius: 0;
-        }
     }
 
     // '--depth' is how many layers are open above this one, fractional while the top one is dragged away.
@@ -189,7 +165,7 @@ $edge-fill: (
         }
 
         // Let non-scrolling surfaces keep their shadows outside the box.
-        &:not(.overlay--scrollable):is(.overlay--e, .overlay--n, .overlay--ne, .overlay--nw, .overlay--s, .overlay--se, .overlay--sw, .overlay--w) {
+        &:not(.overlay--scrollable):is(#{$placed}) {
             overflow: visible;
         }
     }
@@ -200,9 +176,10 @@ $edge-fill: (
         opacity: calc(1 - var(--progress, 0));
     }
 
-    // Following the finger: the layers beneath the dragged one track it too, so neither may ease.
-    &#{&}--dragging,
-    &#{&}--tracking {
+    // Following the finger: the layers beneath the dragged one track it too, so neither may ease. Tripled so it
+    // outranks a paired component's own transitions (e.g. '.command-dialog.overlay') whatever the load order.
+    &#{&}#{&}--dragging,
+    &#{&}#{&}--tracking {
         &,
         &::backdrop {
             transition: none;
@@ -227,16 +204,24 @@ $edge-fill: (
         }
     }
 
-    // Always open; '--active' expands it. Rows keep their width and are clipped rather than reflowed, so the
-    // collapsed rail shows whatever leads each row (usually an icon).
+    // Always open; '--active', keyboard focus inside or a resting mouse or pen expands it. Touch has no hover, and a
+    // tap would enter and leave at once. Rows keep their width and are clipped rather than reflowed, so the collapsed
+    // rail shows whatever leads each row (usually an icon).
     &#{&}--rail {
         overflow: hidden;
         transition: width var(--transition-duration) var(--transition-timing-function);
         white-space: nowrap;
         width: min(var(--width-closed), calc(100% - (var(--margin-horizontal) * 2)));
 
-        @include tokens.state(active) {
-            width: min(var(--max-width), calc(100% - (var(--margin-horizontal) * 2)));
+        #{tokens.state(active)},
+        &:has(:focus-visible) {
+            width: $expanded;
+        }
+
+        @media (hover: hover) {
+            &:hover {
+                width: $expanded;
+            }
         }
 
         @include tokens.state(inactive) {
@@ -250,7 +235,6 @@ $edge-fill: (
             transition: none;
         }
     }
-
 
     // Only the lowest modal backdrop dims the page; the layers above it dim what they cover themselves.
     &#{&}--stacked::backdrop {
@@ -304,11 +288,10 @@ $edge-fill: (
             right: var(--offset);
         }
 
-        .overlay:not(.overlay--e, .overlay--n, .overlay--ne, .overlay--nw, .overlay--s, .overlay--se, .overlay--sw, .overlay--w) > & {
+        .overlay:not(#{$placed}) > & {
             display: none;
         }
     }
-
 
     // Opt-in: a direct child of <body> recedes behind modal overlays, and a direct child of a non-modal overlay's
     // container behind that overlay.

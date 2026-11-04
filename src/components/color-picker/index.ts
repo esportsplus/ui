@@ -1,5 +1,5 @@
-import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { measure, slides, timing } from '~/shared/animation';
 import { clamp } from '~/shared/clamp';
 import { keystep } from '~/shared/keystep';
@@ -46,11 +46,6 @@ type Parts = {
 };
 
 
-const HEX_PREFIX = /^#/;
-
-const HEX_COLOR = /^([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
-
-
 const COLOR_PICKER_ALPHA = Symbol.for('@esportsplus/ui/color-picker.alpha');
 
 const COLOR_PICKER_COPY = Symbol.for('@esportsplus/ui/color-picker.copy');
@@ -66,6 +61,10 @@ const COLOR_PICKER_PREVIEW = Symbol.for('@esportsplus/ui/color-picker.preview');
 const COLOR_PICKER_SWATCH = Symbol.for('@esportsplus/ui/color-picker.swatch');
 
 const COLOR_PICKER_SWATCHES = Symbol.for('@esportsplus/ui/color-picker.swatches');
+
+const HEX_COLOR = /^([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+
+const HEX_PREFIX = /^#/;
 
 // Wide enough for a useful history, narrow enough to stay one row at 320px.
 const MAX_RECENT = 8;
@@ -199,9 +198,12 @@ function template(
         throw new Error(`Color picker: '${state.value || value}' is not a valid hex color`);
     }
 
-    let color = reactive({ a: start.a, h: start.h, s: start.s, v: start.v }),
+    // The rails read and write the color itself, so it stays the one source of truth.
+    let alpha = channel(() => Math.round(color.a * 100), (value) => update({ a: value / 100 })),
+        color = reactive({ a: start.a, h: start.h, s: start.s, v: start.v }),
         dirty = { alpha: false, hue: false, pad: false },
         history = initial !== false && !compact,
+        hue = channel(() => Math.round(color.h), (value) => update({ h: value })),
         id = `color-picker-${++uid}`,
         // Stand-ins for swatches pushed out of the recent list, fading out where they stood.
         leaving = reactive([] as { hex: string, left: number, top: number }[]),
@@ -211,10 +213,6 @@ function template(
         pointer = { alpha: false, hue: false, pad: -1 },
         presets = this?.attributes,
         recent = reactive((initial || []).map((hex) => hex.toUpperCase()));
-
-    // The rails read and write the color itself, so it stays the one source of truth.
-    let alpha = channel(() => Math.round(color.a * 100), (value) => update({ a: value / 100 })),
-        hue = channel(() => Math.round(color.h), (value) => update({ h: value }));
 
     state.value = toHex(color);
 

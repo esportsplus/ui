@@ -31,11 +31,11 @@ type State = {
 };
 
 
-// Shorter presses are taps that navigate; longer ones are holds that pause.
-const HOLD = 200;
-
 // Controls inside a story keep their own clicks.
 const CONTROLS = `.story-slide :is(${INTERACTIVE}, [tabindex])`;
+
+// Shorter presses are taps that navigate; longer ones are holds that pause.
+const HOLD = 200;
 
 // Movement past this is no longer a tap.
 const LOCK = 6;

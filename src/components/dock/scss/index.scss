@@ -1,4 +1,6 @@
 @use '/tokens';
+@use 'css-utilities/reset';
+@use 'css-utilities/text';
 @use 'variables';
 
 // The buttons' surfaces come from '.card'; the shelf's own look is the consumer's, drawn to its radius and shape.
@@ -13,6 +15,7 @@
     padding-block: var(--padding-vertical);
     padding-inline: var(--padding-horizontal);
     position: relative;
+
 
     &--e &-item {
         padding: var(--padding-vertical) var(--padding-horizontal) var(--padding-vertical) var(--inset-horizontal);
@@ -85,39 +88,34 @@
         flex-direction: column;
         gap: var(--gap-vertical) var(--gap-horizontal);
         min-width: 0;
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
 
         &--hidden {
             display: none;
         }
 
         &-label {
+            @extend %text-truncate;
             color: var(--color);
             font-size: var(--font-size);
             font-weight: var(--font-weight);
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
             user-select: none;
-            white-space: nowrap;
         }
     }
 
     // Pages the icons when they outgrow the shelf; shown only then.
     &-arrow {
+        @extend %reset-button;
         align-items: center;
         align-self: center;
-        background: none;
-        border: 0;
         color: var(--color);
-        cursor: pointer;
         display: none;
         flex-shrink: 0;
         height: var(--size-rest);
         justify-content: center;
         opacity: var(--opacity);
         outline: none;
-        padding: 0;
         transition: opacity var(--transition-duration) var(--transition-timing-function);
         width: var(--width);
 
@@ -181,47 +179,20 @@
             }
         }
 
-        // Squashes on each landing, so the icon reads as having weight.
-        @keyframes dock-button-squash {
-            0% {
-                scale: 1 1;
-            }
-            30% {
-                scale: 0.97 1.04;
-            }
-            55% {
-                scale: 1.08 0.9;
-            }
-            70% {
-                scale: 0.99 1.02;
-            }
-            80% {
-                scale: 1.03 0.96;
-            }
-            100% {
-                scale: 1 1;
-            }
-        }
-
-        // 'dock-button-squash' turned on its side, for an upright dock.
-        @keyframes dock-button-squash-upright {
-            0% {
-                scale: 1 1;
-            }
-            30% {
-                scale: 1.04 0.97;
-            }
-            55% {
-                scale: 0.9 1.08;
-            }
-            70% {
-                scale: 1.02 0.99;
-            }
-            80% {
-                scale: 0.96 1.03;
-            }
-            100% {
-                scale: 1 1;
+        // Squashes on each landing, so the icon reads as having weight; '-upright' turns it on its side, for an upright
+        // dock.
+        @each $suffix in '', '-upright' {
+            @keyframes dock-button-squash#{$suffix} {
+                @each $stop, $x, $y in (0%, 1, 1), (30%, 0.97, 1.04), (55%, 1.08, 0.9), (70%, 0.99, 1.02), (80%, 1.03, 0.96), (100%, 1, 1) {
+                    #{$stop} {
+                        @if $suffix == '' {
+                            scale: $x $y;
+                        }
+                        @else {
+                            scale: $y $x;
+                        }
+                    }
+                }
             }
         }
 
@@ -270,7 +241,8 @@
             grid-template-columns: repeat(auto-fill, minmax(var(--column-width), 1fr));
             // Stays a drop target while a search leaves it empty.
             min-height: var(--column-width);
-            padding: var(--padding-vertical) var(--padding-horizontal);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
         }
 
         &-empty {
@@ -365,6 +337,7 @@
         min-height: 0;
         min-width: 0;
     }
+
 
     // Hosts the launcher as a tooltip, without taking the tooltip's pointer cursor across the shelf.
     &.tooltip {

@@ -1,5 +1,5 @@
-import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, flush, reactive } from '@esportsplus/reactivity';
+import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import error, { type Direction } from '~/components/error';
 import icon from '~/components/icon';
 import { mac as apple } from '~/shared/platform';
@@ -313,7 +313,7 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
                 return html`
                     <span class='shortcut-recorder-placeholder ${connected && 'shortcut-recorder-placeholder--fade'}'>
                         ${status.recording
-                            ? html`<span class='shortcut-recorder-dot' aria-hidden='true'></span>Press keys`
+                            ? html`<span aria-hidden='true' class='shortcut-recorder-dot'></span>Press keys`
                             : 'None'}
                     </span>
                 `;

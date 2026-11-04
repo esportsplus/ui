@@ -35,7 +35,6 @@ type Item = {
     text: string;
 };
 
-
 type State = {
     date: Value;
     // Pins "now" to this moment instead of the live clock (tests, replays); null follows the clock.
@@ -45,15 +44,13 @@ type State = {
 type Value = Date | number | string | null;
 
 
-const LEADING_DIGITS = /^(\d+)(.*)$/;
-
-
 const DATE_FORMAT = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
 
 const DAY = 24 * 60 * 60 * 1000;
 
 const HOUR = 60 * 60 * 1000;
 
+const LEADING_DIGITS = /^(\d+)(.*)$/;
 
 const MIN = 60 * 1000;
 

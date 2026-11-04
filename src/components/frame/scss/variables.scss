@@ -1,6 +1,9 @@
 @use '/tokens';
 
 .frame {
+    // How many frames this one sits from the active one; '--i' is usually inherited from the parent, so it isn't
+    // declared here, where it would shadow the parent's.
+    --distance: calc(var(--n) - var(--i, 0));
     --gap-horizontal: 0px;
     --gap-vertical: 0px;
     --n: 0;
@@ -14,12 +17,8 @@
         --blur: var(--blur-300);
         --fade-duration: calc(var(--transition-duration) / 2);
         --shift: 60%;
-        --translate-x: clamp(-1, var(--n) - var(--i, 0), 1);
+        --translate-x: clamp(-1, var(--distance), 1);
         --translate-y: 0;
-
-        @include tokens.state(active) {
-            --shift: 0px;
-        }
 
         // Swaps still crossfade, without the drift or blur.
         @media (prefers-reduced-motion: reduce) {
@@ -27,8 +26,14 @@
             --shift: 0%;
         }
 
+
         &-leaving {
-            --shift: calc(60% * -1);
+            --shift: -60%;
+        }
+
+
+        @include tokens.state(active) {
+            --shift: 0px;
         }
     }
 }

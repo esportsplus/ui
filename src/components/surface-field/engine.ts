@@ -1,3 +1,6 @@
+import { clamp } from '~/shared/clamp';
+
+
 // The field's renderer. It touches no DOM, so the same code draws on the main thread or, through an OffscreenCanvas,
 // inside a worker; everything it knows about the page arrives through its methods, all structured-clone safe.
 
@@ -112,6 +115,8 @@ const LINK_WIDTH = 16;
 // than a sticker on it, and never crowds into a wash or thins into scattered points.
 const PARALLAX = { exponent: 0.4, max: 1.6, min: 0.7 };
 
+const RINGS = 6;
+
 const RIPPLE_LIFE = 1400;
 
 // A press ring swells for this long, then holds until the press lets go.
@@ -120,8 +125,6 @@ const RIPPLE_RISE = 90;
 const RIPPLE_SPEED = 0.52;
 
 const RIPPLE_WIDTH = 36;
-
-const RINGS = 6;
 
 // A timed frame due within half a vsync is taken now, rather than spending a whole extra frame to reach it.
 const SLACK = 8;
@@ -137,29 +140,6 @@ const TRIM = 4000;
 
 const ZOOM_WAVE = { gain: 0.4, interval: 250, life: 1000 };
 
-
-function clamp(value: number, min: number, max: number) {
-    return Math.min(max, Math.max(min, value));
-}
-
-function falloff(distance: number, radius: number) {
-    if (radius <= 0 || distance >= radius) {
-        return 0;
-    }
-
-    let t = distance / radius;
-
-    return (1 - t * t) * (1 - t * t);
-}
-
-// Hashing a dot's floor index gives it the same breathing phase every frame and wherever the camera takes it.
-function hash(a: number, b: number) {
-    let h = (a * 374761393 + b * 668265263) | 0;
-
-    h = Math.imul(h ^ (h >>> 13), 1274126177);
-
-    return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
-}
 
 // Brings the dot centred at `centre` with floor index `index` to the first drawn one, whose centre sits in
 // (-step, 0].
@@ -179,12 +159,14 @@ function axis(centre: number, step: number, index: number): [number, number] {
     return [origin, index - cells];
 }
 
-function parallax(zoom: number) {
-    return clamp(zoom ** PARALLAX.exponent, PARALLAX.min, PARALLAX.max);
-}
+function falloff(distance: number, radius: number) {
+    if (radius <= 0 || distance >= radius) {
+        return 0;
+    }
 
-function overlaps(a: Box, b: Box) {
-    return a.left <= b.right && a.right >= b.left && a.top <= b.bottom && a.bottom >= b.top;
+    let t = distance / radius;
+
+    return (1 - t * t) * (1 - t * t);
 }
 
 function geo(shape: Shape): Geo {
@@ -212,6 +194,23 @@ function geo(shape: Shape): Geo {
         sin,
         top: shape.y - ey
     };
+}
+
+// Hashing a dot's floor index gives it the same breathing phase every frame and wherever the camera takes it.
+function hash(a: number, b: number) {
+    let h = (a * 374761393 + b * 668265263) | 0;
+
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+
+function overlaps(a: Box, b: Box) {
+    return a.left <= b.right && a.right >= b.left && a.top <= b.bottom && a.bottom >= b.top;
+}
+
+function parallax(zoom: number) {
+    return clamp(zoom ** PARALLAX.exponent, PARALLAX.min, PARALLAX.max);
 }
 
 // Thins a polyline to the points that bend it by more than half a pixel, so a densely sampled straight edge costs
@@ -744,6 +743,16 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
         full = true;
     }
 
+    function lightBox(): Box | null {
+        if (light.intensity < 0.001 || !o || !lattice) {
+            return null;
+        }
+
+        let r = Math.max(o.radius, o.lineRadius) + o.pointerPush + lattice.step * 2;
+
+        return { bottom: light.y + r, left: light.x - r, right: light.x + r, top: light.y - r };
+    }
+
     // Distance from (x, y) to the shape's edge, or 0 inside it; `gapX`/`gapY` receive the offset from the nearest edge
     // point, which is the direction a dot is pushed.
     function measure(x: number, y: number, shape: Geo) {
@@ -795,6 +804,33 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
 
     // Squared distance to the path; `along` receives how far along it the nearest point lies and `offX`/`offY` the
     // offset from that point.
+    function merge(boxes: Box[]) {
+        let result: Box[] = [];
+
+        for (let i = 0, n = boxes.length; i < n; i++) {
+            let box = { ...boxes[i] };
+
+            for (let j = 0; j < result.length;) {
+                if (overlaps(box, result[j])) {
+                    let other = result.splice(j, 1)[0];
+
+                    box.bottom = Math.max(box.bottom, other.bottom);
+                    box.left = Math.min(box.left, other.left);
+                    box.right = Math.max(box.right, other.right);
+                    box.top = Math.min(box.top, other.top);
+                    j = 0;
+                }
+                else {
+                    j++;
+                }
+            }
+
+            result.push(box);
+        }
+
+        return result;
+    }
+
     function nearest(x: number, y: number, path: Path) {
         let best = Infinity,
             { xs, ys } = path;
@@ -895,43 +931,6 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
         }
     }
 
-    function lightBox(): Box | null {
-        if (light.intensity < 0.001 || !o || !lattice) {
-            return null;
-        }
-
-        let r = Math.max(o.radius, o.lineRadius) + o.pointerPush + lattice.step * 2;
-
-        return { bottom: light.y + r, left: light.x - r, right: light.x + r, top: light.y - r };
-    }
-
-    function merge(boxes: Box[]) {
-        let result: Box[] = [];
-
-        for (let i = 0, n = boxes.length; i < n; i++) {
-            let box = { ...boxes[i] };
-
-            for (let j = 0; j < result.length;) {
-                if (overlaps(box, result[j])) {
-                    let other = result.splice(j, 1)[0];
-
-                    box.bottom = Math.max(box.bottom, other.bottom);
-                    box.left = Math.min(box.left, other.left);
-                    box.right = Math.max(box.right, other.right);
-                    box.top = Math.min(box.top, other.top);
-                    j = 0;
-                }
-                else {
-                    j++;
-                }
-            }
-
-            result.push(box);
-        }
-
-        return result;
-    }
-
     function prepare() {
         preparedCount = 0;
 
@@ -1021,6 +1020,11 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
     }
 
     // Starts a travelling ring, making room by dropping the oldest ring that is not held.
+    function restored() {
+        full = true;
+        wake();
+    }
+
     function ring(next: Omit<Ring, 'born'>) {
         if (rings.length >= RINGS) {
             let index = rings.findIndex((r) => !r.held);
@@ -1300,11 +1304,6 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
         if (!frame) {
             frame = scheduler.frame(tick);
         }
-    }
-
-    function restored() {
-        full = true;
-        wake();
     }
 
     // The GPU can take a canvas back; the browser returns it blank, and only a full paint refills it.

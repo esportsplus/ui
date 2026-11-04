@@ -12,6 +12,7 @@
     position: relative;
     width: var(--width);
 
+
     // The service's width is whole bars and gaps, so the share each bar takes of it is a whole pixel.
     &-bar {
         background: var(--background);
@@ -40,7 +41,7 @@
         outline: none;
 
         &:focus-visible {
-            outline: 2px solid var(--color);
+            outline: var(--border-width-500) solid var(--color);
             outline-offset: calc(var(--size-100) / 2);
         }
     }
@@ -144,6 +145,7 @@
         }
     }
 }
+
 
 @keyframes uptime-service-message {
     from {

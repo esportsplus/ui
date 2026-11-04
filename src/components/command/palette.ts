@@ -65,12 +65,8 @@ type Dialog = Attributes<HTMLDialogElement> & {
     onclose?: never;
     onconnect?: never;
     ondisconnect?: never;
-    onfocusin?: never;
-    onfocusout?: never;
     onpointercancel?: never;
     onpointerdown?: never;
-    onpointerenter?: never;
-    onpointerleave?: never;
     onpointermove?: never;
     onpointerup?: never;
 };
@@ -599,11 +595,6 @@ export default component(
             return Math.min(state.index, Math.max(read(current().results).flat.length - 1, 0));
         }
 
-        function show() {
-            state.tab = views[0].id;
-            state.active = true;
-        }
-
         function shortcut(e: KeyboardEvent, host: HTMLElement) {
             if (
                 e.repeat ||
@@ -643,6 +634,11 @@ export default component(
             else {
                 show();
             }
+        }
+
+        function show() {
+            state.tab = views[0].id;
+            state.active = true;
         }
 
         function step(direction: number) {
@@ -865,4 +861,5 @@ export default component(
         trigger: COMMAND_TRIGGER
     }
 );
+export { glyph, kbd, sprite };
 export type { Command, Matcher, Result, ResultGroup, Shortcut, State, Store, Tab };

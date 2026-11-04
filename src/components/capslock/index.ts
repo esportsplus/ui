@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import icon from '~/components/icon';
 import capsLock from '@esportsplus/ui/svg/caps-lock.svg';
+import icon from '~/components/icon';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
@@ -19,10 +19,10 @@ export default component(
             ...attributes
         }: A = {}
     ) {
-        // Every key and pointer event carries the lock state, including the Caps Lock key's own events,
-        // so the warning stays right without polling
+        // Every key and pointer event carries the lock state, including the Caps Lock key's own events, so the warning
+        // stays right without polling.
         function read(e: KeyboardEvent | PointerEvent) {
-            // Autofill dispatches plain Events as keydown
+            // Autofill dispatches plain Events as keydown.
             if (!e.getModifierState) {
                 return;
             }

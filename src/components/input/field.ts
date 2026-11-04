@@ -1,5 +1,5 @@
-import { html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import { html, type Attributes } from '@esportsplus/template';
 import form from '~/components/form';
 
 
@@ -29,4 +29,4 @@ export default function (
             ${form.input.attributes(state)}
         />
     `;
-};
+}

@@ -18,6 +18,7 @@
     isolation: isolate;
     position: relative;
 
+
     &-canvas {
         @extend %absolute-full;
         accent-color: var(--accent);
@@ -45,10 +46,9 @@
         box-shadow: 0 0 0 var(--border-width) var(--border-color), var(--box-shadow);
         display: flex;
         flex-direction: column;
-        left: 0;
+        inset: 0 auto auto 0;
         position: absolute;
         scale: var(--scale);
-        top: 0;
         transition: scale var(--transition-duration) var(--transition-timing-function);
 
         &-body {
@@ -66,7 +66,8 @@
             gap: var(--gap-vertical) var(--gap-horizontal);
             min-height: 0;
             overflow: hidden;
-            padding: 0 var(--padding-horizontal) var(--padding-bottom);
+            padding-block: 0 var(--padding-bottom);
+            padding-inline: var(--padding-horizontal);
         }
 
         &-handle {
@@ -78,15 +79,12 @@
             width: var(--width);
 
             &::before {
+                @extend %absolute-center;
                 background: currentColor;
                 border-radius: 999px;
                 content: '';
                 height: var(--height);
-                left: 50%;
                 opacity: var(--opacity);
-                position: absolute;
-                top: 50%;
-                translate: -50% -50%;
                 width: var(--width);
             }
 

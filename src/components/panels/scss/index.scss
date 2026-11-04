@@ -1,4 +1,5 @@
 @use '/tokens';
+@use 'css-utilities/reset';
 @use 'css-utilities/text';
 @use 'variables';
 
@@ -18,6 +19,7 @@
     &--dragging &-edge {
         pointer-events: auto;
     }
+
 
     &-action,
     &-add {
@@ -74,36 +76,18 @@
         position: absolute;
         z-index: 2;
 
-        &--bottom {
-            bottom: 0;
-            height: 50%;
-            inset-inline: 0;
-        }
-
-        &--left {
-            inset-block: 0;
-            left: 0;
-            width: 50%;
-        }
-
-        &--right {
-            inset-block: 0;
-            right: 0;
-            width: 50%;
-        }
-
-        &--top {
-            height: 50%;
-            inset-inline: 0;
-            top: 0;
+        @each $side, $length, $axis in (bottom height inline, left width block, right width block, top height inline) {
+            &--#{$side} {
+                #{$length}: 50%;
+                #{$side}: 0;
+                inset-#{$axis}: 0;
+            }
         }
     }
 
     // Collapsed beside a maximized group; a press anywhere on it maximizes it instead.
     &-expand {
-        background: transparent;
-        border: 0;
-        cursor: pointer;
+        @extend %reset-button;
         inset: 0;
         position: absolute;
         z-index: 2;
@@ -222,7 +206,8 @@
         min-height: 0;
         outline: none;
         overflow-y: auto;
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
 
         &-card {
             align-items: flex-start;
@@ -231,7 +216,7 @@
             gap: var(--gap-vertical) var(--gap-horizontal);
             justify-content: flex-start;
             position: relative;
-            text-align: left;
+            text-align: start;
             white-space: normal;
             width: 100%;
 
@@ -277,7 +262,7 @@
             display: flex;
             flex-direction: column;
             gap: var(--gap-vertical) var(--gap-horizontal);
-            margin-bottom: var(--spacer);
+            margin-block-end: var(--spacer);
             text-align: center;
         }
 

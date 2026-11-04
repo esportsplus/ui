@@ -14,7 +14,8 @@
     font-size: var(--font-size);
     max-width: 100%;
     min-width: 0;
-    padding: var(--padding-vertical) var(--padding-horizontal);
+    padding-block: var(--padding-vertical);
+    padding-inline: var(--padding-horizontal);
     width: var(--width);
 
 
@@ -27,9 +28,8 @@
     // Moves instantly: any easing would make the readout trail the pointer.
     &-cursor {
         background: var(--background);
-        height: 100%;
+        inset-block: 0;
         position: absolute;
-        top: 0;
         translate: -50% 0;
         width: var(--width);
     }
@@ -37,6 +37,7 @@
     &-delta {
         color: var(--muted-color);
         white-space: nowrap;
+
 
         &-value {
             color: var(--color);
@@ -65,12 +66,10 @@
     }
 
     &-line {
-        @extend %icon-stroke-draw;
+        @extend %icon-stroke, %icon-stroke-draw;
         opacity: var(--draw-opacity);
         stroke: var(--stroke);
         stroke-dashoffset: var(--draw-offset);
-        stroke-linecap: round;
-        stroke-linejoin: round;
         stroke-width: var(--stroke-width);
         transition:
             opacity var(--fade-duration) var(--draw-timing-function),
@@ -87,12 +86,13 @@
     &-plot {
         border-radius: var(--border-radius-100);
         height: var(--height);
-        margin-top: var(--margin-top);
+        margin-block-start: var(--margin-top);
         outline: none;
         position: relative;
         touch-action: pan-y;
         user-select: none;
         width: 100%;
+
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
@@ -120,11 +120,13 @@
         display: flex;
         font-size: var(--font-size);
         gap: var(--gap-vertical) var(--gap-horizontal);
-        margin-bottom: var(--spacer);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        margin-block-end: var(--spacer);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         position: absolute;
         translate: -50% 0;
         white-space: nowrap;
+
 
         &-label {
             opacity: var(--opacity);

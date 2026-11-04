@@ -24,7 +24,6 @@
     // surface, which would flatten the thumb's shadow. The thumb grows while held and rings while focused.
     &--slider {
         --background-default: linear-gradient(to right, var(--fill-color) var(--thumb-position), var(--track-color) var(--thumb-position));
-        --disabled-opacity: 0.64;
         --fill-color: var(--color-primary-500);
         --height: 4px;
         --thumb-background: var(--color-white-300);
@@ -63,7 +62,6 @@
     &-filter {
         @extend %surface-raise;
         --color: var(--color-text-500);
-        --disabled-opacity: 0.5;
         --font-size: inherit;
         --gap-horizontal: 0px;
         --gap-vertical: var(--size-500);
@@ -72,7 +70,6 @@
 
 
         &--slider {
-            --disabled-opacity: 0.64;
             --font-size: calc(var(--font-size-400) * 0.875);
             --gap-vertical: var(--size-100);
             --width: 100%;
@@ -171,7 +168,6 @@
             --border-color: var(--surface-border-default);
             --border-radius: var(--border-radius-300);
             --border-width: 1px;
-            --disabled-opacity: 0.5;
             --display: inline-flex;
             --font-size: var(--font-size-300);
             --gap-horizontal: calc(var(--size-100) / 2);

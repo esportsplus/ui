@@ -64,7 +64,8 @@
         cursor: pointer;
         flex-wrap: nowrap;
         justify-content: flex-start;
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         transition:
             background var(--transition-duration) var(--transition-timing-function),
             color var(--transition-duration) var(--transition-timing-function);

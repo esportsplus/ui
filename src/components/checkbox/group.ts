@@ -1,7 +1,7 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { computed, reactive, read } from '@esportsplus/reactivity';
-import icon from '~/components/icon';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import dash from '@esportsplus/ui/svg/dash.svg';
+import icon from '~/components/icon';
 import options, { type Attr } from './options';
 
 
@@ -23,7 +23,7 @@ type Context = {
     id: string;
     label: string;
     name?: string;
-    options: { checked: boolean, id: string }[];
+    options: { checked: boolean; id: string }[];
     shift: boolean;
     type: Type;
 };
@@ -171,7 +171,7 @@ function toggle(ctx: Context, index: number, checked: boolean) {
 
 
 const group = <T extends Type>(type: T) => {
-    return component(function (
+    return component(function(
         this: { attributes?: Partial<A> } | void,
         { label, name, ...attributes }: A,
         content: (builder: Builder<T>) => Renderable<unknown>

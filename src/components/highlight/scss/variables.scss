@@ -30,12 +30,8 @@
 
 .highlight {
     @extend %background-state;
-    --background-active: var(--background-default);
-    --background-default: transparent;
-    --background-hover: var(--background-default);
     // Applied over every fill, opaque surface tokens included, so whatever the layers overlap still shows through.
     --background-opacity: 90%;
-    --background-pressed: var(--background-default);
     // '--border-radius' is the layer's own corner, measured off its item; this rounds the border's ends.
     --border-cap-radius: calc(var(--border-width) / 2);
     --border-color: currentColor;
@@ -62,6 +58,7 @@
     --inset-vertical: 0px;
     --scale-default: 0.92;
 
+
     // The layer jumps to its item and only fades in and out.
     @media (prefers-reduced-motion: reduce) {
         --glide: 0s;
@@ -69,15 +66,6 @@
         --scale-default: 1;
     }
 
-    &--hover {
-        --background: var(--background-hover);
-
-        // The layer can't see which item it sits on, so the press is read off the container: something held inside
-        // it, bar a disabled item. A press on the container's own gaps leaves no ':active' descendant.
-        :where(:has(:active):not(:has(.--disabled:active))) > & {
-            --background: var(--background-pressed);
-        }
-    }
 
     // Horizontal and vertical borders look alike: the fills stop short of the border, which runs along the item's edge.
     &--border {
@@ -89,6 +77,16 @@
         &-left,
         &-right {
             --inset-horizontal: var(--border-inset-horizontal);
+        }
+    }
+
+    &--hover {
+        --background: var(--background-hover);
+
+        // The layer can't see which item it sits on, so the press is read off the container: something held inside
+        // it, bar a disabled item. A press on the container's own gaps leaves no ':active' descendant.
+        :where(:has(:active):not(:has(.--disabled:active))) > & {
+            --background: var(--background-pressed);
         }
     }
 

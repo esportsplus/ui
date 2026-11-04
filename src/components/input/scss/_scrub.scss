@@ -1,5 +1,11 @@
+@use '/tokens';
 @use 'css-utilities/absolute';
 
+
+// Held on the root while any field scrubs, so the resize cursor stays once the pointer leaves the label.
+:root:has(#{tokens.state(active, '.input-scrub')}) {
+    cursor: ew-resize;
+}
 
 .input-scrub {
     align-items: center;
@@ -75,6 +81,7 @@
         background-repeat: repeat-x;
         background-size: var(--tick) var(--minor-height), calc(var(--tick) * 5) var(--major-height);
     }
+
 
     &:has(> #{&}-field:focus-visible) {
         outline: var(--focus-width) solid var(--focus-color);

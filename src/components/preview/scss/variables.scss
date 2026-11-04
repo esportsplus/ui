@@ -10,7 +10,6 @@
         --scroll-margin-vertical: var(--size-500);
     }
 
-
     &-copy {
         --background-default: transparent;
         --inset-horizontal: var(--size-300);
@@ -46,10 +45,7 @@
         }
 
         &-select.select {
-            @extend %surface, %border-surface, %box-shadow-surface;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-400);
+            @extend %border-surface, %box-shadow-surface, %surface;
             --font-size: var(--font-size-200);
             --height: 28px;
             --width: auto;
@@ -105,15 +101,11 @@
         &-highlight {
             @extend %background-surface;
 
-            &.--active {
-                box-shadow: var(--surface-shadow-hover);
-            }
-
-            [data-theme='dark'] & {
+            :where([data-theme='dark']) & {
                 @include surface.step(4);
             }
 
-            [data-theme='light'] & {
+            :where([data-theme='light']) & {
                 @include surface.step(3);
             }
         }
@@ -124,11 +116,11 @@
             --scroll-margin-vertical: calc(var(--size-500) + var(--size-800) + var(--size-100));
         }
 
-        [data-theme='dark'] & {
+        :where([data-theme='dark']) & {
             @include surface.step(-3);
         }
 
-        [data-theme='light'] & {
+        :where([data-theme='light']) & {
             @include surface.step(-2);
         }
     }

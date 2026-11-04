@@ -3,6 +3,7 @@ import { component, html, type Attributes } from '@esportsplus/template';
 import { lead, step, type Range } from './model';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
+import { clamp } from '~/shared/clamp';
 import subscribe from '~/shared/subscribe';
 import down from '@esportsplus/ui/svg/chevron-down.svg';
 import up from '@esportsplus/ui/svg/chevron-up.svg';
@@ -99,7 +100,7 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
     }
 
     function move(to: number) {
-        let target = Math.max(0, Math.min(to, local.total - 1));
+        let target = clamp(to, 0, local.total - 1);
 
         local.focus = target;
         items.get(list[target])?.focus();
@@ -107,8 +108,8 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
 
     function nav(direction: -1 | 1) {
         let disabled = () => step(direction, state, local.total) === -1,
-            tip = direction === -1 ? tips.previous : tips.next,
-            text = direction === -1 ? previous : next;
+            text = direction === -1 ? previous : next,
+            tip = direction === -1 ? tips.previous : tips.next;
 
         return html`
             <button
@@ -299,8 +300,8 @@ export default component(template, {
     line: CHAT_MINIMAP_LINE,
     nav: CHAT_MINIMAP_NAV,
     preview: CHAT_MINIMAP_PREVIEW,
-    title: CHAT_MINIMAP_TITLE,
-    spy
+    spy,
+    title: CHAT_MINIMAP_TITLE
 });
 export type {
     ChatMinimapAttributes,

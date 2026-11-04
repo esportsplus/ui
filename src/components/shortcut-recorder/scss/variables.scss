@@ -1,14 +1,14 @@
 @use '/tokens';
 @use 'css-utilities/background';
-@use 'css-utilities/border';
 @use 'css-utilities/box-shadow';
+@use 'css-utilities/surface';
 
 // TODO: Give this the same style as input/input tag
 .shortcut-recorder {
-    @extend %background-state, %background-surface-primary, %border-state, %box-shadow-surface, %surface-raise;
+    @extend %background-state, %background-surface-primary, %box-shadow-state, %box-shadow-surface, %surface-raise;
     --border-radius: var(--border-radius-500);
+    // Inherited by the keycaps, whose padding is inset by it.
     --border-width: 0px;
-    --box-shadow: var(--box-shadow-surface);
     --color: var(--color-text-500);
     --font-size: var(--font-size-400);
     --gap-horizontal: calc(var(--size-100) / 2);
@@ -19,7 +19,7 @@
     --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
     #{tokens.state(active)} {
-        --border-width: var(--border-width-active);
+        --border-width: var(--border-width-500);
     }
 
 

@@ -1,5 +1,5 @@
-import { html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import { html, type Attributes } from '@esportsplus/template';
 import form from '~/components/form';
 import filter from './filter';
 import './scss/index.scss';
@@ -30,15 +30,8 @@ function plain(
             max='${max}'
             min='${min}'
             ${attributes}
+            ${form.input.attributes(state)}
             ${{
-                class: () => state.active && '--active',
-                onconnect: form.input.onconnect(state),
-                onfocusin: () => {
-                    state.active = true;
-                },
-                onfocusout: () => {
-                    state.active = false;
-                },
                 oninput: (e) => {
                     state.value = Number((e.target as HTMLInputElement).value);
                 },

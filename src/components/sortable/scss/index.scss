@@ -82,6 +82,32 @@
         }
     }
 
+    // The dragged item stays in the list as its own placeholder: its contents fade out behind a dashed outline while
+    // it moves through the list. Leaving the class drops the transition, so they are back at once on landing.
+    & > &-item--held {
+        background: var(--background);
+        border-color: transparent;
+        box-shadow: none;
+        color: transparent;
+        outline: var(--border-width) dashed var(--border-color);
+        outline-offset: calc(var(--border-width) * -1);
+        transition:
+            background-color var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
+
+        > * {
+            opacity: 0;
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+        }
+    }
+
+    // Shows again at once under the fading copy: its own transitions, or its contents', would ease it back in after the
+    // copy has gone. Important, since they can come from any rule.
+    & > &-item--revealing,
+    & > &-item--revealing * {
+        transition: none !important;
+    }
+
     // Nested anywhere inside an item; shown only in the copy, which it covers.
     &-overlay {
         @extend %layer;
@@ -109,35 +135,9 @@
         }
     }
 
+
     > * {
         @extend %drag-item;
-    }
-
-
-    // The dragged item stays in the list as its own placeholder: its contents fade out behind a dashed outline while
-    // it moves through the list. Leaving the class drops the transition, so they are back at once on landing.
-    & > &-item--held {
-        background: var(--background);
-        border-color: transparent;
-        box-shadow: none;
-        color: transparent;
-        outline: var(--border-width) dashed var(--border-color);
-        outline-offset: calc(var(--border-width) * -1);
-        transition:
-            background-color var(--transition-duration) var(--transition-timing-function),
-            color var(--transition-duration) var(--transition-timing-function);
-
-        > * {
-            opacity: 0;
-            transition: opacity var(--transition-duration) var(--transition-timing-function);
-        }
-    }
-
-    // Shows again at once under the fading copy: its own transitions, or its contents', would ease it back in after the
-    // copy has gone. Important, since they can come from any rule.
-    & > &-item--revealing,
-    & > &-item--revealing * {
-        transition: none !important;
     }
 }
 

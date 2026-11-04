@@ -7,6 +7,7 @@
     // Set a translucent color to review the safe area shape.
     --safe-color: transparent;
 
+
     &--menu {
         --border-radius: var(--border-radius-600);
         --close-duration: 0.128s;
@@ -96,6 +97,7 @@
             }
         }
     }
+
 
     &-arrow {
         --rotate: 0deg;
@@ -236,12 +238,11 @@
         --padding-vertical: var(--size-300);
     }
 
-    // '--border-radius' rather than the usual name: the root resets '--border-radius' on every element, so the box and layers
-    // inside would never see it.
     &-shared {
         @extend %background-state, %box-shadow-state, %surface-raise;
         --background-default: var(--color-primary-400);
         --blur: var(--blur-500);
+        --border-radius: var(--border-radius-400);
         --box-shadow-default: var(--surface-shadow-default);
         --close-duration: 0.128s;
         --close-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
@@ -253,7 +254,6 @@
         --max-width: calc(90vw - (var(--size-700) * 2));
         --open-duration: 0.16s;
         --open-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-        --border-radius: var(--border-radius-400);
         --rise: 4px;
         --scale: 0.94;
         --spacer: var(--size-300);
@@ -286,6 +286,13 @@
 
         &--w {
             --box-translate: var(--rise) 0;
+        }
+
+
+        // Set on '.tooltip-shared' so consumers can tune it there; the root resets '--border-radius' on every element,
+        // so the box inherits it explicitly.
+        &-box {
+            --border-radius: inherit;
         }
 
         &-layer {

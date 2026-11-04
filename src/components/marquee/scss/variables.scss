@@ -5,6 +5,7 @@
     --font-size: var(--font-size-300);
     --font-weight: var(--font-weight-500);
 
+
     &-item {
         --border-radius: var(--border-radius-300);
         --gap-horizontal: var(--size-200);
@@ -13,11 +14,13 @@
         --padding-horizontal: var(--size-300);
         --padding-vertical: 0px;
 
+
         &--link {
             @extend %color-state;
             --color-default: var(--color-text-300);
             --color-hover: var(--color-text-400);
             --focus-tint: 8%;
+
 
             &:focus-visible {
                 --color: var(--color-hover);

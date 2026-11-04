@@ -1,15 +1,9 @@
 @use '/tokens';
 
-// Collapses a tier faster than it opens.
 .accordion {
-    // Reserve the gutter throughout so enabling the bar cannot reflow and remeasure content.
-    --scrollbar-gutter: stable;
     --scrollbar-overflow: hidden;
     --transition-duration: 190ms;
-
-    @include tokens.state(active) {
-        --transition-duration: 240ms;
-    }
+    --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 
 
     &--more {
@@ -22,5 +16,10 @@
         @include tokens.state(active) {
             --scrollbar-overflow: auto;
         }
+    }
+
+
+    @include tokens.state(active) {
+        --transition-duration: 240ms;
     }
 }

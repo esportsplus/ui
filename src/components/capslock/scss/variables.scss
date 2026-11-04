@@ -5,23 +5,11 @@
     --font-size: var(--font-size-300);
     --gap-horizontal: var(--size-200);
 
-    @include tokens.state(active) {
-        --transition-duration: 200ms;
 
-        .capslock {
-            &-key {
-                &-light {
-                    // Lit hardware reads as "on" in any theme, like a real keyboard light
-                    --box-shadow: 0 0 4px 1px color-mix(in oklch, var(--color) 55%, transparent);
-                    --color: var(--color-active);
-                }
-            }
-        }
-    }
-
-    // Wider than a square cap so the light clears the icon
+    // Wider than a square cap so the light clears the icon.
     &-key {
-        --padding-horizontal: 10px;
+        --padding-horizontal: var(--size-200);
+
 
         // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
         &-icon.icon {
@@ -38,6 +26,17 @@
             --top: 5px;
             --transition-duration: 300ms;
             --transition-timing-function: ease-out;
+        }
+    }
+
+
+    @include tokens.state(active) {
+        --transition-duration: 200ms;
+
+        // Lit hardware reads as "on" in any theme, like a real keyboard light.
+        .capslock-key-light {
+            --box-shadow: 0 0 4px 1px color-mix(in oklch, var(--color) 55%, transparent);
+            --color: var(--color-active);
         }
     }
 }

@@ -1,5 +1,5 @@
-import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
+import { component, html, type Attributes } from '@esportsplus/template';
 import { onceVisible } from '~/shared/visible';
 import './scss/index.scss';
 
@@ -81,6 +81,7 @@ export default component(
                         }
                     }
                     else {
+                        // A transformer limit: 'reactive()' must initialize a binding, not an indexed assignment.
                         let character = reactive({ digit, index, roll: 0, value });
 
                         render[i] = character;

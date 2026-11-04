@@ -181,8 +181,8 @@
     }
 
     &-recent {
-        border-top: var(--border-width) solid var(--border-color);
-        padding-top: var(--padding-vertical);
+        border-block-start: var(--border-width) solid var(--border-color);
+        padding-block-start: var(--padding-vertical);
 
         &-label {
             color: var(--color);

@@ -3,8 +3,6 @@ import { setProperties, type Attributes, type Element as Bound } from '@esportsp
 import { finished } from '~/shared/animation';
 
 
-type State = { active: boolean };
-
 type Lifecycle = {
     animations?: () => HTMLElement;
     close?: VoidFunction;
@@ -32,6 +30,8 @@ type Popup = {
     state?: State;
     target?: (root: HTMLElement) => HTMLElement | undefined;
 };
+
+type State = { active: boolean };
 
 
 const SURFACE_STATE = Symbol('popup.surface');
@@ -107,14 +107,13 @@ function popup({ canDismiss, contains = (root, node) => !!node && root.contains(
         root: HTMLElement | undefined,
         stop: VoidFunction | undefined;
 
-    function remove() {
-        if (root) {
-            let index = opened.indexOf(root);
+    function dismissable() {
+        return state.active || !!canDismiss?.();
+    }
 
-            if (index !== -1) {
-                opened.splice(index, 1);
-            }
-        }
+    function dismissPopup(reason: 'escape' | 'outside') {
+        ondismiss?.(reason);
+        state.active = false;
     }
 
     function hide() {
@@ -127,13 +126,14 @@ function popup({ canDismiss, contains = (root, node) => !!node && root.contains(
         onclosed?.();
     }
 
-    function dismissable() {
-        return state.active || !!canDismiss?.();
-    }
+    function remove() {
+        if (root) {
+            let index = opened.indexOf(root);
 
-    function dismissPopup(reason: 'escape' | 'outside') {
-        ondismiss?.(reason);
-        state.active = false;
+            if (index !== -1) {
+                opened.splice(index, 1);
+            }
+        }
     }
 
     return {

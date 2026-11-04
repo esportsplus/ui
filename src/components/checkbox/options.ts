@@ -1,8 +1,8 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import check from '@esportsplus/ui/svg/check.svg';
 import form from '~/components/form';
 import icon from '~/components/icon';
-import check from '@esportsplus/ui/svg/check.svg';
 import { group } from './group';
 
 

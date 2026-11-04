@@ -1,11 +1,6 @@
 @use '/tokens';
-@use 'css-utilities/background';
-@use 'css-utilities/box-shadow';
-@use 'css-utilities/surface';
 
-
-// A surface: a level above whatever it sits in. '--duration' is the story's own, set on it by the page or inline, and
-// each bar's fill times itself by it.
+// '--duration' is the story's own, set on it by the page or inline, and each bar's fill times itself by it.
 .story {
     --color: var(--color-text-500);
     // Long enough to read a short caption, the same as Instagram's default.
@@ -14,7 +9,7 @@
     --max-width: 320px;
 
 
-    &--paused .story-fill {
+    &--paused &-fill {
         --play-state: paused;
     }
 

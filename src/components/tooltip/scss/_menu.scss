@@ -248,7 +248,8 @@
             color: var(--color);
             font-size: var(--font-size);
             isolation: isolate;
-            padding: var(--padding-vertical) var(--padding-horizontal);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
             position: absolute;
             width: var(--width);
 
