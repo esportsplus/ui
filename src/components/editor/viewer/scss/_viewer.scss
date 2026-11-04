@@ -1,3 +1,4 @@
+@use '../../code/scss/minimap';
 
 
 .code-viewer {
@@ -78,7 +79,7 @@
         color: var(--gutter-color);
         display: flex;
         flex: none;
-        left: 0;
+        inset-inline-start: 0;
         position: sticky;
         user-select: none;
         z-index: 1;
@@ -87,12 +88,13 @@
     &-header {
         align-items: center;
         background: var(--surface-background-default);
-        border-bottom: var(--border-width) solid var(--border-color);
+        border-block-end: var(--border-width) solid var(--border-color);
         display: flex;
         flex: none;
         font-size: var(--label-font-size);
         gap: var(--gap-vertical) var(--gap-horizontal);
-        padding: var(--padding-vertical) var(--padding-horizontal) var(--padding-vertical) var(--padding-left);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-start) var(--padding-horizontal);
     }
 
     // The first and last lines pad the block inside their gutter and code, so the separator runs its full height; the
@@ -106,22 +108,22 @@
         &:first-child {
             > .code-viewer-code,
             > .code-viewer-gutter {
-                padding-top: var(--code-padding-vertical);
+                padding-block-start: var(--code-padding-vertical);
             }
 
             > .code-viewer-placeholder {
-                margin-top: var(--code-padding-vertical);
+                margin-block-start: var(--code-padding-vertical);
             }
         }
 
         &:last-child {
             > .code-viewer-code,
             > .code-viewer-gutter {
-                padding-bottom: var(--code-padding-vertical);
+                padding-block-end: var(--code-padding-vertical);
             }
 
             > .code-viewer-placeholder {
-                margin-bottom: var(--code-padding-vertical);
+                margin-block-end: var(--code-padding-vertical);
             }
         }
 
@@ -139,32 +141,18 @@
     }
 
     &-minimap {
-        background: var(--background);
+        @extend %minimap;
         border-inline-start: var(--border-width) solid var(--border-color);
-        cursor: pointer;
         flex: none;
-        opacity: var(--minimap-opacity);
-        overflow: hidden;
         position: relative;
-        touch-action: none;
-        width: var(--minimap-width);
+
 
         &-canvas {
-            display: block;
-            height: 100%;
-            width: 100%;
+            @extend %minimap-canvas;
         }
 
         &-slider {
-            background: var(--minimap-slider-background);
-            border: var(--border-width) solid var(--border-color);
-            box-sizing: border-box;
-            height: var(--slider-height);
-            left: 0;
-            pointer-events: none;
-            position: absolute;
-            top: var(--slider-top);
-            width: 100%;
+            @extend %minimap-slider;
         }
     }
 
@@ -185,7 +173,8 @@
         font: inherit;
         line-height: var(--line-height);
         margin-inline-start: var(--spacer);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         user-select: none;
 
         &:focus-visible {
@@ -223,64 +212,25 @@
         &::before {
             color: var(--whitespace-color);
             content: '→';
-            left: 0;
+            inset-inline-start: 0;
             pointer-events: none;
             position: absolute;
         }
     }
 
     &-token {
+        @each $kind in comment, function, keyword, number, operator, property, regexp, selector, string, tag, type, variable {
+            &--#{$kind} {
+                color: var(--#{$kind}-color);
+            }
+        }
+
         &--color {
             color: var(--literal-color);
         }
 
         &--comment {
-            color: var(--comment-color);
             font-style: italic;
-        }
-
-        &--function {
-            color: var(--function-color);
-        }
-
-        &--keyword {
-            color: var(--keyword-color);
-        }
-
-        &--number {
-            color: var(--number-color);
-        }
-
-        &--operator {
-            color: var(--operator-color);
-        }
-
-        &--property {
-            color: var(--property-color);
-        }
-
-        &--regexp {
-            color: var(--regexp-color);
-        }
-
-        &--selector {
-            color: var(--selector-color);
-        }
-
-        &--string {
-            color: var(--string-color);
-        }
-
-        &--tag {
-            color: var(--tag-color);
-        }
-
-        &--type {
-            color: var(--type-color);
-        }
-
-        &--variable {
-            color: var(--variable-color);
         }
     }
 }

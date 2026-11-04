@@ -93,4 +93,4 @@ const write = (field: HTMLTextAreaElement, written: string, value: string, pendi
 
 
 export { difference, RANGES, write };
-export type { NativeEdit, Pending };
+export type { Pending };

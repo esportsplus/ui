@@ -1,5 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
+import { BUDGET, escape, LONG } from './html';
 import type { EditorDocument } from './document';
 import type { BracketPair, FoldRange } from './folding';
 import type { NativeText, Placeholder } from './projection';
@@ -45,23 +46,9 @@ type Slot = {
 };
 
 
-// Segments one line may split into before it renders as plain text.
-const BUDGET = 3000;
-
-const ESCAPE = /[&<>]/;
-
-const ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
-
-// Longer lines skip highlighting.
-const LONG = 10000;
-
 // Marks of one kind drawn per line.
 const PER_LINE = 200;
 
-
-function escape(text: string) {
-    return ESCAPE.test(text) ? text.replace(/[&<>]/g, (character) => ESCAPES[character]) : text;
-}
 
 function walker(element: HTMLElement) {
     return element.ownerDocument.createTreeWalker(element, NodeFilter.SHOW_TEXT);

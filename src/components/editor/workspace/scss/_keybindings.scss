@@ -1,6 +1,7 @@
 @use '/tokens';
 @use 'css-utilities/font/geist';
 @use 'css-utilities/hidden';
+@use 'css-utilities/text';
 
 .code-workspace {
     &-command-icon.icon {
@@ -14,9 +15,9 @@
             justify-content: flex-end;
         }
 
-
         &-button {
             flex: none;
+
 
             &:disabled {
                 cursor: default;
@@ -46,7 +47,8 @@
 
         &-empty {
             color: var(--muted-color);
-            padding: var(--size-400);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
             text-align: center;
         }
 
@@ -74,6 +76,7 @@
         &-key {
             flex: none;
 
+
             &--builtin {
                 cursor: help;
                 opacity: 0.75;
@@ -89,9 +92,7 @@
         }
 
         &-label {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            @extend %text-truncate;
         }
 
         // Only '+' at rest, so the row's built-in keys aren't read as unbound.
@@ -108,7 +109,6 @@
             }
         }
 
-
         &-row {
             align-items: center;
             border-bottom: var(--divider);
@@ -118,6 +118,7 @@
             min-height: var(--row-height);
             padding-block: var(--padding-vertical);
 
+
             &--head {
                 background: var(--raised);
                 color: var(--muted-color);
@@ -125,10 +126,10 @@
                 font-weight: var(--font-weight-500);
                 inset-block-start: 0;
                 min-height: auto;
-                padding-block: var(--padding-vertical);
                 position: sticky;
                 z-index: 1;
             }
+
 
             &[hidden] {
                 display: none;
@@ -153,6 +154,7 @@
             font-size: var(--font-size-400);
             margin: 0;
         }
+
 
         // Background and shadow come from the card's surface.
         &.card {

@@ -3,17 +3,18 @@
         flex: none;
         height: var(--control-size);
 
+
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: calc(var(--focus-width) * -1);
         }
-    }
 
-    // Inline-edit lays its status out under the field; here it sits on the toolbar's line instead.
-    &-autosave .inline-edit-status {
-        grid-area: auto;
-        margin-top: 0;
-        padding-inline-start: 0;
+        // Inline-edit lays its status out under the field; here it sits on the toolbar's line instead.
+        .inline-edit-status {
+            grid-area: auto;
+            margin-top: 0;
+            padding-inline-start: 0;
+        }
     }
 
     &-status {
@@ -23,50 +24,25 @@
         &-item {
             white-space: nowrap;
 
+
             // Like VS Code's status bar, items drop out as the bar narrows instead of scrolling, least needed first:
             // selections (shown only now and then, so it never counts on room the rest need), encoding, line ending,
             // indentation, language, then problems. Line and column and auto save stay. Ems follow the bar's own font
             // size.
-            &--encoding {
-                @container workspace-status (width < 52em) {
-                    display: none;
+            @each $item, $width in (encoding: 52em, eol: 48em, indent: 45em, language: 38em, problems: 30em, selections: 62em) {
+                &--#{$item} {
+                    @container workspace-status (width < #{$width}) {
+                        display: none;
+                    }
                 }
             }
 
-            &--eol {
-                @container workspace-status (width < 48em) {
-                    display: none;
-                }
-            }
-
-            &--indent {
-                @container workspace-status (width < 45em) {
-                    display: none;
-                }
-            }
-
-            &--language {
-                @container workspace-status (width < 38em) {
-                    display: none;
-                }
-            }
-
-            &--problems {
-                @container workspace-status (width < 30em) {
-                    display: none;
-                }
-            }
-
-            &--selections {
-                @container workspace-status (width < 62em) {
-                    display: none;
-                }
-            }
 
             &.button {
                 flex: none;
                 font-size: inherit;
                 min-height: var(--status-item-height);
+
 
                 &:disabled {
                     cursor: default;

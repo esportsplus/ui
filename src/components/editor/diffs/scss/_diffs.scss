@@ -21,7 +21,8 @@
         font: inherit;
         font-size: var(--label-font-size);
         line-height: var(--line-height);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
@@ -32,10 +33,10 @@
     &-actions {
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
+        inset-block-start: var(--inset-vertical);
         inset-inline-end: var(--inset-horizontal);
         opacity: 0;
         position: absolute;
-        top: var(--inset-vertical);
         z-index: 1;
     }
 
@@ -53,7 +54,8 @@
         height: var(--size);
         justify-content: center;
         min-width: var(--size);
-        padding: 0 var(--padding-horizontal);
+        padding-block: 0;
+        padding-inline: var(--padding-horizontal);
 
         &--primary {
             filter: var(--filter);
@@ -127,7 +129,8 @@
         font-size: var(--label-font-size);
         gap: var(--gap-vertical) var(--gap-horizontal);
         min-height: var(--line-height);
-        padding: 0 var(--code-padding-horizontal);
+        padding-block: 0;
+        padding-inline: var(--code-padding-horizontal);
         width: 100%;
 
         &:focus-visible {
@@ -139,12 +142,13 @@
     &-header {
         align-items: center;
         background: var(--surface-background-default);
-        border-bottom: var(--border-width) solid var(--border-color);
+        border-block-end: var(--border-width) solid var(--border-color);
         display: flex;
         flex: none;
         flex-wrap: wrap;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
     }
 
     &-modes {
@@ -173,18 +177,18 @@
 
         &--delete {
             background: var(--delete-background);
-        }
 
-        &--delete .diffs-sign {
-            color: var(--delete-color);
+            .diffs-sign {
+                color: var(--delete-color);
+            }
         }
 
         &--insert {
             background: var(--insert-background);
-        }
 
-        &--insert .diffs-sign {
-            color: var(--insert-color);
+            .diffs-sign {
+                color: var(--insert-color);
+            }
         }
 
         &--split {
@@ -241,57 +245,18 @@
     }
 
     &-token {
+        @each $kind in comment, function, keyword, number, operator, property, regexp, selector, string, tag, type, variable {
+            &--#{$kind} {
+                color: var(--#{$kind}-color);
+            }
+        }
+
         &--color {
             color: var(--literal-color);
         }
 
         &--comment {
-            color: var(--comment-color);
             font-style: italic;
-        }
-
-        &--function {
-            color: var(--function-color);
-        }
-
-        &--keyword {
-            color: var(--keyword-color);
-        }
-
-        &--number {
-            color: var(--number-color);
-        }
-
-        &--operator {
-            color: var(--operator-color);
-        }
-
-        &--property {
-            color: var(--property-color);
-        }
-
-        &--regexp {
-            color: var(--regexp-color);
-        }
-
-        &--selector {
-            color: var(--selector-color);
-        }
-
-        &--string {
-            color: var(--string-color);
-        }
-
-        &--tag {
-            color: var(--tag-color);
-        }
-
-        &--type {
-            color: var(--type-color);
-        }
-
-        &--variable {
-            color: var(--variable-color);
         }
     }
 

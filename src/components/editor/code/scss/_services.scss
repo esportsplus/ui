@@ -57,7 +57,7 @@
         @extend %reset-popover;
         background: var(--surface-background-default);
         border: var(--border-width) solid var(--border-color);
-        border-radius: var(--popup-border-radius);
+        border-radius: var(--border-radius);
         box-shadow: var(--surface-shadow-default);
         box-sizing: border-box;
         color: var(--color);
@@ -74,7 +74,7 @@
         text-decoration-line: underline;
         text-decoration-skip-ink: none;
         text-decoration-style: wavy;
-        text-underline-offset: var(--diagnostic-offset);
+        text-underline-offset: var(--offset);
 
         &--hint {
             text-decoration-color: var(--diagnostic-hint-color);
@@ -101,14 +101,11 @@
     }
 
     &-problem {
+        @extend %reset-button;
         appearance: none;
         background: var(--background);
-        border: 0;
         border-left: var(--caret-width) solid var(--diagnostic-error-color);
-        color: inherit;
-        cursor: pointer;
         flex: none;
-        font: inherit;
         padding: 0 var(--padding-horizontal);
         text-align: left;
 
@@ -137,7 +134,7 @@
         flex-direction: column;
         font-size: var(--font-size);
         gap: var(--gap-vertical) var(--gap-horizontal);
-        max-height: var(--problems-max-height);
+        max-height: var(--max-height);
         overflow: auto;
         padding: var(--padding-vertical) var(--padding-horizontal);
 

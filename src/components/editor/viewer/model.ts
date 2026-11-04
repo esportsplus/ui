@@ -1,5 +1,6 @@
 import { EditorDocument } from '../code/document';
 import { structureOf } from '../code/folding';
+import { BUDGET, escape, LONG } from '../code/html';
 import { SyntaxCache, type Language, type Token } from '../code/syntax';
 
 
@@ -10,22 +11,8 @@ type Line = { end: number; html: string; text: string; tokens: readonly Token[] 
 type Options = { fold?: boolean; whitespace?: boolean };
 
 
-// Runs one line may split into before it renders as plain text.
-const BUDGET = 3000;
-
-const ESCAPE = /[&<>"]/;
-
-const ESCAPES: Record<string, string> = { '"': '&quot;', '&': '&amp;', '<': '&lt;', '>': '&gt;' };
-
-// Longer lines skip highlighting.
-const LONG = 10000;
-
 const NO_TOKENS: readonly Token[] = [];
 
-
-function escape(text: string) {
-    return ESCAPE.test(text) ? text.replace(/[&<>"]/g, (character) => ESCAPES[character]) : text;
-}
 
 function markup(text: string, tokens: readonly Token[], whitespace: boolean) {
     if (text.length > LONG || tokens.length > BUDGET) {

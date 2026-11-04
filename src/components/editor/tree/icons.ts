@@ -503,5 +503,5 @@ function resolver(options: Options = {}) {
 const resolve = resolver();
 
 
-export { FOLDERS, NAMES, resolve, resolver };
+export { FOLDERS, resolve, resolver };
 export type { Folder, Interface, Name, Options, Resolved, Tier };

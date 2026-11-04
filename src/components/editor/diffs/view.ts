@@ -172,7 +172,7 @@ export default component(
             }
 
             return html`
-                <div class='diffs-cell ${item.change < 0 ? 'diffs-cell--equal' : side === 'original' ? 'diffs-cell--delete' : 'diffs-cell--insert'}'>
+                <div class='diffs-cell ${item.change >= 0 && `diffs-cell--${side === 'original' ? 'delete' : 'insert'}`}'>
                     <span class='diffs-number'>${value.line + 1}</span>
                     <code class='diffs-code' ${{ innerHTML: code(value, side, item.change >= 0) }}></code>
                 </div>
@@ -211,7 +211,7 @@ export default component(
             let count = item.to - item.from;
 
             return html`
-                <div class='diffs-row diffs-row--gap'>
+                <div class='diffs-row'>
                     <button
                         class='diffs-gap'
                         type='button'
@@ -243,7 +243,7 @@ export default component(
             if (mode === 'split') {
                 return html`
                     <div
-                        class='diffs-row diffs-row--split ${item.change >= 0 && 'diffs-row--change'} ${item.lead && 'diffs-row--lead'}'
+                        class='diffs-row diffs-row--split'
                         ${{ class: () => item.change >= 0 && ui.current === item.change && '--active' }}
                     >
                         ${cell(item, 'original')}
@@ -258,7 +258,7 @@ export default component(
 
             return html`
                 <div
-                    class='diffs-row diffs-row--unified diffs-row--${type} ${item.lead && 'diffs-row--lead'}'
+                    class='diffs-row diffs-row--unified diffs-row--${type}'
                     ${{ class: () => item.change >= 0 && ui.current === item.change && '--active' }}
                 >
                     <span class='diffs-number'>${item.left ? item.left.line + 1 : ''}</span>
@@ -391,7 +391,6 @@ export default component(
                 class='diffs'
                 ${attributes}
                 ${{
-                    class: () => `diffs--${ui.mode}`,
                     onconnect: () => receive?.(controller),
                     onkeydown: (e: KeyboardEvent) => {
                         if (e.key !== 'F5' || !e.altKey || e.ctrlKey || e.metaKey) {

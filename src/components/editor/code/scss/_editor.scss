@@ -1,6 +1,7 @@
 @use '/tokens';
 @use 'css-utilities/hidden';
 @use 'css-utilities/surface';
+@use 'minimap';
 
 .code-editor {
     background: var(--background);
@@ -14,6 +15,7 @@
     overflow: hidden;
     position: relative;
     width: 100%;
+
 
     &-bracket {
         background: var(--bracket-background);
@@ -31,7 +33,7 @@
 
         &--drop {
             background: var(--caret-color);
-            width: var(--drop-width);
+            width: var(--width);
         }
 
         &--selection {
@@ -225,40 +227,27 @@
         background: var(--background);
     }
 
+    // Floats over the field, pinned right, so its edge is physical.
     &-minimap {
-        background: var(--background);
+        @extend %minimap;
         border-left: var(--border-width) solid var(--border-color);
         // Only the code editor measures its scrollbar tracks; the markdown editor's minimap sits beside its scroller.
         bottom: var(--track-height, 0px);
         box-sizing: border-box;
-        cursor: pointer;
         display: var(--minimap-display);
-        opacity: var(--minimap-opacity);
-        overflow: hidden;
         position: absolute;
         right: var(--track-width, 0px);
         top: 0;
-        touch-action: none;
-        width: var(--minimap-width);
         z-index: 4;
 
+
         &-canvas {
-            display: block;
-            height: 100%;
-            width: 100%;
+            @extend %minimap-canvas;
         }
 
         &-slider {
-            background: var(--minimap-slider-background);
-            border: var(--border-width) solid var(--border-color);
-            box-sizing: border-box;
-            height: var(--slider-height);
-            left: 0;
-            pointer-events: none;
-            position: absolute;
-            top: var(--slider-top);
+            @extend %minimap-slider;
             transition: none;
-            width: 100%;
         }
     }
 
@@ -292,13 +281,10 @@
     }
 
     &-overlay {
-        bottom: 0;
-        left: var(--gutter-width);
+        inset: 0 0 0 var(--gutter-width);
         overflow: hidden;
         pointer-events: none;
         position: absolute;
-        right: 0;
-        top: 0;
         user-select: none;
         visibility: var(--overlay-visibility);
     }
@@ -407,6 +393,7 @@
             color: var(--variable-color);
         }
     }
+
 
     &:focus-within {
         outline: var(--focus-width) solid var(--focus-color);

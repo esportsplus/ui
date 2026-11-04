@@ -1,0 +1,29 @@
+// The minimap's shared look, extended by every host that renders minimap() (the code editor and markdown editor
+// as '.code-editor-minimap', the viewer as '.code-viewer-minimap'); each host places it and draws its own edge.
+%minimap {
+    background: var(--background);
+    cursor: pointer;
+    opacity: var(--minimap-opacity);
+    overflow: hidden;
+    touch-action: none;
+    width: var(--minimap-width);
+
+
+    &-canvas {
+        display: block;
+        height: 100%;
+        width: 100%;
+    }
+
+    &-slider {
+        background: var(--minimap-slider-background);
+        border: var(--border-width) solid var(--border-color);
+        box-sizing: border-box;
+        height: var(--slider-height);
+        inset-block-start: var(--slider-top);
+        inset-inline-start: 0;
+        pointer-events: none;
+        position: absolute;
+        width: 100%;
+    }
+}

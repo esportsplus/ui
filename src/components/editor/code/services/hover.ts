@@ -55,6 +55,7 @@ const hover = (): Card => {
             state.open = true;
             flush();
 
+            // A manual popover enters the top layer only through its API; flushed first so it opens at its final size.
             if (card?.isConnected && !card.matches(':popover-open')) {
                 card.showPopover();
             }

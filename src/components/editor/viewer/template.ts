@@ -30,6 +30,9 @@ type CodeViewerAttributes = Attributes & {
 
 const NO_BREAKS: readonly number[] = [];
 
+// Inline, since the modifiers cascade layer outranks the component's stylesheet.
+const SCROLLBAR = '--scrollbar-offset: 0px; --scrollbar-size-hover: var(--scrollbar-size);';
+
 const TOKEN_COLORS: readonly Token['kind'][] = [
     'color',
     'comment',
@@ -295,11 +298,10 @@ export default component(
                         aria-label='${filename ?? 'Code'}'
                         class='code-viewer-scroller'
                         role='region'
-                        style='--scrollbar-offset: 0px; --scrollbar-size-hover: var(--scrollbar-size);'
                         tabindex='0'
                         ${scrollbar({ hover: true })}
                         ${size}
-                        ${{ onscroll: () => update() }}
+                        ${{ onscroll: () => update(), style: SCROLLBAR }}
                     >
                         ${() => {
                             let text = current();

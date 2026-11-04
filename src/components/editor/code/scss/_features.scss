@@ -1,4 +1,5 @@
 @use '/tokens';
+@use 'css-utilities/reset';
 
 // Sticky scroll, color swatches, links, unicode warnings, rulers, the git gutter and its peek, and conflict blocks with
 // their lenses. Marks style spans in the rendered rows, so none of them adds width to the text the field lays out.
@@ -8,9 +9,9 @@
         pointer-events: none;
         position: absolute;
         // At the fold column's inner edge, clear of the right-aligned numbers.
-        right: calc(var(--fold-width) - var(--change-width) - 1px);
+        right: calc(var(--fold-width) - var(--width) - 1px);
         top: 0;
-        width: var(--change-width);
+        width: var(--width);
 
         &--added {
             background: var(--gutter-added-color);
@@ -25,12 +26,12 @@
 
         // A wedge on the boundary where lines went.
         &--deleted {
-            border-bottom: var(--change-wedge) solid transparent;
-            border-left: var(--change-wedge) solid var(--gutter-deleted-color);
-            border-top: var(--change-wedge) solid transparent;
+            border-bottom: var(--wedge) solid transparent;
+            border-left: var(--wedge) solid var(--gutter-deleted-color);
+            border-top: var(--wedge) solid transparent;
             bottom: auto;
             height: 0;
-            top: calc(-1 * var(--change-wedge));
+            top: calc(-1 * var(--wedge));
             width: 0;
         }
 
@@ -42,7 +43,7 @@
     &-lens {
         align-items: center;
         display: flex;
-        font-size: var(--lens-font-size);
+        font-size: var(--font-size);
         gap: var(--gap-vertical) var(--gap-horizontal);
         pointer-events: auto;
         position: absolute;
@@ -53,13 +54,9 @@
         }
 
         &-action {
+            @extend %reset-button;
             appearance: none;
-            background: transparent;
-            border: 0;
             color: var(--color);
-            cursor: pointer;
-            font: inherit;
-            padding: 0;
 
             &:focus-visible {
                 outline: var(--focus-width) solid var(--focus-color);
@@ -110,7 +107,7 @@
         display: none;
         flex-direction: column;
         left: 0;
-        max-height: var(--peek-max-height);
+        max-height: var(--max-height);
         pointer-events: auto;
         position: absolute;
         right: calc(var(--minimap-offset) + var(--track-width, 0px));
@@ -130,17 +127,14 @@
         }
 
         &-button {
+            @extend %reset-button;
             align-items: center;
             appearance: none;
             background: var(--background);
-            border: 0;
             border-radius: var(--border-radius-200);
-            color: inherit;
-            cursor: pointer;
             display: flex;
             height: var(--size);
             justify-content: center;
-            padding: 0;
             width: var(--size);
 
             &:disabled {
@@ -154,7 +148,7 @@
         }
 
         &-lines {
-            background: var(--peek-lines-background);
+            background: var(--background);
             flex: 1;
             font: inherit;
             margin: 0;
@@ -192,7 +186,7 @@
 
     &-sticky {
         background: var(--background);
-        box-shadow: var(--sticky-shadow);
+        box-shadow: var(--box-shadow);
         display: none;
         flex-direction: column;
         left: 0;
@@ -247,12 +241,12 @@
             border-radius: var(--border-radius-100);
             box-sizing: border-box;
             content: '';
-            height: var(--swatch-size);
-            left: calc(-1 * var(--swatch-size) - var(--gap-horizontal));
+            height: var(--size);
+            left: calc(-1 * var(--size) - var(--gap-horizontal));
             position: absolute;
             top: 50%;
             translate: 0 -50%;
-            width: var(--swatch-size);
+            width: var(--size);
         }
     }
 
@@ -263,14 +257,11 @@
         &::after {
             border: var(--border-width) var(--border-style) var(--border-color);
             border-radius: var(--border-radius-100);
-            bottom: 10%;
             content: '';
-            left: -1px;
+            inset: 10% -1px;
             min-width: 2px;
             pointer-events: none;
             position: absolute;
-            right: -1px;
-            top: 10%;
         }
     }
 

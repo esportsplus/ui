@@ -13,6 +13,7 @@
     --background-default: var(--surface-background-default);
     --bar-height: var(--size-800);
     --border-color-default: var(--surface-border-default);
+    --border-radius: var(--border-radius-300);
     --close-size: var(--size-400);
     --color: var(--color-text-500);
     --columns: var(--main-track) var(--aside-track);
@@ -56,19 +57,17 @@
     --min-height: 160px;
     --muted-color: var(--color-text-300);
     --peek-width: var(--size-400);
-    --border-radius: var(--border-radius-300);
     --raised: var(--surface-background-default);
     --rows: minmax(0, 1fr) auto;
     --spacing: var(--size-100);
     --spacing-tight: calc(var(--size-100) / 2);
     --status-font-size: var(--font-size-100);
     --status-item-height: var(--size-500);
-    --status-item-hover: var(--control-active-background);
     --status-row: 2;
     --tab-height: var(--size-600);
-    --tab-hover-background: var(--surface-background-hover);
     --tab-max-width: 160px;
     --tabs-height: var(--size-700);
+
 
     @media (forced-colors: active) {
         --accent: Highlight;
@@ -79,7 +78,6 @@
         --error-color: CanvasText;
         --muted-color: CanvasText;
         --raised: Canvas;
-        --surface: Canvas;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -148,15 +146,16 @@
         @extend %color-text;
         --background-default: transparent;
         --background-hover: var(--control-active-background);
-        --border-radius: var(--border-radius);
+        --border-radius: var(--border-radius-300);
         --padding-horizontal: var(--spacing);
         --padding-vertical: 0px;
-    }
 
-    // Inline-edit lays its status out under the field; here it sits on the toolbar's line instead.
-    &-autosave .inline-edit-status {
-        --color: inherit;
-        --font-size: var(--status-font-size);
+
+        // Inline-edit lays its status out under the field; here it sits on the toolbar's line instead.
+        .inline-edit-status {
+            --color: inherit;
+            --font-size: var(--status-font-size);
+        }
     }
 
     // The label's side keeps its own room; the controls' side takes the spacing.
@@ -164,6 +163,7 @@
         --gap-horizontal: var(--spacing);
         --gap-vertical: var(--spacing);
         --padding-horizontal: var(--spacing);
+        --padding-start: var(--size-200);
     }
 
     &-breadcrumb.breadcrumb {
@@ -180,26 +180,22 @@
         &-actions {
             --gap-horizontal: var(--spacing);
             --gap-vertical: var(--spacing);
+            --margin-vertical: var(--size-400);
         }
 
         &-button {
-            --background-default: var(--surface-background-default);
-            --background-hover: var(--control-active-background);
-            --border-radius: var(--border-radius);
-            --color-default: var(--color);
             --padding-horizontal: var(--size-300);
             --padding-vertical: var(--spacing);
+        }
 
-            &--primary {
-                --background-default: var(--accent);
-                --background-hover: var(--color-accent-500);
-                --color-default: var(--accent-color);
-            }
+        &-files {
+            --margin-vertical: var(--size-200);
         }
 
         &-text {
             --margin-vertical: var(--spacing);
         }
+
 
         &.card {
             --border-radius: var(--border-radius-500);
@@ -210,14 +206,30 @@
         }
     }
 
+    &-confirm-button,
+    &-keybindings-button {
+        --background-default: var(--surface-background-default);
+        --background-hover: var(--control-active-background);
+        --border-radius: var(--border-radius-300);
+        --color-default: var(--color);
+
+
+        &--primary {
+            --background-default: var(--accent);
+            --background-hover: var(--color-accent-500);
+            --color-default: var(--accent-color);
+        }
+    }
+
     &-control {
         @extend %color-text;
         --background-active: var(--control-active-background);
         --background-default: transparent;
         --background-hover: var(--control-active-background);
-        --border-radius: var(--border-radius);
+        --border-radius: var(--border-radius-300);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
+
 
         &-icon.icon {
             --size: var(--size-300);
@@ -225,13 +237,8 @@
     }
 
     &-document.code-editor,
-    &-document.markdown-editor {
-        --border-radius: 0px;
-        --border-width: 0px;
-        --height: 100%;
-    }
-
     &-document.diffs,
+    &-document.markdown-editor,
     &-merge-editor.diffs-merge {
         --border-radius: 0px;
         --border-width: 0px;
@@ -241,10 +248,13 @@
     &-empty {
         --gap-horizontal: var(--spacing);
         --gap-vertical: var(--spacing);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-300);
     }
 
     &-explorer {
         @extend %surface-raise;
+
 
         &-header {
             --gap-horizontal: var(--spacing-tight);
@@ -258,19 +268,10 @@
         --conflict-color: var(--color-red-400);
         --row-height: var(--size-800);
 
+
         &-button {
-            --background-default: var(--surface-background-default);
-            --background-hover: var(--control-active-background);
-            --border-radius: var(--border-radius);
-            --color-default: var(--color);
             --padding-horizontal: var(--size-200);
             --padding-vertical: var(--spacing-tight);
-
-            &--primary {
-                --background-default: var(--accent);
-                --background-hover: var(--color-accent-500);
-                --color-default: var(--accent-color);
-            }
         }
 
         &-conflict,
@@ -278,6 +279,11 @@
         &-keys {
             --gap-horizontal: var(--spacing);
             --gap-vertical: var(--spacing);
+        }
+
+        &-empty {
+            --padding-horizontal: var(--size-400);
+            --padding-vertical: var(--size-400);
         }
 
         &-recorder--add.shortcut-recorder {
@@ -294,10 +300,12 @@
             --gap-vertical: var(--size-200);
             --padding-vertical: var(--spacing-tight);
 
+
             &--head {
                 --padding-vertical: var(--spacing);
             }
         }
+
 
         &.card {
             --border-radius: var(--border-radius-500);
@@ -320,10 +328,11 @@
         --padding-vertical: var(--spacing-tight);
     }
 
-    &-merge-cancel {
+    &-merge-cancel,
+    &-retry {
         --background-default: transparent;
         --background-hover: var(--control-active-background);
-        --border-radius: var(--border-radius);
+        --border-radius: var(--border-radius-300);
         --color-default: var(--color);
         --padding-horizontal: var(--size-200);
         --padding-vertical: var(--spacing-tight);
@@ -332,21 +341,14 @@
     &-notice {
         --gap-horizontal: var(--spacing);
         --gap-vertical: var(--spacing);
-    }
-
-    &-retry {
-        --background-default: var(--background);
-        --background-hover: var(--control-active-background);
-        --border-radius: var(--border-radius);
-        --color-default: var(--color);
-        --padding-horizontal: var(--size-200);
-        --padding-vertical: var(--spacing-tight);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-300);
     }
 
     &-search.input {
         --background-default: transparent;
         --border-color-default: transparent;
-        --border-radius: var(--border-radius);
+        --border-radius: var(--border-radius-300);
         --color-default: var(--color);
         --font-size: var(--font-size-200);
         --padding-horizontal: var(--spacing);
@@ -360,13 +362,14 @@
         --padding-horizontal: var(--size-300);
         --padding-vertical: var(--spacing-tight);
 
+
         &-icon.icon {
             --size: var(--size-200);
         }
 
         &-item.button {
             --background-default: transparent;
-            --background-hover: var(--status-item-hover);
+            --background-hover: var(--control-active-background);
             --border-radius: var(--border-radius-100);
             --color-default: inherit;
             --color-hover: var(--color);
@@ -387,10 +390,11 @@
         --background-default: transparent;
         --background-hover: transparent;
         --background-pressed: transparent;
-        --border-radius: var(--border-radius);
+        --border-radius: var(--border-radius-300);
         --gap-horizontal: var(--spacing-tight);
         --padding-horizontal: var(--spacing);
         --padding-vertical: 0px;
+
 
         &-close {
             --background-default: transparent;
@@ -399,6 +403,7 @@
             --color-default: inherit;
             --padding-horizontal: 0px;
             --padding-vertical: 0px;
+
 
             &-icon.icon {
                 --size: var(--size-200);
@@ -416,9 +421,10 @@
         --padding-horizontal: var(--spacing);
         --scrollbar-size: calc(var(--size-100) / 2);
 
+
         &-highlight {
             --background-active: var(--control-active-background);
-            --background-default: var(--tab-hover-background);
+            --background-default: var(--surface-background-hover);
             --border-color: var(--accent);
         }
     }

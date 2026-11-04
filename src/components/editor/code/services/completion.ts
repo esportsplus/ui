@@ -91,6 +91,7 @@ const completion = (id: string): Completion => {
             rows.splice(0, rows.length, ...items.map((item, index) => ({ detail: item.detail ?? '', index, label: item.label })));
             state.selected = 0;
             state.open = true;
+            // A manual popover enters the top layer only through its API; flushed first so it opens at its final size.
             flush();
 
             if (!list?.isConnected) {

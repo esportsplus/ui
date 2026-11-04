@@ -1,4 +1,6 @@
+@use 'css-utilities/absolute';
 @use 'css-utilities/reset';
+@use 'css-utilities/text';
 @use 'keybindings';
 @use 'status';
 @use 'tabs';
@@ -36,7 +38,7 @@
         gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--bar-height);
         min-width: 0;
-        padding-inline: var(--size-200) var(--padding-horizontal);
+        padding-inline: var(--padding-start) var(--padding-horizontal);
     }
 
     &-breadcrumb.breadcrumb {
@@ -50,7 +52,7 @@
             flex-wrap: wrap;
             gap: var(--gap-vertical) var(--gap-horizontal);
             justify-content: flex-end;
-            margin-top: var(--size-400);
+            margin-block: var(--margin-vertical) 0;
         }
 
         &-button {
@@ -62,7 +64,7 @@
 
         &-files {
             font-weight: var(--font-weight-500);
-            margin-block: var(--size-200) 0;
+            margin-block: var(--margin-vertical) 0;
             overflow-wrap: anywhere;
         }
 
@@ -76,6 +78,7 @@
             margin: 0;
         }
 
+
         // Background and shadow come from the card's surface.
         &.card {
             color: var(--color);
@@ -87,6 +90,7 @@
         flex: none;
         height: var(--control-size);
         width: var(--control-size);
+
 
         &:disabled {
             cursor: default;
@@ -108,12 +112,9 @@
     }
 
     &-edge {
-        background: transparent;
-        border: 0;
-        cursor: pointer;
+        @extend %reset-button;
         inset-block: 0;
         inset-inline: var(--edge-inset-horizontal);
-        padding: 0;
         position: absolute;
         width: var(--peek-width);
     }
@@ -135,7 +136,8 @@
         flex-wrap: wrap;
         gap: var(--gap-vertical) var(--gap-horizontal);
         justify-content: center;
-        padding: var(--size-300);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         text-align: center;
     }
 
@@ -160,6 +162,7 @@
         user-select: none;
         width: var(--explorer-size);
         z-index: var(--explorer-layer);
+
 
         &-content {
             display: flex;
@@ -218,10 +221,11 @@
         pointer-events: none;
         position: fixed;
         z-index: var(--menu-layer);
-    }
 
-    &-menu-panel {
-        pointer-events: auto;
+
+        &-panel {
+            pointer-events: auto;
+        }
     }
 
     &-merge {
@@ -231,6 +235,7 @@
         min-height: 0;
         min-width: 0;
 
+
         &-bar {
             align-items: center;
             border-bottom: var(--divider);
@@ -239,7 +244,8 @@
             font-size: var(--font-size-200);
             gap: var(--gap-vertical) var(--gap-horizontal);
             justify-content: space-between;
-            padding: var(--padding-vertical) var(--padding-horizontal);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
         }
 
         &-cancel {
@@ -247,11 +253,9 @@
         }
 
         &-title {
+            @extend %text-truncate;
             color: var(--muted-color);
             min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
     }
 
@@ -263,13 +267,14 @@
         gap: var(--gap-vertical) var(--gap-horizontal);
         justify-content: center;
         min-height: var(--bar-height);
-        padding: var(--size-300);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         text-align: center;
 
+
         &--cover {
+            @extend %absolute-full;
             background: var(--surface-background-default);
-            inset: 0;
-            position: absolute;
             z-index: 1;
         }
     }
@@ -277,6 +282,7 @@
     &-search.input {
         flex: 1;
         min-width: 0;
+
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
@@ -296,13 +302,14 @@
         grid-row: var(--status-row);
         justify-content: space-between;
         min-width: 0;
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
+
 
         &-message {
+            @extend %text-truncate;
             min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+
 
             &--error {
                 color: var(--error-color);
@@ -310,11 +317,9 @@
         }
 
         &-path {
+            @extend %text-truncate;
             flex: 1;
             min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
         &-position {

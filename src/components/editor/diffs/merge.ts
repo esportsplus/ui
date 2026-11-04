@@ -261,9 +261,9 @@ export default component(
 
         function section(side: Side) {
             return html`
-                <div class='diffs-merge-pane diffs-merge-pane--${side}'>
+                <div class='diffs-merge-pane'>
                     <div class='diffs-merge-title'>${side === 'current' ? 'Current' : 'Incoming'}</div>
-                    <div class='diffs-merge-scroller' tabindex='0' ${scrollbar()}>
+                    <div class='diffs-scroller' tabindex='0' ${scrollbar()}>
                         ${panes[side].slot.fragment}
                     </div>
                 </div>
@@ -304,7 +304,7 @@ export default component(
                     style: `--digits: ${String(Math.max(panes.current.lines, panes.incoming.lines)).length};`
                 }}
             >
-                <div class='diffs-merge-header'>
+                <div class='diffs-header'>
                     ${filename && html`<span class='diffs-filename' title='${filename}'>${filename}</span>`}
                     <span aria-live='polite' class='diffs-position'>
                         ${() => ui.conflicts === 1 ? '1 conflict remaining' : ui.conflicts ? `${ui.conflicts} conflicts remaining` : 'No conflicts remaining'}

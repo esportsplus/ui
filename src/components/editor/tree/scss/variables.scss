@@ -100,14 +100,8 @@ $icons: (
     --conceal-duration: 0.12s;
     --conceal-timing-function: ease-out;
     --conflict-color: light-dark(oklch(from var(--color-red-300) 0.6 c h), oklch(from var(--color-red-300) 0.72 0.16 h));
-    --cut-opacity: 0.5;
     --deleted-color: light-dark(var(--color-red-500), oklch(from var(--color-red-500) 0.7 0.17 h));
     --deletions-color: var(--deleted-color);
-    // The label that follows the pointer while dragging, offset so it never covers the row being aimed at.
-    --drag-offset: var(--size-300);
-    --drag-radius: var(--border-radius-300);
-    // Rows being moved, not copied, dim while they travel.
-    --dragged-opacity: 0.5;
     --drop-background: color-mix(in srgb, var(--drop-color) 10%, transparent);
     --drop-border-color: color-mix(in srgb, var(--drop-color) 60%, transparent);
     --drop-color: var(--color-accent-400);
@@ -115,13 +109,10 @@ $icons: (
     --error-color: light-dark(var(--color-red-400), oklch(from var(--color-red-400) 0.7 0.18 h));
     --expand-duration: 0.25s;
     --expand-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-    // The find bar over the tree's top corner; the offset keeps it clear of the scrollbar.
     --find-border-color: var(--surface-border-default);
     --find-button-size: var(--size-500);
-    --find-input-width: calc(var(--size-900) * 2);
     --find-note-color: var(--color-text-300);
     --find-note-font-size: var(--font-size-200);
-    --find-offset: var(--size-300);
     --find-radius: var(--border-radius-300);
     --font-size: var(--font-size-300);
     // Rows the find bar matches; the current one is outlined.
@@ -143,32 +134,16 @@ $icons: (
     --input-radius: var(--border-radius-200);
     // Between a row's parts; the drag label and the error message line up with it.
     --item-gap-horizontal: calc(var(--size-100) / 2);
-    // The symlink and read-only glyphs beside the name.
-    --marker-color: var(--color-primary-300);
-    --marker-size: var(--size-300);
-    // Characters a fuzzy query matched: heavier, on a faint wash, in whatever color the name's git tone gives it.
-    --match-background: color-mix(in srgb, var(--color-accent-400) 18%, transparent);
-    --match-color: inherit;
-    --match-font-weight: var(--font-weight-600);
-    --match-radius: var(--border-radius-100);
     // Opaque, since it covers the rows below the input.
     --message-background: color-mix(in srgb, var(--error-color) 10%, var(--surface-background-default));
     --message-font-size: var(--font-size-200);
     --modified-color: light-dark(oklch(from var(--color-yellow-500) 0.62 c h), oklch(from var(--color-yellow-500) 0.76 c h));
     --notice-color: var(--color-text-300);
     --open-color: var(--color-primary-300);
-    --root-font-size: var(--font-size-200);
-    --root-font-weight: var(--font-weight-600);
     --row-height: 22px;
     // Inside each row; the guides and the error message line up with it.
     --row-padding-horizontal: var(--size-100);
     --row-radius: var(--border-radius-300);
-    // How much of a scope's color tints its rows; faint, so git colors and the highlight still read over it.
-    --scope-tint: 12%;
-    // The slash between a compact row's folders.
-    --separator-color: var(--color-primary-300);
-    --staged-radius: var(--border-radius-100);
-    --staged-tint: 18%;
     // Rows scroll under the pinned folders, so these hide them with the surface the tree sits on.
     --sticky-shadow: 0 6px 16px -10px #{surface.shadow-color(4.4)};
     --submodule-color: light-dark(oklch(from var(--color-blue-400) 0.6 c h), oklch(from var(--color-blue-400) 0.74 0.14 h));
@@ -176,6 +151,7 @@ $icons: (
     --twistie-size: var(--size-400);
     --unsaved-color: var(--color);
     --warning-color: light-dark(oklch(from var(--color-yellow-500) 0.62 c calc(h - 25)), oklch(from var(--color-yellow-500) 0.76 c calc(h - 25)));
+
 
     // High contrast themes swap every color for the system palette, so the guides take its gray, and its text on hover.
     @media (forced-colors: active) {
@@ -187,6 +163,7 @@ $icons: (
     &--indicator {
         --indicator-display: block;
 
+
         // On the tree rather than the viewport, so the copies standing in for rows mid-motion, laid beside the
         // viewport, brighten and show along with the rest.
         &:hover {
@@ -196,6 +173,7 @@ $icons: (
 
     &--indicator-hover {
         --indicator-opacity: 0;
+
 
         &:hover {
             --indicator-opacity: 1;
@@ -208,7 +186,9 @@ $icons: (
         --gap-vertical: calc(var(--size-300) / 2);
 
         &-part--staged {
+            --border-radius: var(--border-radius-100);
             --padding-horizontal: calc(var(--size-300) / 4);
+            --tint: 18%;
         }
     }
 
@@ -217,30 +197,46 @@ $icons: (
         --transition-duration: 150ms;
         --transition-timing-function: ease-out;
 
+
         @media (prefers-reduced-motion: reduce) {
             --transition-duration: 0s;
         }
     }
 
+    // The label that follows the pointer while dragging, offset so it never covers the row being aimed at.
     &-drag {
         @extend %surface-raise;
-
-        &--copy {
-            --drag-copy-display: block;
-        }
-
+        --border-radius: var(--border-radius-300);
         --gap-horizontal: var(--item-gap-horizontal);
         --gap-vertical: var(--item-gap-horizontal);
+        --margin-horizontal: var(--size-300);
+        --margin-vertical: var(--size-300);
         --padding-horizontal: var(--size-100);
         --padding-vertical: calc(var(--size-100) / 4);
+
+
+        &--copy &-copy {
+            --display: block;
+        }
+
+
+        &-copy {
+            --display: none;
+        }
     }
 
     &-empty {
         --gap-horizontal: 0px;
         --gap-vertical: var(--size-200);
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-400);
     }
 
+    // Over the tree's top corner; the inset keeps it clear of the scrollbar.
     &-find {
+        --inset-horizontal: var(--size-300);
+
+
         &-bar {
             @extend %surface-raise;
             --gap-horizontal: calc(var(--size-100) / 4);
@@ -260,7 +256,7 @@ $icons: (
             --background-hover: inherit;
             --background-pressed: var(--background-hover);
             --border-width: 1px;
-            --disabled-opacity: 0.4;
+
 
             &:disabled {
                 --background-hover: var(--background-default);
@@ -276,19 +272,20 @@ $icons: (
             --padding-horizontal: calc(var(--size-100) / 4);
         }
 
+        &-icon.icon {
+            --size: var(--size-300);
+        }
+
         &-input {
             --border-width: 1px;
             --padding-horizontal: calc(var(--size-300) / 4);
+            --width: calc(var(--size-900) * 2);
         }
 
         &-note {
             @extend %surface-raise;
             --padding-horizontal: calc(var(--size-300) / 4);
         }
-    }
-
-    &-find-icon.icon {
-        --size: var(--size-300);
     }
 
     // The highlight declares its own defaults, so the tree's values are pulled through explicitly.
@@ -304,6 +301,7 @@ $icons: (
     // other component's size.
     &-icon.icon {
         --size: var(--size-400);
+
 
         @each $icon, $family in $icons {
             &.file-tree-icon--#{$icon} {
@@ -323,9 +321,18 @@ $icons: (
         --readonly-opacity: 0.6;
     }
 
+    // The symlink and read-only glyphs beside the name.
     &-marker.icon {
-        --color: var(--marker-color);
-        --size: var(--marker-size);
+        --color: var(--color-primary-300);
+        --size: var(--size-300);
+    }
+
+    // Characters a fuzzy query matched: heavier, on a faint wash, in whatever color the name's git tone gives it.
+    &-match {
+        --background: color-mix(in srgb, var(--color-accent-400) 18%, transparent);
+        --border-radius: var(--border-radius-100);
+        --color: currentColor;
+        --font-weight: var(--font-weight-600);
     }
 
     // Lines up with the input, past the row's twistie and icon.
@@ -336,10 +343,12 @@ $icons: (
         --padding-vertical: calc(var(--size-100) / 4);
     }
 
-    // A folder's rows fade in a beat behind the opening, and the guides fade in and out on hover.
+    // A folder's rows fade in a beat behind the opening, and the guides fade in and out on hover. Rows being moved, not
+    // copied, dim while they travel.
     &-row {
         --border-width: 1px;
-        --disabled-opacity: 0.5;
+        --cut-opacity: 0.5;
+        --dragged-opacity: 0.5;
         --gap-horizontal: var(--item-gap-horizontal);
         --gap-vertical: var(--item-gap-horizontal);
         --guide-direction: 1;
@@ -348,6 +357,7 @@ $icons: (
         --reveal-delay: 0.05s;
         --reveal-duration: 0.2s;
         --reveal-timing-function: ease-out;
+
 
         @each $tone in added, conflict, deleted, error, ignored, modified, warning {
             &--#{$tone} {
@@ -364,16 +374,30 @@ $icons: (
             --background-selected: var(--background-active);
         }
 
+        &--root {
+            --font-size: var(--font-size-200);
+            --font-weight: var(--font-weight-600);
+        }
+
+        // How much of the scope's color tints its rows; faint, so git colors and the highlight still read over it.
+        &--scope {
+            --tint: 12%;
+        }
+
+
         &:dir(rtl) {
             --guide-direction: -1;
         }
     }
 
     &-segment {
+        --border-radius: var(--border-radius-100);
         --border-width: 1px;
     }
 
+    // The slash between a compact row's folders.
     &-separator {
+        --color: var(--color-primary-300);
         --margin-horizontal: 1px;
     }
 
@@ -398,9 +422,17 @@ $icons: (
         --padding-vertical: 0px;
     }
 
-    // Long paths wrap anywhere rather than run off the screen.
-    &-tooltip.tooltip-shared {
-        --white-space: normal;
+    &-tooltip {
+        &-meta {
+            --color: color-mix(in srgb, currentColor 70%, transparent);
+            --font-size: var(--font-size-200);
+        }
+
+
+        // Long paths wrap anywhere rather than run off the screen.
+        &.tooltip-shared {
+            --white-space: normal;
+        }
     }
 
     // The viewport holds the pointer for the whole drag, so its cursor is the one that shows; its rows take it too.

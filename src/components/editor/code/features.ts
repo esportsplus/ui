@@ -1140,4 +1140,3 @@ const features = (host: Host, apple: boolean) => {
 
 
 export { features };
-export type { Host as FeaturesHost };

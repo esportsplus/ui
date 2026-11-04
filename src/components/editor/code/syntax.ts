@@ -1670,4 +1670,4 @@ const syntaxCache = (document: EditorDocument, language: Language) => {
 
 
 export { closes, commentSyntax, highlightLine, languageFor, SyntaxCache, syntaxCache };
-export type { Frame, HighlightedLine, Language, LexState, LineSyntax, Mark, Nesting, Token };
+export type { Frame, Language, LexState, LineSyntax, Mark, Nesting, Token };

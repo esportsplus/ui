@@ -273,7 +273,6 @@ const workspace = ({
         elements = new WeakMap<WorkspaceTab, HTMLElement>(),
         files = signal<readonly string[]>([]),
         focusing = false,
-        hovered = false,
         id = `code-workspace-${++uid}`,
         keyboard = reactive({ active: false }),
         model = supplied ?? new EditorWorkspaceModel(host!, cwd),
@@ -448,6 +447,7 @@ const workspace = ({
         release?.();
         container = element;
         release = root((dispose) => {
+            // Measured, since a container query can't restyle the container's own grid into the stacked layout.
             let unobserve = observe(element, ([entry]) => {
                     ui.compact = entry.contentRect.width <= COMPACT_WIDTH;
                 });
@@ -692,7 +692,7 @@ const workspace = ({
             mod = (event.ctrlKey || event.metaKey) && !event.altKey;
 
         // Quick open also answers while the pointer rests on the workspace, as an editor pane under the cursor would.
-        if (mod && !event.shiftKey && key === 'p' && (inside || hovered)) {
+        if (mod && !event.shiftKey && key === 'p' && (inside || container.matches(':hover'))) {
             event.preventDefault();
             quickOpen();
             return;
@@ -1185,13 +1185,7 @@ const workspace = ({
                     () => view.tabs && 'code-workspace--tabs'
                 ],
                 onconnect: connect,
-                ondocumentkeydown: keydown,
-                onpointerenter: () => {
-                    hovered = true;
-                },
-                onpointerleave: () => {
-                    hovered = false;
-                }
+                ondocumentkeydown: keydown
             }}
         >
             <aside

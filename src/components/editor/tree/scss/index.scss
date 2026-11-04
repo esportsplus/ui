@@ -1,5 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/absolute';
+@use 'css-utilities/disabled';
 @use 'css-utilities/drag';
 @use 'css-utilities/reset';
 @use 'css-utilities/text';
@@ -47,6 +48,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         margin-inline-start: auto;
         padding-inline-start: var(--item-gap-horizontal);
 
+
         &-part {
             @each $tone in additions, added, conflict, deleted, deletions, error, ignored, modified, open, submodule, unsaved, warning {
                 &--#{$tone} {
@@ -56,8 +58,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
             // Changes in the index sit in a tinted chip, so a file staged and then edited again reads as two letters.
             &--staged {
-                background: color-mix(in srgb, currentColor var(--staged-tint), transparent);
-                border-radius: var(--staged-radius);
+                background: color-mix(in srgb, currentColor var(--tint), transparent);
+                border-radius: var(--border-radius);
                 padding-inline: var(--padding-horizontal);
             }
         }
@@ -66,9 +68,11 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     &-chevron {
         transition: rotate var(--transition-duration) var(--transition-timing-function);
 
+
         // Mirrored to point left, so opening turns it the other way to still point down.
         &:dir(rtl) {
             scale: -1 1;
+
 
             [aria-expanded='true'] > * > & {
                 rotate: -90deg;
@@ -84,20 +88,23 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     &-drag {
         @extend %reset-popover;
         background: var(--surface-background-default);
-        border-radius: var(--drag-radius);
+        border-radius: var(--border-radius);
         box-shadow: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
         color: var(--color);
         font-size: var(--font-size);
         gap: var(--gap-vertical) var(--gap-horizontal);
         left: 0;
-        margin: var(--drag-offset) 0 0 var(--drag-offset);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        margin-left: var(--margin-horizontal);
+        margin-top: var(--margin-vertical);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         top: 0;
         white-space: nowrap;
 
+
         &-copy {
             color: var(--added-color);
-            display: var(--drag-copy-display, none);
+            display: var(--display);
             font-weight: var(--badge-font-weight);
         }
 
@@ -107,6 +114,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             font-variant-numeric: tabular-nums;
             font-weight: var(--badge-font-weight);
         }
+
 
         &:popover-open {
             align-items: center;
@@ -123,7 +131,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         flex-direction: column;
         gap: var(--gap-vertical) var(--gap-horizontal);
         justify-content: center;
-        padding: var(--size-400);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         text-align: center;
     }
 
@@ -132,10 +141,11 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         display: flex;
         flex-direction: column;
         inset-block-start: 0;
-        inset-inline-end: var(--find-offset);
-        max-width: calc(100% - var(--find-offset) * 2);
+        inset-inline-end: var(--inset-horizontal);
+        max-width: calc(100% - var(--inset-horizontal) * 2);
         position: absolute;
         z-index: 2;
+
 
         &-bar {
             align-items: center;
@@ -145,27 +155,25 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             box-shadow: var(--surface-shadow-default);
             display: flex;
             gap: var(--gap-vertical) var(--gap-horizontal);
-            padding: var(--padding-vertical) var(--padding-horizontal);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
         }
 
         &-button {
+            @extend %reset-button;
             align-items: center;
             background: var(--background);
-            border: 0;
             border-radius: var(--input-radius);
-            color: inherit;
-            cursor: pointer;
             display: flex;
             flex-shrink: 0;
             height: var(--find-button-size);
             justify-content: center;
             outline: 0 solid var(--focus-color);
-            padding: 0;
             width: var(--find-button-size);
 
+
             &:disabled {
-                cursor: default;
-                opacity: var(--disabled-opacity);
+                @extend %disabled;
             }
 
             &:focus-visible {
@@ -185,6 +193,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             padding-inline: var(--padding-horizontal);
             white-space: nowrap;
 
+
             &:empty {
                 display: none;
             }
@@ -201,7 +210,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             outline: none;
             padding-inline: var(--padding-horizontal);
             user-select: text;
-            width: var(--find-input-width);
+            width: var(--width);
+
 
             &:focus {
                 border-color: var(--input-border-color);
@@ -221,8 +231,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             border-end-start-radius: var(--find-radius);
             color: var(--find-note-color);
             font-size: var(--find-note-font-size);
-            margin: 0 var(--find-radius);
-            padding: 0 var(--padding-horizontal);
+            margin-inline: var(--find-radius);
+            padding-inline: var(--padding-horizontal);
         }
     }
 
@@ -239,6 +249,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         padding-inline: var(--padding-horizontal);
         user-select: text;
 
+
         &[aria-invalid='true'] {
             border-color: var(--error-color);
         }
@@ -250,10 +261,11 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
     // Inline, so a long name marked still ends in an ellipsis.
     &-match {
-        background: var(--match-background);
-        border-radius: var(--match-radius);
-        color: var(--match-color);
-        font-weight: var(--match-font-weight);
+        background: var(--background);
+        border-radius: var(--border-radius);
+        color: var(--color);
+        font-weight: var(--font-weight);
+
 
         // High contrast drops the wash with the other tints, so an underline marks the match along with its weight.
         @media (forced-colors: active) {
@@ -268,7 +280,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         border-radius: var(--input-radius);
         font-size: var(--message-font-size);
         inset-inline: var(--inset-start) 0;
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         position: absolute;
         top: 100%;
         white-space: normal;
@@ -287,16 +300,18 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         pointer-events: none;
         position: absolute;
 
+
         @media (prefers-reduced-motion: no-preference) {
             @include tokens.state(active) {
                 display: block;
             }
         }
 
+
         &-layer {
-            left: 0;
+            inset-inline: 0;
             position: absolute;
-            right: 0;
+
 
             @media (prefers-reduced-motion: no-preference) {
                 &--close {
@@ -332,6 +347,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     &-notice {
         color: var(--notice-color);
 
+
         // Nothing to act on while loading; the error row retries.
         &:not(.file-tree-row--error) {
             cursor: var(--drag-cursor, default);
@@ -354,6 +370,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         position: relative;
         user-select: none;
 
+
         // One guide per ancestor under each ancestor's chevron, outside the row's box so the highlight covers the row
         // alone; rows carry no vertical margins, so each row's share joins into an unbroken line. The parent's guide
         // is a 1px box and the others are its shadows ('--guides'), whole indents further out: boxes snap to whole
@@ -372,6 +389,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             transition: opacity var(--indicator-duration) var(--indicator-timing-function);
             // Top-level rows have no parent to draw.
             width: calc(min(var(--depth), 1) * 1px);
+
 
             // Opted out of high contrast, so the shadow copies drawing the further ancestors' guides survive.
             @media (forced-colors: active) {
@@ -440,6 +458,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         &--match {
             background: var(--found-background);
 
+
             @media (forced-colors: active) {
                 outline: 1px dotted CanvasText;
             }
@@ -447,6 +466,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
         &--match-current {
             box-shadow: inset 0 0 0 var(--border-width) var(--found-border-color);
+
 
             @media (forced-colors: active) {
                 outline-style: solid;
@@ -478,6 +498,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         &--reveal {
             animation: file-tree-row--reveal var(--reveal-duration) var(--reveal-timing-function) var(--reveal-delay) backwards;
 
+
             @media (prefers-reduced-motion: no-preference) {
                 animation:
                     file-tree-expand var(--expand-duration) var(--expand-timing-function) forwards,
@@ -489,6 +510,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
                     clamp(0px, calc((var(--reveal-index) + 1) * var(--row-height) - $edge), var(--row-height))
                     calc(var(--depth) * var(--indent) * -1)
                 );
+
 
                 ~ .file-tree-row:not(.file-tree-row--reveal) {
                     animation: file-tree-expand var(--expand-duration) var(--expand-timing-function) forwards;
@@ -516,8 +538,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
         // A root's header, set apart from the folders under it as VS Code sets its workspace folders.
         &--root {
-            font-size: var(--root-font-size);
-            font-weight: var(--root-font-weight);
+            font-size: var(--font-size);
+            font-weight: var(--font-weight);
             text-transform: uppercase;
         }
 
@@ -526,14 +548,16 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         &--scope {
             isolation: isolate;
 
+
             &::after {
-                background: color-mix(in srgb, var(--scope) var(--scope-tint), transparent);
+                background: color-mix(in srgb, var(--scope) var(--tint), transparent);
                 content: '';
                 inset-block: 0;
                 inset-inline: calc(var(--depth) * var(--indent) * -1) 0;
                 pointer-events: none;
                 position: absolute;
                 z-index: -1;
+
 
                 @media (forced-colors: active) {
                     display: none;
@@ -546,14 +570,9 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             background: var(--background-selected);
         }
 
-        @include tokens.state(disabled) {
-            cursor: var(--drag-cursor, not-allowed);
-            opacity: var(--disabled-opacity);
 
-            @media (forced-colors: active) {
-                color: GrayText;
-                opacity: 1;
-            }
+        @include tokens.state(disabled) {
+            @extend %disabled;
         }
 
         .file-tree-viewport:focus-visible &--focused {
@@ -570,12 +589,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     // A compact row's folders, underlined under the pointer and when one before the row's own is selected, as in
     // VS Code; the one a drag would drop into is tinted, and the find bar's current match outlined within its row.
     &-segment {
-        border-radius: var(--border-radius-100);
+        border-radius: var(--border-radius);
 
-        #{tokens.state(active)},
-        &:hover {
-            text-decoration: underline;
-        }
 
         &--drop {
             background: var(--drop-background);
@@ -585,10 +600,16 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         &--match-current {
             box-shadow: inset 0 0 0 var(--border-width) var(--found-border-color);
         }
+
+
+        #{tokens.state(active)},
+        &:hover {
+            text-decoration: underline;
+        }
     }
 
     &-separator {
-        color: var(--separator-color);
+        color: var(--color);
         margin-inline: var(--margin-horizontal);
     }
 
@@ -603,9 +624,11 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         top: 0;
         z-index: 1;
 
+
         &-rows {
             background: var(--surface-background-default);
             box-shadow: var(--sticky-shadow);
+
 
             &:not(:has(> .file-tree-row)) {
                 display: none;
@@ -621,6 +644,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         outline-offset: calc(var(--size-100) / 4);
         position: absolute;
 
+
         &:focus-visible {
             outline-width: var(--border-width-500);
         }
@@ -628,9 +652,9 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
     &-tooltip {
         &-meta {
-            color: color-mix(in srgb, currentColor 70%, transparent);
+            color: var(--color);
             display: block;
-            font-size: var(--font-size-200);
+            font-size: var(--font-size);
             white-space: nowrap;
         }
 
@@ -651,6 +675,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         outline: none;
         overflow-x: hidden;
         overflow-y: auto;
+
 
         // The viewport holds the pointer for the whole drag, so its cursor is the one that shows; its rows take it too.
         &--drag {

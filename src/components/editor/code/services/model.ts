@@ -266,5 +266,5 @@ const wordStart = (text: string, offset: number) => {
 };
 
 
-export { applyCompletion, expandSnippet, fileUri, identifier, languageIdFor, localWords, mapStops, offsetAt, positionAt, spanOf, wordStart };
+export { applyCompletion, fileUri, identifier, languageIdFor, localWords, mapStops, offsetAt, positionAt, spanOf, wordStart };
 export type { Span, Stop };

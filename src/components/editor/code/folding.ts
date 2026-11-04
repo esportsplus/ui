@@ -686,4 +686,4 @@ export {
     structureOf,
     structures
 };
-export type { BracketPair, FoldRange, Structure };
+export type { BracketPair, FoldRange };

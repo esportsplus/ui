@@ -266,5 +266,5 @@ const minimap = ({
 };
 
 
-export { minimap, minimapMetrics, minimapScroll };
-export type { Source, Viewport };
+export { minimap };
+export type { Source };

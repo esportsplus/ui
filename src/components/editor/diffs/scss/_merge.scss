@@ -18,28 +18,19 @@
         min-height: 0;
     }
 
-    &-header {
-        align-items: center;
-        background: var(--surface-background-default);
-        border-bottom: var(--border-width) solid var(--border-color);
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        padding: var(--padding-vertical) var(--padding-horizontal);
-    }
-
     &-lens {
         align-items: center;
         background: var(--conflict-background);
-        border-top: var(--border-width) solid var(--conflict-color);
+        border-block-start: var(--border-width) solid var(--conflict-color);
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
         min-height: var(--line-height);
-        padding: var(--padding-vertical) var(--code-padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--code-padding-horizontal);
 
         &--resolved {
             background: transparent;
-            border-top-color: var(--border-color);
+            border-block-start-color: var(--border-color);
         }
 
         &-note {
@@ -77,23 +68,10 @@
     }
 
     &-result {
-        border-top: var(--border-width) solid var(--border-color);
+        border-block-start: var(--border-width) solid var(--border-color);
         display: flex;
         flex-direction: column;
         min-height: 0;
-    }
-
-    &-scroller {
-        flex: 1 1 auto;
-        font-family: var(--font-family);
-        font-size: var(--font-size);
-        min-height: 0;
-        overflow: auto;
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: calc(var(--focus-width) * -1);
-        }
     }
 
     &-sides {
@@ -104,10 +82,11 @@
 
     &-title {
         background: var(--surface-background-default);
-        border-bottom: var(--border-width) solid var(--border-color);
+        border-block-end: var(--border-width) solid var(--border-color);
         color: var(--muted-color);
         flex: none;
         font-weight: var(--font-weight-600);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
     }
 }

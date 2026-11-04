@@ -1,3 +1,5 @@
+@use 'css-utilities/text';
+
 .code-workspace {
     // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
     &-tab {
@@ -6,9 +8,11 @@
         max-width: var(--tab-max-width);
         user-select: none;
 
+
         &--preview &-name {
             font-style: italic;
         }
+
 
         &-close {
             flex: none;
@@ -25,16 +29,15 @@
         }
 
         &-name {
+            @extend %text-truncate;
             flex: 1;
             min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
         &-pin.icon {
             flex: none;
         }
+
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);

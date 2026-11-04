@@ -387,5 +387,5 @@ const searchDocument = (
 };
 
 
-export { MATCH_LIMIT, nextMatch, replaceMatches, search, searchDocument };
+export { nextMatch, replaceMatches, search, searchDocument };
 export type { Match, SearchOptions, SearchResult };
