@@ -216,6 +216,30 @@ export default {
         },
         {
             render: () => {
+                let state = reactive({ processing: false });
+
+                return html`
+                    <div style='${row}'>
+                        ${modifiers.map(([modifier, label]) => html`
+                            <button
+                                class='button button--${modifier} ${() => state.processing && 'button--processing'}'
+                                onclick='${() => {
+                                    state.processing = true;
+                                    setTimeout(() => state.processing = false, 1600);
+                                }}'
+                                type='button'
+                                ${{ 'aria-busy': () => String(state.processing) }}
+                            >
+                                ${label}
+                            </button>
+                        `)}
+                    </div>
+                `;
+            },
+            title: 'processing'
+        },
+        {
+            render: () => {
                 let state = reactive({ left: true, right: false });
 
                 return html`
@@ -244,6 +268,15 @@ export default {
         {
             render: () => split(true, true),
             title: 'split · border'
+        },
+        {
+            render: () => html`
+                <div style='border: var(--border-width-400) dashed var(--surface-border-default); border-radius: var(--border-radius-400); height: 120px; margin: var(--size-500); position: relative; width: 240px;'>
+                    <button class='button button--primary button--top-left' type='button'>New</button>
+                    <button class='button button--surface button--top-right' type='button'>3</button>
+                </div>
+            `,
+            title: 'top-left · top-right'
         }
     ]
 };

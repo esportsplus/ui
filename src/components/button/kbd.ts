@@ -1,15 +1,15 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import icon from '~/components/icon';
 import cmd from '@esportsplus/ui/svg/command.svg';
+import icon from '~/components/icon';
 
 
 type A = Attributes & {
-    key: string,
-    ontrigger?: () => void,
-    onwindowblur?: never,
-    onwindowkeydown?: never,
-    onwindowkeyup?: never
+    key: string;
+    ontrigger?: () => void;
+    onwindowblur?: never;
+    onwindowkeydown?: never;
+    onwindowkeyup?: never;
 };
 
 

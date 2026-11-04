@@ -30,8 +30,6 @@
 
     &--copy {
         --border-radius: var(--border-radius-300);
-        --draw-duration: 280ms;
-        --draw-timing-function: ease;
         --padding-horizontal: var(--size-100);
         --padding-vertical: var(--size-100);
     }
@@ -56,6 +54,7 @@
         --padding-vertical: var(--size-100);
         --transition-duration: 0.3s;
         --transition-timing-function: ease-out;
+
 
         // Lights instantly and releases with the slower fade.
         @include tokens.state(active pressed) {
@@ -82,10 +81,12 @@
         --transition-duration: 200ms;
         --transition-timing-function: ease-out;
 
+
         @media (prefers-reduced-motion: reduce) {
             --resize-duration: 0s;
             --shake-duration: 0s;
         }
+
 
         &-error {
             --background-default: var(--color-red-500);
@@ -98,16 +99,23 @@
         --border-color-default: var(--color-primary-300);
     }
 
-    &--processing {
-        --animation-duration: 0.64s;
-        --animation-timing-function: linear;
+    // Set on the spinner, so its ring width leaves the button's own border and padding alone.
+    &--processing::before {
         --border-width: var(--border-width-400);
         --size: var(--size-400);
+        --spin-duration: 0.64s;
+        --spin-timing-function: linear;
+
+
+        @media (prefers-reduced-motion: reduce) {
+            --spin-duration: 0s;
+        }
     }
 
     // 1 while the panel shows, 0 while hidden; the pill's width and offset both derive from it.
     &--sidebar {
         --open: 1;
+
 
         // Hidden panels thin the pill to a line; hover and focus preview the opposite state unless a toggle just
         // happened under them.
@@ -150,8 +158,9 @@
     }
 
     &--white {
-        @extend %background-white, %color-black, %border-surface;
+        @extend %background-white, %border-surface, %color-black;
     }
+
 
     &-face {
         --blur: var(--blur-400);
@@ -161,6 +170,7 @@
         // Stands in for an overdamped spring (stiffness 260, damping 34, mass 0.8), which never overshoots.
         --transition-duration: 0.4s;
         --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
 
         &--error {
             --color: var(--color-red-400);
@@ -172,6 +182,12 @@
     }
 
     &-icon {
+        &--check {
+            --draw-duration: 280ms;
+            --draw-timing-function: ease;
+            --stroke-width: 4;
+        }
+
         &--draw {
             --transition-duration: 0.26s;
             --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
@@ -189,9 +205,15 @@
             --icon-swap-duration: 300ms;
             --icon-swap-timing-function: var(--spring);
 
+
             &--loading svg {
-                --animation-duration: 700ms;
-                --animation-timing-function: linear;
+                --spin-duration: 700ms;
+                --spin-timing-function: linear;
+
+
+                @media (prefers-reduced-motion: reduce) {
+                    --spin-duration: 0s;
+                }
             }
         }
 
@@ -199,6 +221,7 @@
         &-text {
             --transition-duration: 150ms;
             --transition-timing-function: ease-out;
+
 
             @include tokens.state(active) {
                 --transition-duration: 200ms;

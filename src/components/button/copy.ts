@@ -1,5 +1,5 @@
-import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
+import { component, html, type Attributes } from '@esportsplus/template';
 import check from '@esportsplus/ui/svg/check.svg';
 import copy from '@esportsplus/ui/svg/copy.svg';
 import write from '~/components/clipboard/write';

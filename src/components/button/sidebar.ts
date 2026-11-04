@@ -1,5 +1,5 @@
-import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
+import { component, html, type Attributes } from '@esportsplus/template';
 
 
 type A = Attributes & {
@@ -32,7 +32,7 @@ export default component(
                 ${attributes}
                 ${{
                     'aria-expanded': () => String(read(open)),
-                    class: () => `${read(side) === 'right' && 'button--sidebar-right'} ${state.held && 'button--sidebar-held'}`,
+                    class: [() => read(side) === 'right' && 'button--sidebar-right', () => state.held && 'button--sidebar-held'],
                     // A toggle under the pointer or focus would otherwise flip straight to previewing the state it
                     // just left, so the glyph holds the new state until the pointer or focus leaves.
                     onconnect: (element: HTMLElement) => {

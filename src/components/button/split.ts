@@ -1,8 +1,8 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import chevron from '@esportsplus/ui/svg/chevron-down.svg';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import type { A as MenuAttributes } from '~/components/tooltip/menu';
-import chevronSvg from '@esportsplus/ui/svg/chevron-down.svg';
 
 
 const SPLIT_ACTION = Symbol.for('@esportsplus/ui/button.split.action');
@@ -15,11 +15,11 @@ const SPLIT_TRIGGER = Symbol.for('@esportsplus/ui/button.split.trigger');
 
 
 type A = Attributes & Pick<MenuAttributes, 'animate' | 'controller' | 'expand' | 'highlight' | 'items' | 'onselect' | 'openOn' | 'state'> & {
-    [SPLIT_ACTION]?: Attributes,
-    [SPLIT_ITEM]?: Attributes,
-    [SPLIT_PANEL]?: Attributes,
-    [SPLIT_TRIGGER]?: Attributes & { onclick?: never },
-    trigger?: Renderable<unknown>
+    [SPLIT_ACTION]?: Attributes;
+    [SPLIT_ITEM]?: Attributes;
+    [SPLIT_PANEL]?: Attributes;
+    [SPLIT_TRIGGER]?: Attributes & { onclick?: never };
+    trigger?: Renderable<unknown>;
 };
 
 
@@ -49,7 +49,7 @@ export default component(
                             class: ['button button-split-trigger', attributes[SPLIT_TRIGGER]?.class ?? []].flat()
                         }
                     },
-                    trigger ?? icon({ 'aria-hidden': 'true', class: 'button-icon button-split-chevron' }, chevronSvg)
+                    trigger ?? icon({ 'aria-hidden': 'true', class: 'button-icon button-split-chevron' }, chevron)
                 )}
             </div>
         `;

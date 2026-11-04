@@ -29,7 +29,6 @@
     white-space: nowrap;
 
 
-    // Pseudo Element Box Shadow
     &::after {
         @extend %layer-box-shadow;
     }
@@ -42,26 +41,6 @@
             opacity var(--transition-duration) var(--transition-timing-function);
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        &--kbd {
-            @include tokens.state(active pressed) {
-                translate: none;
-            }
-        }
-
-        &-face,
-        &-icon--draw {
-            transition: none;
-        }
-    }
-
-
-    &--kbd,
-    &--tactile {
-        @include tokens.state(active pressed) {
-            translate: 0 1px;
-        }
-    }
 
     &--border {
         border: var(--border-width) solid var(--border-color);
@@ -79,9 +58,22 @@
         }
     }
 
+    &--kbd,
+    &--tactile {
+        @include tokens.state(active pressed) {
+            translate: 0 1px;
+        }
+    }
+
     &--kbd {
         @extend %text-crop;
         font-family: inherit;
+
+        @media (prefers-reduced-motion: reduce) {
+            @include tokens.state(active pressed) {
+                translate: none;
+            }
+        }
     }
 
     &--morph {
@@ -95,6 +87,7 @@
             background-color var(--transition-duration) var(--transition-timing-function),
             color var(--transition-duration) var(--transition-timing-function);
         user-select: none;
+
 
         // Collapses to a circle; JS animates the width between the two.
         &-compact {
@@ -111,6 +104,7 @@
             @extend %icon-swap-active;
         }
 
+
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: var(--focus-offset);
@@ -121,13 +115,15 @@
         }
     }
 
+    // The label keeps its width under a spinner drawn in the button's own colour.
     &--processing {
         color: transparent;
         pointer-events: none;
 
+
         &::before {
             @extend %absolute-center;
-            animation: button--processing var(--animation-duration) var(--animation-timing-function) infinite;
+            animation: button-spin var(--spin-duration) var(--spin-timing-function) infinite;
             border: var(--border-width) solid color-mix(in srgb, var(--color), transparent 90%);
             border-left-color: var(--color);
             border-radius: 100%;
@@ -138,17 +134,9 @@
             width: var(--size);
         }
 
+
         * {
             opacity: 0;
-        }
-
-        @keyframes button--processing {
-            0% {
-                rotate: 0deg;
-            }
-            100% {
-                rotate: 360deg;
-            }
         }
     }
 
@@ -156,6 +144,7 @@
         &-right svg {
             scale: -1 1;
         }
+
 
         // A round-capped stroke stays rounded at every width; the shift pins its outer edge against the frame as it
         // thins from 3 units to 1, whole units that keep the closed line on the pixel grid at the default icon size.
@@ -171,6 +160,7 @@
                 stroke-width var(--transition-duration) var(--transition-timing-function),
                 transform var(--transition-duration) var(--transition-timing-function);
 
+
             @media (prefers-reduced-motion: reduce) {
                 transition: none;
             }
@@ -183,20 +173,18 @@
         }
     }
 
-
+    // Pulled out by its own padding plus half a line, so its label's first line centres on the positioned container's
+    // corner.
     &--top {
-        &-left,
-        &-right {
-            position: absolute;
-            top: calc((#{var(--padding-vertical)} + 0.5lh) * -1);
-        }
-
-        @each $direction in 'left' 'right' {
-            &-#{$direction} {
-                #{$direction}: calc((#{var(--padding-horizontal)} + 0.5lh) * -1);
+        @each $side in 'left' 'right' {
+            &-#{$side} {
+                #{$side}: calc((var(--padding-horizontal) + 0.5lh) * -1);
+                position: absolute;
+                top: calc((var(--padding-vertical) + 0.5lh) * -1);
             }
         }
     }
+
 
     &-face {
         align-items: center;
@@ -210,6 +198,12 @@
             opacity var(--transition-duration) var(--transition-timing-function),
             translate var(--transition-duration) var(--transition-timing-function);
         translate: 0 var(--offset);
+
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+
 
         @include tokens.state(active) {
             filter: blur(0);
@@ -232,11 +226,12 @@
     &-icon {
         @extend %icon-stroke;
 
-        // The shared check carries no stroke of its own; it draws in once the copy lands.
+
         &--check {
-            @extend %icon-stroke, %icon-stroke-draw;
+            @extend %icon-stroke-draw;
             animation: button-icon-draw var(--draw-duration) var(--draw-timing-function) forwards;
-            stroke-width: 4;
+            stroke-width: var(--stroke-width);
+
 
             @media (prefers-reduced-motion: reduce) {
                 animation: none;
@@ -247,6 +242,11 @@
         &--draw {
             @extend %icon-stroke-draw;
             transition: stroke-dashoffset var(--transition-duration) var(--transition-timing-function);
+
+
+            @media (prefers-reduced-motion: reduce) {
+                transition: none;
+            }
         }
     }
 
@@ -263,8 +263,9 @@
             @extend %icon-stroke, %icon-swap;
             grid-area: 1 / 1;
 
+
             &--loading svg {
-                animation: button--processing var(--animation-duration) var(--animation-timing-function) infinite;
+                animation: button-spin var(--spin-duration) var(--spin-timing-function) infinite;
                 transform-origin: center;
             }
         }
@@ -282,6 +283,7 @@
                 opacity var(--transition-duration) var(--transition-timing-function);
             white-space: nowrap;
 
+
             @include tokens.state(active) {
                 filter: blur(0px);
                 opacity: 1;
@@ -293,6 +295,7 @@
         align-items: stretch;
         display: inline-flex;
         isolation: isolate;
+
 
         & > &-action {
             border-end-end-radius: 0;
@@ -314,6 +317,7 @@
             border-start-start-radius: 0;
             margin-inline-start: calc(var(--border-width) * -1);
 
+
             // The action's end edge is the divider, drawn in the action's own border colour, so the trigger leaves out
             // its start edge rather than overlapping it.
             &.button--border {
@@ -329,10 +333,12 @@
         &-chevron {
             transition: rotate var(--transition-duration) var(--transition-timing-function);
 
+
             @media (prefers-reduced-motion: reduce) {
                 transition: none;
             }
         }
+
 
         // Hangs from the trigger's end edge so it stays under the whole group. Qualified past the menu's own root
         // panel placement, whatever the load order.
@@ -375,5 +381,14 @@
     }
     80% {
         translate: 2px;
+    }
+}
+
+@keyframes button-spin {
+    0% {
+        rotate: 0deg;
+    }
+    100% {
+        rotate: 360deg;
     }
 }
