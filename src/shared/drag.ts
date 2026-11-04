@@ -1,3 +1,4 @@
+import type { Edge } from '~/shared/anchor';
 import { timing } from '~/shared/animation';
 import { swallow } from '~/shared/press';
 import { viewport } from '~/shared/viewport';
@@ -334,7 +335,7 @@ const fling = (element: HTMLElement, { directions, time, vx, vy, x, y }: Drag): 
 
 // Back toward the edges a placement touches (signs per axis, 0 for neither): an edge, straight back; a corner, toward
 // either of its edges or anywhere between, never away from one.
-const toward = ({ x, y }: { x: -1 | 0 | 1; y: -1 | 0 | 1 }) => {
+const toward = ({ x, y }: Edge) => {
     let ways: Direction[] = [];
 
     if (x !== 0) {

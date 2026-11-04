@@ -1,3 +1,6 @@
+import { dispatch } from '~/shared/dispatch';
+
+
 type Handler = (entries: ResizeObserverEntry[]) => void;
 
 type Observation = {
@@ -25,40 +28,6 @@ let connecting = new Set<Observation>(),
     queued = new Set<Observation>(),
     shared: ResizeObserver | undefined;
 
-
-// One callback per delivery: each handler receives the entries of its own elements together, as from a ResizeObserver
-// of its own. An element unobserved by an earlier handler in the same delivery is not reported.
-function dispatch(entries: ResizeObserverEntry[]) {
-    let batches = new Map<Handler, ResizeObserverEntry[]>();
-
-    for (let i = 0, n = entries.length; i < n; i++) {
-        let entry = entries[i],
-            listeners = handlers.get(entry.target);
-
-        if (!listeners) {
-            continue;
-        }
-
-        for (let handler of listeners) {
-            let batch = batches.get(handler);
-
-            if (batch) {
-                batch.push(entry);
-            }
-            else {
-                batches.set(handler, [entry]);
-            }
-        }
-    }
-
-    for (let [handler, batch] of batches) {
-        let live = batch.filter((entry) => handlers.get(entry.target)?.has(handler));
-
-        if (live.length) {
-            handler(live);
-        }
-    }
-}
 
 function equal(a: Size | undefined, b: Size | undefined) {
     return a?.height === b?.height && a?.width === b?.width;
@@ -128,7 +97,7 @@ const observe = (element: Element, handler: Handler, options?: ResizeObserverOpt
     }
 
     listeners.add(handler);
-    (shared ??= new ResizeObserver(dispatch)).observe(element, options);
+    (shared ??= new ResizeObserver((entries) => dispatch(handlers, entries))).observe(element, options);
 
     return () => unobserve(element, handler);
 };

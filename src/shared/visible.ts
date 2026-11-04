@@ -1,3 +1,6 @@
+import { dispatch } from '~/shared/dispatch';
+
+
 type Handler = (entries: IntersectionObserverEntry[]) => void;
 
 // Against the document's viewport only: an observer with its own root can't be shared across roots.
@@ -12,41 +15,6 @@ type Shared = {
 // One observer per distinct margin and threshold, dropped once it observes nothing.
 let shared = new Map<string, Shared>();
 
-
-// One callback per delivery: each handler receives the entries of its own elements together, in delivery order, as
-// from an IntersectionObserver of its own. An element unobserved by an earlier handler in the same delivery is not
-// reported.
-function dispatch(handlers: Map<Element, Set<Handler>>, entries: IntersectionObserverEntry[]) {
-    let batches = new Map<Handler, IntersectionObserverEntry[]>();
-
-    for (let i = 0, n = entries.length; i < n; i++) {
-        let entry = entries[i],
-            listeners = handlers.get(entry.target);
-
-        if (!listeners) {
-            continue;
-        }
-
-        for (let handler of listeners) {
-            let batch = batches.get(handler);
-
-            if (batch) {
-                batch.push(entry);
-            }
-            else {
-                batches.set(handler, [entry]);
-            }
-        }
-    }
-
-    for (let [handler, batch] of batches) {
-        let live = batch.filter((entry) => handlers.get(entry.target)?.has(handler));
-
-        if (live.length) {
-            handler(live);
-        }
-    }
-}
 
 function key({ rootMargin = '0px', threshold = 0 }: Options) {
     return `${rootMargin}|${typeof threshold === 'number' ? threshold : threshold.join(',')}`;

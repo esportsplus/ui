@@ -23,7 +23,6 @@ const trackTransition = (property: string, change: (running: boolean, element?: 
     }
 
     return {
-        settle,
         attributes: {
             onconnect: (target: HTMLElement) => {
                 element = target;
@@ -53,7 +52,8 @@ const trackTransition = (property: string, change: (running: boolean, element?: 
                     change(true, element);
                 }
             }
-        }
+        },
+        settle
     };
 };
 
