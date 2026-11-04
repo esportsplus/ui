@@ -9,13 +9,47 @@ $close-button-size: var(--size-500);
     // A lighter shadow than its level's, so it fits inside the toast's clip.
     @include surface.shadow(6);
     --background: var(--surface-background-default);
-    --border-color: var(--surface-border-hover);
+    --border-color: var(--surface-background-default);
     --border-radius: var(--border-radius-500);
     --border-width: var(--border-width-400);
     --box-shadow: var(--surface-shadow-default);
     --color: var(--color-text-400);
+    --cutout-gap: 2px;
     --padding-horizontal: var(--size-400);
     --padding-vertical: var(--size-400);
+
+
+    // Named after the glass modifier's blur so either reads the same.
+    &--glass {
+        --background: oklch(from var(--surface-background-default) l c h / var(--background-opacity));
+        --background-opacity: 0.6;
+        --glass-blur: 24px;
+    }
+
+
+    // The close button is centered on the inline-end top corner; the mask reaches past the box by '--cutout-bleed'
+    // so the overhanging button and shadow survive it.
+    &:has(> .toast-close--cutout) {
+        --cutout-bleed: 32px;
+        --cutout-radius: calc(#{$close-button-size} / 2);
+        --cutout-x: calc(100% - var(--cutout-bleed));
+        --cutout-y: var(--cutout-bleed);
+        --mask: radial-gradient(
+            circle at var(--cutout-x) var(--cutout-y),
+            #000 calc(var(--cutout-radius) - 0.5px),
+            transparent calc(var(--cutout-radius) + 0.5px) calc(var(--cutout-radius) + var(--cutout-gap) - 0.5px),
+            #000 calc(var(--cutout-radius) + var(--cutout-gap) + 0.5px)
+        );
+
+        &:dir(rtl) {
+            --cutout-x: var(--cutout-bleed);
+        }
+
+        // The gap stands in for the button's ring.
+        > .toast-close {
+            --box-shadow-default: none;
+        }
+    }
 
 
     &-close {
@@ -28,6 +62,12 @@ $close-button-size: var(--size-500);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         --size: #{$close-button-size};
+
+
+        &--cutout {
+            --cutout-gap: 4px;
+        }
+
 
         // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
         &-icon.icon {
@@ -64,9 +104,11 @@ $close-button-size: var(--size-500);
     // How far the overflow card reaches past the last visible layer: room for its line of text.
     --overflow-peek: 24px;
     // Between expanded toasts; inherited by each toast, which places itself with it.
-    --stack-gap-vertical: var(--size-300);
+    // Each collapsed layer back is this much darker than the one in front of it.
+    --stack-brightness: 0.99;
+    --stack-gap-vertical: var(--size-100);
     --stack-height: 0px;
-    --stack-peek: var(--size-300);
+    --stack-peek: var(--size-200);
     --stack-scale: 0.94;
     --transition-duration: 0.4s;
     --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
@@ -105,6 +147,18 @@ $close-button-size: var(--size-500);
         --bleed: 32px;
         // Read by the content and close button: collapsed back toasts hide theirs.
         --content-opacity: 1;
+        // The front toast's cut in a back toast's own unscaled box: its edge facing the peek ('--cutout-edge', from
+        // the side the gradients run from), its corner centers, and how far they sit either side of the middle.
+        --cutout-across: calc((50% - var(--cutout-corner)) / var(--scale));
+        --cutout-band: calc(var(--cutout-across) * 2) 100%;
+        --cutout-center: calc(var(--cutout-edge) - var(--cutout-corner) / var(--scale));
+        // 'min()' lets percentage radii (e.g. 100% pills) resolve in any context.
+        --cutout-corner: min(var(--border-radius), var(--frontmost-height) / 2);
+        --cutout-cut: calc((var(--cutout-corner) + var(--cutout-gap)) / var(--scale));
+        --cutout-edge: calc((var(--frontmost-height) - var(--stack-shift)) / var(--scale));
+        --cutout-end: calc(50% + var(--cutout-across)) var(--cutout-center);
+        --cutout-start: calc(50% - var(--cutout-across)) var(--cutout-center);
+        --cutout-toward: to bottom;
         // Collapsed layer: toasts past the limit wait, unseen, in the last visible one.
         --depth: min(var(--index), var(--limit) - 1);
         // Written by the toast: its duration, and the same in whole seconds for a countdown in its content.
@@ -132,5 +186,37 @@ $close-button-size: var(--size-500);
         @media (prefers-reduced-motion: reduce) {
             --fling-duration: 0s;
         }
+    }
+
+    // Side stacks peek sideways, so the cut runs across the width, between corners spaced by the front's height.
+    &.toaster--e,
+    &.toaster--w {
+        > .toast {
+            --cutout-across: calc((var(--frontmost-height) / 2 - var(--cutout-corner)) / var(--scale));
+            --cutout-band: 100% calc(var(--cutout-across) * 2);
+            --cutout-edge: calc((100% - var(--stack-shift)) / var(--scale));
+        }
+    }
+
+    &.toaster--e > .toast {
+        --cutout-end: calc(100% - var(--cutout-center)) calc(50% + var(--cutout-across));
+        --cutout-start: calc(100% - var(--cutout-center)) calc(50% - var(--cutout-across));
+        --cutout-toward: to left;
+    }
+
+    &.toaster--s,
+    &.toaster--se,
+    &.toaster--sw {
+        > .toast {
+            --cutout-end: calc(50% + var(--cutout-across)) calc(100% - var(--cutout-center));
+            --cutout-start: calc(50% - var(--cutout-across)) calc(100% - var(--cutout-center));
+            --cutout-toward: to top;
+        }
+    }
+
+    &.toaster--w > .toast {
+        --cutout-end: var(--cutout-center) calc(50% + var(--cutout-across));
+        --cutout-start: var(--cutout-center) calc(50% - var(--cutout-across));
+        --cutout-toward: to right;
     }
 }

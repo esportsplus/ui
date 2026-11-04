@@ -23,6 +23,20 @@ $open: ':is(:hover, :focus-within)';
     padding-inline: var(--padding-horizontal);
 
 
+    &--glass {
+        backdrop-filter: blur(var(--glass-blur));
+    }
+
+    // Chromium rounds the mask clip by border-radius, which would crop the overhanging close button.
+    &:has(> .toast-close--cutout) {
+        mask-clip: no-clip;
+        mask-image: var(--mask);
+        mask-position: calc(var(--cutout-bleed) * -1) calc(var(--cutout-bleed) * -1);
+        mask-repeat: no-repeat;
+        mask-size: calc(100% + var(--cutout-bleed) * 2) calc(100% + var(--cutout-bleed) * 2);
+    }
+
+
     // Pinned over the toast's corner; qualified to outrank the '.button' layout it pairs with.
     &-close {
         height: var(--size);
@@ -185,6 +199,7 @@ $open: ':is(:hover, :focus-within)';
         transform-origin: top;
         transition:
             clip-path var(--transition-duration) var(--transition-timing-function),
+            filter var(--transition-duration) var(--transition-timing-function),
             opacity var(--transition-duration) var(--transition-timing-function),
             scale var(--transition-duration) var(--transition-timing-function),
             transform var(--transition-duration) var(--transition-timing-function),
@@ -210,6 +225,31 @@ $open: ':is(:hover, :focus-within)';
     > .toast.toast--behind {
         --content-opacity: 0;
         clip-path: inset(calc(100% - var(--frontmost-height)) calc(var(--bleed) * -1) calc(var(--bleed) * -1));
+    }
+
+    // A collapsed back toast hides its close button, which would leave its cutout ringing nothing. Each layer darkens
+    // a step further, staying opaque so no layer shows through the one in front of it.
+    &:not(#{$open}) > .toast.toast--behind {
+        filter: brightness(pow(var(--stack-brightness), var(--depth)));
+        mask-image: none;
+    }
+
+    // Collapsed, a 'toast--cutout' front toast cuts its shape, grown by the gap, out of every toast behind it the
+    // way '.image--stack' does: band past its corner centers, band between its corners, and its two corner arcs.
+    // The full layer repeats unclipped so the back toast's shadow survives. Arc radii live in the color stops since
+    // Chromium rejects mixed-unit calc() as a size.
+    &:not(#{$open}):has(> .toast.toast--cutout:not(.toast--behind)) > .toast.toast--behind {
+        mask-clip: no-clip;
+        mask-composite: subtract, add, add, add, add;
+        mask-image:
+            linear-gradient(#000 0 0),
+            linear-gradient(var(--cutout-toward), #000 var(--cutout-center), transparent 0),
+            linear-gradient(var(--cutout-toward), #000 calc(var(--cutout-edge) + var(--cutout-gap) / var(--scale)), transparent 0),
+            radial-gradient(circle at var(--cutout-start), #000 calc(var(--cutout-cut) - 0.5px), transparent calc(var(--cutout-cut) + 0.5px)),
+            radial-gradient(circle at var(--cutout-end), #000 calc(var(--cutout-cut) - 0.5px), transparent calc(var(--cutout-cut) + 0.5px));
+        mask-position: 0 0, 0 0, 50% 50%, 0 0, 0 0;
+        mask-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+        mask-size: 100% 100%, 100% 100%, var(--cutout-band), 100% 100%, 100% 100%;
     }
 
     > .toast.toast--hidden {

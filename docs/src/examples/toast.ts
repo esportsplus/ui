@@ -48,6 +48,7 @@ export default {
                     <button class='${trigger}' style='--width: auto;' type='button' onclick='${action}'>with action</button>
                     <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => toast({ duration: 0 }, () => 'Stays until dismissed.')}'>persistent</button>
                     <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => toast({ dismissible: false }, () => 'No close button.')}'>not dismissible</button>
+                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => toast({ class: 'toast--glass' }, () => 'Frosted over the page.')}'>glass</button>
                     <button
                         class='${trigger}'
                         style='--width: auto;'
