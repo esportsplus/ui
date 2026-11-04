@@ -4,6 +4,7 @@
 
 @forward 'sass:list';
 
+// The list joined by '$glue' as an unquoted string, nested lists flattened and duplicates dropped.
 @function implode($glue, $list) {
     $list: unique($list);
     $output: null;
@@ -15,11 +16,9 @@
     @for $i from 1 through list.length($list) {
         $m: list.nth($list, $i);
 
-        // If $k Is A List Flatten By Running Through Function Again
         @if meta.type-of($m) == list {
             $output: string.unquote("#{$output}#{$glue}#{implode($glue, $m)}");
         }
-        // Piece Together String
         @else {
             $output: string.unquote("#{$output}#{$glue}#{$m}");
         }

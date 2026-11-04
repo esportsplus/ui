@@ -1,7 +1,7 @@
 // Golden-ratio size ladder: 400 = 16px (1em), each key one φ half-step (×1.272).
-@use 'scale';
-@use 'sass:math';
 @use 'sass:map';
+@use 'sass:math';
+@use 'scale';
 
 $size: (
     100: scale.px(scale.step(-1.5)),
@@ -12,7 +12,7 @@ $size: (
     600: scale.px(scale.step(1)),
     700: scale.px(scale.step(1.5)),
     800: scale.px(scale.step(2)),
-    900: scale.px(scale.step(2.5)),
+    900: scale.px(scale.step(2.5))
 );
 
 // Snap the derived sizes to whole CSS pixels without changing the ratio engine.

@@ -10,6 +10,7 @@
         --border-color-hover: var(--border-color-default);
         --border-color-pressed: var(--border-color-default);
 
+
         @include tokens.state(active) {
             --border-color: var(--border-color-active);
         }
@@ -25,6 +26,7 @@
 
     @include tokens.state-utility('border-color', tokens.$colors);
 
+
     &-default {
         --border-color: var(--border-color-default);
         --border-color-active: var(--border-color-default);
@@ -32,10 +34,8 @@
         --border-color-pressed: var(--border-color-default);
     }
 
-    &-radius {
-        &-responsive {
-            --border-radius: #{"calc( progress((100vi - 100cqi) / 2, 0px, var(--gap-horizontal)) * var(--border-radius) )"};
-        }
+    &-radius-responsive {
+        --border-radius: #{"calc( progress((100vi - 100cqi) / 2, 0px, var(--gap-horizontal)) * var(--border-radius) )"};
     }
 
     // The surface's edge: faint at rest, a step stronger on hover, strong when pressed.

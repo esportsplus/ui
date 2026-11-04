@@ -2,7 +2,9 @@
 @use 'variables';
 
 // The sizes are registered so they compute to pixels, which the fallback reads as its ramp and the animation
-// ranges accept; the fade lengths so the scroll-driven animations below can interpolate them.
+// ranges accept; the fade lengths so the scroll-driven animations below can interpolate them. --scrollbar-size
+// defaults through its initial value rather than a declaration, which this layer would rank above the components
+// that size their scrollers, and still resolves for consumers that read it (the viewer's hover size).
 @property --scrollbar-blur-size {
     inherits: true;
     initial-value: 0px;
@@ -27,10 +29,17 @@
     syntax: '<length>';
 }
 
+@property --scrollbar-size {
+    inherits: true;
+    initial-value: 4px;
+    syntax: '<length> | auto';
+}
+
 // The scope styles existing scroll containers without making every descendant scrollable or reserving gutters.
 .--scrollbar {
     overflow: var(--scrollbar-overflow, auto);
     scrollbar-gutter: var(--scrollbar-gutter, stable);
+
 
     // Sticky edges pin to the scrollport and cancel their own size with a negative margin. Scoped under the
     // scroller to outrank the overlay's own absolute '--glass-blur' placement whatever order the stylesheets load
@@ -41,6 +50,7 @@
         // stretching gives them its full height however it is sized. Content keeps its own width to overflow.
         &.--scrollbar-horizontal {
             display: flex;
+
 
             > * {
                 flex-shrink: 0;
@@ -152,6 +162,7 @@
         mask-repeat: no-repeat;
         mask-size: calc(100% - var(--scrollbar-track-size, 0px)) 100%, var(--scrollbar-track-size, 0px) 100%;
 
+
         &.--scrollbar-horizontal {
             mask-image:
                 linear-gradient(to right, transparent, #000 var(--scrollbar-fade-start), #000 calc(100% - var(--scrollbar-fade-end)), transparent),
@@ -166,6 +177,7 @@
             animation: scrollbar-fade-end 1ms linear both, scrollbar-fade-start 1ms linear both;
             animation-range: calc(100% - var(--scrollbar-fade-size)) 100%, 0px var(--scrollbar-fade-size);
             animation-timeline: scroll(self);
+
 
             &.--scrollbar-horizontal {
                 animation-timeline: scroll(self x);
@@ -197,6 +209,7 @@
         --scrollbar-track-size: 0px;
         scrollbar-width: none;
 
+
         &::-webkit-scrollbar {
             display: none;
         }
@@ -216,8 +229,10 @@
             &:not(:hover, :focus-visible, :has(:focus-visible)) {
                 scrollbar-color: transparent transparent;
 
+
                 @supports selector(::-webkit-scrollbar) {
                     scrollbar-color: auto;
+
 
                     &::-webkit-scrollbar-corner,
                     &::-webkit-scrollbar-thumb,
@@ -234,6 +249,7 @@
         overscroll-behavior-x: contain;
         scroll-snap-type: both mandatory;
 
+
         > * {
             scroll-snap-align: center;
             scroll-snap-stop: normal;
@@ -249,9 +265,10 @@
 
 .--scrollbar,
 :where(.--scrollbar-scope, .--scrollbar-scope *) {
-    scroll-behavior: var(--scrollbar-behavior);
+    scroll-behavior: var(--scrollbar-behavior, smooth);
     scrollbar-color: var(--scrollbar-color-default) var(--scrollbar-rail-color);
     scrollbar-width: var(--scrollbar-width);
+
 
     @media (prefers-reduced-motion: reduce) {
         scroll-behavior: auto;
@@ -268,6 +285,7 @@
         --scrollbar-track-size: calc(var(--scrollbar-size) + var(--scrollbar-growth) + var(--scrollbar-offset));
         scrollbar-color: auto;
         scrollbar-width: auto;
+
 
         // Sized for the hovered thumb, so widening it never reflows the gutter.
         &::-webkit-scrollbar {

@@ -39,6 +39,7 @@
 %font-geist {
     --font-family: 'Geist', sans-serif;
 
+
     &,
     &-mono {
         @include shared.css-variables(font-weight, (

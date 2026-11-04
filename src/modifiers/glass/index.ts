@@ -2,7 +2,7 @@ import { html } from '@esportsplus/template';
 import './scss/index.scss';
 
 
-type GlassMode = 'uniform' | 'progressive';
+type GlassMode = 'progressive' | 'uniform';
 
 
 // Uniform glass uses one full-strength layer; progressive glass uses seven masked layers.
@@ -27,6 +27,7 @@ const overlay = (mode: GlassMode = 'uniform', classes = '') => mode === 'progres
 
 export default (mode: GlassMode = 'uniform') => ({
     class: mode === 'progressive' ? ['--glass', '--glass-progressive'] : ['--glass'],
+    // Spread onto an element the consumer renders, so the overlay can only join it once it connects.
     onconnect: (element: HTMLElement) => {
         let container = element.querySelector(':scope > .--glass-blur');
 

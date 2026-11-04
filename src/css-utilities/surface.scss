@@ -27,7 +27,6 @@ $shadow-steps: (
 // The heaviest shadow weight, the ladder's last step.
 $shadow-weight-max: list.length($shadow-steps) - 1;
 
-
 // A ladder step as a lightness fraction.
 @function ladder-step($mode, $key) {
     @return math.div(map.get(tokens.$themes, $mode, surface, $key), 100);

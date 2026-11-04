@@ -1,6 +1,7 @@
+@use 'css-utilities/layer';
 @use 'sass:list';
 @use 'sass:math';
-@use './variables';
+@use 'variables';
 
 // Animate each layer's opacity without making the overlay a backdrop root.
 @property --glass-opacity {
@@ -12,14 +13,13 @@
 .--glass {
     backdrop-filter: blur(var(--glass-blur));
 
+
     &-blur {
-        border-radius: inherit;
-        inset: 0;
+        @extend %layer;
         overflow: hidden;
-        pointer-events: none;
-        position: absolute;
         user-select: none;
         z-index: -1;
+
 
         // Seven overlapping masks and blur steps from https://www.spaceui.one/components/frost-blurred.
         // --glass-blur is the uniform radius or the strongest progressive radius.
@@ -42,8 +42,6 @@
                 }
 
                 > span:nth-child(#{$layer}) {
-                    -webkit-backdrop-filter: blur(calc(var(--glass-blur, 24px) * #{math.div(list.nth($steps, $layer), 1.15)}));
-                    -webkit-mask-image: $mask;
                     backdrop-filter: blur(calc(var(--glass-blur, 24px) * #{math.div(list.nth($steps, $layer), 1.15)}));
                     mask-image: $mask;
                     z-index: $layer;
@@ -51,15 +49,14 @@
             }
         }
 
+
         > span {
-            -webkit-backdrop-filter: blur(var(--glass-blur, 24px));
+            @extend %layer;
             backdrop-filter: blur(var(--glass-blur, 24px));
-            border-radius: inherit;
-            inset: 0;
             opacity: var(--glass-opacity, 1);
-            position: absolute;
         }
     }
+
 
     &:has(> .--glass-blur) {
         backdrop-filter: none;

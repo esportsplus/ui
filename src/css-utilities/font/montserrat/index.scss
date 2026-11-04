@@ -20,13 +20,13 @@
 
 %font-montserrat {
     --font-family: 'Montserrat', sans-serif;
-
     @include shared.css-variables(font-weight, (
         300: 400,
         400: 500,
         500: 600,
         600: 700
     ));
+
 
     // The family with width-stable weights, so it is the one placeholder to extend: Montserrat widens about 0.008em a
     // character for every 100 of weight, and the root tightens tracking by as much, so a label changing weight keeps

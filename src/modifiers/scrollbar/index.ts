@@ -37,6 +37,94 @@ type Press = {
 const SLOP = 4;
 
 
+// The edges sit first and last among content the consumer renders into the scroller, so they can only be placed
+// once it connects.
+function blur(horizontal: boolean) {
+    let scroll = edges('--scrollbar-blur-size', horizontal);
+
+    return {
+        ...scroll,
+        onconnect: (element: HTMLElement) => {
+            if (!element.querySelector(':scope > .--scrollbar-blur-start')) {
+                element.prepend(overlay('progressive', '--scrollbar-blur-edge --scrollbar-blur-start'));
+            }
+
+            if (!element.querySelector(':scope > .--scrollbar-blur-end')) {
+                element.appendChild(overlay('progressive', '--scrollbar-blur-edge --scrollbar-blur-end'));
+            }
+
+            scroll.onconnect?.(element);
+        }
+    };
+}
+
+// Mouse only: touch, pen and trackpads already scroll natively, with their own momentum. The pointer is
+// captured only once the press moves past the slop, so a plain click still reaches whatever it landed on.
+function drag(axis: Axis) {
+    let press: Press | null = null,
+        state = reactive({ dragging: false });
+
+    function end(e: PointerEvent) {
+        if (press?.id !== e.pointerId) {
+            return;
+        }
+
+        press = null;
+        state.dragging = false;
+    }
+
+    return {
+        class: ['--scrollbar-drag', () => state.dragging && '--dragging'],
+        // Links and images would otherwise start a native drag-and-drop mid-scroll.
+        ondragstart: (e: DragEvent) => {
+            e.preventDefault();
+        },
+        onpointercancel: end,
+        onpointerdown: function(this: HTMLElement, e: PointerEvent) {
+            if (e.button !== 0 || e.pointerType !== 'mouse') {
+                return;
+            }
+
+            press = { id: e.pointerId, left: this.scrollLeft, moved: false, top: this.scrollTop, x: e.clientX, y: e.clientY };
+        },
+        onpointermove: function(this: HTMLElement, e: PointerEvent) {
+            if (press?.id !== e.pointerId) {
+                return;
+            }
+
+            // Released outside the window before the capture, so no pointerup arrived.
+            if (!e.buttons) {
+                end(e);
+                return;
+            }
+
+            let dx = axis === 'vertical' ? 0 : e.clientX - press.x,
+                dy = axis === 'horizontal' ? 0 : e.clientY - press.y;
+
+            if (!press.moved) {
+                if (Math.abs(dx) <= SLOP && Math.abs(dy) <= SLOP) {
+                    return;
+                }
+
+                press.moved = true;
+                getSelection()?.removeAllRanges();
+                state.dragging = true;
+                this.setPointerCapture(e.pointerId);
+            }
+
+            if (axis !== 'vertical') {
+                this.scrollLeft = press.left - dx;
+            }
+
+            if (axis !== 'horizontal') {
+                this.scrollTop = press.top - dy;
+            }
+        },
+        onpointerup: end
+    };
+}
+
+
 // 'size' names the effect's registered length, which computes to pixels: like the scroll-driven animation ranges,
 // each edge reaches full strength once the content has scrolled that far past it.
 function edges(size: string, horizontal: boolean) {
@@ -124,92 +212,6 @@ function edges(size: string, horizontal: boolean) {
 }
 
 
-function blur(horizontal: boolean) {
-    let scroll = edges('--scrollbar-blur-size', horizontal);
-
-    return {
-        ...scroll,
-        onconnect: (element: HTMLElement) => {
-            if (!element.querySelector(':scope > .--scrollbar-blur-start')) {
-                element.prepend(overlay('progressive', '--scrollbar-blur-edge --scrollbar-blur-start'));
-            }
-
-            if (!element.querySelector(':scope > .--scrollbar-blur-end')) {
-                element.appendChild(overlay('progressive', '--scrollbar-blur-edge --scrollbar-blur-end'));
-            }
-
-            scroll.onconnect?.(element);
-        }
-    };
-}
-
-// Mouse only: touch, pen and trackpads already scroll natively, with their own momentum. The pointer is
-// captured only once the press moves past the slop, so a plain click still reaches whatever it landed on.
-function drag(axis: Axis) {
-    let press: Press | null = null,
-        state = reactive({ dragging: false });
-
-    function end(e: PointerEvent) {
-        if (press?.id !== e.pointerId) {
-            return;
-        }
-
-        press = null;
-        state.dragging = false;
-    }
-
-    return {
-        class: ['--scrollbar-drag', () => state.dragging && '--dragging'],
-        // Links and images would otherwise start a native drag-and-drop mid-scroll.
-        ondragstart: (e: DragEvent) => {
-            e.preventDefault();
-        },
-        onpointercancel: end,
-        onpointerdown: function(this: HTMLElement, e: PointerEvent) {
-            if (e.button !== 0 || e.pointerType !== 'mouse') {
-                return;
-            }
-
-            press = { id: e.pointerId, left: this.scrollLeft, moved: false, top: this.scrollTop, x: e.clientX, y: e.clientY };
-        },
-        onpointermove: function(this: HTMLElement, e: PointerEvent) {
-            if (press?.id !== e.pointerId) {
-                return;
-            }
-
-            // Released outside the window before the capture, so no pointerup arrived.
-            if (!e.buttons) {
-                end(e);
-                return;
-            }
-
-            let dx = axis === 'vertical' ? 0 : e.clientX - press.x,
-                dy = axis === 'horizontal' ? 0 : e.clientY - press.y;
-
-            if (!press.moved) {
-                if (Math.abs(dx) <= SLOP && Math.abs(dy) <= SLOP) {
-                    return;
-                }
-
-                press.moved = true;
-                getSelection()?.removeAllRanges();
-                state.dragging = true;
-                this.setPointerCapture(e.pointerId);
-            }
-
-            if (axis !== 'vertical') {
-                this.scrollLeft = press.left - dx;
-            }
-
-            if (axis !== 'horizontal') {
-                this.scrollTop = press.top - dy;
-            }
-        },
-        onpointerup: end
-    };
-}
-
-
 // One scroller's attributes: the bar and its variants, an edge effect if asked for, and mouse drag along 'drag''s axis,
 // both when true.
 const scrollbar = ({
@@ -229,38 +231,17 @@ const scrollbar = ({
             : faded
                 ? edges('--scrollbar-fade-size', horizontal)
                 : {},
-        grab = dragged ? drag(dragged === true ? 'both' : dragged) : null;
-
-    if (auto) {
-        classes.push('--scrollbar-auto');
-    }
-
-    if (blurred) {
-        classes.push('--scrollbar-blur');
-    }
+        grab = dragged ? drag(dragged === true ? 'both' : dragged) : null,
+        variants = { auto, blur: blurred, fade: faded, hidden, horizontal, hover, snap };
 
     if (color) {
         classes.push(`--scrollbar-${color}`);
     }
 
-    if (faded) {
-        classes.push('--scrollbar-fade');
-    }
-
-    if (hidden) {
-        classes.push('--scrollbar-hidden');
-    }
-
-    if (horizontal) {
-        classes.push('--scrollbar-horizontal');
-    }
-
-    if (hover) {
-        classes.push('--scrollbar-hover');
-    }
-
-    if (snap) {
-        classes.push('--scrollbar-snap');
+    for (let [variant, on] of Object.entries(variants)) {
+        if (on) {
+            classes.push(`--scrollbar-${variant}`);
+        }
     }
 
     if (!grab) {

@@ -6,7 +6,6 @@
     --color-hover: var(--color-default);
     --color-pressed: var(--color-default);
     --width: auto;
-
     color: var(--color);
     display: flex;
     font-size: var(--font-size);
@@ -17,11 +16,13 @@
     transition: color var(--transition-duration) var(--transition-timing-function);
     width: var(--width);
 
+
     // Ellipsis needs a block container, not '%text''s flex. Extends only meet within one stylesheet, so this applies
     // where both are extended in the same file.
     &%text-truncate {
         display: block;
     }
+
 
     &-crop {
         @supports (text-box: trim-both cap alphabetic) {
@@ -60,16 +61,12 @@
             }
         }
 
-        &-first-child {
-            &:first-child {
-                @extend %text-crop-top;
-            }
+        &-first-child:first-child {
+            @extend %text-crop-top;
         }
 
-        &-last-child {
-            &:last-child {
-                @extend %text-crop-bottom;
-            }
+        &-last-child:last-child {
+            @extend %text-crop-bottom;
         }
     }
 
@@ -87,6 +84,7 @@
         background-size: var(--background-size) 100%;
         color: transparent;
 
+
         @media (prefers-reduced-motion: reduce) {
             animation: none;
         }
@@ -102,6 +100,7 @@
         display: inline-flex;
         position: relative;
         z-index: 0;
+
 
         &::after {
             animation: text-line-shadow var(--duration) linear infinite;
@@ -121,10 +120,9 @@
             position: absolute;
             top: var(--offset);
             z-index: -1;
-        }
 
-        @media (prefers-reduced-motion: reduce) {
-            &::after {
+
+            @media (prefers-reduced-motion: reduce) {
                 animation: none;
             }
         }
@@ -136,14 +134,16 @@
         --shine-color: oklch(from var(--color-primary-500) l c h / 0.8);
         --shine-duration: 8s;
         --shine-text-color: oklch(from var(--color-primary-300) l c h / 0.7);
+        --shine-timing-function: ease;
         --shine-width: 100px;
-        animation: text-shiny var(--shine-duration) infinite;
+        animation: text-shiny var(--shine-duration) var(--shine-timing-function) infinite;
         background-clip: text;
         background-image: linear-gradient(to right, transparent, var(--shine-color) 50%, transparent);
         background-position: 0 0;
         background-repeat: no-repeat;
         background-size: var(--shine-width) 100%;
         color: var(--shine-text-color);
+
 
         @media (prefers-reduced-motion: reduce) {
             animation: none;

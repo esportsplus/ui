@@ -11,6 +11,7 @@
         --color-hover: var(--color-default);
         --color-pressed: var(--color-default);
 
+
         @include tokens.state(active) {
             --color: var(--color-active);
         }
@@ -26,6 +27,7 @@
 
     @include tokens.state-utility('color', tokens.$colors);
 
+
     &-default {
         --color: var(--color-default);
         --color-active: var(--color-default);
@@ -39,6 +41,7 @@
         --color-default: var(--surface-background-default);
         --color-hover: var(--surface-background-hover);
         --color-pressed: var(--surface-background-pressed);
+
 
         &-primary {
             --color-active: var(--surface-primary-active);
