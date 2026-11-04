@@ -1,5 +1,5 @@
+import { defineConfig, type Plugin } from '@esportsplus/vite';
 import { glob } from 'glob';
-import { defineConfig, type Plugin } from 'vite';
 import { resolve } from 'path';
 import autoprefixer from 'autoprefixer';
 import shelljs from 'shelljs';

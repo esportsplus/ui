@@ -1,1 +1,1 @@
-/// <reference types="vite/client" />
+/// <reference types="@esportsplus/vite/client.d.ts" />
