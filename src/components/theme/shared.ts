@@ -3,7 +3,7 @@ import monitor from '@esportsplus/ui/svg/monitor.svg';
 import moon from '@esportsplus/ui/svg/moon.svg';
 import sun from '@esportsplus/ui/svg/sun.svg';
 import type { Attributes } from '@esportsplus/template';
-import type { Mode, Preference } from '~/components/theme';
+import type { Mode, Preference } from './index';
 
 
 type A = Attributes & {
@@ -20,7 +20,7 @@ type Choice = {
 type Theme = {
     readonly mode: Mode;
     readonly preference: Preference;
-    set(preference: Preference): void;
+    set(preference: Preference, origin?: Element): void;
 };
 
 
@@ -36,14 +36,17 @@ function choice(mode: Theme) {
 }
 
 function glyph(id: string) {
-    return icon({ 'aria-hidden': 'true', class: 'theme-picker-icon' }, id);
+    return icon({ 'aria-hidden': 'true', class: 'theme-icon' }, id);
 }
 
-// Chosen-ness lives in 'aria-checked' alone: '--active' on a tooltip trigger means its tooltip is showing.
-function radio(mode: Theme, choice: Choice) {
+// Chosen-ness lives in 'aria-checked' alone: '--active' on a tooltip trigger means its tooltip is showing. The mode
+// is painted outward from the option's 'origin', its preview of the mode.
+function radio(mode: Theme, choice: Choice, origin: string) {
     return {
         'aria-checked': () => mode.preference === choice.value ? 'true' : 'false',
-        onclick: () => mode.set(choice.value),
+        onclick: function (this: HTMLElement) {
+            mode.set(choice.value, this.querySelector(origin) ?? this);
+        },
         role: 'radio',
         type: 'button'
     };

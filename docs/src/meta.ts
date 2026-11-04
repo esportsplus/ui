@@ -157,9 +157,8 @@ const meta: Record<string, Meta> = {
     textarea: {
         description: 'Multi-line text field for longer form input.'
     },
-    'theme-picker': {
-        description: 'Ready-made controls for choosing light, dark or system: a toggle that morphs into a row of every choice, preview cards and swatches, each driving one theme instance.',
-        label: 'Theme Picker'
+    theme: {
+        description: 'Ready-made controls for choosing light, dark or system: a toggle that morphs into a row of every choice, preview cards and swatches, each driving one theme instance.'
     },
     toast: {
         description: 'Independent toasters that stack your content: a close button, swipe-to-dismiss, a capped stack that fans out on hover, and a CSS clock that runs only on the front toast.'

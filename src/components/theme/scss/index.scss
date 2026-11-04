@@ -1,3 +1,4 @@
+@use 'css-utilities/reset';
 @use 'variables';
 
 :root {
@@ -11,4 +12,112 @@
 
 [data-theme='light'] {
     color-scheme: light;
+}
+
+// A mode picked on an element grows over the old one out of that element's shape, which 'theme()' sets on <html> for
+// the length of the transition as '--theme-reveal-from' and, scaled to cover the viewport, '--theme-reveal-to'; other
+// view transitions keep their own animations.
+:root[data-theme-reveal] {
+    &::view-transition-new(root) {
+        animation: theme-reveal var(--theme-reveal-duration) var(--theme-reveal-easing) both;
+        mix-blend-mode: normal;
+    }
+
+    &::view-transition-old(root) {
+        animation: none;
+        mix-blend-mode: normal;
+    }
+}
+
+@keyframes theme-reveal {
+    from {
+        clip-path: var(--theme-reveal-from);
+    }
+
+    to {
+        clip-path: var(--theme-reveal-to);
+    }
+}
+
+
+.theme {
+    &-cards {
+        display: flex;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+
+        &-label {
+            color: var(--color);
+            font-size: var(--font-size);
+            font-weight: var(--font-weight);
+        }
+
+        &-option {
+            display: grid;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            justify-items: center;
+        }
+
+        &-preview {
+            background: var(--background);
+            border: var(--border-width) solid var(--border-color);
+            border-radius: var(--border-radius);
+            display: grid;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            height: var(--height);
+            outline: var(--ring-width) solid var(--ring-color);
+            outline-offset: var(--ring-offset);
+            overflow: hidden;
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
+            width: var(--width);
+
+            &-bar,
+            &-line {
+                background: var(--background);
+                border-radius: var(--border-radius);
+                height: var(--height);
+                opacity: var(--opacity);
+                width: var(--width);
+            }
+        }
+    }
+
+    &-cards,
+    &-swatches {
+        &-option {
+            @extend %reset-button;
+        }
+    }
+
+    &-icon {
+        fill: none;
+        stroke: currentColor;
+    }
+
+    &-swatches {
+        display: flex;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+
+        &-circle {
+            background: var(--background);
+            border: var(--border-width) solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: block;
+            height: var(--size);
+            width: var(--size);
+        }
+
+        &-label {
+            color: var(--color);
+            font-size: var(--font-size);
+            font-weight: var(--font-weight);
+        }
+
+        &-option {
+            display: grid;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            justify-items: center;
+        }
+    }
 }

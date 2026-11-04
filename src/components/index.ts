@@ -60,7 +60,6 @@ export { default as switch } from './switch';
 export { default as tasklist } from './tasklist';
 export { default as textarea } from './textarea';
 export { default as theme } from './theme';
-export { default as themePicker } from './theme-picker';
 export { default as toaster } from './toast';
 export { default as tooltip } from './tooltip';
 export { default as truncate } from './truncate';

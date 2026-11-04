@@ -458,12 +458,12 @@ writes a fixed step's shadow.
 Ready-made pickers drive the same instance:
 
 ```typescript
-import { themePicker } from '@esportsplus/ui/components';
+import { theme } from '@esportsplus/ui/components';
 
-themePicker.toggle({ mode });             // the current choice's icon; hover or click morphs it into a row of every choice
-                                          // over the button, closing on a pick, a click outside, Escape or the pointer leaving
-themePicker.cards({ mode });              // miniature page previews
-themePicker.swatches({ mode });           // round swatches
+theme.toggle({ mode });                   // select.expand of the three choices' icons, opening on hover; closes on a pick,
+                                          // a click outside, Escape or the pointer leaving
+theme.cards({ mode });                    // miniature page previews
+theme.swatches({ mode });                 // round swatches
 ```
 
 ## Build
