@@ -44,6 +44,12 @@
         }
     }
 
+
+    &--e,
+    &--w {
+        --max-width: 320px;
+    }
+
     // Motion modifiers follow placement so they win when paired with an edge.
     &--alert {
         --backdrop: rgb(0 0 0 / 10%);
@@ -56,11 +62,6 @@
     &--blur {
         --backdrop: color-mix(in srgb, var(--color-black-500) 32%, transparent);
         --blur: var(--blur-500);
-    }
-
-    &--e,
-    &--w {
-        --max-width: 320px;
     }
 
     &--fade {
