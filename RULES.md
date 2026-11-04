@@ -120,12 +120,13 @@ Within a block, in this order. Two blank lines separate each group; one blank li
 Every file you open is held to the rules above, not just the lines you came for. Apply these in the same change; the
 result must behave identically, and the gate (`tsc --noEmit`, build) must stay clean.
 
-- Modernize outdated techniques, bounded by the floor in `vite.config.ts` (`BROWSERS`: the first 2025 release of each
-  browser, Chrome/Edge 132, Firefox 134, Safari/iOS 18.3). Anything every floor browser supports is fair game:
+- Modernize outdated techniques, bounded by the floor in `vite.config.ts` (`BROWSERS`: the first 2026 release of each
+  browser, Chrome/Edge 144, Firefox 147, Safari/iOS 26.3). Anything every floor browser supports is fair game:
   `:has()`, `:is()`/`:where()`, `inset`, logical properties (`padding-inline`, `margin-block`), `gap` instead of margin
   hacks, `light-dark()`, `@container`, `@layer`, `@property`, `@starting-style` with
   `transition-behavior: allow-discrete`, `popover`, `aspect-ratio`, `clamp()`/`min()`/`max()`, `color-mix()`,
-  `text-wrap: balance`, `dvh` units. Features above the floor are only allowed as progressive enhancement where the
+  `text-wrap: balance`, `dvh` units, anchor positioning (`anchor-name`, `position-anchor`, `anchor()`,
+  `position-area`). Features above the floor are only allowed as progressive enhancement where the
   fallback is still correct, never to gate layout or visibility. Check caniuse against the floor before using anything
   not listed. Replace JS that only exists because CSS once couldn't: hover/focus/open state, entry/exit transitions,
   measuring for simple layout, resize listeners for things `@container` handles.

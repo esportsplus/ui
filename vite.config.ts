@@ -8,15 +8,16 @@ import type { Targets } from 'lightningcss';
 
 const BACKSLASHES = /\\/g;
 
-// The first release of 2025 for each browser, as [major, minor]. Everything here ships 'light-dark()'; below it
+// The first release of 2026 for each browser, as [major, minor]. Everything here ships 'light-dark()'; below it
 // Lightning CSS swaps that for variables resolved where the theme declares them, on the root, so a nested
-// 'data-theme' could no longer flip its subtree.
+// 'data-theme' could no longer flip its subtree. Anchor positioning is the newest feature relied on without a
+// fallback (Firefox 147, Safari 26).
 const BROWSERS: Record<'chrome' | 'edge' | 'firefox' | 'ios_saf' | 'safari', [number, number]> = {
-    chrome: [132, 0],
-    edge: [132, 0],
-    firefox: [134, 0],
-    ios_saf: [18, 3],
-    safari: [18, 3]
+    chrome: [144, 0],
+    edge: [144, 0],
+    firefox: [147, 0],
+    ios_saf: [26, 3],
+    safari: [26, 3]
 };
 
 // The same floor in esbuild's form, which Vite minifies CSS to.
