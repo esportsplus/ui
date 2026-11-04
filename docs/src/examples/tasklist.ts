@@ -2,9 +2,7 @@ import { tasklist } from '@esportsplus/ui/components';
 import type { Task } from '@esportsplus/ui/components/tasklist';
 
 
-// Opaque rows so a row sliding past its neighbours covers them instead of overlapping their text
-let item = { style: '--background-default: var(--surface-background-default);' },
-    style = 'max-width: 360px; width: 100%;';
+let style = 'max-width: 360px; width: 100%;';
 
 
 // Fresh on every render: the list writes each task's 'checked' as it is toggled.
@@ -22,17 +20,16 @@ export default {
     name: 'tasklist',
     variants: [
         {
-            render: () => tasklist({ [tasklist.item]: item, style, tasks: chores() }),
+            render: () => tasklist({ style, tasks: chores() }),
             title: 'default'
         },
         {
-            render: () => tasklist({ [tasklist.item]: item, sortable: true, style, tasks: chores() }),
+            render: () => tasklist({ sortable: true, style, tasks: chores() }),
             title: 'sortable'
         },
         {
             render: () => tasklist({
                 class: 'tasklist--plan',
-                [tasklist.item]: item,
                 ordered: true,
                 style,
                 tasks: [
@@ -47,7 +44,6 @@ export default {
         {
             render: () => tasklist({
                 class: 'tasklist--plan',
-                [tasklist.item]: item,
                 ordered: true,
                 style,
                 tasks: [

@@ -1,6 +1,7 @@
 @use '/tokens';
 @use 'css-utilities/background';
 @use 'css-utilities/font/geist';
+@use 'css-utilities/surface';
 
 // Shared by every part so the check, strike, and fade stay in sequence
 .tasklist {
@@ -16,7 +17,7 @@
     }
 
 
-    &--plan .tasklist-label::before {
+    &--plan &-label::before {
         @extend %font-geist-mono;
         --color: var(--color-text-300);
         --font-size: var(--font-size-200);
@@ -24,13 +25,6 @@
         --gap-horizontal: calc(var(--size-300) / 2);
     }
 
-    &-checkbox {
-        --background-active: var(--color-primary-500);
-        --border-color-active: var(--color-primary-500);
-        --border-width: var(--border-width-400);
-        --indicator-color-default: var(--color-surface);
-        --size: var(--size-500);
-    }
 
     &-content {
         --opacity: var(--opacity-default);
@@ -44,10 +38,10 @@
     }
 
     &-item {
-        @extend %background-state;
+        @extend %background-state, %background-surface;
         // Tints the default instead of replacing it, so an opaque row stays opaque while hovered
-        --background-hover: color-mix(in oklch, var(--color-primary-500) 3%, var(--background-default));
-        --background-pressed: var(--background-hover);
+        // --background-hover: var(--background-surface-hover);
+        // --background-pressed: var(--background-hover);
         --border-radius: var(--border-radius-400);
         // Read by JS: the slide that carries a row to its new place. Spring with stiffness 320 and damping 30,
         // sampled across its 500ms settle
@@ -69,11 +63,11 @@
 
         &:has(.checkbox-tag:checked) {
             --strike-length: 100%;
-
-            .tasklist-content {
-                --opacity: var(--opacity-active);
-            }
         }
+    }
+
+    &-item:has(.checkbox-tag:checked) &-content {
+        --opacity: var(--opacity-active);
     }
 
     &-label {
@@ -88,12 +82,12 @@
         --gap-horizontal: var(--size-200);
         --gap-vertical: var(--size-200);
         --line-height: var(--size-500);
-        --padding-horizontal: var(--size-100);
-        --padding-vertical: var(--size-100);
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-200);
 
         &--sortable {
-            &::before {
-                --background: var(--color-primary-300);
+            &::after {
+                --background: var(--color-text-400);
                 --opacity: var(--opacity-default);
                 --opacity-default: 0;
                 --opacity-hover: 1;
@@ -103,7 +97,7 @@
             }
 
             @include tokens.state(hover) {
-                &::before {
+                &::after {
                     --opacity: var(--opacity-hover);
                 }
             }

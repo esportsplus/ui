@@ -59,7 +59,6 @@ const page = () => ({
 
                     ${tasklist({
                         class: 'tasklist--plan',
-                        [tasklist.item]: { style: '--background-default: var(--surface-background-default);' },
                         ordered: true,
                         style: 'max-width: 360px; width: 100%;',
                         tasks: items
