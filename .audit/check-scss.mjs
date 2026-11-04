@@ -1,9 +1,9 @@
 // Compiles every component stylesheet, nested ones included, through the library's own Vite setup.
-import { build } from 'vite';
+import { build } from '@esportsplus/vite';
 import { glob } from 'glob';
 import { resolve } from 'path';
 
-let root = 'G:/ui',
+let root = resolve(import.meta.dirname, '..'),
     inputs = glob.sync('src/{components,modifiers}/**/scss/index.scss', { cwd: root }).map((file) => resolve(root, file));
 
 await build({
