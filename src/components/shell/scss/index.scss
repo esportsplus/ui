@@ -14,21 +14,22 @@
     }
 
 
-    // A dragged drawer sets the space beside the card itself, which follows it without easing.
+    // A dragged drawer sets the space beside the card itself, which follows it without easing. Children only, here and
+    // below, so a shell nested in another's card keeps its own state.
     &--dragging,
-    &--dragging &-main,
-    &--dragging &-surface {
+    &--dragging > &-main,
+    &--dragging > &-surface {
         transition: none;
     }
 
-    &--left-open &-edge--left,
-    &--right-open &-edge--right {
+    &--left-open > &-edge--left,
+    &--right-open > &-edge--right {
         transition-delay: 0s;
         visibility: hidden;
     }
 
-    &--left-open &-edge--left &-handle,
-    &--right-open &-edge--right &-handle {
+    &--left-open > &-edge--left &-handle,
+    &--right-open > &-edge--right &-handle {
         opacity: 0;
     }
 
